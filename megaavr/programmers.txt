@@ -1,0 +1,29 @@
+medbg.name=Onboard Atmel mEDBG (xplained_mini) (megaTinyCore)
+medbg.communication=usb
+medbg.protocol=xplainedmini_updi
+medbg.program.protocol=xplainedmini_updi
+medbg.program.tool=avrdude
+medbg.program.extra_params=-Pusb
+
+medbg_pro.name=Onboard Atmel mEDBG (xplained_pro) (megaTinyCore)
+medbg_pro.communication=usb
+medbg_pro.protocol=xplainedpro_updi
+medbg_pro.program.protocol=xplainedpro_updi
+medbg_pro.program.tool=avrdude
+medbg_pro.program.extra_params=-Pusb
+
+jtag2updi.name=jtag2updi (megaTinyCore)
+jtag2updi.communication=serial
+jtag2updi.protocol=jtag2updi
+jtag2updi.program.protocol=jtag2updi
+jtag2updi.program.tool=avrdude
+jtag2updi.program.extra_params=-P{serial.port}
+jtag2updi.program.speed=115200
+jtag2updi.program.use_1200bps_touch=true
+
+atmel_ice_updi.name=Atmel-ICE (UPDI)
+atmel_ice_updi.communication=usb
+atmel_ice_updi.protocol=atmelice_updi
+atmel_ice_updi.program.protocol=atmelice_updi
+atmel_ice_updi.program.tool=avrdude
+atmel_ice_updi.program.extra_params=-Pusb
