@@ -176,7 +176,7 @@ class UartClass : public HardwareSerial
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_data_empty_irq(void);
-    
+
   private:
     void _poll_tx_data_empty(void);
 };
@@ -197,4 +197,13 @@ class UartClass : public HardwareSerial
   extern UartClass Serial3;
   #define HAVE_HWSERIAL3
 #endif
+#if defined(HWSERIAL4)
+  extern UartClass Serial4;
+  #define HAVE_HWSERIAL4
+#endif
+#if defined(HWSERIAL5)
+  extern UartClass Serial5;
+  #define HAVE_HWSERIAL5
+#endif
+
 

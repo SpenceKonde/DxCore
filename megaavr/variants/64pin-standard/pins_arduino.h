@@ -40,9 +40,6 @@
 #define digitalPinToAnalogInput(p)     ((p < NUM_ANALOG_INPUTS) ? (p) : ((p) >= 22 && (p) <= 33) ? ((p) - ANALOG_INPUT_OFFSET) : ((p) >= 36 && (p) <=39) ? ((p) - 2 - ANALOG_INPUT_OFFSET) : NOT_A_PIN)
 #define digitalOrAnalogPinToDigital(p) ((p <= 11) ? ((p) + ANALOG_INPUT_OFFSET) : ((p) <= 15) ? ((p) + ANALOG_INPUT_OFFSET + 2) : (((p) >= 22 && (p) <= 33) || ((p) >= 36 && (p) <= 39)) ? (p) :  NOT_A_PIN)
 
-#if !defined(MILLIS_USE_TIMERB0) || !defined(MILLIS_USE_TIMERB1) || !defined(MILLIS_USE_TIMERB2) || !defined(MILLIS_USE_TIMERB3)
-#define MILLIS_USE_TIMERB2 // Use TCB2 for millis generation
-#endif
 
 #define EXTERNAL_NUM_INTERRUPTS     (56) //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
 

@@ -8,7 +8,8 @@
 #define MILLIS_USE_TIMERA0
 #endif
 #endif
-#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1))
+
+#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4))
   #if (F_CPU==1000000UL)
     #define TIME_TRACKING_TIMER_DIVIDER   1
     #define TIME_TRACKING_TIMER_PERIOD ((F_CPU/500)-1)

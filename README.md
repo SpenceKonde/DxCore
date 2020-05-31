@@ -24,8 +24,15 @@ Subject to change - currently speed grades are not known (datasheet implies that
 * 24MHz Internal
 * 20MHz Internal
 * 16MHz Internal
+* 12MHz Internal
+*  8MHz Internal
+*  4MHz Internal
+*  1MHz Internal
+Additionally, experimentation has shown that it is possible to write reserved values to the FREQSEL bits of CLKCTRL.OSCHFCTRLA to overclock the chip. The core currently supports the following overclocked speeds - however, these will almost certainly not work across the full operating temperature or voltage range, and may behave erratically. Higher frequencies are not supported because in my tests, stuff stopped working at 36MHz and up. Use at own risk - and bear in mind that you probably don't need this!
+* 28MHz Internal (overclocked)
+* 32MHz Internal (overclocked)
 
-Below this, there are multiple ways to get any given speed - do you run the OSCHF at that speed (possible for 12, 8, 4, 3, 2, 1)? Or do you run it from 24, 20, or 16, and then prescale it? The former is probably more power-efficient, but the latter permits the PLL to be used to generate high frequency PWM for TCD0 (this requires at least 16MHz input)
+There are multiple ways to generate some of the lower frequencies (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more pwoer efficient, but with the former you could still use the PLL - but are people going to want to?
 
 These parts do not support using an external crystal like the classic AVR parts do, however the internal oscillator is tightly calibrated enough that the internal clock should work for UART communication, and an external watch crystal can be used to "auto-tune" the crystal frequency.
 

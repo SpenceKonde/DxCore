@@ -233,7 +233,16 @@ void UartClass::begin(unsigned long baud, uint16_t config)
   #ifdef PORTMUX_CTRLB
     PORTMUX.CTRLB = set->mux | (PORTMUX.CTRLB & ~_hw_set[1].mux);
   #else
+    #ifdef HAVE_HWSERIAL4
+    if (_hwserial_dre_interrupt_vect_num > HWSERIAL3_DRE_VECTOR_NUM){
+      PORTMUX.USARTROUTEB = set->mux | (PORTMUX.USARTROUTEB & ~_hw_set[1].mux);
+    } else {
+    #endif
     PORTMUX.USARTROUTEA = set->mux | (PORTMUX.USARTROUTEA & ~_hw_set[1].mux);
+    #ifdef HAVE_HWSERIAL4
+    }
+    #endif
+
   #endif
 
   // Set pin state for swapped UART pins

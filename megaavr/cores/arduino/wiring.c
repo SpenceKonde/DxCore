@@ -34,7 +34,7 @@
 //volatile uint16_t microseconds_per_timer_overflow;
 //volatile uint16_t microseconds_per_timer_tick;
 
-#if (defined(MILLIS_USE_TIMERB0)  || defined(MILLIS_USE_TIMERB1) ) //Now TCB as millis source does not need fraction
+#if (defined(MILLIS_USE_TIMERB0)  || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4)) //Now TCB as millis source does not need fraction
   volatile uint32_t timer_millis = 0; //That's all we need to track here
 
 #elif !defined(MILLIS_USE_TIMERRTC) //all of this stuff is not used when the RTC is used as the timekeeping timer
@@ -81,7 +81,7 @@
     #ifndef TCD0
       #error "Selected millis timer, TCD0, only exists on 1-series parts"
     #endif
-  #elif !defined(MILLIS_USE_TIMERA0)
+  #elif !defined(MILLIS_USE_TIMERA0) && !defined(MILLIS_USE_TIMERA1)
     static volatile TCB_t* _timer =
     #if defined(MILLIS_USE_TIMERB0)
       &TCB0;
@@ -90,16 +90,36 @@
         #error "Selected millis timer, TCB1 does not exist on this part."
       #endif
       &TCB1;
-    #else  //it's not TCB0, TCB1, TCD0, TCA0, or RTC
+    #elif defined(MILLIS_USE_TIMERB2)
+      #ifndef TCB2
+        #error "Selected millis timer, TCB2 does not exist on this part."
+      #endif
+      &TCB2;
+    #elif defined(MILLIS_USE_TIMERB3)
+      #ifndef TCB3
+        #error "Selected millis timer, TCB3 does not exist on this part."
+      #endif
+      &TCB3;
+    #elif defined(MILLIS_USE_TIMERB4)
+      #ifndef TCB4
+        #error "Selected millis timer, TCB4 does not exist on this part."
+      #endif
+      &TCB4;
+    #else  //it's not TCB0, TCB1, TCD0, TCA0, TCA1, or RTC
       #error "No millis timer selected, but not disabled - can't happen!".
     #endif
+  #else
+    #if !defined(TCA1) && defined(MILLIS_USE_TIMERA1)
+      #error "Selected millis timer, TCA1 does not exist on this part."
+    #endif
   #endif
-
 #endif //end #if !defined(MILLIS_USE_TIMERRTC)
 
 
 #if defined(MILLIS_USE_TIMERA0)
   ISR(TCA0_HUNF_vect)
+#elif defined(MILLIS_USE_TIMERA1)
+  ISR(TCA1_HUNF_vect)
 #elif defined(MILLIS_USE_TIMERD0)
   ISR(TCD0_OVF_vect)
 #elif defined(MILLIS_USE_TIMERRTC)
@@ -108,6 +128,12 @@
   ISR(TCB0_INT_vect)
 #elif defined(MILLIS_USE_TIMERB1)
   ISR(TCB1_INT_vect)
+#elif defined(MILLIS_USE_TIMERB2)
+  ISR(TCB2_INT_vect)
+#elif defined(MILLIS_USE_TIMERB3)
+  ISR(TCB3_INT_vect)
+#elif defined(MILLIS_USE_TIMERB4)
+  ISR(TCB4_INT_vect)
 #else
   #error "no millis timer selected"
 #endif
@@ -115,10 +141,10 @@
   // copy these to local variables so they can be stored in registers
   // (volatile variables must be read from memory on every access)
 
-  #if (defined(MILLIS_USE_TIMERB0)|defined(MILLIS_USE_TIMERB1))
+  #if (defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)|| defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4) )
     #if(F_CPU>1000000)
       timer_millis++; //that's all we need to do!
-    #else
+    #else //if it's 1<Hz, we set the millis timer to only overflow every 2 milliseconds, intentionally sacrificing resolution.
       timer_millis+=2;
     #endif
   #else
@@ -141,6 +167,8 @@
   /* Clear flag */
   #if defined(MILLIS_USE_TIMERA0)
     TCA0.SPLIT.INTFLAGS = TCA_SPLIT_HUNF_bm;
+  #elif defined(MILLIS_USE_TIMERA1)
+    TCA1.SPLIT.INTFLAGS = TCA_SPLIT_HUNF_bm;
   #elif defined(MILLIS_USE_TIMERD0)
     TCD0.INTFLAGS=TCD_OVF_bm;
   #elif defined(MILLIS_USE_TIMERRTC)
@@ -182,7 +210,7 @@ unsigned long millis()
 
     unsigned long overflows, microseconds;
 
-    #if (defined(MILLIS_USE_TIMERD0)||defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1))
+    #if !defined(MILLIS_USE_TIMERA0) && !defined(MILLIS_USE_TIMERA1)
       uint16_t ticks;
     #else
       uint8_t ticks;
@@ -195,14 +223,16 @@ unsigned long millis()
 
 
     /* Get current number of overflows and timer count */
-    #if !(defined(MILLIS_USE_TIMERB0)  || defined(MILLIS_USE_TIMERB1) )
+    #if defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERD0)
       overflows = timer_overflow_count;
     #else
       overflows=timer_millis;
     #endif
 
     #if defined(MILLIS_USE_TIMERA0)
-      ticks = 0xFF-TCA0.SPLIT.LCNT;
+      ticks = (TIME_TRACKING_TIMER_PERIOD)-TCA0.SPLIT.HCNT;
+    #elif defined(MILLIS_USE_TIMERA1)
+      ticks = (TIME_TRACKING_TIMER_PERIOD)-TCA1.SPLIT.HCNT;
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.CTRLE=TCD_SCAPTUREA_bm;
       while(!(TCD0.STATUS&TCD_CMDRDY_bm)); //wait for sync - should be only one iteration of this loop
@@ -217,11 +247,13 @@ unsigned long millis()
     #if defined(MILLIS_USE_TIMERD0)
       if ((TCD0.INTFLAGS & TCD_OVF_bm) && !(ticks&0xFF00)){
     #elif defined(MILLIS_USE_TIMERA0)
-      if ((TCA0.SPLIT.INTFLAGS & TCA_SPLIT_LUNF_bm ) && !(ticks&0x80)){
+      if ((TCA0.SPLIT.INTFLAGS & TCA_SPLIT_HUNF_bm ) && !(ticks&0x80)){
+    #elif defined(MILLIS_USE_TIMERA1)
+      if ((TCA1.SPLIT.INTFLAGS & TCA_SPLIT_HUNF_bm ) && !(ticks&0x80)){
     #else //timerb
       if ((_timer->INTFLAGS & TCB_CAPT_bm) && !(ticks&0xFF00)) {
     #endif
-    #if ((defined(MILLIS_USE_TIMERB0)|defined(MILLIS_USE_TIMERB1))&&(F_CPU>1000000))
+    #if ((defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)|| defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4)) &&(F_CPU>1000000))
       overflows++;
     #else
       overflows+=2;
@@ -233,6 +265,7 @@ unsigned long millis()
     /* Restore state */
     SREG = status;
     #if defined(MILLIS_USE_TIMERD0)
+      #error "Timer D is not supported yet"
       #if (F_CPU==20000000UL || F_CPU==10000000UL || F_CPU==5000000UL)
         uint8_t ticks_l=ticks>>1;
         ticks=ticks+ticks_l+((ticks_l>>2)-(ticks_l>>4)+(ticks_l>>7));
@@ -243,8 +276,32 @@ unsigned long millis()
         microseconds = ((overflows * (TIME_TRACKING_CYCLES_PER_OVF/(16)))
               + (ticks * ((TIME_TRACKING_CYCLES_PER_OVF)/(16)/TIME_TRACKING_TIMER_PERIOD)));
       #endif
-    #elif (defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1))
-      #if (F_CPU==20000000UL)
+    #elif (defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)||defined(MILLIS_USE_TIMERB2)||defined(MILLIS_USE_TIMERB3)||defined(MILLIS_USE_TIMERB4))
+        // Oddball clock speeds
+      #if (F_CPU==44000000UL)
+        ticks=ticks>>4;
+        microseconds = overflows*1000+(ticks-(ticks>>2)-(ticks>>5)+(ticks>>7));
+      #elif (F_CPU==36000000UL)
+        ticks=ticks>>4;
+        microseconds = overflows*1000+(ticks-(ticks>>3)+(ticks>>6));
+      #elif (F_CPU==28000000UL)
+        ticks=ticks>>4;
+        microseconds = overflows*1000+(ticks+(ticks>>3)+(ticks>>6)+(ticks>>8));
+        // Multiples of 12
+      #elif (F_CPU==48000000UL)
+        ticks=ticks>>5;
+        microseconds = overflows*1000+(ticks+(ticks>>2)+(ticks>>4)+(ticks>>5));
+      #elif (F_CPU==24000000UL)
+        ticks=ticks>>4;
+        microseconds = overflows*1000+(ticks+(ticks>>2)+(ticks>>4)+(ticks>>5));
+      #elif (F_CPU==12000000UL)
+        ticks=ticks>>3;
+        microseconds = overflows*1000+(ticks+(ticks>>2)+(ticks>>4)+(ticks>>5));
+        // multiples of 10
+      #elif (F_CPU==40000000UL)
+        ticks=ticks>>4;
+        microseconds = overflows*1000+(ticks-(ticks>>2)+(ticks>>4)-(ticks>>6));
+      #elif (F_CPU==20000000UL)
         ticks=ticks>>3;
         microseconds = overflows*1000+(ticks-(ticks>>2)+(ticks>>4)-(ticks>>6));
       #elif (F_CPU==10000000UL)
@@ -253,6 +310,9 @@ unsigned long millis()
       #elif (F_CPU==5000000UL)
         ticks=ticks>>1;
         microseconds = overflows*1000+(ticks-(ticks>>2)+(ticks>>4)-(ticks>>6));
+        // powers of 2
+      #elif (F_CPU==32000000UL)
+        microseconds = overflows*1000+(ticks>>4);
       #elif (F_CPU==16000000UL)
         microseconds = overflows*1000+(ticks>>3);
       #elif (F_CPU==8000000UL)
@@ -262,10 +322,31 @@ unsigned long millis()
       #else //(F_CPU==1000000UL - here clock is running at system clock instead of half system clock.
        microseconds = overflows*1000+ticks;
       #endif
-    #else //TCA0
-      #if (F_CPU==20000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+    #else //TCA
+      #if (F_CPU==48000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks+(ticks>>2)+(ticks>>4)+(ticks>>5));
+      #elif (F_CPU==44000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks+(ticks>>1)-(ticks>>4)+(ticks>>6));
+      #elif (F_CPU==40000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks+(ticks>>1)+(ticks>>3)-(ticks>>5));
+      #elif (F_CPU==36000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks*2-(ticks>>2)+(ticks>>5));
+      #elif (F_CPU==28000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks*2+(ticks>>2)+(ticks>>5)+(ticks>>6));
+      #elif (F_CPU==24000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks*3-(ticks>>2)-(ticks>>4)-(ticks>>5));
+      #elif (F_CPU==20000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
             + (ticks*3+(ticks>>2)-(ticks>>4));
+      #elif (F_CPU==12000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks*5+(ticks>>2)+(ticks>>4)+(ticks>>5));
       #elif (F_CPU==10000000UL && TIME_TRACKING_TICKS_PER_OVF==255 && TIME_TRACKING_TIMER_DIVIDER==64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
             + (ticks*6+(ticks>>1)-(ticks>>3));
@@ -274,7 +355,7 @@ unsigned long millis()
             + (ticks*3+(ticks>>2)-(ticks>>4));
       #else
         #if (TIME_TRACKING_TIMER_DIVIDER%(F_CPU/1000000))
-          #warning "Millis timer (TCA0) divider and frequency unsupported, inaccurate micros times will be returned."
+          #warning "Millis timer divider and frequency unsupported, inaccurate micros times will be returned."
         #endif
         microseconds = ((overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
           + (ticks * (clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)/TIME_TRACKING_TIMER_PERIOD)));
@@ -451,6 +532,8 @@ void delayMicroseconds(unsigned int us)
   { // Disable the interrupt:
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTCTRL &= (~TCA_SPLIT_HUNF_bm);
+    #elif defined(MILLIS_USE_TIMERA1)
+      TCA1.SPLIT.INTCTRL &= (~TCA_SPLIT_HUNF_bm);
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.INTCTRL&=0xFE;
     #elif defined(MILLIS_USE_TIMERRTC)
@@ -470,10 +553,14 @@ void delayMicroseconds(unsigned int us)
       TCA0.SPLIT.CTRLA = 0x00;
       TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
       TCA0.SPLIT.HPER    = PWM_TIMER_PERIOD;
+    #elif defined(MILLIS_USE_TIMERA1)
+      TCA1.SPLIT.CTRLA = 0x00;
+      TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
+      TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.CTRLA=0x00;
       while(TCD0.STATUS & 0x01);
-    #elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1)) //It's a type b timer
+    #elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1)|| defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4)) //It's a type b timer
       _timer->CTRLB = 0;
     #endif
     init_millis();
@@ -483,6 +570,8 @@ void delayMicroseconds(unsigned int us)
   {
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
+    #elif defined(MILLIS_USE_TIMERA1)
+      TCA1.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.CMPBCLR=TIME_TRACKING_TIMER_PERIOD; //essentially, this is TOP
       TCD0.INTCTRL=0x01;//enable interrupt
@@ -531,6 +620,8 @@ void delayMicroseconds(unsigned int us)
 
 #endif
 
+
+
 void init()
 {
   // this needs to be called before setup() or some functions won't
@@ -539,7 +630,31 @@ void init()
 /******************************** CLOCK STUFF *********************************/
 
 
-  #if (F_CPU == 24000000)
+  #if (F_CPU == 48000000)
+    /* No division on clock */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0F<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 44000000)
+    /* No division on clock */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0E<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 40000000)
+    /* No division on clock */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0D<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 36000000)
+    /* No division on clock */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0C<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 32000000)
+    /* No division on clock */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0B<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 28000000)
+    /* No division on clock */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0A<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 24000000)
     /* No division on clock */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x09<< CLKCTRL_FREQSEL_gp ));
 
@@ -668,11 +783,104 @@ void setup_timers() {
   #else //TIME_TRACKING_TIMER_DIVIDER==8
     TCA0.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SINGLE_ENABLE_bm);
   #endif
+  #ifdef TCA1
+    TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
 
+    //Only 1 WGM so no need to specifically set up.
+
+    /* Period setting, 8-bit register in SPLIT mode */
+    TCA1.SPLIT.LPER    = PWM_TIMER_PERIOD;
+    TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
+
+    /* Default duty 50%, will re-assign in analogWrite() */
+    //TODO: replace with for loop to make this smaller;
+    TCA1.SPLIT.LCMP0 = PWM_TIMER_COMPARE;
+    TCA1.SPLIT.LCMP1 = PWM_TIMER_COMPARE;
+    TCA1.SPLIT.LCMP2 = PWM_TIMER_COMPARE;
+    TCA1.SPLIT.HCMP0 = PWM_TIMER_COMPARE;
+    TCA1.SPLIT.HCMP1 = PWM_TIMER_COMPARE;
+    TCA1.SPLIT.HCMP2 = PWM_TIMER_COMPARE;
+
+    /* Use DIV64 prescaler (giving 250kHz clock), enable TCA timer */
+  #if (F_CPU > 5000000) //use 64 divider
+    TCA1.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SINGLE_ENABLE_bm);
+  #elif (F_CPU > 1000000) // use 16 divider for 5MHz, 4 MHz and 2MHz
+    TCA1.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SINGLE_ENABLE_bm);
+  #else // for 1 MHz or less, only divide by 8
+    TCA1.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SINGLE_ENABLE_bm);
+  #endif
+  #endif
+
+  PORTMUX.TCAROUTEA = TCA0_PINS
+    #if defined(TCA1)
+                         | TCA1_PINS
+    #endif
+          ;
 
     /*    TYPE B TIMERS  */
+  // Set up routing (defined in pins_arduino.h)
+  PORTMUX.TCBROUTEA = 0
+  #if defined(TCB0)
+                        | TCB0_PINS
+  #endif
+  #if defined(TCB1)
+                        | TCB1_PINS
+  #endif
+  #if defined(TCB2)
+                        | TCB2_PINS
+  #endif
+  #if defined(TCB3)
+                        | TCB3_PINS
+  #endif
+  #if defined(TCB4)
+                        | TCB4_PINS
+  #endif
+        ;
 
-    // No megaTinyCore parts need to configure this unless used for millis
+    // Start with TCB0
+    TCB_t *timer_B = (TCB_t *)&TCB0;
+
+  // Find end timer
+  #if defined(TCB4)
+    TCB_t *timer_B_end = (TCB_t *)&TCB4;
+  #elif defined(TCB3)
+    TCB_t *timer_B_end = (TCB_t *)&TCB3;
+  #elif defined(TCB2)
+    TCB_t *timer_B_end = (TCB_t *)&TCB2;
+  #elif defined(TCB1)
+    TCB_t *timer_B_end = (TCB_t *)&TCB1;
+  #else
+    TCB_t *timer_B_end = (TCB_t *)&TCB0;
+  #endif
+
+    // Timer B Setup loop for TCB[0:end]
+    do
+    {
+      // 8 bit PWM mode, but do not enable output yet, will do in analogWrite()
+      timer_B->CTRLB = (TCB_CNTMODE_PWM8_gc);
+
+      // Assign 8-bit period
+      timer_B->CCMPL = PWM_TIMER_PERIOD;
+
+      // default duty 50%, set when output enabled
+      timer_B->CCMPH = PWM_TIMER_COMPARE;
+
+      // Use TCA clock (250kHz) and enable
+      // (sync update commented out, might try to synchronize later
+
+      timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc)
+                       //|(TCB_SYNCUPD_bm)
+                       | (TCB_ENABLE_bm);
+
+      // Increment pointer to next TCB instance
+      if(timer_B++ == &TCB1) { //in this case we've incremented it, so now it's TCB2, which we use for millis...
+        timer_B++;           // so skip it
+      }
+
+      // Stop when pointing to TCB3
+    } while (timer_B <= timer_B_end);
+
+
   #ifdef TCD0
       #if (defined(USE_TIMERD0_PWM) && (!(defined(MILLIS_USE_TIMERD0_A0) || defined(MILLIS_USE_TIMERD0))))
       TCD0.CMPBCLR=510; //Count to 510

@@ -94,7 +94,8 @@ void analogWrite(uint8_t pin, int val)
 	uint8_t digital_pin_timer =  digitalPinToTimer(pin);
 	uint8_t* timer_cmp_out;
 
-	//TCB_t *timer_B;
+	TCB_t *timer_B;
+	//TCA_t *timer_A;
 	/* Find out Port and Pin to correctly handle port mux, and timer. */
 	switch (digital_pin_timer) { //use only low nybble which defines which timer it is
 
@@ -104,10 +105,8 @@ void analogWrite(uint8_t pin, int val)
 			} else if(val >= 255){	/* if max or greater drive digital high */
 				digitalWrite(pin, HIGH);
 			} else {
+
 				/* Calculate correct compare buffer register */
-				#ifdef __AVR_ATtinyxy2__
-				if (bit_pos==7) bit_pos=0; //on the xy2, WO0 is on PA7
-				#endif
 				if (bit_pos>2) {
 					bit_pos-=3;
 					timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.HCMP0)) + (bit_pos<<1);
@@ -120,28 +119,56 @@ void analogWrite(uint8_t pin, int val)
 				}
 			}
 			break;
-		/* None of these parts have a Timer B that gives us PWM on a pin we don't already have it on.
-		case TIMERB0:
-		case TIMERB1:
-		case TIMERB2:
-		case TIMERB3:
+		#ifdef TCA1
+		case TIMERA1:
+			if(val <= 0){	/* if zero or negative drive digital low */
+				digitalWrite(pin, LOW);
+			} else if(val >= 255){	/* if max or greater drive digital high */
+				digitalWrite(pin, HIGH);
+			} else {
 
-
-			// Get pointer to timer, TIMERB0 order definition in Arduino.h
-			//assert (((TIMERB0 - TIMERB3) == 2));
-			timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - (TIMERB0&0x07));
-
-			// set duty cycle
-			timer_B->CCMPH = val;
-
-			///Enable Timer Output
-			timer_B->CTRLB |= (TCB_CCMPEN_bm);
-
+				/* Calculate correct compare buffer register */
+				if (bit_pos>2) {
+					bit_pos-=3;
+					timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.HCMP0)) + (bit_pos<<1);
+					(*timer_cmp_out) = (val);
+					TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
+				} else {
+					timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.LCMP0)) + (bit_pos<<1);
+					(*timer_cmp_out) = (val);
+					TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+				}
+			}
 			break;
-						*/
+			#endif
+      case TIMERB0:
+      case TIMERB1:
+      case TIMERB2:
+      case TIMERB3:
+      case TIMERB4:
+
+        /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
+        //assert (((TIMERB0 - TIMERB3) == 2));
+        timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
+
+        /* set duty cycle */
+        timer_B->CCMPH = val;
+
+        /* Enable Timer Output */
+        timer_B->CTRLB |= (TCB_CCMPEN_bm);
+
+        break;
+
+        /* If non timer pin, or unknown timer definition. */
+        /* do a digital write */
+
 		#if defined(DAC0)
 		case DACOUT:
-			DAC0.DATA=val;
+			#ifdef DAC0_DATAH
+				DAC0.DATAH=val;
+			#else
+				DAC0.DATA=val;
+			#endif
 			DAC0.CTRLA=0x41; //OUTEN=1, ENABLE=1
 			break;
 		#endif

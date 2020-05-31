@@ -117,10 +117,12 @@ extern const uint8_t digital_pin_to_timer[];
 // RTC timer is a tiner, but certainly not that kind of timer
 #define NOT_ON_TIMER 0x00
 #define TIMERA0 0x10
+#define TIMERA1 0x11
 #define TIMERB0 0x20
 #define TIMERB1 0x21
 #define TIMERB2 0x22
 #define TIMERB3 0x23
+#define TIMERB4 0x24
 #define TIMERD0 0x40
 #define TIMERRTC 0x90
 #define DACOUT 0x80
@@ -156,12 +158,12 @@ void setup_timers();
 #error "Can't-happen: unknown chip somehow being used"
 #endif
 
-#define DAMEGACORE "0.1.0"
-#define DAMEGACORE_MAJOR 0
-#define DAMEGACORE_MINOR 1
-#define DAMEGACORE_PATCH 0
-#define DAMEGACORE_RELEASED 0
-#define DAMEGACORE_NUM 0x00010000
+#define DACORE "0.1.0"
+#define DACORE_MAJOR 0
+#define DACORE_MINOR 1
+#define DACORE_PATCH 0
+#define DACORE_RELEASED 0
+#define DACORE_NUM 0x00010000
 
 
 
