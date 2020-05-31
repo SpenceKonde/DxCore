@@ -320,6 +320,7 @@ unsigned long millis()
       #elif (F_CPU==4000000UL)
         microseconds = overflows*1000+(ticks>>1);
       #else //(F_CPU==1000000UL - here clock is running at system clock instead of half system clock.
+            // also works at 2MHz, since we use CLKPER for 1MHz vs CLKPER/2 for all others.
        microseconds = overflows*1000+ticks;
       #endif
     #else //TCA
@@ -628,7 +629,8 @@ void init()
   // work there
 
 /******************************** CLOCK STUFF *********************************/
-
+  // Warning: some of these are WAY outside the specs; anything above 32 Mhz
+  // probably will not work.
 
   #if (F_CPU == 48000000)
     /* No division on clock */
@@ -666,17 +668,29 @@ void init()
     /* No division on clock */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x07<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 12000000)
+  #elif (F_CPU == 12000000) //should it be 24MHz prescaled by 2?
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x06<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 8000000) //16MHz prescaled by 2?
+  /*
+    TO DO - 10MHz by dividing 20
+  */
+
+  #elif (F_CPU == 8000000) //should it be 16MHz prescaled by 2?
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x05<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 4000000) // or could prescale 16 by 4 so we could have pll....
-    /* Clock DIV4 */
+  /*
+    TO DO - 5MHz by dividing 20
+  */
+
+  #elif (F_CPU == 4000000) // or could prescale 16 by 4?
+
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 1000000) // or could prescale 16 by 16 so we could have pll....
+  /*
+    TO DO - 2 MHz ?
+  */
+
+  #elif (F_CPU == 1000000) // or could prescale 16 by 16?
     /* Clock DIV8 */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x00<< CLKCTRL_FREQSEL_gp ));
   #else
@@ -700,7 +714,11 @@ void init()
       be connected to the pin for longer, though the datasheet does not explicitly
       state that this is the case. Just like on megaTinyCore, use samplen to compensate */
 
-      #if F_CPU >= 24000000
+      #if F_CPU >= 32000000
+        ADC0.CTRLC |= ADC_PRESC_DIV32_gc; //1 MHz
+      #elif F_CPU >= 28000000
+        ADC0.CTRLC |= ADC_PRESC_DIV28_gc; //1 MHz
+      #elif F_CPU >= 24000000
         ADC0.CTRLC |= ADC_PRESC_DIV24_gc; //1 MHz
       #elif F_CPU >= 20000000
         ADC0.CTRLC |= ADC_PRESC_DIV20_gc; //1 MHz
