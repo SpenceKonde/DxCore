@@ -594,9 +594,12 @@ void delayMicroseconds(unsigned int us)
       RTC.CTRLA=(RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
 
     #else //It's a type b timer
+
       _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
-      // Enable timer interrupt
-      _timer->INTCTRL |= TCB_CAPT_bm;
+      // Enable timer interrupt, but clear the rest of register
+      _timer->INTCTRL = TCB_CAPT_bm;
+      // Clear timer mode (since it will have been set as PWM by init())
+      _timer->CTRLB=0;
       // CLK_PER/1 is 0b00,. CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
       _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
     #endif
@@ -629,35 +632,41 @@ void init()
   // work there
 
 /******************************** CLOCK STUFF *********************************/
-  // Warning: some of these are WAY outside the specs; anything above 32 Mhz
-  // probably will not work.
+  // Warning: some of these are WAY outside the specs, see comments
+  // For 12, 8. 4, 2, and 1, one can argue whether it should be
+  // prescaled from 24 or 16 - the advantage of this is that it
+  // would allow use on the PLL to generate high speed PWM
+  // which might be particularly appealing at those very low speeds
+  // On the other hand, that very low speed might be chosen for low
+  // power, in which case running the oscillator faster would be
+  // undesirable...
 
   #if (F_CPU == 48000000)
-    /* No division on clock */
+    /* No division on clock - almost guaranteed not to work */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0F<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 44000000)
-    /* No division on clock */
+    /* No division on clock - almost guaranteed not to work  */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0E<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 40000000)
-    /* No division on clock */
+    /* No division on clock - almost guaranteed not to work  */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0D<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 36000000)
-    /* No division on clock */
+    /* No division on clock  - unlikely to work */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0C<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 32000000)
-    /* No division on clock */
+    /* No division on clock - seems to work? */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0B<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 28000000)
-    /* No division on clock */
+    /* No division on clock - seems to work? */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0A<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 24000000)
-    /* No division on clock */
+    /* No division on clock - fastest speed that's in spec */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x09<< CLKCTRL_FREQSEL_gp ));
 
   #elif (F_CPU == 20000000)
@@ -668,30 +677,34 @@ void init()
     /* No division on clock */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x07<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 12000000) //should it be 24MHz prescaled by 2?
+  #elif (F_CPU == 12000000)
+    /* should it be 24MHz prescaled by 2? */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x06<< CLKCTRL_FREQSEL_gp ));
 
-  /*
-    TO DO - 10MHz by dividing 20
-  */
+  #elif (F_CPU == 10000000)
+    /* 20 prescaled by 2 */
+    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,0x01);
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x08<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 8000000) //should it be 16MHz prescaled by 2?
+  #elif (F_CPU == 8000000)
+    /* Should it be 16MHz prescaled by 2? */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x05<< CLKCTRL_FREQSEL_gp ));
 
-  /*
-    TO DO - 5MHz by dividing 20
-  */
-
-  #elif (F_CPU == 4000000) // or could prescale 16 by 4?
-
+  #elif (F_CPU == 5000000)
+    /* 20 prescaled by 4 */
+    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,0x01);
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
 
-  /*
-    TO DO - 2 MHz ?
-  */
+  #elif (F_CPU == 4000000)
+    /* Should it be 16MHz prescaled by 4? */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 1000000) // or could prescale 16 by 16?
-    /* Clock DIV8 */
+  #elif (F_CPU == 2000000)
+    /* Should it be 16MHz prescaled by 8? */
+    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x01<< CLKCTRL_FREQSEL_gp ));
+
+  #elif (F_CPU == 1000000)
+    /* Should it be 16MHz prescaled by 16? */
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x00<< CLKCTRL_FREQSEL_gp ));
   #else
 
@@ -891,9 +904,7 @@ void setup_timers() {
                        | (TCB_ENABLE_bm);
 
       // Increment pointer to next TCB instance
-      if(timer_B++ == &TCB1) { //in this case we've incremented it, so now it's TCB2, which we use for millis...
-        timer_B++;           // so skip it
-      }
+      timer_B++;
 
       // Stop when pointing to TCB3
     } while (timer_B <= timer_B_end);

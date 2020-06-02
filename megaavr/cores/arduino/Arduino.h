@@ -158,6 +158,8 @@ void setup_timers();
 #error "Can't-happen: unknown chip somehow being used"
 #endif
 
+#define __AVR_DA__
+
 #define DACORE "0.1.0"
 #define DACORE_MAJOR 0
 #define DACORE_MINOR 1
