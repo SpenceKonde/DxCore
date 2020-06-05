@@ -13,13 +13,14 @@ These parts depart from the naming scheme used for AVR devices in the past; thes
 This core was based on megaTinyCore; it is likely that the documentation still contains references to megaTinyCore or ATtiny/tinyAVR. Please report these (or better yet, fix and PR) if you find them.
 
 ## Supported Parts (click link for pinout diagram and details)
-* [AVR128DA28, AVR64DA28, AVR32DA28](megaavr/extras/DA28.md)
-* [AVR128DA32, AVR64DA32, AVR32DA32](megaavr/extras/DA32.md)
-* [AVR128DA48, AVR64DA48, AVR32DA48](megaavr/extras/DA48.md)
-* [AVR128DA64, AVR64DA64](megaavr/extras/DA64.md)
+Support for smaller-flash versions pending their release by Microchip
+* [AVR128DA28](megaavr/extras/DA28.md)
+* [AVR128DA32](megaavr/extras/DA32.md)
+* [AVR128DA48](megaavr/extras/DA48.md)
+* [AVR128DA64](megaavr/extras/DA64.md)
 
 ## Supported Clock Speeds
-Subject to change - currently speed grades are not known (datasheet implies that all speeds are supported over the whole voltage range - this seems unlikely)
+Subject to change - currently speed grades are not known (datasheet implies that all speeds are supported over the whole voltage range - this seems unlikely!)
 * 24MHz Internal
 * 20MHz Internal
 * 16MHz Internal
@@ -46,6 +47,7 @@ This core is still in development. At this point, it is belived that the core is
 * analogRead is NOT supported (must fix for initial release)
 * AutoTune is not supported
 * PWM using TCD0 is not supported
+* F() macro needs to be put back in (must fix for initial release)
 
 ## Programming is done via UPDI
 Currently, the only compatible programmer is jtag2updi. See [Making a cheap UPDI programmer](MakeUPDIProgrammer.md) for information on using an Arduino for this purpose - almost any Arduino board can be used, but the Arduino Nano 3.0 is preferred, as it is dirt cheap, and includes a USB-serial adapter. The versions that use an ATmega168 can also be used. An Arduino Pro Mini is also an excellent choice. Currently, the mEDGB programmers are NOT compatible with these parts because currently available firmware images do not support it; this may change in the future if a new version of this firmware becomes available.
