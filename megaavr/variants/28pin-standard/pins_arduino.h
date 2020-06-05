@@ -61,7 +61,7 @@
 #define digitalOrAnalogPinToDigital(p) ((p < 8) ? ((p) + ANALOG_INPUT_OFFSET) : ((p) >= 12 && (p) <= 19) ? (p) : NOT_A_PIN)
 
 // Timer to use for millis/micros
-#if !defined(MILLIS_USE_TIMERB0) || !defined(MILLIS_USE_TIMERB1) || !defined(MILLIS_USE_TIMERB2)
+#if !defined(MILLIS_USE_TIMERB0) && !defined(MILLIS_USE_TIMERB1) && !defined(MILLIS_USE_TIMERB2)
 #define MILLIS_USE_TIMERB2  // Use TCB2 if nothing else if defined
 #endif
 
@@ -283,7 +283,7 @@ const uint8_t digital_pin_to_timer[] = {
   TIMERA0,      // 15 PD3/AIN3/LED_BUILTIN
   TIMERA0,      // 16 PD4/AIN4
   TIMERA0,      // 17 PD5/AIN5
-  NOT_ON_TIMER, // 18 PD6/AIN6
+  DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
   NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
