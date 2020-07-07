@@ -5,7 +5,7 @@
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](MakeUPDIProgrammer.md)
 
-# DACore - Arduino support for DA-series parts
+# DxCore - Arduino support for DA-series parts and future DB-series
 This is a very early version of the Arduino core to support the new DA-series AVR microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip - it is likely that these were what would have been the megaAVR 1-series parts, but these have taken the product line to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, the modern timers, the improved interrupts... but for almost every major system, they've added some significant improvement. You liked the type A timer? Well now you have two of them. You wished you could make a type B timer count events? You can do that. Combine two TCB's into one so you can time longer events? Yup. More bits of accuracy on the ADC? Yup - this is a 12-bit ADC - and the DAC is 10-bit too!
 
 These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, then the number of pins. At this time, only the 128K parts are available; the AVR128DA datasheet has listed planned memory capacities for the available pin counts. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins.
@@ -68,7 +68,7 @@ The silicon errata in the initial versions of these parts is pretty brutal. As h
 #### Memory-mapped flash? No :-(
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker does not configure this. So, for the time being, you must use the F() macro and PROGMEM to put constants into program memory, and the pgm_read functions to read it.
 
-In a future version, we plan to develop a solution to this - in the form of a modified linker script which will put the .rodata (read only data, ie, string constants) into flash starting from the highest address, link to them at the address they will be mapped to when FLMAP=11 (this means you will get an error if you have more than 32K of const variables - we will provide keywords to place constants into PROGMEM in other sections), and, in order to ensure that user code can access them, set the FLMAP bits during initialization. This, obviously, is a considerable undertaking, and it will likely be some time before work on it is started.
+In a future version, we plan to develop a solution to this that will allow 32kb of constants to be declared as 
 
 
 #### Ways to refer to pins
@@ -252,7 +252,7 @@ This core provides an additional define depending on the number of pins on the p
 
 And all parts will have the following defined:
 * __AVR_DA__
-* DACORE
+* DxCORE
 
 
 # Bootloader (optiboot) Support
