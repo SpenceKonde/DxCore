@@ -42,24 +42,34 @@ avrda32.menu.chip.32.upload.maximum_data_size=4096
 
 avrda32.menu.clock.24=24 MHz
 avrda32.menu.clock.24.build.f_cpu=24000000L
+avrda32.menu.clock.24.build.speed=24
 avrda32.menu.clock.20=20 MHz
 avrda32.menu.clock.20.build.f_cpu=20000000L
+avrda32.menu.clock.20.build.speed=20
 avrda32.menu.clock.16=16 MHz
 avrda32.menu.clock.16.build.f_cpu=16000000L
+avrda32.menu.clock.16.build.speed=16
 avrda32.menu.clock.12=12 MHz
 avrda32.menu.clock.12.build.f_cpu=12000000L
+avrda32.menu.clock.12.build.speed=12
 avrda32.menu.clock.10=10 MHz
 avrda32.menu.clock.10.build.f_cpu=10000000L
+avrda32.menu.clock.10.build.speed=10
 avrda32.menu.clock.8=8 MHz
 avrda32.menu.clock.8.build.f_cpu=8000000L
+avrda32.menu.clock.8.build.speed=8
 avrda32.menu.clock.4=4 MHz
 avrda32.menu.clock.4.build.f_cpu=4000000L
+avrda32.menu.clock.4.build.speed=4
 avrda32.menu.clock.1=1 MHz
 avrda32.menu.clock.1.build.f_cpu=1000000L
+avrda32.menu.clock.1.build.speed=1
 avrda32.menu.clock.28=28 MHz (overclocked)
 avrda32.menu.clock.28.build.f_cpu=28000000L
+avrda32.menu.clock.28.build.speed=28
 avrda32.menu.clock.32=32 MHz (overclocked)
 avrda32.menu.clock.32.build.f_cpu=32000000L
+avrda32.menu.clock.32.build.speed=32
 
 
 
@@ -94,18 +104,23 @@ avrda32.menu.eesave.disable.bootloader.SYSCFG0=0xC8
 
 avrda32.menu.millis.tcb2=TCB2 (recommended)
 avrda32.menu.millis.tca0=TCA0
-avrda32.menu.millis.tcd0=TCD0 (unimplemented)
+avrda32.menu.millis.tcb0=TCB0 (will break Servo)
+avrda32.menu.millis.tcb2=TCB1 (will break tone)
+avrda32.menu.millis.tcd0=TCD0
 avrda32.menu.millis.disabled=Disabled
 
-avrda32.menu.millis.tcb2.build.millis=-DMILLIS_USE_TIMERB2
-avrda32.menu.millis.tca0.build.millis=-DMILLIS_USE_TIMERA0
-avrda32.menu.millis.tcd0.build.millis=-DMILLIS_USE_TIMERD0
-avrda32.menu.millis.disabled.build.millis=-DDISABLE_MILLIS
+avrda32.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrda32.menu.millis.tcb0.build.millistimer=B0
+avrda32.menu.millis.tcb1.build.millistimer=B1
+avrda32.menu.millis.tcb2.build.millistimer=B2
+avrda32.menu.millis.tca0.build.millistimer=A0
+avrda32.menu.millis.tcd0.build.millistimer=D0
+avrda32.menu.millis.disabled.build.millistimer=NONE
 
 avrda32.upload.tool=avrdude
 
 avrda32.build.board=avrda32
-avrda32.build.core=arduino
+avrda32.build.core=dxcore
 avrda32.build.variant=32pin-standard
 avrda32.build.text_section_start=.text=0x0
 avrda32.build.extra_flags={build.millis}
@@ -113,9 +128,7 @@ avrda32.build.export_merged_output=false
 
 avrda32.bootloader.tool=avrdude
 avrda32.bootloader.WDTCFG=0x00
-avrda32.bootloader.WDTCFG=0x00
 avrda32.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda32.bootloader.SYSCFG0=0x00
 avrda32.bootloader.SYSCFG1=0x03
 avrda32.bootloader.CODESIZE=0x00
 avrda32.bootloader.BOOTSIZE=0x00
@@ -150,25 +163,35 @@ avrda48.menu.chip.32.upload.maximum_data_size=4096
 
 
 avrda48.menu.clock.24=24 MHz
-avrda48.menu.clock.24.build.f_cpu   =  24000000L
+avrda48.menu.clock.24.build.f_cpu=24000000L
+avrda48.menu.clock.24.build.speed=24
 avrda48.menu.clock.20=20 MHz
-avrda48.menu.clock.20.build.f_cpu   =  20000000L
+avrda48.menu.clock.20.build.f_cpu=20000000L
+avrda48.menu.clock.20.build.speed=20
 avrda48.menu.clock.16=16 MHz
-avrda48.menu.clock.16.build.f_cpu   =  16000000L
+avrda48.menu.clock.16.build.f_cpu=16000000L
+avrda48.menu.clock.16.build.speed=16
 avrda48.menu.clock.12=12 MHz
-avrda48.menu.clock.12.build.f_cpu   =  12000000L
+avrda48.menu.clock.12.build.f_cpu=12000000L
+avrda48.menu.clock.12.build.speed=12
 avrda48.menu.clock.10=10 MHz
-avrda48.menu.clock.10.build.f_cpu   =  10000000L
+avrda48.menu.clock.10.build.f_cpu=10000000L
+avrda48.menu.clock.10.build.speed=10
 avrda48.menu.clock.8=8 MHz
-avrda48.menu.clock.8.build.f_cpu    =   8000000L
+avrda48.menu.clock.8.build.f_cpu=8000000L
+avrda48.menu.clock.8.build.speed=8
 avrda48.menu.clock.4=4 MHz
-avrda48.menu.clock.4.build.f_cpu    =   4000000L
+avrda48.menu.clock.4.build.f_cpu=4000000L
+avrda48.menu.clock.4.build.speed=4
 avrda48.menu.clock.1=1 MHz
-avrda48.menu.clock.1.build.f_cpu    =   1000000L
+avrda48.menu.clock.1.build.f_cpu=1000000L
+avrda48.menu.clock.1.build.speed=1
 avrda48.menu.clock.28=28 MHz (overclocked)
-avrda48.menu.clock.28.build.f_cpu   =  28000000L
+avrda48.menu.clock.28.build.f_cpu=28000000L
+avrda48.menu.clock.28.build.speed=28
 avrda48.menu.clock.32=32 MHz (overclocked)
-avrda48.menu.clock.32.build.f_cpu   =  32000000L
+avrda48.menu.clock.32.build.f_cpu=32000000L
+avrda48.menu.clock.32.build.speed=32
 
 
 
@@ -204,29 +227,34 @@ avrda48.menu.eesave.disable.bootloader.SYSCFG0=0xC8
 avrda48.menu.millis.tcb2=TCB2 (recommended)
 avrda48.menu.millis.tca0=TCA0
 avrda48.menu.millis.tca1=TCA1
-avrda48.menu.millis.tcd0=TCD0 (unimplemented)
+avrda48.menu.millis.tcb0=TCB0 (will break Servo)
+avrda48.menu.millis.tcb1=TCB1
+avrda48.menu.millis.tcb3=TCB3 (will break tone)
+avrda48.menu.millis.tcd0=TCD0
 avrda48.menu.millis.disabled=Disabled
 
-avrda48.menu.millis.tcb2.build.millis=-DMILLIS_USE_TIMERB2
-avrda48.menu.millis.tca0.build.millis=-DMILLIS_USE_TIMERA0
-avrda48.menu.millis.tca1.build.millis=-DMILLIS_USE_TIMERA1
-avrda48.menu.millis.tcd0.build.millis=-DMILLIS_USE_TIMERD0
-avrda48.menu.millis.disabled.build.millis=-DDISABLE_MILLIS
+avrda48.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrda48.menu.millis.tcb0.build.millistimer=B0
+avrda48.menu.millis.tcb1.build.millistimer=B1
+avrda48.menu.millis.tcb2.build.millistimer=B2
+avrda48.menu.millis.tcb3.build.millistimer=B2
+avrda48.menu.millis.tca0.build.millistimer=A0
+avrda48.menu.millis.tca1.build.millistimer=A1
+avrda48.menu.millis.tcd0.build.millistimer=D0
+avrda48.menu.millis.disabled.build.millistimer=NONE
 
 avrda48.upload.tool=avrdude
 
 avrda48.build.board=avrda48
-avrda48.build.core=arduino
+avrda48.build.core=dxcore
 avrda48.build.variant=48pin-standard
 avrda48.build.text_section_start=.text=0x0
 avrda48.build.extra_flags={build.millis}
 avrda48.build.export_merged_output=false
 
 avrda48.bootloader.tool=avrdude
-avrda48.bootloader.WDTCFG=0x00
-avrda48.bootloader.WDTCFG=0x00
+avrda48.bootloader.WDTCFG=0x000
 avrda48.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda48.bootloader.SYSCFG0=0x00
 avrda48.bootloader.SYSCFG1=0x03
 avrda48.bootloader.CODESIZE=0x00
 avrda48.bootloader.BOOTSIZE=0x00
@@ -264,24 +292,34 @@ avrda64.menu.chip.32.upload.maximum_data_size=4096
 
 avrda64.menu.clock.24=24 MHz
 avrda64.menu.clock.24.build.f_cpu=24000000L
+avrda64.menu.clock.24.build.speed=24
 avrda64.menu.clock.20=20 MHz
 avrda64.menu.clock.20.build.f_cpu=20000000L
+avrda64.menu.clock.20.build.speed=20
 avrda64.menu.clock.16=16 MHz
 avrda64.menu.clock.16.build.f_cpu=16000000L
+avrda64.menu.clock.16.build.speed=16
 avrda64.menu.clock.12=12 MHz
 avrda64.menu.clock.12.build.f_cpu=12000000L
+avrda64.menu.clock.12.build.speed=12
 avrda64.menu.clock.10=10 MHz
 avrda64.menu.clock.10.build.f_cpu=10000000L
+avrda64.menu.clock.10.build.speed=10
 avrda64.menu.clock.8=8 MHz
 avrda64.menu.clock.8.build.f_cpu=8000000L
+avrda64.menu.clock.8.build.speed=8
 avrda64.menu.clock.4=4 MHz
 avrda64.menu.clock.4.build.f_cpu=4000000L
+avrda64.menu.clock.4.build.speed=4
 avrda64.menu.clock.1=1 MHz
 avrda64.menu.clock.1.build.f_cpu=1000000L
+avrda64.menu.clock.1.build.speed=1
 avrda64.menu.clock.28=28 MHz (overclocked)
 avrda64.menu.clock.28.build.f_cpu=28000000L
+avrda64.menu.clock.28.build.speed=28
 avrda64.menu.clock.32=32 MHz (overclocked)
 avrda64.menu.clock.32.build.f_cpu=32000000L
+avrda64.menu.clock.32.build.speed=32
 
 
 
@@ -317,29 +355,36 @@ avrda64.menu.eesave.disable.bootloader.SYSCFG0=0xC8
 avrda64.menu.millis.tcb2=TCB2 (recommended)
 avrda64.menu.millis.tca0=TCA0
 avrda64.menu.millis.tca1=TCA1
-avrda64.menu.millis.tcd0=TCD0 (unimplemented)
+avrda64.menu.millis.tcb0=TCB0 (will break Servo)
+avrda64.menu.millis.tcb1=TCB1
+avrda64.menu.millis.tcb3=TCB3 (will break tone)
+avrda64.menu.millis.tcb4=TCB4
+avrda64.menu.millis.tcd0=TCD0
 avrda64.menu.millis.disabled=Disabled
 
-avrda64.menu.millis.tcb2.build.millis=-DMILLIS_USE_TIMERB2
-avrda64.menu.millis.tca0.build.millis=-DMILLIS_USE_TIMERA0
-avrda64.menu.millis.tca0.build.millis=-DMILLIS_USE_TIMERA1
-avrda64.menu.millis.tcd0.build.millis=-DMILLIS_USE_TIMERD0
-avrda64.menu.millis.disabled.build.millis=-DDISABLE_MILLIS
+avrda64.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrda64.menu.millis.tcb0.build.millistimer=B0
+avrda64.menu.millis.tcb1.build.millistimer=B1
+avrda64.menu.millis.tcb2.build.millistimer=B2
+avrda64.menu.millis.tcb3.build.millistimer=B3
+avrda64.menu.millis.tcb4.build.millistimer=B4
+avrda64.menu.millis.tca0.build.millistimer=A0
+avrda64.menu.millis.tca1.build.millistimer=A1
+avrda64.menu.millis.tcd0.build.millistimer=D0
+avrda64.menu.millis.disabled.build.millistimer=NONE
 
 avrda64.upload.tool=avrdude
 
 avrda64.build.board=avrda64
-avrda64.build.core=arduino
-avrda64.build.variant=28pin-standard
+avrda64.build.core=dxcore
+avrda64.build.variant=64pin-standard
 avrda64.build.text_section_start=.text=0x0
 avrda64.build.extra_flags={build.millis}
 avrda64.build.export_merged_output=false
 
 avrda64.bootloader.tool=avrdude
 avrda64.bootloader.WDTCFG=0x00
-avrda64.bootloader.WDTCFG=0x00
 avrda64.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda64.bootloader.SYSCFG0=0x00
 avrda64.bootloader.SYSCFG1=0x03
 avrda64.bootloader.CODESIZE=0x00
 avrda64.bootloader.BOOTSIZE=0x00
@@ -376,24 +421,34 @@ avrda28.menu.chip.32.upload.maximum_data_size=4096
 
 avrda28.menu.clock.24=24 MHz
 avrda28.menu.clock.24.build.f_cpu=24000000L
+avrda28.menu.clock.24.build.speed=24
 avrda28.menu.clock.20=20 MHz
 avrda28.menu.clock.20.build.f_cpu=20000000L
+avrda28.menu.clock.20.build.speed=20
 avrda28.menu.clock.16=16 MHz
 avrda28.menu.clock.16.build.f_cpu=16000000L
+avrda28.menu.clock.16.build.speed=16
 avrda28.menu.clock.12=12 MHz
 avrda28.menu.clock.12.build.f_cpu=12000000L
+avrda28.menu.clock.12.build.speed=12
 avrda28.menu.clock.10=10 MHz
 avrda28.menu.clock.10.build.f_cpu=10000000L
+avrda28.menu.clock.10.build.speed=10
 avrda28.menu.clock.8=8 MHz
 avrda28.menu.clock.8.build.f_cpu=8000000L
+avrda28.menu.clock.8.build.speed=8
 avrda28.menu.clock.4=4 MHz
 avrda28.menu.clock.4.build.f_cpu=4000000L
+avrda28.menu.clock.4.build.speed=4
 avrda28.menu.clock.1=1 MHz
 avrda28.menu.clock.1.build.f_cpu=1000000L
+avrda28.menu.clock.1.build.speed=1
 avrda28.menu.clock.28=28 MHz (overclocked)
 avrda28.menu.clock.28.build.f_cpu=28000000L
+avrda28.menu.clock.28.build.speed=28
 avrda28.menu.clock.32=32 MHz (overclocked)
 avrda28.menu.clock.32.build.f_cpu=32000000L
+avrda28.menu.clock.32.build.speed=32
 
 
 
@@ -428,18 +483,23 @@ avrda28.menu.eesave.disable.bootloader.SYSCFG0=0xC8
 
 avrda28.menu.millis.tcb2=TCB2 (recommended)
 avrda28.menu.millis.tca0=TCA0
-avrda28.menu.millis.tcd0=TCD0 (unimplemented)
+avrda28.menu.millis.tcb2=TCB0 (will break Servo)
+avrda28.menu.millis.tcb2=TCB1 (will break tone)
+avrda28.menu.millis.tcd0=TCD0
 avrda28.menu.millis.disabled=Disabled
 
-avrda28.menu.millis.tcb2.build.millis=-DMILLIS_USE_TIMERB2
-avrda28.menu.millis.tca0.build.millis=-DMILLIS_USE_TIMERA0
-avrda28.menu.millis.tcd0.build.millis=-DMILLIS_USE_TIMERD0
-avrda28.menu.millis.disabled.build.millis=-DDISABLE_MILLIS
+avrda28.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrda28.menu.millis.tcb0.build.millistimer=B0
+avrda28.menu.millis.tcb1.build.millistimer=B1
+avrda28.menu.millis.tcb2.build.millistimer=B2
+avrda28.menu.millis.tca0.build.millistimer=A0
+avrda28.menu.millis.tcd0.build.millistimer=D0
+avrda28.menu.millis.disabled.build.millistimer=NONE
 
 avrda28.upload.tool=avrdude
 
 avrda28.build.board=avrda28
-avrda28.build.core=arduino
+avrda28.build.core=dxcore
 avrda28.build.variant=28pin-standard
 avrda28.build.text_section_start=.text=0x0
 avrda28.build.extra_flags={build.millis}
@@ -447,9 +507,7 @@ avrda28.build.export_merged_output=false
 
 avrda28.bootloader.tool=avrdude
 avrda28.bootloader.WDTCFG=0x00
-avrda28.bootloader.WDTCFG=0x00
 avrda28.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda28.bootloader.SYSCFG0=0x00
 avrda28.bootloader.SYSCFG1=0x03
 avrda28.bootloader.CODESIZE=0x00
 avrda28.bootloader.BOOTSIZE=0x00

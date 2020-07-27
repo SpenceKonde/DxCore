@@ -59,20 +59,25 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
         return true;
       } else
     #endif
-    if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
-    {
-      _uc_mux=1;
-      return true;
-    }
-    else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-    {
-      _uc_mux=0;
-      return true;
-    }
-    else {
-       _uc_mux=0;
-      return false;
-    }
+    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
+      {
+        _uc_mux=1;
+        return true;
+      }
+      else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
+      {
+        _uc_mux=0;
+        return true;
+      }
+      else {
+         _uc_mux=0;
+        return false;
+      }
+    #else
+      // if there are no swaps available, just return false if they don't know the pins? likely compiletime known and optimized to nothing in this case anyway...
+      return (pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS);
+    #endif
   #endif
   return false;
 }
@@ -103,6 +108,7 @@ bool SPIClass::swap(uint8_t state)
         return true;
       } else
     #endif
+    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
       if(state == 1)
       {
         _uc_mux=1;
@@ -117,7 +123,11 @@ bool SPIClass::swap(uint8_t state)
          _uc_mux=0;
         return false;
       }
-
+    #else
+      //if there are no swaps available, _uc_mux never gets set to anything, and we just return !state so they get false as their return if they try to swap when none are available
+      //likely compiletime known and optimzes away to a boolean.
+      return !state;
+    #endif
   #endif
   return false;
 }
@@ -128,7 +138,7 @@ void SPIClass::begin()
   #if defined(PORTMUX_CTRLB)
     PORTMUX.CTRLB=_uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
   #elif defined(PORTMUX_SPIROUTEA)
-    PORTMUX.SPIROUTEA = _uc_mux | (PORTMUX.SPIROUTEA & ~3);
+    PORTMUX.SPIROUTEA = (_uc_mux << PORTMUX_SPI0_gp) | (PORTMUX.SPIROUTEA & ~PORTMUX_SPI0_gm);
   #endif
 
   #if ((defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1)) || (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2)))

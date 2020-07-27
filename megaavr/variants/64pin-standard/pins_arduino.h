@@ -1,22 +1,3 @@
-/****************************************************|
-|               48-PIN STANDARD PINOUT               |
-|       https://github.com/MCUdude/MegaCoreX         |
-|                                                    |
-| COMPATIBLE WITH:                                   |
-| ATmega4809                                         |
-| ATmega3209                                         |
-| ATmega1609                                         |
-| ATmega809                                          |
-|                                                    |
-| Note that this pinout is not directly compatible   |
-| with the UNO Wifi Rev2 hardware without performing |
-| pinswaps. This pinout is supposed to be as close   |
-| to the metal as possible. The only peripherals     |
-| that are swapped to other pins by default are the  |
-| PWM outputs.                                       |
-|                                                    |
-|****************************************************/
-
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 
@@ -26,6 +7,64 @@
 #include "timers.h"
 
 #define DEFAULT_64PIN_PINOUT
+
+// Arduino pin macros
+#define PIN_PA0 0
+#define PIN_PA1 1
+#define PIN_PA2 2
+#define PIN_PA3 3
+#define PIN_PA4 4
+#define PIN_PA5 5
+#define PIN_PA6 6
+#define PIN_PA7 7
+#define PIN_PB0 8
+#define PIN_PB1 9
+#define PIN_PB2 10
+#define PIN_PB3 11
+#define PIN_PB4 12
+#define PIN_PB5 13
+#define PIN_PB6 14
+#define PIN_PB7 15
+#define PIN_PC0 16
+#define PIN_PC1 17
+#define PIN_PC2 18
+#define PIN_PC3 19
+#define PIN_PC4 20
+#define PIN_PC5 21
+#define PIN_PC6 22
+#define PIN_PC7 23
+#define PIN_PD0 24
+#define PIN_PD1 25
+#define PIN_PD2 26
+#define PIN_PD3 27
+#define PIN_PD4 28
+#define PIN_PD5 29
+#define PIN_PD6 30
+#define PIN_PD7 31
+#define PIN_PE0 32
+#define PIN_PE1 33
+#define PIN_PE2 34
+#define PIN_PE3 35
+#define PIN_PE4 36
+#define PIN_PE5 37
+#define PIN_PE6 38
+#define PIN_PE7 39
+#define PIN_PF0 40
+#define PIN_PF1 41
+#define PIN_PF2 42
+#define PIN_PF3 43
+#define PIN_PF4 44
+#define PIN_PF5 45
+#define PIN_PG0 46
+#define PIN_PG1 47
+#define PIN_PG2 48
+#define PIN_PG3 49
+#define PIN_PG4 50
+#define PIN_PG5 51
+#define PIN_PG6 52
+#define PIN_PG7 53
+#define PIN_PF6 54
+
 
 #define NUM_DIGITAL_PINS               55
 #define NUM_ANALOG_INPUTS              22
@@ -44,34 +83,52 @@
 #define EXTERNAL_NUM_INTERRUPTS     (56) //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
 
 #if defined(MILLIS_USE_TIMERB0)
-    #define digitalPinHasPWM(p)     (((p) >= 12 && (p) <= 19) || (p) == 39)
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
+                              ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB1)
-    #define digitalPinHasPWM(p)     (((p) >= 12 && (p) <= 19) || (p) == 38)
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
+                                ((p) == PIN_PF4) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB2)
-    #define digitalPinHasPWM(p)     (((p) >= 13 && (p) <= 19) || (p) == 38 || (p) == 39)
-#else // default to MILLIS_USE_TIMERB3
-    #define digitalPinHasPWM(p)     ((p) == 12 || ((p) >= 14 && (p) <= 19) || (p) == 38 || (p) == 39)
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
+                                ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#elif defined(MILLIS_USE_TIMERB3)
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
+                                ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#else //no TCB's are used for millis
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
+                                ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #endif
+
+// Timer pin swaps
+#define TCA0_PINS PORTMUX_TCA0_PORTC_gc // TCA0 output on PC[0:5]
+#define TCA1_PINS 0x00 // TCA0 output on PB[0:5] (no pinswap)
+#define TCB0_PINS PORTMUX_TCB0_bm       // TCB0 output on PF4 instead of PA2 (default)
+#define TCB1_PINS PORTMUX_TCB1_bm       // TCB1 output on PF5 instead of PA3 (default)
+#define TCB2_PINS 0x00                  // TCB2 output on PC0 (default) instead of PB4 (either way not used)
+#define TCB3_PINS 0x00                  // TCB3 output on PB5 (default) instead of PC1 (either way not used)
+#define TCB4_PINS 0x00                  // TCB4 output on PG3 (default) instead of PC6
+#define TCD0_PINS PORTMUX_TCD0_ALT3_gc  // TCD0 output on PG4~PG7 (we use PG4, PG5 -  finally, with the 64-pin part, we can put them on otherwise useless pins!)
+
 
 // SPI 0
 // No pinswap enabled by default
 // Pinswap 2 not available
-#define SPI_INTERFACES_COUNT   1
+#define SPI_INTERFACES_COUNT   2
 #define SPI_MUX                (PORTMUX_SPI0_DEFAULT_gc)
 #define SPI_MUX_PINSWAP_1      (PORTMUX_SPI0_ALT1_gc)
 #define SPI_MUX_PINSWAP_2      (PORTMUX_SPI0_ALT2_gc)
-#define PIN_SPI_MISO           (5)
-#define PIN_SPI_SCK            (6)
-#define PIN_SPI_MOSI           (4)
-#define PIN_SPI_SS             (7)
-#define PIN_SPI_MISO_PINSWAP_1 (15)
-#define PIN_SPI_SCK_PINSWAP_1  (16)
-#define PIN_SPI_MOSI_PINSWAP_1 (14)
-#define PIN_SPI_SS_PINSWAP_1   (17)
-#define PIN_SPI_MISO_PINSWAP_2 (31)
-#define PIN_SPI_SCK_PINSWAP_2  (32)
-#define PIN_SPI_MOSI_PINSWAP_2 (30)
-#define PIN_SPI_SS_PINSWAP_2   (33)
+#define PIN_SPI_MISO           PIN_PA5
+#define PIN_SPI_SCK            PIN_PA6
+#define PIN_SPI_MOSI           PIN_PA4
+#define PIN_SPI_SS             PIN_PA7
+#define PIN_SPI_MISO_PINSWAP_1 PIN_PE1
+#define PIN_SPI_SCK_PINSWAP_1  PIN_PE2
+#define PIN_SPI_MOSI_PINSWAP_1 PIN_PE0
+#define PIN_SPI_SS_PINSWAP_1   PIN_PE3
+#define PIN_SPI_MISO_PINSWAP_2 PIN_PG5
+#define PIN_SPI_SCK_PINSWAP_2  PIN_PG6
+#define PIN_SPI_MOSI_PINSWAP_2 PIN_PG4
+#define PIN_SPI_SS_PINSWAP_2   PIN_PG7
 static const uint8_t SS   = PIN_SPI_SS;
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
@@ -81,82 +138,114 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 // No pinswap enabled by default
 #define TWI_MUX                (PORTMUX_TWI0_DEFAULT_gc)
 #define TWI_MUX_PINSWAP        (PORTMUX_TWI0_ALT2_gc)
-#define PIN_WIRE_SDA           (2)
-#define PIN_WIRE_SCL           (3)
-#define PIN_WIRE_SDA_PINSWAP_1 (16)
-#define PIN_WIRE_SCL_PINSWAP_1 (17)
+#define PIN_WIRE_SDA           (PIN_PA2)
+#define PIN_WIRE_SCL           (PIN_PA3)
+#define PIN_WIRE_SDA_PINSWAP_2 (PIN_PC2)
+#define PIN_WIRE_SCL_PINSWAP_2 (PIN_PC3)
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
 // USART 0
 // No pinswap by default
-#define HWSERIAL0 (&USART0)
-#define HWSERIAL0_DRE_VECTOR            (USART0_DRE_vect)
-#define HWSERIAL0_DRE_VECTOR_NUM        (USART0_DRE_vect_num)
-#define HWSERIAL0_RXC_VECTOR            (USART0_RXC_vect)
-#define HWSERIAL0_MUX                   (PORTMUX_USART0_DEFAULT_gc)
-#define HWSERIAL0_MUX_PINSWAP_1         (PORTMUX_USART0_ALT1_gc)
-#define PIN_WIRE_HWSERIAL0_TX           (0)
-#define PIN_WIRE_HWSERIAL0_RX           (1)
-#define PIN_WIRE_HWSERIAL0_TX_PINSWAP_1 (4)
-#define PIN_WIRE_HWSERIAL0_RX_PINSWAP_1 (5)
+#define HWSERIAL0                       &USART0
+#define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
+#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
+#define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
+#define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
+#define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
+#define PIN_WIRE_HWSERIAL0_TX           PIN_PA0
+#define PIN_WIRE_HWSERIAL0_RX           PIN_PA1
+#define PIN_WIRE_HWSERIAL0_TX_PINSWAP_1 PIN_PA4
+#define PIN_WIRE_HWSERIAL0_RX_PINSWAP_1 PIN_PA5
 
 // USART1
 // No pinswap by default
-#define HWSERIAL1                       (&USART1)
-#define HWSERIAL1_DRE_VECTOR            (USART1_DRE_vect)
-#define HWSERIAL1_DRE_VECTOR_NUM        (USART1_DRE_vect_num)
-#define HWSERIAL1_RXC_VECTOR            (USART1_RXC_vect)
-#define HWSERIAL1_MUX                   (PORTMUX_USART1_DEFAULT_gc)
-#define HWSERIAL1_MUX_PINSWAP_1         (PORTMUX_USART1_ALT1_gc)
-#define PIN_WIRE_HWSERIAL1_TX           (14)
-#define PIN_WIRE_HWSERIAL1_RX           (15)
-#define PIN_WIRE_HWSERIAL1_TX_PINSWAP_1 (18)
-#define PIN_WIRE_HWSERIAL1_RX_PINSWAP_1 (19)
+#define HWSERIAL1                       &USART1
+#define HWSERIAL1_DRE_VECTOR            USART1_DRE_vect
+#define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
+#define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
+#define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
+#define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
+#define PIN_WIRE_HWSERIAL1_TX           PIN_PC0
+#define PIN_WIRE_HWSERIAL1_RX           PIN_PC1
+#define PIN_WIRE_HWSERIAL1_TX_PINSWAP_1 PIN_PC4
+#define PIN_WIRE_HWSERIAL1_RX_PINSWAP_1 PIN_PC5
 
 // USART 2
 // No pinswap by default
-#define HWSERIAL2 (&USART2)
-#define HWSERIAL2_DRE_VECTOR            (USART2_DRE_vect)
-#define HWSERIAL2_DRE_VECTOR_NUM        (USART2_DRE_vect_num)
-#define HWSERIAL2_RXC_VECTOR            (USART2_RXC_vect)
-#define HWSERIAL2_MUX                   (PORTMUX_USART2_DEFAULT_gc)
-#define HWSERIAL2_MUX_PINSWAP_1         (PORTMUX_USART2_ALT1_gc)
-#define PIN_WIRE_HWSERIAL2_TX           (34)
-#define PIN_WIRE_HWSERIAL2_RX           (35)
-#define PIN_WIRE_HWSERIAL2_TX_PINSWAP_1 (38)
-#define PIN_WIRE_HWSERIAL2_RX_PINSWAP_1 (39)
+#define HWSERIAL2                       &USART2
+#define HWSERIAL2_DRE_VECTOR            USART2_DRE_vect
+#define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
+#define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
+#define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
+#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
+#define PIN_WIRE_HWSERIAL2_TX           PIN_PF0
+#define PIN_WIRE_HWSERIAL2_RX           PIN_PF1
+#define PIN_WIRE_HWSERIAL2_TX_PINSWAP_1 PIN_PF4
+#define PIN_WIRE_HWSERIAL2_RX_PINSWAP_1 PIN_PF5
 
 // USART 3
 // No pinswap by default
-#define HWSERIAL3                       (&USART3)
-#define HWSERIAL3_DRE_VECTOR            (USART3_DRE_vect)
-#define HWSERIAL3_DRE_VECTOR_NUM        (USART3_DRE_vect_num)
-#define HWSERIAL3_RXC_VECTOR            (USART3_RXC_vect)
-#define HWSERIAL3_MUX                   (PORTMUX_USART3_DEFAULT_gc)
-#define HWSERIAL3_MUX_PINSWAP_1         (PORTMUX_USART3_ALT1_gc)
-#define PIN_WIRE_HWSERIAL3_TX           (8)
-#define PIN_WIRE_HWSERIAL3_RX           (9)
-#define PIN_WIRE_HWSERIAL3_TX_PINSWAP_1 (12)
-#define PIN_WIRE_HWSERIAL3_RX_PINSWAP_1 (13)
+#define HWSERIAL3                       &USART3
+#define HWSERIAL3_DRE_VECTOR            USART3_DRE_vect
+#define HWSERIAL3_DRE_VECTOR_NUM        USART3_DRE_vect_num
+#define HWSERIAL3_RXC_VECTOR            USART3_RXC_vect
+#define HWSERIAL3_MUX                   PORTMUX_USART3_DEFAULT_gc
+#define HWSERIAL3_MUX_PINSWAP_1         PORTMUX_USART3_ALT1_gc
+#define PIN_WIRE_HWSERIAL3_TX           PIN_PB0
+#define PIN_WIRE_HWSERIAL3_RX           PIN_PB1
+#define PIN_WIRE_HWSERIAL3_TX_PINSWAP_1 PIN_PB4
+#define PIN_WIRE_HWSERIAL3_RX_PINSWAP_1 PIN_PB5
 
-#define PIN_A0   (22)
-#define PIN_A1   (23)
-#define PIN_A2   (24)
-#define PIN_A3   (25)
-#define PIN_A4   (26)
-#define PIN_A5   (27)
-#define PIN_A6   (28)
-#define PIN_A7   (29)
-#define PIN_A8   (30)
-#define PIN_A9   (31)
-#define PIN_A10  (32)
-#define PIN_A11  (33)
-#define PIN_A12  (36)
-#define PIN_A13  (37)
-#define PIN_A14  (38)
-#define PIN_A15  (39)
+// USART 4
+// No pinswap by default
+#define HWSERIAL4                       &USART4
+#define HWSERIAL4_DRE_VECTOR            USART4_DRE_vect
+#define HWSERIAL4_DRE_VECTOR_NUM        USART4_DRE_vect_num
+#define HWSERIAL4_RXC_VECTOR            USART4_RXC_vect
+#define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
+#define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc
+#define PIN_WIRE_HWSERIAL4_TX           PIN_PE0
+#define PIN_WIRE_HWSERIAL4_RX           PIN_PE1
+#define PIN_WIRE_HWSERIAL4_TX_PINSWAP_1 PIN_PE4
+#define PIN_WIRE_HWSERIAL4_RX_PINSWAP_1 PIN_PE5
 
+// USART 5
+// No pinswap by default
+#define HWSERIAL5                       &USART5
+#define HWSERIAL5_DRE_VECTOR            USART5_DRE_vect
+#define HWSERIAL5_DRE_VECTOR_NUM        USART5_DRE_vect_num
+#define HWSERIAL5_RXC_VECTOR            USART5_RXC_vect
+#define HWSERIAL5_MUX                   PORTMUX_USART5_DEFAULT_gc
+#define HWSERIAL5_MUX_PINSWAP_1         PORTMUX_USART5_ALT1_gc
+#define PIN_WIRE_HWSERIAL5_TX           PIN_PG0
+#define PIN_WIRE_HWSERIAL5_RX           PIN_PG1
+#define PIN_WIRE_HWSERIAL5_TX_PINSWAP_1 PIN_PG4
+#define PIN_WIRE_HWSERIAL5_RX_PINSWAP_1 PIN_PG5
+
+// Analog pins
+#define PIN_A0   PIN_PD0
+#define PIN_A1   PIN_PD1
+#define PIN_A2   PIN_PD2
+#define PIN_A3   PIN_PD3
+#define PIN_A4   PIN_PD4
+#define PIN_A5   PIN_PD5
+#define PIN_A6   PIN_PD6
+#define PIN_A7   PIN_PD7
+#define PIN_A8   PIN_PE0
+#define PIN_A9   PIN_PE1
+#define PIN_A10  PIN_PE2
+#define PIN_A11  PIN_PE3
+#define PIN_A12  PIN_PE4
+#define PIN_A13  PIN_PE5
+#define PIN_A14  PIN_PE6
+#define PIN_A15  PIN_PE7
+#define PIN_A16  PIN_PF0
+#define PIN_A17  PIN_PF1
+#define PIN_A18  PIN_PF2
+#define PIN_A19  PIN_PF3
+#define PIN_A20  PIN_PF4
+#define PIN_A21  PIN_PF5
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
@@ -173,204 +262,247 @@ static const uint8_t A12 = PIN_A12;
 static const uint8_t A13 = PIN_A13;
 static const uint8_t A14 = PIN_A14;
 static const uint8_t A15 = PIN_A15;
-
-#define PINS_COUNT    (41u)
+static const uint8_t A16 = PIN_A16;
+static const uint8_t A17 = PIN_A17;
+static const uint8_t A18 = PIN_A18;
+static const uint8_t A19 = PIN_A19;
+static const uint8_t A20 = PIN_A20;
+static const uint8_t A21 = PIN_A21;
 
 
 #ifdef ARDUINO_MAIN
 
 const uint8_t digital_pin_to_port[] = {
-  PA, //  0 PA0/USART0_Tx/CLKIN
-  PA, //  1 PA1/USART0_Rx
-  PA, //  2 PA2/SDA
-  PA, //  3 PA3/SCL
-  PA, //  4 PA4/MOSI
-  PA, //  5 PA5/MISO
-  PA, //  6 PA6/SCK
-  PA, //  7 PA7/SS/CLKOUT
-  PB, //  8 PB0/USART3_Tx
-  PB, //  9 PB1/USART3_Rx
-  PB, // 10 PB2
-  PB, // 11 PB3
-  PB, // 12 PB4/(TCB2 PWM)
-  PB, // 13 PB5/TCB3 PWM
-  PC, // 14 PC0/USART1_Tx/TCA0 PWM
-  PC, // 15 PC1/USART1_Rx/TCA0 PWM
-  PC, // 16 PC2/TCA0 PWM
-  PC, // 17 PC3/TCA0 PWM
-  PC, // 18 PC4/TCA0 PWM
-  PC, // 19 PC5/TCA0 PWM
-  PC, // 20 PC6
-  PC, // 21 PC7
-  PD, // 22 PD0/AIN0
-  PD, // 23 PD1/AIN1
-  PD, // 24 PD2/AIN2
-  PD, // 25 PD3/AIN3
-  PD, // 26 PD4/AIN4
-  PD, // 27 PD5/AIN5
-  PD, // 28 PD6/AIN6
-  PD, // 29 PD7/AIN7/AREF
-  PE, // 30 PE0/AIN8
-  PE, // 31 PE1/AIN9
-  PE, // 32 PE2/AIN10
-  PE, // 33 PE3/AIN11
-  PF, // 34 PF0/USART2_Tx/TOSC1
-  PF, // 35 PF1/USART2_Rx/TOSC2
-  PF, // 36 PF2/AIN12
-  PF, // 37 PF3/AIN13
-  PF, // 38 PF4/AIN14/TCB0 PWM
-  PF, // 39 PF5/AIN15/TCB1 PWM/LED_BUILTIN
-  PF  // 40 PF6 RESET
+  PA,  //  0 PA0
+  PA,  //  1 PA1
+  PA,  //  2 PA2
+  PA,  //  3 PA3
+  PA,  //  4 PA4
+  PA,  //  5 PA5
+  PA,  //  6 PA6
+  PA,  //  7 PA7
+  PB,  //  8 PB0
+  PB,  //  9 PB1
+  PB,  //  10 PB2
+  PB,  //  11 PB3
+  PB,  //  12 PB4
+  PB,  //  13 PB5
+  PB,  //  14 PB6
+  PB,  //  15 PB7
+  PC,  //  16 PC0
+  PC,  //  17 PC1
+  PC,  //  18 PC2
+  PC,  //  19 PC3
+  PC,  //  20 PC4
+  PC,  //  21 PC5
+  PC,  //  22 PC6
+  PC,  //  23 PC7
+  PD,  //  24 PD0
+  PD,  //  25 PD1
+  PD,  //  26 PD2
+  PD,  //  27 PD3
+  PD,  //  28 PD4
+  PD,  //  29 PD5
+  PD,  //  30 PD6
+  PD,  //  31 PD7
+  PE,  //  32 PE0
+  PE,  //  33 PE1
+  PE,  //  34 PE2
+  PE,  //  35 PE3
+  PE,  //  36 PE4
+  PE,  //  37 PE5
+  PE,  //  38 PE6
+  PE,  //  39 PE7
+  PF,  //  40 PF0
+  PF,  //  41 PF1
+  PF,  //  42 PF2
+  PF,  //  43 PF3
+  PF,  //  44 PF4
+  PF,  //  45 PF5
+  PG,  //  46 PG0
+  PG,  //  47 PG1
+  PG,  //  48 PG2
+  PG,  //  49 PG3
+  PG,  //  50 PG4
+  PG,  //  51 PG5
+  PG,  //  52 PG6
+  PG,  //  53 PG7
+  PF,  //  54 PF6
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = {
-  PIN0_bp, //  0 PIN_bp0/USART0_Tx/CLKIN
-  PIN1_bp, //  1 PA1/USART0_Rx
-  PIN2_bp, //  2 PA2/SDA
-  PIN3_bp, //  3 PA3/SCL
-  PIN4_bp, //  4 PA4/MOSI
-  PIN5_bp, //  5 PA5/MISO
-  PIN6_bp, //  6 PA6/SCK
-  PIN7_bp, //  7 PA7/SS/CLKOUT
-  PIN0_bp, //  8 PB0/USART3_Tx
-  PIN1_bp, //  9 PB1/USART3_Rx
-  PIN2_bp, // 10 PB2
-  PIN3_bp, // 11 PB3
-  PIN4_bp, // 12 PB4/(TCB2 PWM)
-  PIN5_bp, // 13 PB5/TCB3 PWM
-  PIN0_bp, // 14 PC0/USART1_Tx/TCA0 PWM
-  PIN1_bp, // 15 PC1/USART1_Rx/TCA0 PWM
-  PIN2_bp, // 16 PC2/TCA0 PWM
-  PIN3_bp, // 17 PC3/TCA0 PWM
-  PIN4_bp, // 18 PC4/TCA0 PWM
-  PIN5_bp, // 19 PC5/TCA0 PWM
-  PIN6_bp, // 20 PC6
-  PIN7_bp, // 21 PC7
-  PIN0_bp, // 22 PD0/AIN0
-  PIN1_bp, // 23 PD1/AIN1
-  PIN2_bp, // 24 PD2/AIN2
-  PIN3_bp, // 25 PD3/AIN3
-  PIN4_bp, // 26 PD4/AIN4
-  PIN5_bp, // 27 PD5/AIN5
-  PIN6_bp, // 28 PD6/AIN6
-  PIN7_bp, // 29 PD7/AIN7/AREF
-  PIN0_bp, // 30 PE0/AIN8
-  PIN1_bp, // 31 PE1/AIN9
-  PIN2_bp, // 32 PE2/AIN10
-  PIN3_bp, // 33 PE3/AIN11
-  PIN0_bp, // 34 PF0/USART2_Tx/TOSC1
-  PIN1_bp, // 35 PF1/USART2_Rx/TOSC2
-  PIN2_bp, // 36 PF2/AIN12
-  PIN3_bp, // 37 PF3/AIN13
-  PIN4_bp, // 38 PF4/AIN14/TCB0 PWM
-  PIN5_bp, // 39 PF5/AIN15/TCB1 PWM/LED_BUILTIN
-  PIN6_bp  // 40 PF6 RESET
+  PIN0_bp,  //  0 PA0
+  PIN1_bp,  //  1 PA1
+  PIN2_bp,  //  2 PA2
+  PIN3_bp,  //  3 PA3
+  PIN4_bp,  //  4 PA4
+  PIN5_bp,  //  5 PA5
+  PIN6_bp,  //  6 PA6
+  PIN7_bp,  //  7 PA7
+  PIN0_bp,  //  8 PB0
+  PIN1_bp,  //  9 PB1
+  PIN2_bp,  //  10 PB2
+  PIN3_bp,  //  11 PB3
+  PIN4_bp,  //  12 PB4
+  PIN5_bp,  //  13 PB5
+  PIN6_bp,  //  14 PB6
+  PIN7_bp,  //  15 PB7
+  PIN0_bp,  //  16 PC0
+  PIN1_bp,  //  17 PC1
+  PIN2_bp,  //  18 PC2
+  PIN3_bp,  //  19 PC3
+  PIN4_bp,  //  20 PC4
+  PIN5_bp,  //  21 PC5
+  PIN6_bp,  //  22 PC6
+  PIN7_bp,  //  23 PC7
+  PIN0_bp,  //  24 PD0
+  PIN1_bp,  //  25 PD1
+  PIN2_bp,  //  26 PD2
+  PIN3_bp,  //  27 PD3
+  PIN4_bp,  //  28 PD4
+  PIN5_bp,  //  29 PD5
+  PIN6_bp,  //  30 PD6
+  PIN7_bp,  //  31 PD7
+  PIN0_bp,  //  32 PE0
+  PIN1_bp,  //  33 PE1
+  PIN2_bp,  //  34 PE2
+  PIN3_bp,  //  35 PE3
+  PIN4_bp,  //  36 PE4
+  PIN5_bp,  //  37 PE5
+  PIN6_bp,  //  38 PE6
+  PIN7_bp,  //  39 PE7
+  PIN0_bp,  //  40 PF0
+  PIN1_bp,  //  41 PF1
+  PIN2_bp,  //  42 PF2
+  PIN3_bp,  //  43 PF3
+  PIN4_bp,  //  44 PF4
+  PIN5_bp,  //  45 PF5
+  PIN0_bp,  //  46 PG0
+  PIN1_bp,  //  47 PG1
+  PIN2_bp,  //  48 PG2
+  PIN3_bp,  //  49 PG3
+  PIN4_bp,  //  50 PG4
+  PIN5_bp,  //  51 PG5
+  PIN6_bp,  //  52 PG6
+  PIN7_bp,  //  53 PG7
+  PIN6_bp,  //  54 PF6
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_mask[] = {
-  PIN0_bm, //  0 PIN_bp0/USART0_Tx/CLKIN
-  PIN1_bm, //  1 PA1/USART0_Rx
-  PIN2_bm, //  2 PA2/SDA
-  PIN3_bm, //  3 PA3/SCL
-  PIN4_bm, //  4 PA4/MOSI
-  PIN5_bm, //  5 PA5/MISO
-  PIN6_bm, //  6 PA6/SCK
-  PIN7_bm, //  7 PA7/SS/CLKOUT
-  PIN0_bm, //  8 PB0/USART3_Tx
-  PIN1_bm, //  9 PB1/USART3_Rx
-  PIN2_bm, // 10 PB2
-  PIN3_bm, // 11 PB3
-  PIN4_bm, // 12 PB4/(TCB2 PWM)
-  PIN5_bm, // 13 PB5/TCB3 PWM
-  PIN0_bm, // 14 PC0/USART1_Tx/TCA0 PWM
-  PIN1_bm, // 15 PC1/USART1_Rx/TCA0 PWM
-  PIN2_bm, // 16 PC2/TCA0 PWM
-  PIN3_bm, // 17 PC3/TCA0 PWM
-  PIN4_bm, // 18 PC4/TCA0 PWM
-  PIN5_bm, // 19 PC5/TCA0 PWM
-  PIN6_bm, // 20 PC6
-  PIN7_bm, // 21 PC7
-  PIN0_bm, // 22 PD0/AIN0
-  PIN1_bm, // 23 PD1/AIN1
-  PIN2_bm, // 24 PD2/AIN2
-  PIN3_bm, // 25 PD3/AIN3
-  PIN4_bm, // 26 PD4/AIN4
-  PIN5_bm, // 27 PD5/AIN5
-  PIN6_bm, // 28 PD6/AIN6
-  PIN7_bm, // 29 PD7/AIN7/AREF
-  PIN0_bm, // 30 PE0/AIN8
-  PIN1_bm, // 31 PE1/AIN9
-  PIN2_bm, // 32 PE2/AIN10
-  PIN3_bm, // 33 PE3/AIN11
-  PIN0_bm, // 34 PF0/USART2_Tx/TOSC1
-  PIN1_bm, // 35 PF1/USART2_Rx/TOSC2
-  PIN2_bm, // 36 PF2/AIN12
-  PIN3_bm, // 37 PF3/AIN13
-  PIN4_bm, // 38 PF4/AIN14/TCB0 PWM
-  PIN5_bm, // 39 PF5/AIN15/TCB1 PWM/LED_BUILTIN
-  PIN6_bm  // 40 PF6 RESET
+  PIN0_bm,  //  0 PA0
+  PIN1_bm,  //  1 PA1
+  PIN2_bm,  //  2 PA2
+  PIN3_bm,  //  3 PA3
+  PIN4_bm,  //  4 PA4
+  PIN5_bm,  //  5 PA5
+  PIN6_bm,  //  6 PA6
+  PIN7_bm,  //  7 PA7
+  PIN0_bm,  //  8 PB0
+  PIN1_bm,  //  9 PB1
+  PIN2_bm,  //  10 PB2
+  PIN3_bm,  //  11 PB3
+  PIN4_bm,  //  12 PB4
+  PIN5_bm,  //  13 PB5
+  PIN6_bm,  //  14 PB6
+  PIN7_bm,  //  15 PB7
+  PIN0_bm,  //  16 PC0
+  PIN1_bm,  //  17 PC1
+  PIN2_bm,  //  18 PC2
+  PIN3_bm,  //  19 PC3
+  PIN4_bm,  //  20 PC4
+  PIN5_bm,  //  21 PC5
+  PIN6_bm,  //  22 PC6
+  PIN7_bm,  //  23 PC7
+  PIN0_bm,  //  24 PD0
+  PIN1_bm,  //  25 PD1
+  PIN2_bm,  //  26 PD2
+  PIN3_bm,  //  27 PD3
+  PIN4_bm,  //  28 PD4
+  PIN5_bm,  //  29 PD5
+  PIN6_bm,  //  30 PD6
+  PIN7_bm,  //  31 PD7
+  PIN0_bm,  //  32 PE0
+  PIN1_bm,  //  33 PE1
+  PIN2_bm,  //  34 PE2
+  PIN3_bm,  //  35 PE3
+  PIN4_bm,  //  36 PE4
+  PIN5_bm,  //  37 PE5
+  PIN6_bm,  //  38 PE6
+  PIN7_bm,  //  39 PE7
+  PIN0_bm,  //  40 PF0
+  PIN1_bm,  //  41 PF1
+  PIN2_bm,  //  42 PF2
+  PIN3_bm,  //  43 PF3
+  PIN4_bm,  //  44 PF4
+  PIN5_bm,  //  45 PF5
+  PIN0_bm,  //  46 PG0
+  PIN1_bm,  //  47 PG1
+  PIN2_bm,  //  48 PG2
+  PIN3_bm,  //  49 PG3
+  PIN4_bm,  //  50 PG4
+  PIN5_bm,  //  51 PG5
+  PIN6_bm,  //  52 PG6
+  PIN7_bm,  //  53 PG7
+  PIN6_bm,  //  54 PF6
 };
 
-const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
-  NOT_ON_TIMER, //  1 PA1/USART0_Rx
-  NOT_ON_TIMER, //  2 PA2/SDA
-  NOT_ON_TIMER, //  3 PA3/SCL
-  NOT_ON_TIMER, //  4 PA4/MOSI
-  NOT_ON_TIMER, //  5 PA5/MISO
-  NOT_ON_TIMER, //  6 PA6/SCK
-  NOT_ON_TIMER, //  7 PA7/SS/CLKOUT
-  NOT_ON_TIMER, //  8 PB0/USART3_Tx
-  NOT_ON_TIMER, //  9 PB1/USART3_Rx
-  NOT_ON_TIMER, // 10 PB2
-  NOT_ON_TIMER, // 11 PB3
-#ifdef MILLIS_USE_TIMERB2
-  NOT_ON_TIMER, // 12 PB4
-#else
-  TIMERB2,      // 12 PB4/TCB2 PWM
-#endif
-#ifdef MILLIS_USE_TIMERB3
-  NOT_ON_TIMER, // 13 PB5
-#else
-  TIMERB3,      // 13 PB5/TCB3 PWM
-#endif
-  TIMERA0,      // 14 PC0/USART1_Tx/TCA0 PWM
-  TIMERA0,      // 15 PC1/USART1_Rx/TCA0 PWM
-  TIMERA0,      // 16 PC2/TCA0 PWM
-  TIMERA0,      // 17 PC3/TCA0 PWM
-  TIMERA0,      // 18 PC4/TCA0 PWM
-  TIMERA0,      // 19 PC5/TCA0 PWM
-  NOT_ON_TIMER, // 20 PC6
-  NOT_ON_TIMER, // 21 PC7
-  NOT_ON_TIMER, // 22 PD0/AIN0
-  NOT_ON_TIMER, // 23 PD1/AIN1
-  NOT_ON_TIMER, // 24 PD2/AIN2
-  NOT_ON_TIMER, // 25 PD3/AIN3
-  NOT_ON_TIMER, // 26 PD4/AIN4
-  NOT_ON_TIMER, // 27 PD5/AIN5
-  NOT_ON_TIMER, // 28 PD6/AIN6
-  NOT_ON_TIMER, // 29 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 30 PE0/AIN8
-  NOT_ON_TIMER, // 31 PE1/AIN9
-  NOT_ON_TIMER, // 32 PE2/AIN10
-  NOT_ON_TIMER, // 33 PE3/AIN11
-  NOT_ON_TIMER, // 34 PF0/USART2_Tx/TOSC1
-  NOT_ON_TIMER, // 35 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 36 PF2/AIN12
-  NOT_ON_TIMER, // 37 PF3/AIN13
-#ifdef MILLIS_USE_TIMERB0
-  NOT_ON_TIMER, // 38 PF4/AIN14
-#else
-  TIMERB0,      // 38 PF4/AIN14/TCB0 PWM
-#endif
-#ifdef MILLIS_USE_TIMERB1
-  NOT_ON_TIMER, // 39 PF5/AIN15/LED_BUILTIN
-#else
-  TIMERB1,      // 39 PF5/AIN15/TCB1 PWM/LED_BUILTIN
-#endif
-  NOT_ON_TIMER  // 40 PF6 RESET
+const uint8_t digital_pin_to_timer[] = {NOT_ON_TIMER, //  0
+  NOT_ON_TIMER, //  1
+  NOT_ON_TIMER, //  2
+  NOT_ON_TIMER, //  3
+    TIMERD0,   //  4 PA4
+    TIMERD0,   //  5 PA5
+  NOT_ON_TIMER, //  6
+  NOT_ON_TIMER, //  7
+    TIMERA1,    //  8 PB0
+    TIMERA1,    //  9 PB1
+    TIMERA1,    //  10 PB2
+    TIMERA1,    //  11 PB3
+    TIMERA1,    //  12 PB4
+    TIMERA1,    //  13 PB5
+  NOT_ON_TIMER, //  14
+  NOT_ON_TIMER, //  15
+    TIMERA0,    //  16 PC0
+    TIMERA0,    //  17 PC1
+    TIMERA0,    //  18 PC2
+    TIMERA0,    //  19 PC3
+    TIMERA0,    //  20 PC4
+    TIMERA0,    //  21 PC5
+  NOT_ON_TIMER, //  22
+  NOT_ON_TIMER, //  23
+  NOT_ON_TIMER, //  24
+  NOT_ON_TIMER, //  25
+  NOT_ON_TIMER, //  26
+  NOT_ON_TIMER, //  27
+  NOT_ON_TIMER, //  28
+    DACOUT,     //  29 PD5
+  NOT_ON_TIMER, //  30
+  NOT_ON_TIMER, //  31
+  NOT_ON_TIMER, //  32
+  NOT_ON_TIMER, //  33
+  NOT_ON_TIMER, //  34
+  NOT_ON_TIMER, //  35
+  NOT_ON_TIMER, //  36
+  NOT_ON_TIMER, //  37
+  NOT_ON_TIMER, //  38
+  NOT_ON_TIMER, //  39
+  NOT_ON_TIMER, //  40
+  NOT_ON_TIMER, //  41
+  NOT_ON_TIMER, //  42
+  NOT_ON_TIMER, //  43
+    TIMERB0,    //  44 PF4
+    TIMERB1,    //  45 PF5
+  NOT_ON_TIMER, //  46
+  NOT_ON_TIMER, //  47
+  NOT_ON_TIMER, //  48
+  NOT_ON_TIMER, //  49
+  NOT_ON_TIMER, //  50
+  NOT_ON_TIMER, //  51
+  NOT_ON_TIMER, //  52
+  NOT_ON_TIMER, //  53
+  NOT_ON_TIMER, //  54
 };
 
 

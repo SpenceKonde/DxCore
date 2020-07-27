@@ -63,7 +63,11 @@ static volatile TWI_MODE_t twi_mode;
 void TWI_MasterInit(uint32_t frequency)
 {
 	if(twi_mode != TWI_MODE_UNKNOWN) return;
-
+    // Ensure that TWI pins are not written high
+    // due to silicon bug, TWIn does not properly override the PORTx.OUT register.
+    // see silicon errata
+	digitalWrite(PIN_WIRE_SDA,LOW);
+	digitalWrite(PIN_WIRE_SCL,LOW);
 	// Enable pullups just in case, should have external ones though
 #ifdef NO_EXTERNAL_I2C_PULLUP
 	pinMode(PIN_WIRE_SDA, INPUT_PULLUP);

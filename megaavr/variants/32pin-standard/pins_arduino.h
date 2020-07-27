@@ -1,17 +1,3 @@
-/****************************************************|
-|               32-PIN STANDARD PINOUT               |
-|       https://github.com/MCUdude/MegaCoreX         |
-|                                                    |
-| COMPATIBLE WITH:                                   |
-| ATmega4808                                         |
-| ATmega3208                                         |
-| ATmega1608                                         |
-| ATmega808                                          |
-|                                                    |
-| Note that PWM output pins are swapped by default   |
-|                                                    |
-|****************************************************/
-
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 
@@ -67,14 +53,20 @@
 
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWM(p)  (((p) == PIN_PD0) || ((p) == PIN_PD1) || ((p) == PIN_PD1) || ((p) == PIN_PD3) || \
-                                ((p) == PIN_PD4) || ((p) == PIN_PD5) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                              ((p) == PIN_PC0) || ((p) == PIN_PC1) || ((p) == PIN_PF5))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWM(p)  (((p) == PIN_PD0) || ((p) == PIN_PD1) || ((p) == PIN_PD1) || ((p) == PIN_PD3) || \
-                                ((p) == PIN_PD4) || ((p) == PIN_PD5) || ((p) == PIN_PA2) || ((p) == PIN_PC0))
-#else // default to MILLIS_USE_TIMERB2
-  #define digitalPinHasPWM(p)  (((p) == PIN_PD0) || ((p) == PIN_PD1) || ((p) == PIN_PD1) || ((p) == PIN_PD3) || \
-                                ((p) == PIN_PD4) || ((p) == PIN_PD5) || ((p) == PIN_PA2) || ((p) == PIN_PA3))
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                                ((p) == PIN_PC0) || ((p) == PIN_PC1) || ((p) == PIN_PF4))
+#elif defined(MILLIS_USE_TIMERB2)
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                                ((p) == PIN_PC1) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
+#elif defined(MILLIS_USE_TIMERB3)
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                                ((p) == PIN_PC0) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
+#else //no TCB's are used for PWM
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                              ((p) == PIN_PC0) || ((p) == PIN_PC1) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #endif
 
 // Timer pin mapping
@@ -82,10 +74,10 @@
 #define TCB0_PINS 0x00                  // TCB0 output on PA2 instead of PF4
 #define TCB1_PINS 0x00                  // TCB1 output on PA3 instead of PF5
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 instead of PB4
+#define TCD0_PINS PORTMUX_TCD0_ALT2_gc  // TCD0 output on PF0~PF3 (we use PF2, PF3)
 
 // SPI 0
-// No pinswap enabled by default
-// Pinswap 2 not available
+// No pinswap available
 #define SPI_INTERFACES_COUNT   1
 #define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
 #define SPI_MUX_PINSWAP_1      PORTMUX_SPI0_ALT1_gc
@@ -93,10 +85,6 @@
 #define PIN_SPI_SCK            PIN_PA6
 #define PIN_SPI_MOSI           PIN_PA4
 #define PIN_SPI_SS             PIN_PA7
-#define PIN_SPI_MISO_PINSWAP_1 PIN_PC1
-#define PIN_SPI_SCK_PINSWAP_1  PIN_PC2
-#define PIN_SPI_MOSI_PINSWAP_1 PIN_PC0
-#define PIN_SPI_SS_PINSWAP_1   PIN_PC3
 static const uint8_t SS   =    PIN_SPI_SS;
 static const uint8_t MOSI =    PIN_SPI_MOSI;
 static const uint8_t MISO =    PIN_SPI_MISO;
@@ -108,8 +96,8 @@ static const uint8_t SCK  =    PIN_SPI_SCK;
 #define TWI_MUX_PINSWAP        PORTMUX_TWI0_ALT2_gc
 #define PIN_WIRE_SDA           PIN_PA2
 #define PIN_WIRE_SCL           PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_1 PIN_PC2
-#define PIN_WIRE_SCL_PINSWAP_1 PIN_PC3
+#define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
+#define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
 static const uint8_t SDA =     PIN_WIRE_SDA;
 static const uint8_t SCL =     PIN_WIRE_SCL;
 
@@ -161,14 +149,12 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 #define PIN_A5   PIN_PD5
 #define PIN_A6   PIN_PD6
 #define PIN_A7   PIN_PD7
-#define PIN_A8   PIN_PF2
-#define PIN_A9   PIN_PF3
-#define PIN_A10  PIN_PF4
-#define PIN_A11  PIN_PF5
-#define PIN_A12  PIN_PF2
-#define PIN_A13  PIN_PF3
-#define PIN_A14  PIN_PF4
-#define PIN_A15  PIN_PF5
+#define PIN_A16  PIN_PF0
+#define PIN_A17  PIN_PF1
+#define PIN_A18  PIN_PF2
+#define PIN_A19  PIN_PF3
+#define PIN_A20  PIN_PF4
+#define PIN_A21  PIN_PF5
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
@@ -177,14 +163,12 @@ static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6;
 static const uint8_t A7  = PIN_A7;
-static const uint8_t A8  = PIN_A8;
-static const uint8_t A9  = PIN_A9;
-static const uint8_t A10 = PIN_A10;
-static const uint8_t A11 = PIN_A11;
-static const uint8_t A12 = PIN_A12;
-static const uint8_t A13 = PIN_A13;
-static const uint8_t A14 = PIN_A14;
-static const uint8_t A15 = PIN_A15;
+static const uint8_t A16 = PIN_A16;
+static const uint8_t A17 = PIN_A17;
+static const uint8_t A18 = PIN_A18;
+static const uint8_t A19 = PIN_A19;
+static const uint8_t A20 = PIN_A20;
+static const uint8_t A21 = PIN_A21;
 
 #ifdef ARDUINO_MAIN
 
@@ -196,7 +180,7 @@ const uint8_t digital_pin_to_port[] = {
   PA, //  4 PA4/MOSI
   PA, //  5 PA5/MISO
   PA, //  6 PA6/SCK
-  PA, //  7 PA7/SS/CLKOUT
+  PA, //  7 PA7/SS/CLKOUT/LED_BUILTIN
   PC, //  8 PC0/USART1_Tx
   PC, //  9 PC1/USART1_Rx
   PC, // 10 PC2
@@ -204,17 +188,17 @@ const uint8_t digital_pin_to_port[] = {
   PD, // 12 PD0/AIN0
   PD, // 13 PD1/AIN1
   PD, // 14 PD2/AIN2
-  PD, // 15 PD3/AIN3/LED_BUILTIN
+  PD, // 15 PD3/AIN3
   PD, // 16 PD4/AIN4
   PD, // 17 PD5/AIN5
   PD, // 18 PD6/AIN6
   PD, // 19 PD7/AIN7/AREF
-  PF, // 20 PF0/USART2_Tx/TOSC1
-  PF, // 21 PF1/USART2_Rx/TOSC2
-  PF, // 22 PF2/AIN12
-  PF, // 23 PF3/AIN13
-  PF, // 24 PF4/AIN14/TCB0 PWM
-  PF, // 25 PF5/AIN15/TCB1 PWM
+  PF, // 20 PF0/AIN16/USART2_Tx/TOSC1
+  PF, // 21 PF1/AIN17/USART2_Rx/TOSC2
+  PF, // 22 PF2/AIN18
+  PF, // 23 PF3/AIN19
+  PF, // 24 PF4/AIN20/TCB0 PWM
+  PF, // 25 PF5/AIN21/TCB1 PWM
   PF  // 26 PF6 RESET
 };
 
@@ -311,12 +295,12 @@ const uint8_t digital_pin_to_timer[] = {
   TIMERA0,      // 15 PD3/AIN3/LED_BUILTIN
   TIMERA0,      // 16 PD4/AIN4
   TIMERA0,      // 17 PD5/AIN5
-  DACOUT, // 18 PD6/AIN6
+  DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
   NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 22 PF2/AIN12
-  NOT_ON_TIMER, // 23 PF3/AIN13
+  TIMERD0,      // 22 PF2/AIN12
+  TIMERD0,      // 23 PF3/AIN13
   NOT_ON_TIMER, // 24 PF4/AIN14
   NOT_ON_TIMER, // 25 PF5/AIN15
   NOT_ON_TIMER  // 26 PF6 RESET

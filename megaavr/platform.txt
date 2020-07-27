@@ -5,7 +5,7 @@
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
 
-name=DACore
+name=DxCore
 version=0.1.0
 
 # AVR compile variables
@@ -84,17 +84,12 @@ recipe.hooks.objcopy.postobjcopy.2.pattern.macosx="{runtime.platform.path}/creat
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex
-recipe.output.save_file={build.project_name}.{build.variant}.hex
+recipe.output.save_file={build.project_name}.{build.mcu}.{build.speed}.m{build.millistimer}.hex
 
-## Save hex
-recipe.hooks.savehex.presavehex.1.pattern.windows="{runtime.platform.path}/delete_merged_output.bat" {build.export_merged_output} "{build.path}\{build.project_name}.with_bootloader.hex"
-recipe.hooks.savehex.presavehex.2.pattern.windows=cmd /C copy "{build.path}\{build.project_name}.lst" "{sketch_path}"
-recipe.hooks.savehex.presavehex.1.pattern.linux=chmod +x "{runtime.platform.path}/delete_merged_output.sh"
-recipe.hooks.savehex.presavehex.2.pattern.linux="{runtime.platform.path}/delete_merged_output.sh" {build.export_merged_output} "{build.path}/{build.project_name}.with_bootloader.hex"
-recipe.hooks.savehex.presavehex.3.pattern.linux=cp "{build.path}/{build.project_name}.lst" "{sketch_path}"
-recipe.hooks.savehex.presavehex.1.pattern.macosx=chmod +x "{runtime.platform.path}/delete_merged_output.sh"
-recipe.hooks.savehex.presavehex.2.pattern.macosx="{runtime.platform.path}/delete_merged_output.sh" {build.export_merged_output} "{build.path}/{build.project_name}.with_bootloader.hex"
-recipe.hooks.savehex.presavehex.3.pattern.linux=cp "{build.path}/{build.project_name}.lst" "{sketch_path}"
+## Save lst
+recipe.hooks.savehex.presavehex.1.pattern.windows=cmd /C copy "{build.path}\{build.project_name}.lst" "{sketch_path}\{build.project_name}.{build.mcu}.{build.speed}.m{build.millistimer}.lst"
+recipe.hooks.savehex.presavehex.1.pattern.linux=cp "{build.path}/{build.project_name}.lst" "{sketch_path}/{build.project_name}.{build.mcu}.{build.speed}.m{build.millistimer}.lst"
+recipe.hooks.savehex.presavehex.1.pattern.macosx=cp "{build.path}/{build.project_name}.lst" "{sketch_path}/{build.project_name}.{build.mcu}.{build.speed}.m{build.millistimer}.lst"
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
