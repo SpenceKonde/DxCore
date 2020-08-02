@@ -74,17 +74,17 @@
 #define NUM_SPI_PINS                   3 // (MISO / MOSI / SCK)
 #define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
 #define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-#define ANALOG_INPUT_OFFSET            22
-#define LED_BUILTIN                    7 // PA7
-#define digitalPinToAnalogInput(p)     ((p < NUM_ANALOG_INPUTS) ? (p) : ((p) >= 22 && (p) <= 33) ? ((p) - ANALOG_INPUT_OFFSET) : ((p) >= 36 && (p) <=39) ? ((p) - 2 - ANALOG_INPUT_OFFSET) : NOT_A_PIN)
-#define digitalOrAnalogPinToDigital(p) ((p <= 11) ? ((p) + ANALOG_INPUT_OFFSET) : ((p) <= 15) ? ((p) + ANALOG_INPUT_OFFSET + 2) : (((p) >= 22 && (p) <= 33) || ((p) >= 36 && (p) <= 39)) ? (p) :  NOT_A_PIN)
+#define ANALOG_INPUT_OFFSET            24 //Hopefully not used elsewhere!
+#define LED_BUILTIN                    (PIN_PA7)
+#define digitalPinToAnalogInput(p)     ((((p)>=PIN_PC7) && ((p)< PIN_PF6))? ((p)-PIN_PD0) : NOT_A_PIN)
+#define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):NOT_A_PIN)
 
 
 #define EXTERNAL_NUM_INTERRUPTS     (56) //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
 
 #if defined(MILLIS_USE_TIMERB0)
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                              ((p) == PIN_PF5) || ((p) == PIN_PG3))
+                                ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB1)
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
                                 ((p) == PIN_PF4) || ((p) == PIN_PG3))

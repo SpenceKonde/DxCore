@@ -33,7 +33,7 @@
 
 #define PINS_COUNT                     23
 #define NUM_DIGITAL_PINS               PINS_COUNT
-#define NUM_ANALOG_INPUTS              8
+#define NUM_ANALOG_INPUTS              10
 #define NUM_RESERVED_PINS              0
 #define NUM_INTERNALLY_USED_PINS       0
 #define NUM_I2C_PINS                   2
@@ -43,13 +43,8 @@
 #define ANALOG_INPUT_OFFSET            12
 #define LED_BUILTIN                    PIN_PA7
 #define EXTERNAL_NUM_INTERRUPTS        47
-#define digitalPinToAnalogInput(p)     ((p < NUM_ANALOG_INPUTS) ? (p) : (p) - 12)
-#define digitalOrAnalogPinToDigital(p) ((p < 8) ? ((p) + ANALOG_INPUT_OFFSET) : ((p) >= 12 && (p) <= 19) ? (p) : NOT_A_PIN)
-
-// Timer to use for millis/micros
-#if !defined(MILLIS_USE_TIMERB0) && !defined(MILLIS_USE_TIMERB1) && !defined(MILLIS_USE_TIMERB2)
-#define MILLIS_USE_TIMERB2  // Use TCB2 if nothing else if defined
-#endif
+#define digitalPinToAnalogInput(p)     (((p)>=PIN_PC3 && (p)<PIN_PF0)?(p) - PIN_PD0:((p)<PIN_PF6?((p)-4):NOT_A_PIN))
+#define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):((((p)&0x7F)<8)?(((p)&0x7F)+PIN_PD0):))
 
 // PWM pins
 

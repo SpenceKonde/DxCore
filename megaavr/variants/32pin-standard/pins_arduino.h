@@ -44,11 +44,11 @@
 #define NUM_SPI_PINS                   6 // (MISO / MOSI / SCK)
 #define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
 #define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-#define ANALOG_INPUT_OFFSET            12
-#define LED_BUILTIN                    PIN_PA7
+//#define ANALOG_INPUT_OFFSET            12//Hopefully not used elsewhere!
+#define LED_BUILTIN                    (PIN_PA7)
 #define EXTERNAL_NUM_INTERRUPTS        47
-#define digitalPinToAnalogInput(p)     ((p < 8) ? (p) : ((p) < 12) ? ((p) + 4) : ((p) < 20) ? ((p) - 12) : ((p) >= 22 && (p) <=25) ? ((p) - 10) : NOT_A_PIN)
-#define digitalOrAnalogPinToDigital(p) ((p < 8) ? ((p) + ANALOG_INPUT_OFFSET) : ((p) >= 8 && (p) <= 11) ? ((p) + ANALOG_INPUT_OFFSET + 2) : (((p) >= 12 && (p) <= 19) || ((p) >= 22 && (p) <= 25)) ? (p) : NOT_A_PIN)
+#define digitalPinToAnalogInput(p)     (((p)>PIN_PC3 && (p)<PIN_PF0)? ((p)-PIN_PD0) : ((p)<PIN_PF6 ? ((p)-4) : NOT_A_PIN))
+#define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):NOT_A_PIN)
 
 
 // PWM pins
