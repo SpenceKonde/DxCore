@@ -24,7 +24,15 @@
 
 #include <Arduino.h>
 
+#if ((RAMEND - RAMSTART) < 1023)
+#define BUFFER_LENGTH 16
+#elif ((RAMEND - RAMSTART) < 4095)
+#define BUFFER_LENGTH 32
+#elif ((RAMEND - RAMSTART) < 8191)
+#define BUFFER_LENGTH 64
+#else
 #define BUFFER_LENGTH 128
+#endif
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
@@ -62,6 +70,8 @@ class TwoWire : public Stream
     void beginTransmission(int);
     uint8_t endTransmission(void);
     uint8_t endTransmission(bool);
+    uint8_t requestFrom(uint8_t, uint8_t);
+    uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
     uint8_t requestFrom(uint8_t, size_t);
     uint8_t requestFrom(uint8_t, size_t, bool);
     uint8_t requestFrom(int, int);

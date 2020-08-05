@@ -53,20 +53,17 @@
 
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
-                              ((p) == PIN_PC0) || ((p) == PIN_PC1) || ((p) == PIN_PF5))
+#define digitalPinHasPWM(p)   ((((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                              ((p) == PIN_PA3) || ((p) == PIN_PC0))
 #elif defined(MILLIS_USE_TIMERB1)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
-                                ((p) == PIN_PC0) || ((p) == PIN_PC1) || ((p) == PIN_PF4))
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                                ((p) == PIN_PC0) || ((p) == PIN_PA2))
 #elif defined(MILLIS_USE_TIMERB2)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
-                                ((p) == PIN_PC1) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
-#elif defined(MILLIS_USE_TIMERB3)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
-                                ((p) == PIN_PC0) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                                ((p) == PIN_PA2) || ((p) == PIN_PA3))
 #else //no TCB's are used for PWM
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
-                              ((p) == PIN_PC0) || ((p) == PIN_PC1) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
+#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) < PIN_PD6)) || ((p) == PIN_PF2) || ((p) == PIN_PF3) ||\
+                              ((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
 #endif
 
 // Timer pin mapping

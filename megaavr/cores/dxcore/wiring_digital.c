@@ -29,46 +29,55 @@
 
 void pinMode(uint8_t pin, uint8_t mode)
 {
-	uint8_t bit_mask = digitalPinToBitMask(pin);
+  uint8_t bit_mask = digitalPinToBitMask(pin);
 
-	if ((bit_mask == NOT_A_PIN) || (mode > INPUT_PULLUP)) return;
+  if ((bit_mask == NOT_A_PIN) || (mode > INPUT_PULLUP)) return;
 
-	PORT_t* port = digitalPinToPortStruct(pin);
-	if(port == NULL) return;
+  PORT_t* port = digitalPinToPortStruct(pin);
+  if(port == NULL) return;
 
-	if(mode == OUTPUT){
+  if(mode == OUTPUT){
 
-		/* Configure direction as output */
-		port->DIRSET = bit_mask;
+    /* Configure direction as output */
+    port->DIRSET = bit_mask;
 
-	} else { /* mode == INPUT or INPUT_PULLUP */
+  } else { /* mode == INPUT or INPUT_PULLUP */
+    // when someone is explicitly setting a pin as input, let's actually test it, rather than assuming that they hadn't been doing weird things with the ADC.
+  // we'll document this
+#ifndef DO_NOT_WORKAROUND_ADC_BUG
+    if (GPR.GPR3&0x80){
+      if (digitalPinToAnalogInput(pin)==ADC0.MUXPOS) {
+        GPR.GPR3=0x80;
+        ADC0.MUXPOS=0x7F;
+      }
+    }
+#endif
+    uint8_t bit_pos = digitalPinToBitPosition(pin);
+    /* Calculate where pin control register is */
+    volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
 
-		uint8_t bit_pos = digitalPinToBitPosition(pin);
-		/* Calculate where pin control register is */
-		volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
+    /* Save state */
+    uint8_t status = SREG;
+    cli();
 
-		/* Save state */
-		uint8_t status = SREG;
-		cli();
+    /* Configure direction as input */
+    port->DIRCLR = bit_mask;
 
-		/* Configure direction as input */
-		port->DIRCLR = bit_mask;
+    /* Configure pull-up resistor */
+    if(mode == INPUT_PULLUP){
 
-		/* Configure pull-up resistor */
-		if(mode == INPUT_PULLUP){
+      /* Enable pull-up */
+      *pin_ctrl_reg |= PORT_PULLUPEN_bm;
 
-			/* Enable pull-up */
-			*pin_ctrl_reg |= PORT_PULLUPEN_bm;
+    } else { /* mode == INPUT (no pullup) */
 
-		} else { /* mode == INPUT (no pullup) */
+      /* Disable pull-up */
+      *pin_ctrl_reg &= ~(PORT_PULLUPEN_bm);
+    }
 
-			/* Disable pull-up */
-			*pin_ctrl_reg &= ~(PORT_PULLUPEN_bm);
-		}
-
-		/* Restore state */
-		SREG = status;
-	}
+    /* Restore state */
+    SREG = status;
+  }
 }
 
 // Forcing this inline keeps the callers from having to push their own stuff
@@ -87,148 +96,161 @@ void pinMode(uint8_t pin, uint8_t mode)
 //static inline void turnOffPWM(uint8_t timer)
 static void turnOffPWM(uint8_t pin)
 {
-	/* Actually turn off compare channel, not the timer */
+  /* Actually turn off compare channel, not the timer */
 
-	/* Get pin's timer */
-	uint8_t timer = digitalPinToTimer(pin);
-	if(timer == NOT_ON_TIMER) return;
+  /* Get pin's timer */
+  uint8_t timer = digitalPinToTimer(pin);
+  if(timer == NOT_ON_TIMER) return;
 
-	uint8_t bit_pos = digitalPinToBitPosition(pin);
-	TCB_t *timerB;
+  uint8_t bit_pos = digitalPinToBitPosition(pin);
+  TCB_t *timerB;
 
-	switch (timer) {
+  switch (timer) {
 
-	/* TCA0 */
-	case TIMERA0:
-		/* Bit position will give output channel */
-		if (bit_pos>2) 	bit_pos++; //there's a blank bit in the middle
-		/* Disable corresponding channel */
-		TCA0.SPLIT.CTRLB &= ~(1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
-		break;
-	#ifdef TCA1
-	case TIMERA1:
-		/* Bit position will give output channel */
-		if (bit_pos>2) 	bit_pos++; //there's a blank bit in the middle
-		/* Disable corresponding channel */
-		TCA1.SPLIT.CTRLB &= ~(1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
-		break;
-	#endif
-	//TCB - only one output
-	case TIMERB0:
-	case TIMERB1:
-	case TIMERB2:
-	case TIMERB3:
-	case TIMERB4:
+  /* TCA0 */
+  case TIMERA0:
+    /* Bit position will give output channel */
+    if (bit_pos>2)  bit_pos++; //there's a blank bit in the middle
+    /* Disable corresponding channel */
+    TCA0.SPLIT.CTRLB &= ~(1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    break;
+  #ifdef TCA1
+  case TIMERA1:
+    /* Bit position will give output channel */
+    if (bit_pos>2)  bit_pos++; //there's a blank bit in the middle
+    /* Disable corresponding channel */
+    TCA1.SPLIT.CTRLB &= ~(1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    break;
+  #endif
+  //TCB - only one output
+  case TIMERB0:
+  case TIMERB1:
+  case TIMERB2:
+  case TIMERB3:
+  case TIMERB4:
 
-		timerB = (TCB_t *)&TCB0 + (timer - TIMERB0);
+    timerB = (TCB_t *)&TCB0 + (timer - TIMERB0);
 
-		 //Disable TCB compare channel
-		timerB->CTRLB &= ~(TCB_CCMPEN_bm);
+     //Disable TCB compare channel
+    timerB->CTRLB &= ~(TCB_CCMPEN_bm);
 
-		break;
-	#if defined(DAC0)
-	case DACOUT:
-		DAC0.CTRLA=0x00;
-		break;
-	#endif
+    break;
+  #if defined(DAC0)
+  case DACOUT:
+    DAC0.CTRLA=0x00;
+    break;
+  #endif
     #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
-	case TIMERD0:
-		// rigmarole that produces a glitch in the PWM
-		TCD0.CTRLA=0x10;//stop the timer
-		while(!(TCD0.STATUS&0x01)) {;}// wait until it's actually stopped
-		_PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(1<<(6+bit_pos)));
-		TCD0.CTRLA=0x11; //reenable it
-		break;
-	#endif
-	default:
-		break;
-	}
+  case TIMERD0:
+    // rigmarole that produces a glitch in the PWM
+    TCD0.CTRLA&= ~TCD_ENABLE_bm;//stop the timer
+    while(!(TCD0.STATUS&0x01)) {;}// wait until it's actually stopped
+    #ifdef MEGATINYCORE
+    _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(1<<(6+bit_pos)));
+    #else
+    bit_pos&=0x03 // now 0-3, whether it's in the high or low half of the port - all the TCD banks are in one half or the other half of a port on DA series.
+    _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(0x10<<(bit_pos)));
+    #endif
+    TCD0.CTRLA|= TCD_ENABLE_bm; //reenable it
+    break;
+  #endif
+  default:
+    break;
+  }
 }
 
 void digitalWrite(uint8_t pin, uint8_t val)
 {
-	/* Get bit mask for pin */
-	uint8_t bit_mask = digitalPinToBitMask(pin);
-	if(bit_mask == NOT_A_PIN) return;
+  /* Get bit mask for pin */
+  uint8_t bit_mask = digitalPinToBitMask(pin);
+  if(bit_mask == NOT_A_PIN) return;
 
-	/* Turn off PWM if applicable */
+  /* Turn off PWM if applicable */
 
-	// If the pin that support PWM output, we need to turn it off
-	// before doing a digital write.
-	turnOffPWM(pin);
+  // If the pin that support PWM output, we need to turn it off
+  // before doing a digital write.
+  turnOffPWM(pin);
 
-	/* Assuming the direction is already output !! */
+  /* Assuming the direction is already output !! */
 
-	/* Get port */
-	PORT_t *port = digitalPinToPortStruct(pin);
+  /* Get port */
+  PORT_t *port = digitalPinToPortStruct(pin);
 
-	/* Output direction */
-	if(port->DIR & bit_mask){
+  /* Output direction */
+  if(port->DIR & bit_mask){
 
-		/* Set output to value */
-		if (val == LOW) { /* If LOW */
-			port->OUTCLR = bit_mask;
+    /* Set output to value */
+    if (val == LOW) { /* If LOW */
+      port->OUTCLR = bit_mask;
 
-		} else if (val == CHANGE) { /* If TOGGLE */
-			port->OUTTGL = bit_mask;
-									/* If HIGH OR  > TOGGLE  */
-		} else {
-			port->OUTSET = bit_mask;
-		}
+    } else if (val == CHANGE) { /* If TOGGLE */
+      port->OUTTGL = bit_mask;
+                  /* If HIGH OR  > TOGGLE  */
+    } else {
+      port->OUTSET = bit_mask;
+    }
 
-	/* Input direction */
-	} else {
-		/* Old implementation has side effect when pin set as input -
-		pull up is enabled if this function is called.
-		Should we purposely implement this side effect?
-		*/
+  /* Input direction */
+  } else {
+    /* Old implementation has side effect when pin set as input -
+    pull up is enabled if this function is called.
+    Should we purposely implement this side effect?
+    */
 
-		/* Get bit position for getting pin ctrl reg */
-		uint8_t bit_pos = digitalPinToBitPosition(pin);
+    /* Get bit position for getting pin ctrl reg */
+    uint8_t bit_pos = digitalPinToBitPosition(pin);
 
-		/* Calculate where pin control register is */
-		volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
+    /* Calculate where pin control register is */
+    volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
 
-		/* Save system status and disable interrupts */
-		uint8_t status = SREG;
-		cli();
+    /* Save system status and disable interrupts */
+    uint8_t status = SREG;
+    cli();
 
-		if(val == LOW){
-			/* Disable pullup */
-			*pin_ctrl_reg &= ~PORT_PULLUPEN_bm;
+    if(val == LOW){
+      /* Disable pullup */
+      *pin_ctrl_reg &= ~PORT_PULLUPEN_bm;
 
-		} else {
-			/* Enable pull-up */
-			*pin_ctrl_reg |= PORT_PULLUPEN_bm;
-		}
+    } else {
+      /* Enable pull-up */
+      *pin_ctrl_reg |= PORT_PULLUPEN_bm;
+    }
 
-		/* Restore system status */
-		SREG = status;
-	}
+    /* Restore system status */
+    SREG = status;
+  }
 
 }
 
 int8_t digitalRead(uint8_t pin)
 {
-	/* Get bit mask and check valid pin */
-	uint8_t bit_mask = digitalPinToBitMask(pin);
-	if(bit_mask == NOT_A_PIN) return -1;
+  /* Get bit mask and check valid pin */
+  uint8_t bit_mask = digitalPinToBitMask(pin);
+  if(bit_mask == NOT_A_PIN) return -1;
+#ifndef DO_NOT_WORKAROUND_ADC_BUG
+  if(GPR.GPR3&0x40) {
+    if ((GPR.GPR3&0x3F)==pin){
+      GPR.GPR3=0x80;
+      ADC0.MUXPOS=0x7F;
+    }
+  }
+#endif
 
-	// If the pin that support PWM output, we need to turn it off
-	// before getting a digital reading.
-	// turnOffPWM(pin);
-	// And why do we "need" to do that? Do we have some obsessive
-	// need to make digitalRead slower than it needs to be?!
-	// or keep people from seeing their own PWM?
-	// digitalRead() should not change the output of the pin!
+  // If the pin that support PWM output, we need to turn it off
+  // before getting a digital reading.
+  // turnOffPWM(pin);
+  // And why do we "need" to do that? Do we have some obsessive
+  // need to make digitalRead slower than it needs to be?!
+  // or keep people from seeing their own PWM?
+  // digitalRead() should not change the output of the pin!
 
-	/* Get port and check valid port */
-	PORT_t *port = digitalPinToPortStruct(pin);
+  /* Get port and check valid port */
+  PORT_t *port = digitalPinToPortStruct(pin);
 
-	/* Read pin value from PORTx.IN register */
-	if(port->IN & bit_mask){
-		return HIGH;
-	} else {
-		return LOW;
-	}
+  /* Read pin value from PORTx.IN register */
+  if(port->IN & bit_mask){
+    return HIGH;
+  } else {
+    return LOW;
+  }
 }

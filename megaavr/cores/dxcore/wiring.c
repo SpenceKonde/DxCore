@@ -768,7 +768,17 @@ void init()
 
     /* Enable ADC */
     ADC0.CTRLA |= ADC_ENABLE_bm;
+
+#ifndef DO_NOT_WORKAROUND_ADC_BUG
+    if (HAS_ADC_BUG) {
+      ADC0.MUXPOS=0x7F; //it defaults to thrashing digital input on PD0!
+      GPR.GPR3=0x80; //set flag in GPIOR3 to minimize performance impact of testing for this all over hell. High bit means hardware vulnerable, second highest means analogRead() pointed the positive mux at a pin, and the rest stores that pin number.
+      // Althought HAS_ADC_BUG is constant over the life of the program, the program has no way to know that.
+      // We can't just point the mux somewhere harmless at the end of analogRead because that would trash the ability to leave the mux pointed at a high impedance voltage source and pound it with analogRead() to get better readings...
+    }
+#endif
     analogReference(VDD);
+    DACReference(VDD);
   #endif
 
   setup_timers();
@@ -780,6 +790,8 @@ void init()
 
   sei();
 }
+
+
 
 void setup_timers() {
 
@@ -911,12 +923,13 @@ void setup_timers() {
 
 
   #ifdef TCD0
-      #if (defined(USE_TIMERD0_PWM) && (!(defined(MILLIS_USE_TIMERD0_A0) || defined(MILLIS_USE_TIMERD0))))
+      #if  (!(defined(MILLIS_USE_TIMERD0_A0) || defined(MILLIS_USE_TIMERD0)))
+      PORTMUX.TCDROUTEA=TCD0_PINS;
       TCD0.CMPBCLR=510; //Count to 510
       TCD0.CMPACLR=510;
       TCD0.CTRLC=0x80; //WOD outputs PWM B, WOC outputs PWM A
       TCD0.CTRLB=0x00; //One Slope
-      TCD0.CTRLA=TIMERD0_PRESCALER; //OSC20M prescaled by 32, gives ~1.2 khz PWM at 20MHz.
+      TCD0.CTRLA=TIMERD0_CTRLA_SETTING; //OSC20M prescaled by 32, gives ~1.2 khz PWM at 20MHz.
     #endif
   #endif
 

@@ -14,3 +14,5 @@ Several of those give the impression that most of the development was done with 
 ## Discoveries
 * The fuse listing in datasheet is apparently inaccurate or incomplete, as the parts come with an impossible fuse combination set. So far, no problems resulting from this have been encountered. More to come as this is further investigated.
 * UPDI: On these parts, the 24-bit addressing mode must always be used, even for addressed reachable by the first 16 bits. If the ST_ptr instruction is used, the high byte of the pointer will be used for the high byte of a 16-bit STS instruction. jtag2updi does this correctly.
+* You can't view CLKCTRL.OSCHFTUNE register while AutoTune is engaged.
+* The tuning range is much narrower. Only 64 values of the OSCHFTUNE are valid and over the whole range the frequency varies within 10% of nominal. Not like classic AVRs where you could get the 8MHz internal going at 12.8, or even 16...

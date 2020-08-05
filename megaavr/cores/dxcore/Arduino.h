@@ -26,8 +26,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#undef F
-#define F(str) (str)
+//#undef F
+//#define F(str) (str)
 
 #ifdef __cplusplus
 extern "C"{
@@ -46,6 +46,13 @@ extern "C"{
 	Will shift back in analog_reference function
   */
 
+#if (defined(__AVR_AVR128DA64__)||defined(__AVR_AVR128DA48__)||defined(__AVR_AVR128DA32__)||defined(__AVR_AVR128DA28__))
+  // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata - or maybe they fixed things they didn't want to mention in the errata, or things to do with yield/etc.
+  #define HAS_ADC_BUG (SYSCFG.REVID==0x16||SYSCFG.REVID==0x17)
+#else //only A3 of these has made the rounds
+  #define HAS_ADC_BUG (SYSCFG.REVID==0x13)
+#endif
+
 #define INTERNAL1V024 VREF_REFSEL_1V024_gc
 #define INTERNAL2V048 VREF_REFSEL_2V048_gc
 #define INTERNAL4V096 VREF_REFSEL_4V096_gc
@@ -55,8 +62,12 @@ extern "C"{
 #define EXTERNAL    VREF_REFSEL_VREFA_gc
 
 
-#define ADC_DAC0 ADC_MUXPOS_DAC0_gc
-#define ADC_TEMPERATURE ADC_MUXPOS_TEMPSENSE_gc
+// DACREFn MUXPOS currently missing from the headers!!
+#define ADC_DAC0 (0x80|ADC_MUXPOS_DAC0_gc)
+#define ADC_DACREF0 (0x80|0x49)
+#define ADC_DACREF1 (0x80|0x4A)
+#define ADC_DACREF2 (0x80|0x4B)
+#define ADC_TEMPERATURE (0x80|ADC_MUXPOS_TEMPSENSE_gc)
 
 #define VCC_5V0 2
 #define VCC_3V3 1
@@ -79,6 +90,7 @@ uint16_t clockCyclesPerMicrosecondComp(uint32_t clk);
 uint16_t clockCyclesPerMicrosecond();
 unsigned long clockCyclesToMicroseconds(unsigned long cycles);
 unsigned long microsecondsToClockCycles(unsigned long microseconds);
+uint8_t enableAutoTune(uint8_t settings, uint16_t timeout);
 
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
@@ -103,14 +115,15 @@ extern const uint8_t digital_pin_to_timer[];
 #define PD 3
 #define PE 4
 #define PF 5
-#define NUM_TOTAL_PORTS 6
+#define PG 6
+#define NUM_TOTAL_PORTS 7
 
 // These are used for two things: identifying the timer on a pin
 // and for the MILLIS_TIMER define that the uses can test which timer
 // actually being used for millis is actually being used
 // Reasoning these constants are what they are:
-// Low 3 bits are the number of that peripheral
-// other bits specify the type of timer
+// Low nibble is the number of that peripheral
+// high nibble specify the type of timer
 // TCA=0x08, TCB=0x10, TCD=0x10 (leaving room in case Microchip ever decides to release a TCC)
 // Things that aren't hardware timers with output compare are after that
 // DAC output isn't a timer, but has to be treated as such by PINMODE

@@ -1,7 +1,6 @@
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 
-#error "This is not ready yet!"
 
 #include <avr/pgmspace.h>
 #include "timers.h"
@@ -107,7 +106,7 @@
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 (default) instead of PB4 (either way not used)
 #define TCB3_PINS 0x00                  // TCB3 output on PB5 (default) instead of PC1 (either way not used)
 #define TCB4_PINS 0x00                  // TCB4 output on PG3 (default) instead of PC6
-#define TCD0_PINS PORTMUX_TCD0_ALT3_gc  // TCD0 output on PG4~PG7 (we use PG4, PG5 -  finally, with the 64-pin part, we can put them on otherwise useless pins!)
+#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // TCD0 output on PG4~PG7 (we use PG4, PG5 -  finally, with the 64-pin part, we can put them on otherwise useless pins!)
 
 
 // SPI 0
@@ -448,7 +447,8 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN6_bm,  //  54 PF6
 };
 
-const uint8_t digital_pin_to_timer[] = {NOT_ON_TIMER, //  0
+const uint8_t digital_pin_to_timer[] = {
+  NOT_ON_TIMER, //  0
   NOT_ON_TIMER, //  1
   NOT_ON_TIMER, //  2
   NOT_ON_TIMER, //  3
@@ -477,8 +477,8 @@ const uint8_t digital_pin_to_timer[] = {NOT_ON_TIMER, //  0
   NOT_ON_TIMER, //  26
   NOT_ON_TIMER, //  27
   NOT_ON_TIMER, //  28
-    DACOUT,     //  29 PD5
-  NOT_ON_TIMER, //  30
+  NOT_ON_TIMER, //  29
+     DACOUT,    //  30 PD6
   NOT_ON_TIMER, //  31
   NOT_ON_TIMER, //  32
   NOT_ON_TIMER, //  33
@@ -497,7 +497,7 @@ const uint8_t digital_pin_to_timer[] = {NOT_ON_TIMER, //  0
   NOT_ON_TIMER, //  46
   NOT_ON_TIMER, //  47
   NOT_ON_TIMER, //  48
-  NOT_ON_TIMER, //  49
+  TIMERB4, //  49
   NOT_ON_TIMER, //  50
   NOT_ON_TIMER, //  51
   NOT_ON_TIMER, //  52
@@ -507,5 +507,6 @@ const uint8_t digital_pin_to_timer[] = {NOT_ON_TIMER, //  0
 
 
 #endif
-
+void initVariant() __attribute__((weak));
+void initVariant() { }
 #endif

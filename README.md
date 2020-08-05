@@ -1,26 +1,27 @@
-[![Join the chat at https://gitter.im/SpenceKonde/megaTinyCore](https://badges.gitter.im/SpenceKonde/megaTinyCore.svg)](https://gitter.im/SpenceKonde/megaTinyCore?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-
 ### [Wiring](Wiring.md)
 ### [Installation](Installation.md)
-### [Making a cheap UPDI programmer](MakeUPDIProgrammer.md)
+### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
 
 # DxCore - Arduino support for DA-series parts and future DB-series
-This is a very early version of the Arduino core to support the new DA-series AVR microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip - it is likely that these were what would have been the megaAVR 1-series parts, but these have taken the product line to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, the modern timers, the improved interrupts... but for almost every major system, they've added some significant improvement. You liked the type A timer? Well now you have two of them. You wished you could make a type B timer count events? You can do that. Combine two TCB's into one so you can time longer events? Yup. More bits of accuracy on the ADC? Yup - this is a 12-bit ADC - and the DAC is 10-bit too!
+This is an early version of an Arduino core to support the new AVR DA-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was ever planned. But whatever the story of it's origin, these take the AVR instruction set to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers but for almost every major system, and enhanced pin interrupts... But for each system they've added A significant improvement of some sort. You liked the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! You thought events and the CCLs were really cool, but if only you could fire an interrupt from them? Yup, you can do that too now.
 
-These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, then the number of pins. At this time, only the 128K parts are available; the AVR128DA datasheet has listed planned memory capacities for the available pin counts. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins.
+Oh and you wish you had a bit more accuracy on the ADC? Yup - this is a 12-bit ADC - and the DAC (oh yeah, it has one of those) is 10-bits instead of the 8 that they tinyAVR 1-series had!
+
+As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-pin version really doesn't show the full power of these parts, but it's far better than nothing for those who aren't comfortable with using surface mount parts and have been feeling left out of the party.
+
+These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
 
 This core was based on megaTinyCore; it is likely that the documentation still contains references to megaTinyCore or ATtiny/tinyAVR. Please report these (or better yet, fix and PR) if you find them.
 
 ## Supported Parts (click link for pinout diagram and details)
-Support for smaller-flash versions pending their release by Microchip
-* [AVR128DA28](megaavr/extras/DA28.md)
-* [AVR128DA32](megaavr/extras/DA32.md)
-* [AVR128DA48](megaavr/extras/DA48.md)
-* [AVR128DA64](megaavr/extras/DA64.md)
+Support for smaller-flash versions is not available using the current arduino7 toolchain. We will be working to get an arduino8 toolchain built with the new ATpacks which will add support for these.
+* [AVR128DA28, AVR64DA28, AVR32DA28](megaavr/extras/DA28.md)
+* [AVR128DA32, AVR64DA32, AVR32DA32](megaavr/extras/DA32.md)
+* [AVR128DA48, AVR64DA48, AVR32DA48](megaavr/extras/DA48.md)
+* [AVR128DA64, AVR64DA64](megaavr/extras/DA64.md)
 
 ## Supported Clock Speeds
-Subject to change - currently speed grades are not known (datasheet implies that all speeds are supported over the whole voltage range - this seems unlikely!)
+All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 * 24MHz Internal
 * 20MHz Internal
 * 16MHz Internal
@@ -28,13 +29,41 @@ Subject to change - currently speed grades are not known (datasheet implies that
 *  8MHz Internal
 *  4MHz Internal
 *  1MHz Internal
-Additionally, experimentation has shown that it is possible to write reserved values to the FREQSEL bits of CLKCTRL.OSCHFCTRLA to overclock the chip. The core currently supports the following overclocked speeds - however, these will almost certainly not work across the full operating temperature or voltage range, and may behave erratically. Higher frequencies are not supported because in my tests, stuff stopped working at 36MHz and up. Use at own risk - and bear in mind that you probably don't need this!
+
+Additionally, experimentation has shown that it is possible to extend the pattern of  to the FREQSEL bits of CLKCTRL.OSCHFCTRLA to overclock the chip. The core currently supports the following overclocked speeds. Beyond verifying that they worked well enough to measure the frequency of PWM from a timer on the 'scope to confirm these frequencies, and that the UART worked, no verification of functionality was performed. They may not work at all voltages, and they almost certainly will not work at all temperatures. They may behave erratically. Higher frequencies might be possible, but in my tests, past 32 MHz, nothing worked, so
 * 28MHz Internal (overclocked)
 * 32MHz Internal (overclocked)
 
 There are multiple ways to generate some of the lower frequencies (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more pwoer efficient, but with the former you could still use the PLL - but are people going to want to?) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future; these are still early days.
 
-These parts do not support using an external crystal like the classic AVR parts do, however the internal oscillator is tightly calibrated enough that the internal clock should work for UART communication, and an external watch crystal can be used to automatically tune the crystal frequency. AutoTune will be supported in a future version of the core. They can also use an external *CLOCK* - however this feature is not yet supported by DACore.
+These parts do not support using an external crystal like the classic AVR parts do, however the internal oscillator is tightly calibrated enough that the internal clock should work for UART communication, and an external watch crystal can be used to automatically tune the crystal frequency, a feature called Auto-Tune. An example to call it is shown below - it really is that easy...
+
+```c
+
+// settings should be one of
+//  (CLKCTRL_CSUT_1K_gc), (CLKCTRL_CSUT_16K_gc), (CLKCTRL_CSUT_32K_gc) or (CLKCTRL_CSUT_64K_gc), corresponding to startup times (at 32.768khz, of 1/32nd of a second, 1/2 second, 1 second and 2 seconds.
+//  optionally can be or'ed with CLKCTRL_LPMODE_bm (low power mode) or CLKCTRL_SEL_bm, if it's an external 32.768k CLOCK instead and/or CLKCTRL_RUNSTDBY if it should be kept running at all times, even when not requested or in standby sleep mode.
+//  Useful if it's also used for keeping time in sleep.
+
+uint8_t enableXOSC32K(uint8_t settings)
+{
+	_PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x23);
+}
+// since CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm won't be true until something requests that clock source, you have to actually enable autotune. This verification gives you some assurance that it's working, the clock, in my tests, was within 1% at room temperature across the full operating voltage range!
+uint8_t enableAutoTune(uint16_t verifytime=0)
+{
+	_PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA,CLKCTRL.OSCHFCTRLA|0x01);
+	if (verifytime!=0) {
+		uint32_t startedAt=millis();
+		while ((millis()-startedAt < verifytime)&&(CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm));
+		if (CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm){
+			return 1;
+		}
+	}
+	return 0;
+}
+```
+
 
 ## This is a VERY EARLY version of the core
 This core is still in development. At this point, it is belived that the core is far enough along for people to begin playing with it *HOWEVER* it should not be considered production-ready. Please report problems or suspected bugs using the Issues feature above - or, if this is not possible, via email ( spencekonde@gmail.com ). Current status of core:
@@ -45,7 +74,6 @@ This core is still in development. At this point, it is belived that the core is
 * Wire, SPI, Servo, and Tone work
 * 28 and 64 pin packages do NOT work (must fix for initial release)
 * analogRead is NOT supported (must fix for initial release)
-* AutoTune is not supported
 * PWM using TCD0 is not supported
 * F() macro needs to be put back in (must fix for initial release)
 
@@ -68,7 +96,7 @@ The silicon errata in the initial versions of these parts is pretty brutal. As h
 #### Memory-mapped flash? No :-(
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker does not configure this. So, for the time being, you must use the F() macro and PROGMEM to put constants into program memory, and the pgm_read functions to read it.
 
-In a future version, we plan to develop a solution to this that will allow 32kb of constants to be declared as 
+In a future version, we plan to develop a solution to this that will allow 32kb of constants to be declared as
 
 
 #### Ways to refer to pins
