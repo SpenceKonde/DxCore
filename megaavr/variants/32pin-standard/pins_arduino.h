@@ -71,7 +71,7 @@
 #define TCB0_PINS 0x00                  // TCB0 output on PA2 instead of PF4
 #define TCB1_PINS 0x00                  // TCB1 output on PA3 instead of PF5
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 instead of PB4
-#define TCD0_PINS PORTMUX_TCD0_ALT2_gc  // TCD0 output on PF0~PF3 (we use PF2, PF3)
+#define TCD0_PINS 0x00  // TCD0 output on PF0~PF3 (we use PF2, PF3)
 
 // SPI 0
 // No pinswap available
@@ -274,8 +274,8 @@ const uint8_t digital_pin_to_timer[] = {
 #else
   NOT_ON_TIMER, //  3 PA3/SCL
 #endif
-  NOT_ON_TIMER, //  4 PA4/MOSI
-  NOT_ON_TIMER, //  5 PA5/MISO
+  TIMERD0, //  4 PA4/MOSI
+  TIMERD0, //  5 PA5/MISO
   NOT_ON_TIMER, //  6 PA6/SCK
   NOT_ON_TIMER, //  7 PA7/SS/CLKOUT
 #if !defined(MILLIS_USE_TIMERB2)
@@ -296,8 +296,8 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
   NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  TIMERD0,      // 22 PF2/AIN12
-  TIMERD0,      // 23 PF3/AIN13
+  NOT_ON_TIMER,      // 22 PF2/AIN12
+  NOT_ON_TIMER,      // 23 PF3/AIN13
   NOT_ON_TIMER, // 24 PF4/AIN14
   NOT_ON_TIMER, // 25 PF5/AIN15
   NOT_ON_TIMER  // 26 PF6 RESET

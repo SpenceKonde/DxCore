@@ -106,7 +106,7 @@
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 (default) instead of PB4 (either way not used)
 #define TCB3_PINS 0x00                  // TCB3 output on PB5 (default) instead of PC1 (either way not used)
 #define TCB4_PINS 0x00                  // TCB4 output on PG3 (default) instead of PC6
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // TCD0 output on PG4~PG7 (we use PG4, PG5 -  finally, with the 64-pin part, we can put them on otherwise useless pins!)
+#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // Only default port option works!
 
 
 // SPI 0
