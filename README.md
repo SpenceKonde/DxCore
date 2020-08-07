@@ -1,24 +1,32 @@
 ### [Wiring](Wiring.md)
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
+### [Comparison with 0/1-series peripherals](megaavr/extras/Comparison.md)
 
 # DxCore - Arduino support for DA-series parts and future DB-series
 This is an early version of an Arduino core to support the new AVR DA-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was ever planned. But whatever the story of it's origin, these take the AVR instruction set to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers but for almost every major system, and enhanced pin interrupts... But for each system they've added A significant improvement of some sort. You liked the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! You thought events and the CCLs were really cool, but if only you could fire an interrupt from them? Yup, you can do that too now.
 
 Oh and you wish you had a bit more accuracy on the ADC? Yup - this is a 12-bit ADC - and the DAC (oh yeah, it has one of those) is 10-bits instead of the 8 that they tinyAVR 1-series had!
 
-As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-pin version really doesn't show the full power of these parts, but it's far better than nothing for those who aren't comfortable with using surface mount parts and have been feeling left out of the party.
+As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-pin version really doesn't show the full power of these parts, but it's far better than nothing for those who aren't comfortable with using surface mount parts and have been feeling left out of the party (of course, you can buy breakout boards in my Tindie store of all sizes, even the 64-pin ones!)
 
 These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
 
 This core was based on megaTinyCore; it is likely that the documentation still contains references to megaTinyCore or ATtiny/tinyAVR. Please report these (or better yet, fix and PR) if you find them.
 
 ## Supported Parts (click link for pinout diagram and details)
-Support for smaller-flash versions is not available using the current arduino7 toolchain. We will be working to get an arduino8 toolchain built with the new ATpacks which will add support for these.
+Support for smaller-flash versions is not available using the current arduino7 toolchain. We will be working to get an arduino8 toolchain built with the new ATpacks which will add support for these. But, if you hack your toolchain, they should "just work"!
 * [AVR128DA28, AVR64DA28, AVR32DA28](megaavr/extras/DA28.md)
 * [AVR128DA32, AVR64DA32, AVR32DA32](megaavr/extras/DA32.md)
 * [AVR128DA48, AVR64DA48, AVR32DA48](megaavr/extras/DA48.md)
 * [AVR128DA64, AVR64DA64](megaavr/extras/DA64.md)
+
+My personal opinion is that the 48-pin parts are the "sweet spot" - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, enough pins that these parts can start to stretch their legs (pins?). Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
+
+## Upcoming DB-series
+Support for the DB-series will be added pending release of a datasheet by Microchip (though will be gated by the compiler toolchain issue - I can work around that and provide a toolchain if need be, though I'd rather not have to take this step.
+It is likely that basic support could be added almost immediately upon release - the DB-series appears to be nearly identical to the DA-series, except for some improved analog options (apparently - on-chip opamps, improved analog comparators), multi-voltage I/O (my guess is that AVcc can be supplied with a different voltage, and will control the I/O voltage of some pins - my guess being PORTD based on no hard information whatsoever). There are tantalizing hints in the io headers of an external high frequency crystal... but I'm not sure if it can actually be used to clock CPU itself, or just the PLL. The latter would be a real bummer to many people, who have loathed the demise of the external crystal (personally, I am happy with the accuracy I get from the internal clock, especially with autotune, )
+
 
 ## Supported Clock Speeds
 All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
@@ -30,11 +38,7 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 *  4MHz Internal
 *  1MHz Internal
 
-Additionally, experimentation has shown that it is possible to extend the pattern of  to the FREQSEL bits of CLKCTRL.OSCHFCTRLA to overclock the chip. The core currently supports the following overclocked speeds. Beyond verifying that they worked well enough to measure the frequency of PWM from a timer on the 'scope to confirm these frequencies, and that the UART worked, no verification of functionality was performed. They may not work at all voltages, and they almost certainly will not work at all temperatures. They may behave erratically. Higher frequencies might be possible, but in my tests, past 32 MHz, nothing worked, so
-* 28MHz Internal (overclocked)
-* 32MHz Internal (overclocked)
-
-There are multiple ways to generate some of the lower frequencies (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more pwoer efficient, but with the former you could still use the PLL - but are people going to want to?) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future; these are still early days.
+There are multiple ways to generate some of the lower frequencies (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more pwoer efficient, but with the former you could still use the PLL while staying in spec - but are people going to want to?) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future; these are still early days.
 
 These parts do not support using an external crystal like the classic AVR parts do, however the internal oscillator is tightly calibrated enough that the internal clock should work for UART communication, and an external watch crystal can be used to automatically tune the crystal frequency, a feature called Auto-Tune. An example to call it is shown below - it really is that easy...
 
@@ -71,24 +75,14 @@ This core is still in development. At this point, it is belived that the core is
 * Clock selection works
 * PWM and DAC output works
 * Digital I/O works
-* Wire, SPI, Servo, and Tone work
-* 28 and 64 pin packages do NOT work (must fix for initial release)
-* analogRead is NOT supported (must fix for initial release)
-* PWM using TCD0 is not supported
-* F() macro needs to be put back in (must fix for initial release)
+* Wire and SPI should work. The bug in
+* F() macro and `__FlashStringHelper` are back :-( - I don't (yet) have a method worked out by which you can automatically put strings into flash (though I have an idea....)
 
 ## Programming is done via UPDI
-Currently, the only compatible programmer is jtag2updi. See [Making a cheap UPDI programmer](MakeUPDIProgrammer.md) for information on using an Arduino for this purpose - almost any Arduino board can be used, but the Arduino Nano 3.0 is preferred, as it is dirt cheap, and includes a USB-serial adapter. The versions that use an ATmega168 can also be used. An Arduino Pro Mini is also an excellent choice. Currently, the mEDGB programmers are NOT compatible with these parts because currently available firmware images do not support it; this may change in the future if a new version of this firmware becomes available.
+Currently, the only programmer I know works with the core is jtag2updi. See [Making a cheap UPDI programmer](MakeUPDIProgrammer.md) for information on using an Arduino for this purpose - almost any Arduino board can be used, but the Arduino Nano 3.0 is preferred, as it is dirt cheap, and includes a USB-serial adapter. The versions that use an ATmega168 can also be used. An Arduino Pro Mini is also an excellent choice - but becomes physically awkward.
 
 ## Brutal errata in initial hardware
-The silicon errata in the initial versions of these parts is pretty brutal. As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
-* analogRead() disables digital input on the pin it is used on.
-* If SSD (SS Disable) is not set, and SPI is not moved to an alternate set of pins, the SPI port will not function in master mode.
-* Memory-mapping of flash for reads does not work correctly if reads from boot section are disabled. Memory-mapping of flash for writes does not work correctly either. LPM and SPM, however, do work normally so this should not impede development of a bootloader.
-* PB6, PB7, PE4, PE5, PE6 and PE7 cannot be used with the Event System (EVSYS).
-* TCA1 output cannot be remapped to PE or PG.
-* The pins used to TWI must not be set HIGH - the TWI peripherals do not overwrite the port output correctly. This is handled by the Wire libraries supplied with the core.
-* Initial state of fuses does NOT match the datasheet. Use Tools -> Burn Bootloader to set the fuses to correct values before using the parts.
+The silicon errata in the initial versions of these parts is pretty brutal - and it's not even complete! There are a few sweeteners though too... See [errata and extras](megaavr/extras/errata_and_extras.md).
 
 
 # Features
@@ -96,49 +90,43 @@ The silicon errata in the initial versions of these parts is pretty brutal. As h
 #### Memory-mapped flash? No :-(
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker does not configure this. So, for the time being, you must use the F() macro and PROGMEM to put constants into program memory, and the pgm_read functions to read it.
 
-In a future version, we plan to develop a solution to this that will allow 32kb of constants to be declared as
-
+In a future version, we plan to develop a solution to this that will allow up to 32kb of constants to be declared in a way that puts them in the final 32k section of flash, and the flash mapping will be pointed at that section... how easy this to be remains to be seen!
 
 #### Ways to refer to pins
-The simple matter of how to refer to a pin for analogRead() and digitalRead(), particularly on non-standard hardware, has been a persistent source of confusion among Arduino users. It's my opinion that much of the blame rests with the decisions made by the Arduino team regarding how pins were to be referred to; the designation of some pins as "analog pins" leads people to think that those pins cannot be used for digital input, and the fact that all of the pins were renumbered fuirther muddies the water. The fact that many ATmega parts have a confusing mapping of ports to physical pins (which, thankfully, is no longer a problem on the megaavr parts), and the inconsistent decisions made by authors of subsequent hardwarte packages in an attempt to make those parts "more like an Arduino Uno", or (in some cases) to make the functions to map arduino pin numbers to PORT registers has led to further confusion around this topic.
 
-This core uses a simple scheme for assigning the Arduino pin numbers: Pins are numbered starting from the the I/O pin closest to Vcc as pin 0 and proceeding counterclockwise, skipping the (mostly) non-usable UPDI pin. The UPDI pin is then assigned to the last pin number - as noted above, it is possible to read the voltage on the UPDI pin - we recommend this only as a last resort. On unofficial parts like these, we recommend that pins be referred to by the PIN_Pxn constants - this will maximize portability of your code and make it easier to look up information on the pins you are using in the relevant datasheets should that be necessary.
+This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
 
 #### PIN_Pxn Port Pin Numbers (recommended)
 **This is the recommended way to refer to pins** Defines are also provided of form PIN_Pxn, where x is A, B, or C, and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path or anything. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by Port), as most peripherals are. Several pieces of demo code in the documentation take advantage of this.  Direct port manipulation is possible on the megaavr parts - and in fact several powerful additional options are available for it - see [direct port manipulation](megaavr/extras/DirectPortManipulation.md).
 
 
 #### Arduino Pin Numbers
-When a single number is used to refer to a pin - in the documentation, or in your code - it is always the "Arduino pin number". These are the pin numbers shown in orange (for pins capable of analogRead()) and blue (for pins that are not) on the pinout charts. All of the other ways of referring to pins are #defined to the corresponding Arduino pin number.
+When a single number is used to refer to a pin - in the documentation, or in your code - it is always the "Arduino pin number". These are the pin numbers shown on the pinout charts. All of the other ways of referring to pins are #defined to the corresponding Arduino pin number.
+
 #### An and PIN_An constants
-The core also provides An and PIN_An constants (where n is a number from 0 to 11). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind analogRead() - but here, they are just #defined as the corresponding Arduino pin number. These are not shown on the pinout charts, as this is a deprecated way of referring to pins. The mapping of analog channels to pins is shown in the the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel. Note that channel A0 is on the UPDI/Reset pin - however, even when configured as UPDI, it can be used as an input as long as the signals it can be exposed to do not look like the UPDI enable sequence.
+The core also provides An and PIN_An constants (where n is a number from 0 to 21). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind analogRead() - but here, they are just #defined as the corresponding Arduino pin number. The An names are intentionally not shown on the pinout charts, as this is a deprecated way of referring to pins. However, these channels are shown on the pinout charts as the ADCn markings, and full details are available in the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel. Note that channel A0 is on the UPDI/Reset pin - however, even when configured as UPDI, it can be used as an input as long as the signals it can be exposed to do not look like the UPDI enable sequence.
 
 ### Serial (UART) Support
-All of these parts have a single hardware serial port (UART). It works exactly like the one on official Arduino boards (except that there is no auto-reset, unless you are using Optiboot and have configured that pin to act as reset, or have wired up an "ersatz reset pin" as described above). See the pinout charts for the location of the serial pins.
+All of these parts have a several hardware serial ports (USART) - from 3 on the 28-pin parts to SIX on the 64-pin parts! They work exactly like the ones on official Arduino boards. See the pinout charts for the location of the serial pins. On my breakout boards, we provide autoreset support as well (again, just like official Arduino boards)
 
-On all parts, the UART pins can be swapped to an alternate location.
-
-This is configured using the Serial.swap() or Serial.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** calling Serial.begin().
+On all supported devices, where the appropriate pins are present, they can be pin-swapped - each PORT gets a USART, which defaults to pins 0 and 1 for RX, TX (2 and 3 for XCK and XDIR - though these are not supported through the Serial class), and 4, 5, 6 and 7 when pinswapped. This is configured using the Serial.swap() or Serial.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** calling Serial.begin().
 
 `Serial.swap(1) or Serial.swap(0)` will set the the mapping to the alternate (1) or default (0) pins. It will return true if this is a valid option, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to the default one.
 
 `Serial.pins(TX pin, RX pin)` - this will set the mapping to whichever mapping has the specified pins as TX and RX. If this is not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than Serial.swap(); that method is preferred.
 
-When operating at 1MHz, the UART can output 56700 baud, but not 115200 baud.
+When operating at 1MHz, the UART can output 56700 baud, but not 115200 baud (115200 is within the capabilities of the hardware at 1 MHz - a future enhancement to the core will add support for U2X mode to support this baud rate.)
 
 ### SPI support
-All of these parts have a single hardware SPI peripheral. It works exactly like the one on official Arduino boards using the SPI.h library. See the pinout charts for the location of these pins. Note that the 8-pin parts (412, 212, 402, 204) do not have a specific SS pin.
+All of these parts have two hardware SPI ports. On parts with more pins, they can be pin-swapped to different sets of pins. It works exactly like the one on official Arduino boards using the SPI.h library. See the pinout charts for the location of these pins.
 
-On all parts except the 14-pin parts, the SPI pins can be moved to an alternate location (note: On 8-pin parts, the SCK pin cannot be moved).
-
-On 2.0.0 and later, this is configured using the SPI.swap() or SPI.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** calling SPI.begin().
+Pin selection for SPI is configured using the SPI.swap() or SPI.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** calling SPI.begin().
 
 `SPI.swap(1) or SPI.swap(0)` will set the the mapping to the alternate (1) or default (0) pins. It will return true if this is a valid option, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to the default one.
 
 `SPI.pins(MOSI pin, MISO pin, SCK pin, SS pin);` - this will set the mapping to whichever mapping has the specified pins. If this is not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than SPI.swap(); that method is preferred.
 
-This core disables the SS pin when running in SPI master mode. This means that the "SS" pin can be used for whatever purpose you want - unlike classic AVRs, where this could not be disabled. Earlier versions of this document incorrectly stated that this behavior was enabled in megaTinyCore; it never was, and SS was always disabled. It should be reenabled and the SS pin configured appropriately (probably as INPUT_PULLUP) if master/slave functionality is required.
-**If you plan to enable SPI slave functionality in this way, on early revisions of the chip (including all released ones at the time of writing) you must switch the SPI pins to an alternate pin set**
+This core disables the SS pin when running in SPI master mode. This means that the "SS" pin can be used for whatever purpose you want - unlike classic AVRs, where this could not be disabled.  It could be enabled and the SS pin configured appropriately (probably as INPUT_PULLUP) if master/slave functionality is required. **If you plan to enable SPI slave functionality in this way, on early revisions of the chip (including all released ones at the time of writing) you must switch the SPI pins to an alternate pin set**
 
 ### I2C (TWI) support
 All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin version, which has one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. Support for TWI1 is planned for a future version of this core as a Wire1 library with an otherwise identical interface. See the pinout charts for the location of the pins.
@@ -149,15 +137,14 @@ The TWI pins can be swapped to an alternate location; this is configured using t
 
 `Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins as SDA and SCL. If this is not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than Wire.swap(); that method is preferred.
 
-As with megaTinyCore, courtesey of https://github.com/LordJakson, when the version of Wire.h supplied with megaTinyCore 1.1.9 and later in slave mode, it is now possible to respond to the general call (0x00) address as well. This is controlled by the optional second argument to Wire.begin(). If the argument is supplied amd true, general call broadcasts will also trigger the interrupt. The version supplied with DACore also supports an optional third argument, which is passed unaltered to the TWI0.SADDRMASK register. If the low bit is 0, and bits set 1 sill cause the I2C hardware to ignore that bit of the address (masked off bits will be treated as matching). If the low bit is 1, it will instead act as a second address that the device can respond to.
+As with megaTinyCore, courtesey of https://github.com/LordJakson, in slave mode, it is now possible to respond to the general call (0x00) address as well. This is controlled by the optional second argument to Wire.begin(). If the argument is supplied amd true, general call broadcasts will also trigger the interrupt. The version supplied with DACore also supports an optional third argument, which is passed unaltered to the TWI0.SADDRMASK register. If the low bit is 0, and bits set 1 sill cause the I2C hardware to ignore that bit of the address (masked off bits will be treated as matching). If the low bit is 1, it will instead act as a second address that the device can respond to. While these parts support "dual mode" allowing master and slave operation on different pairs of pins, like the megaAVR 0-series which also has this support in hardware, it is not currently exposed in Arduino; similarly, while these parts support master and slave simultaneously on the same pins, that is also not supported by the Arduino Wire library at this time. Work is ongoing to add support.
 
 ### PWM support
-The core provides hardware PWM (analogWrite) support. On all parts, 6 pins (on PD0~PD5 - see the part specific documentation pages for pin numbers), and on 48-pin and 64-pin parts, an addional 6 PWM pins are available on PB0~5. Additionally, Type B timers not used for other purposes (TCB2 is used for millis unless another timer is selected; TCB0 is used if tone() is in use, and TCB1 is used if the version of Servo bundled with this core is in use (other implementations of Servo may try to use a different timer)). The pins available for this are shown on the pinout charts. A future update will introduce support for use of TCD0 to provide two additional PWM pins (though users may prefer to configure this manually - TCD0 is capable of, among other things, generating much higher frequency PWM, as it can be clocked from the PLL at 48MHz (40MHz with 20MHz system clock)).
+The core provides hardware PWM (analogWrite) support. On all parts, 6 pins (on PD0-PD5 for 28 and 32-pin parts, PC0-PC6 for 48 and 64-pin parts) - see the part specific documentation pages for pin numbers) provide 8-bit PWM support from the Type A timer, TCA0. On 48-pin and 64-pin parts, an addional 6 PWM pins are available on PB0-PB5 from TCA1. Additionally, Type B timers not used for other purposes (TCB2 is used for millis unless another timer is selected, and other libraries mmay use a TCB as well) can each support 1 8-bit PWM pin. The pins available for this are shown on the pinout charts. Aditionally, TCD0 provides two additional PWM pins on PA4 and PA5; Users may prefer to configure this manually - TCD0 is capable of, among other things, generating much higher frequency PWM, as it can be clocked from the PLL at 48MHz (or more, if you don't mind exceeding the specified operating specs - I've gotten it up to 96 MHz!).
 **Note that TCA0, and TCA1 if present are configured by DACore in Split Mode by default, which allows them to generate 8-bit PWM output on 6 pins each, instead of three** See the
 #### [Taking over TCA0](megaavr/extras/TakingOverTCA0.md)
-
 **For general information on the available timers and how they are used PWM and other functions, consult the guide:**
-#### [Timers and megaTinyCore](megaavr/extras/PWMandTimers.md)
+#### [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
 
 ### NeoPixel (WS2812) support
@@ -167,9 +154,9 @@ The usual NeoPixel (WS2812) libraries have problems on these parts. This core in
 Support for tone() is provided on all parts using TCB0. This is like the standard tone() function; it does not support use of the hardware output compare to generate tones. Note that if TCB0 is used for millis/micros timing, tone() will generate an error; do not use TCB0 as the millis/micros timekeeping timer if your application requires tone().
 
 ### millis/micros Timekeeping Options
-DACore provides the option to use any available timer on a part for the millis()/micros timekeeping, controlled by a Tools submenu - or it can be disabled entirely to save flash (or more likely available timers for manual configuration) and allow use of all timer interrupts. By default, TCB2 will be used by on parts. TCA0, TCA1 and any of the TCB's present on the part may be used (future updates may add support for TCD0 or the RTC timer). Note that TCB0 conflicts with tone() and TCB1 conflicts with the version of Servo supplied with this core.
+DACore provides the option to use any available timer on a part for the millis()/micros timekeeping, controlled by a Tools submenu - or it can be disabled entirely to save flash (or more likely available timers for manual configuration) and allow use of all timer interrupts. By default, TCB2 will be used by on parts. TCA0, TCA1 and any of the TCB's present on the part may be used, though this has not been rigorously tested; I suspect that TCD0 may not work in the initial release. Note that TCB0 conflicts with tone() and TCB1 conflicts with the version of Servo supplied with this core.
 
-For more information, on the hardware timers of the supported parts, and how they are used by DACore's built-in functionality, see the [Timers and megaTinyCore](megaavr/extras/PWMandTimers.md)
+For more information, on the hardware timers of the supported parts, and how they are used by DxCore's built-in functionality, see the [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
 ### ADC Support
 These parts have many ADC channels available - see the pinout charts for the specifics, they can be read with analogRead() like on a normal AVR. While the An constants (ex, A0) are supported, and refer to the corresponding ADC channel (not the corresponding pin number), using these is deprecated - the recommended practice is to pass the digital pin number to analogRead(). Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are:
@@ -199,7 +186,7 @@ ADC0.SAMPCTRL=0; //minimum sampling length = 0+2 = 2 ADC clock cycles
 With the minimum sampling length, analogRead() speed would be approximately doubled from it's already-faster value.
 
 ### DAC Support
-The DA-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (which cannot be VCC, unfortunately). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). This voltage must be lower than Vcc to get the correct voltages. Call analogWrite() on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call digitalWrite() on that pin.
+The DA-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). This voltage must be lower than Vcc to get the correct voltages. Call analogWrite() on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call digitalWrite() on that pin.
 
 To use it in 10-bit mode
 ```
@@ -229,18 +216,18 @@ Serial.printf("Milliseconds since start: %ld\n", millis());
 Note that using this method will pull in just as much bloat as sprintf(), so it may be unsuitable on devices with small flash memory.
 
 ### Pin Interrupts
-All pins can be used with attachInterrupt() and detachInterrupt(), on RISING, FALLING, CHANGE, or LOW. All pins can wake the chip from sleep on CHANGE or LOW. Pins marked as ASync Interrupt pins on the pinout chart can be used to wake from sleep on RISING and FALLING edge as well.
+All pins can be used with attachInterrupt() and detachInterrupt(), on RISING, FALLING, CHANGE, or LOW. All pins can wake the chip from sleep on CHANGE or LOW. Pins marked as ASync Interrupt pins on the pinout chart (this is marked by an arrow where they meet the chip on those charts - pins 2 and 6 on all ports have this feature) can be used to wake from sleep on RISING and FALLING edge as well.
 
 Advanced users can instead set up interrupts manually, ignoring attachInterrupt and manipulating the relevant port registers appropriately and defining the ISR with the ISR() macro - this will produce smaller code (using less flash and ram) and the ISRs will run faster as they don't have to check whether an interrupt is enabled for every pin on the port. For full information and example, see: [Pin Interrupts](megaavr/extras/PinInterrupts.md)
 
 ### Assembler Listing generation
-Like ATTinyCore, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder; this is particularly useful when attempting to reduce flash usage, as you can see how much flash is used by different functions.
+Like my other cores, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder.
 
 ### EESAVE configuration option
 The EESAVE fuse can be controlled via the Tools -> Save EEPROM menu. If this is set to "EEPROM retained", when the board is erased during programming, the EEPROM will not be erased. If this is set to "EEPROM not retained", uploading a new sketch will clear out the EEPROM memory. You must do Burn Bootloader to apply this setting. Note that this only applies when programming via UPDI - in a future version when a bootloader is introduced, this setting will not effect it.
 
 ### BOD configuration options
-These parts support multiple BOD trigger levels, with Disabled, Active, and Sampled operation options for when the chip is in Active and Sleep modes - Disabled uses the no power, Active uses the most, and Sampled is in the middle. See the datasheet for details on power consumption and the meaning of these options. You must do Burn Bootloader to apply this setting.
+These parts support multiple BOD trigger levels, with Disabled, Active, and Sampled operation options for when the chip is in Active and Sleep modes - Disabled uses no power, Active uses the most, and Sampled is in the middle. See the datasheet for details on power consumption and the meaning of these options. You must do Burn Bootloader to apply this setting.
 
 ### Link-time Optimization (LTO) support
 This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the DA-series parts also support LTO, so there is no need to make it optional as was done with ATtinyCore.
@@ -257,11 +244,11 @@ The option used for the millis/micros timekeeping is given by a define of the fo
 * MILLIS_USE_TIMERB2
 * MILLIS_USE_TIMERB3 (48 and 64-pin parts only)
 * MILLIS_USE_TIMERB4 (64-pin parts only)
-* MILLIS_USE_TIMERD0 (not yet implemented)
+* MILLIS_USE_TIMERD0
 * DISABLE_MILLIS
 
 ##### Using to check that correct menu option is selected
-If your sketch requires that the B0 is used as the millis timer
+If your sketch requires that the B0 is used as the millis timer, for example:
 
 ```
 #ifndef MILLIS_USE_TIMERB2
@@ -301,9 +288,10 @@ The breakout boards I sell on Tindie have the auto-reset circuit included. The R
 
 
 # Guides
-### [Power Saving techniques and Sleep](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/PowerSave.md)
-### [Direct Port Manipulation](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/DirectPortManipulation.md)
-### [Pin Interrupts](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/PinInterrupts.md)
+Largely adapted from megaTinyCore
+### [Power Saving techniques and Sleep](megaavr/extras/PowerSave.md)
+### [Direct Port Manipulation](megaavr/extras/DirectPortManipulation.md)
+### [Pin Interrupts](megaavr/extras/PinInterrupts.md)
 
 # List of Tools sub-menus
 * Tools -> Chip - sets the specific part within a selected family to compile for and upload to.
