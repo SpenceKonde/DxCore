@@ -38,37 +38,24 @@ void DACReference(uint8_t mode)
     VREF.DAC0REF=(VREF.DAC0REF & ~(VREF_REFSEL_gm))|(mode);
   }
 }
-
+/*
 void ACReference(uint8_t mode)
 {
   if (mode < 7 && mode !=4) {
     VREF.ACREF=(VREF.ACREF & ~(VREF_REFSEL_gm))|(mode);
   }
 }
-
+*/
 
 int analogRead(uint8_t pin)
 {
   if (pin==ADC_DAC0 || pin == ADC_TEMPERATURE || pin==ADC_DACREF0 || pin==ADC_DACREF1 ||pin==ADC_DACREF2) {
     pin=pin&0x7F;
   } else {
-#ifndef DO_NOT_WORKAROUND_ADC_BUG
-    if (GPR.GPR3&0x80){
-      uint8_t temppin=pin;
-      pin = digitalPinToAnalogInput(pin);
-      if (pin== NOT_A_PIN) return -1;
-      //implicit else
-      GPR.GPR3=(0xC0|temppin); //okay, we're about to make the bug manifest, so warn the rest of the core...
-    } else {
-      pin = digitalPinToAnalogInput(pin);
-      if(pin == NOT_A_PIN) return -1;
-    }
-#else //we're not working around it
     pin = digitalPinToAnalogInput(pin);
     if(pin == NOT_A_PIN) return -1;
-#endif
-  }
   /* Reference should be already set up */
+  }
   /* Select channel */
   ADC0.MUXPOS = (pin << ADC_MUXPOS_gp);
 
@@ -79,6 +66,9 @@ int analogRead(uint8_t pin)
   while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
 
   /* Combine two bytes */
+  #ifdef SIMPLE_ADC_WORKAROUND
+    ADC0.MUXPOS=0x7F;
+  #endif
   return ADC0.RES;
 
 }

@@ -1,4 +1,4 @@
-# DA vs tinyAVR 1-series peripherals
+# DA vs tinyAVR 1-series and megaAVR 0-series peripherals
 While reading datasheets, I looked for differences as those are places where the core would need to be adapted. These are some notes, presented without further editing.
 
 ## VREF
@@ -41,12 +41,11 @@ Same one as the megaAVR 0-series got, with the dual mode thing...
 Same as before. On early 128k chips, SPI0 must have SSD=1 to run in master mode if set to the default pin mapping. We always set that because we NEVER supported slave
 
 ## USART
-Same as before. Still has the same errata with open drain mode (guys, it's not errata if you never plan to change it and it effects all chips. That's called "your datasheet is wrong".)
+Same as before. Still has the same errata with open drain mode...
 
 ## CCL
-Errta doesn't mention the D-latch? I think that's a first!
-The big news here is that you can easily fire ISRs from them (for those of you a bit slow on the draw: YOU CAN FIRE INTERRUPTS FROM THE WHOLE EVENT SYSTEM NOW THROUGH A CCL!!!)
-Other than that, they shook up the INSELs to make sense with all the extra peripherals the DA series has.
+Errta doesn't mention the D-latch? Does that mean we have a working D-latch finally?
+Other than that, they shook up the INSELs to make sense with all the extra peripherals the DA series has, but otherwise, it's pretty much the same as the CCL that the megaAVR 0-series got.
 
 ## EVSYS
 Basically the event system from the megaAVR 0-series.
@@ -62,9 +61,11 @@ Actually taking advantage of the flash mapping will be a right pain in the arse,
 
 ## CLKCTRL
 Lot of differences!
-For one thing, you just set the frequency: Options are 1/2/3/4 MHz, then increments of 4. Datasheet stops at 24. Part still works if you keep incrementing it up to 28, 32. Above 32, things didn't work right (I can't imagine why, I was just trying to run buggy first-run silicon at 150% of it's maximum frequency...)
-There's also a PLL. Only works at >=16MHz internal oscillator speed, max frequency 48, multiply by 2 or 3 (basically, 16 and 24 get 48, 20 gets 40)
-And... there's AUTOTUNE! Use a crystal... but a watch crystal used to adjust the main oscillator frequency. It ain't an MHz crystal at the system clock frequency, but it's better than nothing, I assume...
+For one thing, you just set the frequency: Options are 1/2/3/4 MHz, then increments of 4. Datasheet stops at 24. Part still works if you keep incrementing it up to 28, 32. Then it repeats 20-32 again.
+
+There's also a PLL. Only works at >=16MHz internal oscillator speed, max frequency 48, multiply by 2 or 3 (basically, 16 and 24 get 48, 20 gets 40) - too bad all it can do is clock the single Type D timer!
+
+And... there's AUTOTUNE! Use a crystal... but a watch crystal! It's used to adjust the main oscillator frequency. It ain't an MHz crystal at the system clock frequency, but it's better than nothing...
 
 ## RTC
 Same as megaAVR 0-series

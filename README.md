@@ -1,7 +1,6 @@
 ### [Wiring](Wiring.md)
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
-### [Comparison with 0/1-series peripherals](megaavr/extras/Comparison.md)
 
 # DxCore - Arduino support for DA-series parts and future DB-series
 This is an early version of an Arduino core to support the new AVR DA-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was ever planned. But whatever the story of it's origin, these take the AVR instruction set to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers but for almost every major system, and enhanced pin interrupts... But for each system they've added A significant improvement of some sort. You liked the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! You thought events and the CCLs were really cool, but if only you could fire an interrupt from them? Yup, you can do that too now.
@@ -25,7 +24,7 @@ My personal opinion is that the 48-pin parts are the "sweet spot" - they have th
 
 ## Upcoming DB-series
 Support for the DB-series will be added pending release of a datasheet by Microchip (though will be gated by the compiler toolchain issue - I can work around that and provide a toolchain if need be, though I'd rather not have to take this step.
-It is likely that basic support could be added almost immediately upon release - the DB-series appears to be nearly identical to the DA-series, except for some improved analog options (apparently - on-chip opamps, improved analog comparators), multi-voltage I/O (my guess is that AVcc can be supplied with a different voltage, and will control the I/O voltage of some pins - my guess being PORTD based on no hard information whatsoever). There are tantalizing hints in the io headers of an external high frequency crystal... but I'm not sure if it can actually be used to clock CPU itself, or just the PLL. The latter would be a real bummer to many people, who have loathed the demise of the external crystal (personally, I am happy with the accuracy I get from the internal clock, especially with autotune, )
+It is likely that basic support could be added almost immediately upon release - the DB-series appears to be nearly identical to the DA-series, except for some improved analog options (apparently - on-chip opamps, improved analog comparators), multi-voltage I/O (this is one port which has I/O on a different voltage than the rest of the chip - which the Microchip blurb said could be lower *or higher* than the chip; my betting is it will be PORTD, and power will be supplied on the pin marked AVDD). There are tantalizing hints in the io headers of an external high frequency crystal... but I'm not sure if it can actually be used to clock CPU itself, or just the PLL. The latter would be a real bummer to many people, who have loathed the demise of the external crystal (personally, I am happy with the accuracy I get from the internal clock - it's in a different world compared to the old days of the classic AVRs, especially with autotune).
 
 
 ## Supported Clock Speeds
@@ -53,7 +52,8 @@ uint8_t enableXOSC32K(uint8_t settings)
 {
 	_PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x23);
 }
-// since CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm won't be true until something requests that clock source, you have to actually enable autotune. This verification gives you some assurance that it's working, the clock, in my tests, was within 1% at room temperature across the full operating voltage range!
+// since CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm won't be true until something requests that clock source, you have to actually enable autotune. This verification gives you some assurance that it's working. The internal oscillator is pretty damned good on these. In my tests, was within 1% at room temperature across the full operating voltage range, even without AutoTune. The clock accuracy is really limited only by the large tuning increment of the HF oscillator (spec'ed at 0.4%).
+
 uint8_t enableAutoTune(uint16_t verifytime=0)
 {
 	_PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA,CLKCTRL.OSCHFCTRLA|0x01);
@@ -84,15 +84,19 @@ Currently, the only programmer I know works with the core is jtag2updi. See [Mak
 ## Brutal errata in initial hardware
 The silicon errata in the initial versions of these parts is pretty brutal - and it's not even complete! There are a few sweeteners though too... See [errata and extras](megaavr/extras/errata_and_extras.md).
 
+## Quick Peripheral by Peripheral comparison
+[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md)
 
 # Features
 
-#### Memory-mapped flash? No :-(
+### Memory-mapped flash? No :-(
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker does not configure this. So, for the time being, you must use the F() macro and PROGMEM to put constants into program memory, and the pgm_read functions to read it.
 
-In a future version, we plan to develop a solution to this that will allow up to 32kb of constants to be declared in a way that puts them in the final 32k section of flash, and the flash mapping will be pointed at that section... how easy this to be remains to be seen!
+In a future version, we plan to develop a solution to this that will allow up to 32kb of constants to be declared in a way that puts them in the final 32k section of flash, and the flash mapping will be pointed at that section... how easy this to be remains to be seen...
 
-#### Ways to refer to pins
+Note that the errata relating to the memory mapping is not a problem for us.
+
+### Ways to refer to pins
 
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
 
@@ -176,14 +180,16 @@ In addition to the pin numbers, you can read from the following sources:
 * ADC_DAC0 (The value being output by DAC0)
 * ADC_TEMPERATUIRE (The internal temperature sensor)
 
-Additionally, we have taken  advantage of the improvements in the ADC on the these parts to improve the speed of analogRead() by more than a factor of three compared to the classic AVR devices - the ADC clock which was constrained to the range 50~200kHz - on these parts (as well as tinyAVR 0/1-series and megaAVR 0-series) it can be run at 1.5MHz! To compensate for the faster ADC clock, we set ADC0.SAMPCTRL to 14 to extend the sampling period from the default of 2 ADC clock cycles to 16 - providing the same sampling period as most other AVR cores, which should preserve the same accuracy when measuring high impedance signals. If you are measuring a lower impedance signal and need even faster analogRead() performance - or if you are measuring a high-impedance signal and need a longer sampling time, you can adjust that setting:
+We have taken  advantage of the improvements in the ADC on the these parts to improve the speed of analogRead() by more than a factor of three compared to the classic AVR devices - the ADC clock which was constrained to the range 50-200kHz - on these parts (as well as tinyAVR 0/1-series and megaAVR 0-series) it can be run at 1.5MHz! To compensate for the faster ADC clock, we set ADC0.SAMPCTRL to 14 to extend the sampling period from the default of 2 ADC clock cycles to 16 - providing the same sampling period as most other AVR cores, which should preserve the same accuracy when measuring high impedance signals. If you are measuring a lower impedance signal and need even faster analogRead() performance - or if you are measuring a high-impedance signal and need a longer sampling time, you can adjust that setting. On the tinyAVR and megaAVR 0/1-series, this had a maximum of 0x1F (31). On the DA-series, the maximum is 0xFF (255); this is almost certainly too long.
 
 ```
-ADC0.SAMPCTRL=31; // maximum sampling length = 31+2 = 33 ADC clock cycles
+ADC0.SAMPCTRL=255; // maximum sampling length = 255+2 = 257 ADC clock cycles (0.26 milliseconds!)
 ADC0.SAMPCTRL=0; //minimum sampling length = 0+2 = 2 ADC clock cycles
 ```
 
 With the minimum sampling length, analogRead() speed would be approximately doubled from it's already-faster value.
+
+**ERRATA ALERT** There is a nasty silicon bug, at least in early versions, where whatever pin the ADC multiplexer is pointed at, digital reads are disabled. This core provides two options for dealing with this - if you enable the workaround, the core will point the multiplexer at a non-pin reserved value after every analogRead(). If it is set to startup only, this will be done before setup() is called - but never after that; it is your responsability to deal with in that case.
 
 ### DAC Support
 The DA-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). This voltage must be lower than Vcc to get the correct voltages. Call analogWrite() on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call digitalWrite() on that pin.
@@ -301,7 +307,8 @@ Largely adapted from megaTinyCore
 * Tools -> Reset pin - This menu option can be set to Reset (default) or Input; the latter allows this pin to be used as a normal input.
 * Tools -> B.O.D. Mode (active) - Determines whether to enable Brown Out Detection when the chip is not sleeping. You must burn bootloader after changing this to apply the changes.
 * Tools -> B.O.D. Mode (sleep) - Determines whether to enable Brown Out Detection when the chip is sleeping. You must burn bootloader after changing this to apply the changes.
-* Tools -> millis()/micros() - If set to enable (default), millis(), micros() and pulseInLong() will be available. If set to disable, these will not be available, Serial methods which take a timeout as an argument will not have an accurate timeout (though the actual time will be proportional to the timeout supplied); delay will still work. Disabling millis() and micros() saves flash, and eliminates the millis interrupt every 1-2ms; this is especially useful on the 8-pin parts which are extremely limited in flash. Depending on the part, options to force millis/micros onto specific timers are available.
+* Tools -> millis()/micros() - If set to enable (default), millis(), micros() and pulseInLong() will be available. If set to disable, these will not be available, Serial methods which take a timeout as an argument will not have an accurate timeout (though the actual time will be proportional to the timeout supplied); delay will still work, though it's done using delayMicroseconds(), so interrupts are disabled for 1ms at a time during the delay, and any interrupts that happen during the delay will add to the length of the delay. Depending on the part, options to force millis/micros onto any timer on the chip are also available from this menu.
+* Tools -> ADC Workaround - If set to Enable, the workaround for the ADC silicon errata will be used, and ADC mux will be pointed away from pins after analogRead(). If set to Startup Only, this is only done at startup; digitalRead() will not work on the last pin you used analogRead() with.
 
 
 # Buying AVR DA-series breakout boards

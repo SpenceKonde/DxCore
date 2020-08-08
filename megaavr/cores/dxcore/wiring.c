@@ -728,54 +728,50 @@ void init()
       state that this is the case. Just like on megaTinyCore, use samplen to compensate */
 
       #if F_CPU >= 32000000
-        ADC0.CTRLC |= ADC_PRESC_DIV32_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
       #elif F_CPU >= 28000000
-        ADC0.CTRLC |= ADC_PRESC_DIV28_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
       #elif F_CPU >= 24000000
-        ADC0.CTRLC |= ADC_PRESC_DIV24_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1 MHz
       #elif F_CPU >= 20000000
-        ADC0.CTRLC |= ADC_PRESC_DIV20_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1 MHz
       #elif F_CPU >= 16000000
-        ADC0.CTRLC |= ADC_PRESC_DIV16_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1 MHz
       #elif F_CPU >= 12000000
-        ADC0.CTRLC |= ADC_PRESC_DIV12_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1 MHz
       #elif F_CPU >= 8000000
-        ADC0.CTRLC |= ADC_PRESC_DIV8_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1 MHz
       #elif F_CPU >= 4000000
-        ADC0.CTRLC |= ADC_PRESC_DIV4_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV4_gc;  //1 MHz
       #else  // 1 MHz / 2 = 500 kHz - the lowest setting
-        ADC0.CTRLC |= ADC_PRESC_DIV2_gc;
+        ADC0.CTRLC = ADC_PRESC_DIV2_gc;
       #endif
       ADC0.SAMPCTRL=14; //16 ADC clock sampling time - should be about the same amount of *time* as originally?
     #else //if SLOWADC is defined - as of 2.0.0 this option isn't exposed.
       /* ADC clock around 200 kHz - datasheet spec's 125 kHz to 1.5 MHz */
-      #if F_CPU >= 24000000
-        ADC0.CTRLC |= ADC_PRESC_DIV128_gc; //1 MHz
-      #elif F_CPU >= 20000000
-        ADC0.CTRLC |= ADC_PRESC_DIV96_gc; //1 MHz
+      #if F_CPU >= 32000000
+        ADC0.CTRLC = ADC_PRESC_DIV128_gc; //250 kHz
+      #elif F_CPU >= 24000000
+        ADC0.CTRLC = ADC_PRESC_DIV96_gc; //250 kHz
       #elif F_CPU >= 16000000
-        ADC0.CTRLC |= ADC_PRESC_DIV64_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV64_gc; //250 kHz
       #elif F_CPU >= 12000000
-        ADC0.CTRLC |= ADC_PRESC_DIV48_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV48_gc; //250 kHz
       #elif F_CPU >= 8000000
-        ADC0.CTRLC |= ADC_PRESC_DIV32_gc; //1 MHz
+        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //250 kHz
       #elif F_CPU >= 4000000
-        ADC0.CTRLC |= ADC_PRESC_DIV20_gc; //1 MHz
-      #else  // 1 MHz / 2 = 500 kHz - the lowest setting
-        ADC0.CTRLC |= ADC_PRESC_DIV4_gc;
+        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //200 kHz
+      #else  // 1 MHz / 4 = 250 kHz
+        ADC0.CTRLC = ADC_PRESC_DIV4_gc;
       #endif
     #endif
 
     /* Enable ADC */
-    ADC0.CTRLA |= ADC_ENABLE_bm;
+    ADC0.CTRLD = ADC_INITDLY_DLY16_gc;
+    ADC0.CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
 
-#ifndef DO_NOT_WORKAROUND_ADC_BUG
-    if (HAS_ADC_BUG) {
-      ADC0.MUXPOS=0x7F; //it defaults to thrashing digital input on PD0!
-      GPR.GPR3=0x80; //set flag in GPIOR3 to minimize performance impact of testing for this all over hell. High bit means hardware vulnerable, second highest means analogRead() pointed the positive mux at a pin, and the rest stores that pin number.
-      // Althought HAS_ADC_BUG is constant over the life of the program, the program has no way to know that.
-      // We can't just point the mux somewhere harmless at the end of analogRead because that would trash the ability to leave the mux pointed at a high impedance voltage source and pound it with analogRead() to get better readings...
-    }
+#ifdef SIMPLE_ADC_WORKAROUND
+    ADC0.MUXPOS=0x7F;
 #endif
     analogReference(VDD);
     DACReference(VDD);

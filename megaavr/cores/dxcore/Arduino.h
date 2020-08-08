@@ -76,6 +76,7 @@ extern "C"{
 #define interrupts() sei()
 #define noInterrupts() cli()
 
+bool analogReadResolution(uint8_t res);
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP

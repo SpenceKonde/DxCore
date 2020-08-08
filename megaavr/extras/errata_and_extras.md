@@ -1,21 +1,21 @@
 # Errata and Extras
-The errata for the DA128 parts was one of the most tragic documents that has ever been a companion to an electronic component's datasheet - worse still, the document released in April 2020 by Microchip is not even complete - and it certainly does a poor job of explaining some of the most important issues that it does mention.
+The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Worse still, the document released in April 2020 by Microchip is not even complete - and it certainly does a poor job of explaining some of the most important issues that it does mention.
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
 Issue    | Severity | Source    | 128DA | 64DA | 32DA
 ---------|----------|-----------|-------|------|--------
-ADC disab| 4        | Microchip | YES   | YES  | YES
-Memory ma| 3 (4 in )| Microchip | YES   | NO?  | N/A
+ADC disables digital input| 4        | Microchip | YES   | YES  | YES
+Memory mapped flash issues| 3 (4 in )| Microchip | YES   | NO?  | N/A
 TCA1 Rema| 1 (2 on 64)| Microchip | YES | NO?  | N/A
-TWI Pins | 1        | Microchip | YES   | YES  | YES
-SPI SSD  | 2        | Microchip | YES   | NO?  | NO?
-USART Ope| 1        | Microchip | YES   | YES  | YES
-TWI SDA H| 1        | Microchip | YES   | NO?  | NO?
-ZCD Outpu| 0-1      | Microchip | NO?   | YES  | YES
-Event on | 3        | Microchip | YES   | NO?  | N/A
-CCL on 32| 2        | Microchip | NO?   | YES  | NO?
-Fuses    | 1        | Spence K. | YES,A6| ???  | ???
-TCD0 mux | 3        | Spence K. | YES,A6| Likely | Likely
-UPDI     | 3 or 0   | Spence K. | YES,A6| Likely | Likely
+TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES
+SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO?
+USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES
+TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO?
+ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES
+No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A
+CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO?
+Initial fuses don't match datasheet | 1        | Spence K. | YES,A6| ???  | ???
+TCD0 portmux options broken | 3        | Spence K. | YES,A6| Likely | Likely
+UPDI 24-bit STptr followed by 16-bit STS | 3 or 0   | Spence K. | YES,A6| Likely | Likely
 
 NO? means not mentioned in errata, but has not been confirmed as not being present in that size of chip.
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
@@ -30,12 +30,13 @@ All written my me, not copied from Microchip. Waiting for complete errata docume
 ### ADC disables digital input
 *If an input pin is selected to be analog input, the digital input function for those pins is automatically disabled*
 
-In my opinion, poorly described. What they mean is: `While ADC0 is enabled, if ADC0.MUXPOS is set to a value which selects a pin as the positive input to the ADC, the PORTx.IN register is not updated for that pin` This is hardly fatal - and easily worked around - but it is also nearly impossible to ignore if the core does not work around it. The most disconcerting part is that since the core will enable the ADC for you in init(), if it doesn't also work around this, you will immediately find that AIN0 is non-functional as a digital pin! This caused considerable consternation during development. This core provides three options from the Tools -> ADC Workaround menu:
-* Simple workaround - at startup, and every time analogRead() is called, after reading the result, the mux is immediately pointed at an unconnected input channel (0x7F, specifically)
-* Complex workaroubd - at startup, mux pointed to 0x7F. 0x80 is set in GPR3 marking hardware as effected. analogRead() sets 0x40 in GPR3 and the low 6 bits to the digital pin number that was used, but mux is left pointed at it. digitalRead() and pinMode(pin,INPUT) check that register. If 0x40 is set, they shove the mux onto 0x7F and clear the low 7 bits of GPR3. This means that the mux is left pointing at the pin you last used it with, which may improve accuracy on high impedance signals. However, it has more overhead, and eats one of the (admittedly rarely used) GPR's. Note that doing this without the GPR would have significantly higher overhead (checking a bit in a GPR is a single cycle operation, doing so for a flag in a byte of SRAM is at least 5 - will be more noticible as digital I/O speed enhancements go into the core).
-* Do Nothing - at startup mux will be pointed at 0x7F. After that nothing will be done, and it is the users responsability to manage.
+In my opinion, poorly described. What they mean is: `While ADC0 is enabled, if ADC0.MUXPOS is set to a value which selects a pin as the positive input to the ADC, the PORTx.IN register is not updated for that pin` This is hardly fatal - and easily worked around - but it is also nearly impossible to ignore if the core does not work around it. The most disconcerting part is that since the core will enable the ADC for you in init(), if it doesn't also work around this, you will immediately find that AIN0 is non-functional as a digital pin! This caused considerable consternation during development. Despite the frightening-sounding "Workaround: None" in the errata sheet, there is a simple workaround for most use cases - just point the mux somewhere else; if it is set to some reserved value that does not correspond to any pin, it will not disrupt any input.
 
-If/when silicon without this bug becomes available, the core will be made to check if the revision is impacted.
+This core implements this simple workaround - on startup, and every every call to analogRead(), the mux is set to 127: `ADC0.MUXPOS=0x7F` That is a reserved value which does not correspond to any pin (it appears to be a floating input if the ADC is actually asked to measure it).
+
+Just because this is worked around does not mean you can totally ignore it though; there are still a few cases where it becomes relevant.
+* If you are taking over the ADC - for example to use free running mode, the window compaerator, etc, you must remember than digitalRead() will not work on the pin you are doing analog readings on.
+* Pin interrupts will not be triggered on the pin being used for analog readings (even with the workaround, they won't be triggered until AFTER the ADC cycle is completed and we move the ADC mux)
 
 ### SPIn.SSD required for master mode in default SPI pin mapping
 If the SSD (slave select disable) bit is not set, if an SPI interface is used with the default pin mapping, master mode will not be operable. Not much of a concern for Arduino users, since the only SPI library around for the modern AVR parts only supports master mode and always sets this bit.
@@ -70,7 +71,7 @@ The fuses, as supplied (on AVR128DA, Rev. A6 silicon, at least) do not match the
 Certainly makes you wonder about their emphatic "unused bits MUST be set to 0" warning doesn't it? Burn bootloader when you get the parts to make reset work.
 
 ### TCD0 on non-default port doesn't work
-When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. The core only uses PA4 and PA5 as TCD0 PWM outputs because of this issue (this may be changed if/when silicon that corrects this issue is made available).
+When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. The core only uses PA4 and PA5 as TCD0 PWM outputs because of this issue (this may be changed if/when silicon that corrects this issue is made available). Was reported to Microchip support on 8/4/2020 which implies that it had not been previously reported...
 
 ### UPDI programming issue with 16-bit STS after 24-bit STptr
 Microchip seemed unaware of this issue when I reported it to them, and forwarded it to their engineering team. When programming over UPDI, there are two ways to write and read memory, with direct and indirect addressing. Both of them can use 16 or 24-bit addressing (or 8-bit, but this is useless). The documentation describes the ST (indirect) pointer as being only used for ST/LD, not for STS/LDS. However, if an ST instruction sets the indirect addressing pointer to a 24-bit location (for example, writing to the flash, which from the perspective of UPDI starts at address 0x800000), and then an STS or LDS instruction is used with a 16-bit address, the high byte of the ST pointer will be used as the high byte of the directly-addressed memory address. This was discovered in the course of my work on jtag2updi.... I would use 16-bit STS to configure the NVMCTRL registers, then use ST to write a page to the flash. But then I tried to set NVMCTRL back to NOOP and check the NVMCTRL.STATUS with LDS (with 16-bit address) and ARGH! it was 0xFF! shouldn't ever be that! I eventually discovered I could just write 0's to it and that would "clear" the "error flags"... and I was puzzled by why there were a few bytes set to 0x00 around 0x1000 when I read the flash back out afterwards (because I had not set NVMCTRL back to NOOP - I instead wrote to location 0x1000 of the flash, and also cleared the "error flags" (ie, blank flash) a few bytes later. That cost me a lot of time, and had I not been stymied by jtag2updi for so long, y'all might have been using this core in may instead of now (I was so burned out of these things that I needed to take some time away from them...)

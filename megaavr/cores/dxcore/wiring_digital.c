@@ -42,16 +42,6 @@ void pinMode(uint8_t pin, uint8_t mode)
     port->DIRSET = bit_mask;
 
   } else { /* mode == INPUT or INPUT_PULLUP */
-    // when someone is explicitly setting a pin as input, let's actually test it, rather than assuming that they hadn't been doing weird things with the ADC.
-  // we'll document this
-#ifndef DO_NOT_WORKAROUND_ADC_BUG
-    if (GPR.GPR3&0x80){
-      if (digitalPinToAnalogInput(pin)==ADC0.MUXPOS) {
-        GPR.GPR3=0x80;
-        ADC0.MUXPOS=0x7F;
-      }
-    }
-#endif
     uint8_t bit_pos = digitalPinToBitPosition(pin);
     /* Calculate where pin control register is */
     volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
@@ -227,7 +217,7 @@ int8_t digitalRead(uint8_t pin)
   /* Get bit mask and check valid pin */
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if(bit_mask == NOT_A_PIN) return -1;
-#ifndef DO_NOT_WORKAROUND_ADC_BUG
+#ifdef COMPLEX_ADC_WORKAROUND
   if(GPR.GPR3&0x40) {
     if ((GPR.GPR3&0x3F)==pin){
       GPR.GPR3=0x80;
