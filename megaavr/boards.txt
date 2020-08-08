@@ -9,6 +9,7 @@ menu.eesave=Save EEPROM
 menu.clock=Clock Speed
 menu.millis=millis()/micros()
 menu.resetpin=Reset pin function
+menu.adcworkaround=ADC Workaround mode
 
 
 
@@ -71,6 +72,10 @@ avrda28.menu.clock.32=32 MHz (overclocked)
 avrda28.menu.clock.32.build.f_cpu=32000000L
 avrda28.menu.clock.32.build.speed=32
 
+avrda28.build.adcworkaround=
+avrda28.menu.adcworkaround.simple=Enabled
+avrda28.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
+avrda28.menu.adcworkaround.none=Disabled
 
 
 avrda28.menu.bodvoltage.1v9=1.9V
@@ -103,7 +108,7 @@ avrda28.menu.eesave.disable=EEPROM not retained
 avrda28.menu.eesave.disable.bootloader.eesavebit=0
 
 avrda28.menu.resetpin.reset=Hardware Reset (recommended)
-avrda28.menu.resetpin.reset.bootloader.eesavebit=10
+avrda28.menu.resetpin.reset.bootloader.resetpinbits=10
 avrda28.menu.resetpin.input=Input (no output, ever)
 avrda28.menu.resetpin.input.bootloader.resetpinbits=00
 
@@ -128,7 +133,7 @@ avrda28.build.board=avrda28
 avrda28.build.core=dxcore
 avrda28.build.variant=28pin-standard
 avrda28.build.text_section_start=.text=0x0
-avrda28.build.extra_flags={build.millis}
+avrda28.build.extra_flags={build.millis} {build.adcworkaround}
 avrda28.build.export_merged_output=false
 
 avrda28.bootloader.tool=avrdude
@@ -199,12 +204,11 @@ avrda32.menu.clock.28.build.speed=28
 avrda32.menu.clock.32=32 MHz (overclocked)
 avrda32.menu.clock.32.build.f_cpu=32000000L
 avrda32.menu.clock.32.build.speed=32
-avrda32.menu.clock.36=36 MHz (overclocked)
-avrda32.menu.clock.36.build.f_cpu=36000000L
-avrda32.menu.clock.36.build.speed=36
-avrda32.menu.clock.40=40 MHz (overclocked)
-avrda32.menu.clock.40.build.f_cpu=40000000L
-avrda32.menu.clock.40.build.speed=40
+
+avrda32.build.adcworkaround=
+avrda32.menu.adcworkaround.simple=Simple
+avrda32.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
+avrda32.menu.adcworkaround.none=Startup only
 
 
 
@@ -238,7 +242,7 @@ avrda32.menu.eesave.disable=EEPROM not retained
 avrda32.menu.eesave.disable.bootloader.eesavebit=0
 
 avrda32.menu.resetpin.reset=Hardware Reset (recommended)
-avrda32.menu.resetpin.reset.bootloader.eesavebit=10
+avrda32.menu.resetpin.reset.bootloader.resetpinbits=10
 avrda32.menu.resetpin.input=Input (no output, ever)
 avrda32.menu.resetpin.input.bootloader.resetpinbits=00
 
@@ -263,7 +267,7 @@ avrda32.build.board=avrda32
 avrda32.build.core=dxcore
 avrda32.build.variant=32pin-standard
 avrda32.build.text_section_start=.text=0x0
-avrda32.build.extra_flags={build.millis}
+avrda32.build.extra_flags={build.millis} {build.adcworkaround}
 avrda32.build.export_merged_output=false
 
 avrda32.bootloader.tool=avrdude
@@ -366,7 +370,7 @@ avrda48.menu.eesave.disable=EEPROM not retained
 avrda48.menu.eesave.disable.bootloader.eesavebit=0
 
 avrda48.menu.resetpin.reset=Hardware Reset (recommended)
-avrda48.menu.resetpin.reset.bootloader.eesavebit=10
+avrda48.menu.resetpin.reset.bootloader.resetpinbits=10
 avrda48.menu.resetpin.input=Input (no output, ever)
 avrda48.menu.resetpin.input.bootloader.resetpinbits=00
 
@@ -399,7 +403,7 @@ avrda48.build.extra_flags={build.millis}
 avrda48.build.export_merged_output=false
 
 avrda48.bootloader.tool=avrdude
-avrda48.bootloader.WDTCFG=0x000
+avrda48.bootloader.WDTCFG=0x00
 avrda48.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrda48.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda48.bootloader.SYSCFG1=0x03
@@ -500,7 +504,7 @@ avrda64.menu.eesave.disable=EEPROM not retained
 avrda64.menu.eesave.disable.bootloader.eesavebit=0
 
 avrda64.menu.resetpin.reset=Hardware Reset (recommended)
-avrda64.menu.resetpin.reset.bootloader.eesavebit=10
+avrda64.menu.resetpin.reset.bootloader.resetpinbits=10
 avrda64.menu.resetpin.input=Input (no output, ever)
 avrda64.menu.resetpin.input.bootloader.resetpinbits=00
 
