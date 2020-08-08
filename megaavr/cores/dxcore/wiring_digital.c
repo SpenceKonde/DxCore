@@ -136,9 +136,11 @@ static void turnOffPWM(uint8_t pin)
     TCD0.CTRLA&= ~TCD_ENABLE_bm;//stop the timer
     while(!(TCD0.STATUS&0x01)) {;}// wait until it's actually stopped
     #ifdef MEGATINYCORE
+    // it's either bit 6 or 7 - it's the CMPC and CMPD channels we use; A and B are on pins that we can already cover with TCA0.
     _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(1<<(6+bit_pos)));
     #else
-    bit_pos&=0x03 // now 0-3, whether it's in the high or low half of the port - all the TCD banks are in one half or the other half of a port on DA series.
+    bit_pos&=0x03
+    // on the DA series, it could be any of them
     _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(0x10<<(bit_pos)));
     #endif
     TCD0.CTRLA|= TCD_ENABLE_bm; //reenable it
