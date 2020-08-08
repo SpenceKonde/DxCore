@@ -74,8 +74,9 @@ This core is still in development. At this point, it is belived that the core is
 * Serial works
 * Clock selection works
 * PWM and DAC output works
+* ADC and ADC bug workaround appear to work correctly
 * Digital I/O works
-* Wire and SPI should work. The bug in
+* Wire and SPI should work. The bugs should not impact us.
 * F() macro and `__FlashStringHelper` are back :-( - I don't (yet) have a method worked out by which you can automatically put strings into flash (though I have an idea....)
 
 ## Programming is done via UPDI
