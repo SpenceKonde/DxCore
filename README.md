@@ -312,8 +312,9 @@ Largely adapted from megaTinyCore
 
 
 # Buying AVR DA-series breakout boards
-I sell breakout boards with regulator, UPDI header, and Serial header and other basic supporting parts in my Tindie shop, as well as the bare boards. Buying from my store helps support further development on the core, and is a great way to get started using these exciting new parts with Arduino. Note that we do not currently sell a 28-pin version - this did not seem like a compelling part with the availability of the 32-pin version; the main appeal of the 28-pin part is that it is available in a through-hole version. As we would not be able to make the 28-pin version significantly smaller, there did not seem to be a compelling reason to create a 28-pin version. We may revisit this decision in the future, including potentially a 28-pin bare board for the through-hole version, suitable for hand-assembly.
+I sell breakout boards with regulator, UPDI header, and Serial header and other basic supporting parts in my Tindie shop, as well as the bare boards. Buying from my store helps support further development on the core, and is a great way to get started using these exciting new parts with Arduino. Note that we do not currently sell a 28-pin version - this did not seem like a compelling part with the availability of the 32-pin version; the main appeal of the 28-pin part is that it is available in a through-hole version. As we would not be able to make the 28-pin version significantly smaller, there did not seem to be a compelling reason to create a 28-pin version. We may revisit this decision in the future, including potentially a 28-pin bare board for the through-hole version, suitable for assembly by those not experienced with drag soldering.
+(The boards are not for sale yet at the time of release, as they need to be "approved" by Tindie, and it's a weekend...)
 
-### [Assembled Boards](https://www.tindie.com/products/17523/)
-### [Bare Boards](https://www.tindie.com/products/17613/)
+### [Assembled Boards](https://www.tindie.com/products/21007/)
+### [Bare Boards](https://www.tindie.com/products/21008/)
 
