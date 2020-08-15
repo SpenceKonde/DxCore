@@ -17,134 +17,138 @@ menu.adcworkaround=ADC Workaround mode
 
 #########################################
 #
-#    28 PIN AVR DA-series
+#    28 PIN AVR Dx-series
 #
 #########################################
 
 
-avrda28.name=AVR DA 28
+avrdx28.name=AVR Dx 28
 
 
 
 
-avrda28.menu.chip.128=AVR128DA28
-avrda28.menu.chip.128.build.mcu=avr128da28
-avrda28.menu.chip.128.upload.maximum_size=131072
-avrda28.menu.chip.128.upload.maximum_data_size=16384
-avrda28.menu.chip.64=AVR64DA28
-avrda28.menu.chip.64.build.mcu=avr64da28
-avrda28.menu.chip.64.upload.maximum_size=65536
-avrda28.menu.chip.64.upload.maximum_data_size=8192
-avrda28.menu.chip.32=AVR32DA28
-avrda28.menu.chip.32.build.mcu=avr32da28
-avrda28.menu.chip.32.upload.maximum_size=32768
-avrda28.menu.chip.32.upload.maximum_data_size=4096
+avrdx28.menu.chip.128A=AVR128DA28
+avrdx28.menu.chip.128A.build.mcu=avr128da28
+avrdx28.menu.chip.128A.upload.maximum_size=131072
+avrdx28.menu.chip.128A.upload.maximum_data_size=16384
+avrdx28.menu.chip.64A=AVR64DA28
+avrdx28.menu.chip.64A.build.mcu=avr64da28
+avrdx28.menu.chip.64A.upload.maximum_size=65536
+avrdx28.menu.chip.64A.upload.maximum_data_size=8192
+avrdx28.menu.chip.32A=AVR32DA28
+avrdx28.menu.chip.32A.build.mcu=avr32da28
+avrdx28.menu.chip.32A.upload.maximum_size=32768
+avrdx28.menu.chip.32A.upload.maximum_data_size=4096
+avrdx28.menu.chip.128B=AVR128DB28
+avrdx28.menu.chip.128B.build.mcu=avr128db28
+avrdx28.menu.chip.128B.upload.maximum_size=131072
+avrdx28.menu.chip.128B.upload.maximum_data_size=16384
 
 
-avrda28.menu.clock.24=24 MHz
-avrda28.menu.clock.24.build.f_cpu=24000000L
-avrda28.menu.clock.24.build.speed=24
-avrda28.menu.clock.20=20 MHz
-avrda28.menu.clock.20.build.f_cpu=20000000L
-avrda28.menu.clock.20.build.speed=20
-avrda28.menu.clock.16=16 MHz
-avrda28.menu.clock.16.build.f_cpu=16000000L
-avrda28.menu.clock.16.build.speed=16
-avrda28.menu.clock.12=12 MHz
-avrda28.menu.clock.12.build.f_cpu=12000000L
-avrda28.menu.clock.12.build.speed=12
-avrda28.menu.clock.10=10 MHz
-avrda28.menu.clock.10.build.f_cpu=10000000L
-avrda28.menu.clock.10.build.speed=10
-avrda28.menu.clock.8=8 MHz
-avrda28.menu.clock.8.build.f_cpu=8000000L
-avrda28.menu.clock.8.build.speed=8
-avrda28.menu.clock.4=4 MHz
-avrda28.menu.clock.4.build.f_cpu=4000000L
-avrda28.menu.clock.4.build.speed=4
-avrda28.menu.clock.1=1 MHz
-avrda28.menu.clock.1.build.f_cpu=1000000L
-avrda28.menu.clock.1.build.speed=1
-avrda28.menu.clock.28=28 MHz (overclocked)
-avrda28.menu.clock.28.build.f_cpu=28000000L
-avrda28.menu.clock.28.build.speed=28
-avrda28.menu.clock.32=32 MHz (overclocked)
-avrda28.menu.clock.32.build.f_cpu=32000000L
-avrda28.menu.clock.32.build.speed=32
+avrdx28.menu.clock.24=24 MHz
+avrdx28.menu.clock.24.build.f_cpu=24000000L
+avrdx28.menu.clock.24.build.speed=24
+avrdx28.menu.clock.20=20 MHz
+avrdx28.menu.clock.20.build.f_cpu=20000000L
+avrdx28.menu.clock.20.build.speed=20
+avrdx28.menu.clock.16=16 MHz
+avrdx28.menu.clock.16.build.f_cpu=16000000L
+avrdx28.menu.clock.16.build.speed=16
+avrdx28.menu.clock.12=12 MHz
+avrdx28.menu.clock.12.build.f_cpu=12000000L
+avrdx28.menu.clock.12.build.speed=12
+avrdx28.menu.clock.10=10 MHz
+avrdx28.menu.clock.10.build.f_cpu=10000000L
+avrdx28.menu.clock.10.build.speed=10
+avrdx28.menu.clock.8=8 MHz
+avrdx28.menu.clock.8.build.f_cpu=8000000L
+avrdx28.menu.clock.8.build.speed=8
+avrdx28.menu.clock.4=4 MHz
+avrdx28.menu.clock.4.build.f_cpu=4000000L
+avrdx28.menu.clock.4.build.speed=4
+avrdx28.menu.clock.1=1 MHz
+avrdx28.menu.clock.1.build.f_cpu=1000000L
+avrdx28.menu.clock.1.build.speed=1
+avrdx28.menu.clock.28=28 MHz (overclocked)
+avrdx28.menu.clock.28.build.f_cpu=28000000L
+avrdx28.menu.clock.28.build.speed=28
+avrdx28.menu.clock.32=32 MHz (overclocked)
+avrdx28.menu.clock.32.build.f_cpu=32000000L
+avrdx28.menu.clock.32.build.speed=32
 
-avrda28.build.adcworkaround=
-avrda28.menu.adcworkaround.simple=Enabled
-avrda28.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
-avrda28.menu.adcworkaround.none=Disabled
-
-
-avrda28.menu.bodvoltage.1v9=1.9V
-avrda28.menu.bodvoltage.1v9.bootloader.bodlevbits=000
-avrda28.menu.bodvoltage.2v45=2.45V
-avrda28.menu.bodvoltage.2v45.bootloader.bodlevbits=001
-avrda28.menu.bodvoltage.2v70=2.70V
-avrda28.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-avrda28.menu.bodvoltage.2v85=2.85V
-avrda28.menu.bodvoltage.2v85.bootloader.bodlevbits=011
-avrda28.menu.bodmodeactive.disabled=Disabled
-avrda28.menu.bodmodeactive.enabled=Enabled
-avrda28.menu.bodmodeactive.sampled=Sampled
-avrda28.menu.bodmodeactive.enabledhold=Enabled hold wakeup
-avrda28.menu.bodmodesleep.disabled=Disabled
-avrda28.menu.bodmodesleep.enabled=Enabled
-avrda28.menu.bodmodesleep.sampled=Sampled
-avrda28.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
-avrda28.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
-avrda28.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
-avrda28.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
-avrda28.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
-avrda28.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
-avrda28.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
+avrdx28.build.adcworkaround=
+avrdx28.menu.adcworkaround.simple=Enabled
+avrdx28.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
+avrdx28.menu.adcworkaround.none=Disabled
 
 
-avrda28.menu.eesave.enable=EEPROM retained
-avrda28.menu.eesave.enable.bootloader.eesavebit=1
-avrda28.menu.eesave.disable=EEPROM not retained
-avrda28.menu.eesave.disable.bootloader.eesavebit=0
+avrdx28.menu.bodvoltage.1v9=1.9V
+avrdx28.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+avrdx28.menu.bodvoltage.2v45=2.45V
+avrdx28.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+avrdx28.menu.bodvoltage.2v70=2.70V
+avrdx28.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+avrdx28.menu.bodvoltage.2v85=2.85V
+avrdx28.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdx28.menu.bodmodeactive.disabled=Disabled
+avrdx28.menu.bodmodeactive.enabled=Enabled
+avrdx28.menu.bodmodeactive.sampled=Sampled
+avrdx28.menu.bodmodeactive.enabledhold=Enabled hold wakeup
+avrdx28.menu.bodmodesleep.disabled=Disabled
+avrdx28.menu.bodmodesleep.enabled=Enabled
+avrdx28.menu.bodmodesleep.sampled=Sampled
+avrdx28.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
+avrdx28.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
+avrdx28.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
+avrdx28.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
+avrdx28.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
+avrdx28.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
+avrdx28.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
 
-avrda28.menu.resetpin.reset=Hardware Reset (recommended)
-avrda28.menu.resetpin.reset.bootloader.resetpinbits=10
-avrda28.menu.resetpin.input=Input (no output, ever)
-avrda28.menu.resetpin.input.bootloader.resetpinbits=00
 
-avrda28.menu.millis.tcb2=TCB2 (recommended)
-avrda28.menu.millis.tca0=TCA0
-avrda28.menu.millis.tcb2=TCB0 (will break Servo)
-avrda28.menu.millis.tcb2=TCB1 (will break tone)
-avrda28.menu.millis.tcd0=TCD0
-avrda28.menu.millis.disabled=Disabled
+avrdx28.menu.eesave.enable=EEPROM retained
+avrdx28.menu.eesave.enable.bootloader.eesavebit=1
+avrdx28.menu.eesave.disable=EEPROM not retained
+avrdx28.menu.eesave.disable.bootloader.eesavebit=0
 
-avrda28.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
-avrda28.menu.millis.tcb0.build.millistimer=B0
-avrda28.menu.millis.tcb1.build.millistimer=B1
-avrda28.menu.millis.tcb2.build.millistimer=B2
-avrda28.menu.millis.tca0.build.millistimer=A0
-avrda28.menu.millis.tcd0.build.millistimer=D0
-avrda28.menu.millis.disabled.build.millistimer=NONE
+avrdx28.menu.resetpin.reset=Hardware Reset (recommended)
+avrdx28.menu.resetpin.reset.bootloader.resetpinbits=10
+avrdx28.menu.resetpin.input=Input (no output, ever)
+avrdx28.menu.resetpin.input.bootloader.resetpinbits=00
 
-avrda28.upload.tool=avrdude
+avrdx28.menu.millis.tcb2=TCB2 (recommended)
+avrdx28.menu.millis.tca0=TCA0
+avrdx28.menu.millis.tcb2=TCB0 (will break Servo)
+avrdx28.menu.millis.tcb2=TCB1 (will break tone)
+avrdx28.menu.millis.tcd0=TCD0
+avrdx28.menu.millis.disabled=Disabled
 
-avrda28.build.board=avrda28
-avrda28.build.core=dxcore
-avrda28.build.variant=28pin-standard
-avrda28.build.text_section_start=.text=0x0
-avrda28.build.extra_flags={build.millis} {build.adcworkaround}
-avrda28.build.export_merged_output=false
+avrdx28.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrdx28.menu.millis.tcb0.build.millistimer=B0
+avrdx28.menu.millis.tcb1.build.millistimer=B1
+avrdx28.menu.millis.tcb2.build.millistimer=B2
+avrdx28.menu.millis.tca0.build.millistimer=A0
+avrdx28.menu.millis.tcd0.build.millistimer=D0
+avrdx28.menu.millis.disabled.build.millistimer=NONE
 
-avrda28.bootloader.tool=avrdude
-avrda28.bootloader.WDTCFG=0x00
-avrda28.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda28.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-avrda28.bootloader.SYSCFG1=0x03
-avrda28.bootloader.CODESIZE=0x00
-avrda28.bootloader.BOOTSIZE=0x00
+avrdx28.upload.tool=avrdude
 
-avrda28.bootloader.flashcommand=
+avrdx28.build.board=avrdx28
+avrdx28.build.core=dxcore
+avrdx28.build.variant=28pin-standard
+avrdx28.build.text_section_start=.text=0x0
+avrdx28.build.extra_flags={build.millis} {build.adcworkaround}
+avrdx28.build.export_merged_output=false
+
+avrdx28.bootloader.tool=avrdude
+avrdx28.bootloader.WDTCFG=0x00
+avrdx28.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
+avrdx28.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrdx28.bootloader.SYSCFG1=0x03
+avrdx28.bootloader.CODESIZE=0x00
+avrdx28.bootloader.BOOTSIZE=0x00
+
+avrdx28.bootloader.flashcommand=
 
 
 
@@ -155,130 +159,134 @@ avrda28.bootloader.flashcommand=
 #########################################
 
 
-avrda32.name=AVR DA 32
+avrdx32.name=AVR DA 32
 
 
 
 
-avrda32.menu.chip.128=AVR128DA32
-avrda32.menu.chip.128.build.mcu=avr128da32
-avrda32.menu.chip.128.upload.maximum_size=131072
-avrda32.menu.chip.128.upload.maximum_data_size=16384
-avrda32.menu.chip.64=AVR64DA32
-avrda32.menu.chip.64.build.mcu=avr64da32
-avrda32.menu.chip.64.upload.maximum_size=65536
-avrda32.menu.chip.64.upload.maximum_data_size=8192
-avrda32.menu.chip.32=AVR32DA32
-avrda32.menu.chip.32.build.mcu=avr32da32
-avrda32.menu.chip.32.upload.maximum_size=32768
-avrda32.menu.chip.32.upload.maximum_data_size=4096
+avrdx32.menu.chip.128A=AVR128DA32
+avrdx32.menu.chip.128A.build.mcu=avr128da32
+avrdx32.menu.chip.128A.upload.maximum_size=131072
+avrdx32.menu.chip.128A.upload.maximum_data_size=16384
+avrdx32.menu.chip.64A=AVR64DA32
+avrdx32.menu.chip.64A.build.mcu=avr64da32
+avrdx32.menu.chip.64A.upload.maximum_size=65536
+avrdx32.menu.chip.64A.upload.maximum_data_size=8192
+avrdx32.menu.chip.32A=AVR32DA32
+avrdx32.menu.chip.32A.build.mcu=avr32da32
+avrdx32.menu.chip.32A.upload.maximum_size=32768
+avrdx32.menu.chip.32A.upload.maximum_data_size=4096
+avrdx32.menu.chip.128B=AVR128DB32
+avrdx32.menu.chip.128B.build.mcu=avr128db32
+avrdx32.menu.chip.128B.upload.maximum_size=131072
+avrdx32.menu.chip.128B.upload.maximum_data_size=16384
 
 
-avrda32.menu.clock.24=24 MHz
-avrda32.menu.clock.24.build.f_cpu=24000000L
-avrda32.menu.clock.24.build.speed=24
-avrda32.menu.clock.20=20 MHz
-avrda32.menu.clock.20.build.f_cpu=20000000L
-avrda32.menu.clock.20.build.speed=20
-avrda32.menu.clock.16=16 MHz
-avrda32.menu.clock.16.build.f_cpu=16000000L
-avrda32.menu.clock.16.build.speed=16
-avrda32.menu.clock.12=12 MHz
-avrda32.menu.clock.12.build.f_cpu=12000000L
-avrda32.menu.clock.12.build.speed=12
-avrda32.menu.clock.10=10 MHz
-avrda32.menu.clock.10.build.f_cpu=10000000L
-avrda32.menu.clock.10.build.speed=10
-avrda32.menu.clock.8=8 MHz
-avrda32.menu.clock.8.build.f_cpu=8000000L
-avrda32.menu.clock.8.build.speed=8
-avrda32.menu.clock.4=4 MHz
-avrda32.menu.clock.4.build.f_cpu=4000000L
-avrda32.menu.clock.4.build.speed=4
-avrda32.menu.clock.1=1 MHz
-avrda32.menu.clock.1.build.f_cpu=1000000L
-avrda32.menu.clock.1.build.speed=1
-avrda32.menu.clock.28=28 MHz (overclocked)
-avrda32.menu.clock.28.build.f_cpu=28000000L
-avrda32.menu.clock.28.build.speed=28
-avrda32.menu.clock.32=32 MHz (overclocked)
-avrda32.menu.clock.32.build.f_cpu=32000000L
-avrda32.menu.clock.32.build.speed=32
+avrdx32.menu.clock.24=24 MHz
+avrdx32.menu.clock.24.build.f_cpu=24000000L
+avrdx32.menu.clock.24.build.speed=24
+avrdx32.menu.clock.20=20 MHz
+avrdx32.menu.clock.20.build.f_cpu=20000000L
+avrdx32.menu.clock.20.build.speed=20
+avrdx32.menu.clock.16=16 MHz
+avrdx32.menu.clock.16.build.f_cpu=16000000L
+avrdx32.menu.clock.16.build.speed=16
+avrdx32.menu.clock.12=12 MHz
+avrdx32.menu.clock.12.build.f_cpu=12000000L
+avrdx32.menu.clock.12.build.speed=12
+avrdx32.menu.clock.10=10 MHz
+avrdx32.menu.clock.10.build.f_cpu=10000000L
+avrdx32.menu.clock.10.build.speed=10
+avrdx32.menu.clock.8=8 MHz
+avrdx32.menu.clock.8.build.f_cpu=8000000L
+avrdx32.menu.clock.8.build.speed=8
+avrdx32.menu.clock.4=4 MHz
+avrdx32.menu.clock.4.build.f_cpu=4000000L
+avrdx32.menu.clock.4.build.speed=4
+avrdx32.menu.clock.1=1 MHz
+avrdx32.menu.clock.1.build.f_cpu=1000000L
+avrdx32.menu.clock.1.build.speed=1
+avrdx32.menu.clock.28=28 MHz (overclocked)
+avrdx32.menu.clock.28.build.f_cpu=28000000L
+avrdx32.menu.clock.28.build.speed=28
+avrdx32.menu.clock.32=32 MHz (overclocked)
+avrdx32.menu.clock.32.build.f_cpu=32000000L
+avrdx32.menu.clock.32.build.speed=32
 
-avrda32.build.adcworkaround=
-avrda32.menu.adcworkaround.simple=Simple
-avrda32.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
-avrda32.menu.adcworkaround.none=Startup only
-
-
-
-avrda32.menu.bodvoltage.1v9=1.9V
-avrda32.menu.bodvoltage.1v9.bootloader.bodlevbits=000
-avrda32.menu.bodvoltage.2v45=2.45V
-avrda32.menu.bodvoltage.2v45.bootloader.bodlevbits=001
-avrda32.menu.bodvoltage.2v70=2.70V
-avrda32.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-avrda32.menu.bodvoltage.2v85=2.85V
-avrda32.menu.bodvoltage.2v85.bootloader.bodlevbits=011
-avrda32.menu.bodmodeactive.disabled=Disabled
-avrda32.menu.bodmodeactive.enabled=Enabled
-avrda32.menu.bodmodeactive.sampled=Sampled
-avrda32.menu.bodmodeactive.enabledhold=Enabled hold wakeup
-avrda32.menu.bodmodesleep.disabled=Disabled
-avrda32.menu.bodmodesleep.enabled=Enabled
-avrda32.menu.bodmodesleep.sampled=Sampled
-avrda32.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
-avrda32.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
-avrda32.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
-avrda32.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
-avrda32.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
-avrda32.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
-avrda32.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
+avrdx32.build.adcworkaround=
+avrdx32.menu.adcworkaround.simple=Simple
+avrdx32.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
+avrdx32.menu.adcworkaround.none=Startup only
 
 
-avrda32.menu.eesave.enable=EEPROM retained
-avrda32.menu.eesave.enable.bootloader.eesavebit=1
-avrda32.menu.eesave.disable=EEPROM not retained
-avrda32.menu.eesave.disable.bootloader.eesavebit=0
 
-avrda32.menu.resetpin.reset=Hardware Reset (recommended)
-avrda32.menu.resetpin.reset.bootloader.resetpinbits=10
-avrda32.menu.resetpin.input=Input (no output, ever)
-avrda32.menu.resetpin.input.bootloader.resetpinbits=00
+avrdx32.menu.bodvoltage.1v9=1.9V
+avrdx32.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+avrdx32.menu.bodvoltage.2v45=2.45V
+avrdx32.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+avrdx32.menu.bodvoltage.2v70=2.70V
+avrdx32.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+avrdx32.menu.bodvoltage.2v85=2.85V
+avrdx32.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdx32.menu.bodmodeactive.disabled=Disabled
+avrdx32.menu.bodmodeactive.enabled=Enabled
+avrdx32.menu.bodmodeactive.sampled=Sampled
+avrdx32.menu.bodmodeactive.enabledhold=Enabled hold wakeup
+avrdx32.menu.bodmodesleep.disabled=Disabled
+avrdx32.menu.bodmodesleep.enabled=Enabled
+avrdx32.menu.bodmodesleep.sampled=Sampled
+avrdx32.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
+avrdx32.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
+avrdx32.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
+avrdx32.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
+avrdx32.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
+avrdx32.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
+avrdx32.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
 
-avrda32.menu.millis.tcb2=TCB2 (recommended)
-avrda32.menu.millis.tca0=TCA0
-avrda32.menu.millis.tcb0=TCB0 (will break Servo)
-avrda32.menu.millis.tcb2=TCB1
-avrda32.menu.millis.tcd0=TCD0
-avrda32.menu.millis.disabled=Disabled
 
-avrda32.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
-avrda32.menu.millis.tcb0.build.millistimer=B0
-avrda32.menu.millis.tcb1.build.millistimer=B1
-avrda32.menu.millis.tcb2.build.millistimer=B2
-avrda32.menu.millis.tca0.build.millistimer=A0
-avrda32.menu.millis.tcd0.build.millistimer=D0
-avrda32.menu.millis.disabled.build.millistimer=NONE
+avrdx32.menu.eesave.enable=EEPROM retained
+avrdx32.menu.eesave.enable.bootloader.eesavebit=1
+avrdx32.menu.eesave.disable=EEPROM not retained
+avrdx32.menu.eesave.disable.bootloader.eesavebit=0
 
-avrda32.upload.tool=avrdude
+avrdx32.menu.resetpin.reset=Hardware Reset (recommended)
+avrdx32.menu.resetpin.reset.bootloader.resetpinbits=10
+avrdx32.menu.resetpin.input=Input (no output, ever)
+avrdx32.menu.resetpin.input.bootloader.resetpinbits=00
 
-avrda32.build.board=avrda32
-avrda32.build.core=dxcore
-avrda32.build.variant=32pin-standard
-avrda32.build.text_section_start=.text=0x0
-avrda32.build.extra_flags={build.millis} {build.adcworkaround}
-avrda32.build.export_merged_output=false
+avrdx32.menu.millis.tcb2=TCB2 (recommended)
+avrdx32.menu.millis.tca0=TCA0
+avrdx32.menu.millis.tcb0=TCB0 (will break Servo)
+avrdx32.menu.millis.tcb2=TCB1
+avrdx32.menu.millis.tcd0=TCD0
+avrdx32.menu.millis.disabled=Disabled
 
-avrda32.bootloader.tool=avrdude
-avrda32.bootloader.WDTCFG=0x00
-avrda32.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda32.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-avrda32.bootloader.SYSCFG1=0x03
-avrda32.bootloader.CODESIZE=0x00
-avrda32.bootloader.BOOTSIZE=0x00
+avrdx32.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrdx32.menu.millis.tcb0.build.millistimer=B0
+avrdx32.menu.millis.tcb1.build.millistimer=B1
+avrdx32.menu.millis.tcb2.build.millistimer=B2
+avrdx32.menu.millis.tca0.build.millistimer=A0
+avrdx32.menu.millis.tcd0.build.millistimer=D0
+avrdx32.menu.millis.disabled.build.millistimer=NONE
 
-avrda32.bootloader.flashcommand=
+avrdx32.upload.tool=avrdude
+
+avrdx32.build.board=avrdx32
+avrdx32.build.core=dxcore
+avrdx32.build.variant=32pin-standard
+avrdx32.build.text_section_start=.text=0x0
+avrdx32.build.extra_flags={build.millis} {build.adcworkaround}
+avrdx32.build.export_merged_output=false
+
+avrdx32.bootloader.tool=avrdude
+avrdx32.bootloader.WDTCFG=0x00
+avrdx32.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
+avrdx32.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrdx32.bootloader.SYSCFG1=0x03
+avrdx32.bootloader.CODESIZE=0x00
+avrdx32.bootloader.BOOTSIZE=0x00
+
+avrdx32.bootloader.flashcommand=
 
 
 
@@ -291,259 +299,263 @@ avrda32.bootloader.flashcommand=
 
 
 
-avrda48.name=AVR DA 48
+avrdx48.name=AVR Dx 48
 
-avrda48.menu.chip.128=AVR128DA48
-avrda48.menu.chip.128.build.mcu=avr128da48
-avrda48.menu.chip.128.upload.maximum_size=131072
-avrda48.menu.chip.128.upload.maximum_data_size=16384
-avrda48.menu.chip.64=AVR64DA48
-avrda48.menu.chip.64.build.mcu=avr64da48
-avrda48.menu.chip.64.upload.maximum_size=65536
-avrda48.menu.chip.64.upload.maximum_data_size=8192
-avrda48.menu.chip.32=AVR32DA48
-avrda48.menu.chip.32.build.mcu=avr32da48
-avrda48.menu.chip.32.upload.maximum_size=32768
-avrda48.menu.chip.32.upload.maximum_data_size=4096
-
-
-avrda48.menu.clock.24=24 MHz
-avrda48.menu.clock.24.build.f_cpu=24000000L
-avrda48.menu.clock.24.build.speed=24
-avrda48.menu.clock.20=20 MHz
-avrda48.menu.clock.20.build.f_cpu=20000000L
-avrda48.menu.clock.20.build.speed=20
-avrda48.menu.clock.16=16 MHz
-avrda48.menu.clock.16.build.f_cpu=16000000L
-avrda48.menu.clock.16.build.speed=16
-avrda48.menu.clock.12=12 MHz
-avrda48.menu.clock.12.build.f_cpu=12000000L
-avrda48.menu.clock.12.build.speed=12
-avrda48.menu.clock.10=10 MHz
-avrda48.menu.clock.10.build.f_cpu=10000000L
-avrda48.menu.clock.10.build.speed=10
-avrda48.menu.clock.8=8 MHz
-avrda48.menu.clock.8.build.f_cpu=8000000L
-avrda48.menu.clock.8.build.speed=8
-avrda48.menu.clock.4=4 MHz
-avrda48.menu.clock.4.build.f_cpu=4000000L
-avrda48.menu.clock.4.build.speed=4
-avrda48.menu.clock.1=1 MHz
-avrda48.menu.clock.1.build.f_cpu=1000000L
-avrda48.menu.clock.1.build.speed=1
-avrda48.menu.clock.28=28 MHz (overclocked)
-avrda48.menu.clock.28.build.f_cpu=28000000L
-avrda48.menu.clock.28.build.speed=28
-avrda48.menu.clock.32=32 MHz (overclocked)
-avrda48.menu.clock.32.build.f_cpu=32000000L
-avrda48.menu.clock.32.build.speed=32
+avrdx48.menu.chip.128A=AVR128DA48
+avrdx48.menu.chip.128A.build.mcu=avr128da48
+avrdx48.menu.chip.128A.upload.maximum_size=131072
+avrdx48.menu.chip.128A.upload.maximum_data_size=16384
+avrdx48.menu.chip.64A=AVR64DA48
+avrdx48.menu.chip.64A.build.mcu=avr64da48
+avrdx48.menu.chip.64A.upload.maximum_size=65536
+avrdx48.menu.chip.64A.upload.maximum_data_size=8192
+avrdx48.menu.chip.32A=AVR32DA48
+avrdx48.menu.chip.32A.build.mcu=avr32da48
+avrdx48.menu.chip.32A.upload.maximum_size=32768
+avrdx48.menu.chip.32A.upload.maximum_data_size=4096
+avrdx48.menu.chip.128B=AVR128DB48
+avrdx48.menu.chip.128B.build.mcu=avr128db48
+avrdx48.menu.chip.128B.upload.maximum_size=131072
+avrdx48.menu.chip.128B.upload.maximum_data_size=16384
 
 
+avrdx48.menu.clock.24=24 MHz
+avrdx48.menu.clock.24.build.f_cpu=24000000L
+avrdx48.menu.clock.24.build.speed=24
+avrdx48.menu.clock.20=20 MHz
+avrdx48.menu.clock.20.build.f_cpu=20000000L
+avrdx48.menu.clock.20.build.speed=20
+avrdx48.menu.clock.16=16 MHz
+avrdx48.menu.clock.16.build.f_cpu=16000000L
+avrdx48.menu.clock.16.build.speed=16
+avrdx48.menu.clock.12=12 MHz
+avrdx48.menu.clock.12.build.f_cpu=12000000L
+avrdx48.menu.clock.12.build.speed=12
+avrdx48.menu.clock.10=10 MHz
+avrdx48.menu.clock.10.build.f_cpu=10000000L
+avrdx48.menu.clock.10.build.speed=10
+avrdx48.menu.clock.8=8 MHz
+avrdx48.menu.clock.8.build.f_cpu=8000000L
+avrdx48.menu.clock.8.build.speed=8
+avrdx48.menu.clock.4=4 MHz
+avrdx48.menu.clock.4.build.f_cpu=4000000L
+avrdx48.menu.clock.4.build.speed=4
+avrdx48.menu.clock.1=1 MHz
+avrdx48.menu.clock.1.build.f_cpu=1000000L
+avrdx48.menu.clock.1.build.speed=1
+avrdx48.menu.clock.28=28 MHz (overclocked)
+avrdx48.menu.clock.28.build.f_cpu=28000000L
+avrdx48.menu.clock.28.build.speed=28
+avrdx48.menu.clock.32=32 MHz (overclocked)
+avrdx48.menu.clock.32.build.f_cpu=32000000L
+avrdx48.menu.clock.32.build.speed=32
 
-avrda48.menu.bodvoltage.1v9=1.9V
-avrda48.menu.bodvoltage.1v9.bootloader.bodlevbits=000
-avrda48.menu.bodvoltage.2v45=2.45V
-avrda48.menu.bodvoltage.2v45.bootloader.bodlevbits=001
-avrda48.menu.bodvoltage.2v70=2.70V
-avrda48.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-avrda48.menu.bodvoltage.2v85=2.85V
-avrda48.menu.bodvoltage.2v85.bootloader.bodlevbits=011
-avrda48.menu.bodmodeactive.disabled=Disabled
-avrda48.menu.bodmodeactive.enabled=Enabled
-avrda48.menu.bodmodeactive.sampled=Sampled
-avrda48.menu.bodmodeactive.enabledhold=Enabled hold wakeup
-avrda48.menu.bodmodesleep.disabled=Disabled
-avrda48.menu.bodmodesleep.enabled=Enabled
-avrda48.menu.bodmodesleep.sampled=Sampled
-avrda48.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
-avrda48.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
-avrda48.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
-avrda48.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
-avrda48.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
-avrda48.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
-avrda48.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
 
 
-avrda48.menu.eesave.enable=EEPROM retained
-avrda48.menu.eesave.enable.bootloader.eesavebit=1
-avrda48.menu.eesave.disable=EEPROM not retained
-avrda48.menu.eesave.disable.bootloader.eesavebit=0
+avrdx48.menu.bodvoltage.1v9=1.9V
+avrdx48.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+avrdx48.menu.bodvoltage.2v45=2.45V
+avrdx48.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+avrdx48.menu.bodvoltage.2v70=2.70V
+avrdx48.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+avrdx48.menu.bodvoltage.2v85=2.85V
+avrdx48.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdx48.menu.bodmodeactive.disabled=Disabled
+avrdx48.menu.bodmodeactive.enabled=Enabled
+avrdx48.menu.bodmodeactive.sampled=Sampled
+avrdx48.menu.bodmodeactive.enabledhold=Enabled hold wakeup
+avrdx48.menu.bodmodesleep.disabled=Disabled
+avrdx48.menu.bodmodesleep.enabled=Enabled
+avrdx48.menu.bodmodesleep.sampled=Sampled
+avrdx48.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
+avrdx48.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
+avrdx48.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
+avrdx48.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
+avrdx48.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
+avrdx48.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
+avrdx48.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
 
-avrda48.menu.resetpin.reset=Hardware Reset (recommended)
-avrda48.menu.resetpin.reset.bootloader.resetpinbits=10
-avrda48.menu.resetpin.input=Input (no output, ever)
-avrda48.menu.resetpin.input.bootloader.resetpinbits=00
 
-avrda48.menu.millis.tcb2=TCB2 (recommended)
-avrda48.menu.millis.tca0=TCA0
-avrda48.menu.millis.tca1=TCA1
-avrda48.menu.millis.tcb0=TCB0 (will break Servo)
-avrda48.menu.millis.tcb1=TCB1
-avrda48.menu.millis.tcb3=TCB3 (will break tone)
-avrda48.menu.millis.tcd0=TCD0
-avrda48.menu.millis.disabled=Disabled
+avrdx48.menu.eesave.enable=EEPROM retained
+avrdx48.menu.eesave.enable.bootloader.eesavebit=1
+avrdx48.menu.eesave.disable=EEPROM not retained
+avrdx48.menu.eesave.disable.bootloader.eesavebit=0
 
-avrda48.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
-avrda48.menu.millis.tcb0.build.millistimer=B0
-avrda48.menu.millis.tcb1.build.millistimer=B1
-avrda48.menu.millis.tcb2.build.millistimer=B2
-avrda48.menu.millis.tcb3.build.millistimer=B2
-avrda48.menu.millis.tca0.build.millistimer=A0
-avrda48.menu.millis.tca1.build.millistimer=A1
-avrda48.menu.millis.tcd0.build.millistimer=D0
-avrda48.menu.millis.disabled.build.millistimer=NONE
+avrdx48.menu.resetpin.reset=Hardware Reset (recommended)
+avrdx48.menu.resetpin.reset.bootloader.resetpinbits=10
+avrdx48.menu.resetpin.input=Input (no output, ever)
+avrdx48.menu.resetpin.input.bootloader.resetpinbits=00
 
-avrda48.upload.tool=avrdude
+avrdx48.menu.millis.tcb2=TCB2 (recommended)
+avrdx48.menu.millis.tca0=TCA0
+avrdx48.menu.millis.tca1=TCA1
+avrdx48.menu.millis.tcb0=TCB0 (will break Servo)
+avrdx48.menu.millis.tcb1=TCB1
+avrdx48.menu.millis.tcb3=TCB3 (will break tone)
+avrdx48.menu.millis.tcd0=TCD0
+avrdx48.menu.millis.disabled=Disabled
 
-avrda48.build.board=avrda48
-avrda48.build.core=dxcore
-avrda48.build.variant=48pin-standard
-avrda48.build.text_section_start=.text=0x0
-avrda48.build.extra_flags={build.millis}
-avrda48.build.export_merged_output=false
+avrdx48.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrdx48.menu.millis.tcb0.build.millistimer=B0
+avrdx48.menu.millis.tcb1.build.millistimer=B1
+avrdx48.menu.millis.tcb2.build.millistimer=B2
+avrdx48.menu.millis.tcb3.build.millistimer=B2
+avrdx48.menu.millis.tca0.build.millistimer=A0
+avrdx48.menu.millis.tca1.build.millistimer=A1
+avrdx48.menu.millis.tcd0.build.millistimer=D0
+avrdx48.menu.millis.disabled.build.millistimer=NONE
 
-avrda48.bootloader.tool=avrdude
-avrda48.bootloader.WDTCFG=0x00
-avrda48.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda48.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-avrda48.bootloader.SYSCFG1=0x03
-avrda48.bootloader.CODESIZE=0x00
-avrda48.bootloader.BOOTSIZE=0x00
+avrdx48.upload.tool=avrdude
 
-avrda48.bootloader.flashcommand=
+avrdx48.build.board=avrdx48
+avrdx48.build.core=dxcore
+avrdx48.build.variant=48pin-standard
+avrdx48.build.text_section_start=.text=0x0
+avrdx48.build.extra_flags={build.millis}
+avrdx48.build.export_merged_output=false
+
+avrdx48.bootloader.tool=avrdude
+avrdx48.bootloader.WDTCFG=0x00
+avrdx48.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
+avrdx48.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrdx48.bootloader.SYSCFG1=0x03
+avrdx48.bootloader.CODESIZE=0x00
+avrdx48.bootloader.BOOTSIZE=0x00
+
+avrdx48.bootloader.flashcommand=
 
 
 
 
 #########################################
 #
-#    64 PIN AVR DA-series
+#    64 PIN AVR Dx-series
 #
 #########################################
 
 
-avrda64.name=AVR DA 64
+avrdx64.name=AVR Dx 64
 
 
 
 
-avrda64.menu.chip.128=AVR128DA64
-avrda64.menu.chip.128.build.mcu=avr128da64
-avrda64.menu.chip.128.upload.maximum_size=131072
-avrda64.menu.chip.128.upload.maximum_data_size=16384
-avrda64.menu.chip.64=AVR64DA64
-avrda64.menu.chip.64.build.mcu=avr64da64
-avrda64.menu.chip.64.upload.maximum_size=65536
-avrda64.menu.chip.64.upload.maximum_data_size=8192
-avrda64.menu.chip.32=AVR32DA64
-avrda64.menu.chip.32.build.mcu=avr32da64
-avrda64.menu.chip.32.upload.maximum_size=32768
-avrda64.menu.chip.32.upload.maximum_data_size=4096
+avrdx64.menu.chip.128A=AVR128DA64
+avrdx64.menu.chip.128A.build.mcu=avr128da64
+avrdx64.menu.chip.128A.upload.maximum_size=131072
+avrdx64.menu.chip.128A.upload.maximum_data_size=16384
+avrdx64.menu.chip.64A=AVR64DA64
+avrdx64.menu.chip.64A.build.mcu=avr64da64
+avrdx64.menu.chip.64A.upload.maximum_size=65536
+avrdx64.menu.chip.64A.upload.maximum_data_size=8192
+avrdx64.menu.chip.128B=AVR128DB64
+avrdx64.menu.chip.128B.build.mcu=avr128db64
+avrdx64.menu.chip.128B.upload.maximum_size=131072
+avrdx64.menu.chip.128B.upload.maximum_data_size=16384
 
 
-avrda64.menu.clock.24=24 MHz
-avrda64.menu.clock.24.build.f_cpu=24000000L
-avrda64.menu.clock.24.build.speed=24
-avrda64.menu.clock.20=20 MHz
-avrda64.menu.clock.20.build.f_cpu=20000000L
-avrda64.menu.clock.20.build.speed=20
-avrda64.menu.clock.16=16 MHz
-avrda64.menu.clock.16.build.f_cpu=16000000L
-avrda64.menu.clock.16.build.speed=16
-avrda64.menu.clock.12=12 MHz
-avrda64.menu.clock.12.build.f_cpu=12000000L
-avrda64.menu.clock.12.build.speed=12
-avrda64.menu.clock.10=10 MHz
-avrda64.menu.clock.10.build.f_cpu=10000000L
-avrda64.menu.clock.10.build.speed=10
-avrda64.menu.clock.8=8 MHz
-avrda64.menu.clock.8.build.f_cpu=8000000L
-avrda64.menu.clock.8.build.speed=8
-avrda64.menu.clock.4=4 MHz
-avrda64.menu.clock.4.build.f_cpu=4000000L
-avrda64.menu.clock.4.build.speed=4
-avrda64.menu.clock.1=1 MHz
-avrda64.menu.clock.1.build.f_cpu=1000000L
-avrda64.menu.clock.1.build.speed=1
-avrda64.menu.clock.28=28 MHz (overclocked)
-avrda64.menu.clock.28.build.f_cpu=28000000L
-avrda64.menu.clock.28.build.speed=28
-avrda64.menu.clock.32=32 MHz (overclocked)
-avrda64.menu.clock.32.build.f_cpu=32000000L
-avrda64.menu.clock.32.build.speed=32
+avrdx64.menu.clock.24=24 MHz
+avrdx64.menu.clock.24.build.f_cpu=24000000L
+avrdx64.menu.clock.24.build.speed=24
+avrdx64.menu.clock.20=20 MHz
+avrdx64.menu.clock.20.build.f_cpu=20000000L
+avrdx64.menu.clock.20.build.speed=20
+avrdx64.menu.clock.16=16 MHz
+avrdx64.menu.clock.16.build.f_cpu=16000000L
+avrdx64.menu.clock.16.build.speed=16
+avrdx64.menu.clock.12=12 MHz
+avrdx64.menu.clock.12.build.f_cpu=12000000L
+avrdx64.menu.clock.12.build.speed=12
+avrdx64.menu.clock.10=10 MHz
+avrdx64.menu.clock.10.build.f_cpu=10000000L
+avrdx64.menu.clock.10.build.speed=10
+avrdx64.menu.clock.8=8 MHz
+avrdx64.menu.clock.8.build.f_cpu=8000000L
+avrdx64.menu.clock.8.build.speed=8
+avrdx64.menu.clock.4=4 MHz
+avrdx64.menu.clock.4.build.f_cpu=4000000L
+avrdx64.menu.clock.4.build.speed=4
+avrdx64.menu.clock.1=1 MHz
+avrdx64.menu.clock.1.build.f_cpu=1000000L
+avrdx64.menu.clock.1.build.speed=1
+avrdx64.menu.clock.28=28 MHz (overclocked)
+avrdx64.menu.clock.28.build.f_cpu=28000000L
+avrdx64.menu.clock.28.build.speed=28
+avrdx64.menu.clock.32=32 MHz (overclocked)
+avrdx64.menu.clock.32.build.f_cpu=32000000L
+avrdx64.menu.clock.32.build.speed=32
 
 
 
-avrda64.menu.bodvoltage.1v9=1.9V
-avrda64.menu.bodvoltage.1v9.bootloader.bodlevbits=000
-avrda64.menu.bodvoltage.2v45=2.45V
-avrda64.menu.bodvoltage.2v45.bootloader.bodlevbits=001
-avrda64.menu.bodvoltage.2v70=2.70V
-avrda64.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-avrda64.menu.bodvoltage.2v85=2.85V
-avrda64.menu.bodvoltage.2v85.bootloader.bodlevbits=011
-avrda64.menu.bodmodeactive.disabled=Disabled
-avrda64.menu.bodmodeactive.enabled=Enabled
-avrda64.menu.bodmodeactive.sampled=Sampled
-avrda64.menu.bodmodeactive.enabledhold=Enabled hold wakeup
-avrda64.menu.bodmodesleep.disabled=Disabled
-avrda64.menu.bodmodesleep.enabled=Enabled
-avrda64.menu.bodmodesleep.sampled=Sampled
-avrda64.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
-avrda64.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
-avrda64.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
-avrda64.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
-avrda64.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
-avrda64.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
-avrda64.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
+avrdx64.menu.bodvoltage.1v9=1.9V
+avrdx64.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+avrdx64.menu.bodvoltage.2v45=2.45V
+avrdx64.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+avrdx64.menu.bodvoltage.2v70=2.70V
+avrdx64.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+avrdx64.menu.bodvoltage.2v85=2.85V
+avrdx64.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdx64.menu.bodmodeactive.disabled=Disabled
+avrdx64.menu.bodmodeactive.enabled=Enabled
+avrdx64.menu.bodmodeactive.sampled=Sampled
+avrdx64.menu.bodmodeactive.enabledhold=Enabled hold wakeup
+avrdx64.menu.bodmodesleep.disabled=Disabled
+avrdx64.menu.bodmodesleep.enabled=Enabled
+avrdx64.menu.bodmodesleep.sampled=Sampled
+avrdx64.menu.bodmodeactive.disabled.bootloader.bodactivebits=00
+avrdx64.menu.bodmodeactive.enabled.bootloader.bodactivebits=01
+avrdx64.menu.bodmodeactive.sampled.bootloader.bodactivebits=10
+avrdx64.menu.bodmodeactive.enabledhold.bootloader.bodactivebits=11
+avrdx64.menu.bodmodesleep.disabled.bootloader.bodsleepbits=00
+avrdx64.menu.bodmodesleep.enabled.bootloader.bodsleepbits=01
+avrdx64.menu.bodmodesleep.sampled.bootloader.bodsleepbits=10
 
 
-avrda64.menu.eesave.enable=EEPROM retained
-avrda64.menu.eesave.enable.bootloader.eesavebit=1
-avrda64.menu.eesave.disable=EEPROM not retained
-avrda64.menu.eesave.disable.bootloader.eesavebit=0
+avrdx64.menu.eesave.enable=EEPROM retained
+avrdx64.menu.eesave.enable.bootloader.eesavebit=1
+avrdx64.menu.eesave.disable=EEPROM not retained
+avrdx64.menu.eesave.disable.bootloader.eesavebit=0
 
-avrda64.menu.resetpin.reset=Hardware Reset (recommended)
-avrda64.menu.resetpin.reset.bootloader.resetpinbits=10
-avrda64.menu.resetpin.input=Input (no output, ever)
-avrda64.menu.resetpin.input.bootloader.resetpinbits=00
+avrdx64.menu.resetpin.reset=Hardware Reset (recommended)
+avrdx64.menu.resetpin.reset.bootloader.resetpinbits=10
+avrdx64.menu.resetpin.input=Input (no output, ever)
+avrdx64.menu.resetpin.input.bootloader.resetpinbits=00
 
-avrda64.menu.millis.tcb2=TCB2 (recommended)
-avrda64.menu.millis.tca0=TCA0
-avrda64.menu.millis.tca1=TCA1
-avrda64.menu.millis.tcb0=TCB0 (will break Servo)
-avrda64.menu.millis.tcb1=TCB1
-avrda64.menu.millis.tcb3=TCB3 (will break tone)
-avrda64.menu.millis.tcb4=TCB4
-avrda64.menu.millis.tcd0=TCD0
-avrda64.menu.millis.disabled=Disabled
+avrdx64.menu.millis.tcb2=TCB2 (recommended)
+avrdx64.menu.millis.tca0=TCA0
+avrdx64.menu.millis.tca1=TCA1
+avrdx64.menu.millis.tcb0=TCB0 (will break Servo)
+avrdx64.menu.millis.tcb1=TCB1
+avrdx64.menu.millis.tcb3=TCB3 (will break tone)
+avrdx64.menu.millis.tcb4=TCB4
+avrdx64.menu.millis.tcd0=TCD0
+avrdx64.menu.millis.disabled=Disabled
 
-avrda64.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
-avrda64.menu.millis.tcb0.build.millistimer=B0
-avrda64.menu.millis.tcb1.build.millistimer=B1
-avrda64.menu.millis.tcb2.build.millistimer=B2
-avrda64.menu.millis.tcb3.build.millistimer=B3
-avrda64.menu.millis.tcb4.build.millistimer=B4
-avrda64.menu.millis.tca0.build.millistimer=A0
-avrda64.menu.millis.tca1.build.millistimer=A1
-avrda64.menu.millis.tcd0.build.millistimer=D0
-avrda64.menu.millis.disabled.build.millistimer=NONE
+avrdx64.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
+avrdx64.menu.millis.tcb0.build.millistimer=B0
+avrdx64.menu.millis.tcb1.build.millistimer=B1
+avrdx64.menu.millis.tcb2.build.millistimer=B2
+avrdx64.menu.millis.tcb3.build.millistimer=B3
+avrdx64.menu.millis.tcb4.build.millistimer=B4
+avrdx64.menu.millis.tca0.build.millistimer=A0
+avrdx64.menu.millis.tca1.build.millistimer=A1
+avrdx64.menu.millis.tcd0.build.millistimer=D0
+avrdx64.menu.millis.disabled.build.millistimer=NONE
 
-avrda64.upload.tool=avrdude
+avrdx64.upload.tool=avrdude
 
-avrda64.build.board=avrda64
-avrda64.build.core=dxcore
-avrda64.build.variant=64pin-standard
-avrda64.build.text_section_start=.text=0x0
-avrda64.build.extra_flags={build.millis}
-avrda64.build.export_merged_output=false
+avrdx64.build.board=avrdx64
+avrdx64.build.core=dxcore
+avrdx64.build.variant=64pin-standard
+avrdx64.build.text_section_start=.text=0x0
+avrdx64.build.extra_flags={build.millis}
+avrdx64.build.export_merged_output=false
 
-avrda64.bootloader.tool=avrdude
-avrda64.bootloader.WDTCFG=0x00
-avrda64.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
-avrda64.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-avrda64.bootloader.SYSCFG1=0x03
-avrda64.bootloader.CODESIZE=0x00
-avrda64.bootloader.BOOTSIZE=0x00
+avrdx64.bootloader.tool=avrdude
+avrdx64.bootloader.WDTCFG=0x00
+avrdx64.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
+avrdx64.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrdx64.bootloader.SYSCFG1=0x03
+avrdx64.bootloader.CODESIZE=0x00
+avrdx64.bootloader.BOOTSIZE=0x00
 
-avrda64.bootloader.flashcommand=
+avrdx64.bootloader.flashcommand=
