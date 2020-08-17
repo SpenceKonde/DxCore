@@ -13,6 +13,21 @@ These parts depart from the naming scheme used for AVR devices in the past; thes
 
 This core was based on megaTinyCore; it is likely that the documentation still contains references to megaTinyCore or ATtiny/tinyAVR. Please report these (or better yet, fix and PR) if you find them.
 
+## Identifying parts from #defines
+As with all AVR devices, a define of the form `__AVR_PARTNUMBER__` is provided by the toolchain package (these come from the io headers in the ATPacks from Microchip, if you were wondering). For example: `__AVR_AVR128DA64__`  - thus, to test if it was a 64-pin Dx-series, you might do 
+
+```c
+#if ((__AVR_AVR128DA64__) || (__AVR_AVR64DA64__) || (__AVR_AVR128DB64__) || (__AVR_AVR64DB64__))
+```
+
+Obviously, that gets very verbose very quickly, so it is often convenient to have some more general defines provided by the Arduino core. This core provides (at present count) three extra defines for part identification: `DA_n_PINS` or `DB_n_PINS` (where n = 28, 32, 48, or 64), `Dx_n_PINS` (defined for both DA and DB). Finally `__AVR_DA__` and `__AVR_DB__`are defined by the core on their respective platforms. 
+
+### __AVR_ARCH__
+This can be set to 102, 103, or 104 depending on flash size:
+__AVR_ARCH__ == 103 - All parts where all of the flash is mapped in the data space. This means Dx-series parts with 32k of flash, tinyAVR 0/1/2-series, and megaAVR 0-series.
+__AVR_ARCH__ == 104 - Parts with 128Kb of flash, mapped flash is split into 4 sections (AVR128DA, AVR128DB).
+__AVR_ARCH__ == 102 - Parts with 64Kb of flash, mapped flash is split into 2 sections (AVR64DA, AVR64DB).
+
 ## Supported Parts (click link for pinout diagram and details)
 Support for smaller-flash versions is not available using the current arduino7 toolchain. We will be working to get an arduino8 toolchain built with the new ATpacks which will add support for these. But, if you hack your toolchain, they should "just work"!
 * [AVR128DA28, AVR64DA28, AVR32DA28](megaavr/extras/DA28.md)
