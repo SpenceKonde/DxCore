@@ -19,8 +19,8 @@
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
 */
 
-#ifndef TwoWire_h
-#define TwoWire_h
+#ifndef TwoWire1_h
+#define TwoWire1_h
 
 #include <Arduino.h>
 
@@ -40,7 +40,7 @@
 #ifndef WIRE_HAS_END
 #define WIRE_HAS_END 1
 #endif
-class TwoWire : public Stream
+class TwoWire1 : public Stream
 {
   private:
     static uint8_t rxBuffer[];
@@ -58,7 +58,7 @@ class TwoWire : public Stream
     static uint8_t onRequestService(void);
     static void onReceiveService(int);
   public:
-    TwoWire();
+    TwoWire1();
     bool pins(uint8_t sda_pin, uint8_t scl_pin);
     bool swap(uint8_t state = 1);
     void begin();
@@ -96,6 +96,6 @@ class TwoWire : public Stream
     using Print::write;
 };
 
-extern TwoWire Wire;
+extern TwoWire1 Wire1;
 
 #endif

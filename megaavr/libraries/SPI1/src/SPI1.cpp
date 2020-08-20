@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "SPI.h"
+#include "SPI1.h"
 #include <Arduino.h>
 
 #ifndef SPI_IMODE_NONE
@@ -30,47 +30,30 @@
 #define SPI_IMODE_GLOBAL 2
 #endif
 
-const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
+const SPI1Settings DEFAULT_SPI_SETTINGS = SPI1Settings();
 
-SPIClass::SPIClass()
+SPI1Class::SPI1Class()
 {
   initialized = false;
 
 }
 
-bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS)
+bool SPI1Class::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS)
 {
-  #if defined(PORTMUX_CTRLB)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
-      {
-        _uc_mux=PORTMUX_SPI0_bm;
-        return true;
-      }
-      else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-      {
-        _uc_mux=0;
-        return true;
-      }
-      else {
-         _uc_mux=0;
-        return false;
-      }
-    #endif
-  #elif defined(PORTMUX_SPIROUTEA)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
-      if (pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2 && pinSS == PIN_SPI_SS_PINSWAP_2)
+  #if defined(PORTMUX_SPIROUTEA)
+    #if (defined(PIN_SPI1_MOSI_PINSWAP_2) && defined(PIN_SPI1_MISO_PINSWAP_2) && defined(PIN_SPI1_SCK_PINSWAP_2) && defined(PIN_SPI1_SS_PINSWAP_2))
+      if (pinMOSI == PIN_SPI1_MOSI_PINSWAP_2 && pinMISO == PIN_SPI1_MISO_PINSWAP_2 && pinSCK == PIN_SPI1_SCK_PINSWAP_2 && pinSS == PIN_SPI1_SS_PINSWAP_2)
       {
         _uc_mux=2;
         return true;
       } else
     #endif
-    if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
+    if(pinMOSI == PIN_SPI1_MOSI_PINSWAP_1 && pinMISO == PIN_SPI1_MISO_PINSWAP_1 && pinSCK == PIN_SPI1_SCK_PINSWAP_1 && pinSS == PIN_SPI1_SS_PINSWAP_1)
     {
       _uc_mux=1;
       return true;
     }
-    else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
+    else if(pinMOSI == PIN_SPI1_MOSI && pinMISO == PIN_SPI1_MISO && pinSCK == PIN_SPI1_SCK && pinSS == PIN_SPI1_SS)
     {
       _uc_mux=0;
       return true;
@@ -82,27 +65,10 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
   #endif
   return false;
 }
-bool SPIClass::swap(uint8_t state)
+bool SPI1Class::swap(uint8_t state)
 {
-  #if defined(PORTMUX_CTRLB)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
-      if(state == 1)
-      {
-        _uc_mux=PORTMUX_SPI0_bm;
-        return true;
-      }
-      else if(state == 0)
-      {
-        _uc_mux=0;
-        return true;
-      }
-      else {
-         _uc_mux=0;
-        return false;
-      }
-    #endif
-  #elif defined(PORTMUX_SPIROUTEA)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
+  #if defined(PORTMUX_SPIROUTEA)
+    #if (defined(PIN_SPI1_MOSI_PINSWAP_2) && defined(PIN_SPI1_MISO_PINSWAP_2) && defined(PIN_SPI1_SCK_PINSWAP_2) && defined(PIN_SPI1_SS_PINSWAP_2))
       if (state == 2)
       {
         _uc_mux=2;
@@ -128,52 +94,46 @@ bool SPIClass::swap(uint8_t state)
   return false;
 }
 
-void SPIClass::begin()
+void SPI1Class::begin()
 {
   init();
-  #if defined(PORTMUX_CTRLB)
-    PORTMUX.CTRLB=_uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
-  #elif defined(PORTMUX_SPIROUTEA)
+  #if defined(PORTMUX_SPIROUTEA)
     PORTMUX.SPIROUTEA = _uc_mux | (PORTMUX.SPIROUTEA & ~3);
   #endif
 
-  #if ((defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1)) || (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2)))
+  #if ((defined(PIN_SPI1_MOSI_PINSWAP_1) && defined(PIN_SPI1_MISO_PINSWAP_1) && defined(PIN_SPI1_SCK_PINSWAP_1) && defined(PIN_SPI1_SS_PINSWAP_1)) || (defined(PIN_SPI1_MOSI_PINSWAP_2) && defined(PIN_SPI1_MISO_PINSWAP_2) && defined(PIN_SPI1_SCK_PINSWAP_2) && defined(PIN_SPI1_SS_PINSWAP_2)))
     if(_uc_mux == 0)
     {
-      pinMode(PIN_SPI_MOSI, OUTPUT);
-      pinMode(PIN_SPI_SCK, OUTPUT);
+      pinMode(PIN_SPI1_MOSI, OUTPUT);
+      pinMode(PIN_SPI1_SCK, OUTPUT);
     }
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
-      #ifdef PORTMUX_CTRLB
-      else if(_uc_mux == PORTMUX_SPI0_bm)
-      #else
+    #if (defined(PIN_SPI1_MOSI_PINSWAP_1) && defined(PIN_SPI1_MISO_PINSWAP_1) && defined(PIN_SPI1_SCK_PINSWAP_1) && defined(PIN_SPI1_SS_PINSWAP_1))
       else if(_uc_mux == 1)
-      #endif
       {
-        pinMode(PIN_SPI_MOSI_PINSWAP_1, OUTPUT);
-        pinMode(PIN_SPI_SCK_PINSWAP_1, OUTPUT);
+        pinMode(PIN_SPI1_MOSI_PINSWAP_1, OUTPUT);
+        pinMode(PIN_SPI1_SCK_PINSWAP_1, OUTPUT);
       }
     #endif
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
+    #if (defined(PIN_SPI1_MOSI_PINSWAP_2) && defined(PIN_SPI1_MISO_PINSWAP_2) && defined(PIN_SPI1_SCK_PINSWAP_2) && defined(PIN_SPI1_SS_PINSWAP_2))
       else if(_uc_mux == 2)
       {
-        pinMode(PIN_SPI_MOSI_PINSWAP_2, OUTPUT);
-        pinMode(PIN_SPI_SCK_PINSWAP_2, OUTPUT);
+        pinMode(PIN_SPI1_MOSI_PINSWAP_2, OUTPUT);
+        pinMode(PIN_SPI1_SCK_PINSWAP_2, OUTPUT);
       }
     #endif
   #else
     // MISO is set to input by the controller
-    pinMode(PIN_SPI_MOSI, OUTPUT);
-    pinMode(PIN_SPI_SCK, OUTPUT);
+    pinMode(PIN_SPI1_MOSI, OUTPUT);
+    pinMode(PIN_SPI1_SCK, OUTPUT);
   #endif
 
-  SPI0.CTRLB |= (SPI_SSD_bm);
-  SPI0.CTRLA |= (SPI_ENABLE_bm | SPI_MASTER_bm);
+  SPI1.CTRLB |= (SPI_SSD_bm);
+  SPI1.CTRLA |= (SPI_ENABLE_bm | SPI_MASTER_bm);
 
   config(DEFAULT_SPI_SETTINGS);
 }
 
-void SPIClass::init()
+void SPI1Class::init()
 {
   if (initialized)
     return;
@@ -184,19 +144,19 @@ void SPIClass::init()
   initialized = true;
 }
 
-void SPIClass::config(SPISettings settings)
+void SPI1Class::config(SPISettings settings)
 {
-  SPI0.CTRLA = settings.ctrla;
-  SPI0.CTRLB = settings.ctrlb;
+  SPI1.CTRLA = settings.ctrla;
+  SPI1.CTRLB = settings.ctrlb;
 }
 
-void SPIClass::end()
+void SPI1Class::end()
 {
-  SPI0.CTRLA &= ~(SPI_ENABLE_bm);
+  SPI1.CTRLA &= ~(SPI_ENABLE_bm);
   initialized = false;
 }
 
-void SPIClass::usingInterrupt(int interruptNumber)
+void SPI1Class::usingInterrupt(int interruptNumber)
 {
   if ((interruptNumber == NOT_AN_INTERRUPT))
     return;
@@ -220,7 +180,7 @@ void SPIClass::usingInterrupt(int interruptNumber)
   }
 }
 
-void SPIClass::notUsingInterrupt(int interruptNumber)
+void SPI1Class::notUsingInterrupt(int interruptNumber)
 {
   if ((interruptNumber == NOT_AN_INTERRUPT))
     return;
@@ -243,7 +203,7 @@ void SPIClass::notUsingInterrupt(int interruptNumber)
   }
 }
 
-void SPIClass::detachMaskedInterrupts() {
+void SPI1Class::detachMaskedInterrupts() {
   uint64_t temp = interruptMask_lo;
   uint8_t shift = 0;
   while (temp != 0) {
@@ -268,7 +228,7 @@ void SPIClass::detachMaskedInterrupts() {
   }
 }
 
-void SPIClass::reattachMaskedInterrupts() {
+void SPI1Class::reattachMaskedInterrupts() {
   uint64_t temp = interruptMask_lo;
   uint8_t shift = 0;
   while (temp != 0) {
@@ -291,7 +251,7 @@ void SPIClass::reattachMaskedInterrupts() {
   }
 }
 
-void SPIClass::beginTransaction(SPISettings settings)
+void SPI1Class::beginTransaction(SPISettings settings)
 {
   if (interruptMode != SPI_IMODE_NONE)
   {
@@ -307,7 +267,7 @@ void SPIClass::beginTransaction(SPISettings settings)
   config(settings);
 }
 
-void SPIClass::endTransaction(void)
+void SPI1Class::endTransaction(void)
 {
   if (interruptMode != SPI_IMODE_NONE)
   {
@@ -320,27 +280,27 @@ void SPIClass::endTransaction(void)
   }
 }
 
-void SPIClass::setBitOrder(uint8_t order)
+void SPI1Class::setBitOrder(uint8_t order)
 {
   if (order == LSBFIRST)
-    SPI0.CTRLA |=  (SPI_DORD_bm);
+    SPI1.CTRLA |=  (SPI_DORD_bm);
   else
-    SPI0.CTRLA &= ~(SPI_DORD_bm);
+    SPI1.CTRLA &= ~(SPI_DORD_bm);
 }
 
-void SPIClass::setDataMode(uint8_t mode)
+void SPI1Class::setDataMode(uint8_t mode)
 {
-  SPI0.CTRLB = ((SPI0.CTRLB & (~SPI_MODE_gm)) | mode );
+  SPI1.CTRLB = ((SPI1.CTRLB & (~SPI_MODE_gm)) | mode );
 }
 
-void SPIClass::setClockDivider(uint8_t div)
+void SPI1Class::setClockDivider(uint8_t div)
 {
-  SPI0.CTRLA = ((SPI0.CTRLA &
+  SPI1.CTRLA = ((SPI1.CTRLA &
                   ((~SPI_PRESC_gm) | (~SPI_CLK2X_bm) ))  // mask out values
                   | div);                           // write value
 }
 
-byte SPIClass::transfer(uint8_t data)
+byte SPI1Class::transfer(uint8_t data)
 {
   /*
   * The following NOP introduces a small delay that can prevent the wait
@@ -350,17 +310,17 @@ byte SPIClass::transfer(uint8_t data)
   */
   asm volatile("nop");
 
-  SPI0.DATA = data;
-  while ((SPI0.INTFLAGS & SPI_RXCIF_bm) == 0);  // wait for complete send
-  return SPI0.DATA;                             // read data back
+  SPI1.DATA = data;
+  while ((SPI1.INTFLAGS & SPI_RXCIF_bm) == 0);  // wait for complete send
+  return SPI1.DATA;                             // read data back
 }
 
-uint16_t SPIClass::transfer16(uint16_t data) {
+uint16_t SPI1Class::transfer16(uint16_t data) {
   union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
 
   t.val = data;
 
-  if ((SPI0.CTRLA & SPI_DORD_bm) == 0) {
+  if ((SPI1.CTRLA & SPI_DORD_bm) == 0) {
     t.msb = transfer(t.msb);
     t.lsb = transfer(t.lsb);
   } else {
@@ -371,7 +331,7 @@ uint16_t SPIClass::transfer16(uint16_t data) {
   return t.val;
 }
 
-void SPIClass::transfer(void *buf, size_t count)
+void SPI1Class::transfer(void *buf, size_t count)
 {
   uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
   for (size_t i=0; i<count; i++) {
@@ -381,5 +341,5 @@ void SPIClass::transfer(void *buf, size_t count)
 }
 
 #if SPI_INTERFACES_COUNT > 0
-  SPIClass SPI;
+  SPI1Class SPI1;
 #endif

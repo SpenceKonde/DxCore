@@ -75,9 +75,8 @@
 
 // SPI 0
 // No pinswap available
-#define SPI_INTERFACES_COUNT   1
+#define SPI_INTERFACES_COUNT   2
 #define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
-#define SPI_MUX_PINSWAP_1      PORTMUX_SPI0_ALT1_gc
 #define PIN_SPI_MISO           PIN_PA5
 #define PIN_SPI_SCK            PIN_PA6
 #define PIN_SPI_MOSI           PIN_PA4
@@ -87,16 +86,34 @@ static const uint8_t MOSI =    PIN_SPI_MOSI;
 static const uint8_t MISO =    PIN_SPI_MISO;
 static const uint8_t SCK  =    PIN_SPI_SCK;
 
+// SPI 1
+// No pinswap available
+#define SPI1_MUX                PORTMUX_SPI1_DEFAULT_gc
+#define PIN_SPI1_MISO           PIN_PC0
+#define PIN_SPI1_SCK            PIN_PC1
+#define PIN_SPI1_MOSI           PIN_PC2
+#define PIN_SPI1_SS             PIN_PC3
+static const uint8_t SS1   =    PIN_SPI1_SS;
+static const uint8_t MOSI1 =    PIN_SPI1_MOSI;
+static const uint8_t MISO1 =    PIN_SPI1_MISO;
+static const uint8_t SCK1  =    PIN_SPI1_SCK;
+
 // TWI 0
 // No pinswap enabled by default
-#define TWI_MUX                PORTMUX_TWI0_DEFAULT_gc
-#define TWI_MUX_PINSWAP        PORTMUX_TWI0_ALT2_gc
 #define PIN_WIRE_SDA           PIN_PA2
 #define PIN_WIRE_SCL           PIN_PA3
 #define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
 #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
 static const uint8_t SDA =     PIN_WIRE_SDA;
 static const uint8_t SCL =     PIN_WIRE_SCL;
+
+
+// TWI 1
+// No pinswap available
+#define PIN_WIRE1_SDA           PIN_PF2
+#define PIN_WIRE1_SCL           PIN_PF3
+static const uint8_t SDA1 =     PIN_WIRE1_SDA;
+static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 
 // USART 0
 // No pinswap enabled by default

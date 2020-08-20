@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef _SPI_H_INCLUDED
-#define _SPI_H_INCLUDED
+#ifndef _SPI1_H_INCLUDED
+#define _SPI1_H_INCLUDED
 
 #include <Arduino.h>
 
@@ -72,9 +72,9 @@
 
 //#define EXTERNAL_NUM_INTERRUPTS   NUM_TOTAL_PINS
 
-class SPISettings {
+class SPI1Settings {
   public:
-  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
+  SPI1Settings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
     if (__builtin_constant_p(clock)) {
       init_AlwaysInline(clock, bitOrder, dataMode);
     } else {
@@ -83,7 +83,7 @@ class SPISettings {
   }
 
   // Default speed set to 4MHz, SPI mode set to MODE 0 and Bit order set to MSB first.
-  SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
+  SPI1Settings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
 
   private:
   void init_MightInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
@@ -162,12 +162,12 @@ class SPISettings {
   /* member variables containing the desired SPI settings */
   uint8_t ctrla;
   uint8_t ctrlb;
-  friend class SPIClass;
+  friend class SPI1Class;
 };
 
-class SPIClass {
+class SPI1Class {
   public:
-  SPIClass();
+  SPI1Class();
 
   byte transfer(uint8_t data);
   uint16_t transfer16(uint16_t data);
@@ -176,7 +176,7 @@ class SPIClass {
   // Transaction Functions
   void usingInterrupt(int interruptNumber);
   void notUsingInterrupt(int interruptNumber);
-  void beginTransaction(SPISettings settings);
+  void beginTransaction(SPI1Settings settings);
   void endTransaction(void);
 
   bool pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS);
@@ -191,13 +191,13 @@ class SPIClass {
   private:
 
   void init();
-  void config(SPISettings settings);
+  void config(SPI1Settings settings);
 
   // These undocumented functions should not be used.  SPI.transfer()
   // polls the hardware flag which is automatically cleared as the
   // AVR responds to SPI's interrupt
-  inline static void attachInterrupt() { SPI0.INTCTRL |= (SPI_IE_bm); }
-  inline static void detachInterrupt() { SPI0.INTCTRL &= ~(SPI_IE_bm); }
+  inline static void attachInterrupt() { SPI1.INTCTRL |= (SPI_IE_bm); }
+  inline static void detachInterrupt() { SPI1.INTCTRL &= ~(SPI_IE_bm); }
 
   void detachMaskedInterrupts();
   void reattachMaskedInterrupts();
@@ -222,8 +222,8 @@ class SPIClass {
 };
 
 
-#if SPI_INTERFACES_COUNT > 0
-  extern SPIClass SPI;
+#if SPI_INTERFACES_COUNT > 1
+  extern SPI1Class SPI1;
 #endif
 
 #ifndef SPI_CLOCK_DIV2

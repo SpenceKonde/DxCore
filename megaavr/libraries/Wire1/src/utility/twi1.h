@@ -20,7 +20,7 @@
 *
  *****************************************************************************/
 #ifndef TWI_DRIVER_H
-#define TWI_DRIVER_H
+#define TWI1_DRIVER_H
 
 #include "avr/io.h"
 
@@ -81,41 +81,41 @@ typedef enum __attribute__((packed)) TWI_MODE_enum {
 #define ADD_WRITE_BIT(address)  (address & ~0x01)
 #endif
 
-void TWI_MasterInit(uint32_t frequency);
-void TWI_SlaveInit(uint8_t address,uint8_t receive_broadcast,uint8_t second_address);
-void TWI_Flush(void);
-void TWI_Disable(void);
-TWI_BUSSTATE_t TWI_MasterState(void);
-uint8_t TWI_MasterReady(void);
-void TWI_MasterSetBaud(uint32_t frequency);
-uint8_t TWI_MasterWrite(uint8_t slave_address,
+void TWI1_MasterInit(uint32_t frequency);
+void TWI1_SlaveInit(uint8_t address,uint8_t receive_broadcast,uint8_t second_address);
+void TWI1_Flush(void);
+void TWI1_Disable(void);
+TWI_BUSSTATE_t TWI1_MasterState(void);
+uint8_t TWI1_MasterReady(void);
+void TWI1_MasterSetBaud(uint32_t frequency);
+uint8_t TWI1_MasterWrite(uint8_t slave_address,
                      uint8_t *write_data,
                      uint8_t bytes_to_write,
 					 uint8_t send_stop);
-uint8_t TWI_MasterRead(uint8_t slave_address,
+uint8_t TWI1_MasterRead(uint8_t slave_address,
                     uint8_t* read_data,
                     uint8_t bytes_to_read,
 					uint8_t send_stop);
-uint8_t TWI_MasterWriteRead(uint8_t slave_address,
+uint8_t TWI1_MasterWriteRead(uint8_t slave_address,
                          uint8_t *write_data,
                          uint8_t bytes_to_write,
                          uint8_t bytes_to_read,
 						 uint8_t send_stop);
-void TWI_MasterInterruptHandler(void);
-void TWI_MasterArbitrationLostBusErrorHandler(void);
-void TWI_MasterWriteHandler(void);
-void TWI_MasterReadHandler(void);
-void TWI_MasterTransactionFinished(uint8_t result);
+void TWI1_MasterInterruptHandler(void);
+void TWI1_MasterArbitrationLostBusErrorHandler(void);
+void TWI1_MasterWriteHandler(void);
+void TWI1_MasterReadHandler(void);
+void TWI1_MasterTransactionFinished(uint8_t result);
 
-void TWI_SlaveInterruptHandler(void);
-void TWI_SlaveAddressMatchHandler(void);
-void TWI_SlaveStopHandler(void);
-void TWI_SlaveDataHandler(void);
-void TWI_SlaveWriteHandler(void);
-void TWI_SlaveReadHandler(void);
-void TWI_attachSlaveRxEvent( void (*function)(int), uint8_t *read_data, uint8_t bytes_to_read );
-void TWI_attachSlaveTxEvent( uint8_t (*function)(void), uint8_t *write_data );
-void TWI_SlaveTransactionFinished(uint8_t result);
+void TWI1_SlaveInterruptHandler(void);
+void TWI1_SlaveAddressMatchHandler(void);
+void TWI1_SlaveStopHandler(void);
+void TWI1_SlaveDataHandler(void);
+void TWI1_SlaveWriteHandler(void);
+void TWI1_SlaveReadHandler(void);
+void TWI1_attachSlaveRxEvent( void (*function)(int), uint8_t *read_data, uint8_t bytes_to_read );
+void TWI1_attachSlaveTxEvent( uint8_t (*function)(void), uint8_t *write_data );
+void TWI1_SlaveTransactionFinished(uint8_t result);
 /*! TWI master interrupt service routine.
  *
  *  Interrupt service routine for the TWI master. Copy the needed vectors
@@ -123,16 +123,16 @@ void TWI_SlaveTransactionFinished(uint8_t result);
  *
 
 
-	ISR(TWI0_TWIM_vect){
-		TWI_MasterInterruptHandler();
+	ISR(TWI1_TWIM_vect){
+		TWI1_MasterInterruptHandler();
 	}
 
-	ISR(TWI0_TWIS_vect){
-		TWI_SlaveInterruptHandler();
+	ISR(TWI1_TWIS_vect){
+		TWI1_SlaveInterruptHandler();
 	}
 
  *
  */
 
 
-#endif /* TWI_DRIVER_H */
+#endif /* TWI1_DRIVER_H */
