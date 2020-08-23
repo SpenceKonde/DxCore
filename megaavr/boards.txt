@@ -10,8 +10,8 @@ menu.clock=Clock Speed
 menu.millis=millis()/micros()
 menu.resetpin=Reset pin function
 menu.adcworkaround=ADC Workaround mode
-menu.bootloaderuart=Bootloader Serial Port
-
+menu.bootloaderusart=Bootloader Serial Port
+menu.timeout=Bootloader Timeout
 
 
 
@@ -26,8 +26,7 @@ menu.bootloaderuart=Bootloader Serial Port
 
 avrdx28.name=28-pin AVR DA or DB
 
-
-
+avrdx28.bootloader.SYSCFG1=0x03
 
 avrdx28.menu.chip.128A=AVR128DA28
 avrdx28.menu.chip.128A.build.mcu=avr128da28
@@ -45,6 +44,7 @@ avrdx28.menu.chip.128B=AVR128DB28
 avrdx28.menu.chip.128B.build.mcu=avr128db28
 avrdx28.menu.chip.128B.upload.maximum_size=131072
 avrdx28.menu.chip.128B.upload.maximum_data_size=16384
+avrdx28.menu.chip.128B.bootloader.SYSCFG1=0x0B
 
 
 avrdx28.menu.clock.24=24 MHz
@@ -164,6 +164,8 @@ avrdx28.bootloader.flashcommand=
 
 avrdx32.name=32-pin AVR DA or DB
 
+avrdx32.bootloader.SYSCFG1=0x03
+
 avrdx32.menu.chip.128A=AVR128DA32
 avrdx32.menu.chip.128A.build.mcu=avr128da32
 avrdx32.menu.chip.128A.upload.maximum_size=131072
@@ -180,6 +182,7 @@ avrdx32.menu.chip.128B=AVR128DB32
 avrdx32.menu.chip.128B.build.mcu=avr128db32
 avrdx32.menu.chip.128B.upload.maximum_size=131072
 avrdx32.menu.chip.128B.upload.maximum_data_size=16384
+avrdx32.menu.chip.128B.bootloader.SYSCFG1=0x0B
 
 
 avrdx32.menu.clock.24=24 MHz
@@ -304,6 +307,8 @@ avrdx32.bootloader.flashcommand=
 
 avrdx48.name=48-pin AVR DA or DB
 
+avrdx48.bootloader.SYSCFG1=0x03
+
 avrdx48.menu.chip.128A=AVR128DA48
 avrdx48.menu.chip.128A.build.mcu=avr128da48
 avrdx48.menu.chip.128A.upload.maximum_size=131072
@@ -320,6 +325,7 @@ avrdx48.menu.chip.128B=AVR128DB48
 avrdx48.menu.chip.128B.build.mcu=avr128db48
 avrdx48.menu.chip.128B.upload.maximum_size=131072
 avrdx48.menu.chip.128B.upload.maximum_data_size=16384
+avrdx48.menu.chip.128B.bootloader.SYSCFG1=0x0B
 
 
 avrdx48.menu.clock.24=24 MHz
@@ -445,8 +451,7 @@ avrdx48.bootloader.flashcommand=
 
 avrdx64.name=64-pin AVR DA or DB
 
-
-
+avrdx64.bootloader.SYSCFG1=0x03
 
 avrdx64.menu.chip.128A=AVR128DA64
 avrdx64.menu.chip.128A.build.mcu=avr128da64
@@ -460,6 +465,7 @@ avrdx64.menu.chip.128B=AVR128DB64
 avrdx64.menu.chip.128B.build.mcu=avr128db64
 avrdx64.menu.chip.128B.upload.maximum_size=131072
 avrdx64.menu.chip.128B.upload.maximum_data_size=16384
+avrdx64.menu.chip.128B.bootloader.SYSCFG1=0x0B
 
 
 avrdx64.menu.clock.24=24 MHz
@@ -584,29 +590,29 @@ avrdx64.bootloader.flashcommand=
 
 avrdx28opti.name=28-pin AVR DA or DB with Optiboot
 
-
-
+avrdx28opti.bootloader.SYSCFG1=0x03
 
 avrdx28opti.menu.chip.128A=AVR128DA28
 avrdx28opti.menu.chip.128A.build.mcu=avr128da28
-avrdx28opti.menu.chip.128A.upload.maximum_size=131072
+avrdx28opti.menu.chip.128A.upload.maximum_size=130048
 avrdx28opti.menu.chip.128A.upload.maximum_data_size=16384
-avrdx28opti.menu.chip.128A.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx28opti.menu.chip.128A.bootloader.file=hex/optiboot_dx128
 avrdx28opti.menu.chip.64A=AVR64DA28
 avrdx28opti.menu.chip.64A.build.mcu=avr64da28
-avrdx28opti.menu.chip.64A.upload.maximum_size=65536
+avrdx28opti.menu.chip.64A.upload.maximum_size=64512
 avrdx28opti.menu.chip.64A.upload.maximum_data_size=8192
-avrdx28opti.menu.chip.64A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx28opti.menu.chip.64A.bootloader.file=hex/optiboot_dx32
 avrdx28opti.menu.chip.32A=AVR32DA28
 avrdx28opti.menu.chip.32A.build.mcu=avr32da28
 avrdx28opti.menu.chip.32A.upload.maximum_size=32768
 avrdx28opti.menu.chip.32A.upload.maximum_data_size=4096
-avrdx28opti.menu.chip.64A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx28opti.menu.chip.64A.bootloader.file=hex/optiboot_dx64
 avrdx28opti.menu.chip.128B=AVR128DB28
 avrdx28opti.menu.chip.128B.build.mcu=avr128db28
-avrdx28opti.menu.chip.128B.upload.maximum_size=131072
+avrdx28opti.menu.chip.128B.upload.maximum_size=130048
 avrdx28opti.menu.chip.128B.upload.maximum_data_size=16384
-avrdx28opti.menu.chip.128B.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx28opti.menu.chip.128B.bootloader.file=hex/optiboot_dx128
+avrdx28opti.menu.chip.128B.bootloader.SYSCFG1=0x0B
 
 
 avrdx28opti.menu.clock.24=24 MHz
@@ -644,6 +650,11 @@ avrdx28opti.build.adcworkaround=
 avrdx28opti.menu.adcworkaround.simple=Enabled
 avrdx28opti.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
 avrdx28opti.menu.adcworkaround.none=Disabled
+
+avrdx28opti.menu.timeout.1sec=1 second (for use w/autoreset)
+avrdx28opti.menu.timeout.1sec.bootloader.timeout=
+avrdx28opti.menu.timeout.8sec=8 second (for use w/out autoreset)
+avrdx28opti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 
 avrdx28opti.menu.bodvoltage.1v9=1.9V
@@ -706,9 +717,16 @@ avrdx28opti.upload.extra_params=-D
 avrdx28opti.upload.speed=115200
 avrdx28opti.build.text_section_start=.text=0x400
 avrdx28opti.build.mcupostfix=opti
-avrdx28opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i
+avrdx28opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdx28opti.bootloader.tool=avrdude
-
+avrdx28opti.menu.bootloaderusart.ser0=USART0, TX PA0 (0), RX PA1 (1)
+avrdx28opti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdx28opti.menu.bootloaderusart.ser0_alt=USART0, TX PA4 (4), RX PA5 (5)
+avrdx28opti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdx28opti.menu.bootloaderusart.ser1=USART1, TX PC0 (8), RX PC1 (9)
+avrdx28opti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdx28opti.menu.bootloaderusart.ser2=USART2, TX PF0 (20), RX PF1 (21)
+avrdx28opti.menu.bootloaderusart.ser2.bootloader.port=_ser2
 
 #########################################
 #
@@ -719,27 +737,39 @@ avrdx28opti.bootloader.tool=avrdude
 
 avrdx32opti.name=32-pin AVR DA or DB with Optiboot
 
+avrdx32opti.bootloader.SYSCFG1=0x03
+
 avrdx32opti.menu.chip.128A=AVR128DA32
 avrdx32opti.menu.chip.128A.build.mcu=avr128da32
-avrdx32opti.menu.chip.128A.upload.maximum_size=131072
+avrdx32opti.menu.chip.128A.upload.maximum_size=130048
 avrdx32opti.menu.chip.128A.upload.maximum_data_size=16384
-avrdx32opti.menu.chip.128A.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx32opti.menu.chip.128A.bootloader.file=hex/optiboot_dx128
 avrdx32opti.menu.chip.64A=AVR64DA32
 avrdx32opti.menu.chip.64A.build.mcu=avr64da32
-avrdx32opti.menu.chip.64A.upload.maximum_size=65536
+avrdx32opti.menu.chip.64A.upload.maximum_size=64512
 avrdx32opti.menu.chip.64A.upload.maximum_data_size=8192
-avrdx32opti.menu.chip.64A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx32opti.menu.chip.64A.bootloader.file=hex/optiboot_dx64
 avrdx32opti.menu.chip.32A=AVR32DA32
 avrdx32opti.menu.chip.32A.build.mcu=avr32da32
-avrdx32opti.menu.chip.32A.upload.maximum_size=32768
+avrdx32opti.menu.chip.32A.upload.maximum_size=31744
 avrdx32opti.menu.chip.32A.upload.maximum_data_size=4096
-avrdx32opti.menu.chip.32A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx32opti.menu.chip.32A.bootloader.file=hex/optiboot_dx32
 avrdx32opti.menu.chip.128B=AVR128DB32
 avrdx32opti.menu.chip.128B.build.mcu=avr128db32
-avrdx32opti.menu.chip.128B.upload.maximum_size=131072
+avrdx32opti.menu.chip.128B.upload.maximum_size=130048
 avrdx32opti.menu.chip.128B.upload.maximum_data_size=16384
-avrdx32opti.menu.chip.128B.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
-
+avrdx32opti.menu.chip.128B.bootloader.file=hex/optiboot_dx128
+avrdx32opti.menu.chip.128B.bootloader.SYSCFG1=0x0B
+#avrdx32opti.menu.chip.64B=AVR64DB32
+#avrdx32opti.menu.chip.64B.build.mcu=avr64db32
+#avrdx32opti.menu.chip.64B.upload.maximum_size=64512
+#avrdx32opti.menu.chip.64B.upload.maximum_data_size=8192
+#avrdx32opti.menu.chip.64B.bootloader.file=hex/optiboot_dx64
+#avrdx32opti.menu.chip.32B=AVR32DB32
+#avrdx32opti.menu.chip.32B.build.mcu=avr32db32
+#avrdx32opti.menu.chip.32B.upload.maximum_size=31744
+#avrdx32opti.menu.chip.32B.upload.maximum_data_size=4096
+#avrdx32opti.menu.chip.32B.bootloader.file=hex/optiboot_dx32
 
 avrdx32opti.menu.clock.24=24 MHz
 avrdx32opti.menu.clock.24.build.f_cpu=24000000L
@@ -776,6 +806,10 @@ avrdx32opti.build.adcworkaround=
 avrdx32opti.menu.adcworkaround.simple=Simple
 avrdx32opti.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
 avrdx32opti.menu.adcworkaround.none=Startup only
+avrdx32opti.menu.timeout.1sec=1 second (for use w/autoreset)
+avrdx32opti.menu.timeout.1sec.bootloader.timeout=
+avrdx32opti.menu.timeout.8sec=8 second (for use w/out autoreset)
+avrdx32opti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 
 
@@ -838,9 +872,19 @@ avrdx32opti.upload.extra_params=-D
 avrdx32opti.upload.speed=115200
 avrdx32opti.build.text_section_start=.text=0x400
 avrdx32opti.build.mcupostfix=opti
-avrdx32opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i
+avrdx32opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdx32opti.bootloader.tool=avrdude
 
+avrdx32opti.menu.bootloaderusart.ser0=USART0, TX PA0 (0), RX PA1 (1)
+avrdx32opti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdx32opti.menu.bootloaderusart.ser0_alt=USART0, TX PA4 (4), RX PA5 (5)
+avrdx32opti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdx32opti.menu.bootloaderusart.ser1=USART1, TX PC0 (8), RX PC1 (9)
+avrdx32opti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdx32opti.menu.bootloaderusart.ser2=USART2, TX PF0 (20), RX PF1 (21)
+avrdx32opti.menu.bootloaderusart.ser2.bootloader.port=_ser2
+avrdx32opti.menu.bootloaderusart.ser2_alt=USART2, TX PF4 (24), RX PF5 (25)
+avrdx32opti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
 
 #########################################
 #
@@ -851,27 +895,39 @@ avrdx32opti.bootloader.tool=avrdude
 
 
 avrdx48opti.name=48-pin AVR DA or DB with Optiboot
+avrdx48opti.bootloader.SYSCFG1=0x03
 
 avrdx48opti.menu.chip.128A=AVR128DA48
 avrdx48opti.menu.chip.128A.build.mcu=avr128da48
-avrdx48opti.menu.chip.128A.upload.maximum_size=131072
+avrdx48opti.menu.chip.128A.upload.maximum_size=130048
 avrdx48opti.menu.chip.128A.upload.maximum_data_size=16384
-avrdx48opti.menu.chip.128A.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx48opti.menu.chip.128A.bootloader.file=hex/optiboot_dx128
 avrdx48opti.menu.chip.64A=AVR64DA48
 avrdx48opti.menu.chip.64A.build.mcu=avr64da48
-avrdx48opti.menu.chip.64A.upload.maximum_size=65536
+avrdx48opti.menu.chip.64A.upload.maximum_size=64512
 avrdx48opti.menu.chip.64A.upload.maximum_data_size=8192
-avrdx48opti.menu.chip.64A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx48opti.menu.chip.64A.bootloader.file=hex/optiboot_dx64
 avrdx48opti.menu.chip.32A=AVR32DA48
 avrdx48opti.menu.chip.32A.build.mcu=avr32da48
-avrdx48opti.menu.chip.32A.upload.maximum_size=32768
+avrdx48opti.menu.chip.32A.upload.maximum_size=31744
 avrdx48opti.menu.chip.32A.upload.maximum_data_size=4096
-avrdx48opti.menu.chip.32A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx48opti.menu.chip.32A.bootloader.file=hex/optiboot_dx32
 avrdx48opti.menu.chip.128B=AVR128DB48
 avrdx48opti.menu.chip.128B.build.mcu=avr128db48
-avrdx48opti.menu.chip.128B.upload.maximum_size=131072
+avrdx48opti.menu.chip.128B.upload.maximum_size=130048
 avrdx48opti.menu.chip.128B.upload.maximum_data_size=16384
-avrdx48opti.menu.chip.128B.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx48opti.menu.chip.128B.bootloader.file=hex/optiboot_dx128
+avrdx48opti.menu.chip.128B.bootloader.SYSCFG1=0x0B
+#avrdx48opti.menu.chip.64B=AVR64DB48
+#avrdx48opti.menu.chip.64B.build.mcu=avr64db48
+#avrdx48opti.menu.chip.64B.upload.maximum_size=64512
+#avrdx48opti.menu.chip.64B.upload.maximum_data_size=8192
+#avrdx48opti.menu.chip.64B.bootloader.file=hex/optiboot_dx64
+#avrdx48opti.menu.chip.32B=AVR32DB48
+#avrdx48opti.menu.chip.32B.build.mcu=avr32db48
+#avrdx48opti.menu.chip.32B.upload.maximum_size=31744
+#avrdx48opti.menu.chip.32B.upload.maximum_data_size=4096
+#avrdx48opti.menu.chip.32B.bootloader.file=hex/optiboot_dx32
 
 
 avrdx48opti.menu.clock.24=24 MHz
@@ -910,6 +966,11 @@ avrdx48opti.build.adcworkaround=
 avrdx48opti.menu.adcworkaround.simple=Simple
 avrdx48opti.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
 avrdx48opti.menu.adcworkaround.none=Startup only
+
+avrdx48opti.menu.timeout.1sec=1 second (for use w/autoreset)
+avrdx48opti.menu.timeout.1sec.bootloader.timeout=
+avrdx48opti.menu.timeout.8sec=8 second (for use w/out autoreset)
+avrdx48opti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 avrdx48opti.menu.bodvoltage.1v9=1.9V
 avrdx48opti.menu.bodvoltage.1v9.bootloader.bodlevbits=000
@@ -974,8 +1035,29 @@ avrdx48opti.upload.extra_params=-D
 avrdx48opti.upload.speed=115200
 avrdx48opti.build.text_section_start=.text=0x400
 avrdx48opti.build.mcupostfix=opti
-avrdx48opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i
+avrdx48opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdx48opti.bootloader.tool=avrdude
+
+avrdx48opti.menu.bootloaderusart.ser0=USART0, TX PA0 (0), RX PA1 (1)
+avrdx48opti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdx48opti.menu.bootloaderusart.ser0_alt=USART0, TX PA4 (4), RX PA5 (5)
+avrdx48opti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdx48opti.menu.bootloaderusart.ser1=USART1, TX PC0 (14), RX PC1 (15)
+avrdx48opti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdx48opti.menu.bootloaderusart.ser1_alt=USART1, TX PC4 (18), RX PC5 (19)
+avrdx48opti.menu.bootloaderusart.ser1_alt.bootloader.port=_ser1_alt
+avrdx48opti.menu.bootloaderusart.ser2=USART2, TX PF0 (34), RX PF1 (35)
+avrdx48opti.menu.bootloaderusart.ser2.bootloader.port=_ser2
+avrdx48opti.menu.bootloaderusart.ser2_alt=USART2, TX PF4 (38), RX PF5 (39)
+avrdx48opti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
+avrdx48opti.menu.bootloaderusart.ser3=USART3, TX PB0 (8), RX PB1 (9)
+avrdx48opti.menu.bootloaderusart.ser3.bootloader.port=_ser3
+avrdx48opti.menu.bootloaderusart.ser3_alt=USART3, TX PB4 (12), RX PB5 (13)
+avrdx48opti.menu.bootloaderusart.ser3_alt.bootloader.port=_ser3_alt
+avrdx48opti.menu.bootloaderusart.ser4=USART4, TX PE0 (30), RX PE1 (31)
+avrdx48opti.menu.bootloaderusart.ser4.bootloader.port=_ser4
+
+
 
 #########################################
 #
@@ -987,21 +1069,24 @@ avrdx48opti.bootloader.tool=avrdude
 avrdx64opti.name=64-pin AVR DA or DB with Optiboot
 
 
+avrdx64opti.bootloader.SYSCFG1=0x03
+
 avrdx64opti.menu.chip.128A=AVR128DA64
 avrdx64opti.menu.chip.128A.build.mcu=avr128da64
-avrdx64opti.menu.chip.128A.upload.maximum_size=131072
+avrdx64opti.menu.chip.128A.upload.maximum_size=130048
 avrdx64opti.menu.chip.128A.upload.maximum_data_size=16384
-avrdx64opti.menu.chip.128A.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx64opti.menu.chip.128A.bootloader.file=hex/optiboot_dx128
 avrdx64opti.menu.chip.64A=AVR64DA64
 avrdx64opti.menu.chip.64A.build.mcu=avr64da64
-avrdx64opti.menu.chip.64A.upload.maximum_size=65536
+avrdx64opti.menu.chip.64A.upload.maximum_size=64512
 avrdx64opti.menu.chip.64A.upload.maximum_data_size=8192
-avrdx64opti.menu.chip.64A.bootloader.file=optiboot_dx/optiboot_dx_ser0.hex
+avrdx64opti.menu.chip.64A.bootloader.file=hex/optiboot_dx64
 avrdx64opti.menu.chip.128B=AVR128DB64
 avrdx64opti.menu.chip.128B.build.mcu=avr128db64
-avrdx64opti.menu.chip.128B.upload.maximum_size=131072
+avrdx64opti.menu.chip.128B.upload.maximum_size=130048
 avrdx64opti.menu.chip.128B.upload.maximum_data_size=16384
-avrdx64opti.menu.chip.128B.bootloader.file=optiboot_dx/optiboot_dx128_ser0.hex
+avrdx64opti.menu.chip.128B.bootloader.file=hex/optiboot_dx128
+avrdx64opti.menu.chip.128B.bootloader.SYSCFG1=0x0B
 
 
 avrdx64opti.menu.clock.24=24 MHz
@@ -1040,6 +1125,11 @@ avrdx64opti.build.adcworkaround=
 avrdx64opti.menu.adcworkaround.simple=Simple
 avrdx64opti.menu.adcworkaround.simple.build.adcworkaround=-DSIMPLE_ADC_WORKAROUND
 avrdx64opti.menu.adcworkaround.none=Startup only
+
+avrdx64opti.menu.timeout.1sec=1 second (for use w/autoreset)
+avrdx64opti.menu.timeout.1sec.bootloader.timeout=
+avrdx64opti.menu.timeout.8sec=8 second (for use w/out autoreset)
+avrdx64opti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 avrdx64opti.menu.bodvoltage.1v9=1.9V
 avrdx64opti.menu.bodvoltage.1v9.bootloader.bodlevbits=000
@@ -1099,7 +1189,6 @@ avrdx64opti.bootloader.tool=avrdude
 avrdx64opti.bootloader.WDTCFG=0x00
 avrdx64opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrdx64opti.bootloader.SYSCFG0=0xC8
-avrdx64opti.bootloader.SYSCFG1=0x03
 avrdx64opti.bootloader.CODESIZE=0x00
 avrdx64opti.bootloader.BOOTSIZE=0x02
 
@@ -1108,30 +1197,30 @@ avrdx64opti.upload.extra_params=-D
 avrdx64opti.upload.speed=115200
 avrdx64opti.build.text_section_start=.text=0x400
 avrdx64opti.build.mcupostfix=opti
-avrdx64opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}:i
+avrdx64opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdx64opti.bootloader.tool=avrdude
 
-avrdx64optio.menu.bootport.ser0=USART0, TX PA0 (0), RX PA1 (1)
-avrdx64optio.menu.bootport.ser0.bootloader.port=_ser0
-avrdx64optio.menu.bootport.ser0_alt=USART0, TX PA4 (4), RX PA5 (5)
-avrdx64optio.menu.bootport.ser0_alt.bootloader.port=_ser0_alt
-avrdx64optio.menu.bootport.ser1=USART1, TX PC0 (16), RX PC1 (17)
-avrdx64optio.menu.bootport.ser1.bootloader.port=_ser1
-avrdx64optio.menu.bootport.ser1_alt=USART1, TX PC4 (20), RX PC5 (21)
-avrdx64optio.menu.bootport.ser1_alt.bootloader.port=_ser1_alt
-avrdx64optio.menu.bootport.ser2=USART2, TX PF0 (40), RX PF1 (41)
-avrdx64optio.menu.bootport.ser2.bootloader.port=_ser2
-avrdx64optio.menu.bootport.ser2_alt=USART2, TX PF4 (44), RX PF5 (45)
-avrdx64optio.menu.bootport.ser2_alt.bootloader.port=_ser2_alt
-avrdx64optio.menu.bootport.ser3=USART3, TX PB0 (8), RX PB1 (9)
-avrdx64optio.menu.bootport.ser3.bootloader.port=_ser3
-avrdx64optio.menu.bootport.ser3_alt=USART3, TX PB4 (12), RX PB5 (13)
-avrdx64optio.menu.bootport.ser3_alt.bootloader.port=_ser3_alt
-avrdx64optio.menu.bootport.ser4=USART4, TX PE0 (32), RX PE1 (33)
-avrdx64optio.menu.bootport.ser4.bootloader.port=_ser4
-avrdx64optio.menu.bootport.ser4_alt=USART4, TX PE4 (36), RX PE5 (37)
-avrdx64optio.menu.bootport.ser4_alt.bootloader.port=_ser4_alt
-avrdx64optio.menu.bootport.ser5=USART5, TX PG0 (46), RX PG1 (47)
-avrdx64optio.menu.bootport.ser5.bootloader.port=_ser5
-avrdx64optio.menu.bootport.ser5_alt=USART5, TX PG4 (50), RX PG5 (51)
-avrdx64optio.menu.bootport.ser5_alt.bootloader.port=_ser5_alt
+avrdx64opti.menu.bootloaderusart.ser0=USART0, TX PA0 (0), RX PA1 (1)
+avrdx64opti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdx64opti.menu.bootloaderusart.ser0_alt=USART0, TX PA4 (4), RX PA5 (5)
+avrdx64opti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdx64opti.menu.bootloaderusart.ser1=USART1, TX PC0 (16), RX PC1 (17)
+avrdx64opti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdx64opti.menu.bootloaderusart.ser1_alt=USART1, TX PC4 (20), RX PC5 (21)
+avrdx64opti.menu.bootloaderusart.ser1_alt.bootloader.port=_ser1_alt
+avrdx64opti.menu.bootloaderusart.ser2=USART2, TX PF0 (40), RX PF1 (41)
+avrdx64opti.menu.bootloaderusart.ser2.bootloader.port=_ser2
+avrdx64opti.menu.bootloaderusart.ser2_alt=USART2, TX PF4 (44), RX PF5 (45)
+avrdx64opti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
+avrdx64opti.menu.bootloaderusart.ser3=USART3, TX PB0 (8), RX PB1 (9)
+avrdx64opti.menu.bootloaderusart.ser3.bootloader.port=_ser3
+avrdx64opti.menu.bootloaderusart.ser3_alt=USART3, TX PB4 (12), RX PB5 (13)
+avrdx64opti.menu.bootloaderusart.ser3_alt.bootloader.port=_ser3_alt
+avrdx64opti.menu.bootloaderusart.ser4=USART4, TX PE0 (32), RX PE1 (33)
+avrdx64opti.menu.bootloaderusart.ser4.bootloader.port=_ser4
+avrdx64opti.menu.bootloaderusart.ser4_alt=USART4, TX PE4 (36), RX PE5 (37)
+avrdx64opti.menu.bootloaderusart.ser4_alt.bootloader.port=_ser4_alt
+avrdx64opti.menu.bootloaderusart.ser5=USART5, TX PG0 (46), RX PG1 (47)
+avrdx64opti.menu.bootloaderusart.ser5.bootloader.port=_ser5
+avrdx64opti.menu.bootloaderusart.ser5_alt=USART5, TX PG4 (50), RX PG5 (51)
+avrdx64opti.menu.bootloaderusart.ser5_alt.bootloader.port=_ser5_alt

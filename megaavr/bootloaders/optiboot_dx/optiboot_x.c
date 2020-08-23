@@ -226,6 +226,8 @@ typedef union {
 # warning UART is ignored for this chip (use UARTTX=PortPin instead)
 #endif
 
+// DX series starts up at 4 MHz; we use it and leave it at that speed.
+
 #define BAUD_SETTING_4 (((4000000)*64) / (16L*BAUD_RATE))
 #define BAUD_ACTUAL_4 ((64L*(4000000)) / (16L*BAUD_SETTING))
 
@@ -294,7 +296,7 @@ static inline void read_mem(uint8_t memtype,
           addr16_t, pagelen_t len);
 static void __attribute__((noinline)) do_spm(uint16_t address, uint16_t data);
 
-
+static void reset_nvm();
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
  * lot of peripheral registers.
@@ -330,7 +332,6 @@ void pre_main (void) {
 /* main program starts here */
 int main (void) {
     uint8_t ch;
-
     /*
      * Making these local and in registers prevents the need for initializing
      * them, and also saves space because code no longer stores to memory.
@@ -352,7 +353,7 @@ int main (void) {
     ch = RSTCTRL.RSTFR;   // get reset cause
     #ifdef START_APP_ON_POR
     // If WDRF is set  OR nothing except BORF and PORF are set, that's not bootloader entry condition
-    // so jump to app - this is for when UPDI pin is used as reset, so we go straight to app on start.
+    // so jump to app. We have reset pin and SWRF for when we want to enter bootloader.
     if (ch & RSTCTRL_WDRF_bm || (!(ch & (~(RSTCTRL_BORF_bm | RSTCTRL_PORF_bm))))) {
     #else
       // If WDRF is set  OR nothing except BORF is set, that's not bootloader entry condition
@@ -490,20 +491,7 @@ int main (void) {
 	    // LOAD ADDRESS
 	    address.bytes[0] = getch();
 	    address.bytes[1] = getch();
-      // Can we do it like this? How come in optiboot_x, they could just skip the multiplying of address.word???
-      // no, we cant. something in avrdude.conf has tipped it off that this thing can in theory use byte addressing (of course, it can't due to the errata when self-programming)
-/*
-#ifdef RAMPZ
-      // Transfer top bit to LSB in RAMPZ
-      if (address.bytes[1] & 0x80) {
-        RAMPZ |= 0x01;
-      }
-      else {
-        RAMPZ &= 0xFE;
-      }
-#endif
-	    address.word *= 2; // Convert from word address to byte address
-*/
+      // byte addressed!
 	    verifySpace();
 	}
 
@@ -513,20 +501,17 @@ int main (void) {
       if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
         // get address
         getch();  // get '0'
-        RAMPZ = getch();  // get address and put it in RAMPZ - but I think here it really will be the LSB because we can't get past 64K with
+        RAMPZ = getch();  // get address and put it in RAMPZ (not shifted, we're getting byte addresses here!)
         getNch(1); // get last '0'
         // response
         putch(0x00);
-      }
-      else {
-        // everything else is ignored
+      } else {
         getNch(3);
         putch(0x00);
       }
 #else
-      // UNIVERSAL command is ignored
-      getNch(4);
-      putch(0x00);
+        getNch(4);
+        putch(0x00);
 #endif
 	/* Write memory, length is big endian and is in bytes */
     }
@@ -628,11 +613,11 @@ void verifySpace () {
 
 #if LED_START_FLASHES > 0
 void flash_led (uint8_t count) {
-    uint16_t delay;  // at 20MHz/6, a 16bit delay counter is enough
+    uint16_t delay;  // at 4MHz, a 16bit delay counter is enough
     while (count--) {
 	LED_PORT.IN |= LED;
-	// delay assuming 20Mhz OSC.  It's only to "look about right", anyway.
-	for (delay = ((20E6/6)/150); delay; delay--) {
+	// delay based on 4 MHz clock since that's what we have
+	for (delay = ((4E6)/150); delay; delay--) {
 	    watchdogReset();
 	    if (MYUART.STATUS & USART_RXCIF_bm)
 		return;
@@ -653,9 +638,11 @@ void watchdogConfig (uint8_t x) {
     _PROTECTED_WRITE(WDT.CTRLA, x);
 }
 
+
 /*
  * void writebuffer(memtype, buffer, address, length)
  */
+
 static inline void writebuffer(int8_t memtype, addr16_t mybuff,
              addr16_t address, pagelen_t len)
 {
@@ -666,9 +653,7 @@ static inline void writebuffer(int8_t memtype, addr16_t mybuff,
       while(len--) {
         *(address.bptr++)= *(mybuff.bptr++);
       }
-      while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-        ; // wait for flash and EEPROM not busy, just in case.
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
+      reset_nvm();
       break;
     default:  // FLASH
   /*
@@ -678,7 +663,6 @@ static inline void writebuffer(int8_t memtype, addr16_t mybuff,
    */
     {
 
-      // Copy buffer into programming buffer
       uint16_t addrPtr = address.word;
 
       /*
@@ -688,24 +672,31 @@ static inline void writebuffer(int8_t memtype, addr16_t mybuff,
        * and we needed the space back.
        */
       _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLPER_gc);
+/*#if (__AVR_ARCH__ == 103)
+      address.word += MAPPED_PROGMEM_START;
+      *(address.bptr)=0xFF;
+      reset_nvm();
+      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
+      while(len--) {
+        *(address.bptr++)= *(mybuff.bptr++);
+      }
+#else */
       do_spm(address.word,0);
-      while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-        ; // wait for flash not busy
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
+      reset_nvm();
       /*
        * Write data from the buffer to flash, a word at a time
        */
 
       _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
+
       do {
         //do_spm((uint16_t)(void*)addrPtr, *(mybuff.wptr++));
         // the heck was that done in other versions of optiboot?
         do_spm(addrPtr, *(mybuff.wptr++));
         addrPtr += 2;
       } while (len -= 2);
-      while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-        ; // wait for flash not busy
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
+//#endif
+      reset_nvm();
     } // default block
     break;
   } // switch
@@ -723,6 +714,12 @@ void do_spm(uint16_t address, uint16_t data)
       "r" ((uint16_t)data)
     : "r0"
   );
+}
+
+void reset_nvm() {
+  while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
+    ; // wait for flash not busy
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
 }
 
 static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
@@ -769,7 +766,7 @@ static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
  * need to call write_buffer()?
  */
 static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data)  __attribute__ ((used));
-static void do_nvmctrl (uint16_t address, uint8_t command, uint16_t data) {
+static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data) {
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
     while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
 	; // wait for flash and EEPROM not busy, just in case.

@@ -26,8 +26,12 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-//#undef F
-//#define F(str) (str)
+
+#if (__AVR_ARCH__==103)
+// For AVR Architecture 103, we can use
+#undef F
+#define F(str) (str)
+#endif
 
 #ifdef __cplusplus
 extern "C"{
@@ -91,7 +95,6 @@ uint16_t clockCyclesPerMicrosecondComp(uint32_t clk);
 uint16_t clockCyclesPerMicrosecond();
 unsigned long clockCyclesToMicroseconds(unsigned long cycles);
 unsigned long microsecondsToClockCycles(unsigned long microseconds);
-uint8_t enableAutoTune(uint8_t settings, uint16_t timeout);
 
 // Get the bit location within the hardware port of the given virtual pin.
 // This comes from the pins_*.c file for the active board configuration.
@@ -197,12 +200,12 @@ void setup_timers();
 #endif
 
 
-#define DXCORE "1.0.2"
+#define DXCORE "1.1.0"
 #define DXCORE_MAJOR 1
-#define DXCORE_MINOR 0
-#define DXCORE_PATCH 2
-#define DXCORE_RELEASED 0
-#define DXCORE_NUM 0x01000200
+#define DXCORE_MINOR 1
+#define DXCORE_PATCH 0
+#define DXCORE_RELEASED 1
+#define DXCORE_NUM 0x01010001
 
 
 

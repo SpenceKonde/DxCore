@@ -507,7 +507,8 @@
     defined(__AVR_ATmega1609__) || defined(__AVR_ATmega1608__) || \
     defined(__AVR_ATmega809__)  || defined(__AVR_ATmega808__)  || \
     defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__) || \
-    defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)
+    defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__) ||\
+    defined(__AVR_AVR32DA48__) || defined(__AVR_AVR32DB48__)
 # if (UARTTX == A0)
 #  define UART_NAME "A0"
 #  ifndef USART0
