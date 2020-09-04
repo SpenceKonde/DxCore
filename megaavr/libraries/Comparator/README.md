@@ -73,7 +73,7 @@ Comparator.reference = ref::vref_4v096;  // Use the internal 4.096V reference fo
 Variable for setting the DACREF value. The DACREF voltage is the voltage that the comparator uses as it's reference.  
 This is the formula for the DACREF output voltage:  
   
-<img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} + Comparator.reference" border="0"/>
+<img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
 ##### Usage
 ``` c++
