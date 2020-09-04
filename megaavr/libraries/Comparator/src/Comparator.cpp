@@ -1,4 +1,5 @@
 #include "Comparator.h"
+#include "Arduino.h"
 
 #if defined(AC0_AC_vect)
 AnalogComparator Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
@@ -11,12 +12,12 @@ AnalogComparator Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1C
 #endif
 
 // Array for storing ISR function pointers
-#if defined(AC0_AC_vect)
-static volatile voidFuncPtr intFuncAC[1];
-#elif defined(AC1_AC_vect)
-static volatile voidFuncPtr intFuncAC[2];
-#elif defined(AC2_AC_vect)
+#if defined(AC3_AC_vect)
 static volatile voidFuncPtr intFuncAC[3];
+#elif defined(AC2_AC_vect)
+static volatile voidFuncPtr intFuncAC[2];
+#elif defined(AC1_AC_vect)
+static volatile voidFuncPtr intFuncAC[1];
 #else
 #error target does not have an analog comparator!
 #endif
@@ -141,7 +142,7 @@ void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode)
   intFuncAC[comparator_number] = userFunc;
   
   // Set interrupt trigger and enable interrupt
-  AC.INTCTRL =  intmode | AC_CMP_bm;
+  AC.INTCTRL = intmode | AC_CMP_bm;
 }
 
 void AnalogComparator::detachInterrupt()
@@ -155,7 +156,7 @@ ISR(AC0_AC_vect)
 {
   // Run user function
   intFuncAC[0]();
-  
+
   // Clear flag
   AC0.STATUS = AC_CMPIF_bm;
 }
@@ -166,7 +167,7 @@ ISR(AC1_AC_vect)
 {
   // Run user function
   intFuncAC[1]();
-  
+
   // Clear flag
   AC1.STATUS = AC_CMPIF_bm;
 }
@@ -177,7 +178,7 @@ ISR(AC2_AC_vect)
 {
   // Run user function
   intFuncAC[2]();
-  
+
   // Clear flag
   AC2.STATUS = AC_CMPIF_bm;
 }
