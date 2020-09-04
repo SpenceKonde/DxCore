@@ -73,7 +73,7 @@ void AnalogComparator::init()
     IN1_N = PORT_ISC_INPUT_DISABLE_gc;
   else if(input_n == in_n::in2)
     IN2_N = PORT_ISC_INPUT_DISABLE_gc;
-  AC.MUXCTRL = (AC.MUXCTRL & ~0x3f) | (input_p << 3) | input_n;
+  AC.MUXCTRL = output_initval | (AC.MUXCTRL & ~0x3f) | (input_p << 3) | input_n;
 
   // Prepare for output pin swap
   PORT_t& output_port = PORTA;

@@ -138,6 +138,23 @@ Comparator.output_swap = out::no_swap; // No pin swap for output
 `Comparator.output_swap` defaults to `out::no_swap` if not specified in the user program.
 
 
+### output_initval
+Initial state the comparator output pin has when initialized.
+Accepted values:
+```c++
+out::init_low;  // Output pin low after initialization
+out::init_high; // Output pin high after initialization
+```
+
+##### Usage
+```c++
+Comparator.output_initval = out::init_high;
+```
+
+##### Default state
+`Comparator.output_initval` defaults to `out::init_low` if not specified in the user program.
+
+
 ## init()
 Method for initializing the comparator.
 

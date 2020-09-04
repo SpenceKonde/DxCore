@@ -16,6 +16,11 @@ namespace out
     no_swap  = 0x00,
     pin_swap = 0x01,
   };
+  enum initval_t : uint8_t
+  {
+    init_low  = 0x00,
+    init_high = 0x40,
+  };
 };
 
 namespace hyst
@@ -86,6 +91,7 @@ class AnalogComparator
 
     out::output_t      output = out::disable;
     out::pinswap_t     output_swap = out::no_swap;
+    out::initval_t     output_initval = out::init_low;
     hyst::hysteresis_t hysteresis = hyst::disable;
     in_p::inputP_t     input_p = in_p::in0;
     in_n::inputN_t     input_n = in_n::in0;
