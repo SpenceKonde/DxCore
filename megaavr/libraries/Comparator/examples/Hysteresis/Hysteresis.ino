@@ -1,9 +1,9 @@
 /***********************************************************************|
-| megaAVR analog comparator library                                     |
+| AVR DA/DB analog comparator library                                   |
 |                                                                       |
 | Hysteresis.ino                                                        |
 |                                                                       |
-| A library for interfacing with the megaAVR analog comparator.         |
+| A library for interfacing with the AVR DA/DB analog comparator.       |
 | Developed in 2019 by MCUdude                                          |
 | https://github.com/MCUdude/                                           |
 |                                                                       |
@@ -11,8 +11,6 @@
 | comparator. The output goes high if the positive input is higher than |
 | the negative input, and low otherwise. We'll also use the built-in    |
 | hysteresis functionality to prevent false spikes.                     |
-|                                                                       |
-| See Microchip's application note TB3211 for more information.         |
 |***********************************************************************/
 
 #include <Comparator.h>

@@ -1,17 +1,15 @@
 /***********************************************************************|
-| megaAVR analog comparator library                                     |
+| AVR DA/DB analog comparator library                                   |
 |                                                                       |
 | Simple_comparator.ino                                                 |
 |                                                                       |
-| A library for interfacing with the megaAVR analog comparator.         |
+| A library for interfacing with the AVR DA/DB analog comparator.       |
 | Developed in 2019 by MCUdude                                          |
 | https://github.com/MCUdude/                                           |
 |                                                                       |
 | In this example we use the negative and positive input 0 of the       |
 | comparator. The output goes high if the positive input is higher than |
 | the negative input, and low otherwise.                                |
-|                                                                       |
-| See Microchip's application note TB3211 for more information.         |
 |***********************************************************************/
 
 #include <Comparator.h>
