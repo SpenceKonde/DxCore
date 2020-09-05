@@ -82,6 +82,7 @@ void AnalogComparator::init()
   {
     output_port = PORTC;
     pin_number = PIN6_bm;
+    PORTMUX.ACROUTEA = ~(1 << comparator_number) | output_swap;
   }
 
   // Set output
