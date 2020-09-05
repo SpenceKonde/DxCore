@@ -12,11 +12,11 @@ AnalogComparator Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1C
 #endif
 
 // Array for storing ISR function pointers
-#if defined(AC3_AC_vect)
+#if defined(AC2_AC_vect)
 static volatile voidFuncPtr intFuncAC[3];
-#elif defined(AC2_AC_vect)
-static volatile voidFuncPtr intFuncAC[2];
 #elif defined(AC1_AC_vect)
+static volatile voidFuncPtr intFuncAC[2];
+#elif defined(AC0_AC_vect)
 static volatile voidFuncPtr intFuncAC[1];
 #else
 #error target does not have an analog comparator!
