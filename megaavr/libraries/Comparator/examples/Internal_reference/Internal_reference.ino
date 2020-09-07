@@ -1,9 +1,9 @@
 /***********************************************************************|
-| megaAVR analog comparator library                                     |
+| AVR DA/DB analog comparator library                                   |
 |                                                                       |
 | Internal_reference.ino                                                |
 |                                                                       |
-| A library for interfacing with the megaAVR analog comparator.         |
+| A library for interfacing with the AVR DA/DB analog comparator.       |
 | Developed in 2019 by MCUdude                                          |
 | https://github.com/MCUdude/                                           |
 |                                                                       |
@@ -14,8 +14,6 @@
 |                                                                       |
 | This is the formula for the generated voltage:                        |
 | Vdacref = (DACREF / 256) * Vref                                       |
-|                                                                       |
-| See Microchip's application note TB3211 for more information.         |
 |***********************************************************************/
 
 #include <Comparator.h>

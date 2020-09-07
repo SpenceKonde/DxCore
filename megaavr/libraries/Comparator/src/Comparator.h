@@ -11,6 +11,16 @@ namespace out
     enable  = 0x40,
     invert  = 0x80,
   };
+  enum pinswap_t : uint8_t
+  {
+    no_swap  = 0x00,
+    pin_swap = 0x01,
+  };
+  enum initval_t : uint8_t
+  {
+    init_low  = 0x00,
+    init_high = 0x40,
+  };
 };
 
 namespace hyst
@@ -50,20 +60,29 @@ namespace ref
 {
   enum reference_t : uint8_t
   {
-    vref_0v55 = 0x00, // 0.55V
-    vref_1v1  = 0x01, // 1.1V
-    vref_1v5  = 0x04, // 1.5V
-    vref_2v5  = 0x02, // 2.5V
-    vref_4v3  = 0x03, // 4.3V
-    vref_avcc = 0x07, // Vcc
-    disable   = 0x08,
+    vref_1v024 = 0x00, // 1.024V
+    vref_2v048 = 0x01, // 2.048V
+    vref_2v500 = 0x03, // 2.5V
+    vref_2v5   = 0x03,
+    vref_4v096 = 0x02, // 4.096V
+    vref_vdd   = 0x05, // VDD as reference
+    vref_vrefa = 0x06, // External reference from the VREFA pin
+    disable    = 0x08,
   };
 };
 
 class AnalogComparator
 {
   public:
-    AnalogComparator(const uint8_t comparator_number, AC_t& ac);
+    AnalogComparator(const uint8_t comparator_number,
+                     AC_t& ac,
+                     register8_t &in0_p,
+                     register8_t &in1_p,
+                     register8_t &in2_p,
+                     register8_t &in3_p,
+                     register8_t &in0_n,
+                     register8_t &in1_n,
+                     register8_t &in2_n);
     void init();
     void start(bool state = true);
     void stop();
@@ -71,6 +90,8 @@ class AnalogComparator
     void detachInterrupt();
 
     out::output_t      output = out::disable;
+    out::pinswap_t     output_swap = out::no_swap;
+    out::initval_t     output_initval = out::init_low;
     hyst::hysteresis_t hysteresis = hyst::disable;
     in_p::inputP_t     input_p = in_p::in0;
     in_n::inputN_t     input_n = in_n::in0;
@@ -80,12 +101,27 @@ class AnalogComparator
   private:
     const uint8_t comparator_number;
     AC_t& AC;
+    register8_t& IN0_P;
+    register8_t& IN1_P;
+    register8_t& IN2_P;
+    register8_t& IN3_P;
+    register8_t& IN0_N;
+    register8_t& IN1_N;
+    register8_t& IN2_N;
     bool enable = false;   
 };
 
 #if defined(AC0_AC_vect)
 extern AnalogComparator Comparator0;
 #define Comparator Comparator0
+#endif
+
+#if defined(AC1_AC_vect)
+extern AnalogComparator Comparator1;
+#endif
+
+#if defined(AC2_AC_vect)
+extern AnalogComparator Comparator2;
 #endif
 
 #endif

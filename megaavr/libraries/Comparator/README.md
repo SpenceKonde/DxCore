@@ -1,22 +1,21 @@
 # Comparator
-A library for interfacing with the analog comparator peripheral in the megaAVR-0 series MCUs.  
+A library for interfacing with the analog comparator peripheral in the AVR DA and DB series MCUs.  
 Developed by [MCUdude](https://github.com/MCUdude/).  
-The megaAVR-0 has one comparator where four positive and three negative pins are available for use. An alternative for the negative pin is to use an internally generated reference voltage instead.
-More useful information about the analog comparator can be found in the [Microchip Application Note TB3211](http://ww1.microchip.com/downloads/en/AppNotes/TB3211-Getting-Started-with-AC-90003211A.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf).
+The AVR DA/DB has three comparators where four positive and three negative pins are available for use. An alternative for the negative pin is to use an internally generated reference voltage instead.
 
 
 ## Comparator
-Class for interfacing with the built-in comparator. use the predefined objects `Comparator` or `Comparator0`.
+Class for interfacing with the built-in comparator. use the predefined objects `Comparator`, `Comparator1` or `Comparator2`.
 
 
 ### input_p
 Variable for setting what input pin the positive input of the comparator should be connected to 
 Accepted values:
 ``` c++
-in_p::in0; // Use positive input pin 0 (PD2) as input
-in_p::in1; // Use positive input pin 1 (PD4) as input
-in_p::in2; // Use positive input pin 2 (PD6) as input
-in_p::in3; // Use positive input pin 3 (PD1) as input
+in_p::in0; // Use positive input pin 0 as input
+in_p::in1; // Use positive input pin 1 as input
+in_p::in2; // Use positive input pin 2 as input
+in_p::in3; // Use positive input pin 3 as input
 ```
 
 ##### Usage
@@ -32,9 +31,9 @@ Comparator.input_p = in_p::in0;  // Connect positive input pin 0 to the positive
 Variable for setting what input pin the negative input of the comparator should be connected to 
 Accepted values:
 ``` c++
-in_n::in0;    // Use positive input pin 0 (PD3) as input
-in_n::in1;    // Use positive input pin 1 (PD5) as input
-in_n::in2;    // Use positive input pin 2 (PD7) as input
+in_n::in0;    // Use positive input pin 0 as input
+in_n::in1;    // Use positive input pin 1 as input
+in_n::in2;    // Use positive input pin 2 as input
 in_p::dacref; // Use DACREF as input
 ```
 
@@ -51,18 +50,19 @@ Comparator.input_n = in_n::in0;  // Connect negative input pin 0 to the negative
 Variable for setting what reference voltage the DACREF should use. This voltage is internally generated. 
 Accepted values:
 ``` c++
-ref::disable;   // Do not use any reference
-ref::vref_0v55; // 0.55V internal voltage
-ref::vref_1v1;  // 1.1V internal voltage
-ref::vref_1v5;  // 1.5V internal voltage
-ref::vref_2v5;  // 2.5V internal voltage
-ref::vref_4v3;  // 4.3V internal voltage
-ref::vref_avcc; // Use voltage on AVCC pin
+ref::disable;    // Do not use any reference
+ref::vref_1v024; // 1.024V internal voltage
+ref::vref_2v048; // 2.048V internal voltage
+ref::vref_2v500; // 2.5V internal voltage
+ref::vref_2v5;
+ref::vref_4v096; // 4.096V internal voltage
+ref::vref_vdd;   // VDD as reference
+ref::vref_vrefa; // External reference from the VREFA pin
 ```
 
 ##### Usage
 ``` c++
-Comparator.reference = ref::vref_2v5;  // Use the internal 2.5V reference for the DACREF
+Comparator.reference = ref::vref_4v096;  // Use the internal 4.096V reference for the DACREF
 ```
 
 ##### Default state
@@ -73,7 +73,7 @@ Comparator.reference = ref::vref_2v5;  // Use the internal 2.5V reference for th
 Variable for setting the DACREF value. The DACREF voltage is the voltage that the comparator uses as it's reference.  
 This is the formula for the DACREF output voltage:  
   
-<img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} + Comparator.reference" border="0"/>
+<img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
 ##### Usage
 ``` c++
@@ -119,6 +119,40 @@ Comparator.output = out::enable; // Enable output pin (PA7)
 
 ##### Default state
 `Comparator.output` defaults to `out::disable` if not specified in the user program.
+
+
+### output_swap
+Variable for pin swapping the physical output pin to its alternative position. See the pinout diagrams in the DxCore README for detailed info.  
+Accepted values:
+```c++
+out::no_swap;  // Use default pin position
+out::pin_swap; // Use alternative position
+```
+
+##### Usage
+```c++
+Comparator.output_swap = out::no_swap; // No pin swap for output
+```
+
+##### Default state
+`Comparator.output_swap` defaults to `out::no_swap` if not specified in the user program.
+
+
+### output_initval
+Initial state the comparator output pin has when initialized.
+Accepted values:
+```c++
+out::init_low;  // Output pin low after initialization
+out::init_high; // Output pin high after initialization
+```
+
+##### Usage
+```c++
+Comparator.output_initval = out::init_high;
+```
+
+##### Default state
+`Comparator.output_initval` defaults to `out::init_low` if not specified in the user program.
 
 
 ## init()

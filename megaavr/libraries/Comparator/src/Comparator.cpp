@@ -1,6 +1,15 @@
 #include "Comparator.h"
+#include "Arduino.h"
 
-AnalogComparator Comparator(0, AC0);
+#if defined(AC0_AC_vect)
+AnalogComparator Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+#endif
+#if defined(AC1_AC_vect)
+AnalogComparator Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+#endif
+#if defined(AC2_AC_vect)
+AnalogComparator Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL, PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+#endif
 
 // Array for storing ISR function pointers
 #if defined(AC2_AC_vect)
@@ -14,62 +23,86 @@ static volatile voidFuncPtr intFuncAC[1];
 #endif
 
 
-AnalogComparator::AnalogComparator(const uint8_t comp_number, AC_t& ac) : comparator_number(comp_number), AC(ac)     
-{
-}
+AnalogComparator::AnalogComparator(
+                                   const uint8_t comp_number,
+                                   AC_t& ac,
+                                   register8_t& in0_p,
+                                   register8_t& in1_p,
+                                   register8_t& in2_p,
+                                   register8_t& in3_p,
+                                   register8_t& in0_n,
+                                   register8_t& in1_n,
+                                   register8_t& in2_n
+                                   )
+                                   : comparator_number(comp_number),
+                                     AC(ac),
+                                     IN0_P(in0_p),
+                                     IN1_P(in1_p),
+                                     IN2_P(in2_p),
+                                     IN3_P(in3_p),
+                                     IN0_N(in0_n),
+                                     IN1_N(in1_n),
+                                     IN2_N(in2_n) { }
 
 void AnalogComparator::init()
 {
   // Set voltage reference
   if(reference != ref::disable)
-  {
-    VREF.CTRLA = (VREF.CTRLA & ~VREF_AC0REFSEL_AVDD_gc) | reference;
-    VREF.CTRLB = VREF_AC0REFEN_bm;
-  }
+    VREF.ACREF = VREF_ALWAYSON_bm | reference;
   else
-    VREF.CTRLB &= ~VREF_AC0REFEN_bm;
+    VREF.ACREF &= ~VREF_ALWAYSON_bm;
 
   // Set DACREF
   AC.DACREF = dacref;
 
   // Set hysteresis
   AC.CTRLA = (AC.CTRLA & ~AC_HYSMODE_gm) | hysteresis;
-  
+
   // Set inputs
   if(input_p == in_p::in0)
-    PORTD.PIN2CTRL = PORT_ISC_INPUT_DISABLE_gc;
+    IN0_P = PORT_ISC_INPUT_DISABLE_gc;
   else if(input_p == in_p::in1)
-    PORTD.PIN4CTRL = PORT_ISC_INPUT_DISABLE_gc;
+    IN1_P = PORT_ISC_INPUT_DISABLE_gc;
   else if(input_p == in_p::in2)
-    PORTD.PIN6CTRL = PORT_ISC_INPUT_DISABLE_gc;
+    IN2_P = PORT_ISC_INPUT_DISABLE_gc;
   else if(input_p == in_p::in3)
-    PORTD.PIN1CTRL = PORT_ISC_INPUT_DISABLE_gc;
+    IN3_P = PORT_ISC_INPUT_DISABLE_gc;
   if(input_n == in_n::in0)
-    PORTD.PIN3CTRL = PORT_ISC_INPUT_DISABLE_gc;
+    IN0_N = PORT_ISC_INPUT_DISABLE_gc;
   else if(input_n == in_n::in1)
-    PORTD.PIN5CTRL = PORT_ISC_INPUT_DISABLE_gc;
+    IN1_N = PORT_ISC_INPUT_DISABLE_gc;
   else if(input_n == in_n::in2)
-    PORTD.PIN7CTRL = PORT_ISC_INPUT_DISABLE_gc;
-  AC.MUXCTRLA = (AC.MUXCTRLA & ~0x1B) | (input_p << 3) | input_n;
+    IN2_N = PORT_ISC_INPUT_DISABLE_gc;
+  AC.MUXCTRL = output_initval | (AC.MUXCTRL & ~0x3f) | (input_p << 3) | input_n;
+
+  // Prepare for output pin swap
+  PORT_t& output_port = PORTA;
+  uint8_t pin_number = PIN7_bm;
+  if(output_swap == out::pin_swap)
+  {
+    output_port = PORTC;
+    pin_number = PIN6_bm;
+    PORTMUX.ACROUTEA = ~(1 << comparator_number) | output_swap;
+  }
 
   // Set output
   if(output == out::enable)
   {
-    AC.MUXCTRLA &= ~out::invert;
+    AC.MUXCTRL &= ~out::invert;
     AC.CTRLA |= out::enable;
-    PORTA.DIRSET = PIN7_bm;
+    output_port.DIRSET = pin_number;
   }
   else if(output == out::invert)
   {
-    AC.MUXCTRLA |= out::invert;
+    AC.MUXCTRL |= out::invert;
     AC.CTRLA |= out::enable;
-    PORTA.DIRSET = PIN7_bm;
+    output_port.DIRSET = pin_number;
   }
   else if(output == out::disable)
   {
-    AC.MUXCTRLA &= ~out::invert;
+    AC.MUXCTRL &= ~out::invert;
     AC.CTRLA &= ~out::enable;
-    PORTA.DIRCLR = PIN7_bm;
+    output_port.DIRCLR = pin_number;
   }
 }
 
@@ -93,25 +126,24 @@ void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode)
   {
     // Set RISING, FALLING or CHANGE interrupt trigger for the comparator output
     case RISING:
-      intmode = AC_INTMODE_POSEDGE_gc;
+      intmode = (AC_INTMODE_t)(AC_INTMODE1_bm | AC_INTMODE0_bm);
       break;
     case FALLING:
-      intmode = AC_INTMODE_NEGEDGE_gc;
+      intmode = (AC_INTMODE_t)AC_INTMODE1_bm;
       break;
     case CHANGE:
-      intmode = AC_INTMODE_BOTHEDGE_gc;
+      intmode = (AC_INTMODE_t)0x00;
       break;
     default:
       // Only RISING, FALLING and CHANGE is supported
       return;
   }
-  AC.CTRLA = (AC.CTRLA & ~AC_INTMODE_POSEDGE_gc) | intmode;
   
   // Store function pointer
   intFuncAC[comparator_number] = userFunc;
   
-  // Enable interrupt
-  AC.INTCTRL |= AC_CMP_bm;
+  // Set interrupt trigger and enable interrupt
+  AC.INTCTRL = intmode | AC_CMP_bm;
 }
 
 void AnalogComparator::detachInterrupt()
@@ -125,9 +157,9 @@ ISR(AC0_AC_vect)
 {
   // Run user function
   intFuncAC[0]();
-  
+
   // Clear flag
-  AC0.STATUS = AC_CMP_bm;
+  AC0.STATUS = AC_CMPIF_bm;
 }
 #endif
 
@@ -136,9 +168,9 @@ ISR(AC1_AC_vect)
 {
   // Run user function
   intFuncAC[1]();
-  
+
   // Clear flag
-  AC1.STATUS = AC_CMP_bm;
+  AC1.STATUS = AC_CMPIF_bm;
 }
 #endif
 
@@ -147,8 +179,8 @@ ISR(AC2_AC_vect)
 {
   // Run user function
   intFuncAC[2]();
-  
+
   // Clear flag
-  AC2.STATUS = AC_CMP_bm;
+  AC2.STATUS = AC_CMPIF_bm;
 }
 #endif
