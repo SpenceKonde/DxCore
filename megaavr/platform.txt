@@ -84,12 +84,12 @@ recipe.hooks.objcopy.postobjcopy.2.pattern.macosx="{runtime.platform.path}/creat
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex
-recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.m{build.millistimer}.hex
+recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}.hex
 
 ## Save lst
-recipe.hooks.savehex.presavehex.1.pattern.windows=cmd /C copy "{build.path}\{build.project_name}.lst" "{sketch_path}\{build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.m{build.millistimer}.lst"
-recipe.hooks.savehex.presavehex.1.pattern.linux=cp "{build.path}/{build.project_name}.lst" "{sketch_path}/{build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.m{build.millistimer}.lst"
-recipe.hooks.savehex.presavehex.1.pattern.macosx=cp "{build.path}/{build.project_name}.lst" "{sketch_path}/{build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.m{build.millistimer}.lst"
+recipe.hooks.savehex.presavehex.1.pattern.windows=cmd /C copy "{build.path}\{build.project_name}.lst" "{sketch_path}\{build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}.lst"
+recipe.hooks.savehex.presavehex.1.pattern.linux=cp "{build.path}/{build.project_name}.lst" "{sketch_path}/{build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}.lst"
+recipe.hooks.savehex.presavehex.1.pattern.macosx=cp "{build.path}/{build.project_name}.lst" "{sketch_path}/{build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}.lst"
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
