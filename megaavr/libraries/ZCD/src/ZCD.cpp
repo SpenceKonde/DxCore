@@ -35,7 +35,7 @@ void ZeroCross::init()
   // Prepare for output pin swap
   PORT_t& output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
-  if(output_swap == out::pin_swap)
+  if(output_swap == out::pin_swap || output_swap == out::swap_all)
   {
     output_port = PORTC;
     pin_number = PIN7_bm;

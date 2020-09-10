@@ -15,6 +15,7 @@ namespace out
   {
     no_swap  = 0x00,
     pin_swap = 0x01,
+    swap_all = 0x07,
   };
 };
 

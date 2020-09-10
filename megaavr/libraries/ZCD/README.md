@@ -28,10 +28,12 @@ zcd.output = out::enable; // Enable output pin
 
 ### output_swap
 Variable for pin swapping the physical output pin to its alternative position. See the pinout diagrams in the DxCore README for detailed info.  
+Note that some early AVR DA chip silicon revisions have an issue where you can only swap the output for all ZCD's. Use `out::swap_all` to swap all ZCD outputs.
 Accepted values:
 ```c++
 out::no_swap;  // Use default pin position (PA7)
 out::pin_swap; // Use alternative position (PC6)
+out::swap_all; // Swaps the output for all ZCD's
 ```
 
 ##### Usage
