@@ -108,6 +108,10 @@
 #define TCB4_PINS 0x00                  // TCB4 output on PG3 (default) instead of PC6
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // Only default port option works!
 
+#define PIN_TCA0_WO0 PIN_PC0
+#define PIN_TCA1_WO0 PIN_PB0
+#define PIN_TCD0_WOA PIN_PA4
+
 
 // SPI 0
 // No pinswap enabled by default

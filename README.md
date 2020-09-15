@@ -18,7 +18,7 @@ The "basic" large-size line - however much I was in awe of these when they were 
 ## DB-series
 The DB-series is almost an exact copy of the DA-series (they have also fixed some of the most egregious silicon bugs), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, intead of ~1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). A future version of DxCore will provide a simple library to control the opamps in the spirit of the Logic and Comparator libraries.
 
-As of early September 2020, only the 128k parts are available - however availability appears to be highly constrained, with stock only available from MicrochipDirect - and at the time of writing, all versions except AVR128DB28 and the AVR128DB48 in VQFN could only be ordered in tray quantities. 
+As of early September 2020, only the 128k parts are available - however availability appears to be highly constrained, with stock only available from MicrochipDirect - and at the time of writing, all versions except AVR128DB28 and the AVR128DB48 in VQFN could only be ordered in tray quantities.
 
 ## DD-series
 The DD-series is a smaller-pincount line; parts are available with 14-32 pins. They've got the MVIO (3 or 4 MVIO pins depending on pincount). The product brief claims 11 I/O pins on the 14-pin package. With VDD, VDDIO, and GND, that implies that there will be a way to configure the UPDI pin to act as an I/O pin. We'll have to wait until the datasheet is released to find out the details; let's hope it doesn't require different tools or protocols than the tinyAVR 0/1 series needed.
@@ -161,7 +161,7 @@ On all supported devices, where the appropriate pins are present, they can be pi
 When operating at 1MHz, the UART can output 56700 baud, but not 115200 baud (115200 is within the capabilities of the hardware at 1 MHz - a future enhancement to the core will add support for U2X mode to support this baud rate.)
 
 ### SPI support
-All of these parts have two hardware SPI ports. On parts with more pins, they can be pin-swapped to different sets of pins. It works exactly like the one on official Arduino boards using the SPI.h library. See the pinout charts for the location of these pins.
+All of these parts have two hardware SPI ports. On parts with more pins, they can be pin-swapped to different sets of pins; the SPI ports are made available using SPI.h and SPI1.h - these present objects named SPI and SPI_1 respectively. These work exactly like the one on official Arduino boards using the SPI.h library. See the pinout charts for the location of these pins.
 
 Pin selection for SPI is configured using the SPI.swap() or SPI.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** calling SPI.begin().
 

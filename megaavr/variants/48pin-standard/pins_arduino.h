@@ -92,6 +92,10 @@
 #define TCB3_PINS 0x00                  // TCB3 output on PB5 (default) instead of PC1 (either way not used)
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // Only default port option works!
 
+#define PIN_TCA0_WO0 PIN_PC0
+#define PIN_TCA1_WO0 PIN_PB0
+#define PIN_TCD0_WOA PIN_PA4
+
 // SPI 0
 // No pinswap enabled by default
 // Pinswap 2 not available
@@ -110,6 +114,7 @@ static const uint8_t MOSI =    PIN_SPI_MOSI;
 static const uint8_t MISO =    PIN_SPI_MISO;
 static const uint8_t SCK  =    PIN_SPI_SCK;
 static const uint8_t SS   =    PIN_SPI_SS;
+
 
 
 // SPI 1

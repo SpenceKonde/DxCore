@@ -65,20 +65,22 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
         return true;
       } else
     #endif
-    if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
-    {
-      _uc_mux=1;
-      return true;
-    }
-    else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-    {
-      _uc_mux=0;
-      return true;
-    }
-    else {
-       _uc_mux=0;
-      return false;
-    }
+    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
+      {
+        _uc_mux=1;
+        return true;
+      }
+      else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
+      {
+        _uc_mux=0;
+        return true;
+      }
+      else {
+         _uc_mux=0;
+        return false;
+      }
+    #endif
   #endif
   return false;
 }
@@ -109,6 +111,7 @@ bool SPIClass::swap(uint8_t state)
         return true;
       } else
     #endif
+    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
       if(state == 1)
       {
         _uc_mux=1;
@@ -123,7 +126,7 @@ bool SPIClass::swap(uint8_t state)
          _uc_mux=0;
         return false;
       }
-
+    #endif
   #endif
   return false;
 }
@@ -145,9 +148,9 @@ void SPIClass::begin()
     }
     #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
       #ifdef PORTMUX_CTRLB
-      else if(_uc_mux == PORTMUX_SPI0_bm)
+        else if(_uc_mux == PORTMUX_SPI0_bm)
       #else
-      else if(_uc_mux == 1)
+        else if(_uc_mux == 1)
       #endif
       {
         pinMode(PIN_SPI_MOSI_PINSWAP_1, OUTPUT);

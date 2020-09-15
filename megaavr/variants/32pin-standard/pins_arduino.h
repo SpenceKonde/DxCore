@@ -73,6 +73,9 @@
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 instead of PB4
 #define TCD0_PINS 0x00  // TCD0 output on PF0~PF3 (we use PF2, PF3)
 
+#define PIN_TCA0_WO0 PIN_PD0
+#define PIN_TCD0_WOA PIN_PA4
+
 // SPI 0
 // No pinswap available
 #define SPI_INTERFACES_COUNT   2

@@ -41,7 +41,7 @@ void setup() {
   Serial.begin(9600);
 
   // start the SPI1 library:
-  SPI1.begin();
+  SPI_1.begin();
 
   // initalize the  data ready and chip select pins:
   pinMode(dataReadyPin, INPUT);
@@ -99,16 +99,16 @@ unsigned int readRegister(byte thisRegister, int bytesToRead) {
   // take the chip select low to select the device:
   digitalWrite(chipSelectPin, LOW);
   // send the device the register you want to read:
-  SPI1.transfer(dataToSend);
+  SPI_1.transfer(dataToSend);
   // send a value of 0 to read the first byte returned:
-  result = SPI1.transfer(0x00);
+  result = SPI_1.transfer(0x00);
   // decrement the number of bytes left to read:
   bytesToRead--;
   // if you still have another byte to read:
   if (bytesToRead > 0) {
     // shift the first byte left, then get the second byte:
     result = result << 8;
-    inByte = SPI1.transfer(0x00);
+    inByte = SPI_1.transfer(0x00);
     // combine the byte you just got with the previous one:
     result = result | inByte;
     // decrement the number of bytes left to read:
@@ -134,8 +134,8 @@ void writeRegister(byte thisRegister, byte thisValue) {
   // take the chip select low to select the device:
   digitalWrite(chipSelectPin, LOW);
 
-  SPI1.transfer(dataToSend); //Send register location
-  SPI1.transfer(thisValue);  //Send value to record into register
+  SPI_1.transfer(dataToSend); //Send register location
+  SPI_1.transfer(thisValue);  //Send value to record into register
 
   // take the chip select high to de-select:
   digitalWrite(chipSelectPin, HIGH);

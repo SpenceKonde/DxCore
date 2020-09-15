@@ -223,7 +223,7 @@ class SPI1Class {
 
 
 #if SPI_INTERFACES_COUNT > 1
-  extern SPI1Class SPI1;
+  extern SPI1Class SPI_1;
 #endif
 
 #ifndef SPI_CLOCK_DIV2
