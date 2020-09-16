@@ -200,11 +200,11 @@ void setup_timers();
 #endif
 
 
-#define DXCORE "1.1.0"
+#define DXCORE "1.2.0"
 #define DXCORE_MAJOR 1
 #define DXCORE_MINOR 1
 #define DXCORE_PATCH 0
-#define DXCORE_RELEASED 1
+#define DXCORE_RELEASED 0
 #define DXCORE_NUM 0x01010001
 
 
