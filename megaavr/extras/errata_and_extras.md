@@ -1,28 +1,31 @@
 # Errata and Extras
 The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Worse still, the document released in April 2020 by Microchip is not even complete - and it certainly does a poor job of explaining some of the most important issues that it does mention.
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
-Issue    | Severity | Source    | 128DA | 64DA | 32DA
----------|----------|-----------|-------|------|--------
-ADC disables digital input| 4        | Microchip | YES   | YES  | YES
-Memory mapped flash issues| 3 (4 in )| Microchip | YES   | NO?  | N/A
-TCA1 Rema| 1 (2 on 64)| Microchip | YES | NO?  | N/A
-TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES
-SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO?
-USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES
-TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO?
-ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES
-No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A
-CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO?
-Initial fuses don't match datasheet | 1        | Spence K. | YES,A6| ???  | ???
-TCD0 portmux options broken | 3        | Spence K. | YES,A6| Likely | Likely
-UPDI 24-bit STptr followed by 16-bit STS | 3 or 0   | Spence K. | YES,A6| Likely | Likely
+Issue    | Severity | Source    | 128DA | 64DA | 32DA |  128DB
+---------|----------|-----------|-------|------|------|--------
+ADC disables digital input| 4        | Microchip | YES   | YES  | YES | NO
+Memory mapped flash issues| 3 (4 in )| Microchip | YES   | NO?  | N/A | NO
+TCA1 Remap on PORTE/G | 1 (2 on 64)| Microchip | YES | NO?  | N/A   | NO?
+TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES | YES
+SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO? | NO?
+USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES | YES
+TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO? | NO?
+ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES | A4 only
+No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A | NO?
+All CCL LUTs enable-locked to CCL| 2        | Microchip | NO?   | NO?  | NO? | YES
+CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO? | A4 only
+Initial fuses don't match datasheet | 1        | Spence K / Microchip | YES,A6| ???  | ??? | Week 21 and older
+TCD0 portmux options broken | 3        | Spence K. | YES,A6 | ??? | ??? | ???
+UPDI 24-bit STptr followed by 16-bit STS | 3 or 0   | Spence K. | YES,A6| Likely | Likely | Likely
+ADC increased offset in single-ended | 4 | Microchip | N/A | N/A | N/A | A4 only
+OPAMP power consumption 3x higher than expected | 1 | Microchip | ??? | ??? | ??? | A4 only
+OPAMP IRSEL bit read-only | 1 | Microchip | N/A | N/A | N/A | A4 only
 
 NO? means not mentioned in errata, but has not been confirmed as not being present in that size of chip.
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
-* ZCD issue is mighty bad if you happened
 
 ## Determining silicon rev
-Not important... yet... since there is only one revision available for 32k and 64k parts, and for 128k parts, while there are ostensibly two versions, they both have the same errata...
+Read SYSCFG.REVID; SYSCFG.REVID&0xF0 is the major rev (the letter), SYSCFG.REVID&0x0F is the minoir rev.
 
 ## Descriptions
 All written my me, not copied from Microchip. Waiting for complete errata documents to do that
@@ -51,35 +54,49 @@ Remapping TCA1 to PORTE and PORTG does not work. Note that this is only relevant
 Another slap-in-the-face for 64-pin users: 6 of the pins only present on the 64-pin versions aren't enabled for the event system. Of course, you can always use them for other things (just not PWM output, per above)...
 
 ### ZCD Output remapping non-functional
-The ZCD0 bit in PORTMUX.ZCDROUTEA effects all three ZCD's, not just ZCD0, the other two bits do nothing. If you were counting on having more than one output from a ZCD, is a modest inconvenience (but you can make it up with event system!). Likely few if any Arduino folks are interested in this anyway.
+The ZCD0 bit in PORTMUX.ZCDROUTEA effects all three ZCD's, not just ZCD0, the other two bits do nothing. If you were counting on having more than one output from a ZCD, is a modest inconvenience (you can make it up with event system). Likely few if any Arduino folks are interested in this anyway. This can be worked around by using the event system to control the desired pin.
+
+### All LUTs enable locked to entire CCL module
+The LUTs (all of them) cannot be modified if the CCL (the whole thing) is enabled, instead of the LUT in question. This is a rather nasty one if you want to use different LUTs for different purposes. Only listed on errata for 128 DB-series, but am not optimistic about the DA-series parts.
 
 ### CCL on 32 and 28-pin parts, LINK input to LUT3 does not work
-It's not just the owners of 64-pin parts who got special presents from the errata fairy - the LINK input to LUT3 is not connected to the output of LUT0 on the 28 and 32-pin parts (one imagines it's connected to the output of LUT4, except that there is no LUT4-5 on the 28 and 32-pin parts). Most of us probably don't need a LINK input on every LUT, if we're using CCL at all, so this is likely not a problem... annoying, but only that.
+It's not just the owners of 64-pin parts who got special presents from the errata fairy - the LINK input to LUT3 is not connected to the output of LUT0 on the 28 and 32-pin parts (one imagines it's connected to the output of LUT4, except that there is no LUT4-5 on the 28 and 32-pin parts). Most of us probably don't need a LINK input on every LUT, if we're using CCL at all, so this is likely not a problem... annoying, but only that. Microchip claims it was fixed in A5 rev of 128 DB.
 
 ### TWI pin output override not working correctly
 The TWI is able to override the output data direction - but not the output value. Hence, the pins used to TWI must not be set HIGH otherwise the peripheral cannot drive them low (note that the inverse is not a problem - TWI is an open drain bus, and the devices on it only ever drive the lines low, or let them be pulled up). DxCore has implemented a workaround in the Wire library which makes sure the relevant pins are always set LOW when the TWI peripheral is initialized.
 
 ### Flash mapping does not work correctly
-When accessing the flash via mapping to data memory (according to the FLMAP bits in NVMCTRL.CTRL), the inter-section flash protection (which prevents the application from scribbling over itself or the bootloader) fails to account for the FLMAP bits when deciding if access to an address is to be blocked. This means that the BOOT section is "mirrored" across all sections (presumably likewise with the other sections, which probably means that appdata section is unwritable from appcode section too, unless the appdata section includes flash in the first 32k). If reading of the bootloader section is disabled, that is similarly effected (otherwise, reading works fine). Thankfully this only impacts access using LD/ST instructions - you can still write and read from everywhere you're supposed to be able to using LPM and SPM - which is of course considerably less convenient. This is mostly a nuisance to bootloader authors, who now have a harder time of updating their bootloaders to work on these parts (as if the new NVMCTRL wasn't enough of an impediment there) - at least for Arduino folks, where no bootloader is going lock down reads of the bootloader section. Likely more of a problem in production...
+When accessing the flash via mapping to data memory (according to the FLMAP bits in NVMCTRL.CTRL), the inter-section flash protection (which prevents the application from scribbling over itself or the bootloader) fails to account for the FLMAP bits when deciding if access to an address is to be blocked. This means that the BOOT section is "mirrored" across all sections (presumably likewise with the other sections, which probably means that appdata section is unwritable from appcode section too, unless the appdata section includes flash in the first 32k). If reading of the bootloader section is disabled, that is similarly effected (otherwise, reading works fine). Thankfully this only impacts access using LD/ST instructions - you can still write and read from everywhere you're supposed to be able to using LPM and SPM - which is of course considerably less convenient. This is mostly a nuisance to bootloader authors, who now have a harder time of updating their bootloaders to work on these parts (as if the new NVMCTRL wasn't enough of an impediment there) - at least for Arduino folks, where no bootloader is going lock down reads of the bootloader section. Likely more of a problem in production... Not mentioned on AVR128DB, nor AVR64DA errata - so this was hopefully sorted out quickly and will be fixed in the 128 DA-series with a silicon rev sooner rather than later.
 
 ### Pre-set fuses don't match datasheet
 The fuses, as supplied (on AVR128DA, Rev. A6 silicon, at least) do not match the configuration described in the datasheet. Generally speaking, unused bits are set to 1 instead of 0 (except in a few cases), and in the case of OSCCFG, a "reserved" combination is selected.
+* BODCFD is set to 0x10, per datasheet this is an invalid BOD level setting. Should not impact functionality, as BOD is disabled by the low 5 bits, and the high bits would be reset if you enabled BOD anyway.
 * OSCCFG is set to 0x78, per datasheet low nybble should be 0 or 1, high nybble all 0's (unused). All options other than 0 and 1 for low 4 bits are marked reserved. I guess bit 3 doesn't matter so much?
 * SYSCFG0 is set to 0xF2 instead of 0xC8. While we might not care what CRC algorithm the disabled CRC check is using, the fact that it disables reset is certainly disconcerting to discover...
 * SYSCFG1 is set to 0xF8 instead of 0x00 - just a case of unused bits set 1 instead of 0.
 
 Certainly makes you wonder about their emphatic "unused bits MUST be set to 0" warning doesn't it? Burn bootloader when you get the parts to make reset work.
+On DB-series parts, this only effects parts with a datecode of week 21 or earlier. The same is likely true of DA-series as well, since this can be corrected with just a change to their factory programming process.
 
 ### TCD0 on non-default port doesn't work
-When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. The core only uses PA4 and PA5 as TCD0 PWM outputs because of this issue (this may be changed if/when silicon that corrects this issue is made available). Was reported to Microchip support on 8/4/2020 which implies that it had not been previously reported...
+When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. The core only uses PA4 and PA5 as TCD0 PWM outputs because of this issue (this may be changed if/when silicon that corrects this issue is made available). Was reported to Microchip support on 8/4/2020 and their response implied that it had not been previously reported - however, at least on 32DA32 and 128DB28, this issue was not observed, so it may well have been caught internally, fixed quickly, yet omitted from the errata...
 
 ### UPDI programming issue with 16-bit STS after 24-bit STptr
 Microchip seemed unaware of this issue when I reported it to them, and forwarded it to their engineering team. When programming over UPDI, there are two ways to write and read memory, with direct and indirect addressing. Both of them can use 16 or 24-bit addressing (or 8-bit, but this is useless). The documentation describes the ST (indirect) pointer as being only used for ST/LD, not for STS/LDS. However, if an ST instruction sets the indirect addressing pointer to a 24-bit location (for example, writing to the flash, which from the perspective of UPDI starts at address 0x800000), and then an STS or LDS instruction is used with a 16-bit address, the high byte of the ST pointer will be used as the high byte of the directly-addressed memory address. This was discovered in the course of my work on jtag2updi.... I would use 16-bit STS to configure the NVMCTRL registers, then use ST to write a page to the flash. But then I tried to set NVMCTRL back to NOOP and check the NVMCTRL.STATUS with LDS (with 16-bit address) and ARGH! it was 0xFF! shouldn't ever be that! I eventually discovered I could just write 0's to it and that would "clear" the "error flags"... and I was puzzled by why there were a few bytes set to 0x00 around 0x1000 when I read the flash back out afterwards (because I had not set NVMCTRL back to NOOP - I instead wrote to location 0x1000 of the flash, and also cleared the "error flags" (ie, blank flash) a few bytes later. That cost me a lot of time, and had I not been stymied by jtag2updi for so long, y'all might have been using this core in may instead of now (I was so burned out of these things that I needed to take some time away from them...)
 
+### ADC Increased Offset in Single-Ended mode
+The ADC has a dramatically higher offset error in single-ended mode than expected: -3 mV. This implies that all readings would be 12 LSB lower than expected at 12 bit accuracy... when the spec is 1.25 LSB. This is pretty ugly for a headline feature! Only mentioned for the 128 DB, and noted as fixed in the A5 rev. This really ought to be verified as not present in the DA-series....
+
+### OPAMP IRSEL bit read-only
+The opamp IRSEL (Input Range SELect) is read-only; input range is always rail-to-rail. Worse than were it stuck the other way around I reckon... Fixed in A5 rev on 128DB, hopefully won't be in the other sizes at all, and with luck, the A5's will quickly push the A4's out of the supply chain.
+
+### OPAMPs consume more power than expected
+The opamp modules consume 3x the expected (from datasheet) power. Fixed in A5 rev on 128DB, hopefully won't be in the other sizes at all, and with luck, the A5's will quickly push the A4's out of the supply chain.
+
 ## Extras (anti-errata)
 Well, that was depressing wasn't it?
 
-Here's the good news - there is also a little bit of undocumented behavior that is favorable too.
+Here's the good news - there is also a little bit of undocumented behavior that is favorable too (I feel like there was another one here, but can't remember what it is)
 
 ### Overclocking
 You don't even need an external clock source to overclock these bad boys! You can do it... just by setting the CLKCTRL.OSCHFCTRLA FREQSEL bits higher! You can only go up to 32 MHz that way - after that (0x0C-0x0F), it goes back to the settings from 0x08-0x0B - 20-32 MHz all over again - but an extra 33% clock speed is hard to argue with - of course, these are not guaranteed to work, probably won't work across the whole voltage range, and so on... but they do work for me on all the parts I've tried it on at 5v and room temperature. It also gives one hope that - armed with an external clock source - there's more room to crank up the speed on these - if you for some reason weren't satisfied with ~24~ 32 MHz in practice, 24 MHz guaranteed at 1.8-5.5V on an architecture that until this year was limited to 20 MHz at 4.5-5.5V and a mere 4 MHz at 1.8V...
