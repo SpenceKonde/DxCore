@@ -71,33 +71,20 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range. S
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more pwoer efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions!) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future; these are still early days.
 
-The DA-series does not support use of an external high frequency crystal (though the DB-series does!) - however the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. An example to call it is shown below - it really is that easy...
+The DA-series does not support use of an external high frequency crystal (though the DB-series does!) - however the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
 
 ```c
+#include <DxCore.h>
 
-// settings should be one of
-//  (CLKCTRL_CSUT_1K_gc), (CLKCTRL_CSUT_16K_gc), (CLKCTRL_CSUT_32K_gc) or (CLKCTRL_CSUT_64K_gc), corresponding to startup times (at 32.768khz, of 1/32nd of a second, 1/2 second, 1 second and 2 seconds.
-//  optionally can be or'ed with CLKCTRL_LPMODE_bm (low power mode) or CLKCTRL_SEL_bm, if it's an external 32.768k CLOCK instead and/or CLKCTRL_RUNSTDBY if it should be kept running at all times, even when not requested or in standby sleep mode.
-//  Useful if it's also used for keeping time in sleep.
-
-void enableXOSC32K(uint8_t settings)
-{
-	_PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x23);
+void setup() {
+	//optionally call configXOSC32K() to get specific crystal settings; otherwise it uses conservative defaults.
+	enableAutoTune(); //that easy - this returns 0 on success
+	// if you want to be particularly careful about whether or not it worked (it can not-work if the crystal doesn't actually start oscillating, for example due to
+	// inappropriate loading caps or improper crystal selection.
+	// more stuff after this to set up your sketch
 }
-// since CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm won't be true until something requests that clock source, you have to actually enable autotune. This verification gives you some assurance that it's working. The internal oscillator is pretty damned good on these. In my tests, was within 1% at room temperature across the full operating voltage range, even without AutoTune. The clock accuracy is really limited only by the large tuning increment of the HF oscillator (spec'ed at 0.4%).
+enableA
 
-uint8_t enableAutoTune(uint16_t verifytime=0)
-{
-	_PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA,CLKCTRL.OSCHFCTRLA|0x01);
-	if (verifytime!=0) {
-		uint32_t startedAt=millis();
-		while ((millis()-startedAt < verifytime)&&(CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm));
-		if (CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm){
-			return 1;
-		}
-	}
-	return 0;
-}
 ```
 
 
@@ -189,6 +176,8 @@ The core provides hardware PWM (analogWrite) support. On all parts, 6 pins (on P
 **For general information on the available timers and how they are used PWM and other functions, consult the guide:**
 #### [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
+### EEPROM support
+The usual `EEPROM.h` library works here! It is added in 1.2.0.
 
 ### NeoPixel (WS2812) support
 The usual NeoPixel (WS2812) libraries have problems on these parts. This core includes two libraries for this, both of which are tightly based on the Adafruit_NeoPixel library. See the [tinyNeoPixel documentation](megaavr/extras/tinyNeoPixel.md) and included examples for more information. This is identical to the library provided with megaTinyCore; work is ongoing to add support for higher clock speeds, as 24 MHz and up are not currently supported.
@@ -228,7 +217,7 @@ ADC0.SAMPCTRL=0; //minimum sampling length = 0+2 = 2 ADC clock cycles
 
 With the minimum sampling length, analogRead() speed would be approximately doubled from it's already-faster value.
 
-**ERRATA ALERT** There is a nasty silicon bug, at least in early versions, where whatever pin the ADC multiplexer is pointed at, digital reads are disabled. This core provides two options for dealing with this - if you enable the workaround, the core will point the multiplexer at a non-pin reserved value after every analogRead(). If it is set to startup only, this will be done before setup() is called - but never after that; it is your responsability to deal with in that case.
+**ERRATA ALERT** There is a mildly annoying silicon bug in early revisions where whatever pin the ADC multiplexer is pointed at, digital reads are disabled. This core neatly works around it by setting the the ADC multiplexer to point at a nonexistent pin when it is not actively in use; however, be aware that you cannot, say, set an interrupt on a pin being subject to analogReads (not that this is particularly useful).
 
 ### DAC Support
 The DA-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). This voltage must be lower than Vcc to get the correct voltages. Call analogWrite() on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call digitalWrite() on that pin.
