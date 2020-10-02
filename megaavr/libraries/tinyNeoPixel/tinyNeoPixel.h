@@ -1,5 +1,6 @@
 /*--------------------------------------------------------------------
-  This file is part of the Adafruit NeoPixel library.
+  This file is part of the tinyNeoPixel library, derived from
+  Adafruit_NeoPixel.
 
   NeoPixel is free software: you can redistribute it and/or modify
   it under the terms of the GNU Lesser General Public License as
@@ -16,8 +17,8 @@
   <http://www.gnu.org/licenses/>.
   --------------------------------------------------------------------*/
 
-#ifndef TINYNEOPIXEL
-#define TINYNEOPIXEL
+#ifndef TINYNEOPIXEL_H
+#define TINYNEOPIXEL_H
 
 #include <Arduino.h>
 
@@ -156,8 +157,7 @@ class tinyNeoPixel {
  public:
 
   // Constructor: number of LEDs, pin number, LED type
-  tinyNeoPixel(uint16_t n, uint8_t p=3, neoPixelType t=NEO_GRB + NEO_KHZ800);
-  tinyNeoPixel(void);
+  tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t,uint8_t *pxl);
   ~tinyNeoPixel();
 
   void
@@ -286,4 +286,5 @@ class tinyNeoPixel {
 
 };
 
-#endif // ADAFRUIT_NEOPIXEL_H
+#endif // TINYNEOPIXEL_H
+
