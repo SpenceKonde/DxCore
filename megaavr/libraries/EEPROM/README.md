@@ -24,6 +24,20 @@ void loop(){
 
 The library provides a global variable named `EEPROM`, you use this variable to access the library functions. The methods provided in the EEPROM class are listed below.
 
+### Warning about invalid addresses
+It is possible to specify addresses beyond the end of the EEPROM or (through a negative number) ones before it's beginning. On parts with 256b of EEPROM, this just wraps around to the other end, like classic AVRs did. On parts with less, it will still wrap around, but addresses between the end of the EEPROM and 255 (after which it wraps around) read as 0x00 and cannot be written. On Dx-series parts, many of which have 512b of EEPROM, there is no wraparound, and if you go far enough out and try to write, you'll overwrite other stuff. Don't do that.
+
+### EEPROM Sizes
+
+| AVR Device | EEPROM size |
+|---------------------|--------|
+| tinyAVR 0/1/2-series 2k flash | 64b |
+| tinyAVR 0/1/2-series 4-8k flash | 128b |
+| tinyAVR 0/1/2-series 16-32k flash | 256b |
+| megaAVR 0-series (all flash sizes) | 256b |
+| DA, DB, EA-series (all flash sizes) | 512b |
+| DD-series (all flash sizes) | 256b |
+
 You can view all the examples [here](examples/).
 
 ### **Library functions**
@@ -136,4 +150,4 @@ This is useful for STL objects, custom iteration and C++11 style ranged for loop
 This function returns an `EEPtr` pointing at the location after the last EEPROM cell.
 Used with `begin()` to provide custom iteration.
 
-**Note:** The `EEPtr` returned is invalid as it is out of range. Infact the hardware causes wrapping of the address (overflow) and `EEPROM.end()` actually references the first EEPROM cell.
+**Note:** The `EEPtr` returned is invalid as it is out of range. See the warning about invalid addresses above.

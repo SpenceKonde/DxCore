@@ -24,10 +24,7 @@ struct MyObject {
 
 void setup() {
 
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  Serial.begin(115200);
 
   float f = 123.456f;  //Variable to store in EEPROM.
   int eeAddress = 0;   //Location we want the data to be put.

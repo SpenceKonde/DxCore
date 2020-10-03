@@ -22,10 +22,8 @@ void setup() {
   float f = 0.00f;   //Variable to store data read from EEPROM.
   int eeAddress = 0; //EEPROM address to start reading from
 
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
+  Serial.begin(115200);
+
   Serial.print("Read float from EEPROM: ");
 
   //Get the float data from the EEPROM at position 'eeAddress'
