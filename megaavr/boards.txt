@@ -934,12 +934,12 @@ avrda28opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebit
 avrda28opti.bootloader.SYSCFG0=0xC8
 avrda28opti.bootloader.SYSCFG1=0x03
 avrda28opti.bootloader.CODESIZE=0x00
-avrda28opti.bootloader.BOOTSIZE=0x02
+avrda28opti.bootloader.BOOTSIZE=0x01
 
 avrda28opti.upload.protocol=arduino
 avrda28opti.upload.extra_params=-D
 avrda28opti.upload.speed=115200
-avrda28opti.build.text_section_start=.text=0x400
+avrda28opti.build.text_section_start=.text=0x200
 avrda28opti.build.mcupostfix=opti
 avrda28opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrda28opti.bootloader.tool=avrdude
@@ -1123,12 +1123,12 @@ avrda32opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebit
 avrda32opti.bootloader.SYSCFG0=0xC8
 avrda32opti.bootloader.SYSCFG1=0x03
 avrda32opti.bootloader.CODESIZE=0x00
-avrda32opti.bootloader.BOOTSIZE=0x02
+avrda32opti.bootloader.BOOTSIZE=0x01
 
 avrda32opti.upload.protocol=arduino
 avrda32opti.upload.extra_params=-D
 avrda32opti.upload.speed=115200
-avrda32opti.build.text_section_start=.text=0x400
+avrda32opti.build.text_section_start=.text=0x200
 avrda32opti.build.mcupostfix=opti
 avrda32opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrda32opti.bootloader.tool=avrdude
@@ -1320,12 +1320,12 @@ avrda48opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebit
 avrda48opti.bootloader.SYSCFG0=0xC8
 avrda48opti.bootloader.SYSCFG1=0x03
 avrda48opti.bootloader.CODESIZE=0x00
-avrda48opti.bootloader.BOOTSIZE=0x02
+avrda48opti.bootloader.BOOTSIZE=0x01
 
 avrda48opti.upload.protocol=arduino
 avrda48opti.upload.extra_params=-D
 avrda48opti.upload.speed=115200
-avrda48opti.build.text_section_start=.text=0x400
+avrda48opti.build.text_section_start=.text=0x200
 avrda48opti.build.mcupostfix=opti
 avrda48opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrda48opti.bootloader.tool=avrdude
@@ -1526,12 +1526,12 @@ avrda64opti.bootloader.WDTCFG=0x00
 avrda64opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrda64opti.bootloader.SYSCFG0=0xC8
 avrda64opti.bootloader.CODESIZE=0x00
-avrda64opti.bootloader.BOOTSIZE=0x02
+avrda64opti.bootloader.BOOTSIZE=0x01
 
 avrda64opti.upload.protocol=arduino
 avrda64opti.upload.extra_params=-D
 avrda64opti.upload.speed=115200
-avrda64opti.build.text_section_start=.text=0x400
+avrda64opti.build.text_section_start=.text=0x200
 avrda64opti.build.mcupostfix=opti
 avrda64opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrda64opti.bootloader.tool=avrdude
@@ -2676,12 +2676,12 @@ avrdb28opti.bootloader.WDTCFG=0x00
 avrdb28opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrdb28opti.bootloader.SYSCFG0=0xC8
 avrdb28opti.bootloader.CODESIZE=0x00
-avrdb28opti.bootloader.BOOTSIZE=0x02
+avrdb28opti.bootloader.BOOTSIZE=0x01
 
 avrdb28opti.upload.protocol=arduino
 avrdb28opti.upload.extra_params=-D
 avrdb28opti.upload.speed=115200
-avrdb28opti.build.text_section_start=.text=0x400
+avrdb28opti.build.text_section_start=.text=0x200
 avrdb28opti.build.mcupostfix=opti
 avrdb28opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdb28opti.bootloader.tool=avrdude
@@ -2914,12 +2914,12 @@ avrdb32opti.bootloader.WDTCFG=0x00
 avrdb32opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrdb32opti.bootloader.SYSCFG0=0xC8
 avrdb32opti.bootloader.CODESIZE=0x00
-avrdb32opti.bootloader.BOOTSIZE=0x02
+avrdb32opti.bootloader.BOOTSIZE=0x01
 
 avrdb32opti.upload.protocol=arduino
 avrdb32opti.upload.extra_params=-D
 avrdb32opti.upload.speed=115200
-avrdb32opti.build.text_section_start=.text=0x400
+avrdb32opti.build.text_section_start=.text=0x200
 avrdb32opti.build.mcupostfix=opti
 avrdb32opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdb32opti.bootloader.tool=avrdude
@@ -3160,12 +3160,12 @@ avrdb48opti.bootloader.WDTCFG=0x00
 avrdb48opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrdb48opti.bootloader.SYSCFG0=0xC8
 avrdb48opti.bootloader.CODESIZE=0x00
-avrdb48opti.bootloader.BOOTSIZE=0x02
+avrdb48opti.bootloader.BOOTSIZE=0x01
 
 avrdb48opti.upload.protocol=arduino
 avrdb48opti.upload.extra_params=-D
 avrdb48opti.upload.speed=115200
-avrdb48opti.build.text_section_start=.text=0x400
+avrdb48opti.build.text_section_start=.text=0x200
 avrdb48opti.build.mcupostfix=opti
 avrdb48opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdb48opti.bootloader.tool=avrdude
@@ -3406,12 +3406,12 @@ avrdb64opti.bootloader.WDTCFG=0x00
 avrdb64opti.bootloader.BODCFG=0b{bootloader.bodlevbits}0{bootloader.bodactivebits}{bootloader.bodsleepbits}
 avrdb64opti.bootloader.SYSCFG0=0xC8
 avrdb64opti.bootloader.CODESIZE=0x00
-avrdb64opti.bootloader.BOOTSIZE=0x02
+avrdb64opti.bootloader.BOOTSIZE=0x01
 
 avrdb64opti.upload.protocol=arduino
 avrdb64opti.upload.extra_params=-D
 avrdb64opti.upload.speed=115200
-avrdb64opti.build.text_section_start=.text=0x400
+avrdb64opti.build.text_section_start=.text=0x200
 avrdb64opti.build.mcupostfix=opti
 avrdb64opti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
 avrdb64opti.bootloader.tool=avrdude

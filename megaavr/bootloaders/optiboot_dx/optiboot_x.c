@@ -132,7 +132,7 @@
 unsigned const int __attribute__((section(".version"))) __attribute__((used))
 optiboot_version = 256*(OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
 
-
+
 #include <inttypes.h>
 #include <avr/io.h>
 
@@ -275,14 +275,14 @@ typedef uint8_t pagelen_t;
  * supress some compile-time options we want.)
  */
 
-void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
+//void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
 int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9"))) __attribute__((used));
 
 void __attribute__((noinline)) __attribute__((leaf)) putch(char);
 uint8_t __attribute__((noinline)) __attribute__((leaf)) getch(void) ;
 void __attribute__((noinline)) verifySpace();
 void __attribute__((noinline)) watchdogConfig(uint8_t x);
-
+void nvm_cmd(uint8_t cmd);
 static void getNch(uint8_t);
 
 #if LED_START_FLASHES > 0
@@ -290,13 +290,17 @@ static inline void flash_led(uint8_t);
 #endif
 
 #define watchdogReset()  __asm__ __volatile__ ("wdr\n")
+#if (__AVR_ARCH__==103) //fully memory mapped flash
 static inline void writebuffer(int8_t memtype, addr16_t mybuff,
              addr16_t address, pagelen_t len);
+#else
+static inline void writebuffer(int8_t memtype, addr16_t mybuff,
+             addr16_t address, uint8_t len); //len is in words, and 0 will be rolled over to 255 before it's checked....
+#endif
 static inline void read_mem(uint8_t memtype,
           addr16_t, pagelen_t len);
-static void __attribute__((noinline)) do_spm(uint16_t address, uint16_t data);
+static void do_spm_erase(uint16_t address);
 
-static void reset_nvm();
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
  * lot of peripheral registers.
@@ -314,6 +318,7 @@ static addr16_t buff = {(uint8_t *)(RAMSTART)};
 
 
 /* everything that needs to run VERY early */
+/*
 void pre_main (void) {
     // Allow convenient way of calling do_spm function - jump table,
     //   so entry to this function will always be here, indepedent
@@ -328,7 +333,7 @@ void pre_main (void) {
 	"1:\n"
 	);
 }
-
+*/
 /* main program starts here */
 int main (void) {
     uint8_t ch;
@@ -347,6 +352,19 @@ int main (void) {
     //  No interrupts will execute
     //  SP points to RAMEND
 
+    // Here is the reset cause logic:
+    // We always clear the reset cause immediately before jumping to the app, stashing it in GPR.GPR0.
+    // This makes sure we can honor the reset entry conditions even if the user code doesn't touch
+    // the reset cause register (99.99% of arduino code does not).
+    // This means that there should only ever be one reset flag set - except maybe PORF and BORF in
+    // the event of very slow rising power. We use the WDT to reset out of optiboot, so if that's the one
+    // we always jump straight to app. That also gives the app a way to reset itself without the bootloader running.
+    // POR is optional - unless you've disabled reset, you probably want to start the app immediately on POR
+    // including POR + BOR; but if you have, you probably do. That's why it's configurable.
+    // That leaves the mysterious case of the bootloader being run with NO reset flags...
+    // On a classic AVR, that means potentially user code jumped here, and we should run.
+    // But here, we have SWRST, so they could just have used that.... I'm inclined to think
+    // thus that this is likely a reset from a bug in user code.
     __asm__ __volatile__ ("clr __zero_reg__"); // known-zero required by avr-libc
 #define RESET_EXTERNAL (RSTCTRL_EXTRF_bm|RSTCTRL_UPDIRF_bm|RSTCTRL_SWRF_bm)
 #ifndef FANCY_RESET_LOGIC
@@ -362,7 +380,7 @@ int main (void) {
     #endif
 	  // Start the app.
     // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
-    // we'll put it in GPIOR0 where it won't get stomped on.
+    // we'll put it in GPIOR0 (aka GPR.GPR0) where it won't get stomped on.
 	  //__asm__ __volatile__ ("mov r2, %0\n" :: "r" (ch));
     RSTCTRL.RSTFR=ch; //clear the reset causes before jumping to app...
     GPR.GPR0 = ch; // but, stash the reset cause in GPIOR0 for use by app...
@@ -405,7 +423,6 @@ int main (void) {
 	     * .init0 (which executes before normal c init code) to save R2
 	     * to a global variable.
 	     */
-	    __asm__ __volatile__ ("mov r2, %0\n" :: "r" (ch));
 
 	    // switch off watchdog
 	    watchdogConfig(WDT_PERIOD_OFF_gc);
@@ -424,10 +441,16 @@ int main (void) {
 #if defined (MYUART_PMUX_VAL)
     MYPMUX_REG = MYUART_PMUX_VAL;  // alternate pinout to use
 #endif
+// Saves SIX BYTES! LDI 0 and an STS to the high byte!
+// Why the compiler wastes a word on the ldi 0 is a mystery to me, since it knows it's got a 0 right there in r1 ready to go...
+#if (BAUD_SETTING_4 < 256)
+    MYUART.BAUDL = BAUD_SETTING_4;
+#else
     MYUART.BAUD = BAUD_SETTING_4;
-    MYUART.DBGCTRL = 1;  // run during debug
+#endif
+    //MYUART.DBGCTRL = 1;  // run during debug
     MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
-    MYUART.CTRLA = 0;  // Interrupts: all off
+    //MYUART.CTRLA = 0;  // Interrupts: all off
     MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 
     // Set up watchdog to trigger after a bit
@@ -519,10 +542,15 @@ int main (void) {
     // PROGRAM PAGE
     uint8_t desttype;
     uint8_t *bufPtr;
-    pagelen_t savelength;
-
     GETLENGTH(length);
-    savelength = length;
+    #if (__AVR_ARCH__==103)
+      pagelen_t savelength;
+      savelength = length;
+    #else
+      uint8_t savelength;
+      savelength = length>>1;
+      //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
+    #endif
     desttype = getch();
 
     // read a page worth of contents
@@ -545,22 +573,44 @@ int main (void) {
     verifySpace();
 
     if (desttype == 'F') {
-	    read_mem(desttype, address, length);
+#if (__AVR_ARCH__==103)
+	    address.word += MAPPED_PROGMEM_START;
     } else {
 	    address.word += MAPPED_EEPROM_START;
+    }
+    do {
+      putch(*(address.bptr++));
+    } while (--length);
+
+    // TODO: user row?
+  }
+#else
+    read_mem(desttype, address, length);
+    } else {
+      address.word += MAPPED_EEPROM_START;
       do {
         putch(*(address.bptr++));
       } while (--length);
     }
     // TODO: user row?
   }
-
+#endif
 	/* Get device signature bytes  */
 	else if(ch == STK_READ_SIGN) {
-	    // Easy, they're already in a mapped register...
+	    // Easy, they're already in a mapped register... but we know the flash size at compiletime, and it saves us 2 bytes of flash for each one we don't need to know...
 	    verifySpace();
-	    putch(SIGROW_DEVICEID0);
-	    putch(SIGROW_DEVICEID1);
+	    putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
+#if (PROGMEM_SIZE==131072)  // need different binary for 128k vs 64k vs 32k-and-under anyway, as 32k-and-under is all mapped, 64k isn't mapped, but doesn't have RAMPZ and 128k has RAMPZ...
+	    putch(0x97);
+#elif (PROGMEM_SIZE==65536)
+      putch(0x96);
+#elif (PROGMEM_SIZE==32768) // Might not need to do this for 32/16k parts - would be nice, because then the same binary would work on both!
+      putch(0x95);
+#elif (PROGMEM_SIZE==16384) //for upcoming DD-series...
+      putch(0x94);
+#else
+      putch(SIGROW_DEVICEID1);
+#endif
 	    putch(SIGROW_DEVICEID2);
 	}
 	else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
@@ -642,19 +692,20 @@ void watchdogConfig (uint8_t x) {
 /*
  * void writebuffer(memtype, buffer, address, length)
  */
-
+#if (__AVR_ARCH__==103) //fully memory mapped flash
 static inline void writebuffer(int8_t memtype, addr16_t mybuff,
              addr16_t address, pagelen_t len)
 {
     switch (memtype) {
+/*
     case 'E': // EEPROM
       address.word += MAPPED_EEPROM_START;
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
+      nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
       while(len--) {
         *(address.bptr++)= *(mybuff.bptr++);
       }
-      reset_nvm();
       break;
+*/
     default:  // FLASH
   /*
    * Default to writing to Flash program memory.  By making this
@@ -663,63 +714,117 @@ static inline void writebuffer(int8_t memtype, addr16_t mybuff,
    */
     {
 
-      uint16_t addrPtr = address.word;
+      //uint16_t addrPtr = address.word;
 
       /*
-       * Start the page erase and wait for it to finish.  There
-       * used to be code to do this while receiving the data over
-       * the serial link, but the performance improvement was slight,
-       * and we needed the space back.
+       * Start the page erase and wait for it to finish.
+       * The CPU is halted during this time, so in fact it will not
+       * at no time will NVMCTRL.STATUS indicate flash busy!
+       * Probably relevant to UPDI programming, but not
+       * self programming! So we don't need that check...
        */
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLPER_gc);
-/*#if (__AVR_ARCH__ == 103)
+      nvm_cmd(NVMCTRL_CMD_FLPER_gc);
       address.word += MAPPED_PROGMEM_START;
       *(address.bptr)=0xFF;
-      reset_nvm();
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
+      nvm_cmd(NVMCTRL_CMD_FLWR_gc);
       while(len--) {
         *(address.bptr++)= *(mybuff.bptr++);
       }
-#else */
-      do_spm(address.word,0);
+#else
+
+static inline void writebuffer(int8_t memtype, addr16_t mybuff,
+             addr16_t address, uint8_t len)
+{
+    switch (memtype) {
+/*
+    case 'E': // EEPROM
+      address.word += MAPPED_EEPROM_START;
+      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
+      while(len--) {
+        *(address.bptr++)= *(mybuff.bptr++);
+      }
       reset_nvm();
+      break;
+*/
+    default:  // FLASH
+  /*
+   * Default to writing to Flash program memory.  By making this
+   * the default rather than checking for the correct code, we save
+   * space on chips that don't support any other memory types.
+   */
+    {
+
+      //uint16_t addrPtr = address.word;
+
+      /*
+       * Start the page erase and wait for it to finish.
+       * The CPU is halted during this time, so in fact it will not
+       * at no time will NVMCTRL.STATUS indicate flash busy!
+       * Probably relevant to UPDI programming, but not
+       * self programming! So we don't need that check...
+       */
+      nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+      do_spm_erase(address.word);
+      //reset_nvm();
       /*
        * Write data from the buffer to flash, a word at a time
        */
+      nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+      //_PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
 
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
+      __asm__ __volatile__("head:"                       "\n\t" \
+                           "ld r0, %a[ptr]+"                   "\n\t" \
+                           "ld r1, %a[ptr]+"                   "\n\t" \
+                           "spm Z+"                      "\n\t" \
+                           "dec %[len]"                  "\n\t" \
+                           "brne head"                   "\n\t" \
+                           "clr r1"                      "\n\t" \
+                           : [len]   "=r" (len) \
+                           : "z" ((uint16_t)address.word), \
+                             [ptr] "e" ((uint16_t)mybuff.bptr), \
+                             "0" ((uint8_t)len) \
+                           : "r0"
+                           );
 
+
+      /*
       do {
         //do_spm((uint16_t)(void*)addrPtr, *(mybuff.wptr++));
         // the heck was that done in other versions of optiboot?
         do_spm(addrPtr, *(mybuff.wptr++));
         addrPtr += 2;
       } while (len -= 2);
-//#endif
-      reset_nvm();
+      */
+#endif
+      //reset_nvm();
     } // default block
     break;
   } // switch
 }
 
 
-void do_spm(uint16_t address, uint16_t data)
+void do_spm_erase(uint16_t address)
 {
   asm volatile (
-    "   movw  r0, %1\n"
     "   spm\n"
-    "   clr  r1\n"
     :
-    : "z" ((uint16_t)address),
-      "r" ((uint16_t)data)
-    : "r0"
+    : "z" ((uint16_t)address)
+    :
   );
 }
 
-void reset_nvm() {
-  while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-    ; // wait for flash not busy
-  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
+void nvm_cmd(uint8_t cmd) {
+  //take advantage of the fact that NVMCTRL_CMD_NONE_gc=0x00 and use zero_reg
+  //Also, we don't need to change NVMCTRL.CTRLA to NONE/NOOP until we want to change it.
+  __asm__ __volatile__("out %[ccp], %[ccp_spm_mask]" "\n\t" \
+                       "sts %[ioreg], r1"            "\n\t" \
+                       "out %[ccp], %[ccp_spm_mask]" "\n\t" \
+                       "sts %[ioreg], %[cmd]"        "\n\t" \
+                       :                                    \
+                       : [ccp]          "I" (_SFR_IO_ADDR(CCP)), \
+                         [ccp_spm_mask] "d" ((uint8_t)CCP_SPM_gc), \
+                         [ioreg]        "n" (_SFR_MEM_ADDR(NVMCTRL.CTRLA)), \
+                         [cmd]          "r" ((uint8_t)cmd));
 }
 
 static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
@@ -765,12 +870,12 @@ static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
  * Yeah, this isn't going to work on the Dx-series - at this point, I think we basically
  * need to call write_buffer()?
  */
-static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data)  __attribute__ ((used));
-static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data) {
-    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
-    while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-	; // wait for flash and EEPROM not busy, just in case.
-}
+//static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data)  __attribute__ ((used));
+//static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data) {
+//    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
+//    while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
+//	; // wait for flash and EEPROM not busy, just in case.
+//}
 #endif
 
 
@@ -847,7 +952,7 @@ void app()
     ch = RSTCTRL.RSTFR;
     RSTCTRL.RSTFR = ch; // reset causes
     *(volatile uint16_t *)(&optiboot_version);   // reference the version
-    do_nvmctrl(0, NVMCTRL_CMD_NOOP_gc, 0); // reference this function!
-    __asm__ __volatile__ ("jmp 0");    // similar to running off end of memory
-//    _PROTECTED_WRITE(RSTCTRL.SWRR, 1); // cause new reset
+    //do_nvmctrl(0, NVMCTRL_CMD_NOOP_gc, 0); // reference this function!
+    //__asm__ __volatile__ ("jmp 0");    // similar to running off end of memory
+    _PROTECTED_WRITE(RSTCTRL.SWRR, 1); // cause new reset - doesn't this make more sense?!
 }

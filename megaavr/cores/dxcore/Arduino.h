@@ -27,12 +27,6 @@
 #include <avr/interrupt.h>
 
 
-#if (__AVR_ARCH__==103)
-// For AVR Architecture 103, we can use
-#undef F
-#define F(str) (str)
-#endif
-
 #ifdef __cplusplus
 extern "C"{
 #endif

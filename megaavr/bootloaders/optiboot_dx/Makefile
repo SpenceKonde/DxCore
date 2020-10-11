@@ -22,8 +22,8 @@ export
 MCU_TARGET = avr128da64
 
 LDSECTIONS  = -Wl,-section-start=.text=0 \
-	      -Wl,--section-start=.application=0x400 \
-	      -Wl,--section-start=.version=0x3fe
+	      -Wl,--section-start=.application=0x200 \
+	      -Wl,--section-start=.version=0x1fe
 
 BAUD_RATE=115200
 
