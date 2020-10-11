@@ -2,6 +2,9 @@
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
 
+# GITHUB VERSION NOW HAS 512b OPTIBOOT BINARIES
+# ALL USERS WITH OPTIBOOT MUST REBURN BOOTLOADER AFTER UPDATING!
+
 # DxCore - Arduino support for the NEW AVR DA-series, DB-series and upcoming DD-series
 This is an Arduino core to support the exciting new AVR DA, DB, and "coming soon" DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned. But whatever the story of it's origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... But for almost every system they've added a significant improvement of some sort (while largely preserving backwards compatibility. You liked the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with the slightly-improved instruction timing compared to "classic" AVRs
 
