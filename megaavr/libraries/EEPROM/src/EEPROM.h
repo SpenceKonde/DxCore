@@ -51,9 +51,9 @@ struct EERef {
     return *this = *ref;
   }
   EERef &operator=(uint8_t in)       {
+    while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
     *(uint8_t*)(uint16_t)(MAPPED_EEPROM_START+index)=in;
-    while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     return *this;
   }
