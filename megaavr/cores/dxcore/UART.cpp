@@ -31,50 +31,70 @@
 #include "UART.h"
 #include "UART_private.h"
 
-// this next line disables the entire UART.cpp,
+// this next line disables the entire UART.cpp if there's no hardware serial
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3)
 
-// SerialEvent functions are weak, so when the user doesn't define them,
-// the linker just sets their address to 0 (which is checked below).
-// The Serialx_available is just a wrapper around Serialx.available(),
-// but we can refer to it weakly so we don't pull in the entire
-// UART instance if the user doesn't also refer to it.
-#if defined(HAVE_HWSERIAL0)
-void serialEvent() __attribute__((weak));
-bool Serial0_available() __attribute__((weak));
-#endif
+// SerialEvent is rarely used, and checking for it every iteration of loop() *does* have a cost
+#ifndef NOSERIALEVENT
+  // SerialEvent functions are weak, so when the user doesn't define them,
+  // the linker just sets their address to 0 (which is checked below).
+  // The Serialx_available is just a wrapper around Serialx.available(),
+  // but we can refer to it weakly so we don't pull in the entire
+  // UART instance if the user doesn't also refer to it.
 
-#if defined(HAVE_HWSERIAL1)
-void serialEvent1() __attribute__((weak));
-bool Serial1_available() __attribute__((weak));
-#endif
+    #if defined(HAVE_HWSERIAL0)
+      void serialEvent() __attribute__((weak));
+      bool Serial0_available() __attribute__((weak));
+    #endif
 
-#if defined(HAVE_HWSERIAL2)
-void serialEvent2() __attribute__((weak));
-bool Serial2_available() __attribute__((weak));
-#endif
+    #if defined(HAVE_HWSERIAL1)
+      void serialEvent1() __attribute__((weak));
+      bool Serial1_available() __attribute__((weak));
+    #endif
 
-#if defined(HAVE_HWSERIAL3)
-void serialEvent3() __attribute__((weak));
-bool Serial3_available() __attribute__((weak));
-#endif
+    #if defined(HAVE_HWSERIAL2)
+      void serialEvent2() __attribute__((weak));
+      bool Serial2_available() __attribute__((weak));
+    #endif
 
-void serialEventRun(void)
-{
-#if defined(HAVE_HWSERIAL0)
-  if (Serial0_available && serialEvent && Serial0_available()) serialEvent();
-#endif
-#if defined(HAVE_HWSERIAL1)
-  if (Serial1_available && serialEvent1 && Serial1_available()) serialEvent1();
-#endif
-#if defined(HAVE_HWSERIAL2)
-  if (Serial2_available && serialEvent2 && Serial2_available()) serialEvent2();
-#endif
-#if defined(HAVE_HWSERIAL3)
-  if (Serial3_available && serialEvent3 && Serial3_available()) serialEvent3();
-#endif
-}
+    #if defined(HAVE_HWSERIAL3)
+      void serialEvent3() __attribute__((weak));
+      bool Serial3_available() __attribute__((weak));
+    #endif
+
+    #if defined(HAVE_HWSERIAL4)
+      void serialEvent4() __attribute__((weak));
+      bool Serial4_available() __attribute__((weak));
+    #endif
+
+    #if defined(HAVE_HWSERIAL5)
+      void serialEvent5() __attribute__((weak));
+      bool Serial5_available() __attribute__((weak));
+    #endif
+
+    void serialEventRun(void)
+    {
+    #if defined(HAVE_HWSERIAL0)
+      if (Serial0_available && serialEvent && Serial0_available()) serialEvent();
+    #endif
+    #if defined(HAVE_HWSERIAL1)
+      if (Serial1_available && serialEvent1 && Serial1_available()) serialEvent1();
+    #endif
+    #if defined(HAVE_HWSERIAL2)
+      if (Serial2_available && serialEvent2 && Serial2_available()) serialEvent2();
+    #endif
+    #if defined(HAVE_HWSERIAL3)
+      if (Serial3_available && serialEvent3 && Serial3_available()) serialEvent3();
+    #endif
+    #if defined(HAVE_HWSERIAL4)
+      if (Serial3_available && serialEvent4 && Serial4_available()) serialEvent4();
+    #endif
+    #if defined(HAVE_HWSERIAL5)
+      if (Serial3_available && serialEvent5 && Serial5_available()) serialEvent5();
+    #endif
+    }
+  #endif
 
 // macro to guard critical sections when needed for large TX buffer sizes
 #if (SERIAL_TX_BUFFER_SIZE > 256)
@@ -340,7 +360,59 @@ void UartClass::flush()
   // If we get here, nothing is queued anymore (DREIE is disabled) and
   // the hardware finished transmission (TXCIF is set).
 }
+void UartClass::printHex (const uint8_t b) {
+  char x=(b>>4)|'0';
+  if (x > '9')
+    x += 7;
+  write(x);
+  x=(b&0x0F)|'0';
+  if (x > '9')
+    x += 7;
+  write(x);
+}
+void UartClass::printHex(const uint16_t w, bool swaporder){
+  uint8_t * ptr=(uint8_t*)&w;
+  if (swaporder){
+    printHex(*(ptr++));
+    printHex(*(ptr));
+  }
+  else {
+    printHex(*(ptr+1));
+    printHex(*(ptr));
+  }
+}
 
+void UartClass::printHex(const uint32_t l, bool swaporder){
+  uint8_t * ptr=(uint8_t*)&l;
+  if (swaporder){
+    printHex(*(ptr++));
+    printHex(*(ptr++));
+    printHex(*(ptr++));
+    printHex(*(ptr));
+  }
+  else {
+    ptr+=3;
+    printHex(*(ptr--));
+    printHex(*(ptr--));
+    printHex(*(ptr--));
+    printHex(*(ptr));
+  }
+}
+uint8_t * UartClass::printHex(uint8_t* p,uint8_t len, char sep) {
+  for (byte i=0;i<len;i++) {
+    if (sep && i) write(sep);
+    printHex(*p++);
+  }
+  return p;
+}
+
+uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporder) {
+  for (byte i=0;i<len;i++) {
+    if (sep && i) write(sep);
+    printHex(*p++,swaporder);
+  }
+  return p;
+}
 size_t UartClass::write(uint8_t c)
 {
   _written = true;
@@ -360,6 +432,8 @@ size_t UartClass::write(uint8_t c)
     return 1;
   }
 
+  // Spence 9/10/20: Why is this necessary or appropriate? It looks like a terrible idea!
+
   //Check if we are inside an ISR already (could be from by a source other than UART),
   // in which case the UART ISRs will be blocked.
   if(CPUINT.STATUS & CPUINT_LVL0EX_bm) {
@@ -370,7 +444,6 @@ size_t UartClass::write(uint8_t c)
 
     _hwserial_dre_interrupt_elevated = 1;
   }
-
   tx_buffer_index_t i = (_tx_buffer_head + 1) % SERIAL_TX_BUFFER_SIZE;
 
   //If the output buffer is full, there's nothing for it other than to
