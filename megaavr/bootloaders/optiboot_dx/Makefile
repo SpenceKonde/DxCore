@@ -232,7 +232,7 @@ HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins
 
 dx128_ser5_alt: TARGET = avr128da64
 dx128_ser5_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins.\n"
 
@@ -315,7 +315,7 @@ HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins.\n
 
 dx64_ser5_alt: TARGET = avr64da64
 dx64_ser5_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins.\n"
 
