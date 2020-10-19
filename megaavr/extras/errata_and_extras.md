@@ -20,6 +20,7 @@ UPDI 24-bit STptr followed by 16-bit STS | 3 or 0   | Spence K. | YES,A6| Likely
 ADC increased offset in single-ended | 4 | Microchip | N/A | N/A | N/A | A4 only
 OPAMP power consumption 3x higher than expected | 1 | Microchip | ??? | ??? | ??? | A4 only
 OPAMP IRSEL bit read-only | 1 | Microchip | N/A | N/A | N/A | A4 only
+PLL doesn't work from ext. xtal | 1 | Spence K. | N/A | N/A | N/A | A4 yes, A5 ???
 
 NO? means not mentioned in errata, but has not been confirmed as not being present in that size of chip.
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
@@ -92,6 +93,9 @@ The opamp IRSEL (Input Range SELect) is read-only; input range is always rail-to
 
 ### OPAMPs consume more power than expected
 The opamp modules consume 3x the expected (from datasheet) power. Fixed in A5 rev on 128DB, hopefully won't be in the other sizes at all, and with luck, the A5's will quickly push the A4's out of the supply chain.
+
+### PLL on DB-series doesn't run from external crystal
+If the SOURCE bit in CLKCTRL.PLLCTRLA is set to 1, datasheet implies that it should be clocked from external clock or crystal; with external crystal, it does not appear to generate any output. I doubt anyone here cares, but, I tripped over this almost immediately when I started playing with the crystal as clock on DB-series... (was trying to make sure that clock sources were "requested" so the bits would be set in CLKCTRL.MCLKSTATUS.
 
 ## Extras (anti-errata)
 Well, that was depressing wasn't it?
