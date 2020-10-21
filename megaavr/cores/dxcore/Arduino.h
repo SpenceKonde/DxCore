@@ -31,6 +31,15 @@
 extern "C"{
 #endif
 
+#if (defined(__AVR_AVR128DA64__)||defined(__AVR_AVR128DA48__)||defined(__AVR_AVR128DA32__)||defined(__AVR_AVR128DA28__))
+  // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata - or maybe they fixed things they didn't want to mention in the errata, or things to do with yield/etc.
+  #define HAS_ADC_BUG (SYSCFG.REVID==0x16||SYSCFG.REVID==0x17)
+#elif (defined __AVR_DA__) //only A3 of these has made the rounds
+  #define HAS_ADC_BUG (SYSCFG.REVID==0x13)
+#else
+  #define HAS_ADC_BUG (0)
+#endif
+
 /* Analog reference options */
 
 /* Change in mega4809: two places to define analog reference
@@ -41,15 +50,8 @@ extern "C"{
  // internal from VREF
 
  /* Values shifted to avoid clashing with ADC REFSEL defines
-	Will shift back in analog_reference function
+  Will shift back in analog_reference function
   */
-
-#if (defined(__AVR_AVR128DA64__)||defined(__AVR_AVR128DA48__)||defined(__AVR_AVR128DA32__)||defined(__AVR_AVR128DA28__))
-  // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata - or maybe they fixed things they didn't want to mention in the errata, or things to do with yield/etc.
-  #define HAS_ADC_BUG (SYSCFG.REVID==0x16||SYSCFG.REVID==0x17)
-#else //only A3 of these has made the rounds
-  #define HAS_ADC_BUG (SYSCFG.REVID==0x13)
-#endif
 
 #define INTERNAL1V024 VREF_REFSEL_1V024_gc
 #define INTERNAL2V048 VREF_REFSEL_2V048_gc
@@ -66,6 +68,10 @@ extern "C"{
 #define ADC_DACREF1 (0x80|0x4A)
 #define ADC_DACREF2 (0x80|0x4B)
 #define ADC_TEMPERATURE (0x80|ADC_MUXPOS_TEMPSENSE_gc)
+#ifdef MVIO
+#define ADC_VDDDIV10 (0x80|ADC_MUXPOS_VDDDIV10_gc)
+#define ADC_VDDIO2DIV10 (0x80|ADC_MUXPOS_VDDIO2DIV10_gc)
+#endif
 
 #define VCC_5V0 2
 #define VCC_3V3 1
@@ -80,10 +86,6 @@ bool analogReadResolution(uint8_t res);
 #ifndef _NOP
   #define _NOP() do { __asm__ volatile ("nop"); } while (0)
 #endif
-
-/* Allows performing a correction on the CPU value using the signature row
-	values indicating oscillator error provided from the device manufacturer */
-#define PERFORM_SIGROW_CORRECTION_F_CPU 0
 
 uint16_t clockCyclesPerMicrosecondComp(uint32_t clk);
 uint16_t clockCyclesPerMicrosecond();
@@ -156,6 +158,14 @@ void setup_timers();
 #define portInputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
 #define portModeRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->DIR ) )
 
+#if (__AVR_ARCH__ == 104)
+  #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION3")))
+#elif (__AVR_ARCH__ == 102)
+  #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION1")))
+#else
+  #define MAPPED_PROGMEM
+#endif
+
 //#defines to identify part families
 #if defined(__AVR_AVR128DA64__)||defined(__AVR_AVR64DA64__)
 #define DA_64_PINS
@@ -194,12 +204,14 @@ void setup_timers();
 #endif
 
 
-#define DXCORE "1.2.0"
-#define DXCORE_MAJOR 1
-#define DXCORE_MINOR 1
-#define DXCORE_PATCH 0
+/*
+#define DXCORE "1.2.0-dev"
+#define DXCORE_MAJOR 1UL
+#define DXCORE_MINOR 2UL
+#define DXCORE_PATCH 0UL
 #define DXCORE_RELEASED 0
-#define DXCORE_NUM 0x01010001
+*/
+#define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
 
 
 

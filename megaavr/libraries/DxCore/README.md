@@ -1,8 +1,44 @@
 # DxCore Library
 This library provides wrappers around a few chip features that didn't seem appropriate to put into the API at large, but which also did not seem large enough for a library. It may also include examples of using chip functionality with no library or wrapper at all.
 
+## GetMVIOStatus
+A new macro is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, enabled, and if so, whether VDDIO2 voltage is high enough that MVIO is enabled.
+
+This returns one of the following constants:
+```
+MVIO_DISABLED
+MVIO_BAD_FUSE
+MVIO_UNDERVOLTAGE
+MVIO_OKAY
+MVIO_UNSUPPORTED
+```
+
+```c
+void checkMVIO() {
+  int status=getMVIOStatus();
+  switch(status) {
+    case MVIO_DISABLED:
+      Serial.println("MVIO supported on chip but disabled in fuses.");
+      break;
+    case MVIO_BAD_FUSE:
+      Serial.println("MVIO supported on chip but relevant fuses in invalid state.");
+      break;
+    case MVIO_UNDERVOLTAGE:
+      Serial.println("MVIO enabled, VDDIO2 voltage is too low to support MVIO.");
+      break;
+    case MVIO_UNSUPPORTED:
+      Serial.println("MVIO is not supported by this part.");
+      break;
+    case MVIO_OKAY:
+      Serial.println("MVIO is enabled and working!");
+      break;
+  }
+}
+
+```
+
 ## Autotune
-Autotune allows use of an external 32kHz crystal to automatically tune the internal high frequency oscillator. This is only accurate to within ~0.4% (the size of the tuning step on the internal oscillator). A very simple bit of code using this library is shown below as well.
+Autotune allows use of an external 32kHz crystal to automatically tune the internal high frequency oscillator. This is only accurate to within ~ 0.4% (the size of the tuning step on the internal oscillator). A very simple bit of code using this library is shown below as well.
 
 
 ```c
@@ -16,7 +52,7 @@ typedef enum X32K_TYPE
     X32K_HIGHPWR_START500MS = (CLKCTRL_CSUT_16K_gc),
     X32K_HIGHPWR_START1S = (CLKCTRL_CSUT_32K_gc),
     X32K_HIGHPWR_START2S = (CLKCTRL_CSUT_64K_gc),
-    X32K_EXTCLK = (CLKCTRL_CSEL_bm)
+    X32K_EXTCLK = (CLKCTRL_SEL_bm)
 } X32K_TYPE_t;
 
 typedef enum X32K_ENABLE
@@ -53,43 +89,43 @@ disables the external 32.768 kHz oscillator
 // example
 
 void doStuffWithOSC() {
-	configXOSC32K();
-	Serial.print("Current external 32K osc: ");
-	Serial.printHexln(CLKCTRL.XOSC32KCTRLA);
-	Serial.println("We can't tell if it's on until we try to use it unless using a Rev. A5 or later AVR128DB - so we won't mess with that mess!")
-	if(enableAutoTune()){
-		// if enableAutoTune() is non-zero, that's a failure... enabling external oscillator FAILED - unsurprising, since hardly anyone uses a 32 kHz CLOCK, which is what we tried...
-		Serial.println("failed to enable autotune w/external 32kHz osc set to CLOCK");
-		if (disableAutoTune()) {
-			// true = fail
-			Serial.println("Cant disable autotune - it's already off!");
-		}
-		disableXOSC32K();
-		Serial.println("Disabling the non-functional external oscillator");
-	}
-	// Who would have thought, trying to use a crystal that's not connected wouldn't work?
-	// Let's try something that will, if a crystal is present: enable external crystal, with the safest settings
-	configXOSC32K(X32K_HIGHPWR_START2S,X32K_ENABLED);
+  configXOSC32K();
+  Serial.print("Current external 32K osc: ");
+  Serial.printHexln(CLKCTRL.XOSC32KCTRLA);
+  Serial.println("We can't tell if it's on until we try to use it unless using a Rev. A5 or later AVR128DB - so we won't mess with that mess!")
+  if(enableAutoTune()){
+    // if enableAutoTune() is non-zero, that's a failure... enabling external oscillator FAILED - unsurprising, since hardly anyone uses a 32 kHz CLOCK, which is what we tried...
+    Serial.println("failed to enable autotune w/external 32kHz osc set to CLOCK");
+    if (disableAutoTune()) {
+      // true = fail
+      Serial.println("Cant disable autotune - it's already off!");
+    }
+    disableXOSC32K();
+    Serial.println("Disabling the non-functional external oscillator");
+  }
+  // Who would have thought, trying to use a crystal that's not connected wouldn't work?
+  // Let's try something that will, if a crystal is present: enable external crystal, with the safest settings
+  configXOSC32K(X32K_HIGHPWR_START2S,X32K_ENABLED);
 
-	if(enableAutoTune()){
-		//if this is true... enabling external oscillator FAILED - with safe settings this time
-		Serial.println("Also failed safe settings too - settings were: ");
-		Serial.printHexln(CLKCTRL.XOSC32KCTRLA);
-		disableXOSC32K();
-		Serial.println("Disabling the external oscillator - we give up!");
+  if(enableAutoTune()){
+    //if this is true... enabling external oscillator FAILED - with safe settings this time
+    Serial.println("Also failed safe settings too - settings were: ");
+    Serial.printHexln(CLKCTRL.XOSC32KCTRLA);
+    disableXOSC32K();
+    Serial.println("Disabling the external oscillator - we give up!");
 
-	} else {
-		if (disableAutoTune()) {
-			Serial.println("Cant disable autotune - strange, it should be on! ");
-		} else {
-			Serial.println("Disabled autotube... ")
-		}
-	}
-	Serial.println("Okay, we're done now! ");
-	disableXOSC32K();
-	Serial.println("Disabling the external oscillator - we give up!");
+  } else {
+    if (disableAutoTune()) {
+      Serial.println("Cant disable autotune - strange, it should be on! ");
+    } else {
+      Serial.println("Disabled autotube... ")
+    }
+  }
+  Serial.println("Okay, we're done now! ");
+  disableXOSC32K();
+  Serial.println("Disabling the external oscillator - we give up!");
 
-	//Done!
+  //Done!
 }
 
 

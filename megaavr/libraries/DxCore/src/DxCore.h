@@ -10,7 +10,7 @@ typedef enum X32K_TYPE
     X32K_HIGHPWR_START500MS = (CLKCTRL_CSUT_16K_gc),
     X32K_HIGHPWR_START1S = (CLKCTRL_CSUT_32K_gc),
     X32K_HIGHPWR_START2S = (CLKCTRL_CSUT_64K_gc),
-    X32K_EXTCLK = (CLKCTRL_CSEL_bm)
+    X32K_EXTCLK = (CLKCTRL_SEL_bm)
 } X32K_TYPE_t;
 
 typedef enum X32K_ENABLE
@@ -28,7 +28,7 @@ void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable)
 {
 	uint8_t newval=settings|enable;
 	//if any of the bits are "enable protected" we need to turn off the external crystal/clock.
-	if ((CLKCTRL.XOSC32KCTRLA ^ newval)&(CLKCTRL_CSEL_bm|CLKCTRL_CSUT_gm)) {
+	if ((CLKCTRL.XOSC32KCTRLA ^ newval)&(CLKCTRL_SEL_bm|CLKCTRL_CSUT_gm)) {
 		_PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,CLKCTRL.XOSC32KCTRLA&0xFE); //disable external crystal
 		while (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm); //unclear if this is immediately cleared or not...
 	}
@@ -39,7 +39,6 @@ void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable)
 // disables the external 32.768 kHz oscillator
 void disableXOSC32K() {
 	_PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,(CLKCTRL.XOSC32KCTRLA&0xFE));
-	return CLK_SUCCESS;
 }
 
 
@@ -55,13 +54,13 @@ void disableXOSC32K() {
 
 uint8_t enableAutoTune()
 {
-	if (CLKCTRL.MCLKCTRLA&0x0F!=0) return 0xFF;
+	if ((CLKCTRL.MCLKCTRLA&0x0F)!=0) return 0xFF;
 	if (CLKCTRL.XOSC32KCTRLA&0x01) {
 		_PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,X32K_HIGHPWR_START1S|X32K_ENABLED);
 	}
 	_PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA,CLKCTRL.OSCHFCTRLA|0x01);
 	uint8_t csut=(CLKCTRL.XOSC32KCTRLA&CLKCTRL_CSUT_gm)>>4;
-	uint32_t verifytime=500+(csut==3?2000,500*csut);
+	uint32_t verifytime=500+(csut==3?2000:500*csut);
 	uint32_t startedAt=millis();
 	while ((millis()-startedAt < verifytime)&&(!(CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm)));
 	if (CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm){
@@ -75,7 +74,7 @@ uint8_t enableAutoTune()
 // uint8_t disableAutoTune()
 // Returns 255 (-1) if autotune was not enabled.
 // Returns 0 if autotune is successfully disabled.
-uint8_t disableAutoTune()
+int8_t disableAutoTune()
 {
 	if (CLKCTRL.OSCHFCTRLA&0x01) {
 		_PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA,CLKCTRL.OSCHFCTRLA&0xFE);
@@ -84,4 +83,16 @@ uint8_t disableAutoTune()
 		return 0xFF;
 	}
 }
+#endif
+
+
+#define MVIO_DISABLED (-128)
+#define MVIO_BAD_FUSE (-64)
+#define MVIO_UNDERVOLTAGE (0)
+#define MVIO_OKAY (1)
+#define MVIO_UNSUPPORTED (-1)
+#ifdef MVIO
+#define getMVIOStatus() ((FUSE.SYSCFG1&0x18)==0x10?MVIO_DISABLED:((FUSE.SYSCFG1&0x18)==0x08?(MVIO.STATUS?MVIO_OKAY:MVIO_UNDERVOLTAGE):MVIO_BAD_FUSE))
+#else
+#define getMVIOStatus() MVIO_UNSUPPORTED
 #endif

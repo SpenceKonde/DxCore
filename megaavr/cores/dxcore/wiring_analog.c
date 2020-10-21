@@ -49,7 +49,11 @@ void ACReference(uint8_t mode)
 
 int analogRead(uint8_t pin)
 {
-  if (pin==ADC_DAC0 || pin == ADC_TEMPERATURE || pin==ADC_DACREF0 || pin==ADC_DACREF1 ||pin==ADC_DACREF2) {
+  #ifdef MVIO
+  if (pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_VDDDIV10 || pin == ADC_VDDIO2DIV10 || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2) {
+  #else
+  if (pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2) {
+  #endif
     pin=pin&0x7F;
   } else {
     pin = digitalPinToAnalogInput(pin);
@@ -66,7 +70,8 @@ int analogRead(uint8_t pin)
   while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
 
   /* Combine two bytes */
-  #ifdef SIMPLE_ADC_WORKAROUND
+  #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+    // That may become defined when DA-series silicon is available with the fix
     ADC0.MUXPOS=0x7F;
   #endif
   return ADC0.RES;

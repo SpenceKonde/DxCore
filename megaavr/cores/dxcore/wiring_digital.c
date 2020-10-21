@@ -219,14 +219,6 @@ int8_t digitalRead(uint8_t pin)
   /* Get bit mask and check valid pin */
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if(bit_mask == NOT_A_PIN) return -1;
-#ifdef COMPLEX_ADC_WORKAROUND
-  if(GPR.GPR3&0x40) {
-    if ((GPR.GPR3&0x3F)==pin){
-      GPR.GPR3=0x80;
-      ADC0.MUXPOS=0x7F;
-    }
-  }
-#endif
 
   // If the pin that support PWM output, we need to turn it off
   // before getting a digital reading.

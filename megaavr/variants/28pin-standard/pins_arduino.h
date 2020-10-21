@@ -19,7 +19,7 @@
 #define PIN_PC1 9
 #define PIN_PC2 10
 #define PIN_PC3 11
-#define PIN_PD0 12
+#define PIN_PD0 12   // On DB/DD-series parts with under 48 pins, PD0 is not actually a real pin, but is left in the sequence for compatibility.
 #define PIN_PD1 13
 #define PIN_PD2 14
 #define PIN_PD3 15
@@ -47,18 +47,23 @@
 #define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):((((p)&0x7F)<8)?(((p)&0x7F)+PIN_PD0):))
 
 // PWM pins
+#ifdef MVIO
+#define FIRST_TCA_PWM PIN_PD1
+#else
+#define FIRST_TCA_PWM PIN_PD0
+#endif
 
 #if defined(MILLIS_USE_TIMERB0)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) <= PIN_PD5)) || ((p) == PIN_PF0) || ((p) == PIN_PF1) ||\
+#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
                               ((p) == PIN_PC0) || ((p) == PIN_PA3))
 #elif defined(MILLIS_USE_TIMERB1)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) <= PIN_PD5)) || ((p) == PIN_PF0) || ((p) == PIN_PF1) ||\
+#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
                                 ((p) == PIN_PC0) || ((p) == PIN_PA2))
 #elif defined(MILLIS_USE_TIMERB2)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) <= PIN_PD5)) || ((p) == PIN_PF0) || ((p) == PIN_PF1) ||\
+#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
                                 ((p) == PIN_PA2) || ((p) == PIN_PA3))
 #else //no TCB's are used for PWM
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PD0) && ((p) <= PIN_PD5)) || ((p) == PIN_PF0) || ((p) == PIN_PF1) ||\
+#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
                               ((p) == PIN_PC0) || ((p) == PIN_PA2) || ((p) == PIN_PA3))
 #endif
 
@@ -142,14 +147,18 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 #define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
 #define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
-#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
+#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_DEFAULT_gc
 #define PIN_WIRE_HWSERIAL2_TX           PIN_PF0
 #define PIN_WIRE_HWSERIAL2_RX           PIN_PF1
 #define PIN_WIRE_HWSERIAL2_TX_PINSWAP_1 PIN_PF0
 #define PIN_WIRE_HWSERIAL2_RX_PINSWAP_1 PIN_PF1
 
 // Analog pins
+
+#ifndef MVIO
+// 28-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
 #define PIN_A0   PIN_PD0
+#endif
 #define PIN_A1   PIN_PD1
 #define PIN_A2   PIN_PD2
 #define PIN_A3   PIN_PD3
@@ -159,7 +168,9 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 #define PIN_A7   PIN_PD7
 #define PIN_A16  PIN_PF0
 #define PIN_A17  PIN_PF1
+#ifndef MVIO
 static const uint8_t A0  = PIN_A0;
+#endif
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
@@ -185,7 +196,11 @@ const uint8_t digital_pin_to_port[] = {
   PC, //  9 PC1/USART1_Rx/TCA0 PWM
   PC, // 10 PC2/TCA0 PWM
   PC, // 11 PC3/TCA0 PWM
+#ifndef MVIO
   PD, // 12 PD0/AIN0
+#else
+  NOT_A_PORT,
+#endif
   PD, // 13 PD1/AIN1
   PD, // 14 PD2/AIN2
   PD, // 15 PD3/AIN3/LED_BUILTIN
@@ -212,7 +227,11 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN1_bp, //  9 PC1/USART1_Rx
   PIN2_bp, // 10 PC2
   PIN3_bp, // 11 PC3
+#ifndef MVIO
   PIN0_bp, // 12 PD0/AIN0
+#else
+  NOT_A_PORT,
+#endif
   PIN1_bp, // 13 PD1/AIN1
   PIN2_bp, // 14 PD2/AIN2
   PIN3_bp, // 15 PD3/AIN3/LED_BUILTIN
@@ -239,7 +258,11 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN1_bm, //  9 PC1/USART1_Rx
   PIN2_bm, // 10 PC2
   PIN3_bm, // 11 PC3
+#ifndef MVIO
   PIN0_bm, // 12 PD0/AIN0
+#else
+  NOT_A_PORT,
+#endif
   PIN1_bm, // 13 PD1/AIN1
   PIN2_bm, // 14 PD2/AIN2
   PIN3_bm, // 15 PD3/AIN3/LED_BUILTIN
@@ -277,7 +300,11 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
-  TIMERA0,      // 12 PD0/AIN0
+#ifndef MVIO
+  TIMERA0, // 12 PD0/AIN0
+#else
+  NOT_ON_TIMER,
+#endif
   TIMERA0,      // 13 PD1/AIN1
   TIMERA0,      // 14 PD2/AIN2
   TIMERA0,      // 15 PD3/AIN3/LED_BUILTIN

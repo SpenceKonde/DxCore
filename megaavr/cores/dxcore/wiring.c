@@ -265,30 +265,21 @@ unsigned long millis()
     /* Restore state */
     SREG = status;
     #if defined(MILLIS_USE_TIMERD0)
-      #error "Timer D is not supported yet"
-      #if (F_CPU==20000000UL || F_CPU==10000000UL || F_CPU==5000000UL)
-        uint8_t ticks_l=ticks>>1;
-        ticks=ticks+ticks_l+((ticks_l>>2)-(ticks_l>>4)+(ticks_l>>7));
-        microseconds = overflows * (TIME_TRACKING_CYCLES_PER_OVF/(20))
-              + ticks; // speed optimization via doing math with smaller datatypes, since we know high byte is 1 or 0
-              // + ticks +(ticks>>1)+(ticks>>3)-(ticks>>5)+(ticks>>8))
-      #else
-        microseconds = ((overflows * (TIME_TRACKING_CYCLES_PER_OVF/(16)))
-              + (ticks * ((TIME_TRACKING_CYCLES_PER_OVF)/(16)/TIME_TRACKING_TIMER_PERIOD)));
-      #endif
+      #error "Timer D is not supported as a millis source on the AVR Dx series."
     #elif (defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)||defined(MILLIS_USE_TIMERB2)||defined(MILLIS_USE_TIMERB3)||defined(MILLIS_USE_TIMERB4))
         // Oddball clock speeds
-      #if (F_CPU==44000000UL)
+
+      #if (F_CPU==44000000UL) //extreme overclocking - may be possible with crystal or external clock?
         ticks=ticks>>4;
         microseconds = overflows*1000+(ticks-(ticks>>2)-(ticks>>5)+(ticks>>7));
-      #elif (F_CPU==36000000UL)
+      #elif (F_CPU==36000000UL) //extreme overclocking - may be possible with crystal or external clock?
         ticks=ticks>>4;
         microseconds = overflows*1000+(ticks-(ticks>>3)+(ticks>>6));
       #elif (F_CPU==28000000UL)
         ticks=ticks>>4;
         microseconds = overflows*1000+(ticks+(ticks>>3)+(ticks>>6)+(ticks>>8));
         // Multiples of 12
-      #elif (F_CPU==48000000UL)
+      #elif (F_CPU==48000000UL) //extreme overclocking - may be possible with crystal or external clock?
         ticks=ticks>>5;
         microseconds = overflows*1000+(ticks+(ticks>>2)+(ticks>>4)+(ticks>>5));
       #elif (F_CPU==24000000UL)
@@ -298,7 +289,7 @@ unsigned long millis()
         ticks=ticks>>3;
         microseconds = overflows*1000+(ticks+(ticks>>2)+(ticks>>4)+(ticks>>5));
         // multiples of 10
-      #elif (F_CPU==40000000UL)
+      #elif (F_CPU==40000000UL)//extreme overclocking - may be possible with crystal or external clock?
         ticks=ticks>>4;
         microseconds = overflows*1000+(ticks-(ticks>>2)+(ticks>>4)-(ticks>>6));
       #elif (F_CPU==20000000UL)
@@ -396,7 +387,29 @@ void delay(unsigned long ms)
 #endif
 
 
-/* Delay for the given number of microseconds.  Assumes a 1, 4, 5, 8, 10, 16, or 20 MHz clock. */
+/* Delay for the given number of microseconds.*/
+// If we just extended the pattern for lower speeds, we lose maximum length of delay. Above 20 MHz, we borrow calculations from a slower clock
+// but instead lengthen the loop proportionally, and just worry about the single us delay!
+#if F_CPU >= 48000000L
+  // 16 MHz math, 12-cycle loop
+  #define DELAYMICROS_TWELVE
+#elif F_CPU >= 40000000L
+  // 20 MHz math, 8-cycle loop
+  #define DELAYMICROS_EIGHT
+#elif F_CPU >= 36000000L
+  // 12 MHz math, 12-cycle loop
+  #define DELAYMICROS_TWELVE
+#elif F_CPU >= 32000000L
+  // 16 MHz math, 8-cycle loop
+  #define DELAYMICROS_EIGHT
+#elif F_CPU >= 28000000L
+  // 16 MHz math, 7-cycle loop
+  #define DELAYMICROS_SEVEN
+#elif F_CPU >= 24000000L
+  // 12 MHz math, 8-cycle loop
+  #define DELAYMICROS_EIGHT
+#endif
+
 void delayMicroseconds(unsigned int us)
 {
   // call = 4 cycles + 2 to 4 cycles to init us(2 for constant delay, 4 for variable)
@@ -404,16 +417,117 @@ void delayMicroseconds(unsigned int us)
   // calling avrlib's delay_us() function with low values (e.g. 1 or
   // 2 microseconds) gives delays longer than desired.
   //delay_us(us);
-#if F_CPU >= 20000000L
-  // for the 20 MHz clock on rare Arduino boards
 
-  // for a one-microsecond delay, simply return.  the overhead
-  // of the function call takes 18 (20) cycles, which is 1us
+
+#if F_CPU >= 48000000L
+
+  // the following loop takes 1/4 of a microsecond (12 cycles)
+  // per iteration, so execute it four times for each microsecond of
+  // delay requested.
+  us <<= 2; // x4 us, = 4 cycles
+
+  // account for the time taken in the preceding commands.
+  // we only burned ~14 cycles above, subtraction takes another 2 - so we've lost half a us,
+  // and only need to drop 2 rounds through the loop!
+  us -= 2; // = 1 cycles,
+
+#elif F_CPU >= 40000000L
+
+  // the following loop takes a 1/5 of a microsecond (8 cycles)
+  // per iteration, so execute it five times for each microsecond of
+  // delay requested.
+  us = (us << 2) + us; // x5 us, = 7 cycles
+
+  // account for the time taken in the preceding commands.
+  // we just burned 15 (17) cycles above, remove 2
+  // us is at least 10 so we can subtract 7
+  us -= 2; // 1 cycles
+
+#elif F_CPU >= 36000000L
   __asm__ __volatile__ (
-    "nop" "\n\t"
-    "nop" "\n\t"
-    "nop" "\n\t"
-    "nop"); //just waiting 4 cycles
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0");
+
+  // the following loop takes 1/3 of a microsecond (12 cycles)
+  // per iteration, so execute it three times for each microsecond of
+  // delay requested.
+  us = (us << 1) + us; // x3 us, = 5 cycles
+
+  // account for the time taken in the preceding commands.
+  // we just burned 23 (25) cycles above, remove 2
+  us -= 2; //2 cycles
+
+#elif F_CPU >= 32000000L
+  // here, we only take half a us at the start!
+  __asm__ __volatile__ (
+    "rjmp .+0"); //just waiting 2 cycles - so we're half a us in
+
+  // the following loop takes 1/4 of a microsecond (8 cycles)
+  // per iteration, so execute it four times for each microsecond of
+  // delay requested.
+  us <<= 2; // x4 us, = 4 cycles
+
+  // account for the time taken in the preceding commands.
+  // we only burned ~14 cycles above, subtraction takes another 2 - so we've lost half a us,
+  // and only need to drop 2 rounds through the loop!
+  us -= 2; // = 2 cycles,
+#elif F_CPU >= 28000000L
+
+  // for a one-microsecond delay, burn 12 cycles and return
+  // rjmp .+0 is a 2 cycle 1 word noop :-)
+  __asm__ __volatile__ (
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0"); //just waiting 12 cycles
+  if (us <= 1) return; //  = 3 cycles, (4 when true)
+
+  // the following loop takes 1/4 of a microsecond (7 cycles)
+  // per iteration, so execute it four times for each microsecond of
+  // delay requested.
+  us <<= 2; // x4 us, = 4 cycles
+
+  // account for the time taken in the preceding commands.
+  // we just burned 27 (29) cycles above, remove 4, (7*4=28)
+  // us is at least 8 so we can subtract 5
+  us -= 4; // = 2 cycles,
+
+
+#elif F_CPU >= 24000000L
+  // for the 24 MHz clock
+
+  // for a one-microsecond delay, burn 8 cycles and return
+  // rjmp .+0 is a 2 cycle 1 word noop :-)
+  __asm__ __volatile__ (
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0" "\n\t"
+    "rjmp .+0"); //just waiting 8 cycles
+  if (us <= 1) return; //  = 3 cycles, (4 when true)
+
+  // the following loop takes 1/3 of a microsecond (8 cycles)
+  // per iteration, so execute it three times for each microsecond of
+  // delay requested.
+  us = (us << 1) + us; // x3 us, = 5 cycles
+
+  // account for the time taken in the preceding commands.
+  // we just burned 24 (22) cycles above, remove 3
+  us -= 3; //2 cycles
+
+
+#elif F_CPU >= 20000000L
+  // for the 20 MHz clock
+
+  // for a one-microsecond delay, burn 4 clocks and then return (see 16MHz for logic)
+  // rjmp .+0 is a 2 cycle 1 word noop :-)
+  __asm__ __volatile__ (
+    "rjmp .+0" "\n\t"
+    "rjmp .+0"); //just waiting 4 cycles
   if (us <= 1) return; //  = 3 cycles, (4 when true)
 
   // the following loop takes a 1/5 of a microsecond (4 cycles)
@@ -442,6 +556,23 @@ void delayMicroseconds(unsigned int us)
   // we just burned 19 (21) cycles above, remove 5, (5*4=20)
   // us is at least 8 so we can subtract 5
   us -= 5; // = 2 cycles,
+
+#elif F_CPU >= 12000000L
+  // for the 12 MHz clock...
+
+  // for a 1 microsecond delay, simply return.  the overhead
+  // of the function call takes 14 (16) cycles, which is 1.5us
+  if (us <= 1) return; //  = 3 cycles, (4 when true)
+
+  // the following loop takes 1/3 of a microsecond (4 cycles)
+  // per iteration, so execute it three times for each microsecond of
+  // delay requested.
+  us = (us << 1) + us; // x3 us, = 5 cycles
+
+  // account for the time taken in the preceding commands.
+  // we just burned 20 (22) cycles above, remove 5, (5*4=20)
+  // us is at least 6 so we can subtract 5
+  us -= 5; //2 cycles
 
 #elif F_CPU >= 10000000L
   // for 10MHz (20MHz/2)
@@ -518,14 +649,41 @@ void delayMicroseconds(unsigned int us)
 #endif
 
 
-
+#if defined(DELAYMICROS_TWELVE)
+  __asm__ __volatile__ (
+    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "rjmp .+0" "\n\t"     // 2 cycles each;
+    "rjmp .+0" "\n\t"     // could have saved 2 bytes of flash with an rcall straight to a ret
+    "rjmp .+0" "\n\t"     // but these parts have lots of flash, and this mess is weird enough already
+    "rjmp .+0" "\n\t"     // with these rjmps to current position as a 1 word 2 cycle nop...
+    "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+  );
+#elif defined(DELAYMICROS_EIGHT)
+  __asm__ __volatile__ (
+    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "rjmp .+0" "\n\t"     // 2 cycles each;
+    "rjmp .+0" "\n\t"     // 2 cycles each;
+    "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+  );
+#elif defined(DELAYMICROS_SEVEN)
+  __asm__ __volatile__ (
+    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "rjmp .+0" "\n\t"     // 2 cycles
+    "nop"      "\n\t"     // 1 cyc;e
+    "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+  );
+#else
+  // the classic 4 cycle delay loop...
   // busy wait
   __asm__ __volatile__ (
     "1: sbiw %0,1" "\n\t" // 2 cycles
     "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
   );
+#endif
   // return = 4 cycles
 }
+
+
 
 
 #ifndef DISABLE_MILLIS
@@ -631,88 +789,152 @@ void init()
   // this needs to be called before setup() or some functions won't
   // work there
 
-/******************************** CLOCK STUFF *********************************/
-  // Warning: some of these are WAY outside the specs, see comments
-  // For 12, 8. 4, 2, and 1, one can argue whether it should be
-  // prescaled from 24 or 16 - the advantage of this is that it
-  // would allow use on the PLL to generate high speed PWM
-  // which might be particularly appealing at those very low speeds
-  // On the other hand, that very low speed might be chosen for low
-  // power, in which case running the oscillator faster would be
-  // undesirable...
+  /******************************** CLOCK STUFF *********************************/
+  #ifndef F_CPU
+    #error "F_CPU not defined"
+  #endif
 
-  #if (F_CPU == 48000000)
-    /* No division on clock - almost guaranteed not to work */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0F<< CLKCTRL_FREQSEL_gp ));
+  #if CLOCKSOURCE==0
+    //internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
+    /* patern is:
+    F_CPU     CLKCTRL_FREQSEL
+    1 MHz     0x0
+    2 MHz     0x1
+    3 MHz     0x2
+    4 MHz     0x3
+    Reserved  0x4
+    8 MHz     0x5
+    12 MHz    0x6
+    16 MHz    0x7
+    20 MHz    0x8
+    24 MHz    0x9
+    28 MHz    0xA  - undocumented, unofficial
+    32 MHz    0xB  - undocumented, unofficial
+    20 MHz    0xC  - undocumented, unofficial, redundant
+    24 MHz    0xD  - undocumented, unofficial, redundant
+    28 MHz    0xE  - undocumented, unofficial, redundant
+    32 MHz    0xF  - undocumented, unofficial, redundant
+    */
+    /* Some speeds not otherwise possible can be generated with the interal oscillator by prescaling
+    This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
+    It was not done for 14, 7, 6, and all the thirds-of-MHz that you can get with the divide by 6 option.
+    */
 
-  #elif (F_CPU == 44000000)
-    /* No division on clock - almost guaranteed not to work  */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0E<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 40000000)
-    /* No division on clock - almost guaranteed not to work  */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0D<< CLKCTRL_FREQSEL_gp ));
+    #if (F_CPU == 32000000)
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0B<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 28000000)
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0A<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 36000000)
-    /* No division on clock  - unlikely to work */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0C<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 24000000)
+      /* No division on clock - fastest speed that's in spec */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x09<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 32000000)
-    /* No division on clock - seems to work? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0B<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 20000000)
+      /* No division on clock */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x08<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 28000000)
-    /* No division on clock - seems to work? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0A<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 16000000)
+      /* No division on clock */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x07<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 24000000)
-    /* No division on clock - fastest speed that's in spec */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x09<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 12000000)
+      /* should it be 24MHz prescaled by 2? */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x06<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 20000000)
-    /* No division on clock */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x08<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 10000000)
+      /* 20 prescaled by 2 */
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,(CLKCTRL_PDIV_2X_gc|CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x08<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 16000000)
-    /* No division on clock */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x07<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 8000000)
+      /* Should it be 16MHz prescaled by 2? */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x05<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 12000000)
-    /* should it be 24MHz prescaled by 2? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x06<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 5000000)
+      /* 20 prescaled by 4 */
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,(CLKCTRL_PDIV_2X_gc|CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 10000000)
-    /* 20 prescaled by 2 */
-    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,0x01);
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x08<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 4000000)
+      /* Should it be 16MHz prescaled by 4? */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 8000000)
-    /* Should it be 16MHz prescaled by 2? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x05<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 3000000)
+      /* There's like, no support for this anywhere in the core!  */
+      #warning "3 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x02<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 5000000)
-    /* 20 prescaled by 4 */
-    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,0x01);
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
+    #elif (F_CPU == 2000000)
+      /* Should it be 16MHz prescaled by 8? */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x01<< CLKCTRL_FREQSEL_gp ));
 
-  #elif (F_CPU == 4000000)
-    /* Should it be 16MHz prescaled by 4? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
-
-  #elif (F_CPU == 2000000)
-    /* Should it be 16MHz prescaled by 8? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x01<< CLKCTRL_FREQSEL_gp ));
-
-  #elif (F_CPU == 1000000)
-    /* Should it be 16MHz prescaled by 16? */
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x00<< CLKCTRL_FREQSEL_gp ));
-  #else
-
-    #ifndef F_CPU
-      #error "F_CPU not defined"
+    #elif (F_CPU == 1000000)
+      /* Should it be 16MHz prescaled by 16? */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x00<< CLKCTRL_FREQSEL_gp ));
     #else
       #error "F_CPU defined as an unsupported value"
     #endif
+  #elif (CLOCKSOURCE==1 || CLOCKSOURCE==2)
+    // For this, we don't really care what speed it is at - we will run at crystal frequency, and trust the user to select a speed matching that.
+    // We don't prescale from crystals, and won't unless someone gives a damned convincing reason why that feature is important.
+    // Crystals in the relevant frequency range are readily available.
+    #if defined(__AVR_DA__)
+      #if (CLOCKSOURCE==1)
+        #error "AVR DA-series detected, but crystal as clock source specified. The menu options should not permit this; those parts don't support it."
+      #else
+        //external clock
+        uint8_t i=255;
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,CLKCTRL_CLKSEL_EXTCLK_gc);
+        while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC) {
+          i--;
+          if(i==0) noClockBlink();
+          // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
+        }
+      #endif
+    #else
+      // it's a DB; likely the DD will be the same as well
+      // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC,CLKCTRL_CFDSRC_CLKMAIN_gc|CLKCTRL_CFDEN_bm);
+      _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL,CLKCTRL_CFD_bm);
+      #if (CLOCKSOURCE==2)
+        //external clock
+        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_SELHF_EXTCLOCK_gc|CLKCTRL_ENABLE_bm));
+      #else
+        // external crystal
+        #ifndef XTAL_DRIVE
+          // I'll bet shoddy crystal layout could be compensated for by selecting a faster crystal frequency range than would normally be used...
+          // conversely, if its laid out per best practices, maybe power savings are possible by choosin a "lower frequency" option?
+          #if (F_CPU>24000000)
+            #define XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
+          #elif (F_CPU>16000000)
+            #define XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
+          #elif(F_CPU>8000000)
+            #define XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
+          #else
+            #define XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
+          #endif
+        #endif
+        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_CSUTHF_1K_gc|XTAL_DRIVE|CLKCTRL_SELHF_CRYSTAL_gc|CLKCTRL_ENABLE_bm));
+      #endif
+      // either way, we just turned on the external clock source, so time to use it..
+      _PROTECTED_WRITE(CLKCTRL_)
+    #endif
+    uint16_t i=255;
+    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,CLKCTRL_CLKSEL_EXTCLK_gc);
+    while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC) {
+      i--;
+      if(i==0) noClockBlink();
+      // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
+    }
+  #else
+    #error "CLOCKSOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); DxCore does not support any other options (and it isn't even clear what such an option might be, other than a 32.768k low speed crystal, which would be an unspeakably miserable experience with Arduino"
+  #endif
+
+  #if (defined(DB_28_PINS)||defined(DB_32_pins))
+    // PD0 does not exist on these parts - VDDIO2 took it's (physical) spot.
+    // but due to a silicon bug, the input buffer is on. Per datasheet, we are supposed to turn it off.
+    PORTD.PIN0CTRL=PORT_ISC_INPUT_DISABLE_gc;
   #endif
 
 
@@ -728,6 +950,8 @@ void init()
       state that this is the case. Just like on megaTinyCore, use samplen to compensate */
 
       #if F_CPU >= 32000000
+        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
+      #elif F_CPU >= 32000000
         ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
       #elif F_CPU >= 28000000
         ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
@@ -747,6 +971,8 @@ void init()
         ADC0.CTRLC = ADC_PRESC_DIV2_gc;
       #endif
       ADC0.SAMPCTRL=14; //16 ADC clock sampling time - should be about the same amount of *time* as originally?
+      // This is WAY conservative! We could drop it down...
+      ADC0.CTRLD = ADC_INITDLY_DLY64_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
     #else //if SLOWADC is defined - as of 2.0.0 this option isn't exposed.
       /* ADC clock around 200 kHz - datasheet spec's 125 kHz to 1.5 MHz */
       #if F_CPU >= 32000000
@@ -764,15 +990,17 @@ void init()
       #else  // 1 MHz / 4 = 250 kHz
         ADC0.CTRLC = ADC_PRESC_DIV4_gc;
       #endif
+      ADC0.CTRLD = ADC_INITDLY_DLY16_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 250 MHz, so we want 16 ADC clocks when we start up a new reference so we don't get bad readings at first
     #endif
 
     /* Enable ADC */
-    ADC0.CTRLD = ADC_INITDLY_DLY16_gc;
     ADC0.CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
+    //start at 10 bit for compatibuility with existing code.
 
-#ifdef SIMPLE_ADC_WORKAROUND
-    ADC0.MUXPOS=0x7F;
-#endif
+    #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+      // That may become defined when DA-series silicon is available with the fix
+      ADC0.MUXPOS=0x7F;
+    #endif
     analogReference(VDD);
     DACReference(VDD);
   #endif
@@ -780,14 +1008,48 @@ void init()
   setup_timers();
 
   #ifndef DISABLE_MILLIS
-  init_millis();
+    init_millis();
   #endif //end #ifndef DISABLE_MILLIS
 /*************************** ENABLE GLOBAL INTERRUPTS *************************/
 
   sei();
 }
 
-
+// These are used for blink codes which indicate issues that would prevent meaningful startup
+// I mean, we could leave it running at 4 MHz and run the sketch, but I think at that point
+// it's more useful to abort startup than to leave the user wondering why the sketch is
+// running at an unexpected speed. The odd number of "change" blinks in long phase makes it
+// extremely distinctive.
+#if (CLOCKSOURCE==1 || CLOCKSOURCE==2)
+  void noClockBlink() {
+    //TODO: replace with fastPinMode() when available
+    pinMode(LED_BUILTIN,OUTPUT);
+    while(1) {
+      for (byte i=3;i!=0;i--){
+        digitalWrite(LED_BUILTIN,CHANGE);
+        for (byte j=20;j!=0;j--) blinkDelay(50000);
+      }
+      for (byte i=3;i!=0;i--){
+        digitalWrite(LED_BUILTIN,CHANGE);
+        blinkDelay(50000);
+        digitalWrite(LED_BUILTIN,CHANGE);
+        for (byte j=9;j!=0;j--) blinkDelay(50000);
+      }
+    }
+  }
+// running at 4 MHz due to missing clock, so 1 pass through loop = 1 us
+  void blinkDelay(uint16_t us){
+    __asm__ __volatile__ (
+      "1: sbiw %0,1" "\n\t" // 2 cycles
+      "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
+    );
+  }
+  #ifdef CLKCTRL_CFD_vect
+  ISR(CLKCTRL_CFD_vect){
+    noClockBlink();
+  }
+  #endif
+#endif
 
 void setup_timers() {
 
@@ -919,7 +1181,7 @@ void setup_timers() {
 
 
   #ifdef TCD0
-      #if  (!(defined(MILLIS_USE_TIMERD0_A0) || defined(MILLIS_USE_TIMERD0)))
+    #ifndef MILLIS_USE_TIMERD0
       PORTMUX.TCDROUTEA=TCD0_PINS;
       TCD0.CMPBCLR=510; //Count to 510
       TCD0.CMPACLR=510;
