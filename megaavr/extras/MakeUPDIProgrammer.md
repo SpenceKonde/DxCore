@@ -20,7 +20,7 @@ Now, you should be able to select an ATtiny megaAVR series board from Tools -> B
 
 **If the process appears to hang at the start of the upload, press and release the reset button on the UPDI prpgrammer** I pounded on jtag2updi for like a month trying to get rid of all the bugs like this, and after finally getting my fixes merged in, discovered that somehow, this could still happen.
 
-![Minimal UPDI connections](megaavr/extras/NanoUPDI_Minimal.png "Minimal UPDI connections - no resistors")
+![Minimal UPDI connections](NanoUPDI_Minimal.png "Minimal UPDI connections - no resistors")
 
 
 ![Reccomended UPDI connections](NanoUPDI_Recommended.png "Recommeded UPDI connections - 470 Ohm in series with UPDI, 2.2 Ohm in series with power.")
