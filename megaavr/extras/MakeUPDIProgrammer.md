@@ -1,6 +1,6 @@
 # Step-by-step guide to turn a uno/nano/pro mini into a UPDI programmer
 
-The ATtiny 0- and 1-series are programmed through the Unified Program and Debug Interface (UPDI). This is a 1-wire interface using the reset pin on the ATtiny. The ATtiny does not have a bootloader, so a UPDI programmer is required to upload the sketches. The classic ISP programmers cannot be used - only UPDI can be used to program these parts.
+The AVR Dx-series parts are programmed through the Unified Program and Debug Interface (UPDI). This is a 1-wire interface using the UPDI pin on the AVR Dx-series part. A UPDI programmer is required to to change the fuses ("burn bootloader"), upload a bootloader (if desired) and upload sketches if a bootloader is not in use. The classic ISP programmers cannot be used - only UPDI can be used to program these parts.
 
 An Arduino sketch is available to turn ATmega328(p)-based Arduino’s, like the Arduino UNO and Nano, into an UPDI programmer (it does not work on boards based on other parts, like the 32u4 (Micro/Leo) or any non-AVR board). The following steps show how to make one of these low cost UPDI programmers. We recommend using an Arduino Nano or Pro Mini (a cheap clone from ebay is fine) and hard-wiring it for the task.
 
@@ -23,7 +23,7 @@ Now, you should be able to select an ATtiny megaAVR series board from Tools -> B
 ![Minimal UPDI connections](megaavr/extras/NanoUPDI_Minimal.png "Minimal UPDI connections - no resistors")
 
 
-![Reccomended UPDI connections](megaavr/extras/NanoUPDI_Recommended.png "Recommeded UPDI connections - 470 Ohm in series with UPDI, 2.2 Ohm in series with power.")
+![Reccomended UPDI connections](NanoUPDI_Recommended.png "Recommeded UPDI connections - 470 Ohm in series with UPDI, 2.2 Ohm in series with power.")
 
 ### Ignore the warning about "flash" and "boot" memories
 A warning will be shown during the upload process `avrdude: jtagmkII_initialize(): Cannot locate "flash" and "boot" memories in description` - this warning is spurious and can be safely ignored.
@@ -41,13 +41,18 @@ Luckily, there is a very simple solution to this: Place a very low value resisto
 
 Note: The resistor method of dealing with inrush current requires that nothing which draws more than 100mA or so be connected to the target, lest the voltage droop more than is acceptable.
 
+## Bootloaders and "Burn Bootloader"
+"Burn Bootloader does three things - it sets the fuses to match the options selected in the Tools submenus (options controlled by fuses are marked in the menu), erases the flash, and writes the bootloader to the flash, if you have selected a board definition with a bootloader (the ones marked with (Optiboot) in the board menu). 
+
+If you wish to stop using the bootloader after having installed it and go back to uploading via UPDI, choose the "no bootloader" board option, and "burn bootloader" to set the fuses appropriately. When in doubt, there is never harm in burning the bootloader - unlike classic AVRs, you cannot brick the board by "burning bootloader" with improper settings!
+
 ## Troubleshooting
 
 ### Ignore the warning about "flash" and "boot" memories
 A warning will be shown during the upload process `avrdude: jtagmkII_initialize(): Cannot locate "flash" and "boot" memories in description` - this warning is spurious (a bug in avrdude, or in the modifications made to support jtag2updi). It can and should be ignored - it is shown whenever uploading via jtag2updi
 
 ### Use Verbose uploads
-The avrdude output is very terse by default, particularly with AVRdude
+The avrdude output is very terse by default, particularly with jtag2updi. Enabling verbose upload ensures that you get useful feedback during the upload (and bootloading process)
 
 ## Photographs
 
