@@ -1,17 +1,19 @@
 # DxCore Library
-This library provides wrappers around a few chip features that didn't seem appropriate to put into the API at large, but which also did not seem large enough for a library. It may also include examples of using chip functionality with no library or wrapper at all.
+This library provides wrappers around a few chip features that didn't seem appropriate to put into the API at large, but which also did not seem large enough for a library. The examples may also include examples of using chip functionality with no library or wrapper at all; see the specific examples for more information. In all of these functions, a "successful" return value is 0, while potential failures are non-zero values. While this may initially seem backwards, it means that one can use the value returned directly in an `if` statement to check for success/failure, rather than comparing to a "success" value, yet the returned value also contains the full reason for the failure if that is needed. This is the same convention used by program "exit code" or "exit status" - for the same reason.
 
 ## GetMVIOStatus
 A new macro is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, enabled, and if so, whether VDDIO2 voltage is high enough that MVIO is enabled.
 
 This returns one of the following constants:
 ```
-MVIO_DISABLED
-MVIO_BAD_FUSE
-MVIO_UNDERVOLTAGE
-MVIO_OKAY
-MVIO_UNSUPPORTED
+MVIO_DISABLED       -128
+MVIO_BAD_FUSE       -64
+MVIO_UNDERVOLTAGE    1
+MVIO_OKAY            0
+MVIO_UNSUPPORTED    -1
 ```
+
+These numeric values mean that `if(getMVIOStatus()){...}` will run the conditional statements if MVIO is not enabled and working. Similarly, `if(getMVIOStatus()>=0){...}` will run the conditional if MVIO is supported and enabled, whether or not there is an appropriate VDDIO2 voltage supplied.
 
 ```c
 void checkMVIO() {

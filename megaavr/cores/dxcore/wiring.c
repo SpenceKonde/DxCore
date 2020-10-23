@@ -21,6 +21,10 @@
 */
 
 #include "wiring_private.h"
+#if (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
+void asmDelay(uint16_t us);
+void blinkCode(uint8_t blinkcount);
+#endif
 
 // the prescaler is set so that timer ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
@@ -794,7 +798,7 @@ void init()
     #error "F_CPU not defined"
   #endif
 
-  #if CLOCKSOURCE==0
+  #if CLOCK_SOURCE==0
     //internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
     /* patern is:
     F_CPU     CLKCTRL_FREQSEL
@@ -875,20 +879,20 @@ void init()
     #else
       #error "F_CPU defined as an unsupported value"
     #endif
-  #elif (CLOCKSOURCE==1 || CLOCKSOURCE==2)
+  #elif (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
     // For this, we don't really care what speed it is at - we will run at crystal frequency, and trust the user to select a speed matching that.
     // We don't prescale from crystals, and won't unless someone gives a damned convincing reason why that feature is important.
     // Crystals in the relevant frequency range are readily available.
     #if defined(__AVR_DA__)
-      #if (CLOCKSOURCE==1)
+      #if (CLOCK_SOURCE==1)
         #error "AVR DA-series detected, but crystal as clock source specified. The menu options should not permit this; those parts don't support it."
       #else
         //external clock
         uint8_t i=255;
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,CLKCTRL_CLKSEL_EXTCLK_gc);
-        while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC) {
+        while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC_bm) {
           i--;
-          if(i==0) noClockBlink();
+          if(i==0) blinkCode(3);
           // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
         }
       #endif
@@ -897,7 +901,7 @@ void init()
       // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
       _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC,CLKCTRL_CFDSRC_CLKMAIN_gc|CLKCTRL_CFDEN_bm);
       _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL,CLKCTRL_CFD_bm);
-      #if (CLOCKSOURCE==2)
+      #if (CLOCK_SOURCE==2)
         //external clock
         _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_SELHF_EXTCLOCK_gc|CLKCTRL_ENABLE_bm));
       #else
@@ -915,20 +919,21 @@ void init()
             #define XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
           #endif
         #endif
-        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_CSUTHF_1K_gc|XTAL_DRIVE|CLKCTRL_SELHF_CRYSTAL_gc|CLKCTRL_ENABLE_bm));
+        #ifndef CSUTHF
+          #define CSUTHF CLKCTRL_CSUTHF_256_gc
+        #endif
+      _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_CSUTHF_1K_gc|XTAL_DRIVE|CLKCTRL_SELHF_CRYSTAL_gc|CLKCTRL_ENABLE_bm));
       #endif
-      // either way, we just turned on the external clock source, so time to use it..
-      _PROTECTED_WRITE(CLKCTRL_)
     #endif
-    uint16_t i=255;
+    uint16_t i=4096;
     _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,CLKCTRL_CLKSEL_EXTCLK_gc);
-    while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC) {
+    while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC_bm) {
       i--;
-      if(i==0) noClockBlink();
+      if(i==0) blinkCode(3);
       // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
     }
   #else
-    #error "CLOCKSOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); DxCore does not support any other options (and it isn't even clear what such an option might be, other than a 32.768k low speed crystal, which would be an unspeakably miserable experience with Arduino"
+    #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); DxCore does not support any other options (and it isn't even clear what such an option might be, other than a 32.768k low speed crystal, which would be an unspeakably miserable experience with Arduino"
   #endif
 
   #if (defined(DB_28_PINS)||defined(DB_32_pins))
@@ -1020,34 +1025,35 @@ void init()
 // it's more useful to abort startup than to leave the user wondering why the sketch is
 // running at an unexpected speed. The odd number of "change" blinks in long phase makes it
 // extremely distinctive.
-#if (CLOCKSOURCE==1 || CLOCKSOURCE==2)
-  void noClockBlink() {
+#if (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
+  void blinkCode(uint8_t blinkcount) {
     //TODO: replace with fastPinMode() when available
-    pinMode(LED_BUILTIN,OUTPUT);
+    VPORTA.DIR|=0x80;
     while(1) {
       for (byte i=3;i!=0;i--){
-        digitalWrite(LED_BUILTIN,CHANGE);
-        for (byte j=20;j!=0;j--) blinkDelay(50000);
+        VPORTA.IN|=0x80;
+        for (byte j=20;j!=0;j--) asmDelay(50000);
       }
-      for (byte i=3;i!=0;i--){
-        digitalWrite(LED_BUILTIN,CHANGE);
-        blinkDelay(50000);
-        digitalWrite(LED_BUILTIN,CHANGE);
-        for (byte j=9;j!=0;j--) blinkDelay(50000);
+      for (byte i=blinkcount;i!=0;i--){
+        VPORTA.IN|=0x80;
+        asmDelay(50000);
+        VPORTA.IN|=0x80;
+        for (byte j=9;j!=0;j--) asmDelay(50000);
       }
     }
   }
 // running at 4 MHz due to missing clock, so 1 pass through loop = 1 us
-  void blinkDelay(uint16_t us){
+  void asmDelay(uint16_t us){
     __asm__ __volatile__ (
       "1: sbiw %0,1" "\n\t" // 2 cycles
       "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
     );
   }
+
   #ifdef CLKCTRL_CFD_vect
-  ISR(CLKCTRL_CFD_vect){
-    noClockBlink();
-  }
+    ISR(CLKCTRL_CFD_vect){
+      blinkCode(4);
+    }
   #endif
 #endif
 

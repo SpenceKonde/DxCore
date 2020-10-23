@@ -72,7 +72,7 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range. S
 * 28MHz Internal, Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
 * 32MHz Internal, Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
 
-There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more pwoer efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions!) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future; these are still early days.
+There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions, at least at room temperature) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future.
 
 The DA-series does not support use of an external high frequency crystal (though the DB-series does!) - however the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
 
@@ -86,9 +86,18 @@ void setup() {
 	// inappropriate loading caps or improper crystal selection.
 	// more stuff after this to set up your sketch
 }
-enableA
 
 ```
+
+### Clock troubleshooting
+On a classic AVR, selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation more gracefully. However, without assistance from the core, recognizing that the problem was infact a missing clock could be challenging. In order to aid in debugging such issues, DxCore will never run the sketch if the selected clock is not present. It will try for a short time before giving up and showing a blink code on pin PA7 (Arduino pin number 7); this blink code will be shown until the chip is reset. Similarly, on the DB-series, which features Clock Failure Detection, a clock failure at runtime will trigger a different blink code.
+
+#### Blink Codes
+All blink codes issued by the core start with the LED pin switching states three times (ie, if it is off, it will turn on, off, then on again), followed by a number of flashes indicating the nature of the failure. This will then repeat - since it initially changes state three times, this means that the pattern will be inverted the second time through. The number of short flashes indicates the nature of the problem: Three flashes indicates that the selected clock source was not present at startup. Four flashes indicates that it was present at startup, but then disappeared while it was running. It is hoped that this will make the blink codes distinctive enough that they cannot be mistaken for the running sketch. The core provides no facility to disable this, move it to another pin, or otherwise alter the clock source startup behavior. If you require this, compile with the internal oscillator at the desired frequency selected, and switch to the crystal or external clock at the beginning of your `setup()` function. In this case, on the DB-series parts, the clock failure detection will not be enabled, and - if you wish - you may enable it and write your own ISR to handle the CFD interrupt.
+
+**The AVR DA-series does not provide clock failure detection (CFD)** - on DA-series parts, if the external clock is removed, it will just stop unless you use the watchdog timer to reset it in the event of such a hang.
+
+**Severe disruptions to the crystal pins can trigger a reset** when that crystal is used as the main clock source. This means that even if the chip was running prior to a disruption to the crystal, you may end up with the 3-blink code, not the 4-blink one. These blink codes are meant only as a debugging aid - they are not infallible, and do not replace careful observation of a malfunctioning project.
 
 
 ## Programming is done via UPDI
@@ -98,21 +107,22 @@ Currently, the only programmer I know works with the core is jtag2updi. See [Mak
 There is now support for an Optiboot derived bootloader! See the Bootloader section below for more information. The bootloader, of course, requires a UPDI programmer to install.
 
 ## Brutal errata in initial hardware
-The silicon errata in the initial versions of these parts is pretty brutal - and it's not even complete! There are a few sweeteners though too... See [errata and extras](megaavr/extras/errata_and_extras.md).
+The silicon errata in the initial versions of these parts is pretty brutal, particularly for the 128k parts, which were released first - and it's not even complete! See [errata and extras](megaavr/extras/errata_and_extras.md) for more information on the un/poorly-documented behavior of these devices..
 
 ## Quick Peripheral by Peripheral comparison
-[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md)
+[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md) - these were my thoughts as I first exploted these parts; it is not an indepth guide to the features of these parts, nor is it intended to be.
 
 # Features
 
 ## Memory-mapped flash? It's complicated.
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker can't automatically put constants into flash on 64k and 128k parts. However, on 32k parts, it can, and does!
 
-So, for the time being, you must use the F() macro and PROGMEM to put constants into program memory, and the pgm_read functions to read it on 128k and 64k parts (`__AVR_ARCH__==104` and `__AVR_ARCH__==102`, respectively), while for 32k parts (like other parts where `__AVR_ARCH__==103` - no, I don't know why that's in the middle either), constants are automatically not stored in flash and can be accessed normally. On these parts (as of 1.1.0), F() macro is a no-op, while for
+As of 1.2.0, you can declare a const variable MAPPED_PROGMEM; this will put it in the final section of flash (section 1 or 3 - they're 0-indexed); in this case, the data is not copied to RAM, and *you can use the variable directly to access it through the mapped flash!* (this only works if you don't change which section of the flash is mapped in NVMCTRL.CTRLB); you can store up to 32k of data this way. The PROGMEM attribute also works normally, ie, if you declare something PROGMEM, it will be stored in flash in the lower 64k (if possible), and can be accessed using pgm_read_* macros.
 
-We are investigating what sort of solutions to this are practical such that up to 32kb of constants could be declared in a way that puts them in the final 32k section of flash (so that the linker wouldn't also have to work around a hole in it's memory), with the flash mapping pointed there and left that way (probably with FLMAP locked, at least by default). How easy this will be to realize to be remains to be seen, we will update this as the situation develops.
+Note that the errata relating to the memory mapping on the AVR128DA parts is not a problem for the application, as the bootloader does not set BOOTRP, and the application cannot write to the flash (on parts with more than 32k of flash, the bootloader uses the SPM instruction to write the flash one word at a time, rather than ST to write it one byte at a time).
 
-Note that the errata relating to the memory mapping is not a problem for the application, as the bootloader does not set BOOTRP, and the application cannot write to the flash.
+The `F()` macro works the same way as it does on normal boards as of 1.2.0, even on the 32k parts, where it is unnecessary to save RAM - this was done in order to maintain library compatibility; several very popular libraries rely on F() returning a `__FlashStringHelper *` and make use of pgm_read_byte() to read it.
+
 
 ## Bootloader support (New in 1.1.0!)
 As of 1.1.0, DxCore now also includes an Optiboot-derived bootloader for all parts! This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Note that after the bootloader has been installed in this way, to use it without the bootloader, you must choose the non-optiboot board definition, and then again Burn Bootloader to configure the fuses appropriately; when the bootloader is enabled the vectors are located at the start of the application section, 1024 bytes in (like megaAVR 0-series and tinyAVR 0/1-series, and unlike classic AVRs, the bootloader section is at the beginning of the flash). Options to set the desired USART that the bootloader will run on are available for all serial ports, with either the normal or alternate pin locations. USART0 with default pins is the default option here, and these are the ones that are connected to the 6-pin serial header on the DA-series breakout boards that I sell. An option is provided when burning bootloader to choose an 8 second delay after reset - use this if you will be manually pressing reset
@@ -120,10 +130,10 @@ As of 1.1.0, DxCore now also includes an Optiboot-derived bootloader for all par
 Once the part is bootloaded, sketches can be uploaded by connecting a serial adapter to those pins (including the usual DTR-autoreset circuit, present on my breakout boards), and clicking upload. If autoreset is not practical for whatever reason, an 8-second timeout version of the bootloader is provided. When reset is pressed, the bootloader will be active for the next 8 seconds. This may also be useful in combination with the software reset for updating a device in an inaccessible location.
 
 ### Bootloader size
-Currently, the bootloader takes up 1k of flash (it uses around 680b, and the size of the boot section is in units of 512b). With time we hope to be able to reduce this to 512b to fit in the minimum size boot section. This may be most possible for the 32K parts, as the whole flash can be written to mapped memory using the ST instruction, rather than needing to use SPM - however this has not yet been done.
+As of 1.2.0, the Optiboot bootloader now takes up only 512b of flash, just like on the Arduino Uno and similar! If you were previously using DxCore with an older version of the bootloader, you must use a UPDI programmer to "burn bootloader" with the new veraion of the bootloader first.
 
-### No Write-to-flash call yet
-We plan to implement that, but because it would appear that the actual writes must be called from the boot section, this is a more complicated matter (note also that this functionality is completely untested even on tinyAVR 0/1-series and megaAVR 0-series, as evidenced by my having fixed two bugs that would 100% have prevented it from working at all, and which had been present since the bootloader was written). I would definitely like to add this functionality though - especially if it turns out that we can't get the bootloader size under 512b, and thus can't say "well, we couldn't add THAT without going past 512b for bootloader size" as an excuse
+### Bootloader Warning
+When using a bootloader, you must use a UPDI programmer to install the bootloader on the part first. This is required even if
 
 ## Ways to refer to pins
 
