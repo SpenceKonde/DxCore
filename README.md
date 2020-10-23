@@ -2,7 +2,7 @@
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
 
-# GITHUB VERSION NOW HAS 512b OPTIBOOT BINARIES
+# 1.2.0 NOW HAS 512b OPTIBOOT BINARIES
 # ALL USERS WITH OPTIBOOT MUST REBURN BOOTLOADER AFTER UPDATING!
 
 # DxCore - Arduino support for the NEW AVR DA-series, DB-series and upcoming DD-series
