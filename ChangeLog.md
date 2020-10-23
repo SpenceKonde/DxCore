@@ -1,4 +1,4 @@
-Latest planned 1.2.0/1.2.0a
+1.2.0/1.2.0a
 * Add support for AVR64DB and AVR32DB parts! Too bad the compiler issue is still a problem.... I was not able to make a working toolchain for these parts, not quite sure what I got wrong this time around...
 * Add tinyNeoPixel support for new methods added to the Adafruit library and the higher speeds possible on these devices.
 * Declare a const variable as MAPPED_PROGMEM to put it in flash - you get up to 32 kb like this (assuming you have enough space left after the rest of your code), and then access it like any other variable! (this only works if you don't change the FLMAP bits in NVMCTRL.CTRLB from their default setting).
