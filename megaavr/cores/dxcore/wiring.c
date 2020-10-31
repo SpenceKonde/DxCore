@@ -29,7 +29,7 @@ void blinkCode(uint8_t blinkcount);
 // the prescaler is set so that timer ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
 
-#ifndef DISABLE_MILLIS
+#ifndef MILLIS_USE_TIMERNONE
 
 #ifdef MILLIS_USE_TIMERRTC_XTAL
 #define MILLIS_USE_TIMERRTC
@@ -362,9 +362,9 @@ unsigned long millis()
 #endif //end of non-RTC micros code
 
 
-#endif //end of non-DISABLE_MILLIS code
+#endif //end of non-MILLIS_USE_TIMERNONE code
 
-#if !(defined(DISABLE_MILLIS) || defined(MILLIS_USE_TIMERRTC)) //delay implementation when we do have micros()
+#if !(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC)) //delay implementation when we do have micros()
 void delay(unsigned long ms)
 {
   uint32_t start_time = micros(), delay_time = 1000*ms;
@@ -690,7 +690,7 @@ void delayMicroseconds(unsigned int us)
 
 
 
-#ifndef DISABLE_MILLIS
+#ifndef MILLIS_USE_TIMERNONE
   void stop_millis()
   { // Disable the interrupt:
     #if defined(MILLIS_USE_TIMERA0)
@@ -1012,9 +1012,9 @@ void init()
 
   setup_timers();
 
-  #ifndef DISABLE_MILLIS
+  #ifndef MILLIS_USE_TIMERNONE
     init_millis();
-  #endif //end #ifndef DISABLE_MILLIS
+  #endif //end #ifndef MILLIS_USE_TIMERNONE
 /*************************** ENABLE GLOBAL INTERRUPTS *************************/
 
   sei();
