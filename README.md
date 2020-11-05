@@ -2,9 +2,6 @@
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
 
-# 1.2.0 NOW HAS 512b OPTIBOOT BINARIES
-# ALL USERS WITH OPTIBOOT MUST REBURN BOOTLOADER AFTER UPDATING!
-
 ## **No, the AVR128DA48 Curiosity Nano is not supported yet!**
 No, adding support for it is **not** as simnple as adding a few lines to the configuration files! Support will require a different tool as avrdude does not support the required addressing mode; avrdude is no longer supported by it's author, and nobody has stepped up to replace him, hence it is unlikely that avrdude will ever be updated to support it. I am investigating options on this front and will make an announcement when I have information to announce. In the meantime, please stop creating issues about this.
 
