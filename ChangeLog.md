@@ -1,6 +1,7 @@
 ### Planned for 1.2.1/1.2.1a
 * Fix slow sampled BOD mode
 * Fix DISABLE_MILLIS and other timer options
+* Set SPI_INTERFACES_COUNT to 1, not 2 (#32). Considering removal of SPI1 library - it's a mess, it's incompatible with everything for multiple reasons, and SPI_INTERFACES_COUNT breaks perfectly sane implementations, instead of making it easier for libraries to figure out how many usable SPI ports are available, which is the point of that #define. Core problem is that all other Arduino boards called the SPIclass for second serial port SPI1 - but that's the name for the struct defined in the io headers! Setting the define back to 1; as far as I can tell, there's basically nothing compatible with my SPI1 library anyway! That was not my finest work...
 
 ### 1.2.0/1.2.0a
 * Add support for AVR64DB and AVR32DB parts! Too bad the compiler issue is still a problem.... I was not able to make a working toolchain for these parts, not quite sure what I got wrong this time around...
