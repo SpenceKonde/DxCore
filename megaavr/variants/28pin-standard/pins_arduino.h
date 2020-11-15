@@ -80,7 +80,7 @@
 
 // SPI 0
 // No pinswap available
-#define SPI_INTERFACES_COUNT   2
+#define SPI_INTERFACES_COUNT   1
 #define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
 #define PIN_SPI_MISO           PIN_PA5
 #define PIN_SPI_SCK            PIN_PA6
