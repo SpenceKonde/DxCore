@@ -99,7 +99,7 @@
 // SPI 0
 // No pinswap enabled by default
 // Pinswap 2 not available
-#define SPI_INTERFACES_COUNT   2
+#define SPI_INTERFACES_COUNT   1
 #define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
 #define SPI_MUX_PINSWAP_1      PORTMUX_SPI0_ALT1_gc
 #define PIN_SPI_MOSI           PIN_PA4
