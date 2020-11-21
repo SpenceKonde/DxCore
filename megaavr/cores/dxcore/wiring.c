@@ -1193,7 +1193,7 @@ void setup_timers() {
       TCD0.CMPACLR=510;
       TCD0.CTRLC=0x80; //WOD outputs PWM B, WOC outputs PWM A
       TCD0.CTRLB=0x00; //One Slope
-      TCD0.CTRLA=TIMERD0_CTRLA_SETTING; //OSC20M prescaled by 32, gives ~1.2 khz PWM at 20MHz.
+      TCD0.CTRLA=TIMERD0_CTRLA_SETTING;
     #endif
   #endif
 

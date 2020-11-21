@@ -205,38 +205,21 @@ void UartClass::begin(unsigned long baud, uint16_t config)
   //Make sure global interrupts are disabled during initialization
   uint8_t oldSREG = SREG;
   cli();
-
+  // We don't do the +1 to correct for rounding on megaTinyCore, since many of those parts are tightly constrianed on flash.
+  // But on the Dx-series parts, we can probably spare a few bytes of flash.
   baud_setting = (((8 * F_CPU) / baud) + 1) / 2;
-  // Disable CLK2X
-  (*_hwserial_module).CTRLB &= (~USART_RXMODE_CLK2X_gc);
-  (*_hwserial_module).CTRLB |= USART_RXMODE_NORMAL_gc;
+
+  // Use CLK2X if appropriate.
+  if(baud>=(38400*(F_CPU/1000000))) {
+    (*_hwserial_module).CTRLB = ((*_hwserial_module).CTRLB&(~USART_RXMODE_gm)) | USART_RXMODE_CLK2X_gc;
+    baud=baud>>1;
+  }
+  else {
+    (*_hwserial_module).CTRLB = ((*_hwserial_module).CTRLB&(~USART_RXMODE_gm)) | USART_RXMODE_NORMAL_gc;
+  }
 
   _written = false;
 
-
-  #ifdef SIGROW_OSC16ERR5V
-    //See #131 for more info on this
-    #if !defined(USE_EXTERNAL_OSCILLATOR)
-      #if (F_CPU==20000000UL || F_CPU==10000000UL || F_CPU==5000000UL) //this means we are on the 20MHz oscillator
-        #ifdef UARTBAUD3V
-          int8_t sigrow_val = SIGROW.OSC20ERR3V;
-        #else
-          int8_t sigrow_val = SIGROW.OSC20ERR5V;
-        #endif
-      #else //we are on 16MHz one
-        #ifdef UARTBAUD3V
-          int8_t sigrow_val = SIGROW.OSC16ERR3V;
-        #else
-          int8_t sigrow_val = SIGROW.OSC16ERR5V;
-        #endif
-      #endif
-    #else
-      int8_t sigrow_val = 0;
-    #endif
-    //baud_setting += (baud_setting * sigrow_val) / 1024;
-    baud_setting *= (1024 + sigrow_val);
-    baud_setting /= 1024;
-  #endif
   // assign the baud_setting, a.k.a. BAUD (USART Baud Rate Register)
   (*_hwserial_module).BAUD = (uint16_t)baud_setting;
 
