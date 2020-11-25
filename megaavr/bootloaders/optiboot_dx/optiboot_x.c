@@ -372,11 +372,11 @@ int main (void) {
     #ifdef START_APP_ON_POR
     // If WDRF is set  OR nothing except BORF and PORF are set, that's not bootloader entry condition
     // so jump to app. We have reset pin and SWRF for when we want to enter bootloader.
-    if (ch & RSTCTRL_WDRF_bm || (!(ch & (~(RSTCTRL_BORF_bm | RSTCTRL_PORF_bm))))) {
+    if (ch && (ch & RSTCTRL_WDRF_bm || (!(ch & (~(RSTCTRL_BORF_bm | RSTCTRL_PORF_bm)))))) {
     #else
       // If WDRF is set  OR nothing except BORF is set, that's not bootloader entry condition
       // so jump to app - let's see if this works okay or not...
-    if (ch & RSTCTRL_WDRF_bm || (!( ch & (~RSTCTRL_BORF_bm)))) {
+    if (ch && (ch & RSTCTRL_WDRF_bm || (!(ch & (~RSTCTRL_BORF_bm))))) {
     #endif
 	  // Start the app.
     // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
@@ -604,12 +604,8 @@ int main (void) {
 	    putch(0x97);
 #elif (PROGMEM_SIZE==65536)
       putch(0x96);
-#elif (PROGMEM_SIZE==32768) // Might not need to do this for 32/16k parts - would be nice, because then the same binary would work on both!
-      putch(0x95);
-#elif (PROGMEM_SIZE==16384) //for upcoming DD-series...
-      putch(0x94);
 #else
-      putch(SIGROW_DEVICEID1);
+      putch(SIGROW_DEVICEID1); //for the parts with fully memory mapped flash, writing takes less flash, so we can spare this, and we may not need different builds for 16k DD-series vs 32k DD-series.
 #endif
 	    putch(SIGROW_DEVICEID2);
 	}
