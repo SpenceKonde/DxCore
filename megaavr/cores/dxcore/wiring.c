@@ -1004,7 +1004,9 @@ void init()
 
     #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
       // That may become defined when DA-series silicon is available with the fix
-      ADC0.MUXPOS=0x7F;
+      ADC0.MUXPOS=0x40;
+      ADC0.COMMAND=0x01;
+      ADC0.COMMAND=0x02;
     #endif
     analogReference(VDD);
     DACReference(VDD);

@@ -72,7 +72,7 @@ int analogRead(uint8_t pin)
   /* Combine two bytes */
   #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
     // That may become defined when DA-series silicon is available with the fix
-    ADC0.MUXPOS=0x7F;
+    ADC0.MUXPOS=0x40;
   #endif
   return ADC0.RES;
 
