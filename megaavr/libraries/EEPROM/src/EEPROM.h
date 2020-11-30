@@ -35,12 +35,12 @@
 
 struct EERef {
 
-  EERef(const uint8_t index)
+  EERef(int index)
     : index(index)                 {}
 
   //Access/read members.
   uint8_t operator*() const            {
-    return eeprom_read_byte((uint8_t *)(uint16_t) index);
+    return eeprom_read_byte((uint8_t*)index);
   }
   operator uint8_t() const             {
     return **this;
@@ -53,7 +53,7 @@ struct EERef {
   EERef &operator=(uint8_t in)       {
     while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
-    *(uint8_t*)(uint16_t)(MAPPED_EEPROM_START+index)=in;
+    *(uint8_t*)(MAPPED_EEPROM_START+index)=in;
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     return *this;
   }
@@ -111,7 +111,7 @@ struct EERef {
     return --(*this), ret;
   }
 
-  uint8_t index; //Index of current EEPROM cell.
+  const int index; //Index of current EEPROM cell.
 };
 
 /***
@@ -124,7 +124,7 @@ struct EERef {
 
 struct EEPtr {
 
-  EEPtr(const uint8_t index)
+  EEPtr(int index)
     : index(index)                {}
 
   operator int() const                {
@@ -156,7 +156,7 @@ struct EEPtr {
     return index--;
   }
 
-  uint8_t index; //Index of current EEPROM cell.
+  int index; //Index of current EEPROM cell.
 };
 
 /***
@@ -170,16 +170,16 @@ struct EEPtr {
 struct EEPROMClass {
 
   //Basic user access methods.
-  EERef operator[](const int idx)        {
+  EERef operator[](int idx)        {
     return idx & EEPROM_END;
   }
-  uint8_t read(uint8_t idx)              {
+  uint8_t read(int idx)              {
     return EERef(idx);
   }
-  void write(uint8_t idx, uint8_t val)   {
+  void write(int idx, uint8_t val)   {
     (EERef(idx)) = val;
   }
-  void update(uint8_t idx, uint8_t val)  {
+  void update(int idx, uint8_t val)  {
     EERef(idx).update(val);
   }
 
