@@ -106,14 +106,14 @@
 /**********************************************************/
 
 /**********************************************************/
-/* Edit History:					                      */
-/*							                              */
+/* Edit History:                                */
+/*                                            */
 /* Aug 2020                                               */
 /*     Adapted to Dx-series -Spence Konde                 */
-/* Aug 2019						                          */
+/* Aug 2019                                      */
 /* 9.0 Refactored for Mega0/Xtiny from optiboot.c         */
 /*   :                                                    */
-/* 4.1 WestfW: put version number in binary.	       	  */
+/* 4.1 WestfW: put version number in binary.             */
 /**********************************************************/
 
 #define OPTIBOOT_MAJVER 9
@@ -124,6 +124,7 @@
  * of optiboot.  That way you don't wind up with very different code that
  * matches the version number of a "released" optiboot.
  */
+
 
 #if !defined(OPTIBOOT_CUSTOMVER)
 # define OPTIBOOT_CUSTOMVER 0
@@ -286,28 +287,30 @@ void nvm_cmd(uint8_t cmd);
 static void getNch(uint8_t);
 
 #if LED_START_FLASHES > 0
-static inline void flash_led(uint8_t);
+  static inline void flash_led(uint8_t);
 #endif
 
 #define watchdogReset()  __asm__ __volatile__ ("wdr\n")
-#if (__AVR_ARCH__==103) //fully memory mapped flash
-static inline void writebuffer(int8_t memtype, addr16_t mybuff,
-             addr16_t address, pagelen_t len);
-#else
-static inline void writebuffer(int8_t memtype, addr16_t mybuff,
-             addr16_t address, uint8_t len); //len is in words, and 0 will be rolled over to 255 before it's checked....
-#endif
-static inline void read_mem(uint8_t memtype,
-          addr16_t, pagelen_t len);
-static void do_spm_erase(uint16_t address);
 
+#if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD)) //fully memory mapped flash
+  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len);
+#else
+  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len); 
+  //len is in words, and 0 will be rolled over to 255 before it's checked....
+#endif
+
+static inline void read_mem(uint8_t memtype, addr16_t, pagelen_t len);
+
+#if (__AVR_ARCH__!=103)
+static void do_spm_erase(uint16_t address);
+#endif
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
  * lot of peripheral registers.
  * Note that RAMSTART (for optiboot) need not be exactly at the start of RAM.
  */
 #if !defined(RAMSTART)  // newer versions of gcc avr-libc define RAMSTART
-#error RAMSTART not defined.
+  #error RAMSTART not defined.
 #endif
 
 
@@ -324,353 +327,334 @@ void pre_main (void) {
     //   so entry to this function will always be here, indepedent
     //    of compilation, features, etc
     __asm__ __volatile__ (
-	"	rjmp	1f\n"
+  "  rjmp  1f\n"
 #ifndef APP_NOSPM
-	"	rjmp	do_nvmctrl\n"
+  "  rjmp  do_nvmctrl\n"
 #else
-	"   ret\n"   // if do_spm isn't include, return without doing anything
+  "   ret\n"   // if do_spm isn't include, return without doing anything
 #endif
-	"1:\n"
-	);
+  "1:\n"
+  );
 }
 */
 /* main program starts here */
 int main (void) {
-    uint8_t ch;
-    /*
-     * Making these local and in registers prevents the need for initializing
-     * them, and also saves space because code no longer stores to memory.
-     * (initializing address keeps the compiler happy, but isn't really
-     *  necessary, and uses 4 bytes of flash.)
-     */
-    register addr16_t address;
-    register pagelen_t  length;
+  uint8_t ch;
+  /*
+   * Making these local and in registers prevents the need for initializing
+   * them, and also saves space because code no longer stores to memory.
+   * (initializing address keeps the compiler happy, but isn't really
+   *  necessary, and uses 4 bytes of flash.)
+   */
+  register addr16_t address;
+  register pagelen_t  length;
 
-    // This is the first code to run.
-    //
-    // Optiboot C code makes the following assumptions:
-    //  No interrupts will execute
-    //  SP points to RAMEND
+  // This is the first code to run.
+  //
+  // Optiboot C code makes the following assumptions:
+  //  No interrupts will execute
+  //  SP points to RAMEND
+  __asm__ __volatile__ ("clr __zero_reg__"); // known-zero required by avr-libc
 
-    // Here is the reset cause logic:
-    // We always clear the reset cause immediately before jumping to the app, stashing it in GPR.GPR0.
-    // This makes sure we can honor the reset entry conditions even if the user code doesn't touch
-    // the reset cause register (99.99% of arduino code does not).
-    // This means that there should only ever be one reset flag set - except maybe PORF and BORF in
-    // the event of very slow rising power. We use the WDT to reset out of optiboot, so if that's the one
-    // we always jump straight to app. That also gives the app a way to reset itself without the bootloader running.
-    // POR is optional - unless you've disabled reset, you probably want to start the app immediately on POR
-    // including POR + BOR; but if you have, you probably do. That's why it's configurable.
-    // That leaves the mysterious case of the bootloader being run with NO reset flags...
-    // On a classic AVR, that means potentially user code jumped here, and we should run.
-    // But here, we have SWRST, so they could just have used that.... I'm inclined to think
-    // thus that this is likely a reset from a bug in user code.
-    __asm__ __volatile__ ("clr __zero_reg__"); // known-zero required by avr-libc
-#define RESET_EXTERNAL (RSTCTRL_EXTRF_bm|RSTCTRL_UPDIRF_bm|RSTCTRL_SWRF_bm)
-#ifndef FANCY_RESET_LOGIC
-    ch = RSTCTRL.RSTFR;   // get reset cause
-    #ifdef START_APP_ON_POR
-    // If WDRF is set  OR nothing except BORF and PORF are set, that's not bootloader entry condition
-    // so jump to app. We have reset pin and SWRF for when we want to enter bootloader.
-    if (ch && (ch & RSTCTRL_WDRF_bm || (!(ch & (~(RSTCTRL_BORF_bm | RSTCTRL_PORF_bm)))))) {
-    #else
-      // If WDRF is set  OR nothing except BORF is set, that's not bootloader entry condition
-      // so jump to app - let's see if this works okay or not...
-    if (ch && (ch & RSTCTRL_WDRF_bm || (!(ch & (~RSTCTRL_BORF_bm))))) {
-    #endif
-	  // Start the app.
+  // Here is the reset cause logic:
+  // We always clear the reset cause immediately before jumping to the app, stashing it in GPR.GPR0.
+  // This makes sure we can honor the reset entry conditions even if the user code doesn't touch
+  // the reset cause register (99.99% of arduino code does not).
+  // This means that there should only ever be one reset flag other than WDRF - except maybe PORF and BORF in
+  // the event of very slow rising power. We use the WDT to reset out of optiboot (without having cleared
+  // the flags previously). So if that's set, we clear+stash RSTFR and jump to app. 
+  // Note that if WDRF is set, we also know that the last reset was from that, because if WDRF is set,
+  // we clear RSTFR.
+  // POR is optional - unless you've disabled reset, you probably want to start the app immediately on POR
+  // but if you have, you probably do. BORF without PORF suggests flaky power. 
+  // and if no reset flags were set, either app jumped to 0x0000 (presumably to run bootloader)
+  // or there's no app present and execution is skidding along the empty app section and wrapping
+  // around - either way, we should run the bootloader. 
+
+  // 11/14: 
+  // NASTY bug - we also need to check for no reset flags being set (ie, direct entry)
+  // and run bootloader in that case, otherwise bootloader won't run, among other things, after fresh
+  // bootloading!
+  // 11/29: 
+  // 1. Realized we never took this branch because makefile never sets START_APP_ON_POR when it should.
+  // 2. Realized (!(ch & (~RSTCTRL_BORF_bm))) is the same as (ch==RSTCTRL_BORF_bm) - but saves flash!
+  // 3. Realized (!(ch & (~(RSTCTRL_BORF_bm | RSTCTRL_PORF_bm)))), because PORF is bit 0 and BORF is bit 1
+  // and we already check that ch is not 0... so that works out to be the same as (ch < 4)
+  // on a theoretical part where those bits were in different positions, this wouldn't be valid.
+  // but on these parts it is: saves flash.
+  ch = RSTCTRL.RSTFR;   // get reset cause
+  #ifdef START_APP_ON_POR
+    // if no reset flags, it's a direct jump when we already cleared them or app not present, 
+    // that is an entry condition.
+    // If WDRF is set OR nothing except BORF and/or PORF is set, which are not entry conditions.
+    // If this isn't true, EXTRF, SWRF, or UPDIRF set; all are entry condiions.
+    if (ch && (ch & RSTCTRL_WDRF_bm || ch < 4 ) ) {
+  #else //don't START_APP_ON_POR
+    // if no reset flags, it's a direct jump when we already cleared them or app not present, 
+    // that is an entry condition.
+    // If WDRF is set OR nothing except BORF is set, which are not entry conditions.
+    // If this isn't true, PORF, EXTRF, SWRF, or UPDIRF set; all are entry condiions
+    if (ch && (ch & RSTCTRL_WDRF_bm || ch == RSTCTRL_BORF_bm)) {
+  #endif
+    // Start the app.
     // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
     // we'll put it in GPIOR0 (aka GPR.GPR0) where it won't get stomped on.
-	  //__asm__ __volatile__ ("mov r2, %0\n" :: "r" (ch));
+    //__asm__ __volatile__ ("mov r2, %0\n" :: "r" (ch));
     RSTCTRL.RSTFR=ch; //clear the reset causes before jumping to app...
-    GPR.GPR0 = ch; // but, stash the reset cause in GPIOR0 for use by app...
-	watchdogConfig(WDT_PERIOD_OFF_gc);
-	__asm__ __volatile__ (
-	    "jmp app\n"
-	    );
-    }
-#else
-    /*
-     * Protect as much Reset Cause as possible for application
-     * and still skip bootloader if not necessary
-     */
-    ch = RSTCTRL.RSTFR;
-    if (ch != 0) {
-	/*
-	 * We want to run the bootloader when an external reset has occurred.
-	 * On these mega0/XTiny chips, there are three types of ext reset:
-	 *  reset pin (may not exist), UPDI reset, and SW-request reset.
-	 * One of these reset causes, together with watchdog reset, should
-	 *  mean that Optiboot timed out, and it's time to run the app.
-	 * Other reset causes (notably poweron) should run the app directly.
-	 * If a user app wants to utilize and detect watchdog resets, it
-	 *  must make sure that the other reset causes are cleared.
-	 */
-	if (ch & RSTCTRL_WDRF_bm) {
-	    if (ch & RESET_EXTERNAL) {
-		/*
-		 * Clear WDRF because it was most probably set by wdr in
-		 * bootloader.  It's also needed to avoid loop by broken
-		 * application which could prevent entering bootloader.
-		 */
-		RSTCTRL.RSTFR = RSTCTRL_WDRF_bm;
-	    }
-	}
-	if (!((ch & RESET_EXTERNAL)) {
-	    /*
-	     * save the reset flags in the designated register.
-	     * This can be saved in a main program by putting code in
-	     * .init0 (which executes before normal c init code) to save R2
-	     * to a global variable.
-	     */
+    GPR.GPR0 = ch;    // but, stash the reset cause in GPIOR0 for use by app...
+    // 11/29
+    // We used to turn off the WDT here - but on these parts, unlike classic AVR, the WDT is not
+    // forced on when we reboot from WDT. We can only be here if we last reset was from WDT 
+    // or was BOR or POR
+    // (if it wasn't the last reset that was from WDT, then we'd have gotten here and cleared it when it was)
+    // So the WDT is ONLY on if it is fused on, in which case we can't turn it off anyway!
+    // thus this call is unnecessary! Save 2 instruction words!
+    // watchdogConfig(WDT_PERIOD_OFF_gc);
+    __asm__ __volatile__ (
+      "jmp app\n"
+    );
+  } // end of jumping to app
 
-	    // switch off watchdog
-	    watchdogConfig(WDT_PERIOD_OFF_gc);
-	    __asm__ __volatile__ (
-		"jmp app\n"
-		);
-	}
-    }
-#endif // Fancy reset cause stuff
+  // Set up watchdog to trigger after a bit
+  // No reason not to do this early.
+  // Nominally:, 1s for autoreset, 8s for manual reset
+  watchdogConfig(WDTPERIOD);
 
-    watchdogReset();
-//    _PROTECTED_WRITE(CLKCTRL.MCLKCTRLB, 0);  // full speed clock
+  // 11/29/20
+  // Removed "FANCY_RESET_LOGIC" code that we didn't use.
+  // We used to reset the WDT here. It is unclear why we felt a need to do that.
+  // The only time we could be here without a reset is if app jumped direct to
+  // bootloader. Hence, if WDT is on, it was fused on so we can't touch it
+  // but we just got out of reset less than 3 us ago, so don't have to worry
+  // OR the user turned on WDT then jumped to the bootloader; this is perverse
+  // behavior, and I can't say I particularly care whether the bootloader
+  // runs 
 
-    MYUART_TXPORT.DIR |= MYUART_TXPIN; // set TX pin to output
-    MYUART_TXPORT.OUT |= MYUART_TXPIN;  // and "1" as per datasheet
-#if defined (MYUART_PMUX_VAL)
+  MYUART_TXPORT.DIR |= MYUART_TXPIN; // set TX pin to output
+  MYUART_TXPORT.OUT |= MYUART_TXPIN;  // and "1" as per datasheet
+  #if defined (MYUART_PMUX_VAL)
     MYPMUX_REG = MYUART_PMUX_VAL;  // alternate pinout to use
-#endif
-// Saves SIX BYTES! LDI 0 and an STS to the high byte!
-// Why the compiler wastes a word on the ldi 0 is a mystery to me, since it knows it's got a 0 right there in r1 ready to go...
-#if (BAUD_SETTING_4 < 256)
+  #endif
+  // Saves SIX BYTES! LDI 0 and an STS to the high byte!
+  // Why the compiler wastes a word on the ldi 0 is a mystery to me, since it knows it's got a 0 right there in r1 ready to go...
+  #if (BAUD_SETTING_4 < 256)
     MYUART.BAUDL = BAUD_SETTING_4;
-#else
+  #else
     MYUART.BAUD = BAUD_SETTING_4;
-#endif
-    //MYUART.DBGCTRL = 1;  // run during debug
-    MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
-    //MYUART.CTRLA = 0;  // Interrupts: all off
-    MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
+  #endif
+  //MYUART.DBGCTRL = 1;  // run during debug
+  MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
+  //MYUART.CTRLA = 0;  // Interrupts: all off
+  MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 
-    // Set up watchdog to trigger after a bit
-    //  (nominally:, 1s for autoreset, longer for manual)
-    watchdogConfig(WDTPERIOD);
-
-#if (LED_START_FLASHES > 0) || defined(LED_DATA_FLASH) || defined(LED_START_ON)
+  #if (LED_START_FLASHES > 0) || defined(LED_DATA_FLASH) || defined(LED_START_ON)
     /* Set LED pin as output */
     LED_PORT.DIR |= LED;
-#endif
+  #endif
 
-#if LED_START_FLASHES > 0
+  #if LED_START_FLASHES > 0
     /* Flash onboard LED to signal entering of bootloader */
-# ifdef LED_INVERT
-    flash_led(LED_START_FLASHES * 2+1);
-# else
-    flash_led(LED_START_FLASHES * 2);
-# endif
-#else
-#if defined(LED_START_ON)
-# ifndef LED_INVERT
-    /* Turn on LED to indicate starting bootloader (less code!) */
-    LED_PORT.OUT |= LED;
-# endif
-#endif
-#endif
+    # ifdef LED_INVERT
+      flash_led(LED_START_FLASHES * 2+1);
+    # else
+      flash_led(LED_START_FLASHES * 2);
+    # endif
+  #else
+    #if defined(LED_START_ON)
+      #ifndef LED_INVERT
+        /* Turn on LED to indicate starting bootloader (less code!) */
+        LED_PORT.OUT |= LED;
+      #endif
+    #endif
+  #endif
 
-    /* Forever loop: exits by causing WDT reset */
-    for (;;) {
-	/* get character from UART */
-	ch = getch();
+  /* Forever loop: exits by causing WDT reset */
+  for (;;) {
+    /* get character from UART */
+    ch = getch();
 
-	if(ch == STK_GET_PARAMETER) {
-	    unsigned char which = getch();
-	    verifySpace();
-	    /*
-	     * Send optiboot version as "SW version"
-	     * Note that the references to memory are optimized away.
-	     */
-	    if (which == STK_SW_MINOR) {
-		putch(optiboot_version & 0xFF);
-	    } else if (which == STK_SW_MAJOR) {
-		putch(optiboot_version >> 8);
-	    } else {
-		/*
-		 * GET PARAMETER returns a generic 0x03 reply for
-		 * other parameters - enough to keep Avrdude happy
-		 */
-		putch(0x03);
-	    }
-	}
-	else if(ch == STK_SET_DEVICE) {
-	    // SET DEVICE is ignored
-	    getNch(20);
-	}
-	else if(ch == STK_SET_DEVICE_EXT) {
-	    // SET DEVICE EXT is ignored
-	    getNch(5);
-	}
-	else if(ch == STK_LOAD_ADDRESS) {
-	    // LOAD ADDRESS
-	    address.bytes[0] = getch();
-	    address.bytes[1] = getch();
-      // byte addressed!
-	    verifySpace();
-	}
-
-    else if(ch == STK_UNIVERSAL) {
-#ifdef RAMPZ
-      // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB
-      if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
-        // get address
-        getch();  // get '0'
-        RAMPZ = getch();  // get address and put it in RAMPZ (not shifted, we're getting byte addresses here!)
-        getNch(1); // get last '0'
-        // response
-        putch(0x00);
+    if (ch == STK_GET_PARAMETER) {
+      unsigned char which = getch();
+      verifySpace();
+      /*
+       * Send optiboot version as "SW version"
+       * Note that the references to memory are optimized away.
+       */
+      if (which == STK_SW_MINOR) {
+        putch(optiboot_version & 0xFF);
+      } else if (which == STK_SW_MAJOR) {
+        putch(optiboot_version >> 8);
       } else {
-        getNch(3);
-        putch(0x00);
+        /*
+         * GET PARAMETER returns a generic 0x03 reply for
+         * other parameters - enough to keep Avrdude happy
+         */
+        putch(0x03);
       }
-#else
+    } else if (ch == STK_SET_DEVICE) {
+        // SET DEVICE is ignored
+        getNch(20);
+    } else if (ch == STK_SET_DEVICE_EXT) {
+        // SET DEVICE EXT is ignored
+        getNch(5);
+    } else if (ch == STK_LOAD_ADDRESS) {
+        // LOAD ADDRESS
+        address.bytes[0] = getch();
+        address.bytes[1] = getch();
+        // byte addressed!
+        verifySpace();
+    } else if (ch == STK_UNIVERSAL) {
+      #ifdef RAMPZ
+        // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB 
+        // 128k? There.
+        if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
+          // get address
+          getch();  // get '0'
+          RAMPZ = getch();  // get address and put it in RAMPZ (not shifted, we're getting byte addresses here!)
+          getNch(1); // get last '0'
+          // response
+          putch(0x00);
+        } else {
+          getNch(3);
+          putch(0x00);
+        }
+      #else 
+        // There's no RAMPZ because it has less than 128k of flash
         getNch(4);
         putch(0x00);
-#endif
-	/* Write memory, length is big endian and is in bytes */
-    }
-	else if(ch == STK_PROG_PAGE) {
-    // PROGRAM PAGE
-    uint8_t desttype;
-    uint8_t *bufPtr;
-    GETLENGTH(length);
-    #if (__AVR_ARCH__==103)
-      pagelen_t savelength;
-      savelength = length;
-    #else
-      uint8_t savelength;
-      savelength = length>>1;
-      //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
-    #endif
-    desttype = getch();
+      #endif
+    /* Write up to 1 page of flash (or EEPROM, except that isn't supports due to space) */
+    } else if (ch == STK_PROG_PAGE) {
+      uint8_t desttype;
+      uint8_t *bufPtr;
+      GETLENGTH(length);
+      #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
+        pagelen_t savelength;
+        savelength = length;
+      #else
+        uint8_t savelength;
+        savelength = length>>1;
+        //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
+      #endif
+      desttype = getch();
 
-    // read a page worth of contents
-    bufPtr = buff.bptr;
-    do {*bufPtr++ = getch();}
-    while (--length);
-
-    // Read command terminator, start reply
-    verifySpace();
-    writebuffer(desttype, buff, address, savelength);
-  }
-
-	/* Read memory block mode, length is big endian.  */
-	else if(ch == STK_READ_PAGE) {
-    uint8_t desttype;
-    GETLENGTH(length);
-
-    desttype = getch();
-
-    verifySpace();
-
-    if (desttype == 'F') {
-#if (__AVR_ARCH__==103)
-	    address.word += MAPPED_PROGMEM_START;
-    } else {
-	    address.word += MAPPED_EEPROM_START;
-    }
-    do {
-      putch(*(address.bptr++));
-    } while (--length);
-
-    // TODO: user row?
-  }
-#else
-    read_mem(desttype, address, length);
-    } else {
-      address.word += MAPPED_EEPROM_START;
+      // read a page worth of contents
+      bufPtr = buff.bptr;
       do {
-        putch(*(address.bptr++));
+        *bufPtr++ = getch();
       } while (--length);
+
+      // Read command terminator, start reply
+      verifySpace();
+      writebuffer(desttype, buff, address, savelength);
+    
+    /* Read memory block mode, length is big endian.  */
+    } else if (ch == STK_READ_PAGE) {
+      uint8_t desttype;
+      GETLENGTH(length);
+
+      desttype = getch();
+
+      verifySpace();
+
+      #if (__AVR_ARCH__==103)
+        // handle fully mapped flash - duplicating the test for type of memory
+        // is far more readable than putting it before the #if macro
+        // set address.word to point to start of mapped flash
+        if (desttype == 'F') {
+          address.word += MAPPED_PROGMEM_START;
+        } else {
+          address.word += MAPPED_EEPROM_START;
+        }
+        do {
+          putch(*(address.bptr++));
+        } while (--length);
+      #else
+        // the entire flash does not fit in the same address space
+        // so we call that helper function.
+        if (desttype == 'F') {
+          read_mem(desttype, address, length);
+        } else {
+          address.word += MAPPED_EEPROM_START;
+          do {
+            putch(*(address.bptr++));
+          } while (--length);
+        }
+    #endif
+    /* Get device signature bytes  */
+    } else if (ch == STK_READ_SIGN) {
+      // Easy, they're already in a mapped register... but we know the flash size at compiletime, and it saves us 2 bytes of flash for each one we don't need to know...
+      verifySpace();
+      putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
+      #if (PROGMEM_SIZE==131072)  // need different binary for 128k vs 64k vs 32k-and-under anyway, as 32k-and-under is all mapped, 64k isn't mapped, but doesn't have RAMPZ and 128k has RAMPZ...
+        putch(0x97);
+      #elif (PROGMEM_SIZE==65536)
+        putch(0x96);
+      #else
+        putch(SIGROW_DEVICEID1); //for the parts with fully memory mapped flash, writing takes less flash, so we can spare this, and we may not need different builds for 16k DD-series vs 32k DD-series.
+      #endif
+      putch(SIGROW_DEVICEID2);
+    } else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
+      // Adaboot no-wait mod
+      watchdogConfig(WDT_PERIOD_8CLK_gc);
+      verifySpace();
+    } else {
+      // This covers the response to commands like STK_ENTER_PROGMODE
+      verifySpace();
     }
-    // TODO: user row?
+    putch(STK_OK);
   }
-#endif
-	/* Get device signature bytes  */
-	else if(ch == STK_READ_SIGN) {
-	    // Easy, they're already in a mapped register... but we know the flash size at compiletime, and it saves us 2 bytes of flash for each one we don't need to know...
-	    verifySpace();
-	    putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
-#if (PROGMEM_SIZE==131072)  // need different binary for 128k vs 64k vs 32k-and-under anyway, as 32k-and-under is all mapped, 64k isn't mapped, but doesn't have RAMPZ and 128k has RAMPZ...
-	    putch(0x97);
-#elif (PROGMEM_SIZE==65536)
-      putch(0x96);
-#else
-      putch(SIGROW_DEVICEID1); //for the parts with fully memory mapped flash, writing takes less flash, so we can spare this, and we may not need different builds for 16k DD-series vs 32k DD-series.
-#endif
-	    putch(SIGROW_DEVICEID2);
-	}
-	else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
-	    // Adaboot no-wait mod
-	    watchdogConfig(WDT_PERIOD_8CLK_gc);
-	    verifySpace();
-	}
-	else {
-	    // This covers the response to commands like STK_ENTER_PROGMODE
-	    verifySpace();
-	}
-	putch(STK_OK);
-    }
 }
 
 void putch (char ch) {
-    while (0 == (MYUART.STATUS & USART_DREIF_bm))
-	;
-    MYUART.TXDATAL = ch;
+  while (0 == (MYUART.STATUS & USART_DREIF_bm))
+    ;
+  MYUART.TXDATAL = ch;
 }
 
 uint8_t getch (void) {
-    uint8_t ch, flags;
-    while (!(MYUART.STATUS & USART_RXCIF_bm))
-	;
-    flags = MYUART.RXDATAH;
-    ch = MYUART.RXDATAL;
-    if ((flags & USART_FERR_bm) == 0)
-	watchdogReset();
-#ifdef LED_DATA_FLASH
+  uint8_t ch, flags;
+  while (!(MYUART.STATUS & USART_RXCIF_bm))
+    ;
+  flags = MYUART.RXDATAH;
+  ch = MYUART.RXDATAL;
+  if ((flags & USART_FERR_bm) == 0)
+  watchdogReset();
+  #ifdef LED_DATA_FLASH
     LED_PORT.IN |= LED;
-#endif
-
-    return ch;
+  #endif
+  return ch;
 }
 
 void getNch (uint8_t count) {
-    do getch(); while (--count);
-    verifySpace();
+  do getch(); while (--count);
+  verifySpace();
 }
 
 void verifySpace () {
     if (getch() != CRC_EOP) {
-	watchdogConfig(WDT_PERIOD_8CLK_gc);    // shorten WD timeout
-	while (1)			      // and busy-loop so that WD causes
-	    ;				      //  a reset and app start.
+  watchdogConfig(WDT_PERIOD_8CLK_gc);    // shorten WD timeout
+  while (1)            // and busy-loop so that WD causes
+      ;              //  a reset and app start.
     }
     putch(STK_INSYNC);
 }
 
 #if LED_START_FLASHES > 0
-void flash_led (uint8_t count) {
+  void flash_led (uint8_t count) {
     uint16_t delay;  // at 4MHz, a 16bit delay counter is enough
     while (count--) {
-	LED_PORT.IN |= LED;
-	// delay based on 4 MHz clock since that's what we have
-	for (delay = ((4E6)/150); delay; delay--) {
-	    watchdogReset();
-	    if (MYUART.STATUS & USART_RXCIF_bm)
-		return;
-	}
+      LED_PORT.IN |= LED;
+      // delay based on 4 MHz clock since that's what we have
+      for (delay = ((4E6)/150); delay; delay--) {
+        watchdogReset();
+        if (MYUART.STATUS & USART_RXCIF_bm) {
+          return;
+        }
+      }
     }
     watchdogReset(); // for breakpointing
-}
+  }
 #endif
 
 
@@ -679,126 +663,135 @@ void flash_led (uint8_t count) {
  *  Could be a new timeout, could be off...
  */
 void watchdogConfig (uint8_t x) {
-    while(WDT.STATUS & WDT_SYNCBUSY_bm)
-	;  // Busy wait for sycnhronization is required!
-    _PROTECTED_WRITE(WDT.CTRLA, x);
+  while(WDT.STATUS & WDT_SYNCBUSY_bm)
+    ;  // Busy wait for sycnhronization is required!
+  _PROTECTED_WRITE(WDT.CTRLA, x);
 }
 
 
 /*
  * void writebuffer(memtype, buffer, address, length)
  */
-#if (__AVR_ARCH__==103) //fully memory mapped flash
-static inline void writebuffer(int8_t memtype, addr16_t mybuff,
-             addr16_t address, pagelen_t len)
-{
-    switch (memtype) {
-/*
-    case 'E': // EEPROM
-      address.word += MAPPED_EEPROM_START;
-      nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-      while(len--) {
-        *(address.bptr++)= *(mybuff.bptr++);
-      }
-      break;
-*/
-    default:  // FLASH
-  /*
-   * Default to writing to Flash program memory.  By making this
-   * the default rather than checking for the correct code, we save
-   * space on chips that don't support any other memory types.
-   */
-    {
-
-      //uint16_t addrPtr = address.word;
-
-      /*
-       * Start the page erase and wait for it to finish.
-       * The CPU is halted during this time, so in fact it will not
-       * at no time will NVMCTRL.STATUS indicate flash busy!
-       * Probably relevant to UPDI programming, but not
-       * self programming! So we don't need that check...
-       */
-      nvm_cmd(NVMCTRL_CMD_FLPER_gc);
-      address.word += MAPPED_PROGMEM_START;
-      *(address.bptr)=0xFF;
-      nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-      while(len--) {
-        *(address.bptr++)= *(mybuff.bptr++);
-      }
+#if (__AVR_ARCH__==103)
+  #if !defined(WRITE_MAPPED_BY_WORD) //fully memory mapped flash
+    static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len) {
+      switch (memtype) {
+        /*
+        case 'E': // EEPROM
+          address.word += MAPPED_EEPROM_START;
+          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
+          while(len--) {
+            *(address.bptr++)= *(mybuff.bptr++);
+          }
+          break;
+        */
+        default:  // FLASH
+        {
+          /*
+           * Default to writing to Flash program memory.  By making this
+           * the default rather than checking for the correct code, we save
+           * space on chips that don't support any other memory types.
+           * Start the page erase.
+           * The CPU is halted during this time, so 
+           * no need to NVMCTRL.STATUS.
+           */
+          nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+          address.word += MAPPED_PROGMEM_START;
+          *(address.bptr)=0xFF;
+          nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+          while(len--) {
+            *(address.bptr++)= *(mybuff.bptr++);
+          }
+        } // default block
+      } // switch
+    }
+  #else 
+    // same calling conventions as for larger memory chips, including the len = 0 for 256 words
+    static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
+      switch (memtype) {
+        /*
+        case 'E': // EEPROM
+          address.word += MAPPED_EEPROM_START;
+          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
+          while(len--) {
+            *(address.bptr++)= *(mybuff.bptr++);
+          }
+          break;
+        */
+        default:  // FLASH
+        {
+          /*
+           * Default to writing to Flash program memory.  By making this
+           * the default rather than checking for the correct code, we save
+           * space on chips that don't support any other memory types.
+           * Start the page erase.
+           * The CPU is halted during this time, so 
+           * no need to check NVMCTRL.STATUS.
+           */
+          nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+          address.word += MAPPED_PROGMEM_START;
+          *(address.bptr)=0xFF;
+          nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+          do {
+            *(address.wptr++)= *(mybuff.wptr++);
+          } while(--len);
+        } // default block
+      } // switch
+    }
+  #endif
 #else
-
-static inline void writebuffer(int8_t memtype, addr16_t mybuff,
-             addr16_t address, uint8_t len)
-{
+  // Write non-mapped flash the only way we can without being caught by the outstanding errata with 
+  // flash mapping on AVR128DA
+  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
     switch (memtype) {
-/*
-    case 'E': // EEPROM
-      address.word += MAPPED_EEPROM_START;
-      _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
-      while(len--) {
-        *(address.bptr++)= *(mybuff.bptr++);
-      }
-      reset_nvm();
-      break;
-*/
-    default:  // FLASH
-  /*
-   * Default to writing to Flash program memory.  By making this
-   * the default rather than checking for the correct code, we save
-   * space on chips that don't support any other memory types.
-   */
-    {
-
-      //uint16_t addrPtr = address.word;
-
       /*
-       * Start the page erase and wait for it to finish.
-       * The CPU is halted during this time, so in fact it will not
-       * at no time will NVMCTRL.STATUS indicate flash busy!
-       * Probably relevant to UPDI programming, but not
-       * self programming! So we don't need that check...
-       */
-      nvm_cmd(NVMCTRL_CMD_FLPER_gc);
-      do_spm_erase(address.word);
-      //reset_nvm();
-      /*
-       * Write data from the buffer to flash, a word at a time
-       */
-      nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-      //_PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
-
-      __asm__ __volatile__("head:"                       "\n\t" \
-                           "ld r0, %a[ptr]+"                   "\n\t" \
-                           "ld r1, %a[ptr]+"                   "\n\t" \
-                           "spm Z+"                      "\n\t" \
-                           "dec %[len]"                  "\n\t" \
-                           "brne head"                   "\n\t" \
-                           "clr r1"                      "\n\t" \
-                           : [len]   "=r" (len) \
-                           : "z" ((uint16_t)address.word), \
-                             [ptr] "e" ((uint16_t)mybuff.bptr), \
-                             "0" ((uint8_t)len) \
-                           : "r0"
-                           );
-
-
-      /*
-      do {
-        //do_spm((uint16_t)(void*)addrPtr, *(mybuff.wptr++));
-        // the heck was that done in other versions of optiboot?
-        do_spm(addrPtr, *(mybuff.wptr++));
-        addrPtr += 2;
-      } while (len -= 2);
+      case 'E': // EEPROM
+        address.word += MAPPED_EEPROM_START;
+        _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
+        while(len--) {
+          *(address.bptr++)= *(mybuff.bptr++);
+        }
+        reset_nvm();
+        break;
       */
+      default:  // FLASH
+        {
+          /*
+           * Default to writing to Flash program memory.  By making this
+           * the default rather than checking for the correct code, we save
+           * space on chips that don't support any other memory types.
+           * Start the page erase.
+           * The CPU is halted during this time, so 
+           * no need to check NVMCTRL.STATUS.
+           */
+        nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+        do_spm_erase(address.word);
+        /*
+         * Set NVMCTRL.CTRLA to flash write mode
+         * and write the whole buffer out with inline assembly
+         * to take advantage of spm Z+
+         */
+        nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+
+        __asm__ __volatile__("head:"                       "\n\t" \
+                             "ld r0, %a[ptr]+"             "\n\t" \
+                             "ld r1, %a[ptr]+"             "\n\t" \
+                             "spm Z+"                      "\n\t" \
+                             "dec %[len]"                  "\n\t" \
+                             "brne head"                   "\n\t" \
+                             "clr r1"                      "\n\t" \
+                             : [len]   "=r" (len) \
+                             : "z" ((uint16_t)address.word), \
+                               [ptr] "e" ((uint16_t)mybuff.bptr), \
+                               "0" ((uint8_t)len) \
+                             : "r0"
+                             );
+      } // default block
+    } // switch
+  }
 #endif
-      //reset_nvm();
-    } // default block
-    break;
-  } // switch
-}
 
-
+#if (__AVR_ARCH__!=103)
 void do_spm_erase(uint16_t address)
 {
   asm volatile (
@@ -808,6 +801,7 @@ void do_spm_erase(uint16_t address)
     :
   );
 }
+#endif
 
 void nvm_cmd(uint8_t cmd) {
   //take advantage of the fact that NVMCTRL_CMD_NONE_gc=0x00 and use zero_reg
@@ -870,7 +864,7 @@ static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
 //static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data) {
 //    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
 //    while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-//	; // wait for flash and EEPROM not busy, just in case.
+//  ; // wait for flash and EEPROM not busy, just in case.
 //}
 #endif
 

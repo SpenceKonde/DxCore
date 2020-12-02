@@ -14,19 +14,16 @@ As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-p
 
 These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
 
-At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical; they only vary in which ones they have and how many.
+At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical; most vary very little betweem the initial release and now. 
+
 ## DA-series
 The "basic" large-size line - however much I was in awe of these when they were first released, having seen the DB-series, it now appears that these are more akin to a 0-series than a 1-series - by almost any measure, the DB-series is better (and barely more expensive!). They do not support using an external crystal for the main clock, like the other Dx parts do, but the internal oscillator on these parts is WAY better than the classic AVRs had - all the ones I've tested are weithin half a percent at room temp and typical operating voltages, even without autotune... To make sure autotune was working, I had to point a torch at it, because I couldn't get enough of a change in the internal oscillator frequency from changing the supply voltage. It is also the only currently announced Dx series without MVIO. While they may not shine as brightly next to the other Dx lines, these are still far above any AVR released before the year 2020.
 
 ## DB-series
-The DB-series is almost an exact copy of the DA-series (they have also fixed some of the most egregious silicon bugs), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, intead of ~1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). A future version of DxCore will provide a simple library to control the opamps in the spirit of the Logic and Comparator libraries.
-
-As of early September 2020, only the 128k parts are available - however availability appears to be highly constrained, with stock only available from MicrochipDirect - and at the time of writing, all versions except AVR128DB28 and the AVR128DB48 in VQFN could only be ordered in tray quantities.
+The DB-series is almost an exact copy of the DA-series (they have also fixed some of the most egregious silicon bugs), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, intead of ~ 1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). A future version of DxCore will provide a simple library to control the opamps in the spirit of the Logic and Comparator libraries.
 
 ## DD-series
-The DD-series is a smaller-pincount line; parts are available with 14-32 pins. They've got the MVIO (3 or 4 MVIO pins depending on pincount). The product brief claims 11 I/O pins on the 14-pin package. With VDD, VDDIO, and GND, that implies that there will be a way to configure the UPDI pin to act as an I/O pin. We'll have to wait until the datasheet is released to find out the details; let's hope it doesn't require different tools or protocols than the tinyAVR 0/1 series needed.
-
-This core was based on megaTinyCore; it is likely that the documentation still contains references to megaTinyCore or ATtiny/tinyAVR. Please report these (or better yet, fix and PR) if you find them.
+The DD-series is a smaller-pincount line; parts are available with 14-32 pins. They've got the MVIO (3 or 4 MVIO pins depending on pincount). The product brief claims 10 output pins, 11 input pins,  on the 14-pin package. With VDD, VDDIO, and GND. That implies that there will be a way to configure the UPDI pin to act as an I/O pin, and Reset to act as an input only if configured appropirately in the fuses. We'll have to wait until more information is available, but it sounds like the reset pin on these parts will be the pin that needs the HV pulse (likely )
 
 ## Identifying parts from #defines
 As with all AVR devices, a define of the form `__AVR_PARTNUMBER__` is provided by the toolchain package (these come from the io headers in the ATPacks from Microchip, if you were wondering). For example: `__AVR_AVR128DA64__`  - thus, to test if it was a 64-pin Dx-series, you might do
@@ -49,16 +46,16 @@ Support for smaller-flash versions and the AVR128DB parts is not available using
 * [AVR128DA32, AVR64DA32, AVR32DA32](megaavr/extras/DA32.md)
 * [AVR128DA48, AVR64DA48, AVR32DA48](megaavr/extras/DA48.md)
 * [AVR128DA64, AVR64DA64](megaavr/extras/DA64.md)
-* [AVR128DB28](megaavr/extras/DB28.md)  (AVR64DB28, AVR32DB28 pending release)
-* [AVR128DB32](megaavr/extras/DB32.md)  (AVR64DB32, AVR32DB32 pending release)
-* [AVR128DB48](megaavr/extras/DB48.md)  (AVR64DB48, AVR32DB48 pending release)
-* [AVR128DB64](megaavr/extras/DB64.md)  (AVR64DB64 pending release)
-* AVR64DD14, AVR32DD14, AVR16DD14 (pending release)
-* AVR64DD20, AVR32DD20, AVR16DD20 (pending release)
-* AVR64DD28, AVR32DD28, AVR16DD28 (pending release)
-* AVR64DD32, AVR32DD32, AVR16DD32 (pending release)
+* [AVR128DB28, AVR64DB28, AVR32DB28](megaavr/extras/DB28.md)
+* [AVR128DB32, AVR64DB32, AVR32DB32](megaavr/extras/DB32.md)
+* [AVR128DB48, AVR64DB48, AVR32DB48](megaavr/extras/DB48.md)
+* [AVR128DB64 and AVR64DB64](megaavr/extras/DB64.md)  
+* AVR64DD14, AVR32DD14, AVR16DD14 (pending release - I suspect H1 2020)
+* AVR64DD20, AVR32DD20, AVR16DD20 (pending release - I suspect H1 2020)
+* AVR64DD28, AVR32DD28, AVR16DD28 (pending release - I suspect H1 2020)
+* AVR64DD32, AVR32DD32, AVR16DD32 (pending release - I suspect H1 2020)
 
-My personal opinion is that the 48-pin parts are the "sweet spot" - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, enough pins that these parts can start to stretch their legs (pins?). Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
+My personal opinion is that the 48-pin parts are the "sweet spot" - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs to stretch their legs (pins?). Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
 
 ## Supported Clock Speeds
 All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range. Support for External Clock and External Crystal options will be added in version 1.1.1.
@@ -71,11 +68,15 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range. S
 *  1MHz Internal or Ext. Clock
 * 28MHz Internal, Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
 * 32MHz Internal, Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
+* 36MHz Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
+* 40MHz Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
+* 48MHz Ext. Clock or Crystal (DB-only) WAY Overclocked - probably wont work!
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions, at least at room temperature) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future.
 
 The DA-series does not support use of an external high frequency crystal (though the DB-series does!) - however the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
 
+There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator (ever wamted to run an MCU at 7 MHz? Me neither, but you totally can even without a crystal on these parts), as are different ways to generate the above clock speeds (8 MHz internal oscillator? 16 prescaled by 2 - or even 32 prescaled by 4?)... This would depend on [issue #40](https://github.com/SpenceKonde/DxCore/issues/40), so it could replace the clock initialization step, though  
 ```c
 #include <DxCore.h>
 
@@ -101,21 +102,21 @@ All blink codes issued by the core start with the LED pin switching states three
 
 
 ## Programming is done via UPDI
-Prior to the release of 1.3.0, the only programmer that I can vouch for working with the core is jtag2updi; note that prior to the release of DxCore, jtag2updi did NOT support these parts (and some incompatible repos have hung around long after that) - be sure to update jtag2updi if you are using a device you installed jtag2pdi on before mid-2020, or if you are unsure if you loaded a Dx-compatible version of jtag2updi. See [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md) for more information on using an Arduino for this purpose - almost any Arduino board can be used, but cheap knockoffs of the Arduino Nano 3.0 are recommended (the ones with the ATmega168p are fine too - this is a great use if you accidentally bought some of those expecting ATmega328p ones), as it is dirt cheap, and includes a USB-serial adapter. An Arduino Pro Mini is also an excellent choice - but becomes physically awkward, since you've also got a serial adapter, likely dangling awkwardly between the USB cable and the Pro Mini, and wires running between that and the Pro Mini running jtag2updi.
+Prior to the release of 1.3.0, the only programmer that I can vouch for working with the core is jtag2updi; note that prior to the release of DxCore, jtag2updi did NOT support these parts (and some incompatible repos have hung around long after that) - be sure to update jtag2updi if you are using a device you installed jtag2pdi on before mid-2020, if you are unsure if you loaded a Dx-compatible version of jtag2updi, or if you used my jtag2updi code from November and are having trouble making it work (it was fixed on November 30). See [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md) for more information on using an Arduino for this purpose - almost any Arduino board can be used, but cheap knockoffs of the Arduino Nano 3.0 are recommended (the ones with the ATmega168p are fine too - this is a great use if you accidentally bought some of those expecting ATmega328p ones), as it is dirt cheap, and includes a USB-serial adapter. An Arduino Pro Mini is also an excellent choice - but becomes physically awkward, since you've also got a serial adapter, likely dangling awkwardly between the USB cable and the Pro Mini, and wires running between that and the Pro Mini running jtag2updi.
 
 jtag2updi variants supporting "HV" programming are available. *HV programming should not be used on DA or DB-series parts.* DD-series parts do support it (UPDI can be programmed to act as a GPIO pin), but will require slightly different hardware, as the HV pulse must be applied to Reset, not UPDI; I am working with a developer of HV updi hardware and firmware to ensure that this is available prior to the release of the DD-series parts.
 
 ### NEW starting in 1.3.0
-Starting in 1.3.0, DxCore includes a version of [pymcuprog](https://pypi.org/project/pymcuprog/), written by Microchip - this adds support for two exciting new programming tools - Microchip nEDBG (used in, among other things, the Curiosity Nano boards), and Serial adapter + 4.7k resistor (like pyupdi). The construction of a low cost UPDI programmer goes from "easy and cheaper than a latte" (described above) to "truly trivial and cheaper than a cup of coffee" - simply connect the TX line of any USB-serial adapter with a 4.7k resistor (~3.7k if it already has a 1k series resistor in series with TX; most serial adapters do) to it's RX line, and connect the RX line to the UPDI pin of the target. And power and ground, of course. Works with or without a 470 ohm protection resistor on the target board.
+Starting in 1.3.0, DxCore includes a version of [pymcuprog](https://pypi.org/project/pymcuprog/), written by Microchip - this adds support for two exciting new programming tools - Microchip nEDBG (used in, among other things, the Curiosity Nano boards), and Serial adapter + 4.7k resistor (like pyupdi). The construction of a low cost UPDI programmer goes from "easy and cheaper than a latte" (described above) to "truly trivial and cheaper than a cup of coffee" - simply connect the TX line of any USB-serial adapter with a 4.7k resistor (around 3.7k if it already has a 1k series resistor in series with TX; most serial adapters do) to it's RX line, and connect the RX line to the UPDI pin of the target. And power and ground, of course. Works with or without a 470 ohm protection resistor on the target board.
 
-## Optiboot-derived bootloader is here!
+## Optiboot-derived bootloader
 There is now support for an Optiboot derived bootloader! See the Bootloader section below for more information. The bootloader, of course, requires a UPDI programmer to install.
 
 ## Brutal errata in initial hardware
 The silicon errata in the initial versions of these parts is pretty brutal, particularly for the 128k parts, which were released first - and it's not even complete! See [errata and extras](megaavr/extras/errata_and_extras.md) for more information on the un/poorly-documented behavior of these devices..
 
 ## Quick Peripheral by Peripheral comparison
-[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md) - these were my thoughts as I first exploted these parts; it is not an indepth guide to the features of these parts, nor is it intended to be.
+[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md) - these were my thoughts as I first exploted these parts; it is not an in-depth guide to the features of these parts, nor is it intended to be.
 
 # Features
 
@@ -135,18 +136,15 @@ As of 1.1.0, DxCore now also includes an Optiboot-derived bootloader for all par
 Once the part is bootloaded, sketches can be uploaded by connecting a serial adapter to those pins (including the usual DTR-autoreset circuit, present on my breakout boards), and clicking upload. If autoreset is not practical for whatever reason, an 8-second timeout version of the bootloader is provided. When reset is pressed, the bootloader will be active for the next 8 seconds. This may also be useful in combination with the software reset for updating a device in an inaccessible location.
 
 ### Bootloader size
-As of 1.2.0, the Optiboot bootloader now takes up only 512b of flash, just like on the Arduino Uno and similar! If you were previously using DxCore with an older version of the bootloader, you must use a UPDI programmer to "burn bootloader" with the new veraion of the bootloader first.
-
-### Bootloader Warning
-When using a bootloader, you must use a UPDI programmer to install the bootloader on the part first. This is required even if
+As of 1.2.0, the Optiboot bootloader now takes up only 512b of flash, just like on the Arduino Uno and similar! If you were previously using DxCore with an older version of the bootloader, you must use a UPDI programmer to "burn bootloader" with the new veraion of the bootloader first. 1.3.0 will introduce a number of general improvements to bootloader behavior w/regards to respecting specified entry conditions - and a lot has been done under the hood to make room in that 512b to add entry points that would allow the application to write to the flash from the bootloader. We're up to 30 
 
 ## Ways to refer to pins
-
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
 
 #### PIN_Pxn Port Pin Numbers (recommended)
-**This is the recommended way to refer to pins** Defines are also provided of form PIN_Pxn, where x is A, B, or C, and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path or anything. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by Port), as most peripherals are. Several pieces of demo code in the documentation take advantage of this.  Direct port manipulation is possible on the megaavr parts - and in fact several powerful additional options are available for it - see [direct port manipulation](megaavr/extras/DirectPortManipulation.md).
+**This is the recommended way to refer to pins** Defines are provided of form PIN_Pxn, where x is the letter of the port (A through G), and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by port), making it much easier to port code between devices with the modern peripherals. Several pieces of demo code in the documentation take advantage of this. 
 
+Direct port manipulation is possible on the parts (and is easier to write with if you use PIN_Pxn notation!) - in fact, in some ways direct port manipulation is more powerful than it was in the past. several powerful additional options are available for it - see [direct port manipulation](megaavr/extras/DirectPortManipulation.md).
 
 #### Arduino Pin Numbers
 When a single number is used to refer to a pin - in the documentation, or in your code - it is always the "Arduino pin number". These are the pin numbers shown on the pinout charts. All of the other ways of referring to pins are #defined to the corresponding Arduino pin number.

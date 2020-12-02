@@ -3,6 +3,8 @@
 # $Id$
 #
 # Edit History
+# 2020 - Dx-series parts added. Comments adjusted to reflect curent
+# state of bootloader for DxCore.
 # Sep-2019 refactor from the normal AVR Makefile.
 # * Copyright 2013-2019 by Bill Westfield.  Part of Optiboot.
 # * This software is licensed under version 2 of the Gnu Public Licence.
@@ -123,12 +125,14 @@ endif
 # options like: "make atmega4809 UARTTX=A4 LED=D0"
 #---------------------------------------------------------------------------
 #
-# Mega0, tiny0, tiny1 don't really have any chip-specific requirements.
+# Mega0, tiny0, tiny1, and Dx-series don't really have any chip-specific requirements.
 #
 # Note about fuses:
-#  The fuses are defined in the source code.  There are 9!
-#  Be sure to use a programmer that will program the fuses from the object file.
-#
+#  The fuses are defined in the source code. In DxCore development, the fuses
+#  are set externally and the ones used in the source code are ignored.
+#  In other words, the values in the source have no bearing on what DxCore uses
+#  The settings of most fuses are dictated application requirements outside of
+#  the bootloader, so specifying them in the source code is not appropriate.
 #---------------------------------------------------------------------------
 #
 
@@ -150,464 +154,471 @@ optiboot_%.elf:	optiboot_x.c FORCE
 # AVR_FREQ, LED, and so on.  Parameters are not particularly changable from
 # the "make" command line.
 # Most of the board-level platform builds should envoke make recursively
-#  appropriate specific options
+# appropriate specific options
+# 
+# DxCore notes
+# These definitions are somewhere in between - since the Dx parts always start
+# at the same speed, and since all the parts of a given memory size can share
+# the same binaries, we just build with all the plausible options. 
+# Once we have writing to flash from app working and know how much memory we
+# have left, it may be possible to combine the different memory size versions.
 #---------------------------------------------------------------------------
 
 dx128_ser0: TARGET = avr128da64
 dx128_ser0:
-	$(MAKE) -f $(MF) optiboot_dx128_ser0.hex UARTTX=A0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser0.hex UARTTX=A0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART0 default pins.\n"
 
 
 dx128_ser0_alt: TARGET = avr128da64
 dx128_ser0_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt.hex UARTTX=A4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt.hex UARTTX=A4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART0 alternate pins.\n"
 
 
 dx128_ser1: TARGET = avr128da64
 dx128_ser1:
-	$(MAKE) -f $(MF) optiboot_dx128_ser1.hex UARTTX=C0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser1.hex UARTTX=C0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART1 default pins.\n"
 
 
 dx128_ser1_alt: TARGET = avr128da64
 dx128_ser1_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt.hex UARTTX=C4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt.hex UARTTX=C4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART1 alternate pins.\n"
 
 
 dx128_ser2: TARGET = avr128da64
 dx128_ser2:
-	$(MAKE) -f $(MF) optiboot_dx128_ser2.hex UARTTX=F0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser2.hex UARTTX=F0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART2 default pins.\n"
 
 
 dx128_ser2_alt: TARGET = avr128da64
 dx128_ser2_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt.hex UARTTX=F4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt.hex UARTTX=F4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 32 or more pins, USART2 alternate pins.\n"
 
 
 dx128_ser3: TARGET = avr128da64
 dx128_ser3:
-	$(MAKE) -f $(MF) optiboot_dx128_ser3.hex UARTTX=B0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser3.hex UARTTX=B0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART3 default pins.\n"
 
 
 dx128_ser3_alt: TARGET = avr128da64
 dx128_ser3_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt.hex UARTTX=B4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt.hex UARTTX=B4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART3 alternate pins.\n"
 
 
 dx128_ser4: TARGET = avr128da64
 dx128_ser4:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4.hex UARTTX=E0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser4.hex UARTTX=E0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART4 default pins.\n"
 
 
 dx128_ser4_alt: TARGET = avr128da64
 dx128_ser4_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt.hex UARTTX=E4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt.hex UARTTX=E4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - AVR128DA64 or AVR128DB64, USART4 alternate pins.\n"
 
 
 dx128_ser5: TARGET = avr128da64
 dx128_ser5:
-	$(MAKE) -f $(MF) optiboot_dx128_ser5.hex UARTTX=G0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser5.hex UARTTX=G0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - AVR128DA64 or AVR128DB64, USART5 default pins.\n"
 
 
 dx128_ser5_alt: TARGET = avr128da64
 dx128_ser5_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt.hex UARTTX=G4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins.\n"
+HELPTEXT += "target 128k AVR Dx-series - AVR128DA64 or AVR128DB64, USART5 alternate pins.\n"
 
 dx64_ser0: TARGET = avr64da64
 dx64_ser0:
-	$(MAKE) -f $(MF) optiboot_dx64_ser0.hex UARTTX=A0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser0.hex UARTTX=A0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART0 default pins.\n"
 
 
 dx64_ser0_alt: TARGET = avr64da64
 dx64_ser0_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt.hex UARTTX=A4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt.hex UARTTX=A4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART0 alternate pins.\n"
 
 
 dx64_ser1: TARGET = avr64da64
 dx64_ser1:
-	$(MAKE) -f $(MF) optiboot_dx64_ser1.hex UARTTX=C0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser1.hex UARTTX=C0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART1 default pins.\n"
 
 
 dx64_ser1_alt: TARGET = avr64da64
 dx64_ser1_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt.hex UARTTX=C4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt.hex UARTTX=C4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART1 alternate pins.\n"
 
 
 dx64_ser2: TARGET = avr64da64
 dx64_ser2:
-	$(MAKE) -f $(MF) optiboot_dx64_ser2.hex UARTTX=F0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser2.hex UARTTX=F0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART2 default pins.\n"
 
 
 dx64_ser2_alt: TARGET = avr64da64
 dx64_ser2_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt.hex UARTTX=F4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt.hex UARTTX=F4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 32 or more pins, USART2 alternate pins.\n"
 
 
 dx64_ser3: TARGET = avr64da64
 dx64_ser3:
-	$(MAKE) -f $(MF) optiboot_dx64_ser3.hex UARTTX=B0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser3.hex UARTTX=B0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART3 default pins.\n"
 
 
 dx64_ser3_alt: TARGET = avr64da64
 dx64_ser3_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt.hex UARTTX=B4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt.hex UARTTX=B4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART3 alternate pins.\n"
 
 
 dx64_ser4: TARGET = avr64da64
 dx64_ser4:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4.hex UARTTX=E0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser4.hex UARTTX=E0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART4 default pins.\n"
 
 
 dx64_ser4_alt: TARGET = avr64da64
 dx64_ser4_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt.hex UARTTX=E4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt.hex UARTTX=E4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - AVR64DA64 or AVR64DB64, USART4 alternate pins.\n"
 
 
 dx64_ser5: TARGET = avr64da64
 dx64_ser5:
-	$(MAKE) -f $(MF) optiboot_dx64_ser5.hex UARTTX=G0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser5.hex UARTTX=G0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - AVR64DA64 or AVR64DB64, USART5 default pins.\n"
 
 
 dx64_ser5_alt: TARGET = avr64da64
 dx64_ser5_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt.hex UARTTX=G4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins.\n"
+HELPTEXT += "target 64k AVR Dx-series - AVR64DA64 or AVR64DB64, USART5 alternate pins.\n"
 
 dx32_ser0: TARGET = avr32da48
 dx32_ser0:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0.hex UARTTX=A0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser0.hex UARTTX=A0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART0 default pins.\n"
 
 
 dx32_ser0_alt: TARGET = avr32da48
 dx32_ser0_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt.hex UARTTX=A4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt.hex UARTTX=A4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART0 alternate pins.\n"
 
 
 dx32_ser1: TARGET = avr32da48
 dx32_ser1:
-	$(MAKE) -f $(MF) optiboot_dx32_ser1.hex UARTTX=C0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser1.hex UARTTX=C0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART1 default pins.\n"
 
 
 dx32_ser1_alt: TARGET = avr32da48
 dx32_ser1_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt.hex UARTTX=C4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt.hex UARTTX=C4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART1 alternate pins.\n"
 
 
 dx32_ser2: TARGET = avr32da48
 dx32_ser2:
-	$(MAKE) -f $(MF) optiboot_dx32_ser2.hex UARTTX=F0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser2.hex UARTTX=F0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART2 default pins.\n"
 
 
 dx32_ser2_alt: TARGET = avr32da48
 dx32_ser2_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt.hex UARTTX=F4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt.hex UARTTX=F4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 32 or more pins, USART2 alternate pins.\n"
 
 
 dx32_ser3: TARGET = avr32da48
 dx32_ser3:
-	$(MAKE) -f $(MF) optiboot_dx32_ser3.hex UARTTX=B0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser3.hex UARTTX=B0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART3 default pins.\n"
 
 
 dx32_ser3_alt: TARGET = avr32da48
 dx32_ser3_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt.hex UARTTX=B4 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt.hex UARTTX=B4 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART3 alternate pins.\n"
 
 
 dx32_ser4: TARGET = avr32da48
 dx32_ser4:
-	$(MAKE) -f $(MF) optiboot_dx32_ser4.hex UARTTX=E0 TIMEOUT=1 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx32_ser4.hex UARTTX=E0 TIMEOUT=1 START_APP_ON_POR=1 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART4 default pins.\n"
 
 dx128_ser0_8sec: TARGET = avr128da64
 dx128_ser0_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser0_alt_8sec: TARGET = avr128da64
 dx128_ser0_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser1_8sec: TARGET = avr128da64
 dx128_ser1_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser1_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser1_alt_8sec: TARGET = avr128da64
 dx128_ser1_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART1 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser2_8sec: TARGET = avr128da64
 dx128_ser2_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser2_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser2_alt_8sec: TARGET = avr128da64
 dx128_ser2_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 32 or more pins, USART2 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser3_8sec: TARGET = avr128da64
 dx128_ser3_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser3_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART3 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser3_alt_8sec: TARGET = avr128da64
 dx128_ser3_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART3 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser4_8sec: TARGET = avr128da64
 dx128_ser4_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser4_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - any AVR128DA or AVR128DB device with 48 or 64 pins, USART4 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser4_alt_8sec: TARGET = avr128da64
 dx128_ser4_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_8sec.hex UARTTX=E4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - AVR128DA64 or AVR128DB64, USART4 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser5_8sec: TARGET = avr128da64
 dx128_ser5_8sec:
 	$(MAKE) -f $(MF) optiboot_dx128_ser5_8sec.hex UARTTX=G0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - AVR128DA64 or AVR128DB64, USART5 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx128_ser5_alt_8sec: TARGET = avr128da64
 dx128_ser5_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128k AVR Dx-series - AVR128DA64 or AVR128DB64, USART5 alternate pins. 8 sec timeout for manual reset.\n"
 
 dx64_ser0_8sec: TARGET = avr64da64
 dx64_ser0_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser0_alt_8sec: TARGET = avr64da64
 dx64_ser0_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser1_8sec: TARGET = avr64da64
 dx64_ser1_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser1_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser1_alt_8sec: TARGET = avr64da64
 dx64_ser1_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART1 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser2_8sec: TARGET = avr64da64
 dx64_ser2_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser2_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser2_alt_8sec: TARGET = avr64da64
 dx64_ser2_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 32 or more pins, USART2 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser3_8sec: TARGET = avr64da64
 dx64_ser3_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser3_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART3 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser3_alt_8sec: TARGET = avr64da64
 dx64_ser3_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART3 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser4_8sec: TARGET = avr64da64
 dx64_ser4_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser4_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - any AVR64DA or AVR64DB device with 48 or 64 pins, USART4 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser4_alt_8sec: TARGET = avr64da64
 dx64_ser4_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_8sec.hex UARTTX=E4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - AVR64DA64 or AVR64DB64, USART4 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser5_8sec: TARGET = avr64da64
 dx64_ser5_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser5_8sec.hex UARTTX=G0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - AVR64DA64 or AVR64DB64, USART5 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx64_ser5_alt_8sec: TARGET = avr64da64
 dx64_ser5_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 64k AVR Dx-series - AVR64DA64 or AVR64DB64, USART5 alternate pins. 8 sec timeout for manual reset.\n"
 
 dx32_ser0_8sec: TARGET = avr32da48
 dx32_ser0_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser0_alt_8sec: TARGET = avr32da48
 dx32_ser0_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser1_8sec: TARGET = avr32da48
 dx32_ser1_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser1_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser1_alt_8sec: TARGET = avr32da48
 dx32_ser1_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART1 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser2_8sec: TARGET = avr32da48
 dx32_ser2_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser2_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser2_alt_8sec: TARGET = avr32da48
 dx32_ser2_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 32 or more pins, USART2 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser3_8sec: TARGET = avr32da48
 dx32_ser3_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser3_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART3 default pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser3_alt_8sec: TARGET = avr32da48
 dx32_ser3_alt_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART3 alternate pins. 8 sec timeout for manual reset.\n"
 
 
 dx32_ser4_8sec: TARGET = avr32da48
 dx32_ser4_8sec:
 	$(MAKE) -f $(MF) optiboot_dx32_ser4_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 32k AVR Dx-series - any AVR32DA or AVR32DB device with 48 or 64 pins, USART4 default pins. 8 sec timeout for manual reset.\n"
 
 
 #---------------------------------------------------------------------------
