@@ -9,7 +9,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Fix DISABLE_MILLIS and other timer options
 * Set SPI_INTERFACES_COUNT to 1, not 2 (#32). SPI_1 library will be removed - it's a mess, it's incompatible with everything for multiple reasons, and SPI_INTERFACES_COUNT breaks perfectly sane implementations, instead of making it easier for libraries to figure out how many usable SPI ports are available, which is the point of that #define. Core problem is that all other Arduino boards called the SPIclass for second serial port SPI1 - but that's the name for the struct defined in the io headers! As far as I can tell, there's basically nothing compatible with my SPI1 library anyway! That was not my finest work... for 1.3.0, will adapt SPI.swap() to accept SPI1 pins/port.
 * Set all fuses that we ever set in response to menu selections except for BODCFG on all uploads to non-Optiboot configurations, and all "upload using programmer" to optiboot configurations. Fuses that the core does not provide a method of specifying are not touched by the normal upload process; if you have gone and changed one, it is assumed that it was intentional.
-* The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts. 
+* The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts.
 * Correct several bugs with Optiboot entry condition detections (megaTinyCore issue #259)
 * Implement numerous optimizations and corrections in Optiboot.
 * Correct Servo being generally hosed (megaTinyCore #195, #241 - not yet implemented)
