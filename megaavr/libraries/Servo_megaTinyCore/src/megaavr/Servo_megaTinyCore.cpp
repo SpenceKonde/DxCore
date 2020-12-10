@@ -1,7 +1,7 @@
 #if defined(ARDUINO_ARCH_MEGAAVR)
 
 #include <Arduino.h>
-#include <Servo_DxCore.h>
+#include <Servo_megaTinyCore.h>
 
 #if (F_CPU > 10000000)
   #define usToTicks(_us)    ((( (_us) / 2) * clockCyclesPerMicrosecond()))                 // converts microseconds to tick

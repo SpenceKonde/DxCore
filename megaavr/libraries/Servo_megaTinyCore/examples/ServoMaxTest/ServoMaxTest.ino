@@ -2,7 +2,7 @@
   Yes, this library *really* can drive 12 servos from a single type B timer!
 */
 
-#include <Servo.h>
+#include <Servo_megaTinyCore.h>
 
 Servo myservos[12];
 byte pos[12];
