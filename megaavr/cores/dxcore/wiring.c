@@ -857,8 +857,8 @@ void init()
 
     #elif (F_CPU == 5000000)
       /* 20 prescaled by 4 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,(CLKCTRL_PDIV_2X_gc|CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x03<< CLKCTRL_FREQSEL_gp ));
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,(CLKCTRL_PDIV_4X_gc|CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x08<< CLKCTRL_FREQSEL_gp ));
 
     #elif (F_CPU == 4000000)
       /* Should it be 16MHz prescaled by 4? */
@@ -883,9 +883,10 @@ void init()
     // For this, we don't really care what speed it is at - we will run at crystal frequency, and trust the user to select a speed matching that.
     // We don't prescale from crystals, and won't unless someone gives a damned convincing reason why that feature is important.
     // Crystals in the relevant frequency range are readily available.
+    // So are oscillators... but there's a catch:
     #if defined(__AVR_DA__)
       #if (CLOCK_SOURCE==1)
-        #error "AVR DA-series detected, but crystal as clock source specified. The menu options should not permit this; those parts don't support it."
+        #error "AVR DA-series selected, but crystal as clock source specified. DA-series parts only support internal oscillator or external clock."
       #else
         //external clock
         uint8_t i=255;
@@ -930,7 +931,7 @@ void init()
     while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC_bm) {
       i--;
       if(i==0) blinkCode(3);
-      // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
+      // crystals can a lot longer to reach stability.
     }
   #else
     #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); DxCore does not support any other options (and it isn't even clear what such an option might be, other than a 32.768k low speed crystal, which would be an unspeakably miserable experience with Arduino"
