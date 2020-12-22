@@ -301,7 +301,7 @@ If your sketch requires that the B0 is used as the millis timer, for example:
 
 ```
 #ifndef MILLIS_USE_TIMERB2
-#error "This sketch is written for use with TCB0 as the millis timing source"
+#error "This sketch is written for use with TCB2 as the millis timing source"
 #endif
 ```
 
@@ -309,14 +309,24 @@ If your sketch requires that the B0 is used as the millis timer, for example:
 When writing code that may be compiled for a variety of target chips, it is often useful to detect which chip it is running on. Defines of the form `__AVR_AVRxDAy__` are provided, where `x` is the size of the flash (in kb) and `y` is the number of pins, for example `__AVR_AVR128DA64__` for the part with 128K flash and 64 pins.
 
 This core provides an additional define depending on the number of pins on the part, as this directly corresponds to the available peripherals:
-* __AVR_DA_28__
-* __AVR_DA_32__
-* __AVR_DA_48__
-* __AVR_DA_64__
+* `__AVR_DA_28__`
+* `__AVR_DA_32__`
+* `__AVR_DA_48__`
+* `__AVR_DA_64__`
+* `__AVR_DB_28__`
+* `__AVR_DB_32__`
+* `__AVR_DB_48__`
+* `__AVR_DB_64__`
+* `__AVR_DD_14__`
+* `__AVR_DD_20__`
+* `__AVR_DD_28__`
+* `__AVR_DD_32__`
+* `__AVR_DA__`
+* `__AVR_DB__`
+* `__AVR_DD__`
 
-And all parts will have the following defined:
-* __AVR_DA__
-* DxCORE
+All parts will have the following defined:
+* DXCORE
 
 
 # Bootloader (optiboot) Support
