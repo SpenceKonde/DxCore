@@ -243,13 +243,13 @@ To use it in 10-bit mode
 //assumes dacvalue is an unsigned 16-bit integer containing a number between 0 and 1023.
 
 // enable DAC
-DAC0.CTRLA|=(1<<DAC_OUTEN_bm)|1<<(DAC_ENABLE_bm);
+DAC0.CTRLA |= DAC_OUTEN_bm | DAC_ENABLE_bm;
 
 // write value to DAC
 DAC0.DATA=(dacvalue<<6);
 
 // disable DAC
-DAC0.CTRLA&=~((1<<DAC_OUTEN_bm)|1<<(DAC_ENABLE_bm));
+DAC0.CTRLA &= ~(DAC_OUTEN_bm | DAC_ENABLE_bm);
 ```
 
 ### Servo Support
