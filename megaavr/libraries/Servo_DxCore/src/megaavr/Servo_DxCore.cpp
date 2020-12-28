@@ -86,6 +86,10 @@ void ServoHandler(int timer) {
   ISR(TCB1_INT_vect)
 #elif defined USE_TIMERB2
   ISR(TCB2_INT_vect)
+#elif defined USE_TIMERB3
+  ISR(TCB3_INT_vect)
+#elif defined USE_TIMERB4
+  ISR(TCB4_INT_vect)
 #endif
 {
   ServoHandler(0);
