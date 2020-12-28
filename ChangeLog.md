@@ -19,9 +19,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct issue with EEPROM library (#34)
 * Update Readme to reflect current state of core
 * Update Logic library to latest version, improving init(), keyword highlighting, and documentation. Docs now specific to DxCore.
-* Add support for Dx-series Curiosity boards via avrdude, dependent on arduino18 version of avrdude.
 * Pull in new version of avrdude to support Dx-series Curiosity boards via avrdude. (Not yet implemented)
 * Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer. (Not yet implemented)
+* Get updated optiboot sourcecode (not yet implemented)
 
 ### 1.2.0/1.2.0a
 * Add support for AVR64DB and AVR32DB parts! Too bad the compiler issue is still a problem.... I was not able to make a working toolchain for these parts, not quite sure what I got wrong this time around...
