@@ -1,16 +1,16 @@
 # Logic
-A library for interfacing with the CCL (Configurable Custom Logic) peripherals of the megaAVR-0 MCUs.
-Developed by MCUdude for use with [MegaCoreX](https://github.com/MCUdude/MegaCoreX), adapted to megaAVR ATtiny parts by [Tadashi G. Takaoka](https://github.com/tgtakaoka), and to DA-series by [Spence Konde](https://github.com/SpenceKonde)
-Correction of several issues on the megaAVR ATtiny parts and adaptation of examples by [Spence Konde](https://github.com/SpenceKonde).
-All of the megaTiny parts have 2 blocks of CCL available. The examples included assume the use of megaTinyCore in their defines to detect the applicable part.
-More useful information about CCL can be found in the [Microchip Application Note TB3218](http://ww1.microchip.com/downloads/en/AppNotes/TB3218-Getting-Started-with-CCL-90003218A.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf), or the datasheet for the ATtiny part in question.
+A library for interfacing with the CCL (Configurable Custom Logic) peripherals on modern AVR MCUs.
+Developed by MCUdude for use with [MegaCoreX](https://github.com/MCUdude/MegaCoreX), adapted to tinyAVR 0/1-series parts by [Tadashi G. Takaoka](https://github.com/tgtakaoka), and to DA-series by [Spence Konde](https://github.com/SpenceKonde)
+Correction of several issues on the tinyAVR parts and adaptation of examples by [Spence Konde](https://github.com/SpenceKonde).
+All of the examples assume the use of megaTinyCore, MegaCoreX or DxCore as appropriate (code is generally directly portable between megaAVR 0-series, tinyAVR 2-series and AVR Dx-series parts, minor modifications may be required for porting to or from tinyAVR 0/1-series parts). This document is focused on the Dx-series parts. For information on this library relating to the megaAVR or tinyAVR parts, see the version of this document included with MegaCoreX or megaTinyCore.
+More information about CCL can be found in the [Microchip Application Note TB3218](http://ww1.microchip.com/downloads/en/AppNotes/TB3218-Getting-Started-with-CCL-90003218A.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf) and the datasheet for the part in question.
 
 
 
 ## Logic
-Class for interfacing with the built-in logic block. use the predefined objects `Logic0`, `Logic1`, `Logic2` and `Logic3`. `Logic2` and `Logic3` are only available on the ATmega parts.
-Each object contains register pointers for interfacing with the right registers. Some of these variables are available to the user.
+Class for interfacing with the built-in logic block (sometimes referred to as `LUT`s, from the "LookUp Table" - though it is curious use of language, that is what Microchip refers to them as). Use the predefined objects `Logic0`, `Logic1`, `Logic2`, `Logic3`, `Logic4` and `Logic5`. The logic blocks are paired, each pair sharing a single sequencer and `feedback` channel. Additionally, each logic block is associated with a specific port, having it's input on pins 0 through 2, and it's output on pin 3 or 6 (note that these patterns are different on tinyAVR - the alternate output pin being on a different port). In order: `PORTA`, `PORTC`, `PORTD`, `PORTF`, `PORTB`, and `PORTG`. `Logic4` and `Logic5` are only available on 48 and 64 pin AVR Dx-series devices.
 
+These objects expose all configuration options as member variables as documented below, as well as member methods to set the applicable registers.
 
 ### enable
 Variable for enabling or disabling a logic block.
@@ -32,78 +32,43 @@ Logic0.enable = true; // Enable logic block 0
 ### input0..input2
 Variable for setting what mode input 0..2 on a logic block should have.
 
-Notes for all parts:
-* The datasheets give different names for the event channels for ATtiny and ATmega parts, both are supported by library: event 0 and event a are the same, as are event 1 and event b. These can be generated using the event system, see the relevant datasheet and examples for more information.
-* Timer WO channels correspond to the specified timer's PWM Output channels. They are true when the specified timer's value is higher than the compare register for that output channel.
-* Type-B timers can only generate an output under circumstances where they could drive an output pin if CCMPEN in TCBn.CTRLA is set.
+Accepted values for non-tinyAVR parts:
 
-Accepted values for DA-series and megaAVR 0-series parts:
 ``` c++
 in::masked;           // Pin not in use
 in::unused;           // Pin not in use
 in::disable;          // Pin not in use
-in::feedback;         // Connect output of the logic block to this input
-in::link;             // Connect output of logic block n+1 to this input
+in::feedback;         // Connect output of sequencer (if used) or even logic block (n or n-1) to this input
+in::link;             // Connect output of logic block n+1 to this input, or block 0 for the last block.
 in::event_0;          // Connect input to event a
-in::event_a;          // Connect input to event a
+in::event_a;          // Connect input to event a (preferred)
 in::event_1;          // Connect input to event b
-in::event_b;          // Connect input to event b
+in::event_b;          // Connect input to event b (preferred)
 in::pin;              // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, do not change pinMode
 in::input_pullup;     // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup on
 in::input;            // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup off
 in::input_no_pullup;  // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup off
 in::ac;               // Connect input to the output of the internal analog comparator (input 0,1,2 from AC0,1,2)
-in::zcd;              // Connect input to the output of the zero crossing detector (input 0,1,2 from ZCD0,1,2) - DA-series only
+in::zcd;              // Connect input to the output of the zero crossing detector (input 0,1,2 from ZCD0,1,2) - Dx-series only
 in::uart;             // Connect input to UART TX. Input 0 connects to UART0 TX, input 1 to UART1 TX, and input 2 to UART2 TX
 in::spi;              // Connect input to SPI. Input 0 and 1 connects to MOSI, and input 2 connects to SCK
-in::tca0;             // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2
-in::tca1;             // Connect input to TCA1. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2 - DA-series only
+in::tca0;             // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2 (preferred)
+in::tca;              // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2
+in::tca1;             // Connect input to TCA1. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2 - DA/DB-series only
 in::tcb;              // Connect input to TCB. Input 0 connects to TCB0 W0, input 1 to TCB1 WO, and input 2 to TCB2 WO.
-in::tcd;              // Connect input to TCD0. Input 0 connects to WOA, input 1 to WOB and input2 to WOC - DA-series only
+in::tcd;              // Connect input to TCD0. Input 0 connects to WOA, input 1 to WOB and input2 to WOC - Dx-series only
 ```
 
-Notes specific to ATmega parts
+Note:
 * The 48-pin and 64-pin DA-series parts have 6 LUTs. No pins for CCL5 are available in the 48-pin package.
-* On 28-pin versions of the ATmega 4808, 3208, 1608, and 808, IN1 and IN2 inputs for logic3 are not available. If all input pins for all logic blocks are needed, the event system workaround shown for the ATtiny parts in the examples can be used, though note that register names and values are different. Same principle applies to the DA-series devices with fewer pins.
-* According to the datasheet for SPI as input source, inputs 0 and 1 connect to MOSI. Thus, on these parts, there is no input to the logic blocks for MISO. Note also that the order is different from the ATtiny parts.
-* If input on the highest-number Logic block is set to link, it will use the output of Logic0 (unless it's an early production DA-series - see the errata)
+* On 28-pin parts, IN1 and IN2 inputs for Logic3 are not available. If pin input is needed, use a different block, or use the event system to route pin inputs to them.
+* When SPI is used as an input source, inputs 0 and 1 connect to MOSI, there is no input for MISO - these are intended for applications like modulating a squarewave carrier with data, like the remote control for a TV. Note also that the order is different from the ATtiny parts.
+* If input on the highest-number Logic block is set to link, it will use the output of Logic0.
+* On 28-pin and 32-pin Dx-series parts, link input for the highest-number logic block does not work, at least in the initial silicon releases. See the applicable Errata sheet.
 * If you need to link input to logic block other than the n+1 block, you can use the event system for that.
-
-Accepted values for tinyAVR 0/1-series parts:
-
-``` c++
-in::masked;           // Pin not in use
-in::unused;           // Pin not in use
-in::disable;          // Pin not in use
-in::feedback;         // Connect output of the logic block to this input
-in::link;             // Connect output of the other logic block to this input
-in::event_0;          // Connect input to event 0
-in::event_a;          // Connect input to event 0
-in::event_1;          // Connect input to event 1
-in::event_b;          // Connect input to event 1
-in::pin;              // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, do not change pinMode
-in::input_pullup;     // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup on
-in::input;            // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup off
-in::input_no_pullup;  // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup off
-in::ac0;              // Connect input to AC0 OUT
-in::tcb0;             // Connect input to TCB0 WO
-in::tca;              // Connect input to TCA0 WO0~2 for input 0~2
-in::tca0;             // Connect input to TCA0 WO0~2 for input 0~2
-in::tcd;              // Connect input to TCD WOAn, WOB, WOA for input 0, 1, 2
-in::usart;            // Connect input to U(S)ART0 XCK and TXD for input 0, 1
-in::spi;              // Connect input to SPI0 SCK, MOSI, MISO for input 0, 1, 2
-in::ac1;              // Connect input to AC1 OUT (input 0, 1 only)
-in::tcb1;             // Connect input to TCB1 WO (input 0, 1 only)
-in::ac2;              // Connect input to AC2 OUT (input 0, 1 only)
-```
-
-Notes specific to ATtiny:
-* It is not clear what TCD0 WOAn is. I suspect it is true when TCD0 count is greater than TCD0.COMPSET0 and TCD0.CMPCLR0, ie, when WOA turns on and off, which can be individually controlled; the timer continues counting until reaching TCD0.CMPCLR1 when WOB turns off (TCD0 is a very strange timer).
-* Not all inputs are available on all parts - only input sources corresponding to peripherals on that device are available. Not all options are avalable for input 2, as noted above.
-* On CCL1 (logic1), IN0 I/O input is available only on the 20 and-24 pin parts, and IN1 and IN2 only on 24-pin parts. The event inputs can be used with pin events to take input from a diferent pins for up to two inputs. This is demonstrated in the five input example.
-* CCL0's IN0 pin is on PA0, which is nominally the UPDI pin. It can only be used as input when that pin is set as GPIO. This limits the usefulness of CCL0 on the ATtiny parts; configuring UPDI as GPIO prevents further programming via UPDI except via HV programming. Configuring this option is only supported on megaTinyCore with Optiboot bootloader (from 1.1.6 on), and prevents further modification of the fuses or bootloader without HV programming, however, as noted above, input0 can be used via the event inputs to take input from another pin. This is demonstrated in the three input examples.
-
-
+* Not all Dx-series parts have 3 analog comparators or zero-crossing detectors. The datasheet does not specify what happens if, for example, input1 is set to ac on a part with a single analog comparator - it's not clear if it uses the output of AC0 (or ZCD0), or is simply logic 0.
+* Timer/Counter input sources are associated with a WO (Waveform Output) channel - they are logic 1 (true) when the PWM output on that channel is `HIGH` (See the datasheet I/O multiplexed signals chart to associate WO channels with pins)
+* See the version of this file distributed with megaTinyCore for information on the corresponding options on those parts.
 
 ##### Usage
 ``` c++
@@ -137,7 +102,7 @@ Logic0.output = out::disable; // Disable the output GPIO pin.
 Variable for pin swapping the physical output pin to its alternative position. See the pinout diagrams in the [Core this is part of](../../../README.md) for more info.
 Accepted values:
 ```c++
-out::no_swap;  // Use default pin position, pin 2 on the port
+out::no_swap;  // Use default pin position, pin 3 on the port
 out::pin_swap; // Use alternative position, pin 6 on the port
 ```
 
@@ -151,11 +116,13 @@ Logic0.output_swap = out::no_swap; // No pin swap for output of block0
 
 
 ### filter
-Variable to connect a filter or synchronizer to the logic block output. Useful when multiple logic blocks are connected internally to prevent race conditions and glitches that could arise due to the asynchronous nature of CCL clocking. Either filter or synchronizer is required for edge detector, below.
+Variable to control whether the output passes through a synchronizer or filter. Useful when multiple logic blocks are connected internally to prevent race conditions and glitches that could arise due to the asynchronous nature of CCL clocking. Alternately, the delay itself may be desirable, or it can be combined with a configuration which would oscillate asynchronously to instead output a prescaled clock, which could, in turn, be used with "clock on event" to provide a type B timer with a prescaled clock. Either filter or synchronizer is required for edge detector, below.
 Accepted values:
 ```c++
-filter::disable;      // No filter used
+filter::disable;      // No filter used, asynchronous output.
 filter::synchronizer; // Connect synchronizer to output; delays output by 2 clock cycles.
+filter::synch;        // Syntactic sugar for synchronizer
+filter::sync;         // Syntactic sugar for synchronizer
 filter::filter;       // Connect filter to output; delays output by 4 clock cycles, only passes output that is stable for >2 clock cycles.
 ```
 
@@ -164,12 +131,14 @@ filter::filter;       // Connect filter to output; delays output by 4 clock cycl
 Logic0.filter = filter::filter; // Enable filter on output of block 0
 ```
 
+See also [Prescaling Clocks with CCLs](https://github.com/SpenceKonde/AVR-Guidance/blob/master/CCL_EVSYS_hacks/CCL_prescaling.md)
+
 ##### Default state
 `LogicN.filter` defaults to `filter::disable` if not specified in the user program.
 
 
 ### clocksource
-Variable set the clock source for the LUT. The inputs are checked and output updated on the rising edge of this clock. Except on the Dx-series parts, only clk_per (peripheral clock, ie, the system clock) and in2 are available. If you don't know what this means, you want clk_per. If sequential logic is used, this is also used to clock that.
+Variable to set the clock source for the logic block; this is used for the synchronizer and filter only (otherwise, the logic blocks are asynchronous - and shockingly fast. You can rig them up so that they oscillate, and with the most direct approaches). Note that 32kHz-derived and unprescaled clock options are not available on 0-series and 1-series parts; keep this in mind if backwards portability is important. If sequential logic is used, it is clocked from the clock source used by the even-numbered logic block, if it uses a clock.
 Accepted values:
 ```c++
 clocksource::clk_per;      // Clock from the peripheral clock (ie, system clock)
@@ -182,11 +151,11 @@ clocksource::osc1l;        // Clock from the internal 32.768 kHz oscillator pres
 
 ##### Usage
 ```c++
-Logic2.filter = filter::filter; // Set Block2 to use unprescaled high frequency internal oscillator.
+Logic2.clocksource = clocksource::oschf; // Set block 2 to use unprescaled high frequency internal oscillator.
 ```
 
 ##### Default state
-`LogicN.filter` defaults to `filter::disable` if not specified in the user program.
+`LogicN.clocksource` defaults to `clocksource::clk_per` if not specified in the user program.
 
 
 
@@ -199,13 +168,14 @@ edgedetect::enable;       // Edge detection used
 ```
 
 ### sequencer
-Variable for connecting a sequencer to the logic block output. There is 1 sequencer per 2 CCLs; this option is ignored for the odd-numbered logic blocks.
+Variable for connecting a "sequencer" to the logic block output - these are latches or flip-flops which remember a state. There is 1 sequencer per 2 CCLs, each controls one of the two inputs to a flip flop or latch; this option is ignored for the odd-numbered logic blocks. Flip-flops are clocked from the same clock source as the even logic block, latches are asynchronous.
+
 Accepted values:
 ```c++
 sequencer::disable;      // No sequencer connected
 sequencer::d_flip_flop;  // D flip flop sequencer connected
 sequencer::jk_flip_flop; // JK flip flop sequencer connected
-sequencer::d_latch;      // D latch sequencer connected - note that on most tinyAVR and megaAVR parts, this doesn't work. See the Errata. It should work on Dx-series.
+sequencer::d_latch;      // Gated D latch sequencer connected - note that on most tinyAVR and megaAVR parts, this doesn't work. See the Errata.
 sequencer::rs_latch;     // RS latch sequencer connected
 ```
 
@@ -233,7 +203,7 @@ Logic0.truth = 0xF0;
 
 
 ## init()
-Method for initializing a logic block. The logic block object to initialize is passed as an argument.
+Method for initializing a logic block; the settings you have previously configured will be applied and pins configured as requested at this time only.
 
 ##### Usage
 ```c++
@@ -242,31 +212,56 @@ Logic1.init(); // Initialize block 1
 ```
 
 
-
 ## start()
-Method for starting the CCL hardware after all registers have been initialized using init(block_t).
+Method for starting the CCL hardware after desired blocks have been initialized using `LogicN.init()`.
 
 ##### Usage
 ```c++
 Logic::start(); // Start CCL hardware
 ```
 
-
-
 ## stop()
-Method for stopping the CCL hardware.
+Method for stopping the CCL hardware, for example to reconfigure the logic blocks.
 
 ##### Usage
 ```c++
 Logic::stop(); // Stop CCL
 ```
 
+## Reconfiguring
+There are TWO levels of "enable protection" on the CCL hardware. According to the Silicon Errata, only one of these is intended. As always, it's anyone's guess when or if this issue will be corrected in a future silicon rev, and if so, on which parts (it would appear that Microchip only became aware of the issue after the Dx-series parts were released - although it impacts all presently available parts, it is only listed in errata updated since mid-2020). The intended enable-protection is that a given logic block cannot be reconfigured while enabled. This is handled by `init()` - you can write your new setting to a logic block, call `LogicN.init()` and it will briefly disable the logic block, make the changes, and reenable it.
 
+The unintended layer is that no logic block can be reconfigured without also disabling the whole CCL system. Changes can be freely made to the `Logic` classes, however, only the `init()` method will apply those changes, and you must call `Logic::stop()` before calling them, and `Logic::start()` afterwards. If/when parts become available where this is not necessary, this step may be omitted, and this library may be amended to provide a way to check.
+
+##### Example
+```c++
+
+
+// logic blocks 0, 1 configured, initialized, and in use
+Logic1.truth=0x55;      // new truth table
+Logic1.input2=tca0;     // and different input 2
+Logic3.enabled=true;    // enable another LUT
+Logic3.input0=in::link; // Use link from LUT0
+Logic3.input1=in::ac;   // and the analog comparator
+Logic3.input2=in::pin;  // and the LUT3 IN2 pin
+Logic3.truth=0x79;      // truth table for LUT3
+
+Logic3.attachInterrupt(RISING,interruptFunction);
+
+// Interrupt now attached - but - Logic3 not enabled, and logic1 is using old settings
+
+Logic::stop();  // have to turn off Logic0 too, even though I might not want to
+Logic1.init();  // apply changes to logic block 1
+Logic3.init();  // apply settings to logic block 3 for the first time
+Logic::start(); // reenable
+
+
+```
 
 ## attachInterrupt()
 Method for enabling interrupts for a specific block.
 Valid arguments for the third parameters are `RISING`, `FALLING` and `CHANGE`.
-This method ins't available on tinyAVR series, as these parts cannot generate an interrupt from the CCL blocks.
+This method isn't available on tinyAVR 0/1-series, as these parts cannot generate an interrupt from the CCL blocks.
 
 ##### Usage
 ```c++
@@ -282,7 +277,7 @@ void blinkLED()
 
 ## detachInterrupt()
 Method for disabling interrupts for a specific block.
-This method ins't available on tinyAVR series.
+This method isn't available on tinyAVR 0/1-series.
 
 ##### Usage
 ```c++

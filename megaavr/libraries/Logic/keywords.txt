@@ -26,6 +26,8 @@ Logic0	KEYWORD2
 Logic1	KEYWORD2
 Logic2	KEYWORD2
 Logic3	KEYWORD2
+Logic4	KEYWORD2
+Logic5	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
@@ -34,5 +36,6 @@ Logic3	KEYWORD2
 in	LITERAL1
 out	LITERAL1
 filter	LITERAL1
+clocksource	LITERAL1
+edgedetect	LITERAL1
 sequencer	LITERAL1
-clocksource LITERAL1
