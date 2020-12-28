@@ -1,11 +1,11 @@
   /***********************************************************************|
-  |         Configurable Custom Logic library                             |
+  | megaAVR Configurable Custom Logic library                             |
   |                                                                       |
   | Oscillate.ino                                                         |
   |                                                                       |
-  | A library for interfacing with the new AVR Configurable Custom Logic. |
-  | Developed in 2019 by MCUdude.                                         |
-  | https://github.com/MCUdude/                                           |
+  | A library for interfacing with the megaAVR Configurable Custom Logic. |
+  | Developed in 2019 by MCUdude. https://github.com/MCUdude/             |
+  | Example by Spence Konde, 2020 https://github.com/SpenceKonde/         |
   |                                                                       |
   | In this example, we demonstrate the fact that these are ASYNCHRONOUS  |
   | by (ab)using the CCL in a configuration which will oscillate - this   |
@@ -15,30 +15,43 @@
   | get sane output frequencies - just what one would expect from the     |
   | datasheet. But what fun is that?! If you turn them both off, it       |
   | oscillates much faster - faster than the clock speed! with a sawtooth |
-  | waveform which (measured by my 'scope) clocks in at 51 MHz - from a   |
-  | part running at 20 MHz! Of course, thats at                           |
-  | room temperature! Point a can of freeze spray (computer duster held   |
-  | upside-down, so the liquid comes out) and the frequency goes up.      |
-  | Aim a heat-gun or torch at it (use care - freeze spray DOES burn, and |
-  | you do NOT want to inhale the combustion products. So do PCBs if you  |
-  | aren't careful with that torch) and the frequency goes down. This is  |
-  | of essentially zero practical use, but it sure is cool isn't it?      |
+  | waveform which (measured by my 'scope) clocks in at 37 MHz - from a   |
+  | part running at 20 MHz! Different configurations will result in       |
+  | different frequencies. The simplest one can oscillate at a whopping   |
+  | 92 MHz!                                                               |
   |                                                                       |
-  | Okay - the *really* obvious one is just setting one input as feedback |
-  | and just inverting that - this results in an insanely high frequency  |
-  | Somewhere in the vicinity of 100 MHz - other methods get different    |
-  | charachteristic frequencies. Interesting - but largely useless. Might |
-  | be a way to probe Microchip's process progress; comparing silicon revs|
-  | might or might not show anything.                                     |
+  | It is temperature dependenr - point a can of freeze spray (computer   |
+  | duster held upside-down, so the liquid comes out) and the frequency   |
+  | goes up. Aim a heat-gun or torch at it (use care - freeze spray DOES  |
+  | burn, and you do NOT want to inhale the combustion products or cause  |
+  | an inferno in your lab.) and the frequency goes down. Warnings:       |
+  | Hitting hot parts with freeze spray may crack the package, ruining the|
+  | part, and freeze spray will cause frost to form on the parts. Best to |
+  | disconnect them from power while they thaw and dry off before applying|
+  | power to them again. PCBs also burn if you are not careful with that  |
+  | torch) This is maximum-speed oscillation is of essentially zero       |
+  | practical use, but it sure is cool isn't it?                          |
   |                                                                       |
-  | Much more useful is using CLK_PER as the clock, enabling sync or      |
-  | filter (these result in it oscillating at 1/4th or 1/8th CLK_PER)     |
-  | 2 logic blocks wired up like this can give you 1/12th or 1/16th....   |
-  | in other words, your own prescaled clock... with which you could, say |
-  | set a TCB to clock on event (on Dx and tinyAVR 2-series), to get      |
-  | around the lack of an independent prescaler on the type B timers.     |
-  | I think 1/32 and 1/64 are possible with 2 logic blocks and an event   |
-  | channel, too.
+  | Maybe it could be used to examine a new silicon revision to see if    |
+  | there were any significant process changes? *shrug*                   |
+  |                                                                       |
+  | And yes, if you happen to want your part to run at an indeterminate   |
+  | and highly temperature dependent speed, you could then set the system |
+  | clock prescaler to 2, connect a jumper between the Logic0 output pin  |
+  | and EXTCLK pin, and switch to the external clock, leading to it       |
+  | running at around 18.5 MHz with wide variation depending on conditions|
+  | This is not recommended except as a silly joke, and it is thoroughly  |
+  | useless. Maybe if you miss the +/- 10% tolerance on the classic AVR   |
+  | internal oscillator?                                                  |
+  |                                                                       |
+  | In combination with the synchronizer/filter, though, it is has the    |
+  | potential to be far more useful - as it will allow generation of a    |
+  | prescaled system clock. On parts where a TCB can be clocked from an   |
+  | event, this allows one to work around the limited prescale options    |
+  | available for TCBs, without having to change the TCA prescaler. For   |
+  | more information on this, see: https://github.com/SpenceKonde/        |
+  | AVR-Guidance/blob/master/CCL_EVSYS_hacks/CCL_prescaling.md            |
+  |                                                                       |
   |***********************************************************************/
 
 #include <Logic.h>
