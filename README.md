@@ -3,7 +3,7 @@
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
 
 ## **No, the AVR128DA48 Curiosity Nano is not supported yet!**
-Support will be implemented in 1.3.0 through a new upload tool (not avrdude, which does not support these parts via the nEDBG programmer - and likely never will)
+Support will be implemented in 1.3.0 - through the old standard of avrdude, which has recently gotten an update to support programming these devices (which is very good, as our other approach had been running into trouble)
 
 # DxCore - Arduino support for the NEW AVR DA-series, DB-series and upcoming DD-series
 This is an Arduino core to support the exciting new AVR DA, DB, and "coming soon" DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned. But whatever the story of it's origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... But for almost every system they've added a significant improvement of some sort (while largely preserving backwards compatibility. You liked the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with the slightly-improved instruction timing compared to "classic" AVRs
@@ -12,15 +12,15 @@ Oh and you wish you had a bit more accuracy on the ADC? Yup - this is a 12-bit A
 
 As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-pin version really doesn't show the full power of these parts, but it's far better than nothing for those who aren't comfortable with using surface mount parts and have been feeling left out of the party (of course, you can buy breakout boards in my Tindie store of all sizes, even the 64-pin ones!)
 
-These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
+These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, DB, or DD (depending on the "series" or "family", then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
 
 At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical; most vary very little betweem the initial release and now. 
 
 ## DA-series
-The "basic" large-size line - however much I was in awe of these when they were first released, having seen the DB-series, it now appears that these are more akin to a 0-series than a 1-series - by almost any measure, the DB-series is better (and barely more expensive!). They do not support using an external crystal for the main clock, like the other Dx parts do, but the internal oscillator on these parts is WAY better than the classic AVRs had - all the ones I've tested are weithin half a percent at room temp and typical operating voltages, even without autotune... To make sure autotune was working, I had to point a torch at it, because I couldn't get enough of a change in the internal oscillator frequency from changing the supply voltage. It is also the only currently announced Dx series without MVIO. While they may not shine as brightly next to the other Dx lines, these are still far above any AVR released before the year 2020.
+The "basic" large-size line - however much I was in awe of these when they were first released, having seen the DB-series, it now appears that these are more akin to a 0-series than a 1-series - by almost any measure, the DB-series is the same or slightly better (and barely more expensive!). They do not support using an external crystal for the main clock, like the other Dx parts do, but the internal oscillator on these parts is still WAY better than the classic AVRs had - all the ones I've tested are weithin half a percent at room temp and typical operating voltages, even without autotune... To make sure autotune was working, I had to point a torch at it, because I couldn't get enough of a change in the internal oscillator frequency from changing the supply voltage. It is also the only currently announced Dx series without MVIO. While they may not shine as brightly next to the other Dx lines, these are still far above any AVR released before the year 2020.
 
 ## DB-series
-The DB-series is almost an exact copy of the DA-series (they have also fixed some of the most egregious silicon bugs), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, intead of ~ 1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). A future version of DxCore will provide a simple library to control the opamps in the spirit of the Logic and Comparator libraries.
+The DB-series is almost an exact copy of the DA-series (they fixed some of the most egregious silicon bugs, though they have hardly been a paragon of rigor ), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, intead of ~ 1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). A future version of DxCore will provide a simple library to control the opamps in the spirit of the Logic and Comparator libraries.
 
 ## DD-series
 The DD-series is a smaller-pincount line; parts are available with 14-32 pins. They've got the MVIO (3 or 4 MVIO pins depending on pincount). The product brief claims 10 output pins, 11 input pins,  on the 14-pin package. With VDD, VDDIO, and GND. That implies that there will be a way to configure the UPDI pin to act as an I/O pin, and Reset to act as an input only if configured appropirately in the fuses. We'll have to wait until more information is available, but it sounds like the reset pin on these parts will be the pin that needs the HV pulse (likely )
@@ -243,13 +243,13 @@ To use it in 10-bit mode
 //assumes dacvalue is an unsigned 16-bit integer containing a number between 0 and 1023.
 
 // enable DAC
-DAC0.CTRLA|=(1<<DAC_OUTEN_bm)|1<<(DAC_ENABLE_bm);
+DAC0.CTRLA |= DAC_OUTEN_bm | DAC_ENABLE_bm;
 
 // write value to DAC
 DAC0.DATA=(dacvalue<<6);
 
 // disable DAC
-DAC0.CTRLA&=~((1<<DAC_OUTEN_bm)|1<<(DAC_ENABLE_bm));
+DAC0.CTRLA &= ~(DAC_OUTEN_bm | DAC_ENABLE_bm);
 ```
 
 ### Servo Support
@@ -301,7 +301,7 @@ If your sketch requires that the B0 is used as the millis timer, for example:
 
 ```
 #ifndef MILLIS_USE_TIMERB2
-#error "This sketch is written for use with TCB0 as the millis timing source"
+#error "This sketch is written for use with TCB2 as the millis timing source"
 #endif
 ```
 
@@ -309,14 +309,24 @@ If your sketch requires that the B0 is used as the millis timer, for example:
 When writing code that may be compiled for a variety of target chips, it is often useful to detect which chip it is running on. Defines of the form `__AVR_AVRxDAy__` are provided, where `x` is the size of the flash (in kb) and `y` is the number of pins, for example `__AVR_AVR128DA64__` for the part with 128K flash and 64 pins.
 
 This core provides an additional define depending on the number of pins on the part, as this directly corresponds to the available peripherals:
-* __AVR_DA_28__
-* __AVR_DA_32__
-* __AVR_DA_48__
-* __AVR_DA_64__
+* `__AVR_DA_28__`
+* `__AVR_DA_32__`
+* `__AVR_DA_48__`
+* `__AVR_DA_64__`
+* `__AVR_DB_28__`
+* `__AVR_DB_32__`
+* `__AVR_DB_48__`
+* `__AVR_DB_64__`
+* `__AVR_DD_14__`
+* `__AVR_DD_20__`
+* `__AVR_DD_28__`
+* `__AVR_DD_32__`
+* `__AVR_DA__`
+* `__AVR_DB__`
+* `__AVR_DD__`
 
-And all parts will have the following defined:
-* __AVR_DA__
-* DxCORE
+All parts will have the following defined:
+* DXCORE
 
 
 # Bootloader (optiboot) Support
