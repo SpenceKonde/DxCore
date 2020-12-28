@@ -45,13 +45,9 @@
 #define AVAILABLE_TONE_PINS 1
 
 #if defined(MILLIS_USE_TIMERB0)
-#if defined(TCB1)
-#define USE_TIMERB1
+  #define USE_TIMERB1
 #else
-#error "This part only has one type B timer, but it is selected as millis source; tone cannot be used."
-#endif
-#else
-#define USE_TIMERB0
+  #define USE_TIMERB0
 #endif
 
 static volatile TCB_t* _timer =
