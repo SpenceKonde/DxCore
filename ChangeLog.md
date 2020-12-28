@@ -22,6 +22,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Pull in new version of avrdude to support Dx-series Curiosity boards via avrdude. (Not yet implemented)
 * Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer. (Not yet implemented)
 * Get updated optiboot sourcecode (not yet implemented)
+* Add in the SERIAL_PORT_whatever macros, against my better judgement.
+* **POTENTIALLY BREAKING CHANGE** Timer D PWM pins for all parts moved to pins 6, 7 instead of 4, 5. This is because I realized that USART0 will often be pinswapped in order to use PA0 (and PA1 on DB/DD-series) as a clock source. Future updates will make TCD PWM pins flexible (which will also provide a graceful way to support it if/when parts that fix the bug that keeps them from working on other ports become available)
 
 ### 1.2.0/1.2.0a
 * Add support for AVR64DB and AVR32DB parts! Too bad the compiler issue is still a problem.... I was not able to make a working toolchain for these parts, not quite sure what I got wrong this time around...

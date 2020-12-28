@@ -484,10 +484,10 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  1
   NOT_ON_TIMER, //  2
   NOT_ON_TIMER, //  3
-  TIMERD0,      //  4 PA4
-  TIMERD0,      //  5 PA5
-  NOT_ON_TIMER, //  6
-  NOT_ON_TIMER, //  7
+  NOT_ON_TIMER, //  4 PA4/MOSI
+  NOT_ON_TIMER, //  5 PA5/MISO
+  TIMERD0,      //  6 PA6/SCK
+  TIMERD0,      //  7 PA7/SS/CLKOUT
   TIMERA1,      //  8 PB0
   TIMERA1,      //  9 PB1
   TIMERA1,      //  10 PB2
@@ -502,16 +502,16 @@ const uint8_t digital_pin_to_timer[] = {
   TIMERA0,      //  19 PC3
   TIMERA0,      //  20 PC4
   TIMERA0,      //  21 PC5
-  NOT_ON_TIMER, //  22
-  NOT_ON_TIMER, //  23
-  NOT_ON_TIMER, //  24
+  NOT_ON_TIMER, //  22 PC6
+  NOT_ON_TIMER, //  23 PC7
+  NOT_ON_TIMER, //  24 PD0
   NOT_ON_TIMER, //  25
   NOT_ON_TIMER, //  26
   NOT_ON_TIMER, //  27
   NOT_ON_TIMER, //  28
   NOT_ON_TIMER, //  29
   DACOUT,       //  30 PD6
-  NOT_ON_TIMER, //  31
+  NOT_ON_TIMER, //  31 PD7
   NOT_ON_TIMER, //  32 PE0
   NOT_ON_TIMER, //  33
   NOT_ON_TIMER, //  34
@@ -520,8 +520,8 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  37
   NOT_ON_TIMER, //  38
   NOT_ON_TIMER, //  39
-  NOT_ON_TIMER, //  40
-  NOT_ON_TIMER, //  41
+  NOT_ON_TIMER, //  40 PF0 (TOSC1)
+  NOT_ON_TIMER, //  41 PF1 (TOSC2)
   NOT_ON_TIMER, //  42
   NOT_ON_TIMER, //  43
   TIMERB0,      //  44 PF4
@@ -539,5 +539,54 @@ const uint8_t digital_pin_to_timer[] = {
 
 
 #endif
+
+// These serial port names are intended to allow libraries and architecture-neutral
+// sketches to automatically default to the correct port name for a particular type
+// of use.  For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
+// the first hardware serial port whose RX/TX pins are not dedicated to another use.
+//
+// SERIAL_PORT_MONITOR        Port which normally prints to the Arduino Serial Monitor
+//
+// SERIAL_PORT_USBVIRTUAL     Port which is USB virtual serial
+//
+// SERIAL_PORT_LINUXBRIDGE    Port which connects to a Linux system via Bridge library
+//
+// SERIAL_PORT_HARDWARE       Hardware serial port, physical RX & TX pins.
+//
+// SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
+//                            pins are NOT connected to anything by default.
+
+#define SERIAL_PORT_MONITOR       Serial
+#define SERIAL_PORT_HARDWARE      Serial1
+#define SERIAL_PORT_HARDWARE_OPEN Serial2
+
+// Spence Konde: Okay, I think this is pretty stupid, but it's also harmless, which is
+// better than many of the stupid things that are now part of the "API" - since I can
+// support this without kneecapping the core, why not?
+// A library that needs to use serial ports for something should *really* demand
+// the user pass the desired serial port to use to the constructor or equivalent.
+//
+// Serial (USART0) as the Serial Monitor serial port.
+// Serial2 (USART2) as the "hardware" serial port (I mean, Serial also is... but it
+// is the one most likely also connected to a serial monitor.
+// Serial1 (USART1) as the "open hardware" serial port on the grounds that it's not the
+// serial monitor port, and the only pins for USART2 are also the only pins available
+// for a watch crystal for autotuning and keeping time while sleeping on the 28-pin
+// parts.
+//
+// Kept the same parts across larger pincounts for consistency, though I'd be easy
+// to convince that this was a bad idea.
+//
+// If having definitions here ends up making anything worse than it otherwise would
+// be, please report it in the issues. My sense is that if a library uses these
+// it would either be unusable without them, or it offers the user a way to pass
+// in a serial port, and if they don't like these, passing one in would override it.
+//
+// Note: On DB-series parts, Serial1 is the MVIO serial port; there's no define
+// here for that, of course. Which will get a bit awkward, as I think about it,
+// because on the DD-series parts, if they've got 14 or 20 pins, Serial/USART0
+// on an alternate pin mapping will be the MVIO serial port - they don't have PC0
+// so Serial1 on default mapping doesn't have it's TX pin, but there's a USART0
+// mapping with TX/RX on PC1/PC2. So a SERIAL_PORT_MVIO define *would* be handy!
 
 #endif
