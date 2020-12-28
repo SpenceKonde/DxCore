@@ -319,7 +319,5 @@ const uint8_t digital_pin_to_timer[] = {
 
 #endif
 
-void initVariant() __attribute__((weak));
-void initVariant() { }
 
 #endif

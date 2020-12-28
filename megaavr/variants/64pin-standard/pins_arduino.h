@@ -83,19 +83,19 @@
 
 #if defined(MILLIS_USE_TIMERB0)
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB1)
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PF4) || ((p) == PIN_PG3))
+  ((p) == PIN_PF4) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB2)
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB3)
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #else //no TCB's are used for millis
 #define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #endif
 
 // Timer pin swaps
@@ -484,24 +484,24 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  1
   NOT_ON_TIMER, //  2
   NOT_ON_TIMER, //  3
-    TIMERD0,   //  4 PA4
-    TIMERD0,   //  5 PA5
+  TIMERD0,      //  4 PA4
+  TIMERD0,      //  5 PA5
   NOT_ON_TIMER, //  6
   NOT_ON_TIMER, //  7
-    TIMERA1,    //  8 PB0
-    TIMERA1,    //  9 PB1
-    TIMERA1,    //  10 PB2
-    TIMERA1,    //  11 PB3
-    TIMERA1,    //  12 PB4
-    TIMERA1,    //  13 PB5
+  TIMERA1,      //  8 PB0
+  TIMERA1,      //  9 PB1
+  TIMERA1,      //  10 PB2
+  TIMERA1,      //  11 PB3
+  TIMERA1,      //  12 PB4
+  TIMERA1,      //  13 PB5
   NOT_ON_TIMER, //  14
   NOT_ON_TIMER, //  15
-    TIMERA0,    //  16 PC0
-    TIMERA0,    //  17 PC1
-    TIMERA0,    //  18 PC2
-    TIMERA0,    //  19 PC3
-    TIMERA0,    //  20 PC4
-    TIMERA0,    //  21 PC5
+  TIMERA0,      //  16 PC0
+  TIMERA0,      //  17 PC1
+  TIMERA0,      //  18 PC2
+  TIMERA0,      //  19 PC3
+  TIMERA0,      //  20 PC4
+  TIMERA0,      //  21 PC5
   NOT_ON_TIMER, //  22
   NOT_ON_TIMER, //  23
   NOT_ON_TIMER, //  24
@@ -510,9 +510,9 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  27
   NOT_ON_TIMER, //  28
   NOT_ON_TIMER, //  29
-     DACOUT,    //  30 PD6
+  DACOUT,       //  30 PD6
   NOT_ON_TIMER, //  31
-  NOT_ON_TIMER, //  32
+  NOT_ON_TIMER, //  32 PE0
   NOT_ON_TIMER, //  33
   NOT_ON_TIMER, //  34
   NOT_ON_TIMER, //  35
@@ -524,21 +524,20 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  41
   NOT_ON_TIMER, //  42
   NOT_ON_TIMER, //  43
-    TIMERB0,    //  44 PF4
-    TIMERB1,    //  45 PF5
-  NOT_ON_TIMER, //  46
-  NOT_ON_TIMER, //  47
+  TIMERB0,      //  44 PF4
+  TIMERB1,      //  45 PF5
+  NOT_ON_TIMER, //  46 PF6 (RESET)
+  NOT_ON_TIMER, //  47 PG0
   NOT_ON_TIMER, //  48
-  TIMERB4, //  49
+  TIMERB4,      //  49
   NOT_ON_TIMER, //  50
   NOT_ON_TIMER, //  51
   NOT_ON_TIMER, //  52
   NOT_ON_TIMER, //  53
-  NOT_ON_TIMER, //  54
+  NOT_ON_TIMER, //  54 PG7
 };
 
 
 #endif
-void initVariant() __attribute__((weak));
-void initVariant() { }
+
 #endif
