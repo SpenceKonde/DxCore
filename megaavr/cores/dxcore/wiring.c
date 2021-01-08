@@ -22,9 +22,15 @@
 
 #include "wiring_private.h"
 #if (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
-void asmDelay(uint16_t us);
-void blinkCode(uint8_t blinkcount);
+  void asmDelay(uint16_t us);
+  void blinkCode(uint8_t blinkcount);
 #endif
+
+
+
+  #ifndef F_CPU
+    #error "F_CPU not defined"
+  #endif
 
 // the prescaler is set so that timer ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
@@ -32,7 +38,7 @@ void blinkCode(uint8_t blinkcount);
 #ifndef MILLIS_USE_TIMERNONE
 
 #ifdef MILLIS_USE_TIMERRTC_XTAL
-#define MILLIS_USE_TIMERRTC
+  #define MILLIS_USE_TIMERRTC
 #endif
 
 //volatile uint16_t microseconds_per_timer_overflow;
@@ -788,15 +794,113 @@ void delayMicroseconds(unsigned int us)
 
 
 
+
 void init()
 {
   // this needs to be called before setup() or some functions won't
   // work there
 
-  /******************************** CLOCK STUFF *********************************/
-  #ifndef F_CPU
-    #error "F_CPU not defined"
+
+
+  #if ((defined(DB_28_PINS) || defined(DB_32_pins)) && !defined(NO_PIN_PD0_BUG))
+    // PD0 does not exist on these parts - VDDIO2 took it's (physical) spot.
+    // but due to a silicon bug, the input buffer is on, but it's input is floating. Per errata, we are supposed to turn it off.
+    PORTD.PIN0CTRL=PORT_ISC_INPUT_DISABLE_gc;
   #endif
+
+
+  init_clock();
+
+  init_timers();
+
+  #ifndef MILLIS_USE_TIMERNONE
+    init_millis();
+  #endif //end #ifndef MILLIS_USE_TIMERNONE
+/*************************** ENABLE GLOBAL INTERRUPTS *************************/
+
+  sei();
+}
+
+
+
+
+/********************************* ADC ****************************************/
+void init_ADC0() {
+  #if defined(ADC0)
+    #ifndef SLOWADC
+      /* ADC clock 1 MHz to 1.25 MHz at frequencies supported by megaTinyCore
+      Unlike the classic AVRs, which demand 50~200 kHz, for these, the datasheet
+      spec's a clock speed of 150 kHz to 2 MHz. We hypothesize that lower clocks provide better
+      response to high impedance signals, since the sample and hold circuit will
+      be connected to the pin for longer, though the datasheet does not explicitly
+      state that this is the case. Just like on megaTinyCore, use samplen to compensate */
+
+      #if F_CPU >= 32000000
+        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
+      #elif F_CPU >= 32000000
+        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
+      #elif F_CPU >= 28000000
+        ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
+      #elif F_CPU >= 24000000
+        ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1 MHz
+      #elif F_CPU >= 20000000
+        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1 MHz
+      #elif F_CPU >= 16000000
+        ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1 MHz
+      #elif F_CPU >= 12000000
+        ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1 MHz
+      #elif F_CPU >= 8000000
+        ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1 MHz
+      #elif F_CPU >= 4000000
+        ADC0.CTRLC = ADC_PRESC_DIV4_gc;  //1 MHz
+      #else  // 1 MHz / 2 = 500 kHz - the lowest setting
+        ADC0.CTRLC = ADC_PRESC_DIV2_gc;
+      #endif
+      ADC0.SAMPCTRL=14; //16 ADC clock sampling time - should be about the same amount of *time* as originally?
+      // This is WAY conservative! We could drop it down...
+      ADC0.CTRLD = ADC_INITDLY_DLY64_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
+    #else //if SLOWADC is defined - as of 2.0.0 this option isn't exposed.
+      /* ADC clock around 200 kHz - datasheet spec's 125 kHz to 1.5 MHz */
+      #if F_CPU >= 32000000
+        ADC0.CTRLC = ADC_PRESC_DIV128_gc; //250 kHz
+      #elif F_CPU >= 24000000
+        ADC0.CTRLC = ADC_PRESC_DIV96_gc; //250 kHz
+      #elif F_CPU >= 16000000
+        ADC0.CTRLC = ADC_PRESC_DIV64_gc; //250 kHz
+      #elif F_CPU >= 12000000
+        ADC0.CTRLC = ADC_PRESC_DIV48_gc; //250 kHz
+      #elif F_CPU >= 8000000
+        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //250 kHz
+      #elif F_CPU >= 4000000
+        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //200 kHz
+      #else  // 1 MHz / 4 = 250 kHz
+        ADC0.CTRLC = ADC_PRESC_DIV4_gc;
+      #endif
+      ADC0.CTRLD = ADC_INITDLY_DLY16_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 250 MHz, so we want 16 ADC clocks when we start up a new reference so we don't get bad readings at first
+    #endif
+
+    /* Enable ADC */
+    ADC0.CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
+    //start at 10 bit for compatibuility with existing code.
+
+    #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+      // That may become defined when DA-series silicon is available with the fix
+      ADC0.MUXPOS=0x40;
+      ADC0.COMMAND=0x01;
+      ADC0.COMMAND=0x02;
+    #endif
+    analogReference(VDD);
+    DACReference(VDD);
+  #endif
+}
+
+/******************************** CLOCK ***************************************/
+// This section includes accessory functions for the system clock configuration
+// currently, this includes only on ones used to generate a "blink code" to
+// assist in debugging issues related to an external clock source.
+
+
+void init_clock() {
 
   #if CLOCK_SOURCE==0
     //internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
@@ -814,10 +918,6 @@ void init()
     24 MHz    0x9
     28 MHz    0xA  - undocumented, unofficial
     32 MHz    0xB  - undocumented, unofficial
-    20 MHz    0xC  - undocumented, unofficial, redundant
-    24 MHz    0xD  - undocumented, unofficial, redundant
-    28 MHz    0xE  - undocumented, unofficial, redundant
-    32 MHz    0xF  - undocumented, unofficial, redundant
     */
     /* Some speeds not otherwise possible can be generated with the interal oscillator by prescaling
     This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
@@ -936,92 +1036,8 @@ void init()
   #else
     #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); DxCore does not support any other options (and it isn't even clear what such an option might be, other than a 32.768k low speed crystal, which would be an unspeakably miserable experience with Arduino"
   #endif
-
-  #if (defined(DB_28_PINS)||defined(DB_32_pins))
-    // PD0 does not exist on these parts - VDDIO2 took it's (physical) spot.
-    // but due to a silicon bug, the input buffer is on. Per datasheet, we are supposed to turn it off.
-    PORTD.PIN0CTRL=PORT_ISC_INPUT_DISABLE_gc;
-  #endif
-
-
-/********************************* ADC ****************************************/
-
-  #if defined(ADC0)
-    #ifndef SLOWADC
-      /* ADC clock 1 MHz to 1.25 MHz at frequencies supported by megaTinyCore
-      Unlike the classic AVRs, which demand 50~200 kHz, for these, the datasheet
-      spec's a clock speed of 150 kHz to 2 MHz. We hypothesize that lower clocks provide better
-      response to high impedance signals, since the sample and hold circuit will
-      be connected to the pin for longer, though the datasheet does not explicitly
-      state that this is the case. Just like on megaTinyCore, use samplen to compensate */
-
-      #if F_CPU >= 32000000
-        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
-      #elif F_CPU >= 32000000
-        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
-      #elif F_CPU >= 28000000
-        ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
-      #elif F_CPU >= 24000000
-        ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1 MHz
-      #elif F_CPU >= 20000000
-        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1 MHz
-      #elif F_CPU >= 16000000
-        ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1 MHz
-      #elif F_CPU >= 12000000
-        ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1 MHz
-      #elif F_CPU >= 8000000
-        ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1 MHz
-      #elif F_CPU >= 4000000
-        ADC0.CTRLC = ADC_PRESC_DIV4_gc;  //1 MHz
-      #else  // 1 MHz / 2 = 500 kHz - the lowest setting
-        ADC0.CTRLC = ADC_PRESC_DIV2_gc;
-      #endif
-      ADC0.SAMPCTRL=14; //16 ADC clock sampling time - should be about the same amount of *time* as originally?
-      // This is WAY conservative! We could drop it down...
-      ADC0.CTRLD = ADC_INITDLY_DLY64_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
-    #else //if SLOWADC is defined - as of 2.0.0 this option isn't exposed.
-      /* ADC clock around 200 kHz - datasheet spec's 125 kHz to 1.5 MHz */
-      #if F_CPU >= 32000000
-        ADC0.CTRLC = ADC_PRESC_DIV128_gc; //250 kHz
-      #elif F_CPU >= 24000000
-        ADC0.CTRLC = ADC_PRESC_DIV96_gc; //250 kHz
-      #elif F_CPU >= 16000000
-        ADC0.CTRLC = ADC_PRESC_DIV64_gc; //250 kHz
-      #elif F_CPU >= 12000000
-        ADC0.CTRLC = ADC_PRESC_DIV48_gc; //250 kHz
-      #elif F_CPU >= 8000000
-        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //250 kHz
-      #elif F_CPU >= 4000000
-        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //200 kHz
-      #else  // 1 MHz / 4 = 250 kHz
-        ADC0.CTRLC = ADC_PRESC_DIV4_gc;
-      #endif
-      ADC0.CTRLD = ADC_INITDLY_DLY16_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 250 MHz, so we want 16 ADC clocks when we start up a new reference so we don't get bad readings at first
-    #endif
-
-    /* Enable ADC */
-    ADC0.CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
-    //start at 10 bit for compatibuility with existing code.
-
-    #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
-      // That may become defined when DA-series silicon is available with the fix
-      ADC0.MUXPOS=0x40;
-      ADC0.COMMAND=0x01;
-      ADC0.COMMAND=0x02;
-    #endif
-    analogReference(VDD);
-    DACReference(VDD);
-  #endif
-
-  setup_timers();
-
-  #ifndef MILLIS_USE_TIMERNONE
-    init_millis();
-  #endif //end #ifndef MILLIS_USE_TIMERNONE
-/*************************** ENABLE GLOBAL INTERRUPTS *************************/
-
-  sei();
 }
+
 
 // These are used for blink codes which indicate issues that would prevent meaningful startup
 // I mean, we could leave it running at 4 MHz and run the sketch, but I think at that point
@@ -1029,6 +1045,9 @@ void init()
 // running at an unexpected speed. The odd number of "change" blinks in long phase makes it
 // extremely distinctive.
 #if (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
+
+  // These two functions need only exist if not using internal clock source.
+
   void blinkCode(uint8_t blinkcount) {
     //TODO: replace with fastPinMode() when available
     VPORTA.DIR|=0x80;
@@ -1045,8 +1064,12 @@ void init()
       }
     }
   }
-// running at 4 MHz due to missing clock, so 1 pass through loop = 1 us
-  void asmDelay(uint16_t us){
+
+
+  // If this gets called, then we tried - and failed - to configure an external clock source!
+  // running at 4 MHz due to missing clock, so 1 pass through loop = 1 us
+
+  void asmDelay(uint16_t us) {
     __asm__ __volatile__ (
       "1: sbiw %0,1" "\n\t" // 2 cycles
       "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
@@ -1060,12 +1083,15 @@ void init()
   #endif
 #endif
 
-void setup_timers() {
+
+
+
+/******************************** PWM TIMERS ***************************************/
+
+
+void init_timers() {
 
     /*  TYPE A TIMER   */
-
-    /* PORTMUX setting for TCA - don't need to set because using default */
-    //PORTMUX.CTRLA = PORTMUX_TCA00_DEFAULT_gc;
 
     /* Enable Split Mode */
     TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
@@ -1121,13 +1147,16 @@ void setup_timers() {
   #endif
   #endif
 
+  /* Finally - configure the PORTMUX settings to bring the PWM out to the */
+
   PORTMUX.TCAROUTEA = TCA0_PINS
     #if defined(TCA1)
                          | TCA1_PINS
     #endif
           ;
 
-    /*    TYPE B TIMERS  */
+
+  /*    TYPE B TIMERS  */
   // Set up routing (defined in pins_arduino.h)
   PORTMUX.TCBROUTEA = 0
   #if defined(TCB0)
@@ -1192,8 +1221,8 @@ void setup_timers() {
   #ifdef TCD0
     #ifndef MILLIS_USE_TIMERD0
       PORTMUX.TCDROUTEA=TCD0_PINS;
-      TCD0.CMPBCLR=510; //Count to 510
-      TCD0.CMPACLR=510;
+      TCD0.CMPBCLR=509; // 510 counts; so count to 509
+      TCD0.CMPACLR=509;
       TCD0.CTRLC=0x80; //WOD outputs PWM B, WOC outputs PWM A
       TCD0.CTRLB=0x00; //One Slope
       TCD0.CTRLA=TIMERD0_CTRLA_SETTING;

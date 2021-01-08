@@ -82,6 +82,19 @@ extern "C"{
 
 bool analogReadResolution(uint8_t res);
 
+// These are in here so that - should it be necessary - library functions or user code could override these.
+void init_ADC0() __attribute__((weak));
+void init_timers() __attribute__((weak)); //this function is expected to configure all timers for PWM. init_millis() is called after this.
+void init_clock() __attribute__((weak));
+
+#ifndef DISABLEMILLIS
+void init_millis();
+void stop_millis();
+void restart_millis();
+void set_millis(uint32_t newmillis);
+#endif
+
+
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
   #define _NOP() do { __asm__ volatile ("nop"); } while (0)
@@ -140,8 +153,6 @@ extern const uint8_t digital_pin_to_timer[];
 #define TIMERRTC 0x90
 #define DACOUT 0x80
 
-void setup_timers();
-
 #define digitalPinToPort(pin) ( (pin < NUM_TOTAL_PINS) ? digital_pin_to_port[pin] : NOT_A_PIN )
 #define digitalPinToBitPosition(pin) ( (pin < NUM_TOTAL_PINS) ? digital_pin_to_bit_position[pin] : NOT_A_PIN )
 #define analogPinToBitPosition(pin) ( (digitalPinToAnalogInput(pin)!=NOT_A_PIN) ? digital_pin_to_bit_position[pin] : NOT_A_PIN )
@@ -163,6 +174,8 @@ void setup_timers();
 #elif (__AVR_ARCH__ == 102)
   #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION1")))
 #else
+  // __AVR_ARCH__ == 103, so all of the flash is memory mapped, and the linker
+  // will automatically leave const variables in flash.
   #define MAPPED_PROGMEM
 #endif
 
