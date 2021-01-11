@@ -96,6 +96,9 @@
 #define PIN_TCA1_WO0 PIN_PB0
 #define PIN_TCD0_WOA PIN_PA4
 
+#define USE_TIMERD0_PWM
+#define NO_GLITCH_TIMERD0
+
 // SPI 0
 // No pinswap enabled by default
 // Pinswap 2 not available

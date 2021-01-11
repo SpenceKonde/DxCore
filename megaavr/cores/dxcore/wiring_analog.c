@@ -26,14 +26,51 @@
 #include "pins_arduino.h"
 #include "Arduino.h"
 
+inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+  if (__builtin_constant_p(mode)) {
+    if (mode >= 7 || mode == 4)
+      badArg("Analog reference requested is not a valid analog reference");
+  }
+}
+
+
+inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin) {
+  if(__builtin_constant_p(pin)) {
+  #ifdef MVIO
+    if (!(pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_VDDDIV10 || pin == ADC_VDDIO2DIV10 || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2))
+  #else
+    if (!(pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2))
+  #endif
+    {
+      pin = digitalPinToAnalogInput(pin);
+      if (pin == NOT_A_PIN) {
+        badArg("analogRead called with constant pin that is not a valid analog pin");
+      }
+    }
+  }
+}
+
+
+inline __attribute__((always_inline)) void check_valid_duty_cycle(int16_t val) {
+  if (__builtin_constant_p(val)) {
+    if (val < 0 || val >255)
+      badArg("analogWrite duty cycle called with a constant not between 0 and 255");
+  }
+}
+
+
 void analogReference(uint8_t mode)
 {
+  check_valid_analog_ref(mode);
   if (mode < 7 && mode !=4) {
     VREF.ADC0REF=(VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode);
   }
 }
+
+
 void DACReference(uint8_t mode)
 {
+  check_valid_analog_ref(mode);
   if (mode < 7 && mode !=4) {
     VREF.DAC0REF=(VREF.DAC0REF & ~(VREF_REFSEL_gm))|(mode);
   }
@@ -77,14 +114,21 @@ int analogRead(uint8_t pin)
   return ADC0.RES;
 
 }
-bool analogReadResolution(uint8_t res) {
-  if (res==12) {
+
+
+//analogReadResolution() has two legal values you can pass it, 8 or 10 on these parts. According to the datasheet, you can clock the ADC faster if you set it to 8.
+//like the pinswap functions, if the user passes bogus values, we set it to the default and return false.
+
+inline void analogReadResolution(uint8_t res) {
+  if (!__builtin_constant_p(res))
+    badArg("analogReadResolution must only be passed constant values");
+  if (res !=10 && res != 12)
+    badArg("analogReadResolution called with invalid argument - valid options are 10 or 12.");
+  if (res == 12) {
     ADC0.CTRLA=(ADC0.CTRLA&(~ADC_RESSEL_gm)) | ADC_RESSEL_12BIT_gc;
-    return true;
+  } else {
+    ADC0.CTRLA=(ADC0.CTRLA&(~ADC_RESSEL_gm)) | ADC_RESSEL_10BIT_gc;
   }
-  //if argument wasn't 10, we'll be putting it to default value either way
-  ADC0.CTRLA=(ADC0.CTRLA&(~ADC_RESSEL_gm)) | ADC_RESSEL_10BIT_gc;
-  return (res==10); //but only return true if the value passed was the valid option, 10.
 }
 
 
@@ -105,7 +149,6 @@ void analogWrite(uint8_t pin, int val)
   // "Uuugh! I hate this kind of crap..." -Spence
   //
   pinMode(pin, OUTPUT);
-
   //if(val < 1){  /* if zero or negative drive digital low */
 
   //  digitalWrite(pin, LOW);
@@ -118,6 +161,17 @@ void analogWrite(uint8_t pin, int val)
   /* Get timer */
   uint8_t digital_pin_timer =  digitalPinToTimer(pin);
   uint8_t* timer_cmp_out;
+  #if defined(NO_GLITCH_TIMERD)
+  if (digital_pin_timer != TIMERD0){
+  #endif
+    if(val <= 0){ /* if zero or negative drive digital low */
+      return digitalWrite(pin, LOW);
+    } else if(val >= 255){  /* if max or greater drive digital high */
+      return digitalWrite(pin, HIGH);
+    }
+  #if defined(NO_GLITCH_TIMERD)
+  }
+  #endif
 
   TCB_t *timer_B;
   //TCA_t *timer_A;
@@ -125,67 +179,52 @@ void analogWrite(uint8_t pin, int val)
   switch (digital_pin_timer) { //use only low nybble which defines which timer it is
 
     case TIMERA0:
-      if(val <= 0){ /* if zero or negative drive digital low */
-        digitalWrite(pin, LOW);
-      } else if(val >= 255){  /* if max or greater drive digital high */
-        digitalWrite(pin, HIGH);
-      } else {
+    /* Calculate correct compare buffer register */
+    if (bit_pos>2) {
+      bit_pos-=3;
+      timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.HCMP0)) + (bit_pos<<1);
+      (*timer_cmp_out) = (val);
+      TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
+    } else {
+      timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.LCMP0)) + (bit_pos<<1);
+      (*timer_cmp_out) = (val);
+      TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    }
+    break;
 
-        /* Calculate correct compare buffer register */
-        if (bit_pos>2) {
-          bit_pos-=3;
-          timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.HCMP0)) + (bit_pos<<1);
-          (*timer_cmp_out) = (val);
-          TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
-        } else {
-          timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.LCMP0)) + (bit_pos<<1);
-          (*timer_cmp_out) = (val);
-          TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
-        }
-      }
-      break;
-    #ifdef TCA1
+  #ifdef TCA1
     case TIMERA1:
-      if(val <= 0){ /* if zero or negative drive digital low */
-        digitalWrite(pin, LOW);
-      } else if(val >= 255){  /* if max or greater drive digital high */
-        digitalWrite(pin, HIGH);
-      } else {
+    /* Calculate correct compare buffer register */
+    if (bit_pos>2) {
+      bit_pos-=3;
+      timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.HCMP0)) + (bit_pos<<1);
+      (*timer_cmp_out) = (val);
+      TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
+    } else {
+      timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.LCMP0)) + (bit_pos<<1);
+      (*timer_cmp_out) = (val);
+      TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    }
+    break;
+  #endif
 
-        /* Calculate correct compare buffer register */
-        if (bit_pos>2) {
-          bit_pos-=3;
-          timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.HCMP0)) + (bit_pos<<1);
-          (*timer_cmp_out) = (val);
-          TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
-        } else {
-          timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.LCMP0)) + (bit_pos<<1);
-          (*timer_cmp_out) = (val);
-          TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
-        }
-      }
+    case TIMERB0:
+    case TIMERB1:
+    case TIMERB2:
+    case TIMERB3:
+    case TIMERB4:
+
+      /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
+      //assert (((TIMERB0 - TIMERB3) == 2));
+      timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
+
+      /* set duty cycle */
+      timer_B->CCMPH = val;
+
+      /* Enable Timer Output */
+      timer_B->CTRLB |= (TCB_CCMPEN_bm);
+
       break;
-    #endif
-      case TIMERB0:
-      case TIMERB1:
-      case TIMERB2:
-      case TIMERB3:
-      case TIMERB4:
-
-        /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
-        //assert (((TIMERB0 - TIMERB3) == 2));
-        timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
-
-        /* set duty cycle */
-        timer_B->CCMPH = val;
-
-        /* Enable Timer Output */
-        timer_B->CTRLB |= (TCB_CCMPEN_bm);
-
-        break;
-
-        /* If non timer pin, or unknown timer definition. */
-        /* do a digital write */
 
   #if defined(DAC0)
     case DACOUT:
@@ -197,36 +236,90 @@ void analogWrite(uint8_t pin, int val)
       DAC0.CTRLA=0x41; //OUTEN=1, ENABLE=1
       break;
   #endif
-  #if defined(TCD0)
+
+  #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
     case TIMERD0:
-      if(val < 1){  /* if zero or negative drive digital low */
-        digitalWrite(pin, LOW);
-      } else if(val > 254){ /* if max or greater drive digital high */
-        digitalWrite(pin, HIGH);
-      } else {
-          if (bit_pos&1) {
-            TCD0.CMPBSET=(255-val)<<1;
-          } else {
-            TCD0.CMPASET=(255-val)<<1;
-          }
-          #ifdef MEGATINYCORE
-            uint8_t fc_mask= (bit_pos?0x80:0x40);
-          #else
-            uint8_t fc_mask= (0x10<<(bit_pos&0x03));
-          #endif
-          if (!(TCD0.FAULTCTRL & fc_mask)) {
-            //if not active, we need to activate it, which produces a glitch in the PWM
-            TCD0.CTRLA&= ~TCD_ENABLE_bm;//stop the timer
-            while(!(TCD0.STATUS&0x01)) {;} // wait until it's actually stopped
-            fc_mask|=TCD0.FAULTCTRL;
-            _PROTECTED_WRITE(TCD0.FAULTCTRL,fc_mask);
-            TCD0.CTRLA|=TCD_ENABLE_bm; //reenable it
-        } else {
-          while(!(TCD0.STATUS&0x02)) {;} //if previous sync in progress, wait for it to finish.
-          TCD0.CTRLE=0x02; //Synchronize
+    {
+      uint8_t fc_mask;
+      #if defined(NO_GLITCH_TIMERD0)
+        // "No glitch timerd" mode means that if analogWrite(pin,val) is called for a pin on a type D timer
+        // with a duty cycle of 0% or 100%, instead of digitalWrite()'ing the pin, we will leave the timer
+        // connected, and instead set the duty cycle to 0%. If the requested duty cycle is 100%, the pin
+        // will then be inverted.
+        //
+        // If this is not defined, then the 0% and 100% cases will instead have been caught by the conditional
+        // at the start of analogWrite().
+
+        uint8_t set_inven = 0; // this will be set to 1 if we're setting the pin to a duty cycle of 100%
+        if(val <= 0){
+          val = 0;
+        } else if(val >= 255){
+          val = 0;
+          set_inven = 1;
         }
+      #endif
+      /**************************************
+      Determine the bit within TCD0.FAULTCTRL
+      On Dx-series, WOA is always on bit 0 or bit 4 and so on
+      On tinyAVR 1-series, WOA/WOB is on PA4/PA5, and WOC, WOD is on PC0/PC1.
+      ***************************************/
+      #ifndef MEGATINYCORE
+        // Dx-series
+        fc_mask = (0x10 << (bit_pos & 0x03));
+      #else
+        // tinyAVR 1-series
+        #ifdef USE_TIMERD_WOAB
+          // Future feature to support TCD0-driven PWM on PA4/PA5.
+          if (bit_pos > 3) {
+            fc_mask = (bit_pos == 5 ? 0x20 : 0x10);
+          } else {
+            fc_mask = (bit_pos == 1 ? 0x80 : 0x40);
+          }
+        #else
+          fc_mask = (bit_pos == 1 ? 0x80 : 0x40);
+        #endif
+      #endif
+
+
+      uint8_t oldSREG=SREG;
+      cli();
+      // interrupts off... wouldn't due to have this mess interrupted and messed with...
+      // if previous sync/enable in progress, wait for it to finish.
+      while (!(TCD0.STATUS & (TCD_ENRDY_bm | TCD_CMDRDY_bm )));
+
+      /* For flexible timer D PWM pins or USE_TIMERD_WOAB, this may need to be adapted */
+      if (bit_pos & 1) {
+        TCD0.CMPBSET=((255 - val) << 1) - 1;
+      } else {
+        TCD0.CMPASET=((255 - val) << 1) - 1;
       }
+
+      if (!(TCD0.FAULTCTRL & fc_mask)) {
+        //if not active, we need to activate it, which produces a glitch in the PWM
+        TCD0.CTRLA &= ~TCD_ENABLE_bm;   // stop the timer
+        while(!(TCD0.STATUS & 0x01)) {;} // wait until it's actually stopped
+        _PROTECTED_WRITE(TCD0.FAULTCTRL,(fc_mask | TCD0.FAULTCTRL));
+        TCD0.CTRLA |= TCD_ENABLE_bm;    // reenable it
+      } else {
+        TCD0.CTRLE = 0x02; //Synchronize
+      }
+
+      #if defined(NO_GLITCH_TIMERD0)
+        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), bit_pos);
+        // In this mode, we need to check set_inven, and set INVEN if it was called with 100% duty cycle
+        // and unset that bit otherwise.
+        if (set_inven == 0){
+          // we are not setting invert to make the pin HIGH when not set; either was 0 (just set CMPxSET > CMPxCLR)
+          // or somewhere in between.
+          *pin_ctrl_reg &= ~PORT_INVEN_bm;
+        } else {
+          // we *are* turning off PWM while forcing pin high - analogwrite(pin,255) was called on TCD0 PWM pin...
+          *pin_ctrl_reg |= PORT_INVEN_bm;
+        }
+      #endif
+      SREG=oldSREG; // Turn interrupts back on, if they were off.
       break;
+    }
   #endif
     /* If non timer pin, or unknown timer definition. */
     /* do a digital write */

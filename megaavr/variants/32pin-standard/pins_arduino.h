@@ -83,6 +83,9 @@
 #define PIN_TCA0_WO0 PIN_PD0
 #define PIN_TCD0_WOA PIN_PA4
 
+#define USE_TIMERD0_PWM
+#define NO_GLITCH_TIMERD0
+
 // SPI 0
 // No pinswap available
 #define SPI_INTERFACES_COUNT   1

@@ -80,7 +80,7 @@ extern "C"{
 #define interrupts() sei()
 #define noInterrupts() cli()
 
-bool analogReadResolution(uint8_t res);
+void analogReadResolution(uint8_t res);
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
 void init_ADC0() __attribute__((weak));
