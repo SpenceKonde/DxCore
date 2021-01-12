@@ -14,7 +14,7 @@ As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-p
 
 These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, DB, or DD (depending on the "series" or "family", then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
 
-At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical; most vary very little betweem the initial release and now. 
+At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical; most vary very little betweem the initial release and now.
 
 ## DA-series
 The "basic" large-size line - however much I was in awe of these when they were first released, having seen the DB-series, it now appears that these are more akin to a 0-series than a 1-series - by almost any measure, the DB-series is the same or slightly better (and barely more expensive!). They do not support using an external crystal for the main clock, like the other Dx parts do, but the internal oscillator on these parts is still WAY better than the classic AVRs had - all the ones I've tested are weithin half a percent at room temp and typical operating voltages, even without autotune... To make sure autotune was working, I had to point a torch at it, because I couldn't get enough of a change in the internal oscillator frequency from changing the supply voltage. It is also the only currently announced Dx series without MVIO. While they may not shine as brightly next to the other Dx lines, these are still far above any AVR released before the year 2020.
@@ -32,7 +32,7 @@ As with all AVR devices, a define of the form `__AVR_PARTNUMBER__` is provided b
 #if ((__AVR_AVR128DA64__) || (__AVR_AVR64DA64__) || (__AVR_AVR128DB64__) || (__AVR_AVR64DB64__))
 ```
 
-Obviously, that gets very verbose very quickly, so it is often convenient to have some more general defines provided by the Arduino core. This core provides (at present count) three extra defines for part identification: `DA_n_PINS` or `DB_n_PINS` (where n = 28, 32, 48, or 64), `Dx_n_PINS` (defined for both DA and DB). Finally `__AVR_DA__` and `__AVR_DB__`are defined by the core on their respective platforms.
+Obviously, that gets very verbose very quickly, so it is often convenient to have some more general defines provided by the Arduino core. This core provides (at present count) three extra defines for part identification: `DA_n_PINS` or `DB_n_PINS` (where n = 28, 32, 48, or 64), `Dx_n_PINS` (defined for both DA and DB). Finally `__AVR_DA__` and `__AVR_DB__`are defined by the core on their respective parts.
 
 ### __AVR_ARCH__
 This can be set to 102, 103, or 104 depending on flash size:
@@ -49,16 +49,18 @@ Support for smaller-flash versions and the AVR128DB parts is not available using
 * [AVR128DB28, AVR64DB28, AVR32DB28](megaavr/extras/DB28.md)
 * [AVR128DB32, AVR64DB32, AVR32DB32](megaavr/extras/DB32.md)
 * [AVR128DB48, AVR64DB48, AVR32DB48](megaavr/extras/DB48.md)
-* [AVR128DB64 and AVR64DB64](megaavr/extras/DB64.md)  
+* [AVR128DB64 and AVR64DB64](megaavr/extras/DB64.md)
 * AVR64DD14, AVR32DD14, AVR16DD14 (pending release - I suspect H1 2020)
 * AVR64DD20, AVR32DD20, AVR16DD20 (pending release - I suspect H1 2020)
 * AVR64DD28, AVR32DD28, AVR16DD28 (pending release - I suspect H1 2020)
 * AVR64DD32, AVR32DD32, AVR16DD32 (pending release - I suspect H1 2020)
 
-My personal opinion is that the 48-pin parts are the "sweet spot" - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs to stretch their legs (pins?). Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
+My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
+
+For the upcoming DD-series, the 28 and 32-pin parts are of questionable utility considering the existence of the more capable DA and DB parts with the same number of pins; for these, the 14-pin and 20-pin packages are likely more interesting, packing Dx-series capabilities into pincounts that are normally the province of the less capable tinyAVR product line.
 
 ## Supported Clock Speeds
-All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range. Support for External Clock and External Crystal options will be added in version 1.1.1.
+All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 * 24MHz Internal, Ext. Clock or Crystal (DB-only)
 * 20MHz Internal, Ext. Clock or Crystal (DB-only)
 * 16MHz Internal, Ext. Clock or Crystal (DB-only)
@@ -74,9 +76,10 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range. S
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions, at least at room temperature) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future.
 
-The DA-series does not support use of an external high frequency crystal (though the DB-series does!) - however the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
+The DA-series does not support use of an external high frequency crystal (though the DB/DD-series do) - the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
 
-There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator (ever wamted to run an MCU at 7 MHz? Me neither, but you totally can even without a crystal on these parts), as are different ways to generate the above clock speeds (8 MHz internal oscillator? 16 prescaled by 2 - or even 32 prescaled by 4?)... This would depend on [issue #40](https://github.com/SpenceKonde/DxCore/issues/40), so it could replace the clock initialization step, though  
+There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? Me neither, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore.
+
 ```c
 #include <DxCore.h>
 
@@ -91,7 +94,7 @@ void setup() {
 ```
 
 ### Clock troubleshooting
-On a classic AVR, selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation more gracefully. However, without assistance from the core, recognizing that the problem was infact a missing clock could be challenging. In order to aid in debugging such issues, DxCore will never run the sketch if the selected clock is not present. It will try for a short time before giving up and showing a blink code on pin PA7 (Arduino pin number 7); this blink code will be shown until the chip is reset. Similarly, on the DB-series, which features Clock Failure Detection, a clock failure at runtime will trigger a different blink code.
+On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation more gracefully. However, without assistance from the core, recognizing that the problem was infact a missing clock could be challenging. In order to aid in debugging such issues, DxCore will never run the sketch if the selected clock is not present. It will try for a short time before giving up and showing a blink code on pin PA7 (Arduino pin number 7); this blink code will be shown until the chip is reset. Similarly, on the DB-series, which features Clock Failure Detection, a clock failure at runtime will trigger a different blink code.
 
 #### Blink Codes
 All blink codes issued by the core start with the LED pin switching states three times (ie, if it is off, it will turn on, off, then on again), followed by a number of flashes indicating the nature of the failure. This will then repeat - since it initially changes state three times, this means that the pattern will be inverted the second time through. The number of short flashes indicates the nature of the problem: Three flashes indicates that the selected clock source was not present at startup. Four flashes indicates that it was present at startup, but then disappeared while it was running. It is hoped that this will make the blink codes distinctive enough that they cannot be mistaken for the running sketch. The core provides no facility to disable this, move it to another pin, or otherwise alter the clock source startup behavior. If you require this, compile with the internal oscillator at the desired frequency selected, and switch to the crystal or external clock at the beginning of your `setup()` function. In this case, on the DB-series parts, the clock failure detection will not be enabled, and - if you wish - you may enable it and write your own ISR to handle the CFD interrupt.
@@ -113,21 +116,21 @@ Starting in 1.3.0, DxCore includes a version of [pymcuprog](https://pypi.org/pro
 There is now support for an Optiboot derived bootloader! See the Bootloader section below for more information. The bootloader, of course, requires a UPDI programmer to install.
 
 ## Brutal errata in initial hardware
-The silicon errata in the initial versions of these parts is pretty brutal, particularly for the 128k parts, which were released first - and it's not even complete! See [errata and extras](megaavr/extras/errata_and_extras.md) for more information on the un/poorly-documented behavior of these devices..
+The silicon errata in the initial versions of these parts is pretty brutal, particularly for the 128k parts, which were released first - and the errata sheets are not even complete! See [errata and extras](megaavr/extras/errata_and_extras.md) for more information on the un/poorly-documented behavior of these devices..
 
 ## Quick Peripheral by Peripheral comparison
-[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md) - these were my thoughts as I first exploted these parts; it is not an in-depth guide to the features of these parts, nor is it intended to be.
+[Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md) - these were my thoughts as I first explored these parts; it is not an in-depth guide to the features of these parts, nor is it intended to be.
 
 # Features
 
 ## Memory-mapped flash? It's complicated.
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker can't automatically put constants into flash on 64k and 128k parts. However, on 32k parts, it can, and does!
 
-As of 1.2.0, you can declare a const variable MAPPED_PROGMEM; this will put it in the final section of flash (section 1 or 3 - they're 0-indexed); in this case, the data is not copied to RAM, and *you can use the variable directly to access it through the mapped flash!* (this only works if you don't change which section of the flash is mapped in NVMCTRL.CTRLB); you can store up to 32k of data this way. The PROGMEM attribute also works normally, ie, if you declare something PROGMEM, it will be stored in flash in the lower 64k (if possible), and can be accessed using pgm_read_* macros.
+As of 1.2.0, you can declare a const variable `MAPPED_PROGMEM`; this will put it in the final section of flash (section 1 or 3 - they're 0-indexed); in this case, the data is not copied to RAM, and *you can use the variable directly to access it through the mapped flash!* (this only works if you don't change which section of the flash is mapped in NVMCTRL.CTRLB); you can store up to 32k of data this way. The `PROGMEM` attribute also works normally, ie, if you declare something PROGMEM, it will be stored in flash in the lower 64k (if possible), and can be accessed using `pgm_read_*` macros.
 
 Note that the errata relating to the memory mapping on the AVR128DA parts is not a problem for the application, as the bootloader does not set BOOTRP, and the application cannot write to the flash (on parts with more than 32k of flash, the bootloader uses the SPM instruction to write the flash one word at a time, rather than ST to write it one byte at a time).
 
-The `F()` macro works the same way as it does on normal boards as of 1.2.0, even on the 32k parts, where it is unnecessary to save RAM - this was done in order to maintain library compatibility; several very popular libraries rely on F() returning a `__FlashStringHelper *` and make use of pgm_read_byte() to read it.
+The `F()` macro works the same way as it does on normal boards as of 1.2.0, even on the 32k parts, where it is unnecessary to save RAM - this was done in order to maintain library compatibility; several very popular libraries rely on F() returning a `__FlashStringHelper *` and make use of `pgm_read_byte()` to read it.
 
 
 ## Bootloader support (New in 1.1.0!)
@@ -136,13 +139,13 @@ As of 1.1.0, DxCore now also includes an Optiboot-derived bootloader for all par
 Once the part is bootloaded, sketches can be uploaded by connecting a serial adapter to those pins (including the usual DTR-autoreset circuit, present on my breakout boards), and clicking upload. If autoreset is not practical for whatever reason, an 8-second timeout version of the bootloader is provided. When reset is pressed, the bootloader will be active for the next 8 seconds. This may also be useful in combination with the software reset for updating a device in an inaccessible location.
 
 ### Bootloader size
-As of 1.2.0, the Optiboot bootloader now takes up only 512b of flash, just like on the Arduino Uno and similar! If you were previously using DxCore with an older version of the bootloader, you must use a UPDI programmer to "burn bootloader" with the new veraion of the bootloader first. 1.3.0 will introduce a number of general improvements to bootloader behavior w/regards to respecting specified entry conditions - and a lot has been done under the hood to make room in that 512b to add entry points that would allow the application to write to the flash from the bootloader. We're up to 30 
+As of 1.2.0, the Optiboot bootloader now takes up only 512b of flash, just like on the Arduino Uno and similar! If you were previously using DxCore with an older version of the bootloader, you must use a UPDI programmer to "burn bootloader" with the new veraion of the bootloader first. 1.3.0 introduces further enhancements regarding entry conditons; under the hood, there is also full support for writing to flash from the application.
 
 ## Ways to refer to pins
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
 
 #### PIN_Pxn Port Pin Numbers (recommended)
-**This is the recommended way to refer to pins** Defines are provided of form PIN_Pxn, where x is the letter of the port (A through G), and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by port), making it much easier to port code between devices with the modern peripherals. Several pieces of demo code in the documentation take advantage of this. 
+**This is the recommended way to refer to pins** Defines are provided of form PIN_Pxn, where x is the letter of the port (A through G), and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by port), making it much easier to port code between devices with the modern peripherals. Several pieces of demo code in the documentation take advantage of this.
 
 Direct port manipulation is possible on the parts (and is easier to write with if you use PIN_Pxn notation!) - in fact, in some ways direct port manipulation is more powerful than it was in the past. several powerful additional options are available for it - see [direct port manipulation](megaavr/extras/DirectPortManipulation.md).
 

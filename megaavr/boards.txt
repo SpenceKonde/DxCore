@@ -54,7 +54,8 @@ avrda.bootloader.WDTCFG=0x00
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
 avrda.bootloader.BOOTSIZE=0x00
-avrda.bootloader.flashcommand=
+avrda.bootloader.avrdudestring=
+avrda.bootloader.pymcuprogstring=-aerase
 
 ################################
 # Tools Submenu Options        #
@@ -318,7 +319,8 @@ avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdb.bootloader.CODESIZE=0x00
 avrdb.bootloader.BOOTSIZE=0x00
-avrdb.bootloader.flashcommand=
+avrdb.bootloader.avrdudestring=
+avrdb.bootloader.pymcuprogstring=-aerase
 
 ################################
 # Tools Submenu Options        #
@@ -625,7 +627,8 @@ avrdaopti.bootloader.WDTCFG=0x00
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
 avrdaopti.bootloader.BOOTSIZE=0x01
-avrdaopti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
+avrdaopti.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
+avrdaopti.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout} -a write
 
 # Upload settings
 avrdaopti.upload.protocol=arduino
@@ -932,7 +935,8 @@ avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
-avrdbopti.bootloader.flashcommand=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
+avrdbopti.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
+avrdbopti.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout} -a write
 
 # Upload settings
 avrdbopti.upload.protocol=arduino
