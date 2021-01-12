@@ -24,11 +24,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Part-specific pages for AVR DB-series parts. (#16, #44)
 * Several TCD0 PWM enhancements from megaTinyCore. (#39)
 * digitalWriteFast(), digitalReadFast() (can use same implementation from megaTinyCore), and will bring along the compiletime error checking.
+* Pull in major Serial rework from megaTinyCore, which is hoped to fix some stability issues (#33)
 
 #### Needed for 1.3.0, not yet implemented
 * Set SPI_INTERFACES_COUNT to 1, not 2 (#32). SPI_1 library will be removed - it's a mess, it's incompatible with everything for multiple reasons, and SPI_INTERFACES_COUNT breaks perfectly sane implementations, instead of making it easier for libraries to figure out how many usable SPI ports are available, which is the point of that #define. Core problem is that all other Arduino boards called the SPIclass for second serial port SPI1 - but that's the name for the struct defined in the io headers! As far as I can tell, there's basically nothing compatible with my SPI1 library anyway! That was not my finest work... for 1.3.0, will adapt SPI.swap() to accept SPI1 pins/port.
 * Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer.
-* Pull in major Serial rework from megaTinyCore, which is hoped to fix some stability issues
 * Get updated optiboot source into repo
 
 ### 1.2.0/1.2.0a
