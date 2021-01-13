@@ -117,7 +117,7 @@
 /**********************************************************/
 
 #define OPTIBOOT_MAJVER 9
-#define OPTIBOOT_MINVER 0
+#define OPTIBOOT_MINVER 1
 
 /*
  * OPTIBOOT_CUSTOMVER should be defined (by the makefile) for custom edits
@@ -276,7 +276,7 @@ typedef uint8_t pagelen_t;
  * supress some compile-time options we want.)
  */
 
-//void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
+void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
 int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9"))) __attribute__((used));
 
 void __attribute__((noinline)) __attribute__((leaf)) putch(char);
@@ -321,7 +321,7 @@ static addr16_t buff = {(uint8_t *)(RAMSTART)};
 
 
 /* everything that needs to run VERY early */
-/*
+
 void pre_main (void) {
     // Allow convenient way of calling do_spm function - jump table,
     //   so entry to this function will always be here, indepedent
@@ -336,7 +336,7 @@ void pre_main (void) {
   "1:\n"
   );
 }
-*/
+
 /* main program starts here */
 int main (void) {
   uint8_t ch;
@@ -831,17 +831,17 @@ static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
       break;
     default:
       do {
-#if defined(RAMPZ)
-        // Since RAMPZ should already be set, we need to use EPLM directly.
-        // Also, we can use the autoincrement version of lpm to update "address"
-        //      do putch(pgm_read_byte_near(address++));
-        //      while (--length);
-        // read a Flash and increment the address (may increment RAMPZ)
-        __asm__ ("elpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
-#else
-        // read a Flash byte and increment the address
-        __asm__ ("lpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
-#endif
+        #if defined(RAMPZ)
+          // Since RAMPZ should already be set, we need to use EPLM directly.
+          // Also, we can use the autoincrement version of lpm to update "address"
+          //      do putch(pgm_read_byte_near(address++));
+          //      while (--length);
+          // read a Flash and increment the address (may increment RAMPZ)
+          __asm__ ("elpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
+        #else
+          // read a Flash byte and increment the address
+          __asm__ ("lpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
+        #endif
         putch(ch);
       } while (--length);
       break;
@@ -853,19 +853,27 @@ static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
 #ifndef APP_NOSPM
 
 /*
- * Separate function for doing spm stuff
- * It's needed for application to do SPM, as SPM instruction works only
- * from bootloader.
- *
- * Yeah, this isn't going to work on the Dx-series - at this point, I think we basically
- * need to call write_buffer()?
+ * Ganked from megaTinyCore version... 
+ * Makes assumptions that optiboot.h library must account for.
+ * Flash memory mapping *must* be set to the section with the address in question.
+ * Address passed *must* point to the desired location accounted for flash mapping.
+ * optiboot.h *must* set the mapping section back when done.
+ * optiboot.h *must* be smart enough to handle either resetting NVMCTRL.CTRLA or 
+ * checking it first.
+ * Doesn't work for addresses within first page of each 32k section
+ * on AVR128DA revisions with the NVMCTRL errata.
  */
-//static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data)  __attribute__ ((used));
-//static void do_nvmctrl(uint16_t address, uint8_t command, uint16_t data) {
-//    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
-//    while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm|NVMCTRL_EEBUSY_bm))
-//  ; // wait for flash and EEPROM not busy, just in case.
-//}
+static void do_nvmctrl(uint16_t address, uint8_t command, uint8_t data)  __attribute__((used));
+
+static void do_nvmctrl(uint16_t address, uint8_t command, uint8_t data) {
+  if (command <= NVMCTRL_CMD_gm) {
+    nvm_cmd(command);
+    while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm | NVMCTRL_EEBUSY_bm))
+      ; // wait for flash and EEPROM not busy - pretty sure this is never triggered. Could remove if need space.
+  } else {
+    *(uint8_t *)address = data;
+  }
+}
 #endif
 
 
