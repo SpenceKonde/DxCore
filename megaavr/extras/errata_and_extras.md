@@ -112,3 +112,27 @@ Using DxCore, you don't even need to go to all that effort - you can just select
 The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that...
 
 It didn't work with the oscillator at 4 MHz though.
+
+### Interesting things removed from early IO headers
+Between the initial releases of the "IO" headers, and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but... 
+
+```
+#define EVSYS_USEROSCTEST  _SFR_MEM8(0x024B)
+```
+An extra event user... OSCTEST? I wonder what it does! I guess there's only one way to find out, and that's to monitor the system clock carefully with that set, and then trigger the event! The real question is whether it is to test some special oscillator feature... or just test if the oscillator is "safe" at it's current speed by stressing it (and you'd want that to be an event so you can have it executing code maybe? I dunno!)
+
+This next one is the bitfield that controls what the PLL will multiply the input clock by... 
+```
+/* Multiplication factor select */
+typedef enum CLKCTRL_MULFAC_enum
+{
+    CLKCTRL_MULFAC_DISABLE_gc = (0x00<<0),  /* PLL is disabled */
+    CLKCTRL_MULFAC_2x_gc = (0x01<<0),  /* 2 x multiplication factor */
+    CLKCTRL_MULFAC_3x_gc = (0x02<<0),  /* 3 x multiplication factor */
+    CLKCTRL_MULFAC_4x_gc = (0x03<<0),  /* 4 x multiplication factor */
+} CLKCTRL_MULFAC_t;
+```
+That last like was removed in later versions, to match the datasheet... I wonder if you can actually have the PLL multiply the clock by 4 instead of just 2 or 3? Betcha you can! So what speed were they targeting? No popular speed makes much sense if you wanted to keep the oscillator no higher than 48 MHz... Hardly anyone clocks AVRs at 12 MHz, and the people who do, are mostly doing it in order to achieve VUSB, and it's way outside the USB spec - I can't imagine Microchip promoteing THAT... 
+
+Now... if `CLK_PER` was rated up to 32 MHz, and and PLL up to 64? 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60 (would be in spec)... 24 MHz could only go 2x then the 4x would be for the everpopular 16x... 
+
