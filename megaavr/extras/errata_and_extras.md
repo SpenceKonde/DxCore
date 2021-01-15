@@ -136,3 +136,7 @@ That last like was removed in later versions, to match the datasheet... I wonder
 
 Now... if `CLK_PER` was rated up to 32 MHz, and and PLL up to 64? 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60 (would be in spec)... 24 MHz could only go 2x then the 4x would be for the everpopular 16x... 
 
+Analog Comparators had a third option for power profile... Wonder if it actually works? 
+```
+    AC_POWER_PROFILE3_gc = (0x03<<3),  /* Power profile 3 */
+```
