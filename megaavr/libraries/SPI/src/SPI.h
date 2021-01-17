@@ -22,6 +22,74 @@
 
 #include <Arduino.h>
 
+#if defined(SPI_MUX)
+  #define SPI0_SWAP_DEFAULT  0x00
+  #define SPI0_SWAP0 SPI0_SWAP_DEFAULT
+#endif
+
+#if defined(SPI_MUX_PINSWAP_1)
+  #define SPI0_SWAP_ALT1     0x01
+  #define SPI0_SWAP1 SPI0_SWAP_ALT1
+#endif
+
+#if defined(SPI_MUX_PINSWAP_2)
+  #define SPI0_SWAP_ALT2     0x02
+  #define SPI0_SWAP2 SPI0_SWAP_ALT2
+#endif
+
+#if defined(SPI_MUX_PINSWAP_3)
+  #define SPI0_SWAP_ALT3     0x03
+  #define SPI0_SWAP3 SPI0_SWAP_ALT3
+#endif
+
+#if defined(SPI_MUX_PINSWAP_4)
+  #define SPI0_SWAP_ALT4     0x04
+  #define SPI0_SWAP4 SPI0_SWAP_ALT4
+#endif
+
+#if defined(SPI_MUX_PINSWAP_5)
+  #define SPI0_SWAP_ALT5     0x05
+  #define SPI0_SWAP5 SPI0_SWAP_ALT5
+#endif
+
+#if defined(SPI_MUX_PINSWAP_6)
+  #define SPI0_SWAP_ALT6     0x06
+  #define SPI0_SWAP6 SPI0_SWAP_ALT6
+#endif
+
+
+/* Pin swaps past SPI0_SWAP_ALT2 are
+ * not currently used in any production devices
+ * but will exist for the upcoming AVR DD-series
+ * parts. Product brief indicates SPI pin mapping
+ * options of PA4~7, PC0~3, PD4~7, PC1~3+PF7, and
+ * PA0~1+PC0~1. (pins listed in MISO, MOSI, SCK
+ * SS order, implying 5 PORTMUX options not
+ * counting the likely PORTMUX_SPI0_NONE_gc to
+ * match existing devices. The AVR EA-series parts
+ * which are even further in the future (and with
+ * tiny amounts of flash) have all those, plus one
+ * on PE0~3, for 6 sets of pins to choose from!
+ */
+
+/* SPI1 - for DA/DA-series parts */
+
+#if defined(SPI1_MUX)
+  #define SPI1_SWAP_DEFAULT  0x10
+  #define SPI1_SWAP0 SPI1_SWAP_DEFAULT
+#endif
+
+#if defined(SPI1_MUX_PINSWAP_1)
+  #define SPI1_SWAP_ALT1     0x14
+  #define SPI1_SWAP1 SPI1_SWAP_ALT1
+#endif
+
+#if defined(SPI1_MUX_PINSWAP_2)
+  #define SPI1_SWAP_ALT2     0x18
+  #define SPI1_SWAP2 SPI1_SWAP_ALT2
+#endif
+
+
 #ifndef USE_MALLOC_FOR_IRQ_MAP
 #define USE_MALLOC_FOR_IRQ_MAP  0
 #endif
@@ -31,6 +99,7 @@
 //   - endTransaction()
 //   - usingInterrupt()
 //   - SPISetting(clock, bitOrder, dataMode)
+
 #ifndef SPI_HAS_TRANSACTION
 #define SPI_HAS_TRANSACTION 1
 #endif
@@ -201,12 +270,12 @@ class SPIClass {
 
   void detachMaskedInterrupts();
   void reattachMaskedInterrupts();
-
-  uint8_t _uc_pinMiso;
-  uint8_t _uc_pinMosi;
-  uint8_t _uc_pinSCK;
+  SPI_t* _hwspi_module = &SPI0;
+  uint8_t _uc_pinMISO;
+  uint8_t _uc_pinMOSI = PIN_SPI_MOSI;
+  uint8_t _uc_pinSCK = PIN_SPI_SCK;
   uint8_t _uc_pinSS;
-  uint8_t _uc_mux;
+  uint8_t _uc_mux = SPI_MUX;
 
   bool initialized;
   uint8_t interruptMode;

@@ -21,13 +21,21 @@
 #include <Arduino.h>
 
 #ifndef SPI_IMODE_NONE
-#define SPI_IMODE_NONE   0
+  #define SPI_IMODE_NONE   0
 #endif
 #ifndef SPI_IMODE_EXTINT
-#define SPI_IMODE_EXTINT 1
+  #define SPI_IMODE_EXTINT 1
 #endif
 #ifndef SPI_IMODE_GLOBAL
-#define SPI_IMODE_GLOBAL 2
+  #define SPI_IMODE_GLOBAL 2
+#endif
+
+#ifdef SPI1
+  // For the DA/DB-series parts with two SPI modules, SPI.h can use either SPI0 or SPI1.
+  #define SPI_MODULE (*_hwspi_module)
+#else
+  // when there's only one SPI module, we simplify the code and just use that.
+  #define SPI_MODULE SPI0
 #endif
 
 const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
@@ -40,93 +48,309 @@ SPIClass::SPIClass()
 
 bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS)
 {
-  #if defined(PORTMUX_CTRLB)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
+  #if (!defined(SPI1))
+    // implementation for tinyAVR and AVR DD-series, which only have a single SPI interface.
+    // The AVR DD-series has a lot of pinswap options...
+    #if (defined(SPI_MUX_PINSWAP_6))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_6 && pinMISO == PIN_SPI_MISO_PINSWAP_6 && pinSCK == PIN_SPI_SCK_PINSWAP_6 && pinSS == PIN_SPI_SS_PINSWAP_6)
       {
-        _uc_mux=PORTMUX_SPI0_bm;
-        return true;
-      }
-      else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-      {
-        _uc_mux=0;
-        return true;
-      }
-      else {
-         _uc_mux=0;
-        return false;
-      }
-    #endif
-  #elif defined(PORTMUX_SPIROUTEA)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
-      if (pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2 && pinSS == PIN_SPI_SS_PINSWAP_2)
-      {
-        _uc_mux=2;
+        _uc_mux        = SPI_MUX_PINSWAP_6;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_6;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_6;
         return true;
       } else
     #endif
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
+
+    #if (defined(SPI_MUX_PINSWAP_5))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_5 && pinMISO == PIN_SPI_MISO_PINSWAP_5 && pinSCK == PIN_SPI_SCK_PINSWAP_5 && pinSS == PIN_SPI_SS_PINSWAP_5)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_5;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_5;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_5;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_4))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_4 && pinMISO == PIN_SPI_MISO_PINSWAP_4 && pinSCK == PIN_SPI_SCK_PINSWAP_4 && pinSS == PIN_SPI_SS_PINSWAP_4)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_4;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_4;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_4;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_3))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_3 && pinMISO == PIN_SPI_MISO_PINSWAP_3 && pinSCK == PIN_SPI_SCK_PINSWAP_3 && pinSS == PIN_SPI_SS_PINSWAP_3)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_3;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_3;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_3;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_2))
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2 && pinSS == PIN_SPI_SS_PINSWAP_2)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_2;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_1))
       if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
       {
-        _uc_mux=1;
+        _uc_mux        = SPI_MUX_PINSWAP_1;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
         return true;
-      }
-      else if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-      {
-        _uc_mux=0;
-        return true;
-      }
-      else {
-         _uc_mux=0;
-        return false;
-      }
+      } else
     #endif
+
+    if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
+    {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      return true;
+    }
+    else {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      return false;
+    }
+    // end of single-SPI implementation
+
+  #else
+    // we have two SPI interfaces to deal with, each with up to two pinswap options
+    #if defined(SPI_MUX_PINSWAP_2)
+      if (pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2 && pinSS == PIN_SPI_SS_PINSWAP_2)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_2;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
+        _hwspi_module  =&SPI0;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI_MUX_PINSWAP_1)
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_1;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
+        _hwspi_module  =&SPI0;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI1_MUX_PINSWAP_2)
+      if (pinMOSI == PIN_SPI1_MOSI_PINSWAP_2 && pinMISO == PIN_SPI1_MISO_PINSWAP_2 && pinSCK == PIN_SPI1_SCK_PINSWAP_2 && pinSS == PIN_SPI1_SS_PINSWAP_2)
+      {
+        _uc_mux        = SPI1_MUX_PINSWAP_2;
+        _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_2;
+        _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_2;
+        _hwspi_module  =&SPI1;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI1_MUX_PINSWAP_1)
+      if(pinMOSI == PIN_SPI1_MOSI_PINSWAP_1 && pinMISO == PIN_SPI1_MISO_PINSWAP_1 && pinSCK == PIN_SPI1_SCK_PINSWAP_1 && pinSS == PIN_SPI1_SS_PINSWAP_1)
+      {
+        _uc_mux        = SPI1_MUX_PINSWAP_1;
+        _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_1;
+        _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_1;
+        _hwspi_module  = &SPI1;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI1_MUX)
+      if(pinMOSI == PIN_SPI1_MOSI && pinMISO == PIN_SPI1_MISO && pinSCK == PIN_SPI1_SCK && pinSS == PIN_SPI1_SS)
+      {
+        _uc_mux        = SPI1_MUX;
+        _uc_pinMOSI    = PIN_SPI1_MOSI;
+        _uc_pinSCK     = PIN_SPI1_SCK;
+        _hwspi_module  = &SPI1;
+        return true;
+      } else
+    #endif
+
+    if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
+    {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      _hwspi_module  = &SPI0;
+      return true;
+    }
+    else {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      _hwspi_module  =&SPI0;
+      return false;
+    }
   #endif
-  return false;
 }
 bool SPIClass::swap(uint8_t state)
 {
-  #if defined(PORTMUX_CTRLB)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
-      if(state == 1)
+
+  #if (!defined(SPI1))
+    // implementation for tinyAVR and AVR DD-series, which only have a single SPI interface.
+    // The AVR DD-series has a lot of pinswap options...
+    #if (defined(SPI_MUX_PINSWAP_6))
+      if(state == 6)
       {
-        _uc_mux=PORTMUX_SPI0_bm;
-        return true;
-      }
-      else if(state == 0)
-      {
-        _uc_mux=0;
-        return true;
-      }
-      else {
-         _uc_mux=0;
-        return false;
-      }
-    #endif
-  #elif defined(PORTMUX_SPIROUTEA)
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
-      if (state == 2)
-      {
-        _uc_mux=2;
+        _uc_mux        = SPI_MUX_PINSWAP_6;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_6;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_6;
         return true;
       } else
     #endif
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
+
+    #if (defined(SPI_MUX_PINSWAP_5))
+      if(state == 5)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_5;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_5;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_5;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_4))
+      if(state == 4)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_4;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_4;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_4;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_3))
+      if(state == 3)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_3;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_3;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_3;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_2))
+      if(state == 2)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_2;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
+        return true;
+      } else
+    #endif
+
+    #if (defined(SPI_MUX_PINSWAP_1))
       if(state == 1)
       {
-        _uc_mux=1;
+        _uc_mux        = SPI_MUX_PINSWAP_1;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
         return true;
-      }
-      else if(state == 0)
-      {
-        _uc_mux=0;
-        return true;
-      }
-      else {
-         _uc_mux=0;
-        return false;
-      }
+      } else
     #endif
+
+    if(state == 0)
+    {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      return true;
+    }
+    else {
+       _uc_mux=0;
+      return false;
+    }
+    // end of single-SPI implementation
+
+  #else
+    // we have two SPI interfaces to deal with, each with up to two alternate pinswap options
+    #if defined(SPI_MUX_PINSWAP_2)
+      if(state == SPI0_SWAP_ALT2)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_2;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
+        _hwspi_module  = &SPI0;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI_MUX_PINSWAP_1)
+      if(state == SPI0_SWAP_ALT1)
+      {
+        _uc_mux        = SPI_MUX_PINSWAP_1;
+        _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
+        _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
+        _hwspi_module  = &SPI0;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI1_MUX_PINSWAP_2)
+      if(state == SPI1_SWAP_ALT2)
+      {
+        _uc_mux        = SPI1_MUX_PINSWAP_2;
+        _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_2;
+        _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_2;
+        _hwspi_module  = &SPI1;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI1_MUX_PINSWAP_1)
+      if(state == SPI1_SWAP_ALT1)
+      {
+        _uc_mux        = SPI1_MUX_PINSWAP_1;
+        _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_1;
+        _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_1;
+        _hwspi_module  = &SPI1;
+        return true;
+      } else
+    #endif
+
+    #if defined(SPI1_MUX)
+      if(state == SPI1_SWAP_DEFAULT)
+      {
+        _uc_mux        = SPI1_MUX;
+        _uc_pinMOSI    = PIN_SPI1_MOSI;
+        _uc_pinSCK     = PIN_SPI1_SCK;
+        _hwspi_module  = &SPI1;
+        return true;
+      } else
+    #endif
+
+    if(state == SPI0_SWAP_DEFAULT)
+    {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      _hwspi_module  = &SPI0;
+      return true;
+    }
+    else {
+      _uc_mux        = SPI_MUX;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      _hwspi_module  = &SPI0;
+      return false;
+    }
   #endif
   return false;
 }
@@ -134,44 +358,38 @@ bool SPIClass::swap(uint8_t state)
 void SPIClass::begin()
 {
   init();
-  #if defined(PORTMUX_CTRLB)
-    PORTMUX.CTRLB=_uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
-  #elif defined(PORTMUX_SPIROUTEA)
-    PORTMUX.SPIROUTEA = _uc_mux | (PORTMUX.SPIROUTEA & ~3);
-  #endif
+  #if !defined(SPI1)
+    // Implementation for tinyAVR 0/1/2-series, megaAVR 0-series and AVR DD-series, which only have a single SPI interface.
+    // First, configure PORTMUX.
+    #if defined(PORTMUX_SPIROUTEA)
+      // AVR DD-series, tinyAVR 2-series
+      PORTMUX.SPIROUTEA = _uc_mux | (PORTMUX.SPIROUTEA & ~PORTMUX_SPI0_gm);
+    #elif defined(PORTMUX_TWISPIROUTEA)
+      // megaAVR 0-series
+      PORTMUX.TWISPIROUTEA = _uc_mux | (PORTMUX.TWISPIROUTEA & ~PORTMUX_SPI0_gm);
+    #else //defined(PORTMUX_CTRLB)
+      PORTMUX.CTRLB = uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
+    #endif
 
-  #if ((defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1)) || (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2)))
-    if(_uc_mux == 0)
-    {
-      pinMode(PIN_SPI_MOSI, OUTPUT);
-      pinMode(PIN_SPI_SCK, OUTPUT);
-    }
-    #if (defined(PIN_SPI_MOSI_PINSWAP_1) && defined(PIN_SPI_MISO_PINSWAP_1) && defined(PIN_SPI_SCK_PINSWAP_1) && defined(PIN_SPI_SS_PINSWAP_1))
-      #ifdef PORTMUX_CTRLB
-        else if(_uc_mux == PORTMUX_SPI0_bm)
-      #else
-        else if(_uc_mux == 1)
-      #endif
-      {
-        pinMode(PIN_SPI_MOSI_PINSWAP_1, OUTPUT);
-        pinMode(PIN_SPI_SCK_PINSWAP_1, OUTPUT);
-      }
-    #endif
-    #if (defined(PIN_SPI_MOSI_PINSWAP_2) && defined(PIN_SPI_MISO_PINSWAP_2) && defined(PIN_SPI_SCK_PINSWAP_2) && defined(PIN_SPI_SS_PINSWAP_2))
-      else if(_uc_mux == 2)
-      {
-        pinMode(PIN_SPI_MOSI_PINSWAP_2, OUTPUT);
-        pinMode(PIN_SPI_SCK_PINSWAP_2, OUTPUT);
-      }
-    #endif
   #else
-    // MISO is set to input by the controller
-    pinMode(PIN_SPI_MOSI, OUTPUT);
-    pinMode(PIN_SPI_SCK, OUTPUT);
-  #endif
+    // AVR DA-series or DB-series
+    // We have two SPI interfaces to deal with, each with up to two alternate pinswap options
+    // Check which SPI module is in use, and then go from there.
+    // we only change PORTMUX bits affiliated with the peripheral we are using.
+    if (_hwspi_module == &SPI0) {
+      // If we're set up to use SPI0
+      PORTMUX.SPIROUTEA = _uc_mux | (PORTMUX.SPIROUTEA & (~PORTMUX_SPI0_gm));
 
-  SPI0.CTRLB |= (SPI_SSD_bm);
-  SPI0.CTRLA |= (SPI_ENABLE_bm | SPI_MASTER_bm);
+    } else {
+      // we're set to use SPI1
+      PORTMUX.SPIROUTEA = _uc_mux | (PORTMUX.SPIROUTEA & (~PORTMUX_SPI1_gm));
+    }
+  #endif
+  // no matter what we had to do about the mux; MOSI and SCK need to be set output - but now we set that up already instead of doing it here.
+  pinMode(_uc_pinSCK,  OUTPUT);
+  pinMode(_uc_pinMOSI, OUTPUT);
+  SPI_MODULE.CTRLB |= (SPI_SSD_bm);
+  SPI_MODULE.CTRLA |= (SPI_ENABLE_bm | SPI_MASTER_bm);
 
   config(DEFAULT_SPI_SETTINGS);
 }
@@ -189,13 +407,24 @@ void SPIClass::init()
 
 void SPIClass::config(SPISettings settings)
 {
-  SPI0.CTRLA = settings.ctrla;
-  SPI0.CTRLB = settings.ctrlb;
+  SPI_MODULE.CTRLA = settings.ctrla;
+  SPI_MODULE.CTRLB = settings.ctrlb;
 }
 
 void SPIClass::end()
 {
-  SPI0.CTRLA &= ~(SPI_ENABLE_bm);
+  SPI_MODULE.CTRLA &= ~(SPI_ENABLE_bm);
+  #if defined(SPI1)
+    PORTMUX.SPIROUTEA &= ~((_hwspi_module == &SPI0) ? PORTMUX_SPI0_gm : PORTMUX_SPI1_gm);
+  #elif defined(PORTMUX_SPIROUTEA)
+    PORTMUX.SPIROUTEA &= ~PORTMUX_SPI0_gm;
+  #elif defined(PORTMUX_TWISPIROUTEA)
+    PORTMUX.SPIROUTEA &= ~PORTMUX_SPI0_gm;
+  #else // defined(PORTMUX_CTRLB)
+    PORTMUX.CTRLB &= PORTMUX_SPI0_bm;
+  #endif
+  pinMode(_uc_pinSCK,  INPUT);
+  pinMode(_uc_pinMOSI, INPUT);
   initialized = false;
 }
 
@@ -326,19 +555,19 @@ void SPIClass::endTransaction(void)
 void SPIClass::setBitOrder(uint8_t order)
 {
   if (order == LSBFIRST)
-    SPI0.CTRLA |=  (SPI_DORD_bm);
+    SPI_MODULE.CTRLA |=  (SPI_DORD_bm);
   else
-    SPI0.CTRLA &= ~(SPI_DORD_bm);
+    SPI_MODULE.CTRLA &= ~(SPI_DORD_bm);
 }
 
 void SPIClass::setDataMode(uint8_t mode)
 {
-  SPI0.CTRLB = ((SPI0.CTRLB & (~SPI_MODE_gm)) | mode );
+  SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | mode );
 }
 
 void SPIClass::setClockDivider(uint8_t div)
 {
-  SPI0.CTRLA = ((SPI0.CTRLA &
+  SPI_MODULE.CTRLA = ((SPI_MODULE.CTRLA &
                   ((~SPI_PRESC_gm) | (~SPI_CLK2X_bm) ))  // mask out values
                   | div);                           // write value
 }
@@ -353,9 +582,9 @@ byte SPIClass::transfer(uint8_t data)
   */
   asm volatile("nop");
 
-  SPI0.DATA = data;
-  while ((SPI0.INTFLAGS & SPI_RXCIF_bm) == 0);  // wait for complete send
-  return SPI0.DATA;                             // read data back
+  SPI_MODULE.DATA = data;
+  while ((SPI_MODULE.INTFLAGS & SPI_RXCIF_bm) == 0);  // wait for complete send
+  return SPI_MODULE.DATA;                             // read data back
 }
 
 uint16_t SPIClass::transfer16(uint16_t data) {
@@ -363,7 +592,7 @@ uint16_t SPIClass::transfer16(uint16_t data) {
 
   t.val = data;
 
-  if ((SPI0.CTRLA & SPI_DORD_bm) == 0) {
+  if ((SPI_MODULE.CTRLA & SPI_DORD_bm) == 0) {
     t.msb = transfer(t.msb);
     t.lsb = transfer(t.lsb);
   } else {
