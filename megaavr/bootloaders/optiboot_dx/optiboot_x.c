@@ -295,15 +295,15 @@ static void getNch(uint8_t);
 #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD)) //fully memory mapped flash
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len);
 #else
-  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len); 
+  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len);
   //len is in words, and 0 will be rolled over to 255 before it's checked....
 #endif
 
-static inline void read_mem(uint8_t memtype, addr16_t, pagelen_t len);
+static inline void read_flash(addr16_t, pagelen_t len);
 
-#if (__AVR_ARCH__!=103)
-static void do_spm_erase(uint16_t address);
-#endif
+//#if (__AVR_ARCH__!=103)
+//static void do_spm_erase(const addr16_t address);
+//#endif
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
  * lot of peripheral registers.
@@ -362,20 +362,20 @@ int main (void) {
   // the reset cause register (99.99% of arduino code does not).
   // This means that there should only ever be one reset flag other than WDRF - except maybe PORF and BORF in
   // the event of very slow rising power. We use the WDT to reset out of optiboot (without having cleared
-  // the flags previously). So if that's set, we clear+stash RSTFR and jump to app. 
+  // the flags previously). So if that's set, we clear+stash RSTFR and jump to app.
   // Note that if WDRF is set, we also know that the last reset was from that, because if WDRF is set,
   // we clear RSTFR.
   // POR is optional - unless you've disabled reset, you probably want to start the app immediately on POR
-  // but if you have, you probably do. BORF without PORF suggests flaky power. 
+  // but if you have, you probably do. BORF without PORF suggests flaky power.
   // and if no reset flags were set, either app jumped to 0x0000 (presumably to run bootloader)
   // or there's no app present and execution is skidding along the empty app section and wrapping
-  // around - either way, we should run the bootloader. 
+  // around - either way, we should run the bootloader.
 
-  // 11/14: 
+  // 11/14:
   // NASTY bug - we also need to check for no reset flags being set (ie, direct entry)
   // and run bootloader in that case, otherwise bootloader won't run, among other things, after fresh
   // bootloading!
-  // 11/29: 
+  // 11/29:
   // 1. Realized we never took this branch because makefile never sets START_APP_ON_POR when it should.
   // 2. Realized (!(ch & (~RSTCTRL_BORF_bm))) is the same as (ch==RSTCTRL_BORF_bm) - but saves flash!
   // 3. Realized (!(ch & (~(RSTCTRL_BORF_bm | RSTCTRL_PORF_bm)))), because PORF is bit 0 and BORF is bit 1
@@ -383,18 +383,22 @@ int main (void) {
   // on a theoretical part where those bits were in different positions, this wouldn't be valid.
   // but on these parts it is: saves flash.
   ch = RSTCTRL.RSTFR;   // get reset cause
-  #ifdef START_APP_ON_POR
-    // if no reset flags, it's a direct jump when we already cleared them or app not present, 
-    // that is an entry condition.
+
+  if (ch==0) {
+    // if app jumped direct to bootloader, we are in dangerous territory; the peripherals could be
+    // a million flavors of bad! We assume everything is freshly reset. So, to stay safe, reset
+    // immediately via software reset. Since this is an entry condition, we will achieve the naive
+    // fool's intent (directly entering the bootloader)
+    _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
+  }
+  #if defined(START_APP_ON_POR)
     // If WDRF is set OR nothing except BORF and/or PORF is set, which are not entry conditions.
     // If this isn't true, EXTRF, SWRF, or UPDIRF set; all are entry condiions.
-    if (ch && (ch & RSTCTRL_WDRF_bm || ch < 4 ) ) {
+    if (ch & RSTCTRL_WDRF_bm || ch < 4 ) {
   #else //don't START_APP_ON_POR
-    // if no reset flags, it's a direct jump when we already cleared them or app not present, 
-    // that is an entry condition.
-    // If WDRF is set OR nothing except BORF is set, which are not entry conditions.
+    // If WDRF is set OR nothing except BORF is set,
     // If this isn't true, PORF, EXTRF, SWRF, or UPDIRF set; all are entry condiions
-    if (ch && (ch & RSTCTRL_WDRF_bm || ch == RSTCTRL_BORF_bm)) {
+    if (ch & RSTCTRL_WDRF_bm || ch == RSTCTRL_BORF_bm) {
   #endif
     // Start the app.
     // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
@@ -404,7 +408,7 @@ int main (void) {
     GPR.GPR0 = ch;    // but, stash the reset cause in GPIOR0 for use by app...
     // 11/29
     // We used to turn off the WDT here - but on these parts, unlike classic AVR, the WDT is not
-    // forced on when we reboot from WDT. We can only be here if we last reset was from WDT 
+    // forced on when we reboot from WDT. We can only be here if we last reset was from WDT
     // or was BOR or POR
     // (if it wasn't the last reset that was from WDT, then we'd have gotten here and cleared it when it was)
     // So the WDT is ONLY on if it is fused on, in which case we can't turn it off anyway!
@@ -424,11 +428,10 @@ int main (void) {
   // Removed "FANCY_RESET_LOGIC" code that we didn't use.
   // We used to reset the WDT here. It is unclear why we felt a need to do that.
   // The only time we could be here without a reset is if app jumped direct to
-  // bootloader. Hence, if WDT is on, it was fused on so we can't touch it
+  // bootloader. This will, except on 128k parts, trigger a reset, and on 128l
+  // parts it will as soon as I can find another 6 bytes of flash.
+  // Hence, if WDT is on, it was fused on so we can't touch it
   // but we just got out of reset less than 3 us ago, so don't have to worry
-  // OR the user turned on WDT then jumped to the bootloader; this is perverse
-  // behavior, and I can't say I particularly care whether the bootloader
-  // runs 
 
   MYUART_TXPORT.DIR |= MYUART_TXPIN; // set TX pin to output
   MYUART_TXPORT.OUT |= MYUART_TXPIN;  // and "1" as per datasheet
@@ -505,7 +508,7 @@ int main (void) {
         verifySpace();
     } else if (ch == STK_UNIVERSAL) {
       #ifdef RAMPZ
-        // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB 
+        // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB
         // 128k? There.
         if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
           // get address
@@ -518,7 +521,7 @@ int main (void) {
           getNch(3);
           putch(0x00);
         }
-      #else 
+      #else
         // There's no RAMPZ because it has less than 128k of flash
         getNch(4);
         putch(0x00);
@@ -547,7 +550,7 @@ int main (void) {
       // Read command terminator, start reply
       verifySpace();
       writebuffer(desttype, buff, address, savelength);
-    
+
     /* Read memory block mode, length is big endian.  */
     } else if (ch == STK_READ_PAGE) {
       uint8_t desttype;
@@ -573,8 +576,8 @@ int main (void) {
         // the entire flash does not fit in the same address space
         // so we call that helper function.
         if (desttype == 'F') {
-          read_mem(desttype, address, length);
-        } else {
+          read_flash(address, length);
+        } else { // it's EEPROM and we just read it
           address.word += MAPPED_EEPROM_START;
           do {
             putch(*(address.bptr++));
@@ -692,7 +695,7 @@ void watchdogConfig (uint8_t x) {
            * the default rather than checking for the correct code, we save
            * space on chips that don't support any other memory types.
            * Start the page erase.
-           * The CPU is halted during this time, so 
+           * The CPU is halted during this time, so
            * no need to NVMCTRL.STATUS.
            */
           nvm_cmd(NVMCTRL_CMD_FLPER_gc);
@@ -705,7 +708,7 @@ void watchdogConfig (uint8_t x) {
         } // default block
       } // switch
     }
-  #else 
+  #else
     // same calling conventions as for larger memory chips, including the len = 0 for 256 words
     static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
       switch (memtype) {
@@ -725,7 +728,7 @@ void watchdogConfig (uint8_t x) {
            * the default rather than checking for the correct code, we save
            * space on chips that don't support any other memory types.
            * Start the page erase.
-           * The CPU is halted during this time, so 
+           * The CPU is halted during this time, so
            * no need to check NVMCTRL.STATUS.
            */
           nvm_cmd(NVMCTRL_CMD_FLPER_gc);
@@ -740,67 +743,56 @@ void watchdogConfig (uint8_t x) {
     }
   #endif
 #else
-  // Write non-mapped flash the only way we can without being caught by the outstanding errata with 
+  // Write non-mapped flash the only way we can without being caught by the outstanding errata with
   // flash mapping on AVR128DA
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
     switch (memtype) {
-      /*
-      case 'E': // EEPROM
-        address.word += MAPPED_EEPROM_START;
-        _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
-        while(len--) {
-          *(address.bptr++)= *(mybuff.bptr++);
-        }
-        reset_nvm();
-        break;
-      */
+
+      #ifdef BIGBOOT
+        case 'E': // EEPROM
+          address.word += MAPPED_EEPROM_START;
+          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
+          while(len--) {
+            *(address.bptr++)= *(mybuff.bptr++);
+          }
+          break;
+      #endif
+
       default:  // FLASH
         {
           /*
            * Default to writing to Flash program memory.  By making this
            * the default rather than checking for the correct code, we save
            * space on chips that don't support any other memory types.
-           * Start the page erase.
-           * The CPU is halted during this time, so 
-           * no need to check NVMCTRL.STATUS.
            */
-        nvm_cmd(NVMCTRL_CMD_FLPER_gc);
-        do_spm_erase(address.word);
-        /*
-         * Set NVMCTRL.CTRLA to flash write mode
-         * and write the whole buffer out with inline assembly
-         * to take advantage of spm Z+
-         */
-        nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-
-        __asm__ __volatile__("head:"                       "\n\t" \
-                             "ld r0, %a[ptr]+"             "\n\t" \
-                             "ld r1, %a[ptr]+"             "\n\t" \
-                             "spm Z+"                      "\n\t" \
-                             "dec %[len]"                  "\n\t" \
-                             "brne head"                   "\n\t" \
-                             "clr r1"                      "\n\t" \
-                             : [len]   "=r" (len) \
-                             : "z" ((uint16_t)address.word), \
-                               [ptr] "e" ((uint16_t)mybuff.bptr), \
-                               "0" ((uint8_t)len) \
-                             : "r0"
-                             );
+          /*
+           * First, we Start the page erase.
+           * The CPU is halted during this time, so
+           * there is no need to check NVMCTRL.STATUS!
+           * Hmmph - converting all of that to assembly didn't save
+           * as much as I had been hoping, just one instruction!
+           */
+        __asm__ __volatile__ ("ldi r24, 8"                  "\n\t" \
+                              "rcall nvm_cmd"               "\n\t" \
+                              "spm"                         "\n\t" \
+                              "ldi r24, 2"                  "\n\t" \
+                              "rcall nvm_cmd"               "\n\t" \
+                              "head:"                       "\n\t" \
+                              "ld r0, %a[ptr]+"             "\n\t" \
+                              "ld r1, %a[ptr]+"             "\n\t" \
+                              "spm Z+"                      "\n\t" \
+                              "dec %[len]"                  "\n\t" \
+                              "brne head"                   "\n\t" \
+                              "clr r1"                      "\n\t" \
+                              : [len]   "=r" (len) \
+                              : "z" ((uint16_t)address.word), \
+                                [ptr] "e" ((uint16_t)mybuff.bptr), \
+                                "0" ((uint8_t)len) \
+                              : "r0", "r24"
+                              );
       } // default block
     } // switch
   }
-#endif
-
-#if (__AVR_ARCH__!=103)
-void do_spm_erase(uint16_t address)
-{
-  asm volatile (
-    "   spm\n"
-    :
-    : "z" ((uint16_t)address)
-    :
-  );
-}
 #endif
 
 void nvm_cmd(uint8_t cmd) {
@@ -817,35 +809,23 @@ void nvm_cmd(uint8_t cmd) {
                          [cmd]          "r" ((uint8_t)cmd));
 }
 
-static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
+static inline void read_flash(addr16_t address, pagelen_t length)
 {
   uint8_t ch;
-
-  switch (memtype) {
-
-    case 'E': // EEPROM
-      address.word += MAPPED_EEPROM_START;
-      do {
-        putch(*(address.bptr++));
-      } while (--length);
-      break;
-    default:
-      do {
-        #if defined(RAMPZ)
-          // Since RAMPZ should already be set, we need to use EPLM directly.
-          // Also, we can use the autoincrement version of lpm to update "address"
-          //      do putch(pgm_read_byte_near(address++));
-          //      while (--length);
-          // read a Flash and increment the address (may increment RAMPZ)
-          __asm__ ("elpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
-        #else
-          // read a Flash byte and increment the address
-          __asm__ ("lpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
-        #endif
-        putch(ch);
-      } while (--length);
-      break;
-  } // switch
+  do {
+    #if defined(RAMPZ)
+      // Since RAMPZ should already be set, we need to use EPLM directly.
+      // Also, we can use the autoincrement version of lpm to update "address"
+      //      do putch(pgm_read_byte_near(address++));
+      //      while (--length);
+      // read a Flash and increment the address (may increment RAMPZ)
+      __asm__ ("elpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
+    #else
+      // read a Flash byte and increment the address
+      __asm__ ("lpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
+    #endif
+    putch(ch);
+  } while (--length);
 }
 
 
@@ -853,12 +833,12 @@ static inline void read_mem(uint8_t memtype, addr16_t address, pagelen_t length)
 #ifndef APP_NOSPM
 
 /*
- * Ganked from megaTinyCore version... 
+ * Ganked from megaTinyCore version...
  * Makes assumptions that optiboot.h library must account for.
  * Flash memory mapping *must* be set to the section with the address in question.
  * Address passed *must* point to the desired location accounted for flash mapping.
  * optiboot.h *must* set the mapping section back when done.
- * optiboot.h *must* be smart enough to handle either resetting NVMCTRL.CTRLA or 
+ * optiboot.h *must* be smart enough to handle either resetting NVMCTRL.CTRLA or
  * checking it first.
  * Doesn't work for addresses within first page of each 32k section
  * on AVR128DA revisions with the NVMCTRL errata.
@@ -868,8 +848,15 @@ static void do_nvmctrl(uint16_t address, uint8_t command, uint8_t data)  __attri
 static void do_nvmctrl(uint16_t address, uint8_t command, uint8_t data) {
   if (command <= NVMCTRL_CMD_gm) {
     nvm_cmd(command);
-    while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm | NVMCTRL_EEBUSY_bm))
-      ; // wait for flash and EEPROM not busy - pretty sure this is never triggered. Could remove if need space.
+    //while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm | NVMCTRL_EEBUSY_bm)) ;
+    // wait for flash and EEPROM not busy - pretty sure this is never triggered Could remove if need space.
+    // We did need space! (also it would have needed to go *before* the nvm_cmd() call...).
+    //
+    // Going to punt here - "It is the responsability of the calling code to ensure that
+    // the NVMCTRL.STATUS is clear" - in the interest of space, this function already pushes just about all
+    // of the work onto the application anyway. And since I'll be writing the library for this *anyway*
+    // I'm just moving my own work to somewhere where it doesn't consume desperately scarce flash, but
+    // rather abundant and bountiful flash.
   } else {
     *(uint8_t *)address = data;
   }
