@@ -12,6 +12,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct several bugs with Optiboot entry condition detections (megaTinyCore issue #259)
 * Implement numerous optimizations and corrections in Optiboot.
 * Optiboot should now support, on bootloader side, write-to-flash-from-app.
+* The 1-second pre-built optiboot hex files do not consider POR to be an entry condition (consistent with their intended use case of )
 * Correct Servo being generally hosed. Add in future plumbing for potential support of use of arbitrary timer for Servo
 * Correct issue with ADC errata workaround (#43)
 * Correct issue with EEPROM library (#34)
@@ -26,10 +27,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * digitalWriteFast(), digitalReadFast() (can use same implementation from megaTinyCore), and will bring along the compiletime error checking.
 * Pull in major Serial rework from megaTinyCore, which is hoped to fix some stability issues (#33)
 * Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer (#38)
-
-#### Needed for 1.3.0, not yet implemented
-* Set SPI_INTERFACES_COUNT to 1, not 2 (#32). SPI_1 library will be removed - it's a mess, it's incompatible with everything for multiple reasons, and SPI_INTERFACES_COUNT breaks perfectly sane implementations, instead of making it easier for libraries to figure out how many usable SPI ports are available, which is the point of that #define. Core problem is that all other Arduino boards called the SPIclass for second serial port SPI1 - but that's the name for the struct defined in the io headers! As far as I can tell, there's basically nothing compatible with my SPI1 library anyway! That was not my finest work... for 1.3.0, will adapt SPI.swap() to accept SPI1 pins/port.
-* Get updated optiboot source into repo
+* Remove SPI1 library, set SPI_INTERFACES_COUNT to 1, not 2 (#32, #35)
+* Adapt SPI library to be able to use either SPI0 or SPI1 (#32, #35)
+* Fix toolchain package (pending verification - it is hoped that all parts in the list will now be usable on all platforms; currently they are working for me in testing on Windows.
 
 ### 1.2.0/1.2.0a
 * Add support for AVR64DB and AVR32DB parts! Too bad the compiler issue is still a problem.... I was not able to make a working toolchain for these parts, not quite sure what I got wrong this time around...

@@ -23,7 +23,7 @@
 #include <Arduino.h>
 
 #if (__AVR_ARCH__ < 100)
-#error "This version of the library only supports AVRxt parts (tinyAVR 0/1-series, megaAVR 0-series, AVR Dx-series, etc"
+  #error "This version of the library only supports AVRxt parts (tinyAVR 0/1/2-series, megaAVR 0-series and the AVR DA/DB/DD parts. For tinyNeoPixel, for classic AVR, get from ATTinyCore package"
 #endif
 
 // The order of primary colors in the NeoPixel data stream can vary
@@ -97,14 +97,37 @@
 // because some boards may require oldschool compilers that don't
 // handle the C++11 constexpr keyword.
 
-/* A PROGMEM (flash mem) table containing 8-bit unsigned sine wave (0-255).
+/* A pre-calculated 8-bit sine look-up table stored in flash for use
+with the sine8() function. This is apparently of use in some animation
+algorithms. If __AVR_ARCH__==103, then all of the flash is memory
+mapped, and we can simply declare it const, access it like a
+normal variable, and it won't be copied to RAM.
+
+AVRxt devices with too much flash for all of it to be mapped
+which includes the AVR64Dx and AVR128Dx parts. DxCore defines a
+.section for the area of PROGMEM that is mapped by default, and
+a MAPPED_PROGMEM macro. A variable declared const MAPPED_PROGMEM can
+be accessed normally, but will be stored in the flash and not copied to RAM.
+
+Finally, if neither of those are an option - it gets declared with PROGMEM
+
+
    Copy & paste this snippet into a Python REPL to regenerate:
 import math
 for x in range(256):
     print("{:3},".format(int((math.sin(x/128.0*math.pi)+1.0)*127.5+0.5))),
     if x&15 == 15: print
 */
-static const uint8_t PROGMEM _NeoPixelSineTable[256] = {
+#if (__AVR_ARCH__==103)
+  // All out flash is mapped - yay!
+  static const uint8_t _NeoPixelSineTable[256] = {
+#elif defined(MAPPED_PROGMEM)
+  // Some of it is - but we can put stuff there - yay!
+  static const uint8_t MAPPED_PROGMEM _NeoPixelSineTable[256] = {
+#else
+  // Back to progmem...
+  static const uint8_t PROGMEM _NeoPixelSineTable[256] = {
+#endif
   128,131,134,137,140,143,146,149,152,155,158,162,165,167,170,173,
   176,179,182,185,188,190,193,196,198,201,203,206,208,211,213,215,
   218,220,222,224,226,228,230,232,234,235,237,238,240,241,243,244,
@@ -130,7 +153,16 @@ for x in range(256):
     print("{:3},".format(int(math.pow((x)/255.0,gamma)*255.0+0.5))),
     if x&15 == 15: print
 */
-static const uint8_t PROGMEM _NeoPixelGammaTable[256] = {
+#if (__AVR_ARCH__==103)
+  // All our flash is mapped - yay!
+  static const uint8_t _NeoPixelGammaTable[256] = {
+#elif defined(MAPPED_PROGMEM)
+  // Some of it is - but we can put stuff there - yay!
+  static const uint8_t MAPPED_PROGMEM _NeoPixelGammaTable[256] = {
+#else
+  // Back to progmem...
+  static const uint8_t PROGMEM _NeoPixelGammaTable[256] = {
+#endif
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,
     1,  1,  1,  1,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  3,  3,
@@ -149,16 +181,16 @@ static const uint8_t PROGMEM _NeoPixelGammaTable[256] = {
   218,220,223,225,227,230,232,235,237,240,242,245,247,250,252,255};
 
 
-
 typedef uint8_t  neoPixelType;
 
 class tinyNeoPixel {
 
- public:
+  public:
 
-  // Constructor: number of LEDs, pin number, LED type
-  tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t,uint8_t *pxl);
-  ~tinyNeoPixel();
+    // Constructor: number of LEDs, pin number, LED type
+    tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t = NEO_GRB);
+    tinyNeoPixel(void);
+    ~tinyNeoPixel();
 
   void
     begin(void),
@@ -167,6 +199,7 @@ class tinyNeoPixel {
     setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b),
     setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b, uint8_t w),
     setPixelColor(uint16_t n, uint32_t c),
+    fill(uint32_t c=0, uint16_t first=0, uint16_t count=0),
     setBrightness(uint8_t b),
     clear(),
     updateLength(uint16_t n),
@@ -192,9 +225,14 @@ class tinyNeoPixel {
              a signed int8_t, but you'll most likely want unsigned as this
              output is often used for pixel brightness in animation effects.
   */
-  static uint8_t    sine8(uint8_t x) {
-    return pgm_read_byte(&_NeoPixelSineTable[x]); // 0-255 in, 0-255 out
+  static uint8_t    sine8(uint8_t x) { // 0-255 in, 0-255 out
+    #if (__AVR_ARCH__==103 || defined(MAPPED_PROGMEM))
+      return _NeoPixelSineTable[x];
+    #else     // We had to put it in PROGMEM, and that's how we get it out
+      return pgm_read_byte(&_NeoPixelSineTable[x]); // 0-255 in, 0-255 out
+    #endif
   }
+
   /*!
     @brief   An 8-bit gamma-correction function for basic pixel brightness
              adjustment. Makes color transitions appear more perceptially
@@ -207,7 +245,11 @@ class tinyNeoPixel {
              need to provide your own gamma-correction function instead.
   */
   static uint8_t    gamma8(uint8_t x) {
-    return pgm_read_byte(&_NeoPixelGammaTable[x]); // 0-255 in, 0-255 out
+    #if (__AVR_ARCH__==103 || defined(MAPPED_PROGMEM))
+      return _NeoPixelGammaTable[x];
+    #else
+      return pgm_read_byte(&_NeoPixelGammaTable[x]);
+    #endif
   }
   /*!
     @brief   Convert separate red, green and blue values into a single
@@ -252,13 +294,12 @@ class tinyNeoPixel {
              function instead.
   */
   static uint32_t   gamma32(uint32_t x);
-#ifndef DISABLEMILLIS
-  inline bool
-    canShow(void) { return (micros() - endTime) >= 50L; }
-#else
-  inline bool
-    canShow(void) {return 1;} //we don't have micros here;
-#endif
+
+  #ifndef DISABLEMILLIS
+    inline bool canShow(void) { return (micros() - endTime) >= 50L; }
+  #else
+    inline bool canShow(void) {return 1;} //we don't have micros here;
+  #endif
 
 
  private:
@@ -268,9 +309,8 @@ class tinyNeoPixel {
   uint16_t
     numLEDs,       // Number of RGB LEDs in strip
     numBytes;      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
-  int8_t
-    pin;           // Output pin number (-1 if not yet set)
   uint8_t
+    pin,           // Output pin number (-1 if not yet set)
     brightness,
    *pixels,        // Holds LED color values (3 or 4 bytes each)
     rOffset,       // Index of red byte within each 3- or 4-byte pixel
@@ -287,4 +327,3 @@ class tinyNeoPixel {
 };
 
 #endif // TINYNEOPIXEL_H
-
