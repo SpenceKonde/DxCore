@@ -11,12 +11,13 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts.
 * Correct several bugs with Optiboot entry condition detections (megaTinyCore issue #259)
 * Implement numerous optimizations and corrections in Optiboot.
-* Optiboot should now support, on bootloader side, write-to-flash-from-app.
+* Optiboot now supports writing to flash from the application section. This is done through a novel and highly efficient (bootloader flash, of which we are terribly short!)
+* Add the `writeflash.h` library to take advantage of it to program the flash. Please give feedback!
 * The 1-second pre-built optiboot hex files do not consider POR to be an entry condition (consistent with their intended use case of )
 * Correct Servo being generally hosed. Add in future plumbing for potential support of use of arbitrary timer for Servo
 * Correct issue with ADC errata workaround (#43)
 * Correct issue with EEPROM library (#34)
-* Correct period of TCD0 PWM.
+* Correct period of TCD0 PWM. (it was off by 1/510th of the target speed,
 * Update Logic library to latest version, improving init(), keyword highlighting, and documentation. Docs now specific to DxCore.
 * Split init() up into a few weakly defined sub-functions to support future enhancements (#40)
 * Pull in new version of avrdude to support Dx-series Curiosity boards via avrdude. (board manager only)

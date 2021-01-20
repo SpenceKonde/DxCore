@@ -617,7 +617,7 @@ avrdaopti.upload.tool=avrdude
 avrdaopti.build.board=avrda
 avrdaopti.build.core=dxcore
 avrdaopti.build.text_section_start=.text=0x200
-avrdaopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource}
+avrdaopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DUSING_OPTIBOOT
 avrdaopti.build.export_merged_output=false
 avrdaopti.build.mcupostfix=opti
 
@@ -924,7 +924,7 @@ avrdbopti.upload.tool=avrdude
 avrdbopti.build.board=avrdb
 avrdbopti.build.core=dxcore
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource}
+avrdbopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DUSING_OPTIBOOT
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.mcupostfix=
 

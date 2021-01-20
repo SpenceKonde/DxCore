@@ -7,8 +7,8 @@
 
 name=DxCore
 versionnum.major=1
-versionnum.minor=2
-versionnum.patch=1
+versionnum.minor=3
+versionnum.patch=0
 versionnum.postfix=-dev
 versionnum.released=0
 
@@ -102,8 +102,8 @@ recipe.hooks.savehex.presavehex.1.pattern.macosx=cp "{build.path}/{build.project
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
-recipe.size.regex=^(?:\.text|\.data|\.FLMAP_SECTION\d|\.rodata|\.bootloader)\s+([0-9]+).*
-recipe.size.regex.data=^(?:\.data|\.bss|\.noinit)\s+([0-9]+).*
+recipe.size.regex=^(?:\.text|\.data|\.FLMAP_SECTION1|\.FLMAP_SECTION2|\.FLMAP_SECTION3|\.rodata|\.bootloader)\s+([0-9]+).*
+recipe.size.regex.data=^(?:\.data|\.bss|\.noinit|\.flmap0\.flmap1)\s+([0-9]+).*
 recipe.size.regex.eeprom=^(?:\.eeprom)\s+([0-9]+).*
 
 ## Preprocessor
@@ -183,13 +183,27 @@ tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex {upload
 
 tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -d -v
 
-# pymcuprog - new in 1.3.0
+#################################
+# This is the line for use with
+#    MANUAL INSTALLATIONS
+#
+# The build script comments out the line (or lines, but
+# there's only one) starting with tools.pymcuprog.cmd
+# See the ManualPython document for information
+# on making this programming option work w/out board manager
 
-# board manager version
-# tools.pymcuprog.cmd={runtime.tools.python3.path}/python3
-
-# github version
 tools.pymcuprog.cmd={runtime.platform.path}/tools/python3/python3
+
+################################
+# BOARD MANAGER INSTALLATIONS
+#
+# This is for the board manager version where we can
+# automatically grab and install an appropriate
+# python package; it ends up in a different place:
+# Build script removes all instances of #REMOVE#
+# at the start of a line.
+
+#REMOVE#tools.pymcuprog.cmd={runtime.tools.python3.path}/python3
 
 tools.pymcuprog.erase.params.verbose=-v
 tools.pymcuprog.erase.params.quiet=

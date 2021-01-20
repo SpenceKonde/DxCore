@@ -127,8 +127,23 @@
 
 
 #if !defined(OPTIBOOT_CUSTOMVER)
-# define OPTIBOOT_CUSTOMVER 0
+# define OPTIBOOT_CUSTOMVER 0x10
 #endif
+
+
+// AVR Dx-series write-from-app
+// The classic way 1. didn't fit and 2. was awkward to use, and 2. carried unnecessary baggage.
+// The *only* thing that needs to run from the bootloader section is the actual instruction
+// that writes to or erases flash, that is, the spm instruction. The NVMCTRL.CTRLA register works everywhere.
+
+#ifndef APP_NOSPM
+  const unsigned long int __attribute__((section(".spmtarg"))) __attribute__((used)) magic_number=0x950895F8UL;
+  // This translates to spm z+ ret: use the SPM instruction and increment Z, and return.
+#else
+  const unsigned long int __attribute__((section(".spmtarg"))) __attribute__((used)) magic_number=0x95080000UL;
+  // nop ret: do nothing, then return. The 0x0000 is an unambiguous way to signal that it is disabled
+#endif
+
 
 unsigned const int __attribute__((section(".version"))) __attribute__((used))
 optiboot_version = 256*(OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
@@ -276,7 +291,10 @@ typedef uint8_t pagelen_t;
  * supress some compile-time options we want.)
  */
 
-void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
+// Don't need pre_main with new write-from-app system...
+// void pre_main(void) __attribute__ ((naked)) __attribute__ ((section (".init8")));
+
+
 int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9"))) __attribute__((used));
 
 void __attribute__((noinline)) __attribute__((leaf)) putch(char);
@@ -321,7 +339,9 @@ static addr16_t buff = {(uint8_t *)(RAMSTART)};
 
 
 /* everything that needs to run VERY early */
-
+// Reworked writing to flash from app to simplify using it and save
+// precious bootloader space.
+/*
 void pre_main (void) {
     // Allow convenient way of calling do_spm function - jump table,
     //   so entry to this function will always be here, indepedent
@@ -336,6 +356,7 @@ void pre_main (void) {
   "1:\n"
   );
 }
+*/
 
 /* main program starts here */
 int main (void) {
@@ -830,38 +851,7 @@ static inline void read_flash(addr16_t address, pagelen_t length)
 
 
 
-#ifndef APP_NOSPM
 
-/*
- * Ganked from megaTinyCore version...
- * Makes assumptions that optiboot.h library must account for.
- * Flash memory mapping *must* be set to the section with the address in question.
- * Address passed *must* point to the desired location accounted for flash mapping.
- * optiboot.h *must* set the mapping section back when done.
- * optiboot.h *must* be smart enough to handle either resetting NVMCTRL.CTRLA or
- * checking it first.
- * Doesn't work for addresses within first page of each 32k section
- * on AVR128DA revisions with the NVMCTRL errata.
- */
-static void do_nvmctrl(uint16_t address, uint8_t command, uint8_t data)  __attribute__((used));
-
-static void do_nvmctrl(uint16_t address, uint8_t command, uint8_t data) {
-  if (command <= NVMCTRL_CMD_gm) {
-    nvm_cmd(command);
-    //while (NVMCTRL.STATUS & (NVMCTRL_FBUSY_bm | NVMCTRL_EEBUSY_bm)) ;
-    // wait for flash and EEPROM not busy - pretty sure this is never triggered Could remove if need space.
-    // We did need space! (also it would have needed to go *before* the nvm_cmd() call...).
-    //
-    // Going to punt here - "It is the responsability of the calling code to ensure that
-    // the NVMCTRL.STATUS is clear" - in the interest of space, this function already pushes just about all
-    // of the work onto the application anyway. And since I'll be writing the library for this *anyway*
-    // I'm just moving my own work to somewhere where it doesn't consume desperately scarce flash, but
-    // rather abundant and bountiful flash.
-  } else {
-    *(uint8_t *)address = data;
-  }
-}
-#endif
 
 
 
@@ -937,6 +927,7 @@ void app()
     ch = RSTCTRL.RSTFR;
     RSTCTRL.RSTFR = ch; // reset causes
     *(volatile uint16_t *)(&optiboot_version);   // reference the version
+    *(volatile uint32_t *)(&magic_number);   // reference the version
     //do_nvmctrl(0, NVMCTRL_CMD_NOOP_gc, 0); // reference this function!
     //__asm__ __volatile__ ("jmp 0");    // similar to running off end of memory
     _PROTECTED_WRITE(RSTCTRL.SWRR, 1); // cause new reset - doesn't this make more sense?!
