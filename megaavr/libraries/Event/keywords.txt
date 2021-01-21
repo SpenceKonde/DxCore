@@ -33,6 +33,8 @@ Event4	KEYWORD2
 Event5	KEYWORD2
 Event6	KEYWORD2
 Event7	KEYWORD2
+Event8	KEYWORD2
+Event9	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
@@ -47,4 +49,6 @@ gen4	LITERAL1
 gen5	LITERAL1
 gen6	LITERAL1
 gen7	LITERAL1
+gen8	LITERAL1
+gen9	LITERAL1
 user	LITERAL1
