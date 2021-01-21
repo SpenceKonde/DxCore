@@ -7,13 +7,21 @@ Developed by [MCUdude](https://github.com/MCUdude/).
 
 More information about the Event system and how it works can be found in the [Microchip Application Note AN2451](http://ww1.microchip.com/downloads/en/AppNotes/DS00002451B.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf).
 
-## Level vs. Pulse events
-There are two types of events - a "pulse" interrupt, which lasts for the duration of a single clock cycle (either `CLK_PER` or a relevant (slower) clock - for example, the USART XCK generator provides a pulse event which lasts one XCK period, whuich is far slower than CLK_PER), or a "level" interrupt which lasts for the duration of some condition. Often for a given even generator or user only one or the other makes sense. Less often, for some reason or another, you may need a "level" interrupt, but all you have is a "pulse" - or the other way around. The CCL () allows one to convert an event between the two at the cost of one logic unit and one event channel. In the case of timer WO (PWM) channels, the CCL  (1/21 - TODO: Describe, either here or in Logic library)
+### Level vs. Pulse events
+There are two types of events - a "pulse" interrupt, which lasts for the duration of a single clock cycle (either `CLK_PER` or a relevant (slower) clock - for example, the USART XCK generator provides a pulse event which lasts one XCK period, whuich is far slower than CLK_PER), or a "level" interrupt which lasts for the duration of some condition. Often for a given even generator or user only one or the other makes sense. Less often, for some reason or another, you may need a level event, but all you have is a pulse event - or the other way around. A[CCL module (Logic.h)](../Logic/Readme.md) event between the two at the cost of the logic module and one event channel. In the case of timer WO (PWM) channels, the CCL already has level inputs. (1/21 - TODO: Describe, either here or in Logic library - it's the sort of thing that makes CCL so powerful.)
 
-## Synchronization
+### Synchronization
 The event system, under the hood, is asynchronous - it can react faster than the system clock (often a lot faster). Per the datasheet:
-`1/21: TODO - copy-paste 16.2.3.5 from AVR128DB datasheet; can't get pdf viewer to copy but need to release 1.3.0` already.
-The fact that it is asynchronous usually doesn't matter, but it is one of the things one should keep in mind when using these features.
+`1/21: TODO - copy-paste 16.2.3.5 from AVR128DB datasheet`.
+The fact that it is asynchronous usually doesn't matter, but it is one of the things one should keep in mind when using these features, because every so often it does.
+
+### Some of these events are *weird*
+At first glance, nore than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL. One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event, there is a use case that seems obscure to most people - but within some sub-field, it's common and essential. There are also times when something may seem surprising until you're more familiar with the event and logic systems in general. For example:
+
+Q: *"Why is there an event to turn on the OPAMP's output? Nothing else has an event user to turn on the output"* A: "*Yes they do. You're reading about it right now."*
+
+### How do I read the event channels?
+From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connnect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer.
 
 ## Event
 Class for interfacing with the built-in Event system. Each event generator channel has its own object.
@@ -27,6 +35,7 @@ In short:
 * PIN PC0..7 and PD0..7 can only be used as event generators on channel 2 and 3
 * PIN PE0..7 and PF0..7 can only be used as event generators on channel 4 and 5
 * PIN PG0..7 can only be used as event generators on channel 6 and 7
+* Channels 8 and 9 do not have any generators that take pins as inputs
 
 
 ## get_channel_number()
@@ -36,7 +45,6 @@ Function to get the current channel number. Useful if the channel object has bee
 ``` c++
 uint8_t this_channel = Event0.get_channel_number();  // In this case, get_channel_number will return 0
 ```
-
 
 ## get_user_channel()
 Function to get what event channel a user is connected to. Returns -1 if not connected to any channel. Note that we use `user::` as prefix when we refer to event users. Also, note that we don't have to specify an object to determine what channel the user is connected to.
@@ -58,7 +66,7 @@ Event2.set_generator(gen2::pin_pc0); // Use pin PC0 as an event generator for Ev
 ```
 
 ### Generator table
-Below is a table with all possible generators for each channel:
+Below is a table with all possible generators for each channel. Many generators are associated with specific peripherals, and on low pin-count devices, attempting to use those will result in a compile error.
 
 **The table in the original README applied to the megaAVR 0-series, not the Dx-series; the table for the Dx parts will be added at a later date.**
 
@@ -86,8 +94,12 @@ Event0.set_user(user::evoutd);       // Set evoutD (pin PD2) as event user
 ```
 
 ### Event User table
-Below is a table with all of the event users for the AVR Dx-series parts. Many of these refer to specific pins or peripherals - on smaller pin-count devices, some of these event users are not available.
-Note that `evoutN_pin_pN7` is the same as `evoutN_pin_pN2` but where the pin is swapped from 2 to 7. This means that for instance, `evouta_pin_pa2` can't be used in combination with `evouta_pin_pa7.`
+Below is a table with all of the event users for the AVR Dx-series parts.
+####Notes:
+* The `evoutN_pin_pN7` is the same as `evoutN_pin_pN2` but where the pin is swapped from 2 to 7. This means that for instance, `evouta_pin_pa2` can't be used in combination with `evouta_pin_pa7`.
+* Many of these refer to specific pins or peripherals - on smaller pin-count devices, some of these event users are not available; Attempting to set a user that doesn't exist will result in a compile error.
+* There is no PF7 on either the DA or DB-series parts. There will be on the DD-series parts.
+
 
 | Event users                                                              |
 |--------------------------------------------------------------------------|
@@ -160,12 +172,11 @@ Function to detach a user from a channel. Note that you don't need to know what 
 
 ### Usage
 ```c++
-Event::clear_user(user::evouta); // Remove the user::evouta from whatever event channel it is connected to
+Event::clear_user(user::evouta); // Remove the user::evouta from whatever event channel it is connected to.
 ```
 
-
 ## soft_event()
-Creates a single software event similar to what a hardware event does. Great if you have to force trigger something. Note that a software event only lasts a single system clock cycle, so it's rather fast!
+Creates a single software event - users connected to that channel will react to it in the same way as they would to one caused by the generator the channel is connected to. Great if you have to force trigger something. Note that a software event only lasts a single system clock cycle, so it's rather fast! The software events will invert the channel, and so will trigger something regardless of whether it needs a the event channel to go high or low.
 
 ### Usage
 ```c++
@@ -173,7 +184,7 @@ Event0.soft_event(); // Create a single software event on Event0
 ```
 
 ## start()
-Starts an event generator channel.
+Starts an event generator channel by writing the generator selected by `set_generator()` method to the `EVSYS.CHANNELn` register.
 
 ### Usage
 ```c++
@@ -181,7 +192,7 @@ Event0.start(); // Starts the Event0 generator channel
 ```
 
 ## stop()
-Stops an event generator channel.
+Stops an event generator channel by clearing the `EVSYS.CHANNELn` register. The `Eventn` object retains memory of what generator it was previously set to.
 
 ### Usage
 ```c++
