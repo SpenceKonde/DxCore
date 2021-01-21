@@ -7,6 +7,13 @@ Developed by [MCUdude](https://github.com/MCUdude/).
 
 More information about the Event system and how it works can be found in the [Microchip Application Note AN2451](http://ww1.microchip.com/downloads/en/AppNotes/DS00002451B.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf).
 
+## Level vs. Pulse events
+There are two types of events - a "pulse" interrupt, which lasts for the duration of a single clock cycle (either `CLK_PER` or a relevant (slower) clock - for example, the USART XCK generator provides a pulse event which lasts one XCK period, whuich is far slower than CLK_PER), or a "level" interrupt which lasts for the duration of some condition. Often for a given even generator or user only one or the other makes sense. Less often, for some reason or another, you may need a "level" interrupt, but all you have is a "pulse" - or the other way around. The CCL () allows one to convert an event between the two at the cost of one logic unit and one event channel. In the case of timer WO (PWM) channels, the CCL  (1/21 - TODO: Describe, either here or in Logic library)
+
+## Synchronization
+The event system, under the hood, is asynchronous - it can react faster than the system clock (often a lot faster). Per the datasheet:
+`1/21: TODO - copy-paste 16.2.3.5 from AVR128DB datasheet; can't get pdf viewer to copy but need to release 1.3.0` already.
+The fact that it is asynchronous usually doesn't matter, but it is one of the things one should keep in mind when using these features.
 
 ## Event
 Class for interfacing with the built-in Event system. Each event generator channel has its own object.
@@ -53,33 +60,7 @@ Event2.set_generator(gen2::pin_pc0); // Use pin PC0 as an event generator for Ev
 ### Generator table
 Below is a table with all possible generators for each channel:
 
-| All event channels   | Event0              | Event1             | Event2              | Event3             | Event4              | Event5             | Event6              | Event7             |
-|----------------------|---------------------|--------------------|---------------------|--------------------|---------------------|--------------------|---------------------|--------------------|
-| `gen::disable`       | `gen0::disable`     | `gen1::disable`    | `gen2::disable`     | `gen3::disable`    | `gen4::disable`     | `gen5::disable`    | `gen6::disable`     | `gen7::disable`    |
-| `gen::updi_synch`    | `gen0::rtc_div8192` | `gen1::rtc_div512` | `gen2::rtc_div8192` | `gen3::rtc_div512` | `gen4::rtc_div8192` | `gen5::rtc_div512` | `gen6::rtc_div8192` | `gen7::rtc_div512` |
-| `gen::rtc_ovf`       | `gen0::rtc_div4096` | `gen1::rtc_div256` | `gen2::rtc_div4096` | `gen3::rtc_div256` | `gen4::rtc_div4096` | `gen5::rtc_div256` | `gen6::rtc_div4096` | `gen7::rtc_div256` |
-| `gen::rtc_cmp`       | `gen0::rtc_div2048` | `gen1::rtc_div128` | `gen2::rtc_div2048` | `gen3::rtc_div128` | `gen4::rtc_div2048` | `gen5::rtc_div128` | `gen6::rtc_div2048` | `gen7::rtc_div128` |
-| `gen::ccl0_out`      | `gen0::rtc_div1024` | `gen1::rtc_div64`  | `gen2::rtc_div1024` | `gen3::rtc_div64`  | `gen4::rtc_div1024` | `gen5::rtc_div64`  | `gen6::rtc_div1024` | `gen7::rtc_div64`  |
-| `gen::ccl1_out`      | `gen0::pin_pa0`     | `gen1::pin_pa0`    | `gen2::pin_pc0`     | `gen3::pin_pc0`    | `gen4::pin_pe0`     | `gen5::pin_pe0`    |                     |                    |
-| `gen::ccl2_out`      | `gen0::pin_pa1`     | `gen1::pin_pa1`    | `gen2::pin_pc1`     | `gen3::pin_pc1`    | `gen4::pin_pe1`     | `gen5::pin_pe1`    |                     |                    |
-| `gen::ccl3_out`      | `gen0::pin_pa2`     | `gen1::pin_pa2`    | `gen2::pin_pc2`     | `gen3::pin_pc2`    | `gen4::pin_pe2`     | `gen5::pin_pe2`    |                     |                    |
-| `gen::ac0_out`       | `gen0::pin_pa3`     | `gen1::pin_pa3`    | `gen2::pin_pc3`     | `gen3::pin_pc3`    | `gen4::pin_pe3`     | `gen5::pin_pe3`    |                     |                    |
-| `gen::adc0_ready`    | `gen0::pin_pa4`     | `gen1::pin_pa4`    | `gen2::pin_pc4`     | `gen3::pin_pc4`    | `gen4::pin_pe4`     | `gen5::pin_pe4`    |                     |                    |
-| `gen::usart0_xck`    | `gen0::pin_pa5`     | `gen1::pin_pa5`    | `gen2::pin_pc5`     | `gen3::pin_pc5`    | `gen4::pin_pe5`     | `gen5::pin_pe5`    |                     |                    |
-| `gen::usart1_xck`    | `gen0::pin_pa6`     | `gen1::pin_pa6`    | `gen2::pin_pc6`     | `gen3::pin_pc6`    | `gen4::pin_pe6`     | `gen5::pin_pe6`    |                     |                    |
-| `gen::usart2_xck`    | `gen0::pin_pa7`     | `gen1::pin_pa7`    | `gen2::pin_pc7`     | `gen3::pin_pc7`    | `gen4::pin_pe7`     | `gen5::pin_pe7`    |                     |                    |
-| `gen::usart3_xck`    | `gen0::pin_pb0`     | `gen1::pin_pb0`    | `gen2::pin_pd0`     | `gen3::pin_pd0`    | `gen4::pin_pf0`     | `gen5::pin_pf0`    |                     |                    |
-| `gen::spi0_sck`      | `gen0::pin_pb1`     | `gen1::pin_pb1`    | `gen2::pin_pd1`     | `gen3::pin_pd1`    | `gen4::pin_pf1`     | `gen5::pin_pf1`    |                     |                    |
-| `gen::tca0_ovf_lunf` | `gen0::pin_pb2`     | `gen1::pin_pb2`    | `gen2::pin_pd2`     | `gen3::pin_pd2`    | `gen4::pin_pf2`     | `gen5::pin_pf2`    |                     |                    |
-| `gen::tca0_hunf`     | `gen0::pin_pb3`     | `gen1::pin_pb3`    | `gen2::pin_pd3`     | `gen3::pin_pd3`    | `gen4::pin_pf3`     | `gen5::pin_pf3`    |                     |                    |
-| `gen::tca0_cmp0`     | `gen0::pin_pb4`     | `gen1::pin_pb4`    | `gen2::pin_pd4`     | `gen3::pin_pd4`    | `gen4::pin_pf4`     | `gen5::pin_pf4`    |                     |                    |
-| `gen::tca0_cmp1`     | `gen0::pin_pb5`     | `gen1::pin_pb5`    | `gen2::pin_pd5`     | `gen3::pin_pd5`    | `gen4::pin_pf5`     | `gen5::pin_pf5`    |                     |                    |
-| `gen::tca0_cmp2`     | `gen0::pin_pb6`     | `gen1::pin_pb6`    | `gen2::pin_pd6`     | `gen3::pin_pd6`    | `gen4::pin_pf6`     | `gen5::pin_pf6`    |                     |                    |
-| `gen::tcb0_capt`     | `gen0::pin_pb7`     | `gen1::pin_pb7`    | `gen2::pin_pd7`     | `gen3::pin_pd7`    | `gen4::pin_pf7`     | `gen5::pin_pf7`    |                     |                    |
-| `gen::tcb1_capt`     |                     |                    |                     |                    |                     |                    |                     |                    |
-| `gen::tcb2_capt`     |                     |                    |                     |                    |                     |                    |                     |                    |
-| `gen::tcb3_capt`     |                     |                    |                     |                    |                     |                    |                     |                    |
-| `gen::tcb3_capt`     |                     |                    |                     |                    |                     |                    |                     |                    |
+**The table in the original README applied to the megaAVR 0-series, not the Dx-series; the table for the Dx parts will be added at a later date.**
 
 
 ## get_generator()
