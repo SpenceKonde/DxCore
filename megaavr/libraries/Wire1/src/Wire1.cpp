@@ -115,6 +115,18 @@ bool TwoWire1::swap(uint8_t state)
   return false;
 }
 
+
+void TwoWire1::usePullups(){
+  if ((PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm) == PORTMUX_TWI1_ALT2_gc) {
+    PORTB.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTB.PIN3CTRL |= PORT_PULLUPEN_bm;
+  } else {
+    PORTF.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTF.PIN3CTRL |= PORT_PULLUPEN_bm;
+  }
+}
+
+
 void TwoWire1::begin(void)
 {
   rxBufferIndex = 0;

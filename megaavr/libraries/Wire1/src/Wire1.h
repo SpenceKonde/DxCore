@@ -61,6 +61,7 @@ class TwoWire1 : public Stream
     TwoWire1();
     bool pins(uint8_t sda_pin, uint8_t scl_pin);
     bool swap(uint8_t state = 1);
+    void usePullups();
     void begin();
     void begin(uint8_t);
     void begin(int);
