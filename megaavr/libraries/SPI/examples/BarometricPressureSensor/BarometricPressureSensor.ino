@@ -77,7 +77,16 @@ void loop() {
     //Read the pressure data lower 16 bits:
     unsigned int pressure_data_low = readRegister(0x20, 2);
     //combine the two parts into one 19-bit number:
-    long pressure = ((pressure_data_high << 16) | pressure_data_low) / 4;
+    //
+    // 1/22/21: Fix bug dating back to the dark ages in example
+    // pressure_data_high is a 16-bit datatype, if you leftshift 16 bits
+    // you have 0. The fact that you then assign the result to a larger
+    // variable that could fit those extra bits isn't the compiler's
+    // concern.
+    //
+    // More than anything else, what this demonstrates is why
+    // you should always enable warnings!
+    long pressure = (((long)pressure_data_high << 16) | pressure_data_low) / 4;
 
     // display the temperature:
     Serial.println("\tPressure [Pa]=" + String(pressure));

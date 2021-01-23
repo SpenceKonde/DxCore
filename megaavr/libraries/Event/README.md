@@ -12,15 +12,22 @@ There are two types of events - a "pulse" interrupt, which lasts for the duratio
 
 ### Synchronization
 The event system, under the hood, is asynchronous - it can react faster than the system clock (often a lot faster). Per the datasheet:
-`1/21: TODO - copy-paste 16.2.3.5 from AVR128DB datasheet`.
-The fact that it is asynchronous usually doesn't matter, but it is one of the things one should keep in mind when using these features, because every so often it does.
 
-### Some of these events are *weird*
-At first glance, nore than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL. One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event, there is a use case that seems obscure to most people - but within some sub-field, it's common and essential. There are also times when something may seem surprising until you're more familiar with the event and logic systems in general. For example:
+>Events can be either synchronous or asynchronous to the peripheral clock. Each Event System channel has two subchannels: one asynchronous and one synchronous.
 
-Q: *"Why is there an event to turn on the OPAMP's output? Nothing else has an event user to turn on the output"* A: "*Yes they do. You're reading about it right now."*
+>The asynchronous subchannel is identical to the event output from the generator. If the event generator generates a signal asynchronous to the peripheral clock, the signal on the asynchronous subchannel will be asynchronous. If the event generator generates a signal synchronous to the peripheral clock, the signal on the asynchronous subchannel
+>will also be synchronous.
 
-### How do I read the event channels?
+>The synchronous subchannel is identical to the event output from the generator, if the event generator generates a signal synchronous to the peripheral clock. If the event generator generates a signal asynchronous to the peripheral clock, this signal is first synchronized before being routed onto the synchronous subchannel. Depending on when it occurs, synchronization will delay the event by two to three clock cycles. The Event System automatically performs
+>this synchronization if an asynchronous generator is selected for an event channel.
+
+The fact that it is asynchronous usually doesn't matter - it's either "faster than anything else" (if the user is async, or "2-3 clock cycles behind", but it is one of the things one should keep in mind when using these features, because every so often it does.
+
+
+### Some of these events seem kinda... weird?
+At first glance, nore than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL. One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event, there is a use case that seems obscure to most people - but within some sub-field, it's common and essential. There are also times when something may seem surprising until you're more familiar with the event and logic systems in general.
+
+### How do I read the levels of the event channels?
 From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connnect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer.
 
 ## Event
@@ -36,7 +43,6 @@ In short:
 * PIN PE0..7 and PF0..7 can only be used as event generators on channel 4 and 5
 * PIN PG0..7 can only be used as event generators on channel 6 and 7
 * Channels 8 and 9 do not have any generators that take pins as inputs
-
 
 ## get_channel_number()
 Function to get the current channel number. Useful if the channel object has been passed to a function as reference.
@@ -95,7 +101,7 @@ Event0.set_user(user::evoutd);       // Set evoutD (pin PD2) as event user
 
 ### Event User table
 Below is a table with all of the event users for the AVR Dx-series parts.
-####Notes:
+#### Notes:
 * The `evoutN_pin_pN7` is the same as `evoutN_pin_pN2` but where the pin is swapped from 2 to 7. This means that for instance, `evouta_pin_pa2` can't be used in combination with `evouta_pin_pa7`.
 * Many of these refer to specific pins or peripherals - on smaller pin-count devices, some of these event users are not available; Attempting to set a user that doesn't exist will result in a compile error.
 * There is no PF7 on either the DA or DB-series parts. There will be on the DD-series parts.
@@ -192,7 +198,7 @@ Event0.start(); // Starts the Event0 generator channel
 ```
 
 ## stop()
-Stops an event generator channel by clearing the `EVSYS.CHANNELn` register. The `Eventn` object retains memory of what generator it was previously set to.
+Stops an event generator channel by clearing the `EVSYS.CHANNELn` register. The `EventN` object retains memory of what generator it was previously set to.=
 
 ### Usage
 ```c++

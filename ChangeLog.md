@@ -4,33 +4,46 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manger, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
-### Planned for 1.3.0
+
+### 1.3.0
+#### New Features
+* **NEW toolchain package - support for all DA and DB parts on all platforms!**
+* Pull in new version of avrdude to **support Dx-series Curiosity** boards via avrdude. (board manager only)
+* **Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer (#38)**
+* **Add new Event system library** to go with the new version of Logic! (#)
+* digitalWriteFast(), digitalReadFast() (can use same implementation from megaTinyCore), compiletime error checking for most digital and analog I/O
+* Safe fuses automatically written on all UPDI uploacs: Set all fuses that we ever set in response to menu selections except for BODCFG on all uploads to non-Optiboot configurations, and all "upload using programmer" to optiboot configurations. Fuses that the core does not provide a method of specifying are not touched by the normal upload process; if you have gone and changed one, it is assumed that it was intentional.
+* The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts.
+* Optiboot now supports writing to flash from the application section. This is done through a novel and highly efficient (of bootloader flash, of which we are terribly short!) method; only 2 instruction words are used within the bootloader section.
+* Add the `writeflash.h` or `Flash.h` library to take advantage of it to program the flash. Please give feedback!
+* Update Logic library to latest version, improving init(), keyword highlighting, and documentation. Docs now specific to DxCore.
+* Split init() up into a few weakly defined sub-functions to support future enhancements (#40)
+* **POTENTIALLY BREAKING CHANGE** Timer D PWM pins for all parts moved to pins 6, 7 instead of 4, 5. This is because I realized that USART0 will often be pinswapped in order to use PA0 (and PA1 on DB/DD-series) as a clock source. Future updates will make TCD PWM pins flexible, that is whichever two of the four pins you call analogWrite() on will output PWM.
+* Part-specific pages for AVR DB-series parts. (#16, #44)
+* Several TCD0 PWM enhancements from megaTinyCore. (#39)
+* Adapt SPI library to be able to use either SPI0 or SPI1 (#32, #35)
+
+#### Minor enhancements
+* Fix decade-old bug in an SPI example (lol)
+* Stop checking SS pin passed to SPI.pins()
+* Correct PIN_SPI1_SS in pins_arduino.h for 64-pin parts - not that it matters.
+* Move sections on peripheral libraries into their own files
+* Add ZeroCross::have_seperate_mux(); test
+* Add in the SERIAL_PORT_whatever macros, against my better judgement.
+* The 1-second pre-built optiboot hex files do not consider POR to be an entry condition (consistent with their intended use case of there being a hardware reset )
+
+#### Bugfixes
 * Fix slow sampled BOD mode
 * Fix DISABLE_MILLIS and other timer options.
-* Set all fuses that we ever set in response to menu selections except for BODCFG on all uploads to non-Optiboot configurations, and all "upload using programmer" to optiboot configurations. Fuses that the core does not provide a method of specifying are not touched by the normal upload process; if you have gone and changed one, it is assumed that it was intentional.
-* The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts.
 * Correct several bugs with Optiboot entry condition detections (megaTinyCore issue #259)
 * Implement numerous optimizations and corrections in Optiboot.
-* Optiboot now supports writing to flash from the application section. This is done through a novel and highly efficient (bootloader flash, of which we are terribly short!)
-* Add the `writeflash.h` library to take advantage of it to program the flash. Please give feedback!
-* The 1-second pre-built optiboot hex files do not consider POR to be an entry condition (consistent with their intended use case of )
 * Correct Servo being generally hosed. Add in future plumbing for potential support of use of arbitrary timer for Servo
 * Correct issue with ADC errata workaround (#43)
 * Correct issue with EEPROM library (#34)
 * Correct period of TCD0 PWM. (it was off by 1/510th of the target speed,
-* Update Logic library to latest version, improving init(), keyword highlighting, and documentation. Docs now specific to DxCore.
-* Split init() up into a few weakly defined sub-functions to support future enhancements (#40)
-* Pull in new version of avrdude to support Dx-series Curiosity boards via avrdude. (board manager only)
-* Add in the SERIAL_PORT_whatever macros, against my better judgement.
-* **POTENTIALLY BREAKING CHANGE** Timer D PWM pins for all parts moved to pins 6, 7 instead of 4, 5. This is because I realized that USART0 will often be pinswapped in order to use PA0 (and PA1 on DB/DD-series) as a clock source. Future updates will make TCD PWM pins flexible, that is whichever two of the four pins you call analogWrite() on will output PWM.
-* Part-specific pages for AVR DB-series parts. (#16, #44)
-* Several TCD0 PWM enhancements from megaTinyCore. (#39)
-* digitalWriteFast(), digitalReadFast() (can use same implementation from megaTinyCore), and will bring along the compiletime error checking.
 * Pull in major Serial rework from megaTinyCore, which is hoped to fix some stability issues (#33)
-* Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer (#38)
 * Remove SPI1 library, set SPI_INTERFACES_COUNT to 1, not 2 (#32, #35)
-* Adapt SPI library to be able to use either SPI0 or SPI1 (#32, #35)
-* Fix toolchain package (pending verification - it is hoped that all parts in the list will now be usable on all platforms; currently they are working for me in testing on Windows.
+
 
 ### 1.2.0/1.2.0a
 * Add support for AVR64DB and AVR32DB parts! Too bad the compiler issue is still a problem.... I was not able to make a working toolchain for these parts, not quite sure what I got wrong this time around...
