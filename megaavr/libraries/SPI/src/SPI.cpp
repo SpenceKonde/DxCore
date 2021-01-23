@@ -46,14 +46,17 @@ SPIClass::SPIClass()
 
 }
 
-bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS)
+bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribute__ ((unused)) uint8_t pinSS)
 {
+  if (initialized) return false;
+  // calling swap() without turning off the peripheral with SPI.end() would have led to a bunch of
+  // oddly configured registers left behind, and things not working quite right - and there is no
+  // particular up-side to this.
   #if (!defined(SPI1))
     // implementation for tinyAVR and AVR DD-series, which only have a single SPI interface.
     // The AVR DD-series has a lot of pinswap options...
     #if (defined(SPI_MUX_PINSWAP_6))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_6 && pinMISO == PIN_SPI_MISO_PINSWAP_6 && pinSCK == PIN_SPI_SCK_PINSWAP_6 && pinSS == PIN_SPI_SS_PINSWAP_6)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_6 && pinMISO == PIN_SPI_MISO_PINSWAP_6 && pinSCK == PIN_SPI_SCK_PINSWAP_6  /* && pinSS == PIN_SPI_SS_PINSWAP_6 */) {
         _uc_mux        = SPI_MUX_PINSWAP_6;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_6;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_6;
@@ -62,8 +65,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_5))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_5 && pinMISO == PIN_SPI_MISO_PINSWAP_5 && pinSCK == PIN_SPI_SCK_PINSWAP_5 && pinSS == PIN_SPI_SS_PINSWAP_5)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_5 && pinMISO == PIN_SPI_MISO_PINSWAP_5 && pinSCK == PIN_SPI_SCK_PINSWAP_5  /* && pinSS == PIN_SPI_SS_PINSWAP_5 */) {
         _uc_mux        = SPI_MUX_PINSWAP_5;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_5;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_5;
@@ -72,8 +74,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_4))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_4 && pinMISO == PIN_SPI_MISO_PINSWAP_4 && pinSCK == PIN_SPI_SCK_PINSWAP_4 && pinSS == PIN_SPI_SS_PINSWAP_4)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_4 && pinMISO == PIN_SPI_MISO_PINSWAP_4 && pinSCK == PIN_SPI_SCK_PINSWAP_4  /* && pinSS == PIN_SPI_SS_PINSWAP_4 */) {
         _uc_mux        = SPI_MUX_PINSWAP_4;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_4;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_4;
@@ -82,8 +83,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_3))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_3 && pinMISO == PIN_SPI_MISO_PINSWAP_3 && pinSCK == PIN_SPI_SCK_PINSWAP_3 && pinSS == PIN_SPI_SS_PINSWAP_3)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_3 && pinMISO == PIN_SPI_MISO_PINSWAP_3 && pinSCK == PIN_SPI_SCK_PINSWAP_3  /* && pinSS == PIN_SPI_SS_PINSWAP_3 */) {
         _uc_mux        = SPI_MUX_PINSWAP_3;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_3;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_3;
@@ -92,8 +92,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_2))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2 && pinSS == PIN_SPI_SS_PINSWAP_2)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2  /* && pinSS == PIN_SPI_SS_PINSWAP_2 */) {
         _uc_mux        = SPI_MUX_PINSWAP_2;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
@@ -102,8 +101,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_1))
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1  /* && pinSS == PIN_SPI_SS_PINSWAP_1 */) {
         _uc_mux        = SPI_MUX_PINSWAP_1;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
@@ -111,14 +109,12 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
       } else
     #endif
 
-    if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-    {
+    if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK  /* && pinSS == PIN_SPI_SS */) {
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
       _uc_pinSCK     = PIN_SPI_SCK;
       return true;
-    }
-    else {
+    } else {
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
       _uc_pinSCK     = PIN_SPI_SCK;
@@ -129,8 +125,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
   #else
     // we have two SPI interfaces to deal with, each with up to two pinswap options
     #if defined(SPI_MUX_PINSWAP_2)
-      if (pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2 && pinSS == PIN_SPI_SS_PINSWAP_2)
-      {
+      if (pinMOSI == PIN_SPI_MOSI_PINSWAP_2 && pinMISO == PIN_SPI_MISO_PINSWAP_2 && pinSCK == PIN_SPI_SCK_PINSWAP_2  /* && pinSS == PIN_SPI_SS_PINSWAP_2 */) {
         _uc_mux        = SPI_MUX_PINSWAP_2;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
@@ -140,8 +135,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if defined(SPI_MUX_PINSWAP_1)
-      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1 && pinSS == PIN_SPI_SS_PINSWAP_1)
-      {
+      if(pinMOSI == PIN_SPI_MOSI_PINSWAP_1 && pinMISO == PIN_SPI_MISO_PINSWAP_1 && pinSCK == PIN_SPI_SCK_PINSWAP_1  /* && pinSS == PIN_SPI_SS_PINSWAP_1 */) {
         _uc_mux        = SPI_MUX_PINSWAP_1;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
@@ -151,8 +145,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if defined(SPI1_MUX_PINSWAP_2)
-      if (pinMOSI == PIN_SPI1_MOSI_PINSWAP_2 && pinMISO == PIN_SPI1_MISO_PINSWAP_2 && pinSCK == PIN_SPI1_SCK_PINSWAP_2 && pinSS == PIN_SPI1_SS_PINSWAP_2)
-      {
+      if (pinMOSI == PIN_SPI1_MOSI_PINSWAP_2 && pinMISO == PIN_SPI1_MISO_PINSWAP_2 && pinSCK == PIN_SPI1_SCK_PINSWAP_2  /* && pinSS == PIN_SPI1_SS_PINSWAP_2 */) {
         _uc_mux        = SPI1_MUX_PINSWAP_2;
         _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_2;
         _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_2;
@@ -162,8 +155,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if defined(SPI1_MUX_PINSWAP_1)
-      if(pinMOSI == PIN_SPI1_MOSI_PINSWAP_1 && pinMISO == PIN_SPI1_MISO_PINSWAP_1 && pinSCK == PIN_SPI1_SCK_PINSWAP_1 && pinSS == PIN_SPI1_SS_PINSWAP_1)
-      {
+      if(pinMOSI == PIN_SPI1_MOSI_PINSWAP_1 && pinMISO == PIN_SPI1_MISO_PINSWAP_1 && pinSCK == PIN_SPI1_SCK_PINSWAP_1  /* && pinSS == PIN_SPI1_SS_PINSWAP_1 */) {
         _uc_mux        = SPI1_MUX_PINSWAP_1;
         _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_1;
         _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_1;
@@ -173,8 +165,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
     #endif
 
     #if defined(SPI1_MUX)
-      if(pinMOSI == PIN_SPI1_MOSI && pinMISO == PIN_SPI1_MISO && pinSCK == PIN_SPI1_SCK && pinSS == PIN_SPI1_SS)
-      {
+      if(pinMOSI == PIN_SPI1_MOSI && pinMISO == PIN_SPI1_MISO && pinSCK == PIN_SPI1_SCK  /* && pinSS == PIN_SPI1_SS */) {
         _uc_mux        = SPI1_MUX;
         _uc_pinMOSI    = PIN_SPI1_MOSI;
         _uc_pinSCK     = PIN_SPI1_SCK;
@@ -183,8 +174,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
       } else
     #endif
 
-    if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK && pinSS == PIN_SPI_SS)
-    {
+    if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK  /* && pinSS == PIN_SPI_SS */) {
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
       _uc_pinSCK     = PIN_SPI_SCK;
@@ -195,20 +185,23 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pi
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
       _uc_pinSCK     = PIN_SPI_SCK;
-      _hwspi_module  =&SPI0;
+      _hwspi_module  = &SPI0;
       return false;
     }
   #endif
 }
+
 bool SPIClass::swap(uint8_t state)
 {
-
+  if (initialized) return false;
+  // calling swap() without turning off the peripheral with SPI.end() would have led to a bunch of
+  // oddly configured registers left behind, and things not working quite right - and there is no
+  // particular up-side to this.
   #if (!defined(SPI1))
     // implementation for tinyAVR and AVR DD-series, which only have a single SPI interface.
     // The AVR DD-series has a lot of pinswap options...
     #if (defined(SPI_MUX_PINSWAP_6))
-      if(state == 6)
-      {
+      if(state == 6) {
         _uc_mux        = SPI_MUX_PINSWAP_6;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_6;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_6;
@@ -217,8 +210,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_5))
-      if(state == 5)
-      {
+      if(state == 5) {
         _uc_mux        = SPI_MUX_PINSWAP_5;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_5;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_5;
@@ -227,8 +219,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_4))
-      if(state == 4)
-      {
+      if(state == 4) {
         _uc_mux        = SPI_MUX_PINSWAP_4;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_4;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_4;
@@ -237,8 +228,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_3))
-      if(state == 3)
-      {
+      if(state == 3) {
         _uc_mux        = SPI_MUX_PINSWAP_3;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_3;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_3;
@@ -247,8 +237,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_2))
-      if(state == 2)
-      {
+      if(state == 2) {
         _uc_mux        = SPI_MUX_PINSWAP_2;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
@@ -257,8 +246,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if (defined(SPI_MUX_PINSWAP_1))
-      if(state == 1)
-      {
+      if(state == 1) {
         _uc_mux        = SPI_MUX_PINSWAP_1;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
@@ -266,8 +254,7 @@ bool SPIClass::swap(uint8_t state)
       } else
     #endif
 
-    if(state == 0)
-    {
+    if(state == 0) {
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
       _uc_pinSCK     = PIN_SPI_SCK;
@@ -282,8 +269,7 @@ bool SPIClass::swap(uint8_t state)
   #else
     // we have two SPI interfaces to deal with, each with up to two alternate pinswap options
     #if defined(SPI_MUX_PINSWAP_2)
-      if(state == SPI0_SWAP_ALT2)
-      {
+      if(state == SPI0_SWAP_ALT2) {
         _uc_mux        = SPI_MUX_PINSWAP_2;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_2;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_2;
@@ -293,8 +279,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if defined(SPI_MUX_PINSWAP_1)
-      if(state == SPI0_SWAP_ALT1)
-      {
+      if(state == SPI0_SWAP_ALT1) {
         _uc_mux        = SPI_MUX_PINSWAP_1;
         _uc_pinMOSI    = PIN_SPI_MOSI_PINSWAP_1;
         _uc_pinSCK     = PIN_SPI_SCK_PINSWAP_1;
@@ -304,8 +289,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if defined(SPI1_MUX_PINSWAP_2)
-      if(state == SPI1_SWAP_ALT2)
-      {
+      if(state == SPI1_SWAP_ALT2) {
         _uc_mux        = SPI1_MUX_PINSWAP_2;
         _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_2;
         _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_2;
@@ -315,8 +299,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if defined(SPI1_MUX_PINSWAP_1)
-      if(state == SPI1_SWAP_ALT1)
-      {
+      if(state == SPI1_SWAP_ALT1) {
         _uc_mux        = SPI1_MUX_PINSWAP_1;
         _uc_pinMOSI    = PIN_SPI1_MOSI_PINSWAP_1;
         _uc_pinSCK     = PIN_SPI1_SCK_PINSWAP_1;
@@ -326,8 +309,7 @@ bool SPIClass::swap(uint8_t state)
     #endif
 
     #if defined(SPI1_MUX)
-      if(state == SPI1_SWAP_DEFAULT)
-      {
+      if(state == SPI1_SWAP_DEFAULT) {
         _uc_mux        = SPI1_MUX;
         _uc_pinMOSI    = PIN_SPI1_MOSI;
         _uc_pinSCK     = PIN_SPI1_SCK;
@@ -336,8 +318,7 @@ bool SPIClass::swap(uint8_t state)
       } else
     #endif
 
-    if(state == SPI0_SWAP_DEFAULT)
-    {
+    if(state == SPI0_SWAP_DEFAULT) {
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
       _uc_pinSCK     = PIN_SPI_SCK;
@@ -525,14 +506,11 @@ void SPIClass::reattachMaskedInterrupts() {
 
 void SPIClass::beginTransaction(SPISettings settings)
 {
-  if (interruptMode != SPI_IMODE_NONE)
-  {
-    if (interruptMode & SPI_IMODE_GLOBAL)
-    {
+  if (interruptMode != SPI_IMODE_NONE) {
+    if (interruptMode & SPI_IMODE_GLOBAL) {
       noInterrupts();
     }
-    else if (interruptMode & SPI_IMODE_EXTINT)
-    {
+    else if (interruptMode & SPI_IMODE_EXTINT) {
       detachMaskedInterrupts();
     }
   }
@@ -541,10 +519,8 @@ void SPIClass::beginTransaction(SPISettings settings)
 
 void SPIClass::endTransaction(void)
 {
-  if (interruptMode != SPI_IMODE_NONE)
-  {
-    if (interruptMode & SPI_IMODE_GLOBAL)
-    {
+  if (interruptMode != SPI_IMODE_NONE) {
+    if (interruptMode & SPI_IMODE_GLOBAL) {
         interrupts();
     }
     else if (interruptMode & SPI_IMODE_EXTINT)
