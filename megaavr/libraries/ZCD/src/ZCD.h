@@ -31,6 +31,8 @@ class ZeroCross
     void attachInterrupt(voidFuncPtr callback, uint8_t mode);
     void detachInterrupt();
 
+    static bool have_separate_mux();
+
     out::output_t   output = out::disable;
     out::pinswap_t  output_swap = out::no_swap;
 
@@ -38,7 +40,7 @@ class ZeroCross
     const uint8_t zcd_number;
     ZCD_t& ZCD;
     register8_t& INPUT_PIN;
-    bool enable = false;   
+    bool enable = false;
 };
 
 #if defined(ZCD0_ZCD_vect)

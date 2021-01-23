@@ -60,6 +60,16 @@ void ZeroCross::init()
   }
 }
 
+bool ZeroCross::have_separate_mux() {
+  #if (defined(__AVR_DB__) && PROGMEM_SIZE==0x20000)
+    // Fixed in Silicon Rev. A5 of AVR128DB only
+    return (SYSCFG.REVID >= 0x14);
+  #else
+    // other parts are still waiting...
+    return false;
+  #endif
+}
+
 void ZeroCross::start(bool state)
 {
   if(state)
@@ -81,7 +91,7 @@ bool ZeroCross::read()
 void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode)
 {
   ZCD_INTMODE_t intmode;
-  switch (mode) 
+  switch (mode)
   {
     // Set RISING, FALLING or CHANGE interrupt trigger for the comparator output
     case RISING:
@@ -97,10 +107,10 @@ void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode)
       // Only RISING, FALLING and CHANGE is supported
       return;
   }
-  
+
   // Store function pointer
   intFuncAC[zcd_number] = userFunc;
-  
+
   // Set interrupt trigger and enable interrupt
   ZCD.INTCTRL = intmode;
 }
