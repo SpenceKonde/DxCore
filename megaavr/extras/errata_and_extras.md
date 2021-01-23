@@ -6,24 +6,25 @@ Issue    | Severity | Source    | 128DA | 64DA | 32DA |  128DB
 ADC disables digital input| 2        | Microchip | YES   | YES  | YES | NO
 Memory mapped flash issues| 3 (4 in )| Microchip | YES   | NO?  | N/A | NO
 TCA1 Remap on PORTE/G | 1 (2 on 64)| Microchip | YES | NO?  | N/A   | NO?
-TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES | YES
+* TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES | YES
 SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO? | NO?
-USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES | YES
+* USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES | YES
 TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO? | NO?
 ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES | A4 only
 No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A | NO?
-All CCL LUTs enable-locked to CCL| 2        | Microchip | NO?   | NO?  | NO? | YES
+*All CCL LUTs enable-locked to CCL| 2        | Microchip | Likely   | Likely |Likely | YES
 CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO? | A4 only
-Initial fuses don't match datasheet | 1        | Spence K / Microchip | YES,A6| ???  | ??? | Week 21 and older
-TCD0 portmux options broken | 3        | Spence K. | YES,A6 | NO | NO | NO
-UPDI 24-bit STptr followed by 16-bit STS | 3 or 0   | Spence K. | YES,A6| Likely | Likely | Likely
+Initial fuses don't match datasheet | 1        | Microchip / Microchip | YES,A6| ???  | ??? | Week 21 and older
+TCD0 portmux options broken | 3        | Microchip | YES,A6 | Yes | Likely | Yes
 ADC increased offset in single-ended | 4 | Microchip | N/A | N/A | N/A | A4 only
 OPAMP power consumption 3x higher than expected | 1 | Microchip | ??? | ??? | ??? | A4 only
 OPAMP IRSEL bit read-only | 1 | Microchip | N/A | N/A | N/A | A4 only
-PLL doesn't work from ext. xtal | 1 | Spence K. | N/A | N/A | N/A | A4 yes, A5 ???
+PLL doesn't work from ext. xtal | 1 | Spence K. | N/A | N/A | N/A | Yes
 
 NO? means not mentioned in errata, but has not been confirmed as not being present in that size of chip.
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
+
+Alas - 9 months after the release of the DA-series,we have seen only a single one AVR Dx-series part has 
 
 ## Determining silicon rev
 Read SYSCFG.REVID; SYSCFG.REVID&0xF0 is the major rev (the letter), SYSCFG.REVID&0x0F is the minor rev.
@@ -83,7 +84,8 @@ On DB-series parts, this only effects parts with a datecode of week 21 or earlie
 ### TCD0 on non-default port doesn't work on AVR128DA
 When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. The core only uses PA4 and PA5 as TCD0 PWM outputs because of this issue (this may be changed if/when silicon that corrects this issue is made available). Was reported to Microchip support on 8/4/2020 and their response implied that it had not been previously reported. According to Microchip, this issue has "only been confirmed" on the AVR128DA parts.
 
-### UPDI programming issue with 16-bit STS after 24-bit STptr
+### ~UPDI programming issue with 16-bit STS after 24-bit STptr~
+It was related to me that this is intended behavior. In which case, the documentation is utterly abysmal!
 Microchip seemed unaware of this issue when I reported it to them, and forwarded it to their engineering team. When programming over UPDI, there are two ways to write and read memory, with direct and indirect addressing. Both of them can use 16 or 24-bit addressing (or 8-bit, but this is useless). The documentation describes the ST (indirect) pointer as being only used for ST/LD, not for STS/LDS. However, if an ST instruction sets the indirect addressing pointer to a 24-bit location (for example, writing to the flash, which from the perspective of UPDI starts at address 0x800000), and then an STS or LDS instruction is used with a 16-bit address, the high byte of the ST pointer will be used as the high byte of the directly-addressed memory address. This was discovered in the course of my work on jtag2updi.... I would use 16-bit STS to configure the NVMCTRL registers, then use ST to write a page to the flash. But then I tried to set NVMCTRL back to NOOP and check the NVMCTRL.STATUS with LDS (with 16-bit address) and ARGH! it was 0xFF! shouldn't ever be that! I eventually discovered I could just write 0's to it and that would "clear" the "error flags"... and I was puzzled by why there were a few bytes set to 0x00 around 0x1000 when I read the flash back out afterwards (because I had not set NVMCTRL back to NOOP - I instead wrote to location 0x1000 of the flash, and also cleared the "error flags" (ie, blank flash) a few bytes later. That cost me a lot of time, and had I not been stymied by jtag2updi for so long, y'all might have been using this core in may instead of now (I was so burned out of these things that I needed to take some time away from them...)
 
 ### ADC Increased Offset in Single-Ended mode
@@ -109,9 +111,13 @@ You don't even need an external clock source to overclock these bad boys! You ca
 Using DxCore, you don't even need to go to all that effort - you can just select 28 MHz or 32 MHz from the Tools -> Clock Speed menu, and upload your sketch and it will run at the higher clock speed!
 
 ### Overclocking the PLL
-The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that...
+The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that... 
+
+Also, not the next item on the list... apparently it can be run at x4 multiplication factor!
 
 It didn't work with the oscillator at 4 MHz though.
+
+
 
 ### Interesting things removed from early IO headers
 Between the initial releases of the "IO" headers, and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but... 
@@ -140,3 +146,7 @@ Analog Comparators had a third option for power profile... Wonder if it actually
 ```
     AC_POWER_PROFILE3_gc = (0x03<<3),  /* Power profile 3 */
 ```
+
+## One "oddity" that's pretty much neutral
+Despite the datasheet saying otherwise, the lowest bit of the address is not ignored when self-programming the flash with SPM  The only time it cares about write alignment is cross ing the 
+
