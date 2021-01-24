@@ -1,6 +1,6 @@
 # Comparator
-A library for interfacing with the analog comparator peripheral in the AVR DA and DB series MCUs.  
-Developed by [MCUdude](https://github.com/MCUdude/).  
+A library for interfacing with the analog comparator peripheral in the AVR DA and DB series MCUs.
+Developed by [MCUdude](https://github.com/MCUdude/).
 The AVR DA/DB has three comparators where four positive and three negative pins are available for use. An alternative for the negative pin is to use an internally generated reference voltage instead.
 
 
@@ -9,7 +9,7 @@ Class for interfacing with the built-in comparator. use the predefined objects `
 
 
 ### input_p
-Variable for setting what input pin the positive input of the comparator should be connected to 
+Variable for setting what input pin the positive input of the comparator should be connected to
 Accepted values:
 ``` c++
 in_p::in0; // Use positive input pin 0 as input
@@ -28,7 +28,7 @@ Comparator.input_p = in_p::in0;  // Connect positive input pin 0 to the positive
 
 
 ### input_n
-Variable for setting what input pin the negative input of the comparator should be connected to 
+Variable for setting what input pin the negative input of the comparator should be connected to
 Accepted values:
 ``` c++
 in_n::in0;    // Use positive input pin 0 as input
@@ -47,7 +47,7 @@ Comparator.input_n = in_n::in0;  // Connect negative input pin 0 to the negative
 
 
 ### reference
-Variable for setting what reference voltage the DACREF should use. This voltage is internally generated. 
+Variable for setting what reference voltage the DACREF should use. This voltage is internally generated.
 Accepted values:
 ``` c++
 ref::disable;    // Do not use any reference
@@ -70,9 +70,9 @@ Comparator.reference = ref::vref_4v096;  // Use the internal 4.096V reference fo
 
 
 ### dacref
-Variable for setting the DACREF value. The DACREF voltage is the voltage that the comparator uses as it's reference.  
-This is the formula for the DACREF output voltage:  
-  
+Variable for setting the DACREF value. The DACREF voltage is the voltage that the comparator uses as it's reference.
+This is the formula for the DACREF output voltage:
+
 <img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
 ##### Usage
@@ -122,7 +122,7 @@ Comparator.output = out::enable; // Enable output pin (PA7)
 
 
 ### output_swap
-Variable for pin swapping the physical output pin to its alternative position. See the pinout diagrams in the DxCore README for detailed info.  
+Variable for pin swapping the physical output pin to its alternative position. See the pinout diagrams in the DxCore README for detailed info.
 Accepted values:
 ```c++
 out::no_swap;  // Use default pin position

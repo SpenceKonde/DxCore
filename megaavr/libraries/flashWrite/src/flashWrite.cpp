@@ -350,3 +350,95 @@ uint8_t flashWriteWords(const uint32_t address, const uint16_t* data, const uint
   }
   return FLASHWRITE_OK;
 }
+
+
+uint8_t flashReadByte(const uint32_t address){
+  #if PROGMEM_SIZE > 0x10000
+    return pgm_read_byte_far(address);
+  #else
+    return pgm_read_byte_near((uint16_t)address);
+  #endif
+}
+
+uint16_t flashReadWord(const uint32_t address) {
+  #if PROGMEM_SIZE > 0x10000
+    return pgm_read_word_far(address);
+  #else
+    return pgm_read_word_near((uint16_t)address);
+  #endif
+}
+
+
+uint8_t flashWriteBytes(const uint32_t address, const uint8_t* data, uint16_t length) {
+  uint32_t tAddress=address;
+  uint8_t status;
+  if(address & 0x01) {
+    status=flashWriteByte(tAddress++,*(data));
+    if (status) return status;
+    length--;
+  }
+  if(length >1) {
+    status=flashWriteWords(tAddress,(uint16_t*)data,(length>>1));
+    if (status) return status;
+  }
+  // there may be one more byte...
+  if (length&1) {
+    data+=(length & 0xFFFE); // what we wrote with the word above...
+    status = flashWriteByte(tAddress+length-2,*data);
+  }
+  return status;
+}
+
+
+uint8_t* getFlashMappedPointer(const uint32_t address) {
+  if (address > PROGMEM_SIZE) return (uint8_t*) NULL;
+  // If location is outside bounds of flash, return null pointer
+  #if PROGMEM_SIZE == 0x10000
+    if ( (address > 0x8000) == !!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
+      return (uint8_t *)(0x8000|((uint16_t)address));
+    }
+    else {
+      return (uint8_t*) NULL;
+    }
+  #elif PROGMEM_SIZE == 0x20000
+    uint8_t section=address>>15;
+    // this will be 0~3 - corresponding to the number of the flash section
+    // we return a pointer if it's in the mapped flash, otherwise,
+    if ( section == ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4)) {
+      return (uint8_t *)(0x8000|((uint16_t)address));
+    }
+    else {
+      return (uint8_t*) NULL;
+    }
+  #else
+    // all of the flash is mapped
+    return (uint8_t*)(0x8000 | (uint16_t)address);
+  #endif
+}
+
+uint32_t getFlashAddress(uint8_t* mappedPtr) {
+  if (((uint16_t)mappedPtr) < 0x8000) {
+    return 0; //is not a pointer to mapped flash!
+  }
+  uint32_t address= (uint16_t)mappedPtr;
+  #if PROGMEM_SIZE == 0x10000
+    if (!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
+      address -=0x8000;
+    }
+    return address;
+  #elif PROGMEM_SIZE == 0x20000
+    uint8_t flmap = ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4);
+    if (flmap & 0x02) {
+      // Section 2 or 3 is mapped
+      address +=0x10000;
+    }
+    if (!(flmap & 1)){
+      // section 0 or 2 is mapped
+      address -=0x8000;
+    }
+    return address;
+  #else
+    // The whole flash is mapped and this is super easy:
+    return (address & 0x7FFF);
+  #endif
+}

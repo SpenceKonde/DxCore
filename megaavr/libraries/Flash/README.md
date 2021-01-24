@@ -98,7 +98,7 @@ For addresses from 0x0000 through 0xFFFF, you can use the `pgm_read_*_near()` ma
 
 ## API
 
-### Compatibility Check - checkFlashWrite()
+### Compatibility Check - Flash.checkWritable()
 
 ```
 uint8_t Flash.checkWritable()
@@ -206,14 +206,15 @@ FLASHWRITE_NOBOOT     = 0x10 // In 1.3.0, bootloader is reqired for this library
 FLASHWRITE_FAIL_x     = 0x80 // This was attempted, but NVMCTRL.STATUS showed an error
 ```
 
-### Writing Arrays - Flash.writeWords()
+### Writing Arrays - Flash.writeWords(), Flash.writeBytes()
 ```
 Flash.writeWords(uint32_t address, uint16_t* data, uint16_t length)
+Flash.writeBytes(uint32_t address, uint8_t* data, uint16_t length)
 ```
 
 This will write the supplied data to flash, starting from `address`.  Length is the number of words being written (the number of elements of the uint16 array) If you need to write other datatypes, cast the pointer youre passing to a ( uint116_t * ) and be sure that you recalculate the length.
 
-Like `Flash.writeWord`, the address must be even, (as we write one word at a time), but there is no alignment requirement beyond that - writes can even cross the 64K boundary. No erase operation is performed by `Flash.writeWords()`, and the array passed must have at least `length` elements.
+When writing an array of words wth `Flash.writeWord`, the address must be even, (as we write one word at a time), but there is no alignment requirement beyond that - writes can even cross the 64K boundary. No erase operation is performed by `Flash.writeWords()`, and the array passed must have at least `length` elements. `Flash.writeBytes` has no alignment requirement.
 
 
 ```
@@ -228,6 +229,25 @@ FLASHWRITE_0LENGTH    = 0x46 // If you passed in length of 0.
 FLASHWRITE_NOBOOT     = 0x10 // In 1.3.0, bootloader is reqired for this library.
 FLASHWRITE_FAIL_x     = 0x8x // This was attempted, but NVMCTRL.STATUS showed an error
 ```
+
+## Reading - Flash.readByte(), Flash.readWord()
+
+```
+Flash.readByte(uint32_t address)
+Flash.readWord(uint32_t address)
+```
+
+As the name implies, these will read either a byte or word from the flash - this is the same as using the `pgm_read_...` macros (in fact, thats what this library uses) - this is just a convenience function (also makes it easier to write code that works without modification across different flash sizes - >64k parts require the `_far` version, which isn't provided (for obvious reasons) on parts with less than 64k flash.)
+
+## Utility - Flash.mappedPointer(), Flash.flashAddress()
+
+```
+Flash.mappedPointer(uint32_t address)
+Flash.flashAddress(uint8_t* ptr)
+```
+**Always check that pointers and addresses aren't `NULL`/zero***
+Flash.mappedPointer(), when passed an address in program memory that lies within the section currently mapped to memory, will return a `uint8_t*` pointing to it. Otherwise, it will return a NULL pointer.
+Flash.flashAddress() will go the opposite direction - passed a pointer to a location in mapped flash, it will return the address in flash that it's pointing to, considering current FLMAP.
 
 
 ### FLASHWRITE_FAIL_x codes

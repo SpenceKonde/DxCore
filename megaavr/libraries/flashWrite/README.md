@@ -206,6 +206,27 @@ FLASHWRITE_NOBOOT     = 0x10 // In 1.3.0, bootloader is reqired for this library
 FLASHWRITE_FAIL_x     = 0x80 // This was attempted, but NVMCTRL.STATUS showed an error
 ```
 
+## Reading - flashReadByte(), flashReadWord()
+
+```
+flashReadByte(uint32_t address)
+flashReadWord(uint32_t address)
+```
+
+As the name implies, these will read either a byte or word from the flash - this is the same as using the `pgm_read_...` macros (in fact, thats what this library uses) - this is just a convenience function (also makes it easier to write code that works without modification across different flash sizes - >64k parts require the `_far` version, which isn't provided (for obvious reasons) on parts with less than 64k flash.)
+
+## Utility - getFlashMappedPointer(), getFlashAddress()
+
+```
+getFlashMappedPointer(uint32_t address)
+getFlashAddress(uint8_t* ptr)
+```
+**Always check that pointers and addresses aren't `NULL`/zero***
+getFlashMappedPointer(), when passed an address in program memory that lies within the section currently mapped to memory, will return a `uint8_t*` pointing to it. Otherwise, it will return a NULL pointer.
+getFlashAddress() will go the opposite direction - passed a pointer to a location in mapped flash, it will return the address in flash that it's pointing to, considering current FLMAP.
+
+
+
 
 ### Writing Arrays - flashWriteWords()
 ```

@@ -1,4 +1,5 @@
 #ifndef FLASH_H
+#define FLASH_H
 /* Flash.h for DxCore 1.3.0
  * A library to easily write to the flash of an AVR Dx-series part from within an Arduino sketch
  * Requires Optiboot from DxCore 1.3.0.
@@ -12,7 +13,12 @@ class FlashClass
     uint8_t erasePage(const uint32_t address, const uint8_t size = 1);
     uint8_t writeWord(const uint32_t address, const uint16_t data);
     uint8_t writeByte(const uint32_t address, const uint8_t data);
-    uint8_t writeWords(const uint32_t address, const uint16_t* data, const uint16_t length);
+    uint8_t writeWords(const uint32_t address, const uint16_t* data, uint16_t length);
+    uint8_t writeBytes(const uint32_t address, const uint8_t* data, uint16_t length);
+    uint8_t readByte(const uint32_t address);
+    uint16_t readWord(const uint32_t address);
+    uint8_t* mappedPointer(const uint32_t address);
+    uint32_t flashAddress(uint8_t* mappedPtr);
 };
 
 extern FlashClass Flash;
@@ -29,7 +35,7 @@ typedef enum FLASHWRITE_RETURN_VALUES
   bootloader, the APPDATAWP bit in
   NVMCTRL.CTRLB would block all
   attempts at writing the flash.
-  FLASHWRITE_APPDATAWP    = (0x1F),*/
+  FLASHWRITE_APPDATAWP      = (0x1F),*/
   FLASHWRITE_NYI            = (0x1F),
 
 

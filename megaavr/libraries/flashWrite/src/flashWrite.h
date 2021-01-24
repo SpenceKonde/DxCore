@@ -1,4 +1,5 @@
 #ifndef FLASHWRITE_H
+#define FLASHWRITE_H
 /* flashWrite.h for DxCore 1.3.0
  * A library to easily write to the flash of an AVR Dx-series part from within an Arduino sketch
  * Requires Optiboot from DxCore 1.3.0.
@@ -17,6 +18,15 @@ uint8_t flashWriteByte(const uint32_t address, const uint8_t data);
 
 uint8_t flashWriteWords(const uint32_t address, const uint16_t* data, uint16_t length);
 
+uint8_t flashWriteBytes(const uint32_t address, const uint8_t* data, uint16_t length);
+
+uint8_t flashReadByte(const uint32_t address);
+
+uint16_t flashReadWord(const uint32_t address);
+
+uint8_t* getFlashMappedPointer(const uint32_t address);
+
+uint32_t getFlashAddress(uint8_t* mappedPtr);
 
 typedef enum FLASHWRITE_RETURN_VALUES
 {

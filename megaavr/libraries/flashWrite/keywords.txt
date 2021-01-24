@@ -3,6 +3,11 @@ flashErasePage	KEYWORD2
 flashWriteWord	KEYWORD2
 flashWriteByte	KEYWORD2
 flashWriteWords	KEYWORD2
+flashWriteBytes	KEYWORD2
+getFlashAddress	KEYWORD2
+getFlashMappedPointer	KEYWORD2
+flashReadByte	KEYWORD2
+flashReadWord	KEYWORD2
 
 FLASHWRITE_OK	LITERAL1
 FLASHWRITE_NOBOOT	LITERAL1
