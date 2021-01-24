@@ -77,8 +77,6 @@ There are multiple ways to generate some of the lower frequencies from internal 
 
 The DA-series does not support use of an external high frequency crystal (though the DB/DD-series do) - the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
 
-There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? Me neither, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore.
-
 ```c
 #include <DxCore.h>
 
@@ -91,6 +89,8 @@ void setup() {
 }
 
 ```
+
+There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? Me neither, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore - I'd be lying if I said I missed the struggle to make millis accurate with weirdo clock speeds back on ATTinyCore (which in turn was done to support UART crystals, which the fractional baud rate generator has made obsolete).
 
 ### Clock troubleshooting
 On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation more gracefully. However, without assistance from the core, recognizing that the problem was infact a missing clock could be challenging. In order to aid in debugging such issues, DxCore will never run the sketch if the selected clock is not present. It will try for a short time before giving up and showing a blink code on pin PA7 (Arduino pin number 7); this blink code will be shown until the chip is reset. Similarly, on the DB-series, which features Clock Failure Detection, a clock failure at runtime will trigger a different blink code.
@@ -127,8 +127,6 @@ Almost any cheaper-than-dirt serial adapter can be use d for pyupdi style progra
 3. Some serial adapters have a dedicated LED to indicate receiving. While some fancy chips have an I/O pin that drives the RX led (the FT232 has that feature I think), a cheap adapter with an RX just put an LED and resistor on the RX line.  The load from an LED on the UPDI line will overwhelm any signal and prevent communication. Detecting teceiv
 
 **Note:** These are the requirements for programming through the UPDI pin using the serial adapter; these are not the requirements for programming through a bootloader installed on the chip; that is covered below.
-
-
 
 ### NEW starting in 1.3.0
 Starting in 1.3.0, DxCore includes a version of [pymcuprog](https://pypi.org/project/pymcuprog/), written by Microchip - this adds support for two exciting new programming tools - Microchip nEDBG (used in, among other things, the Curiosity Nano boards), and Serial adapter + 4.7k resistor (like pyupdi). The construction of a low cost UPDI programmer goes from "easy and cheaper than a latte" (described above) to "truly trivial and cheaper than a cup of coffee" - simply connect the TX line of any USB-serial adapter with a 4.7k resistor (around 3.7k if it already has a 1k series resistor in series with TX; most serial adapters do) to it's RX line, and connect the RX line to the UPDI pin of the target. And power and ground, of course. Works with or without a 470 ohm protection resistor on the target board.
