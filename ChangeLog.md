@@ -7,11 +7,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ### 1.3.0
 #### New Features
-* **NEW toolchain package - support for all DA and DB parts on all platforms!**
+* **NEW toolchain package - support for all DA and DB parts on all platforms!** (board manager only)
 * Pull in new version of avrdude to **support Dx-series Curiosity** boards via avrdude. (board manager only)
 * **Add support for pymcuprog-backed pyupdi-style programming with serial adapter as programmer (#38)**
-* **Add new Event system library** to go with the new version of Logic! (#)
-* digitalWriteFast(), digitalReadFast() (can use same implementation from megaTinyCore), compiletime error checking for most digital and analog I/O
+* **Add new Event system library** to go with the new version of Logic! (#52)
+* digitalWriteFast(), digitalReadFast() are now available for single-cycle pin writes! This also comes along with the compiletime error checking for most digital and analog API functions.
 * Safe fuses automatically written on all UPDI uploacs: Set all fuses that we ever set in response to menu selections except for BODCFG on all uploads to non-Optiboot configurations, and all "upload using programmer" to optiboot configurations. Fuses that the core does not provide a method of specifying are not touched by the normal upload process; if you have gone and changed one, it is assumed that it was intentional.
 * The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts.
 * Optiboot now supports writing to flash from the application section. This is done through a novel and highly efficient (of bootloader flash, of which we are terribly short!) method; only 2 instruction words are used within the bootloader section.
@@ -31,6 +31,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Add ZeroCross::have_seperate_mux(); test
 * Add in the SERIAL_PORT_whatever macros, against my better judgement.
 * The 1-second pre-built optiboot hex files do not consider POR to be an entry condition (consistent with their intended use case of there being a hardware reset )
+* Slightly better emulation of classic behavior in digital I/O, particularly regarding ways to ensure the OUT bit for a bit is in the right state before you change it's
 
 #### Bugfixes
 * Fix slow sampled BOD mode
@@ -43,6 +44,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct period of TCD0 PWM. (it was off by 1/510th of the target speed,
 * Pull in major Serial rework from megaTinyCore, which is hoped to fix some stability issues (#33)
 * Remove SPI1 library, set SPI_INTERFACES_COUNT to 1, not 2 (#32, #35)
+* Corrected name of serial pin defines
+* Fixed the mess I made out of Wire's baud rate calculation. Resync'ed it with megaTinyCore, hardened it against the TWI PORT.OUT errata (realized the minor digital I/O improvements could have made it more likely to cause issues.)
+* Corrected compile issues with the Comparator library, and improved handling of the voltage reference, and called out in the README the fact that they share a reference.
 
 
 ### 1.2.0/1.2.0a

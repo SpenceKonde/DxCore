@@ -2,8 +2,7 @@
 ### [Installation](Installation.md)
 ### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
 
-## **No, the AVR128DA48 Curiosity Nano is not supported yet!**
-Support will be implemented in 1.3.0 - through the old standard of avrdude, which has recently gotten an update to support programming these devices (which is very good, as our other approach had been running into trouble)
+## **YES - the Curiosity Nano is finally supported!**
 
 # DxCore - Arduino support for the NEW AVR DA-series, DB-series and upcoming DD-series
 This is an Arduino core to support the exciting new AVR DA, DB, and "coming soon" DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned. But whatever the story of it's origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... But for almost every system they've added a significant improvement of some sort (while largely preserving backwards compatibility. You liked the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with the slightly-improved instruction timing compared to "classic" AVRs
@@ -103,11 +102,33 @@ All blink codes issued by the core start with the LED pin switching states three
 
 **Severe disruptions to the crystal pins can trigger a reset** when that crystal is used as the main clock source. This means that even if the chip was running prior to a disruption to the crystal, you may end up with the 3-blink code, not the 4-blink one. These blink codes are meant only as a debugging aid ("your crystal oscillator isn't" is typically enough to get you on the right path anyway) - they do not replace careful (or - in this case - basic) observation of a malfunctioning project.
 
+# UPDI programming
+The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface) used on the tinyAVR 0/1/2-series, as well as all other modern AVR microcontrollers. In addition to purchasing a purpose-made UPDI programmer (such as the ones produced by Microchip), there are two very low-cost approaches to creating a UPDI programmer:
 
-## Programming is done via UPDI
-Prior to the release of 1.3.0, the only programmer that I can vouch for working with the core is jtag2updi; note that prior to the release of DxCore, jtag2updi did NOT support these parts (and some incompatible repos have hung around long after that) - be sure to update jtag2updi if you are using a device you installed jtag2pdi on before mid-2020, if you are unsure if you loaded a Dx-compatible version of jtag2updi, or if you used my jtag2updi code from November and are having trouble making it work (it was fixed on November 30). See [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md) for more information on using an Arduino for this purpose - almost any Arduino board can be used, but cheap knockoffs of the Arduino Nano 3.0 are recommended (the ones with the ATmega168p are fine too - this is a great use if you accidentally bought some of those expecting ATmega328p ones), as it is dirt cheap, and includes a USB-serial adapter. An Arduino Pro Mini is also an excellent choice - but becomes physically awkward, since you've also got a serial adapter, likely dangling awkwardly between the USB cable and the Pro Mini, and wires running between that and the Pro Mini running jtag2updi.
+## With an Arduino (jtag2updi)
+One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see [Making a UPDI programmer](MakeUPDIProgrammer.md); using these, you should select jtag2updi from the tools->programmer menu. Prior to the release of 2.2.0, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro,
 
-jtag2updi variants supporting "HV" programming are available. *HV programming should not be used on DA or DB-series parts.* DD-series parts do support it (UPDI can be programmed to act as a GPIO pin), but will require slightly different hardware, as the HV pulse must be applied to Reset, not UPDI; I am working with a developer of HV updi hardware and firmware to ensure that this is available prior to the release of the DD-series parts.
+## From a USB-Serial adapter (pyupdi-style)
+Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of its author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a tool developed and maintained by Microchip which includes the same serial-port upload mechanism. **If installing manually** you must [add the python package](megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system python installation is not sufficient, nor is one necessary).
+
+Connections:
+* Vcc, Gnd of serial adapter to Vcc, Gnd of target
+* 4.7k resistor between Tx and Rx of adapter (many adapters have built-in 1k resistor in series with Tx; these should use a smaller resistor)
+* Rx of adapter to UPDI pin of target. A small resistor (under 1k - like the 470 ohm one we generally recommend) in series with this is fine.
+
+Choose "Serial Port and 4.7k" from the Tools -> Programmer menu, and select the Serial Port from the Tools -> Port menu.
+
+Note that this does not give you serial monitor - you need to connect a serial adapter the normal way for that (I suggest using two, along with an external serial terminal application (since you don't have autoreset to restart the sketch when open the serial port - you connect before (or during) the upload). This technique works with those $1 CH340 serial adapters from ebay, aliexpress, etc. Did you accidentally buy some that didn't have a DTR pin broken out, and so weren't very useful with the Pro Minis you hoped to use them with?
+
+### Serial adapter requuirements
+Almost any cheaper-than-dirt serial adapter can be use d for pyupdi style programer, as long as you take care to avoid these pitfalls:
+1: The FTDI FT232, (both the genuine ones, and the fakes) are known to be SLOW. It looks like they wait for more data to come to send it all at once more "efficiently"?
+2. Many serial adapters have a resistor, typically between 1k and 2.2l in series with their TX line; If yours has one, just reduce the value of the resistor between Tx and Tx by about that much.
+3. Some serial adapters have a dedicated LED to indicate receiving. While some fancy chips have an I/O pin that drives the RX led (the FT232 has that feature I think), a cheap adapter with an RX just put an LED and resistor on the RX line.  The load from an LED on the UPDI line will overwhelm any signal and prevent communication. Detecting teceiv
+
+**Note:** These are the requirements for programming through the UPDI pin using the serial adapter; these are not the requirements for programming through a bootloader installed on the chip; that is covered below.
+
+
 
 ### NEW starting in 1.3.0
 Starting in 1.3.0, DxCore includes a version of [pymcuprog](https://pypi.org/project/pymcuprog/), written by Microchip - this adds support for two exciting new programming tools - Microchip nEDBG (used in, among other things, the Curiosity Nano boards), and Serial adapter + 4.7k resistor (like pyupdi). The construction of a low cost UPDI programmer goes from "easy and cheaper than a latte" (described above) to "truly trivial and cheaper than a cup of coffee" - simply connect the TX line of any USB-serial adapter with a 4.7k resistor (around 3.7k if it already has a 1k series resistor in series with TX; most serial adapters do) to it's RX line, and connect the RX line to the UPDI pin of the target. And power and ground, of course. Works with or without a 470 ohm protection resistor on the target board.
@@ -126,20 +147,30 @@ The silicon errata in the initial versions of these parts is pretty brutal, part
 ## Memory-mapped flash? It's complicated.
 Unlike the tinyAVR 0/1-series and megaAVR 1-series parts, which are able to map their entire flash to memory, the DA-series parts can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker can't automatically put constants into flash on 64k and 128k parts. However, on 32k parts, it can, and does!
 
-As of 1.2.0, you can declare a const variable `MAPPED_PROGMEM`; this will put it in the final section of flash (section 1 or 3 - they're 0-indexed); in this case, the data is not copied to RAM, and *you can use the variable directly to access it through the mapped flash!* (this only works if you don't change which section of the flash is mapped in NVMCTRL.CTRLB); you can store up to 32k of data this way. The `PROGMEM` attribute also works normally, ie, if you declare something PROGMEM, it will be stored in flash in the lower 64k (if possible), and can be accessed using `pgm_read_*` macros.
+As of 1.2.0, you can declare a ~const~ variable `MAPPED_PROGMEM`; this will put it in the final section of flash (section 1 or 3 - they're 0-indexed); in this case, the data is not copied to RAM, and *you can use the variable directly to access it through the mapped flash!* (this only works if you don't change which section of the flash is mapped in NVMCTRL.CTRLB); you can store up to 32k of data this way. The `PROGMEM` attribute also works normally, ie, if you declare something PROGMEM, it will be stored in flash in the lower 64k (if possible), and can be accessed using `pgm_read_*` macros.
 
-Note that the errata relating to the memory mapping on the AVR128DA parts is not a problem for the application, as the bootloader does not set BOOTRP, and the application cannot write to the flash (on parts with more than 32k of flash, the bootloader uses the SPM instruction to write the flash one word at a time, rather than ST to write it one byte at a time).
+Note that the errata relating to the memory mapping on the AVR128DA parts is not a problem for the application, as the bootloader does not set BOOTRP, and the application cannot directly write to the application section of the flash. n parts with more than 32k of flash, the bootloader uses the SPM instruction to write the flash one word at a time, rather than ST to write it one byte at a time; this is uneffected by the errata.
 
 The `F()` macro works the same way as it does on normal boards as of 1.2.0, even on the 32k parts, where it is unnecessary to save RAM - this was done in order to maintain library compatibility; several very popular libraries rely on F() returning a `__FlashStringHelper *` and make use of `pgm_read_byte()` to read it.
 
+### Writing to Flash from App
+1.3.0 introduces a mechanism by which, if Optiboot is installed on a part, you can use it to write to the application section from the bootloader - and **I NEED YOUR FEEDBACK** to make the interface less clunky. There are two versions of the library (please tell me which is better, and how to improve it)
+* [flashWrite.h](megavr/libraries/flashWrite/README.md) presents 5 functions for flash writing
+* [Flash.h](megavr/libraries/flashWrite/README.md) presents the same functions as methods of a `Flash` object
+* [Feedback](https://github.com/SpenceKonde/DxCore/issues/57)
 
-## Bootloader support (New in 1.1.0!)
-As of 1.1.0, DxCore now also includes an Optiboot-derived bootloader for all parts! This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Note that after the bootloader has been installed in this way, to use it without the bootloader, you must choose the non-optiboot board definition, and then again Burn Bootloader to configure the fuses appropriately; when the bootloader is enabled the vectors are located at the start of the application section, 1024 bytes in (like megaAVR 0-series and tinyAVR 0/1-series, and unlike classic AVRs, the bootloader section is at the beginning of the flash). Options to set the desired USART that the bootloader will run on are available for all serial ports, with either the normal or alternate pin locations. USART0 with default pins is the default option here, and these are the ones that are connected to the 6-pin serial header on the DA-series breakout boards that I sell. An option is provided when burning bootloader to choose an 8 second delay after reset - use this if you will be manually pressing reset
+Don't be sad if you aren't using Optiboot - support for writing without the bootloader is not far away - there are but a few facts to confirm, and only a single magic trick to learn!
+
+## Bootloader support
+DxCore now an Optiboot-derived bootloader for all parts! This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Note that after the bootloader has been installed in this way, to use it without the bootloader, you must choose the non-optiboot board definition, and then again Burn Bootloader to configure the fuses appropriately; when the bootloader is enabled the vectors are located at the start of the application section, 1024 bytes in (like megaAVR 0-series and tinyAVR 0/1-series, and unlike classic AVRs, the bootloader section is at the beginning of the flash). Options to set the desired USART that the bootloader will run on are available for all serial ports, with either the normal or alternate pin locations. USART0 with default pins is the default option here, and these are the ones that are connected to the 6-pin serial header on the DA-series breakout boards that I sell. An option is provided when burning bootloader to choose an 8 second delay after reset - use this if you will be manually pressing reset
 
 Once the part is bootloaded, sketches can be uploaded by connecting a serial adapter to those pins (including the usual DTR-autoreset circuit, present on my breakout boards), and clicking upload. If autoreset is not practical for whatever reason, an 8-second timeout version of the bootloader is provided. When reset is pressed, the bootloader will be active for the next 8 seconds. This may also be useful in combination with the software reset for updating a device in an inaccessible location.
 
 ### Bootloader size
 As of 1.2.0, the Optiboot bootloader now takes up only 512b of flash, just like on the Arduino Uno and similar! If you were previously using DxCore with an older version of the bootloader, you must use a UPDI programmer to "burn bootloader" with the new veraion of the bootloader first. 1.3.0 introduces further enhancements regarding entry conditons; under the hood, there is also full support for writing to flash from the application.
+
+### Bootloader updates recommended!
+Since Optiboot was first added to DxCore, every release has included a lot of improvements. If you are programming your AVR Dx-series part through a bootloader, we strongly suggest keeping it updated. 1.3.0 brought another big raft of improvements too.
 
 ## Ways to refer to pins
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
@@ -155,8 +186,11 @@ When a single number is used to refer to a pin - in the documentation, or in you
 #### An and PIN_An constants
 The core also provides An and PIN_An constants (where n is a number from 0 to 21). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind analogRead() - but here, they are just #defined as the corresponding Arduino pin number. The An names are intentionally not shown on the pinout charts, as this is a deprecated way of referring to pins. However, these channels are shown on the pinout charts as the ADCn markings, and full details are available in the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel. Note that channel A0 is on the UPDI/Reset pin - however, even when configured as UPDI, it can be used as an input as long as the signals it can be exposed to do not look like the UPDI enable sequence.
 
+### swap() and pins() for Serial, SPI, and I2C
+Like most recent parts, the Dx-series parts have multiple pin-mapping options for many of their peripherals, and the major serial interfaces of the Dx-series parts are not an exception. We provide the usual .swap() and .pins() methods whereby each instance of a UART, SPI interface, or I2C interface has a swap()
+
 ### Serial (UART) Support
-All of these parts have a several hardware serial ports (USART) - from 3 on the 28-pin parts to SIX on the 64-pin parts! They work exactly like the ones on official Arduino boards. See the pinout charts for the location of the serial pins. On my breakout boards, we provide autoreset support as well (again, just like official Arduino boards)
+All of these parts have a several hardware serial ports (USART) - from 3 on the 28-pin parts to SIX on the 64-pin parts! They work exactly like the ones on official Arduino boards. See the pinout charts for the location of the serial pins. On my breakout boards, we provide autoreset support as well (again, just like official Arduino boards). The
 
 On all supported devices, where the appropriate pins are present, they can be pin-swapped - each PORT gets a USART, which defaults to pins 0 and 1 for RX, TX (2 and 3 for XCK and XDIR - though these are not supported through the Serial class), and 4, 5, 6 and 7 when pinswapped. This is configured using the Serial.swap() or Serial.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** calling Serial.begin().
 
@@ -164,36 +198,13 @@ On all supported devices, where the appropriate pins are present, they can be pi
 
 `Serial.pins(TX pin, RX pin)` - this will set the mapping to whichever mapping has the specified pins as TX and RX. If this is not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than Serial.swap(); that method is preferred.
 
-When operating at 1MHz, the UART can output 56700 baud, but not 115200 baud (115200 is within the capabilities of the hardware at 1 MHz - a future enhancement to the core will add support for U2X mode to support this baud rate.)
+When operating at 1MHz, the UART can actualkly run at 115200 baud (115200 is within the capabilities of the hardware at 1 MHz.
 
 ### SPI support
-The AVR DA/DB-series parts have two hardware SPI ports. On parts with more pins, they can be pin-swapped to different sets of pins (up to three sets of pins per SPI peripheral). The AVR DD-series has only a single SPI port - but it has a far more pin options than the DA/DB-series parts do. Originally, it was expected that two libraries could be created like is done for the few classic AVRs with multiple SPI ports (eg, ATmega328PB) and the many 32-bit architectures with multiple SPI ports; however, it was discovered in 1.2.0 which attempted to implement this that the naming conventions that have become universally accepted (and expected by Arduino libraries) collide with the underlying names of the peripherals; namely, the SPI_class object for the first SPI port is named SPI, for the second, SPI1, and so on (like Serial ports). Unfortunately, the Microchip peripheral naming goes SPI0, SPI1... It was discovered that in the field, the standard library solution is that if a board claims it has 2 SPI interfaces, SPI-using libraries will expect the second one to be an instance of SPI_class named SPI1, and if this was not the case, that would generate a compile error. On the AVR Dx-series parts, SPI1 is the SPI struct (type SPI_t) that organizes all the hardware registers, a define provided by the io headers - overriding that was possible, but heretical. There was just no graceful way to have multiple SPI libraries
-
-#### The solution
-Noting that 1. The standard SPI library API does not support slave mode (hence this is not necessarily relevant to the use case of having one interface act as master and the other as slave), 2. It is rare to need two physical SPI ports, as SPI is a bus which can have multiple parts connected, and 3. The main reason that Arduino users would be drawn to the second SPI port is probably the fact that on 28/32-pin parts, the only available pins for SPI0 are PA4-PA7. Even without their being the only SPI pins acessible to a library limited to SPI0, those are the most powerful pins, with many useful peripherals limited to those pins and those alone - it was recognized that a single SPI library which could use either of the hardware SPI modules, with any of their pin-swaps. Would provide most of the end user benefits of multiple SPI libraries, while still maintaining compatibility with SPI-using libraries (which is the whole point of a standard SPI library).
-
-As of 1.3.0, the version of SPI.h included with DxCore allows all SPI0 and SPI1 pin sets to be used via the SPI.swap() and SPI.pins() functions described below. Like the other peripherals, there is `SPI.swap()` - but unlike the other peripherals, the library defines constants for you to pass to `SPI.swap()`, the first set is recommended: the naming of the pin sets ("DEFAULT", "ALT1", "ALT2") matches what Microchip calls them. For convenience the numeric values are also listed below (low nybble is what is written to the `PORTMUX.SPIROUTEA` register, high nybble is the number of the SPI interface)
-
-* `SPI0_SWAP_DEFAULT`, `SPI0_SWAP_ALT1`, `SPI0_SWAP_ALT2`
-* Alternate names: `SPI0_SWAP0`, `SPI0_SWAP1`, `SPI0_SWAP2`
-* Numeric values: `0x01`, `0x01` `0x02`
-* `SPI1_SWAP_DEFAULT`, `SPI1_SWAP_ALT1`, `SPI1_SWAP_ALT2`
-* Alternate names: `SPI1_SWAP0`, `SPI1_SWAP1`, `SPI1_SWAP2`
-* Numeric values: `0x10`, `0x14`, `0x18`
-
-
-`SPI.swap(SPI0_SWAP_DEFAULT) or SPI.swap(SPI0_SWAP1)` will set the the mapping to the default or alt1 pins. It will return true if this is a valid option for the part you're using, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to SPI0 on the default pins.
-
-`SPI.pins(MOSI pin, MISO pin, SCK pin, SS pin);` can also be used - this will set the mapping to whichever mapping has the specified pins; they must match exactly. MISO, MOSI, and SCK must be specified correctly; the SS pin is ignored (the option to specify it is provided only for backwards compatibility. It was decided that requiring it to be passed, when it's functionality would require a different library and is explicitly disabled, didn't really make much sense. If the pins passed are not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than `SPI.swap();` - there is no difference in functionality.
-
-Either way, regardless of which method is used to change the pin mapping, it must be set before calling `SPI.begin()`, which actually applies that setting. To change mapping, call `SPI.end()`, `SPI.swap()` or `SPI.pins()` and then `SPI.begin()` again.
-
-Beyond the above described options for available pin sets, the SPI library works identically to the official Arduino one.
-
-This core disables the SS pin when running in SPI master mode. This means that the "SS" pin can be used for whatever purpose you want - unlike classic AVRs, where the "slave-select" functionality of the SS pin could not be disabled (on classic AVRs, if that pin was input, and it went low - SPI was now in slave mode, whether you like it or not! And within Arduino circles "not" was pretty much universal). Also like the classic AVR SPI library, the included version of SPI.h makes no provision for slave functionality - If you want that, it's up to you to provide it (though the SPI interrupt isn't used, so you would still have that option; the builtin library uses it in polled mode). Do be sure to check the errata if you plan to enable SPI slave functionality in this way - on some silicon revisions, it doesn't work on the default pins. If you attempt this, please do share your experiences; I'm happy to offer what help I could and point people to your Github/thread/blog about it.
+[SPI documentation](megaavr/libraries/SPI/README.md) A compatible SPI.h library is included; it provides one SPI master interface which can use either of the underlying SPI modules - they are treated as if they are pin mapping options.
 
 ### I2C (TWI) support
-All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin version, which has one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. Support for TWI1 is planned for a future version of this core as a Wire1 library with an otherwise identical interface. See the pinout charts for the location of the pins.
+[SPI documentation](megaavr/libraries/SPI/README.md) All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin version, which has one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library, except that it does not activate the internal pullups unless they are specifically requested (see Wire documentation linked above)
 
 The TWI pins can be swapped to an alternate location; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin().
 
@@ -211,7 +222,7 @@ The core provides hardware PWM (analogWrite) support. On all parts, 6 pins (on P
 #### [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
 ### EEPROM support
-The usual `EEPROM.h` library works here! It is added in 1.2.0.
+The usual `EEPROM.h` library works here - thought there are some internal changes (a bug in avrlibc must be worked around) It is added in 1.2.0.
 
 ### NeoPixel (WS2812) support
 The usual NeoPixel (WS2812) libraries have problems on these parts. This core includes two libraries for this, both of which are tightly based on the Adafruit_NeoPixel library. See the [tinyNeoPixel documentation](megaavr/extras/tinyNeoPixel.md) and included examples for more information. Support is in the code for clock speeds all the way up to the essentially-guaranteed-not-to-work
