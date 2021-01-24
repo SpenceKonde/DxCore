@@ -51,7 +51,16 @@ void AnalogComparator::init()
     VREF.ACREF = VREF_ALWAYSON_bm | reference;
   else
     VREF.ACREF &= ~VREF_ALWAYSON_bm;
-
+  // Spence 1/21: We have 3 ACs sharing one voltage reference.
+  // I adapted it to reach out and set the other objects reference property
+  // to match when you call init()... not sure if this is ideal,
+  // but it seems weird to have to specify it every time you turn one on...
+  if (comparator_number != 0)
+    Comparator0.reference = reference;
+  if (comparator_number != 1)
+    Comparator1.reference = reference;
+  if (comparator_number != 2)
+    Comparator2.reference = reference;
   // Set DACREF
   AC.DACREF = dacref;
 
@@ -121,27 +130,27 @@ void AnalogComparator::stop()
 
 void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode)
 {
-  AC_INTMODE_t intmode;
-  switch (mode) 
+  AC_INTMODE_NORMAL_t intmode;
+  switch (mode)
   {
     // Set RISING, FALLING or CHANGE interrupt trigger for the comparator output
     case RISING:
-      intmode = (AC_INTMODE_t)(AC_INTMODE1_bm | AC_INTMODE0_bm);
+      intmode = (AC_INTMODE_NORMAL_t)(AC_INTMODE_NORMAL_NEGEDGE_gc);
       break;
     case FALLING:
-      intmode = (AC_INTMODE_t)AC_INTMODE1_bm;
+      intmode = (AC_INTMODE_NORMAL_t)AC_INTMODE_NORMAL_NEGEDGE_gc;
       break;
     case CHANGE:
-      intmode = (AC_INTMODE_t)0x00;
+      intmode = (AC_INTMODE_NORMAL_t)AC_INTMODE_NORMAL_BOTHEDGE_gc;
       break;
     default:
       // Only RISING, FALLING and CHANGE is supported
       return;
   }
-  
+
   // Store function pointer
   intFuncAC[comparator_number] = userFunc;
-  
+
   // Set interrupt trigger and enable interrupt
   AC.INTCTRL = intmode | AC_CMP_bm;
 }
