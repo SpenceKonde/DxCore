@@ -6,6 +6,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ### (planned) 1.3.1
 * Correct Servo library so that it actually works; 1.3.0 version was apparently never compile-tested (nor was it even based on a clean copy of the library from megaTinyCore)
+* We were waiting for ENRDY to be set before changing enable-protected registers of TCD0. That doesn't appear to be needed. We just can't reenable it until ENRDY is set. It makes the glitch when turning PWM off or on... maybe 6 CLK_PER shorter? I think under default settings, the loop goes from one iteration to none....
+
 
 ## Released Versions
 
