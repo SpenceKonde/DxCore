@@ -100,7 +100,7 @@ namespace event
   enum event_t : uint8_t
   {
     disable = 0x00,
-    enable  = 0x01,
+    enable  = 0x02,
   };
 };
 
