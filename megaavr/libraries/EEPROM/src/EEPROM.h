@@ -52,9 +52,37 @@ struct EERef {
   }
   EERef &operator=(uint8_t in)       {
     while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
+    // check at start - not end. Makes writing single bytes faster
+    // uint8_t nvmctrla=NVMCTRL.CTRLA;
+    // if (nvmctrla != NVMCTRL_CMD_EEERWR_gc) {
+    // Don't bother checking, the EEPROM write time is measured in milliseconds
+    // testing it first would take 4 words of flash in exchange for what?
+    // saving 6 clock cycles (but the test overhead is 4, so net 2) when we clearly
+    // don't care much about execution time because the next act takes 11ms!
+
+    // Wouldn't have disabled interrupts here, except that as noted
+    // if we're writing multiple bytes, we're gonna be waiting for ~11ms per
+    // byte after the first, so performance doesn't matter. Because those sort of
+    // use cases are worst for the memory barrier.
+    uint8_t oldSREG=SREG;
+    cli();
+
+    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
     *(uint8_t*)(MAPPED_EEPROM_START+index)=in;
-    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
+
+    SREG=oldSREG; //restore SREG and interrupts
+
+    // _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
+    // should be covered in docs that if instead of using the
+    // included libraries, which support writing to all types of
+    // NVM, the user insists on writing or using some different
+    // one, but also uses our libraries, that our libraries
+    // assume that anyone who needs to do this will clear it
+    // themself first (as that is better practice -no chance
+    // of collision). If some important library does it the
+    // other way, well, then I'll uncomment that - but I won't
+    // be happy about it!
     return *this;
   }
   EERef &operator +=(uint8_t in)     {
