@@ -25,15 +25,14 @@ The fact that it is asynchronous usually doesn't matter - it's either "faster th
 
 
 ### Some of these events seem kinda... weird?
-At first glance, nore than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL. One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event, there is a use case that seems obscure to most people - but within some sub-field, it's common and essential. There are also times when something may seem surprising until you're more familiar with the event and logic systems in general.
+At first glance, more than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. *That was certainly my first impression! -Spence* Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL . One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event generator or user, and every crazy register option, there is a use case - maybe an obscure one - for which that functionality is a big deal.
 
 ### How do I read the levels of the event channels?
-From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connnect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer.
+From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connnect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer).
 
 ## Event
-Class for interfacing with the built-in Event system. Each event generator channel has its own object.
-Use the predefined objects `Event0`, `Event1`, `Event2`, `Event3`, `Event4`, `Event5`, `Event6`, `Event7`, `Event8`, and `Event9`. Note that channels have different functionality, so make sure you use the right channel for the task.
-
+Class for interfacing with the Event systemn (`EVSYS`). Each event channel has its own object.
+Use the predefined objects `Event0`, `Event1`, `Event2`, `Event3`, `Event4`, `Event5`, `Event6`, `Event7`, `Event8`, and `Event9`. Note that not all generators are available on all channels, so make sure you use the right channel for the task. When using a generator common to all channels, pick the highest number channel that is not already in use. T
 In short:
 * `genN::rtc_div8192`, `genN::rtc_div4096`, `genN::rtc_div2048` and `genN::rtc_div1024` are only available on odd numbered channels
 * `genN::rtc_div512`, `genN::rtc_div256`, `genN::rtc_div128` and `genN::rtc_div64` are only available on even numbered channels
@@ -72,9 +71,63 @@ Event2.set_generator(gen2::pin_pc0); // Use pin PC0 as an event generator for Ev
 ```
 
 ### Generator table
-Below is a table with all possible generators for each channel. Many generators are associated with specific peripherals, and on low pin-count devices, attempting to use those will result in a compile error.
+Below is a table with all possible generators for each channel. Many generators are associated with specific peripherals, and on low pin-count devices, attempting to use peripherals not present on the selected part will result in a compile error.
 
-**The table in the original README applied to the megaAVR 0-series, not the Dx-series; the table for the Dx parts will be added at a later date.**
+|  All Pins                |  Event0                 |  Event1                 |  Event2                 |  Event3                 |  Event4                 |  Event5                 |  Event6                 |  Event7                 |  Event8                 |  Event9 |
+|--------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|-------------------------|----------------------|
+| `gen::disable`           | `gen0::disable`         | `gen1::disable`         | `gen2::disable`         | `gen3::disable`         | `gen4::disable`         | `gen5::disable`         | `gen6::disable`         | `gen7::disable`         | `gen8::disable`         | `gen9::disable`      |
+| `gen::updi_synch`        | `gen0::rtc_div8192`     | `gen1::rtc_div512`      | `gen2::rtc_div8192`     | `gen3::rtc_div512`      | `gen4::rtc_div8192`     | `gen5::rtc_div512`      | `gen6::rtc_div8192`     | `gen7::rtc_div512`      | `gen8::rtc_div8192`     | `gen9::rtc_div512`   |
+| `gen::rtc_ovf`           | `gen0::rtc_div4096`     | `gen1::rtc_div256`      | `gen2::rtc_div4096`     | `gen3::rtc_div256`      | `gen4::rtc_div4096`     | `gen5::rtc_div256`      | `gen6::rtc_div4096`     | `gen7::rtc_div256`      | `gen8::rtc_div4096`     | `gen9::rtc_div256`   |
+| `gen::rtc_cmp`           | `gen0::rtc_div2048`     | `gen1::rtc_div128`      | `gen2::rtc_div2048`     | `gen3::rtc_div128`      | `gen4::rtc_div2048`     | `gen5::rtc_div128`      | `gen6::rtc_div2048`     | `gen7::rtc_div128`      | `gen8::rtc_div2048`     | `gen9::rtc_div128`   |
+| `gen::ccl0_out`          | `gen0::rtc_div1024`     | `gen1::rtc_div64`       | `gen2::rtc_div1024`     | `gen3::rtc_div64`       | `gen4::rtc_div1024`     | `gen5::rtc_div64`       | `gen6::rtc_div1024`     | `gen7::rtc_div64`       | `gen8::rtc_div1024`     | `gen9::rtc_div64`    |
+| `gen::ccl1_out`          | `gen0::pin_pa0`         | `gen1::pin_pa0`         | `gen2::pin_pc0`         | `gen3::pin_pc0`         | `gen4::pin_pe0`         | `gen5::pin_pe0`         | `gen6::pin_pg0`         | `gen7::pin_pg0`         |                         |                      |
+| `gen::ccl2_out`          | `gen0::pin_pa1`         | `gen1::pin_pa1`         | `gen2::pin_pc1`         | `gen3::pin_pc1`         | `gen4::pin_pe1`         | `gen5::pin_pe1`         | `gen6::pin_pg1`         | `gen7::pin_pg1`         |                         |                      |
+| `gen::ccl3_out`          | `gen0::pin_pa2`         | `gen1::pin_pa2`         | `gen2::pin_pc2`         | `gen3::pin_pc2`         | `gen4::pin_pe2`         | `gen5::pin_pe2`         | `gen6::pin_pg2`         | `gen7::pin_pg2`         |                         |                      |
+| `gen::ac0_out`           | `gen0::pin_pa3`         | `gen1::pin_pa3`         | `gen2::pin_pc3`         | `gen3::pin_pc3`         | `gen4::pin_pe3`         | `gen5::pin_pe3`         | `gen6::pin_pg3`         | `gen7::pin_pg3`         |                         |                      |
+| `gen::adc0_ready`        | `gen0::pin_pa4`         | `gen1::pin_pa4`         | `gen2::pin_pc4`         | `gen3::pin_pc4`         | `gen4::pin_pe4`         | `gen5::pin_pe4`         | `gen6::pin_pg4`         | `gen7::pin_pg4`         |                         |                      |
+| `gen::usart0_xck`        | `gen0::pin_pa5`         | `gen1::pin_pa5`         | `gen2::pin_pc5`         | `gen3::pin_pc5`         | `gen4::pin_pe5`         | `gen5::pin_pe5`         | `gen6::pin_pg5`         | `gen7::pin_pg5`         |                         |                      |
+| `gen::usart1_xck`        | `gen0::pin_pa6`         | `gen1::pin_pa6`         | `gen2::pin_pc6`         | `gen3::pin_pc6`         | `gen4::pin_pe6`         | `gen5::pin_pe6`         | `gen6::pin_pg6`         | `gen7::pin_pg6`         |                         |                      |
+| `gen::usart2_xck`        | `gen0::pin_pa7`         | `gen1::pin_pa7`         | `gen2::pin_pc7`         | `gen3::pin_pc7`         | `gen4::pin_pe7`         | `gen5::pin_pe7`         | `gen6::pin_pg7`         | `gen7::pin_pg7`         |                         |                      |
+| `gen::usart3_xck`        | `gen0::pin_pb0`         | `gen1::pin_pb0`         | `gen2::pin_pd0`         | `gen3::pin_pd0`         | `gen4::pin_pf0`         | `gen5::pin_pf0`         |                         |                         |                         |                      |
+| `gen::spi0_sck`          | `gen0::pin_pb1`         | `gen1::pin_pb1`         | `gen2::pin_pd1`         | `gen3::pin_pd1`         | `gen4::pin_pf1`         | `gen5::pin_pf1`         |                         |                         |                         |                      |
+| `gen::tca0_ovf_lunf`     | `gen0::pin_pb2`         | `gen1::pin_pb2`         | `gen2::pin_pd2`         | `gen3::pin_pd2`         | `gen4::pin_pf2`         | `gen5::pin_pf2`         |                         |                         |                         |                      |
+| `gen::tca0_hunf`         | `gen0::pin_pb3`         | `gen1::pin_pb3`         | `gen2::pin_pd3`         | `gen3::pin_pd3`         | `gen4::pin_pf3`         | `gen5::pin_pf3`         |                         |                         |                         |                      |
+| `gen::tca0_cmp0`         | `gen0::pin_pb4`         | `gen1::pin_pb4`         | `gen2::pin_pd4`         | `gen3::pin_pd4`         | `gen4::pin_pf4`         | `gen5::pin_pf4`         |                         |                         |                         |                      |
+| `gen::tca0_cmp1`         | `gen0::pin_pb5`         | `gen1::pin_pb5`         | `gen2::pin_pd5`         | `gen3::pin_pd5`         | `gen4::pin_pf5`         | `gen5::pin_pf5`         |                         |                         |                         |                      |
+| `gen::tca0_cmp2`         | `gen0::pin_pb6`         | `gen1::pin_pb6`         | `gen2::pin_pd6`         | `gen3::pin_pd6`         | `gen4::pin_pf6`         | `gen5::pin_pf6`         |                         |                         |                         |                      |
+| `gen::tcb0_capt`         | `gen0::pin_pb7`         | `gen1::pin_pb7`         | `gen2::pin_pd7`         | `gen3::pin_pd7`         |                         |                         |                         |                         |                         |                      |
+| `gen::tcb1_capt`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb2_capt`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb3_capt`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::ccl4_out`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::ccl5_out`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::ac1_out`           |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::ac2_out`           |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::zcd0_out`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::zcd1_out`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::zcd2_out`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::usart4_xck`        |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::usart5_xck`        |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::spi1_sck`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tca1_ovf_lunf`     |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tca1_hunf`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tca1_cmp0`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tca1_cmp1`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tca1_cmp2`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb4_capt`         |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb0_ovf`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb1_ovf`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb2_ovf`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb3_ovf`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcb4_ovf`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcd0_cmpbclr`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcd0_cmpaset`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcd0_cmpbset`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::tcd0_progev`       |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::mvio_ok`           |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::opamp0_ready`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::opamp1_ready`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
+| `gen::opamp2_ready`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
 
 
 ## get_generator()
@@ -107,70 +160,70 @@ Below is a table with all of the event users for the AVR Dx-series parts.
 * There is no PF7 on either the DA or DB-series parts. There will be on the DD-series parts.
 
 
-| Event users                                                              |
-|--------------------------------------------------------------------------|
-| `user::ccl0_event_a`                                                     |
-| `user::ccl0_event_b`                                                     |
-| `user::ccl1_event_a`                                                     |
-| `user::ccl1_event_b`                                                     |
-| `user::ccl2_event_a`                                                     |
-| `user::ccl2_event_b`                                                     |
-| `user::ccl3_event_a`                                                     |
-| `user::ccl3_event_b`                                                     |
-| `user::ccl4_event_a`                                                     |
-| `user::ccl4_event_b`                                                     |
-| `user::ccl5_event_a`                                                     |
-| `user::ccl5_event_b`                                                     |
-| `user::adc0_start`                                                       |
-| `user::ptc_start`       **AVR DB only**                                  |
-| `user::evouta_pin_pa2`                                                   |
-| `user::evouta_pin_pa7`  *evouta_pin_pa2 with pin swapped*                |
-| `user::evoutb_pin_pb2`                                                   |
-| `user::evoutb_pin_pb7`  *evouta_pin_pb2 with pin swapped*                |
-| `user::evoutc_pin_pc2`                                                   |
-| `user::evoutc_pin_pc7`  *evouta_pin_pc2 with pin swapped*                |
-| `user::evoutd_pin_pd2`                                                   |
-| `user::evoutd_pin_pd7`  *evouta_pin_pd2 with pin swapped*                |
-| `user::evoute_pin_pe2`                                                   |
-| `user::evoute_pin_pe7`  *evouta_pin_pe2 with pin swapped*                |
-| `user::evoutf_pin_pf2`                                                   |
-| `user::evoutf_pin_pf7`  *evouta_pin_pf2 with pin swapped*                |
-| `user::evoutg_pin_pg2`                                                   |
-| `user::evoutg_pin_pg7`  *evouta_pin_pa2 with pin swapped*                |
-| `user::usart0_irda`                                                      |
-| `user::usart1_irda`                                                      |
-| `user::usart2_irda`                                                      |
-| `user::usart3_irda`                                                      |
-| `user::usart4_irda`                                                      |
-| `user::usart5_irda`                                                      |
-| `user::tca0_cnta`                                                        |
-| `user::tca0_cntb`                                                        |
-| `user::tca1_cnta`                                                        |
-| `user::tca1_cntb`                                                        |
-| `user::tcb0_capt`                                                        |
-| `user::tcb0_cnt`                                                         |
-| `user::tcb1_capt`                                                        |
-| `user::tcb1_cnt`                                                         |
-| `user::tcb2_capt`                                                        |
-| `user::tcb2_cnt`                                                         |
-| `user::tcb3_capt`                                                        |
-| `user::tcb3_cnt`                                                         |
-| `user::tcb4_capt`                                                        |
-| `user::tcb4_cnt`                                                         |
-| `user::tcd0_in_a`                                                        |
-| `user::tcd0_in_b`                                                        |
-| `user::opamp0_enable`   **AVR DB only**                                  |
-| `user::opamp0_disable`  **AVR DB only**                                  |
-| `user::opamp0_dump`     **AVR DB only**                                  |
-| `user::opamp0_drive`    **AVR DB only**                                  |
-| `user::opamp1_enable`   **AVR DB only**                                  |
-| `user::opamp1_disable`  **AVR DB only**                                  |
-| `user::opamp1_dump`     **AVR DB only**                                  |
-| `user::opamp1_drive`    **AVR DB only**                                  |
-| `user::opamp2_enable`   **AVR DB only**                                  |
-| `user::opamp2_disable`  **AVR DB only**                                  |
-| `user::opamp2_dump`     **AVR DB only**                                  |
-| `user::opamp2_drive`    **AVR DB only**                                  |
+| Event users             |                                    |
+|-------------------------|------------------------------------|
+| `user::ccl0_event_a`    |                                    |
+| `user::ccl0_event_b`    |                                    |
+| `user::ccl1_event_a`    |                                    |
+| `user::ccl1_event_b`    |                                    |
+| `user::ccl2_event_a`    |                                    |
+| `user::ccl2_event_b`    |                                    |
+| `user::ccl3_event_a`    |                                    |
+| `user::ccl3_event_b`    |                                    |
+| `user::ccl4_event_a`    |                                    |
+| `user::ccl4_event_b`    |                                    |
+| `user::ccl5_event_a`    |                                    |
+| `user::ccl5_event_b`    |                                    |
+| `user::adc0_start`      |                                    |
+| `user::ptc_start`       | **AVR DA only**                    |
+| `user::evouta_pin_pa2`  |                                    |
+| `user::evouta_pin_pa7`  | *evouta_pin_pa2 with pin swapped*  |
+| `user::evoutb_pin_pb2`  |                                    |
+| `user::evoutb_pin_pb7`  | *evouta_pin_pb2 with pin swapped*  |
+| `user::evoutc_pin_pc2`  |                                    |
+| `user::evoutc_pin_pc7`  | *evouta_pin_pc2 with pin swapped*  |
+| `user::evoutd_pin_pd2`  |                                    |
+| `user::evoutd_pin_pd7`  | *evouta_pin_pd2 with pin swapped*  |
+| `user::evoute_pin_pe2`  |                                    |
+| `user::evoute_pin_pe7`  | *evouta_pin_pe2 with pin swapped*  |
+| `user::evoutf_pin_pf2`  |                                    |
+| `user::evoutf_pin_pf7`  | *evouta_pin_pf2 with pin swapped*  |
+| `user::evoutg_pin_pg2`  |                                    |
+| `user::evoutg_pin_pg7`  | *evouta_pin_pa2 with pin swapped*  |
+| `user::usart0_irda`     |                                    |
+| `user::usart1_irda`     |                                    |
+| `user::usart2_irda`     |                                    |
+| `user::usart3_irda`     |                                    |
+| `user::usart4_irda`     |                                    |
+| `user::usart5_irda`     |                                    |
+| `user::tca0_cnta`       |                                    |
+| `user::tca0_cntb`       |                                    |
+| `user::tca1_cnta`       |                                    |
+| `user::tca1_cntb`       |                                    |
+| `user::tcb0_capt`       |                                    |
+| `user::tcb0_cnt`        |                                    |
+| `user::tcb1_capt`       |                                    |
+| `user::tcb1_cnt`        |                                    |
+| `user::tcb2_capt`       |                                    |
+| `user::tcb2_cnt`        |                                    |
+| `user::tcb3_capt`       |                                    |
+| `user::tcb3_cnt`        |                                    |
+| `user::tcb4_capt`       |                                    |
+| `user::tcb4_cnt`        |                                    |
+| `user::tcd0_in_a`       |                                    |
+| `user::tcd0_in_b`       |                                    |
+| `user::opamp0_enable`   | **AVR DB only**                    |
+| `user::opamp0_disable`  | **AVR DB only**                    |
+| `user::opamp0_dump`     | **AVR DB only**                    |
+| `user::opamp0_drive`    | **AVR DB only**                    |
+| `user::opamp1_enable`   | **AVR DB only**                    |
+| `user::opamp1_disable`  | **AVR DB only**                    |
+| `user::opamp1_dump`     | **AVR DB only**                    |
+| `user::opamp1_drive`    | **AVR DB only**                    |
+| `user::opamp2_enable`   | **AVR DB only**                    |
+| `user::opamp2_disable`  | **AVR DB only**                    |
+| `user::opamp2_dump`     | **AVR DB only**                    |
+| `user::opamp2_drive`    | **AVR DB only**                    |
 
 
 ## clear_user()
