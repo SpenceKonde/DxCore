@@ -81,11 +81,11 @@ The DA-series does not support use of an external high frequency crystal (though
 #include <DxCore.h>
 
 void setup() {
-	//optionally call configXOSC32K() to get specific crystal settings; otherwise it uses conservative defaults.
-	enableAutoTune(); //that easy - this returns 0 on success
-	// if you want to be particularly careful about whether or not it worked (it can not-work if the crystal doesn't actually start oscillating, for example due to
-	// inappropriate loading caps or improper crystal selection.
-	// more stuff after this to set up your sketch
+  //optionally call configXOSC32K() to get specific crystal settings; otherwise it uses conservative defaults.
+  enableAutoTune(); //that easy - this returns 0 on success
+  // if you want to be particularly careful about whether or not it worked (it can not-work if the crystal doesn't actually start oscillating, for example due to
+  // inappropriate loading caps or improper crystal selection.
+  // more stuff after this to set up your sketch
 }
 
 ```
@@ -153,11 +153,11 @@ The `F()` macro works the same way as it does on normal boards as of 1.2.0, even
 
 ### Writing to Flash from App
 1.3.0 introduces a mechanism by which, if Optiboot is installed on a part, you can use it to write to the application section from the bootloader - and **I NEED YOUR FEEDBACK** to make the interface less clunky. There are two versions of the library (please tell me which is better, and how to improve it)
-* [flashWrite.h](megavr/libraries/flashWrite/README.md) presents 5 functions for flash writing
-* [Flash.h](megavr/libraries/flashWrite/README.md) presents the same functions as methods of a `Flash` object
+* [flashWrite.h](megaavr/libraries/flashWrite/README.md) presents 5 functions for flash writing
+* [Flash.h](megaavr/libraries/Flash/README.md) presents the same functions as methods of a `Flash` object
 * [Feedback](https://github.com/SpenceKonde/DxCore/issues/57)
 
-Don't be sad if you aren't using Optiboot - support for writing without the bootloader is not far away - there are but a few facts to confirm, and only a single magic trick to learn!
+Don't worry if you don't use Optiboot - everyone will get this soon! It's just a slightly different trick.
 
 ## Bootloader support
 DxCore now an Optiboot-derived bootloader for all parts! This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Note that after the bootloader has been installed in this way, to use it without the bootloader, you must choose the non-optiboot board definition, and then again Burn Bootloader to configure the fuses appropriately; when the bootloader is enabled the vectors are located at the start of the application section, 1024 bytes in (like megaAVR 0-series and tinyAVR 0/1-series, and unlike classic AVRs, the bootloader section is at the beginning of the flash). Options to set the desired USART that the bootloader will run on are available for all serial ports, with either the normal or alternate pin locations. USART0 with default pins is the default option here, and these are the ones that are connected to the 6-pin serial header on the DA-series breakout boards that I sell. An option is provided when burning bootloader to choose an 8 second delay after reset - use this if you will be manually pressing reset
@@ -229,7 +229,9 @@ The usual NeoPixel (WS2812) libraries have problems on these parts. This core in
 Support for tone() is provided on all parts using TCB0. This is like the standard tone() function; it does not support use of the hardware output compare to generate tones. Note that if TCB0 is used for millis/micros timing, tone() will generate an error; do not use TCB0 as the millis/micros timekeeping timer if your application requires tone().
 
 ### millis/micros Timekeeping Options
-DACore provides the option to use any available timer on a part for the millis()/micros timekeeping, controlled by a Tools submenu - or it can be disabled entirely to save flash (or more likely available timers for manual configuration) and allow use of all timer interrupts. By default, TCB2 will be used by on parts. TCA0, TCA1 and any of the TCB's present on the part may be used, though this has not been rigorously tested; I suspect that TCD0 may not work in the initial release. Note that TCB0 conflicts with tone() and TCB1 conflicts with the version of Servo supplied with this core.
+DxCore provides the option to us eany available timer on a part for the millis()/micros timekeeping, controlled by a Tools submenu - except TCD0 - or it can be disabled entirely to save flash (or more likely available timers for manual configuration) and allow use of all timer interrupts. By default, TCB2 will be used by on parts. TCA0, TCA1 and any of the TCB's present on the part may be used, though this has not been rigorously tested; I suspect that TCD0 may not work in the initial release. Note that TCB0 conflicts with tone() and TCB1 conflicts with the version of Servo supplied with this core.
+
+
 
 For more information, on the hardware timers of the supported parts, and how they are used by DxCore's built-in functionality, see the [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
@@ -379,6 +381,7 @@ Largely adapted from megaTinyCore
 ### [Direct Port Manipulation](megaavr/extras/DirectPortManipulation.md)
 ### [Pin Interrupts](megaavr/extras/PinInterrupts.md)
 
+
 # List of Tools sub-menus
 * Tools -> Chip - sets the specific part within a selected family to compile for and upload to.
 * Tools -> Clock Speed - sets the clock speed. You do not need to burn bootloader after changing this setting!
@@ -398,3 +401,54 @@ I sell breakout boards with regulator, UPDI header, and Serial header and other 
 ### [Assembled Boards](https://www.tindie.com/products/21007/)
 ### [Bare Boards](https://www.tindie.com/products/21008/)
 
+# Warnings and Caveats
+
+## Direct Register Manipulation
+If you are manually manipulating registers controlling a peripheral, you should not count on the behavior of API functions that relate to the same peripheral, nor should you assume that calling said API functions will not adversely impact the rest of your application. For example, if you "take over" TCA0, you should not expect that using analogWrite() - except on the two pins on the 20/24-pin parts controlled by TCD0 - will work for generating PWM; indeed you should expect that it will break whatever you are doing with TCA0. In a few cases (such as TCD0 prescalers) exceptions to this rule are noted.
+
+## Warning: I2C **requires** external pullup resistors
+Earlier versions of megaTinyCore enabled the internal pullup resistors on the I2C pins. This is no longer done; they are miles away from being strong enough to meet the I2C specifications - it was decided that it is preferably for it to fail consistently without external ones than to work under simple conditions with the internal ones, yet fail under more demanding ones (more devices, longer wires, etc).
+
+## Differences in Behavior between megaTinyCore and Official Cores
+While we generally make an effort to emulate the official Arduino core, there are a few cases that were investigated, but we came to the conclusion that the compatibility would not be worth the price. The following is a (hopefully nearly complete) list of these cases.
+
+### Serial does not manipulate interrupt priority
+The official core for the (similar) megaAVR 0-series parts, which this was based on, fiddles with the interrupt priority (bet you didn't know that!) in ways that are of dubious safety towards other code. megaTinyCore does not do this (in the process saving several hundred bytes of flash). Writing to Serial when it's buffer is full, or calling `Serial.flush()` while  with interrupts disabled, or during another ISR (which you really shouldn't do anyway) will behave as it does on classic AVRs, and simply block until there is either space in the serial buffer, or the flush is completed.
+
+### digitalRead() does not turn off PWM
+On official cores, and most third party ones, the digitalRead() function turns off PWM when called on a pin. This behavior is not documented by the Arduino reference. This interferes with certain optimizations - and moreover is logically inconsistent - a "read" operation should not change the thing it's called on. That's why it's called "read" and not "write". There does not seem to be a logically coherent reason for this - and it makes simple demonstrations of what PWM is non-trivial (imagine setting a pin to output PWM, and then looking at the output by repeatedly reading the pin). See also the above section on PWM uaing TCD0.
+
+### digitalWrite()/pinMode() and INPUT pins
+Like the official "megaavr" core, calling digitalWrite() on a pin currently set INPUT will enable or disable the pullups as appropriate. Additionally, as of 2.2.0, megaTinyCore fixes two bugs in this "classic emulation". On a classic core, digitalWrite() on an INPUT would also write to the port output register - thus, if one subsequently called pinMode(pin,OUTPUT), the pin would immediately output that level. This behavior is not emulated in the official core, and there is a considerable amount of code in the wild which depends on it. digitalWrite() now replicates that behavior. digitalWrite() also supports "CHANGE" as an option; on the official core, this will turn the pullup on, regardless of which state the pin was previously in, instead of toggling the state of it. The state of the pullup is now set to match the value that the port output register was just set to.
+
+Similarly, using pinMode() to set a pin to INPUT or INPUT_PULLUP will now also set the port output register.
+
+### analogWrite() and TCD0 pins
+Please see the above PWM feature description if using PWM on those pins and also doing sensitive/niche work on the impacted pins (PIN_PA6 and PIN_PA7).
+
+### TCA0/1 configured in Split Mode to get 3 additional PWM pins
+On official "megaavr" board package, TCA0 is configured for "Single mode" as a three-channel 16-bit timer (used to output 8-bit PWM). DxCore always configures Type A timers for "split mode" to get additional PWM outputs. See the datasheets for more information on the capabilities of these peripherals. See [Taking over TCA0](megaavr/extras/TakingOverTCA0.md) for information on reconfiguring it.
+
+### TCA0/1 TOP is 254, not 255
+0 is a count, so at 255, there are 256 steps, and 255 of those will generate PWM output - but since Arduino defines 0 as always off and 255 as always on, there are only 254 possible values that it will use. The result of this is that (I don't remember which) either analogWrite(pin,254) results in it being LOW 2/256's of the time, or analogWrite(pin,1) results in it being HIGH 2/256's of the time. On megaTinyCore, with 255 steps, 254 of which generate PWM, the hardware is configured to match the API, and this does not occur; as it happens, 255 also (mathematically) works out such that integer math gets exact results for millis timing with both 16 MHz derived and 20 MHz derived clock speeds (relevant when TCA0 is used for millis() timing). The same thing is done for TCD0 (though to 509, giving 510 steps - analogWrite() accounts for this - so that we can get the same output frequency as an 8-bit timer would at the same unprescaled clock speed (higher frequencies) while keeping the fastest synchronization prescaler for fastest synchronization between TCD0 and system clock domains).
+
+### digital I/O functions use old function signatures.
+They return and expect uint8_t (byte) values, not enums like the official megaavr board package does. Like classic AVR cores, constants like LOW, HIGH, etc are simply #defined to appropriate values. The use of enums instead broke many common Arduino programming idioms and existing code, increased flash usage, lowered performance, and made optimization more challenging. While the enum implementation made language design purists comfortable, and provided error checking for newbies - because you couldn't pass anything  that wasn't a PinState to a digital I/O function, and would get that error checking if - as a newbie - you accidentally got careless. A compatibility layer was added to the official core - but then that got rid of what was probably the most compelling benefit, the fact that it did generate an error for new users to train them away from common Arduino practices like passing 1 or 0 to digitalWrite, `if(digitalRead(pin))` and the like. This change also had the perverse effect of making PinMode(pin,OUTPUT), an obvious typo of pinMode(pin,OUTPUT) into valid syntax (comma operator turns pin,OUTPUT into OUTPUT, and it returns a new PinMode of value OUTPUT...), instead of a syntax error. Anyway - the enums are not present here, and they never will be; this is the case with [MegaCoreX](https://github.com/MCUdude/MegaCoreX) and [DxCore](https://github.com/SpenceKonde/DxCore) as well.
+
+
+# Instruction Set (AVRe/AVRe+ vs AVRxt)
+The classic AVR devices all use the venerable `AVRe` (ATtiny) or `AVRe+` (ATmega) instruction set (`AVRe+` differs from `AVRe` in that it has hardware multiplication and supports devices with more than 64k of flash). Modern AVR devices (with the exception of ones with minuscule flash and memory, such as the ATtiny10, which use the reduced core `AVRrc`), these parts use the latest iteration of the AVR instruction set: `AVRxt`. This adds no new instructions (unlike `AVRxm`, the version used by the XMega devices, which adds ), but a small number of instructions have improved execution time, and one has slower execution time. This distinction is unimportant for 99.9% of users - but if you happen to be working with hand-tuned assembly (or are using a library that does so, and are wondering why the timing is messed up), the changes are:
+* PUSH is 1 cycle vs 2 on classic AVR (POP is still 2)
+* CBI and SBI are 1 cycle vs 2 on classic AVR (Sweeet!)
+* LDS is 3 cycles vs 2 on classic AVR :disappointed: LD and LDD are still two cycle instructions.
+* RCALL and ICALL are 2 cycles vs 3 on classic AVR
+* CALL is 3 cycles instead of 4 on classic AVR
+* (Saving the best for last) ST and STD is 1 cycle vs 2 on classic AVR! (STS is still 2)
+The improvement to PUSH can make interrupts respond significantly faster (since they have to push the contents of registers onto the stack at the beginning of the ISR to make room for any that the ISR might need.), though the corresponding POP's at the end aren't any faster, and if your interrupt needs so many registers that it has to push half of the register file onto the stack, it's still gonna be slow (ex: Servo). It is likely that the improvements to the push-ing mechanism are responsible for the improvements to the call instructions (which push the PC value onto the stack so ret knows where execution should resume from.) The change with ST impacted tinyNeoPixel. Prior to my realizing this, the library worked on SK6812 LEDs (which happened to be what I tested with) at 16/20 MHz, but not real WS2812's. However, once I discovered this, I was able to leverage it to use a single tinyNeoPixel library instead of a different one for each port like was needed with ATTinyCore (for 8 MHz, they need to use the single cycle OUT on classic AVRs to meet timing requirements, the two cycle ST was just too slow; hence the port had to be known at compile time, or there must be one copy of the routine for each port, an extravagance that the ATtiny parts cannot afford. But with single cycle ST, that issue vanished)
+
+## License
+DxCore itself is released under the [LGPL 2.1](LICENSE.md). It may be used, modified, and distributed, and it may be used as part of an application which, itself, is not open source (though any modifications to these libraries must be released under the LGPL as well). Unlike LGPLv3, if this is used in a commercial product, you are not required to provide means for user to update it.
+
+The DxCore hardware package (and by extension this repository) contains DxCore as well as libraries, bootloaders, and tools. These are released under the same license, *unless specified otherwise*. For example, tinyNeoPixel and tinyNeoPixel_Static, being based on Adafruit's library, are released under GPLv3, as described in the LICENSE.md in those subfolders and within the body of the library files themselves.
+
+This license *also* does not apply to any tools or third party programs used by, included with, or installed by DxCore. Installing DxCore through board manager will install and/or update other tool(s) to compile and/or upload code. These are covered by their own license terms. The pyupdi-style serial uploader in megaavr/tools is built on pymcuprog from Microchip, which is free, but *not* open source. If this is problematic for you or your organization, the megaavr/tools/pymcuprog and megaavr/tools/pydbglib directories, as well as megaavr/tools/prog.py may be deleted without adverse impact on the core other than the Serial+resistor programming option ceasing to work and instead generating a file not found error. That will remove all content from this package that is not covered by some form of open source license in accordance with their respective license files as outlined above.

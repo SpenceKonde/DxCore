@@ -83,9 +83,10 @@ extern "C"{
 void analogReadResolution(uint8_t res);
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
-void init_ADC0() __attribute__((weak));
-void init_timers() __attribute__((weak)); //this function is expected to configure all timers for PWM. init_millis() is called after this.
-void init_clock() __attribute__((weak));
+void init_ADC0() __attribute__((weak));       // this is called to initialize ADC0 - it also i
+//   init_DAC0()                              // no init_DAC0() - all that the core does is call DACReference().
+void init_timers() __attribute__((weak));     // this function is expected to configure all timers for PWM. init_millis() is called after this.
+void init_clock() __attribute__((weak));      // this is called first, to initiate the system clock.
 
 #ifndef DISABLEMILLIS
 void init_millis();
