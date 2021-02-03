@@ -694,11 +694,39 @@ void delayMicroseconds(unsigned int us)
 }
 
 
+void init()
+{
+  // this is called by main() before setup() - configures the on-chip peripherals.
 
 
-#ifndef MILLIS_USE_TIMERNONE
-  void stop_millis()
-  { // Disable the interrupt:
+  #if ((defined(DB_28_PINS) || defined(DB_32_pins)) && !defined(NO_PIN_PD0_BUG))
+    // PD0 does not exist on these parts - VDDIO2 took it's (physical) spot.
+    // but due to a silicon bug, the input buffer is on, but it's input is floating. Per errata, we are supposed to turn it off.
+    PORTD.PIN0CTRL=PORT_ISC_INPUT_DISABLE_gc;
+  #endif
+
+
+  init_clock();
+
+  init_timers();
+  #if defined(ADC0)
+    init_ADC0();
+  #endif
+
+  #ifndef MILLIS_USE_TIMERNONE
+    init_millis();
+  #endif
+  // Finally, we enable interrupts; immediately following this, setup will be ve called.
+  sei();
+}
+
+
+
+void stop_millis()
+{ // Disable the interrupt:
+  #if defined(MILLIS_USE_TIMERNONE)
+    coreWarn("stop_millis() called, but millis is disabled from tools menu!");
+  #else
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTCTRL &= (~TCA_SPLIT_HUNF_bm);
     #elif defined(MILLIS_USE_TIMERA1)
@@ -711,13 +739,16 @@ void delayMicroseconds(unsigned int us)
     #else
       _timer->INTCTRL &= ~TCB_CAPT_bm;
     #endif
-  }
+  #endif
+}
 
-  void restart_millis()
-  {
-    // Call this to restart millis after it has been stopped and/or millis timer has been molested by other routines.
-    // This resets key registers to their expected states.
-
+void restart_millis()
+{
+  // Call this to restart millis after it has been stopped and/or millis timer has been molested by other routines.
+  // This resets key registers to their expected states.
+  #if defined(MILLIS_USE_TIMERNONE)
+    badCall("restart_millis() is only valid with millis time keeping enabled.");
+  #else
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.CTRLA = 0x00;
       TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
@@ -733,10 +764,14 @@ void delayMicroseconds(unsigned int us)
       _timer->CTRLB = 0;
     #endif
     init_millis();
-  }
+  #endif
+}
 
-  void init_millis()
-  {
+void init_millis()
+{
+  #if defined(MILLIS_USE_TIMERNONE)
+    badCall("init_millis() is only valid with millis time keeping enabled.");
+  #else
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
     #elif defined(MILLIS_USE_TIMERA1)
@@ -771,10 +806,15 @@ void delayMicroseconds(unsigned int us)
       // CLK_PER/1 is 0b00,. CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
       _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
     #endif
-  }
+  #endif
+}
 
-  void set_millis(uint32_t newmillis)
-  {
+
+void set_millis(uint32_t newmillis)
+{
+  #if defined(MILLIS_USE_TIMERNONE)
+    badCall("set_millis() is only valid with millis timekeeping enabled.");
+  #else
     #if defined(MILLIS_USE_TIMERRTC)
       //timer_overflow_count=newmillis>>16;
       // millis = 61/64(timer_overflow_count<<16 + RTC.CNT)
@@ -788,45 +828,15 @@ void delayMicroseconds(unsigned int us)
     #else
       timer_millis=newmillis;
     #endif
-  }
-
-#endif
-
-
-
-
-void init()
-{
-  // this needs to be called before setup() or some functions won't
-  // work there
-
-
-
-  #if ((defined(DB_28_PINS) || defined(DB_32_pins)) && !defined(NO_PIN_PD0_BUG))
-    // PD0 does not exist on these parts - VDDIO2 took it's (physical) spot.
-    // but due to a silicon bug, the input buffer is on, but it's input is floating. Per errata, we are supposed to turn it off.
-    PORTD.PIN0CTRL=PORT_ISC_INPUT_DISABLE_gc;
   #endif
-
-
-  init_clock();
-
-  init_timers();
-
-  #ifndef MILLIS_USE_TIMERNONE
-    init_millis();
-  #endif //end #ifndef MILLIS_USE_TIMERNONE
-/*************************** ENABLE GLOBAL INTERRUPTS *************************/
-
-  sei();
 }
 
 
 
 
 /********************************* ADC ****************************************/
-void init_ADC0() {
-  #if defined(ADC0)
+#if defined(ADC0)
+  void init_ADC0() {
     #ifndef SLOWADC
       /* ADC clock 1 MHz to 1.25 MHz at frequencies supported by megaTinyCore
       Unlike the classic AVRs, which demand 50~200 kHz, for these, the datasheet
@@ -891,8 +901,8 @@ void init_ADC0() {
     #endif
     analogReference(VDD);
     DACReference(VDD);
-  #endif
-}
+  }
+#endif
 
 /******************************** CLOCK ***************************************/
 // This section includes accessory functions for the system clock configuration
@@ -984,7 +994,8 @@ void init_clock() {
     // We don't prescale from crystals, and won't unless someone gives a damned convincing reason why that feature is important.
     // Crystals in the relevant frequency range are readily available.
     // So are oscillators... but there's a catch:
-    #if defined(__AVR_DA__)
+    #if !defined(CLKCTRL_XOSCHFCTRLA)
+      // it's an AVR DA-series
       #if (CLOCK_SOURCE==1)
         #error "AVR DA-series selected, but crystal as clock source specified. DA-series parts only support internal oscillator or external clock."
       #else
@@ -1008,8 +1019,8 @@ void init_clock() {
       #else
         // external crystal
         #ifndef XTAL_DRIVE
-          // I'll bet shoddy crystal layout could be compensated for by selecting a faster crystal frequency range than would normally be used...
-          // conversely, if its laid out per best practices, maybe power savings are possible by choosin a "lower frequency" option?
+          // WHAT ARE THE TRADEOFFS INVOLVED HERE????
+          // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with EVERY OPTION!
           #if (F_CPU>24000000)
             #define XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
           #elif (F_CPU>16000000)
@@ -1038,18 +1049,19 @@ void init_clock() {
   #endif
 }
 
-
-// These are used for blink codes which indicate issues that would prevent meaningful startup
-// I mean, we could leave it running at 4 MHz and run the sketch, but I think at that point
-// it's more useful to abort startup than to leave the user wondering why the sketch is
-// running at an unexpected speed. The odd number of "change" blinks in long phase makes it
-// extremely distinctive.
+/********************************* CLOCK FAILURE HANDLING **************************************/
+/*
+ * These are used for blink codes which indicate issues that would prevent meaningful startup
+ * I mean, we could leave it running at 4 MHz and run the sketch, but I think at that point
+ * it's more useful to abort startup than to leave the user wondering why the sketch is
+ * running at an unexpected speed. The odd number of "change" blinks in long phase makes it
+ * extremely distinctive. It will blink at you, and then repeat that pattern - inverted.
+ */
 #if (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
 
   // These two functions need only exist if not using internal clock source.
 
   void blinkCode(uint8_t blinkcount) {
-    //TODO: replace with fastPinMode() when available
     VPORTA.DIR|=0x80;
     while(1) {
       for (byte i=3;i!=0;i--){
@@ -1088,73 +1100,166 @@ void init_clock() {
 
 /******************************** PWM TIMERS ***************************************/
 
+uint8_t PeripheralControl = 0xFF;
 
 void init_timers() {
 
-    /*  TYPE A TIMER   */
-
-    /* Enable Split Mode */
-    TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
-
-    //Only 1 WGM so no need to specifically set up.
-
-    /* Period setting, 8-bit register in SPLIT mode */
-    TCA0.SPLIT.LPER    = PWM_TIMER_PERIOD;
-    TCA0.SPLIT.HPER    = PWM_TIMER_PERIOD;
-
-    /* Default duty 50%, will re-assign in analogWrite() */
-    //TODO: replace with for loop to make this smaller;
-    TCA0.SPLIT.LCMP0 = PWM_TIMER_COMPARE;
-    TCA0.SPLIT.LCMP1 = PWM_TIMER_COMPARE;
-    TCA0.SPLIT.LCMP2 = PWM_TIMER_COMPARE;
-    TCA0.SPLIT.HCMP0 = PWM_TIMER_COMPARE;
-    TCA0.SPLIT.HCMP1 = PWM_TIMER_COMPARE;
-    TCA0.SPLIT.HCMP2 = PWM_TIMER_COMPARE;
-
-    /* Use DIV64 prescaler (giving 250kHz clock), enable TCA timer */
-  #if (F_CPU > 5000000) //use 64 divider
-    TCA0.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SINGLE_ENABLE_bm);
-  #elif (F_CPU > 1000000)
-    TCA0.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SINGLE_ENABLE_bm);
-  #else //TIME_TRACKING_TIMER_DIVIDER==8
-    TCA0.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SINGLE_ENABLE_bm);
-  #endif
-  #ifdef TCA1
-    TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
-
-    //Only 1 WGM so no need to specifically set up.
-
-    /* Period setting, 8-bit register in SPLIT mode */
-    TCA1.SPLIT.LPER    = PWM_TIMER_PERIOD;
-    TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
-
-    /* Default duty 50%, will re-assign in analogWrite() */
-    //TODO: replace with for loop to make this smaller;
-    TCA1.SPLIT.LCMP0 = PWM_TIMER_COMPARE;
-    TCA1.SPLIT.LCMP1 = PWM_TIMER_COMPARE;
-    TCA1.SPLIT.LCMP2 = PWM_TIMER_COMPARE;
-    TCA1.SPLIT.HCMP0 = PWM_TIMER_COMPARE;
-    TCA1.SPLIT.HCMP1 = PWM_TIMER_COMPARE;
-    TCA1.SPLIT.HCMP2 = PWM_TIMER_COMPARE;
-
-    /* Use DIV64 prescaler (giving 250kHz clock), enable TCA timer */
-  #if (F_CPU > 5000000) //use 64 divider
-    TCA1.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SINGLE_ENABLE_bm);
-  #elif (F_CPU > 1000000) // use 16 divider for 5MHz, 4 MHz and 2MHz
-    TCA1.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SINGLE_ENABLE_bm);
-  #else // for 1 MHz or less, only divide by 8
-    TCA1.SPLIT.CTRLA = (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SINGLE_ENABLE_bm);
-  #endif
+  init_TCA0();
+  #if (defined(TCA1))
+    init_TCA1();
   #endif
 
-  /* Finally - configure the PORTMUX settings to bring the PWM out to the */
+  init_TCBs();
+  #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
+    init_TCD0();
+  #endif
+}
 
-  PORTMUX.TCAROUTEA = TCA0_PINS
-    #if defined(TCA1)
-                         | TCA1_PINS
+
+ /* TIMER INITIALIZATION CODE START
+  *
+  * Basic PWM Timer initialization
+  * Type A timer for millis and/or PWM
+  * Type B timer for PWM (not millis)
+  *
+  * 8-bit PWM with PER/TOP = 0xFD / 254
+  * (254+1 = 255; 255 is a particularly
+  * magical number for millis-math, as it
+  * turns out. Naturally, the Arduino dev
+  * team does not appear to do any of the
+  * work they do in Eclipse or
+  * another platformy language is that
+  *
+  *
+  * Sure makes you wish there was a
+  * 1/128 prescaling option doesn't it?
+  * (The "target" frequency is 1kHz; we manage to keep it between ~0.5 and ~1.5 kHz. )
+  *
+  *  F_CPU    Prescale   F_PWM
+  * 48 MHz      256     735 Hz
+  * 44 MHz      256     674 Hz
+  * 40 MHz      256     613 Hz
+  * 36 MHz      256     551 Hz
+  * 32 MHz      256     490 Hz
+  * 28 MHz      256     429 Hz
+  * 25 MHz       64    1532 Hz
+  * 24 MHz       64    1471 Hz
+  * 20 MHz       64    1225 Hz
+  * 16 MHz       64     980 Hz
+  * 12 MHz       64     735 Hz
+  * 10 MHz       64     613 Hz
+  *  8 MHz       64     490 Hz
+  *  5 MHz       16    1225 Hz
+  *  4 MHz       16     980 Hz
+  *  1 MHz        8     490 Hz
+  */
+
+
+void init_TCA0() {
+  /* TCA0_PINS from pins_arduino.h */
+  // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
+  // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
+  // this, in the interest of making init_TCA0 more usable as the reverse of takeOverTCA0()
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | TCA0_PINS;
+
+  /* Enable Split Mode */
+  TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
+
+  //Only 1 WGM so no need to specifically set up.
+
+  /* Period setting, 8-bit register in SPLIT mode */
+  TCA0.SPLIT.LPER    = PWM_TIMER_PERIOD;
+  TCA0.SPLIT.HPER    = PWM_TIMER_PERIOD;
+
+  /* Default duty 0%, will re-assign in analogWrite() */
+  // 2/1/2021: Why the heck are we bothering to set these AT ALL?! The duty cycles for *non-active* compare channels?!
+  /*
+  TCA0.SPLIT.LCMP0 = 0;
+  TCA0.SPLIT.HCMP0 = 0;
+  TCA0.SPLIT.LCMP1 = 0;
+  TCA0.SPLIT.HCMP1 = 0;
+  TCA0.SPLIT.LCMP2 = 0;
+  TCA0.SPLIT.HCMP2 = 0;
+  */
+
+  /* Use prescale appropriate for system clock speed */
+
+  #if (F_CPU > 25000000) //use 256 divider when clocked over 25 MHz
+    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 256)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
     #endif
-          ;
+    TCA0.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
+  #elif (F_CPU > 5000000) //use 64 divider unless it's 5 MHz or under
+    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 64)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA0.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
+  #elif (F_CPU > 1000000) // anything above 1 MHz
+    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 16)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA0.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
+  #else
+    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 8)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA0.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
+  #endif
+}
 
+void init_TCA1() {
+  /* TCA0_PINS from pins_arduino.h */
+  // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
+  // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
+  // this, in the interest of making init_TCA0 more usable as the reverse of takeOverTCA0()
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | TCA0_PINS;
+
+  /* Enable Split Mode */
+  TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
+
+  //Only 1 WGM so no need to specifically set up.
+
+  /* Period setting, 8-bit register in SPLIT mode */
+  TCA1.SPLIT.LPER    = PWM_TIMER_PERIOD;
+  TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
+
+  /* Default duty 0%, will re-assign in analogWrite() */
+  // 2/1/2021: Why the heck are we bothering to set these AT ALL?! The duty cycles for *non-active* compare channels?!
+  /*
+  TCA1.SPLIT.LCMP0 = 0;
+  TCA1.SPLIT.HCMP0 = 0;
+  TCA1.SPLIT.LCMP1 = 0;
+  TCA1.SPLIT.HCMP1 = 0;
+  TCA1.SPLIT.LCMP2 = 0;
+  TCA1.SPLIT.HCMP2 = 0;
+  */
+
+  /* Use prescale appropriate for system clock speed */
+
+  #if (F_CPU > 25000000) //use 256 divider when clocked over 25 MHz
+    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 256)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA1.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
+  #elif (F_CPU > 5000000) //use 64 divider unless it's 5 MHz or under
+    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 64)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
+  #elif (F_CPU > 1000000) // anything above 1 MHz
+    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 16)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
+  #else
+    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 8)
+      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+    #endif
+    TCA1.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
+  #endif
+}
+
+void init_TCBs() {
 
   /*    TYPE B TIMERS  */
   // Set up routing (defined in pins_arduino.h)
@@ -1177,7 +1282,7 @@ void init_timers() {
         ;
 
     // Start with TCB0
-    TCB_t *timer_B = (TCB_t *)&TCB0;
+  TCB_t *timer_B = (TCB_t *)&TCB0;
 
   // Find end timer
   #if defined(TCB4)
@@ -1192,41 +1297,41 @@ void init_timers() {
     TCB_t *timer_B_end = (TCB_t *)&TCB0;
   #endif
 
-    // Timer B Setup loop for TCB[0:end]
-    do
-    {
-      // 8 bit PWM mode, but do not enable output yet, will do in analogWrite()
-      timer_B->CTRLB = (TCB_CNTMODE_PWM8_gc);
+  // Timer B Setup loop for TCB[0:end]
+  do
+  {
+    // 8 bit PWM mode, but do not enable output yet, will do in analogWrite()
+    timer_B->CTRLB = (TCB_CNTMODE_PWM8_gc);
 
-      // Assign 8-bit period
-      timer_B->CCMPL = PWM_TIMER_PERIOD;
+    // Assign 8-bit period
+    timer_B->CCMPL = PWM_TIMER_PERIOD;
 
-      // default duty 50%, set when output enabled
-      timer_B->CCMPH = PWM_TIMER_COMPARE;
+    // default duty 50%, set when output enabled
+    // without this, some things that recklessly use TCBs without carefully
+    // ensuring correct CCMP register settings at initialization can break.
+    timer_B->CCMPH = PWM_TIMER_COMPARE;
 
-      // Use TCA clock (250kHz) and enable
-      // (sync update commented out, might try to synchronize later
+    // Use TCA clock (250kHz, +/- 50%) and enable
+    // (sync update commented out, might try to synchronize later
 
-      timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc)
-                       //|(TCB_SYNCUPD_bm)
-                       | (TCB_ENABLE_bm);
+    timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc)
+                     //|(TCB_SYNCUPD_bm)
+                     | (TCB_ENABLE_bm);
 
-      // Increment pointer to next TCB instance
-      timer_B++;
+    // Increment pointer to next TCB instance
+    timer_B++;
 
-      // Stop when pointing to TCB3
-    } while (timer_B <= timer_B_end);
-
-
-  #ifdef TCD0
-    #ifndef MILLIS_USE_TIMERD0
-      PORTMUX.TCDROUTEA=TCD0_PINS;
-      TCD0.CMPBCLR=509; // 510 counts; so count to 509
-      TCD0.CMPACLR=509;
-      TCD0.CTRLC=0x80; //WOD outputs PWM B, WOC outputs PWM A
-      TCD0.CTRLB=0x00; //One Slope
-      TCD0.CTRLA=TIMERD0_CTRLA_SETTING;
-    #endif
-  #endif
-
+    // Stop when pointing to TCB3
+  } while (timer_B <= timer_B_end);
 }
+
+#if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
+void init_TCD0() {
+  TCD0.CMPBCLR  = TIMERD0_TOP_SETTING;    // 510 counts, starts at 0, not 1!
+  TCD0.CMPACLR  = 0x0FFF;                 // Match with CMPBCLR clears all outputs. This just needs to be higher than
+  TCD0.CTRLC    = 0x80;                   // WOD outputs PWM B, WOC outputs PWM A
+  TCD0.CTRLB    = TCD_WGMODE_ONERAMP_gc;  // One Slope
+  TCD0.CTRLA    = TIMERD0_CLOCK_SETTING;  // 5, 10 MHz OSCHF, all others CLKPER. count prescale 32 except 1 MHz, prescale 4.
+}
+#endif
+

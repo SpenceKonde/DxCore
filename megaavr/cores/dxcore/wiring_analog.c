@@ -26,6 +26,17 @@
 #include "pins_arduino.h"
 #include "Arduino.h"
 
+inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
+  if(__builtin_constant_p(pin)) {
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN)
+    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+      badArg("digital I/O function called  is constant, but not a valid pin");
+  }
+}
+
 inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
   if (__builtin_constant_p(mode)) {
     if (mode >= 7 || mode == 4)
@@ -138,6 +149,8 @@ inline void analogReadResolution(uint8_t res) {
 // to digital output.
 void analogWrite(uint8_t pin, int val)
 {
+  check_valid_digital_pin(pin);
+  check_valid_duty_cycle(val);
   uint8_t bit_pos  = digitalPinToBitPosition(pin);
   if(bit_pos == NOT_A_PIN) return;
   // We need to make sure the PWM output is enabled for those pins
@@ -160,6 +173,9 @@ void analogWrite(uint8_t pin, int val)
   //} else {  /* handle pwm to generate analog value */
   /* Get timer */
   uint8_t digital_pin_timer =  digitalPinToTimer(pin);
+  if (digital_pin_timer != 0 && !(digital_pin_timer & PeripheralControl)) {
+    return; //this timer has been talken over by the user
+  }
   uint8_t* timer_cmp_out;
   #if defined(NO_GLITCH_TIMERD)
   if (digital_pin_timer != TIMERD0){
@@ -176,8 +192,7 @@ void analogWrite(uint8_t pin, int val)
   TCB_t *timer_B;
   //TCA_t *timer_A;
   /* Find out Port and Pin to correctly handle port mux, and timer. */
-  switch (digital_pin_timer) { //use only low nybble which defines which timer it is
-
+  switch (digital_pin_timer) {
     case TIMERA0:
     /* Calculate correct compare buffer register */
     if (bit_pos>2) {
@@ -279,29 +294,43 @@ void analogWrite(uint8_t pin, int val)
           fc_mask = (bit_pos == 1 ? 0x80 : 0x40);
         #endif
       #endif
-
+      val = 255-val;
+      uint8_t temp = TCD0.CMPBCLRL;
+      temp = TCD0.CMPBCLRH;  // intentional use of the comma operator
+      //
+      // will this read both, only retaining the high byte? Need to read both to see high register because 16-bit
+      // even though only need to get high because 16-bit register. Reading just high doesn't work
+      if (temp) {
+        val <<= 1;
+        if (temp == 3) val <<= 1; // 1019 or 2039
+#if (F_CPU>=32000000)             // At 32+ MHz it's less unreasonable to use.
+        if (temp == 7) val <<= 1; // 2039
+#endif
+      }
 
       uint8_t oldSREG=SREG;
       cli();
       // interrupts off... wouldn't due to have this mess interrupted and messed with...
-      // if previous sync/enable in progress, wait for it to finish.
-      while (!(TCD0.STATUS & (TCD_ENRDY_bm | TCD_CMDRDY_bm )));
 
       /* For flexible timer D PWM pins or USE_TIMERD_WOAB, this may need to be adapted */
+      // as long as I don't support putting WOC on WOB if only WOA is being used, no adaptation needed.
+      // And yeah, I'm already giving you extra freedom with these pins, shut up and be happy or takeOverTCD0()!
       if (bit_pos & 1) {
-        TCD0.CMPBSET=((255 - val) << 1) - 1;
+        //TCD0.CMPBSET=((255 - val) << 1) - 1;
+        TCD0.CMPBSET= val - 1;
       } else {
-        TCD0.CMPASET=((255 - val) << 1) - 1;
+        //TCD0.CMPASET=((255 - val) << 1) - 1;
+        TCD0.CMPASET= val - 1;
       }
-
+      /* Check if channel active, if not, have to turn it on */
       if (!(TCD0.FAULTCTRL & fc_mask)) {
-        //if not active, we need to activate it, which produces a glitch in the PWM
-        TCD0.CTRLA &= ~TCD_ENABLE_bm;   // stop the timer
-        while(!(TCD0.STATUS & 0x01)) {;} // wait until it's actually stopped
+        TCD0.CTRLA &= ~TCD_ENABLE_bm;       // stop the timer
         _PROTECTED_WRITE(TCD0.FAULTCTRL,(fc_mask | TCD0.FAULTCTRL));
-        TCD0.CTRLA |= TCD_ENABLE_bm;    // reenable it
+        while(!(TCD0.STATUS & 0x01)) {;}    // wait until it can be reenabled
+        TCD0.CTRLA |= TCD_ENABLE_bm;        // reenable it
       } else {
-        TCD0.CTRLE = 0x02; //Synchronize
+        /* if it's already on, all we have to do is sync! */
+        TCD0.CTRLE = TCD_SYNCEOC_bm;
       }
 
       #if defined(NO_GLITCH_TIMERD0)
@@ -332,4 +361,26 @@ void analogWrite(uint8_t pin, int val)
       }
       break;
   }
+}
+
+void takeOverTCA0() {
+  TCA0.SPLIT.CTRLA = 0;          // Stop TCA0
+  PeripheralControl &= ~TIMERA0; // Mark timer as user controlled
+                                 // Reset TCA0
+  /* Okay, seriously? The datasheets and io headers disagree here */
+  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc; /* |0x03; // do these bits need to be set or don't they? Does this even WORK on tinyAVR?! */
+}
+
+void takeOverTCA1() {
+  TCA1.SPLIT.CTRLA = 0;          // Stop TCA0
+  PeripheralControl &= ~TIMERA1; // Mark timer as user controlled
+                                 // Reset TCA0
+  /* Okay, seriously? The datasheets and io headers disagree here */
+  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc; /* |0x03; // do these bits need to be set or don't they? Does this even WORK on tinyAVR?! */
+}
+
+void takeOverTCD0() {
+  TCD0.CTRLA = 0;                     // Stop TCD0
+  _PROTECTED_WRITE(TCD0.FAULTCTRL,0); // Turn off all outputs
+  PeripheralControl &= ~TIMERD0; // Mark timer as user controlled
 }

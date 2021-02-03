@@ -33,9 +33,9 @@ extern "C"{
 
 #if (defined(__AVR_AVR128DA64__)||defined(__AVR_AVR128DA48__)||defined(__AVR_AVR128DA32__)||defined(__AVR_AVR128DA28__))
   // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata - or maybe they fixed things they didn't want to mention in the errata, or things to do with yield/etc.
-  #define HAS_ADC_BUG (SYSCFG.REVID==0x16||SYSCFG.REVID==0x17)
+  #define HAS_ADC_BUG (SYSCFG.REVID == 0x16 || SYSCFG.REVID == 0x17)
 #elif (defined __AVR_DA__) //only A3 of these has made the rounds
-  #define HAS_ADC_BUG (SYSCFG.REVID==0x13)
+  #define HAS_ADC_BUG (SYSCFG.REVID == 0x13)
 #else
   #define HAS_ADC_BUG (0)
 #endif
@@ -53,24 +53,23 @@ extern "C"{
   Will shift back in analog_reference function
   */
 
-#define INTERNAL1V024 VREF_REFSEL_1V024_gc
-#define INTERNAL2V048 VREF_REFSEL_2V048_gc
-#define INTERNAL4V096 VREF_REFSEL_4V096_gc
-#define INTERNAL2V5 VREF_REFSEL_2V500_gc
-#define DEFAULT     VREF_REFSEL_VDD_gc
-#define VDD         VREF_REFSEL_VDD_gc
-#define EXTERNAL    VREF_REFSEL_VREFA_gc
-
+#define INTERNAL1V024     VREF_REFSEL_1V024_gc
+#define INTERNAL2V048     VREF_REFSEL_2V048_gc
+#define INTERNAL4V096     VREF_REFSEL_4V096_gc
+#define INTERNAL2V5       VREF_REFSEL_2V500_gc
+#define DEFAULT           VREF_REFSEL_VDD_gc
+#define VDD               VREF_REFSEL_VDD_gc
+#define EXTERNAL          VREF_REFSEL_VREFA_gc
 
 // DACREFn MUXPOS currently missing from the headers!!
-#define ADC_DAC0 (0x80|ADC_MUXPOS_DAC0_gc)
-#define ADC_DACREF0 (0x80|0x49)
-#define ADC_DACREF1 (0x80|0x4A)
-#define ADC_DACREF2 (0x80|0x4B)
-#define ADC_TEMPERATURE (0x80|ADC_MUXPOS_TEMPSENSE_gc)
+#define ADC_DAC0          (0x80 | ADC_MUXPOS_DAC0_gc)
+#define ADC_DACREF0       (0x80 | 0x49)
+#define ADC_DACREF1       (0x80 | 0x4A)
+#define ADC_DACREF2       (0x80 | 0x4B)
+#define ADC_TEMPERATURE   (0x80 | ADC_MUXPOS_TEMPSENSE_gc)
 #ifdef MVIO
-#define ADC_VDDDIV10 (0x80|ADC_MUXPOS_VDDDIV10_gc)
-#define ADC_VDDIO2DIV10 (0x80|ADC_MUXPOS_VDDIO2DIV10_gc)
+#define ADC_VDDDIV10      (0x80 | ADC_MUXPOS_VDDDIV10_gc)
+#define ADC_VDDIO2DIV10   (0x80 | ADC_MUXPOS_VDDIO2DIV10_gc)
 #endif
 
 #define VCC_5V0 2
@@ -87,13 +86,15 @@ void init_ADC0() __attribute__((weak));       // this is called to initialize AD
 //   init_DAC0()                              // no init_DAC0() - all that the core does is call DACReference().
 void init_timers() __attribute__((weak));     // this function is expected to configure all timers for PWM. init_millis() is called after this.
 void init_clock() __attribute__((weak));      // this is called first, to initiate the system clock.
+void init_TCA0() __attribute__((weak));       // called by init_timers()
+void init_TCA1() __attribute__((weak));       // called by init_timers()
+void init_TCBs() __attribute__((weak));       // called by init_timers()
+void init_TCD0() __attribute__((weak));       // called by init_timers()
 
-#ifndef DISABLEMILLIS
 void init_millis();
 void stop_millis();
 void restart_millis();
 void set_millis(uint32_t newmillis);
-#endif
 
 
 // avr-libc defines _NOP() since 1.6.2
@@ -144,7 +145,7 @@ extern const uint8_t digital_pin_to_timer[];
 // RTC timer is a tiner, but certainly not that kind of timer
 #define NOT_ON_TIMER 0x00
 #define TIMERA0 0x10
-#define TIMERA1 0x11
+#define TIMERA1 0x08        // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
 #define TIMERB0 0x20
 #define TIMERB1 0x21
 #define TIMERB2 0x22

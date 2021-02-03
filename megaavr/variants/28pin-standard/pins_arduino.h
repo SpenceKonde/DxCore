@@ -291,10 +291,10 @@ const uint8_t digital_pin_to_timer[] = {
 #else
   NOT_ON_TIMER, //  3 PA3/SCL
 #endif
-  NOT_ON_TIMER, //  4 PA4/MOSI
-  NOT_ON_TIMER, //  5 PA5/MISO
-  TIMERD0,      //  6 PA6/SCK
-  TIMERD0,      //  7 PA7/SS/CLKOUT
+  TIMERD0,      //  4 PA4/MOSI      WOA
+  TIMERD0,      //  5 PA5/MISO      WOB
+  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
+  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
 #if !defined(MILLIS_USE_TIMERB2)
   TIMERB2,      //  8 PC0/USART1_Tx
 #else

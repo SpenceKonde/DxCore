@@ -487,10 +487,10 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  1
   NOT_ON_TIMER, //  2
   NOT_ON_TIMER, //  3
-  NOT_ON_TIMER, //  4 PA4/MOSI
-  NOT_ON_TIMER, //  5 PA5/MISO
-  TIMERD0,      //  6 PA6/SCK
-  TIMERD0,      //  7 PA7/SS/CLKOUT
+  TIMERD0,      //  4 PA4/MOSI      WOA
+  TIMERD0,      //  5 PA5/MISO      WOB
+  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
+  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
   TIMERA1,      //  8 PB0
   TIMERA1,      //  9 PB1
   TIMERA1,      //  10 PB2

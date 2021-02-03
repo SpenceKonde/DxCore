@@ -5,7 +5,7 @@ menu.chip=Chip
 menu.clock=Clock Speed
 menu.millis=millis()/micros() timer (TCB2 recommended)
 menu.serialevent=Support SerialEvent?
-menu.mvio=MVIO on PORTC (Bootload burn req'd)
+#menu.mvio=MVIO on PORTC (Bootload burn req'd)
 menu.bodvoltage=BOD level if enabled (Bootload burn req'd)
 menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
 menu.eesave=Save EEPROM (Bootload burn req'd)
@@ -316,7 +316,8 @@ avrdb.build.mcupostfix=
 avrdb.bootloader.tool=avrdude
 avrdb.bootloader.WDTCFG=0x00
 avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+#avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+avrdb.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdb.bootloader.CODESIZE=0x00
 avrdb.bootloader.BOOTSIZE=0x00
 avrdb.bootloader.avrdudestring=
@@ -575,10 +576,10 @@ avrdb.menu.millis.tca1.build.millistimer=A1
 #avrdb.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 avrdb.menu.millis.disabled.build.millistimer=NONE
 
-avrdb.menu.mvio.enabled=Enabled
-avrdb.menu.mvio.enabled.bootloader.mviobits=01
-avrdb.menu.mvio.disabled=Disabled
-avrdb.menu.mvio.disabled.bootloader.mviobits=10
+#avrdb.menu.mvio.enabled=Enabled
+#avrdb.menu.mvio.enabled.bootloader.mviobits=01
+#avrdb.menu.mvio.disabled=Disabled
+#avrdb.menu.mvio.disabled.bootloader.mviobits=10
 
 # Startup Time
 avrdb.menu.startuptime.8= 8ms
@@ -932,7 +933,8 @@ avrdbopti.build.mcupostfix=
 avrdbopti.bootloader.tool=avrdude
 avrdbopti.bootloader.WDTCFG=0x00
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
-avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+#avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+avrdbopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
@@ -1201,10 +1203,10 @@ avrdbopti.menu.millis.tca1.build.millistimer=A1
 #avrdbopti.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 avrdbopti.menu.millis.disabled.build.millistimer=NONE
 
-avrdbopti.menu.mvio.enabled=Enabled
-avrdbopti.menu.mvio.enabled.bootloader.mviobits=01
-avrdbopti.menu.mvio.disabled=Disabled
-avrdbopti.menu.mvio.disabled.bootloader.mviobits=10
+#avrdbopti.menu.mvio.enabled=Enabled
+#avrdbopti.menu.mvio.enabled.bootloader.mviobits=01
+#avrdbopti.menu.mvio.disabled=Disabled
+#avrdbopti.menu.mvio.disabled.bootloader.mviobits=10
 
 # Startup Time
 avrdbopti.menu.startuptime.8= 8ms

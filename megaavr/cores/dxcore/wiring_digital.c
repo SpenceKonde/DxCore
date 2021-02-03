@@ -114,7 +114,7 @@ static void turnOffPWM(uint8_t pin)
   /* Actually turn off compare channel, not the timer */
 
   /* Get pin's timer */
-  uint8_t timer = digitalPinToTimer(pin);
+  uint8_t timer = digitalPinToTimer(pin) & PeripheralControl; //use to mask off taken-over peripherals.
   if(timer == NOT_ON_TIMER) return;
 
   uint8_t bit_pos = digitalPinToBitPosition(pin);
@@ -162,7 +162,6 @@ static void turnOffPWM(uint8_t pin)
       uint8_t oldSREG=SREG;
       cli();
       TCD0.CTRLA&= ~TCD_ENABLE_bm;//stop the timer
-      while(!(TCD0.STATUS&0x01)) {;}// wait until it's actually stopped
       #ifdef MEGATINYCORE
       // it's either bit 6 or 7 - it's the CMPC and CMPD channels we use; A and B are on pins that we can already cover with TCA0.
       _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(1 << (6 + bit_pos)));
@@ -170,7 +169,8 @@ static void turnOffPWM(uint8_t pin)
       // on the DA series, it could be any of them
       _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(0x10 << (bit_pos & 0x03)));
       #endif
-      TCD0.CTRLA|= TCD_ENABLE_bm; //reenable it
+      while(!(TCD0.STATUS & TCD_ENRDY_bm)); // wait until we can restart it
+      TCD0.CTRLA |= TCD_ENABLE_bm; //reenable it
       #if defined(NO_GLITCH_TIMERD0)
         volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), bit_pos);
         *pin_ctrl_reg &= ~(PORT_INVEN_bm);
