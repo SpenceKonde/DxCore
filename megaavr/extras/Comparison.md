@@ -67,6 +67,3 @@ And... there's AUTOTUNE! Use a crystal... but a watch crystal! It's used to adju
 
 ## RTC
 Same as megaAVR 0-series
-
-
-

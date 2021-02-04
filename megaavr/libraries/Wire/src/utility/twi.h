@@ -75,7 +75,7 @@ typedef enum __attribute__((packed)) TWI_MODE_enum {
 
 /*! For adding R/_W bit to address */
 #ifndef ADD_READ_BIT
-#define ADD_READ_BIT(address)	(address | 0x01)
+#define ADD_READ_BIT(address) (address | 0x01)
 #endif
 #ifndef ADD_WRITE_BIT
 #define ADD_WRITE_BIT(address)  (address & ~0x01)

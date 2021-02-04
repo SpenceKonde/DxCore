@@ -150,4 +150,3 @@ Analog Comparators had a third option for power profile... The higher the option
 
 ## One "oddity" that's pretty much neutral
 Despite the datasheet saying otherwise (quite explicitly), the lowest bit of the address is not ignored when self-programming the flash with SPM! Except at the boundary between pages, the low bit is treated as one might expect. If address provided is the last byte in a page, however, the high byte will be written at the first address in the next page... and the low byte to the second address in the next page! Note that our flash-writing libraries only write to even byte addresses (ie, we zero the lowest bit and adjust if needed) - this is only a concern if you write your own bootloader or flash-writing routines.
-

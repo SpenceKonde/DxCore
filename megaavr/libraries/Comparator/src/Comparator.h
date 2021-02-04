@@ -108,7 +108,7 @@ class AnalogComparator
     register8_t& IN0_N;
     register8_t& IN1_N;
     register8_t& IN2_N;
-    bool enable = false;   
+    bool enable = false;
 };
 
 #if defined(AC0_AC_vect)
