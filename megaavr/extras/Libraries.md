@@ -5,8 +5,8 @@ The Dx-series parts have a lot of new capability and - compared to the "classic"
 ### DxCore
 [DxCore Readme](../libraries/DxCore/README.md) The DxCore provides a wrapper around a couple of chip configuration functions tha didn't seem appropriate in either the core proper, or in their own library. So far, it's just fo
 
-### Flash or writeFlash
-1.3.0 introduces the ability to write to the application section on Optiboot boards by calling in to a stub of an entry point in Optiboot. I wasn't sure how to present this functionality, so there are two approaches to how to organize it, in [Flash](../libraries/Flash/README.md), and in [writeFlash](../libraries/writeFlash/README.md). Please let me know which one you like better, and how I could improve the overall experience. Future updates are expected to bring the ability to do this without using a bootloader too!
+### Flash or flashWrite
+1.3.0 introduces the ability to write to the application section on Optiboot boards by calling in to a stub of an entry point in Optiboot. I wasn't sure how to present this functionality, so there are two approaches to how to organize it, in [Flash](../libraries/Flash/README.md), and in [writeFlash](../libraries/flashWrite/README.md). Please let me know which one you like better, and how I could improve the overall experience. Future updates are expected to bring the ability to do this without using a bootloader too!
 
 ## New Peripheral libraries
 The AVR Dx-series is the latest and greatest from Microchip - in addition to enhancements ranging from pedestrian to world-changing to the peripherals we know and love, the new families of chips have brought with them a series of entirely new peripherals. Many of the most important new peripherals fit into one sort of mold: There are are multiple on the chip (often 2, 3, or some number of pairs), they have little - if any - internal state, the list of options and modes is short. The combination of a more streamlined hardware design a library paradigm pioneered by @MCUdude,
