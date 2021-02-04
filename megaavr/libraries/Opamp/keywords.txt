@@ -1,0 +1,42 @@
+#######################################
+# Syntax Coloring Map For Wire
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+get_number	KEYWORD2
+status	KEYWORD2
+calibrate	KEYWORD2
+init	KEYWORD2
+start	KEYWORD2
+stop	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+Opamp	KEYWORD2
+Opamp0	KEYWORD2
+Opamp1	KEYWORD2
+Opamp2	KEYWORD2
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+in	LITERAL1
+out	LITERAL1
+event	LITERAL1
+power	LITERAL1
+wiper	LITERAL1
+bottom	LITERAL1
+top	LITERAL1
+in_n	LITERAL1
+in_p	LITERAL1
