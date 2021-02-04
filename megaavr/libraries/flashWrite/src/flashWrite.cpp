@@ -198,7 +198,7 @@ uint8_t flashWriteWord(const uint32_t address, const uint16_t data) {
             "mov  r1,%B[dat]"                     "\n\t"
             "call 0x1FA"                          "\n\t"
             "clr  r1"                             "\n\t"
-            : [flptr]	  "+z"   (zaddress)
+            : [flptr]   "+z"   (zaddress)
             : [dat]      "r"   (data)
           );
   #if (PROGMEM_SIZE > 0x10000)
@@ -260,7 +260,7 @@ uint8_t flashWriteByte(const uint32_t address, const uint8_t data) {
             "mov  r1,%B[dat]"                     "\n\t"
             "call 0x1FA"                          "\n\t"
             "clr  r1"                             "\n\t"
-            : [flptr]	  "+z"   (zaddress)
+            : [flptr]   "+z"   (zaddress)
             : [dat]      "r"   (dataword)
           );
   #if (PROGMEM_SIZE > 0x10000)

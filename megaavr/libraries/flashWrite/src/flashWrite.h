@@ -40,7 +40,7 @@ typedef enum FLASHWRITE_RETURN_VALUES
   bootloader, the APPDATAWP bit in
   NVMCTRL.CTRLB would block all
   attempts at writing the flash.
-  FLASHWRITE_APPDATAWP		= (0x1F),*/
+  FLASHWRITE_APPDATAWP    = (0x1F),*/
   FLASHWRITE_NYI            = (0x1F),
 
 
@@ -49,7 +49,7 @@ typedef enum FLASHWRITE_RETURN_VALUES
   FLASHWRITE_DISABLED       = (0x22),
   FLASHWRITE_UNRECOGNIZED   = (0x23),
   /* May be handled in future version
-  FLASHWRITE_APPCODEWP		= (0x2E),
+  FLASHWRITE_APPCODEWP    = (0x2E),
   Currently if you try to write to
   APPCODE section, but it's write
   protected, you'll get the PROTECT
@@ -58,14 +58,14 @@ typedef enum FLASHWRITE_RETURN_VALUES
   and the combination of WP bits and
   CODESIZE fuse is such that none of
   the flash can be written.
-  FLASHWRITE_BOOTRP			= (0x2F),
+  FLASHWRITE_BOOTRP     = (0x2F),
   Currently if BOOTRP is set, the
   you'll just get FLASHWRITE_UNRECOGNIZED
   which is accurate, since BOOTRP is
   not a fuse, but a bit set by the
   bootloader; one which supported
   this functionality surely wouldn't
-  be setting that bit!			       */
+  be setting that bit!             */
 
   /* 0x30 -Can occur in either mode*/
   FLASHWRITE_SPM_NOT_USED   = (0x31),

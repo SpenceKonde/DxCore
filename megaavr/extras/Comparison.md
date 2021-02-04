@@ -18,7 +18,7 @@ They got an overflow interrupt too! Though in most modes it is redundant...
 Oh, and did I mention the CASCADE bit? You can clock one timer off another timer's overflow, and set cascade on the one that counts the two MSBs to make sure they are in sync (ie, correct for propagation delays) and get a 32-bit input capture. Yes, that's right, you can time something lasting nearly 3 minutes TO A TWENTYFOURTH OF A MICROSECOND!!!
 
 ## TCD0
-Only difference appears to be the addition of the PLL as a clock source! That was easy!
+Only difference appears to be the addition of the PLL as a clock source! Probably also has different errata.
 
 ## DAC
 Only significant difference is that it's 10 bit... and the DATA register is left-adjusted, so if you just want 8 bits, you can just write the one register. Nifty.
@@ -31,8 +31,7 @@ differential ADC is now supported. I know this is very exciting to everyone in A
 Oh, and you can also measure the AC DACREFs, if you want to measure a number you control or something...? Probably mostly a clever way to either check accuracy or make math easy for Vcc measurement?
 
 ## AC
-Big news for Analog Comparator fans: each one now gets an (internal) 8-bit DAC, so you can generate arbitrary reference voltages to compare against.
-Otherwise, no changes.
+Looks pretty much the same to me....
 
 ## TWI
 Same one as the megaAVR 0-series got, with the dual mode thing...
@@ -41,15 +40,15 @@ Same one as the megaAVR 0-series got, with the dual mode thing...
 Same as before. On early 128k chips, SPI0 must have SSD=1 to run in master mode if set to the default pin mapping. We always set that because we NEVER supported slave
 
 ## USART
-Same as before. Still has the same errata with open drain mode...
+Same as before. Still has the same errata with open drain mode... they might as well just add it to the datasheet at this point.
 
 ## CCL
 Errta doesn't mention the D-latch? Does that mean we have a working D-latch finally?
-Other than that, they shook up the INSELs to make sense with all the extra peripherals the DA series has, but otherwise, it's pretty much the same as the CCL that the megaAVR 0-series got.
+Other than that, minor changes to the INSEL bits to make sense with all the extra peripherals the DA series has, but otherwise, it's pretty much the same as the CCL that the megaAVR 0-series got.
 
 ## EVSYS
 Basically the event system from the megaAVR 0-series.
-Errata: Early 128k 64-pin parts no connection to event system for the PE, PB pins that aren't present on the 48-pin parts!
+Errata: ~Early~ AVR128DA64 parts have no connection to event system for the PE, PB pins that aren't present on the 48-pin parts. [8 months later, still no silicon revision to fix this]
 
 ## NVMCTRL
 TOTALLY DIFFERENT!
@@ -57,7 +56,6 @@ Writing via UPDI means manipulating NVMCTRL to do your bidding. This was quite t
 
 Errata: Early 128k parts incorrectly apply the bootloader protections to all 32k blocks of flash, so you can't write using the memory mapping... Read still works fine assuming the bit to make the bootloader section unreadable from app is not set.
 
-Actually taking advantage of the flash mapping will be a right pain in the arse, so we're back to the F macro for now?
 
 ## CLKCTRL
 Lot of differences!

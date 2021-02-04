@@ -12,19 +12,20 @@ SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO? | NO?
 TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO? | NO?
 ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES | A4 only
 No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A | NO?
-*All CCL LUTs enable-locked to CCL| 2        | Microchip | Likely   | Likely |Likely | YES
+* All CCL LUTs enable-locked to CCL| 2        | Microchip | Likely   | Likely |Likely | YES
 CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO? | A4 only
 Initial fuses don't match datasheet | 1        | Microchip / Microchip | YES,A6| ???  | ??? | Week 21 and older
 TCD0 portmux options broken | 3        | Microchip | YES,A6 | Yes | Likely | Yes
 ADC increased offset in single-ended | 4 | Microchip | N/A | N/A | N/A | A4 only
 OPAMP power consumption 3x higher than expected | 1 | Microchip | ??? | ??? | ??? | A4 only
 OPAMP IRSEL bit read-only | 1 | Microchip | N/A | N/A | N/A | A4 only
-PLL doesn't work from ext. xtal | 1 | Spence K. | N/A | N/A | N/A | Yes
+PLL doesn't work from ext. xtal | 1 | Microchip | N/A | N/A | N/A | Yes
 
 NO? means not mentioned in errata, but has not been confirmed as not being present in that size of chip.
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
+The * indicates that this issue is universal and applies to every modern AVR
 
-Alas - 9 months after the release of the DA-series,we have seen only a single one AVR Dx-series part has 
+Alas - 9 months after the release of the DA-series,we have seen only the AVR128DB get a new silicon rev...
 
 ## Determining silicon rev
 Read SYSCFG.REVID; SYSCFG.REVID&0xF0 is the major rev (the letter), SYSCFG.REVID&0x0F is the minor rev.
@@ -106,28 +107,26 @@ Well, that was depressing wasn't it?
 Here's the good news - there is also a little bit of undocumented behavior that is favorable too (I feel like there was another one here, but can't remember what it is)
 
 ### Overclocking
-You don't even need an external clock source to overclock these bad boys! You can do it... just by setting the CLKCTRL.OSCHFCTRLA FREQSEL bits higher! You can only go up to 32 MHz that way - after that (0x0C-0x0F), it goes back to the settings from 0x08-0x0B - 20-32 MHz all over again - but an extra 33% clock speed is hard to argue with - of course, these are not guaranteed to work, probably won't work across the whole voltage range, and so on... but they do work for me on all the parts I've tried it on at 5v and room temperature. It also gives one hope that - armed with an external clock source - there's more room to crank up the speed on these - if you for some reason weren't satisfied with ~24~ 32 MHz in practice, 24 MHz guaranteed at 1.8-5.5V on an architecture that until this year was limited to 20 MHz at 4.5-5.5V and a mere 4 MHz at 1.8V...
+You don't even need an external clock source to overclock these bad boys! You can do it... just by setting the CLKCTRL.OSCHFCTRLA FREQSEL bits higher! You can only go up to 32 MHz that way - after that (0x0C-0x0F), it goes back to the settings from 0x08-0x0B - 20-32 MHz all over again - but an extra 33% clock speed is hard to argue with - of course, these are not guaranteed to work, probably won't work across the whole temperature range, and so on... but they do work for me on all the parts I've tried it on room temperature. It also gives one hope that - armed with an external clock source - there's more room to crank up the speed on these - if you for some reason weren't satisfied with ~24~ 32 MHz in practice, 24 MHz guaranteed at 1.8-5.5V on an architecture that until this year was limited to 20 MHz at 4.5-5.5V and a mere 4 MHz at 1.8V...
 
 Using DxCore, you don't even need to go to all that effort - you can just select 28 MHz or 32 MHz from the Tools -> Clock Speed menu, and upload your sketch and it will run at the higher clock speed!
 
 ### Overclocking the PLL
-The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that... 
+The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that...
 
-Also, not the next item on the list... apparently it can be run at x4 multiplication factor!
+Also, note the removed option in the io header - apparently it can be run at x4 multiplication factor. In fact, it works at 32 MHz x 4 = 128 MHz at room temperature...
 
-It didn't work with the oscillator at 4 MHz though.
+The PLL did not work at all work with the oscillator at 4 MHz (though it worked at 8 MHz and 12 MHz). These parts seem to have a huge safety margin on their clock subsystem.
 
-
-
-### Interesting things removed from early IO headers
-Between the initial releases of the "IO" headers, and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but... 
+### Interesting things removed from early io headers
+Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but...
 
 ```
 #define EVSYS_USEROSCTEST  _SFR_MEM8(0x024B)
 ```
 An extra event user... OSCTEST? I wonder what it does! I guess there's only one way to find out, and that's to monitor the system clock carefully with that set, and then trigger the event! The real question is whether it is to test some special oscillator feature... or just test if the oscillator is "safe" at it's current speed by stressing it (and you'd want that to be an event so you can have it executing code maybe? I dunno!)
 
-This next one is the bitfield that controls what the PLL will multiply the input clock by... 
+This next one is the bitfield that controls what the PLL will multiply the input clock by...
 ```
 /* Multiplication factor select */
 typedef enum CLKCTRL_MULFAC_enum
@@ -138,15 +137,17 @@ typedef enum CLKCTRL_MULFAC_enum
     CLKCTRL_MULFAC_4x_gc = (0x03<<0),  /* 4 x multiplication factor */
 } CLKCTRL_MULFAC_t;
 ```
-That last like was removed in later versions, to match the datasheet... I wonder if you can actually have the PLL multiply the clock by 4 instead of just 2 or 3? Betcha you can! So what speed were they targeting? No popular speed makes much sense if you wanted to keep the oscillator no higher than 48 MHz... Hardly anyone clocks AVRs at 12 MHz, and the people who do, are mostly doing it in order to achieve VUSB, and it's way outside the USB spec - I can't imagine Microchip promoteing THAT... 
+That last like was removed in later versions, to match the datasheet... And it does indeed work!
 
-Now... if `CLK_PER` was rated up to 32 MHz, and and PLL up to 64? 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60 (would be in spec)... 24 MHz could only go 2x then the 4x would be for the everpopular 16x... 
+This (and the internal oscillator working up to 32 MHz) raises a question - what speed were they targeting during design? What if 24 MHz / 48 MHz wasn't the planned max, but what they had to back off to after they found that their process wasn't quite as good as they hoped, that is, under certain temperature and voltage conditions, it didn't meet the strict requirements for reliability that something you are going to put in your car or aeroplane and expect to work 100% of the time. Because with a 48 MHz maximum speed, there isn't a popular clock speed that they might be using the 4x multiplier on...
 
-Analog Comparators had a third option for power profile... Wonder if it actually works? 
+If `CLK_PER` was meant to be rated up to 32 MHz, and and PLL up to 64? 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60... 24 MHz could only go 2x - but who would run 24 MHz if 32 MHz was an option? - and the 4x would get you 64 MHz from the ever popular 16 MHz system clock. So that's my theory - they designed it in the hopes of being able to do 32 MHz and 64 MHz on the PLL, it didn't meet reliability requirements under pessimal conditions, so they dropped back to 24 MHz and 48 MHz PLL. I'm sure glad they left the 32 MHz oscillator option in place though!
+
+Analog Comparators had a third option for power profile... The higher the option, the lower the power consumption, but the higher the latency. I wonder if it actually works?
 ```
     AC_POWER_PROFILE3_gc = (0x03<<3),  /* Power profile 3 */
 ```
 
 ## One "oddity" that's pretty much neutral
-Despite the datasheet saying otherwise, the lowest bit of the address is not ignored when self-programming the flash with SPM  The only time it cares about write alignment is cross ing the 
+Despite the datasheet saying otherwise (quite explicitly), the lowest bit of the address is not ignored when self-programming the flash with SPM! Except at the boundary between pages, the low bit is treated as one might expect. If address provided is the last byte in a page, however, the high byte will be written at the first address in the next page... and the low byte to the second address in the next page! Note that our flash-writing libraries only write to even byte addresses (ie, we zero the lowest bit and adjust if needed) - this is only a concern if you write your own bootloader or flash-writing routines.
 

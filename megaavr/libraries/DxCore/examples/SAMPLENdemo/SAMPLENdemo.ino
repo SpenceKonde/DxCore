@@ -1,12 +1,12 @@
 /*
 ADC0.SAMPCTRL demo
 
-Connect a 1 MEG resistor between PD1 and PD0. 
+Connect a 1 MEG resistor between PD1 and PD0.
 
-This makes PD0 a very high impedance input, controlled by PD1. 
+This makes PD0 a very high impedance input, controlled by PD1.
 This sketch flips PD1 and then immediately takes some readings on PD0, printing the first one.
 Format output is conducive to graphing in excel/etc (save as .csv)
-One thing that is important to remember is that what matters is what the last voltage READ BY the ADC was. 
+One thing that is important to remember is that what matters is what the last voltage READ BY the ADC was.
 For example, if you switch back and forth between reading a high impedance source, and a voltage very close to ground,
 your numbers will err low with a low SAMPLEN, while if you were last measuring a high voltage, if would err high.
 This of course means that if you are continually measuring the same high impedance, but slow changing voltage, you can

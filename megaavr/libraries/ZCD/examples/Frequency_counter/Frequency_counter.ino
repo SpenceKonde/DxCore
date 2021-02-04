@@ -24,13 +24,13 @@ void setup()
 {
   // Configure serial port
   Serial1.begin(9600);
-  
+
   // Disable the zero-cross detection output pin
   zcd.output = out::disable;
 
   // Initialize ZCD
   zcd.init();
-  
+
   // Set interrupt (supports RISING, FALLING and CHANGE)
   zcd.attachInterrupt(interruptFunction, RISING);
 
