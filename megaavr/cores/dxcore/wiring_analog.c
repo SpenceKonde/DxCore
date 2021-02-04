@@ -370,7 +370,7 @@ void takeOverTCA0() {
   /* Okay, seriously? The datasheets and io headers disagree here */
   TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc; /* |0x03; // do these bits need to be set or don't they? Does this even WORK on tinyAVR?! */
 }
-
+#ifdef TCA1
 void takeOverTCA1() {
   TCA1.SPLIT.CTRLA = 0;          // Stop TCA0
   PeripheralControl &= ~TIMERA1; // Mark timer as user controlled
@@ -378,7 +378,7 @@ void takeOverTCA1() {
   /* Okay, seriously? The datasheets and io headers disagree here */
   TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc; /* |0x03; // do these bits need to be set or don't they? Does this even WORK on tinyAVR?! */
 }
-
+#endif
 void takeOverTCD0() {
   TCD0.CTRLA = 0;                     // Stop TCD0
   _PROTECTED_WRITE(TCD0.FAULTCTRL,0); // Turn off all outputs

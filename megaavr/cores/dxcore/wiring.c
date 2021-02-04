@@ -1207,6 +1207,7 @@ void init_TCA0() {
   #endif
 }
 
+#if defined(TCA1)
 void init_TCA1() {
   /* TCA0_PINS from pins_arduino.h */
   // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
@@ -1258,6 +1259,7 @@ void init_TCA1() {
     TCA1.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
   #endif
 }
+#endif
 
 void init_TCBs() {
 
@@ -1334,4 +1336,3 @@ void init_TCD0() {
   TCD0.CTRLA    = TIMERD0_CLOCK_SETTING;  // 5, 10 MHz OSCHF, all others CLKPER. count prescale 32 except 1 MHz, prescale 4.
 }
 #endif
-
