@@ -15,9 +15,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Initialize TCD0 to count prescale = 32 whenever F_CPU > 1 MHz. At 1 MHz, prescale of 4 will be used instead
 * Adapt analogWrite(pinOnTCD0) to check `CMPBCLR`. It's a crude test (to be fast) but if high byte is 1 (509), leftshift 1, if 3 (for 1019) <<= 2 (F_CPU >=32 MHz only: if 7, <<=3 (for 2039)) - one of very few cases where direct registry changes are not only permitted but adapted to intelligently.
 * Adapt PWM and timer usage document inherited from megaTinyCore to (more) accurately describe the state of affairs on these parts.
-* Implement flexible PWM on TCD channel.
-
-
+* Implement flexible PWM on TCD channels.
+* Removed option to disable MVIO via fuse - there does not appear to be any benefit to this option, and setting it when the hardware is wired for MVIO  looks likely to cause hardware damage. (#58)
+* Linting - fix huge number of trivial issues like broken links, newlines where they shouldn't be, and that kind of crap.
 
 ## Released Versions
 
