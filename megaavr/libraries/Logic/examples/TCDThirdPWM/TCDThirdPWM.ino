@@ -30,7 +30,7 @@ void initThirdPWM() {
 
   TCD0.CTRLA &= ~TCD_ENABLE_bm;
   TCD0.CTRLA = (TCD_CLKSEL_OSCHF_gc | TCD_CNTPRES_DIV4_gc | TCD_SYNCPRES_DIV8_gc);
-  // switch from /1 sync prescale (for maximum speed syncronization) to /8
+  // switch from /1 sync prescale (for maximum speed synchronization) to /8
   // and from /32 prescale on count to /4 (same overall frequency).
   TCD0.DLYCTRL = 0x3E;
   // Set delay prescale to /8 - giving us 8x8 = 64 prescale. But we only have 1-255 counts on the delay counter, while in default

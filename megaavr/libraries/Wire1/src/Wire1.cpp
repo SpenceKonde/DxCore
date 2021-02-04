@@ -351,7 +351,7 @@ int TwoWire1::peek(void)
 }
 
 // can be used to get out of an error state in TWI module
-// e.g. when MDATA regsiter is written before MADDR
+// e.g. when MDATA register is written before MADDR
 void TwoWire1::flush(void)
 {
 //  /* Clear buffers */

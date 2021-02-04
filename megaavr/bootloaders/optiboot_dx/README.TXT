@@ -11,7 +11,7 @@ Arduino-specific issues are tracked as part of the Arduino project
 at http://github.com/arduino/Arduino
 
 
-Most of the information in this file is superceeded by the wiki content at
+Most of the information in this file is superseded by the wiki content at
 https://github.com/Optiboot/optiboot/wiki
 
 It's till here "just in case."

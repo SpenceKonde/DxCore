@@ -29,7 +29,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * **Add new Event system library** to go with the new version of Logic! (#52)
 * digitalWriteFast(), digitalReadFast() are now available for single-cycle pin writes! This also comes along with the compile time error checking for most digital and analog API functions.
 * Safe fuses automatically written on all UPDI uploacs: Set all fuses that we ever set in response to menu selections except for BODCFG on all uploads to non-Optiboot configurations, and all "upload using programmer" to optiboot configurations. Fuses that the core does not provide a method of specifying are not touched by the normal upload process; if you have gone and changed one, it is assumed that it was intentional.
-* The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defauts.
+* The Burn bootloader command will set BODCFG, as well as resetting all fuses to their defaults.
 * Optiboot now supports writing to flash from the application section. This is done through a novel and highly efficient (of bootloader flash, of which we are terribly short!) method; only 2 instruction words are used within the bootloader section.
 * Add the `writeflash.h` or `Flash.h` library to take advantage of it to program the flash. Please give feedback!
 * Update Logic library to latest version, improving init(), keyword highlighting, and documentation. Docs now specific to DxCore.
@@ -89,5 +89,5 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ### 1.0.1
 * Tried to add support for curiosity nano (unsuccessfully)
-* Freshly built toolchain that I'm hosting in S3 to accomodate the 128k DB-series parts and the smaller-flash DA-series. THESE SHOULD NOW WORK!
+* Freshly built toolchain that I'm hosting in S3 to accommodate the 128k DB-series parts and the smaller-flash DA-series. THESE SHOULD NOW WORK!
 * Minor doc improvements

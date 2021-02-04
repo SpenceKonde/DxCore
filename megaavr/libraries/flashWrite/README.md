@@ -35,7 +35,7 @@ The application code (your sketch) is uploaded starting from `0x00200` (the end 
 
 ### Don't write NVM from an ISR
 Surprisingly, this code doesn't need interrupts disabled - *unless those interrupts also write to EEPROM or Flash*. If you are writing to the NVM from ISRs, you are doing something wrong!
-Considering widely known best practices for Arduino, I would argue that if you were trying to wrtite to the EEPROM or Flash from within an ISR, you deserve what you get! Remember how "ISRs should run fast"? Writing a word of flash takes 70us according to the datasheet. At 24 MHz, that's 1680 clock cycles. Per byte or word written. That is not fast. Writing EEPROM, however, is FAR slower still... it is spec'ed at **11ms per ERASE-WRITE byte** (`NVMCTRL.CTRLA` = `NVMCTRL_CMD_EEERWR_gc`) -  pointing out that that's around a quarter million system clocks (at 24 MHz) probably doesn't contribute much to the discussion; if "11ms" didn't disuade you, "a quarter million clocks" probably won't either...
+Considering widely known best practices for Arduino, I would argue that if you were trying to wrtite to the EEPROM or Flash from within an ISR, you deserve what you get! Remember how "ISRs should run fast"? Writing a word of flash takes 70us according to the datasheet. At 24 MHz, that's 1680 clock cycles. Per byte or word written. That is not fast. Writing EEPROM, however, is FAR slower still... it is spec'ed at **11ms per ERASE-WRITE byte** (`NVMCTRL.CTRLA` = `NVMCTRL_CMD_EEERWR_gc`) -  pointing out that that's around a quarter million system clocks (at 24 MHz) probably doesn't contribute much to the discussion; if "11ms" didn't dissuade you, "a quarter million clocks" probably won't either...
 
 ### An added benefit of the `MAPPED_PROGMEM` section
 Since it's memory mapped... you can cast to a pointer and use it like a normal constant variable!
@@ -189,7 +189,7 @@ if (retval) {
 
 ```
 
-This writes a single word to the flash at the location specied. You can only write words, not bytes, and you are responsibe for ensuring that the the address has been erased. Writing locations that are already written will result in the flash at that address storing the value `OldEData & NewData` - weiting the flash can only turn 1's into 0's, and only an erase cycle can turn 0's into 1's.
+This writes a single word to the flash at the location specified. You can only write words, not bytes, and you are responsibe for ensuring that the the address has been erased. Writing locations that are already written will result in the flash at that address storing the value `OldEData & NewData` - weiting the flash can only turn 1's into 0's, and only an erase cycle can turn 0's into 1's.
 
 The address is byte oriented. When writing words, you must align with word boundaries (address must be even).
 
@@ -213,7 +213,7 @@ flashReadByte(uint32_t address)
 flashReadWord(uint32_t address)
 ```
 
-As the name implies, these will read either a byte or word from the flash - this is the same as using the `pgm_read_...` macros (in fact, thats what this library uses) - this is just a convenience function (also makes it easier to write code that works without modification across different flash sizes - >64k parts require the `_far` version, which isn't provided (for obvious reasons) on parts with less than 64k flash.)
+As the name implies, these will read either a byte or word from the flash - this is the same as using the `pgm_read_...` macros (in fact, that's what this library uses) - this is just a convenience function (also makes it easier to write code that works without modification across different flash sizes - >64k parts require the `_far` version, which isn't provided (for obvious reasons) on parts with less than 64k flash.)
 
 ## Utility - getFlashMappedPointer(), getFlashAddress()
 
@@ -284,7 +284,7 @@ If you receive any of these, and it is not apparent why it is not working, pleas
 
 ## Known Limitations
 * Library does not verify that flash was written correctly, or that it targeted flash that had been erased.
-* Library leaves NVMCTRL.CTRLA set; In supported configurations, this should be safe except for the case of user code that has to issue other `NVMCTRL` commands - and doesn't defensively set to `NOOP` first. That's probably a bad course of action, as it places faith in other code behaving the way you would - especially since, as it happens, other code in the wild *doesn't* behave that way I don't think the fact that it `NVMCTRL.CTRLA` is left on a command is in and of itself a risk, since only the one SPM instruction on that one page of flash can execute it; You could only get there via JMP/RJMP/CALL/RCALL - which are targeted at compile time (ie, they are your entry point, or the libraries entry point, and set the command register anway)... or they would get there from some "wild pointer" that ends up pointing an IJMP or ICALL there - but in that case, the pointer that directs those is the Z pointer, which also targets SPM - so the Z-pointer would be pointing to the first page of flash... which cannot write to itself!
+* Library leaves NVMCTRL.CTRLA set; In supported configurations, this should be safe except for the case of user code that has to issue other `NVMCTRL` commands - and doesn't defensively set to `NOOP` first. That's probably a bad course of action, as it places faith in other code behaving the way you would - especially since, as it happens, other code in the wild *doesn't* behave that way I don't think the fact that it `NVMCTRL.CTRLA` is left on a command is in and of itself a risk, since only the one SPM instruction on that one page of flash can execute it; You could only get there via JMP/RJMP/CALL/RCALL - which are targeted at compile time (ie, they are your entry point, or the libraries entry point, and set the command register anyway)... or they would get there from some "wild pointer" that ends up pointing an IJMP or ICALL there - but in that case, the pointer that directs those is the Z pointer, which also targets SPM - so the Z-pointer would be pointing to the first page of flash... which cannot write to itself!
 * Library provides no facility to "update" a page of memory. This would probably be useful.
 * Library lacks convenience functions and defines for taking full advantage of MAPPED_PROGMEM and the like...
 * No provision for wear leveling (I would suggest this be a build on top of a library like this, once the API stabilitzes.

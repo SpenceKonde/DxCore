@@ -793,7 +793,7 @@ void init_millis()
       _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,0x02);
       //RTC.CLKSEL=0; this is the power on value
     #endif
-      RTC.INTCTRL=0x01; //enable overflow interupt
+      RTC.INTCTRL=0x01; //enable overflow interrupt
       RTC.CTRLA=(RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
 
     #else //It's a type b timer
@@ -914,7 +914,7 @@ void init_clock() {
 
   #if CLOCK_SOURCE==0
     //internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
-    /* patern is:
+    /* pattern is:
     F_CPU     CLKCTRL_FREQSEL
     1 MHz     0x0
     2 MHz     0x1

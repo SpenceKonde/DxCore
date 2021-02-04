@@ -49,7 +49,7 @@ Just because this is worked around does not mean you can totally ignore it thoug
 If the SSD (slave select disable) bit is not set, if an SPI interface is used with the default pin mapping, master mode will not be operable. Not much of a concern for Arduino users, since the only SPI library around for the modern AVR parts only supports master mode and always sets this bit.
 
 ### USART Open Drain mode
-Yeah, you cant have TX pin as OUTPUT if using open drain mode, because it can drive the pin high. Setting it INPUT works. Just like on every other part with the new peripherals since their introduction. They should really just amend the datasheet, remove it from the errata, and pretend they meant it if they're not going to fix it.
+Yeah, you can't have TX pin as OUTPUT if using open drain mode, because it can drive the pin high. Setting it INPUT works. Just like on every other part with the new peripherals since their introduction. They should really just amend the datasheet, remove it from the errata, and pretend they meant it if they're not going to fix it.
 
 ### TCA1 remap options 2 and 3 not functional
 Remapping TCA1 to PORTE and PORTG does not work. Note that this is only relevant for 64-pin parts, as the effected pins are not present on 48-pin parts. Kind of a bummer though that we can't get more use out of PORTG!

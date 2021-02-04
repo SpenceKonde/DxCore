@@ -6,7 +6,7 @@
 /* Arduino-maintained version : See README.TXT            */
 /* http://code.google.com/p/arduino/                      */
 /*  It is the intent that changes not relevant to the     */
-/*  Arduino production envionment get moved from the      */
+/*  Arduino production environment get moved from the      */
 /*  optiboot project to the arduino project in "lumps."   */
 /*                                                        */
 /* Heavily optimised bootloader that is faster and        */
@@ -163,7 +163,7 @@ optiboot_version = 256*(OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
 /*
  * Fuses.
  * This is an example of what they'd be like, but some should not
- * necessarilly be under control of the bootloader.  You'll need a
+ * necessarily be under control of the bootloader.  You'll need a
  * a programmer that processes the .fuses section to actually get
  * these programmed into the chip.
  * The fuses actually REQUIRED by Optiboot are:
@@ -288,7 +288,7 @@ typedef uint8_t pagelen_t;
  * The main() function is in init9, which removes the interrupt vector table
  * we don't need. It is also 'OS_main', which means the compiler does not
  * generate any entry or exit code itself (but unlike 'naked', it doesn't
- * supress some compile-time options we want.)
+ * suppress some compile-time options we want.)
  */
 
 // Don't need pre_main with new write-from-app system...
@@ -344,7 +344,7 @@ static addr16_t buff = {(uint8_t *)(RAMSTART)};
 /*
 void pre_main (void) {
     // Allow convenient way of calling do_spm function - jump table,
-    //   so entry to this function will always be here, indepedent
+    //   so entry to this function will always be here, independent
     //    of compilation, features, etc
     __asm__ __volatile__ (
   "  rjmp  1f\n"
@@ -607,7 +607,7 @@ int main (void) {
     #endif
     /* Get device signature bytes  */
     } else if (ch == STK_READ_SIGN) {
-      // Easy, they're already in a mapped register... but we know the flash size at compiletime, and it saves us 2 bytes of flash for each one we don't need to know...
+      // Easy, they're already in a mapped register... but we know the flash size at compile time, and it saves us 2 bytes of flash for each one we don't need to know...
       verifySpace();
       putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
       #if (PROGMEM_SIZE==131072)  // need different binary for 128k vs 64k vs 32k-and-under anyway, as 32k-and-under is all mapped, 64k isn't mapped, but doesn't have RAMPZ and 128k has RAMPZ...

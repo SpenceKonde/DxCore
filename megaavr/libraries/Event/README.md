@@ -28,7 +28,7 @@ The fact that it is asynchronous usually doesn't matter - it's either "faster th
 At first glance, more than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. *That was certainly my first impression! -Spence* Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL . One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event generator or user, and every crazy register option, there is a use case - maybe an obscure one - for which that functionality is a big deal.
 
 ### How do I read the levels of the event channels?
-From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connnect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer).
+From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer).
 
 ## Event
 Class for interfacing with the Event systemn (`EVSYS`). Each event channel has its own object.

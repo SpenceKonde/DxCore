@@ -100,7 +100,7 @@ void doStuffWithOSC() {
     Serial.println("failed to enable autotune w/external 32kHz osc set to CLOCK");
     if (disableAutoTune()) {
       // true = fail
-      Serial.println("Cant disable autotune - it's already off!");
+      Serial.println("Can't disable autotune - it's already off!");
     }
     disableXOSC32K();
     Serial.println("Disabling the non-functional external oscillator");
@@ -118,7 +118,7 @@ void doStuffWithOSC() {
 
   } else {
     if (disableAutoTune()) {
-      Serial.println("Cant disable autotune - strange, it should be on! ");
+      Serial.println("Can't disable autotune - strange, it should be on! ");
     } else {
       Serial.println("Disabled autotube... ")
     }

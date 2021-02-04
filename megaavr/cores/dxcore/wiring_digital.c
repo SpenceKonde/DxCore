@@ -104,7 +104,7 @@ void pinMode(uint8_t pin, uint8_t mode) {
 //
 // Mark Sproul:
 // - Removed inline. Save 170 bytes on atmega1280
-// - changed to a switch statment; added 32 bytes but much easier to read and maintain.
+// - changed to a switch statement; added 32 bytes but much easier to read and maintain.
 // - Added more #ifdefs, now compiles for atmega645
 //
 //static inline void turnOffPWM(uint8_t timer) __attribute__ ((always_inline));
@@ -170,7 +170,7 @@ static void turnOffPWM(uint8_t pin)
       _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(0x10 << (bit_pos & 0x03)));
       #endif
       while(!(TCD0.STATUS & TCD_ENRDY_bm)); // wait until we can restart it
-      TCD0.CTRLA |= TCD_ENABLE_bm; //reenable it
+      TCD0.CTRLA |= TCD_ENABLE_bm; //re-enable it
       #if defined(NO_GLITCH_TIMERD0)
         volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), bit_pos);
         *pin_ctrl_reg &= ~(PORT_INVEN_bm);

@@ -527,7 +527,7 @@ void demo9b() {
   TCB0.CTRLA = 0;
   TCB0.CTRLA = TCB_CLKSEL_DIV2_gc | TCB_ENABLE_bm;  // Switch to clk_per clock & enable
   Serial.println("Before (CLK_PER/2): ~47 kHz");    // 24 / 2 = 12 MHz, 12 MHz / 255 count/cycle = ~47 kHz
-  analogWrite(PIN_PF4,128);                         // Output some pwm to demo change in freqency
+  analogWrite(PIN_PF4,128);                         // Output some pwm to demo change in frequency
   delay(5000);
   TCB0.CTRLA = 0;                                   // Disable TCB0
   TCB0.CTRLA = TCB_CLKSEL_EVENT_gc | TCB_ENABLE_bm; // Switch to event clock & enable
@@ -626,7 +626,7 @@ void demo9d() {
   // If we went back to a sync prescale of /2 instead of /8 within the TCD0 peripheral,
   // we would have 750 Hz output, with option to double it  or halve it by changing
   // sync prescale, all while keeping the period of the "real" PWM channels and that of the third
-  // "fake" PWM made from PROGEV equal to eachother - which is just what I wanted.
+  // "fake" PWM made from PROGEV equal to each other - which is just what I wanted.
 
 }
 
@@ -693,7 +693,7 @@ void demo10(){
 
 
   /* TCB0 - Timer/Counter Type B */
-  analogWrite(PIN_PF4,128);                         // Output some pwm to demo freqency
+  analogWrite(PIN_PF4,128);                         // Output some pwm to demo frequency
   TCB0.CTRLA = 0;                                   // Disable TCB0
   TCB0.CTRLA = TCB_CLKSEL_EVENT_gc | TCB_ENABLE_bm; // Switch to event clock & enable
   Serial.println("After: ~10.4 kHz");               // 24*2 / 18 = 2.667 MHz, 2.667 MHzz / 255 count/cycle = ~10.4 kHz

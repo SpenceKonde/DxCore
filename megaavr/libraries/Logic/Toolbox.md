@@ -42,9 +42,9 @@ A simple selection switch - that is, it switches between two inputs depending on
 #include <Event.h>
 
 void setup() {
-  pinMode(PIN_CCL0_IN2,OUTPUT);           // set the CCL0 input pin 2 as OUTPUT.
-  analogWrite(PIN_TCA0_WO0,16);           // 1/16th duty cycle
-  analogWrite(PIN_TCA0_WO1,127);          // 50% duty cycle
+  pinMode(PIN_PA2,OUTPUT);                // set the CCL0 input pin 2 as OUTPUT.
+  analogWrite(PIN_PC0,16);                // 1/16th duty cycle
+  analogWrite(PIN_PC1,127);               // 50% duty cycle
                                           // In practice, you'd probably not have it outputting to the pins.
   Logic0.enable=true;                     // Enable logic block 0
   Logic0.output=out::enable;              // Enable logic block 0 output pin
@@ -67,7 +67,6 @@ void loop() {
 ### Explanation
 The concept is straightforward; there are a few things in above that are noteworthy:
 1. The "pin" input to logic doesn't set pinMode - thus, you can use an *OUTPUT* as your input to the logic block. Why would you do such a silly thing? Because it gives you a way to switch logic blocks between two states, whereas soft_event only provides a very brief pulse.
-1. `PIN_TCAx_WOn` - since early Febuary, DxCore and megaTinyCore have included defines of this form - (for other timers too). Same goes fo
 
 
 # Toggle

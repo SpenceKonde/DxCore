@@ -326,8 +326,8 @@ void analogWrite(uint8_t pin, int val)
       if (!(TCD0.FAULTCTRL & fc_mask)) {
         TCD0.CTRLA &= ~TCD_ENABLE_bm;       // stop the timer
         _PROTECTED_WRITE(TCD0.FAULTCTRL,(fc_mask | TCD0.FAULTCTRL));
-        while(!(TCD0.STATUS & 0x01)) {;}    // wait until it can be reenabled
-        TCD0.CTRLA |= TCD_ENABLE_bm;        // reenable it
+        while(!(TCD0.STATUS & 0x01)) {;}    // wait until it can be re-enabled
+        TCD0.CTRLA |= TCD_ENABLE_bm;        // re-enable it
       } else {
         /* if it's already on, all we have to do is sync! */
         TCD0.CTRLE = TCD_SYNCEOC_bm;

@@ -74,7 +74,7 @@ VPORTA.DIR     |= (1 << 4) | (1 << 5); // Not interrupt safe. 3 clock cycles, 6 
 // while the ___SET/___CLR ones are not:
 PORTA.DIRSET    = (1 << 4) | (1 << 5); // Interrupt safe. 3 clock cycles, 6 bytes (ldi, sts)
 
-// It must be known at compiletime which pin you're doing it to, and whether you are setting or clearing it, in order to become a `cbi`/`sbi` instruction:
+// It must be known at compile time which pin you're doing it to, and whether you are setting or clearing it, in order to become a `cbi`/`sbi` instruction:
 // where pin_bm is (1 << pin_bit_in_port) and not constant.
 VPORTA.DIR     |= pin_bm; // Not interrupt safe! 3 clock cycles, 6 bytes (in, or, out) - not counting setting up the variable.
 PORTA.DIRSET    = pin_bm; // Interrupt safe. 2 clock cycles, 4 bytes (sts) - not counting setting up the variable
@@ -85,7 +85,7 @@ VPORTA.DIR     &= ~(1 << 4);    // does the same thing
 PORTA.DIRCLR   |=   1 << 4;     // NOT the same!
 // Were you expecting this to clear bit 4 only? It will clear ALL bits currently set!
 // it will read PORTA.DIRCLR, which always reads as PORTA.DIR, bitwise or with 1 << 4, and then write the result back.
-// |= and &= should never be used with SET/CLR/TGL registers, only normal registers (with the knowledge that it's not interrupt safe to do so), and the VPORT registers, where it is interrupt safe if and only if a single compiletime known bit is being set or cleared.
+// |= and &= should never be used with SET/CLR/TGL registers, only normal registers (with the knowledge that it's not interrupt safe to do so), and the VPORT registers, where it is interrupt safe if and only if a single compile time known bit is being set or cleared.
 
 ```
 
