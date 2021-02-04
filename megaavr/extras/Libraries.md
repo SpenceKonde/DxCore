@@ -3,7 +3,7 @@ The Dx-series parts have a lot of new capability and - compared to the "classic"
 
 ## DxCore-specific
 ### DxCore
-[DxCore Readme](../libraries/DxCore/README.md) The DxCore provides a wrapper around a couple of chip configuration functions tha didn't seem appropriate in either the core proper, or in their own library. So far, it's just fo
+[DxCore Readme](../libraries/DxCore/README.md) The DxCore provides a wrapper around a couple of chip configuration functions that didn't seem appropriate in either the core proper, or in their own library. So far, it's just for
 
 ### Flash or flashWrite
 1.3.0 introduces the ability to write to the application section on Optiboot boards by calling in to a stub of an entry point in Optiboot. I wasn't sure how to present this functionality, so there are two approaches to how to organize it, in [Flash](../libraries/Flash/README.md), and in [writeFlash](../libraries/flashWrite/README.md). Please let me know which one you like better, and how I could improve the overall experience. Future updates are expected to bring the ability to do this without using a bootloader too!

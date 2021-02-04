@@ -100,7 +100,7 @@ Note that no attention had been paid to these for DxCore prior to the 1.3.0 rele
 
 * Overclocked (generally works and can be achieved with internal oscillator)
 ** Way overclocked (untested, requires external crystal or oscillator).
-** TCD0 at those speeds doesnt have to use CLK_PER - it can use the internal oscillator, which we might set to, oh, whatever the most friendly and convenient speeds is
+** TCD0 at those speeds does not have to use CLK_PER - it can use the internal oscillator, which we might set to, oh, whatever the most friendly and convenient speeds is
 Prescale A and F_PWM apply to all pins not on TCD0. TOP is always set to 254
 Prescale D, TOP D, and F_PWM D apply to the pins on TCD0.
 Where marked, we clock from OSCHF instead of using CLK_PER

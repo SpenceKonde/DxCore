@@ -26,20 +26,17 @@ extern FlashClass Flash;
 typedef enum FLASHWRITE_RETURN_VALUES
 {
   FLASHWRITE_OK             = (0x00),
-
   /* 0x10 - Non-optiboot problem   */
-  FLASHWRITE_NOBOOT         = (0x11),
-  FLASHWRITE_FUSES          = (0x14),
-  /* May be handled in future version
-  If we're trying to write without a
-  bootloader, the APPDATAWP bit in
-  NVMCTRL.CTRLB would block all
-  attempts at writing the flash.
-  FLASHWRITE_APPDATAWP      = (0x1F),*/
+  FLASHWRITE_FUSES          = (0x11),
+  // Bootloader section isn't defined
+  // so even if the entrypoint is
+  // there it can't write to the app.
+/*FLASHWRITE_APPCODEWP      = (0x1F),*/
   FLASHWRITE_NYI            = (0x1F),
 
 
   /* 0x20 - Problem with Optiboot  */
+  FLASHWRITE_NOBOOT         = (0x20),
   FLASHWRITE_OLD            = (0x21),
   FLASHWRITE_DISABLED       = (0x22),
   FLASHWRITE_UNRECOGNIZED   = (0x23),

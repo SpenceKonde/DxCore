@@ -233,7 +233,7 @@ getFlashAddress() will go the opposite direction - passed a pointer to a locatio
 flashWriteWords(uint32_t address, uint16_t* data, uint16_t length)
 ```
 
-This will write the supplied data to flash, starting from `address`.  Length is the number of words being written (the number of elements of the uint16 array) If you need to write other datatypes, cast the pointer youre passing to a ( uint116_t * ) and be sure that you recalculate the length.
+This will write the supplied data to flash, starting from `address`.  Length is the number of words being written (the number of elements of the uint16 array) If you need to write other datatypes, cast the pointer you're passing to a ( uint116_t * ) and be sure that you recalculate the length.
 
 Like `flashWriteWord`, the address must be even, (as we write one word at a time), but there is no alignment requirement beyond that - writes can even cross the 64K boundary. No erase operation is performed by `flashWriteWords()`, and the array passed must have at least `length` elements.
 

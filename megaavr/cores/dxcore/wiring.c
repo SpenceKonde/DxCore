@@ -929,7 +929,7 @@ void init_clock() {
     28 MHz    0xA  - undocumented, unofficial
     32 MHz    0xB  - undocumented, unofficial
     */
-    /* Some speeds not otherwise possible can be generated with the interal oscillator by prescaling
+    /* Some speeds not otherwise possible can be generated with the internal oscillator by prescaling
     This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
     It was not done for 14, 7, 6, and all the thirds-of-MHz that you can get with the divide by 6 option.
     */

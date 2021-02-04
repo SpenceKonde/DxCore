@@ -2,10 +2,7 @@
 #include <avr/pgmspace.h>
 #include "Flash.h"
 
-typedef union {
-    uint16_t word;
-    uint8_t bytes[2];
-} flword16_t;
+
 
 
 /* My go-to NVMCTRL.CTRLA write function - check status only at start
@@ -27,26 +24,26 @@ void do_nvmctrl(uint8_t command) {
 
 uint8_t FlashClass::checkWritable() {
   #ifndef USING_OPTIBOOT
-    if (pgm_read_word_near(0x0004)!=0x95Ff) {
-      // Non-bootloader-dependent versions are planned to
-      // replace the (basically useless for Arduino) NMI_vect
-      // instead of Optiboots .version-4, plus as the target
-      // for the SPM Z+ RET location. I think NVM_EE_vect
-      // goes too, because we need to do the same sort of thing
-      // to maintain access to EEPROM if we were to do what
-      // I think we will need to, which is to set a sliver of
-      // the flash as "APPCODE" and the rest as the APPDATA.
-      // Since APPDATA can't write to EEPROM, we'd replace
-      // the EERPOM vector (which nobodty in Arduino-land
-      // ever uses - it's sometimes used for other dirty ends
-      // on classic AVRs too (ex: VirtualBoot for Optiboot.)
-      return FLASHWRITE_NOBOOT;
-    } else {
-      // Good to go - except it's not yet implemented.
+    #ifdef(SPM_FROM_APP)
+      if (FUSE.BOOTSIZE != 0x01) {
+        // This approach depends on the first page of the flash being set
+        // as "bootloader" (though we just tell the interrupt controller
+        // that the vwectors are in the boot section and run app normally)
+        // If it's not set correctly, then even if the entry point is there
+        // what good will it do if it doesn't have the privileges to write
+        // flash?
+        return FLASHWRITE_NOBOOT
+      }
+      return FLASHWRITE_OK;
+    #else
       return FLASHWRITE_NYI;
+      #error "Using this from the app requires core support which is not yet implemented"
+      // #error "In order to write to flash from app, this must be enabled from tools menuss"
+    #endif
+    return
     }
   #else
-    if (FUSE.BOOTSIZE != 0x01) {
+    if (FUSE.BOOTSIZE == 0x00) {
       // Should we support BIGBOOT?
       // I vote "NO" because I know I have never made that work
       // but it would be far less work than getting a BIGBOOT
@@ -143,19 +140,12 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   #endif
   do_nvmctrl(command);
   uint16_t zaddress=address;  // temp variable; SPM Z+ changes it!
-  /* Long story short, if you are passing things in that may be chanced by
-   * the ASM, declare it as an output... If you have a variable that must
-   * get in there, it appears to me that you must copy it to another variable
-   * and shove the other variable into the assembly. However - the insidious
-   * thing is that depending on how it distributes variables between the
-   * registersa, if when you finally get to the asm, your constraints are
-   * highly, ah, constraining, you could well end up in the situation I was
-   * in: All the assembly blocks passed the address to it and assumed it would
-   * come out unscathed... and... sometimes it did. Sometimes It didn't.
-   * So don't change anything not passed in as an output, kids!
-   * Remember, assembly has no guardrails other than the constraints.
-   * It won't let you pass a const as an output for example. But it won't
-   * won't keep your assembly from writing to it anyway!
+  /* Long story short, if you are passing things in that may be changed by
+   * the ASM, declare it as an output... and pass a copy if you don't want
+   * it to get changed. The compiler takes you at your word about what the constraints
+   * on registers are. If you say "I need address in Z, it's an input" it will believe you.
+   * And if you then call SPM Z+ , but the compiler knows Z hasn't changed (because you
+   * told it that).
    */
   __asm__ __volatile__ ("call 0x1FA" : "+z" (zaddress));
   #if (PROGMEM_SIZE > 0x10000)
@@ -251,7 +241,7 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   // > "The Flash is word-accessed for code space write operations, so
   // > the least significant bit (bit 0) in the Address Pointer is ignored"
   // No, it most definitely is not ignored! It will definitely do unaligned writes
-  // unless they cross the bage boundary, in which case the byte that would
+  // unless they cross the page boundary, in which case the byte that would
   // be in the last byte of the prior page ends up on the second byte if the new page...
   uint16_t zaddress=address&0xFFFE; //truncate and force low bit to 0...
   do_nvmctrl(NVMCTRL_CMD_FLWR_gc);
