@@ -101,17 +101,20 @@ Note that no attention had been paid to these for DxCore prior to the 1.3.0 rele
 * Overclocked (generally works and can be achieved with internal oscillator)
 ** Way overclocked (untested, requires external crystal or oscillator).
 ** TCD0 at those speeds doesnt have to use CLK_PER - it can use the internal oscillator, which we might set to, oh, whatever the most friendly and convenient speeds is
-Prescale A and F_PWM apply to all pins not on TCD0. TOP is always set to 255
+Prescale A and F_PWM apply to all pins not on TCD0. TOP is always set to 254
 Prescale D, TOP D, and F_PWM D apply to the pins on TCD0.
-Where marked, we clock from OSCHF instead of using prescaled clock
+Where marked, we clock from OSCHF instead of using CLK_PER
 These are the overall Timer D prescaler (in all cases, by default only the count prescaler is used), TOP, and resulting frequency of TCD0 PWM output.
 Where TOP is not 254, (that is, everywhere that matters), all duty cycles passed to analogWrite() for those pins will by left-shifted as necessary to get an appropriate duty cycle. One of very few times that we react well to register values being changed on us...
+
+#### Potential enhancement
+When using an external clock source, it may be reasonable to configure the internal oscillator to run at 8 MHz and clock TCD0 with that to get the target 1 kHz PWM without having to bitshift the duty cycle.
 
 #### Previous versions
 On versions 1.3.0 and earlier, TCA prescale was fixed at 64 for CLK_PER > 5 MHz, resulting in PWM frequencies 4x higher when clocked at speeds in excess of the manufacturer's maximum rated clock speed.
 
 Similarly, TCD0 TOP was fixed at 509, with the same result at high frequencies, plus PWM around 250-300 Hz at 4-5 MHz, and 61 Hz at 1 MHz system clock. This issue has not yet been fixed.
-The prescale of 32 is a highly favorable setting - under normal conditions, sync prescale can be 1 and count prescale 32. But if you are using the TCDThirdPWM trick from [the Logic library examples](megaavr/libraries/Logic/examples/TCDThirdPWM/TCDThirdPWM.ino), you can get the same prescale from sync prescale of 8 and count prescale of 4 - If TOP = 254, match that by setting delay prescale to 4, and if TOP = 509, set delay prescale to 8 for the same period. In the aforementioned case with the third PWM channel,where F_CPU > 25 MHz, you would need to set CMPBCLR back to 509, and you would have to accept that higher output frequency.
+The prescale of 32 is a highly favorable setting - under normal conditions, sync prescale can be 1 and count prescale 32. But if you are using the TCDThirdPWM trick from [the Logic library examples](../libraries/Logic/examples/TCDThirdPWM/TCDThirdPWM.ino), you can get the same prescale from sync prescale of 8 and count prescale of 4 - If TOP = 254, match that by setting delay prescale to 4, and if TOP = 509, set delay prescale to 8 for the same period. In the aforementioned case with the third PWM channel,where F_CPU > 25 MHz, you would need to set CMPBCLR back to 509, and you would have to accept that higher output frequency.
 
 ### Millis/Micros Timekeeping
 DxCore allows any of the type A or B timers to be selected as the clock source for timekeeping via the standard millis timekeeping functions. The RTC timers will be added after the sleep/low power library for this and tinyAVR 0/1-series is completed. There are no plans to support the type D timer - this is not like tinyAVR where we are desperately short of timers, and the comparatively difficult to use type D timer is an irresistible victim to palm off the task of millis timekeeping on - and the calculations are more complicated since there are a great many possible speeds it could be running at, as opposed to just 16 or 20 on the tinyAVR 0/1-series. The timer used and system clock speed will effect the resolution of millis() and micros(), the time spent in the millis ISR when the timer overflows, and the time it takes for micros() to return a value (micros always takes several times it's resolution to return - the time returned corresponds to the time micros() was called, regardless of how long it takes to return).

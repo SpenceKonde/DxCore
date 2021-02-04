@@ -1,6 +1,6 @@
 ### [Wiring](Wiring.md)
 ### [Installation](Installation.md)
-### [Making a cheap UPDI programmer](megaavr/extras/MakeUPDIProgrammer.md)
+### [Making a cheap UPDI programmer](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md)
 
 ## **YES - the Curiosity Nano is finally supported!**
 
@@ -75,22 +75,24 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions, at least at room temperature) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future.
 
-The DA-series does not support use of an external high frequency crystal (though the DB/DD-series do) - the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. We provide a wrapper around enabling external 32K crystal and enabling/disabling these in [DxCore.h](/megaavr/libraries/DxCore)
+The DA-series does not support use of an external high frequency crystal (though the DB/DD-series do) - the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication, and an external watch crystal can be used to automatically tune the internal oscillator frequency, a feature called Auto-Tune. Though they specify +/- 3% internal oscillator speed, in practice, I have yet to find one that was off by more than 1 calibration "notch" at room temperature. These are just in a different universe than the classic AVRs where a couple percent was normal. Nonetheless, we provide a wrapper around enabling external 32K crystal and enabling/disabling Auto-Tune in [DxCore library](megaavr/libraries/DxCore).
 
 ```c
 #include <DxCore.h>
 
 void setup() {
   //optionally call configXOSC32K() to get specific crystal settings; otherwise it uses conservative defaults.
-  enableAutoTune(); //that easy - this returns 0 on success
-  // if you want to be particularly careful about whether or not it worked (it can not-work if the crystal doesn't actually start oscillating, for example due to
-  // inappropriate loading caps or improper crystal selection.
+  enableAutoTune(); //that easy - this returns 0 on success, you can check that if you want to be particularly
+  // careful about whether or not it worked it can not-work if the crystal doesn't actually start
+  // oscillating, either due to design flaws  inappropriate loading caps, improper crystal selection,
+  // or poor layout, or for other reasons such as damage, extreme temperature, and so on.
+
   // more stuff after this to set up your sketch
 }
 
 ```
 
-There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? Me neither, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore - I'd be lying if I said I missed the struggle to make millis accurate with weirdo clock speeds back on ATTinyCore (which in turn was done to support UART crystals, which the fractional baud rate generator has made obsolete).
+There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? *Me neither*, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore - I'd be lying if I said I missed the struggle to make millis accurate with weirdo clock speeds back on ATTinyCore (which in turn was done to support UART crystals, which the fractional baud rate generator has made obsolete).
 
 ### Clock troubleshooting
 On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation more gracefully. However, without assistance from the core, recognizing that the problem was infact a missing clock could be challenging. In order to aid in debugging such issues, DxCore will never run the sketch if the selected clock is not present. It will try for a short time before giving up and showing a blink code on pin PA7 (Arduino pin number 7); this blink code will be shown until the chip is reset. Similarly, on the DB-series, which features Clock Failure Detection, a clock failure at runtime will trigger a different blink code.
@@ -106,7 +108,7 @@ All blink codes issued by the core start with the LED pin switching states three
 The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface) used on the tinyAVR 0/1/2-series, as well as all other modern AVR microcontrollers. In addition to purchasing a purpose-made UPDI programmer (such as the ones produced by Microchip), there are two very low-cost approaches to creating a UPDI programmer:
 
 ## With an Arduino (jtag2updi)
-One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see [Making a UPDI programmer](MakeUPDIProgrammer.md); using these, you should select jtag2updi from the tools->programmer menu. Prior to the release of 2.2.0, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro,
+One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see [Making a UPDI programmer](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md); using these, you should select jtag2updi from the tools->programmer menu. Prior to the release of 2.2.0, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro,
 
 ## From a USB-Serial adapter (pyupdi-style)
 Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of its author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a tool developed and maintained by Microchip which includes the same serial-port upload mechanism. **If installing manually** you must [add the python package](megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system python installation is not sufficient, nor is one necessary).
@@ -118,7 +120,7 @@ Connections:
 
 Choose "Serial Port and 4.7k" from the Tools -> Programmer menu, and select the Serial Port from the Tools -> Port menu.
 
-Note that this does not give you serial monitor - you need to connect a serial adapter the normal way for that (I suggest using two, along with an external serial terminal application (since you don't have autoreset to restart the sketch when open the serial port - you connect before (or during) the upload). This technique works with those $1 CH340 serial adapters from ebay, aliexpress, etc. Did you accidentally buy some that didn't have a DTR pin broken out, and so weren't very useful with the Pro Minis you hoped to use them with?
+Note that this does not give you serial monitor - you need to connect a serial adapter the normal way for that (I suggest using two, along with an external serial terminal application). This technique works with those $1 CH340 serial adapters from ebay, aliexpress, etc. Did you accidentally buy some that didn't have a DTR pin broken out, and so weren't very useful with the Pro Minis you hoped to use them with?
 
 ### Serial adapter requuirements
 Almost any cheaper-than-dirt serial adapter can be use d for pyupdi style programer, as long as you take care to avoid these pitfalls:
