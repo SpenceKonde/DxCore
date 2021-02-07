@@ -6,13 +6,13 @@ Issue    | Severity | Source    | 128DA | 64DA | 32DA |  128DB
 ADC disables digital input| 2        | Microchip | YES   | YES  | YES | NO
 Memory mapped flash issues| 3 (4 in )| Microchip | YES   | NO?  | N/A | NO
 TCA1 Remap on PORTE/G | 1 (2 on 64)| Microchip | YES | NO?  | N/A   | NO?
-* TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES | YES
+TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES | YES
 SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO? | NO?
-* USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES | YES
+USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES | YES
 TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO? | NO?
 ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES | A4 only
 No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A | NO?
-* All CCL LUTs enable-locked to CCL| 2        | Microchip | Likely   | Likely |Likely | YES
+All CCL LUTs enable-locked to CCL| 2        | Microchip | Likely   | Likely |Likely | YES
 CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO? | A4 only
 Initial fuses don't match datasheet | 1        | Microchip / Microchip | YES,A6| ???  | ??? | Week 21 and older
 TCD0 portmux options broken | 3        | Microchip | YES,A6 | Yes | Likely | Yes
