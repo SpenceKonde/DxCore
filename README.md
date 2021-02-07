@@ -40,7 +40,7 @@ This can be set to 102, 103, or 104 depending on flash size:
 * `__AVR_ARCH__ == 102` - Parts with 64Kb of flash, mapped flash is split into 2 sections (AVR64DA, AVR64DB).
 
 ## Supported Parts (click link for pinout diagram and details)
-Support for smaller-flash versions and the AVR128DB parts is not available using the current arduino7 toolchain. We will be working to get an arduino8 toolchain built with the new ATpacks which will add support for these. But, if you hack your toolchain, they should "just work"!
+Note that you must install via board manager or replace your tool chain with the azduino3 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in the AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled - It would be mighty nice if they had updated the silicon errata sheet though! 
 * [AVR128DA28, AVR64DA28, AVR32DA28](megaavr/extras/DA28.md)
 * [AVR128DA32, AVR64DA32, AVR32DA32](megaavr/extras/DA32.md)
 * [AVR128DA48, AVR64DA48, AVR32DA48](megaavr/extras/DA48.md)
