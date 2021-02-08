@@ -69,11 +69,11 @@ Opamp0.output = out::enable; // enable output
 
 
 ### inrange
-Property for controlling the opamp input range.
+Property for controlling the opamp input range - this is set globally, not per opamp. If it is not specified for a given opamp, `init` will not set it one way or the other.
 Accepted values:
 ``` c++
-in::conventional; // Consumes less power but can't handle signal close to the ground and power rails
-in::rail_to_rail; // Consumes more power but can handle signal close to the ground and power rails
+in::rail_to_rail; // Consumes more power but can handle signal close to the ground and power rails. The default
+in::conventional; // Consumes less power but can't handle signal close to the power rail.
 ```
 
 ##### Usage

@@ -36,8 +36,9 @@ namespace in
 {
   enum inrange_t : uint8_t
   {
-    conventional = 0x00,
-    rail_to_rail = 0x01,
+    rail_to_rail = 0x00,
+    conventional = 0x01,
+    unconfigured = 0xFF,
   };
 };
 
@@ -148,7 +149,7 @@ class Opamp
 
     in_p::input_p_t  input_p       = in_p::pin;            // Positive opamp input
     in_n::input_n_t  input_n       = in_n::pin;            // Negative opamp input
-    in::inrange_t    inrange       = in::rail_to_rail;     // Opamp input mode
+    in::inrange_t    inrange       = in::unconfigured;     // Opamp input mode
     top::top_t       ladder_top    = top::off;             // Resistor ladder top setting
     wiper::wiper_t   ladder_wiper  = wiper::wiper0;        // Resistor ladder "wiper" setting
     bottom::bottom_t ladder_bottom = bottom::off;          // Resistor ladder bottom setting

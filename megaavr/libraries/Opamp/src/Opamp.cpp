@@ -73,7 +73,9 @@ void Opamp::calibrate(uint8_t cal_value)
  */
 void Opamp::init()
 {
-  OPAMP_PWRCTRL  = inrange; // Select normal or rail to rail input mode
+  if (inrange != in::unconfigured) {
+    OPAMP_PWRCTRL  = inrange; // Select normal or rail to rail input mode
+  }
   if (enable==enable::unconfigured) { // called init() on something we haven't turned on?
     enable=enable::enable;            // we assume they want it on.
   }
