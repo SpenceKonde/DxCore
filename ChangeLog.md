@@ -20,7 +20,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Linting - fix huge number of trivial issues like broken links, newlines where they shouldn't be, and that kind of crap.
 * TCA0, TCA1 pin assignments now dynamic - if you change PORTMUX.TCAROUTEA, analogWrite() will understand it! (6-channel mappings only - TCA1 on PC4-6 and PE4-6 not supported)
 * takeOverTCA0, takeOverTCA1, and takeOverTCD0 added.
-* Add a bunch of TCAn portmux helpers to DxCore.h, and adapt macros in pins_arduino. Wound up being more work than anything else!
+* Add a bunch of TCAn portmux helpers to DxCore.h. Adapt variant files to remove type A timers from the digital_pin_to_timer table, and otherwise account for these changes.
+* Add in the Opamp library - Thanks @MCUdude!
 
 ## Released Versions
 
