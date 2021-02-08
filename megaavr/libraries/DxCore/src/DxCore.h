@@ -1,5 +1,5 @@
 #ifndef DXCORE_H
-
+#include <Arduino.h>
 typedef enum X32K_TYPE
 {
     X32K_LOWPWR_START31MS = (CLKCTRL_CSUT_1K_gc|CLKCTRL_LPMODE_bm),
@@ -85,6 +85,91 @@ int8_t disableAutoTune()
 }
 #endif
 
+bool setTCA0MuxByPort(uint8_t port) {
+  if (port < 7) {
+    TCA0.SPLIT.CTRLB=0; //disconnect
+    uint8_t base_pin = digitalPortToPin0(port);
+    uint8_t max_pin=min(NUM_DIGITAL_PINS,digitalPortToPin0(port+1))-1;
+    for (byte i = base_pin; i < max_pin;i++) {
+      turnOffPWM(i);
+    }
+    PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | (port & PORTMUX_TCA0_gm);
+    return true;
+  }
+  return false;
+}
+
+bool setTCA0MuxByPin(uint8_t pin) {
+  if (digitalPinToBitPosition(pin) < 6)
+    return setTCA0MuxByPort(digitalPinToPort(pin));
+  return false;
+}
+
+#ifdef TCA1
+
+bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok=false) {
+  #if defined(DB_64_PINS)
+    if (!((port==1) || (port==6) || (((port==2) || (port==4)) && takeover_only_ports_ok))) return false;
+          // not one of the 4 working mapping options that we expect to have on DB64. TCA1 mapping
+          // for this port doesn't exist, port is invalid, or not a port if not caught by above #if
+  #else   // port would be valid if the parts worked, but we know they don't. What we do not know
+    if (port != 1 && (!(port == 2  && takeover_only_ports_ok))) return false;  // however, is whether the AVR64DB64 has the same bug.
+  #endif  // They give the distinct impression that all the parts iwth a given amount of flash come
+  // from the same die, and they just put different epoxy around it wire it to different pins and
+  // position it so they cah charge more for them. But they're the same die with the same bugs, and it's
+  // AND with group mask cuts off the unwanted low bit leaving us with the 2 high bits of the
+  // different flash sizes, not different packages, numbers of I/O's, that matters.
+  TCA1.SPLIT.CTRLB=0; //disconnect all PWM channels
+  uint8_t base_pin = digitalPortToPin0(port);
+  uint8_t max_pin=min(NUM_DIGITAL_PINS,digitalPortToPin0(port+1))-1;
+  for (byte i = base_pin; i < max_pin;i++) {
+    turnOffPWM(i);
+  }
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | ((port << 2) & PORTMUX_TCA1_gm);
+  return true;
+}
+
+bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok=false) {
+  uint8_t port=digitalPinToPort(pin);
+  uint8_t bit_mask=digitalPinToBitMask(pin);
+  #if defined(DB_64_PINS)
+    // AVR128DB, AVR64DB work with the high MUX options
+    if (((port==1 || port ==6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+  #else  // AVR128DA64 definitely do not work. AVR64DA64 untested.
+    if (((port==1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+  #endif // And those are the only 4 parts in the product line for which those pins exist.
+    // PORTB and PORTG have full-service TCA1 (well, not PG on the 128DA63 up to at least the A8 die
+    // rev). for those, bit_mask will be 0x01, 0x02, 0x04, 0x08, 0x10, or 0x20 - but not 0x40 or
+    // 0x80. Hence test against 0x3F works. For the others, it is either 0x10, 0x20, or 0x40 so
+    // test against 0x70; the port function will check that the non-B/G port is valid.
+    return setTCA1MuxByPort(digitalPinToPort(pin),takeover_only_ports_ok);
+  }
+  return false;
+}
+#endif
+
+bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok=false) {
+  #if 0
+    if ((!(port < 2 || port > 4)) || (port >6))
+      return false;
+    if (port > 4)
+      port -= 3; //0, 1 left as is, 2, 3, 4 got return'ed out of. 5, 6 get turned into 2 and 3.
+    PORTMUX.TCDROUTEA = port;
+    return true;
+  #else
+    if (port==0 || takeover_only_ports_ok) { // See errata; appears to be broken on all parts, not just 128k ones. Return false unless the one working port was requested.
+      PORTMUX.TCDROUTEA=0;
+      return true;
+    }
+    return false;
+  #endif
+}
+
+bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok=false) {
+  if (digitalPinToBitPosition(pin) & 0xF0)
+    return setTCD0MuxByPort(digitalPinToPort(pin),takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
+  return false; // it's definately no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
+}               // chips that one might want to call this for don't exist, let's not bother :-)
 
 #define MVIO_DISABLED (-128)
 #define MVIO_BAD_FUSE (-64)

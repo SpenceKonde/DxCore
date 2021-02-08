@@ -1,8 +1,30 @@
 # DxCore Library
 This library provides wrappers around a few chip features that didn't seem appropriate to put into the API at large, but which also did not seem large enough for a library. The examples may also include examples of using chip functionality with no library or wrapper at all; see the specific examples for more information. In all of these functions, a "successful" return value is 0, while potential failures are non-zero values. While this may initially seem backwards, it means that one can use the value returned directly in an `if` statement to check for success/failure, rather than comparing to a "success" value, yet the returned value also contains the full reason for the failure if that is needed. This is the same convention used by program "exit code" or "exit status" - for the same reason.
 
-## GetMVIOStatus
-A new macro is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, enabled, and if so, whether VDDIO2 voltage is high enough that MVIO is enabled.
+## PWM stuff
+The Type A timer(s) and Type D timer on the device gets a pair of functions:
+```c++
+bool setTCA0MuxByPort(uint8_t port);
+bool setTCA0MuxByPin(uint8_t pin);
+
+// Parts with a TCA1 only (48 and 64-pin)
+bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok);
+bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok);
+
+bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok);
+bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok);
+
+```
+The first argument passed to the `setTCxnMuxByPort/Pin` functions is, respectively the port number (0, 1, 2, 3, 4, 5, or 6 for ports A-G), or a pin number. The port number is the same value returned by digitalPinToPort() for a pin number; if the port is valid and supports output from that timer, the appropriate PORTMUX register is set to do so. For `setTCxnMuxByPin()` it verifies that the pin is is one which can output PWM from the specified timer. Note that as of 2/5/2021, there does not appear to be any silicon available in which any option other than the first (`PORTA`) works for TCD0 PORTMUX. Only that option is considered valid for that timer until such a time as working silicon becomes available and this code can test for it; it is included to offer guidance as to the planned interface.
+
+The second, optional `takeover_only_ports_ok` argument, is available only when there are options which cannot be used through the builtin API functions (mostly analogWrite() - it only supports PWM output from TCA's in split mode on a mapping option with all 6 outputs pointed to a pin, not the two options for TCA1 with only three pins available). Unless `true` is passed as this argument, these functions will not select one of those options.
+
+Returns `true` if an argument referring to a valid port was passed and a value was assigned to `PORTMUX.TCAROUTEA` (whether or not that was different from the value it previously had). `false` if an invalid port/pin, or one which cannot output PWM on the specified pin was specified. If the PORTMUX register is set, it will also turn off PWM output on all of the pins covered by the newly selected mapping before connecting it.
+
+
+
+## Multi-Voltage IO
+The AVR DB-series supports a new feature, Multi-Voltage IO (MVIO). When enabled by fuse (this is the default setting. DxCore does not support changing it, either - if it is not in use, VDDIO2 must be tied to VDD, so behavior is the same as if it were enabled - but if it was disabled on hardware wired with the expectation that it would be enabled, my understanding is that this could result in hardware damage). A new macro is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, whether it is enabled, and if so, whether VDDIO2 voltage is high enough that the MVIO pins (PORTC) are available.
 
 This returns one of the following constants:
 ```
