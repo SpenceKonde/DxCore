@@ -1,21 +1,22 @@
 # Errata and Extras
-The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Worse still, the document released in April 2020 by Microchip is not even complete - and it certainly does a poor job of explaining some of the most important issues that it does mention.
+The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Worse still, the document released in April 2020 by Microchip is not even complete - and it certainly does a poor job of explaining some of the most important issues that it does mention. Microchip does a very poor job of documenting this errata and updating the silicon errata sheets as new issues are discovered.
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
 Issue    | Severity | Source    | 128DA | 64DA | 32DA |  128DB
 ---------|----------|-----------|-------|------|------|--------
+Vector table is wrong     | 5        | AVRFreaks | NO    | NO   | YES | NO
 ADC disables digital input| 2        | Microchip | YES   | YES  | YES | NO
-Memory mapped flash issues| 3 (4 in )| Microchip | YES   | NO?  | N/A | NO
-TCA1 Remap on PORTE/G | 1 (2 on 64)| Microchip | YES | NO?  | N/A   | NO?
-TWI Pins must be LOW | 1        | Microchip | YES   | YES  | YES | YES
-SPI SSD only works on alt pins | 2        | Microchip | YES   | NO?  | NO? | NO?
-USART Open Drain TX must be INPUT | 1        | Microchip | YES   | YES  | YES | YES
-TWI SDA Hold Times| 1        | Microchip | YES   | NO?  | NO? | NO?
-ZCD Output remapping broken| 0-1      | Microchip | NO?   | YES  | YES | A4 only
-No Event on PB6,7 PE4,5,6,7 | 3        | Microchip | YES   | NO?  | N/A | NO?
-All CCL LUTs enable-locked to CCL| 2        | Microchip | Likely   | Likely |Likely | YES
-CCL3 on 32/28-pin no LINK input| 2        | Microchip | NO?   | YES  | NO? | A4 only
-Initial fuses don't match datasheet | 1        | Microchip / Microchip | YES,A6| ???  | ??? | Week 21 and older
-TCD0 portmux options broken | 3        | Microchip | YES,A6 | Yes | Likely | Yes
+Memory mapped flash issues| 3        | Microchip | YES   | NO   | N/A | NO
+TCA1 Remap on PORTE/G     | 1        | Microchip | YES   | NO?  | N/A | NO
+TWI Pins must be LOW      | 1        | Microchip | YES   | YES  | YES | YES
+SPI SSD only works on alt pins | 2   | Microchip | YES   | NO?  | NO? | NO?
+USART Open Drain TX must be INPUT | 1| Microchip | YES   | YES  | YES | YES
+TWI SDA Hold Times        | 1        | Microchip | YES   | NO?  | NO? | NO?
+ZCD Output remapping broken| 1       | Microchip | NO?   | YES  | YES | A4 only
+No Event on PB6,7 PE4,5,6,7 | 3      | Microchip | YES   | NO?  | N/A | NO?
+All CCL LUTs enable-locked to CCL| 2 | Microchip | Likely| Likely|Likely | YES
+CCL3 on 32/28-pin no LINK input| 2   | Microchip | YES   | YES  | YES | A4 only
+Initial fuses don't match datasheet | 1 | Microchip | A6 | ???  | ??? | A4 week 21 and older
+TCD0 portmux options broken | 3        | Microchip | Yes | Likely | Likely | Yes
 ADC increased offset in single-ended | 4 | Microchip | N/A | N/A | N/A | A4 only
 OPAMP power consumption 3x higher than expected | 1 | Microchip | ??? | ??? | ??? | A4 only
 OPAMP IRSEL bit read-only | 1 | Microchip | N/A | N/A | N/A | A4 only
@@ -25,14 +26,17 @@ NO? means not mentioned in errata, but has not been confirmed as not being prese
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
 The * indicates that this issue is universal and applies to every modern AVR
 
-Alas - 9 months after the release of the DA-series,we have seen only the AVR128DB get a new silicon rev...
+Alas - 9 months after the release of the DA-series,we have seen only the AVR128DB get a new silicon rev that fixed a significant number of issues.
 
 ## Determining silicon rev
 Read SYSCFG.REVID; SYSCFG.REVID&0xF0 is the major rev (the letter), SYSCFG.REVID&0x0F is the minor rev.
 See [ModernRevSerial](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/DxCore/examples/ModernRevSer/ModernRevSer.ino) for a sample (reads serial number, silicon rev)
 
 ## Descriptions
-All written my me, not copied from Microchip. Waiting for complete errata documents to do that
+All written my me, not copied from Microchip.
+
+### Vector Table is Wrong on AVR32DA
+Remember how the ATmega808 and 809 had 4-byte interrupt vectors in hardware, but for a while the toolchain tried to generate 2-byte vector tables for it, unsurprisingly that didn't work. Well this is much worse: it's the other way around! Not only does the toolchain generate binaries that don't work, it cannot be fixed with a toolchain update, because the hardware only supports a 2-byte (rjmp) vector, but the chip has 32k of flash, so only a quarter of the chip would be accessible for interrupt vectors. **Impacted AVR32DA parts are not usable**, and they are apparently being recalled, according to a Microchip employee posting on the AVRFreaks forum. However, that was late October; as of early Febuary the fact that the chips are impacted by an errata that renders them completely unusable is still not mentioned on the silicon errata. It really raises some questions about their test proceedures (They produced a new chip, packaged them, and shipped them, advertising them as fit for use in life safety critical applications without having tested even the equivalent of blink - AND it was a screwup that they did the opposite of on the smallest flash version of the prior product line, so they should have been specifically checking for it...) This definitely impacts the A4 silicon revision. It is unclear whether the A5 revision is impacted.
 
 ### ADC disables digital input
 *If an input pin is selected to be analog input, the digital input function for those pins is automatically disabled*
