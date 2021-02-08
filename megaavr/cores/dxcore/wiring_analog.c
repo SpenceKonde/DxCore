@@ -172,9 +172,10 @@ void analogWrite(uint8_t pin, int val)
 
   //} else {  /* handle pwm to generate analog value */
   /* Get timer */
-  uint8_t digital_pin_timer =  digitalPinToTimer(pin);
+
+  uint8_t digital_pin_timer =  digitalPinToTimer(pin); // NON-TCA timer!
   if (digital_pin_timer != 0 && !(digital_pin_timer & PeripheralControl)) {
-    return; //this timer has been talken over by the user
+    digital_pin_timer=0;
   }
   uint8_t* timer_cmp_out;
   #if defined(NO_GLITCH_TIMERD)
@@ -191,38 +192,56 @@ void analogWrite(uint8_t pin, int val)
 
   TCB_t *timer_B;
   //TCA_t *timer_A;
-  /* Find out Port and Pin to correctly handle port mux, and timer. */
-  switch (digital_pin_timer) {
-    case TIMERA0:
-    /* Calculate correct compare buffer register */
-    if (bit_pos>2) {
-      bit_pos-=3;
-      timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.HCMP0)) + (bit_pos<<1);
-      (*timer_cmp_out) = (val);
-      TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
-    } else {
-      timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.LCMP0)) + (bit_pos<<1);
-      (*timer_cmp_out) = (val);
-      TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
-    }
-    break;
+/*   Find out Port and Pin to correctly handle port mux, and timer.
+ *switch (digital_pin_timer) {
+ *  case TIMERA0:
+ */
+  if (bit_pos < 6) { //if could be TCA!
+    uint8_t portnum=digitalPinToPort(pin);
+    uint8_t tcaroute=PORTMUX.TCAROUTEA;
 
-  #ifdef TCA1
-    case TIMERA1:
-    /* Calculate correct compare buffer register */
-    if (bit_pos>2) {
-      bit_pos-=3;
-      timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.HCMP0)) + (bit_pos<<1);
-      (*timer_cmp_out) = (val);
-      TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
-    } else {
-      timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.LCMP0)) + (bit_pos<<1);
-      (*timer_cmp_out) = (val);
-      TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    if ((portnum == (tcaroute&(0x07))) && (PeripheralControl & TIMERA0)) {
+      /* TCA0 is on this port - it's our timer! */
+      if (bit_pos>2) {
+        bit_pos-=3;
+        timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.HCMP0)) + (bit_pos<<1);
+        (*timer_cmp_out) = (val);
+        TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
+      } else {
+        timer_cmp_out = ((uint8_t*) (&TCA0.SPLIT.LCMP0)) + (bit_pos<<1);
+        (*timer_cmp_out) = (val);
+        TCA0.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+      }
+      return; //either way, we're done here, we set a pwm channel!
     }
-    break;
+
+
+    #ifdef TCA1
+/*  case TIMERA1:
+ */
+    tcaroute &= (0x018);
+    /*  What about TCA1? */
+    if ((portnum == ( (tcaroute == 0x18)?6:(tcaroute==0?1:NOT_A_PORT ))) && (PeripheralControl & TIMERA1)) {
+      /* We are on TCA1 Set pwm and return*/
+      if (bit_pos>2) {
+        bit_pos-=3;
+        timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.HCMP0)) + (bit_pos<<1);
+        (*timer_cmp_out) = (val);
+        TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_HCMP0EN_bp + bit_pos));
+      } else {
+        timer_cmp_out = ((uint8_t*) (&TCA1.SPLIT.LCMP0)) + (bit_pos<<1);
+        (*timer_cmp_out) = (val);
+        TCA1.SPLIT.CTRLB |= (1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+      }
+      return;
+    }
+//  break;
   #endif
-
+  }
+/*
+ * switch (digital_pin_timer) {
+ */
+  switch (digital_pin_timer) {
     case TIMERB0:
     case TIMERB1:
     case TIMERB2:
@@ -232,13 +251,21 @@ void analogWrite(uint8_t pin, int val)
       /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
       //assert (((TIMERB0 - TIMERB3) == 2));
       timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
+      // make sure the timer is in PWM mode
+      if (((timer_B->CTRLB) &  TCB_CNTMODE_gm) == TCB_CNTMODE_PWM8_gc ) {
+        /* set duty cycle */
+        timer_B->CCMPH = val;
 
-      /* set duty cycle */
-      timer_B->CCMPH = val;
-
-      /* Enable Timer Output */
-      timer_B->CTRLB |= (TCB_CCMPEN_bm);
-
+        /* Enable Timer Output */
+        timer_B->CTRLB |= (TCB_CCMPEN_bm);
+      } else {
+        // if it's not, we don't have PWM on this pin!
+        if (val < 128) {
+          digitalWrite(pin, LOW);
+        } else {
+          digitalWrite(pin, HIGH);
+        }
+      }
       break;
 
   #if defined(DAC0)
@@ -296,16 +323,17 @@ void analogWrite(uint8_t pin, int val)
       #endif
       val = 255-val;
       uint8_t temp = TCD0.CMPBCLRL;
-      temp = TCD0.CMPBCLRH;  // intentional use of the comma operator
+      temp = TCD0.CMPBCLRH;
       //
-      // will this read both, only retaining the high byte? Need to read both to see high register because 16-bit
-      // even though only need to get high because 16-bit register. Reading just high doesn't work
-      if (temp) {
-        val <<= 1;
-        if (temp == 3) val <<= 1; // 1019 or 2039
-#if (F_CPU>=32000000)             // At 32+ MHz it's less unreasonable to use.
-        if (temp == 7) val <<= 1; // 2039
-#endif
+      // Read both, only retaining the high byte. Need to read both to see high byte because 16-bit register
+      // Reading just high doesn't work. Checking for CMPBCLR = 509, 1019, or 2039 for which we need to shift
+      // the duty cycle left to match
+      if (temp) {   // TOP > 254
+        val <<= 1;  // leftshift once is good for 509
+        if (temp == 3) val <<= 1;   // 1019 or 2039
+        #if (F_CPU>=32000000)       // At 32+ MHz it's less unreasonable to use.
+          if (temp == 7) val <<= 1; // 2039
+        #endif
       }
 
       uint8_t oldSREG=SREG;
@@ -383,4 +411,51 @@ void takeOverTCD0() {
   TCD0.CTRLA = 0;                     // Stop TCD0
   _PROTECTED_WRITE(TCD0.FAULTCTRL,0); // Turn off all outputs
   PeripheralControl &= ~TIMERD0; // Mark timer as user controlled
+}
+
+
+uint8_t digitalPinToTimerNow(uint8_t p) {
+  uint8_t port=digitalPinToPort(p);
+  uint8_t bit_pos=digitalPinToBitPosition(p);
+  if ( bit_pos < 6) {
+  #if defined(TCA1)
+    uint8_t tcamux = PORTMUX.TCAROUTEA;
+    if ( PeripheralControl & TIMERA0) {
+      if (((tcamux & PORTMUX_TCA0_gm) == port)) {
+        return TIMERA0;
+      }
+    }
+    tcamux &= 0x18;
+    if ( PeripheralControl & TIMERA1) {
+      if ((tcamux == 0 && port == PB ) || (tcamux == 0x18 && port == PG)) {
+        return TIMERA1;
+      }
+    }
+  #else
+    if ( PeripheralControl & TIMERA0) {
+      if ((PORTMUX.TCAROUTEA & PORTMUX_TCA0_gm) == port) {
+        return TIMERA0;
+      }
+    }
+  #endif
+  }
+  /*
+  if ( PeripheralControl & TIMERD0) {
+    byte tcdmux=(PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm);
+    if (tcdmux & 0x02) tcdmux +=3;          // Convert mux value to port
+    if (port == tcdmux) {                   // Is the pin's port what mux pointed to?
+      if (tcdmux==5) return (bit_pos < 4);  // PORTF is only PWM if 0-3
+      return (bit_pos > 3);                 // All others 4-7
+    }
+  }
+  */
+  uint8_t timer=digitalPinToTimer(p);
+  if (timer & TIMERB0) {
+    TCB_t* timer_B;
+    timer_B = ((TCB_t *)&TCB0 + (timer - TIMERB0));
+    if (((timer_B->CTRLB) &  TCB_CNTMODE_gm) != TCB_CNTMODE_PWM8_gc )
+      return NOT_ON_TIMER;
+      // if the the timer isn't in PWM mode, then we don't actually have PWM here...
+  }
+  return timer;
 }

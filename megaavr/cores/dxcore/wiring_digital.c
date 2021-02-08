@@ -109,12 +109,12 @@ void pinMode(uint8_t pin, uint8_t mode) {
 //
 //static inline void turnOffPWM(uint8_t timer) __attribute__ ((always_inline));
 //static inline void turnOffPWM(uint8_t timer)
-static void turnOffPWM(uint8_t pin)
+void turnOffPWM(uint8_t pin)
 {
   /* Actually turn off compare channel, not the timer */
 
   /* Get pin's timer */
-  uint8_t timer = digitalPinToTimer(pin) & PeripheralControl; //use to mask off taken-over peripherals.
+  uint8_t timer = digitalPinToTimerNow(pin);
   if(timer == NOT_ON_TIMER) return;
 
   uint8_t bit_pos = digitalPinToBitPosition(pin);

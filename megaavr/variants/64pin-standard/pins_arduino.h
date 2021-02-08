@@ -81,36 +81,46 @@
 
 #define EXTERNAL_NUM_INTERRUPTS     (56) //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
 
+// 1.3.1 FLEX PWM - but you can't get PA4 and PA6 to give different waveform, same with PA5 and PA7.
+
+#define digitalPinHasPWMTCDDefault(p)   (((p) == PIN_PA4)   || ((p) == PIN_PA5)   || ((p) == PIN_PA6)   || ((p) == PIN_PA7))
+
+#define digitalPinHasPWMTCADefault(p)   ((((p) >= PIN_PB0)  && ((p) <= PIN_PB5))  || (((p) >= PIN_PC0)  && ((p) <= PIN_PC5)))
+
+#define digitalPinHasPWMTCD(p)          (digitalPinHasPWMTCDDefault(p))
+
+#define digitalPinHasPWMDefault(p)      (digitalPinHasPWMTCADefault(p) || digitalPinHasPWMTCDDefault(p) || digitalPinHasPWMTCB(p)
+
+#define digitalPinHasPWM(p)             (digitalPinHasPWMDefault(p))
+
+
 #if defined(MILLIS_USE_TIMERB0)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-  ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB1)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-  ((p) == PIN_PF4) || ((p) == PIN_PG3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB2)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-  ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB3)
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-  ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#elif defined(MILLIS_USE_TIMERB4)
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PB5))
 #else //no TCB's are used for millis
-#define digitalPinHasPWM(p)  ((((p) >= PIN_PB0) && ((p) <= PIN_PB5)) || (((p) >= PIN_PC0) && ((p) <= PIN_PC5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-  ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #endif
 
 // Timer pin swaps
-#define TCA0_PINS PORTMUX_TCA0_PORTC_gc // TCA0 output on PC[0:5]
-#define TCA1_PINS 0x00 // TCA0 output on PB[0:5] (no pinswap)
-#define TCB0_PINS PORTMUX_TCB0_bm       // TCB0 output on PF4 instead of PA2 (default)
-#define TCB1_PINS PORTMUX_TCB1_bm       // TCB1 output on PF5 instead of PA3 (default)
-#define TCB2_PINS 0x00                  // TCB2 output on PC0 (default) instead of PB4 (either way not used)
-#define TCB3_PINS 0x00                  // TCB3 output on PB5 (default) instead of PC1 (either way not used)
-#define TCB4_PINS 0x00                  // TCB4 output on PG3 (default) instead of PC6
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // Only default port option works!
+#define TCA0_PINS PORTMUX_TCA0_PORTC_gc     // TCA0 output on PC[0:5] after init() (alt 2)
+#define TCA1_PINS 0x00                      // TCA1 output on PB[0:5] after init() (no pinswap)
+#define TCB0_PINS PORTMUX_TCB0_bm           // TCB0 output on PF4 instead of PA2 (default)
+#define TCB1_PINS PORTMUX_TCB1_bm           // TCB1 output on PF5 instead of PA3 (default)
+#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4 (default)
+#define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
+#define TCB4_PINS 0x00                      // TCB4 output on PG3 (default) instead of PC6
+#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA[4:7] (default - only default port option works)
+// PWM on the non-swap mux option for the TX/RX port on the MVIO pins? That's a pretty lousy pair of pins to be PWMing
+// Yes, but since the only analogWrite-compatible mux setting for TCA1 is on the same pins, nobody can use it unless they take over TCA1!
 
-#define PIN_TCA0_WO0 PIN_PC0
-#define PIN_TCA1_WO0 PIN_PB0
-#define PIN_TCD0_WOA PIN_PA4
+
 
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
@@ -306,6 +316,17 @@ static const uint8_t A21 = PIN_A21;
 
 #ifdef ARDUINO_MAIN
 
+const uint8_t digital_port_to_pin0[] = {
+  PIN_PA0,
+  PIN_PB0,
+  PIN_PC0,
+  PIN_PD0,
+  PIN_PE0,
+  PIN_PF0,
+  PIN_PG0,
+};
+
+
 const uint8_t digital_pin_to_port[] = {
   PA,  //  0 PA0
   PA,  //  1 PA1
@@ -491,53 +512,53 @@ const uint8_t digital_pin_to_timer[] = {
   TIMERD0,      //  5 PA5/MISO      WOB
   TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
   TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  TIMERA1,      //  8 PB0
-  TIMERA1,      //  9 PB1
-  TIMERA1,      //  10 PB2
-  TIMERA1,      //  11 PB3
-  TIMERA1,      //  12 PB4
-  TIMERA1,      //  13 PB5
-  NOT_ON_TIMER, //  14
-  NOT_ON_TIMER, //  15
-  TIMERA0,      //  16 PC0
-  TIMERA0,      //  17 PC1
-  TIMERA0,      //  18 PC2
-  TIMERA0,      //  19 PC3
-  TIMERA0,      //  20 PC4
-  TIMERA0,      //  21 PC5
+  NOT_ON_TIMER, //  8 PB0
+  NOT_ON_TIMER, //  9 PB1
+  NOT_ON_TIMER, //  10 PB2
+  NOT_ON_TIMER, //  11 PB3
+  NOT_ON_TIMER, //  12 PB4
+  NOT_ON_TIMER, //  13 PB5
+  NOT_ON_TIMER, //  14 PB6
+  NOT_ON_TIMER, //  15 PB7
+  TIMERB2,      //  16 PC0
+  TIMERB3,      //  17 PC1
+  NOT_ON_TIMER, //  18 PC2
+  NOT_ON_TIMER, //  19 PC3
+  NOT_ON_TIMER, //  20 PC4
+  NOT_ON_TIMER, //  21 PC5
   NOT_ON_TIMER, //  22 PC6
   NOT_ON_TIMER, //  23 PC7
   NOT_ON_TIMER, //  24 PD0
-  NOT_ON_TIMER, //  25
-  NOT_ON_TIMER, //  26
-  NOT_ON_TIMER, //  27
-  NOT_ON_TIMER, //  28
-  NOT_ON_TIMER, //  29
+  NOT_ON_TIMER, //  25 PD1
+  NOT_ON_TIMER, //  26 PD2
+  NOT_ON_TIMER, //  27 PD3
+  NOT_ON_TIMER, //  28 PD4
+  NOT_ON_TIMER, //  29 PD5
   DACOUT,       //  30 PD6
   NOT_ON_TIMER, //  31 PD7
   NOT_ON_TIMER, //  32 PE0
-  NOT_ON_TIMER, //  33
-  NOT_ON_TIMER, //  34
-  NOT_ON_TIMER, //  35
-  NOT_ON_TIMER, //  36
-  NOT_ON_TIMER, //  37
-  NOT_ON_TIMER, //  38
-  NOT_ON_TIMER, //  39
+  NOT_ON_TIMER, //  33 PE1
+  NOT_ON_TIMER, //  34 PE2
+  NOT_ON_TIMER, //  35 PE3
+  NOT_ON_TIMER, //  36 PE4
+  NOT_ON_TIMER, //  37 PE5
+  NOT_ON_TIMER, //  38 PE6
+  NOT_ON_TIMER, //  39 PE7
   NOT_ON_TIMER, //  40 PF0 (TOSC1)
   NOT_ON_TIMER, //  41 PF1 (TOSC2)
-  NOT_ON_TIMER, //  42
-  NOT_ON_TIMER, //  43
+  NOT_ON_TIMER, //  42 PF2
+  NOT_ON_TIMER, //  43 PF3
   TIMERB0,      //  44 PF4
   TIMERB1,      //  45 PF5
-  NOT_ON_TIMER, //  46 PF6 (RESET)
-  NOT_ON_TIMER, //  47 PG0
-  NOT_ON_TIMER, //  48
-  TIMERB4,      //  49
-  NOT_ON_TIMER, //  50
-  NOT_ON_TIMER, //  51
-  NOT_ON_TIMER, //  52
-  NOT_ON_TIMER, //  53
-  NOT_ON_TIMER, //  54 PG7
+  NOT_ON_TIMER, //  46 PG0
+  NOT_ON_TIMER, //  47 PG1
+  NOT_ON_TIMER, //  48 PG2
+  TIMERB4,      //  49 PG3
+  NOT_ON_TIMER, //  50 PG4
+  NOT_ON_TIMER, //  51 PG5
+  NOT_ON_TIMER, //  52 PG6
+  NOT_ON_TIMER, //  53 PG7
+  NOT_ON_TIMER, //  54 PF6 (RESET)
 };
 
 

@@ -47,26 +47,27 @@
 #define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):((((p)&0x7F)<8)?(((p)&0x7F)+PIN_PD0):))
 
 // PWM pins
-#ifdef MVIO
-#define FIRST_TCA_PWM PIN_PD1
-#else
-#define FIRST_TCA_PWM PIN_PD0
-#endif
+
+#define digitalPinHasPWMTCDDefault(p)   (((p) == PIN_PA4)   || ((p) == PIN_PA5)   || ((p) == PIN_PA6)   || ((p) == PIN_PA7))
+
+#define digitalPinHasPWMTCADefault(p)   (((p) >= PIN_PD0)  && ((p) <= PIN_PD5))
+
+#define digitalPinHasPWMTCD(p)          (digitalPinHasPWMTCDDefault(p))
+
+#define digitalPinHasPWMDefault(p)      (digitalPinHasPWMTCADefault(p) || digitalPinHasPWMTCDDefault(p) || digitalPinHasPWMTCB(p)
+
+#define digitalPinHasPWM(p)             (digitalPinHasPWMDefault(p))
+
 
 #if defined(MILLIS_USE_TIMERB0)
-#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                              ((p) == PIN_PC0) || ((p) == PIN_PA3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
 #elif defined(MILLIS_USE_TIMERB1)
-#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PC0) || ((p) == PIN_PA2))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0)
 #elif defined(MILLIS_USE_TIMERB2)
-#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                                ((p) == PIN_PA2) || ((p) == PIN_PA3))
-#else //no TCB's are used for PWM
-#define digitalPinHasPWM(p)  ((((p) >= FIRST_TCA_PWM) && ((p) <= PIN_PD5)) || ((p) == PIN_PA4) || ((p) == PIN_PA5) ||\
-                              ((p) == PIN_PC0) || ((p) == PIN_PA2) || ((p) == PIN_PA3))
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
+#else //no TCB's are used for millis
+#define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0)
 #endif
-
 
 // Timer pin mapping
 #define TCA0_PINS PORTMUX_TCA0_PORTD_gc   // TCA0 output on PD[0:5]
@@ -233,7 +234,7 @@ const uint8_t digital_pin_to_bit_position[] = {
 #ifndef MVIO
   PIN0_bp, // 12 PD0/AIN0
 #else
-  NOT_A_PORT,
+  NOT_A_PIN,
 #endif
   PIN1_bp, // 13 PD1/AIN1
   PIN2_bp, // 14 PD2/AIN2
@@ -264,7 +265,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
 #ifndef MVIO
   PIN0_bm, // 12 PD0/AIN0
 #else
-  NOT_A_PORT,
+  NOT_A_PIN,
 #endif
   PIN1_bm, // 13 PD1/AIN1
   PIN2_bm, // 14 PD2/AIN2
@@ -281,38 +282,22 @@ const uint8_t digital_pin_to_bit_mask[] = {
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
   NOT_ON_TIMER, //  1 PA1/USART0_Rx
-#if !defined(MILLIS_USE_TIMERB0)
   TIMERB0,      //  2 PA2/SDA
-#else
-  NOT_ON_TIMER, //  2 PA2/SDA
-#endif
-#if !defined(MILLIS_USE_TIMERB1)
   TIMERB1,      //  3 PA3/SCL
-#else
-  NOT_ON_TIMER, //  3 PA3/SCL
-#endif
   TIMERD0,      //  4 PA4/MOSI      WOA
   TIMERD0,      //  5 PA5/MISO      WOB
   TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
   TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-#if !defined(MILLIS_USE_TIMERB2)
   TIMERB2,      //  8 PC0/USART1_Tx
-#else
-  NOT_ON_TIMER, //  8 PC0/USART1_Tx
-#endif
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
-#ifndef MVIO
-  TIMERA0, // 12 PD0/AIN0
-#else
-  NOT_ON_TIMER,
-#endif
-  TIMERA0,      // 13 PD1/AIN1
-  TIMERA0,      // 14 PD2/AIN2
-  TIMERA0,      // 15 PD3/AIN3/LED_BUILTIN
-  TIMERA0,      // 16 PD4/AIN4
-  TIMERA0,      // 17 PD5/AIN5
+  NOT_ON_TIMER, // 12 PD0/AIN0
+  NOT_ON_TIMER, // 13 PD1/AIN1
+  NOT_ON_TIMER, // 14 PD2/AIN2
+  NOT_ON_TIMER, // 15 PD3/AIN3/LED_BUILTIN
+  NOT_ON_TIMER, // 16 PD4/AIN4
+  NOT_ON_TIMER, // 17 PD5/AIN5
   DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
