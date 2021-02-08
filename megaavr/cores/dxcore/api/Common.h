@@ -113,13 +113,9 @@ void analogReadResolution(uint8_t res);
 void analogWrite(pin_size_t pinNumber, int value);
 void DACReference(uint8_t mode);
 
+void turnOffPWM(pin_size_t pin);
 
 unsigned long millis(void);
-void init_millis();
-void stop_millis();
-void restart_millis();
-void set_millis(uint32_t newmillis);
-
 unsigned long micros(void);
 
 

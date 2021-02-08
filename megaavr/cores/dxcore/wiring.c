@@ -150,7 +150,6 @@
 {
   // copy these to local variables so they can be stored in registers
   // (volatile variables must be read from memory on every access)
-
   #if (defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)|| defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4) )
     #if(F_CPU>1000000)
       timer_millis++; //that's all we need to do!
@@ -725,7 +724,7 @@ void init()
 void stop_millis()
 { // Disable the interrupt:
   #if defined(MILLIS_USE_TIMERNONE)
-    coreWarn("stop_millis() called, but millis is disabled from tools menu!");
+    badCall("stop_millis() called, but millis is disabled from tools menu!");
   #else
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTCTRL &= (~TCA_SPLIT_HUNF_bm);
@@ -814,6 +813,7 @@ void set_millis(uint32_t newmillis)
 {
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("set_millis() is only valid with millis timekeeping enabled.");
+    GPR.GPR0=newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
   #else
     #if defined(MILLIS_USE_TIMERRTC)
       //timer_overflow_count=newmillis>>16;
