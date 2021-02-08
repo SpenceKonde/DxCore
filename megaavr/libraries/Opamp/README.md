@@ -1,8 +1,9 @@
 # Opamp
 A library for interfacing with the opamp peripheral on the AVR-DB series MCUs.
+
 Developed by [MCUdude](https://github.com/MCUdude/).
-The AVR-DB 48 and 64 pin chips have three built-in opamps, while the 32 and 28 pin ones have only two.
-More useful information about the opamp peripheral can be found in the [Microchip Application Note TB3286](https://ww1.microchip.com/downloads/en/Appnotes/GettingStarted-Analog-SignCondOPAMP-DS90003286A.pdf).
+
+The AVR-DB 48 and 64 pin chips have three built-in opamps, while the 32 and 28 pin ones have only two. More useful information about the opamp peripheral can be found in the [Microchip Application Note TB3286](https://ww1.microchip.com/downloads/en/Appnotes/GettingStarted-Analog-SignCondOPAMP-DS90003286A.pdf).
 
 
 ## Opamp
