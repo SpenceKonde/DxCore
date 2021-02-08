@@ -40,7 +40,7 @@ This can be set to 102, 103, or 104 depending on flash size:
 * `__AVR_ARCH__ == 102` - Parts with 64Kb of flash, mapped flash is split into 2 sections (AVR64DA, AVR64DB).
 
 ## Supported Parts (click link for pinout diagram and details)
-Note that you must install via board manager or replace your tool chain with the azduino3 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in the AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled - It would be mighty nice if they had updated the silicon errata sheet though! 
+Note that you must install via board manager or replace your tool chain with the azduino3 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in the AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled - It would be mighty nice if they had updated the silicon errata sheet though!
 * [AVR128DA28, AVR64DA28, AVR32DA28](megaavr/extras/DA28.md)
 * [AVR128DA32, AVR64DA32, AVR32DA32](megaavr/extras/DA32.md)
 * [AVR128DA48, AVR64DA48, AVR32DA48](megaavr/extras/DA48.md)
@@ -151,12 +151,10 @@ Note that the errata relating to the memory mapping on the AVR128DA parts is not
 The `F()` macro works the same way as it does on normal boards as of 1.2.0, even on the 32k parts, where it is unnecessary to save RAM - this was done in order to maintain library compatibility; several very popular libraries rely on F() returning a `__FlashStringHelper *` and make use of `pgm_read_byte()` to read it.
 
 ### Writing to Flash from App
-1.3.0 introduces a mechanism by which, if Optiboot is installed on a part, you can use it to write to the application section from the bootloader - and **I NEED YOUR FEEDBACK** to make the interface less clunky. There are two versions of the library (please tell me which is better, and how to improve it)
-* [flashWrite.h](megaavr/libraries/flashWrite/README.md) presents 5 functions for flash writing
+1.3.0 introduces a mechanism by which, if Optiboot is installed on a part, you can use it to write to the application section from the bootloader - and **I NEED YOUR FEEDBACK** to make the interface more usable 1.3.1 extended it to work without Optiboot if enabled from tools submenu, and I decided to go with Flash class oriented option. Nobody had a strong preference for one or the other.
 * [Flash.h](megaavr/libraries/Flash/README.md) presents the same functions as methods of a `Flash` object
 * [Feedback](https://github.com/SpenceKonde/DxCore/issues/57)
 
-Don't worry if you don't use Optiboot - everyone will get this soon! It's just a slightly different trick.
 
 ## Bootloader support
 DxCore now an Optiboot-derived bootloader for all parts! This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Note that after the bootloader has been installed in this way, to use it without the bootloader, you must choose the non-optiboot board definition, and then again Burn Bootloader to configure the fuses appropriately; when the bootloader is enabled the vectors are located at the start of the application section, 1024 bytes in (like megaAVR 0-series and tinyAVR 0/1-series, and unlike classic AVRs, the bootloader section is at the beginning of the flash). Options to set the desired USART that the bootloader will run on are available for all serial ports, with either the normal or alternate pin locations. USART0 with default pins is the default option here, and these are the ones that are connected to the 6-pin serial header on the DA-series breakout boards that I sell. An option is provided when burning bootloader to choose an 8 second delay after reset - use this if you will be manually pressing reset
@@ -212,9 +210,25 @@ The TWI pins can be swapped to an alternate location; this is configured using t
 As with megaTinyCore, courtesey of https://github.com/LordJakson, in slave mode, it is now possible to respond to the general call (0x00) address as well. This is controlled by the optional second argument to Wire.begin(). If the argument is supplied amd true, general call broadcasts will also trigger the interrupt. The version supplied with DACore also supports an optional third argument, which is passed unaltered to the TWI0.SADDRMASK register. If the low bit is 0, any bits set 1 will cause the I2C hardware to ignore that bit of the address (masked off bits will be treated as matching). If the low bit is 1, it will instead act as a second address that the device can respond to. While these parts support "dual mode" allowing master and slave operation on different pairs of pins, like the megaAVR 0-series which also has this support in hardware, it is not currently exposed in Arduino; similarly, while these parts support master and slave simultaneously on the same pins, that is also not supported by the Arduino Wire library at this time. Work is ongoing to add support.
 
 ### PWM support
-The core provides hardware PWM (analogWrite) support. On all parts, 6 pins (on PD0-PD5 for 28 and 32-pin parts, PC0-PC6 for 48 and 64-pin parts) - see the part specific documentation pages for pin numbers) provide 8-bit PWM support from the Type A timer, TCA0. On 48-pin and 64-pin parts, an additional 6 PWM pins are available on PB0-PB5 from TCA1. Additionally, Type B timers not used for other purposes (TCB2 is used for millis unless another timer is selected, and other libraries mmay use a TCB as well) can each support 1 8-bit PWM pin. The pins available for this are shown on the pinout charts. Additionally, TCD0 provides two additional PWM pins on PA4 and PA5; Users may prefer to configure this manually - TCD0 is capable of, among other things, generating much higher frequency PWM, as it can be clocked from the PLL at 48MHz (or more, if you don't mind exceeding the specified operating specs - I've gotten it up to 96 MHz!).
-**Note that TCA0, and TCA1 if present are configured by DACore in Split Mode by default, which allows them to generate 8-bit PWM output on 6 pins each, instead of three** See the
-#### [Taking over TCA0](megaavr/extras/TakingOverTCA0.md)
+The core provides hardware PWM (analogWrite) support. On all parts, 6 pins (by default, PD0-PD5 for 28 and 32-pin parts, PC0-PC6 for 48 and 64-pin parts) - see the part specific documentation pages for pin numbers) provide 8-bit PWM support from the Type A timer, TCA0. On 48-pin and 64-pin parts, an additional 6 PWM pins are available on PB0-PB5 (by default) from TCA1. Additionally, Type B timers not used for other purposes (TCB2 is used for millis unless another timer is selected, and other libraries mmay use a TCB as well) can each support 1 8-bit PWM pin. The pins available for this are shown on the pinout charts. Additionally, TCD0 provides two additional PWM channels; WOA can output on PA4 or PA6, WOB on PA5, PA7. Those channels can each drive either - or both - of those pins, but only at one duty cycle. Users may prefer to configure this manually - TCD0 is capable of, among other things, generating much higher frequency PWM, as it can be clocked from the PLL at 48MHz (or more, if you don't mind exceeding the specified operating specs - I've gotten it up to 128 MHz!).
+```c++
+analogWrite(PIN_PA4,128);
+analogWrite(PIN_PA7,192); //50% PA4, 75% PA7
+analogWrite(PIN_PA6,64); //25% PA5, 25% PA6, 75% PA7
+//use digitalWrite to turn off the PWM on a pin
+// or call turnOffPwm(pin);
+```
+The TCD0 prescaler is less flexible than one might want it to be. We set TOP and double or quadruple (even octuple, at high clocks) the TOP to lower the frequency. This is detected dynamically (Though existing dutycycles won't be adjusted.) Set TCD0.CMPBCLR to 254, 509, 1019, or (if running at 32 MHz or higher )2039. New in 1.3.1
+```
+TCD0.CMPBCLR = 1019;
+while (!(TCD0.STATUS & TCD_CMDRDY_bm)); //make sure it's ready to accept command
+TCD0.CTRLE=TCD_SYNCEOC_bm; //note that analogWrite on any TCD0 pin will do it too.
+```
+TCA0 and TCA1 will now detect the PORTMUX.TCAROUTEA register. As long as it is set to an option that allows all 6 outputs, analogWrite () and digitalWrite() will work normally with it. See helper functions in DxCore.h library.
+If you want to take full control of one of the three pwm timers (maybe you want single mode), just call  `takeOverTCA0();` For the TCA's, it will also force hard reset, so they are returned to you in pristine condition. After this, analogWrite, digitalWrite() and turnOffPWM() will ignore anything these timers might be able to do on pins that those functions are called on.
+
+
+**Note that TCA0, and TCA1 if present are configured by DACore in Split Mode by default, which allows them to generate 8-bit PWM output on 6 pins each, instead of three** See the [Taking over TCA0](megaavr/extras/TakingOverTCA0.md) guide.
 **For general information on the available timers and how they are used PWM and other functions, consult the guide:**
 #### [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
