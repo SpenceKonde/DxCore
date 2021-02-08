@@ -26,7 +26,7 @@ NO? means not mentioned in errata, but has not been confirmed as not being prese
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
 The * indicates that this issue is universal and applies to every modern AVR
 
-Alas - 9 months after the release of the DA-series,we have seen only the AVR128DB get a new silicon rev that fixed a significant number of issues.
+Alas - 9 months after the release of the DA-series,we have seen only the AVR128DB get a new silicon rev that fixed a significant number of issues, though the AVR32DA is getting respun to fix vector issue, presumably (since it was recalled)
 
 ## Determining silicon rev
 Read SYSCFG.REVID; SYSCFG.REVID&0xF0 is the major rev (the letter), SYSCFG.REVID&0x0F is the minor rev.
@@ -43,7 +43,7 @@ Remember how the ATmega808 and 809 had 4-byte interrupt vectors in hardware, but
 
 In my opinion, poorly described. What they mean is: `While ADC0 is enabled, if ADC0.MUXPOS is set to a value which selects a pin as the positive input to the ADC, the PORTx.IN register is not updated for that pin` This is hardly fatal - and easily worked around - but it is also nearly impossible to ignore if the core does not work around it. The most disconcerting part is that since the core will enable the ADC for you in init(), if it doesn't also work around this, you will immediately find that AIN0 is non-functional as a digital pin! This caused considerable consternation during development. Despite the frightening-sounding "Workaround: None" in the errata sheet, there is a simple workaround for most use cases - just point the mux somewhere else; if it is set to some reserved value that does not correspond to any pin, it will not disrupt any input.
 
-This core implements this simple workaround - on startup, and every every call to analogRead(), the mux is set to 127: `ADC0.MUXPOS=0x7F` That is a reserved value which does not correspond to any pin (it appears to be a floating input if the ADC is actually asked to measure it).
+This core implements this simple workaround - on startup, and every every call to analogRead(), the mux is set to 0x40 (GND): `ADC0.MUXPOS=0x40` It is necessary to have started a conversion at least once, though you don't need to complete it, for this to work.
 
 Just because this is worked around does not mean you can totally ignore it though; there are still a few cases where it becomes relevant.
 * If you are taking over the ADC - for example to use free running mode, the window compaerator, etc, you must remember than digitalRead() will not work on the pin you are doing analog readings on.
@@ -60,6 +60,9 @@ Remapping TCA1 to PORTE and PORTG does not work. Note that this is only relevant
 
 ### Event System not connected to PB6, PB7, PE4, PE5, PE6, PE7
 Another slap-in-the-face for 64-pin users: 6 of the pins only present on the 64-pin versions aren't enabled for the event system. Of course, you can always use them for other things (just not PWM output, per above)...
+
+### TCD0 on non-default port doesn't work
+When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. Appears to impact all other parts in all other pin counts!
 
 ### ZCD Output remapping non-functional
 The ZCD0 bit in PORTMUX.ZCDROUTEA effects all three ZCD's, not just ZCD0, the other two bits do nothing. If you were counting on having more than one output from a ZCD, is a modest inconvenience (you can make it up with event system). Likely few if any Arduino folks are interested in this anyway. This can be worked around by using the event system to control the desired pin.
@@ -85,9 +88,6 @@ The fuses, as supplied (on AVR128DA, Rev. A6 silicon, at least) do not match the
 
 Certainly makes you wonder about their emphatic "unused bits MUST be set to 0" warning doesn't it? Burn bootloader when you get the parts to make reset work.
 On DB-series parts, this only effects parts with a datecode of week 21 or earlier. The same is likely true of DA-series as well, since this can be corrected with just a change to their factory programming process.
-
-### TCD0 on non-default port doesn't work on AVR128DA
-When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit. Confirmed on AVR128DA Rev A6 silicon, all sizes. The core only uses PA4 and PA5 as TCD0 PWM outputs because of this issue (this may be changed if/when silicon that corrects this issue is made available). Was reported to Microchip support on 8/4/2020 and their response implied that it had not been previously reported. According to Microchip, this issue has "only been confirmed" on the AVR128DA parts.
 
 ### ~UPDI programming issue with 16-bit STS after 24-bit STptr~
 It was related to me that this is intended behavior. In which case, the documentation is utterly abysmal!

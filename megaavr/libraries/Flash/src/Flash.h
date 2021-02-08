@@ -2,8 +2,8 @@
 #define FLASH_H
 /* Flash.h for DxCore 1.3.0
  * A library to easily write to the flash of an AVR Dx-series part from within an Arduino sketch
- * Requires Optiboot from DxCore 1.3.0.
- *
+ * Requires Optiboot from DxCore 1.3.0+ for use in bootloader-mode.
+ * Requires DxCore 1.3.1 with Flash Writing option selected from tools menu for non-bootloade-mode.
  */
 
 class FlashClass

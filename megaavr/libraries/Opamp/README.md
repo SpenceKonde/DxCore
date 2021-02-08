@@ -1,8 +1,8 @@
 # Opamp
 A library for interfacing with the opamp peripheral on the AVR-DB series MCUs.
 Developed by [MCUdude](https://github.com/MCUdude/).
-The AVR-DB 48 and 64 pin chips have three built-in opamps, while the 32 and 28 pin ones only have two.
-More useful information about the analog comparator can be found in the [Microchip Application Note TB3286](https://ww1.microchip.com/downloads/en/Appnotes/GettingStarted-Analog-SignCondOPAMP-DS90003286A.pdf).
+The AVR-DB 48 and 64 pin chips have three built-in opamps, while the 32 and 28 pin ones have only two.
+More useful information about the opamp peripheral can be found in the [Microchip Application Note TB3286](https://ww1.microchip.com/downloads/en/Appnotes/GettingStarted-Analog-SignCondOPAMP-DS90003286A.pdf).
 
 
 ## Opamp
@@ -19,7 +19,7 @@ in_p::dac;         // Connect the input to the DAC internally
 in_p::gnd;         // Connect the input to ground internally
 in_p::vdd_div2;    // Connect the input to Vdd/2 internally, which is half the supply voltage
 in_p::link_output; // Connect the input to the previous opamps output internally (only avaiable for Opamp1 and Opamp2)
-in_p::link_wiper;  // Connect the input to the previous opamps wiper internally (only avaiable for Opamp1 and Opamp2)
+in_p::link_wiper;  // Connect the input to the Opamp0 wiper internally (only avaiable for Opamp2)
 ```
 
 ##### Usage
@@ -72,7 +72,7 @@ Opamp0.output = out::enable; // enable output
 Property for controlling the opamp input range - this is set globally, not per opamp. If it is not specified for a given opamp, `init` will not set it one way or the other.
 Accepted values:
 ``` c++
-in::rail_to_rail; // Consumes more power but can handle signal close to the ground and power rails. The default
+in::rail_to_rail; // Consumes more power but can handle signal close to the ground and power rails. The default.
 in::conventional; // Consumes less power but can't handle signal close to the power rail.
 ```
 
