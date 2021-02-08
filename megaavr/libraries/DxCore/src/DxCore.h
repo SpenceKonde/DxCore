@@ -114,7 +114,7 @@ bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok=false) {
           // for this port doesn't exist, port is invalid, or not a port if not caught by above #if
   #else   // port would be valid if the parts worked, but we know they don't. What we do not know
     if (port != 1 && (!(port == 2  && takeover_only_ports_ok))) return false;  // however, is whether the AVR64DB64 has the same bug.
-  #endif  // They give the distinct impression that all the parts iwth a given amount of flash come
+  #endif  // They give the distinct impression that all the parts with a given amount of flash come
   // from the same die, and they just put different epoxy around it wire it to different pins and
   // position it so they cah charge more for them. But they're the same die with the same bugs, and it's
   // AND with group mask cuts off the unwanted low bit leaving us with the 2 high bits of the
@@ -168,7 +168,7 @@ bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok=false) {
 bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok=false) {
   if (digitalPinToBitPosition(pin) & 0xF0)
     return setTCD0MuxByPort(digitalPinToPort(pin),takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
-  return false; // it's definately no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
+  return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
 }               // chips that one might want to call this for don't exist, let's not bother :-)
 
 #define MVIO_DISABLED (-128)

@@ -18,8 +18,8 @@ in_p::wiper;       // Connect the input to the wiper internally
 in_p::dac;         // Connect the input to the DAC internally
 in_p::gnd;         // Connect the input to ground internally
 in_p::vdd_div2;    // Connect the input to Vdd/2 internally, which is half the supply voltage
-in_p::link_output; // Connect the input to the previous opamps output internally (only avaiable for Opamp1 and Opamp2)
-in_p::link_wiper;  // Connect the input to the Opamp0 wiper internally (only avaiable for Opamp2)
+in_p::link_output; // Connect the input to the previous opamps output internally (only available for Opamp1 and Opamp2)
+in_p::link_wiper;  // Connect the input to the Opamp0 wiper internally (only available for Opamp2)
 ```
 
 ##### Usage
@@ -53,7 +53,7 @@ Opamp0.input_n = in_p::wiper; // Connect positive opamp input to the center of t
 Property for controlling the opamp output. Opamp output pins cannot be remapped. They are PD2, PD5, and PE2.
 Accepted values:
 ``` c++
-out::disable;      // Do not enable output (can be overriden be DRIVE event)
+out::disable;      // Do not enable output (can be overridden be DRIVE event)
 out::enable;       // Enable output
 out::drive_event;  // Enable output only with DRIVE event (syntactic sugar for disable)
 ```
@@ -134,7 +134,7 @@ bottom::off;         // Leave the resistor ladder bottom floating
 bottom::in_p;        // Connect the ladder bottom to the opamp positive input internally
 bottom::in_n;        // Connect the ladder bottom to the opamp negative input internally
 bottom::dac;         // Connect the ladder bottom to the DAC internally
-bottom::link_output; // Connect the ladder bottom to the previous opamps output internally (only avaiable for Opamp1 and Opamp2)
+bottom::link_output; // Connect the ladder bottom to the previous opamps output internally (only available for Opamp1 and Opamp2)
 bottom::gnd;         // Connect the ladder bottom to ground internally
 ```
 
