@@ -56,7 +56,7 @@ void ZeroCross::init()
   else if(output == out::disable)
   {
     ZCD.CTRLA &= ~out::enable & ~out::invert;
-    output_port.DIRCLR = pin_number;
+    //output_port.DIRCLR = pin_number;
   }
 }
 

@@ -119,7 +119,7 @@ void AnalogComparator::init()
   {
     AC.MUXCTRL &= ~out::invert;
     AC.CTRLA &= ~out::enable;
-    output_port.DIRCLR = pin_number;
+    //output_port.DIRCLR = pin_number;
   }
 }
 
