@@ -89,8 +89,9 @@ namespace out
 {
   enum output_t : uint8_t
   {
-    disable = 0x00,
-    enable  = 0x04,
+    disable     = 0x00,
+    enable      = 0x04,
+    drive_event = 0x00,
   };
 };
 
@@ -114,6 +115,19 @@ namespace power
   };
 };
 
+// Constant for setting whether opamp should be "always on" or "event controlled"
+namespace enable
+{
+  enum enable_t : uint8_t
+  {
+    disable      = 0x00,
+    enable       = 0x01,
+    event        = 0x00,
+    always_on    = 0x01,
+    unconfigured = 0xFF,
+  };
+};
+
 
 class Opamp
 {
@@ -131,17 +145,19 @@ class Opamp
     void init();
     static void start(bool state = true);
     static void stop();
-    
-    in_p::input_p_t  input_p       = in_p::pin;         // Positive opamp input
-    in_n::input_n_t  input_n       = in_n::pin;         // Negative opamp input
-    in::inrange_t    inrange       = in::rail_to_rail;  // Opamp input mode
-    top::top_t       ladder_top    = top::off;          // Resistor ladder top setting
-    wiper::wiper_t   ladder_wiper  = wiper::wiper0;     // Resistor ladder "wiper" setting
-    bottom::bottom_t ladder_bottom = bottom::off;       // Resistor ladder bottom setting 
-    out::output_t    output        = out::enable;       // Opamp output state
-    event::event_t   event         = event::enable;     // Event enable
-    power::power_t   standby       = power::no_standby; // Run when MCU is in standby
-    uint8_t          settle        = 0x7F;              // Microseconds needed for the opamp output to settle
+
+    in_p::input_p_t  input_p       = in_p::pin;            // Positive opamp input
+    in_n::input_n_t  input_n       = in_n::pin;            // Negative opamp input
+    in::inrange_t    inrange       = in::rail_to_rail;     // Opamp input mode
+    top::top_t       ladder_top    = top::off;             // Resistor ladder top setting
+    wiper::wiper_t   ladder_wiper  = wiper::wiper0;        // Resistor ladder "wiper" setting
+    bottom::bottom_t ladder_bottom = bottom::off;          // Resistor ladder bottom setting
+    out::output_t    output        = out::enable;          // Opamp output state
+    event::event_t   event         = event::enable;        // Event enable
+    power::power_t   standby       = power::no_standby;    // Run when MCU is in standby
+    uint8_t          settle        = 0x7F;                 // Microseconds needed for the opamp output to settle
+    bool             wait_settle   = true;                 // If false, Opamp::start() will not wait for this to settle before returning.
+    enable::enable_t enable        = enable::unconfigured; // set to disable to turn off this opamp (or have it run only when it's event input is on). unconfigured means neither set, nor has init been called.
 
   private:
     const    uint8_t opamp_number;  // Holds the opamp number

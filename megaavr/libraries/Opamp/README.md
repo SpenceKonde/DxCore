@@ -1,6 +1,6 @@
 # Opamp
-A library for interfacing with the opamp peripheral on the AVR-DB series MCUs.  
-Developed by [MCUdude](https://github.com/MCUdude/).  
+A library for interfacing with the opamp peripheral on the AVR-DB series MCUs.
+Developed by [MCUdude](https://github.com/MCUdude/).
 The AVR-DB 48 and 64 pin chips have three built-in opamps, while the 32 and 28 pin ones only have two.
 More useful information about the analog comparator can be found in the [Microchip Application Note TB3286](https://ww1.microchip.com/downloads/en/Appnotes/GettingStarted-Analog-SignCondOPAMP-DS90003286A.pdf).
 
@@ -10,7 +10,7 @@ Class for interfacing with the built-in opamps. Use the predefined objects `Opam
 
 
 ### input_p
-Variable for controlling what the positive opamp input connects to.  
+Property for controlling what the positive opamp input connects to.
 Accepted values:
 ``` c++
 in_p::pin;         // Connect the pinout to the external pin
@@ -32,7 +32,7 @@ Opamp0.input_p = in_p::vdd_div2; // Connect positive opamp input to Vdd/2
 
 
 ### input_n
-Variable for controlling what the negative opamp input connects to.  
+Property for controlling what the negative opamp input connects to.
 Accepted values:
 ``` c++
 in_n::pin;    // Connect the pinout to the external pin
@@ -49,9 +49,27 @@ Opamp0.input_n = in_p::wiper; // Connect positive opamp input to the center of t
 ##### Default state
 `OpampN.input_n` defaults to `in_n::pin` if not specified in the user program.
 
+### output
+Property for controlling the opamp output. Opamp output pins cannot be remapped. They are PD2, PD5, and PE2.
+Accepted values:
+``` c++
+out::disable;      // Do not enable output (can be overriden be DRIVE event)
+out::enable;       // Enable output
+out::drive_event;  // Enable output only with DRIVE event (syntactic sugar for disable)
+```
+If using the drive event to control output, `out::drive_event` is recommended to improve readability, even though it is the same as `out::disable;`
+
+##### Usage
+``` c++
+Opamp0.output = out::enable; // enable output
+```
+
+##### Default state
+`OpampN.output` defaults to `out::enable` for any initialized opamp if not specified in the user program (if an OpampN.init() is never called, it will not be turned on).
+
 
 ### inrange
-Variable for controlling the opamp input range.
+Property for controlling the opamp input range.
 Accepted values:
 ``` c++
 in::conventional; // Consumes less power but can't handle signal close to the ground and power rails
@@ -61,13 +79,14 @@ in::rail_to_rail; // Consumes more power but can handle signal close to the grou
 ##### Usage
 ``` c++
 Opamp0.inrange = in::rail_to_rail; // Set rail to rail mode
+```
 
 ##### Default state
 `OpampN.inrange` defaults to `in::rail_to_rail` if not specified in the user program.
 
 
 ### ladder_top
-Variable for controlling what the top of the internal resistor ladder connects to
+Property for controlling what the top of the internal resistor ladder connects to.
 Accepted values:
 ``` c++
 top::off;    // Leave the resistor ladder top floating
@@ -85,7 +104,7 @@ Opamp0.ladder_top = top::vdd; // Connect the resistor ladder top to the supply v
 
 
 ### ladder_wiper
-Variable to set the resistor ladder values. R2 connects to the top and to the middle and R1 connects to the middle and to the bottom.
+Property to set the resistor ladder values. R2 connects to the top and to the middle and R1 connects to the middle and to the bottom.
 Accepted values:
 ``` c++
 wiper::wiper0; // Set R1 = 60k, R2 = 4k
@@ -108,7 +127,7 @@ Opamp0.ladder_wiper = in_p::wiper0; // Set R1 = 60k, R2 = 4k
 
 
 ### ladder_bottom
-Variable for controlling what the bottom of the internal resistor ladder connects to
+Property for controlling what the bottom of the internal resistor ladder connects to.
 Accepted values:
 ``` c++
 bottom::off;         // Leave the resistor ladder bottom floating
@@ -129,7 +148,7 @@ Opamp0.ladder_bottom = bottom::gnd; // Connect the ladder bottom to ground inter
 
 
 ### event
-Variable for enabling event reception and generation.
+Property for enabling event reception and generation. The opamps each have 4 event users (enable, disable, drive, and dump) as well as one generator that is "high" when it is settled. See the datasheet for more information; it is possible to do most of the control via the event system, if your application requires that.
 Accepted values:
 ``` c++
 event::disable; // Disable event reception and generation
@@ -146,7 +165,7 @@ Opamp0.event = event::disable;
 
 
 ### standby
-Variable to specify if the opamp should run while the microcontroller is in standby or not
+Property to specify if the opamp should run while the microcontroller is in standby or not.
 Accepted values:
 ``` c++
 power::no_standby; // Opamp running while in standby
@@ -163,7 +182,7 @@ Opamp0.standby = power::standby;
 
 
 ### settle
-Variable to set the number of microseconds allowed for the opamp output to settle.
+Property to set the number of microseconds allowed for the opamp output to settle.
 Ranges from 0 to 127 microseconds.
 
 ##### Usage
@@ -175,8 +194,36 @@ Opamp0.settle = 0x40;
 `OpampN.settle` defaults to `0x7F / 127` if not specified in the user program.
 
 
+### wait_settle
+Property to set whether the Opamp::start() will wait until this opamp's status is "settled" before returning. Boolean values, `true` or `false`.
+
+##### Usage
+``` c++
+Opamp0.wait_settle = false; // do not wait for this opamp to finish starting up,
+```
+
+##### Default state
+`OpampN.input_n` defaults to `true` if not specified in the user program.
+
+
+### enable
+Property to set whether the Opamp is turned on. Opamps which are not turned on, if set to use events, can still be turned on by the ENABLE event.
+
+##### Usage
+``` c++
+enable::disable;    // Opamp not enabled (barring events)
+enable::enable;     // Opamp enabled
+enable::event;      // Opamp not enabled (barring events - syntactic sugar)
+enable::always_on;  // Opamp enabled (syntactic sugar)
+```
+If using event control, `enable::event` is recommended for clarity, otherwise, `enable::disable`. `enable::always_on` mirrors terminology in datasheet.
+
+##### Default state
+`OpampN.enable` defaults to `enable::enable` if not specified in the user program - however, since it is only written to the opamp control registers when `OpampN.init()` is called, an opamp that the user has not touched will not be enabled.
+
+
 ## get_number()
-Function that returns the Opamp in use
+Method that returns the Opamp number - useful if it is being passed around as a reference, for example.
 
 ##### Usage
 ```c++
@@ -185,7 +232,7 @@ uint8_t comparator_number = Opamp1.get_number(); // get_number() will return 1
 
 
 ## status()
-Function that returns true if the opamp has settled after a configuration change and false otherwise.
+Method that returns `true` if the opamp has settled after a configuration change and `false` otherwise.
 
 ##### Usage
 ```c++
@@ -194,7 +241,7 @@ bool opamp_status = Opamp0.status(); // Returns true if opamp has settled
 
 
 ## calibrate()
-Function to calibrate the opamp input DC offset. `0x00` provides the most negative value of offset adjustment, `0x80` provides no offset adjustment, and `0xFF` provides the most positive value of offset adjustment.
+Method to calibrate the opamp input DC offset. `0x00` provides the most negative value of offset adjustment, `0x80` provides no offset adjustment, and `0xFF` provides the most positive value of offset adjustment.
 
 ##### Usage
 ```c++
@@ -203,16 +250,24 @@ Opamp0.calibrate(0x90);
 
 
 ## init()
-Function that initialized the opamp and writes all the settings variables to their appropriate registers.
+Method that initialized the opamp and writes all the settings properties to their appropriate registers. The init method can be called while the opamp is running, though configuration changes will involve waiting through another settling period.
 
 ##### Usage
 ```c++
 Opamp0.init(); // Initialize the opamp
 ```
 
+```c++
+// Opamp0 is enabled, Opamp::start() called a while ago.
+// but we need to change wiper value now...
+// and wait until it is settled before continuing.
+Opamp0.ladder_wiper=wiper::wiper6;
+Opamp0.init();              // Initialize w/new settings
+while (!Opamp0.settled());  // wait until it settles.
+```
 
 ## start()
-Function that starts the opamp hardware.
+Static method that starts the opamp hardware.
 
 ##### Usage
 ```c++
@@ -221,7 +276,7 @@ Opamp::start();
 
 
 ## stop()
-Function that disables the opamp hardware.
+Static method that disables the opamp hardware.
 
 ##### Usage
 ```c++
