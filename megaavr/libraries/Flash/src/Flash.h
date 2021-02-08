@@ -25,67 +25,76 @@ extern FlashClass Flash;
 
 typedef enum FLASHWRITE_RETURN_VALUES
 {
-  FLASHWRITE_OK             = (0x00),
-  /* 0x10 - Non-optiboot problem   */
-  FLASHWRITE_FUSES          = (0x11),
-  // Bootloader section isn't defined
-  // so even if the entrypoint is
-  // there it can't write to the app.
-/*FLASHWRITE_APPCODEWP      = (0x1F),*/
-  FLASHWRITE_NYI            = (0x1F),
+  FLASHWRITE_OK                = (0x00),
+  /* 0x10 - Non-optiboot problem      */
+  FLASHWRITE_NOBOOTSIZE        = (0x11),
+/* If BOOTSIZE = 0x00, then the whole
+ * flash is BOOTCODE and none is
+ * writable via self programming
+ */
+  FLASHWRITE_NOCODESIZE        = (0x12),
+/* If CODESIZE = 0x00, then the whole
+ * flash is APPCODE other than the boot
+ * section, but we're not using magic
+ * entry point because SPM_FROM_APP is
+ * not -1 */
+  FLASHWRITE_CFGMISMATCH       = (0x13),
+/* CODESIZE fuse and SPM_FROM_APP do
+ * not agree about how much flash is
+ * writable */
+  FLASHWRITE_BOGUSENTRY        = (0x14),
+/* This means SPM_FROM_APP=-1 so there
+ * should be an entry point in first
+ * 512b of flash - but it wasn't there
+ * but was found later, if DEBUGBOGUS
+ * is defined (it is), then you can
+ * see where it is with:
+ * Serial.printHex((uint8_t)GPR.GPR1)
+ * Serial.printHex((uint8_t)GPR.GPR0)
+ */
+  FLASHWRITE_NOENTRY           = (0x15),
+/* This means SPM_FROM_APP=-1 as above
+ * but we couldn't find it anywhere in
+ * near program space, looked all the
+ * way to 0xFFFC!
+ */
+  /* 0x20 - Problem with Optiboot     */
+  FLASHWRITE_NOBOOT            = (0x20),
+  FLASHWRITE_OLD               = (0x21),
+  FLASHWRITE_DISABLED          = (0x22),
+  FLASHWRITE_UNRECOGNIZED      = (0x23),
 
+  /* 0x30 -Can occur in either mode   */
+  FLASHWRITE_SPM_NOT_USED      = (0x31),
+/*FLASHWRITE_NO_Z_INC          = (0x32),*/
+/*FLASHWRITE_APPCODEWP         = (0x3E),*/
+/*FLASHWRITE_BOOTRP            = (0x3F),*/
+/* May be handled in future version
+ * Currently we aren't making sure their
+ * code isn't owning themselves. And if
+ * BOOTRP is set, their bootloader set it
+ * so: A) we don't know what it is and
+ * and B) we know it don't support this!
+ */
 
-  /* 0x20 - Problem with Optiboot  */
-  FLASHWRITE_NOBOOT         = (0x20),
-  FLASHWRITE_OLD            = (0x21),
-  FLASHWRITE_DISABLED       = (0x22),
-  FLASHWRITE_UNRECOGNIZED   = (0x23),
-/*FLASHWRITE_APPCODEWP      = (0x2E),
-  May be handled in future version
-  Currently if you try to write to
-  APPCODE section, but it's write
-  protected, you'll get the PROTECT
-  error code below. This should maybe
-  be given if checkFlash() is called,
-  and the combination of WP bits and
-  CODESIZE fuse is such that none of
-  the flash can be written.       */
+  /* 0x40 - Bad argument to call      */
+  FLASHWRITE_BADARG            = (0x40),
+  FLASHWRITE_BADADDR           = (0x41),
+  FLASHWRITE_BADSIZE           = (0x42),
+  FLASHWRITE_PROTECT           = (0x43),
+  FLASHWRITE_ALIGN             = (0x44),
+  FLASHWRITE_TOOBIG            = (0x45),
+  FLASHWRITE_0LENGTH           = (0x46),
 
-  /* Not currently checked for.
-  FLASHWRITE_BOOTRP     = (0x2F),
-  Currently if BOOTRP is set, the
-  you'll just get FLASHWRITE_UNRECOGNIZED
-  which is accurate, since BOOTRP is
-  not a fuse, but a bit set by the
-  bootloader; one which supported
-  this functionality surely wouldn't
-  be setting that bit!             */
-
-  /* 0x30 -Can occur in either mode*/
-  FLASHWRITE_SPM_NOT_USED   = (0x31),
-  /* If bootloader/vector has
-     SPM instead of SPM Z+
-  FLASHWRITE_NO_Z_INC       = (0x32),
-  Don't think these exist!         */
-
-  /* 0x40 - Bad argument to call   */
-  FLASHWRITE_BADARG         = (0x40),
-  FLASHWRITE_BADADDR        = (0x41),
-  FLASHWRITE_BADSIZE        = (0x42),
-  FLASHWRITE_PROTECT        = (0x43),
-  FLASHWRITE_ALIGN          = (0x44),
-  FLASHWRITE_TOOBIG         = (0x45),
-  FLASHWRITE_0LENGTH        = (0x46),
-
-  /* 0x80 - NVMCTRL complained     */
-  FLASHWRITE_FAIL           = (0x80),
-  FLASHWRITE_FAIL_INVALID   = (0x81),
-  FLASHWRITE_FAIL_PROTECT   = (0x82),
-  FLASHWRITE_FAIL_COLLISION = (0x83),
-  FLASHWRITE_FAIL_ONGOING   = (0x84),
-  FLASHWRITE_FAIL_OTHER_5   = (0x84),
-  FLASHWRITE_FAIL_OTHER_6   = (0x84),
-  FLASHWRITE_FAIL_OTHER_7   = (0x84)
+  /* 0x80 - NVMCTRL complained        */
+  FLASHWRITE_FAIL              = (0x80),
+  FLASHWRITE_FAIL_INVALID      = (0x81),
+  FLASHWRITE_FAIL_PROTECT      = (0x82),
+  FLASHWRITE_FAIL_COLLISION    = (0x83),
+  FLASHWRITE_FAIL_ONGOING      = (0x84),
+  FLASHWRITE_FAIL_OTHER_5      = (0x85),
+  FLASHWRITE_FAIL_OTHER_6      = (0x86),
+  FLASHWRITE_FAIL_OTHER_7      = (0x87)
 } FLASHWRITE_CODE_t;
 
 

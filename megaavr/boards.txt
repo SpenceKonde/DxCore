@@ -5,7 +5,6 @@ menu.chip=Chip
 menu.clock=Clock Speed
 menu.millis=millis()/micros() timer (TCB2 recommended)
 menu.serialevent=Support SerialEvent?
-#menu.mvio=MVIO on PORTC (Bootload burn req'd)
 menu.bodvoltage=BOD level if enabled (Bootload burn req'd)
 menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
 menu.eesave=Save EEPROM (Bootload burn req'd)
@@ -13,6 +12,7 @@ menu.resetpin=Reset pin function (Bootload burn req'd)
 menu.startuptime=Startup Time (Bootload burn req'd)
 menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
 menu.timeout=Bootloader Timeout (Bootload burn req'd)
+menu.appspm=Flash Writing
 
 ##############################################################
 
@@ -44,7 +44,7 @@ avrda.upload.tool=avrdude
 avrda.build.board=avrda
 avrda.build.core=dxcore
 avrda.build.text_section_start=.text=0x0
-avrda.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource}
+avrda.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} {bootloader.appspm}
 avrda.build.export_merged_output=false
 avrda.build.mcupostfix=
 
@@ -53,13 +53,45 @@ avrda.bootloader.tool=avrdude
 avrda.bootloader.WDTCFG=0x00
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
-avrda.bootloader.BOOTSIZE=0x00
+avrda.bootloader.BOOTSIZE=0x01
 avrda.bootloader.avrdudestring=
 avrda.bootloader.pymcuprogstring=-aerase
 
 ################################
 # Tools Submenu Options        #
 ################################
+
+# App SPM
+avrda.menu.appspm.no=Disabled
+avrda.menu.appspm.no.bootloader.appspm=
+avrda.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrda.menu.appspm.16plus=Above 16k
+avrda.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
+avrda.menu.appspm.16plus.bootloader.CODESIZE=32
+avrda.menu.appspm.24plus=Above 24k
+avrda.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
+avrda.menu.appspm.24plus.bootloader.CODESIZE=48
+avrda.menu.appspm.32plus=Above 32k (AVR128/64 only)
+avrda.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
+avrda.menu.appspm.32plus.bootloader.CODESIZE=64
+avrda.menu.appspm.48plus=Above 48k (AVR128/64 only)
+avrda.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
+avrda.menu.appspm.48plus.bootloader.CODESIZE=96
+avrda.menu.appspm.56plus=Above 56k (AVR128/64 only)
+avrda.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
+avrda.menu.appspm.56plus.bootloader.CODESIZE=112
+avrda.menu.appspm.64plus=Above 64k (AVR128 only)
+avrda.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
+avrda.menu.appspm.64plus.bootloader.CODESIZE=128
+avrda.menu.appspm.96plus=Above 96k (AVR128 only)
+avrda.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
+avrda.menu.appspm.96plus.bootloader.CODESIZE=192
+avrda.menu.appspm.112plus=Above 112k (AVR128 only)
+avrda.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
+avrda.menu.appspm.112plus.bootloader.CODESIZE=224
+avrda.menu.appspm.full=Anywhere
+avrda.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
+
 
 # Chip (pins and memory size)
 avrda.menu.chip.128DA28=AVR128DA28
@@ -308,7 +340,7 @@ avrdb.upload.tool=avrdude
 avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.text_section_start=.text=0x0
-avrdb.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource}
+avrdb.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} {bootloader.appspm}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 
@@ -319,13 +351,45 @@ avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 #avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdb.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdb.bootloader.CODESIZE=0x00
-avrdb.bootloader.BOOTSIZE=0x00
+avrdb.bootloader.BOOTSIZE=0x01
 avrdb.bootloader.avrdudestring=
 avrdb.bootloader.pymcuprogstring=-aerase
 
 ################################
 # Tools Submenu Options        #
 ################################
+
+# App SPM
+avrdb.menu.appspm.no=Disabled
+avrdb.menu.appspm.no.bootloader.appspm=
+avrdb.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrdb.menu.appspm.16plus=Above 16k
+avrdb.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
+avrdb.menu.appspm.16plus.bootloader.CODESIZE=32
+avrdb.menu.appspm.24plus=Above 24k
+avrdb.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
+avrdb.menu.appspm.24plus.bootloader.CODESIZE=48
+avrdb.menu.appspm.32plus=Above 32k (AVR128/64 only)
+avrdb.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
+avrdb.menu.appspm.32plus.bootloader.CODESIZE=64
+avrdb.menu.appspm.48plus=Above 48k (AVR128/64 only)
+avrdb.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
+avrdb.menu.appspm.48plus.bootloader.CODESIZE=96
+avrdb.menu.appspm.56plus=Above 56k (AVR128/64 only)
+avrdb.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
+avrdb.menu.appspm.56plus.bootloader.CODESIZE=112
+avrdb.menu.appspm.64plus=Above 64k (AVR128 only)
+avrdb.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
+avrdb.menu.appspm.64plus.bootloader.CODESIZE=128
+avrdb.menu.appspm.96plus=Above 96k (AVR128 only)
+avrdb.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
+avrdb.menu.appspm.96plus.bootloader.CODESIZE=192
+avrdb.menu.appspm.112plus=Above 112k (AVR128 only)
+avrdb.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
+avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
+avrdb.menu.appspm.full=Anywhere
+avrdb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
+
 
 # Chip (pins and memory size)
 avrdb.menu.chip.128DB28=AVR128DB28

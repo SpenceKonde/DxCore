@@ -2,8 +2,27 @@
 #include <avr/pgmspace.h>
 #include "Flash.h"
 
+#define DEBUGBOGUS
 
 
+/* Ugly ugly
+ * SPMCOMMAND will be #defomed as the assembly command that we call
+ * to write to the flash after setting up the Z register and putting the data into r0:r1.
+ * if we're using CODESIZE > 0 then it's SPM Z+, if not optiboot, call to label, and if it
+ * is optiboot, the magic address 0x1FA.
+ */
+
+#if defined(USING_OPTIBOOT)
+  #define SPMCOMMAND "call 0x1FA"
+#elif defined(SPM_FROM_APP)
+  #if SPM_FROM_APP == -1
+    #define SPMCOMMAND "call EntryPointSPM"
+  #else
+    #define SPMCOMMAND "spm Z+"
+  #endif
+#else
+  #error "You must also enable writing to flash from app in tools menu."
+#endif
 
 /* My go-to NVMCTRL.CTRLA write function - check status only at start
  * always set to 0 first - and then if asked to set it elsewhere, then
@@ -24,25 +43,34 @@ void do_nvmctrl(uint8_t command) {
 
 uint8_t FlashClass::checkWritable() {
   #ifndef USING_OPTIBOOT
-    #ifdef(SPM_FROM_APP)
-      if (FUSE.BOOTSIZE != 0x01) {
-        // This approach depends on the first page of the flash being set
-        // as "bootloader" (though we just tell the interrupt controller
-        // that the vwectors are in the boot section and run app normally)
-        // If it's not set correctly, then even if the entry point is there
-        // what good will it do if it doesn't have the privileges to write
-        // flash?
-        return FLASHWRITE_NOBOOT
-      }
-      return FLASHWRITE_OK;
-    #else
-      return FLASHWRITE_NYI;
-      #error "Using this from the app requires core support which is not yet implemented"
-      // #error "In order to write to flash from app, this must be enabled from tools menuss"
-    #endif
-    return
+    if (FUSE.BOOTSIZE == 0x00) {
+      return FLASHWRITE_NOBOOTSIZE;
     }
-  #else
+    #if defined(SPM_FROM_APP)
+      #if (SPM_FROM_APP==-1)
+        for (uint16_t i =0;i<32768;i+=2) {
+          if (pgm_read_word_near(i)==0x95f8) {
+            if (i < 512) {
+              return FLASHWRITE_OK;
+            } else {
+              #ifdef DEBUGBOGUS
+                GPR.GPR0=i&0xFF;
+                GPR.GPR1=i>>8;
+              #endif
+              return FLASHWRITE_BOGUSENTRY;
+            }
+          }
+        }
+        return FLASHWRITE_NOENTRY;
+      #else //SPM_FROM_APP isn't -1, so it's the expected value of the CODESIZE fuse0
+        if (FUSE.CODESIZE != SPM_FROM_APP) {
+          return FLASHWRITE_CFGMISMATCH;
+        }
+      #endif
+      // assuming the fuses are consistent with where we expect to be...
+      return FLASHWRITE_OK;
+    #endif // case where SPM_FROM_APP not defined handled above.
+  #else // USING_OPTIBOOT defined
     if (FUSE.BOOTSIZE == 0x00) {
       // Should we support BIGBOOT?
       // I vote "NO" because I know I have never made that work
@@ -88,15 +116,20 @@ uint8_t FlashClass::checkWritable() {
 }
 
 /* All significant docs only written out once where first apply
- * In general, I am much more careful than normal about trying to catch
+ * In general, I am trying to be fairly careful about catching
  * inappropriate arguments and recklessness than usual, in the interest
  * of trying to help clever fools not write code that can brick itself
  * in corner cases. It totally still can, but it's more careful than
- * usual Spence-code.
+ * usual Spence-code, where the phrase that rules is more often than
+ * not "It is the responsibility of the user to ensure..."
  */
 
 uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
-  if (FUSE.BOOTSIZE != 0x01) {
+  #if SPM_FROM_APP==-1
+    if ((FUSE.BOOTSIZE != 0x01)) {
+  #else
+    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+  #endif
     return FLASHWRITE_NOBOOT;
   }
   uint8_t command;
@@ -147,7 +180,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
    * And if you then call SPM Z+ , but the compiler knows Z hasn't changed (because you
    * told it that).
    */
-  __asm__ __volatile__ ("call 0x1FA" : "+z" (zaddress));
+  __asm__ __volatile__ (SPMCOMMAND : "+z" (zaddress));
   #if (PROGMEM_SIZE > 0x10000)
     RAMPZ = 0; //just begging for trouble not resetting that.
   #endif
@@ -168,7 +201,11 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
 }
 
 uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
-  if (FUSE.BOOTSIZE != 0x01) {
+  #if SPM_FROM_APP==-1
+    if ((FUSE.BOOTSIZE != 0x01)) {
+  #else
+    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+  #endif
     return FLASHWRITE_NOBOOT;
   }
   if (address > (PROGMEM_SIZE - 2) || address < 512) {
@@ -191,7 +228,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
   __asm__ __volatile__(
             "mov  r0,%A[dat]"                     "\n\t"
             "mov  r1,%B[dat]"                     "\n\t"
-            "call 0x1FA"                          "\n\t"
+            SPMCOMMAND                            "\n\t"
             "clr  r1"                             "\n\t"
             : [flptr]   "+z"   (zaddress)
             : [dat]      "r"   (data)
@@ -213,7 +250,11 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
 
 
 uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
-  if (FUSE.BOOTSIZE != 0x01) {
+  #if SPM_FROM_APP==-1
+    if ((FUSE.BOOTSIZE != 0x01)) {
+  #else
+    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+  #endif
     return FLASHWRITE_NOBOOT;
   }
   if (address > (PROGMEM_SIZE - 2) || address < 512) {
@@ -248,7 +289,7 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   __asm__ __volatile__(
             "mov  r0,%A[dat]"                     "\n\t"
             "mov  r1,%B[dat]"                     "\n\t"
-            "call 0x1FA"                          "\n\t"
+            SPMCOMMAND                            "\n\t"
             "clr  r1"                             "\n\t"
             : [flptr]   "+z"   (zaddress)
             : [dat]      "r"   (dataword)
@@ -271,7 +312,11 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   if (length == 0) {
     return FLASHWRITE_0LENGTH;
   }
-  if (FUSE.BOOTSIZE != 0x01) {
+  #if SPM_FROM_APP==-1
+    if ((FUSE.BOOTSIZE != 0x01)) {
+  #else
+    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+  #endif
     return FLASHWRITE_NOBOOT;
   }
   if (address > (PROGMEM_SIZE-2) || address < 512) {
@@ -311,7 +356,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
           "head_%=:"                              "\n\t"
             "ld   r0, %a[ptr]+"                   "\n\t"
             "ld   r1, %a[ptr]+"                   "\n\t"
-            "call 0x1FA"                          "\n\t"
+            SPMCOMMAND                            "\n\t"
         /*  "adiw r30,  2"                        "\n\t" */
             "sbiw %[len], 1"                      "\n\t"
             "brne head_%="                        "\n\t"
