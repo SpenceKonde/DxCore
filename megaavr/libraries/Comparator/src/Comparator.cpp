@@ -2,24 +2,32 @@
 #include "Arduino.h"
 
 #if defined(AC0_AC_vect)
-AnalogComparator Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #if defined(PORTE)
+    AnalogComparator Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #else
+    AnalogComparator Comparator0(0, AC0, PORTD.PIN2CTRL, PORTD.PIN0CTRL, PORTD.PIN0CTRL, PORTD.PIN6CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #endif
 #endif
 #if defined(AC1_AC_vect)
-AnalogComparator Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  AnalogComparator Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
 #endif
 #if defined(AC2_AC_vect)
-AnalogComparator Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL, PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #if defined(PORTE)
+    AnalogComparator Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL, PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #else
+    AnalogComparator Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTD.PIN0CTRL, PORTD.PIN6CTRL, PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #endif
 #endif
 
 // Array for storing ISR function pointers
 #if defined(AC2_AC_vect)
-static volatile voidFuncPtr intFuncAC[3];
+  static volatile voidFuncPtr intFuncAC[3];
 #elif defined(AC1_AC_vect)
-static volatile voidFuncPtr intFuncAC[2];
+  static volatile voidFuncPtr intFuncAC[2];
 #elif defined(AC0_AC_vect)
-static volatile voidFuncPtr intFuncAC[1];
+  static volatile voidFuncPtr intFuncAC[1];
 #else
-#error target does not have an analog comparator!
+  #error target does not have an analog comparator!
 #endif
 
 
