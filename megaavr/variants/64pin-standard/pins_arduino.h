@@ -95,17 +95,17 @@
 
 
 #if defined(MILLIS_USE_TIMERB0)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB1)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PG3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB2)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB3)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #elif defined(MILLIS_USE_TIMERB4)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PB5))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PB5))
 #else //no TCB's are used for millis
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
 #endif
 
 // Timer pin swaps

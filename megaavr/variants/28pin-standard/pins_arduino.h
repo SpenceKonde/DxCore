@@ -60,13 +60,13 @@
 
 
 #if defined(MILLIS_USE_TIMERB0)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
 #elif defined(MILLIS_USE_TIMERB1)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0)
 #elif defined(MILLIS_USE_TIMERB2)
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
 #else //no TCB's are used for millis
-#define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0)
 #endif
 
 // Timer pin mapping
@@ -161,7 +161,7 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 
 #ifndef MVIO
 // 28-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
-#define PIN_A0   PIN_PD0
+  #define PIN_A0   PIN_PD0
 #endif
 #define PIN_A1   PIN_PD1
 #define PIN_A2   PIN_PD2
@@ -173,7 +173,7 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 #define PIN_A16  PIN_PF0
 #define PIN_A17  PIN_PF1
 #ifndef MVIO
-static const uint8_t A0  = PIN_A0;
+  static const uint8_t A0  = PIN_A0;
 #endif
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
@@ -200,11 +200,11 @@ const uint8_t digital_pin_to_port[] = {
   PC, //  9 PC1/USART1_Rx/TCA0 PWM
   PC, // 10 PC2/TCA0 PWM
   PC, // 11 PC3/TCA0 PWM
-#ifndef MVIO
+  #ifndef MVIO
   PD, // 12 PD0/AIN0
-#else
+  #else
   NOT_A_PORT,
-#endif
+  #endif
   PD, // 13 PD1/AIN1
   PD, // 14 PD2/AIN2
   PD, // 15 PD3/AIN3/LED_BUILTIN
@@ -231,11 +231,11 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN1_bp, //  9 PC1/USART1_Rx
   PIN2_bp, // 10 PC2
   PIN3_bp, // 11 PC3
-#ifndef MVIO
+  #ifndef MVIO
   PIN0_bp, // 12 PD0/AIN0
-#else
+  #else
   NOT_A_PIN,
-#endif
+  #endif
   PIN1_bp, // 13 PD1/AIN1
   PIN2_bp, // 14 PD2/AIN2
   PIN3_bp, // 15 PD3/AIN3/LED_BUILTIN
@@ -262,11 +262,11 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN1_bm, //  9 PC1/USART1_Rx
   PIN2_bm, // 10 PC2
   PIN3_bm, // 11 PC3
-#ifndef MVIO
+  #ifndef MVIO
   PIN0_bm, // 12 PD0/AIN0
-#else
+  #else
   NOT_A_PIN,
-#endif
+  #endif
   PIN1_bm, // 13 PD1/AIN1
   PIN2_bm, // 14 PD2/AIN2
   PIN3_bm, // 15 PD3/AIN3/LED_BUILTIN
