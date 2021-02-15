@@ -23,6 +23,14 @@ class FlashClass
 
 extern FlashClass Flash;
 
+typedef union {
+  uint16_t word;
+  uint8_t bytes[2];
+} fdata16_t;
+
+
+
+
 typedef enum FLASHWRITE_RETURN_VALUES
 {
   FLASHWRITE_OK                = (0x00),
