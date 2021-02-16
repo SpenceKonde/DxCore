@@ -2,29 +2,29 @@
 #include "Arduino.h"
 
 #if defined(ZCD0_ZCD_vect)
-ZeroCross zcd0(0, ZCD0, PORTD.PIN1CTRL);
+  ZeroCross zcd0(0, ZCD0, PORTD.PIN1CTRL);
 #endif
 #if defined(ZCD1_ZCD_vect)
-ZeroCross zcd1(1, ZCD1, PORTE.PIN3CTRL);
+  ZeroCross zcd1(1, ZCD1, PORTE.PIN3CTRL);
 #endif
 #if defined(ZCD2_ZCD_vect)
-ZeroCross zcd2(2, ZCD2, PORTE.PIN7CTRL);
+  ZeroCross zcd2(2, ZCD2, PORTE.PIN7CTRL);
 #endif
 
 
 // Array for storing ISR function pointers
 #if defined(ZCD2_ZCD_vect)
-static volatile voidFuncPtr intFuncAC[3];
+  static volatile voidFuncPtr intFuncAC[3];
 #elif defined(ZCD1_ZCD_vect)
-static volatile voidFuncPtr intFuncAC[2];
+  static volatile voidFuncPtr intFuncAC[2];
 #elif defined(ZCD0_ZCD_vect)
-static volatile voidFuncPtr intFuncAC[1];
+  static volatile voidFuncPtr intFuncAC[1];
 #else
-#error target does not have zero-cross detection hardware!
+  #error "target does not have zero-cross detection hardware!"
 #endif
 
 
-ZeroCross::ZeroCross(const uint8_t zero_cross_number, ZCD_t& zcd, register8_t& input_pin)
+ZeroCross::ZeroCross(const uint8_t zero_cross_number, ZCD_t &zcd, register8_t &input_pin)
   : zcd_number(zero_cross_number), ZCD(zcd), INPUT_PIN(input_pin) { }
 
 void ZeroCross::init() {
@@ -32,32 +32,32 @@ void ZeroCross::init() {
   INPUT_PIN = PORT_ISC_INPUT_DISABLE_gc;
 
   // Prepare for output pin swap
-  PORT_t& output_port = PORTA;
+  PORT_t &output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
-  if(output_swap == out::pin_swap || output_swap == out::swap_all) {
+  if (output_swap == out::pin_swap || output_swap == out::swap_all) {
     output_port = PORTC;
     pin_number = PIN7_bm;
     PORTMUX.ZCDROUTEA = ~(1 << zcd_number) | output_swap;
   }
 
   // Set output
-  if(output == out::enable) {
+  if (output == out::enable) {
     ZCD.CTRLA = (ZCD.CTRLA & ~out::invert) | out::enable;
     output_port.DIRSET = pin_number;
   }
-  else if(output == out::invert) {
+  else if (output == out::invert) {
     ZCD.CTRLA |= out::enable | out::invert;
     output_port.DIRSET = pin_number;
   }
-  else if(output == out::disable) {
+  else if (output == out::disable) {
     ZCD.CTRLA &= ~out::enable & ~out::invert;
     //output_port.DIRCLR = pin_number;
   }
 }
 
 bool ZeroCross::have_separate_mux() {
-  #if (defined(__AVR_DB__) && PROGMEM_SIZE==0x20000)
-    // Fixed in Silicon Rev. A5 of AVR128DB only
+  #if defined(__AVR_DB__) && PROGMEM_SIZE==0x20000
+      // Fixed in Silicon Rev. A5 of AVR128DB only
     return (SYSCFG.REVID >= 0x14);
   #else
     // other parts are still waiting...
@@ -66,10 +66,11 @@ bool ZeroCross::have_separate_mux() {
 }
 
 void ZeroCross::start(bool state) {
-  if(state)
+  if (state) {
     ZCD.CTRLA |= ZCD_ENABLE_bm;
-  else
+  } else {
     ZCD.CTRLA &= ~ZCD_ENABLE_bm;
+  }
 }
 
 void ZeroCross::stop() {

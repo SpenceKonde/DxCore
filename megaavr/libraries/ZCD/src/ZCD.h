@@ -18,7 +18,7 @@ namespace out {
 
 class ZeroCross {
   public:
-    ZeroCross(const uint8_t zcd_number, ZCD_t& zcd, register8_t& input_pin);
+    ZeroCross(const uint8_t zcd_number, ZCD_t &zcd, register8_t &input_pin);
 
     void init();
     void start(bool state = true);
@@ -34,22 +34,22 @@ class ZeroCross {
 
   private:
     const uint8_t zcd_number;
-    ZCD_t& ZCD;
-    register8_t& INPUT_PIN;
+    ZCD_t &ZCD;
+    register8_t &INPUT_PIN;
     bool enable = false;
 };
 
 #if defined(ZCD0_ZCD_vect)
-extern ZeroCross zcd0;
-#define zcd zcd0
+  extern ZeroCross zcd0;
+  #define zcd zcd0
 #endif
 
 #if defined(ZCD1_ZCD_vect)
-extern ZeroCross zcd1;
+  extern ZeroCross zcd1;
 #endif
 
 #if defined(ZCD2_ZCD_vect)
-extern ZeroCross zcd2;
+  extern ZeroCross zcd2;
 #endif
 
 #endif

@@ -35,8 +35,8 @@
  */
 void do_nvmctrl(uint8_t command) {
   while (NVMCTRL.STATUS & 0x03); //wait if busy, though this is unlikely
-  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA,NVMCTRL_CMD_NONE_gc);
-  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA,command);
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
   return;
 }
 
@@ -47,16 +47,12 @@ uint8_t FlashClass::checkWritable() {
       return FLASHWRITE_NOBOOTSIZE;
     }
     #if defined(SPM_FROM_APP)
-      #if (SPM_FROM_APP==-1)
-        for (uint16_t i =0;i<32768;i+=2) {
-          if (pgm_read_word_near(i)==0x95f8) {
+      #if (SPM_FROM_APP == -1)
+        for (uint16_t i = 0;i < 32768;i += 2) {
+          if (pgm_read_word_near(i) == 0x95f8) {
             if (i < 512) {
               return FLASHWRITE_OK;
             } else {
-              #ifdef DEBUGBOGUS
-                GPR.GPR0=i&0xFF;
-                GPR.GPR1=i>>8;
-              #endif
               return FLASHWRITE_BOGUSENTRY;
             }
           }
@@ -84,7 +80,7 @@ uint8_t FlashClass::checkWritable() {
     }
     // Optiboot 9.1 without SPM Z+ app callin support
     // was shipped with 1.2.x and earlier of DxCore
-    uint16_t optiversion=pgm_read_word_near(0x01fe);;
+    uint16_t optiversion = pgm_read_word_near(0x01fe);;
     if (optiversion == 0x0901) {
       return FLASHWRITE_OLD;
     }
@@ -95,7 +91,7 @@ uint8_t FlashClass::checkWritable() {
     }
     // After making sure we're "on"
     optiversion = pgm_read_word_near(0x01fa);;
-    if (optiversion==0) {
+    if (optiversion == 0) {
       return FLASHWRITE_DISABLED;
     }
     if (optiversion == 0x95f8) {
@@ -136,32 +132,32 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   uint16_t minaddress = 0x200; //512 (bootloader section).
   switch (size) {
     case 1:
-      command=NVMCTRL_CMD_FLPER_gc;
+      command = NVMCTRL_CMD_FLPER_gc;
       break;
     case 2:
-      command=NVMCTRL_CMD_FLMPER2_gc;
-      minaddress<<=1;
+      command = NVMCTRL_CMD_FLMPER2_gc;
+      minaddress <<= 1;
       break;
     case 4:
-      command=NVMCTRL_CMD_FLMPER4_gc;
-      minaddress<<=2;
+      command = NVMCTRL_CMD_FLMPER4_gc;
+      minaddress <<= 2;
       break;
     case 8:
-      command=NVMCTRL_CMD_FLMPER8_gc;
-      minaddress<<=3;
+      command = NVMCTRL_CMD_FLMPER8_gc;
+      minaddress <<= 3;
       break;
     case 16:
-      command=NVMCTRL_CMD_FLMPER16_gc;
-      minaddress<<=4;
+      command = NVMCTRL_CMD_FLMPER16_gc;
+      minaddress <<= 4;
       break;
     case 32:
-      command=NVMCTRL_CMD_FLMPER32_gc;
-      minaddress<<=5;
+      command = NVMCTRL_CMD_FLMPER32_gc;
+      minaddress <<= 5;
       break;
     default:
       return FLASHWRITE_BADSIZE;
   }
-  if (address > (PROGMEM_SIZE-1) || address < minaddress) {
+  if (address > (PROGMEM_SIZE - 1) || address < minaddress) {
     return FLASHWRITE_BADADDR;
   }
   #if (PROGMEM_SIZE > 0x10000)
@@ -189,7 +185,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
     NVMCTRL.STATUS = 0;
     return (FLASHWRITE_FAIL | (status >> 4)); // uhoh, NVMCTRL says we did something wrong...
   }
-  if ((NVMCTRL.ADDR&0xFFFFFF) != (address + 1)) {
+  if ((NVMCTRL.ADDR & 0xFFFFFF) != (address + 1)) {
     // When we tell the NVM controller to write or erase, it will
     // set the NVMCTRL.ADDR register to the address. So if that's not set to the address
     // we expected, but there's no error in status... it's as if SPM never happened...
@@ -201,7 +197,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
 }
 
 uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
-  #if SPM_FROM_APP==-1
+  #if SPM_FROM_APP == -1
     if ((FUSE.BOOTSIZE != 0x01)) {
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
@@ -250,7 +246,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
 
 
 uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
-  #if SPM_FROM_APP==-1
+  #if SPM_FROM_APP == -1
     if ((FUSE.BOOTSIZE != 0x01)) {
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
@@ -274,7 +270,6 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   // Check if address is odd (high byte) or even (low byte)
   // and put our byte into the appropriate half of the word
   if (address & 0x01) {
-
     dataword = 0x00FF | ((uint16_t)data << 8);
   } else {
     dataword = 0xFF00 | data;
@@ -284,7 +279,7 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   // No, it most definitely is not ignored! It will definitely do unaligned writes
   // unless they cross the page boundary, in which case the byte that would
   // be in the last byte of the prior page ends up on the second byte if the new page...
-  uint16_t zaddress=address&0xFFFE; //truncate and force low bit to 0...
+  uint16_t zaddress=address & 0xFFFE; //truncate and force low bit to 0...
   do_nvmctrl(NVMCTRL_CMD_FLWR_gc);
   __asm__ __volatile__(
             "mov  r0,%A[dat]"                     "\n\t"
@@ -302,7 +297,7 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
     NVMCTRL.STATUS = 0;
     return (FLASHWRITE_FAIL | (status >> 4)); // uhoh, NVMCTRL says we did something wrong...
   }
-  if ((NVMCTRL.ADDR&0xFFFFFF) != (address | 1)) {
+  if ((NVMCTRL.ADDR & 0xFFFFFF) != (address | 1)) {
     return FLASHWRITE_SPM_NOT_USED;
   }
   return FLASHWRITE_OK;
@@ -319,7 +314,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   #endif
     return FLASHWRITE_NOBOOT;
   }
-  if (address > (PROGMEM_SIZE-2) || address < 512) {
+  if (address > (PROGMEM_SIZE - 2) || address < 512) {
     return FLASHWRITE_BADADDR;
   }
   if (address & 0x01) {
@@ -332,7 +327,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   // the application is not capable of writing meaningful data at this time
   // much less ensuring that the destination flash is appropriate and has
   // been erased.
-  if (address+(2*length) > PROGMEM_SIZE  || length >= RAMSIZE ){
+  if (address + (2 * length) > PROGMEM_SIZE  || length >= RAMSIZE ){
     return FLASHWRITE_TOOBIG;
   }
   #if (PROGMEM_SIZE > 0x10000)
@@ -350,8 +345,8 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   // like address, length is copied to declength so we can accept a const,
   // and use the original value to confirm that SPM occurred - while the
   // copy is used count down the number of words remaining to write.
-  uint16_t zaddress=address;
-  uint16_t declength=length;
+  uint16_t zaddress = address;
+  uint16_t declength = length;
   __asm__ __volatile__  (
           "head_%=:"                              "\n\t"
             "ld   r0, %a[ptr]+"                   "\n\t"
@@ -373,7 +368,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
     NVMCTRL.STATUS = 0;
     return (FLASHWRITE_FAIL | (status >> 4)); // uhoh, NVMCTRL says we did something wrong...
   }
-  if ((NVMCTRL.ADDR&0xFFFFFF) != (address + (length*2) - 1)) {
+  if ((NVMCTRL.ADDR & 0xFFFFFF) != (address + (length * 2) - 1)) {
     return FLASHWRITE_SPM_NOT_USED;
   }
   return FLASHWRITE_OK;
@@ -383,18 +378,18 @@ uint8_t FlashClass::writeBytes(const uint32_t address, const uint8_t* data, uint
   uint32_t tAddress=address;
   uint8_t status;
   if(address & 0x01) {
-    status=writeByte(tAddress++,*(data));
+    status = writeByte(tAddress++, *(data));
     if (status) return status;
     length--;
   }
-  if(length >1) {
-    status=writeWords(tAddress,(uint16_t*)data,(length>>1));
+  if(length > 1) {
+    status = writeWords(tAddress, (uint16_t*) data, (length >> 1));
     if (status) return status;
   }
   // there may be one more byte...
-  if (length&1) {
+  if (length & 1) {
     data+=(length & 0xFFFE); // what we wrote with the word above...
-    status = writeByte(tAddress+length-2,*data);
+    status = writeByte(tAddress + length - 2, *data);
   }
   return status;
 }
@@ -405,7 +400,7 @@ uint8_t FlashClass::readByte(const uint32_t address){
   #if PROGMEM_SIZE > 0x10000
     return pgm_read_byte_far(address);
   #else
-    return pgm_read_byte_near((uint16_t)address);
+    return pgm_read_byte_near((uint16_t) address);
   #endif
 }
 
@@ -413,7 +408,7 @@ uint16_t FlashClass::readWord(const uint32_t address) {
   #if PROGMEM_SIZE > 0x10000
     return pgm_read_word_far(address);
   #else
-    return pgm_read_word_near((uint16_t)address);
+    return pgm_read_word_near((uint16_t) address);
   #endif
 }
 
@@ -422,24 +417,24 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
   // If location is outside bounds of flash, return null pointer
   #if PROGMEM_SIZE == 0x10000
     if ( (address > 0x8000) == !!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
-      return (uint8_t *)(0x8000|((uint16_t)address));
+      return (uint8_t *) (0x8000 | ((uint16_t) address));
     }
     else {
       return (uint8_t*) NULL;
     }
   #elif PROGMEM_SIZE == 0x20000
-    uint8_t section=address>>15;
+    uint8_t section=address >> 15;
     // this will be 0~3 - corresponding to the number of the flash section
     // we return a pointer if it's in the mapped flash, otherwise,
     if ( section == ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4)) {
-      return (uint8_t *)(0x8000|((uint16_t)address));
+      return (uint8_t *) (0x8000 | ((uint16_t) address));
     }
     else {
       return (uint8_t*) NULL;
     }
   #else
     // all of the flash is mapped
-    return (uint8_t*)(0x8000 | (uint16_t)address);
+    return (uint8_t*) (0x8000 | (uint16_t) address);
   #endif
 }
 
@@ -447,21 +442,21 @@ uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
   if (((uint16_t)mappedPtr) < 0x8000) {
     return 0; //is not a pointer to mapped flash!
   }
-  uint32_t address= (uint16_t)mappedPtr;
+  uint32_t address= (uint16_t) mappedPtr;
   #if PROGMEM_SIZE == 0x10000
     if (!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
-      address -=0x8000;
+      address -= 0x8000;
     }
     return address;
   #elif PROGMEM_SIZE == 0x20000
     uint8_t flmap = ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4);
     if (flmap & 0x02) {
       // Section 2 or 3 is mapped
-      address +=0x10000;
+      address += 0x10000;
     }
     if (!(flmap & 1)){
       // section 0 or 2 is mapped
-      address -=0x8000;
+      address -= 0x8000;
     }
     return address;
   #else

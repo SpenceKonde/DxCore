@@ -43,18 +43,19 @@ typedef enum FLASHWRITE_RETURN_VALUES {
   FLASHWRITE_BOGUSENTRY        = (0x14),
 /* This means SPM_FROM_APP=-1 so there
  * should be an entry point in first
- * 512b of flash - but it wasn't there
- * but was found later, if DEBUGBOGUS
- * is defined (it is), then you can
- * see where it is with:
- * Serial.printHex((uint8_t)GPR.GPR1)
- * Serial.printHex((uint8_t)GPR.GPR0)
+ * 512b of flash. There was no spm z+
+ * instruction in the first 512b, but
+ * there is later on. Sketch -> Export
+ * Compiled Binary, zip/tar the .ino,
+ * .hex, and .lst and submit with issue
+ * in github or email to
+ * spencekonde@gmail.com
  */
   FLASHWRITE_NOENTRY           = (0x15),
-/* This means SPM_FROM_APP=-1 as above
- * but we couldn't find it anywhere in
- * near program space, looked all the
- * way to 0xFFFC!
+/* This means SPM_FROM_APP=-1 and no
+ * entry point in first page as above
+ * but we couldn't find it anywhere and
+ * looked all the way to 0x8000.
  */
   /* 0x20 - Problem with Optiboot     */
   FLASHWRITE_NOBOOT            = (0x20),
