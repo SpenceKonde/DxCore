@@ -29,8 +29,7 @@
 
 #include <Logic.h>
 
-void setup()
-{
+void setup() {
   // Modify the serial port to match your hardware
   Serial.begin(9600);
 
@@ -58,12 +57,10 @@ void setup()
   Logic::start();
 }
 
-void loop()
-{
+void loop() {
   // When using configurable custom logic the CPU isn't doing anything!
 }
 
-void interruptFunction()
-{
+void interruptFunction() {
   Serial.println("Output of logic block 2 went high!");
 }

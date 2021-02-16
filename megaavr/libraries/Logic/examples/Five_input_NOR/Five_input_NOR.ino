@@ -17,8 +17,7 @@
 
 #include <Logic.h>
 
-void setup()
-{
+void setup() {
   // Initialize logic block 1
   // Logic block 1 has three inputs, PC0, PC1 and PC2 on ATmega parts
   // Logic block 1 inputs are PC3, PC4, and PC5 on ATtiny parts, but
@@ -89,7 +88,6 @@ void setup()
   Logic::start();
 }
 
-void loop()
-{
+void loop() {
   // When using configurable custom logic the CPU isn't doing anything!
 }

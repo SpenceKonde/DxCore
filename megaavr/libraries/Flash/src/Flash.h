@@ -6,8 +6,7 @@
  * Requires DxCore 1.3.1 with Flash Writing option selected from tools menu for non-bootloade-mode.
  */
 
-class FlashClass
-{
+class FlashClass {
   public:
     uint8_t checkWritable();
     uint8_t erasePage(const uint32_t address, const uint8_t size = 1);
@@ -23,8 +22,7 @@ class FlashClass
 
 extern FlashClass Flash;
 
-typedef enum FLASHWRITE_RETURN_VALUES
-{
+typedef enum FLASHWRITE_RETURN_VALUES {
   FLASHWRITE_OK                = (0x00),
   /* 0x10 - Non-optiboot problem      */
   FLASHWRITE_NOBOOTSIZE        = (0x11),

@@ -13,8 +13,7 @@
 
 #include <ZCD.h>
 
-void setup()
-{
+void setup() {
   // Configure serial port
   Serial1.begin(9600);
 
@@ -29,8 +28,7 @@ void setup()
   zcd.start();
 }
 
-void loop()
-{
+void loop() {
   Serial1.printf("Zero cross state: %d\n", zcd.read());
   delay(250);
 }

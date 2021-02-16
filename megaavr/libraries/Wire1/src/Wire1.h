@@ -40,8 +40,7 @@
 #ifndef WIRE_HAS_END
 #define WIRE_HAS_END 1
 #endif
-class TwoWire1 : public Stream
-{
+class TwoWire1 : public Stream {
   private:
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;

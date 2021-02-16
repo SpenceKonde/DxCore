@@ -76,8 +76,7 @@ Valid arguments for the second parameters are `RISING`, `FALLING` and `CHANGE`.
 ```c++
 zcd.attachInterrupt(interruptFunction, RISING); // Run interruptFunction when a rising zero-cross is detected
 
-void interruptFunction()
-{
+void interruptFunction() {
   digitalWrite(myLedPin, CHANGE);
 }
 ```

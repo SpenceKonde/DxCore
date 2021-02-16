@@ -14,8 +14,7 @@
 
 #include <ZCD.h>
 
-void setup()
-{
+void setup() {
   // Configure serial port
   Serial1.begin(9600);
 
@@ -32,13 +31,11 @@ void setup()
   zcd.start();
 }
 
-void loop()
-{
+void loop() {
 
 }
 
 // This function runs when an interrupt occurs
-void interruptFunction()
-{
+void interruptFunction() {
   Serial1.println("Zero-cross output went high!");
 }

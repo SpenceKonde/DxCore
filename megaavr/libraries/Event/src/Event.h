@@ -5,10 +5,8 @@
 
 
 // Features present on all generator channels
-namespace gen
-{
-  enum generator_t : uint8_t
-  {
+namespace gen {
+  enum generator_t : uint8_t {
     disable       = 0x00,
     off           = 0x00,
     updi_synch    = 0x01,
@@ -92,10 +90,8 @@ namespace gen
 
 // Features unique to event generator channel 0
 #if defined(EVSYS_CHANNEL0)
-namespace gen0
-{
-  enum generator_t : uint8_t
-  {
+namespace gen0 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div8192 = 0x08,
@@ -128,10 +124,8 @@ namespace gen0
 
 // Features unique to event generator channel 1
 #if defined(EVSYS_CHANNEL1)
-namespace gen1
-{
-  enum generator_t : uint8_t
-  {
+namespace gen1 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div512  = 0x08,
@@ -164,10 +158,8 @@ namespace gen1
 
 // Features unique to event generator channel 2
 #if defined(EVSYS_CHANNEL2)
-namespace gen2
-{
-  enum generator_t : uint8_t
-  {
+namespace gen2 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div8192 = 0x08,
@@ -198,10 +190,8 @@ namespace gen2
 
 // Features unique to event generator channel 3
 #if defined(EVSYS_CHANNEL3)
-namespace gen3
-{
-  enum generator_t : uint8_t
-  {
+namespace gen3 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div512  = 0x08,
@@ -232,10 +222,8 @@ namespace gen3
 
 // Features unique to event generator channel 4
 #if defined(EVSYS_CHANNEL4)
-namespace gen4
-{
-  enum generator_t : uint8_t
-  {
+namespace gen4 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div8192 = 0x08,
@@ -269,10 +257,8 @@ namespace gen4
 
 // Features unique to event generator channel 5
 #if defined(EVSYS_CHANNEL5)
-namespace gen5
-{
-  enum generator_t : uint8_t
-  {
+namespace gen5 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div512  = 0x08,
@@ -306,10 +292,8 @@ namespace gen5
 
 // Features unique to event generator channel 6
 #if defined(EVSYS_CHANNEL6)
-namespace gen6
-{
-  enum generator_t : uint8_t
-  {
+namespace gen6 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div8192 = 0x08,
@@ -332,10 +316,8 @@ namespace gen6
 
 // Features unique to event generator channel 7
 #if defined(EVSYS_CHANNEL7)
-namespace gen7
-{
-  enum generator_t : uint8_t
-  {
+namespace gen7 {
+  enum generator_t : uint8_t {
     disable    = 0x00,
     off        = 0x00,
     rtc_div512 = 0x08,
@@ -358,10 +340,8 @@ namespace gen7
 
 // Features unique to event generator channel 8
 #if defined(EVSYS_CHANNEL8)
-namespace gen8
-{
-  enum generator_t : uint8_t
-  {
+namespace gen8 {
+  enum generator_t : uint8_t {
     disable     = 0x00,
     off         = 0x00,
     rtc_div8192 = 0x08,
@@ -374,10 +354,8 @@ namespace gen8
 
 // Features unique to event generator channel 9
 #if defined(EVSYS_CHANNEL9)
-namespace gen9
-{
-  enum generator_t : uint8_t
-  {
+namespace gen9 {
+  enum generator_t : uint8_t {
     disable    = 0x00,
     off        = 0x00,
     rtc_div512 = 0x08,
@@ -390,10 +368,8 @@ namespace gen9
 
 
 // Generator users
-namespace user
-{
-  enum user_t : uint8_t
-  {
+namespace user {
+  enum user_t : uint8_t {
 #if defined(__AVR_ATmegax08__) || defined(__AVR_ATmegax09__)
       ccl0_event_a   = 0x00,
       ccl0_event_b   = 0x01,
@@ -612,8 +588,7 @@ namespace user
   };
 };
 
-class Event
-{
+class Event {
   public:
     Event(uint8_t channel_num, volatile uint8_t &channel_addr);
     uint8_t get_channel_number();

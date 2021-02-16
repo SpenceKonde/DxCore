@@ -31,8 +31,7 @@
 
 #include <Logic.h>
 
-void setup()
-{
+void setup() {
   // Initialize logic block 0
   // It has one output, PA3 on ATmega, PA5 on ATtiny.
   // Or alternate output on PA6 on ATmega, PB6 on 20 and 24-pin ATtiny.
@@ -51,7 +50,6 @@ void setup()
   Logic::start();
 }
 
-void loop()
-{
+void loop() {
   // When using configurable custom logic the CPU isn't doing anything!
 }

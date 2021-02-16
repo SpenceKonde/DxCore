@@ -3,30 +3,24 @@
 
 #include <Arduino.h>
 
-namespace out
-{
-  enum output_t : uint8_t
-  {
+namespace out {
+  enum output_t : uint8_t {
     disable = 0x00,
     enable  = 0x40,
     invert  = 0x80,
   };
-  enum pinswap_t : uint8_t
-  {
+  enum pinswap_t : uint8_t {
     no_swap  = 0x00,
     pin_swap = 0x01,
   };
-  enum initval_t : uint8_t
-  {
+  enum initval_t : uint8_t {
     init_low  = 0x00,
     init_high = 0x40,
   };
 };
 
-namespace hyst
-{
-  enum hysteresis_t : uint8_t
-  {
+namespace hyst {
+  enum hysteresis_t : uint8_t {
     disable = 0x00, // No hysteresis
     small   = 0x02, // 10 mV
     medium  = 0x04, // 25 mV
@@ -34,10 +28,8 @@ namespace hyst
   };
 };
 
-namespace in_p
-{
-  enum inputP_t : uint8_t
-  {
+namespace in_p {
+  enum inputP_t : uint8_t {
     in0    = 0x00,
     in1    = 0x01,
     in2    = 0x02,
@@ -45,10 +37,8 @@ namespace in_p
   };
 };
 
-namespace in_n
-{
-  enum inputN_t : uint8_t
-  {
+namespace in_n {
+  enum inputN_t : uint8_t {
     in0    = 0x00,
     in1    = 0x01,
     in2    = 0x02,
@@ -56,10 +46,8 @@ namespace in_n
   };
 };
 
-namespace ref
-{
-  enum reference_t : uint8_t
-  {
+namespace ref {
+  enum reference_t : uint8_t {
     vref_1v024 = 0x00, // 1.024V
     vref_2v048 = 0x01, // 2.048V
     vref_2v500 = 0x03, // 2.5V
@@ -71,8 +59,7 @@ namespace ref
   };
 };
 
-class AnalogComparator
-{
+class AnalogComparator {
   public:
     AnalogComparator(const uint8_t comparator_number,
                      AC_t& ac,

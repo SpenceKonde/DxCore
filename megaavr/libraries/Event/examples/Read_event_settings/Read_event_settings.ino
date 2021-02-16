@@ -17,20 +17,17 @@
 #include <Event.h>
 
 // Function to print information about the passed event
-void print_event_info(Event& my_event)
-{
+void print_event_info(Event& my_event) {
   Serial2.printf("This is event channel no. %d\n", my_event.get_channel_number());
   Serial2.printf("This channel uses generator no. 0x%02x, which you can find in Event.h\n", my_event.get_generator());
 }
 
-void print_user_info(user::user_t my_user)
-{
+void print_user_info(user::user_t my_user) {
   // Event::get_user_channel() returns -1 if the user isn't connected to any event generator
   Serial2.printf("User 0x%02x is connected to event channel no. %d\n\n", my_user, Event::get_user_channel(my_user));
 }
 
-void setup()
-{
+void setup() {
   Serial2.begin(9600); // Initialize hardware serial port
 
   Event4.set_generator(gen4::pin_pe0); // Set pin PE0 as event generator
@@ -45,8 +42,7 @@ void setup()
   Event5.start();
 }
 
-void loop()
-{
+void loop() {
   // Print info about Event4 and its event user
   print_event_info(Event4);
   print_user_info(user::evoute_pin_pe2);

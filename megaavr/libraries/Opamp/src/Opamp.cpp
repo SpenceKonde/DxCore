@@ -39,8 +39,7 @@ Opamp::Opamp(uint8_t op_num,
  *
  * @return uint8_t Opamp number
  */
-uint8_t Opamp::get_number()
-{
+uint8_t Opamp::get_number() {
   return opamp_number;
 }
 
@@ -50,8 +49,7 @@ uint8_t Opamp::get_number()
  *
  * @return bool Opamp has settled
  */
-bool Opamp::status()
-{
+bool Opamp::status() {
   return !!(opamp_status & 0x01);
 }
 
@@ -61,8 +59,7 @@ bool Opamp::status()
  *
  * @param cal_value Sets the calibration value
  */
-void Opamp::calibrate(uint8_t cal_value)
-{
+void Opamp::calibrate(uint8_t cal_value) {
   opamp_cal = cal_value;
 }
 
@@ -71,8 +68,7 @@ void Opamp::calibrate(uint8_t cal_value)
  * @brief Initialize the Opamp
  *
  */
-void Opamp::init()
-{
+void Opamp::init() {
   if (inrange != in::unconfigured) {
     OPAMP_PWRCTRL  = inrange; // Select normal or rail to rail input mode
   }
@@ -90,12 +86,10 @@ void Opamp::init()
  *
  * @param state Optional parameter. Defaults to true
  */
-void Opamp::start(bool state)
-{
+void Opamp::start(bool state) {
   OPAMP_TIMEBASE = (ceil(F_CPU /1000000L)-1); // Calculate timebase based on F_CPU
 
-  if (state)
-  {
+  if (state) {
     OPAMP_CTRLA |= OPAMP_ENABLE_bm;           // Enable opamp hardware
 
 #if defined(OPAMP_OP2CTRLA)
@@ -104,8 +98,7 @@ void Opamp::start(bool state)
     while((!Opamp0.status() && (Opamp0.wait_settle==true && Opamp0.enable==enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle==true && Opamp1.enable==enable::enable)));
 #endif
   }
-  else
-  {
+  else {
     OPAMP_CTRLA &= ~OPAMP_ENABLE_bm; // Disable opamp hardware
   }
 }
@@ -115,7 +108,6 @@ void Opamp::start(bool state)
  * @brief Stops the opamp peripheral
  *
  */
-void Opamp::stop()
-{
+void Opamp::stop() {
   start(false);
 }

@@ -18,8 +18,7 @@
 
 #include <Comparator.h>
 
-void setup()
-{
+void setup() {
   // Configure relevant comparator parameters
   Comparator.input_p = in_p::in0;       // Use positive input 0 (PD2)
   Comparator.input_n = in_n::dacref;    // Connect the negative pin to the DACREF voltage
@@ -35,7 +34,6 @@ void setup()
   Comparator.start();
 }
 
-void loop()
-{
+void loop() {
 
 }

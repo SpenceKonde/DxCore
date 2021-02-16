@@ -58,13 +58,11 @@ volatile uint8_t SoftwareSerial::_receive_buffer_head = 0;
 // This function generates a brief pulse
 // for debugging or measuring on an oscilloscope.
 #if _DEBUG
-inline void DebugPulse(uint8_t pin, uint8_t count)
-{
+inline void DebugPulse(uint8_t pin, uint8_t count) {
   volatile uint8_t *pport = portOutputRegister(digitalPinToPort(pin));
 
   uint8_t val = *pport;
-  while (count--)
-  {
+  while (count--) {
     *pport = val | digitalPinToBitMask(pin);
     *pport = val;
   }
@@ -84,13 +82,11 @@ inline void SoftwareSerial::tunedDelay(uint16_t delay) {
 
 // This function sets the current object as the "listening"
 // one and returns true if it replaces another
-bool SoftwareSerial::listen()
-{
+bool SoftwareSerial::listen() {
   if (!_rx_delay_stopbit)
     return false;
 
-  if (active_object != this)
-  {
+  if (active_object != this) {
     if (active_object)
       active_object->stopListening();
 
@@ -106,10 +102,8 @@ bool SoftwareSerial::listen()
 }
 
 // Stop listening. Returns true if we were actually listening.
-bool SoftwareSerial::stopListening()
-{
-  if (active_object == this)
-  {
+bool SoftwareSerial::stopListening() {
+  if (active_object == this) {
     setRxIntMsk(false);
     active_object = NULL;
     return true;
@@ -120,8 +114,7 @@ bool SoftwareSerial::stopListening()
 //
 // The receive routine called by the interrupt handler
 //
-void SoftwareSerial::recv()
-{
+void SoftwareSerial::recv() {
 
 #if GCC_VERSION < 40302
 // Work-around for avr-gcc 4.3.0 OSX version bug
@@ -143,8 +136,7 @@ void SoftwareSerial::recv()
 
   // If RX line is high, then we don't see any start bit
   // so interrupt is probably not for us
-  if (_inverse_logic ? rx_pin_read() : !rx_pin_read())
-  {
+  if (_inverse_logic ? rx_pin_read() : !rx_pin_read()) {
     // Disable further interrupts during reception, this prevents
     // triggering another interrupt directly after we return, which can
     // cause problems at higher baudrates.
@@ -155,8 +147,7 @@ void SoftwareSerial::recv()
     DebugPulse(_DEBUG_PIN2, 1);
 
     // Read each of the 8 bits
-    for (uint8_t i=8; i > 0; --i)
-    {
+    for (uint8_t i=8; i > 0; --i) {
       tunedDelay(_rx_delay_intrabit);
       d >>= 1;
       DebugPulse(_DEBUG_PIN2, 1);
@@ -169,14 +160,12 @@ void SoftwareSerial::recv()
 
     // if buffer full, set the overflow flag and return
     uint8_t next = (_receive_buffer_tail + 1) % _SS_MAX_RX_BUFF;
-    if (next != _receive_buffer_head)
-    {
+    if (next != _receive_buffer_head) {
       // save new data in buffer: tail points to where byte goes
       _receive_buffer[_receive_buffer_tail] = d; // save new byte
       _receive_buffer_tail = next;
     }
-    else
-    {
+    else {
       DebugPulse(_DEBUG_PIN1, 1);
       _buffer_overflow = true;
     }
@@ -206,8 +195,7 @@ void SoftwareSerial::recv()
 #endif
 }
 
-uint8_t SoftwareSerial::rx_pin_read()
-{
+uint8_t SoftwareSerial::rx_pin_read() {
   return *_receivePortRegister & _receiveBitMask;
 }
 
@@ -216,10 +204,8 @@ uint8_t SoftwareSerial::rx_pin_read()
 //
 
 /* static */
-inline void SoftwareSerial::handle_interrupt()
-{
-  if (active_object)
-  {
+inline void SoftwareSerial::handle_interrupt() {
+  if (active_object) {
     active_object->recv();
   }
 }
@@ -233,8 +219,7 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
   _rx_delay_stopbit(0),
   _tx_delay(0),
   _buffer_overflow(false),
-  _inverse_logic(inverse_logic)
-{
+  _inverse_logic(inverse_logic) {
   setTX(transmitPin);
   setRX(receivePin);
 }
@@ -242,13 +227,11 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
 //
 // Destructor
 //
-SoftwareSerial::~SoftwareSerial()
-{
+SoftwareSerial::~SoftwareSerial() {
   end();
 }
 
-void SoftwareSerial::setTX(uint8_t tx)
-{
+void SoftwareSerial::setTX(uint8_t tx) {
   // First write, then set output. If we do this the other way around,
   // the pin would be output low for a short while before switching to
   // output high. Now, it is input with pullup for a short while, which
@@ -260,8 +243,7 @@ void SoftwareSerial::setTX(uint8_t tx)
   _transmitPortRegister = portOutputRegister(port);
 }
 
-void SoftwareSerial::setRX(uint8_t rx)
-{
+void SoftwareSerial::setRX(uint8_t rx) {
   pinMode(rx, INPUT);
   if (!_inverse_logic)
     digitalWrite(rx, HIGH);  // pullup for normal logic!
@@ -282,8 +264,7 @@ uint16_t SoftwareSerial::subtract_cap(uint16_t num, uint16_t sub) {
 // Public methods
 //
 
-void SoftwareSerial::begin(long speed)
-{
+void SoftwareSerial::begin(long speed) {
   _rx_delay_centering = _rx_delay_intrabit = _rx_delay_stopbit = _tx_delay = 0;
 
   // Precalculate the various delays, in number of 4-cycle delays
@@ -347,23 +328,20 @@ void SoftwareSerial::begin(long speed)
   listen();
 }
 
-void SoftwareSerial::setRxIntMsk(bool enable)
-{
+void SoftwareSerial::setRxIntMsk(bool enable) {
     if (enable)
       *_pcint_maskreg |= _pcint_maskvalue;
     else
       *_pcint_maskreg &= ~_pcint_maskvalue;
 }
 
-void SoftwareSerial::end()
-{
+void SoftwareSerial::end() {
   stopListening();
 }
 
 
 // Read data from buffer
-int SoftwareSerial::read()
-{
+int SoftwareSerial::read() {
   if (!isListening())
     return -1;
 
@@ -377,16 +355,14 @@ int SoftwareSerial::read()
   return d;
 }
 
-int SoftwareSerial::available()
-{
+int SoftwareSerial::available() {
   if (!isListening())
     return 0;
 
   return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
-size_t SoftwareSerial::write(uint8_t b)
-{
+size_t SoftwareSerial::write(uint8_t b) {
   if (_tx_delay == 0) {
     setWriteError();
     return 0;
@@ -417,8 +393,7 @@ size_t SoftwareSerial::write(uint8_t b)
   tunedDelay(delay);
 
   // Write each of the 8 bits
-  for (uint8_t i = 8; i > 0; --i)
-  {
+  for (uint8_t i = 8; i > 0; --i) {
     if (b & 1) // choose bit
       *reg |= reg_mask; // send 1
     else
@@ -440,13 +415,11 @@ size_t SoftwareSerial::write(uint8_t b)
   return 1;
 }
 
-void SoftwareSerial::flush()
-{
+void SoftwareSerial::flush() {
   // There is no tx buffering, simply return
 }
 
-int SoftwareSerial::peek()
-{
+int SoftwareSerial::peek() {
   if (!isListening())
     return -1;
 

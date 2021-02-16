@@ -40,8 +40,7 @@
  * @param channel_addr Register address to channel generator
  */
 Event::Event(uint8_t channel_num, volatile uint8_t &channel_addr)
-  : channel_number(channel_num), channel_address(channel_addr)
-{
+  : channel_number(channel_num), channel_address(channel_addr) {
 }
 
 
@@ -50,8 +49,7 @@ Event::Event(uint8_t channel_num, volatile uint8_t &channel_addr)
  *
  * @return uint8_t Event channel number
  */
-uint8_t Event::get_channel_number()
-{
+uint8_t Event::get_channel_number() {
   return channel_number;
 }
 
@@ -62,8 +60,7 @@ uint8_t Event::get_channel_number()
  * @param event_user The event user to check
  * @return int8_t Event channel number. Returns -1 if not connected to any event channel
  */
-int8_t Event::get_user_channel(user::user_t event_user)
-{
+int8_t Event::get_user_channel(user::user_t event_user) {
   // Figure out what user register to read from to based on the passed parameter
   volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t&)event_user;
 
@@ -79,8 +76,7 @@ int8_t Event::get_user_channel(user::user_t event_user)
  *                        Use gen:: for functionality present on all event channels.
  *                        Use genN:: for functionality present on channel N.
  */
-void Event::set_generator(uint8_t event_generator)
-{
+void Event::set_generator(uint8_t event_generator) {
   // Store event generator setting for use in start() and stop()
   generator_type = event_generator;
 }
@@ -91,8 +87,7 @@ void Event::set_generator(uint8_t event_generator)
  *
  * @return uint8_t Generator type. Returns 0 if no generator is used
  */
-uint8_t Event::get_generator()
-{
+uint8_t Event::get_generator() {
   return generator_type;
 }
 
@@ -102,8 +97,7 @@ uint8_t Event::get_generator()
  *
  * @param event_user The event user to connect to a particular channel
  */
-void Event::set_user(user::user_t event_user)
-{
+void Event::set_user(user::user_t event_user) {
   // Figure out what user register to write to based on the passed parameter
   uint8_t event_user_mask = event_user & 0x7F;
   volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t&)event_user_mask;
@@ -112,8 +106,7 @@ void Event::set_user(user::user_t event_user)
   *user_register = channel_number + 1;
 
   // Set PORTMUX pin swap for EVOUT if selected as channel generator
-  if (event_user & 0x80)
-  {
+  if (event_user & 0x80) {
     #if defined(MEGAAVR_0)
       PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x09));
     #elif defined(AVR_DA)
@@ -130,8 +123,7 @@ void Event::set_user(user::user_t event_user)
  *
  * @param event_user The event user to remove from a particular channel
  */
-void Event::clear_user(user::user_t event_user)
-{
+void Event::clear_user(user::user_t event_user) {
   // Figure out what user register to write to based on the passed parameter
   uint8_t event_user_mask = event_user & 0x7F;
   volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t&)event_user_mask;
@@ -140,8 +132,7 @@ void Event::clear_user(user::user_t event_user)
   *user_register = 0x00;
 
   // Clear PORTMUX pin swap for EVOUT if selected as channel generator
-  if (event_user & 0x80)
-  {
+  if (event_user & 0x80) {
     #if defined(MEGAAVR_0)
       PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x09));
     #elif defined(AVR_DA)
@@ -157,8 +148,7 @@ void Event::clear_user(user::user_t event_user)
  * @brief Creates a software event for a particular event channel
  *
  */
-void Event::soft_event()
-{
+void Event::soft_event() {
   // Write to the bit that represent the channel in the strobe register
   #if defined(EVSYS_STROBE)
     // megaAVR 0-series
@@ -187,15 +177,12 @@ void Event::soft_event()
  *
  * @param state Optional parameter. Defaults to true
  */
-void Event::start(bool state)
-{
-  if (state)
-  {
+void Event::start(bool state) {
+  if (state) {
     // Write event generator setting to EVSYS_CHANNELn register
     channel_address = generator_type;
   }
-  else
-  {
+  else {
     // Disable event generator
     channel_address = gen::disable;
   }
@@ -206,7 +193,6 @@ void Event::start(bool state)
  * @brief Stops the event generator for a particular event channel
  *
  */
-void Event::stop()
-{
+void Event::stop() {
   start(false);
 }

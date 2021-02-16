@@ -20,8 +20,7 @@
 
 #include <Comparator.h>
 
-void setup()
-{
+void setup() {
   // Configure serial port
   Serial3.begin(9600);
 
@@ -43,13 +42,11 @@ void setup()
   Comparator.start();
 }
 
-void loop()
-{
+void loop() {
 
 }
 
 // This function runs when an interrupt occurs
-void interruptFunction()
-{
+void interruptFunction() {
   Serial3.println("Output of analog comparator went high!");
 }

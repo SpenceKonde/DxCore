@@ -3,24 +3,20 @@
 
 #include <Arduino.h>
 
-namespace out
-{
-  enum output_t : uint8_t
-  {
+namespace out {
+  enum output_t : uint8_t {
     disable = 0x00,
     enable  = 0x40,
     invert  = 0x08,
   };
-  enum pinswap_t : uint8_t
-  {
+  enum pinswap_t : uint8_t {
     no_swap  = 0x00,
     pin_swap = 0x01,
     swap_all = 0x07,
   };
 };
 
-class ZeroCross
-{
+class ZeroCross {
   public:
     ZeroCross(const uint8_t zcd_number, ZCD_t& zcd, register8_t& input_pin);
 

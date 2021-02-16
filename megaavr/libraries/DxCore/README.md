@@ -66,8 +66,7 @@ Autotune allows use of an external 32kHz crystal to automatically tune the inter
 
 
 ```c
-typedef enum X32K_TYPE
-{
+typedef enum X32K_TYPE {
     X32K_LOWPWR_START31MS = (CLKCTRL_CSUT_1K_gc|CLKCTRL_LPMODE_bm),
     X32K_LOWPWR_START500MS = (CLKCTRL_CSUT_16K_gc|CLKCTRL_LPMODE_bm),
     X32K_LOWPWR_START1S = (CLKCTRL_CSUT_32K_gc|CLKCTRL_LPMODE_bm),
@@ -79,8 +78,7 @@ typedef enum X32K_TYPE
     X32K_EXTCLK = (CLKCTRL_SEL_bm)
 } X32K_TYPE_t;
 
-typedef enum X32K_ENABLE
-{
+typedef enum X32K_ENABLE {
     X32K_DISABLED = ( 0x00),
     X32K_ENABLED  = ( 0x01),
     X32K_ALWAYSON = ( 0x81),

@@ -40,14 +40,12 @@
 
 const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
 
-SPIClass::SPIClass()
-{
+SPIClass::SPIClass() {
   initialized = false;
 
 }
 
-bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribute__ ((unused)) uint8_t pinSS)
-{
+bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribute__ ((unused)) uint8_t pinSS) {
   if (initialized) return false;
   // calling swap() without turning off the peripheral with SPI.end() would have led to a bunch of
   // oddly configured registers left behind, and things not working quite right - and there is no
@@ -191,8 +189,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribut
   #endif
 }
 
-bool SPIClass::swap(uint8_t state)
-{
+bool SPIClass::swap(uint8_t state) {
   if (initialized) return false;
   // calling swap() without turning off the peripheral with SPI.end() would have led to a bunch of
   // oddly configured registers left behind, and things not working quite right - and there is no
@@ -336,8 +333,7 @@ bool SPIClass::swap(uint8_t state)
   return false;
 }
 
-void SPIClass::begin()
-{
+void SPIClass::begin() {
   init();
   #if !defined(SPI1)
     // Implementation for tinyAVR 0/1/2-series, megaAVR 0-series and AVR DD-series, which only have a single SPI interface.
@@ -375,8 +371,7 @@ void SPIClass::begin()
   config(DEFAULT_SPI_SETTINGS);
 }
 
-void SPIClass::init()
-{
+void SPIClass::init() {
   if (initialized)
     return;
   interruptMode = SPI_IMODE_NONE;
@@ -386,14 +381,12 @@ void SPIClass::init()
   initialized = true;
 }
 
-void SPIClass::config(SPISettings settings)
-{
+void SPIClass::config(SPISettings settings) {
   SPI_MODULE.CTRLA = settings.ctrla;
   SPI_MODULE.CTRLB = settings.ctrlb;
 }
 
-void SPIClass::end()
-{
+void SPIClass::end() {
   SPI_MODULE.CTRLA &= ~(SPI_ENABLE_bm);
   #if defined(SPI1)
     PORTMUX.SPIROUTEA &= ~((_hwspi_module == &SPI0) ? PORTMUX_SPI0_gm : PORTMUX_SPI1_gm);
@@ -409,15 +402,13 @@ void SPIClass::end()
   initialized = false;
 }
 
-void SPIClass::usingInterrupt(int interruptNumber)
-{
+void SPIClass::usingInterrupt(int interruptNumber) {
   if ((interruptNumber == NOT_AN_INTERRUPT))
     return;
 
   if (interruptNumber >= EXTERNAL_NUM_INTERRUPTS)
     interruptMode = SPI_IMODE_GLOBAL;
-  else
-  {
+  else {
     #if USE_MALLOC_FOR_IRQ_MAP
       if (irqMap == NULL) {
         irqMap = (uint8_t*)malloc(EXTERNAL_NUM_INTERRUPTS);
@@ -433,8 +424,7 @@ void SPIClass::usingInterrupt(int interruptNumber)
   }
 }
 
-void SPIClass::notUsingInterrupt(int interruptNumber)
-{
+void SPIClass::notUsingInterrupt(int interruptNumber) {
   if ((interruptNumber == NOT_AN_INTERRUPT))
     return;
 
@@ -504,8 +494,7 @@ void SPIClass::reattachMaskedInterrupts() {
   }
 }
 
-void SPIClass::beginTransaction(SPISettings settings)
-{
+void SPIClass::beginTransaction(SPISettings settings) {
   if (interruptMode != SPI_IMODE_NONE) {
     if (interruptMode & SPI_IMODE_GLOBAL) {
       noInterrupts();
@@ -517,8 +506,7 @@ void SPIClass::beginTransaction(SPISettings settings)
   config(settings);
 }
 
-void SPIClass::endTransaction(void)
-{
+void SPIClass::endTransaction(void) {
   if (interruptMode != SPI_IMODE_NONE) {
     if (interruptMode & SPI_IMODE_GLOBAL) {
         interrupts();
@@ -528,28 +516,24 @@ void SPIClass::endTransaction(void)
   }
 }
 
-void SPIClass::setBitOrder(uint8_t order)
-{
+void SPIClass::setBitOrder(uint8_t order) {
   if (order == LSBFIRST)
     SPI_MODULE.CTRLA |=  (SPI_DORD_bm);
   else
     SPI_MODULE.CTRLA &= ~(SPI_DORD_bm);
 }
 
-void SPIClass::setDataMode(uint8_t mode)
-{
+void SPIClass::setDataMode(uint8_t mode) {
   SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | mode );
 }
 
-void SPIClass::setClockDivider(uint8_t div)
-{
+void SPIClass::setClockDivider(uint8_t div) {
   SPI_MODULE.CTRLA = ((SPI_MODULE.CTRLA &
                   ((~SPI_PRESC_gm) | (~SPI_CLK2X_bm) ))  // mask out values
                   | div);                           // write value
 }
 
-byte SPIClass::transfer(uint8_t data)
-{
+byte SPIClass::transfer(uint8_t data) {
   /*
   * The following NOP introduces a small delay that can prevent the wait
   * loop from iterating when running at the maximum speed. This gives
@@ -579,8 +563,7 @@ uint16_t SPIClass::transfer16(uint16_t data) {
   return t.val;
 }
 
-void SPIClass::transfer(void *buf, size_t count)
-{
+void SPIClass::transfer(void *buf, size_t count) {
   uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
   for (size_t i=0; i<count; i++) {
     *buffer = transfer(*buffer);

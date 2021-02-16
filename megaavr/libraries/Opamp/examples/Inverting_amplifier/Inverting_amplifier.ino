@@ -41,8 +41,7 @@
 
 #include <Opamp.h>
 
-void setup()
-{
+void setup() {
   // Configure opamp input pins
   Opamp0.input_n = in_n::wiper;    // Connect negative input to the "middle" position of the resistor ladder
   Opamp0.input_p = in_p::vdd_div2; // Connect positive input to Vdd/2 internally
@@ -62,7 +61,6 @@ void setup()
   Opamp::start();
 }
 
-void loop()
-{
+void loop() {
 
 }

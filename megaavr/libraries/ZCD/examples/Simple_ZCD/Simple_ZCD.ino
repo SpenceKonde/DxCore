@@ -13,8 +13,7 @@
 
 #include <ZCD.h>
 
-void setup()
-{
+void setup() {
   // Enable the zero-cross detection output pin
   zcd.output = out::enable;
 
@@ -25,7 +24,6 @@ void setup()
   zcd.start();
 }
 
-void loop()
-{
+void loop() {
 
 }

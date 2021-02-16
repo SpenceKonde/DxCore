@@ -20,8 +20,7 @@
 
 uint32_t counter = 0;
 
-void setup()
-{
+void setup() {
   // Configure serial port
   Serial1.begin(9600);
 
@@ -38,10 +37,8 @@ void setup()
   zcd.start();
 }
 
-void loop()
-{
-  if(millis() % 1000 == 0)
-  {
+void loop() {
+  if(millis() % 1000 == 0) {
     cli();       // Disable interrupts
     Serial1.printf("Input signal frequency = %ld Hz\n", counter);
     counter = 0; // Clear frequency counter
@@ -51,7 +48,6 @@ void loop()
 }
 
 // This function runs when an interrupt occurs
-void interruptFunction()
-{
+void interruptFunction() {
   counter++;
 }

@@ -111,8 +111,7 @@ void ServoHandler(int timer) {
   ISR(TCB3_INT_vect)
 #elif defined USE_TIMERB4
   ISR(TCB4_INT_vect)
-#endif
-{
+#endif {
   ServoHandler(0);
 }
 

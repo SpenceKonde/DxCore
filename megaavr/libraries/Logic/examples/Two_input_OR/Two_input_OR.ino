@@ -31,8 +31,7 @@
 
 #include <Logic.h>
 
-void setup()
-{
+void setup() {
   // Initialize logic block 0
   // Logic block 0 has three inputs, PA0, PA1 and PA2.
   // It has one output, PA3, but can be swapped to PA6 if needed
@@ -51,7 +50,6 @@ void setup()
   Logic::start();
 }
 
-void loop()
-{
+void loop() {
   // When using configurable custom logic the CPU isn't doing anything!
 }

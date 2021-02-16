@@ -52,8 +52,7 @@ AnalogComparator::AnalogComparator(
                                      IN1_N(in1_n),
                                      IN2_N(in2_n) { }
 
-void AnalogComparator::init()
-{
+void AnalogComparator::init() {
   // Set voltage reference
   if(reference != ref::disable)
     VREF.ACREF = VREF_ALWAYSON_bm | reference;
@@ -95,52 +94,44 @@ void AnalogComparator::init()
   // Prepare for output pin swap
   PORT_t& output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
-  if(output_swap == out::pin_swap)
-  {
+  if(output_swap == out::pin_swap) {
     output_port = PORTC;
     pin_number = PIN6_bm;
     PORTMUX.ACROUTEA = ~(1 << comparator_number) | output_swap;
   }
 
   // Set output
-  if(output == out::enable)
-  {
+  if(output == out::enable) {
     AC.MUXCTRL &= ~out::invert;
     AC.CTRLA |= out::enable;
     output_port.DIRSET = pin_number;
   }
-  else if(output == out::invert)
-  {
+  else if(output == out::invert) {
     AC.MUXCTRL |= out::invert;
     AC.CTRLA |= out::enable;
     output_port.DIRSET = pin_number;
   }
-  else if(output == out::disable)
-  {
+  else if(output == out::disable) {
     AC.MUXCTRL &= ~out::invert;
     AC.CTRLA &= ~out::enable;
     //output_port.DIRCLR = pin_number;
   }
 }
 
-void AnalogComparator::start(bool state)
-{
+void AnalogComparator::start(bool state) {
   if(state)
     AC.CTRLA |= AC_ENABLE_bm;
   else
     AC.CTRLA &= ~AC_ENABLE_bm;
 }
 
-void AnalogComparator::stop()
-{
+void AnalogComparator::stop() {
   start(false);
 }
 
-void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode)
-{
+void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
   AC_INTMODE_NORMAL_t intmode;
-  switch (mode)
-  {
+  switch (mode) {
     // Set RISING, FALLING or CHANGE interrupt trigger for the comparator output
     case RISING:
       intmode = (AC_INTMODE_NORMAL_t)(AC_INTMODE_NORMAL_NEGEDGE_gc);
@@ -163,15 +154,13 @@ void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode)
   AC.INTCTRL = intmode | AC_CMP_bm;
 }
 
-void AnalogComparator::detachInterrupt()
-{
+void AnalogComparator::detachInterrupt() {
   // Disable interrupt
   AC.INTCTRL &= ~AC_CMP_bm;
 }
 
 #ifdef AC0_AC_vect
-ISR(AC0_AC_vect)
-{
+ISR(AC0_AC_vect) {
   // Run user function
   intFuncAC[0]();
 
@@ -181,8 +170,7 @@ ISR(AC0_AC_vect)
 #endif
 
 #ifdef AC1_AC_vect
-ISR(AC1_AC_vect)
-{
+ISR(AC1_AC_vect) {
   // Run user function
   intFuncAC[1]();
 
@@ -192,8 +180,7 @@ ISR(AC1_AC_vect)
 #endif
 
 #ifdef AC2_AC_vect
-ISR(AC2_AC_vect)
-{
+ISR(AC2_AC_vect) {
   // Run user function
   intFuncAC[2]();
 

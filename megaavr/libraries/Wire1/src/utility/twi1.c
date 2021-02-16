@@ -60,8 +60,7 @@ static volatile TWI_MODE_t twi_mode;
  *
  *  \param frequency            The required baud.
  */
-void TWI1_MasterInit(uint32_t frequency)
-{
+void TWI1_MasterInit(uint32_t frequency) {
   if(twi_mode != TWI_MODE_UNKNOWN) return;
 
   // Enable pullups just in case, should have external ones though
@@ -96,8 +95,7 @@ void TWI1_MasterInit(uint32_t frequency)
  *  \param address            The TWI Slave's own address.
  */
 
-void TWI1_SlaveInit(uint8_t address,uint8_t receive_broadcast, uint8_t second_address)
-{
+void TWI1_SlaveInit(uint8_t address,uint8_t receive_broadcast, uint8_t second_address) {
   if(twi_mode != TWI_MODE_UNKNOWN) return;
 
   twi_mode = TWI_MODE_SLAVE;
@@ -128,8 +126,7 @@ void TWI1_Flush(void){
  *
  *  \param frequency            The required baud.
  */
-void TWI1_Disable(void)
-{
+void TWI1_Disable(void) {
   TWI1.MCTRLA = 0x00;
   TWI1.MBAUD = 0x00;
   TWI1.MSTATUS = TWI_BUSSTATE_IDLE_gc;
@@ -151,8 +148,7 @@ void TWI1_Disable(void)
  *  \retval TWI_MASTER_BUSSTATE_OWNER_gc   Bus state is owned by the master.
  *  \retval TWI_MASTER_BUSSTATE_BUSY_gc    Bus state is busy.
  */
-TWI_BUSSTATE_t TWI1_MasterState(void)
-{
+TWI_BUSSTATE_t TWI1_MasterState(void) {
   TWI_BUSSTATE_t twi_status;
   twi_status = (TWI_BUSSTATE_t) (TWI1.MSTATUS & TWI_BUSSTATE_gm);
   return twi_status;
@@ -169,8 +165,7 @@ TWI_BUSSTATE_t TWI1_MasterState(void)
  *  \retval true  If transaction could be started.
  *  \retval false If transaction could not be started.
  */
-uint8_t TWI1_MasterReady(void)
-{
+uint8_t TWI1_MasterReady(void) {
   uint8_t twi_status = (master_trans_status & TWIM_STATUS_READY);
   return twi_status;
 }
@@ -232,8 +227,7 @@ void TWI1_MasterSetBaud(uint32_t frequency){
 uint8_t TWI1_MasterWrite(uint8_t slave_address,
            uint8_t *write_data,
            uint8_t bytes_to_write,
-           uint8_t send_stop)
-{
+           uint8_t send_stop) {
   return TWI1_MasterWriteRead(slave_address,
             write_data,
             bytes_to_write,
@@ -256,8 +250,7 @@ uint8_t TWI1_MasterWrite(uint8_t slave_address,
 uint8_t TWI1_MasterRead(uint8_t slave_address,
           uint8_t* read_data,
           uint8_t bytes_to_read,
-          uint8_t send_stop)
-{
+          uint8_t send_stop) {
   master_readData = read_data;
 
   uint8_t bytes_read = TWI1_MasterWriteRead(slave_address,
@@ -288,8 +281,7 @@ uint8_t TWI1_MasterWriteRead(uint8_t slave_address,
                          uint8_t *write_data,
                          uint8_t bytes_to_write,
                          uint8_t bytes_to_read,
-             uint8_t send_stop)
-{
+             uint8_t send_stop) {
   if(twi_mode != TWI_MODE_MASTER) return false;
 
   /*Initiate transaction if bus is ready. */
@@ -362,8 +354,7 @@ trigger_action:
  *  Check current status and calls the appropriate handler.
  *
  */
-void TWI1_MasterInterruptHandler()
-{
+void TWI1_MasterInterruptHandler() {
   uint8_t currentStatus = TWI1.MSTATUS;
 
   /* If arbitration lost or bus error. */
@@ -394,8 +385,7 @@ void TWI1_MasterInterruptHandler()
  *  Handles TWI responses to lost arbitration and bus error.
  *
  */
-void TWI1_MasterArbitrationLostBusErrorHandler()
-{
+void TWI1_MasterArbitrationLostBusErrorHandler() {
   uint8_t currentStatus = TWI1.MSTATUS;
 
   /* If bus error. */
@@ -421,8 +411,7 @@ void TWI1_MasterArbitrationLostBusErrorHandler()
  *  Handles TWI transactions (master write) and responses to (N)ACK.
  *
  */
-void TWI1_MasterWriteHandler()
-{
+void TWI1_MasterWriteHandler() {
   /* Local variables used in if tests to avoid compiler warning. */
   uint8_t bytesToWrite  = master_bytesToWrite;
   uint8_t bytesToRead   = master_bytesToRead;
@@ -473,8 +462,7 @@ void TWI1_MasterWriteHandler()
  *
  *  \param twi The TWI_Master_t struct instance.
  */
-void TWI1_MasterReadHandler()
-{
+void TWI1_MasterReadHandler() {
   /* Fetch data if bytes to be read. */
   if (master_bytesRead < master_bytesToRead) {
     uint8_t data = TWI1.MDATA;
@@ -522,8 +510,7 @@ void TWI1_MasterReadHandler()
  *
  *  \param result  The result of the operation.
  */
-void TWI1_MasterTransactionFinished(uint8_t result)
-{
+void TWI1_MasterTransactionFinished(uint8_t result) {
   master_result = result;
   master_trans_status = TWIM_STATUS_READY;
   twi_mode = TWI_MODE_MASTER;
@@ -762,8 +749,7 @@ void TWI1_attachSlaveTxEvent( uint8_t (*function)(void), uint8_t* write_data ){
  *
  *  \param result  The result of the operation.
  */
-void TWI1_SlaveTransactionFinished(uint8_t result)
-{
+void TWI1_SlaveTransactionFinished(uint8_t result) {
   TWI1.SCTRLA |= (TWI_APIEN_bm | TWI_PIEN_bm);
   twi_mode = TWI_MODE_SLAVE;
   slave_result = result;

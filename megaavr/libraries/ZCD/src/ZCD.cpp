@@ -27,34 +27,29 @@ static volatile voidFuncPtr intFuncAC[1];
 ZeroCross::ZeroCross(const uint8_t zero_cross_number, ZCD_t& zcd, register8_t& input_pin)
   : zcd_number(zero_cross_number), ZCD(zcd), INPUT_PIN(input_pin) { }
 
-void ZeroCross::init()
-{
+void ZeroCross::init() {
   // Set input
   INPUT_PIN = PORT_ISC_INPUT_DISABLE_gc;
 
   // Prepare for output pin swap
   PORT_t& output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
-  if(output_swap == out::pin_swap || output_swap == out::swap_all)
-  {
+  if(output_swap == out::pin_swap || output_swap == out::swap_all) {
     output_port = PORTC;
     pin_number = PIN7_bm;
     PORTMUX.ZCDROUTEA = ~(1 << zcd_number) | output_swap;
   }
 
   // Set output
-  if(output == out::enable)
-  {
+  if(output == out::enable) {
     ZCD.CTRLA = (ZCD.CTRLA & ~out::invert) | out::enable;
     output_port.DIRSET = pin_number;
   }
-  else if(output == out::invert)
-  {
+  else if(output == out::invert) {
     ZCD.CTRLA |= out::enable | out::invert;
     output_port.DIRSET = pin_number;
   }
-  else if(output == out::disable)
-  {
+  else if(output == out::disable) {
     ZCD.CTRLA &= ~out::enable & ~out::invert;
     //output_port.DIRCLR = pin_number;
   }
@@ -70,29 +65,24 @@ bool ZeroCross::have_separate_mux() {
   #endif
 }
 
-void ZeroCross::start(bool state)
-{
+void ZeroCross::start(bool state) {
   if(state)
     ZCD.CTRLA |= ZCD_ENABLE_bm;
   else
     ZCD.CTRLA &= ~ZCD_ENABLE_bm;
 }
 
-void ZeroCross::stop()
-{
+void ZeroCross::stop() {
   start(false);
 }
 
-bool ZeroCross::read()
-{
+bool ZeroCross::read() {
   return !!(ZCD.STATUS & ZCD_STATE_bm);
 }
 
-void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode)
-{
+void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
   ZCD_INTMODE_t intmode;
-  switch (mode)
-  {
+  switch (mode) {
     // Set RISING, FALLING or CHANGE interrupt trigger for the comparator output
     case RISING:
       intmode = ZCD_INTMODE_RISING_gc;
@@ -115,15 +105,13 @@ void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode)
   ZCD.INTCTRL = intmode;
 }
 
-void ZeroCross::detachInterrupt()
-{
+void ZeroCross::detachInterrupt() {
   // Disable interrupt
   ZCD.INTCTRL = ZCD_INTMODE_NONE_gc;
 }
 
 #ifdef ZCD0_ZCD_vect
-ISR(ZCD0_ZCD_vect)
-{
+ISR(ZCD0_ZCD_vect) {
   // Run user function
   intFuncAC[0]();
 
@@ -133,8 +121,7 @@ ISR(ZCD0_ZCD_vect)
 #endif
 
 #ifdef ZCD1_ZCD_vect
-ISR(ZCD1_ZCD_vect)
-{
+ISR(ZCD1_ZCD_vect) {
   // Run user function
   intFuncAC[1]();
 
@@ -144,8 +131,7 @@ ISR(ZCD1_ZCD_vect)
 #endif
 
 #ifdef ZCD2_ZCD_vect
-ISR(ZCD2_ZCD_vect)
-{
+ISR(ZCD2_ZCD_vect) {
   // Run user function
   intFuncAC[2]();
 

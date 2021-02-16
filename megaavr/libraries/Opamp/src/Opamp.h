@@ -4,10 +4,8 @@
 #include <Arduino.h>
 
 // Constants to control the positive opamp input
-namespace in_p
-{
-  enum input_p_t : uint8_t
-  {
+namespace in_p {
+  enum input_p_t : uint8_t {
     pin        = 0x00,
     wiper      = 0x01,
     dac        = 0x02,
@@ -19,10 +17,8 @@ namespace in_p
 };
 
 // Constants to control the negative opamp input
-namespace in_n
-{
-  enum input_n_t : uint8_t
-  {
+namespace in_n {
+  enum input_n_t : uint8_t {
     pin    = 0x00,
     wiper  = 0x10,
     output = 0x20,
@@ -32,10 +28,8 @@ namespace in_n
 
 // Constants to control the opamp input range
 // Conventional consumes less power, but rail to rail accepts a wider input range
-namespace in
-{
-  enum inrange_t : uint8_t
-  {
+namespace in {
+  enum inrange_t : uint8_t {
     rail_to_rail = 0x00,
     conventional = 0x01,
     unconfigured = 0xFF,
@@ -43,10 +37,8 @@ namespace in
 };
 
 // Constants to control the where the top of the resistor ladder connects to
-namespace top
-{
-  enum top_t : uint8_t
-  {
+namespace top {
+  enum top_t : uint8_t {
     off    = 0x00,
     output = 0x01,
     vdd    = 0x02,
@@ -55,10 +47,8 @@ namespace top
 
 // Constants to control the resistor ladder values
 // Resistor R2 connects to the top, and resistor R1 connects to the bottom
-namespace wiper
-{
-  enum wiper_t : uint8_t
-  {
+namespace wiper {
+  enum wiper_t : uint8_t {
     wiper0 = 0x00, // R1 = 60k, R2 = 4k
     wiper1 = 0x20, // R1 = 56k, R2 = 8k
     wiper2 = 0x40, // R1 = 48k, R2 = 16k
@@ -71,10 +61,8 @@ namespace wiper
 };
 
 // Constants to control the where the bottom of the resistor ladder connects to
-namespace bottom
-{
-  enum bottom_t : uint8_t
-  {
+namespace bottom {
+  enum bottom_t : uint8_t {
     off  = 0x00,
     in_p = 0x04,
     in_n = 0x08,
@@ -86,10 +74,8 @@ namespace bottom
 
 
 // Constants to enable or disable the opamp output
-namespace out
-{
-  enum output_t : uint8_t
-  {
+namespace out {
+  enum output_t : uint8_t {
     disable     = 0x00,
     enable      = 0x04,
     drive_event = 0x00,
@@ -97,30 +83,24 @@ namespace out
 };
 
 // Constants to enable or disable the opamp event trigger
-namespace event
-{
-  enum event_t : uint8_t
-  {
+namespace event {
+  enum event_t : uint8_t {
     disable = 0x00,
     enable  = 0x02,
   };
 };
 
 // Constants to control whenever the opamp should be powered during standby
-namespace power
-{
-  enum power_t : uint8_t
-  {
+namespace power {
+  enum power_t : uint8_t {
     no_standby = 0x00,
     standby    = 0x80,
   };
 };
 
 // Constant for setting whether opamp should be "always on" or "event controlled"
-namespace enable
-{
-  enum enable_t : uint8_t
-  {
+namespace enable {
+  enum enable_t : uint8_t {
     disable      = 0x00,
     enable       = 0x01,
     event        = 0x00,
@@ -130,8 +110,7 @@ namespace enable
 };
 
 
-class Opamp
-{
+class Opamp {
   public:
     Opamp(uint8_t op_num,              \
           volatile uint8_t &op_ctrla,  \

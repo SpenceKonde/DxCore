@@ -29,8 +29,7 @@
 
 #include <Logic.h>
 
-void setup()
-{
+void setup() {
   // Initialize logic block 0
   // Logic block 0 has three inputs, PA0, PA1 and PA2.
   // Because PA0 is shared with the UPDI pin and is not usually an option
@@ -66,7 +65,6 @@ void setup()
   Logic::start();
 }
 
-void loop()
-{
+void loop() {
   // When using configurable custom logic the CPU isn't doing anything!
 }

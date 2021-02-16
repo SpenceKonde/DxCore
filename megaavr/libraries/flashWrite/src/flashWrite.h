@@ -28,8 +28,7 @@ uint8_t* getFlashMappedPointer(const uint32_t address);
 
 uint32_t getFlashAddress(uint8_t* mappedPtr);
 
-typedef enum FLASHWRITE_RETURN_VALUES
-{
+typedef enum FLASHWRITE_RETURN_VALUES {
   FLASHWRITE_OK             = (0x00),
 
   /* 0x10 - Non-optiboot problem   */

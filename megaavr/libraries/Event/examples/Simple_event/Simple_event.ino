@@ -16,8 +16,7 @@
 
 #include <Event.h>
 
-void setup()
-{
+void setup() {
   // Since pin PE0 is only available on event generator channel 4 and 5, we use Event4 as our object
   // Note that we use gen4:: to refer to functionality unique to event channel 4
   Event4.set_generator(gen4::pin_pe0); // Set pin PE0 as event generator
@@ -30,7 +29,6 @@ void setup()
   Event4.start();
 }
 
-void loop()
-{
+void loop() {
 
 }

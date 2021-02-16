@@ -198,8 +198,7 @@ class SPISettings {
 
     // Compensate for the duplicate fosc/64,
     // should be fosc/128 if clockdiv 6.
-    if (clockDiv == 6)
-    {
+    if (clockDiv == 6) {
       clockDiv++;
     }
 

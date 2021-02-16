@@ -267,8 +267,7 @@ This method isn't available on tinyAVR 0/1-series, as these parts cannot generat
 ```c++
 Logic0.attachInterrupt(blinkLED, RISING); // Runthe blinkLED function when the putput goes high
 
-void blinkLED()
-{
+void blinkLED(){
   digitalWrite(myLedPin, CHANGE);
 }
 ```

@@ -1,7 +1,6 @@
 #ifndef DXCORE_H
 #include <Arduino.h>
-typedef enum X32K_TYPE
-{
+typedef enum X32K_TYPE {
     X32K_LOWPWR_START31MS = (CLKCTRL_CSUT_1K_gc|CLKCTRL_LPMODE_bm),
     X32K_LOWPWR_START500MS = (CLKCTRL_CSUT_16K_gc|CLKCTRL_LPMODE_bm),
     X32K_LOWPWR_START1S = (CLKCTRL_CSUT_32K_gc|CLKCTRL_LPMODE_bm),
@@ -13,8 +12,7 @@ typedef enum X32K_TYPE
     X32K_EXTCLK = (CLKCTRL_SEL_bm)
 } X32K_TYPE_t;
 
-typedef enum X32K_ENABLE
-{
+typedef enum X32K_ENABLE {
     X32K_DISABLED = ( 0x00),
     X32K_ENABLED  = ( 0x01),
     X32K_ALWAYSON = ( 0x81),
@@ -24,8 +22,7 @@ typedef enum X32K_ENABLE
 // attempts to configure the external crystal or oscillator.
 // see above for valid values of these two arguments. This handles the enable-locking of many of these bits.
 // which means it may disable this clock source (CSUT is long enough that this likely matters!)
-void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable)
-{
+void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable) {
   uint8_t newval=settings|enable;
   //if any of the bits are "enable protected" we need to turn off the external crystal/clock.
   if ((CLKCTRL.XOSC32KCTRLA ^ newval)&(CLKCTRL_SEL_bm|CLKCTRL_CSUT_gm)) {
@@ -52,8 +49,7 @@ void disableXOSC32K() {
 // under this circumstance, autotune will not impact the main clock - and the main clock, in fact, is likely more accurate than autotune would achieve.
 // Returns 0 if autotune is successfully enabled within the time permitted by XOSC32KCTRLA's currently configured CSUT bits.
 
-uint8_t enableAutoTune()
-{
+uint8_t enableAutoTune() {
   if ((CLKCTRL.MCLKCTRLA&0x0F)!=0) return 0xFF;
   if (CLKCTRL.XOSC32KCTRLA&0x01) {
     _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,X32K_HIGHPWR_START1S|X32K_ENABLED);
@@ -74,8 +70,7 @@ uint8_t enableAutoTune()
 // uint8_t disableAutoTune()
 // Returns 255 (-1) if autotune was not enabled.
 // Returns 0 if autotune is successfully disabled.
-int8_t disableAutoTune()
-{
+int8_t disableAutoTune() {
   if (CLKCTRL.OSCHFCTRLA&0x01) {
     _PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA,CLKCTRL.OSCHFCTRLA&0xFE);
     return 0x00;

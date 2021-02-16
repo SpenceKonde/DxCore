@@ -188,8 +188,7 @@ Valid arguments for the third parameters are `RISING`, `FALLING` and `CHANGE`.
 ```c++
 Comparator.attachInterrupt(blinkLED, RISING); // Run the blinkLED function when the comparator output goes high
 
-void blinkLED()
-{
+void blinkLED() {
   digitalWrite(myLedPin, CHANGE);
 }
 ```

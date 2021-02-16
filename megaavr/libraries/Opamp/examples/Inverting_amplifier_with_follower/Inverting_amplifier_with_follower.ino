@@ -41,8 +41,7 @@
 
 #include <Opamp.h>
 
-void setup()
-{
+void setup() {
   // Configure Opamp0 as a voltage follower tied to the Opamp1 resistor ladder
   Opamp0.input_p = in_p::pin;    // Connect positive input to external input pin (PD1)
   Opamp0.input_n = in_n::output; // Connect negative input to the opamp output
@@ -66,7 +65,6 @@ void setup()
   Opamp::start();
 }
 
-void loop()
-{
+void loop() {
 
 }
