@@ -160,7 +160,7 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 // Analog pins
 
 #ifndef MVIO
-// 28-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
+  // 28-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
   #define PIN_A0   PIN_PD0
 #endif
 #define PIN_A1   PIN_PD1

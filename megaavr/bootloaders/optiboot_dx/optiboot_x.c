@@ -127,31 +127,43 @@
 
 
 #if !defined(OPTIBOOT_CUSTOMVER)
-# define OPTIBOOT_CUSTOMVER 0x10
-#endif
-
-
-// AVR Dx-series write-from-app
-// The classic way 1. didn't fit and 2. was awkward to use, and 2. carried unnecessary baggage.
-// The *only* thing that needs to run from the bootloader section is the actual instruction
-// that writes to or erases flash, that is, the spm instruction. The NVMCTRL.CTRLA register works everywhere.
-
-#ifndef APP_NOSPM
-  const unsigned long int __attribute__((section(".spmtarg"))) __attribute__((used)) magic_number=0x950895F8UL;
-  // This translates to spm z+ ret: use the SPM instruction and increment Z, and return.
-#else
-  const unsigned long int __attribute__((section(".spmtarg"))) __attribute__((used)) magic_number=0x95080000UL;
-  // nop ret: do nothing, then return. The 0x0000 is an unambiguous way to signal that it is disabled
+  #define OPTIBOOT_CUSTOMVER 0x10
 #endif
 
 
 unsigned const int __attribute__((section(".version"))) __attribute__((used))
-optiboot_version = 256*(OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
+optiboot_version = 256 * (OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
 
 
 #include <inttypes.h>
 #include <avr/io.h>
 
+/*
+ * AVR Dx-series write-from-app
+ * The classic way:
+ *   1. didn't fit.
+ *   2. carried unnecessary baggage function call and C vs asm stuff (writing is always done in asm
+ *      because it requires data to be placed in r0 and r1. But r1 needs to always contain zero or
+ *      avr-gcc breaks).
+ *   3. Has no API documentation, so I don't know how to use it anyway.
+ *
+ * The *only* thing that needs to run from the bootloader section is the actual instruction
+ * that writes to or erases flash, that is, the spm instruction (or for certain cases, st - but we don't
+ * concern ourselves with those since the most commonly found part in the hands of our target users
+ * is the AVR128DA, and writing through flash-mapping is busted on theose. The NVMCTRL.CTRLA register works everywhere.
+ * This method consists of just the minimum two instructions in the bootloader section,
+ */
+
+#ifndef APP_NOSPM
+  const unsigned long int __attribute__((section(".spmtarg"))) __attribute__((used)) magic_number = 0x950895F8UL;
+  // spm z+ ret: use the SPM instruction and increment Z, and return.
+  // spm z+ is better than straight spm, because it allows z write across the 64k barrier (spm z+ will
+  // increment RAMPZ, which would otherwise require fiddly and inefficient code to test for and handle, or
+  // one would just declare "no block writes across 64K". But using spm z+, we get that for free.
+#else
+  const unsigned long int __attribute__((section(".spmtarg"))) __attribute__((used)) magic_number = 0x95080000UL;
+  // nop ret: do nothing, then return. The 0x0000 is an unambiguous way to signal that it is disabled
+#endif
 
 
 
@@ -160,33 +172,7 @@ optiboot_version = 256*(OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
 #include <unsupported>  // include a non-existent file to stop compilation
 #endif
 
-/*
- * Fuses.
- * This is an example of what they'd be like, but some should not
- * necessarily be under control of the bootloader.  You'll need a
- * a programmer that processes the .fuses section to actually get
- * these programmed into the chip.
- * The fuses actually REQUIRED by Optiboot are:
- *  BOOTEND=2, SYSCFG0=(CRC off, RSTPIN as appropriate)
- * On some chips, the "reset" pin can be either RESET or GPIO.
- *  Other also have the UPDI option. If RESET is not enabled we won't be
- *  able to auto-reset.  But if the UPDI pin is set to cause RESET, we
- *  won't be able to reprogram the chip without HV UPDI (which is uncommon.)
- * The settings show will set chips (ie m4809) with RESET/GPIO to use RESET,
- *  and chips with RESET/GPIO/UPDI to leave it in UPDI mode - the bootloader
- *  can still be started by a power-on RESET.
- */
-
-FUSES = {
-    .WDTCFG = 0,  /* Watchdog Configuration */
-    .BODCFG = FUSE_BODCFG_DEFAULT,  /* BOD Configuration */
-    .OSCCFG = 0, /* 20MHz */
-    .SYSCFG0 =  CRCSRC_NOCRC_gc | RSTPINCFG_RST_gc, /* RESET is enabled */
-    .SYSCFG1 = 0x06,  /* startup 32ms */
-    .CODESIZE = 0,  /* Application Code Section End */
-    .BOOTSIZE = 2 /* Boot Section End */
-};
-
+/* section about fuses removed because dated to pre-Dx days and was wrong */
 
 /*
  * optiboot uses several "address" variables that are sometimes byte pointers,
@@ -196,10 +182,10 @@ FUSES = {
  * do this manually.  Expanding it a little, we can also get rid of casts.
  */
 typedef union {
-    uint8_t  *bptr;
-    uint16_t *wptr;
-    uint16_t word;
-    uint8_t bytes[2];
+  uint8_t  *bptr;
+  uint16_t *wptr;
+  uint16_t word;
+  uint8_t bytes[2];
 } addr16_t;
 
 
@@ -216,30 +202,30 @@ typedef union {
 #include "stk500.h"
 
 #ifndef LED_START_FLASHES
-# define LED_START_FLASHES 0
+  #define LED_START_FLASHES 0
 #endif
 
 /*
- * The mega-0, tiny-0, and tiny-1 chips all reset to running on the
- *  internal oscillator, with a prescaler of 6.  The internal oscillator
- *  is either 20MHz or 16MHz, depending on a fuse setting - we can read
- *  the fuse to figure our which.
- * The BRG divisor is also fractional, permitting (afaik) any reasonable
- *  bit rate between about 1000bps and 1Mbps.
- * This makes the BRG generation a bit different than for prior processors.
+ * The AVR Dx-series parts all reset to running on the internal oscillator
+ *  at 4 MHz (the internal oscillator speed is selectable here, unlike
+ *  older generations). This is much like the tinyAVR 0/1/2 and megaAVR
+ *  0-series, but even simpler, since there's no fuse to account for.
+ * The BRG divisor is also fractional, able to generate accurate baud rates
+ *  very close to the maximum. Maximum and minimums shown here for variout
+ *  clock speeds. Same UART as other modern AVRs from 2016-2020.
+ * https://drive.google.com/file/d/1xszDrr9pD9FcKedqMCcb_GMc14Gofy-R/view?usp=sharing
  */
-/* set the UART baud rate defaults */
 #ifndef BAUD_RATE
-# define BAUD_RATE   115200L // Highest rate Avrdude win32 will support
+  #define BAUD_RATE   115200L // Highest rate Avrdude win32 will support
 #endif
 #ifdef F_CPU
-# warning F_CPU is ignored for this chip (run from internal osc.)
+  #warning F_CPU is ignored for this chip (run from internal osc.)
 #endif
 #ifdef SINGLESPEED
-# warning SINGLESPEED ignored for this chip.
+  #warning SINGLESPEED ignored for this chip.
 #endif
 #ifdef UART
-# warning UART is ignored for this chip (use UARTTX=PortPin instead)
+  #warning UART is ignored for this chip (use UARTTX=PortPin instead)
 #endif
 
 // DX series starts up at 4 MHz; we use it and leave it at that speed.
@@ -248,26 +234,26 @@ typedef union {
 #define BAUD_ACTUAL_4 ((64L*(4000000)) / (16L*BAUD_SETTING))
 
 #if BAUD_SETTING_4 < 64   // divisor must be > 1.  Low bits are fraction.
-# error Unachievable baud rate (too fast) BAUD_RATE
+  #error Unachievable baud rate (too fast) BAUD_RATE
 #endif
 
 #if BAUD_SETTING_4 > 65635
-# error Unachievable baud rate (too slow) BAUD_RATE
+  #error Unachievable baud rate (too slow) BAUD_RATE
 #endif // baud rate slow check
 
 /*
  * Watchdog timeout translations from human readable to config vals
  */
 #ifndef WDTTIME
-# define WDTPERIOD WDT_PERIOD_1KCLK_gc  // 1 second
+  #define WDTPERIOD WDT_PERIOD_1KCLK_gc  // 1 second
 #elif WDTTIME == 1
-# define WDTPERIOD WDT_PERIOD_1KCLK_gc  // 1 second
+  #define WDTPERIOD WDT_PERIOD_1KCLK_gc  // 1 second
 #elif WDTTIME == 2
-# define WDTPERIOD WDT_PERIOD_2KCLK_gc  // 2 seconds
+  #define WDTPERIOD WDT_PERIOD_2KCLK_gc  // 2 seconds
 #elif WDTTIME == 4
-# define WDTPERIOD WDT_PERIOD_4KCLK_gc  // 4 seconds
+  #define WDTPERIOD WDT_PERIOD_4KCLK_gc  // 4 seconds
 #elif WDTTIME == 8
-# define WDTPERIOD WDT_PERIOD_8KCLK_gc  // 8 seconds
+  #define WDTPERIOD WDT_PERIOD_8KCLK_gc  // 8 seconds
 #else
 #endif
 
@@ -276,11 +262,11 @@ typedef union {
  * some code space on parts with smaller pagesize by using a smaller int.
  */
 #if MAPPED_PROGMEM_PAGE_SIZE > 255
-typedef uint16_t pagelen_t;
-# define GETLENGTH(len) len = getch()<<8; len |= getch()
+  typedef uint16_t pagelen_t;
+  #define GETLENGTH(len) len = getch()<<8; len |= getch()
 #else
-typedef uint8_t pagelen_t;
-# define GETLENGTH(len) (void) getch() /* skip high byte */; len = getch()
+  typedef uint8_t pagelen_t;
+  #define GETLENGTH(len) (void) getch() /* skip high byte */; len = getch()
 #endif
 
 
@@ -906,9 +892,9 @@ OPT2FLASH(BIGBOOT);
 #endif
 OPTFLASHSECT const char f_device[] = "Device=" xstr(__AVR_DEVICE_NAME__);
 #ifdef OPTIBOOT_CUSTOMVER
-# if OPTIBOOT_CUSTOMVER != 0
+  #if OPTIBOOT_CUSTOMVER != 0
 OPT2FLASH(OPTIBOOT_CUSTOMVER);
-# endif
+  #endif
 #endif
 OPTFLASHSECT const char f_version[] = "Version=" xstr(OPTIBOOT_MAJVER) "." xstr(OPTIBOOT_MINVER);
 
