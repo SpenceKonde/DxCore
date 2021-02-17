@@ -194,6 +194,29 @@ extern const uint8_t digital_port_to_pin0[];
   // will automatically leave const variables in flash.
   #define MAPPED_PROGMEM
 #endif
+/*
+ * Compatibility - General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
+ * They now appear to have decided they don't like either of these conventions, and are grouping them under a "General Purpose Register"
+ * "peripheral". I cannot argue that GPR doesn't make more sense, as there's not really any I/O occurring here (ofc they were referring
+ * to the IN and OUT instructions, which can be used on these), but I certainly wouldn't have changed a convention like this. And if I
+ * really had to... I would be too ashamed to do it again in just a couple of years because I realized I didn't like the first change
+ * much either. Then again, maybe this just brings to mind that old line about talking cookware...
+ */
+
+// Pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn .
+#ifndef GPIOR0
+  #define GPIOR0 (GPR_GPR0)
+  #define GPIOR1 (GPR_GPR1)
+  #define GPIOR2 (GPR_GPR2)
+  #define GPIOR3 (GPR_GPR3)
+#endif
+// For a while, these were called GPIO in the i/o headers...
+#ifndef GPIO0
+  #define GPIO0 (GPR_GPR0)
+  #define GPIO1 (GPR_GPR1)
+  #define GPIO2 (GPR_GPR2)
+  #define GPIO3 (GPR_GPR3)
+#endif
 
 #define AVR128DA    0x40
 #define AVR128DB    0x48
