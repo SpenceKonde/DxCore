@@ -394,16 +394,17 @@ void takeOverTCA0() {
   TCA0.SPLIT.CTRLA = 0;          // Stop TCA0
   PeripheralControl &= ~TIMERA0; // Mark timer as user controlled
                                  // Reset TCA0
-  /* Okay, seriously? The datasheets and io headers disagree here */
-  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc; /* |0x03; // do these bits need to be set or don't they? Does this even WORK on tinyAVR?! */
+  /* Okay, seriously? The datasheets and io headers disagree here for tinyAVR about whether the low bits even exist there! */
+  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // To answer earlier question that was here, yes, those low bits must be set!
 }
+
 #ifdef TCA1
 void takeOverTCA1() {
-  TCA1.SPLIT.CTRLA = 0;          // Stop TCA0
+  TCA1.SPLIT.CTRLA = 0;          // Stop TCA1
   PeripheralControl &= ~TIMERA1; // Mark timer as user controlled
-                                 // Reset TCA0
-  /* Okay, seriously? The datasheets and io headers disagree here */
-  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc; /* |0x03; // do these bits need to be set or don't they? Does this even WORK on tinyAVR?! */
+                                 // Reset TCA1
+  /* Okay, seriously? The datasheets and io headers disagree here for tinyAVR about whether the low bits even exist there! */
+  TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // To answer earlier question that was here, yes, those low bits must be set!
 }
 #endif
 void takeOverTCD0() {

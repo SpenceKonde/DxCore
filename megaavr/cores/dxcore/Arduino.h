@@ -76,22 +76,23 @@ void analogReadResolution(uint8_t res);
 uint8_t digitalPinToTimerNow(uint8_t p);
 
 
-void init_millis();
-void stop_millis();
-void restart_millis();
-void set_millis(uint32_t newmillis);
+void init_millis();                       // called by init_timers() to set up millis for the first time.
+void stop_millis();                       // stop the timer being used for millis, and disable the interrupt.
+void restart_millis();                    // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
+void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the specified number of milliseconds.
+void takeOverTCA0();                      // Can be used to tell core not to use TCA0 for any API calls - user has taken it over.
+void takeOverTCA1();                      // Can be used to tell core not to use TCA1 for any API calls - user has taken it over.
+void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
-void init_ADC0() __attribute__((weak));       // this is called to initialize ADC0 - it also i
-//   init_DAC0()                              // no init_DAC0() - all that the core does is call DACReference().
-void init_timers() __attribute__((weak));     // this function is expected to configure all timers for PWM. init_millis() is called after this.
-void init_clock() __attribute__((weak));      // this is called first, to initiate the system clock.
-void init_TCA0() __attribute__((weak));       // called by init_timers()
-void init_TCA1() __attribute__((weak));       // called by init_timers()
-void init_TCBs() __attribute__((weak));       // called by init_timers()
-void init_TCD0() __attribute__((weak));       // called by init_timers()
-
-
+void init_ADC0() __attribute__((weak));   // this is called to initialize ADC0 - it also i
+//   init_DAC0()                          // no init_DAC0() - all that the core does is call DACReference().
+void init_timers() __attribute__((weak)); // this function is expected to configure all timers for PWM. init_millis() is called after this.
+void init_clock() __attribute__((weak));  // this is called first, to initiate the system clock.
+void init_TCA0() __attribute__((weak));   // called by init_timers()
+void init_TCA1() __attribute__((weak));   // called by init_timers()
+void init_TCBs() __attribute__((weak));   // called by init_timers()
+void init_TCD0() __attribute__((weak));   // called by init_timers()
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP

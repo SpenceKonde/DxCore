@@ -1,20 +1,16 @@
 # Taking over TCA0 for your owm PWM
 
-We have received many questions from users about how to take over TCA0 to generate 16-bit PWM or change the output frequency. There are a few non-obvious complications here, and this page aims to clear this up. First, before you begin, make sure you have megaTinyCore 1.1.6 - in prior versions, the type B timer(s) are clocked from the prescaled clock of TCA0 when they are used as a millis/micros source or for low frequency output with tone() - which meant that reconfiguring TCA0 would break that functionality as well. In 1.1.6, the only thing included with the core that is broken by reconfiguring the TCA0 prescaler is the Servo library, and that is fixed for 1.1.7.
+We have received many questions from users about how to take over one of the TCA modules to generate 16-bit PWM or change the output frequency.
 
-The most common point of confusion is the fact that megaTinyCore, out of the box, configures TCA0 for use in "Split Mode" - this allows it to generate 6 8-bit PWM signals. This provides 2 additional PWM pins (3 if TCB0 is needed for other purposes) - and since analogWrite() only supports 8-bit PWM anyway, when using the Arduino API functions, there is no loss of functionality imposed by this. You must disable the timer when switching between modes, and Microchip recommends that you issue a reset command - this will reset the period, count, and compare registers to their default values. Note that in split mode, the two low bits must also be 1, or the command is ignored. The intent of those bits is unclear, as only 00 (none) and 11 (both) are listed as valid.
+The most common point of confusion is the fact that DxCore, out of the box, configures both TCA's for use in "Split Mode" - this allows it to generate 6 8-bit PWM signals. This provides 3 additional PWM pins (3 if TCB0 is needed for other purposes) - and since analogWrite() only supports 8-bit PWM anyway, when using the Arduino API functions, there is no loss of functionality imposed by this. But it must be disabled if you want to repurpose the timer.
 
-```
-  TCA0.SPLIT.CTRLA=0; //disable TCA0 and set divider to 1
-  TCA0.SPLIT.CTRLESET=TCA_SPLIT_CMD_RESET_gc|0x03; //set CMD to RESET to do a hard reset of TCA0 and enable for both halves.
-  TCA0.SPLIT.CTRLD=0; //turn off split mode
-```
-Note that as these bits have the same function in SINGLE and SPLIT mode, it does not matter whether you reference them as TCA0.SINGLE.* or TCA0.SPLIT.*
+Another issue is that there are Arduino API functions that reach out and poke the timers (analogWrite and digitalWrite, mostly). As of DxCore 1.3.2 there is now a simple solution to both in the form of the `takeOverTCA0()` and `takeOverTCA1()` functions. Calling either of these turns off the timer in question, marks it as "taken over" internally to disable PWM from analogWrite/digitalWrite (which turns off PWM channels), ands issues a hard reset command, resetting every timer register to it's power on default! It will now be in SINGLE mode, so access it using the `TCA0.SINGLE` struct (I find the two structs very awkward and verbose, but the difference isn;t just that they have different bits enabled; in SINGLE mode the compare and period registers are 16-bit and use that procedure with the temp register to read correct data, and if you were to access the individual bytes, you'd get different results if you did it in the "wrong" order, but only in SINGLE mode; in SPLIT mode they are independent 8-bit registers). You don't have to worry about that if you access using the appropriate struct for the mode.
 
-Once this has been done, further configuration is straightforward. Failing to turn off split mode when you intend to, however, can result in strange behavior.
+### TCBs doing pwm are clocked from TCA0
+TCBs only get prescale of /1 or 2/ - you want lower frequency for PWM. They can be clocked from the prescaled clock of a TCA though - and that's what we do. They all use TCA0. If you have both TCA's on your device, but only need to take over TCA0, you could change any TCB's you're using for PWM to use TCA1 as clock source - or just restart TCA0 at your final clock speed, if you know that will work for whatever the TCB PWM is driving . This is only used for PWM - TCBs use the /1 or /2 clock sources when used for Tone, Servo, and millis timekeeping. There are also the 2 channels of the TCD0 which can be used for PWM.
 
-### Avoid using TCA0 as the millis timer
-Reconfiguring TCA0 when it is used as the millis timer source will result in loss of timekeeping functionality. When doing this, you should avoid using TCA0 as the millis source. To ensure that you don't forget to set the millis timer correctly, it is suggested to put code like the following in your sketch to halt compile if you later open the sketch and did not choose the correct millis timer source.
+### Avoid using the TCA you are reconfiguring for millis
+Reconfiguring a timer like this when it is used as the millis timer source will result in the derangement of timekeeping functionality. While this is less freqently an issue on DxCore vs megaTinyCore, since we have ample type B timers and default those for timekeeping, we do still provide the option to use the TCA(s) for timekeeping (maybe you need a large number of TCBs for some unusual use case). If you think this might be an issue in the future, or if you're writing code that will be used by the masses (whose capacity to use shared code under strange conditions never ceases to amaze me), you should trap that with a useful error with something like this:
 
 ```
 #ifdef MILLIS_USE_TIMERA0
@@ -22,51 +18,36 @@ Reconfiguring TCA0 when it is used as the millis timer source will result in los
 #endif
 ```
 
-Better yet, you can verify that you chose the intended millis timer, rather than that you didn't pick the most unsuitable one:
-
-```
-#ifndef MILLIS_USE_TIMERB0
-#error "This sketch is written for use with TCB0 as the millis timing source"
-#endif
-```
-
-In these examples, it is also used to make sure one doesn't try to run them on a part where the mappings of the channels to pins are different (ie, the 8-pin parts).
-
-##### Added complication for 8-pin parts
-On the 8-pin parts, the default location for WO0 is the same as for WO3: PA3, ie, you can't get an extra channel from split mode. However, WO0 can be moved from it's default location to PA7 via the PORTMUX; megaTinyCore does this to get the extra PWM channel out of the box. This is controlled by `PORTMUX.CTRLC`. Nothing else is controlled by this register, so you can just set it to the compiler-provided constants. None of the other parts supported by megaTinyCore have PWM pins blocking each other like this.
-
-```
-PORTMUX.CTRLC = PORTMUX_TCA00_DEFAULT_gc;   // Move it back to PA3
-PORTMUX.CTRLC = PORTMUX_TCA00_ALTERNATE_gc; // Move it to PA7
-
-```
-
 # Examples
 Now for the fun part - example code!
 
-A note about the pin numbers - we use the PORT_Pxn notation to refer to pins; when I mention in the comments the pin number, that is an Arduino (logical) pin number, not a physical pin number (generally, this documentation does not refer to physical pin numbers except on the pinout charts). Because the mappings of peripherals to pins by the port and pin within the port is constant across the non-8-pin parts, this means the examples (except the one for 8-pin parts) will all work on all 14, 20, and 28-pin parts.
+A note about the pin numbers - we use the PORT_Pxn notation to refer to pins; when I mention in the comments the pin number, that is an Arduino (logical) pin number, not a physical pin number (generally, this documentation does not refer to physical pin numbers except on the pinout charts).
+
+Also, TCA0 can output PWM on pins 0-2 (0-5 for the large )
 
 
 ### Example 1: 16-bit PWM in single mode, dual slope with interrupt.
 
 ```
-#if defined(MILLIS_USE_TIMERA0)||defined(__AVR_ATtinyxy2__)
-#error "This sketch takes over TCA0, don't use for millis here.  Pin mappings on 8-pin parts are different"
+#if defined(MILLIS_USE_TIMERA0)
+#error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
 unsigned int DutyCycle=0;
+// picked more or less randomly, other than the fact that everything has it, so it makes a good example :-)
+uint8_t OutputPin = PIN_PC1;
+
 
 void setup() {
-  // We will be outputting PWM on PB0
-  pinMode(PIN_PB0, OUTPUT); //PB0 - TCA0 WO0, pin7 on 14-pin parts
-  TCA0.SPLIT.CTRLA=0; //disable TCA0 and set divider to 1
-  TCA0.SPLIT.CTRLESET=TCA_SPLIT_CMD_RESET_gc|0x03; //set CMD to RESET, and enable on both pins.
-  TCA0.SPLIT.CTRLD=0; //Split mode now off, CMPn = 0, CNT = 0, PER = 255
-  TCA0.SINGLE.CTRLB=(TCA_SINGLE_CMP0EN_bm|TCA_SINGLE_WGMODE_DSBOTTOM_gc); //Dual slope PWM mode OVF interrupt at BOTTOM, PWM on WO0
-  TCA0.SINGLE.PER=0xFFFF; // Count all the way up to 0xFFFF
+  pinMode(OutputPin, OUTPUT);
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTC_gc;
+  takeOverTCA0(); // this replaces disabling and resettng the timer, required previously.
+
+  TCA0.SINGLE.CTRLB=(TCA_SINGLE_CMP0EN_bm | TCA_SINGLE_WGMODE_DSBOTTOM_gc); // Dual slope PWM mode OVF interrupt at BOTTOM, PWM on WO0
+  TCA0.SINGLE.PER=0xFFFF;                                                   // Count all the way up to 0xFFFF
   // At 20MHz, this gives ~152Hz PWM
   TCA0.SINGLE.CMP0=DutyCycle;
-  TCA0.SINGLE.INTCTRL=TCA_SINGLE_OVF_bm; //enable overflow interrupt
+  TCA0.SINGLE.INTCTRL=TCA_SINGLE_OVF_bm;  //enable overflow interrupt
   TCA0.SINGLE.CTRLA=TCA_SINGLE_ENABLE_bm; //enable the timer with no prescaler
 }
 
@@ -81,21 +62,21 @@ ISR(TCA0_OVF_vect) { //on overflow, we will increment TCA0.CMP0, this will happe
 
 
 ### Example 2: Variable frequency and duty cycle PWM
-This generates PWM similar to above (though without the silly interrupt to change the duty cycle), but takes it a step further with two functions to set the duty cycle and frequency.
+This generates PWM similar to above (though without the silly interrupt to change the duty cycle), but takes it a step further and into more practical territory with two functions to set the duty cycle and frequency.
 
 ```
-#if defined(MILLIS_USE_TIMERA0)||defined(__AVR_ATtinyxy2__)
-#error "This sketch takes over TCA0, don't use for millis here.  Pin mappings on 8-pin parts are different"
+#if defined(MILLIS_USE_TIMERA0)
+#error "This sketch takes over TCA0, don't use for millis here."
 #endif
+
+uint8_t OutputPin = PIN_PC1;
 
 unsigned int Period=0xFFFF;
 
 void setup() {
-  // We will be outputting PWM on PB0
-  pinMode(PIN_PB0, OUTPUT); //PB0 - TCA0 WO0, pin7 on 14-pin parts
-  TCA0.SPLIT.CTRLA=0; //disable TCA0 and set divider to 1
-  TCA0.SPLIT.CTRLESET=TCA_SPLIT_CMD_RESET_gc|0x03; //set CMD to RESET, and enable on both pins.
-  TCA0.SPLIT.CTRLD=0; //Split mode now off, CMPn = 0, CNT = 0, PER = 255
+  pinMode(OutputPin, OUTPUT);
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTC_gc;
+  takeOverTCA0(); // this replaces disabling and resettng the timer, required previously.
   TCA0.SINGLE.CTRLB=(TCA_SINGLE_CMP0EN_bm|TCA_SINGLE_WGMODE_SINGLESLOPE_gc); //Single slope PWM mode, PWM on WO0
   TCA0.SINGLE.PER=Period; // Count all the way up to 0xFFFF
   // At 20MHz, this gives ~305Hz PWM
@@ -140,23 +121,24 @@ void setFrequency(unsigned long freqInHz) {
 }
 ```
 
-### Example 3: High speed 8-bit PWM on PA3 on 8-pin part
-A user requested (#152) high speed PWM on PA3 on an 8-pin part. They wanted split mode disabled, and PWM frequency higher than 62KHz. This is indeed possible - though do note that the maximum frequency of PWM possible with a full 8 bits of resolution and 20MHz system clock is 78.125 kHz (20000000/256) - and the next higher frequency for which perfect 8-bit resolution is possible is half that, 39.061 kHz. Higher fequencies require lower resolution (see above example for one approach, which can also be used for intermediate frequencies) though if the frequency is constant, varying your input between 0 and the period instead of using map() is desirable, as map may not be smooth. As a further aside, if 78.125kHz is suitable, there is no need to disable split mode....
+### Example 3: High speed 8-bit PWM
+A user requested (#152) high speed PWM. They wanted split mode disabled, and PWM frequency higher than 62KHz. This is indeed possible - though do note that the maximum frequency of PWM possible with a full 8 bits of resolution is 78.125 kHz when running at 20 MHz (20000000/256); at 24, it's 93.75 kHz, and overclocked to 32 MHz, 125 kHz. The next higher frequency for which perfect 8-bit resolution is possible is half of those frequencies. Higher fequencies require lower resolution (see above example for one approach, which can also be used for intermediate frequencies) though if the frequency is constant, varying your input between 0 and the period instead of using map() is desirable, as map may not be smooth. As a further aside, if 78.125kHz is suitable, there is no need to disable split mode. It strikes me now, as I adapt this example for the Dx-series parts, that 62 KHz is almost exactly the maximum possible for 8-bit PWM at 16 MHz system clock. I'm pretty sure there's a connection!
+
+Do note that if pushing the PWM frequency is your aim, you can go considerably higher by using the Type D timer - it is rated for a TCD clock of up to 48 MHz.... (and I was able to generate PWM from it without anomalies with it clocked at 128 MHz (32 MHz system clock multiplied by 4) - these parts have a ton of headroom on frequency at room temp and under non-adverse conditions)
 
 ```
-#if defined(MILLIS_USE_TIMERA0)||!defined(__AVR_ATtinyxy2__)
-#error "This sketch is for an 8-pin part and takes over TCA0"
+#if defined(MILLIS_USE_TIMERA0)
+#error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
 
 void setup() {
-  // We will be outputting PWM on PA3 on an 8-pin part
-  pinMode(PIN_PA3, OUTPUT); //PA3 - TCA0 WO0, pin 4 on 8-pin parts
-  PORTMUX.CTRLC=PORTMUX_TCA00_DEFAULT_gc; //turn off PORTMUX, returning WO0 to PA3
-  TCA0.SPLIT.CTRLA = 0; //disable TCA0 and set divider to 1
-  TCA0.SPLIT.CTRLESET=TCA_SPLIT_CMD_RESET_gc|0x03; //set CMD to RESET, and enable on both pins.
-  TCA0.SPLIT.CTRLD=0; //Split mode now off, CMPn = 0, CNT = 0, PER = 255
-  TCA0.SINGLE.CTRLB = (TCA_SINGLE_CMP0EN_bm | TCA_SINGLE_WGMODE_SINGLESLOPE_gc); //Single slope PWM mode, PWM on WO0
+  // We will be outputting PWM on PA2
+  pinMode(PIN_PA2, OUTPUT);
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTA_gc;
+  takeOverTCA0();
+
+  TCA0.SINGLE.CTRLB = (TCA_SINGLE_CMP2EN_bm | TCA_SINGLE_WGMODE_SINGLESLOPE_gc); //Single slope PWM mode, PWM on WO0
   TCA0.SINGLE.PER = 0x00FF; // Count all the way up to 0x00FF (255) - 8-bit PWM
   // At 20MHz, this gives ~78.125kHz PWM
   TCA0.SINGLE.CMP0 = 0;
@@ -191,23 +173,26 @@ void loop() { //Lets generate some output just to prove it works
 ### Example 4: Quick bit of fun with split mode
 A quick example of how cool split mode can be - You can get two different PWM frequencies out of the same timer. Split mode only has one mode - both halves of the timer independently count down.
 
+Here, we've made it even more interesting by using two frequencies almost identical to eachother.... they will "beat" against eachother weith a frequency of 1.43 Hz (366 Hz / 256). You should be able to observe that with a bicolor LED (and appropriate resistor) between the two pins. These have two LEDs with opposite polarity, typically a red and a green, connected between two pins. As the phase of these two waves change relative to eachother the color should shift too.
+
 ```
-#if defined(MILLIS_USE_TIMERA0)||defined(__AVR_ATtinyxy2__)
-#error "This sketch takes over TCA0, don't use for millis here.  Pin mappings on 8-pin parts are different"
+#if defined(MILLIS_USE_TIMERA0)
+#error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
 
 void setup() {
-  // We will be outputting PWM on PB0 amd PA5
+  // We will be outputting PWM on PD2 amd PD3
   // No need to enable split mode - core has already done that for us.
-  pinMode(PIN_PB0, OUTPUT); //PB0 - TCA0 WO0, pin7 on 14-pin parts
-  pinMode(PIN_PA5, OUTPUT); //PA5 - TCA0 WO5, pin1 on 14-pin parts
-  TCA0.SPLIT.CTRLB=TCA_SPLIT_LCMP0EN_bm|TCA_SPLIT_HCMP2EN_bm; //PWM on WO5, WO0
+  pinMode(PIN_PD2, OUTPUT); //PD2 - TCA0 WO2
+  pinMode(PIN_PD3, OUTPUT); //PD3 - TCA0 WO3
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTD_gc; // Variety! Also on all parts!
+  TCA0.SPLIT.CTRLB=TCA_SPLIT_LCMP2EN_bm|TCA_SPLIT_HCMP0EN_bm; //PWM on WO2, WO3
   TCA0.SPLIT.LPER=0xFF; // Count all the way down from 255 on WO0/WO1/WO2
-  TCA0.SPLIT.HPER=200;  // Count down from only 200 on WO3/WO4/WO5
-  TCA0.SPLIT.LCMP0=0x7F; //50% duty cycle
-  TCA0.SPLIT.HCMP2=150;  //75% duty cycle
-  TCA0.SPLIT.CTRLA=TCA_SPLIT_CLKSEL_DIV16_gc|TCA_SPLIT_ENABLE_bm; //enable the timer with prescaler of 16
+  TCA0.SPLIT.HPER=0xFE; // Count down from only 254 on WO3/WO4/WO5
+  TCA0.SPLIT.LCMP0=128; // 50% duty cycle
+  TCA0.SPLIT.HCMP0=127; // 50% duty cycle
+  TCA0.SPLIT.CTRLA=TCA_SPLIT_CLKSEL_DIV256_gc|TCA_SPLIT_ENABLE_bm; //enable the timer with prescaler of 256 - slow it down so the phases shift more slowly, but not so slow it would flicker...
 }
 void loop() { //nothing to do here but enjoy your PWM.
 //Prescaler of 16 and LPER and HPER values give 4.88 kHz on PB0 and 6.25kHz on PA5.
