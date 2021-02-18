@@ -28,22 +28,23 @@ void yield(void);
 #define SERIAL      0x0
 #define DISPLAY     0x1
 
-#ifndef min
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
-#endif
 
-#ifndef max
+#define min(a,b) \
+  ({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a < _b ? _a : _b; })
+
 #define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
-#endif
+  ({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a > _b ? _a : _b; })
 
 #ifndef constrain
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+#define constrain(x,low,high)   ({            \
+  typeof (x) _x = (x);                        \
+  typeof (low) _low = (low);                  \
+  typeof (high) _high = (high);               \
+  _x < _low ? _low : _x > _high ? _high :_x })
 #endif
 
 #ifndef radians
@@ -55,7 +56,11 @@ void yield(void);
 #endif
 
 #ifndef sq
-#define sq(x) ((x)*(x))
+#define sq(x)        ({ typeof (x) _x = (x); _x * _x; })
+#endif
+
+#ifndef round
+#define round(x)     ({ typeof (x) _x = (x);  _x >= 0 ? (long)x + 0.5 : (long)x - 0.5 })
 #endif
 
 typedef void (*voidFuncPtr)(void);
