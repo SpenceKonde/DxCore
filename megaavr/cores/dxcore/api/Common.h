@@ -110,6 +110,8 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 void pinMode(pin_size_t pinNumber, uint8_t mode);
 void digitalWrite(pin_size_t pinNumber, uint8_t val);
 void digitalWriteFast(pin_size_t pinNumber, uint8_t val);
+void openDrain(pin_size_t pin, uint8_t state);
+void openDrainFast(pin_size_t pin, uint8_t state);
 int8_t digitalRead(pin_size_t pinNumber);
 int8_t digitalReadFast(pin_size_t pinNumber);
 int analogRead(pin_size_t pinNumber);
