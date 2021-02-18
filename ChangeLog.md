@@ -8,6 +8,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Formatting and "make the CI pass" changes
 * Rename optiboot_x.c to optiboot_dx.c, remove references to tinyAVR 0/1/2-series in source code. It is very different, so we shouldn't give it the same name
 * Fix bug with "burn bootloader" for DB-series parts with more than 28 pins.
+* Improve library docs, remove flashWrite() library
+* Add GPIOR compatibility defines.
+* Fix the issue with sideffects in the min, max, constrain, and sq functions.
+* Fix bug where the INVEN bit would be unset when doing digitalWrite() on pins that can do TCD PWM; now it is only unset if PWM was actually turned off (which in turn implies that if it was inverted, that was done by analogWrite(pin,255) - that's how we can generate a continuous HIGH output without disconnecting the timer (which would produce a glitch on the other pwm channel)- we set the compare value higher than TOP (which would produce continuous low) and invert the pin.
+* In the process of above, found both a terribly inefficient bit of code in analogWrite and turnOffPWM, and replaced with a much faster implementation that saves some flash too! By switching to bit_mask for most calculations a variable shift which could run as many as 5 iterations at 4 clocks each was eliminated from analogWrite targeting a type A timer.
 
 ## Released Versions
 

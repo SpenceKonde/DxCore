@@ -31,15 +31,6 @@
 extern "C"{
 #endif
 
-#if (defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || defined(__AVR_AVR128DA32__) || defined(__AVR_AVR128DA28__))
-  // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata - or maybe they fixed things they didn't want to mention in the errata, or things to do with yield/etc.
-  #define HAS_ADC_BUG (SYSCFG.REVID == 0x16 || SYSCFG.REVID == 0x17)
-#elif (defined __AVR_DA__) //only A3 of these has made the rounds
-  #define HAS_ADC_BUG (SYSCFG.REVID == 0x13)
-#else
-  #define HAS_ADC_BUG (0)
-#endif
-
 /* Analog reference options */
 
 /* Change in mega4809: two places to define analog reference
@@ -124,7 +115,8 @@ extern const uint8_t digital_pin_to_timer[];
 // This comes from the pins_*.c file for the active board configuration.
 //
 // These perform slightly better as macros compared to inline functions
-//
+
+
 #define NOT_A_PIN 255
 #define NOT_A_PORT 255
 #define NOT_AN_INTERRUPT 255
@@ -185,6 +177,14 @@ extern const uint8_t digital_port_to_pin0[];
 #define portInputRegister(P)  ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
 #define portModeRegister(P)   ( (volatile uint8_t *)( &portToPortStruct(P)->DIR ) )
 
+/*
+ * Compatibility and access to flash-mapped progmem
+ * 104 is a 128k part like AVR128DA
+ * 102 is a 64k part like AVR64DB, or AVR64DD
+ * 103 is a 32k or less part like the AVR32DA, or the AVR16DD
+ * the importrant difference for 103 parts is that they have the entire flash
+ * mapped to the data address space, while 102 and 104 only have a 32k chunk of it mapped.
+ */
 #if (__AVR_ARCH__ == 104)
   #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION3")))
 #elif (__AVR_ARCH__ == 102)
@@ -194,6 +194,8 @@ extern const uint8_t digital_port_to_pin0[];
   // will automatically leave const variables in flash.
   #define MAPPED_PROGMEM
 #endif
+
+
 /*
  * Compatibility - General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
  * They now appear to have decided they don't like either of these conventions, and are grouping them under a "General Purpose Register"
@@ -218,11 +220,22 @@ extern const uint8_t digital_port_to_pin0[];
   #define GPIO3 (GPR_GPR3)
 #endif
 
+// Chip families
+// 0b dsssbppp
+// d is 1 if a DD, b os 1 of a DB
+// sss flash size, in units of the smallest part in the family.
+// ppp is code for the pincount, per below chart.
+// interestingly enough this range can extend to cover all pincounts used
+// in recent times on AVR devices - as there is only one smaller one, the
+// 8-pin of the '85  and 'xy2 - 000
+// and 100 pin of the mega256 - 111
+// Wonder if we will see another 100-pin monster or 8-pin tiny?
+
 #define AVR128DA    0x40
-#define AVR128DB    0x48
 #define AVR64DA     0x20
-#define AVR64DB     0x28
 #define AVR32DA     0x10
+#define AVR128DB    0x48
+#define AVR64DB     0x28
 #define AVR32DB     0x18
 #define AVR64DD     0xC0
 #define AVR32DD     0xA0
@@ -304,6 +317,28 @@ extern const uint8_t digital_port_to_pin0[];
 #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
 #endif
 
+#if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (DXCORE_ID_LOW & IS_AVR_DD))
+  #define DXCORE_ID (DXCORE_ID_LOW | 0x40)
+#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (DXCORE_ID_LOW & IS_AVR_DD))
+  #define DXCORE_ID (DXCORE_ID_LOW | 0x20)
+#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (DXCORE_ID_LOW & IS_AVR_DD))
+  #define DXCORE_ID (DXCORE_ID_LOW | 0x10)
+#else
+  #error "Unrecognized combination of flash size and chip type"
+#endif
+
+#if (defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || defined(__AVR_AVR128DA32__) || defined(__AVR_AVR128DA28__))
+  // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata!
+  #define HAS_ADC_BUG (SYSCFG.REVID == 0x16 || SYSCFG.REVID == 0x17)
+#elif (defined __AVR_DA__) //only A3 of these has made the rounds
+  #define HAS_ADC_BUG (SYSCFG.REVID == 0x13)
+#else
+  #define HAS_ADC_BUG (0)
+#endif
+
+#if defined(__AVR_DA__) || defined(__AVR_DB__)
+  #define ERRATA_TCD_PORTMUX
+#endif
 
 /*
 #define DXCORE "1.2.0-dev"

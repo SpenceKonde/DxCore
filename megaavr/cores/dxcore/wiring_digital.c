@@ -79,14 +79,14 @@ void pinMode(uint8_t pin, uint8_t mode) {
       /* Enable pull-up */
       *pin_ctrl_reg |= PORT_PULLUPEN_bm;
       // emulate setting of the port output register on classic AVR
-      port->OUTSET=bit_mask;
+      port->OUTSET = bit_mask;
 
     } else { /* mode == INPUT (no pullup) */
 
       /* Disable pull-up */
       *pin_ctrl_reg &= ~(PORT_PULLUPEN_bm);
       // emulate setting of the port output register on classic AVR
-      port->OUTCLR=bit_mask;
+      port->OUTCLR = bit_mask;
 
     }
 
@@ -117,7 +117,9 @@ void turnOffPWM(uint8_t pin)
   uint8_t timer = digitalPinToTimerNow(pin);
   if(timer == NOT_ON_TIMER) return;
 
-  uint8_t bit_pos = digitalPinToBitPosition(pin);
+  //uint8_t bit_pos = digitalPinToBitPosition(pin);
+  uint8_t bit_mask = digitalPinToBitMask(pin);
+  // we know is valid because we were told it was a timer above.
   TCB_t *timerB;
 
   switch (timer) {
@@ -125,16 +127,16 @@ void turnOffPWM(uint8_t pin)
   /* TCA0 */
   case TIMERA0:
     /* Bit position will give output channel */
-    if (bit_pos>2)  bit_pos++; //there's a blank bit in the middle
+    if (bit_mask > 0x04)  bit_mask <<= 1; //there's a blank bit in the middle
     /* Disable corresponding channel */
-    TCA0.SPLIT.CTRLB &= ~(1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    TCA0.SPLIT.CTRLB &= ~bit_mask;
     break;
   #ifdef TCA1
   case TIMERA1:
     /* Bit position will give output channel */
-    if (bit_pos>2)  bit_pos++; //there's a blank bit in the middle
+    if (bit_mask > 0x04)  bit_mask <<= 1; //there's a blank bit in the middle
     /* Disable corresponding channel */
-    TCA1.SPLIT.CTRLB &= ~(1 << (TCA_SPLIT_LCMP0EN_bp + bit_pos));
+    TCA1.SPLIT.CTRLB &= ~bit_mask;
     break;
   #endif
   //TCB - only one output
@@ -144,7 +146,7 @@ void turnOffPWM(uint8_t pin)
   case TIMERB3:
   case TIMERB4:
 
-    timerB = (TCB_t *)&TCB0 + (timer - TIMERB0);
+    timerB = (TCB_t *) &TCB0 + (timer - TIMERB0);
 
      //Disable TCB compare channel
     timerB->CTRLB &= ~(TCB_CCMPEN_bm);
@@ -152,30 +154,41 @@ void turnOffPWM(uint8_t pin)
     break;
   #if defined(DAC0)
   case DACOUT:
-    DAC0.CTRLA=0x00;
+    DAC0.CTRLA = 0x00;
     break;
   #endif
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
     case TIMERD0:
     {
       // rigmarole that produces a glitch in the PWM
-      uint8_t oldSREG=SREG;
-      cli();
-      TCD0.CTRLA&= ~TCD_ENABLE_bm;//stop the timer
       #ifdef MEGATINYCORE
-      // it's either bit 6 or 7 - it's the CMPC and CMPD channels we use; A and B are on pins that we can already cover with TCA0.
-      _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(1 << (6 + bit_pos)));
+        // it's either bit 6 or 7 - it's the CMPC and CMPD channels we use; A and B are on pins that we can already cover with TCA0.
+        uint8_t fcset = TCD0.FAULTCTRL & (bit_mask == 0x02 ? 0x80 : 0x40 );
       #else
-      // on the DA series, it could be any of them
-      _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~(0x10 << (bit_pos & 0x03)));
+        // on the DA series, it could be any of them
+        #ifndef ERRATA_TCD_PORTMUX
+          uint8_t fcset = TCD0.FAULTCTRL & (bit_mask > 0x0F ? bit_mask : bit_mask << 4 ); //hopefully that gets rendereed as swap, not 4 leftshifts
+        #else
+          uint8_t fcset = TCD0.FAULTCTRL & bit_mask;
+        #endif
       #endif
-      while(!(TCD0.STATUS & TCD_ENRDY_bm)); // wait until we can restart it
-      TCD0.CTRLA |= TCD_ENABLE_bm; //re-enable it
-      #if defined(NO_GLITCH_TIMERD0)
-        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), bit_pos);
-        *pin_ctrl_reg &= ~(PORT_INVEN_bm);
-      #endif
-      SREG=oldSREG;
+      if (fcset) {
+        #if defined (NO_GLITCH_TIMERD0)
+          // Arrgh, almost didn't need bit position!
+          volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), digitalPinToBitMask(pin));
+          // at least get it before disablling interrupts.
+        #endif
+        uint8_t oldSREG = SREG;
+        cli();
+        TCD0.CTRLA &= ~TCD_ENABLE_bm;//stop the timer
+        _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~fcset);
+        while (!(TCD0.STATUS & TCD_ENRDY_bm)); // wait until we can restart it
+        TCD0.CTRLA |= TCD_ENABLE_bm; //re-enable it
+        #if defined(NO_GLITCH_TIMERD0)
+          *pin_ctrl_reg &= ~(PORT_INVEN_bm);
+        #endif
+        SREG = oldSREG;
+      }
       break;
     }
   #endif
@@ -213,7 +226,7 @@ void digitalWrite(uint8_t pin, uint8_t val) {
     // we need to know if it's been set high or low
     // otherwise the pullup state could get out of
     // sync with the output bit. Annoying!
-    val=port->OUT & bit_mask;
+    val = port->OUT & bit_mask;
     // val will now be 0 (LOW) if the toggling made it LOW
     // or bit_mask if not. And further down, we only need to
     // know if it's
@@ -261,7 +274,7 @@ inline __attribute__((always_inline)) void digitalWriteFast(uint8_t pin, uint8_t
 {
   check_constant_pin(pin);
   check_valid_digital_pin(pin);
-  if (pin==NOT_A_PIN) return; // sigh... I wish I didn't have to catch this... but it's all compile time known so w/e
+  if (pin == NOT_A_PIN) return; // sigh... I wish I didn't have to catch this... but it's all compile time known so w/e
   // Mega-0, Tiny-1 style IOPORTs
   // Assumes VPORTs exist starting at 0 for each PORT structure
   uint8_t mask = 1 << digital_pin_to_bit_position[pin];

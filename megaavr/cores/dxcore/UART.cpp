@@ -183,8 +183,8 @@ bool UartClass::swap(uint8_t state) {
 
 void UartClass::begin(unsigned long baud, uint16_t config) {
   if (__builtin_constant_p(baud)) {
-    if (baud > (F_CPU/8)) badArg("Unachievable baud, too high - must be less than F_CPU/8");
-    if (baud < (F_CPU/16800)) badArg("Unachievable baud, too low - must be more than F_CPU/16800 (16384 plus allowable error)");
+    if (baud > (F_CPU / 8)) badArg("Unachievable baud, too high - must be less than F_CPU/8");
+    if (baud < (F_CPU / 16800)) badArg("Unachievable baud, too low - must be more than F_CPU/16800 (16384 plus allowable error)");
   }
   // Make sure no transmissions are ongoing and USART is disabled in case begin() is called by accident
   // without first calling end()
@@ -195,13 +195,13 @@ void UartClass::begin(unsigned long baud, uint16_t config) {
   struct UartPinSet *set = &_hw_set[_pin_set];
 
   int32_t baud_setting = 0;
-  uint8_t rxmode=0;
+  uint8_t rxmode = 0;
 
   // Use CLK2X if appropriate.
   #if (F_CPU > 2000000)
-  if(baud>=(38400*(F_CPU/1000000))) {
+  if(baud >= (38400 * (F_CPU / 1000000))) {
     rxmode = USART_RXMODE_CLK2X_gc;
-    baud=baud>>1;
+    baud=baud >> 1;
   } /*
   since this is the default, we don't need to set this, saving a bit of flash.
   else {
@@ -406,29 +406,29 @@ size_t UartClass::write(uint8_t c) {
 }
 
 void UartClass::printHex (const uint8_t b) {
-  char x=(b>>4)|'0';
+  char x = (b >> 4) | '0';
   if (x > '9')
     x += 7;
   write(x);
-  x=(b&0x0F)|'0';
+  x = (b & 0x0F) | '0';
   if (x > '9')
     x += 7;
   write(x);
 }
 void UartClass::printHex(const uint16_t w, bool swaporder){
-  uint8_t * ptr=(uint8_t*)&w;
+  uint8_t *ptr = (uint8_t *) &w;
   if (swaporder){
     printHex(*(ptr++));
     printHex(*(ptr));
   }
   else {
-    printHex(*(ptr+1));
+    printHex(*(ptr + 1));
     printHex(*(ptr));
   }
 }
 
 void UartClass::printHex(const uint32_t l, bool swaporder){
-  uint8_t * ptr=(uint8_t*)&l;
+  uint8_t *ptr = (uint8_t *) &l;
   if (swaporder){
     printHex(*(ptr++));
     printHex(*(ptr++));
@@ -444,7 +444,7 @@ void UartClass::printHex(const uint32_t l, bool swaporder){
   }
 }
 uint8_t * UartClass::printHex(uint8_t* p,uint8_t len, char sep) {
-  for (byte i=0;i<len;i++) {
+  for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
     printHex(*p++);
   }
@@ -452,9 +452,9 @@ uint8_t * UartClass::printHex(uint8_t* p,uint8_t len, char sep) {
 }
 
 uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporder) {
-  for (byte i=0;i<len;i++) {
+  for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
-    printHex(*p++,swaporder);
+    printHex(*p++, swaporder);
   }
   return p;
 }
