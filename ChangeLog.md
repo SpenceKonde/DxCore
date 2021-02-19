@@ -4,7 +4,10 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
-### planned 1.3.2
+## Released Versions
+
+### 1.3.2
+* Correct critical bug that prevented bootloaders from being installed when using the pyupdi-style serial port and resistor. Would report success, but only fuses were set.
 * Formatting and "make the CI pass" changes
 * Rename optiboot_x.c to optiboot_dx.c, remove references to tinyAVR 0/1/2-series in source code. It is very different, so we shouldn't give it the same name
 * Fix bug with "burn bootloader" for DB-series parts with more than 28 pins.
@@ -15,9 +18,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * In the process of above, found both a terribly inefficient bit of code in analogWrite and turnOffPWM, and replaced with a much faster implementation that saves some flash too! By switching to bit_mask for most calculations a variable shift which could run as many as 7 iterations at 4 clocks each was eliminated from analogWrite. A loop that could
 * Correct multiple bugs in takeOverTCAn() functions, which were missed during testing (How, I'm not sure, some of them were far from subtle)
 * Add openDrain(), openDrainFast() - called with two arguments, a pin, and either LOW, CHANGE, or FLOAT. (FLOAT is simply #defined as equal to HIGH). These are the direction-only homolog to digitalWrite() which only operates on output val (ie, PORTx.DIR vs PORTx.OUT). The full size (but not the Fast version) sets the pin's output valure to 0 as well - thus, if you use the non-fast one the first time you call it, you can subsequently use the fast version and not worry about it slipping up and driving the pin HIGH. These do not change the pullup configuration.
-* Correct constrain, round and similar macros. These implementations are just designed to get rid of the bugs that can be caused if sideffects are used in the arguments. Those functions use the same math as the types they are passed as intermediates. This means, among other things, that if you pass a volatile to them, the math will be done with volatile intermediate values, and accordingly will be inefficient with time and flash.
-
-## Released Versions
+* Correct constrain, round and similar macros. These implementations get rid of the bugs that can be caused if sideffects (eg, x++) are used in the arguments.
 
 ### 1.3.1
 * Correct Servo library so that it actually works; 1.3.0 version was apparently never compile-tested (nor was it even based on a clean copy of the library from megaTinyCore)

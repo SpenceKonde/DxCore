@@ -8,8 +8,8 @@ name=DxCore
 versionnum.major=1
 versionnum.minor=3
 versionnum.patch=2
-versionnum.postfix=-dev
-versionnum.released=0
+versionnum.postfix=
+versionnum.released=1
 
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
 
@@ -176,7 +176,7 @@ tools.pymcuprog.erase.pattern=
 
 tools.pymcuprog.bootloader.params.verbose=-v
 tools.pymcuprog.bootloader.params.quiet=
-tools.pymcuprog.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} {bootloader.verbose} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} -d {build.mcu} "{bootloader.pymcuprogstring}"
+tools.pymcuprog.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} {bootloader.verbose} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "{bootloader.pymcuprogstring}"
 
 tools.pymcuprog.program.params.verbose=-v
 tools.pymcuprog.program.params.quiet=

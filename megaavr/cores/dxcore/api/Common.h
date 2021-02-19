@@ -8,12 +8,13 @@ void yield(void);
 
 #define LOW              0
 #define HIGH             1
+#define FLOAT         HIGH
 #define CHANGE           4
 #define FALLING          2
 #define RISING           3
-#define INPUT          0x0
-#define OUTPUT         0x1
-#define INPUT_PULLUP   0x2
+#define INPUT            0
+#define OUTPUT           1
+#define INPUT_PULLUP     2
 #define LSBFIRST         0
 #define MSBFIRST         1
 
@@ -30,13 +31,13 @@ void yield(void);
 
 
 #define min(a,b) \
-  ({ __typeof__ (a) _a = (a); \
-    __typeof__ (b) _b = (b); \
+  ({typeof (a) _a = (a); \
+    typeof (b) _b = (b); \
     _a < _b ? _a : _b; })
 
 #define max(a,b) \
-  ({ __typeof__ (a) _a = (a); \
-    __typeof__ (b) _b = (b); \
+  ({typeof (a) _a = (a); \
+    typeof (b) _b = (b); \
     _a > _b ? _a : _b; })
 
 #ifndef constrain
