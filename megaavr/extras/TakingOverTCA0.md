@@ -173,7 +173,7 @@ void loop() { //Lets generate some output just to prove it works
 ### Example 4: Quick bit of fun with split mode
 A quick example of how cool split mode can be - You can get two different PWM frequencies out of the same timer. Split mode only has one mode - both halves of the timer independently count down.
 
-Here, we've made it even more interesting by using two frequencies almost identical to eachother.... they will "beat" against eachother weith a frequency of 1.43 Hz (366 Hz / 256). You should be able to observe that with a bicolor LED (and appropriate resistor) between the two pins. These have two LEDs with opposite polarity, typically a red and a green, connected between two pins. As the phase of these two waves change relative to eachother the color should shift too.
+Here, we've made it even more interesting by using two frequencies almost identical to each other.... they will "beat" against each other weith a frequency of 1.43 Hz (366 Hz / 256). You should be able to observe that with a bicolor LED (and appropriate resistor) between the two pins. These have two LEDs with opposite polarity, typically a red and a green, connected between two pins. As the phase of these two waves change relative to each other the color should shift too.
 
 ```
 #if defined(MILLIS_USE_TIMERA0)
