@@ -1,5 +1,5 @@
 /*
-  TwoWire.cpp - TWI/I2C library for Wiring & Arduino
+  TwoWire1.cpp - TWI/I2C library for Wiring & Arduino
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -21,28 +21,28 @@
 */
 
 extern "C" {
-  #include <stdlib.h>
-  #include <string.h>
-  #include <inttypes.h>
-  #include "utility/twi1.h"
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+#include "utility/twi1.h"
 }
 
 #include "Wire1.h"
 
 #ifndef DEFAULT_FREQUENCY
-#define DEFAULT_FREQUENCY 100000
+  #define DEFAULT_FREQUENCY 100000
 #endif
 
 // Initialize Class Variables //////////////////////////////////////////////////
 
 uint8_t TwoWire1::rxBuffer[BUFFER_LENGTH];
-uint8_t TwoWire1::rxBufferIndex = 0;      //head
-uint8_t TwoWire1::rxBufferLength = 0;   //tail
+uint8_t TwoWire1::rxBufferIndex = 0;     //head
+uint8_t TwoWire1::rxBufferLength = 0;    //tail
 
 uint8_t TwoWire1::txAddress = 0;
 uint8_t TwoWire1::txBuffer[BUFFER_LENGTH];
-uint8_t TwoWire1::txBufferIndex = 0;      //head
-uint8_t TwoWire1::txBufferLength = 0;   //tail
+uint8_t TwoWire1::txBufferIndex = 0;     //head
+uint8_t TwoWire1::txBufferLength = 0;    //tail
 
 uint8_t TwoWire1::transmitting = 0;
 void (*TwoWire1::user_onRequest)(void);
@@ -58,64 +58,80 @@ TwoWire1::TwoWire1() {
 // Special for megaAVR 0-series: Select which pins to use for I2C interface
 // True if pin specification actually exists
 // Note that we do not currently support the dual TWI mode
+
 bool TwoWire1::pins(uint8_t sda_pin, uint8_t scl_pin) {
   #if defined(PORTMUX_TWIROUTEA)
-    if (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) {
-      // Use pin swap
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3)|0x08;
-      return true;
-    }
-    else if(sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
-      // Use default configuration
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3);
-      return true;
-    }
-    else {
-      // Assume default configuration
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3);
-      return false;
-    }
+  if (sda_pin == PIN_WIRE1_SDA_PINSWAP_2 && scl_pin == PIN_WIRE1_SCL_PINSWAP_2) {
+    // Use pin swap
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3) | 0x08;
+    return true;
+  } else if (sda_pin == PIN_WIRE1_SDA && scl_pin == PIN_WIRE1_SCL) {
+    // Use default configuration
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3);
+    return true;
+  } else {
+    // Assume default configuration
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3);
+    return false;
+  }
   #endif
   return false;
 }
 
 bool TwoWire1::swap(uint8_t state) {
   #if defined(PORTMUX_TWIROUTEA)
-    if(state == 2) {
-      // Use pin swap
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3)|0x08;
-      return true;
-    }
-    else if(state == 1) {
-      // Use pin swap
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3)|0x04;
-      return true;
-    }
-    else if(state == 0) {
-      // Use default configuration
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3);
-      return true;
-    }
-    else {
-      // Assume default configuration
-      PORTMUX.TWIROUTEA=(PORTMUX.TWIROUTEA&0xF3);
-      return false;
-    }
+  if (state == 2) {
+    // Use pin swap
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3) | 0x08;
+    return true;
+  } else if (state == 1) {
+    // Use pin swap
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3) | 0x04;
+    return true;
+  } else if (state == 0) {
+    // Use default configuration
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3);
+    return true;
+  } else {
+    // Assume default configuration
+    PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xF3);
+    return false;
+  }
   #endif
   return false;
 }
 
-
-void TwoWire1::usePullups(){
-  if ((PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm) == PORTMUX_TWI1_ALT2_gc) {
-    PORTB.PIN2CTRL |= PORT_PULLUPEN_bm;
-    PORTB.PIN3CTRL |= PORT_PULLUPEN_bm;
+void TwoWire1::usePullups() {
+  #ifdef TWI0_DUALCTRL
+  // have to test for something only the Dx-series has, like DUALKMODE
+  // since now there are tinies with that the normal PORTMUX regs.
+  if ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 0x02) {
+    PORTC.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTC.PIN3CTRL |= PORT_PULLUPEN_bm;
   } else {
-    PORTF.PIN2CTRL |= PORT_PULLUPEN_bm;
-    PORTF.PIN3CTRL |= PORT_PULLUPEN_bm;
+    PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTA.PIN3CTRL |= PORT_PULLUPEN_bm;
   }
+  #else // no TWI0_DUALCTRL ->  megaTinyCore
+  #ifdef PORTMUX_TWI0_bm
+  if ((PORTMUX.CTRLB & PORTMUX_TWI0_bm)) {
+    PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
+  } else {
+    PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
+    PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
+  }
+  #else // no PORTMUX_TWI0_bm = no remap option
+  #ifdef __AVR_ATtinyxy2__
+  PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+  PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
+  #else
+  PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
+  PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
+  #endif
+  #endif
+  #endif
 }
-
 
 void TwoWire1::begin(void) {
   rxBufferIndex = 0;
@@ -127,38 +143,38 @@ void TwoWire1::begin(void) {
   TWI1_MasterInit(DEFAULT_FREQUENCY);
 }
 
-void TwoWire1::begin(uint8_t address,bool receive_broadcast,uint8_t second_address) {
+void TwoWire1::begin(uint8_t address, bool receive_broadcast, uint8_t second_address) {
   rxBufferIndex = 0;
   rxBufferLength = 0;
 
   txBufferIndex = 0;
   txBufferLength = 0;
 
-  TWI1_SlaveInit(address,receive_broadcast,second_address);
+  TWI1_SlaveInit(address, receive_broadcast, second_address);
 
   TWI1_attachSlaveTxEvent(onRequestService, txBuffer); // default callback must exist
   TWI1_attachSlaveRxEvent(onReceiveService, rxBuffer, BUFFER_LENGTH); // default callback must exist
 
 }
 
-void TwoWire1::begin(int address,bool receive_broadcast,uint8_t second_address) {
-  begin((uint8_t)address,receive_broadcast,second_address);
+void TwoWire1::begin(int address, bool receive_broadcast, uint8_t second_address) {
+  begin((uint8_t)address, receive_broadcast, second_address);
 }
 
-void TwoWire1::begin(uint8_t address,bool receive_broadcast) {
-  begin(address,receive_broadcast,0);
+void TwoWire1::begin(uint8_t address, bool receive_broadcast) {
+  begin(address, receive_broadcast, 0);
 }
 
-void TwoWire1::begin(int address,bool receive_broadcast) {
-  begin((uint8_t)address,receive_broadcast,0);
+void TwoWire1::begin(int address, bool receive_broadcast) {
+  begin((uint8_t)address, receive_broadcast, 0);
 }
 
 void TwoWire1::begin(uint8_t address) {
-  begin(address,0,0);
+  begin(address, 0, 0);
 }
 
 void TwoWire1::begin(int address) {
-  begin((uint8_t)address,0,0);
+  begin((uint8_t)address, 0, 0);
 }
 void TwoWire1::end(void) {
   TWI1_Disable();
@@ -169,7 +185,7 @@ void TwoWire1::setClock(uint32_t clock) {
 }
 
 uint8_t TwoWire1::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
-  if(quantity > BUFFER_LENGTH){
+  if (quantity > BUFFER_LENGTH) {
     quantity = BUFFER_LENGTH;
   }
 
@@ -254,7 +270,7 @@ uint8_t TwoWire1::endTransmission(void) {
 // or after beginTransmission(address)
 size_t TwoWire1::write(uint8_t data) {
   /* Check if buffer is full */
-  if(txBufferLength >= BUFFER_LENGTH){
+  if (txBufferLength >= BUFFER_LENGTH) {
     setWriteError();
     return 0;
   }
@@ -274,7 +290,7 @@ size_t TwoWire1::write(uint8_t data) {
 // or after beginTransmission(address)
 size_t TwoWire1::write(const uint8_t *data, size_t quantity) {
 
-  for(size_t i = 0; i < quantity; i++){
+  for (size_t i = 0; i < quantity; i++) {
     write(*(data + i));
   }
 
@@ -296,7 +312,7 @@ int TwoWire1::read(void) {
   int value = -1;
 
   // get each successive byte on each call
-  if(rxBufferIndex < rxBufferLength){
+  if (rxBufferIndex < rxBufferLength) {
     value = rxBuffer[rxBufferIndex];
     rxBufferIndex++;
   }
@@ -310,7 +326,7 @@ int TwoWire1::read(void) {
 int TwoWire1::peek(void) {
   int value = -1;
 
-  if(rxBufferIndex < rxBufferLength){
+  if (rxBufferIndex < rxBufferLength) {
     value = rxBuffer[rxBufferIndex];
   }
 
@@ -320,32 +336,32 @@ int TwoWire1::peek(void) {
 // can be used to get out of an error state in TWI module
 // e.g. when MDATA register is written before MADDR
 void TwoWire1::flush(void) {
-//  /* Clear buffers */
-//  for(uint8_t i = 0; i < BUFFER_LENGTH; i++){
-//    txBuffer[i] = 0;
-//    rxBuffer[i] = 0;
-//  }
-//
-//  /* Clear buffer variables */
-//  txBufferIndex = 0;
-//  txBufferLength = 0;
-//  rxBufferIndex = 0;
-//  rxBufferLength = 0;
-//
-//  /* Turn off and on TWI module */
-//  TWI_Flush();
+  //  /* Clear buffers */
+  //  for(uint8_t i = 0; i < BUFFER_LENGTH; i++){
+  //    txBuffer[i] = 0;
+  //    rxBuffer[i] = 0;
+  //  }
+  //
+  //  /* Clear buffer variables */
+  //  txBufferIndex = 0;
+  //  txBufferLength = 0;
+  //  rxBufferIndex = 0;
+  //  rxBufferLength = 0;
+  //
+  //  /* Turn off and on TWI module */
+  //  TWI1_Flush();
 }
 
 // behind the scenes function that is called when data is received
 void TwoWire1::onReceiveService(int numBytes) {
   // don't bother if user hasn't registered a callback
-  if(!user_onReceive){
+  if (!user_onReceive) {
     return;
   }
   // don't bother if rx buffer is in use by a master requestFrom() op
   // i know this drops data, but it allows for slight stupidity
   // meaning, they may not have read all the master requestFrom() data yet
-  if(rxBufferIndex < rxBufferLength){
+  if (rxBufferIndex < rxBufferLength) {
     return;
   }
 
@@ -360,7 +376,7 @@ void TwoWire1::onReceiveService(int numBytes) {
 // behind the scenes function that is called when data is requested
 uint8_t TwoWire1::onRequestService(void) {
   // don't bother if user hasn't registered a callback
-  if(!user_onRequest){
+  if (!user_onRequest) {
     return 0;
   }
 
@@ -375,12 +391,12 @@ uint8_t TwoWire1::onRequestService(void) {
 }
 
 // sets function called on slave write
-void TwoWire1::onReceive( void (*function)(int) ) {
+void TwoWire1::onReceive(void (*function)(int)) {
   user_onReceive = function;
 }
 
 // sets function called on slave read
-void TwoWire1::onRequest( void (*function)(void) ) {
+void TwoWire1::onRequest(void (*function)(void)) {
   user_onRequest = function;
 }
 

@@ -1,5 +1,5 @@
 /*
-  TwoWire.h - TWI/I2C library for Arduino & Wiring
+  TwoWire1.h - TWI/I2C library for Arduino & Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -25,20 +25,20 @@
 #include <Arduino.h>
 
 #ifndef BUFFER_LENGTH
-#if ((RAMEND - RAMSTART) < 1023)
-#define BUFFER_LENGTH 16
-#elif ((RAMEND - RAMSTART) < 4095)
-#define BUFFER_LENGTH 32
-#elif ((RAMEND - RAMSTART) < 8191)
-#define BUFFER_LENGTH 64
-#else
-#define BUFFER_LENGTH 128
-#endif
+  #if ((RAMEND - RAMSTART)    < 1023)
+    #define BUFFER_LENGTH 16
+  #elif ((RAMEND - RAMSTART)  < 4095)
+    #define BUFFER_LENGTH 32
+  #elif ((RAMEND - RAMSTART)  < 8191)
+    #define BUFFER_LENGTH 64
+  #else
+    #define BUFFER_LENGTH 128
+  #endif
 #endif
 
 // WIRE_HAS_END means Wire has end()
 #ifndef WIRE_HAS_END
-#define WIRE_HAS_END 1
+  #define WIRE_HAS_END 1
 #endif
 class TwoWire1 : public Stream {
   private:
@@ -64,10 +64,10 @@ class TwoWire1 : public Stream {
     void begin();
     void begin(uint8_t);
     void begin(int);
-    void begin(uint8_t,bool,uint8_t);
-    void begin(int,bool,uint8_t);
-    void begin(uint8_t,bool);
-    void begin(int,bool);
+    void begin(uint8_t, bool, uint8_t);
+    void begin(int, bool, uint8_t);
+    void begin(uint8_t, bool);
+    void begin(int, bool);
     void end();
     void setClock(uint32_t);
     void beginTransmission(uint8_t);
@@ -86,13 +86,21 @@ class TwoWire1 : public Stream {
     virtual int read(void);
     virtual int peek(void);
     virtual void flush(void);
-    void onReceive( void (*)(int) );
-    void onRequest( void (*)(void) );
+    void onReceive(void (*)(int));
+    void onRequest(void (*)(void));
 
-    inline size_t write(unsigned long n) { return write((uint8_t)n); }
-    inline size_t write(long n) { return write((uint8_t)n); }
-    inline size_t write(unsigned int n) { return write((uint8_t)n); }
-    inline size_t write(int n) { return write((uint8_t)n); }
+    inline size_t write(unsigned long n) {
+      return write((uint8_t)n);
+    }
+    inline size_t write(long n) {
+      return write((uint8_t)n);
+    }
+    inline size_t write(unsigned int n) {
+      return write((uint8_t)n);
+    }
+    inline size_t write(int n) {
+      return write((uint8_t)n);
+    }
     using Print::write;
 };
 
