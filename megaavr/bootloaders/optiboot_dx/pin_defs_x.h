@@ -591,25 +591,25 @@
     defined(__AVR_ATtiny412__) || defined(__AVR_ATtiny212__)
 /* *INDENT-ON* */
 #define MYPMUX_REG PORTMUX.CTRLB
-  #if (UARTTX == A6)
-    #define UART_NAME "A6"
-    #ifndef USART0
-      #error Pin on USART0, but no USART0 exists
-    #endif
-    #define MYUART USART0
-    #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT6)
-    #define MYUART_PMUX_VAL 0
-  #elif (UARTTX == A1)
-    #define UART_NAME "A1"
-    #ifndef USART0
-      #error Pin on USART0, but no USART0 exists
-    #endif
-    #define MYUART USART0
-    #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT1)
-    #define MYUART_PMUX_VAL (USART_ALTPMUX)
+#if (UARTTX == A6)
+  #define UART_NAME "A6"
+  #ifndef USART0
+    #error Pin on USART0, but no USART0 exists
   #endif
+  #define MYUART USART0
+  #define MYUART_TXPORT VPORTA
+  #define MYUART_TXPIN (1<<PORT6)
+  #define MYUART_PMUX_VAL 0
+#elif (UARTTX == A1)
+  #define UART_NAME "A1"
+  #ifndef USART0
+    #error Pin on USART0, but no USART0 exists
+  #endif
+  #define MYUART USART0
+  #define MYUART_TXPORT VPORTA
+  #define MYUART_TXPIN (1<<PORT1)
+  #define MYUART_PMUX_VAL (USART_ALTPMUX)
+#endif
 #endif // Tiny402/etc
 
 /*
@@ -627,25 +627,25 @@
     defined(__AVR_ATtiny1607__) || defined(__AVR_ATtiny817__)
 #define MYPMUX_REG PORTMUX.CTRLB
 /* *INDENT-ON* */
-  #if (UARTTX == B2)
-    #define UART_NAME "B2"
-    #ifndef USART0
-      #error Pin on USART0, but no USART0 exists
-    #endif
-    #define MYUART USART0
-    #define MYUART_TXPORT VPORTB
-    #define MYUART_TXPIN (1<<PORT2)
-    #define MYUART_PMUX_VAL 0
-  #elif (UARTTX == A1)
-    #define UART_NAME "A1"
-    #ifndef USART0
-      #error Pin on USART0, but no USART0 exists
-    #endif
-    #define MYUART USART0
-    #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT1)
-    #define MYUART_PMUX_VAL (USART_ALTPMUX)
+#if (UARTTX == B2)
+  #define UART_NAME "B2"
+  #ifndef USART0
+    #error Pin on USART0, but no USART0 exists
   #endif
+  #define MYUART USART0
+  #define MYUART_TXPORT VPORTB
+  #define MYUART_TXPIN (1<<PORT2)
+  #define MYUART_PMUX_VAL 0
+#elif (UARTTX == A1)
+  #define UART_NAME "A1"
+  #ifndef USART0
+    #error Pin on USART0, but no USART0 exists
+  #endif
+  #define MYUART USART0
+  #define MYUART_TXPORT VPORTA
+  #define MYUART_TXPIN (1<<PORT1)
+  #define MYUART_PMUX_VAL (USART_ALTPMUX)
+#endif
 #endif
 
 #ifndef MYUART
