@@ -21,7 +21,7 @@
  */
 
 #if defined(MILLIS_USE_TIMERA0)
-#error "This sketch takes over TCA0, don't use for millis here."
+  #error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
 
@@ -49,9 +49,9 @@ void loop() { //Lets generate some output just to prove it works
       pass = 1;
       duty = 199;
       TCA0.SINGLE.PER = 199;
-    } else if (pass==1) {
+    } else if (pass == 1) {
       //and now the requested 62 kHz (actually 62.11kHz)
-      pass=2;
+      pass = 2;
       duty = 322;
       TCA0.SINGLE.PER = 322;
     } else { // and back to the beginning.

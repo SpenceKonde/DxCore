@@ -9,7 +9,7 @@
 
 
 #if defined(MILLIS_USE_TIMERA0)
-#error "This sketch takes over TCA0, don't use for millis here."
+  #error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
 uint8_t OutputPin = PIN_PC1;
@@ -36,7 +36,7 @@ void loop() {
   PWMDemo(13);      // 13Hz
 }
 
-void PWMDemo(unsigned long frequency){
+void PWMDemo(unsigned long frequency) {
   setFrequency(frequency);
   setDutyCycle(64);   // ~25%
   delay(4000);

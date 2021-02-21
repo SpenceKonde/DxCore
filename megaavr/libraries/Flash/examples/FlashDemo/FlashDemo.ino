@@ -14,8 +14,8 @@ void setup() {
   // Blink the LED for good measure too - pin PA7 (pin 7) except
   // on 14-pin DD-series, where it's PD7 (Pin 8)
   #if defined(SWAP_SERIAL)
-    // That can be defined to swap serial pins.
-    Serial.swap(1);
+  // That can be defined to swap serial pins.
+  Serial.swap(1);
   #endif
   Serial.begin(115200);
   // Give the user a chance to connect to the serial port
@@ -61,7 +61,7 @@ void Demo() {
   Serial.print(F("10-byte long array starting at base + 0x20: "));
   Serial.println(Flash.writeBytes(BASE_ADDRESS + 0x20, testArray3, 10));
   Serial.print(F("15-byte long character array at base + 0x40: "));
-  Serial.println(Flash.writeBytes(BASE_ADDRESS + 0x40, (uint8_t*)testArray2, 15));
+  Serial.println(Flash.writeBytes(BASE_ADDRESS + 0x40, (uint8_t *)testArray2, 15));
   Serial.println(F("After writing, flash looks like"));
   readHalfPage(BASE_ADDRESS);
   Serial.println(F("Read back the words we wrote at base + 12: "));
@@ -69,13 +69,13 @@ void Demo() {
   Serial.println(Flash.readWord(BASE_ADDRESS + 14), HEX);
   Serial.println(Flash.readWord(BASE_ADDRESS + 16), HEX);
   Serial.println(F("Get a pointer to that string, cast it to char*, and print it"));
-  uint8_t* ptr = Flash.mappedPointer(BASE_ADDRESS + 0x40);
+  uint8_t *ptr = Flash.mappedPointer(BASE_ADDRESS + 0x40);
   if (ptr != NULL) {
-    Serial.println((char*)ptr);
+    Serial.println((char *)ptr);
     Serial.print(F("No check for addresses being erased - write 0x2F to base + 0x43: "));
     Serial.println(Flash.writeByte(BASE_ADDRESS + 0x43, 0x18));
     Serial.println(F("And the string is now mangled:"));
-    Serial.println((char*)ptr);
+    Serial.println((char *)ptr);
   }
 }
 

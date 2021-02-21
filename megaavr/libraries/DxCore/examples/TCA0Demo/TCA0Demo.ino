@@ -6,7 +6,7 @@
  */
 
 #if defined(MILLIS_USE_TIMERA0)
-#error "This sketch takes over TCA0, don't use for millis here."
+  #error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
 unsigned int DutyCycle = 0;
