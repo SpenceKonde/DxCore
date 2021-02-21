@@ -31,7 +31,7 @@ void setup() {
   delay(1000);
   Serial.print("REVID: ");
   #ifdef SIGROW_SERNUM15 //AVR Dx-series= - different format
-  char major=0x40+(SYSCFG.REVID >> 4);
+  char major = 0x40 + (SYSCFG.REVID >> 4);
   Serial.print(major);
   Serial.println(SYSCFG.REVID & 0x0F);
   #else
@@ -40,7 +40,7 @@ void setup() {
   Serial.print("S/N: ");
   volatile uint8_t *mptr = &SIGROW_SERNUM0;
   showHex(*mptr++);
-  for (byte i = 0; i < 15; i++){
+  for (byte i = 0; i < 15; i++) {
     Serial.print(':');
     showHex(*mptr++);
   }
@@ -48,14 +48,14 @@ void setup() {
   Serial.print("FUSES: ");
   mptr = FUSES_START;
   showHex(*mptr++);
-  for (byte i = 1; i < 9; i++){
+  for (byte i = 1; i < 9; i++) {
     Serial.print(':');
     showHex(*mptr++);
   }
   Serial.println();
 }
 
-void showHex (const byte b) {
+void showHex(const byte b) {
   char x = (b >> 4) | '0';
   if (x > '9') {
     x += 7;

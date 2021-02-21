@@ -30,6 +30,7 @@
   #error target does not have an analog comparator!
 #endif
 
+//*INDENT-OFF* formatting checker doesn't like all the indentation...
 
 AnalogComparator::AnalogComparator(
                                    const uint8_t comp_number,
@@ -51,23 +52,28 @@ AnalogComparator::AnalogComparator(
                                      IN0_N(in0_n),
                                      IN1_N(in1_n),
                                      IN2_N(in2_n) { }
+//*INDENT-ON*
 
 void AnalogComparator::init() {
   // Set voltage reference
-  if(reference != ref::disable)
+  if (reference != ref::disable) {
     VREF.ACREF = VREF_ALWAYSON_bm | reference;
-  else
+  } else {
     VREF.ACREF &= ~VREF_ALWAYSON_bm;
+  }
   // Spence 1/21: We have 3 ACs sharing one voltage reference.
   // I adapted it to reach out and set the other objects reference property
   // to match when you call init()... not sure if this is ideal,
   // but it seems weird to have to specify it every time you turn one on...
-  if (comparator_number != 0)
+  if (comparator_number != 0) {
     Comparator0.reference = reference;
-  if (comparator_number != 1)
+  }
+  if (comparator_number != 1) {
     Comparator1.reference = reference;
-  if (comparator_number != 2)
+  }
+  if (comparator_number != 2) {
     Comparator2.reference = reference;
+  }
   // Set DACREF
   AC.DACREF = dacref;
 
@@ -75,43 +81,43 @@ void AnalogComparator::init() {
   AC.CTRLA = (AC.CTRLA & ~AC_HYSMODE_gm) | hysteresis;
 
   // Set inputs
-  if(input_p == in_p::in0)
+  if (input_p == in_p::in0) {
     IN0_P = PORT_ISC_INPUT_DISABLE_gc;
-  else if(input_p == in_p::in1)
+  } else if (input_p == in_p::in1) {
     IN1_P = PORT_ISC_INPUT_DISABLE_gc;
-  else if(input_p == in_p::in2)
+  } else if (input_p == in_p::in2) {
     IN2_P = PORT_ISC_INPUT_DISABLE_gc;
-  else if(input_p == in_p::in3)
+  } else if (input_p == in_p::in3) {
     IN3_P = PORT_ISC_INPUT_DISABLE_gc;
-  if(input_n == in_n::in0)
+  }
+  if (input_n == in_n::in0) {
     IN0_N = PORT_ISC_INPUT_DISABLE_gc;
-  else if(input_n == in_n::in1)
+  } else if (input_n == in_n::in1) {
     IN1_N = PORT_ISC_INPUT_DISABLE_gc;
-  else if(input_n == in_n::in2)
+  } else if (input_n == in_n::in2) {
     IN2_N = PORT_ISC_INPUT_DISABLE_gc;
+  }
   AC.MUXCTRL = output_initval | (AC.MUXCTRL & ~0x3f) | (input_p << 3) | input_n;
 
   // Prepare for output pin swap
-  PORT_t& output_port = PORTA;
+  PORT_t &output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
-  if(output_swap == out::pin_swap) {
+  if (output_swap == out::pin_swap) {
     output_port = PORTC;
     pin_number = PIN6_bm;
     PORTMUX.ACROUTEA = ~(1 << comparator_number) | output_swap;
   }
 
   // Set output
-  if(output == out::enable) {
+  if (output == out::enable) {
     AC.MUXCTRL &= ~out::invert;
     AC.CTRLA |= out::enable;
     output_port.DIRSET = pin_number;
-  }
-  else if(output == out::invert) {
+  } else if (output == out::invert) {
     AC.MUXCTRL |= out::invert;
     AC.CTRLA |= out::enable;
     output_port.DIRSET = pin_number;
-  }
-  else if(output == out::disable) {
+  } else if (output == out::disable) {
     AC.MUXCTRL &= ~out::invert;
     AC.CTRLA &= ~out::enable;
     //output_port.DIRCLR = pin_number;
@@ -119,10 +125,11 @@ void AnalogComparator::init() {
 }
 
 void AnalogComparator::start(bool state) {
-  if(state)
+  if (state) {
     AC.CTRLA |= AC_ENABLE_bm;
-  else
+  } else {
     AC.CTRLA &= ~AC_ENABLE_bm;
+  }
 }
 
 void AnalogComparator::stop() {
