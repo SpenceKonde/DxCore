@@ -38,6 +38,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * takeOverTCA0, takeOverTCA1, and takeOverTCD0 added.
 * Add a bunch of TCAn portmux helpers to DxCore.h. Adapt variant files to remove type A timers from the digital_pin_to_timer table, and otherwise account for these changes.
 * Add in the Opamp library - Thanks @MCUdude!
+* Adapt Flash.h to support writing to the application section *without* the bootloader in use. (Restrictions apply, offer void where prohibited by  
 
 ### 1.3.0
 #### New Features
