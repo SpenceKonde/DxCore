@@ -23,6 +23,8 @@
   #error "You must also enable writing to flash from app in tools menu."
 #endif
 
+#ifdef SPMCOMMAND // this way, if we can't write to flash, hopefully, it will make fewer errors so they'll see the real ones!
+
 /* My go-to NVMCTRL.CTRLA write function - check status only at start
  * always set to 0 first - and then if asked to set it elsewhere, then
  * do so. Undecided about whether to have these functions clear it.
@@ -120,7 +122,7 @@ uint8_t FlashClass::checkWritable() {
  */
 
 uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
-  #if SPM_FROM_APP==-1
+  #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
     if ((FUSE.BOOTSIZE != 0x01)) {
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
@@ -196,7 +198,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
 }
 
 uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
-  #if SPM_FROM_APP == -1
+  #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
     if ((FUSE.BOOTSIZE != 0x01)) {
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
@@ -245,7 +247,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
 
 
 uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
-  #if SPM_FROM_APP == -1
+  #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
     if ((FUSE.BOOTSIZE != 0x01)) {
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
@@ -306,7 +308,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   if (length == 0) {
     return FLASHWRITE_0LENGTH;
   }
-  #if SPM_FROM_APP==-1
+  #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
     if ((FUSE.BOOTSIZE != 0x01)) {
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
@@ -463,3 +465,4 @@ uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
 }
 
 FlashClass Flash;
+#endif // end of the ifdef SPMCOMMAND to de-clutter errpr messages.

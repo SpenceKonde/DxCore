@@ -19,7 +19,7 @@ class FlashClass {
     uint8_t writeBytes(const uint32_t address, const uint8_t*  data,  uint16_t length);
     uint8_t   readByte(const uint32_t address);
     uint16_t  readWord(const uint32_t address);
-
+    uint32_t flashAddress(uint8_t* mappedPtr);
     uint8_t* mappedPointer(const uint32_t address);
     /*
     // would this be better? I think maybe it would?
@@ -32,7 +32,6 @@ class FlashClass {
       // juat syntactic
       return (uint16_t*) mappedPointer(address);
     }
-    uint32_t flashAddress(uint8_t* mappedPtr);
     */
 };
 
