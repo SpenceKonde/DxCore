@@ -106,14 +106,16 @@
 /**********************************************************/
 
 /**********************************************************/
-/* Edit History:                                */
-/*                                            */
+/* Edit History:                                          */
+/*                                                        */
 /* Aug 2020                                               */
 /*     Adapted to Dx-series -Spence Konde                 */
-/* Aug 2019                                      */
+/* Aug 2019                                               */
 /* 9.0 Refactored for Mega0/Xtiny from optiboot.c         */
 /*   :                                                    */
-/* 4.1 WestfW: put version number in binary.             */
+/* 4.1 WestfW: put version number in binary.              */
+/**********************************************************/
+/* *INDENT-OFF* - astyle hates optiboot                   */
 /**********************************************************/
 
 #define OPTIBOOT_MAJVER 9

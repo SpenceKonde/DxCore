@@ -586,8 +586,10 @@
 /*
  * 8pin Tiny0 and Tiny1
  */
+/* *INDENT-OFF* */
 #if defined(__AVR_ATtiny402__) || defined(__AVR_ATtiny202__) || \
     defined(__AVR_ATtiny412__) || defined(__AVR_ATtiny212__)
+/* *INDENT-ON* */
 #define MYPMUX_REG PORTMUX.CTRLB
   #if (UARTTX == A6)
     #define UART_NAME "A6"
@@ -611,18 +613,20 @@
 #endif // Tiny402/etc
 
 /*
- *  14, 20, and 24 pin  Tiny0, Tiny1
+ *       14, 20, and 24 pin  Tiny0, Tiny1
  *   The 14, 20, and 24pin packages all conveniently have the UART on the
  *   same port pins, and the same pinmux structure!
  */
+/* *INDENT-OFF* */
 #if defined(__AVR_ATtiny1614__) || defined(__AVR_ATtiny1604__) || \
-    defined(__AVR_ATtiny814__)  || defined(__AVR_ATtiny804__) ||  \
-    defined(__AVR_ATtiny1606__) || defined(__AVR_ATtiny806__) ||  \
-    defined(__AVR_ATtiny406__) || defined(__AVR_ATtiny3216__) ||  \
-    defined(__AVR_ATtiny816__) || defined(__AVR_ATtiny416__) || \
+    defined(__AVR_ATtiny814__)  || defined(__AVR_ATtiny804__)  || \
+    defined(__AVR_ATtiny1606__) || defined(__AVR_ATtiny806__)  || \
+    defined(__AVR_ATtiny406__)  || defined(__AVR_ATtiny3216__) || \
+    defined(__AVR_ATtiny816__)  || defined(__AVR_ATtiny416__)  || \
     defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__) || \
     defined(__AVR_ATtiny1607__) || defined(__AVR_ATtiny817__)
 #define MYPMUX_REG PORTMUX.CTRLB
+/* *INDENT-ON* */
   #if (UARTTX == B2)
     #define UART_NAME "B2"
     #ifndef USART0

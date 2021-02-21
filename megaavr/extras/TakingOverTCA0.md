@@ -19,7 +19,7 @@ Reconfiguring a timer like this when it is used as the millis timer source will 
 ```
 
 # Examples
-Now for the fun part - example code! What's fun about example code, of course, is that you can steal it 
+Now for the fun part - example code! What's so much fun about example code? Because you can steal it and re-use it, of course!
 
 A note about the pin numbers - we use the PORT_Pxn notation to refer to pins; when I mention in the comments the pin number, that is an Arduino (logical) pin number, not a physical pin number (generally, this documentation does not refer to physical pin numbers except on the pinout charts).
 

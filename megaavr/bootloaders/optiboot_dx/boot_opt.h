@@ -27,7 +27,7 @@ asm(".macro __wr_spmcsr p, v \n\t"
 #if defined(__SPM_REG)
 
 #define __boot_page_fill_short(address, data)    \
-(__extension__({                                 \
+  (__extension__({                                 \
     __asm__ __volatile__                         \
     (                                            \
         "movw  r0, %3\n\t"                       \
@@ -41,10 +41,10 @@ asm(".macro __wr_spmcsr p, v \n\t"
           "r" ((uint16_t)data)                   \
         : "r0"                                   \
     );                                           \
-}))
+  }))
 
 #define __boot_page_erase_short(address)         \
-(__extension__({                                 \
+  (__extension__({                                 \
     __asm__ __volatile__                         \
     (                                            \
         "__wr_spmcsr %0, %1\n\t"                 \
@@ -54,10 +54,10 @@ asm(".macro __wr_spmcsr p, v \n\t"
           "r" ((uint8_t)__BOOT_PAGE_ERASE),      \
           "z" ((uint16_t)address)                \
     );                                           \
-}))
+  }))
 
 #define __boot_page_write_short(address)         \
-(__extension__({                                 \
+  (__extension__({                                 \
     __asm__ __volatile__                         \
     (                                            \
         "__wr_spmcsr %0, %1\n\t"                 \
@@ -67,10 +67,10 @@ asm(".macro __wr_spmcsr p, v \n\t"
           "r" ((uint8_t)__BOOT_PAGE_WRITE),      \
           "z" ((uint16_t)address)                \
     );                                           \
-}))
+  }))
 
 #define __boot_rww_enable_short()                \
-(__extension__({                                 \
+  (__extension__({                                 \
     __asm__ __volatile__                         \
     (                                            \
         "__wr_spmcsr %0, %1\n\t"                 \
@@ -79,22 +79,22 @@ asm(".macro __wr_spmcsr p, v \n\t"
         : "i" (_SFR_MEM_ADDR(__SPM_REG)),         \
           "r" ((uint8_t)__BOOT_RWW_ENABLE)       \
     );                                           \
-}))
+  }))
 
 #endif // __SPM_REG
 
 #ifndef __boot_page_erase_short
 
-/*
- * if __SPM_REG didn't get defined by now, but we didn't exit it means
- * we have some sort of new-fangled chip that post-dates the version
- * of boot.h that we know about.  In this case, it's possible that the
- * standard boot.h still has workable functions, so we'll alias those.
- */
+  /*
+   * if __SPM_REG didn't get defined by now, but we didn't exit it means
+   * we have some sort of new-fangled chip that post-dates the version
+   * of boot.h that we know about.  In this case, it's possible that the
+   * standard boot.h still has workable functions, so we'll alias those.
+   */
 
-#define __boot_page_fill_short(address, data) boot_page_fill(address, data)
-#define __boot_page_erase_short(address) boot_page_erase(address)
-#define __boot_page_write_short(address) boot_page_write(address)
-#define __boot_rww_enable_short() boot_rww_enable()
+  #define __boot_page_fill_short(address, data) boot_page_fill(address, data)
+  #define __boot_page_erase_short(address) boot_page_erase(address)
+  #define __boot_page_write_short(address) boot_page_write(address)
+  #define __boot_rww_enable_short() boot_rww_enable()
 
 #endif

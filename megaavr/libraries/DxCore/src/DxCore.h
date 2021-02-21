@@ -1,11 +1,11 @@
 #ifndef DXCORE_H
 #include <Arduino.h>
 typedef enum X32K_TYPE {
-  X32K_LOWPWR_START31MS   = ( CLKCTRL_CSUT_1K_gc | CLKCTRL_LPMODE_bm),
+  X32K_LOWPWR_START31MS   = (CLKCTRL_CSUT_1K_gc  | CLKCTRL_LPMODE_bm),
   X32K_LOWPWR_START500MS  = (CLKCTRL_CSUT_16K_gc | CLKCTRL_LPMODE_bm),
   X32K_LOWPWR_START1S     = (CLKCTRL_CSUT_32K_gc | CLKCTRL_LPMODE_bm),
   X32K_LOWPWR_START2S     = (CLKCTRL_CSUT_64K_gc | CLKCTRL_LPMODE_bm),
-  X32K_HIGHPWR_START31MS  = ( CLKCTRL_CSUT_1K_gc),
+  X32K_HIGHPWR_START31MS  = (CLKCTRL_CSUT_1K_gc),
   X32K_HIGHPWR_START500MS = (CLKCTRL_CSUT_16K_gc),
   X32K_HIGHPWR_START1S    = (CLKCTRL_CSUT_32K_gc),
   X32K_HIGHPWR_START2S    = (CLKCTRL_CSUT_64K_gc),
@@ -51,7 +51,7 @@ void disableXOSC32K() {
 
 uint8_t enableAutoTune() {
   if ((CLKCTRL.MCLKCTRLA & 0x0F) != 0) {
-     return 0xFF;
+    return 0xFF;
   }
   if (CLKCTRL.XOSC32KCTRLA & 0x01) {
     _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, X32K_HIGHPWR_START1S | X32K_ENABLED);
@@ -97,7 +97,7 @@ bool setTCA0MuxByPort(uint8_t port) {
 }
 
 bool setTCA0MuxByPin(uint8_t pin) {
-  if (digitalPinToBitPosition(pin) < 6){
+  if (digitalPinToBitPosition(pin) < 6) {
     return setTCA0MuxByPort(digitalPinToPort(pin));
   }
   return false;
@@ -122,7 +122,7 @@ bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
   TCA1.SPLIT.CTRLB = 0; //disconnect all PWM channels
   uint8_t base_pin = digitalPortToPin0(port);
   uint8_t max_pin = min(NUM_DIGITAL_PINS, digitalPortToPin0(port + 1)) - 1;
-  for (byte i = base_pin; i < max_pin;i++) {
+  for (byte i = base_pin; i < max_pin; i++) {
     turnOffPWM(i);
   }
   PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | ((port << 2) & PORTMUX_TCA1_gm);
@@ -133,10 +133,10 @@ bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
   uint8_t port = digitalPinToPort(pin);
   uint8_t bit_mask = digitalPinToBitMask(pin);
   #if defined(DB_64_PINS)
-    // AVR128DB, AVR64DB work with the high MUX options
-    if (((port == 1 || port == 6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+  // AVR128DB, AVR64DB work with the high MUX options
+  if (((port == 1 || port == 6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
   #else  // AVR128DA64 definitely do not work. AVR64DA64 untested.
-    if (((port == 1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+  if (((port == 1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
   #endif // And those are the only 4 parts in the product line for which those pins exist.
     // PORTB and PORTG have full-service TCA1 (well, not PG on the 128DA63 up to at least the A8 die
     // rev). for those, bit_mask will be 0x01, 0x02, 0x04, 0x08, 0x10, or 0x20 - but not 0x40 or
@@ -166,7 +166,7 @@ bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
 }
 
 bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
-  if (digitalPinToBitPosition(pin) & 0xF0){
+  if (digitalPinToBitPosition(pin) & 0xF0) {
     return setTCD0MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
   }
   return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since

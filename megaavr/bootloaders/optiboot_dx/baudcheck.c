@@ -21,21 +21,21 @@
  * First strip any trailing "L" from the defined constants.  To do this
  * we need to make the constants into shell variables first.
  */
-bpsx=BAUD_RATE
-bps=${bpsx/L/}
-bps=${bps/U/}
-fcpux=F_CPU
-fcpu=${fcpux/L/}
-fcpu=${fcpu/U/}
+bpsx  = BAUD_RATE
+bps   = ${bpsx/L/}
+bps   = ${bps/U/}
+fcpux = F_CPU
+fcpu  = ${fcpux/L/}
+fcpu  = ${fcpu/U/}
 
 // echo f_cpu = $fcpu, baud = $bps
 /*
  * Compute the divisor
  */
 #ifdef SINGLESPEED
-BAUD_SETTING=$(( ( ($fcpu + $bps * 8) / (($bps * 16))) - 1 ))
+BAUD_SETTING = $(((($fcpu + $bps * 8) / (($bps * 16))) - 1 ))
 #else
-BAUD_SETTING=$(( ( ($fcpu + $bps * 4) / (($bps * 8))) - 1 ))
+BAUD_SETTING = $(((($fcpu + $bps * 4) / (($bps *  8))) - 1 ))
 #endif
 // echo baud setting = $BAUD_SETTING
 
@@ -45,13 +45,13 @@ BAUD_SETTING=$(( ( ($fcpu + $bps * 4) / (($bps * 8))) - 1 ))
  * the tenths part of the error separately.
  */
 #ifdef SINGLESPEED
-BAUD_ACTUAL=$(( ($fcpu/(16 * (($BAUD_SETTING)+1))) ))
+BAUD_ACTUAL = $((($fcpu / (16 * (($BAUD_SETTING) + 1)))))
 #else
-BAUD_ACTUAL=$(( ($fcpu/(8 * (($BAUD_SETTING)+1))) ))
+BAUD_ACTUAL = $((($fcpu / (8  * (($BAUD_SETTING) + 1)))))
 #endif
-BAUD_ERROR=$(( (( 100*($BAUD_ACTUAL - $bps) ) / $bps) ))
-ERR_TS=$(( ((( 1000*($BAUD_ACTUAL - $bps) ) / $bps) - $BAUD_ERROR * 10) ))
-ERR_TENTHS=$(( ERR_TS > 0 ? ERR_TS: -ERR_TS ))
+BAUD_ERROR  =    $((((100 * ($BAUD_ACTUAL - $bps)) / $bps)))
+ERR_TS      =  $(((((1000 * ($BAUD_ACTUAL - $bps)) / $bps) - $BAUD_ERROR * 10)))
+ERR_TENTHS  =  $((ERR_TS > 0 ? ERR_TS: -ERR_TS))
 
 /*
  * Print a nice message containing the info we've calculated
