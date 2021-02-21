@@ -49,7 +49,7 @@ void loop() {
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
-  if (ADC0.SAMPCTRL == 255){
-    while(1);
+  if (ADC0.SAMPCTRL == 255) {
+    while (1);
   }
 }

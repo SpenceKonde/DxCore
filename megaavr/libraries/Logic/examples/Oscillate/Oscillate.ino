@@ -42,18 +42,18 @@
 
 void setup() {
   #if defined(SHOW_TCD_DEMO) && !defined(MEGATINYCORE)
-    /* The demonstration of clocking TCD0 from the output of a Logic block
-     * requires use of the EXT_CLK pin, which is PA0 on those parts, the same as
-     * the non-alternate TX pin for Serial on these parts; the Serial pins must
-     * be swapped in this case.
-     */
-    Serial.swap(1);
+  /* The demonstration of clocking TCD0 from the output of a Logic block
+   * requires use of the EXT_CLK pin, which is PA0 on those parts, the same as
+   * the non-alternate TX pin for Serial on these parts; the Serial pins must
+   * be swapped in this case.
+   */
+  Serial.swap(1);
   #endif
   Serial.begin(115200);
 }
 
 
-void demo1(){
+void demo1() {
   /* Async Demo 1: Just how fast is this "asynchronous" stuff?
    *
    * First, let's do the most obvious case - enable a single input, set it as feedback, and tell the logic block to turn on when the input is LOW and off when input is HIGH. If using a 'scope, monitor the output pin, and turn the bandwidth limit to full, not 20M).
@@ -85,7 +85,7 @@ void demo1(){
   Logic::start();                           // Start the CCL hardware
 }
 
-void demo2(){
+void demo2() {
   /* Async demo 2: Adding a second Logic stage
    *
    * Run it through one of the other Logic blocks...
@@ -128,7 +128,7 @@ void demo2(){
   Logic::start();                           // Start the CCL hardware
 
 }
-void demo3(){
+void demo3() {
   /* Async Demo 3: Using event channel stage
    *
    * Now, we will take an event channel and point it at the CCL0 generator, set CCL0 as the user of that event
@@ -164,7 +164,7 @@ void demo3(){
 }
 
 
-void demo4(){
+void demo4() {
   /* Async demo 4: Using both second logic block and event stages
    *
    * Finally, we do both of those together
@@ -212,7 +212,7 @@ void demo4(){
 
 }
 
-void demo5(){
+void demo5() {
   /* Sync demo 1: The synchronizer delays each edge by 2 system clock cycles
    *
    * Same setup as original demo1 - except we enable the synchronizer which delays each transition by 2-3 clocks
@@ -251,7 +251,7 @@ void demo5(){
   Logic::start();                           // Start the CCL hardware
 }
 
-void demo6(){
+void demo6() {
   /* Sync demo 2: The Filter module adds 4 clock cycles per edge, 8 per cycle
    *
    * Same setup as previous - only filter instead of synchronizer. That takes 2 more clocks.
@@ -286,7 +286,7 @@ void demo6(){
   Logic::start();                           // Start the CCL hardware
 }
 
-void demo7(){
+void demo7() {
   /* Sync demo 3: Passing input through another logic block ADDS it's delay
    *
    * Same idea - only second logic block with a synchronizer user, and linked input.
@@ -328,7 +328,7 @@ void demo7(){
 }
 
 
-void demo8(){
+void demo8() {
   /* Sync demo 4: Using other logic block as clock MULTIPLIES the delays
    *
    * Two logic blocks.
@@ -454,10 +454,10 @@ void demo9a() {
 
   /* TCA0 - Type A timer */
   TCA0.SPLIT.CTRLA &= ~TCA_SPLIT_ENABLE_bm; // disable and reset
-  TCA0.SPLIT.CTRLESET=TCA_SPLIT_CMD_RESET_gc|TCA_SPLIT_CMDEN_BOTH_gc;
+  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | TCA_SPLIT_CMDEN_BOTH_gc;
 
   // Set single-slope PWM mode, on CMP2
-  TCA0.SINGLE.CTRLB=TCA_SINGLE_CMP2EN_bm|TCA_SINGLE_WGMODE_SINGLESLOPE_gc;
+  TCA0.SINGLE.CTRLB = TCA_SINGLE_CMP2EN_bm | TCA_SINGLE_WGMODE_SINGLESLOPE_gc;
 
   // set PORTMUX so that the TCA waveform output appears on PORTA
   PORTMUX.TCAROUTEA = 0;
@@ -630,7 +630,7 @@ void demo9d() {
 
 }
 
-void demo10(){
+void demo10() {
   /* Another route to scaled clocks on event channel: TCD+PLL+CCL
    *
    * The idea of this is straightforward - less "weird" than the other approach, really.
@@ -753,7 +753,7 @@ void loop() {
   pinMode(PIN_PA6, INPUT);
   #endif
 
-  #if defined(TCD0)&&defined(TCB_CLKSEL2_bm)
+  #if defined(TCD0) && defined(TCB_CLKSEL2_bm)
   Serial.println("Clock dividing: TCD+PLL->CCL->Event->TCB0 ");
   demo10();
   delay(10000);

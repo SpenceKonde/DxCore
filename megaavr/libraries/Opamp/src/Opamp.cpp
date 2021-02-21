@@ -94,12 +94,11 @@ void Opamp::start(bool state) {
     OPAMP_CTRLA |= OPAMP_ENABLE_bm;           // Enable opamp hardware
 
     #if defined(OPAMP_OP2CTRLA)
-    while((!Opamp0.status() && (Opamp0.wait_settle == true && Opamp0.enable == enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle == true && Opamp1.enable == enable::enable)) || (!Opamp2.status() && (Opamp2.wait_settle == true && Opamp2.enable == enable::enable)));
+    while ((!Opamp0.status() && (Opamp0.wait_settle == true && Opamp0.enable == enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle == true && Opamp1.enable == enable::enable)) || (!Opamp2.status() && (Opamp2.wait_settle == true && Opamp2.enable == enable::enable)));
     #else
-    while((!Opamp0.status() && (Opamp0.wait_settle == true && Opamp0.enable == enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle == true && Opamp1.enable == enable::enable)));
+    while ((!Opamp0.status() && (Opamp0.wait_settle == true && Opamp0.enable == enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle == true && Opamp1.enable == enable::enable)));
     #endif
-  }
-  else {
+  } else {
     OPAMP_CTRLA &= ~OPAMP_ENABLE_bm; // Disable opamp hardware
   }
 }

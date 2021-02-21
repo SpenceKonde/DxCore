@@ -159,11 +159,11 @@ void TwoWire::usePullups() {
   }
   #else // no PORTMUX_TWI0_bm = no remap option
   #ifdef __AVR_ATtinyxy2__
-    PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
-    PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
+  PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+  PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
   #else
-    PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
-    PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
+  PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
+  PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
   #endif
   #endif
   #endif
