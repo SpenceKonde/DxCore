@@ -16,7 +16,7 @@
  * This software is licensed under version 2 of the Gnu Public Licence.
  * See optiboot.c for details.
  */
-
+// *INDENT-OFF* for astyle...
 /*
  * First strip any trailing "L" from the defined constants.  To do this
  * we need to make the constants into shell variables first.
