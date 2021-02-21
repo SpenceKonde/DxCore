@@ -139,33 +139,33 @@ bool TwoWire::swap(uint8_t state) {
 
 void TwoWire::usePullups() {
   #ifdef TWI0_DUALCTRL
-    // have to test for something only the Dx-series has, like DUALKMODE
-    // since now there are tinies with that the normal PORTMUX regs.
-    if ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 0x02) {
-      PORTC.PIN2CTRL |= PORT_PULLUPEN_bm;
-      PORTC.PIN3CTRL |= PORT_PULLUPEN_bm;
-    } else {
-      PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
-      PORTA.PIN3CTRL |= PORT_PULLUPEN_bm;
-    }
-  #else // megaTinyCore
-    #ifdef PORTMUX_TWI0_bm
-      if ((PORTMUX.CTRLB & PORTMUX_TWI0_bm)) {
-        PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
-        PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
-      } else {
-        PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
-        PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
-      }
-    #else
-      #ifdef __AVR_ATtinyxy2__
-        PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
-        PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
-      #else
-        PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
-        PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
-      #endif
-    #endif
+  // have to test for something only the Dx-series has, like DUALKMODE
+  // since now there are tinies with that the normal PORTMUX regs.
+  if ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 0x02) {
+    PORTC.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTC.PIN3CTRL |= PORT_PULLUPEN_bm;
+  } else {
+    PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTA.PIN3CTRL |= PORT_PULLUPEN_bm;
+  }
+  #else // no TWI0_DUALCTRL ->  megaTinyCore
+  #ifdef PORTMUX_TWI0_bm
+  if ((PORTMUX.CTRLB & PORTMUX_TWI0_bm)) {
+    PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
+  } else {
+    PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
+    PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
+  }
+  #else // no PORTMUX_TWI0_bm = no remap option
+  #ifdef __AVR_ATtinyxy2__
+    PORTA.PIN2CTRL |= PORT_PULLUPEN_bm;
+    PORTA.PIN1CTRL |= PORT_PULLUPEN_bm;
+  #else
+    PORTB.PIN1CTRL |= PORT_PULLUPEN_bm;
+    PORTB.PIN0CTRL |= PORT_PULLUPEN_bm;
+  #endif
+  #endif
   #endif
 }
 

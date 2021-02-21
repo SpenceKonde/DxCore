@@ -69,7 +69,7 @@ struct EERef {
 
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
-    *(uint8_t*)(MAPPED_EEPROM_START + index) = in;
+    *(uint8_t *)(MAPPED_EEPROM_START + index) = in;
 
     SREG = oldSREG; //restore SREG and interrupts
 

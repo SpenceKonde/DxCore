@@ -19,9 +19,9 @@ rather odd. Also that it goes all the way to 0 on a LOW, but not all the way to 
 */
 
 void setup() {
-  pinMode(PIN_PD1,OUTPUT);
-  digitalWrite(PIN_PD1,0);
-  ADC0.SAMPCTRL=0xFF;
+  pinMode(PIN_PD1, OUTPUT);
+  digitalWrite(PIN_PD1, 0);
+  ADC0.SAMPCTRL = 0xFF;
   analogReadResolution(12);
   Serial.begin(1000000);
   delay(1000);
@@ -30,7 +30,7 @@ void setup() {
 
 void loop() {
   ADC0.SAMPCTRL++;
-  digitalWrite(PIN_PD1,1);
+  digitalWrite(PIN_PD1, 1);
   Serial.print(analogRead(PIN_PD0));
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
@@ -40,7 +40,7 @@ void loop() {
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
   Serial.print(",");
-  digitalWrite(PIN_PD1,0);
+  digitalWrite(PIN_PD1, 0);
   Serial.println(analogRead(PIN_PD0));
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
@@ -49,7 +49,7 @@ void loop() {
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
   analogRead(PIN_PD0);
-  if (ADC0.SAMPCTRL==255){
+  if (ADC0.SAMPCTRL == 255){
     while(1);
   }
 }

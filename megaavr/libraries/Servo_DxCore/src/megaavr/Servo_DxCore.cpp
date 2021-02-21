@@ -100,7 +100,7 @@ void ServoHandler(int timer) {
   /* Clear flag */
   _timer->INTFLAGS = TCB_CAPT_bm;
 }
-
+//*INDENT-OFF*
 #if defined USE_TIMERB0
   ISR(TCB0_INT_vect)
 #elif defined USE_TIMERB1
@@ -138,6 +138,7 @@ static void initISR() {
   // Enable timer
   _timer->CTRLA |= TCB_ENABLE_bm;
 }
+//*INDENT-ON*
 
 static void finISR() {
   // Disable interrupt

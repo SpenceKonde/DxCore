@@ -62,7 +62,7 @@ namespace ref {
 class AnalogComparator {
   public:
     AnalogComparator(const uint8_t comparator_number,
-                     AC_t& ac,
+                     AC_t &ac,
                      register8_t &in0_p,
                      register8_t &in1_p,
                      register8_t &in2_p,
@@ -87,28 +87,28 @@ class AnalogComparator {
 
   private:
     const uint8_t comparator_number;
-    AC_t& AC;
-    register8_t& IN0_P;
-    register8_t& IN1_P;
-    register8_t& IN2_P;
-    register8_t& IN3_P;
-    register8_t& IN0_N;
-    register8_t& IN1_N;
-    register8_t& IN2_N;
+    AC_t &AC;
+    register8_t &IN0_P;
+    register8_t &IN1_P;
+    register8_t &IN2_P;
+    register8_t &IN3_P;
+    register8_t &IN0_N;
+    register8_t &IN1_N;
+    register8_t &IN2_N;
     bool enable = false;
 };
 
 #if defined(AC0_AC_vect)
-extern AnalogComparator Comparator0;
-#define Comparator Comparator0
+  extern AnalogComparator Comparator0;
+  #define Comparator Comparator0
 #endif
 
 #if defined(AC1_AC_vect)
-extern AnalogComparator Comparator1;
+  extern AnalogComparator Comparator1;
 #endif
 
 #if defined(AC2_AC_vect)
-extern AnalogComparator Comparator2;
+  extern AnalogComparator Comparator2;
 #endif
 
 #endif
