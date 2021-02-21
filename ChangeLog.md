@@ -7,7 +7,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ## Released Versions
 
 ### 1.3.2
-* ~Correct critical bug that prevented bootloaders from being installed when using the pyupdi-style serial port and resistor. Would report success, but only fuses were set.~ Critical bug is not fixed.
+* Correct critical bug that prevented bootloaders from being installed when using the pyupdi-style serial port and resistor. Would report success, but only fuses were set. Critical bug is not fixed.
 * Formatting and "make the CI pass" changes
 * Rename optiboot_x.c to optiboot_dx.c, remove references to tinyAVR 0/1/2-series in source code. It is very different, so we shouldn't give it the same name
 * Fix bug with "burn bootloader" for DB-series parts with more than 28 pins.
