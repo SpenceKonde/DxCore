@@ -4,8 +4,9 @@
 | Two_input_OR.ino                                                      |
 |                                                                       |
 | A library for interfacing with the megaAVR Configurable Custom Logic. |
-| Developed in 2019 by MCUdude.                                         |
-| https://github.com/MCUdude/                                           |
+| Developed in 2019 by MCUdude. Example fixed Spence Konde 2021         |
+| This version is part of DxCore for AVR DA, DB, etc. Example works for |
+| megaAVR 0-series and tinyAVR 0/1/2-series as well.                    |
 |                                                                       |
 | In this example we use the configurable logic peripherals the the     |
 | megaAVR to create a 2-input OR gate using logic block 0 on PORT A.    |
@@ -16,17 +17,19 @@
 | Here's how 0xFE turns out to be the correct value to create a 2-input |
 | OR gate:                                                              |
 |                                     2-input OR truth table:           |
-| If we look at the truth table       |PA0|PA1|PA2| Y |                 |
+|                                     |IN2|IN1|IN0| Y |                 |
+| If we look at the truth table       |PA2|PA1|---|OUT|                 |
 | to the right, we can see that       |---|---|---|---|                 |
 | all binary values for Y can         | 0 | 0 | 0 | 0 |                 |
-| be represented as 11111110.         | 0 | 0 | 1 | 1 |                 |
-| If we convert this 8-bit            | 0 | 1 | 0 | 1 |                 |
-| binary number into hex, we          | 0 | 1 | 1 | 1 |                 |
-| get 0xFE.                           | 1 | 0 | 0 | 1 | PA0 is always 0 |
-|                                     | 1 | 0 | 1 | 1 | PA0 is always 0 |
-| In this example the output pin,     | 1 | 1 | 0 | 1 | PA0 is always 0 |
-| PA3 will go high if one of          | 1 | 1 | 1 | 1 | PA0 is always 0 |
-| the input pins are high.                                              |
+| be represented as x1x0x0x0.         | 0 | 0 | 1 | x | IN0 is always 0 |
+| Using a 0 for all don't care bits   | 0 | 1 | 0 | 1 |                 |
+| gives us 0b01010100. But that isn't | 0 | 1 | 1 | x | IN0 is always 0 |
+| a great choice in terms of code     | 1 | 0 | 0 | 1 |                 |
+| readability. Either 0b11111100 or   | 1 | 0 | 1 | x | IN0 is always 0 |
+| 0b11111110 do a more unambiguous    | 1 | 1 | 0 | 1 |                 |
+| job of communicating to the reader  | 1 | 1 | 1 | x | IN0 is always 0 |
+| that anything except a 0 on all inputs                                |
+| that aren't masked will result in a 1 output.                         |
 |***********************************************************************/
 
 #include <Logic.h>

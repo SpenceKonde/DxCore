@@ -4,28 +4,30 @@
 | Two_input_NAND.ino                                                    |
 |                                                                       |
 | A library for interfacing with the megaAVR Configurable Custom Logic. |
-| Developed in 2019 by MCUdude.                                         |
-| https://github.com/MCUdude/                                           |
+| Developed in 2019 by MCUdude. Example fixed Spence Konde 2021         |
+| This version is part of DxCore for AVR DA, DB, etc. Example works for |
+| megaAVR 0-series and tinyAVR 0/1/2-series as well.                    |
 |                                                                       |
 | In this example we use the configurable logic peripherals the the     |
 | megaAVR to create a 2-input NAND gate using logic block 0 on PORT A.  |
 | The example is pretty straight forward, but the truth table value may |
 | be a little difficult to understand at first glance.                  |
-| We will only use PA1 and PA2 as inputs. when the first input is       |
-| disabled it will always be read as 0.                                 ||
-| Here's how 0xF7 turns out to be the correct value to create a 2-input |
-| NAND gate:                                                            |
-|                                     2-input NAND truth table:         |
-| If we look at the truth table       |PA0|PA1|PA2| Y |                 |
+| We will only use PA1 and PA2 as inputs. Thus, bit 0 is always going   |
+| to be 0, so every other bit is a "don't care" bit - input0 will never |
+| be a 1, so that state could never come about, so it doesn't matter    |
+| what the output would be.                                             |
+| NAND gate:                          2-input NAND truth table:         |
+|                                     |IN2|IN1|IN0| Y |                 |
+| If we look at the truth table       |PA2|PA1|---|OUT|                 |
 | to the right, we can see that       |---|---|---|---|                 |
 | all binary values for Y can         | 0 | 0 | 0 | 1 |                 |
-| be represented as 11110111.         | 0 | 0 | 1 | 1 |                 |
-| If we convert this 8-bit            | 0 | 1 | 0 | 1 |                 |
-| binary number into hex, we          | 0 | 1 | 1 | 0 |                 |
-| get 0xF7.                           | 1 | 0 | 0 | 1 | PA0 is always 0 |
-|                                     | 1 | 0 | 1 | 1 | PA0 is always 0 |
-| In this example the output pin,     | 1 | 1 | 0 | 1 | PA0 is always 0 |
-| PA3 will only go low if the         | 1 | 1 | 1 | 1 | PA0 is always 0 |
+| be represented as x0x1x1x1.         | 0 | 0 | 1 | x | IN0 is always 0 |
+| we could use all 1's or all 0's     | 0 | 1 | 0 | 1 |                 |
+| but I think the intent is clearest  | 0 | 1 | 1 | x | IN0 is always 0 |
+| if we use 1's except for the bit    | 1 | 0 | 0 | 1 |                 |
+| next to the real 0, 0b00111111      | 1 | 0 | 1 | x | IN0 is always 0 |
+| or 0x3F.                            | 1 | 1 | 0 | 0 |                 |
+| PA3 will only go low if the         | 1 | 1 | 1 | x | IN0 is always 0 |
 | two input pins are high.                                              |
 |***********************************************************************/
 
@@ -38,10 +40,10 @@ void setup() {
   Logic0.enable = true;               // Enable logic block 0
   Logic0.input1 = in::input_pullup;   // Set PA1 as input with pullup
   Logic0.input2 = in::input_pullup;   // Set PA2 as input with pullup
-//Logic0.output_swap = out::pin_swap; // Uncomment this line to route the output to alternate location, if available.
-  Logic0.output = out::enable;        // Enable logic block 0 output pin  (PA3 (ATmega) or PA5 (ATtiny))
+//Logic0.output_swap = out::pin_swap; // Uncomment this line to route the output to alternate location, PA6
+  Logic0.output = out::enable;        // Enable logic block 0 output pin PA3
   Logic0.filter = filter::disable;    // No output filter enabled
-  Logic0.truth = 0xF7;                // Set truth table
+  Logic0.truth = 0x3F;                // Set truth table
 
   // Initialize logic block 0
   Logic0.init();

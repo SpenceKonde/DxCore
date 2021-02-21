@@ -25,14 +25,14 @@ struct Logic::CCLBlock {
   volatile register8_t &LUTCTRLC;
   volatile register8_t &TRUTH;
 };
-
+//*INDENT-OFF* astyle can't figure out how to not stomp on this
 static const struct Logic::CCLBlock blocks[] = {
-  #if defined(__AVR_ATtiny202__) || defined(__AVR_ATtiny402__) ||  \
-  defined(__AVR_ATtiny204__) || defined(__AVR_ATtiny404__) ||  \
-  defined(__AVR_ATtiny804__) || defined(__AVR_ATtiny1604__) || \
-  defined(__AVR_ATtiny212__) || defined(__AVR_ATtiny412__) ||  \
-  defined(__AVR_ATtiny214__) || defined(__AVR_ATtiny414__) ||  \
-  defined(__AVR_ATtiny814__) || defined(__AVR_ATtiny1614__)
+  #if defined(__AVR_ATtiny202__) || defined(__AVR_ATtiny402__)  ||  \
+      defined(__AVR_ATtiny204__) || defined(__AVR_ATtiny404__)  ||  \
+      defined(__AVR_ATtiny804__) || defined(__AVR_ATtiny1604__) ||  \
+      defined(__AVR_ATtiny212__) || defined(__AVR_ATtiny412__)  ||  \
+      defined(__AVR_ATtiny214__) || defined(__AVR_ATtiny414__)  ||  \
+      defined(__AVR_ATtiny814__) || defined(__AVR_ATtiny1614__)
   {
     0,
     PIN0_bm, PIN1_bm, PIN2_bm, PIN6_bm, 0,
@@ -47,9 +47,9 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_ATtiny406__) || defined(__AVR_ATtiny806__) || \
-  defined(__AVR_ATtiny1606__) ||                              \
-  defined(__AVR_ATtiny416__) || defined(__AVR_ATtiny816__) || \
-  defined(__AVR_ATtiny1616__) || defined(__AVR_ATtiny3216__)
+  defined(__AVR_ATtiny1606__)    ||                               \
+  defined(__AVR_ATtiny416__)     || defined(__AVR_ATtiny816__) || \
+  defined(__AVR_ATtiny1616__)    || defined(__AVR_ATtiny3216__)
   #define PORTMUX_CCL PORTMUX.CTRLA
   #define PORTMUX_ALTOUT_bm (1 << (block.number + 4))
   {
@@ -65,9 +65,9 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL0, CCL.LUT1CTRLA, CCL.LUT1CTRLB, CCL.LUT1CTRLC, CCL.TRUTH1,
   },
   #endif
-  #if defined(__AVR_ATtiny807__) || defined(__AVR_ATtiny1607__) || \
-  defined(__AVR_ATtiny417__) || defined(__AVR_ATtiny817__) ||  \
-  defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__)
+  #if defined(__AVR_ATtiny807__)  || defined(__AVR_ATtiny1607__) || \
+      defined(__AVR_ATtiny417__)  || defined(__AVR_ATtiny817__)  || \
+      defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__)
   #define PORTMUX_CCL PORTMUX.CTRLA
   #define PORTMUX_ALTOUT_bm (1 << (block.number + 4))
   {
@@ -84,7 +84,7 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_ATtiny424__)  || defined(__AVR_ATtiny824__)  ||  \
-  defined(__AVR_ATtiny1624__) || defined(__AVR_ATtiny3224__)
+  defined(__AVR_ATtiny1624__)     || defined(__AVR_ATtiny3224__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -112,8 +112,8 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
   },
   #endif
-  #if defined(__AVR_ATtiny426__) || defined(__AVR_ATtiny826__) || \
-  defined(__AVR_ATtiny1616__) || defined(__AVR_ATtiny3216__)
+  #if defined(__AVR_ATtiny426__)  || defined(__AVR_ATtiny826__) || \
+      defined(__AVR_ATtiny1616__) || defined(__AVR_ATtiny3216__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -141,8 +141,8 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
   },
   #endif
-  #if defined(__AVR_ATtiny427__) || defined(__AVR_ATtiny827__) ||  \
-  defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__)
+  #if defined(__AVR_ATtiny427__)  || defined(__AVR_ATtiny827__) ||  \
+      defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -171,8 +171,8 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_AVR64DD20__)  || defined(__AVR_AVR64DD14__)  ||  \
-  defined(__AVR_AVR32DD20__)  || defined(__AVR_AVR32DD14__)  ||  \
-  defined(__AVR_AVR16DD20__)  || defined(__AVR_AVR16DD14__)
+      defined(__AVR_AVR32DD20__)  || defined(__AVR_AVR32DD14__)  ||  \
+      defined(__AVR_AVR16DD20__)  || defined(__AVR_AVR16DD14__)
 
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
@@ -202,20 +202,20 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_ATmega808__)  || defined(__AVR_ATmega1608__) ||  \
-  defined(__AVR_ATmega3208__) || defined(__AVR_ATmega4808__) ||  \
-  defined(__AVR_AVR128DA32__) || defined(__AVR_AVR128DA28__) ||  \
-  defined(__AVR_AVR64DA32__)  || defined(__AVR_AVR64DA28__)  ||  \
-  defined(__AVR_AVR32DA32__)  || defined(__AVR_AVR32DA28__)  ||  \
-  defined(__AVR_AVR128DB32__) || defined(__AVR_AVR128DB28__) ||  \
-  defined(__AVR_AVR64DB32__)  || defined(__AVR_AVR64DB28__)  ||  \
-  defined(__AVR_AVR32DB32__)  || defined(__AVR_AVR32DB28__)  ||  \
-  defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR64DD28__)  ||  \
-  defined(__AVR_AVR32DD32__)  || defined(__AVR_AVR32DD28__)  ||  \
-  defined(__AVR_AVR16DD32__)  || defined(__AVR_AVR16DD28__)  ||  \
-  defined(__AVR_AVR64EA32__)  || defined(__AVR_AVR64EA28__)  ||  \
-  defined(__AVR_AVR32EA32__)  || defined(__AVR_AVR32EA28__)  ||  \
-  defined(__AVR_AVR16EA32__)  || defined(__AVR_AVR16EA28__)  ||  \
-  defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR8EA28__)
+      defined(__AVR_ATmega3208__) || defined(__AVR_ATmega4808__) ||  \
+      defined(__AVR_AVR128DA32__) || defined(__AVR_AVR128DA28__) ||  \
+      defined(__AVR_AVR64DA32__)  || defined(__AVR_AVR64DA28__)  ||  \
+      defined(__AVR_AVR32DA32__)  || defined(__AVR_AVR32DA28__)  ||  \
+      defined(__AVR_AVR128DB32__) || defined(__AVR_AVR128DB28__) ||  \
+      defined(__AVR_AVR64DB32__)  || defined(__AVR_AVR64DB28__)  ||  \
+      defined(__AVR_AVR32DB32__)  || defined(__AVR_AVR32DB28__)  ||  \
+      defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR64DD28__)  ||  \
+      defined(__AVR_AVR32DD32__)  || defined(__AVR_AVR32DD28__)  ||  \
+      defined(__AVR_AVR16DD32__)  || defined(__AVR_AVR16DD28__)  ||  \
+      defined(__AVR_AVR64EA32__)  || defined(__AVR_AVR64EA28__)  ||  \
+      defined(__AVR_AVR32EA32__)  || defined(__AVR_AVR32EA28__)  ||  \
+      defined(__AVR_AVR16EA32__)  || defined(__AVR_AVR16EA28__)  ||  \
+defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR8EA28__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -231,11 +231,11 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL0, CCL.LUT1CTRLA, CCL.LUT1CTRLB, CCL.LUT1CTRLC, CCL.TRUTH1,
   },
   #if defined(__AVR_AVR128DB32__) || defined(__AVR_AVR128DB28__) ||  \
-  defined(__AVR_AVR64DB32__)  || defined(__AVR_AVR64DB28__)  ||  \
-  defined(__AVR_AVR32DB32__)  || defined(__AVR_AVR32DB28__)  ||  \
-  defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR64DD28__)  ||  \
-  defined(__AVR_AVR32DD32__)  || defined(__AVR_AVR32DD28__)  ||  \
-  defined(__AVR_AVR16DD32__)  || defined(__AVR_AVR16DD28__)
+      defined(__AVR_AVR64DB32__)  || defined(__AVR_AVR64DB28__)  ||  \
+      defined(__AVR_AVR32DB32__)  || defined(__AVR_AVR32DB28__)  ||  \
+      defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR64DD28__)  ||  \
+      defined(__AVR_AVR32DD32__)  || defined(__AVR_AVR32DD28__)  ||  \
+      defined(__AVR_AVR16DD32__)  || defined(__AVR_AVR16DD28__)
   // These have no PD0, because it was sacrificed for VDDIO2
   {
     2,
@@ -252,10 +252,10 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_AVR128DA28__)|| defined(__AVR_AVR64DA28__) || \
-  defined(__AVR_AVR32DA28__) || defined(__AVR_AVR64EA28__) || \
-  defined(__AVR_AVR32EA28__) || defined(__AVR_AVR16EA28__) || \
-  defined(__AVR_AVR8EA28__)  || defined(__AVR_AVR64DD28__) || \
-  defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
+      defined(__AVR_AVR32DA28__) || defined(__AVR_AVR64EA28__) || \
+      defined(__AVR_AVR32EA28__) || defined(__AVR_AVR16EA28__) || \
+      defined(__AVR_AVR8EA28__)  || defined(__AVR_AVR64DD28__) || \
+      defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
   // only has PF0, PF1, and even if RESET set GPIO, is input only
   {
     3,
@@ -264,10 +264,10 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
   },
   #elif defined(__AVR_AVR128DA32__)|| defined(__AVR_AVR64DA32__) || \
-  defined(__AVR_AVR32DA32__) || defined(__AVR_AVR64EA32__) || \
-  defined(__AVR_AVR32EA32__) || defined(__AVR_AVR16EA32__) || \
-  defined(__AVR_AVR8EA32__)  || defined(__AVR_AVR64DD32__) || \
-  defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
+        defined(__AVR_AVR32DA32__) || defined(__AVR_AVR64EA32__) || \
+        defined(__AVR_AVR32EA32__) || defined(__AVR_AVR16EA32__) || \
+        defined(__AVR_AVR8EA32__)  || defined(__AVR_AVR64DD32__) || \
+        defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
   // even if RESET set GPIO, is input only
   {
     3,
@@ -287,15 +287,15 @@ static const struct Logic::CCLBlock blocks[] = {
   #endif
   #endif
   #if defined(__AVR_ATmega809__)  || defined(__AVR_ATmega1609__) || \
-  defined(__AVR_ATmega3209__) || defined(__AVR_ATmega4809__) || \
-  defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || \
-  defined(__AVR_AVR64DA64__)  || defined(__AVR_AVR64DA48__)  || \
-  defined(__AVR_AVR32DA64__)  || defined(__AVR_AVR32DA48__)  || \
-  defined(__AVR_AVR128DB64__) || defined(__AVR_AVR128DB48__) || \
-  defined(__AVR_AVR64DB64__)  || defined(__AVR_AVR64DB48__)  || \
-  defined(__AVR_AVR32DB64__)  || defined(__AVR_AVR32DB48__)  || \
-  defined(__AVR_AVR64EA48__)  || defined(__AVR_AVR32EA48__)  || \
-  defined(__AVR_AVR16EA48__)
+      defined(__AVR_ATmega3209__) || defined(__AVR_ATmega4809__) || \
+      defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || \
+      defined(__AVR_AVR64DA64__)  || defined(__AVR_AVR64DA48__)  || \
+      defined(__AVR_AVR32DA64__)  || defined(__AVR_AVR32DA48__)  || \
+      defined(__AVR_AVR128DB64__) || defined(__AVR_AVR128DB48__) || \
+      defined(__AVR_AVR64DB64__)  || defined(__AVR_AVR64DB48__)  || \
+      defined(__AVR_AVR32DB64__)  || defined(__AVR_AVR32DB48__)  || \
+      defined(__AVR_AVR64EA48__)  || defined(__AVR_AVR32EA48__)  || \
+      defined(__AVR_AVR16EA48__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -325,12 +325,12 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
   },
   #endif
-  #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || \
-  defined(__AVR_AVR64DA64__) || defined(__AVR_AVR64DA48__)   || \
-  defined(__AVR_AVR32DA64__) || defined(__AVR_AVR32DA48__)   || \
-  defined(__AVR_AVR128DB64__) || defined(__AVR_AVR128DB48__) || \
-  defined(__AVR_AVR64DB64__) || defined(__AVR_AVR64DB48__)   || \
-  defined(__AVR_AVR32DB64__) || defined(__AVR_AVR32DB48__)
+  #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__)  || \
+      defined(__AVR_AVR64DA64__)  || defined(__AVR_AVR64DA48__)   || \
+      defined(__AVR_AVR32DA64__)  || defined(__AVR_AVR32DA48__)   || \
+      defined(__AVR_AVR128DB64__) || defined(__AVR_AVR128DB48__)  || \
+      defined(__AVR_AVR64DB64__)  || defined(__AVR_AVR64DB48__)   || \
+      defined(__AVR_AVR32DB64__)  || defined(__AVR_AVR32DB48__)
   {
     4,
     PIN0_bm, PIN1_bm, PIN2_bm, PIN3_bm, PIN6_bm,
@@ -343,13 +343,14 @@ static const struct Logic::CCLBlock blocks[] = {
       PIN0_bm, PIN1_bm, PIN2_bm, PIN3_bm, PIN6_bm,
       PORTG, PORTG, PORTG,
     #else
-      0,0,0,0,0,
-      PORTA,PORTA,PORTA,
+      0, 0, 0, 0, 0,
+      PORTA, PORTA, PORTA,
     #endif
     CCL.SEQCTRL2, CCL.LUT5CTRLA, CCL.LUT5CTRLB, CCL.LUT5CTRLC, CCL.TRUTH5,
   },
   #endif
 };
+//*INDENT-ON* - end of section astyle can't handle
 
 #if defined(CCL_TRUTH0)
   Logic Logic0(0);
