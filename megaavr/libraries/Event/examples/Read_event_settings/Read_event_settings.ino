@@ -17,7 +17,7 @@
 #include <Event.h>
 
 // Function to print information about the passed event
-void print_event_info(Event& my_event) {
+void print_event_info(Event &my_event) {
   Serial2.printf("This is event channel no. %d\n", my_event.get_channel_number());
   Serial2.printf("This channel uses generator no. 0x%02x, which you can find in Event.h\n", my_event.get_generator());
 }

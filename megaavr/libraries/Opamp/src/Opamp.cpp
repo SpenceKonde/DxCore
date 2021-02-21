@@ -17,6 +17,7 @@
  * @brief Construct a new Opamp object
  *
  */
+// *INDENT-OFF* - code formatting check wants to make this hideous
 Opamp::Opamp(uint8_t op_num,
              volatile uint8_t &op_ctrla,
              volatile uint8_t &op_status,
@@ -32,7 +33,7 @@ Opamp::Opamp(uint8_t op_num,
              opamp_inmux(op_inmux),
              opamp_settle(op_settle),
              opamp_cal(op_cal) {}
-
+// *INDENT-ON*
 
 /**
  * @brief Returns the opamp in use
@@ -72,8 +73,8 @@ void Opamp::init() {
   if (inrange != in::unconfigured) {
     OPAMP_PWRCTRL  = inrange; // Select normal or rail to rail input mode
   }
-  if (enable==enable::unconfigured) { // called init() on something we haven't turned on?
-    enable=enable::enable;            // we assume they want it on.
+  if (enable == enable::unconfigured) { // called init() on something we haven't turned on?
+    enable = enable::enable;            // we assume they want it on.
   }
   opamp_ctrla  = standby | output | event | enable;
   opamp_resmux = ladder_wiper | ladder_top | ladder_bottom;
@@ -87,15 +88,15 @@ void Opamp::init() {
  * @param state Optional parameter. Defaults to true
  */
 void Opamp::start(bool state) {
-  OPAMP_TIMEBASE = (ceil(F_CPU /1000000L)-1); // Calculate timebase based on F_CPU
+  OPAMP_TIMEBASE = (ceil(F_CPU / 1000000L) - 1); // Calculate timebase based on F_CPU
 
   if (state) {
     OPAMP_CTRLA |= OPAMP_ENABLE_bm;           // Enable opamp hardware
 
 #if defined(OPAMP_OP2CTRLA)
-    while((!Opamp0.status() && (Opamp0.wait_settle==true && Opamp0.enable==enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle==true && Opamp1.enable==enable::enable)) || (!Opamp2.status() && (Opamp2.wait_settle==true && Opamp2.enable==enable::enable)));
+    while((!Opamp0.status() && (Opamp0.wait_settle == true && Opamp0.enable == enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle == true && Opamp1.enable == enable::enable)) || (!Opamp2.status() && (Opamp2.wait_settle == true && Opamp2.enable == enable::enable)));
 #else
-    while((!Opamp0.status() && (Opamp0.wait_settle==true && Opamp0.enable==enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle==true && Opamp1.enable==enable::enable)));
+    while((!Opamp0.status() && (Opamp0.wait_settle == true && Opamp0.enable == enable::enable)) || (!Opamp1.status() && (Opamp1.wait_settle == true && Opamp1.enable == enable::enable)));
 #endif
   }
   else {

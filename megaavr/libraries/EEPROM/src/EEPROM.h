@@ -40,7 +40,7 @@ struct EERef {
 
   //Access/read members.
   uint8_t operator*() const            {
-    return eeprom_read_byte((uint8_t*)index);
+    return eeprom_read_byte((uint8_t *)index);
   }
   operator uint8_t() const             {
     return **this;
@@ -64,14 +64,14 @@ struct EERef {
     // if we're writing multiple bytes, we're gonna be waiting for ~11ms per
     // byte after the first, so performance doesn't matter. Because those sort of
     // use cases are worst for the memory barrier.
-    uint8_t oldSREG=SREG;
+    uint8_t oldSREG = SREG;
     cli();
 
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
-    *(uint8_t*)(MAPPED_EEPROM_START+index)=in;
+    *(uint8_t*)(MAPPED_EEPROM_START + index) = in;
 
-    SREG=oldSREG; //restore SREG and interrupts
+    SREG = oldSREG; //restore SREG and interrupts
 
     // _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     // should be covered in docs that if instead of using the

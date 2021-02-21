@@ -1,23 +1,39 @@
 #ifndef FLASH_H
 #define FLASH_H
-/* Flash.h for DxCore 1.3.0
+//*INDENT-OFF*
+/* Flash.h for DxCore 1.3.2
  * A library to easily write to the flash of an AVR Dx-series part from within an Arduino sketch
  * Requires Optiboot from DxCore 1.3.0+ for use in bootloader-mode.
- * Requires DxCore 1.3.1 with Flash Writing option selected from tools menu for non-bootloade-mode.
+ * Requires DxCore 1.3.1+ with Flash Writing option selected from tools menu for non-bootloader-mode.
+ * This is part of DxCore - github.com/SpenceKonde/DxCore
+ * This is free software, GPL 2.1 see ../../../LICENSE.md for details.
  */
 
 class FlashClass {
   public:
     uint8_t checkWritable();
-    uint8_t erasePage(const uint32_t address, const uint8_t size = 1);
-    uint8_t writeWord(const uint32_t address, const uint16_t data);
-    uint8_t writeByte(const uint32_t address, const uint8_t data);
-    uint8_t writeWords(const uint32_t address, const uint16_t* data, uint16_t length);
-    uint8_t writeBytes(const uint32_t address, const uint8_t* data, uint16_t length);
-    uint8_t readByte(const uint32_t address);
-    uint16_t readWord(const uint32_t address);
+    uint8_t  erasePage(const uint32_t address, const uint8_t   size = 1);
+    uint8_t  writeWord(const uint32_t address, const uint16_t  data);
+    uint8_t  writeByte(const uint32_t address, const uint8_t   data);
+    uint8_t writeWords(const uint32_t address, const uint16_t* data,  uint16_t length);
+    uint8_t writeBytes(const uint32_t address, const uint8_t*  data,  uint16_t length);
+    uint8_t   readByte(const uint32_t address);
+    uint16_t  readWord(const uint32_t address);
+
     uint8_t* mappedPointer(const uint32_t address);
+    /*
+    // would this be better? I think maybe it would?
+    void* mappedPointer(const uint32_t address);
+    uint8_t* mappedPointerByte(const uint32_t address) {
+      // juat syntactic
+      return (uint16_t*) mappedPointer(address);
+    }
+    uint16_t* mappedPointerWord(const uint32_t address);
+      // juat syntactic
+      return (uint16_t*) mappedPointer(address);
+    }
     uint32_t flashAddress(uint8_t* mappedPtr);
+    */
 };
 
 extern FlashClass Flash;

@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+// *INDENT-OFF* astyle hates how we formatted this.
+// I mean, I do too, but I hated all the alternatives we tried even more.
+// Readable code always takes priority over formatting dogma. -Spence
 
 // Features present on all generator channels
 namespace gen {

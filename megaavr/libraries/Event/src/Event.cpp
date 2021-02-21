@@ -62,7 +62,7 @@ uint8_t Event::get_channel_number() {
  */
 int8_t Event::get_user_channel(user::user_t event_user) {
   // Figure out what user register to read from to based on the passed parameter
-  volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t&)event_user;
+  volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t &)event_user;
 
   // Return what channel the user is connected to
   return *user_register - 1;
@@ -100,7 +100,7 @@ uint8_t Event::get_generator() {
 void Event::set_user(user::user_t event_user) {
   // Figure out what user register to write to based on the passed parameter
   uint8_t event_user_mask = event_user & 0x7F;
-  volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t&)event_user_mask;
+  volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t &)event_user_mask;
 
   // Connect user to the channel we're working with
   *user_register = channel_number + 1;
@@ -108,11 +108,11 @@ void Event::set_user(user::user_t event_user) {
   // Set PORTMUX pin swap for EVOUT if selected as channel generator
   if (event_user & 0x80) {
     #if defined(MEGAAVR_0)
-      PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x09));
+    PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x09));
     #elif defined(AVR_DA)
-      PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0E));
+    PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0E));
     #elif defined(AVR_DB)
-      PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0D));
+    PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0D));
     #endif
   }
 }
@@ -126,7 +126,7 @@ void Event::set_user(user::user_t event_user) {
 void Event::clear_user(user::user_t event_user) {
   // Figure out what user register to write to based on the passed parameter
   uint8_t event_user_mask = event_user & 0x7F;
-  volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t&)event_user_mask;
+  volatile uint8_t *user_register = &EVSYS_USERCCLLUT0A + (volatile uint8_t &)event_user_mask;
 
   // Disconnect from event generator
   *user_register = 0x00;
@@ -134,11 +134,11 @@ void Event::clear_user(user::user_t event_user) {
   // Clear PORTMUX pin swap for EVOUT if selected as channel generator
   if (event_user & 0x80) {
     #if defined(MEGAAVR_0)
-      PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x09));
+    PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x09));
     #elif defined(AVR_DA)
-      PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x0E));
+    PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x0E));
     #elif defined(AVR_DB)
-      PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x0D));
+    PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x0D));
     #endif
   }
 }
@@ -151,23 +151,25 @@ void Event::clear_user(user::user_t event_user) {
 void Event::soft_event() {
   // Write to the bit that represent the channel in the strobe register
   #if defined(EVSYS_STROBE)
-    // megaAVR 0-series
-    EVSYS.STROBE = (1 << channel_number);
+  // megaAVR 0-series
+  EVSYS.STROBE = (1 << channel_number);
   #elif defined (EVSYS_ASYNCCH0)
-    // tinyAVR 0/1-series
-    // TODO: Add support the the dreadful implementation of events here
+  // tinyAVR 0/1-series
+  // TODO: Add support the the dreadful implementation of events here
   #else
-    // This is a civilized part which uses the 2020 version of EVSYS
-    // we expect there to be an EVSYS.SWEVENTA channel plus an
-    // EVSYS.SWEVENTB it it has more than 8 event channels.
-    #if defined(EVSYS_SWEVENTB)
-      if(channel_number < 8)
-        EVSYS.SWEVENTA = (1 << channel_number);
-      else
-        EVSYS.SWEVENTB = (1 << (channel_number - 8));
-    #else
+  // This is a civilized part which uses the 2020 version of EVSYS
+  // we expect there to be an EVSYS.SWEVENTA channel plus an
+  // EVSYS.SWEVENTB it it has more than 8 event channels.
+  #if defined(EVSYS_SWEVENTB)
+  if(channel_number < 8) {
     EVSYS.SWEVENTA = (1 << channel_number);
-    #endif
+  }
+  else {
+    EVSYS.SWEVENTB = (1 << (channel_number - 8));
+  }
+  #else
+  EVSYS.SWEVENTA = (1 << channel_number);
+  #endif
   #endif
 }
 
@@ -181,8 +183,7 @@ void Event::start(bool state) {
   if (state) {
     // Write event generator setting to EVSYS_CHANNELn register
     channel_address = generator_type;
-  }
-  else {
+  } else {
     // Disable event generator
     channel_address = gen::disable;
   }

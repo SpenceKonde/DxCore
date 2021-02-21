@@ -38,7 +38,7 @@ void setup() {
 }
 
 void loop() {
-  if(millis() % 1000 == 0) {
+  if (millis() % 1000 == 0) {
     cli();       // Disable interrupts
     Serial1.printf("Input signal frequency = %ld Hz\n", counter);
     counter = 0; // Clear frequency counter

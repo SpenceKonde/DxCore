@@ -1,9 +1,8 @@
 #include <Arduino.h>
 #include <avr/pgmspace.h>
 #include "Flash.h"
-
-#define DEBUGBOGUS
-
+//*INDENT-OFF* astyle trashes the careful formatting here.
+//astyle should never be allowed to stomp on inline assembly
 
 /* Ugly ugly
  * SPMCOMMAND will be #defomed as the assembly command that we call
@@ -168,15 +167,15 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
     }
   #endif
   do_nvmctrl(command);
-  uint16_t zaddress=address;  // temp variable; SPM Z+ changes it!
+  uint16_t zaddress = address;  // temp variable; SPM Z+ changes it!
   /* Long story short, if you are passing things in that may be changed by
    * the ASM, declare it as an output... and pass a copy if you don't want
    * it to get changed. The compiler takes you at your word about what the constraints
    * on registers are. If you say "I need address in Z, it's an input" it will believe you.
    * And if you then call SPM Z+ , but the compiler knows Z hasn't changed (because you
-   * told it that).
+   * told it that) you get undefined behavior when it relies on that value being the same!
    */
-  __asm__ __volatile__ (SPMCOMMAND : "+z" (zaddress));
+  __asm__ __volatile__(SPMCOMMAND : "+z" (zaddress));
   #if (PROGMEM_SIZE > 0x10000)
     RAMPZ = 0; //just begging for trouble not resetting that.
   #endif
@@ -327,7 +326,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   // the application is not capable of writing meaningful data at this time
   // much less ensuring that the destination flash is appropriate and has
   // been erased.
-  if (address + (2 * length) > PROGMEM_SIZE  || length >= RAMSIZE ){
+  if (address + (2 * length) > PROGMEM_SIZE  || length >= RAMSIZE ) {
     return FLASHWRITE_TOOBIG;
   }
   #if (PROGMEM_SIZE > 0x10000)
@@ -388,7 +387,7 @@ uint8_t FlashClass::writeBytes(const uint32_t address, const uint8_t* data, uint
   }
   // there may be one more byte...
   if (length & 1) {
-    data+=(length & 0xFFFE); // what we wrote with the word above...
+    data += (length & 0xFFFE); // what we wrote with the word above...
     status = writeByte(tAddress + length - 2, *data);
   }
   return status;
@@ -396,7 +395,7 @@ uint8_t FlashClass::writeBytes(const uint32_t address, const uint8_t* data, uint
 
 
 
-uint8_t FlashClass::readByte(const uint32_t address){
+uint8_t FlashClass::readByte(const uint32_t address) {
   #if PROGMEM_SIZE > 0x10000
     return pgm_read_byte_far(address);
   #else
@@ -416,10 +415,9 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
   if (address > PROGMEM_SIZE) return (uint8_t*) NULL;
   // If location is outside bounds of flash, return null pointer
   #if PROGMEM_SIZE == 0x10000
-    if ( (address > 0x8000) == !!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
+    if ((address > 0x8000) == !!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
       return (uint8_t *) (0x8000 | ((uint16_t) address));
-    }
-    else {
+    } else {
       return (uint8_t*) NULL;
     }
   #elif PROGMEM_SIZE == 0x20000
@@ -428,8 +426,7 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
     // we return a pointer if it's in the mapped flash, otherwise,
     if ( section == ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4)) {
       return (uint8_t *) (0x8000 | ((uint16_t) address));
-    }
-    else {
+    } else {
       return (uint8_t*) NULL;
     }
   #else
@@ -454,7 +451,7 @@ uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
       // Section 2 or 3 is mapped
       address += 0x10000;
     }
-    if (!(flmap & 1)){
+    if (!(flmap & 1)) {
       // section 0 or 2 is mapped
       address -= 0x8000;
     }

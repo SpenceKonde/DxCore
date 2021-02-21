@@ -44,12 +44,10 @@ void ZeroCross::init() {
   if (output == out::enable) {
     ZCD.CTRLA = (ZCD.CTRLA & ~out::invert) | out::enable;
     output_port.DIRSET = pin_number;
-  }
-  else if (output == out::invert) {
+  } else if (output == out::invert) {
     ZCD.CTRLA |= out::enable | out::invert;
     output_port.DIRSET = pin_number;
-  }
-  else if (output == out::disable) {
+  } else if (output == out::disable) {
     ZCD.CTRLA &= ~out::enable & ~out::invert;
     //output_port.DIRCLR = pin_number;
   }
@@ -57,11 +55,11 @@ void ZeroCross::init() {
 
 bool ZeroCross::have_separate_mux() {
   #if defined(__AVR_DB__) && PROGMEM_SIZE==0x20000
-      // Fixed in Silicon Rev. A5 of AVR128DB only
-    return (SYSCFG.REVID >= 0x14);
+  // Fixed in Silicon Rev. A5 of AVR128DB only
+  return (SYSCFG.REVID >= 0x14);
   #else
-    // other parts are still waiting...
-    return false;
+  // other parts are still waiting...
+  return false;
   #endif
 }
 
