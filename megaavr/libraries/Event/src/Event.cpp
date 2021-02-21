@@ -155,17 +155,32 @@ void Event::soft_event() {
   EVSYS.STROBE = (1 << channel_number);
   #elif defined (EVSYS_ASYNCCH0)
   // tinyAVR 0/1-series
-  // TODO: Add support the the dreadful implementation of events here
+  if (channel_number < 2) {
+    // channel_number is either 0 or 1, and we want to strobe the corresponding channel, so we want to write either 1 << 0 or 1 <<1.
+    // but that's the same as 0 + 1 or 1 + 1 for this very limited case, and it's either equal in size if the compiler is smart
+    // or potentially much worse if it's not. I'm seeing 3 instructions from 1 << channel number if it's smart, but potentially a lot
+    // more if it's stupid...
+    EVSYS.SYNCSTROBE = (channel_number + 1);
+  } else {
+    EVSYS.SYNCSTROBE = (1 << (channel_number - 2));
+  }
   #else
   // This is a civilized part which uses the 2020 version of EVSYS
   // we expect there to be an EVSYS.SWEVENTA channel plus an
   // EVSYS.SWEVENTB it it has more than 8 event channels.
   #if defined(EVSYS_SWEVENTB)
-  if(channel_number < 8) {
+  if (channel_number < 8) {
     EVSYS.SWEVENTA = (1 << channel_number);
-  }
-  else {
-    EVSYS.SWEVENTB = (1 << (channel_number - 8));
+  } else {
+    // for the special case of only 10 channels, this is smaller:
+    // channel number will be 8 or 9, so this will be 1 or 2
+    // whereas the compiler would need to prepare for anything in the
+    // otherwise.  No parts with more than 10 event channels exist or
+    // have been announced. Whereas for the tinies, I did this for
+    // size, here I do it more for speed, since these parts have
+    // enough flash that the penalty is barely measurable.
+    EVSYS.SWEVENTB = channel_number - 7;
+    // EVSYS.SWEVENTB = (1 << (channel_number - 8));
   }
   #else
   EVSYS.SWEVENTA = (1 << channel_number);

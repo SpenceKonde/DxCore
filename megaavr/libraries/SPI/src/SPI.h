@@ -91,7 +91,7 @@
 
 
 #ifndef USE_MALLOC_FOR_IRQ_MAP
-#define USE_MALLOC_FOR_IRQ_MAP  0
+  #define USE_MALLOC_FOR_IRQ_MAP  0
 #endif
 
 // SPI_HAS_TRANSACTION means SPI has
@@ -143,16 +143,18 @@
 
 class SPISettings {
   public:
-  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
-    if (__builtin_constant_p(clock)) {
-      init_AlwaysInline(clock, bitOrder, dataMode);
-    } else {
-      init_MightInline(clock, bitOrder, dataMode);
-    }
+    SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
+      if (__builtin_constant_p(clock)) {
+        init_AlwaysInline(clock, bitOrder, dataMode);
+      } else {
+        init_MightInline(clock, bitOrder, dataMode);
+      }
   }
 
   // Default speed set to 4MHz, SPI mode set to MODE 0 and Bit order set to MSB first.
-  SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
+  SPISettings() {
+    init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0);
+  }
 
   private:
     void init_MightInline(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
@@ -247,7 +249,7 @@ class SPIClass {
     void beginTransaction(SPISettings settings);
     void endTransaction(void);
 
-    bool pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS=255);
+    bool pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS = 255);
     bool swap(uint8_t state = 1);
     void begin();
     void end();
@@ -263,12 +265,16 @@ class SPIClass {
     // These undocumented functions should not be used.  SPI.transfer()
     // polls the hardware flag which is automatically cleared as the
     // AVR responds to SPI's interrupt
-    inline static void attachInterrupt() { SPI0.INTCTRL |= (SPI_IE_bm); }
-    inline static void detachInterrupt() { SPI0.INTCTRL &= ~(SPI_IE_bm); }
+    inline static void attachInterrupt() {
+      SPI0.INTCTRL |= (SPI_IE_bm);
+    }
+    inline static void detachInterrupt() {
+      SPI0.INTCTRL &= ~(SPI_IE_bm);
+    }
 
     void detachMaskedInterrupts();
     void reattachMaskedInterrupts();
-    SPI_t* _hwspi_module = &SPI0;
+    SPI_t *_hwspi_module = &SPI0;
     uint8_t _uc_pinMISO;
     uint8_t _uc_pinMOSI = PIN_SPI_MOSI;
     uint8_t _uc_pinSCK = PIN_SPI_SCK;
@@ -282,7 +288,7 @@ class SPIClass {
     uint32_t interruptMask_hi;
 
     #if USE_MALLOC_FOR_IRQ_MAP
-    uint8_t* irqMap = NULL;
+    uint8_t *irqMap = NULL;
     #else
     volatile uint8_t irqMap[EXTERNAL_NUM_INTERRUPTS];
     #endif
