@@ -1,21 +1,21 @@
 #ifndef DXCORE_H
 #include <Arduino.h>
 typedef enum X32K_TYPE {
-  X32K_LOWPWR_START31MS = (CLKCTRL_CSUT_1K_gc|CLKCTRL_LPMODE_bm),
-  X32K_LOWPWR_START500MS = (CLKCTRL_CSUT_16K_gc|CLKCTRL_LPMODE_bm),
-  X32K_LOWPWR_START1S = (CLKCTRL_CSUT_32K_gc|CLKCTRL_LPMODE_bm),
-  X32K_LOWPWR_START2S = (CLKCTRL_CSUT_64K_gc|CLKCTRL_LPMODE_bm),
-  X32K_HIGHPWR_START31MS = (CLKCTRL_CSUT_1K_gc),
+  X32K_LOWPWR_START31MS   = ( CLKCTRL_CSUT_1K_gc | CLKCTRL_LPMODE_bm),
+  X32K_LOWPWR_START500MS  = (CLKCTRL_CSUT_16K_gc | CLKCTRL_LPMODE_bm),
+  X32K_LOWPWR_START1S     = (CLKCTRL_CSUT_32K_gc | CLKCTRL_LPMODE_bm),
+  X32K_LOWPWR_START2S     = (CLKCTRL_CSUT_64K_gc | CLKCTRL_LPMODE_bm),
+  X32K_HIGHPWR_START31MS  = ( CLKCTRL_CSUT_1K_gc),
   X32K_HIGHPWR_START500MS = (CLKCTRL_CSUT_16K_gc),
-  X32K_HIGHPWR_START1S = (CLKCTRL_CSUT_32K_gc),
-  X32K_HIGHPWR_START2S = (CLKCTRL_CSUT_64K_gc),
-  X32K_EXTCLK = (CLKCTRL_SEL_bm)
+  X32K_HIGHPWR_START1S    = (CLKCTRL_CSUT_32K_gc),
+  X32K_HIGHPWR_START2S    = (CLKCTRL_CSUT_64K_gc),
+  X32K_EXTCLK             = (CLKCTRL_SEL_bm)
 } X32K_TYPE_t;
 
 typedef enum X32K_ENABLE {
-  X32K_DISABLED = ( 0x00),
-  X32K_ENABLED  = ( 0x01),
-  X32K_ALWAYSON = ( 0x81),
+  X32K_DISABLED = (0x00),
+  X32K_ENABLED  = (0x01),
+  X32K_ALWAYSON = (0x81)
 } X32K_ENABLE_t;
 
 // void configXOSC32K(X32K_TYPE_t, X32K_ENABLE_t)
@@ -23,9 +23,9 @@ typedef enum X32K_ENABLE {
 // see above for valid values of these two arguments. This handles the enable-locking of many of these bits.
 // which means it may disable this clock source (CSUT is long enough that this likely matters!)
 void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable) {
-  uint8_t newval = settings|enable;
+  uint8_t newval = settings | enable;
   //if any of the bits are "enable protected" we need to turn off the external crystal/clock.
-  if ((CLKCTRL.XOSC32KCTRLA ^ newval) & (CLKCTRL_SEL_bm|CLKCTRL_CSUT_gm)) {
+  if ((CLKCTRL.XOSC32KCTRLA ^ newval) & (CLKCTRL_SEL_bm | CLKCTRL_CSUT_gm)) {
     _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, CLKCTRL.XOSC32KCTRLA & 0xFE); //disable external crystal
     while (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm); //unclear if this is immediately cleared or not...
   }
@@ -50,7 +50,9 @@ void disableXOSC32K() {
 // Returns 0 if autotune is successfully enabled within the time permitted by XOSC32KCTRLA's currently configured CSUT bits.
 
 uint8_t enableAutoTune() {
-  if ((CLKCTRL.MCLKCTRLA & 0x0F) != 0) return 0xFF;
+  if ((CLKCTRL.MCLKCTRLA & 0x0F) != 0) {
+     return 0xFF;
+  }
   if (CLKCTRL.XOSC32KCTRLA & 0x01) {
     _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, X32K_HIGHPWR_START1S | X32K_ENABLED);
   }
@@ -59,7 +61,7 @@ uint8_t enableAutoTune() {
   uint32_t verifytime = 500 + (csut == 3 ? 2000 : 500 * csut);
   uint32_t startedAt = millis();
   while ((millis() - startedAt < verifytime) && (!(CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm)));
-  if (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm){
+  if (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm) {
     return 0;
   }
   _PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA, CLKCTRL.OSCHFCTRLA & 0xFE);// turn it back off - crystal not working
@@ -85,7 +87,7 @@ bool setTCA0MuxByPort(uint8_t port) {
     TCA0.SPLIT.CTRLB = 0; //disconnect
     uint8_t base_pin = digitalPortToPin0(port);
     uint8_t max_pin = min(NUM_DIGITAL_PINS, digitalPortToPin0(port + 1)) - 1;
-    for (byte i = base_pin; i < max_pin;i++) {
+    for (byte i = base_pin; i < max_pin; i++) {
       turnOffPWM(i);
     }
     PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | (port & PORTMUX_TCA0_gm);
@@ -95,8 +97,9 @@ bool setTCA0MuxByPort(uint8_t port) {
 }
 
 bool setTCA0MuxByPin(uint8_t pin) {
-  if (digitalPinToBitPosition(pin) < 6)
+  if (digitalPinToBitPosition(pin) < 6){
     return setTCA0MuxByPort(digitalPinToPort(pin));
+  }
   return false;
 }
 
@@ -104,12 +107,16 @@ bool setTCA0MuxByPin(uint8_t pin) {
 
 bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
   #if defined(DB_64_PINS)
-    if (!((port == 1) || (port == 6) || (((port == 2) || (port == 4)) && takeover_only_ports_ok))) return false;
-    // not one of the 4 working mapping options that we have on DB64. TCA1 mapping
-    // for this port doesn't exist, port is invalid, or not a port if not caught by above #if
+  if (!((port == 1) || (port == 6) || (((port == 2) || (port == 4)) && takeover_only_ports_ok))) {
+    return false;
+  }
+  // not one of the 4 working mapping options that we have on DB64. TCA1 mapping
+  // for this port doesn't exist, port is invalid, or not a port if not caught by above #if
   #else
-    //if not a DB, the PORTG mapping option doesn't work per errata...
-    if (port != 1 && (!(port == 2  && takeover_only_ports_ok))) return false;
+  //if not a DB, the PORTG mapping option doesn't work per errata...
+  if (port != 1 && (!(port == 2  && takeover_only_ports_ok))) {
+    return false;
+  }
   #endif
   // AND with group mask cuts off the unwanted low bit leaving us with the 2 high bits which is what we care about
   TCA1.SPLIT.CTRLB = 0; //disconnect all PWM channels
@@ -142,25 +149,26 @@ bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
 #endif
 
 bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
-  #if 0
+  /*
     if ((!(port < 2 || port > 4)) || (port >6))
       return false;
     if (port > 4)
       port -= 3; //0, 1 left as is, 2, 3, 4 got return'ed out of. 5, 6 get turned into 2 and 3.
     PORTMUX.TCDROUTEA = port;
     return true;
-  #else
-    if (port == 0 || takeover_only_ports_ok) { // See errata; appears to be broken on all parts, not just 128k ones. Return false unless the one working port was requested.
-      PORTMUX.TCDROUTEA = 0;
-      return true;
-    }
-    return false;
-  #endif
+  */
+  if (port == 0 || takeover_only_ports_ok) { // See errata; appears to be broken on all parts, not just 128k ones. Return false unless the one working port was requested.
+    PORTMUX.TCDROUTEA = 0;
+    return true;
+  }
+  return false;
+
 }
 
 bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
-  if (digitalPinToBitPosition(pin) & 0xF0)
+  if (digitalPinToBitPosition(pin) & 0xF0){
     return setTCD0MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
+  }
   return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
 }               // chips that one might want to call this for don't exist, let's not bother :-)
 

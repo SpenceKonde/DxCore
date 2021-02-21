@@ -61,7 +61,7 @@ static volatile TWI1_MODE_t twi1_mode;
     \param frequency            The required baud.
 */
 void TWI1_MasterInit(uint32_t frequency) {
-  if (twi_mode != TWI1_MODE_UNKNOWN) {
+  if (twi1_mode != TWI1_MODE_UNKNOWN) {
     return;
   }
   #ifdef TWI0_DUALCTRL
@@ -89,7 +89,7 @@ void TWI1_MasterInit(uint32_t frequency) {
   #endif
   #endif
 
-  twi_mode = TWI1_MODE_MASTER;
+  twi1_mode = TWI1_MODE_MASTER;
 
   master_bytesRead = 0;
   master_bytesWritten = 0;
@@ -112,7 +112,7 @@ void TWI1_MasterInit(uint32_t frequency) {
 */
 
 void TWI1_SlaveInit(uint8_t address, uint8_t receive_broadcast, uint8_t second_address) {
-  if (twi_mode != TWI1_MODE_UNKNOWN) {
+  if (twi1_mode != TWI1_MODE_UNKNOWN) {
     return;
   }
   #ifdef PORTMUX_TWI1ROUTEA
@@ -126,7 +126,7 @@ void TWI1_SlaveInit(uint8_t address, uint8_t receive_broadcast, uint8_t second_a
   } else {
     PORTA.OUTCLR = 0x0C; //bits 2 and 3
   }
-  twi_mode = TWI1_MODE_SLAVE;
+  twi1_mode = TWI1_MODE_SLAVE;
 
   slave_bytesRead = 0;
   slave_bytesWritten = 0;
@@ -161,7 +161,7 @@ void TWI1_Disable(void) {
   TWI0.SADDR = 0x00;
   TWI0.SCTRLA = 0x00;
   TWI0.SADDRMASK = 0;
-  twi_mode = TWI1_MODE_UNKNOWN;
+  twi1_mode = TWI1_MODE_UNKNOWN;
 }
 
 /*! \brief Returns the TWI1 bus state.
@@ -252,14 +252,14 @@ void TWI1_MasterSetBaud(uint32_t frequency) {
     \retval false If transaction could not be started.
 */
 uint8_t TWI1_MasterWrite(uint8_t slave_address,
-                        uint8_t *write_data,
-                        uint8_t bytes_to_write,
-                        uint8_t send_stop) {
+                         uint8_t *write_data,
+                         uint8_t bytes_to_write,
+                         uint8_t send_stop) {
   return TWI1_MasterWriteRead(slave_address,
-                             write_data,
-                             bytes_to_write,
-                             0,
-                             send_stop);
+                              write_data,
+                              bytes_to_write,
+                              0,
+                              send_stop);
 }
 
 
@@ -275,9 +275,9 @@ uint8_t TWI1_MasterWrite(uint8_t slave_address,
     \retval false If transaction could not be started.
 */
 uint8_t TWI1_MasterRead(uint8_t slave_address,
-                       uint8_t *read_data,
-                       uint8_t bytes_to_read,
-                       uint8_t send_stop) {
+                        uint8_t *read_data,
+                        uint8_t bytes_to_read,
+                        uint8_t send_stop) {
   master_readData = read_data;
 
   uint8_t bytes_read = TWI1_MasterWriteRead(slave_address,
@@ -305,11 +305,11 @@ uint8_t TWI1_MasterRead(uint8_t slave_address,
     \retval false If transaction could not be started.
 */
 uint8_t TWI1_MasterWriteRead(uint8_t slave_address,
-                            uint8_t *write_data,
-                            uint8_t bytes_to_write,
-                            uint8_t bytes_to_read,
-                            uint8_t send_stop) {
-  if (twi_mode != TWI1_MODE_MASTER) {
+                             uint8_t *write_data,
+                             uint8_t bytes_to_write,
+                             uint8_t bytes_to_read,
+                             uint8_t send_stop) {
+  if (twi1_mode != TWI1_MODE_MASTER) {
     return false;
   }
 
@@ -334,7 +334,7 @@ uint8_t TWI1_MasterWriteRead(uint8_t slave_address,
        'R/_W = 0'
     */
     if (master_bytesToWrite > 0) {
-      twi_mode = TWI1_MODE_MASTER_TRANSMIT;
+      twi1_mode = TWI1_MODE_MASTER_TRANSMIT;
       uint8_t writeAddress = ADD_WRITE_BIT(master_slaveAddress);
       TWI0.MADDR = writeAddress;
     }
@@ -343,13 +343,13 @@ uint8_t TWI1_MasterWriteRead(uint8_t slave_address,
        'R/_W = 1'
     */
     else if (master_bytesToRead > 0) {
-      twi_mode = TWI1_MODE_MASTER_RECEIVE;
+      twi1_mode = TWI1_MODE_MASTER_RECEIVE;
       uint8_t readAddress = ADD_READ_BIT(master_slaveAddress);
       TWI0.MADDR = readAddress;
     }
 
     else if (master_bytesToWrite == 0 && master_bytesToRead == 0) {
-      twi_mode = TWI1_MODE_MASTER_TRANSMIT;
+      twi1_mode = TWI1_MODE_MASTER_TRANSMIT;
       uint8_t writeAddress = ADD_WRITE_BIT(master_slaveAddress);
       TWI0.MADDR = writeAddress;
     }
@@ -443,7 +443,7 @@ void TWI1_MasterArbitrationLostBusErrorHandler() {
   TWI0.MSTATUS = currentStatus;
 
   /* Wait for a new operation */
-  twi_mode = TWI1_MODE_MASTER;
+  twi1_mode = TWI1_MODE_MASTER;
   master_trans_status = TWI1M_STATUS_READY;
 }
 
@@ -480,7 +480,7 @@ void TWI1_MasterWriteHandler() {
      'R/_W = 1'
   */
   else if (master_bytesRead < bytesToRead) {
-    twi_mode = TWI1_MODE_MASTER_RECEIVE;
+    twi1_mode = TWI1_MODE_MASTER_RECEIVE;
     uint8_t readAddress = ADD_READ_BIT(master_slaveAddress);
     TWI0.MADDR = readAddress;
   }
@@ -555,7 +555,7 @@ void TWI1_MasterReadHandler() {
 void TWI1_MasterTransactionFinished(uint8_t result) {
   master_result = result;
   master_trans_status = TWI1M_STATUS_READY;
-  twi_mode = TWI1_MODE_MASTER;
+  twi1_mode = TWI1_MODE_MASTER;
 }
 
 
@@ -645,13 +645,13 @@ void TWI1_SlaveAddressMatchHandler() {
     slave_bytesWritten = 0;
     /* Call user function  */
     slave_bytesToWrite = TWI1_onSlaveTransmit();
-    twi_mode = TWI1_MODE_SLAVE_TRANSMIT;
+    twi1_mode = TWI1_MODE_SLAVE_TRANSMIT;
   }
   /* If Master Write/Slave Read */
   else {
     slave_bytesRead = 0;
     slave_callUserReceive = 1;
-    twi_mode = TWI1_MODE_SLAVE_RECEIVE;
+    twi1_mode = TWI1_MODE_SLAVE_RECEIVE;
   }
 
   /* Send ACK, wait for data interrupt */
@@ -793,7 +793,7 @@ void TWI1_attachSlaveTxEvent(uint8_t (*function)(void), uint8_t *write_data) {
 */
 void TWI1_SlaveTransactionFinished(uint8_t result) {
   TWI0.SCTRLA |= (TWI_APIEN_bm | TWI_PIEN_bm);
-  twi_mode = TWI1_MODE_SLAVE;
+  twi1_mode = TWI1_MODE_SLAVE;
   slave_result = result;
   slave_trans_status = TWI1M_STATUS_READY;
 }

@@ -89,18 +89,18 @@ TWI1_BUSSTATE_t TWI1_MasterState(void);
 uint8_t TWI1_MasterReady(void);
 void TWI1_MasterSetBaud(uint32_t frequency);
 uint8_t TWI1_MasterWrite(uint8_t slave_address,
-                        uint8_t *write_data,
-                        uint8_t bytes_to_write,
-                        uint8_t send_stop);
+                         uint8_t *write_data,
+                         uint8_t bytes_to_write,
+                         uint8_t send_stop);
 uint8_t TWI1_MasterRead(uint8_t slave_address,
-                       uint8_t *read_data,
-                       uint8_t bytes_to_read,
-                       uint8_t send_stop);
+                        uint8_t *read_data,
+                        uint8_t bytes_to_read,
+                        uint8_t send_stop);
 uint8_t TWI1_MasterWriteRead(uint8_t slave_address,
-                            uint8_t *write_data,
-                            uint8_t bytes_to_write,
-                            uint8_t bytes_to_read,
-                            uint8_t send_stop);
+                             uint8_t *write_data,
+                             uint8_t bytes_to_write,
+                             uint8_t bytes_to_read,
+                             uint8_t send_stop);
 void TWI1_MasterInterruptHandler(void);
 void TWI1_MasterArbitrationLostBusErrorHandler(void);
 void TWI1_MasterWriteHandler(void);
