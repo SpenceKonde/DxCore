@@ -31,20 +31,32 @@ namespace hyst {
 namespace in_p {
   enum inputP_t : uint8_t {
     in0    = 0x00,
+#ifndef __AVR_DD__
     in1    = 0x01,
     in2    = 0x02,
+#endif
     in3    = 0x03,
+#ifdef __AVR_DD__
+    in4    = 0x04,
+#endif
+    pd2    = 0x00,
+    pd6    = 0x03,
   };
 };
 
 namespace in_n {
   enum inputN_t : uint8_t {
     in0    = 0x00,
+#if !(defined(__AVR_DD__) || defined(DB_28_PINS) || defined(DB_32_PINS) )
     in1    = 0x01,
+    pd0    = 0x00,
+#endif
     in2    = 0x02,
     dacref = 0x03,
+    pd7    = 0x02,
   };
 };
+// Unknown how these will be numbered on DD-series, which has an AINN3 and DACREF.
 
 namespace ref {
   enum reference_t : uint8_t {
@@ -76,13 +88,13 @@ class AnalogComparator {
     void attachInterrupt(voidFuncPtr callback, uint8_t mode);
     void detachInterrupt();
 
-    out::output_t      output = out::disable;
-    out::pinswap_t     output_swap = out::no_swap;
+    out::output_t      output         = out::disable;
+    out::pinswap_t     output_swap    = out::no_swap;
     out::initval_t     output_initval = out::init_low;
-    hyst::hysteresis_t hysteresis = hyst::disable;
-    in_p::inputP_t     input_p = in_p::in0;
-    in_n::inputN_t     input_n = in_n::in0;
-    ref::reference_t   reference = ref::disable;
+    hyst::hysteresis_t hysteresis     = hyst::disable;
+    in_p::inputP_t     input_p        = in_p::in0;
+    in_n::inputN_t     input_n        = in_n::in0;
+    ref::reference_t   reference      = ref::disable;
     uint8_t dacref = 0xff;
 
   private:

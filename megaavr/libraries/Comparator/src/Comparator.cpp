@@ -141,7 +141,7 @@ void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
   switch (mode) {
     // Set RISING, FALLING or CHANGE interrupt trigger for the comparator output
     case RISING:
-      intmode = (AC_INTMODE_NORMAL_t)(AC_INTMODE_NORMAL_NEGEDGE_gc);
+      intmode = (AC_INTMODE_NORMAL_t)AC_INTMODE_NORMAL_POSEDGE_gc;
       break;
     case FALLING:
       intmode = (AC_INTMODE_NORMAL_t)AC_INTMODE_NORMAL_NEGEDGE_gc;

@@ -1,21 +1,35 @@
 # Comparator
 A library for interfacing with the analog comparator peripheral in the AVR DA and DB series MCUs.
 Developed by [MCUdude](https://github.com/MCUdude/).
-The AVR DA/DB has three comparators where four positive and three negative pins are available for use. An alternative for the negative pin is to use an internally generated reference voltage instead.
+The AVR DA/DB has three comparators where up ro  four positive and three negative pins are available for use. The DD-series will have one. An alternative for the negative pin is to use an internally generated reference voltage instead.
 
 
 ## Comparator
-Class for interfacing with the built-in comparator. Use the predefined objects `Comparator`/`Comparator0`, `Comparator1` or `Comparator2`. (`Comparator` is #defined as `Comparator0` to permit compatibility with parts that have only a single comparator and use the same or similar library).
+Class for interfacing with the built-in comparator. Use the predefined objects `Comparator`/`Comparator0`, `Comparator1` or `Comparator2`. (`Comparator` is #defined as `Comparator0` to permit compatibility with parts that have only a single comparator and use the same or similar library). The available inputs for DA and DB-series parts are shown in the table below; on 28-pin and 32-pin parts, alongside the pins for the single analog comparator on the DD-series.
 
+Input |   AC0   |   AC1   |   AC2   |  DD AC0 |
+------|---------|---------|---------|---------|
+AINP0 | PIN_PD2 | PIN_PD2 | PIN_PD2 | PIN_PD2 |
+AINP1 | PIN_PE0 | PIN_PD4 | PIN_PD4 |   n/a   |
+AINP2 | PIN_PE2 | PIN_PD4 | PIN_PE1 |   n/a   |
+AINP3 | PIN_PD6 | PIN_PD6 | PIN_PD6 | PIN_PD6 |
+AINP4 |   n/a   |   n/a   |   n/a   | PIN_PC2 |
+AINN0 | PIN_PD3 | PIN_PD5 | PIN_PD7 | PIN_PD3 |
+AINN1 | PIN_PD0 | PIN_PD0 | PIN_PD0 |   n/a   |
+AINN2 | PIN_PD7 | PIN_PD7 | PIN_PD7 | PIN_PD7 |
+AINN3 |   n/a   |   n/a   |   n/a   | PIN_PC3 |
 
 ### input_p
 Variable for setting what input pin the positive input of the comparator should be connected to
 Accepted values:
 ``` c++
-in_p::in0; // Use positive input pin 0 as input
-in_p::in1; // Use positive input pin 1 as input
-in_p::in2; // Use positive input pin 2 as input
-in_p::in3; // Use positive input pin 3 as input
+in_p::in0; // Use positive input pin 0 as input. This is always PD2.
+in_p::in1; // Use positive input pin 1 as input (not available on DD-series)
+in_p::in2; // Use positive input pin 2 as input (not available on DD-series)
+in_p::in3; // Use positive input pin 3 as input. This is always PD6, the DAC output pin.
+in_p::in4; // Use positive input pin 4 as input (DD-series only, requires MVIO to be disabled)
+in_p::pd2; // Synonym for in_p::in0, which is PD2 on all DxCore parts
+in_p::pd6; // Synonym for in_p::in3, which is PD6 on all DxCore parts
 ```
 
 ##### Usage
@@ -31,10 +45,13 @@ Comparator.input_p = in_p::in0;  // Connect positive input pin 0 to the positive
 Variable for setting what input pin the negative input of the comparator should be connected to
 Accepted values:
 ``` c++
-in_n::in0;    // Use positive input pin 0 as input
-in_n::in1;    // Use positive input pin 1 as input
-in_n::in2;    // Use positive input pin 2 as input
+in_n::in0;    // Use negative input pin 0 as input
+in_n::in1;    // Use negative input pin 1 as input. This is always PD0, (not available on DD, 28/32-pin DB-series)
+in_n::in2;    // Use negative input pin 2 as input. This is always PD7, the external VREF pin.
+in_n::in3;    // Use negative input pin 3 as input (DD-series only, requires MVIO to be disabled)
 in_n::dacref; // Use DACREF as input
+in_n::pd0;    // Synonym for in_n::in1, which is PD0 on all DxCore parts that have this input
+in_n::pd7;    // Synonym for in_n::in2, which is PD7 on all DxCore parts
 ```
 
 ##### Usage
