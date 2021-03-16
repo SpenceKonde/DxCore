@@ -179,16 +179,16 @@ void analogWrite(uint8_t pin, int val)
   }
   uint8_t* timer_cmp_out;
   #if defined(NO_GLITCH_TIMERD)
-  if (digital_pin_timer != TIMERD0){
+  if (digital_pin_timer != TIMERD0 && digital_pin_timer != DACOUT) {
+  #else
+  if (digital_pin_timer != DACOUT) {
   #endif
     if(val <= 0){ /* if zero or negative drive digital low */
       return digitalWrite(pin, LOW);
     } else if(val >= 255){  /* if max or greater drive digital high */
       return digitalWrite(pin, HIGH);
     }
-  #if defined(NO_GLITCH_TIMERD)
   }
-  #endif
 
   TCB_t *timer_B;
   //TCA_t *timer_A;
@@ -258,18 +258,20 @@ void analogWrite(uint8_t pin, int val)
         timer_B->CCMPH = val;
         /* Enable Timer Output */
         timer_B->CTRLB |= (TCB_CCMPEN_bm);
+        return;
       } else {
         // if it's not, we don't have PWM on this pin!
         if (val < 128) {
-          digitalWrite(pin, LOW);
+          return digitalWrite(pin, LOW);
         } else {
-          digitalWrite(pin, HIGH);
+          return digitalWrite(pin, HIGH);
         }
       }
       break;
   #if defined(DAC0)
     case DACOUT:
       #ifdef DAC0_DATAH
+        //DAC0.DATAL = 0xC0;
         DAC0.DATAH = val;
       #else
         DAC0.DATA = val;
@@ -335,36 +337,62 @@ void analogWrite(uint8_t pin, int val)
         #endif
       }
 
+      #if defined(NO_GLITCH_TIMERD0)
+        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), digitalPinToBitPosition(pin));
+        // if things aren't compile-time known, this is not a lightning fast operation.
+        // We had been doing it closer to where we needed it, but there's no need to wait
+        // until we have interrupts off to figure this out (though we do need them off when)
+        // access it!)
+      #endif
+      // interrupts off while this runs - we really don't want this interrupted!
       uint8_t oldSREG = SREG;
       cli();
-      // interrupts off... wouldn't due to have this mess interrupted and messed with...
-
-      /* For flexible timer D PWM pins or USE_TIMERD_WOAB, this may need to be adapted */
-      // as long as I don't support putting WOC on WOB if only WOA is being used, no adaptation needed.
-      // And yeah, I'm already giving you extra freedom with these pins, shut up and be happy or takeOverTCD0()!
-      //
+      /*-----------------------------------------------------------------------------------------
+       * bit_mask & 0xAA? 0xAA = 0b10101010
+       * This is true if the bitmask corresponds to an odd bit in the port, meaning it's
+       * going to be driven by CMPB, otherwise by CMPA. On all existing parts, WOA is on
+       * bit 0 or 4, WOB on 1 or 5, WOC on 2, 6, or 0, and WOD on 3, 7, or 1
+       * Pins WOA and WOB are bound to CMPA and CMPB, but WOC and WOD can each be put on
+       * either WOA or WOB. So if WOC is assigned to follow WOA and WOD to follow WOB, this
+       * test gives the answer. This means, in theory, flexible PWM on TCD0 could be improved
+       * by detecting the case where WOA or WOB is outputting PWM already, and the user then
+       * calls analogWrite() on the other pin assigned to that channel, and we could swap that
+       * pin to the other channel. But the code would be ugly (read: slow) and I don't think
+       * the added capability would even be an improvement overall, because the cost in
+       * terms of less consistent behavior is significant: the results become path-dependant,
+       * since writing WOA, WOC, WOB in that order would result in WOC getting swapped to
+       * WOB (now WOB and WOC would output same thing) while WOA, WOB, WOC would not, so
+       * WOA and WOC would be the pair outputting the same thing). And then you'd need to
+       * decide how to handle the above situation when the user then wrote to WOD.
+       * Better to just declare that CMPA shall drive WOC, and CMPB shall drive WOD.
+       *-----------------------------------------------------------------------------------------*/
       if (bit_mask & 0xAA) {
-        //TCD0.CMPBSET = ((255 - val) << 1, 2, 3, or 4) - 1;
         TCD0.CMPBSET= val - 1;
       } else {
         TCD0.CMPASET= val - 1;
       }
       /* Check if channel active, if not, have to turn it on */
       if (!(TCD0.FAULTCTRL & bit_mask)) {
-        TCD0.CTRLA &= ~TCD_ENABLE_bm;
-        //uint8_t temp2 = TCD0.CTRLA & (~TCD_ENABLE_bm);
-        //TCD0.CTRLA = temp2;  // stop the timer
+        /*-----------------------------------------------------------------------------------------
+         * need to be careful here - analogWrite() can be called by a class constructor, for
+         * example in which case the timer hasn't been started yet. We must not start it in this
+         * case, as it would then fail to initialize and have the wrong clock prescaler and other
+         * settings.
+         * Instead, we should do everything else, and when the timer is next enabled, the PWM will
+         * be configured and waiting. This is also probably what users would expect and hope to
+         * happen if they are modifying TCD0 registers themselves. Though per core docs, we make
+         * no promises in that case, the fact that this is better then is an added bonus.
+         *---------------------------------------------------------------------------------------*/
+        uint8_t temp2 = TCD0.CTRLA;
+        TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm;)
         _PROTECTED_WRITE(TCD0.FAULTCTRL, (bit_mask | TCD0.FAULTCTRL));
         while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
-        //TCD0.CTRLA = temp2 | TCD_ENABLE_bm;        // re-enable it
-        TCD0.CTRLA |= TCD_ENABLE_bm;
+        TCD0.CTRLA = temp2; // re-enable it if it was enabled
       } else {
-        /* if it's already on, all we have to do is sync! */
-        TCD0.CTRLE = TCD_SYNCEOC_bm;
+        TCD0.CTRLE = TCD_SYNCEOC_bm; // it was already on - just set new value and set sync flag.
       }
 
       #if defined(NO_GLITCH_TIMERD0)
-        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), digitalPinToBitPosition(pin));
         // In this mode, we need to check set_inven, and set INVEN if it was called with 100% duty cycle
         // and unset that bit otherwise.
         if (set_inven == 0){

@@ -173,6 +173,8 @@ void turnOffPWM(uint8_t pin)
         #endif
       #endif
       if (fcset) {
+        // don't do any of this unless the pin is currently set to output PWM - spamming digital I/O on a pin that could output PWM shouldn't
+        // cause TCD0 to lose a couple of clocks of timing each time.
         #if defined (NO_GLITCH_TIMERD0)
           // Arrgh, almost didn't need bit position!
           volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), digitalPinToBitMask(pin));
@@ -180,10 +182,13 @@ void turnOffPWM(uint8_t pin)
         #endif
         uint8_t oldSREG = SREG;
         cli();
-        TCD0.CTRLA &= ~TCD_ENABLE_bm;//stop the timer
+        TCD0.CTRLA &= ~TCD_ENABLE_bm; // stop the timer
+        // This is slightly dangerous - if the timer isn't running, it will start the timer. But it will only do any of that if
+        // it was currently set to output PWM, so it's very hard to imagine triggering it with just innocent calls to digitalWrite
+        // in a constructor - we do not promise core functions will behave if users are reconfiguring peripherals in arbitrary ways.
         _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~fcset);
         while (!(TCD0.STATUS & TCD_ENRDY_bm)); // wait until we can restart it
-        TCD0.CTRLA |= TCD_ENABLE_bm; //re-enable it
+        TCD0.CTRLA |= TCD_ENABLE_bm;  // re-enable it
         #if defined(NO_GLITCH_TIMERD0)
           *pin_ctrl_reg &= ~(PORT_INVEN_bm);
         #endif
