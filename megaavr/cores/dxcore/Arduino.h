@@ -141,15 +141,22 @@ extern const uint8_t digital_pin_to_timer[];
 extern const uint8_t digital_port_to_pin0[];
 
 // These are used for two things: identifying the timer on a pin
-// and for the MILLIS_TIMER define that the uses can test which timer
-// actually being used for millis is actually being used
-// Reasoning these constants are what they are:
-// Low nibble is the number of that peripheral
-// high nibble specify the type of timer
-// TCA=0x08, TCB=0x10, TCD=0x10 (leaving room in case Microchip ever decides to release a TCC)
+// and for the MILLIS_TIMER define that users can test to verify which timer is
+// actually being used for millis
+// Previously TCAs were all 0x1_, TCBs 0x2_ - to make the take-over tracking work, though, it was *much* easier if I
+// gave TCA1 a dedicated bit, that way the timer can be AND'ed with PeripheralControl to see if we still have that
+// peripheral under core control.
+// So, that's why the three big timers, which have many PORTMUX options which move their pins en masse, get their own
+// bits here. (notice how the digital_pin_to_timer table at the bottom doesn't list these anymore. Functions that
+// use them calculate whether a pin is associated to timer with current mux setting themselves. Since there are only
+// two functions that do this without a timer takeover situation (where it is not the core's business anymore),
+// this seemed an acceptable tradeoff. Before this change, the core did not support remapping these pins, but that was
+// not a winning solution, because no decsion would please everyone. It was made even more acute by errata impacting the
+// available mux options - the best options were not actually usable... but some day might become usable... on new
+// silicon only...
 // Things that aren't hardware timers with output compare are after that
-// DAC output isn't a timer, but has to be treated as such by PINMODE
-// RTC timer is a tiner, but certainly not that kind of timer
+// DAC output isn't a timer, but the core uses it like one.
+// RTC timer is a timer, but certainly not that kind of timer
 #define NOT_ON_TIMER  0x00
 #define TIMERA0       0x10
 #define TIMERA1       0x08 // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
@@ -362,4 +369,11 @@ extern const uint8_t digital_port_to_pin0[];
 #endif
 
 #include "pins_arduino.h"
+
+#ifdef DAC0
+  #ifndef PIN_DACOUT
+    #define PIN_DACOUT PIN_PD6
+  #endif
+#endif
+
 #endif
