@@ -4,7 +4,6 @@
 menu.chip=Chip
 menu.clock=Clock Speed
 menu.millis=millis()/micros() timer (TCB2 recommended)
-menu.serialevent=Support SerialEvent?
 menu.bodvoltage=BOD level if enabled (Bootload burn req'd)
 menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
 menu.eesave=Save EEPROM (Bootload burn req'd)
@@ -51,6 +50,7 @@ avrda.build.mcupostfix=
 # Bootloading settings
 avrda.bootloader.tool=avrdude
 avrda.bootloader.WDTCFG=0x00
+avrda.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
 avrda.bootloader.BOOTSIZE=0x01
@@ -232,11 +232,6 @@ avrda.menu.clock.48extclock.build.f_cpu=48000000L
 avrda.menu.clock.48extclock.build.speed=48
 avrda.menu.clock.48extclock.build.clocksource=2
 
-# Enable SerialEvent, even though it's bad
-avrda.menu.serialevent.no=No
-avrda.menu.serialevent.yes=Yes
-avrda.menu.serialevent.no.build.serialevent=-DNOSERIALEVENT
-avrda.menu.serialevent.yes.build.serialevent=
 
 # BrownOut Detect Options
 avrda.menu.bodvoltage.1v9=1.9V
@@ -249,12 +244,12 @@ avrda.menu.bodvoltage.2v85=2.85V
 avrda.menu.bodvoltage.2v85.bootloader.bodlevbits=011
 avrda.menu.bodmode.disabled=Disabled/Disabled
 avrda.menu.bodmode.enabled=Enabled/Enabled
-avrda.menu.bodmode.ensampfast=Enabled/Sampled (1kHz)
-avrda.menu.bodmode.ensampslo=Enabled/Sampled (125Hz)
-avrda.menu.bodmode.sampledfast=Sampled/Sampled (1kHz)
-avrda.menu.bodmode.sampledslow=Sampled/Sampled (125Hz)
-avrda.menu.bodmode.sampdisfast=Sampled/Disabled (1kHz)
-avrda.menu.bodmode.sampdisslow=Sampled/Disabled (125Hz)
+avrda.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrda.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrda.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrda.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrda.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrda.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
 avrda.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
 avrda.menu.bodmode.disabled.bootloader.BODCFG=0x00
 avrda.menu.bodmode.enabled.bootloader.bodmodebits=00101
@@ -347,6 +342,7 @@ avrdb.build.mcupostfix=
 # Bootloading settings
 avrdb.bootloader.tool=avrdude
 avrdb.bootloader.WDTCFG=0x00
+avrdb.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 #avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdb.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
@@ -566,11 +562,6 @@ avrdb.menu.clock.48extclock.build.f_cpu=48000000L
 avrdb.menu.clock.48extclock.build.speed=48
 avrdb.menu.clock.48extclock.build.clocksource=2
 
-# Enable SerialEvent, even though it's bad
-avrdb.menu.serialevent.no=No
-avrdb.menu.serialevent.yes=Yes
-avrdb.menu.serialevent.no.build.serialevent=-DNOSERIALEVENT
-avrdb.menu.serialevent.yes.build.serialevent=
 
 # BrownOut Detect Options
 avrdb.menu.bodvoltage.1v9=1.9V
@@ -583,12 +574,12 @@ avrdb.menu.bodvoltage.2v85=2.85V
 avrdb.menu.bodvoltage.2v85.bootloader.bodlevbits=011
 avrdb.menu.bodmode.disabled=Disabled/Disabled
 avrdb.menu.bodmode.enabled=Enabled/Enabled
-avrdb.menu.bodmode.ensampfast=Enabled/Sampled (1kHz)
-avrdb.menu.bodmode.ensampslo=Enabled/Sampled (125Hz)
-avrdb.menu.bodmode.sampledfast=Sampled/Sampled (1kHz)
-avrdb.menu.bodmode.sampledslow=Sampled/Sampled (125Hz)
-avrdb.menu.bodmode.sampdisfast=Sampled/Disabled (1kHz)
-avrdb.menu.bodmode.sampdisslow=Sampled/Disabled (125Hz)
+avrdb.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrdb.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrdb.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrdb.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrdb.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrdb.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
 avrdb.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
 avrdb.menu.bodmode.disabled.bootloader.BODCFG=0x00
 avrdb.menu.bodmode.enabled.bootloader.bodmodebits=00101
@@ -689,6 +680,7 @@ avrdaopti.build.mcupostfix=opti
 # Bootloading settings
 avrdaopti.bootloader.tool=avrdude
 avrdaopti.bootloader.WDTCFG=0x00
+avrdaopti.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
 avrdaopti.bootloader.BOOTSIZE=0x01
@@ -854,11 +846,6 @@ avrdaopti.menu.clock.48extclock.build.f_cpu=48000000L
 avrdaopti.menu.clock.48extclock.build.speed=48
 avrdaopti.menu.clock.48extclock.build.clocksource=2
 
-# Enable SerialEvent, even though it's bad
-avrdaopti.menu.serialevent.no=No
-avrdaopti.menu.serialevent.yes=Yes
-avrdaopti.menu.serialevent.no.build.serialevent=-DNOSERIALEVENT
-avrdaopti.menu.serialevent.yes.build.serialevent=
 
 # BrownOut Detect Options
 avrdaopti.menu.bodvoltage.1v9=1.9V
@@ -871,12 +858,12 @@ avrdaopti.menu.bodvoltage.2v85=2.85V
 avrdaopti.menu.bodvoltage.2v85.bootloader.bodlevbits=011
 avrdaopti.menu.bodmode.disabled=Disabled/Disabled
 avrdaopti.menu.bodmode.enabled=Enabled/Enabled
-avrdaopti.menu.bodmode.ensampfast=Enabled/Sampled (1kHz)
-avrdaopti.menu.bodmode.ensampslo=Enabled/Sampled (125Hz)
-avrdaopti.menu.bodmode.sampledfast=Sampled/Sampled (1kHz)
-avrdaopti.menu.bodmode.sampledslow=Sampled/Sampled (125Hz)
-avrdaopti.menu.bodmode.sampdisfast=Sampled/Disabled (1kHz)
-avrdaopti.menu.bodmode.sampdisslow=Sampled/Disabled (125Hz)
+avrdaopti.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrdaopti.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrdaopti.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrdaopti.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrdaopti.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrdaopti.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
 avrdaopti.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
 avrdaopti.menu.bodmode.disabled.bootloader.BODCFG=0x00
 avrdaopti.menu.bodmode.enabled.bootloader.bodmodebits=00101
@@ -996,6 +983,7 @@ avrdbopti.build.mcupostfix=
 # Bootloading settings
 avrdbopti.bootloader.tool=avrdude
 avrdbopti.bootloader.WDTCFG=0x00
+avrdbopti.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 #avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdbopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
@@ -1199,11 +1187,6 @@ avrdbopti.menu.clock.48extclock.build.f_cpu=48000000L
 avrdbopti.menu.clock.48extclock.build.speed=48
 avrdbopti.menu.clock.48extclock.build.clocksource=2
 
-# Enable SerialEvent, even though it's bad
-avrdbopti.menu.serialevent.no=No
-avrdbopti.menu.serialevent.yes=Yes
-avrdbopti.menu.serialevent.no.build.serialevent=-DNOSERIALEVENT
-avrdbopti.menu.serialevent.yes.build.serialevent=
 
 # BrownOut Detect Options
 avrdbopti.menu.bodvoltage.1v9=1.9V
@@ -1216,12 +1199,12 @@ avrdbopti.menu.bodvoltage.2v85=2.85V
 avrdbopti.menu.bodvoltage.2v85.bootloader.bodlevbits=011
 avrdbopti.menu.bodmode.disabled=Disabled/Disabled
 avrdbopti.menu.bodmode.enabled=Enabled/Enabled
-avrdbopti.menu.bodmode.ensampfast=Enabled/Sampled (1kHz)
-avrdbopti.menu.bodmode.ensampslo=Enabled/Sampled (125Hz)
-avrdbopti.menu.bodmode.sampledfast=Sampled/Sampled (1kHz)
-avrdbopti.menu.bodmode.sampledslow=Sampled/Sampled (125Hz)
-avrdbopti.menu.bodmode.sampdisfast=Sampled/Disabled (1kHz)
-avrdbopti.menu.bodmode.sampdisslow=Sampled/Disabled (125Hz)
+avrdbopti.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrdbopti.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrdbopti.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrdbopti.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrdbopti.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrdbopti.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
 avrdbopti.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
 avrdbopti.menu.bodmode.disabled.bootloader.BODCFG=0x00
 avrdbopti.menu.bodmode.enabled.bootloader.bodmodebits=00101
