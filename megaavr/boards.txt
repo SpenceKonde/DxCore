@@ -673,7 +673,7 @@ avrdaopti.upload.tool=avrdude
 avrdaopti.build.board=avrda
 avrdaopti.build.core=dxcore
 avrdaopti.build.text_section_start=.text=0x200
-avrdaopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DUSING_OPTIBOOT
+avrdaopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdaopti.build.export_merged_output=false
 avrdaopti.build.mcupostfix=opti
 
@@ -936,28 +936,52 @@ avrdaopti.menu.timeout.8sec.bootloader.timeout=_8sec
 # Optiboot Serial Port
 avrdaopti.menu.bootloaderusart.ser0=USART0: TX PA0, RX PA1
 avrdaopti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdaopti.menu.bootloaderusart.ser0.bootloader.portname=Serial
+avrdaopti.menu.bootloaderusart.ser0.bootloader.portswap=0
 avrdaopti.menu.bootloaderusart.ser0_alt=USART0 (alt): TX PA4, RX PA5
 avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.portname=Serial
+avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.portswap=1
 avrdaopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1
 avrdaopti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdaopti.menu.bootloaderusart.ser1.bootloader.portname=Serial1
+avrdaopti.menu.bootloaderusart.ser1.bootloader.portswap=0
 avrdaopti.menu.bootloaderusart.ser1_alt=USART1 (alt): TX PC4, RX PC5 (48/64-pin only)
 avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.port=_ser1_alt
+avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.portname=Serial1
+avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.portswap=1
 avrdaopti.menu.bootloaderusart.ser2=USART2: TX PF0, RX PF1
 avrdaopti.menu.bootloaderusart.ser2.bootloader.port=_ser2
+avrdaopti.menu.bootloaderusart.ser2.bootloader.portname=Serial2
+avrdaopti.menu.bootloaderusart.ser2.bootloader.portswap=0
 avrdaopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (32+-pin only)
 avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
+avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portname=Serial2
+avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portswap=1
 avrdaopti.menu.bootloaderusart.ser3=USART3: TX PB0, RX PB1 (48/64-pin only)
 avrdaopti.menu.bootloaderusart.ser3.bootloader.port=_ser3
+avrdaopti.menu.bootloaderusart.ser3.bootloader.portname=Serial3
+avrdaopti.menu.bootloaderusart.ser3.bootloader.portswap=0
 avrdaopti.menu.bootloaderusart.ser3_alt=USART3 (alt): TX PB4, RX PB5 (48/64-pin only)
 avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.port=_ser3_alt
+avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.portname=Serial3
+avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.portswap=1
 avrdaopti.menu.bootloaderusart.ser4=USART4: TX PE0, RX PE1 (48/64-pin only)
 avrdaopti.menu.bootloaderusart.ser4.bootloader.port=_ser4
+avrdaopti.menu.bootloaderusart.ser4.bootloader.portname=Serial4
+avrdaopti.menu.bootloaderusart.ser4.bootloader.portswap=0
 avrdaopti.menu.bootloaderusart.ser4_alt=USART4 (alt): TX PE4, RX PE5 (64-pin only)
 avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.port=_ser4_alt
+avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.portname=Serial4
+avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.portswap=1
 avrdaopti.menu.bootloaderusart.ser5=USART5: TX PG0, RX PG1 (64-pin only)
 avrdaopti.menu.bootloaderusart.ser5.bootloader.port=_ser5
+avrdaopti.menu.bootloaderusart.ser5.bootloader.portname=Serial5
+avrdaopti.menu.bootloaderusart.ser5.bootloader.portswap=0
 avrdaopti.menu.bootloaderusart.ser5_alt=USART5 (alt): TX PG4, RX PG5 (64-pin only)
 avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.port=_ser5_alt
+avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
+avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 
 
 #########################################
@@ -976,7 +1000,7 @@ avrdbopti.upload.tool=avrdude
 avrdbopti.build.board=avrdb
 avrdbopti.build.core=dxcore
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DUSING_OPTIBOOT
+avrdbopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.mcupostfix=
 
@@ -1283,25 +1307,49 @@ avrdbopti.menu.timeout.8sec.bootloader.timeout=_8sec
 # Optiboot Serial Port
 avrdbopti.menu.bootloaderusart.ser0=USART0: TX PA0, RX PA1
 avrdbopti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdbopti.menu.bootloaderusart.ser0.bootloader.portname=Serial
+avrdbopti.menu.bootloaderusart.ser0.bootloader.portswap=0
 avrdbopti.menu.bootloaderusart.ser0_alt=USART0 (alt): TX PA4, RX PA5
 avrdbopti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdbopti.menu.bootloaderusart.ser0_alt.bootloader.portname=Serial
+avrdbopti.menu.bootloaderusart.ser0_alt.bootloader.portswap=1
 avrdbopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1
 avrdbopti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdbopti.menu.bootloaderusart.ser1.bootloader.portname=Serial1
+avrdbopti.menu.bootloaderusart.ser1.bootloader.portswap=0
 avrdbopti.menu.bootloaderusart.ser1_alt=USART1 (alt): TX PC4, RX PC5 (48/64-pin only)
 avrdbopti.menu.bootloaderusart.ser1_alt.bootloader.port=_ser1_alt
+avrdbopti.menu.bootloaderusart.ser1_alt.bootloader.portname=Serial1
+avrdbopti.menu.bootloaderusart.ser1_alt.bootloader.portswap=1
 avrdbopti.menu.bootloaderusart.ser2=USART2: TX PF0, RX PF1
 avrdbopti.menu.bootloaderusart.ser2.bootloader.port=_ser2
+avrdbopti.menu.bootloaderusart.ser2.bootloader.portname=Serial2
+avrdbopti.menu.bootloaderusart.ser2.bootloader.portswap=0
 avrdbopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (32+-pin only)
 avrdbopti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
+avrdbopti.menu.bootloaderusart.ser2_alt.bootloader.portname=Serial2
+avrdbopti.menu.bootloaderusart.ser2_alt.bootloader.portswap=1
 avrdbopti.menu.bootloaderusart.ser3=USART3: TX PB0, RX PB1 (48/64-pin only)
 avrdbopti.menu.bootloaderusart.ser3.bootloader.port=_ser3
+avrdbopti.menu.bootloaderusart.ser3.bootloader.portname=Serial3
+avrdbopti.menu.bootloaderusart.ser3.bootloader.portswap=0
 avrdbopti.menu.bootloaderusart.ser3_alt=USART3 (alt): TX PB4, RX PB5 (48/64-pin only)
 avrdbopti.menu.bootloaderusart.ser3_alt.bootloader.port=_ser3_alt
+avrdbopti.menu.bootloaderusart.ser3_alt.bootloader.portname=Serial3
+avrdbopti.menu.bootloaderusart.ser3_alt.bootloader.portswap=1
 avrdbopti.menu.bootloaderusart.ser4=USART4: TX PE0, RX PE1 (48/64-pin only)
 avrdbopti.menu.bootloaderusart.ser4.bootloader.port=_ser4
+avrdbopti.menu.bootloaderusart.ser4.bootloader.portname=Serial4
+avrdbopti.menu.bootloaderusart.ser4.bootloader.portswap=0
 avrdbopti.menu.bootloaderusart.ser4_alt=USART4 (alt): TX PE4, RX PE5 (64-pin only)
 avrdbopti.menu.bootloaderusart.ser4_alt.bootloader.port=_ser4_alt
+avrdbopti.menu.bootloaderusart.ser4_alt.bootloader.portname=Serial4
+avrdbopti.menu.bootloaderusart.ser4_alt.bootloader.portswap=1
 avrdbopti.menu.bootloaderusart.ser5=USART5: TX PG0, RX PG1 (64-pin only)
 avrdbopti.menu.bootloaderusart.ser5.bootloader.port=_ser5
+avrdbopti.menu.bootloaderusart.ser5.bootloader.portname=Serial5
+avrdbopti.menu.bootloaderusart.ser5.bootloader.portswap=0
 avrdbopti.menu.bootloaderusart.ser5_alt=USART5 (alt): TX PG4, RX PG5 (64-pin only)
 avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.port=_ser5_alt
+avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
+avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1

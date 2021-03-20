@@ -321,7 +321,10 @@ extern const uint8_t digital_port_to_pin0[];
 #else
 #error "Can't-happen: unknown chip somehow being used"
 #endif
+
 #ifdef __AVR_DD__
+
+
 #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
 #endif
 
@@ -370,10 +373,89 @@ extern const uint8_t digital_port_to_pin0[];
 
 #include "pins_arduino.h"
 
+// If not otherwise specified, we will assume the DAC outputs on PD6 - No product has
+// been announced with it anywhere else, nor has any product been announced with more than 1.
 #ifdef DAC0
   #ifndef PIN_DACOUT
     #define PIN_DACOUT PIN_PD6
   #endif
 #endif
+
+/* Moved from pins_arduino.h to reduce code duplication - also made better decisions */
+
+// These serial port names are intended to allow libraries and architecture-neutral
+// sketches to automatically default to the correct port name for a particular type
+// of use.  For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
+// the first hardware serial port whose RX/TX pins are not dedicated to another use.
+//
+// SERIAL_PORT_MONITOR        Port which normally prints to the Arduino Serial Monitor
+//
+// SERIAL_PORT_USBVIRTUAL     Port which is USB virtual serial
+//
+// SERIAL_PORT_LINUXBRIDGE    Port which connects to a Linux system via Bridge library
+//
+// SERIAL_PORT_HARDWARE       Hardware serial port, physical RX & TX pins.
+//
+// SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
+//                            pins are NOT connected to anything by default.
+
+// First, we allow a define to be passed (lkely from boards.txt - though it could
+// come from pins_arduino, I suppose) to force a certain port here. The plan is
+// that I will pass defines from board definitions specifying this for the Curiosity
+// Nano boards, in order to improve the user experience there
+
+#if !defined(SERIAL_PORT_MONITOR)
+  #if defined(SERIAL_PORT_BOOT)
+    #define SERIAL_PORT_MONITOR       SERIAL_PORT_BOOT
+  #else
+    #define SERIAL_PORT_MONITOR       Serial
+  #endif
+#endif
+
+// Following example in the Arduino Mega, where despite having 4 serial ports, they
+// use Serial for both SERIAL_PORT_MONITOR and SERIAL_PORT_HARDWARE, I will not
+// try to spread around the ports we use for these defines - if we're
+// going to declare some other port to be the "main" serial port, with the monitor
+// on it and all, we should be consistent about that, right? *shrug*
+#define SERIAL_PORT_HARDWARE      SERIAL_PORT_MONITOR
+
+// If we have USART2 (ie, we are not a DD-series) we will declare that to be
+// SERIAL_PORT_HARDWARE_OPEN, so that on a DB-series, libraries are less likely to
+// squabble over the more powerful USART1 - USART1 being more powerful because it
+// is on PORTC, the MVIO port.
+
+#if !defined(SERIAL_PORT_MONITOR)
+  #if defined(USART2) && (SERIAL_PORT_MONITOR != Serial2)
+    #define SERIAL_PORT_HARDWARE_OPEN Serial2
+  #else
+    #if (SERIAL_PORT_MONITOR != Serial)
+      #define SERIAL_PORT_HARDWARE_OPEN Serial
+    #else
+      #define SERIAL_PORT_HARDWARE_OPEN Serial1
+    #endif
+  #endif
+#endif
+
+#if !defined(SERIAL_PORT_MVIO) && defined(MVIO)
+// DD-series parts with 20-or-fewer pins will not have a PC0 for the TX line of
+// Serial1, so it can't be their MVIO serial port (without involving the event
+// system, of course) - but they can get a serial port on MVIO pins with USART0
+// and an alternate mapping. So for those parts only, Serial is their MVIO port.
+// For everyone else it's Serial1, and for non-DD parts, that is the only port
+// that could be used with MVIO (again, short of rerouting signals with
+// the event system)
+  #if defined(DD_14_PINS) || defined(DD_20_PINS)
+    #define SERIAL_PORT_MVIO Serial
+  #else
+    #define SERIAL_PORT_MVIO Serial1
+  #endif
+#endif
+
+// Spence Konde: This is a bit silly - but it does have some utility. I am of the
+// opinion that anything that needs to use a serial port or other peripheral of
+// which a chip may have several, and it needs to be sure to pick the "right" one
+// it should ASK THE USER - what good does it do that the GPS picked the first
+// open serial port, if the user tied it to a different port? Or thought they
+// were going to use software serial "like they always did" (*shudder*)
 
 #endif

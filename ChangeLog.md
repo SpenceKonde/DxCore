@@ -7,10 +7,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ### 1.3.3
 * fix bug with RISING edge interrupt in comparator library being configured on FALLING edge instead. Improve documentation and add in::pd2, in::pd6 to in_p, in::pd0, in::pd7 to in_n - these are aliases to the corresponding inputs, which are available on all three comparators. Tweaks to documentation and examples
 * Fix bug where analogWrite() of 0 or 255 to PD6 (the DAC output) would call digitalWrite() to disable the DAC output entirely. Instead, we leave it connected and assign the value the user passed to the DAC's data register (#83).
-* Correct bug where the BOD could not be set to anything other than Disabled (would generate error when Burn Bootloader selected) because the default BODCFG definition (defining it in terms of bodlevbits and bodmodebits - each controlled by the appropriate submenu) was missing from boards.txt - it was only defined when it was overridden by the mode: disabled/disabled option, and on one of the two lines in each board refering to the Enabled/Sampled (32 Hz) option, it was named ensampslo instead of ensampslow.
+* Correct bug where the BOD could not be set to anything other than Disabled (would generate error when Burn Bootloader selected) because the default BODCFG definition (defining it in terms of bodlevbits and bodmodebits - each controlled by the appropriate submenu) was missing from boards.txt - it was only defined when it was overridden by the mode: disabled/disabled option, and on one of the two lines in each board referring to the Enabled/Sampled (32 Hz) option, it was named ensampslo instead of ensampslow.
 * Corrected sampling frequencies listed for sampled BOD (1 kHz/125 Hz is only for ATTiny 0/1/2, these use 128 Hz and 32 Hz
 * Remove optional support for SerialEvent; it is deprecated in the official core (which I hadn't noticed when I added support). SerialEvent was an awful misfeature that should never have existed; with the official core having seen the light and deprecated it, I feel no obligation to keep it in. These are new shiny parts, and it is well established that SerialEvent was an abomination. Let us not allow it on this nice new silicon.
 * Add a bunch of stuff to keywords.txt
+* Add BOOTUSART and BOOTSWAP defines based on bootloader usart menu, since that's probably where the monitor will be connected.
 
 ## Released Versions
 
