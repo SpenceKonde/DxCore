@@ -384,7 +384,7 @@ void analogWrite(uint8_t pin, int val)
          * no promises in that case, the fact that this is better then is an added bonus.
          *---------------------------------------------------------------------------------------*/
         uint8_t temp2 = TCD0.CTRLA;
-        TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm;)
+        TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);
         _PROTECTED_WRITE(TCD0.FAULTCTRL, (bit_mask | TCD0.FAULTCTRL));
         while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
         TCD0.CTRLA = temp2; // re-enable it if it was enabled
