@@ -1213,7 +1213,7 @@ void init_TCA1() {
   // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
   // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
   // this, in the interest of making init_TCA0 more usable as the reverse of takeOverTCA0()
-  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | TCA0_PINS;
+  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | TCA1_PINS;
 
   /* Enable Split Mode */
   TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
