@@ -81,6 +81,10 @@
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 instead of PB4
 #define TCD0_PINS 0x00                  // TCD0 output on PA4~PA7
 
+
+#define PIN_TCA0_WO0_INIT PIN_PD0
+#define PIN_TCD0_WOA_INIT PIN_PA4
+
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 

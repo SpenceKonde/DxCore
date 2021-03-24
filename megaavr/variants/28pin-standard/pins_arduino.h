@@ -76,8 +76,8 @@
 #define TCB2_PINS 0x00                    // TCB2 output on PC0 (default), not PB4
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc  // Only default port option works!
 
-#define PIN_TCA0_WO0 PIN_PD0
-#define PIN_TCD0_WOA PIN_PA4
+#define PIN_TCA0_WO0_INIT PIN_PD0
+#define PIN_TCD0_WOA_INIT PIN_PA4
 
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0

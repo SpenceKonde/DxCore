@@ -98,6 +98,10 @@
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // Only default port option works!
 
+#define PIN_TCA0_WO0_INIT PIN_PC0
+#define PIN_TCA1_WO0_INIT PIN_PB0
+#define PIN_TCD0_WOA_INIT PIN_PA4
+
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 

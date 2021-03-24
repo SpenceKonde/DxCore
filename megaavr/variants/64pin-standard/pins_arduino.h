@@ -117,10 +117,11 @@
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 #define TCB4_PINS 0x00                      // TCB4 output on PG3 (default) instead of PC6
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA[4:7] (default - only default port option works)
-// PWM on the non-swap mux option for the TX/RX port on the MVIO pins? That's a pretty lousy pair of pins to be PWMing
-// Yes, but since the only analogWrite-compatible mux setting for TCA1 is on the same pins, nobody can use it unless they take over TCA1!
-
-
+// Setting TCB2 and TCB3 for PWM on PC0, PC1 doesn't sound optimal for the AVR DB, but you shouldn't be using TCBs for PWM anyway!
+// They are there as a last resort, not a first resort.
+#define PIN_TCA0_WO0_INIT PIN_PC0
+#define PIN_TCA1_WO0_INIT PIN_PB0
+#define PIN_TCD0_WOA_INIT PIN_PA4
 
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
