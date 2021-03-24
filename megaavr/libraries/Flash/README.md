@@ -21,7 +21,7 @@ Please let me know if this does or does work out for you - In addition to bug re
 ## Usage Guide
 
 ### Checking Compatibility
-In order for this to work, currently, you must be running Optiboot (future enhancement will make it work without bootloader), and it must be one of the 1.3.0 releases. The `checkFlashWrite()` function can be used to determine if we can write to flash with the current configuration on the part. If it fails, you need to correct this, probably by burning the new bootloader.
+In order for this to work, currently, you must be running Optiboot (future enhancement will make it work without bootloader), and it must be one of the 1.3.0 releases. The `Flash.checkWritable()` function can be used to determine if we can write to flash with the current configuration on the part. If it fails, you need to correct this, probably by burning the new bootloader.
 
 All error codes returned by the functions provided assume that the device you are using has a compatible bootloader - otherwise it may behave in an unexpected manner (without an incompatible bootloader, it will probably just reset; without any bootloader, it will just return the error code). So, unless certain that the bootloader currently installed is from 1.3.0 (1/18/2021 or later - earlier 1.3.0-dev bootloaders don't support this) call this to make sure.
 
@@ -78,7 +78,7 @@ if (targetAddress < 0x8000) {
   // Of course, if you don't erase, then all you can store is bitwise and of existing data
   // and new data...
   // Assuming there's nothing else there though, you could just:
-  Serial.println(flashErasePage(targetAddress));
+  Serial.println(Flash.erasePage(targetAddress));
   // Otherwise, you'd have to read the whole 512 byte page, modify the relevant bytes, erase that page, then write it back.
 }
 ```
@@ -103,7 +103,7 @@ uint8_t Flash.checkWritable()
 ```
 
 ```
-uint8_t result = checkFlashWrite();
+uint8_t result = Flash.checkWritable();
 switch (result) {
   case FLASHWRITE_OK:
     Serial.println("Flash can be written from application");
@@ -134,7 +134,7 @@ If ((returnvalue) & 0x10), we are not using the bootloader section to write the 
 ### Page Erase - Flash.erasePage()
 
 ```
-uint8_t flashErasePage(uint32_t address, uint8_t size = 1);
+uint8_t Flash.erasePage(uint32_t address, uint8_t size = 1);
 ```
 
 ```
@@ -149,7 +149,7 @@ if (returnval) {
 
 // Erase the last 16k of flash on an AVR128DA/DB, using a maximum size multi-page erase
 // Any target address 0x1C000~0x1FFFF will do the same thing.
-uint8_t returnval = flashErasePage(0x1C000,32);
+uint8_t returnval = Flash.erasePage(0x1C000,32);
 if (returnval) {
   Serial.print("Error: ");
 } else {
@@ -288,5 +288,4 @@ If you receive any of these, and it is not apparent why it is not working, pleas
 ## Future developments
 * I am sympathetic to the idea of "guard rails" - could a variable be placed at the end of the application, and another at the end of the section of the mapped flash constants declared by the application? If we could get that in (I can add linker commands to the platform.txt), the addresses of those could be used to set "keep out" zones for the flash writing library...
 * As noted above, a flashUpdatePage() of some sort would be good... thinking about how to implement it robustly...
-* Obviously, there's the non-bootloader situation; I know what I need... Just not how to make the compiler generate that (as in, I'm almost certain I could do it by editing hex files).
 * Please point out bugs, defects and poor decisions. As noted above, the API may change in future versions; I hope to talk with some users, make sure the API and such is solid, and then remove that warning.
