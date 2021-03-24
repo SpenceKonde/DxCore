@@ -13,16 +13,16 @@ As if that all isn't enough, there's a 28-pin version in a DIP package. The 28-p
 
 These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, DB, or DD (depending on the "series" or "family", then the number of pins. 128k parts were released first (unfortunately, with some rather brutal silicon errata - as these are their flagship parts, I am hopeful that we will see a fix sooner rather than later), followed by 32k; as of the end of July 2020, the 64k parts are not out yet. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 32k parts with 64 pins are not available.
 
-At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical; most vary very little between the initial release and now.
+At present, it appears that there will be at least three lines of Dx-series parts; all are supported by DxCore - the peripherals are virtually identical, as are the pinouts.
 
 ## DA-series
 The "basic" large-size line - however much I was in awe of these when they were first released, having seen the DB-series, it now appears that these are more akin to a 0-series than a 1-series - by almost any measure, the DB-series is the same or slightly better (and barely more expensive!). They do not support using an external crystal for the main clock, like the other Dx parts do, but the internal oscillator on these parts is still WAY better than the classic AVRs had - all the ones I've tested are weithin half a percent at room temp and typical operating voltages, even without autotune... To make sure autotune was working, I had to point a torch at it, because I couldn't get enough of a change in the internal oscillator frequency from changing the supply voltage. It is also the only currently announced Dx series without MVIO. While they may not shine as brightly next to the other Dx lines, these are still far above any AVR released before the year 2020.
 
 ## DB-series
-The DB-series is almost an exact copy of the DA-series (they fixed some of the most egregious silicon bugs, though they have hardly been a paragon of rigor ), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, instead of ~ 1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). A future version of DxCore will provide a simple library to control the opamps in the spirit of the Logic and Comparator libraries.
+The DB-series is almost an exact copy of the DA-series (they fixed some of the most egregious silicon bugs, though they have hardly been a paragon of rigor ), only with a few MORE exciting features tacked on: Support for a real high-frequency crystal as clock source (seen for the first time since the modern AVR architecture was released in 2016), "MVIO" (multivoltage I/O), where PORTC can run at a different voltage than the rest of the chip (essentially, a builtin bidirectional level shifter). The other "headline feature", is the  two (28/32-pin parts) or three (48/64-pin parts) on-chip opamps, with software-controlled MUX for the inputs and an on-chip feedback resistor ladder. These can be used as gain stage for the ADC, for example, or to buffer the DAC output (though these opamps can't supply much current, they can supply tens of mA, instead of ~ 1 like the unaided DAC), connected together like the CCL LUTs. etc (on parts with 3, you can even connected them together as an instrumentation amplifier). The included `<opamp.h>` library provides a minimalist wrapper around these, though you should still expect to refer to the datasheet when working with them..
 
 ## DD-series
-The DD-series is a smaller-pincount line; parts are available with 14-32 pins. They've got the MVIO (3 or 4 MVIO pins depending on pincount). The product brief claims 10 output pins, 11 input pins,  on the 14-pin package. With VDD, VDDIO, and GND. That implies that there will be a way to configure the UPDI pin to act as an I/O pin, and Reset to act as an input only if configured appropirately in the fuses. We'll have to wait until more information is available, but it sounds like the reset pin on these parts will be the pin that needs the HV pulse (likely )
+The DD-series is a smaller-pincount line; parts are available with 14-32 pins. They've got the MVIO (3 or 4 MVIO pins depending on pincount). The product brief claims 10 output pins, 11 input pins,  on the 14-pin package. With VDD, VDDIO, and GND. That implies that there will be a way to configure the UPDI pin to act as an I/O pin, and Reset to act as an input only if configured appropirately in the fuses. We'll have to wait until more information is available, but it sounds like the reset pin on these parts will be the pin that needs the HV pulse. One thing worth noting is that the 28-pin and 32-pin DD-series parts are, but for expanded port multiplexing options for SPI0, USART0, and TCD0, and the addition of ADC input funtionality on pins in PORTA and PORTC,  One imagines that, since these do have enhanced PORTMUX options for TCD0, and since Microchip has been aware since the summer of 2020 that the TCD0 PORTMUX options other than the default were broken on DA-series and DB-series, we should anticipate that this issue should be fixed in the DD-series.
 
 ## Identifying parts from #defines
 As with all AVR devices, a define of the form `__AVR_PARTNUMBER__` is provided by the toolchain package (these come from the io headers in the ATPacks from Microchip, if you were wondering). For example: `__AVR_AVR128DA64__`  - thus, to test if it was a 64-pin Dx-series, you might do
@@ -35,7 +35,7 @@ Obviously, that gets very verbose very quickly, so it is often convenient to hav
 
 ### __AVR_ARCH__
 This can be set to 102, 103, or 104 depending on flash size:
-* `__AVR_ARCH__ == 103` - All parts where all of the flash is mapped in the data space. This means Dx-series parts with 32k of flash, tinyAVR 0/1/2-series, and megaAVR 0-series.
+* `__AVR_ARCH__ == 103` - All parts where all of the flash is mapped in the data space. This means Dx-series parts with 32k or less of flash, tinyAVR 0/1/2-series, and megaAVR 0-series.
 * `__AVR_ARCH__ == 104` - Parts with 128Kb of flash, mapped flash is split into 4 sections (AVR128DA, AVR128DB).
 * `__AVR_ARCH__ == 102` - Parts with 64Kb of flash, mapped flash is split into 2 sections (AVR64DA, AVR64DB).
 
@@ -120,14 +120,12 @@ Connections:
 
 Choose "Serial Port and 4.7k" from the Tools -> Programmer menu, and select the Serial Port from the Tools -> Port menu.
 
-**WARNING** - presently this is not working for "burn bootloader" for optiboot board definitions (it reports success, but only fuses are set, the bootloader is not written). we are working to resolve this issue and will release 1.3.2 when a fix is available.
-
 Note that this does not give you serial monitor - you need to connect a serial adapter the normal way for that (I suggest using two, along with an external serial terminal application). This technique works with those $1 CH340 serial adapters from ebay, aliexpress, etc. Did you accidentally buy some that didn't have a DTR pin broken out, and so weren't very useful with the Pro Minis you hoped to use them with?
 
 ### Serial adapter requuirements
 Almost any cheaper-than-dirt serial adapter can be use d for pyupdi style programer, as long as you take care to avoid these pitfalls:
 1: The FTDI FT232, (both the genuine ones, and the fakes) are known to be SLOW. It looks like they wait for more data to come to send it all at once more "efficiently"?
-2. Many serial adapters have a resistor, typically between 1k and 2.2l in series with their TX line; If yours has one, just reduce the value of the resistor between Tx and Tx by about that much.
+2. Many serial adapters have a resistor, typically between 1k and 2.2k in series with their TX line; If yours has one, just reduce the value of the resistor between Tx and Tx by about that much.
 3. Some serial adapters have a dedicated LED to indicate receiving. While some fancy chips have an I/O pin that drives the RX led (the FT232 has that feature I think), a cheap adapter with an RX just put an LED and resistor on the RX line.  The load from an LED on the UPDI line will overwhelm any signal and prevent communication. Detecting teceiv
 
 **Note:** These are the requirements for programming through the UPDI pin using the serial adapter; these are not the requirements for programming through a bootloader installed on the chip; that is covered below.
@@ -136,7 +134,7 @@ Almost any cheaper-than-dirt serial adapter can be use d for pyupdi style progra
 There is now support for an Optiboot derived bootloader! See the Bootloader section below for more information. The bootloader, of course, requires a UPDI programmer to install.
 
 ## Lots of errata
-The silicon errata list in the initial versions of these parts is... longer than you may be used to if you were accustomed to the classic AVRs. On the other hand, if you've been working with the tinyAVR 0/1-series, many of these errata may be old friends of yours by now. A good number (really, I should say, a "bad number") of those issues appear to have sailed through the new chip design process without a remedy - and recently as late 2020, new silicon bugs that they were apparently unaware of prior to their being reported on the DA-series peripherals - See [errata and extras](megaavr/extras/errata_and_extras.md) for more information.  There were also a number of features that were pulled from the documentation at the last minute (in some cases, they were left in the io header files for a while). Presumably these did not meet quality/reliability requirements. Where we are aware of these, we have mentioned them there as well - the most exciting one, of course, is that the internal oscillator has a 32 MHz setting (and it seems to work fine in my tests; 32 MHz is also a great speed because of it's exactly twice what one of the most common speeds is. to). The other big winners are
+The silicon errata list in the initial versions of these parts is... longer than you may be used to if you were accustomed to the classic AVRs. On the other hand, if you've been working with the tinyAVR 0/1-series, many of these errata may be old friends of yours by now. A good number (really, I should say, a "bad number") of those issues appear to have sailed through the new chip design process without a remedy - and recently as late 2020, new silicon bugshave been appearing in the tinyAVR 0/1 errata and DA/DB errata, presumably issues that they were unaware of prior to their being discovered on the DA-series peripherals - See [errata and extras](megaavr/extras/errata_and_extras.md) for more information.  There were also a number of features that were pulled from the documentation at the last minute (in some cases, they were left in the io header files for a while). Presumably these did not meet quality/reliability requirements. Where we are aware of these, we have mentioned them there as well - the most exciting one, of course, is that the internal oscillator has a 32 MHz setting (and it seems to work fine in my tests; 32 MHz is also a great speed because of it's exactly twice what one of the most common speeds is). The PLL can also go to 4x multiplier (and appears to work there, to my great amazement, even at 32 MHz system clock. Crazy stuff...)
 
 ## Quick Peripheral by Peripheral comparison
 [Compared to tinyAVR 0/1-series and/or mega 0-series](megaavr/extras/Comparison.md) - these were my thoughts as I first read through the AVR128DA datasheet; it is not an in-depth guide to the features of these parts, nor is it intended to be.
@@ -292,6 +290,37 @@ DAC0.DATA=(dacvalue<<6);
 
 // disable DAC
 DAC0.CTRLA &= ~(DAC_OUTEN_bm | DAC_ENABLE_bm);
+```
+
+#### DAC Error
+For rather silly reasons, I wound up taking a bunch of measurements with a millivolt meter hooked up to the DAC. At least on the chip I tested, at room temperature and Vcc = approx. 5v, both the 4.096 and 1.024V references were within 1%, and the voltages coming out of the DAC were a few mV low below around the half-way point. It looked to me like, feeding it 8-bit values, if your "dac writing" function secretly set the low 2-bits of DATA a value dependant on the 8 high-bits and the current reference voltage, you could get a significant improvement in accuracy of the output. Something like this would do well - at least on the chip I was looking at. I have too many other tasks to persue further - but someone who likes analog stuff could have a lot of fun with this, for certain values of fun...
+```c++
+void correctedDACWrite(uint8_t value) {
+  // assumes DAC already enabled and outputting, just changing output value
+  // elsewhere, pretend that it's not doing any of this.
+  byte datal=0;
+  byte dacref = VREFA.DAC0REF &0x07;
+  if (dacref == 2) { // 4.096
+    if (value < 128) {
+      datal=1;
+    }
+  } else if (dacref == 2)  {// 1.024
+    if (value < 112) {
+      datal = min(value,3);
+    } else if (value < 128) {
+      datal = 2;
+    } else if (value < 144) {
+      datal = 1;
+    }
+  } else if (dacref = 1) { // 2.048
+    /* I didn't  play with this reference voltage... */
+  } else if (dacref = 3) { // 2.500
+    /* or this one */
+  }
+  DAC0.DATAL=datal;
+  DAC0.DATAH=value;
+}
+
 ```
 
 ### Servo Support
