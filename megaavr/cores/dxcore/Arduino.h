@@ -71,7 +71,7 @@ extern "C"{
 #define noInterrupts() cli()
 
 void analogReadResolution(uint8_t res);
-
+__attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 
 uint8_t digitalPinToTimerNow(uint8_t p);
 
@@ -259,73 +259,71 @@ extern const uint8_t digital_port_to_pin0[];
 
 //#defines to identify part families
 #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
-#define DA_64_PINS
-#define Dx_64_PINS
-#define DXCORE_ID_LOW HAS_64_PINS
-#define __AVR_DA__
+  #define DA_64_PINS
+  #define Dx_64_PINS
+  #define DXCORE_ID_LOW HAS_64_PINS
+  #define __AVR_DA__
 #elif defined(__AVR_AVR128DA48__) || defined(__AVR_AVR64DA48__) || defined(__AVR_AVR32DA48__)
-#define DA_48_PINS
-#define Dx_48_PINS
-#define DXCORE_ID_LOW HAS_48_PINS
-#define __AVR_DA__
+  #define DA_48_PINS
+  #define Dx_48_PINS
+  #define DXCORE_ID_LOW HAS_48_PINS
+  #define __AVR_DA__
 #elif defined(__AVR_AVR128DA32__) || defined(__AVR_AVR64DA32__) || defined(__AVR_AVR32DA32__)
-#define DA_32_PINS
-#define Dx_32_PINS
-#define DXCORE_ID_LOW HAS_32_PINS
-#define __AVR_DA__
+  #define DA_32_PINS
+  #define Dx_32_PINS
+  #define DXCORE_ID_LOW HAS_32_PINS
+  #define __AVR_DA__
 #elif defined(__AVR_AVR128DA28__) || defined(__AVR_AVR64DA28__) || defined(__AVR_AVR32DA28__)
-#define DA_28_PINS
-#define Dx_28_PINS
-#define DXCORE_ID_LOW HAS_28_PINS
-#define __AVR_DA__
+  #define DA_28_PINS
+  #define Dx_28_PINS
+  #define DXCORE_ID_LOW HAS_28_PINS
+  #define __AVR_DA__
 #elif defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)
-#define DB_64_PINS
-#define Dx_64_PINS
-#define DXCORE_ID_LOW HAS_64_PINS | IS_AVR_DB
-#define __AVR_DB__
+  #define DB_64_PINS
+  #define Dx_64_PINS
+  #define DXCORE_ID_LOW HAS_64_PINS | IS_AVR_DB
+  #define __AVR_DB__
 #elif defined(__AVR_AVR128DB48__) || defined(__AVR_AVR64DB48__) || defined(__AVR_AVR32DB48__)
-#define DB_48_PINS
-#define Dx_48_PINS
-#define DXCORE_ID_LOW HAS_48_PINS | IS_AVR_DB
-#define __AVR_DB__
+  #define DB_48_PINS
+  #define Dx_48_PINS
+  #define DXCORE_ID_LOW HAS_48_PINS | IS_AVR_DB
+  #define __AVR_DB__
 #elif defined(__AVR_AVR128DB32__) || defined(__AVR_AVR64DB32__) || defined(__AVR_AVR32DB32__)
-#define DB_32_PINS
-#define Dx_32_PINS
-#define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DB
-#define __AVR_DB__
+  #define DB_32_PINS
+  #define Dx_32_PINS
+  #define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DB
+  #define __AVR_DB__
 #elif defined(__AVR_AVR128DB28__) || defined(__AVR_AVR64DB28__) || defined(__AVR_AVR32DB28__)
-#define DB_28_PINS
-#define Dx_28_PINS
-#define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DB
-#define __AVR_DB__
+  #define DB_28_PINS
+  #define Dx_28_PINS
+  #define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DB
+  #define __AVR_DB__
 #elif defined(__AVR_AVR64DD32__) || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
-#define DD_32_PINS
-#define Dx_32_PINS
-#define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DD
-#define __AVR_DD__
+  #define DD_32_PINS
+  #define Dx_32_PINS
+  #define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DD
+  #define __AVR_DD__
 #elif defined(__AVR_AVR64DD28__) || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
-#define DD_28_PINS
-#define Dx_28_PINS
-#define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DD
-#define __AVR_DD__
+  #define DD_28_PINS
+  #define Dx_28_PINS
+  #define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DD
+  #define __AVR_DD__
 #elif defined(__AVR_AVR64DD20__) || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
-#define DD_20_PINS
-#define Dx_20_PINS
-#define DXCORE_ID_LOW HAS_20_PINS | IS_AVR_DD
-#define __AVR_DD__
+  #define DD_20_PINS
+  #define Dx_20_PINS
+  #define DXCORE_ID_LOW HAS_20_PINS | IS_AVR_DD
+  #define __AVR_DD__
 #elif defined(__AVR_AVR64DD14__) || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
-#define DD_14_PINS
-#define Dx_14_PINS
-#define DXCORE_ID_LOW HAS_14_PINS | IS_AVR_DD
-#define __AVR_DD__
+  #define DD_14_PINS
+  #define Dx_14_PINS
+  #define DXCORE_ID_LOW HAS_14_PINS | IS_AVR_DD
+  #define __AVR_DD__
 #else
-#error "Can't-happen: unknown chip somehow being used"
+  #error "Can't-happen: unknown chip somehow being used"
 #endif
 
 #ifdef __AVR_DD__
-
-
-#error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
+  #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
 #endif
 
 #if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (DXCORE_ID_LOW & IS_AVR_DD))
@@ -360,14 +358,24 @@ extern const uint8_t digital_port_to_pin0[];
 */
 #define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
 
+#ifndef DXCORE
+  #define DXCORE "Unknown 1.3.3+"
+#endif
 
+#define CORE_HAS_FASTIO 1
+#define CORE_HAS_OPENDRAIN 1
+// #define CORE_HAS_PINCONFIG 1 - core functionality not implemented yet
+#define NATIVE_ADC_RESOLUTION 12
+#define NATIVE_ADC_RESOLUTION_LOW 10
+// #define DIFFERENTIAL_ADC - core functionality not implemented yet.
+// #define CORE_HAS_ADC_OVERSAMPLE - core functionality not implemented yet.
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
 #ifdef __cplusplus
-#include "UART.h"
+  #include "UART.h"
 
 #endif
 
