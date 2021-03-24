@@ -19,8 +19,8 @@
   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
   Boston, MA  02111-1307  USA
 */
-
 #include "wiring_private.h"
+#include "util/delay.h"
 #if (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
   void asmDelay(uint16_t us);
   void blinkCode(uint8_t blinkcount);
@@ -372,26 +372,21 @@ unsigned long millis()
 #if !(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC)) //delay implementation when we do have micros()
 void delay(unsigned long ms)
 {
-  uint32_t start_time = micros(), delay_time = 1000*ms;
+  uint32_t start = micros();
 
-  /* Calculate future time to return */
-  uint32_t return_time = start_time + delay_time;
-
-  /* If return time overflows */
-  if(return_time < delay_time){
-    /* Wait until micros overflows */
-    while(micros() > return_time);
+  while (ms > 0) {
+    yield();
+    while ( ms > 0 && (micros() - start) >= 1000) {
+      ms--;
+      start += 1000;
+    }
   }
-
-  /* Wait until return time */
-  while(micros() < return_time);
 }
+
 #else //delay implementation when we do not
 void delay(unsigned long ms)
 {
-  while(ms--){
-    delayMicroseconds(1000);
-  }
+  _delay_ms(ms)
 }
 #endif
 
@@ -419,8 +414,24 @@ void delay(unsigned long ms)
   #define DELAYMICROS_EIGHT
 #endif
 
-void delayMicroseconds(unsigned int us)
-{
+
+/* Delay for the given number of microseconds
+   In my tests, LTO would always properly optimize and inline this trivial bit even without making it explicitly
+   always inline, which was ugly because it required some of the code to be pushed all the way up into Common.h*/
+
+void delayMicroseconds(unsigned int us) {
+  if (__builtin_constant_p(us)) { //if it's compiletime known, this gets replaced with avrlibc delay us, with I think no penalty.
+    _delay_us(us);
+  } else {
+    _delayMicroseconds(us);
+  }
+}
+
+/* But if we can't do it at compiletime, the delay_us implementation (which itself gets inlined)
+   ain't gonna work! So then we instead call a non-inlinable stock delayMicroseconds;
+   Some of the problems people were having, I think, were caused by the unpredictable impact
+   of optimization on delayMicroseconds durations */
+__attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // call = 4 cycles + 2 to 4 cycles to init us(2 for constant delay, 4 for variable)
 
   // calling avrlib's delay_us() function with low values (e.g. 1 or
@@ -1333,6 +1344,6 @@ void init_TCD0() {
   TCD0.CMPACLR  = 0x0FFF;                 // Match with CMPBCLR clears all outputs. This just needs to be higher than
   TCD0.CTRLC    = 0x80;                   // WOD outputs PWM B, WOC outputs PWM A
   TCD0.CTRLB    = TCD_WGMODE_ONERAMP_gc;  // One Slope
-  TCD0.CTRLA    = TIMERD0_CLOCK_SETTING;  // 5, 10 MHz OSCHF, all others CLKPER. count prescale 32 except 1 MHz, prescale 4.
+  TCD0.CTRLA    = TIMERD0_CLOCK_SETTING | TCD_ENABLE_bm;  // 5, 10 MHz OSCHF, all others CLKPER. count prescale 32 except 1 MHz, prescale 4.
 }
 #endif
