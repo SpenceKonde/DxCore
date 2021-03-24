@@ -11,7 +11,20 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Corrected sampling frequencies listed for sampled BOD (1 kHz/125 Hz is only for ATTiny 0/1/2, these use 128 Hz and 32 Hz
 * Remove optional support for SerialEvent; it is deprecated in the official core (which I hadn't noticed when I added support). SerialEvent was an awful misfeature that should never have existed; with the official core having seen the light and deprecated it, I feel no obligation to keep it in. These are new shiny parts, and it is well established that SerialEvent was an abomination. Let us not allow it on this nice new silicon.
 * Add a bunch of stuff to keywords.txt
-* Add BOOTUSART and BOOTSWAP defines based on bootloader usart menu, since that's probably where the monitor will be connected.
+* Add BOOTUSART and BOOTSWAP defines based on bootloader usart menu, since that's probably where the monitor will be connected. Use to determine SERIAL_PORT_MONITOR.
+* delayMicroseconds now uses the implementation in wiring.c only when the delay dduration is not known at compile time. When it's compiletime known, we use the avrlibc `_delay_us()` function.
+* delay() no longer breaks when called asked to wait for more than 4.29 million ms. One could argue that if someone was running into that problem, they were doing something wrong anyway, but there is no reason delay() needed to do it the way it did - certainly not for the paltry 24b of flash it saved on parts with 32-128k.
+* Add `PIN_TCD0_WOA_INIT`, `PIN_TCA1_WO0_INIT`, `PIN_TCA0_WO0_INIT` defines so one can determine where the PWM pins are right after initialization without having to do work.
+* non-Arduino-IDE tools may not pass all the defines that we expect - basically, no defines that we platform.txt and boards.txt can normally guarantee can be relied upon to be there!. If Arduino.txt does not see a DXCORE define, that must have happened. In this case, detect and define a placeholder - checking for that define is how other libraries recognize that this core is in use. Also check a few other important defines for existance, rather than assuming that because my boards.txt and platform.txt will always provide them, that they will be present and one of the valid options - the intent is simply to make sure we don't sleep-walk into a wacky wromg state (imagine an X which is always defined as A, B or C via the boards.txt/platform.txt configuration, one could do `/* well it's gotta be C then right? */`. But in a situation where we don't fully control the defines passed to the compiler through the command invokation with total certainty is supposed to be supported, we need to complain if there make sure we don't blindly assume that can't-happen-per-our-boards-and-platform-definitions actually can't happen, thus above situation needs to be `#if X==A` ..... `#elif X==B`  ..... `#elif X==C` ..... `#else      #error "X undefined or invalid, X must be #defined as A, B or C" #endif`. Doing this is less work than dealing with the support requests that would result from not doing so.
+* Add some defines to indicate features provied by the core.... This list will be expanded over time:
+  * `CORE_HAS_FASTIO` - Indicates that digitalWriteFast() and digitalReadFast() is available.
+  * `CORE_HAS_OPENDRAIN` - Indicates that openDrain() and openDrainFast() are available.
+  * `CORE_HAS_PINCONFIG` - Indicates that pinConfig() is available. Currently, this is not defined here as this is not yet implemented.
+  * `NATIVE_ADC_RESOLUTION` - This is the maximum resolution of the ADC without using oversampling. 12 for Dx-series.
+  * `NATIVE_ADC_RESOLUTION_LOW` - This is the low ADC resolution setting. 10 for all Dx-series parts.
+  * `DIFFERENTIAL_ADC` - This indicates that the part has a differential ADC, and analogReadDiff() is provided by the core. Currently, this is not defined here as the core functionality is not yet available
+  * `CORE_HAS_ADC_OVERSAMPLE` - This indicates that automatic oversampling and decimation via analogReadPlus() is supported. Currently, this is not defined here as the core functionality is not yet available
+
 
 ## Released Versions
 
