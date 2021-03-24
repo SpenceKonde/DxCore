@@ -1,14 +1,37 @@
 # Notes on peripherals and other things
 This document lays out some general notes on the peripherals - some general, some advanced, and some particularly aimed at people who are used to classic AVRs...
 
+## With a #if, you can test for `_bm`, `_bp`, and `_gm` constants **but NOT `_gc` ones**!
+The `_gc` constants are implemented as enums, not #defines. The preprocessor does not know how to deal with them - or rather, it deals with them precisely how it deals with all other "Identifiers which are not macros" - they are treated as equal to zero. It is not an error condition. More specifically, what you can and cannot do:
+
+```
+#define TCA0_PINS    PORTMUX_TCA0_PORTC_gc     // this is OK - and TCA0_PINS gets replaced with PORTMUX_TCA0_PORTC_gc
+                           // (which is a constant, 2 in this case), when it gets substituted into C/C++ code.
+
+#ifdef TCA0_PINS           // SOMETHING is defined, yup this is okay too
+  conditionallyCompiled();
+#endif
+
+#if defined(TCA0_PINS)     // Same as the #ifdef
+  conditionallyCompiled();
+#endif
+#if TCA0_PINS == 2         // However, here the preprocessor does not know the value of TCA0_PINS, because
+  conditionallyCompiled(); // PORTMUX_TCA0_PORTC_gc is an enum; so while TCA0_PINS is defined, it is defined as
+#endif                     // an enum; which as stated above is not defined as far as the preprocessor is concerned.
+                           // So it treats TCA0_PINS as 0, and instead of this resolving to #if 2 == 2 and including
+                           // the conditionally-compiled code, it turns into 0 == 2, and that code is not included.
+```
+The creators of the preprocessor considered that "shortcut" to be a "feature" - and so even -Wall does not warn about it. Since it is all but certain to be a bug in Arduino-land, I have enabled -Wundef. when any warnings are enabled. The use of enums for the group code constants is incredibly inconvenient for this reason. And you VERY frequently want to test for them too!
+
 ## Interrupts
 
 ### Don't let your code try to call an ISR that doesn't exist
 
 If you don't have an ISR defined, it will go to the "bad interrupt" handler, which jumps to the reset vector... This puts your sketch into a guaranteed broken state: The INTFLAG is still set, and the interrupt is still enabled - but interrupts won't be firing because CPUINT thinks you're already in an interrupt because the `reti` instruction (RETurn from Interrupt) was never executed... The result is generally completely broken sketch behavior. So don't let that happen!
 
-### Flags MUST be cleared in (most) interrupts
-* Unlike classic AVRs, you must clear the interrupt flag in the ISR unless specified otherwise in the datasheet (in some cases, there is a specific condition that will result in the flag being cleared, and in a few (such as DRE for serial or buffered SPI), you can't control thestate of the flag at all, and can only enable or disable the interrupt) Do this by writing 1 to the bit. Failing to do so can produce surprising results, because the processor doesn't *halt* - it just runs agonizingly slowly (plus whatever the interrupt does keeps happening - but this may not be as obvious) - because at least one instruction will always happen between interrupts.
+### Flags MUST be cleared in (many) interrupts
+Unlike classic AVRs, you often must clear the interrupt flag in the ISR by writing a 1 to it. Not for all interrupts, though. In some cases, there is a specific condition that will result in the flag being cleared automatically (often something that is directly related to it, like reading the CAPTURE register for TCB input capture, or reading the ADC result for an ADC result ready interrupt. In a few cases (such as DRE for serial or buffered SPI), you can't control thestate of the flag at all, and can only enable or disable the interrupt). This is all described on a case-by-case basis in the datasheet where the INTFLAG registers in questoin is described
+ Failing to do so can produce surprising results, because the processor doesn't *halt* - it just runs agonizingly slowly (plus whatever the interrupt does keeps happening - but this may not be as obvious) - because at least one instruction will always happen between interrupts.
 
 Here's a sketch that demonstrates this, and another interesting thing; the loop waiting for the ISR is exited as soon as it fires the first time... but it keeps running continually, letting the while loop after it run one instruction for each time the ISR runs. Both of those unsigned ints cause the ISR and while() loop to toggle the pins more slowly, so you can see how fast the two are running relative to each other with even really crude means.
 
