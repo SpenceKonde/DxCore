@@ -89,7 +89,7 @@
 
   #if defined(MILLIS_USE_TIMERD0)
     #ifndef TCD0
-      #error "Selected millis timer, TCD0, only exists on 1-series parts"
+      #error "Selected millis timer, TCD0, does not exist on this part"
     #endif
   #elif !defined(MILLIS_USE_TIMERA0) && !defined(MILLIS_USE_TIMERA1)
     static volatile TCB_t* _timer =
@@ -179,7 +179,7 @@
   #elif defined(MILLIS_USE_TIMERA1)
     TCA1.SPLIT.INTFLAGS = TCA_SPLIT_HUNF_bm;
   #elif defined(MILLIS_USE_TIMERD0)
-    TCD0.INTFLAGS=TCD_OVF_bm;
+    TCD0.INTFLAGS = TCD_OVF_bm;
   #elif defined(MILLIS_USE_TIMERRTC)
     RTC.INTFLAGS=RTC_OVF_bm;
   #else //timerb
@@ -194,21 +194,21 @@ unsigned long millis()
 
   // disable interrupts while we read timer0_millis or we might get an
   // inconsistent value (e.g. in the middle of a write to timer0_millis)
-  uint8_t status = SREG;
+  uint8_t oldSREG = SREG;
   cli();
   #if defined(MILLIS_USE_TIMERRTC)
     m=timer_overflow_count;
     if (RTC.INTFLAGS & RTC_OVF_bm) { //there has just been an overflow that hasn't been accounted for by the interrupt
       m++;
     }
-    SREG = status;
+    SREG = oldSREG;
     m=(m<<16);
     m+=RTC.CNT;
     //now correct for there being 1000ms to the second instead of 1024
     m=m-(m>>5)-(m>>6);
   #else
     m = timer_millis;
-    SREG = status;
+    SREG = oldSREG;
   #endif
   return m;
 }
@@ -224,57 +224,65 @@ unsigned long millis()
     #else
       uint8_t ticks;
     #endif
-
+    uint8_t flags;
     /* Save current state and disable interrupts */
-    uint8_t status = SREG;
+    uint8_t oldSREG = SREG;
     cli();
 
 
 
-    /* Get current number of overflows and timer count */
+    /* Get current timer count and check for OVF flag
+       Do this ASAP after disabling interrupts */
+
+    #if defined(MILLIS_USE_TIMERA0)
+      ticks = TCA0.SPLIT.HCNT;
+      flags = TCA0.SPLIT.INTFLAGS;
+    #elif defined(MILLIS_USE_TIMERA1)
+      ticks = TCA1.SPLIT.HCNT;
+      flags = TCA1.SPLIT.INTFLAGS;
+    #elif defined(MILLIS_USE_TIMERD0)
+      TCD0.CTRLE = TCD_SCAPTUREA_bm;
+      while (!(TCD0.STATUS & TCD_CMDRDY_bm)); //wait for sync - should be only one iteration of this loop
+      flags = TCD0.INTFLAGS;
+      ticks = TCD0.CAPTUREA;
+    #else
+      ticks = _timer->CNT;
+      flags = _timer->INTFLAGS;
+    #endif //end getting ticks
+    /* If the timer overflow flag is raised, and the ticks we read are low, then the timer has rolled over but
+    ISR has not fired. If we already read a high value of ticks, either we read it just before the overflow,
+    so we shouldn't increment overflows, or interrupts are disabled and micros isn't expected to work so it doesn't matter
+
+    Next, get the current number of overflows
+    */
     #if defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERD0)
       overflows = timer_overflow_count;
     #else
       overflows=timer_millis;
     #endif
 
-    #if defined(MILLIS_USE_TIMERA0)
-      ticks = (TIME_TRACKING_TIMER_PERIOD)-TCA0.SPLIT.HCNT;
-    #elif defined(MILLIS_USE_TIMERA1)
-      ticks = (TIME_TRACKING_TIMER_PERIOD)-TCA1.SPLIT.HCNT;
-    #elif defined(MILLIS_USE_TIMERD0)
-      TCD0.CTRLE=TCD_SCAPTUREA_bm;
-      while(!(TCD0.STATUS&TCD_CMDRDY_bm)); //wait for sync - should be only one iteration of this loop
-      ticks=TCD0.CAPTUREA;
-    #else
-      ticks = _timer->CNT;
-    #endif //end getting ticks
-    /* If the timer overflow flag is raised, and the ticks we read are low, then the timer has rolled over but
-    ISR has not fired. If we already read a high value of ticks, either we read it just before the overflow,
-    so we shouldn't increment overflows, or interrupts are disabled and micros isn't expected to work so it doesn't matter
-    */
+    /* Turn interrupts back on, assuming they were on when micros was called. */
+    SREG = oldSREG;
+
     #if defined(MILLIS_USE_TIMERD0)
-      if ((TCD0.INTFLAGS & TCD_OVF_bm) && !(ticks&0xFF00)){
-    #elif defined(MILLIS_USE_TIMERA0)
-      if ((TCA0.SPLIT.INTFLAGS & TCA_SPLIT_HUNF_bm ) && !(ticks&0x80)){
-    #elif defined(MILLIS_USE_TIMERA1)
-      if ((TCA1.SPLIT.INTFLAGS & TCA_SPLIT_HUNF_bm ) && !(ticks&0x80)){
+      if ((flags & TCD_OVF_bm) && (ticks < 0x07)) {
+    #elif defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1)
+      ticks = (TIME_TRACKING_TIMER_PERIOD) - ticks;
+      if ((flags & TCA_SPLIT_HUNF_bm) && (ticks < 0x4 )){
     #else //timerb
-      if ((_timer->INTFLAGS & TCB_CAPT_bm) && !(ticks&0xFF00)) {
+      if ((flags & TCB_CAPT_bm) && !(ticks&0xFF00)) {
     #endif
-    #if ((defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)|| defined(MILLIS_USE_TIMERB2)|| defined(MILLIS_USE_TIMERB3)|| defined(MILLIS_USE_TIMERB4)) &&(F_CPU>1000000))
-      overflows++;
-    #else
+    #if ((defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4)) && (F_CPU <= 1000000))
       overflows+=2;
+    #else
+      overflows++;
     #endif
     }
 
     //end getting ticks
 
-    /* Restore state */
-    SREG = status;
     #if defined(MILLIS_USE_TIMERD0)
-      #error "Timer D is not supported as a millis source on the AVR Dx series."
+      #error "Timer D is not supported as a millis source on the AVR DA or DB series."
     #elif (defined(MILLIS_USE_TIMERB0)||defined(MILLIS_USE_TIMERB1)||defined(MILLIS_USE_TIMERB2)||defined(MILLIS_USE_TIMERB3)||defined(MILLIS_USE_TIMERB4))
         // Oddball clock speeds
 
@@ -847,7 +855,7 @@ void set_millis(uint32_t newmillis)
 
 /********************************* ADC ****************************************/
 #if defined(ADC0)
-  void init_ADC0() {
+  void __attribute__((weak)) init_ADC0() {
     #ifndef SLOWADC
       /* ADC clock 1 MHz to 1.25 MHz at frequencies supported by megaTinyCore
       Unlike the classic AVRs, which demand 50~200 kHz, for these, the datasheet
@@ -921,7 +929,7 @@ void set_millis(uint32_t newmillis)
 // assist in debugging issues related to an external clock source.
 
 
-void init_clock() {
+void  __attribute__((weak)) init_clock() {
 
   #if CLOCK_SOURCE==0
     //internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
@@ -1166,7 +1174,7 @@ void init_timers() {
   */
 
 
-void init_TCA0() {
+void __attribute__((weak)) init_TCA0() {
   /* TCA0_PINS from pins_arduino.h */
   // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
   // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
@@ -1219,7 +1227,7 @@ void init_TCA0() {
 }
 
 #if defined(TCA1)
-void init_TCA1() {
+void __attribute__((weak)) init_TCA1() {
   /* TCA0_PINS from pins_arduino.h */
   // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
   // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
@@ -1272,7 +1280,7 @@ void init_TCA1() {
 }
 #endif
 
-void init_TCBs() {
+void __attribute__((weak)) init_TCBs() {
 
   /*    TYPE B TIMERS  */
   // Set up routing (defined in pins_arduino.h)
@@ -1339,7 +1347,7 @@ void init_TCBs() {
 }
 
 #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
-void init_TCD0() {
+void __attribute__((weak)) init_TCD0() {
   TCD0.CMPBCLR  = TIMERD0_TOP_SETTING;    // 510 counts, starts at 0, not 1!
   TCD0.CMPACLR  = 0x0FFF;                 // Match with CMPBCLR clears all outputs. This just needs to be higher than
   TCD0.CTRLC    = 0x80;                   // WOD outputs PWM B, WOC outputs PWM A
