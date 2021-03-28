@@ -135,7 +135,7 @@ bottom::off;         // Leave the resistor ladder bottom floating
 bottom::in_p;        // Connect the ladder bottom to the opamp positive input internally
 bottom::in_n;        // Connect the ladder bottom to the opamp negative input internally
 bottom::dac;         // Connect the ladder bottom to the DAC internally
-bottom::link_output; // Connect the ladder bottom to the previous opamps output internally (only available for Opamp1 and Opamp2)
+bottom::link;        // Connect the ladder bottom to the previous opamps output internally (only available for Opamp1 and Opamp2)
 bottom::gnd;         // Connect the ladder bottom to ground internally
 ```
 

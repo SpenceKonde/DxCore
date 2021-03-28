@@ -6,13 +6,14 @@
 // Constants to control the positive opamp input
 namespace in_p {
   enum input_p_t : uint8_t {
-    pin        = 0x00,
-    wiper      = 0x01,
-    dac        = 0x02,
-    gnd        = 0x03,
-    vdd_div2   = 0x04,
-    link_out   = 0x05,
-    link_wiper = 0x06,
+    pin         = 0x00,
+    wiper       = 0x01,
+    dac         = 0x02,
+    gnd         = 0x03,
+    vdd_div2    = 0x04,
+    link_output = 0x05,
+    link_out    = 0x05,
+    link_wiper  = 0x06,
   };
 };
 
