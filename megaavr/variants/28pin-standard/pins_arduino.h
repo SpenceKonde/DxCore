@@ -7,29 +7,33 @@
 #define DEFAULT_28PIN_PINOUT
 
 // Arduino pin macros
-#define PIN_PA0 0
-#define PIN_PA1 1
-#define PIN_PA2 2
-#define PIN_PA3 3
-#define PIN_PA4 4
-#define PIN_PA5 5
-#define PIN_PA6 6
-#define PIN_PA7 7
-#define PIN_PC0 8
-#define PIN_PC1 9
-#define PIN_PC2 10
-#define PIN_PC3 11
-#define PIN_PD0 12   // On DB/DD-series parts with under 48 pins, PD0 is not actually a real pin, but is left in the sequence for compatibility.
-#define PIN_PD1 13
-#define PIN_PD2 14
-#define PIN_PD3 15
-#define PIN_PD4 16
-#define PIN_PD5 17
-#define PIN_PD6 18
-#define PIN_PD7 19
-#define PIN_PF0 20
-#define PIN_PF1 21
-#define PIN_PF6 22
+#define PIN_PA0 (0)
+#define PIN_PA1 (1)
+#define PIN_PA2 (2)
+#define PIN_PA3 (3)
+#define PIN_PA4 (4)
+#define PIN_PA5 (5)
+#define PIN_PA6 (6)
+#define PIN_PA7 (7)
+#define PIN_PC0 (8)
+#define PIN_PC1 (9)
+#define PIN_PC2 (10)
+#define PIN_PC3 (11)
+#ifndef MVIO
+  #define PIN_PD0 (12)
+#else
+  #define PIN_PD0 (NOT_A_PIN)
+#endif
+#define PIN_PD1 (13)
+#define PIN_PD2 (14)
+#define PIN_PD3 (15)
+#define PIN_PD4 (16)
+#define PIN_PD5 (17)
+#define PIN_PD6 (18)
+#define PIN_PD7 (19)
+#define PIN_PF0 (20)
+#define PIN_PF1 (21)
+#define PIN_PF6 (22)
 
 #define PINS_COUNT                     23
 #define NUM_DIGITAL_PINS               PINS_COUNT
@@ -41,7 +45,9 @@
 #define NUM_TOTAL_FREE_PINS            PINS_COUNT
 #define NUM_TOTAL_PINS                 PINS_COUNT
 #define ANALOG_INPUT_OFFSET            12
-#define LED_BUILTIN                    PIN_PA7
+#if !defined(LED_BUILTIN)
+  #define LED_BUILTIN                  PIN_PA7
+#endif
 #define EXTERNAL_NUM_INTERRUPTS        47
 #define digitalPinToAnalogInput(p)     (((p)>=PIN_PC3 && (p)<PIN_PF0)?(p) - PIN_PD0:((p)<PIN_PF6?((p)-4):NOT_A_PIN))
 #define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):((((p)&0x7F)<8)?(((p)&0x7F)+PIN_PD0):))
@@ -159,9 +165,12 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 
 // Analog pins
 
+
 #ifndef MVIO
   // 28-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
   #define PIN_A0   PIN_PD0
+#else
+  #define PIN_A0   NOT_A_PIN
 #endif
 #define PIN_A1   PIN_PD1
 #define PIN_A2   PIN_PD2
@@ -172,8 +181,11 @@ static const uint8_t SCL =     PIN_WIRE_SCL;
 #define PIN_A7   PIN_PD7
 #define PIN_A16  PIN_PF0
 #define PIN_A17  PIN_PF1
+
 #ifndef MVIO
-  static const uint8_t A0  = PIN_A0;
+  static const uint8_t A0 = PIN_A0;
+#else
+  static const uint8_t A0 = NOT_A_PIN;
 #endif
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
@@ -201,9 +213,9 @@ const uint8_t digital_pin_to_port[] = {
   PC, // 10 PC2/TCA0 PWM
   PC, // 11 PC3/TCA0 PWM
   #ifndef MVIO
-  PD, // 12 PD0/AIN0
+    PD, // 12 PD0/AIN0
   #else
-  NOT_A_PORT,
+    NOT_A_PORT,
   #endif
   PD, // 13 PD1/AIN1
   PD, // 14 PD2/AIN2
@@ -232,9 +244,9 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN2_bp, // 10 PC2
   PIN3_bp, // 11 PC3
   #ifndef MVIO
-  PIN0_bp, // 12 PD0/AIN0
+    PIN0_bp, // 12 PD0/AIN0
   #else
-  NOT_A_PIN,
+    NOT_A_PIN,
   #endif
   PIN1_bp, // 13 PD1/AIN1
   PIN2_bp, // 14 PD2/AIN2
@@ -263,9 +275,9 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN2_bm, // 10 PC2
   PIN3_bm, // 11 PC3
   #ifndef MVIO
-  PIN0_bm, // 12 PD0/AIN0
+    PIN0_bm, // 12 PD0/AIN0
   #else
-  NOT_A_PIN,
+    NOT_A_PIN,
   #endif
   PIN1_bm, // 13 PD1/AIN1
   PIN2_bm, // 14 PD2/AIN2
@@ -292,7 +304,11 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, // 12 PD0/AIN0
+  #ifndef MVIO
+    NOT_ON_TIMER, // 12 PD0/AIN0
+  #else
+    NOT_ON_TIMER, // If MVIO on 28-pin, this pin is replaced with VDDIO2
+  #endif
   NOT_ON_TIMER, // 13 PD1/AIN1
   NOT_ON_TIMER, // 14 PD2/AIN2
   NOT_ON_TIMER, // 15 PD3/AIN3/LED_BUILTIN

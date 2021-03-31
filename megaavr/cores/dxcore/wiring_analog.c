@@ -196,6 +196,8 @@ void analogWrite(uint8_t pin, int val)
  *switch (digital_pin_timer) {
  *  case TIMERA0:
  */
+
+
   if (bit_mask < 0x40) { //if could be on a TCA
     uint8_t portnum  = digitalPinToPort(pin);
     uint8_t tcaroute = PORTMUX.TCAROUTEA;
@@ -239,9 +241,6 @@ void analogWrite(uint8_t pin, int val)
 //  break;
   #endif
   }
-/*
- * switch (digital_pin_timer) {
- */
   switch (digital_pin_timer) {
     case TIMERB0:
     case TIMERB1:
@@ -351,7 +350,7 @@ void analogWrite(uint8_t pin, int val)
        * bit_mask & 0xAA? 0xAA = 0b10101010
        * This is true if the bitmask corresponds to an odd bit in the port, meaning it's
        * going to be driven by CMPB, otherwise by CMPA. On all existing parts, WOA is on
-       * bit 0 or 4, WOB on 1 or 5, WOC on 2, 6, or 0, and WOD on 3, 7, or 1
+       * bit 0 or 4, WOB on 1 or 5, WOC on 0, 2, 4, or 6, and WOD on 1, 3, 5, or 7.
        * Pins WOA and WOB are bound to CMPA and CMPB, but WOC and WOD can each be put on
        * either WOA or WOB. So if WOC is assigned to follow WOA and WOD to follow WOB, this
        * test gives the answer. This means, in theory, flexible PWM on TCD0 could be improved
@@ -377,11 +376,15 @@ void analogWrite(uint8_t pin, int val)
          * need to be careful here - analogWrite() can be called by a class constructor, for
          * example in which case the timer hasn't been started yet. We must not start it in this
          * case, as it would then fail to initialize and have the wrong clock prescaler and other
-         * settings.
+         * settings.Similarly, in any other situation where the timer isn't running when we started
+         * the most likely result it being automatically started by an analogWrite() is naught but
+         * woe and misery.
          * Instead, we should do everything else, and when the timer is next enabled, the PWM will
          * be configured and waiting. This is also probably what users would expect and hope to
          * happen if they are modifying TCD0 registers themselves. Though per core docs, we make
-         * no promises in that case, the fact that this is better then is an added bonus.
+         * no promises in that case, the fact that the fix for a call to analogWrite() in a class
+         * constructor (something that is not proscribed by docs) makes that case less bad is an
+         * added bonus.
          *---------------------------------------------------------------------------------------*/
         uint8_t temp2 = TCD0.CTRLA;
         TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);
@@ -422,26 +425,63 @@ void analogWrite(uint8_t pin, int val)
 }
 
 void takeOverTCA0() {
+  #if defined(MILLIS_USE_TIMERA0)
+    stop_millis();
+  #endif
   TCA0.SPLIT.CTRLA = 0;          // Stop TCA0
   PeripheralControl &= ~TIMERA0; // Mark timer as user controlled
-                                 // Reset TCA0
-  /* Okay, seriously? The datasheets and io headers disagree here for tinyAVR about whether the low bits even exist there! */
-  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // To answer earlier question that was here, yes, those low bits must be set!
+  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA0
+  /* Okay, seriously? The datasheets and io headers disagree here for tinyAVR
+     about whether the low bits even exist! Much less whether they need to be
+     set - but if they are not set, it will not work */
 }
 
-#ifdef TCA1
+void resumeTCA0() {
+  TCA0.SPLIT.CTRLA = 0;         // Stop TCA0
+  TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA0
+  init_TCA0();                  // reinitialize TCA0
+  PeripheralControl |= TIMERA0; // Mark timer as core controlled
+  #if defined(MILLIS_USE_TIMERA0)
+    restart_millis();              // If we stopped millis for takeover, restart
+  #endif
+}
+
+#if defined(TCA1)
 void takeOverTCA1() {
-  TCA1.SPLIT.CTRLA = 0;          // Stop TCA1
-  PeripheralControl &= ~TIMERA1; // Mark timer as user controlled
-                                 // Reset TCA1
-  /* Okay, seriously? The datasheets and io headers disagree here for tinyAVR about whether the low bits even exist there! */
-  TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // To answer earlier question that was here, yes, those low bits must be set!
+  #if defined(MILLIS_USE_TIMERA1)
+    stop_millis();
+  #endif
+  TCA1.SPLIT.CTRLA = 0;               // Stop TCA1
+  PeripheralControl &= ~TIMERA1;      // Mark timer as user controlled
+  TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA1
+}
+
+void resumeTCA1() {
+  TCA1.SPLIT.CTRLA = 0;         // Stop TCA1
+  TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA1
+  init_TCA0();                  // reinitialize TCA1
+  PeripheralControl |= TIMERA1; // Mark timer as core controlled
+  #if defined(MILLIS_USE_TIMERA1)
+    restart_millis();              // If we stopped millis for takeover, restart
+  #endif
 }
 #endif
+
 void takeOverTCD0() {
+#if !defined(MILLIS_USE_TIMERD0)
   TCD0.CTRLA = 0;                     // Stop TCD0
   _PROTECTED_WRITE(TCD0.FAULTCTRL,0); // Turn off all outputs
-  PeripheralControl &= ~TIMERD0; // Mark timer as user controlled
+  PeripheralControl &= ~TIMERD0;      // Mark timer as user controlled
+#else
+  badCall("TCD0 takeover not permitted when TCD0 is millis source");
+  /* Note that it's just TCD0 we protect like this... With TCA's, the user has
+     a much better chance of being able to put it back together with the
+     millis() control functions. */
+#endif
+}
+
+void resumeTCD0() {
+  badCall("Resuming core control of type D timer not supported.");
 }
 
 

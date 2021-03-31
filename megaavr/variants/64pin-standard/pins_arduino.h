@@ -8,61 +8,61 @@
 #define DEFAULT_64PIN_PINOUT
 
 // Arduino pin macros
-#define PIN_PA0 0
-#define PIN_PA1 1
-#define PIN_PA2 2
-#define PIN_PA3 3
-#define PIN_PA4 4
-#define PIN_PA5 5
-#define PIN_PA6 6
-#define PIN_PA7 7
-#define PIN_PB0 8
-#define PIN_PB1 9
-#define PIN_PB2 10
-#define PIN_PB3 11
-#define PIN_PB4 12
-#define PIN_PB5 13
-#define PIN_PB6 14
-#define PIN_PB7 15
-#define PIN_PC0 16
-#define PIN_PC1 17
-#define PIN_PC2 18
-#define PIN_PC3 19
-#define PIN_PC4 20
-#define PIN_PC5 21
-#define PIN_PC6 22
-#define PIN_PC7 23
-#define PIN_PD0 24
-#define PIN_PD1 25
-#define PIN_PD2 26
-#define PIN_PD3 27
-#define PIN_PD4 28
-#define PIN_PD5 29
-#define PIN_PD6 30
-#define PIN_PD7 31
-#define PIN_PE0 32
-#define PIN_PE1 33
-#define PIN_PE2 34
-#define PIN_PE3 35
-#define PIN_PE4 36
-#define PIN_PE5 37
-#define PIN_PE6 38
-#define PIN_PE7 39
-#define PIN_PF0 40
-#define PIN_PF1 41
-#define PIN_PF2 42
-#define PIN_PF3 43
-#define PIN_PF4 44
-#define PIN_PF5 45
-#define PIN_PG0 46
-#define PIN_PG1 47
-#define PIN_PG2 48
-#define PIN_PG3 49
-#define PIN_PG4 50
-#define PIN_PG5 51
-#define PIN_PG6 52
-#define PIN_PG7 53
-#define PIN_PF6 54
+#define PIN_PA0 (0)
+#define PIN_PA1 (1)
+#define PIN_PA2 (2)
+#define PIN_PA3 (3)
+#define PIN_PA4 (4)
+#define PIN_PA5 (5)
+#define PIN_PA6 (6)
+#define PIN_PA7 (7)
+#define PIN_PB0 (8)
+#define PIN_PB1 (9)
+#define PIN_PB2 (10)
+#define PIN_PB3 (11)
+#define PIN_PB4 (12)
+#define PIN_PB5 (13)
+#define PIN_PB6 (14)
+#define PIN_PB7 (15)
+#define PIN_PC0 (16)
+#define PIN_PC1 (17)
+#define PIN_PC2 (18)
+#define PIN_PC3 (19)
+#define PIN_PC4 (20)
+#define PIN_PC5 (21)
+#define PIN_PC6 (22)
+#define PIN_PC7 (23)
+#define PIN_PD0 (24)
+#define PIN_PD1 (25)
+#define PIN_PD2 (26)
+#define PIN_PD3 (27)
+#define PIN_PD4 (28)
+#define PIN_PD5 (29)
+#define PIN_PD6 (30)
+#define PIN_PD7 (31)
+#define PIN_PE0 (32)
+#define PIN_PE1 (33)
+#define PIN_PE2 (34)
+#define PIN_PE3 (35)
+#define PIN_PE4 (36)
+#define PIN_PE5 (37)
+#define PIN_PE6 (38)
+#define PIN_PE7 (39)
+#define PIN_PF0 (40)
+#define PIN_PF1 (41)
+#define PIN_PF2 (42)
+#define PIN_PF3 (43)
+#define PIN_PF4 (44)
+#define PIN_PF5 (45)
+#define PIN_PG0 (46)
+#define PIN_PG1 (47)
+#define PIN_PG2 (48)
+#define PIN_PG3 (49)
+#define PIN_PG4 (50)
+#define PIN_PG5 (51)
+#define PIN_PG6 (52)
+#define PIN_PG7 (53)
+#define PIN_PF6 (54)
 
 
 #define NUM_DIGITAL_PINS               55
@@ -73,8 +73,10 @@
 #define NUM_SPI_PINS                   3 // (MISO / MOSI / SCK)
 #define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
 #define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-#define ANALOG_INPUT_OFFSET            24 //Hopefully not used elsewhere!
-#define LED_BUILTIN                    (PIN_PA7)
+//#define ANALOG_INPUT_OFFSET            24 //Hopefully not used elsewhere!
+#if !defined(LED_BUILTIN)
+  #define LED_BUILTIN                  PIN_PA7
+#endif
 #define digitalPinToAnalogInput(p)     ((((p)>=PIN_PC7) && ((p)< PIN_PF6))? ((p)-PIN_PD0) : NOT_A_PIN)
 #define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):NOT_A_PIN)
 
@@ -174,10 +176,10 @@ static const uint8_t SS1   = PIN_SPI1_SS;
 
 // TWI 0
 // No pinswap enabled by default
-#define PIN_WIRE_SDA           (PIN_PA2)
-#define PIN_WIRE_SCL           (PIN_PA3)
-#define PIN_WIRE_SDA_PINSWAP_2 (PIN_PC2)
-#define PIN_WIRE_SCL_PINSWAP_2 (PIN_PC3)
+#define PIN_WIRE_SDA           PIN_PA2
+#define PIN_WIRE_SCL           PIN_PA3
+#define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
+#define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 // TWI 1

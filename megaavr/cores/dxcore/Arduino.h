@@ -52,15 +52,23 @@ extern "C"{
 #define VDD               VREF_REFSEL_VDD_gc
 #define EXTERNAL          VREF_REFSEL_VREFA_gc
 
+// Defines something as an ADC channel, as opposed to a digital pin number
+// This is the same convention that ATTinyCore uses, with high bit indicating
+// that a value is a channel number not a pin number.
+#define ADC_CH(ch)         (0x80 | (ch))
+
+
 // DACREFn MUXPOS currently missing from the headers!!
-#define ADC_DAC0          (0x80 | ADC_MUXPOS_DAC0_gc)
-#define ADC_DACREF0       (0x80 | 0x49)
-#define ADC_DACREF1       (0x80 | 0x4A)
-#define ADC_DACREF2       (0x80 | 0x4B)
-#define ADC_TEMPERATURE   (0x80 | ADC_MUXPOS_TEMPSENSE_gc)
+#define ADC_DAC0           ADC_CH(ADC_MUXPOS_DAC0_gc)
+#define ADC_DACREF0        ADC_CH(0x49)
+#ifdef AC1 // Always either 1 AC or 3, never 2.
+  #define ADC_DACREF1      ADC_CH(0x4A)
+  #define ADC_DACREF2      ADC_CH(0x4B)
+#endif
+#define ADC_TEMPERATURE    ADC_CH(ADC_MUXPOS_TEMPSENSE_gc)
 #ifdef MVIO
-#define ADC_VDDDIV10      (0x80 | ADC_MUXPOS_VDDDIV10_gc)
-#define ADC_VDDIO2DIV10   (0x80 | ADC_MUXPOS_VDDIO2DIV10_gc)
+  #define ADC_VDDDIV10     ADC_CH(ADC_MUXPOS_VDDDIV10_gc)
+  #define ADC_VDDIO2DIV10  ADC_CH(ADC_MUXPOS_VDDIO2DIV10_gc)
 #endif
 
 #define VCC_5V0 2
@@ -71,6 +79,8 @@ extern "C"{
 #define noInterrupts() cli()
 
 void analogReadResolution(uint8_t res);
+
+/* inlining of a call to delayMicroseconds() would throw it off */
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 
 uint8_t digitalPinToTimerNow(uint8_t p);
@@ -85,14 +95,14 @@ void takeOverTCA1();                      // Can be used to tell core not to use
 void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
-void init_ADC0() __attribute__((weak));   // this is called to initialize ADC0 - it also i
+void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0 - it also i
 //   init_DAC0()                          // no init_DAC0() - all that the core does is call DACReference().
 void init_timers() __attribute__((weak)); // this function is expected to configure all timers for PWM. init_millis() is called after this.
-void init_clock() __attribute__((weak));  // this is called first, to initiate the system clock.
-void init_TCA0() __attribute__((weak));   // called by init_timers()
-void init_TCA1() __attribute__((weak));   // called by init_timers()
-void init_TCBs() __attribute__((weak));   // called by init_timers()
-void init_TCD0() __attribute__((weak));   // called by init_timers()
+void init_clock()  __attribute__((weak)); // this is called first, to initiate the system clock.
+void init_TCA0()   __attribute__((weak)); // called by init_timers()
+void init_TCA1()   __attribute__((weak)); // called by init_timers()
+void init_TCBs()   __attribute__((weak)); // called by init_timers()
+void init_TCD0()   __attribute__((weak)); // called by init_timers()
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
