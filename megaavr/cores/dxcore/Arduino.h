@@ -93,6 +93,8 @@ void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the s
 void takeOverTCA0();                      // Can be used to tell core not to use TCA0 for any API calls - user has taken it over.
 void takeOverTCA1();                      // Can be used to tell core not to use TCA1 for any API calls - user has taken it over.
 void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
+void resumeTCA0();                        // Restores core-mediated functionality that uses TCA0 after reconfiguring it.
+void resumeTCA1();                        // Restores core-mediated functionality that uses TCA0 after reconfiguring it.
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
 void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0 - it also i
@@ -239,25 +241,29 @@ extern const uint8_t digital_port_to_pin0[];
 #endif
 
 // Chip families
-// 0b dsssbppp
-// d is 1 if a DD, b os 1 of a DB
-// sss flash size, in units of the smallest part in the family.
+// 0b ffssfppp
+// ff__f is a 3-bit family code 00__0 is the DA, 00__1 is DB,
+// 01__0 is DD.
+// ss is flash size; 0 is smallest flash in family, 1 second smallest
+// (generally 2x smallest) 2 for next size up, and 3 for an even larger
+// one, if a product line with 4 flash sizes was ever introduced.
 // ppp is code for the pincount, per below chart.
 // interestingly enough this range can extend to cover all pincounts used
 // in recent times on AVR devices - as there is only one smaller one, the
 // 8-pin of the '85  and 'xy2 - 000
 // and 100 pin of the mega256 - 111
 // Wonder if we will see another 100-pin monster or 8-pin tiny?
+// We can squeeze in on emore future
 
-#define AVR128DA    0x40
-#define AVR64DA     0x20
-#define AVR32DA     0x10
-#define AVR128DB    0x48
-#define AVR64DB     0x28
-#define AVR32DB     0x18
-#define AVR64DD     0xC0
-#define AVR32DD     0xA0
-#define AVR16DD     0x90
+#define AVR128DA    0x20
+#define AVR64DA     0x10
+#define AVR32DA     0x00
+#define AVR128DB    0x28
+#define AVR64DB     0x18
+#define AVR32DB     0x08
+#define AVR64DD     0x60
+#define AVR32DD     0x50
+#define AVR16DD     0x40
 #define HAS_14_PINS 0x01
 #define HAS_20_PINS 0x02
 #define HAS_28_PINS 0x03
@@ -265,7 +271,12 @@ extern const uint8_t digital_port_to_pin0[];
 #define HAS_48_PINS 0x05
 #define HAS_64_PINS 0x06
 #define IS_AVR_DB   0x08
-#define IS_AVR_DD   0x80
+#define IS_AVR_DD   0x40
+#define IS_AVR_DA   0x00
+
+#define MASK_SERIES 0xC8
+#define MASK_FLASH  0x30
+#define MASK_PINS   0x07
 
 //#defines to identify part families
 #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
@@ -337,14 +348,15 @@ extern const uint8_t digital_port_to_pin0[];
 #endif
 
 #if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x40)
-#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (DXCORE_ID_LOW & IS_AVR_DD))
   #define DXCORE_ID (DXCORE_ID_LOW | 0x20)
-#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (DXCORE_ID_LOW & IS_AVR_DD))
+#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (DXCORE_ID_LOW & IS_AVR_DD))
   #define DXCORE_ID (DXCORE_ID_LOW | 0x10)
+#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (DXCORE_ID_LOW & IS_AVR_DD))
+  #define DXCORE_ID (DXCORE_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"
 #endif
+
 
 #if (defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || defined(__AVR_AVR128DA32__) || defined(__AVR_AVR128DA28__))
   // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata!
@@ -377,8 +389,10 @@ extern const uint8_t digital_port_to_pin0[];
 // #define CORE_HAS_PINCONFIG 1 - core functionality not implemented yet
 #define NATIVE_ADC_RESOLUTION 12
 #define NATIVE_ADC_RESOLUTION_LOW 10
-// #define DIFFERENTIAL_ADC - core functionality not implemented yet.
+#define DIFFERENTIAL_ADC 1
 // #define CORE_HAS_ADC_OVERSAMPLE - core functionality not implemented yet.
+
+#define SUPPORT_LONG_TONES 1
 
 #ifdef __cplusplus
 } // extern "C"
