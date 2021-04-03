@@ -428,14 +428,14 @@ void delay(unsigned long ms)
    always inline, which was ugly because it required some of the code to be pushed all the way up into Common.h*/
 
 void delayMicroseconds(unsigned int us) {
-  if (__builtin_constant_p(us)) { //if it's compiletime known, this gets replaced with avrlibc delay us, with I think no penalty.
+  if (__builtin_constant_p(us)) { //if it's compile time known, this gets replaced with avrlibc delay us, with I think no penalty.
     _delay_us(us);
   } else {
     _delayMicroseconds(us);
   }
 }
 
-/* But if we can't do it at compiletime, the delay_us implementation (which itself gets inlined)
+/* But if we can't do it at compile time, the delay_us implementation (which itself gets inlined)
    ain't gonna work! So then we instead call a non-inlinable stock delayMicroseconds;
    Some of the problems people were having, I think, were caused by the unpredictable impact
    of optimization on delayMicroseconds durations */
