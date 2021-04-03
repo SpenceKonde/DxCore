@@ -196,10 +196,10 @@ Below is a table with all of the event users for the AVR Dx-series parts.
 | `user::usart3_irda`     |                                    |
 | `user::usart4_irda`     |                                    |
 | `user::usart5_irda`     |                                    |
-| `user::tca0_cnta`       |                                    |
-| `user::tca0_cntb`       |                                    |
-| `user::tca1_cnta`       |                                    |
-| `user::tca1_cntb`       |                                    |
+| `user::tca0_cnt_a`      |                                    |
+| `user::tca0_cnt_b`      |                                    |
+| `user::tca1_cnt_a`      |                                    |
+| `user::tca1_cnt_b`      |                                    |
 | `user::tcb0_capt`       |                                    |
 | `user::tcb0_cnt`        |                                    |
 | `user::tcb1_capt`       |                                    |
