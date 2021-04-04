@@ -93,35 +93,26 @@ int main() __attribute__((weak));
 
 #ifdef EXTENDED_PIN_MODE
 // Platforms who want to declare more than 256 pins need to define EXTENDED_PIN_MODE globally
-typedef uint32_t pin_size_t;
+  typedef uint32_t pin_size_t;
 #else
-typedef uint8_t pin_size_t;
+  typedef uint8_t pin_size_t;
 #endif
 
-// Constant checks error handler
-void badArg(const char*) __attribute__((error("")));
-void badCall(const char*) __attribute__((error("")));
-
-inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
-{
-  if(!__builtin_constant_p(pin))
-    badArg("Fast digital pin must be a constant");
-}
-
-void pinMode(pin_size_t pinNumber, uint8_t mode);
-void digitalWrite(pin_size_t pinNumber, uint8_t val);
-void digitalWriteFast(pin_size_t pinNumber, uint8_t val);
-void openDrain(pin_size_t pin, uint8_t state);
-void openDrainFast(pin_size_t pin, uint8_t state);
-int8_t digitalRead(pin_size_t pinNumber);
-int8_t digitalReadFast(pin_size_t pinNumber);
-int analogRead(pin_size_t pinNumber);
-void analogReference(uint8_t mode);
-void analogReadResolution(uint8_t res);
-void analogWrite(pin_size_t pinNumber, int value);
-void DACReference(uint8_t mode);
-
-void turnOffPWM(pin_size_t pin);
+void    pinMode(         pin_size_t pinNumber, uint8_t mode);
+void    digitalWrite(    pin_size_t pinNumber, uint8_t val);
+void    digitalWriteFast(pin_size_t pinNumber, uint8_t val);
+int8_t  digitalRead(     pin_size_t pinNumber);
+int8_t  digitalReadFast( pin_size_t pinNumber);
+void    openDrain(       pin_size_t pinNumber, uint8_t val);
+void    openDrainFast(   pin_size_t pinNumber, uint8_t val);
+void    analogWrite(     pin_size_t pinNumber, int value);
+void    turnOffPWM(      pin_size_t pinNumber);
+void    pinConfig(       pin_size_t pinNumber, uint16_t mode);
+int     analogRead(      pin_size_t pinNumber);
+void    analogReference(         uint8_t mode);
+bool    analogReadResolution(     uint8_t res);
+bool    analogSampleDuration(     uint8_t dur);
+void    DACReference(            uint8_t mode);
 
 unsigned long millis(void);
 unsigned long micros(void);
@@ -129,11 +120,11 @@ unsigned long micros(void);
 
 void delay(unsigned long);
 void delayMicroseconds(unsigned int us);
-unsigned long pulseIn(pin_size_t pin, uint8_t state, unsigned long timeout);
+unsigned long pulseIn(    pin_size_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(pin_size_t pin, uint8_t state, unsigned long timeout);
 
-void shiftOut(pin_size_t dataPin, pin_size_t clockPin, uint8_t bitOrder, uint8_t val);
-pin_size_t shiftIn(pin_size_t dataPin, pin_size_t clockPin, uint8_t bitOrder);
+void   shiftOut(pin_size_t dataPin, pin_size_t clockPin, uint8_t bitOrder, uint8_t val);
+uint8_t shiftIn(pin_size_t dataPin, pin_size_t clockPin, uint8_t bitOrder);
 
 void attachInterrupt(pin_size_t interruptNumber, voidFuncPtr callback, uint8_t mode);
 void detachInterrupt(pin_size_t interruptNumber);
@@ -142,27 +133,27 @@ void setup(void);
 void loop(void);
 
 #ifdef __cplusplus
-} // extern "C"
+  } // extern "C"
 #endif
 
 #ifdef __cplusplus
 
-/* C++ prototypes */
-uint16_t makeWord(uint16_t w);
-uint16_t makeWord(byte h, byte l);
+  /* C++ prototypes */
+  uint16_t makeWord(uint16_t w);
+  uint16_t makeWord(byte h, byte l);
 
-#define word(...) makeWord(__VA_ARGS__)
+  #define word(...) makeWord(__VA_ARGS__)
 
-unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
-unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
+  unsigned long     pulseIn(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
+  unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
 
-void tone(uint8_t _pin, unsigned int frequency, unsigned long duration = 0);
-void noTone(uint8_t _pin);
+  void tone(uint8_t _pin, unsigned int frequency, unsigned long duration = 0);
+  void noTone(uint8_t _pin);
 
-// WMath prototypes
-long random(long);
-long random(long, long);
-void randomSeed(unsigned long);
-long map(long, long, long, long, long);
+  // WMath prototypes
+  long random(long);
+  long random(long, long);
+  void randomSeed(unsigned long);
+  long map(long, long, long, long, long);
 
 #endif // __cplusplus
