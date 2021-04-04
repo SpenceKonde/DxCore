@@ -164,30 +164,6 @@ extern const uint8_t digital_port_to_pin0[];
 #define portInputRegister(P)  ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
 #define portModeRegister(P)   ( (volatile uint8_t *)( &portToPortStruct(P)->DIR ) )
 
-/* I wound up needing this for some reason
-   I think the fact that all pins are ordered by port and bit
-   allowed me to dramatically simplify something if I knew this */
-
-uint8_t digitalPortToPin0(uint8_t portnmbr) {
-  switch (portnbr) {
-    case 0: //PORTA
-      return PIN_PA0;
-    case 1: //PORTB
-      return PIN_PB0;
-    case 2: //PORTC
-      return PIN_PC0;
-    case 3: //PORTD
-      return (PIN_PD0 == NOT_A_PIN ? (PIN_PD1 - 1) : PIN_PD0);
-    case 4: //PORTE
-      return PIN_PE0;
-    case 5: //PORTF
-      return PIN_PF0;
-    case 6: //PORTG
-      return PIN_PG0;
-  }
-  return NOT_A_PIN;
-}
-
 
 #define CORE_HAS_FASTIO 1
 #define CORE_HAS_OPENDRAIN 1
@@ -225,6 +201,7 @@ uint8_t digitalPortToPin0(uint8_t portnmbr) {
 #endif
 
 #include "pins_arduino.h"
+
 
 // If not otherwise specified, we will assume the DAC outputs on PD6 - No product has
 // been announced with it anywhere else, nor has any product been announced with more than 1.
