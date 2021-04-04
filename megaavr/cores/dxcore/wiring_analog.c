@@ -48,14 +48,54 @@ inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) 
 inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin) {
   if(__builtin_constant_p(pin)) {
   #ifdef MVIO
-    if (!(pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_VDDDIV10 || pin == ADC_VDDIO2DIV10 || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2))
+    if (!(pin == ADC_DAC0 || pin == ADC_GROUND || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2 || pin == ADC_VDDDIV10 || pin == ADC_VDDIO2DIV10))
   #else
-    if (!(pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2))
+    if (!(pin == ADC_DAC0 || pin == ADC_GROUND || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2))
   #endif
-    {
-      pin = digitalPinToAnalogInput(pin);
+    { //if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
+      if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
+        pin &= 0x7f;
+        #if defined(__AVR_DD__)
+          if (pin > 31) {
+            badArg("analogRead called with constant channel that is neither valid internal source nor an analog pin");
+          }
+        #else
+          if (pin > 21) {
+            badArg("analogRead called with constant channel that is neither valid internal source nor an analog pin");
+          }
+        #endif
+      } else {
+        pin = digitalPinToAnalogInput(pin);
+      }
       if (pin == NOT_A_PIN) {
         badArg("analogRead called with constant pin that is not a valid analog pin");
+      }
+    }
+  }
+}
+
+inline __attribute__((always_inline)) void check_valid_analog_pin_neg(pin_size_t pin) {
+  if(__builtin_constant_p(pin)) {
+    if (!(pin == ADC_DAC0 || pin == ADC_GROUND))
+    { //if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
+      if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
+        pin &= 0x7f;
+        #if defined(__AVR_DD__)
+          if (pin > 31) {
+            badArg("analogReadDiff called with constant neg. channel that is neither a valid internal source nor an analog pin");
+          }
+        #else
+          if (pin > 21) {
+            badArg("analogReadDiff called with constant neg. channel that is neither a valid internal source nor an analog pin");
+          }
+        #endif
+      } else {
+        pin = digitalPinToAnalogInput(pin);
+      }
+      if (pin == NOT_A_PIN) {
+        badArg("analogReadDiff called with constant that is not a valid analog pin, ADC_DAC0 or ADC_GROUND");
+      } else if(pin > 15) {
+        badArg("analogReadDiff called with constant negative pin that is not valid as a negative input. Only pins on PORTD or PORTE can be negative diff.input.");
       }
     }
   }
@@ -70,46 +110,30 @@ inline __attribute__((always_inline)) void check_valid_duty_cycle(int16_t val) {
 }
 
 
-void analogReference(uint8_t mode)
-{
+void analogReference(uint8_t mode) {
   check_valid_analog_ref(mode);
   if (mode < 7 && mode !=4) {
     VREF.ADC0REF = (VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode);
   }
 }
 
-
-void DACReference(uint8_t mode)
-{
+void DACReference(uint8_t mode) {
   check_valid_analog_ref(mode);
   if (mode < 7 && mode !=4) {
     VREF.DAC0REF = (VREF.DAC0REF & ~(VREF_REFSEL_gm))|(mode);
   }
 }
-/*
-void ACReference(uint8_t mode)
-{
-  if (mode < 7 && mode !=4) {
-    VREF.ACREF = (VREF.ACREF & ~(VREF_REFSEL_gm))|(mode);
-  }
-}
-*/
 
-int analogRead(uint8_t pin)
-{
-  #ifdef MVIO
-  if (pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_VDDDIV10 || pin == ADC_VDDIO2DIV10 || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2) {
-  #else
-  if (pin == ADC_DAC0 || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2) {
-  #endif
-    pin = pin & 0x7F;
-  } else {
+int16_t analogRead(uint8_t pin) {
+  check_valid_analog_pin(pin);
+  if (pin < 0x80) {
     pin = digitalPinToAnalogInput(pin);
     if(pin == NOT_A_PIN) return -1;
-  /* Reference should be already set up */
+
   }
   /* Select channel */
-  ADC0.MUXPOS = (pin << ADC_MUXPOS_gp);
+  ADC0.MUXPOS = ((pin & 0x7F) << ADC_MUXPOS_gp);
+  /* Reference should be already set up */
 
   /* Start conversion */
   ADC0.COMMAND = ADC_STCONV_bm;
@@ -123,23 +147,32 @@ int analogRead(uint8_t pin)
     ADC0.MUXPOS = 0x40;
   #endif
   return ADC0.RES;
-
 }
 
+//int32_t analogReadDiff(uint8_t pin_pos, uint8_t pin_neg) {
 
-//analogReadResolution() has two legal values you can pass it, 8 or 10 on these parts. According to the datasheet, you can clock the ADC faster if you set it to 8.
-//like the pinswap functions, if the user passes bogus values, we set it to the default and return false.
+//}
 
-inline void analogReadResolution(uint8_t res) {
-  if (!__builtin_constant_p(res))
-    badArg("analogReadResolution must only be passed constant values");
-  if (res !=10 && res != 12)
-    badArg("analogReadResolution called with invalid argument - valid options are 10 or 12.");
+//int32_t analogReadEnh(uint8_t pin, uint8_t bits, )
+
+inline bool analogReadResolution(uint8_t res) {
+  #if defined(STRICT_ERROR_CHECKING) /* not yet implemented, may be an optional error iun a future version */
+    if (!__builtin_constant_p(res)) {
+      badArg("analogReadResolution should only be passed constant values");
+    }
+  #endif
+  if (__builtin_constant_p(res)) {
+    if (res !=10 && res != 12) {
+      badArg("analogReadResolution called with invalid argument - valid options are 10 or 12.");
+    }
+  }
   if (res == 12) {
     ADC0.CTRLA = (ADC0.CTRLA & (~ADC_RESSEL_gm)) | ADC_RESSEL_12BIT_gc;
   } else {
     ADC0.CTRLA = (ADC0.CTRLA & (~ADC_RESSEL_gm)) | ADC_RESSEL_10BIT_gc;
+    return (res == 10);
   }
+  return true;
 }
 
 

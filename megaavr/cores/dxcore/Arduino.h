@@ -20,16 +20,25 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+#include "core_parts.h"
 #include "api/ArduinoAPI.h"
 
 #include <avr/pgmspace.h>
-#include <avr/io.h>
 #include <avr/interrupt.h>
-
 
 #ifdef __cplusplus
 extern "C"{
 #endif
+
+// Constant checks error handler
+void badArg(const char*) __attribute__((error("")));
+void badCall(const char*) __attribute__((error("")));
+
+inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
+{
+  if(!__builtin_constant_p(pin))
+    badArg("Fast digital pin must be a constant");
+}
 
 /* Analog reference options */
 
@@ -60,6 +69,7 @@ extern "C"{
 
 // DACREFn MUXPOS currently missing from the headers!!
 #define ADC_DAC0           ADC_CH(ADC_MUXPOS_DAC0_gc)
+#define ADC_GROUND         ADC_CH(ADC_MUXPOS_GND_gc)
 #define ADC_DACREF0        ADC_CH(0x49)
 #ifdef AC1 // Always either 1 AC or 3, never 2.
   #define ADC_DACREF1      ADC_CH(0x4A)
@@ -77,8 +87,6 @@ extern "C"{
 
 #define interrupts() sei()
 #define noInterrupts() cli()
-
-void analogReadResolution(uint8_t res);
 
 /* inlining of a call to delayMicroseconds() would throw it off */
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
@@ -106,6 +114,9 @@ void init_TCA1()   __attribute__((weak)); // called by init_timers()
 void init_TCBs()   __attribute__((weak)); // called by init_timers()
 void init_TCD0()   __attribute__((weak)); // called by init_timers()
 
+int32_t analogReadEnh( uint8_t pin,              uint8_t res, uint8_t gain);
+int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain);
+
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
   #define _NOP() do { __asm__ volatile ("nop"); } while (0)
@@ -116,283 +127,92 @@ uint16_t clockCyclesPerMicrosecond();
 unsigned long clockCyclesToMicroseconds(unsigned long cycles);
 unsigned long microsecondsToClockCycles(unsigned long microseconds);
 
-// Get the bit location within the hardware port of the given virtual pin.
-// This comes from the pins_*.c file for the active board configuration.
+
+
+// These are lookup tables to find pin parameters from Arduino pin numbers
+// They are defined in the variant's pins_arduino.h
 
 extern const uint8_t digital_pin_to_port[];
 extern const uint8_t digital_pin_to_bit_mask[];
 extern const uint8_t digital_pin_to_bit_position[];
 extern const uint8_t digital_pin_to_timer[];
-
-// Get the bit location within the hardware port of the given virtual pin.
-// This comes from the pins_*.c file for the active board configuration.
-//
-// These perform slightly better as macros compared to inline functions
-
-
-#define NOT_A_PIN 255
-#define NOT_A_PORT 255
-#define NOT_AN_INTERRUPT 255
-
-#define PA 0
-#define PB 1
-#define PC 2
-#define PD 3
-#define PE 4
-#define PF 5
-#define PG 6
-#define NUM_TOTAL_PORTS 7
-
-/* THIS IS NOT AN API FUNCTION
- * WE MAKE NO PROMISES OF STABILITY FOR
- * digitalPortToPin0() - it is NOT even a
- * vaguely plausible function for anything other
- * than AVR Dx with 28+ pins
- */
-
 extern const uint8_t digital_port_to_pin0[];
 
-// These are used for two things: identifying the timer on a pin
-// and for the MILLIS_TIMER define that users can test to verify which timer is
-// actually being used for millis
-// Previously TCAs were all 0x1_, TCBs 0x2_ - to make the take-over tracking work, though, it was *much* easier if I
-// gave TCA1 a dedicated bit, that way the timer can be AND'ed with PeripheralControl to see if we still have that
-// peripheral under core control.
-// So, that's why the three big timers, which have many PORTMUX options which move their pins en masse, get their own
-// bits here. (notice how the digital_pin_to_timer table at the bottom doesn't list these anymore. Functions that
-// use them calculate whether a pin is associated to timer with current mux setting themselves. Since there are only
-// two functions that do this without a timer takeover situation (where it is not the core's business anymore),
-// this seemed an acceptable tradeoff. Before this change, the core did not support remapping these pins, but that was
-// not a winning solution, because no decsion would please everyone. It was made even more acute by errata impacting the
-// available mux options - the best options were not actually usable... but some day might become usable... on new
-// silicon only...
-// Things that aren't hardware timers with output compare are after that
-// DAC output isn't a timer, but the core uses it like one.
-// RTC timer is a timer, but certainly not that kind of timer
-#define NOT_ON_TIMER  0x00
-#define TIMERA0       0x10
-#define TIMERA1       0x08 // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
-#define TIMERB0       0x20
-#define TIMERB1       0x21
-#define TIMERB2       0x22
-#define TIMERB3       0x23
-#define TIMERB4       0x24
-#define TIMERD0       0x40
-#define TIMERRTC      0x90
-#define DACOUT        0x80
+/* Yes, I (Spence Konde) have realized that on 64k and 128k parts, these end
+ * up in RAM since they aren't declared PROGMEM. That means that an amount of
+ * work could save up to 224 bytes of RAM on 64-pin parts, 164 bytes on 48-pin
+ * parts, 108b on 32-pin parts and 92b on 28-pin parts for the parts with 64k
+ * and 128k of flash (32k flash parts are __AVR_ARCH__ == 103, so they have
+ * all flash memory mapped and const variables are automatically stored only
+ * in flash. However there are several design decisions, and small speed and
+ * flash penalty here, and you need to apply it only to the 64/128k parts.
+ * Have more important fish to fry atm than making a couple hundred bytes of
+ * RAM for parts with 8 or 16k of RAM. */
 
-#define digitalPinToPort(pin)               ( (pin  < NUM_TOTAL_PINS)  ? digital_pin_to_port[pin] : NOT_A_PIN )
-#define digitalPinToBitPosition(pin)        ( (pin  < NUM_TOTAL_PINS)  ? digital_pin_to_bit_position[pin] : NOT_A_PIN )
-#define digitalPinToBitMask(pin)            ( (pin  < NUM_TOTAL_PINS)  ? digital_pin_to_bit_mask[pin] : NOT_A_PIN )
-#define digitalPinToTimer(pin)              ( (pin  < NUM_TOTAL_PINS)  ? digital_pin_to_timer[pin] : NOT_ON_TIMER )
-#define digitalPortToPin0(port)             ( (port < NUM_TOTAL_PORTS) ? digital_port_to_pin0[port] : NOT_A_PIN)
-#define portToPortStruct(port)              ( (port < NUM_TOTAL_PORTS) ? ((PORT_t *)  & PORTA + port) : NULL)
-#define digitalPinToPortStruct(pin)         ( (pin  < NUM_TOTAL_PINS)  ? ((PORT_t *)  & PORTA + digitalPinToPort(pin)) : NULL)
-#define analogPinToBitPosition(pin)         ( (digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_position[pin] : NOT_A_PIN )
-#define analogPinToBitMask(pin)             ( (digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin] : NOT_A_PIN )
-#define getPINnCTRLregister(port, bit_pos)  ( ((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL )
+#define digitalPinToPort(pin)               ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_port[pin]         : NOT_A_PIN)
+#define digitalPinToBitPosition(pin)        ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
+#define digitalPinToBitMask(pin)            ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
+#define digitalPinToTimer(pin)              ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_timer[pin]        : NOT_ON_TIMER)
+#define portToPortStruct(port)              ((port < NUM_TOTAL_PORTS) ? ((PORT_t *)  & PORTA + port)                  : NULL)
+#define digitalPinToPortStruct(pin)         ((pin  < NUM_TOTAL_PINS ) ? ((PORT_t *)  & PORTA + digitalPinToPort(pin)) : NULL)
+#define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
+#define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
+#define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
 #define digitalPinToInterrupt(P) (P)
 
 #define portOutputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->OUT ) )
 #define portInputRegister(P)  ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
 #define portModeRegister(P)   ( (volatile uint8_t *)( &portToPortStruct(P)->DIR ) )
 
-/*
- * Compatibility and access to flash-mapped progmem
- * 104 is a 128k part like AVR128DA
- * 102 is a 64k part like AVR64DB, or AVR64DD
- * 103 is a 32k or less part like the AVR32DA, or the AVR16DD
- * the importrant difference for 103 parts is that they have the entire flash
- * mapped to the data address space, while 102 and 104 only have a 32k chunk of it mapped.
- */
-#if (__AVR_ARCH__ == 104)
-  #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION3")))
-#elif (__AVR_ARCH__ == 102)
-  #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION1")))
-#else
-  // __AVR_ARCH__ == 103, so all of the flash is memory mapped, and the linker
-  // will automatically leave const variables in flash.
-  #define MAPPED_PROGMEM
-#endif
+/* I wound up needing this for some reason
+   I think the fact that all pins are ordered by port and bit
+   allowed me to dramatically simplify something if I knew this */
 
+uint8_t digitalPortToPin0(uint8_t portnmbr) {
+  switch (portnbr) {
+    case 0: //PORTA
+      return PIN_PA0;
+    case 1: //PORTB
+      return PIN_PB0;
+    case 2: //PORTC
+      return PIN_PC0;
+    case 3: //PORTD
+      return (PIN_PD0 == NOT_A_PIN ? (PIN_PD1 - 1) : PIN_PD0);
+    case 4: //PORTE
+      return PIN_PE0;
+    case 5: //PORTF
+      return PIN_PF0;
+    case 6: //PORTG
+      return PIN_PG0;
+  }
+  return NOT_A_PIN;
+}
 
-/*
- * Compatibility - General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
- * They now appear to have decided they don't like either of these conventions, and are grouping them under a "General Purpose Register"
- * "peripheral". I cannot argue that GPR doesn't make more sense, as there's not really any I/O occurring here (ofc they were referring
- * to the IN and OUT instructions, which can be used on these), but I certainly wouldn't have changed a convention like this. And if I
- * really had to... I would be too ashamed to do it again in just a couple of years because I realized I didn't like the first change
- * much either. Then again, maybe this just brings to mind that old line about talking cookware...
- */
-
-// Pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn .
-#ifndef GPIOR0
-  #define GPIOR0 (GPR_GPR0)
-  #define GPIOR1 (GPR_GPR1)
-  #define GPIOR2 (GPR_GPR2)
-  #define GPIOR3 (GPR_GPR3)
-#endif
-// For a while, these were called GPIO in the i/o headers...
-#ifndef GPIO0
-  #define GPIO0 (GPR_GPR0)
-  #define GPIO1 (GPR_GPR1)
-  #define GPIO2 (GPR_GPR2)
-  #define GPIO3 (GPR_GPR3)
-#endif
-
-// Chip families
-// 0b ffssfppp
-// ff__f is a 3-bit family code 00__0 is the DA, 00__1 is DB,
-// 01__0 is DD.
-// ss is flash size; 0 is smallest flash in family, 1 second smallest
-// (generally 2x smallest) 2 for next size up, and 3 for an even larger
-// one, if a product line with 4 flash sizes was ever introduced.
-// ppp is code for the pincount, per below chart.
-// interestingly enough this range can extend to cover all pincounts used
-// in recent times on AVR devices - as there is only one smaller one, the
-// 8-pin of the '85  and 'xy2 - 000
-// and 100 pin of the mega256 - 111
-// Wonder if we will see another 100-pin monster or 8-pin tiny?
-// We can squeeze in on emore future
-
-#define AVR128DA    0x20
-#define AVR64DA     0x10
-#define AVR32DA     0x00
-#define AVR128DB    0x28
-#define AVR64DB     0x18
-#define AVR32DB     0x08
-#define AVR64DD     0x60
-#define AVR32DD     0x50
-#define AVR16DD     0x40
-#define HAS_14_PINS 0x01
-#define HAS_20_PINS 0x02
-#define HAS_28_PINS 0x03
-#define HAS_32_PINS 0x04
-#define HAS_48_PINS 0x05
-#define HAS_64_PINS 0x06
-#define IS_AVR_DB   0x08
-#define IS_AVR_DD   0x40
-#define IS_AVR_DA   0x00
-
-#define MASK_SERIES 0xC8
-#define MASK_FLASH  0x30
-#define MASK_PINS   0x07
-
-//#defines to identify part families
-#if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
-  #define DA_64_PINS
-  #define Dx_64_PINS
-  #define DXCORE_ID_LOW HAS_64_PINS
-  #define __AVR_DA__
-#elif defined(__AVR_AVR128DA48__) || defined(__AVR_AVR64DA48__) || defined(__AVR_AVR32DA48__)
-  #define DA_48_PINS
-  #define Dx_48_PINS
-  #define DXCORE_ID_LOW HAS_48_PINS
-  #define __AVR_DA__
-#elif defined(__AVR_AVR128DA32__) || defined(__AVR_AVR64DA32__) || defined(__AVR_AVR32DA32__)
-  #define DA_32_PINS
-  #define Dx_32_PINS
-  #define DXCORE_ID_LOW HAS_32_PINS
-  #define __AVR_DA__
-#elif defined(__AVR_AVR128DA28__) || defined(__AVR_AVR64DA28__) || defined(__AVR_AVR32DA28__)
-  #define DA_28_PINS
-  #define Dx_28_PINS
-  #define DXCORE_ID_LOW HAS_28_PINS
-  #define __AVR_DA__
-#elif defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)
-  #define DB_64_PINS
-  #define Dx_64_PINS
-  #define DXCORE_ID_LOW HAS_64_PINS | IS_AVR_DB
-  #define __AVR_DB__
-#elif defined(__AVR_AVR128DB48__) || defined(__AVR_AVR64DB48__) || defined(__AVR_AVR32DB48__)
-  #define DB_48_PINS
-  #define Dx_48_PINS
-  #define DXCORE_ID_LOW HAS_48_PINS | IS_AVR_DB
-  #define __AVR_DB__
-#elif defined(__AVR_AVR128DB32__) || defined(__AVR_AVR64DB32__) || defined(__AVR_AVR32DB32__)
-  #define DB_32_PINS
-  #define Dx_32_PINS
-  #define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DB
-  #define __AVR_DB__
-#elif defined(__AVR_AVR128DB28__) || defined(__AVR_AVR64DB28__) || defined(__AVR_AVR32DB28__)
-  #define DB_28_PINS
-  #define Dx_28_PINS
-  #define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DB
-  #define __AVR_DB__
-#elif defined(__AVR_AVR64DD32__) || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
-  #define DD_32_PINS
-  #define Dx_32_PINS
-  #define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DD
-  #define __AVR_DD__
-#elif defined(__AVR_AVR64DD28__) || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
-  #define DD_28_PINS
-  #define Dx_28_PINS
-  #define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DD
-  #define __AVR_DD__
-#elif defined(__AVR_AVR64DD20__) || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
-  #define DD_20_PINS
-  #define Dx_20_PINS
-  #define DXCORE_ID_LOW HAS_20_PINS | IS_AVR_DD
-  #define __AVR_DD__
-#elif defined(__AVR_AVR64DD14__) || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
-  #define DD_14_PINS
-  #define Dx_14_PINS
-  #define DXCORE_ID_LOW HAS_14_PINS | IS_AVR_DD
-  #define __AVR_DD__
-#else
-  #error "Can't-happen: unknown chip somehow being used"
-#endif
-
-#ifdef __AVR_DD__
-  #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
-#endif
-
-#if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x20)
-#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x10)
-#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x00)
-#else
-  #error "Unrecognized combination of flash size and chip type"
-#endif
-
-
-#if (defined(__AVR_AVR128DA64__) || defined(__AVR_AVR128DA48__) || defined(__AVR_AVR128DA32__) || defined(__AVR_AVR128DA28__))
-  // Their errata sheet indicates that both are in circulation for the 128k size. Big difference it makes, since they didn't fix any of the errata!
-  #define HAS_ADC_BUG (SYSCFG.REVID == 0x16 || SYSCFG.REVID == 0x17)
-#elif (defined __AVR_DA__) //only A3 of these has made the rounds
-  #define HAS_ADC_BUG (SYSCFG.REVID == 0x13)
-#else
-  #define HAS_ADC_BUG (0)
-#endif
-
-#if defined(__AVR_DA__) || defined(__AVR_DB__)
-  #define ERRATA_TCD_PORTMUX
-#endif
-
-/*
-#define DXCORE "1.2.0-dev"
-#define DXCORE_MAJOR 1UL
-#define DXCORE_MINOR 2UL
-#define DXCORE_PATCH 0UL
-#define DXCORE_RELEASED 0
-*/
-#define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
-
-#ifndef DXCORE
-  #define DXCORE "Unknown 1.3.3+"
-#endif
 
 #define CORE_HAS_FASTIO 1
 #define CORE_HAS_OPENDRAIN 1
-// #define CORE_HAS_PINCONFIG 1 - core functionality not implemented yet
-#define NATIVE_ADC_RESOLUTION 12
-#define NATIVE_ADC_RESOLUTION_LOW 10
-#define DIFFERENTIAL_ADC 1
-// #define CORE_HAS_ADC_OVERSAMPLE - core functionality not implemented yet.
-
+// #define CORE_HAS_PINCONFIG 1
+// If 1, takeOverTCAn and takeOverTCDn (if applicable) are present.
+#define CORE_HAS_TIMER_TAKEOVER 1
+// If 1, also has resumeTCAn and resumeTCDn;
+#define CORE_HAS_TIMER_RESUME 1
+// tones specifying duration are timed until a certain number of oscillations have occurred.
+// Frequency is in Hz, while duration is in ms (2 * frequency * duration)/1000 is the number of transitions
+// before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
+// overflow when frequency * duration. A high-pitched tone of 20 kHz, would overflow if a delay of longer than
+// around 7 minutes was requested. On parts like the Dx-series where there's no problem with flashg space, we
+// now do (frequency / 5) * (duration/100) when duration ? 2^16 ms (a necessary precondition for overflow).
 #define SUPPORT_LONG_TONES 1
+
+// Core ADC features - coming soon!
+// if analogReadEnh() supplied, this is defined as 1
+// #define CORE_HAS_ANALOG_ENH 1
+// if analogReadDiff() supplied, this is defined as 1
+// #define CORE_HAS_ANALOG_DIFF 1
+// If CORE_HAS_ANALOG_ENH or CORE_HAS_ANALOG_DIFF defined 1, this is the
+// maximum ADC resolution it can obtain through oversampling and decimation.
+// (ie (log base 4 of ADC_MAXIMUM_ACCUMULATE) + ADC_NATIVE_RESOLUTION)
+// #define MAX_OVERSAMPLED_RESOLUTION 15
 
 #ifdef __cplusplus
 } // extern "C"
@@ -400,7 +220,8 @@ extern const uint8_t digital_port_to_pin0[];
 
 #ifdef __cplusplus
   #include "UART.h"
-
+  int32_t analogReadEnh( uint8_t pin,              uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
+  int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
 #endif
 
 #include "pins_arduino.h"
@@ -413,8 +234,17 @@ extern const uint8_t digital_port_to_pin0[];
   #endif
 #endif
 
-/* Moved from pins_arduino.h to reduce code duplication - also made better decisions */
+// A little bit of trickery - this allows Serial to be defined as something other than USART0
+// Use case is for boards where the main serial port is not USART0 to be used without the user
+// having to find/replace Serial with Serial2 or whatever on their existing code if that's where
+// the monitor is.
+#ifndef Serial
+  #define Serial Serial0
+#endif
 
+
+
+/* Moved from pins_arduino.h to reduce code duplication - also made better decisions */
 // These serial port names are intended to allow libraries and architecture-neutral
 // sketches to automatically default to the correct port name for a particular type
 // of use.  For example, a GPS module would normally connect to SERIAL_PORT_HARDWARE_OPEN,
@@ -434,7 +264,9 @@ extern const uint8_t digital_port_to_pin0[];
 // First, we allow a define to be passed (lkely from boards.txt - though it could
 // come from pins_arduino, I suppose) to force a certain port here. The plan is
 // that I will pass defines from board definitions specifying this for the Curiosity
-// Nano boards, in order to improve the user experience there
+// Nano boards, in order to improve the user experience there - though this may be
+// obliviated by the Serial/Serial0 thing just above, which has the advantage of
+// transparently adapting user code as well.
 
 #if !defined(SERIAL_PORT_MONITOR)
   #if defined(SERIAL_PORT_BOOT)
@@ -460,8 +292,8 @@ extern const uint8_t digital_port_to_pin0[];
   #if defined(USART2) && (SERIAL_PORT_MONITOR != Serial2)
     #define SERIAL_PORT_HARDWARE_OPEN Serial2
   #else
-    #if (SERIAL_PORT_MONITOR != Serial)
-      #define SERIAL_PORT_HARDWARE_OPEN Serial
+    #if (SERIAL_PORT_MONITOR != Serial0)
+      #define SERIAL_PORT_HARDWARE_OPEN Serial0
     #else
       #define SERIAL_PORT_HARDWARE_OPEN Serial1
     #endif
@@ -477,7 +309,7 @@ extern const uint8_t digital_port_to_pin0[];
 // that could be used with MVIO (again, short of rerouting signals with
 // the event system)
   #if defined(DD_14_PINS) || defined(DD_20_PINS)
-    #define SERIAL_PORT_MVIO Serial
+    #define SERIAL_PORT_MVIO Serial0
   #else
     #define SERIAL_PORT_MVIO Serial1
   #endif
