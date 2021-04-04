@@ -319,16 +319,6 @@ static const uint8_t A21 = PIN_A21;
 
 #ifdef ARDUINO_MAIN
 
-const uint8_t digital_port_to_pin0[] = {
-  PIN_PA0,
-  PIN_PB0,
-  PIN_PC0,
-  PIN_PD0,
-  PIN_PE0,
-  PIN_PF0,
-  PIN_PG0,
-};
-
 
 const uint8_t digital_pin_to_port[] = {
   PA,  //  0 PA0
