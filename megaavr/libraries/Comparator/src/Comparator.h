@@ -2,7 +2,7 @@
 #define COMPARATOR_h
 
 #include <Arduino.h>
-
+// *INDENT OFF* - astyle wants me to indent the #if's in a way that makes it harder to read.
 namespace out {
   enum output_t : uint8_t {
     disable = 0x00,
@@ -56,7 +56,8 @@ namespace in_n {
     pd7    = 0x02,
   };
 };
-// Unknown how these will be numbered on DD-series, which has an AINN3 and DACREF.
+
+// Unknown how these will be numbered on DD-series, which has an AINN3 and DACREF - initial header release is copied verbatim from DA/DB
 
 namespace ref {
   enum reference_t : uint8_t {
