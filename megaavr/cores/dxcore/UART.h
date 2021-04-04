@@ -169,6 +169,8 @@ class UartClass : public HardwareSerial
     void printHex(const int32_t l, bool swaporder=0) {printHex((uint16_t)l,swaporder);}
     uint8_t * printHex(uint8_t* p,uint8_t len, char sep=0);
     uint16_t * printHex(uint16_t* p, uint8_t len, char sep=0, bool swaporder=0);
+    volatile uint8_t * printHex(volatile uint8_t* p,uint8_t len, char sep=0);
+    volatile uint16_t * printHex(volatile uint16_t* p, uint8_t len, char sep=0, bool swaporder=0);
     virtual int available(void);
     virtual int peek(void);
     virtual int read(void);
@@ -191,7 +193,7 @@ class UartClass : public HardwareSerial
 };
 
 #if defined(HWSERIAL0)
-  extern UartClass Serial;
+  extern UartClass Serial0;
   #define HAVE_HWSERIAL0
 #endif
 #if defined(HWSERIAL1)

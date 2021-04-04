@@ -39,7 +39,7 @@
 #if defined(HWSERIAL0_RXC_VECTOR)
 ISR(HWSERIAL0_RXC_VECTOR)
 {
-  Serial._rx_complete_irq();
+  Serial0._rx_complete_irq();
 }
 #else
 #error "Don't know what the Data Received interrupt vector is called for Serial"
@@ -48,20 +48,20 @@ ISR(HWSERIAL0_RXC_VECTOR)
 #if defined(HWSERIAL0_DRE_VECTOR)
 ISR(HWSERIAL0_DRE_VECTOR)
 {
-  Serial._tx_data_empty_irq();
+  Serial0._tx_data_empty_irq();
 }
 #else
 #error "Don't know what the Data Received interrupt vector is called for Serial"
 #endif
 
 #if defined(HWSERIAL0)
-  UartClass Serial(HWSERIAL0, PIN_HWSERIAL0_RX, PIN_HWSERIAL0_TX, PIN_HWSERIAL0_RX_PINSWAP_1, PIN_HWSERIAL0_TX_PINSWAP_1, HWSERIAL0_DRE_VECTOR_NUM, HWSERIAL0_MUX, HWSERIAL0_MUX_PINSWAP_1);
+  UartClass Serial0(HWSERIAL0, PIN_HWSERIAL0_RX, PIN_HWSERIAL0_TX, PIN_HWSERIAL0_RX_PINSWAP_1, PIN_HWSERIAL0_TX_PINSWAP_1, HWSERIAL0_DRE_VECTOR_NUM, HWSERIAL0_MUX, HWSERIAL0_MUX_PINSWAP_1);
 #endif
 
 // Function that can be weakly referenced by serialEventRun to prevent
 // pulling in this file if it's not otherwise used.
 bool Serial0_available() {
-  return Serial.available();
+  return Serial0.available();
 }
 
 #endif // HAVE_HWSERIAL0
