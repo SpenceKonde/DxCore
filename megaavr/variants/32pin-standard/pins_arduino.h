@@ -227,9 +227,9 @@ const uint8_t digital_pin_to_port[] = {
   PC, // 10 PC2
   PC, // 11 PC3
   #ifndef MVIO
-    PD, // 12 PD0/AIN0
+  PD, // 12 PD0/AIN0
   #else
-    NOT_A_PORT,
+  NOT_A_PORT,
   #endif
   PD, // 13 PD1/AIN1
   PD, // 14 PD2/AIN2
@@ -262,9 +262,9 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN2_bp, // 10 PC2
   PIN3_bp, // 11 PC3
   #ifndef MVIO
-    PIN0_bp, // 12 PD0/AIN0
+  PIN0_bp, // 12 PD0/AIN0
   #else
-    NOT_A_PIN,
+  NOT_A_PIN,
   #endif
   PIN1_bp, // 13 PD1/AIN1
   PIN2_bp, // 14 PD2/AIN2
@@ -297,9 +297,9 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN2_bm, // 10 PC2
   PIN3_bm, // 11 PC3
   #ifndef MVIO
-    PIN0_bm, // 12 PD0/AIN0
+  PIN0_bm, // 12 PD0/AIN0
   #else
-    NOT_A_PIN,
+  NOT_A_PIN,
   #endif
   PIN1_bm, // 13 PD1/AIN1
   PIN2_bm, // 14 PD2/AIN2
@@ -331,9 +331,9 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
   #ifndef MVIO
-    NOT_ON_TIMER, // 12 PD0/AIN0
+  NOT_ON_TIMER, // 12 PD0/AIN0
   #else
-    NOT_ON_TIMER, // If MVIO on 32-pin, this pin is replaced with VDDIO2
+  NOT_ON_TIMER,
   #endif
   NOT_ON_TIMER, // 13 PD1/AIN1
   NOT_ON_TIMER, // 14 PD2/AIN2
