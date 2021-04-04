@@ -35,14 +35,13 @@
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3) || defined(HAVE_HWSERIAL4) || defined(HAVE_HWSERIAL5)
 
-// SerialEvent is rarely used, and checking for it every iteration of loop() *does* have a cost
-#ifndef NOSERIALEVENT
+// As of 1.3.3 serialevent is no longer exposed through the core. It is deprecated on official core - screw it.
   // SerialEvent functions are weak, so when the user doesn't define them,
   // the linker just sets their address to 0 (which is checked below).
   // The Serialx_available is just a wrapper around Serialx.available(),
   // but we can refer to it weakly so we don't pull in the entire
   // UART instance if the user doesn't also refer to it.
-
+  #if defined(ENABLE_SERIAL_EVENT)
     #if defined(HAVE_HWSERIAL0)
       void serialEvent() __attribute__((weak));
       bool Serial0_available() __attribute__((weak));
@@ -120,7 +119,7 @@ void UartClass::_tx_data_empty_irq(void) {
 
   // clear the TXCIF flag -- "can be cleared by writing a one to its bit
   // location". This makes sure flush() won't return until the bytes
-  // actually got written
+  // actually got written. It is critical to do this BEFORE we write the next byte ou
   (*_hwserial_module).STATUS = USART_TXCIF_bm;
 
   (*_hwserial_module).TXDATAL = c;
@@ -133,7 +132,10 @@ void UartClass::_tx_data_empty_irq(void) {
 
 // To invoke data empty "interrupt" via a call, use this method
 void UartClass::_poll_tx_data_empty(void) {
-  if ((!(SREG & CPU_I_bm)) || (!((*_hwserial_module).CTRLA & USART_DREIE_bm)) || CPUINT.STATUS) {
+  if ((!(SREG & CPU_I_bm)) ||  CPUINT.STATUS) {
+    // 3/25/21 - Since a disabled DRE should mean "there is nothingh in TX buffer"
+    // that shouold not be one of the conditions that triggers the manual call to the ISR.
+    // If we are here but DREIE == 0 either it's flush waitihg on last character,almost certainly...
     // Interrupts are disabled either globally or for data register empty,
     // or we are in another ISR. (It doesn't matter *which* ISR we are in
     // whether it's another level 0, the priority one, or heaven help us
@@ -362,8 +364,7 @@ void UartClass::flush() {
   // Spin until the data-register-empty-interrupt is disabled and TX complete interrupt flag is raised
   while (((*_hwserial_module).CTRLA & USART_DREIE_bm) || (!((*_hwserial_module).STATUS & USART_TXCIF_bm))) {
 
-    // If interrupts are globally disabled or the and DR empty interrupt is disabled,
-    // poll the "data register empty" interrupt flag to prevent deadlock
+    // poll this, which will ensure that bytes keep getting sent even if interrupts are disabled or something.
     _poll_tx_data_empty();
   }
   // When we get here, nothing is queued anymore (DREIE is disabled) and
@@ -443,11 +444,12 @@ void UartClass::printHex(const uint32_t l, bool swaporder){
     printHex(*(ptr));
   }
 }
-uint8_t * UartClass::printHex(uint8_t* p,uint8_t len, char sep) {
+uint8_t * UartClass::printHex(uint8_t* p, uint8_t len, char sep) {
   for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
     printHex(*p++);
   }
+  println();
   return p;
 }
 
@@ -456,7 +458,27 @@ uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporde
     if (sep && i) write(sep);
     printHex(*p++, swaporder);
   }
+  println();
   return p;
 }
 
+volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
+  for (byte i = 0; i < len; i++) {
+    if (sep && i) write(sep);
+    uint8_t t=*p++;
+    printHex(t);
+  }
+  println();
+  return p;
+}
+
+volatile uint16_t * UartClass::printHex(volatile uint16_t* p, uint8_t len, char sep, bool swaporder) {
+  for (byte i = 0; i < len; i++) {
+    if (sep && i) write(sep);
+    uint16_t t=*p++;
+    printHex(t, swaporder);
+  }
+  println();
+  return p;
+}
 #endif
