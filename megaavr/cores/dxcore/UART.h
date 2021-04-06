@@ -63,7 +63,8 @@ typedef uint16_t rx_buffer_index_t;
 typedef uint8_t rx_buffer_index_t;
 #endif
 
-// Define config for Serial.begin(baud, config);
+// Define config for Serial.begin(baud, config); Arduino API defines these differently in a way that takes more storage!
+// thou shalt not
 #undef SERIAL_5N1
 #undef SERIAL_6N1
 #undef SERIAL_7N1
@@ -110,22 +111,27 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7E2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_7BIT_gc | USART_PMODE_EVEN_gc | USART_SBMODE_2BIT_gc)
 #define SERIAL_8E2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_8BIT_gc | USART_PMODE_EVEN_gc | USART_SBMODE_2BIT_gc)
 
-#define SERIAL_5O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_5BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_1BIT_gc)
-#define SERIAL_6O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_6BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_1BIT_gc)
-#define SERIAL_7O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_7BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_1BIT_gc)
-#define SERIAL_8O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_8BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_1BIT_gc)
+#define SERIAL_5O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_5BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_1BIT_gc)
+#define SERIAL_6O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_6BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_1BIT_gc)
+#define SERIAL_7O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_7BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_1BIT_gc)
+#define SERIAL_8O1 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_8BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_1BIT_gc)
 
-#define SERIAL_5O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_5BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_2BIT_gc)
-#define SERIAL_6O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_6BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_2BIT_gc)
-#define SERIAL_7O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_7BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_2BIT_gc)
-#define SERIAL_8O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_8BIT_gc | USART_PMODE_ODD_gc | USART_SBMODE_2BIT_gc)
+#define SERIAL_5O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_5BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_2BIT_gc)
+#define SERIAL_6O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_6BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_2BIT_gc)
+#define SERIAL_7O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_7BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_2BIT_gc)
+#define SERIAL_8O2 (USART_CMODE_ASYNCHRONOUS_gc | USART_CHSIZE_8BIT_gc | USART_PMODE_ODD_gc  | USART_SBMODE_2BIT_gc)
 
-#define SERIAL_PIN_SETS 2
-
+#ifndef __AVR_DD__
+  #define SERIAL_PIN_SETS 2
+#else
+  #define SERIAL_PIN_SETS 5 /* oh FFS, this is not what I thought would be painful... WAY more complicated to handle than SPI, which also has like a billion options now. */
+#endif
 class UartClass : public HardwareSerial
 {
   protected:
     volatile USART_t * const _hwserial_module;
+
+    volatile uint8_t _hwserial_dre_interrupt_vect_num;
 
     struct UartPinSet {
       uint8_t const rx_pin;
@@ -143,10 +149,6 @@ class UartClass : public HardwareSerial
     volatile tx_buffer_index_t _tx_buffer_head;
     volatile tx_buffer_index_t _tx_buffer_tail;
 
-    volatile uint8_t _hwserial_dre_interrupt_vect_num;
-    volatile uint8_t _hwserial_dre_interrupt_elevated;
-    volatile uint8_t _prev_lvl1_interrupt_vect;
-
     // Don't put any members after these buffers, since only the first
     // 32 bytes of this struct can be accessed quickly using the ldd
     // instruction.
@@ -154,7 +156,15 @@ class UartClass : public HardwareSerial
     volatile unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
 
   public:
-    inline UartClass(volatile USART_t *hwserial_module, uint8_t hwserial_rx_pin, uint8_t hwserial_tx_pin, uint8_t hwserial_rx_pin_swap, uint8_t hwserial_tx_pin_swap, uint8_t dre_vect_num, uint8_t uart_mux, uint8_t uart_mux_swap);
+    #ifdef __AVR_DD__
+      inline UartClass(volatile USART_t *hwserial_module, uint8_t dre_vect_num, uint8_t hwserial_rx_pin, uint8_t hwserial_tx_pin, uint8_t uart_mux,
+        uint8_t hwserial_rx_pin_swap,  uint8_t hwserial_tx_pin_swap,  uint8_t uart_mux_swap,
+        uint8_t hwserial_rx_pin_swap2, uint8_t hwserial_tx_pin_swap2, uint8_t uart_mux_swap2,
+        uint8_t hwserial_rx_pin_swap3 = NOT_A_PIN, uint8_t hwserial_tx_pin_swap3 = NOT_A_PIN, uint8_t uart_mux_swap3 = NOT_A_PIN,
+        uint8_t hwserial_rx_pin_swap4 = NOT_A_PIN, uint8_t hwserial_tx_pin_swap4 = NOT_A_PIN, uint8_t uart_mux_swap4 = NOT_A_PIN);
+    #else
+      inline UartClass(volatile USART_t *hwserial_module, uint8_t dre_vect_num, uint8_t hwserial_rx_pin, uint8_t hwserial_tx_pin, uint8_t uart_mux, uint8_t hwserial_rx_pin_swap, uint8_t hwserial_tx_pin_swap, uint8_t uart_mux_swap);
+    #endif
     bool pins(uint8_t tx, uint8_t rx);
     bool swap(uint8_t state = 1);
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
@@ -165,8 +175,13 @@ class UartClass : public HardwareSerial
     void printHex(const uint32_t l, bool swaporder=0);
     void printHex(const int8_t b) {printHex((uint8_t)b);}
     void printHex(const char b) {printHex((uint8_t)b);}
-    void printHex(const int16_t w, bool swaporder=0) {printHex((uint16_t)w,swaporder);}
-    void printHex(const int32_t l, bool swaporder=0) {printHex((uint16_t)l,swaporder);}
+    void printHexln(const uint8_t b) {printHex(b);println();}
+    void printHexln(const uint16_t w, bool swaporder=0) {printHex(w,swaporder);println();}
+    void printHexln(const uint32_t l, bool swaporder=0) {printHex(l,swaporder);println();}
+    void printHexln(const int8_t b) {printHex((uint8_t)b);println();}
+    void printHexln(const char b) {printHex((uint8_t)b);println();}
+    void printHexln(const int16_t w, bool swaporder=0) {printHex((uint16_t)w,swaporder);println();}
+    void printHexln(const int32_t l, bool swaporder=0) {printHex((uint16_t)l,swaporder);println();}
     uint8_t * printHex(uint8_t* p,uint8_t len, char sep=0);
     uint16_t * printHex(uint16_t* p, uint8_t len, char sep=0, bool swaporder=0);
     volatile uint8_t * printHex(volatile uint8_t* p,uint8_t len, char sep=0);

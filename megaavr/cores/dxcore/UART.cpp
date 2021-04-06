@@ -379,12 +379,23 @@ size_t UartClass::write(uint8_t c) {
   // significantly improve the effective data rate at high (>
   // 500kbit/s) bit rates, where interrupt overhead becomes a slowdown.
   if ((_tx_buffer_head == _tx_buffer_tail) && ((*_hwserial_module).STATUS & USART_DREIF_bm)) {
-    (*_hwserial_module).TXDATAL = c;
     (*_hwserial_module).STATUS = USART_TXCIF_bm;
+    // MUST clear TXCIF **before** writing new char, otherwise ill-timed interrupt can cause it to erase the flag after the new charchter has been sent!
+    (*_hwserial_module).TXDATAL = c;
 
-    // Make sure data register empty interrupt is disabled to avoid
-    // that the interrupt handler is called in this situation
-    (*_hwserial_module).CTRLA &= (~USART_DREIE_bm);
+
+/*   * I cannot figure out *HOW* the DRE could be enabled at this point (buffer empty and DRE flag up)
+     * When the buffer was emptied, it would have turned off the DREI after it loaded the last byte.
+     * Thus, the only possible way this could happen is if an interrupt also tried to write to serial,
+     * *immediately* after we checked that the buffer was empty, before we made it not empty. And
+     * in that case, without this line it would lose one of the characters... with that line, it could
+     * stop servicing DRE until another serial wright, AND lose a character. I think it's a full 10 bytes
+     * 2 to read with LDS, 1 to modify, 2 to write back with STS. It's gone!    -Spence 4/2021
+     * Original comments:
+     // Make sure data register empty interrupt is disabled to avoid
+     // that the interrupt handler is called in this situation
+     (*_hwserial_module).CTRLA &= (~USART_DREIE_bm);
+*/
 
     return 1;
   }
@@ -416,6 +427,7 @@ void UartClass::printHex (const uint8_t b) {
     x += 7;
   write(x);
 }
+
 void UartClass::printHex(const uint16_t w, bool swaporder){
   uint8_t *ptr = (uint8_t *) &w;
   if (swaporder){
@@ -462,6 +474,7 @@ uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporde
   return p;
 }
 
+/* at minimum, this stops warnings, but I think there are corner cases hee the non-volatile implementations gives wrong results when passed pointers to hardare registers.*/
 volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
   for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);

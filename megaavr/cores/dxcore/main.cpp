@@ -59,7 +59,7 @@ int main(void)
 
   for (;;) {
     loop();
-    #ifndef NOSERIALEVENT
+    #if defined (ENABLE_SERIAL_EVENT)
     if (serialEventRun) serialEventRun();
     #endif
   }

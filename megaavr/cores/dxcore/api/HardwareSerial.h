@@ -98,4 +98,4 @@ class HardwareSerial : public Stream
 };
 
 // XXX: Are we keeping the serialEvent API?
-extern void serialEventRun(void) __attribute__((weak));
+//extern void serialEventRun(void) __attribute__((weak));
