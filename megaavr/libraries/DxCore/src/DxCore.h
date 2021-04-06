@@ -134,9 +134,9 @@ bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
   uint8_t bit_mask = digitalPinToBitMask(pin);
   #if defined(DB_64_PINS)
   // AVR128DB, AVR64DB work with the high MUX options
-  if (((port == 1 || port == 6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+    if (((port == 1 || port == 6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
   #else  // AVR128DA64 definitely do not work. AVR64DA64 untested.
-  if (((port == 1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+    if (((port == 1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
   #endif // And those are the only 4 parts in the product line for which those pins exist.
     // PORTB and PORTG have full-service TCA1 (well, not PG on the 128DA63 up to at least the A8 die
     // rev). for those, bit_mask will be 0x01, 0x02, 0x04, 0x08, 0x10, or 0x20 - but not 0x40 or
