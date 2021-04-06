@@ -4,9 +4,15 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
+
+## Released Versions
+
 ### 1.3.3
 * New version of the Arduino <-> pymcuprog bridge introduced - verbose output vanishing bug fixed, and it can no longer fail silently when it receives invalid command line arguments (this was leading to "burn bootloader" with missing bootloader file reporting success but burning no bootloader.)
-* Add a lot of infrastructure that will be used for future ADC enhancements. Nothing major that is user-facing - yet - just the plumbing. Wanted to make sure I had this out before I made a mess of that stuff!
+* New toolchain package with support for AVR64DD and tinyAVR 2-series parts with 32k flash.
+* Add a lot of infrastructure that will be used for future ADC enhancements. Nothing major that is user-facing - yet - just the plumbing.
+* Add non-user-facing infrastructure to support the AVR DD-series' large number of UART mux options.
+* Add PIN_HWSERIAL macros for the XCK and XDIR pins. Wasn't hard to do, hadn't realized I never did this in DxCore.
 * Split off the stuff in Arduino.h that involves defines representing specific parts, ennumerating hardware capabilities that aren't part of the standard API (ie, the analog references don't move, but the things to create all the group defines like `__AVR_DA__` and `Dx_48_PINS` and so on do get moved.
 * Correct large number of tone() bugs. Tone could leave the pin high. A high pitch and long duration could result in much shorter tones than intended. Frequency of 0 would leave the timer running and generating interrupts in the background for the requested duration (now it stops output if it's on the current pin, otherwise does nothing). while doing nothing. No attempt was made to handle invalid pins: it would get null pointer to port struct.... and proceed to use it without testing if it was valid, or if the bitmask was valid. Now we test for valid bitmask before requesting the port struct. Frequencies over 32768 would overflow an intermediate when called with duration and the duration would be very short. Long durations can also overflow the intermediate. The intermediate is found as `2 * frequency * duration` and both multiplications can overflow (first one is as unsigned int, second as signed long.) Since the result is divided by 1000, remove 2* and change to /500 doubled the limit and removed the problem above 32768 Hz. It could still run into a problem because that /500 meant that it would roll over at 1/500th of the maximum value for 32-bit integer; this was solved by dividing frequency by 5 and duration by 100 when we are at risk (defined as duration > 65535) DxCore defaults to supporting long tones, as all Dx-series parts have at least 16k of flash.
 * ~Shamelessly copied from~ _Inspired by_ ArminJo's version of the digistump cores - no more shell script on mac/linux for assembler listings; bash is invoked with the command required and the -c flag. Are there any problems with this? Getting rid of the damned shell scripts would be great. Also eliminated double-entry-record-keeping regarding the name structure of those files (er, well.... the information is still in 2 places, but at least now it doesn't have be in triplicate on 3 sets of 3 rows. That's how stupid bugs sneak in. Also, we now create a memory map as well as the assembly listing!
@@ -34,17 +40,12 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * `CORE_HAS_TIMER_RESUME` - if defined as 1, the corresponding resume TCxn() functions, which reinitialize them and return them to their normal core-integrated functions, are available.
   * `ADC_NATIVE_RESOLUTION` - This is the maximum resolution of the ADC without using oversampling. 12 for Dx-series.
   * `ADC_NATIVE_RESOLUTION_LOW` - This is the low ADC resolution setting. 10 for all Dx-series parts.
-  * `DIFFERENTIAL_ADC` - This indicates that the part has a differential ADC, irrespective of whether it is exposed.
+  * `DIFFERENTIAL_ADC` - This indicates that the part has a differential ADC. It does not indicate whether said differential capability is exposed by the core.
   * `SUPPORT_LONG_TONES` - This is 1 if the above mentioned long tones are supported.
-  * `CORE_HAS_ANALOG_ENH` - This is 1 if the enhanced version of analogRead is available, with automatic oversampling and decimation to extend resolution to 15 bits (for Dx-series parts).
+  * `CORE_HAS_ANALOG_ENH` - This is 1 if the enhanced version of analogRead is available, with automatic oversampling and decimation to extend resolution.
   * `CORE_HAS_ANALOG_DIFF` - This is 1 if the differential analogRead is available. It has same features as enhanced, except that it takes a differential measurement.
-  * `MAX_OVERSAMPLED_RESOLUTION` - This is the maximum resolution obtainable via oversampling and decimation using those functions.
-  * `ADC_MAXIMUM_GAIN` - Some parts have an amplifier, often used for differential readings. If any Dx-series parts had one, this would be defined as the maximum gain. Unfortunately, none do.
-
-
-
-
-## Released Versions
+  * `MAX_OVERSAMPLED_RESOLUTION` - This is the maximum resolution obtainable via oversampling and decimation using those functions (when those are implemented, this will be 15)
+  * `ADC_MAXIMUM_GAIN` - Some parts have an amplifier, often used for differential readings. If any Dx-series parts had one, this would be defined as the maximum gain. Unfortunately, none of these do.
 
 ### 1.3.2
 * Correct critical bug that prevented bootloaders from being installed when using the pyupdi-style serial port and resistor. Would report success, but only fuses were set. Critical bug is not fixed.
