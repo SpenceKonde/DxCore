@@ -85,9 +85,9 @@ int8_t disableAutoTune() {
 bool setTCA0MuxByPort(uint8_t port) {
   if (port < 7) {
     TCA0.SPLIT.CTRLB = 0; //disconnect
-    uint8_t base_pin = digitalPortToPin0(port);
-    uint8_t max_pin = min(NUM_DIGITAL_PINS, digitalPortToPin0(port + 1)) - 1;
-    for (byte i = base_pin; i < max_pin; i++) {
+    uint8_t base_pin = digitalPortToPinZero(port);
+    uint8_t max_pin = min((base_pin + 6 > NUM_DIGITAL_PINS ? NUM_DIGITAL_PINS : base_pin+6), digitalPortToPinZero(port + 1)) - 1;
+    for (byte i = base_pin; i < (min(max_pin, base_pin+6); i++)) {
       turnOffPWM(i);
     }
     PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | (port & PORTMUX_TCA0_gm);
@@ -120,8 +120,8 @@ bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
   #endif
   // AND with group mask cuts off the unwanted low bit leaving us with the 2 high bits which is what we care about
   TCA1.SPLIT.CTRLB = 0; //disconnect all PWM channels
-  uint8_t base_pin = digitalPortToPin0(port);
-  uint8_t max_pin = min(NUM_DIGITAL_PINS, digitalPortToPin0(port + 1)) - 1;
+  uint8_t base_pin = digitalPortToPinZero(port);
+  uint8_t max_pin = min((base_pin + 6 > NUM_DIGITAL_PINS ? NUM_DIGITAL_PINS : base_pin+6), digitalPortToPinZero(port + 1)) - 1;
   for (byte i = base_pin; i < max_pin; i++) {
     turnOffPWM(i);
   }

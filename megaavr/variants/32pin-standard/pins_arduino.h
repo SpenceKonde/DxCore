@@ -19,11 +19,15 @@
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#ifndef MVIO
-  #define PIN_PD0 (12)
-#else
-  #define PIN_PD0 (NOT_A_PIN)
-#endif
+#define PIN_PD0 (12)
+/* On DB32, PD0 is not a pin - everything else NOT_A_PIN's pin 12, but we can
+ * still add an offset to it to get pin number for other pins on the port,
+ * after finding it with digitalPinToPinZero() for determination of pin
+ * numbers at runtime. This way if you get the number of a port, and
+ * need to determine the pin number of bit 3 of that port so you can call
+ * turnOffPWM() on it - PIN_PD0+3 is a 15, PIN_PD3. Calling I/O functions
+ * will still fail with PIN_PD0, but fail harmlessly, because everything
+ * (bit_mask, bit_position, etc) resolves to NOT_A_PIN */
 #define PIN_PD1 (13)
 #define PIN_PD2 (14)
 #define PIN_PD3 (15)
@@ -48,22 +52,20 @@
 #define NUM_SPI_PINS                   6 // (MISO / MOSI / SCK)
 #define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
 #define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-#define ANALOG_INPUT_OFFSET            12//Hopefully not used elsewhere!
+//#define ANALOG_INPUT_OFFSET          // What the hell is this supposed to be defined as?
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
 #define EXTERNAL_NUM_INTERRUPTS        47
-#define digitalPinToAnalogInput(p)     (((p) > PIN_PC3 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN))
-#define digitalOrAnalogPinToDigital(p) (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)
 
+
+#define digitalPinToAnalogInput(p)        (((p) > PIN_PC3 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN))
+#define analogChannelToDigitalPin(p)      ((p) < 8 ? ((p) + PIN_PD0) : (((p) > 15 && (p) < 22) ? ((p) - 16 + PIN_PF0) : NOT_A_PIN))
+#define analogInputToDigitalPin(p)        ((p) & 0x80 ? analogChannelToDigitalPin((p) & 0x7F) : analogChannelToDigitalPin(p))
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
+#define portToDigitalPinZero(port)        ((port) == 0 ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
 
 // PWM pins
-#define digitalPinHasPWMTCDDefault(p)   (((p) == PIN_PA4)  || ((p) == PIN_PA5)   ||  ((p) == PIN_PA6)   || ((p) == PIN_PA7))
-#define digitalPinHasPWMTCADefault(p)   (((p) >= PIN_PD0)  && ((p) <= PIN_PD5))
-#define digitalPinHasPWMTCD(p)          (digitalPinHasPWMTCDDefault(p))
-#define digitalPinHasPWMDefault(p)      (digitalPinHasPWMTCADefault(p) || digitalPinHasPWMTCDDefault(p) || digitalPinHasPWMTCB(p)
-#define digitalPinHasPWM(p)             (digitalPinHasPWMDefault(p))
-
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
@@ -88,6 +90,12 @@
 
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
+
+
+
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWMNow(p)            (digitalPinToTimerNow(p) != NOT_ON_TIMER)
+
 
 // SPI 0
 // No pinswap available
@@ -141,8 +149,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define PIN_HWSERIAL0_TX                PIN_PA0
 #define PIN_HWSERIAL0_RX                PIN_PA1
+#define PIN_HWSERIAL0_XCK               PIN_PA2
+#define PIN_HWSERIAL0_XDIR              PIN_PA3
 #define PIN_HWSERIAL0_TX_PINSWAP_1      PIN_PA4
 #define PIN_HWSERIAL0_RX_PINSWAP_1      PIN_PA5
+#define PIN_HWSERIAL0_XCK_PINSWAP_1     PIN_PA6
+#define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
 // No pinswap available
@@ -154,8 +166,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_DEFAULT_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
+#define PIN_HWSERIAL1_XCK               PIN_PC2
+#define PIN_HWSERIAL1_XDIR              PIN_PC3
 #define PIN_HWSERIAL1_TX_PINSWAP_1      PIN_PC0
 #define PIN_HWSERIAL1_RX_PINSWAP_1      PIN_PC1
+#define PIN_HWSERIAL1_XCK_PINSWAP_1     PIN_PC2
+#define PIN_HWSERIAL1_XDIR_PINSWAP_1    PIN_PC3
 
 // USART 2
 // No pinswap enabled by default
@@ -167,8 +183,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define PIN_HWSERIAL2_TX                PIN_PF0
 #define PIN_HWSERIAL2_RX                PIN_PF1
+#define PIN_HWSERIAL2_XCK               PIN_PF2
+#define PIN_HWSERIAL2_XDIR              PIN_PF3
 #define PIN_HWSERIAL2_TX_PINSWAP_1      PIN_PF4
 #define PIN_HWSERIAL2_RX_PINSWAP_1      PIN_PF5
+#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
+#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 
 // Analog pins
 #ifndef MVIO
@@ -226,11 +246,7 @@ const uint8_t digital_pin_to_port[] = {
   PC, //  9 PC1/USART1_Rx
   PC, // 10 PC2
   PC, // 11 PC3
-  #ifndef MVIO
   PD, // 12 PD0/AIN0
-  #else
-  NOT_A_PORT,
-  #endif
   PD, // 13 PD1/AIN1
   PD, // 14 PD2/AIN2
   PD, // 15 PD3/AIN3

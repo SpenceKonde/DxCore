@@ -65,36 +65,32 @@
 #define PIN_PF6 (54)
 
 
-#define NUM_DIGITAL_PINS               55
-#define NUM_ANALOG_INPUTS              22
-#define NUM_RESERVED_PINS              0
-#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_I2C_PINS                   2 // (SDA / SCL)
-#define NUM_SPI_PINS                   3 // (MISO / MOSI / SCK)
-#define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
-#define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-//#define ANALOG_INPUT_OFFSET            24 //Hopefully not used elsewhere!
+#define NUM_DIGITAL_PINS                  55
+#define NUM_ANALOG_INPUTS                 22
+/* Anyone know of a document describing *exactly* what each of these should be and how people are to use it? */
+#define NUM_RESERVED_PINS                 0  /* Is this USED by ANYTHING?! How is a "reserved pin" defined? */
+#define NUM_INTERNALLY_USED_PINS          0  /* Is this USED by ANYTHING?! How are these different from reserved pins?*/
+#define NUM_I2C_PINS                      2
+#define NUM_SPI_PINS                      3
+#define NUM_TOTAL_FREE_PINS               (NUM_DIGITAL_PINS) /* Is this even used by ANYTHING?! */
+#define NUM_TOTAL_PINS                    (NUM_DIGITAL_PINS)
+#define EXTERNAL_NUM_INTERRUPTS           (56) //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
+
+/* I wasn't able to determine what *exactly* this is supposed to contain for more parts than not on the listof parts that I couldn't say
+what this ought to be! So commenting out - if no compatibility is broken? Great! If it is? Great now I know were to look an see how this is used.
+//#define ANALOG_INPUT_OFFSET             24 //Hopefully not used elsewhere!
+I am pretty sure it hasn't been used in eons, if it ever was; if you find something that uses it, please let me know so I can in study how it is used
+and hence what number it should be set to! */
+
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                  PIN_PA7
+  #define LED_BUILTIN                     PIN_PA7
 #endif
-#define digitalPinToAnalogInput(p)     ((((p)>=PIN_PC7) && ((p)< PIN_PF6))? ((p)-PIN_PD0) : NOT_A_PIN)
-#define digitalOrAnalogPinToDigital(p) (((p)<=NUM_DIGITAL_PINS)?(p):NOT_A_PIN)
 
-
-#define EXTERNAL_NUM_INTERRUPTS     (56) //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
-
-// 1.3.1 FLEX PWM - but you can't get PA4 and PA6 to give different waveform, same with PA5 and PA7.
-
-#define digitalPinHasPWMTCDDefault(p)   (((p) == PIN_PA4)   || ((p) == PIN_PA5)   || ((p) == PIN_PA6)   || ((p) == PIN_PA7))
-
-#define digitalPinHasPWMTCADefault(p)   ((((p) >= PIN_PB0)  && ((p) <= PIN_PB5))  || (((p) >= PIN_PC0)  && ((p) <= PIN_PC5)))
-
-#define digitalPinHasPWMTCD(p)          (digitalPinHasPWMTCDDefault(p))
-
-#define digitalPinHasPWMDefault(p)      (digitalPinHasPWMTCADefault(p) || digitalPinHasPWMTCDDefault(p) || digitalPinHasPWMTCB(p)
-
-#define digitalPinHasPWM(p)             (digitalPinHasPWMDefault(p))
-
+#define digitalPinToAnalogInput(p)        ((((p) >= PIN_PC7) && ((p) < PIN_PF6)) ? ((p) - PIN_PD0) : NOT_A_PIN)
+#define analogChannelToDigitalPin(p)      ((p) < 22 ? ((p) + PIN_PD0) : NOT_A_PIN)
+#define analogInputToDigitalPin(p)        ((p) & 0x80 ? analogChannelToDigitalPin((p) & 0x7F) : analogChannelToDigitalPin(p))
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* handle analog channels too */
+#define portToDigitalPinZero(port)        (((port) < NUM_TOTAL_PORTS) ? (port) * 8 : NOT_A_PIN);
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
@@ -118,7 +114,7 @@
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4 (default)
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 #define TCB4_PINS 0x00                      // TCB4 output on PG3 (default) instead of PC6
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA[4:7] (default - only default port option works)
+#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA[4:7] (default - only default port option works on DA, DB parts=).
 // Setting TCB2 and TCB3 for PWM on PC0, PC1 doesn't sound optimal for the AVR DB, but you shouldn't be using TCBs for PWM anyway!
 // They are there as a last resort, not a first resort.
 #define PIN_TCA0_WO0_INIT PIN_PC0
@@ -127,6 +123,9 @@
 
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
+
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5 && (p) != PIN_PB6 && (p) != PIN_PB6))
+#define digitalPinHasPWMNow(p)            (digitalPinToTimerNow(p) != NOT_ON_TIMER)
 
 
 // SPI 0
@@ -202,8 +201,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define PIN_HWSERIAL0_TX                PIN_PA0
 #define PIN_HWSERIAL0_RX                PIN_PA1
+#define PIN_HWSERIAL0_XCK               PIN_PA2
+#define PIN_HWSERIAL0_XDIR              PIN_PA3
 #define PIN_HWSERIAL0_TX_PINSWAP_1      PIN_PA4
 #define PIN_HWSERIAL0_RX_PINSWAP_1      PIN_PA5
+#define PIN_HWSERIAL0_XCK_PINSWAP_1     PIN_PA6
+#define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
 // No pinswap by default
@@ -215,8 +218,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
+#define PIN_HWSERIAL1_XCK               PIN_PC2
+#define PIN_HWSERIAL1_XDIR              PIN_PC3
 #define PIN_HWSERIAL1_TX_PINSWAP_1      PIN_PC4
 #define PIN_HWSERIAL1_RX_PINSWAP_1      PIN_PC5
+#define PIN_HWSERIAL1_XCK_PINSWAP_1     PIN_PC6
+#define PIN_HWSERIAL1_XDIR_PINSWAP_1    PIN_PC7
 
 // USART 2
 // No pinswap by default
@@ -228,8 +235,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define PIN_HWSERIAL2_TX                PIN_PF0
 #define PIN_HWSERIAL2_RX                PIN_PF1
+#define PIN_HWSERIAL2_XCK               PIN_PF2
+#define PIN_HWSERIAL2_XDIR              PIN_PF3
 #define PIN_HWSERIAL2_TX_PINSWAP_1      PIN_PF4
 #define PIN_HWSERIAL2_RX_PINSWAP_1      PIN_PF5
+#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
+#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 
 // USART 3
 // No pinswap by default
@@ -241,8 +252,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL3_MUX_PINSWAP_1         PORTMUX_USART3_ALT1_gc
 #define PIN_HWSERIAL3_TX                PIN_PB0
 #define PIN_HWSERIAL3_RX                PIN_PB1
+#define PIN_HWSERIAL3_XCK               PIN_PB2
+#define PIN_HWSERIAL3_XDIR              PIN_PB3
 #define PIN_HWSERIAL3_TX_PINSWAP_1      PIN_PB4
 #define PIN_HWSERIAL3_RX_PINSWAP_1      PIN_PB5
+#define PIN_HWSERIAL3_XCK_PINSWAP_1     PIN_PB6
+#define PIN_HWSERIAL3_XDIR_PINSWAP_1    PIN_PB7
 
 // USART 4
 // No pinswap by default
@@ -254,8 +269,12 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc
 #define PIN_HWSERIAL4_TX                PIN_PE0
 #define PIN_HWSERIAL4_RX                PIN_PE1
+#define PIN_HWSERIAL4_XCK               PIN_PE2
+#define PIN_HWSERIAL4_XDIR              PIN_PE3
 #define PIN_HWSERIAL4_TX_PINSWAP_1      PIN_PE4
 #define PIN_HWSERIAL4_RX_PINSWAP_1      PIN_PE5
+#define PIN_HWSERIAL4_XCK_PINSWAP_1     PIN_PE6
+#define PIN_HWSERIAL4_XDIR_PINSWAP_1    PIN_PE7
 
 // USART 5
 // No pinswap by default
@@ -267,8 +286,13 @@ static const uint8_t SCL1 =     PIN_WIRE1_SCL;
 #define HWSERIAL5_MUX_PINSWAP_1         PORTMUX_USART5_ALT1_gc
 #define PIN_HWSERIAL5_TX                PIN_PG0
 #define PIN_HWSERIAL5_RX                PIN_PG1
+#define PIN_HWSERIAL5_XCK               PIN_PG2
+#define PIN_HWSERIAL5_XDIR              PIN_PG3
 #define PIN_HWSERIAL5_TX_PINSWAP_1      PIN_PG4
 #define PIN_HWSERIAL5_RX_PINSWAP_1      PIN_PG5
+#define PIN_HWSERIAL5_XCK_PINSWAP_1     PIN_PG6
+#define PIN_HWSERIAL5_XDIR_PINSWAP_1    PIN_PG7
+
 
 // Analog pins
 #define PIN_A0   PIN_PD0
@@ -321,16 +345,16 @@ static const uint8_t A21 = PIN_A21;
 
 
 const uint8_t digital_pin_to_port[] = {
-  PA,  //  0 PA0
-  PA,  //  1 PA1
-  PA,  //  2 PA2
-  PA,  //  3 PA3
-  PA,  //  4 PA4
-  PA,  //  5 PA5
-  PA,  //  6 PA6
-  PA,  //  7 PA7
-  PB,  //  8 PB0
-  PB,  //  9 PB1
+  PA,  //   0 PA0
+  PA,  //   1 PA1
+  PA,  //   2 PA2
+  PA,  //   3 PA3
+  PA,  //   4 PA4
+  PA,  //   5 PA5
+  PA,  //   6 PA6
+  PA,  //   7 PA7
+  PB,  //   8 PB0
+  PB,  //   9 PB1
   PB,  //  10 PB2
   PB,  //  11 PB3
   PB,  //  12 PB4
@@ -380,16 +404,16 @@ const uint8_t digital_pin_to_port[] = {
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = {
-  PIN0_bp,  //  0 PA0
-  PIN1_bp,  //  1 PA1
-  PIN2_bp,  //  2 PA2
-  PIN3_bp,  //  3 PA3
-  PIN4_bp,  //  4 PA4
-  PIN5_bp,  //  5 PA5
-  PIN6_bp,  //  6 PA6
-  PIN7_bp,  //  7 PA7
-  PIN0_bp,  //  8 PB0
-  PIN1_bp,  //  9 PB1
+  PIN0_bp,  //   0 PA0
+  PIN1_bp,  //   1 PA1
+  PIN2_bp,  //   2 PA2
+  PIN3_bp,  //   3 PA3
+  PIN4_bp,  //   4 PA4
+  PIN5_bp,  //   5 PA5
+  PIN6_bp,  //   6 PA6
+  PIN7_bp,  //   7 PA7
+  PIN0_bp,  //   8 PB0
+  PIN1_bp,  //   9 PB1
   PIN2_bp,  //  10 PB2
   PIN3_bp,  //  11 PB3
   PIN4_bp,  //  12 PB4
@@ -439,16 +463,16 @@ const uint8_t digital_pin_to_bit_position[] = {
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_mask[] = {
-  PIN0_bm,  //  0 PA0
-  PIN1_bm,  //  1 PA1
-  PIN2_bm,  //  2 PA2
-  PIN3_bm,  //  3 PA3
-  PIN4_bm,  //  4 PA4
-  PIN5_bm,  //  5 PA5
-  PIN6_bm,  //  6 PA6
-  PIN7_bm,  //  7 PA7
-  PIN0_bm,  //  8 PB0
-  PIN1_bm,  //  9 PB1
+  PIN0_bm,  //   0 PA0
+  PIN1_bm,  //   1 PA1
+  PIN2_bm,  //   2 PA2
+  PIN3_bm,  //   3 PA3
+  PIN4_bm,  //   4 PA4
+  PIN5_bm,  //   5 PA5
+  PIN6_bm,  //   6 PA6
+  PIN7_bm,  //   7 PA7
+  PIN0_bm,  //   8 PB0
+  PIN1_bm,  //   9 PB1
   PIN2_bm,  //  10 PB2
   PIN3_bm,  //  11 PB3
   PIN4_bm,  //  12 PB4
@@ -497,16 +521,16 @@ const uint8_t digital_pin_to_bit_mask[] = {
 };
 
 const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0
-  NOT_ON_TIMER, //  1
-  NOT_ON_TIMER, //  2
-  NOT_ON_TIMER, //  3
-  TIMERD0,      //  4 PA4/MOSI      WOA
-  TIMERD0,      //  5 PA5/MISO      WOB
-  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  NOT_ON_TIMER, //  8 PB0
-  NOT_ON_TIMER, //  9 PB1
+  NOT_ON_TIMER, //   0 PA0
+  NOT_ON_TIMER, //   1 PA1
+  NOT_ON_TIMER, //   2 PA2
+  NOT_ON_TIMER, //   3 PA3
+  TIMERD0,      //   4 PA4/MOSI      WOA
+  TIMERD0,      //   5 PA5/MISO      WOB
+  TIMERD0,      //   6 PA6/SCK       WOC mirrors WOA
+  TIMERD0,      //   7 PA7/SS/CLKOUT WOD mirrors WOB
+  NOT_ON_TIMER, //   8 PB0
+  NOT_ON_TIMER, //   9 PB1
   NOT_ON_TIMER, //  10 PB2
   NOT_ON_TIMER, //  11 PB3
   NOT_ON_TIMER, //  12 PB4

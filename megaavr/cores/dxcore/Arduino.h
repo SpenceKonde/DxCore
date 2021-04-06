@@ -91,6 +91,7 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 /* inlining of a call to delayMicroseconds() would throw it off */
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 
+bool digitalPinHasPWMNow(uint8_t p);
 uint8_t digitalPinToTimerNow(uint8_t p);
 
 
@@ -127,6 +128,46 @@ uint16_t clockCyclesPerMicrosecond();
 unsigned long clockCyclesToMicroseconds(unsigned long cycles);
 unsigned long microsecondsToClockCycles(unsigned long microseconds);
 
+/* Timers and Timer-like-things
+ * These are used for two things: Identifying the timer on a pin in
+ * digitalPinToTimer(), and for the MILLIS_TIMER define that users can test to
+ * verify which timer is being used for millis.
+ *
+ * Prior to 1.3.x TCAs were all 0x1_, TCBs 0x2_. But in order to make the
+ * take-over tracking work efficiently I needed a dedicated bit for each TCA.
+ * so that we can just do (PeripheralControl | TIMERA0) to test if user has
+ * taken over the timer. Hence, all the "big" timers (those which have a
+ * takeOverTCxn() function and which PORTMUX moves en masse instead of one at
+ * a time) have their own bit within these macros.
+ * Note also that the digital_pin_to_timer table doesn't list these anymore.\
+ * There are two functions within the core that need to know this:
+ * AnalogWrite, and turnOffPWM. These each carry their own implementation of
+ * logic to identify the timer and channel; the only other cases in which these
+ * pins need ro be identified are within user code, where the pin mapping can
+ * be chosen freely (subject to user code needing access to other pins), so
+ * it does not present the complexity of the core library which must work with
+ * the pins in ANY of 7, 2, or 5 mappings (for TCA0, TCA1 and TCD0 respectively)
+ *
+ * Prior to this change, only the arbitrarily chosen core default timer pin-
+ * mapping was supported, so this was a dramatic leap forward in capabilitt.
+ *
+ * The DAC is listed here because analogWrite() uses it almost exactly like
+ * a PWM timer.
+ * RTC can be used as a millis timekeeping source (well, not currently on
+ * DxCore, but soon).
+ *****************************************************************************/
+
+#define NOT_ON_TIMER  0x00
+#define TIMERA0       0x10
+#define TIMERA1       0x08 // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
+#define TIMERB0       0x20
+#define TIMERB1       0x21
+#define TIMERB2       0x22
+#define TIMERB3       0x23
+#define TIMERB4       0x24
+#define TIMERD0       0x40 /* in PWM context will show up as (TIMERD0 | 0-7), ex 0x40, 0x42 etc - that part is the mux value. nothng that s not TCD0 will have bit 6 set. */
+#define TIMERRTC      0x90
+#define DACOUT        0x80
 
 
 // These are lookup tables to find pin parameters from Arduino pin numbers
@@ -136,7 +177,6 @@ extern const uint8_t digital_pin_to_port[];
 extern const uint8_t digital_pin_to_bit_mask[];
 extern const uint8_t digital_pin_to_bit_position[];
 extern const uint8_t digital_pin_to_timer[];
-extern const uint8_t digital_port_to_pin0[];
 
 /* Yes, I (Spence Konde) have realized that on 64k and 128k parts, these end
  * up in RAM since they aren't declared PROGMEM. That means that an amount of
@@ -149,6 +189,21 @@ extern const uint8_t digital_port_to_pin0[];
  * Have more important fish to fry atm than making a couple hundred bytes of
  * RAM for parts with 8 or 16k of RAM. */
 
+/* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
+
+#define NOT_A_PIN 255
+#define NOT_A_PORT 255
+#define NOT_AN_INTERRUPT 255
+
+#define PA 0
+#define PB 1
+#define PC 2
+#define PD 3
+#define PE 4
+#define PF 5
+#define PG 6
+#define NUM_TOTAL_PORTS 7
+
 #define digitalPinToPort(pin)               ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_port[pin]         : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
 #define digitalPinToBitMask(pin)            ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
@@ -159,6 +214,11 @@ extern const uint8_t digital_port_to_pin0[];
 #define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
 #define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
 #define digitalPinToInterrupt(P) (P)
+
+/*#define portToDigitalPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).
+// If hardware has PORTx,
+if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_position) \
+                        == digitalPinToPort(some_pin)) is true if and only if there is a PIN n within the same port.   */
 
 #define portOutputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->OUT ) )
 #define portInputRegister(P)  ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
