@@ -163,61 +163,7 @@
   #error "Unrecognized combination of flash size and chip type"
 #endif
 
-/* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
 
-#define NOT_A_PIN 255
-#define NOT_A_PORT 255
-#define NOT_AN_INTERRUPT 255
-
-#define PA 0
-#define PB 1
-#define PC 2
-#define PD 3
-#define PE 4
-#define PF 5
-#define PG 6
-#define NUM_TOTAL_PORTS 7
-
-/* Timers and Timer-like-things
- * These are used for two things: Identifying the timer on a pin in
- * digitalPinToTimer(), and for the MILLIS_TIMER define that users can test to
- * verify which timer is being used for millis.
- *
- * Prior to 1.3.x TCAs were all 0x1_, TCBs 0x2_. But in order to make the
- * take-over tracking work efficiently I needed a dedicated bit for each TCA.
- * so that we can just do (PeripheralControl | TIMERA0) to test if user has
- * taken over the timer. Hence, all the "big" timers (those which have a
- * takeOverTCxn() function and which PORTMUX moves en masse instead of one at
- * a time) have their own bit within these macros.
- * Note also that the digital_pin_to_timer table doesn't list these anymore.\
- * There are two functions within the core that need to know this:
- * AnalogWrite, and turnOffPWM. These each carry their own implementation of
- * logic to identify the timer and channel; the only other cases in which these
- * pins need ro be identified are within user code, where the pin mapping can
- * be chosen freely (subject to user code needing access to other pins), so
- * it does not present the complexity of the core library which must work with
- * the pins in ANY of 7, 2, or 5 mappings (for TCA0, TCA1 and TCD0 respectively)
- *
- * Prior to this change, only the arbitrarily chosen core default timer pin-
- * mapping was supported, so this was a dramatic leap forward in capabilitt.
- *
- * The DAC is listed here because analogWrite() uses it almost exactly like
- * a PWM timer.
- * RTC can be used as a millis timekeeping source (well, not currently on
- * DxCore, but soon).
- *****************************************************************************/
-
-#define NOT_ON_TIMER  0x00
-#define TIMERA0       0x10
-#define TIMERA1       0x08 // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
-#define TIMERB0       0x20
-#define TIMERB1       0x21
-#define TIMERB2       0x22
-#define TIMERB3       0x23
-#define TIMERB4       0x24
-#define TIMERD0       0x40
-#define TIMERRTC      0x90
-#define DACOUT        0x80
 
 
 // These pieces of version numbers get passed in as command line arguments by platform.txt.
