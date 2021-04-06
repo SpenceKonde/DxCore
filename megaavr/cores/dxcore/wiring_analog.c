@@ -45,7 +45,7 @@ inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) 
 }
 
 
-inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin) {
+inline __attribute__((always_inline)) void check_valid_analog_pin(uint8_t pin) {
   if(__builtin_constant_p(pin)) {
   #ifdef MVIO
     if (!(pin == ADC_DAC0 || pin == ADC_GROUND || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2 || pin == ADC_VDDDIV10 || pin == ADC_VDDIO2DIV10))
@@ -56,14 +56,11 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
       if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
         pin &= 0x7f;
         #if defined(__AVR_DD__)
-          if (pin > 31) {
-            badArg("analogRead called with constant channel that is neither valid internal source nor an analog pin");
-          }
+          if (pin > 31)
         #else
-          if (pin > 21) {
-            badArg("analogRead called with constant channel that is neither valid internal source nor an analog pin");
-          }
+          if (pin > 21)
         #endif
+            badArg("analogRead called with constant channel that is neither valid internal source nor an analog pin that exists on this part.");
       } else {
         pin = digitalPinToAnalogInput(pin);
       }
@@ -519,47 +516,48 @@ void resumeTCD0() {
 
 
 uint8_t digitalPinToTimerNow(uint8_t p) {
-  uint8_t port = digitalPinToPort(p);
   uint8_t bit_pos = digitalPinToBitPosition(p);
-  if ( bit_pos < 6) {
+  if (bit_pos == NOT_A_PIN) return NOT_ON_TIMER;     /* Use bit position to check for invalid pins */
+  uint8_t port = digitalPinToPort(p);                /* If bit_pos is valid, port will be too      */
+  if ( bit_pos < 6) {                                /* SPLIT MODE TCA output is on pins 0-5       */
   #if defined(TCA1)
     uint8_t tcamux = PORTMUX.TCAROUTEA;
-    if ( PeripheralControl & TIMERA0) {
-      if (((tcamux & PORTMUX_TCA0_gm) == port)) {
+    if ( PeripheralControl & TIMERA0) {              /* make sure user hasn't taken over TCA0      */
+      if (((tcamux & PORTMUX_TCA0_gm) == port)) {    /* TCA0 mux is EASY - same as the port number */
         return TIMERA0;
       }
     }
     tcamux &= 0x18;
-    if ( PeripheralControl & TIMERA1) {
-      if ((tcamux == 0 && port == PB ) || (tcamux == 0x18 && port == PG)) {
-        return TIMERA1;
+    if (PeripheralControl & TIMERA1) {               /* make sure user hasn't taken over TCA0      */
+      if ((tcamux == 0 && port == PB ) || (tcamux == 0x18 && port == PG)) { /* supports only 6-ch  */
+        return TIMERA1;                              /* mux options, not 3-channel ones on bit 4:6 */
       }
     }
   #else
-    if ( PeripheralControl & TIMERA0) {
-      if ((PORTMUX.TCAROUTEA & PORTMUX_TCA0_gm) == port) {
+    if (PeripheralControl & TIMERA0) {               /* here we don't need to store tcamux */
+      if ((PORTMUX.TCAROUTEA & PORTMUX_TCA0_gm) == port) { /* because it is only used once */
         return TIMERA0;
       }
     }
   #endif
   }
+  uint8_t timer = digitalPinToTimer(p);
   /*
   if ( PeripheralControl & TIMERD0) {
-    byte tcdmux = (PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm);
-    if (tcdmux & 0x02) tcdmux +=3;          // Convert mux value to port
-    if (port == tcdmux) {                   // Is the pin's port what mux pointed to?
-      if (tcdmux==5) return (bit_pos < 4);  // PORTF is only PWM if 0-3
-      return (bit_pos > 3);                 // All others 4-7
-    }
+    if (timer & TIMERD0) {
+      byte tcdmux = (PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm);
+      if (tcdmux == (timer & ~TIMERD0)) {
+        return TIMERD0;
+      }
+
   }
   */
-  uint8_t timer = digitalPinToTimer(p);
-  if (timer & TIMERB0) {
+  if (timer & TIMERB0) { /* Finally check TCBn, if we made it here w/out returning */
     TCB_t* timer_B;
-    timer_B = ((TCB_t *)&TCB0 + (timer - TIMERB0));
+    timer_B = ((TCB_t *)&TCB0 + (timer - TIMERB0)); /* get timer struct */
     if (((timer_B->CTRLB) &  TCB_CNTMODE_gm) != TCB_CNTMODE_PWM8_gc )
-      return NOT_ON_TIMER;
-      // if the the timer isn't in PWM mode, then we don't actually have PWM here...
+      return NOT_ON_TIMER; /* If the timer isn't in PWM mode, user has reconfigured
+                              it, and nothing good can come of trying to use it. */
   }
   return timer;
 }

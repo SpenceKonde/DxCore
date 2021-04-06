@@ -28,87 +28,67 @@
 
 
 
-inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin)
+inline __attribute__((always_inline)) void check_valid_digital_pin(uint8_t pin)
 {
-  if(__builtin_constant_p(pin))
-    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN)
-    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
-    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
-    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
-    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
-      badArg("Digital pin is constant, but not a valid pin");
+  if(__builtin_constant_p(pin)) {
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
+      // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+      // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+      // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+      // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+      if (pin & 0x80) {
+        badArg("Digital pin is constant, but not a valid pin - it is > 0x80 and not NOT_A_PIN. At present, this function only accepts digital pin numbers, NOT analog channel numbers.");
+      } else {
+        badArg("Digital pin is constant, but not a valid pin");
+      }
+    }
+  }
 }
 
+inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
+  if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP)
+    badArg("The mode passed to pinMode must be INPUT, OUTPUT, or INPUT_PULLUP (these have numeric values of 0, 1, or 2)");
+}
 
 
 void pinMode(uint8_t pin, uint8_t mode) {
-  check_valid_digital_pin(pin);
-
+  check_valid_digital_pin(pin);         /* generate compile error if a constant that is not a valid pin is used as the pin */
+  check_valid_pin_mode(mode);           /* generate compile error if a constant that is not a valid pin mode is used as the mode */
   uint8_t bit_mask = digitalPinToBitMask(pin);
 
   if ((bit_mask == NOT_A_PIN) || (mode > INPUT_PULLUP)) {
-    return;
+    return;                             /* ignore invalid pins passed at runtime */
   }
 
   PORT_t *port = digitalPinToPortStruct(pin);
-  if (port == NULL) {
-    return;
-  }
+  //if (port == NULL) return;           /* skip this test; if bit_mask isn't NOT_A_PIN, port won't be null.
 
   if (mode == OUTPUT) {
-
-    /* Configure direction as output */
-    port->DIRSET = bit_mask;
-
-  } else { /* mode == INPUT or INPUT_PULLUP */
-
+    port->DIRSET = bit_mask;            /* Configure direction as output and done*/
+  } else {                              /* mode == INPUT or INPUT_PULLUP - more complicated */
+                                        /* Calculate where pin control register is */
     uint8_t bit_pos = digitalPinToBitPosition(pin);
-    /* Calculate where pin control register is */
-    volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
-
-    /* Save state */
-    uint8_t status = SREG;
-    cli();
-
-    /* Configure direction as input */
-    port->DIRCLR = bit_mask;
-
-    /* Configure pull-up resistor */
-    if (mode == INPUT_PULLUP) {
-
-      /* Enable pull-up */
-      *pin_ctrl_reg |= PORT_PULLUPEN_bm;
-      // emulate setting of the port output register on classic AVR
-      port->OUTSET = bit_mask;
-
-    } else { /* mode == INPUT (no pullup) */
-
-      /* Disable pull-up */
-      *pin_ctrl_reg &= ~(PORT_PULLUPEN_bm);
-      // emulate setting of the port output register on classic AVR
-      port->OUTCLR = bit_mask;
-
+    volatile uint8_t *pin_ctrl = getPINnCTRLregister(port, bit_pos);
+    uint8_t status = SREG;              /* Save state */
+    cli();                              /* Interrupts off for PINnCTRL stuff */
+    port->DIRCLR = bit_mask;            /* Configure direction as input */
+    if (mode == INPUT_PULLUP) {         /* Configure pull-up resistor */
+      *pin_ctrl |= PORT_PULLUPEN_bm;    /* Enable pull-up */
+      port->OUTSET = bit_mask;          /* emulate setting of the port output register on classic AVR */
+    } else {                            /* mode == INPUT (no pullup) */
+      *pin_ctrl &= ~(PORT_PULLUPEN_bm); /* Disable pull-up */
+      port->OUTCLR = bit_mask;          /* emulate clearing of the port output register on classic AVR */
     }
-
-    /* Restore state */
-    SREG = status;
+    SREG = status;                      /* Restore state */
   }
 }
 
-// Forcing this inline keeps the callers from having to push their own stuff
-// on the stack. It is a good performance win and only takes 1 more byte per
-// user than calling. (It will take more bytes on the 168.)
-//
-// But shouldn't this be moved into pinMode? Seems silly to check and do on
-// each digitalread or write.
-//
-// Mark Sproul:
-// - Removed inline. Save 170 bytes on atmega1280
-// - changed to a switch statement; added 32 bytes but much easier to read and maintain.
-// - Added more #ifdefs, now compiles for atmega645
-//
-//static inline void turnOffPWM(uint8_t timer) __attribute__ ((always_inline));
-//static inline void turnOffPWM(uint8_t timer)
+/* This turns off PWM, if enabled. It is called automatically on every digitalWrite();
+ * Note that it only operates on the PWM source with priority - TCA > TCD > TCB/DAC
+ * the order of the cases here doesn't matter - which one has priority is determined in
+ * digitalPinToTimerNow() in wiring_analog.c. That's why it's recommended to make sure
+ * that no pin you're about to move the PWM output of a TCA onto is currently outputting
+ * PWM. It can also be used from user code (unlike on the stock core). */
 void turnOffPWM(uint8_t pin)
 {
   /* Actually turn off compare channel, not the timer */
