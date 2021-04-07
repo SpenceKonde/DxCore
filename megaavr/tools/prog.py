@@ -77,6 +77,10 @@ def main():
         print("Error: unknown action '{}'".format(args.action))
         sys.exit(1)
 
+    if args.action not in ("read", "write") and args.filename != "":
+        print("Error: action '{}' takes no filename".format(args.action))
+        sys.exit(1)
+
     if args.action in ("read", "write") and args.filename == "":
         print("Error: no filename provided")
         sys.exit(1)
@@ -91,6 +95,8 @@ def main():
         except ValueError as e:
             print("Error: cannot parse fuse, '{}'".format(e))
             sys.exit(1)
+
+    print_report(args)
 
     try:
         if args.verbose:
@@ -111,7 +117,17 @@ def run_pymcu_action(func, backend, *args, **kwargs):
         raise PyMcuException("Call to {} failed".format(func.__name__))
 
 
-def pymcuprog_basic(args, fuses_dict=None):
+def print_report(args):
+    print("Arduino <---> pymcuprog bridge by Quentin Bolsee and Spence Konde")
+    print("Target: {}".format(args.device))
+    if args.fuses != "":
+        print("Set fuses: {}".format(args.fuses))
+    print("Action: {}".format(args.action))
+    if args.filename != "":
+        print("File: {}".format(args.filename))
+
+
+def pymcuprog_basic(args, fuses_dict):
     """
     Main program
     """
@@ -135,13 +151,28 @@ def pymcuprog_basic(args, fuses_dict=None):
         return 1
 
     # start session
-    run_pymcu_action(pymcu._start_session, backend, device_selected,
-                     interface="updi",
-                     clk=False,
-                     high_voltage=False,
-                     user_row_locked_device=False,
-                     chip_erase_locked_device=False,
-                     packpath=False)
+    args_start = argparse.Namespace(interface="updi",
+                                    clk=False,
+                                    high_voltage=False,
+                                    user_row_locked_device=False,
+                                    chip_erase_locked_device=False,
+                                    packpath=False)
+
+    status = pymcu._start_session(backend,
+                                  device_selected,
+                                  args_start)
+
+    if status != pymcu.STATUS_SUCCESS:
+        if status == pymcu.STATUS_FAILURE_LOCKED and args.action in ("write", "erase"):
+            print("Locked state detected, performing chip erase")
+            args_start.chip_erase_locked_device = True
+            status = pymcu._start_session(backend,
+                                          device_selected,
+                                          args_start)
+            if status != pymcu.STATUS_SUCCESS:
+                raise PyMcuException("Failed to unlock!")
+        else:
+            raise PyMcuException("Cannot start session!")
 
     try:
         pymcu._action_ping(backend)
