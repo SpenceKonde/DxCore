@@ -87,7 +87,7 @@ bool setTCA0MuxByPort(uint8_t port) {
     TCA0.SPLIT.CTRLB = 0; //disconnect
     uint8_t base_pin = digitalPortToPinZero(port);
     uint8_t max_pin = min((base_pin + 6 > NUM_DIGITAL_PINS ? NUM_DIGITAL_PINS : base_pin + 6), digitalPortToPinZero(port + 1)) - 1;
-    for (byte i = base_pin; i < (min(max_pin, base_pin+6); i++)) {
+    for (byte i = base_pin; i < (min(max_pin, base_pin + 6); i++)) {
       turnOffPWM(i);
     }
     PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | (port & PORTMUX_TCA0_gm);
@@ -128,21 +128,21 @@ bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
   PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | ((port << 2) & PORTMUX_TCA1_gm);
   return true;
 }
-
 bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
   uint8_t port = digitalPinToPort(pin);
   uint8_t bit_mask = digitalPinToBitMask(pin);
   #if defined(DB_64_PINS)
-  // AVR128DB, AVR64DB work with the high MUX options *INDENT-OFF*
-    if (((port == 1 || port == 6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+  // AVR128DB, AVR64DB work with the high MUX options
+  if (((port == 1 || port == 6) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
   #else  // AVR128DA64 definitely do not work. AVR64DA64 untested.
-    if (((port == 1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
+  if (((port == 1) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
   #endif // And those are the only 4 parts in the product line for which those pins exist. *INDENT-ON*
     // PORTB and PORTG have full-service TCA1 (well, not PG on the 128DA63 up to at least the A8 die
     // rev). for those, bit_mask will be 0x01, 0x02, 0x04, 0x08, 0x10, or 0x20 - but not 0x40 or
     // 0x80. Hence test against 0x3F works. For the others, it is either 0x10, 0x20, or 0x40 so
     // test against 0x70; the port function will check that the non-B/G port is valid.
     return setTCA1MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok);
+
   }
   return false;
 }
