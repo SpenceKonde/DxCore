@@ -474,7 +474,7 @@ uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporde
   return p;
 }
 
-/* at minimum, this stops warnings, but I think there are corner cases hee the non-volatile implementations gives wrong results when passed pointers to hardare registers.*/
+/* at minimum, this stops warnings, but I think there are corner cases hee the non-volatile implementations gives wrong results when passed pointers to hardware registers.*/
 volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
   for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
