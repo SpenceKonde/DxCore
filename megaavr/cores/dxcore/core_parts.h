@@ -184,10 +184,6 @@
 
 #define ADC_NATIVE_RESOLUTION 12
 #define ADC_NATIVE_RESOLUTION_LOW 10
-// 1 if hardware has a differential ADC - separate from core support
-#define ADC_DIFFERENTIAL 1
-// 0 if hardware has no PGA, otherwise maximum PGA gain
-#define ADC_MAXIMUM_GAIN 0
 // Maximum burst accumulation
 #define ADC_MAXIMUM_ACCUMULATE 128
 // Maximum SAMPLEN or SAMPDUR

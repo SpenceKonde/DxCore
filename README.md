@@ -53,25 +53,29 @@ Note that you must install via board manager or replace your tool chain with the
 * AVR64DD20, AVR32DD20, AVR16DD20 (pending release - I suspect H1 2020)
 * AVR64DD28, AVR32DD28, AVR16DD28 (pending release - I suspect H1 2020)
 * AVR64DD32, AVR32DD32, AVR16DD32 (pending release - I suspect H1 2020)
+**PINOUT CHART NOTE** - the pinout diagrams do not show the TCA0, TCA1, or TCD0 remapping options currently, only the default ones.
 
 My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
 
-For the upcoming DD-series, the 28 and 32-pin parts are of questionable utility considering the existence of the more capable DA and DB parts with the same number of pins; for these, the 14-pin and 20-pin packages are likely more interesting, packing Dx-series capabilities into pincounts that are normally the province of the less capable tinyAVR product line.
+For the upcoming DD-series, the 28 and 32-pin parts are of questionable utility considering the existence of the more capable DA and DB parts with the same number of pins. With AVR Dx parts already priced like the higher-end classic tinyAVR devices, and barely twice the price of the top edge of the tinyAVR 0/1/2-series, there is a pretty narrow range of prices that the DD-series would make sense at. The 14-pin and 20-pin packages are far more interesting, packing Dx-level capabilities into pincounts that are normally the province of the less capable tinyAVR product line.
 
 ## Supported Clock Speeds
 All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
-* 24MHz Internal, Ext. Clock or Crystal (DB-only)
-* 20MHz Internal, Ext. Clock or Crystal (DB-only)
-* 16MHz Internal, Ext. Clock or Crystal (DB-only)
-* 12MHz Internal, Ext. Clock or Crystal (DB-only)
-*  8MHz Internal, Ext. Clock or Crystal (DB-only)
-*  4MHz Internal, Ext. Clock or Crystal (DB-only)
+**Crystal** is not supported as a clock source on the DA-series, only DB and DD.
+* 24MHz Internal, Ext. Clock or Crystal
+* 20MHz Internal, Ext. Clock or Crystal
+* 16MHz Internal, Ext. Clock or Crystal
+* 12MHz Internal, Ext. Clock or Crystal
+*  8MHz Internal, Ext. Clock or Crystal
+*  4MHz Internal, Ext. Clock or Crystal
 *  1MHz Internal or Ext. Clock
-* 28MHz Internal, Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
-* 32MHz Internal, Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
-* 36MHz Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
-* 40MHz Ext. Clock or Crystal (DB-only) Overclocked, not guaranteed!
-* 48MHz Ext. Clock or Crystal (DB-only) WAY Overclocked - probably won't work!
+* 28MHz Internal, Ext. Clock or Crystal Overclocked, not guaranteed!
+* 32MHz Internal, Ext. Clock or Crystal Overclocked, not guaranteed!
+* 36MHz Ext. Clock or Crystal Overclocked
+* 40MHz Ext. Clock or Crystal Overclocked - probably won't work!
+* 48MHz Ext. Clock or Crystal WAY Overclocked - almost certainly won't work!
+
+The severely overclocked options are there for one simple reason - I have yet to get boards made with pads for a proper external clock with which I could test just how far I could push the speed before they stopped working. That will be in my next batch, so soon I may remove the highest speeds.
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - though in my tests the PLL worked well beyond the spec in both directions, at least at room temperature) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future.
 
@@ -243,13 +247,16 @@ If you are reconfiguring `TCA0`, `TCA1`, or `TCD0` manually, call `takeOverTCA0(
 #### [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
 ### EEPROM support
-The usual `EEPROM.h` library works here - thought there are some internal changes (a bug in avrlibc must be worked around) It is added in 1.2.0.
+A compatible `EEPROM.h` library is included; this implementation is derived from and fully compatible with the standard `EEPROM.h` api, even though the implementation differs internally.
+
+### No USERROW library yet
+Unlike the tinyAVR parts I support on megaTinyCore, there is not yet a `USERSIG` library to write to the "User Signature Space" also called the `USERROW` (the object that the library makes available can't be named that because the I/O headers already define that to point to the `USERROW` in memory, so it would conflict with any definition a library provided; hence why megaTinyCore has USERSIG.h). This is due largely to the need to make design decisions about how to expose it to the user. On megaTinyCore the USERROW can be erased with byte level granularity - like EEPROM - and an identical API to EEPROM is provided for USERROW. On the Dx-series, the only way to erase any one byte within USERROW is to erase the whole thing. While one can do read-modify-erase-write, the standard API would result in dramatic write amplification, as every single byte would result in a full erase and rewrite - even if those bytes were parts of a multi-byte datatype. Checking whether a cell was currently empty or held the same value being written would help greatly, but I would feel a lot better if there were an interface that "admitted" to the user that this was how it had to be, and put a simple wrapper around the "read to memory, modify buffer in RAM, then erase and rewrite EEPROM"
 
 ### NeoPixel (WS2812) support
-The usual NeoPixel (WS2812) libraries have problems on these parts. This core includes two libraries for this, both of which are tightly based on the Adafruit_NeoPixel library. See the [tinyNeoPixel documentation](megaavr/extras/tinyNeoPixel.md) and included examples for more information. Support is in the code for clock speeds all the way up to the essentially-guaranteed-not-to-work
+The usual NeoPixel (WS2812) libraries have problems on these parts. This core includes two libraries for this, both of which are tightly based on the Adafruit_NeoPixel library. See the [tinyNeoPixel documentation](megaavr/extras/tinyNeoPixel.md) and included examples for more information. Support is in the code for all clock speeds from 8 MHz to well past the limits of the hardware. I suspect that it could be just barely made to work at 5 MHz or, taking advantage of research on the protocol and how the actual constraints differ from those presented in the datasheets, 4 MHz - but I do not see much demand for such an undertaking. Why run at 5 MHz? If you're driving a string of '2812s you're not worried about power consumption; the other reason to run at low frequencty is to operate at low voltage, but not only are the Dx parts rated for the full 24 MHz from 5.5V all the way down to 1.8V, at any voltage below 4V or so the blue LEDs don't work at full brightness anyway. So I decided that there was no reason to waste time porting the 'WS2812 driver to lower speeds.
 
 ### Tone Support
-Support for tone() is provided on all parts using TCB0. This is like the standard tone() function; it does not support use of the hardware output compare to generate tones. (Note that if TCB0 is used for millis/micros timing - which is not a recommended configuration -  tone() will instead use TCB1). Prior to the release of 1.3.3, there were a wide variety of bugs impacting the tone() function, particularly where the third argument, duration, was used; it could leave the pin HIGH after it finished, invalid pins and frequencies were handled with obvously unintended behavior, and integer math overflows could produce weird results with larger values of duration at high frequencies, and thee-argumwent tone() ddn't work at all above 32767Hz (even though maximum supported frequency is 65535 Hz) As all of the DxCore parts have at least 16k of flash, unless you pass SUPPORT_LONG_TONE = 0, support for long tones will be enabled. A "long" tone is one where `(frequency * duration) > 4.2 billion` but  `(frequency * duration)/500 < 2.1 billion`(we rearrange that to `(frequency/5) * (duration/100)` when duration > 65535).
+Support for tone() is provided on all parts using TCB0. This is like the standard tone() function; it does not support use of the hardware output compare to generate tones. (Note that if TCB0 is used for millis/micros timing - which is not a recommended configuration -  tone() will instead use TCB1). Prior to the release of 1.3.3, there were a wide variety of bugs impacting the tone() function, particularly where the third argument, duration, was used; it could leave the pin HIGH after it finished, invalid pins and frequencies were handled with obvously unintended behavior, and integer math overflows could produce weird results with larger values of duration at high frequencies, and thee-argumwent tone() ddn't work at all above 32767Hz (even though maximum supported frequency is 65535 Hz) As all of the DxCore parts have at least 16k of flash so we enable `SUPPORT_LONG_TONES` unless it is explicitly disabled (this is not exposed in the UI), A "long" tone is one where `(frequency * duration) < 4.2 billion` but `(frequency * duration)/500 > 4.294 billion`(we rearrange that to `(frequency/5) * (duration/100)` when duration > 65535).
 
 ### millis/micros Timekeeping Options
 DxCore provides the option to us eany available timer on a part for the millis()/micros timekeeping, controlled by a Tools submenu - except TCD0 - or it can be disabled entirely to save flash (or more likely available timers for manual configuration) and allow use of all timer interrupts. By default, TCB2 will be used by on parts. TCA0, TCA1 and any of the TCB's present on the part may be used, though this has not been rigorously tested; I suspect that TCD0 may not work in the initial release. Note that TCB0 conflicts with tone() and TCB1 conflicts with the version of Servo supplied with this core.
@@ -257,7 +264,7 @@ DxCore provides the option to us eany available timer on a part for the millis()
 For more information, on the hardware timers of the supported parts, and how they are used by DxCore's built-in functionality, see the [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
 ### ADC Support
-These parts have many ADC channels available - see the pinout charts for the specifics, they can be read with analogRead() like on a normal AVR. While the An constants (ex, A0) are supported, and refer to the corresponding ADC channel (not the corresponding pin number), using these is deprecated - the recommended practice is to pass the digital pin number to analogRead(). Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are:
+These parts have many ADC channels available - see the pinout charts for the specifics, they can be read with analogRead() like on a normal AVR. While the An constants (ex, A0) are supported, and refer to the corresponding ADC channel (not the corresponding pin number), using these is deprecated - the recommended practice is to pass the digital pin number to analogRead(). Analog reference voltage can be selected as usual using `analogReference()`. Supported reference voltages are:
 * VDD (Vcc/supply voltage - default)
 * INTERNAL1V024
 * INTERNAL2V048
@@ -267,12 +274,19 @@ These parts have many ADC channels available - see the pinout charts for the spe
 
 The 1.024V, 2.048V, and 4.096V options are particularly convenient when measuring analog voltages, as the ADC readings can be expediently converted to millivolts.
 
-Theee parts support **12-bit analog readings** - by default this core configures them to 10-bit mode for compatibility. To enable 12-bit readings, call `analogReadResolution(12)` - thereafter, analogRead() will return a number from 0 ~ 4095. It can be set back to 10-bit mode using `analogReadResolution(10)`
+These parts support **12-bit analog readings** - by default this core configures the ADC to work in 10-bit mode for backwards compatibility. To switch between 10 and 12 bit modes, use the `analogReadResolution()` function.
+`analogReadResolution(10 or 12)` - sets the ADC to opperate in 10-bit or 12-bit mode, returning numbers from 0-1023, or 0-4095 respectively. 12-bit readings take about 2 microseconds longer than 10-bit ones (assuming default configuration - 1 MHz ADC clock); This returns a boolean. If it returns true, the value was accepted (ie, it was 10 or 12), otherwise, it will return false, and the value will be set to the default of 10-bit mode. Why have this wacky return value behavior? Well, on the tinyAVR 0/1-series and megaAVR 0-series, the accepted values are 8 and 10. On the tinyAVR 2-series, the accepted values are 8, 10, and 12 (and the 10 bit is done in software from a 12-bit measurement, to ensure backwards compatibility with "generic Arduino" code) - but this mish-mash of options leads to a risk of bugs being introduced when porting between even these very similar product lines. This only controls resolution of analogRead() proper; for more control over resolution the upcoming `analogReadEnh()` can be used.
+enable 12-bit readings, call `analogReadResolution(12)` - thereafter, analogRead() will return a number from 0 ~ 4095. It can be set back to 10-bit mode using `analogReadResolution(10)`
 
 In addition to the pin numbers, you can read from the following sources:
-* ADC_INTREF (The internal reference - you can set it manually via VREF.CTRLA, or by calling analogReference(), followed by analogReference(VDD) - The internal reference register is not changed when switching back to VDD as reference)
-* ADC_DAC0 (The value being output by DAC0)
-* ADC_TEMPERATUIRE (The internal temperature sensor)
+* ADC_DAC0 (Voltage being output by the DAC; if OUTEN is not set, you can still read the value this way)
+* ADC_GROUND (Ground - should be 0)
+* ADC_DACREF0 (AC0.DACREF voltage)
+* ADC_DACREF1 (AC2.DACREF voltage - DA/DB only)
+* ADC_DACREF2 (AC2.DACREF voltage - DA/DB only)
+* ADC_TEMPERATURE (Internal temperature sensor)
+* ADC_VDDDIV10    (Vdd / 10 - measure with a reference to find supply voltage easily. DB/DD only)
+* ADC_VDDIO2DIV10  (Vdd / 10 - measure with a reference to find supply voltage easily. DB/DD only)
 
 We have taken  advantage of the improvements in the ADC on the these parts to improve the speed of analogRead() by more than a factor of three compared to the classic AVR devices - the ADC clock which was constrained to the range 50-200kHz - on these parts (as well as tinyAVR 0/1-series and megaAVR 0-series) it can be run at 1.5MHz! To compensate for the faster ADC clock, we set ADC0.SAMPCTRL to 14 to extend the sampling period from the default of 2 ADC clock cycles to 16 - providing the same sampling period as most other AVR cores, which should preserve the same accuracy when measuring high impedance signals. If you are measuring a lower impedance signal and need even faster analogRead() performance - or if you are measuring a high-impedance signal and need a longer sampling time, you can adjust that setting. On the tinyAVR and megaAVR 0/1-series, this had a maximum of 0x1F (31). On the DA-series, the maximum is 0xFF (255); this is almost certainly too long.
 
@@ -282,6 +296,15 @@ ADC0.SAMPCTRL=0; //minimum sampling length = 0+2 = 2 ADC clock cycles
 ```
 
 With the minimum sampling length, analogRead() speed would be approximately doubled from it's already-faster value.
+
+###
+
+
+#### Future Development
+Starting in 1.4.0, three new functions will be available:
+`analogReadEnh(pin, resolution, sampling duration)` - enhanced analog read. This will read the voltage on a pin to a resolution of (resolution) bits (max. 15 on DxCore) using the burst accumulation feature to carry out oversampling, followed by decimation to yield the enhanced reading. To get n bits of additional resolution takes 4^n samples, meaning that it will take 4^3 = 64 times longer than a normal analogRead(). The minimum resolution is 10 bits (the lowest native resolution supported by the hardware)
+`analogReadDiff(positive, negative, resolution, sampling duration)` - differential analog read. This will perform a differential analog reading on the specified pair of pins. Only pins on PORTD or PORTE can be used as the negative pin. The latter two options function the same as in `analogReadEnh()`
+`analogSampleDuration(duration)` - a duration argument from 0 to 255 can be passed to this to set the sampling duration for ADC0.
 
 **ERRATA ALERT** There is a mildly annoying silicon bug in early revisions of the AVR DA parts (as of late 2020, these are still the only ones available) where whatever pin the ADC multiplexer is pointed at, digital reads are disabled. This core neatly works around it by setting the the ADC multiplexer to point at a nonexistent pin when it is not actively in use; however, be aware that you cannot, say, set an interrupt on a pin being subject to analogReads (not that this is particularly useful).
 
@@ -348,10 +371,10 @@ Note that using this method will pull in just as much bloat as sprintf(), so it 
 ### Pin Interrupts
 All pins can be used with attachInterrupt() and detachInterrupt(), on `RISING`, `FALLING`, `CHANGE`, or `LOW`. All pins can wake the chip from sleep on `CHANGE` or `LOW`. Pins marked as ASync Interrupt pins on the pinout chart (this is marked by an arrow where they meet the chip on those charts - pins 2 and 6 on all ports have this feature) can be used to wake from sleep on `RISING` and `FALLING` edge as well. The Async Interrupt pins can also react to inputs shorter than one clock cycle (how *much* faster was not specified. )
 
-Advanced users can instead set up interrupts manually, ignoring attachInterrupt and manipulating the relevant port registers appropriately and defining the ISR with the ISR() macro - this will produce smaller code (using less flash and ram) and the ISRs will run faster as they don't have to check whether an interrupt is enabled for every pin on the port. For full information and example, see: [Pin Interrupts](megaavr/extras/PinInterrupts.md)
+Advanced users are advised to instead set up interrupts manually, ignoring attachInterrupt and manipulating the relevant port registers appropriately and defining the ISR with the ISR() macro - this will produce smaller code (using less flash and ram) the ISRs will run faster as they don't have to check whether an interrupt is enabled for every pin on the port. Note that, currently, if attachInterrupt() is used ANYWHERE IN THE SKETCH, even within a library, a duplicate vector definition error will be thrown if you attempt to manually configure a pin interrupt. There are plans to address this in a future version (the solution is to put the interrupts themselves into different C source files for each, like how the UARTs are done, such that ) For full information and example, see: [Pin Interrupts](megaavr/extras/PinInterrupts.md)
 
 ### Assembler Listing generation
-Like my other cores, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder.
+Like my other cores, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder. Starting in 1.3.3, a memory map is also created.
 
 ### EESAVE configuration option
 The EESAVE fuse can be controlled via the Tools -> Save EEPROM menu. If this is set to "EEPROM retained", when the board is erased during programming, the EEPROM will not be erased. If this is set to "EEPROM not retained", uploading a new sketch will clear out the EEPROM memory. Note that this only applies when programming via UPDI - programming through the bootloader never touches the EEPROM. You must do Burn Bootloader to apply this setting.
@@ -360,10 +383,10 @@ The EESAVE fuse can be controlled via the Tools -> Save EEPROM menu. If this is 
 These parts support multiple BOD trigger levels, with Disabled, Active, and Sampled operation options for when the chip is in Active and Sleep modes - Disabled uses no power, Active uses the most, and Sampled is in the middle. See the datasheet for details on power consumption and the meaning of these options. You must do Burn Bootloader to apply this setting, as this is not a "safe" setting: If it is set to a voltage higher than the voltage the board is running at, the chip cannot be reprogrammed until you apply a high enough voltage to exceed the BOD threshold.
 
 ### Link-time Optimization (LTO) support
-This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the DA-series parts also support LTO, so there is no need to make it optional as was done with ATtinyCore.
+This core *always* uses Link Time Optimization to reduce flash usage.
 
 ### Identifying menu options within sketch
-It is often useful to identify what options are selected on the menus from within the sketch; this is particularly useful for verifying that you have selected the options you wrote the sketch for when you open it; however, note that as of 2.0.1, almost all of these options have been removed except for the millis timer option.
+It is often useful to identify what options are selected on the menus from within the sketch - mainly the millis timer selection.
 
 ##### Millis timer
 The option used for the millis/micros timekeeping is given by a define of the form USE_MILLIS_TIMERxx. Possible options are:
@@ -374,7 +397,7 @@ The option used for the millis/micros timekeeping is given by a define of the fo
 * MILLIS_USE_TIMERB2
 * MILLIS_USE_TIMERB3 (48 and 64-pin parts only)
 * MILLIS_USE_TIMERB4 (64-pin parts only)
-* MILLIS_USE_TIMERD0
+* MILLIS_USE_TIMERD0 (not supported on DA/DB series - there's no shortage of TCBs here). May be supported for DD due to their only having 2 type B timers on the 14/20 pin parts.
 * DISABLE_MILLIS
 
 ##### Using to check that correct menu option is selected
@@ -407,11 +430,27 @@ This core provides an additional define depending on the number of pins on the p
 * `__AVR_DD__`
 
 All parts will have the following defined:
-* DXCORE
+* `DXCORE`
+It is defined as a text string containing the installed DxCore version.
+
+### Core feature detection
+There are a number of macros for determining what (if any) features the core supports (these are shared with megaTinyCore)
+* `CORE_HAS_FASTIO` (1) - If defined as 1 or higher. indicates that digitalWriteFast() and digitalReadFast() is available. If undefined or defined as 0, these are not available. If other "fast" versions are implemented, they would be signified by this being defined as a higher number. If defined as -1, there are no digital____Fast() functions, but with constant pins, these functions are optimized aggressively for speed and flash useage (though not all the way down to 1 instruction).
+* `CORE_HAS_OPENDRAIN ` (1) - If defined as 1, indicates that openDrain() and (assuming `CORE_HAS_FASTIO` is >= 1) openDrainFast() are available. If undefined or 0, these are not available.
+* `CORE_HAS_PINCONFIG ` (0) - If defined as Indicates that pinConfig() is available. If not defined or defined as 0, it is not available.
+* `CORE_HAS_TIMER_TAKEOVER` (1) - if defined as 1, takeOverTCxn() functions are available to let user code take full control of TCA0, TCA1 and/or TCD0.
+* `CORE_HAS_TIMER_RESUME` (1)- if defined as 1, the corresponding resumeTCxn() functions, which reinitialize them and return them to their normal core-integrated functions, are available.
+* `ADC_NATIVE_RESOLUTION` (12)- This is the maximum resolution, in bits, of the ADC without using oversampling.
+* `ADC_NATIVE_RESOLUTION_LOW` (10) - The ADC has a resolution setting that chooses between ADC_NATIVE_RESOLUTION, and a lower resolution.
+* `DIFFERENTIAL_ADC` (1) - This is defined as 1 if the part has a basic differential ADC (no gain, and V<sub>analog_in</sub> constrainted to between Gnd and V<sub>Ref</sub>), and 2 if it has a full-featured one. It does not indicate whether said differential capability is exposed by the core.
+* `SUPPORT_LONG_TONES` (1)  - On some modern AVR cores, an intermediate value in the tone duration calculation can overflow (which is timed by counting times the pin is flipped) leading to a maximum duration of 4.294 million millisecond. This is worst at high frequencies, and can manifest at durations as short as 65 seconds worst case. Working around this, however, costs some flash, and some cores may make the choice to not address it (megaTinyCore only supports long tones on parts with more than 8k of flash).  If `SUPPORT_LONG_TONES` is defined as 1, as long as (duration * frequency)/500 < 4.294 billion, the duration will not be truncated. If it is defined as 0, the bug was known to the core maintainer and they chose not to fully correct it (eg, to save flash) but took the obvious step to reduce the impact, it will be truncated if (duration * frequency) exceeds 4.294 billion. If `SUPPORT_LONG_TONES` is not defined at all, the bug may be present in its original form, in which case the duration will be truncated if (duration * frequency) exceeds 2.14 billion.
+* `CORE_HAS_ANALOG_ENH` (0)  - If defined as 1, analogReadEnh() (enhanced analogRead) is available. Otherwise, it is not.
+* `CORE_HAS_ANALOG_DIFF` (0)  - If defined as 1, analogReadDiff() (differential enhanced analogRead) is available. Otherwise, it is not.  It has same features as enhanced, except that it takes a differential measurement.
+* `MAX_OVERSAMPLED_RESOLUTION` - If either `CORE_HAS_ANALOG_ENH` or `CORE_HAS_ANALOG_DIFF` is 1, this will be defined as the maximum resolution obtainable automatically via oversampling and decimation using those functions. This will be 15 on the Dx-series parts in the near future when these functions are added.
+* `ADC_MAXIMUM_GAIN` - Some parts have an amplifier, often used for differential readings. The Dx-series are not among them. If this is defined as a positive number, it is the maximum gain available. If this is defined as -1, there are one or more `OPAMP` peripherals available which could be directed towards the same purpose, though more deliberation would be needed. If it is defined as -128 (which may come out as 128 if converted to an unsigned integer), there is a gain stage on the differential ADC, but it is a classic AVR, so the available gain options depend on which pins are being measured, and there is a different proceedure as detailed in the core documentation (ex, ATTinyCore 2.0.0 and later). If it is 0 or undefined, there is no built-in analog gain state for the ADC, or it is not exposed through the core.
 
 
-# Bootloader (optiboot) Support
-Planned for a future version.
+
 
 # Autoreset circuit
 These parts can be used with the classic auto-reset circuit described below. It will reset the chip when serial connection is opened like on typical Arduino boards.
@@ -487,6 +526,11 @@ On official "megaavr" board package, TCA0 is configured for "Single mode" as a t
 ### digital I/O functions use old function signatures.
 They return and expect uint8_t (byte) values, not enums like the official megaavr board package does. Like classic AVR cores, constants like `LOW`, `HIGH`, etc are simply #defined to appropriate values. The use of enums instead broke many common Arduino programming idioms and existing code, increased flash usage, lowered performance, and made optimization more challenging. While the enum implementation made language design purists comfortable, and provided error checking for newbies - because you couldn't pass anything  that wasn't a PinState to a digital I/O function, and would get that error checking if - as a newbie - you accidentally got careless. A compatibility layer was added to the official core - but then that got rid of what was probably the most compelling benefit, the fact that it did generate an error for new users to train them away from common Arduino practices like passing 1 or 0 to digitalWrite, `if(digitalRead(pin))` and the like. This change also had the perverse effect of making PinMode(pin,OUTPUT), an obvious typo of pinMode(pin,OUTPUT) into valid syntax (comma operator turns pin,OUTPUT into OUTPUT, and it returns a new PinMode of value OUTPUT...), instead of a syntax error - took me hours to find a simple typo! Anyway - the enums are not present here, and they never will be; this is the case with [MegaCoreX](https://github.com/MCUdude/MegaCoreX) and [DxCore](https://github.com/SpenceKonde/DxCore) as well.
 
+### analogReadResolution() is different
+Official AVR boards do not have analogReadResolution. Official ARM-based boards do, but the implementation is very different- they allow specifying any number from 1 to 32, and will shift the reading as required (padding it with zeros if a resolution higher than the hardware is capable of is specified). I dislike conceptually the idea of the core presenting values as if it has more information than it does, and in any event, on these resource constrained 8-bit microcontrollers, the code to create rounded or padded numbers with 1-32 bits is an extravagance we cannot afford, and the overhead of that should not be imposed on the vast majority of users who just want to read at the maximum resolution the hardware suopports, or 10 bits for code compatibility with classic AVRs. Since analogReadResolution() accepts a wide range of values on the official boards that have it, it does not need to report success or failure.
+
+### As of 1.3.3, SerialEvent is removed
+SerialEvent was an ill-conceived mess. I added support for it not knowing that the mess had already been deprecated; when I heard that it was, I wasted no time in fully removing it. if ENABLE_SERIAL_EVENT is de
 
 # Instruction Set (AVRe/AVRe+ vs AVRxt)
 The classic AVR devices all use the venerable `AVRe` (ATtiny) or `AVRe+` (ATmega) instruction set (`AVRe+` differs from `AVRe` in that it has hardware multiplication and supports devices with more than 64k of flash). Modern AVR devices (with the exception of ones with minuscule flash and memory, such as the ATtiny10, which use the reduced core `AVRrc`), these parts use the latest iteration of the AVR instruction set: `AVRxt`. This adds no new instructions (unlike `AVRxm`, the version used by the XMega devices, which adds ), but a small number of instructions have improved execution time, and one has slower execution time. This distinction is unimportant for 99.9% of users - but if you happen to be working with hand-tuned assembly (or are using a library that does so, and are wondering why the timing is messed up), the changes are:
@@ -503,4 +547,4 @@ DxCore itself is released under the [LGPL 2.1](LICENSE.md). It may be used, modi
 
 The DxCore hardware package (and by extension this repository) contains DxCore as well as libraries, bootloaders, and tools. These are released under the same license, *unless specified otherwise*. For example, tinyNeoPixel and tinyNeoPixel_Static, being based on Adafruit's library, are released under GPLv3, as described in the LICENSE.md in those subfolders and within the body of the library files themselves.
 
-This license *also* does not apply to any tools or third party programs used by, included with, or installed by DxCore. Installing DxCore through board manager will install and/or update other tool(s) to compile and/or upload code. These are covered by their own license terms. The pyupdi-style serial uploader in megaavr/tools is built on pymcuprog from Microchip, which is free, but *not* open source. If this is problematic for you or your organization, the megaavr/tools/pymcuprog and megaavr/tools/pydbglib directories, as well as megaavr/tools/prog.py may be deleted without adverse impact on the core other than the Serial+resistor programming option ceasing to work and instead generating a file not found error. That will remove all content from this package that is not covered by some form of open source license in accordance with their respective license files as outlined above.
+This license also does **not** apply to any tools or third party programs used by, included with, or installed by DxCore. Installing DxCore through board manager will install and/or update other tool(s) to compile and/or upload code. These are covered by their own license terms. The pyupdi-style serial uploader in megaavr/tools is built on pymcuprog from Microchip, which is free, but *not* open source. If this is problematic for you or your organization, the megaavr/tools/pymcuprog and megaavr/tools/pydbglib directories, as well as megaavr/tools/prog.py may be deleted without adverse impact on the core other than the Serial+resistor programming option ceasing to work and instead generating a file not found error. That will remove all content from this package that is not covered by some form of open source license in accordance with their respective license files as outlined above.

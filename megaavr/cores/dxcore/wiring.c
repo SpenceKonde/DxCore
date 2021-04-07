@@ -856,58 +856,31 @@ void set_millis(uint32_t newmillis)
 /********************************* ADC ****************************************/
 #if defined(ADC0)
   void __attribute__((weak)) init_ADC0() {
-    #ifndef SLOWADC
-      /* ADC clock 1 MHz to 1.25 MHz at frequencies supported by megaTinyCore
-      Unlike the classic AVRs, which demand 50~200 kHz, for these, the datasheet
-      spec's a clock speed of 150 kHz to 2 MHz. We hypothesize that lower clocks provide better
-      response to high impedance signals, since the sample and hold circuit will
-      be connected to the pin for longer, though the datasheet does not explicitly
-      state that this is the case. Just like on megaTinyCore, use samplen to compensate */
-
-      #if F_CPU >= 32000000
-        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
-      #elif F_CPU >= 32000000
-        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
-      #elif F_CPU >= 28000000
-        ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
-      #elif F_CPU >= 24000000
-        ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1 MHz
-      #elif F_CPU >= 20000000
-        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1 MHz
-      #elif F_CPU >= 16000000
-        ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1 MHz
-      #elif F_CPU >= 12000000
-        ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1 MHz
-      #elif F_CPU >= 8000000
-        ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1 MHz
-      #elif F_CPU >= 4000000
-        ADC0.CTRLC = ADC_PRESC_DIV4_gc;  //1 MHz
-      #else  // 1 MHz / 2 = 500 kHz - the lowest setting
-        ADC0.CTRLC = ADC_PRESC_DIV2_gc;
-      #endif
-      ADC0.SAMPCTRL=14; //16 ADC clock sampling time - should be about the same amount of *time* as originally?
-      // This is WAY conservative! We could drop it down...
-      ADC0.CTRLD = ADC_INITDLY_DLY64_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
-    #else //if SLOWADC is defined - as of 2.0.0 this option isn't exposed.
-      /* ADC clock around 200 kHz - datasheet spec's 125 kHz to 1.5 MHz */
-      #if F_CPU >= 32000000
-        ADC0.CTRLC = ADC_PRESC_DIV128_gc; //250 kHz
-      #elif F_CPU >= 24000000
-        ADC0.CTRLC = ADC_PRESC_DIV96_gc; //250 kHz
-      #elif F_CPU >= 16000000
-        ADC0.CTRLC = ADC_PRESC_DIV64_gc; //250 kHz
-      #elif F_CPU >= 12000000
-        ADC0.CTRLC = ADC_PRESC_DIV48_gc; //250 kHz
-      #elif F_CPU >= 8000000
-        ADC0.CTRLC = ADC_PRESC_DIV32_gc; //250 kHz
-      #elif F_CPU >= 4000000
-        ADC0.CTRLC = ADC_PRESC_DIV20_gc; //200 kHz
-      #else  // 1 MHz / 4 = 250 kHz
-        ADC0.CTRLC = ADC_PRESC_DIV4_gc;
-      #endif
-      ADC0.CTRLD = ADC_INITDLY_DLY16_gc; //VREF can take 50uS to become ready, and we're running the ADC clock at around 250 MHz, so we want 16 ADC clocks when we start up a new reference so we don't get bad readings at first
+    #if F_CPU >= 32000000
+      ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
+    #elif F_CPU >= 32000000
+      ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
+    #elif F_CPU >= 28000000
+      ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
+    #elif F_CPU >= 24000000
+      ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1 MHz
+    #elif F_CPU >= 20000000
+      ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1 MHz
+    #elif F_CPU >= 16000000
+      ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1 MHz
+    #elif F_CPU >= 12000000
+      ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1 MHz
+    #elif F_CPU >= 8000000
+      ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1 MHz
+    #elif F_CPU >= 4000000
+      ADC0.CTRLC = ADC_PRESC_DIV4_gc;  //1 MHz
+    #else  // 1 MHz / 2 = 500 kHz - the lowest setting
+      ADC0.CTRLC = ADC_PRESC_DIV2_gc;
     #endif
-
+    ADC0.SAMPCTRL=14; //16 ADC clock sampling time - should be about the same amount of *time* as originally?
+    // This is WAY conservative! We could drop it down...
+    ADC0.CTRLD = ADC_INITDLY_DLY64_gc; //VREF can take 50uS to become ready, and we're running the ADC clock
+    // at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
     /* Enable ADC */
     ADC0.CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
     //start at 10 bit for compatibuility with existing code.

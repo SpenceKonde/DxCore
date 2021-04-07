@@ -225,30 +225,43 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
 #define portModeRegister(P)   ( (volatile uint8_t *)( &portToPortStruct(P)->DIR ) )
 
 
-#define CORE_HAS_FASTIO 1
-#define CORE_HAS_OPENDRAIN 1
-// #define CORE_HAS_PINCONFIG 1
-// If 1, takeOverTCAn and takeOverTCDn (if applicable) are present.
-#define CORE_HAS_TIMER_TAKEOVER 1
-// If 1, also has resumeTCAn and resumeTCDn;
-#define CORE_HAS_TIMER_RESUME 1
-// tones specifying duration are timed until a certain number of oscillations have occurred.
-// Frequency is in Hz, while duration is in ms (2 * frequency * duration)/1000 is the number of transitions
-// before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
-// overflow when frequency * duration. A high-pitched tone of 20 kHz, would overflow if a delay of longer than
-// around 7 minutes was requested. On parts like the Dx-series where there's no problem with flashg space, we
-// now do (frequency / 5) * (duration/100) when duration ? 2^16 ms (a necessary precondition for overflow).
-#define SUPPORT_LONG_TONES 1
+#define CORE_HAS_FASTIO 1                /* DxCore has the digitalReadFast() and digitalWriteFast()              */
+#define CORE_HAS_OPENDRAIN 1             /* DxCore has openDrain() and openDrainFast()                           */
+#define CORE_HAS_PINCONFIG 0             /* pinConfig is not yet implemented anywhere, but will be soon.         */
+#define CORE_HAS_TIMER_TAKEOVER 1        /* DxCore has takeOverTCAn() and takeOverTCD0()                         */
+#define CORE_HAS_TIMER_RESUME 1          /* DxCore has resumeTCAn() and resumeTCD0()                             */
+#define SUPPORT_LONG_TONES 1             /* tone()s specifying duration are timed by counting the oscillations.
+ * Frequency is in Hz, while duration is in ms, so (2 * frequency * duration)/1000 is the number of transitions
+ * before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
+ * overflow when frequency * duration > 4.2b. A high-pitched tone of 20 kHz would overflow if a delay of longer
+ * than around 7 minutes was requested (prior to this update, the maximum was a factor of two lower than that)
+ * On parts like the Dx-series where there's no problem with flash space, we now, when duration > (2^16) ms (a
+ * necessary precondition for overflow to occur) do ((frequency / 5) * (duration/100)) at cost of ~100b flash .  */
+#define ADC_DIFFERENTIAL 1               /* Basic modern-AVR differential ADC         */
+#define CORE_HAS_ANALOG_ENH 0            /* DxCore does not have analogReadEnh()  - yet! Coming by 1.4.0!        */
+#define CORE_HAS_ANALOG_DIFF 0           /* DxCore does not have analogReadDiff() - yet! Coming by 1.4.0!        */
+// #define MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore will have max res. of 15 bits via oversampling & decimation   */
 
-// Core ADC features - coming soon!
-// if analogReadEnh() supplied, this is defined as 1
-// #define CORE_HAS_ANALOG_ENH 1
-// if analogReadDiff() supplied, this is defined as 1
-// #define CORE_HAS_ANALOG_DIFF 1
-// If CORE_HAS_ANALOG_ENH or CORE_HAS_ANALOG_DIFF defined 1, this is the
-// maximum ADC resolution it can obtain through oversampling and decimation.
-// (ie (log base 4 of ADC_MAXIMUM_ACCUMULATE) + ADC_NATIVE_RESOLUTION)
-// #define MAX_OVERSAMPLED_RESOLUTION 15
+#ifdef OPAMP0
+  #ifndef ADC_MAXIMUM_GAIN
+    #define ADC_MAXIMUM_GAIN -1            /* DB-series can use their OPAMPs as a PGA         */
+  #endif
+  #define PIN_OPAMP0_INP PIN_PD1
+  #define PIN_OPAMP0_OUT PIN_PD2
+  #define PIN_OPAMP0_INN PIN_PD3
+  #ifdef OPAMP1
+    #define PIN_OPAMP1_INP PIN_PD4
+    #define PIN_OPAMP1_OUT PIN_PD5
+    #define PIN_OPAMP1_INN PIN_PD7
+  #endif
+  #ifdef OPAMP2
+    #define PIN_OPAMP2_INP PIN_PE1
+    #define PIN_OPAMP2_OUT PIN_PE2
+    #define PIN_OPAMP2_INN PIN_PE3
+  #endif
+#else
+  #define ADC_MAXIMUM_GAIN 0                /* DA and DD series don't have any                */
+#endif
 
 #ifdef __cplusplus
 } // extern "C"
