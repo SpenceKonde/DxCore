@@ -7,6 +7,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ## Released Versions
 
+### 1.3.4
+* Board manager re-release only to pick up fixed toolchain version for Linux/Mac; code is identical to 1.3.3
+
 ### 1.3.3
 * New version of the Arduino <-> pymcuprog bridge introduced - verbose output vanishing bug fixed, and it can no longer fail silently when it receives invalid command line arguments (this was leading to "burn bootloader" with missing bootloader file reporting success but burning no bootloader.)
 * New toolchain package with support for AVR64DD and tinyAVR 2-series parts with 32k flash.
