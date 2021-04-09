@@ -5,9 +5,11 @@
 // *INDENT-OFF* - astyle wants me to indent the #if's in a way that makes it harder to read.
 namespace out {
   enum output_t : uint8_t {
-    disable = 0x00,
-    enable  = 0x40,
-    invert  = 0x80,
+    disable         = 0x00,
+    disable_invert  = 0x80,
+    enable          = 0x40,
+    invert          = 0xC0,
+    enable_invert   = 0xC0,
   };
   enum pinswap_t : uint8_t {
     no_swap  = 0x00,
@@ -88,6 +90,9 @@ class AnalogComparator {
     void stop();
     void attachInterrupt(voidFuncPtr callback, uint8_t mode);
     void detachInterrupt();
+    bool read() {
+      return !!(AC.STATUS & AC_CMPSTATE_bm);
+    }
 
     out::output_t      output         = out::disable;
     out::pinswap_t     output_swap    = out::no_swap;

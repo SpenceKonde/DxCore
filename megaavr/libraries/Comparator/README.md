@@ -121,12 +121,14 @@ Comparator.hysteresis = hyst::large;  // Use 50V hysteresis
 
 
 ### output
-Variable for setting the comparator output pin (PA7).
+Variable for setting the comparator output - either internal or external, inverted or not (note also that the pin itself could be inverted with the INVEN bit of PORTA.PIN7CTRL (or PORTC.PIN6CTRL if alternate output pin is used; this allows the pin to take a logical state opposite from tne internal (event channel) output, thus allowing every possible combination of external and internal output polarities.
 Accepted values:
 ``` c++
-out::disable; // No output pin
-out::enable;  // Enable output pin (PA7)
-out::invert;  // Invert output pin (PA7)
+out::disable;        // No output pin, signal not inverted internally
+out::disable_invert; // No output pin, signal inverted internally
+out::enable;         // Enable output pin (PA7), signal not inverted internally
+out::invert;         // Enable output pin (PA7), signal inverted internally
+out::enable_invert;  // Identical to out::invert
 ```
 
 ##### Usage
@@ -194,6 +196,17 @@ Method for stopping the analog comparator.
 ##### Usage
 ```c++
 Comparator.stop(); // Stop comparator
+```
+
+## read()
+Method to read current comparator value; returns the comparator output as a bool; this is effected by output invert.
+
+##### Usage
+```c++
+
+if (Comparator0.read()) {
+  doSomething();
+}
 ```
 
 

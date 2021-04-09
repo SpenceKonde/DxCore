@@ -78,7 +78,7 @@ void AnalogComparator::init() {
   AC.DACREF = dacref;
 
   // Set hysteresis
-  AC.CTRLA = (AC.CTRLA & ~AC_HYSMODE_gm) | hysteresis;
+  AC.CTRLA = (AC.CTRLA & ~AC_HYSMODE_gm) | hysteresis | (output & 0x40);
 
   // Set inputs
   if (input_p == in_p::in0) {
@@ -97,18 +97,16 @@ void AnalogComparator::init() {
   } else if (input_n == in_n::in2) {
     IN2_N = PORT_ISC_INPUT_DISABLE_gc;
   }
-  AC.MUXCTRL = output_initval | (AC.MUXCTRL & ~0x3f) | (input_p << 3) | input_n;
+
+  AC.MUXCTRL = output_initval | (AC.MUXCTRL & ~0x3f) | (input_p << 3) | input_n | (output & 0x80);
 
   // Prepare for output pin swap
-  PORT_t &output_port = PORTA;
-  uint8_t pin_number = PIN7_bm;
   if (output_swap == out::pin_swap) {
-    output_port = PORTC;
-    pin_number = PIN6_bm;
     PORTMUX.ACROUTEA = ~(1 << comparator_number) | output_swap;
   }
 
   // Set output
+  /*
   if (output == out::enable) {
     AC.MUXCTRL &= ~out::invert;
     AC.CTRLA |= out::enable;
@@ -122,6 +120,7 @@ void AnalogComparator::init() {
     AC.CTRLA &= ~out::enable;
     //output_port.DIRCLR = pin_number;
   }
+  */
 }
 
 void AnalogComparator::start(bool state) {
