@@ -52,98 +52,112 @@
 // 01__0 is DD.
 // ss is flash size; 0 is smallest flash in family, 1 second smallest
 // (generally 2x smallest) 2 for next size up, and 3 for an even larger
-// one, if a product line with 4 flash sizes was ever introduced.
-// ppp is code for the pincount, per below chart.
+// one.
+// ppp is code for the pincount.
 // interestingly enough this range can extend to cover all pincounts used
-// in recent times on AVR devices - as there is only one smaller one, the
-// 8-pin of the '85  and 'xy2 - 000
-// and 100 pin of the mega256 - 111
-// Wonder if we will see another 100-pin monster or 8-pin tiny?
-// We can squeeze in on emore future
+// in recent times on AVR devices except the 100-pin '2560. There  is
+// only one smaller one, the 8-pin of the '85  and 'xy2 - 000
+// while the gap at 0x03 is for the 24-pin package.
+// I wonder if we will see another 100-pin monster AVR? There are some
+// significant issues involved in that (they're out of addresses in
+// low IO space for VPORTs), so I'm not going to include a
 
-#define AVR128DA    0x20
-#define AVR64DA     0x10
-#define AVR32DA     0x00
-#define AVR128DB    0x28
-#define AVR64DB     0x18
-#define AVR32DB     0x08
-#define AVR64DD     0x60
-#define AVR32DD     0x50
-#define AVR16DD     0x40
-#define HAS_14_PINS 0x01
-#define HAS_20_PINS 0x02
-#define HAS_28_PINS 0x03
-#define HAS_32_PINS 0x04
-#define HAS_48_PINS 0x05
-#define HAS_64_PINS 0x06
-#define IS_AVR_DB   0x08
-#define IS_AVR_DD   0x40
-#define IS_AVR_DA   0x00
 
-#define MASK_SERIES 0xC8
-#define MASK_FLASH  0x30
-#define MASK_PINS   0x07
+#define ID_AVR128DA     0x20
+#define ID_AVR64DA      0x10
+#define ID_AVR32DA      0x00
+#define ID_AVR128DB     0x28
+#define ID_AVR64DB      0x18
+#define ID_AVR32DB      0x08
+#define ID_AVR64DD      0x60
+#define ID_AVR32DD      0x50
+#define ID_AVR16DD      0x40
+#define ID_8_PINS       0x00
+#define ID_14_PINS      0x01
+#define ID_20_PINS      0x02
+#define ID_24_PINS      0x03
+#define ID_28_PINS      0x04
+#define ID_32_PINS      0x05
+#define ID_48_PINS      0x06
+#define ID_64_PINS      0x07
+#define ID_AVR_DB       0x08
+#define ID_AVR_DD       0x40
+#define ID_AVR_DA       0x00
+
+#define ID_MASK_SERIES  0xC8
+#define ID_MASK_FLASH   0x30
+#define ID_MASK_PINS    0x07
 
 //#defines to identify part families
 #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
   #define DA_64_PINS
+  #define DX_64_PINS
   #define Dx_64_PINS
-  #define DXCORE_ID_LOW HAS_64_PINS
+  #define CORE_PART_ID_LOW ID_64_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DA48__) || defined(__AVR_AVR64DA48__) || defined(__AVR_AVR32DA48__)
   #define DA_48_PINS
+  #define DX_48_PINS
   #define Dx_48_PINS
-  #define DXCORE_ID_LOW HAS_48_PINS
+  #define CORE_PART_ID_LOW ID_48_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DA32__) || defined(__AVR_AVR64DA32__) || defined(__AVR_AVR32DA32__)
   #define DA_32_PINS
+  #define DX_32_PINS
   #define Dx_32_PINS
-  #define DXCORE_ID_LOW HAS_32_PINS
+  #define CORE_PART_ID_LOW ID_32_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DA28__) || defined(__AVR_AVR64DA28__) || defined(__AVR_AVR32DA28__)
   #define DA_28_PINS
+  #define DX_28_PINS
   #define Dx_28_PINS
-  #define DXCORE_ID_LOW HAS_28_PINS
+  #define CORE_PART_ID_LOW ID_28_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)
   #define DB_64_PINS
+  #define DX_64_PINS
   #define Dx_64_PINS
-  #define DXCORE_ID_LOW HAS_64_PINS | IS_AVR_DB
+  #define CORE_PART_ID_LOW ID_64_PINS | ID_AVR_DB
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB48__) || defined(__AVR_AVR64DB48__) || defined(__AVR_AVR32DB48__)
   #define DB_48_PINS
+  #define DX_48_PINS
   #define Dx_48_PINS
-  #define DXCORE_ID_LOW HAS_48_PINS | IS_AVR_DB
+  #define CORE_PART_ID_LOW ID_48_PINS | ID_AVR_DB
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB32__) || defined(__AVR_AVR64DB32__) || defined(__AVR_AVR32DB32__)
   #define DB_32_PINS
+  #define DX_32_PINS
   #define Dx_32_PINS
-  #define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DB
+  #define CORE_PART_ID_LOW ID_32_PINS | ID_AVR_DB
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB28__) || defined(__AVR_AVR64DB28__) || defined(__AVR_AVR32DB28__)
   #define DB_28_PINS
+  #define DX_28_PINS
   #define Dx_28_PINS
-  #define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DB
+  #define CORE_PART_ID_LOW ID_28_PINS | ID_AVR_DB
   #define __AVR_DB__
-#elif defined(__AVR_AVR64DD32__) || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
+#elif defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
   #define DD_32_PINS
+  #define DX_32_PINS
   #define Dx_32_PINS
-  #define DXCORE_ID_LOW HAS_32_PINS | IS_AVR_DD
+  #define CORE_PART_ID_LOW ID_32_PINS | ID_AVR_DD
   #define __AVR_DD__
-#elif defined(__AVR_AVR64DD28__) || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
+#elif defined(__AVR_AVR64DD28__)  || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
   #define DD_28_PINS
+  #define DX_28_PINS
   #define Dx_28_PINS
-  #define DXCORE_ID_LOW HAS_28_PINS | IS_AVR_DD
+  #define CORE_PART_ID_LOW ID_28_PINS | ID_AVR_DD
   #define __AVR_DD__
-#elif defined(__AVR_AVR64DD20__) || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
+#elif defined(__AVR_AVR64DD20__)  || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
   #define DD_20_PINS
-  #define Dx_20_PINS
-  #define DXCORE_ID_LOW HAS_20_PINS | IS_AVR_DD
+  #define DX_20_PINS
+  #define CORE_PART_ID_LOW ID_20_PINS | ID_AVR_DD
   #define __AVR_DD__
-#elif defined(__AVR_AVR64DD14__) || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
+#elif defined(__AVR_AVR64DD14__)  || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
   #define DD_14_PINS
-  #define Dx_14_PINS
-  #define DXCORE_ID_LOW HAS_14_PINS | IS_AVR_DD
+  #define DX_14_PINS
+  #define CORE_PART_ID_LOW ID_14_PINS | ID_AVR_DD
   #define __AVR_DD__
 #else
   #error "Can't-happen: unknown chip somehow being used"
@@ -153,12 +167,12 @@
   #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
 #endif
 
-#if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x20)
-#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x10)
-#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (DXCORE_ID_LOW & IS_AVR_DD))
-  #define DXCORE_ID (DXCORE_ID_LOW | 0x00)
+#if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (CORE_PART_ID_LOW & ID_AVR_DD))
+  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
+#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (CORE_PART_ID_LOW & ID_AVR_DD))
+  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
+#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (CORE_PART_ID_LOW & ID_AVR_DD))
+  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"
 #endif
@@ -196,14 +210,14 @@
 // asked to oversample and decimate.
 #ifndef __AVR_DA__
   // DB-series and DD-series parts have an INLVL bit on the PINnCTRL registers. If set, pin is in TTL mode and the voltage considered high/low does not depend on Vdd.
-  #define PORT_HAS_INLVL 1
+  #define PORT_ID_INLVL 1
 #else
-  #define PORT_HAS_INLVL 0
+  #define PORT_ID_INLVL 0
 #endif
 
 #if defined(__AVR_DA__)
   #define ERRATA_ADC_PIN_DISABLE 1
-  #define HAS_ADC_BUG ERRATA_ADC_PIN_DISABLE
+  #define ID_ADC_BUG ERRATA_ADC_PIN_DISABLE
 #endif
 
 #if defined(DB_64_PINS)
