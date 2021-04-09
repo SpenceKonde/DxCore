@@ -394,7 +394,7 @@ void delay(unsigned long ms)
 #else //delay implementation when we do not
 void delay(unsigned long ms)
 {
-  _delay_ms(ms)
+  _delay_ms(ms);
 }
 #endif
 

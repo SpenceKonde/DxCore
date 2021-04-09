@@ -8,8 +8,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ## Released Versions
 
 ### 1.3.4
+* Adopt Comparator library fixes from https://github.com/MCUdude/MegaCoreX/issues/115.
 * Board manager re-release to pick up fixed toolchain version for Linux/Mac; code is identical to 1.3.3 except for version bump and the programmers.txt change
 * Programmers.txt names tweaked - the changes in 1.3.3 were directly copied from megaTinyCore and referenced official boards that don't exist for the Dx family.
+* A number of minor internal changes and corrections.
+* Documentation enhancements.
 
 ### 1.3.3
 * New version of the Arduino <-> pymcuprog bridge introduced - verbose output vanishing bug fixed, and it can no longer fail silently when it receives invalid command line arguments (this was leading to "burn bootloader" with missing bootloader file reporting success but burning no bootloader.)

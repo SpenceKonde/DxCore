@@ -208,6 +208,22 @@ static const uint8_t A6  = PIN_A6;
 static const uint8_t A7  = PIN_A7;
 static const uint8_t A16 = PIN_A16;
 static const uint8_t A17 = PIN_A17;
+/* AINn = (0x80 | n)
+ * can be turned into digital pins with analogInputToDigitalPin(), but do not
+ * directly work in digital I/O (this can be changed, but I'd rather not have
+ * to, as it slows down every non-compiletime-known call to digital I/O. Just
+ * because these parts can be clocked higher doesn't mean we should bog them
+ * down until they run slower. */
+#define  AIN0  ADC_CH(0)
+#define  AIN1  ADC_CH(1)
+#define  AIN2  ADC_CH(2)
+#define  AIN3  ADC_CH(3)
+#define  AIN4  ADC_CH(4)
+#define  AIN5  ADC_CH(5)
+#define  AIN6  ADC_CH(6)
+#define  AIN7  ADC_CH(7)
+#define AIN16 ADC_CH(16)
+#define AIN17 ADC_CH(17)
 
 #ifdef ARDUINO_MAIN
 
