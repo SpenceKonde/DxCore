@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
   This version was designed for and will be included with:
-  megaTinyCore 2.3.0+
-  DxCore 1.3.2+
+  megaTinyCore 2.3.3+
+  DxCore 1.3.6+
 */
 
 #ifndef __SERVO_TIMERS_H__
@@ -89,15 +89,21 @@
 static volatile __attribute__((used))  TCB_t *_timer =
 #if defined(USE_TIMERB0)
   &TCB0;
+  #define SERVO_INT_vect TCB0_INT_vect
 #elif defined(USE_TIMERB1)
   &TCB1;
+  #define SERVO_INT_vect TCB1_INT_vect
 #elif defined(USE_TIMERB2)
   &TCB2;
+  #define SERVO_INT_vect TCB2_INT_vect
 #elif defined(USE_TIMERB3)
   &TCB3;
+  #define SERVO_INT_vect TCB3_INT_vect
 #elif defined(USE_TIMERB4)
   &TCB4;
+  #define SERVO_INT_vect TCB4_INT_vect
 #endif
+
 
 typedef enum {
   timer0,

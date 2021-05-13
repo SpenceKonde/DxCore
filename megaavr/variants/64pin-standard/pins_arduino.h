@@ -90,7 +90,7 @@ and hence what number it should be set to! */
 #define analogChannelToDigitalPin(p)      ((p) < 22 ? ((p) + PIN_PD0) : NOT_A_PIN)
 #define analogInputToDigitalPin(p)        ((p) & 0x80 ? analogChannelToDigitalPin((p) & 0x7F) : analogChannelToDigitalPin(p))
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* handle analog channels too */
-#define portToDigitalPinZero(port)        (((port) < NUM_TOTAL_PORTS) ? (port) * 8 : NOT_A_PIN);
+#define portToDigitalPinZero(port)        (((port) < PG) ? (port) * 8 : (port == PG ? 46 : NOT_A_PIN));
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
@@ -130,8 +130,7 @@ and hence what number it should be set to! */
 
 // SPI 0
 // No pinswap enabled by default
-// Pinswap 2 not available
-#define SPI_INTERFACES_COUNT   1
+#define SPI_INTERFACES_COUNT   1 /* See SPI.h */
 #define SPI_MUX                (PORTMUX_SPI0_DEFAULT_gc)
 #define SPI_MUX_PINSWAP_1      (PORTMUX_SPI0_ALT1_gc)
 #define SPI_MUX_PINSWAP_2      (PORTMUX_SPI0_ALT2_gc)
@@ -147,10 +146,10 @@ and hence what number it should be set to! */
 #define PIN_SPI_MISO_PINSWAP_2 PIN_PG5
 #define PIN_SPI_SCK_PINSWAP_2  PIN_PG6
 #define PIN_SPI_SS_PINSWAP_2   PIN_PG7
-static const uint8_t SS   = PIN_SPI_SS;
-static const uint8_t MOSI = PIN_SPI_MOSI;
-static const uint8_t MISO = PIN_SPI_MISO;
-static const uint8_t SCK  = PIN_SPI_SCK;
+static const uint8_t SS   =    PIN_SPI_SS;
+static const uint8_t MOSI =    PIN_SPI_MOSI;
+static const uint8_t MISO =    PIN_SPI_MISO;
+static const uint8_t SCK  =    PIN_SPI_SCK;
 
 #define SPI1_MUX                (PORTMUX_SPI1_DEFAULT_gc)
 #define SPI1_MUX_PINSWAP_1      (PORTMUX_SPI1_ALT1_gc)
@@ -177,6 +176,8 @@ static const uint8_t SS1   = PIN_SPI1_SS;
 // No pinswap enabled by default
 #define PIN_WIRE_SDA           PIN_PA2
 #define PIN_WIRE_SCL           PIN_PA3
+#define PIN_WIRE_SDA_PINSWAP_1 PIN_PF2
+#define PIN_WIRE_SCL_PINSWAP_1 PIN_PF3
 #define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
 #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
 static const uint8_t SDA = PIN_WIRE_SDA;
@@ -185,6 +186,8 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 // No pinswap available
 #define PIN_WIRE1_SDA           PIN_PF2
 #define PIN_WIRE1_SCL           PIN_PF3
+#define PIN_WIRE1_SDA_PINSWAP_1 PIN_PF2
+#define PIN_WIRE1_SCL_PINSWAP_1 PIN_PF3
 #define PIN_WIRE1_SDA_PINSWAP_2 PIN_PB2
 #define PIN_WIRE1_SCL_PINSWAP_2 PIN_PB3
 static const uint8_t SDA1 =     PIN_WIRE1_SDA;
@@ -489,7 +492,6 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN6_bp,  //  54 PF6
 };
 
-/* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_mask[] = {
   PIN0_bm,  //   0 PA0
   PIN1_bm,  //   1 PA1
@@ -548,6 +550,12 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN6_bm,  //  54 PF6
 };
 
+/* This only covers type B amd (for now) type D timers
+   once hardware with working TCD portmux is available
+   it will not cover type D timers either - the pins
+   will be determined at runtime from the
+   PORTMUX.TCDROUTEA register, so that users can set
+   that to a different set of pins and  */
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //   0 PA0
   NOT_ON_TIMER, //   1 PA1

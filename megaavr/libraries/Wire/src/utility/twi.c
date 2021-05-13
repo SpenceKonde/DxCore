@@ -64,14 +64,13 @@ void TWI_MasterInit(uint32_t frequency) {
   if (twi_mode != TWI_MODE_UNKNOWN) {
     return;
   }
-  #ifdef TWI0_DUALCTRL
-  // AVR Dx parts
+  #ifdef PORTMUX_TWIROUTEA
   if ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == PORTMUX_TWI0_ALT2_gc) {
     // make sure we don't get errata'ed - make sure their bits in the
     // PORTx.OUT registers are 0.
-    PORTC.OUTCLR = 0x0C; //bits 2 and 3
+    PORTC.OUTCLR = 0x0C; // bits 2 and 3
   } else {
-    PORTA.OUTCLR = 0x0C; //bits 2 and 3
+    PORTA.OUTCLR = 0x0C; // bits 2 and 3
   }
   #else // megaTinyCore
   #if defined(PORTMUX_TWI0_bm)
@@ -96,8 +95,8 @@ void TWI_MasterInit(uint32_t frequency) {
   master_trans_status = TWIM_STATUS_READY;
   master_result = TWIM_RESULT_UNKNOWN;
 
+  TWI_MasterSetBaud(frequency); // Datasheet says to set this up **before** enabling TWI.
   TWI0.MCTRLA = TWI_RIEN_bm | TWI_WIEN_bm | TWI_ENABLE_bm;
-  TWI_MasterSetBaud(frequency);
   TWI0.MSTATUS = TWI_BUSSTATE_IDLE_gc;
 }
 
@@ -115,17 +114,31 @@ void TWI_SlaveInit(uint8_t address, uint8_t receive_broadcast, uint8_t second_ad
   if (twi_mode != TWI_MODE_UNKNOWN) {
     return;
   }
+
   #ifdef PORTMUX_TWIROUTEA
   if ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == PORTMUX_TWI0_ALT2_gc) {
-  #else
-  if ((PORTMUX.CTRLB & PORTMUX_TWI0_bm)) {
-  #endif
     // make sure we don't get errata'ed - make sure their bits in the
     // PORTx.OUT registers are 0.
-    PORTC.OUTCLR = 0x0C; //bits 2 and 3
+    PORTC.OUTCLR = 0x0C; // bits 2 and 3
   } else {
-    PORTA.OUTCLR = 0x0C; //bits 2 and 3
+    PORTA.OUTCLR = 0x0C; // bits 2 and 3
   }
+  #else // megaTinyCore
+  #if defined(PORTMUX_TWI0_bm)
+  if ((PORTMUX.CTRLB & PORTMUX_TWI0_bm)) {
+    // make sure we don't get errata'ed - make sure their bits in the
+    // PORTx.OUT registers are 0.
+    PORTA.OUTCLR = 0x06; // if swapped it's on PA1, PA2
+  } else {
+    PORTB.OUTCLR = 0x03; // else PB0, PB1
+  }
+  #elif defined(__AVR_ATtinyxy2__)
+  PORTA.OUTCLR = 0x06; // 8-pin parts always have it on PA1/2
+  #else
+  PORTB.OUTCLR = 0x03; // else, zero series, no remapping, it's on PB0, PB1
+  #endif
+  #endif
+
   twi_mode = TWI_MODE_SLAVE;
 
   slave_bytesRead = 0;
@@ -205,31 +218,107 @@ uint8_t TWI_MasterReady(void) {
     \param frequency            The required baud.
 */
 void TWI_MasterSetBaud(uint32_t frequency) {
+  /*                            THIS IS A TARGET SPEED
+   * ACTUAL SPEED WILL DEPEND ON TOPOLOGY, BUS CAPACITANCE AND PULLUP STRENGTH
+   *
+   * uint32_t baud = (F_CPU / frequency - F_CPU / 1000 / 1000 * t_rise / 1000 - 10) / 2;
+   *
+   * Trise (worst case) assumed to be 1000ns @ 100kHz / 300ns @ 400kHz / 120ns @ 1MHz
+   *
+   * What a godawful mess that was. It didn't catch rollovers from trying to use too high of a
+   * SCL frequency. The following is ugly - but it's efficient and I think it works.
+   * Correllations used found by hand in Excel via numerical methods.
+   * Issues openedd to complain about this halfassed method without a test case that passes in
+   * megaTinyCore 2.3.1 and fails in megaTinyCore 2.3.2 (DxCore 1.3.5 and 1.3.6) will not
+   * be entertained unless the reporting user has written a better implementation and tested it!
+   * Why is setting the clock speed so damned hard, when it's easy for every other situationb?
+   * mostly because now the master listens to the bus while it is driving it, to adapt the speed
+   * of the clock to deal with the bus topology.  the high and low on the clock
+   * so **it is impossible to determine** from the all relevant configuration registers, what
+   * speed the TWI master will run at. That can only be determined with all peripherals
+   * connected using their final cables, with test equipment connected to the I2C pins.
+   *
+   * So yes, these calculation methods are crude and approximate!
+   */
 
-  //    Formula is: BAUD = ((F_CLKPER/frequency) - F_CLKPER*T_RISE - 10)/2;
-  //    Where T_RISE varies depending on operating frequency...
-  //      From 1617 DS: 1000ns @ 100kHz / 300ns @ 400kHz / 120ns @ 1MHz
 
-  uint16_t t_rise;
-
-  if (frequency < 200000) {
-    frequency = 100000;
-    t_rise    = 1000;
-
-  } else if (frequency < 800000) {
-    frequency = 400000;
-    t_rise    = 300;
-
-  } else if (frequency < 1200000) {
-    frequency = 1000000;
-    t_rise    = 120;
-
+  int16_t baud=0;
+  if (frequency < 80000) {// they want to run it slowly. Half-speed standard mode, ~50 kHz
+    baud = (F_CPU / 100000) - 5;
+  } else if (frequency <= 150000) {
+    // they get standard mode, or the closest they can get with their hardware
+    baud = (F_CPU / 200000) - 5;
+  } else if (frequency <= 300000) {
+    // halved speed fast mode
+    baud = ((F_CPU / 1000000) * 3) - 5;
+  } else if (frequency <= 600000 || ((TWI0.MCTRLA & TWI_ENABLE_bm) && !(TWI0.CTRLA & TWI_FMPEN_bm))) {
+    // If frequency is more than 300 kHz (else previous case would catch it) and not more than 600 kHz
+    // OR even if it is more than that, but the TWI interface is enabled and fast mode isn't, since
+    // per datasheet that must be confighured prior to enabling the TWI, they get 400 kHz FM
+    //
+    // 400 kHz fast mode. 8 MHz is the slowest that can do it.
+    #if F_CPU >= 8000000
+      baud = ((F_CPU / 1000000) - 5);
+    #endif
+    #if F_CPU >= 12000000
+      } else if (frequency < 900000) {
+    #else
+      } else {
+    #endif
+    // 3/4ths of FMPlus speed
+    #if F_CPU >= 10000000
+      baud = ((F_CPU / 1500000) - 5);
+    #endif
+    #if F_CPU >= 16000000
+    } else {
+      // they want to go as fast as they can...
+      // Makes optimistic assumptions about the hardware and bus topology...
+      baud = ((F_CPU / 2000000) - 6);
+    #endif
+  }
+  if  (baud < 1) {
+    // Requested speed exceeded hardware capabilities.
+    // use the fastest one that F_CPU should work with...
+    #if (F_CPU >= 8000000)
+      // FM full speed
+      baud = ((F_CPU / 1000000) - 5);
+    #elif (F_CPU >= 4000000)
+      // half speed FM
+      baud = ((F_CPU / 1000000) * 3) - 5;
+    #else
+      baud = 5;
+      // 50 kHz @ 1 MHz, 100kHz @ 2 MHz.
+      // should always work/
+    #endif
   } else {
-    frequency = 100000;
-    t_rise    = 1000;
+    // Baud is 1 or higher
+    #if defined(DXCORE) && F_CPU >= 28000000
+      if (baud > 255) {
+        /* has to fit in 8-bit register; this is reachable for the slowest speed, and only with
+         * F_CPU >= 28 MHz so we only include this on overclocked Dx-series parts (the tinyAVR
+         * and megaAVR devices are generally not usable at 28 MHz, and I don't want to run risk
+         * of the optimizer not realizing this is unreachable with current F_CPU and building
+         * this test for the flash-constrained tiny parts, Dx is usually good up to 32, and
+         * has plenty of flash so even if the so it's no big deal to waste a couple of words
+         * on this */
+        baud = 255;
+      } else if ( baud < 3) {
+    #else
+      if (baud < 3) {
+    #endif
+      baud = 3;
+    }
+    if (frequency > 600000 && !TWI0.MCTRLA & TWI_ENABLE_bm) {
+      // Sigh, well, TWI is disabled, and we just set the baud to a valid value for FM+
+      // I guess we had better make sure FMPEN is set...
+      TWI0.CTRLA |= TWI_FMPEN_bm;
+      // I feel like this is a bad thing to do, but on the other hand, the previous code
+      // would just merrily set the BAUD register to generate FMP speeds....
+      // whether FMP was enabled or not, and that certainly isn't good either.
+    }
   }
 
-  uint32_t baud = (F_CPU / frequency - F_CPU / 1000 / 1000 * t_rise / 1000 - 10) / 2;
+
   TWI0.MBAUD = (uint8_t)baud;
 
   // 1/16/2021:
@@ -237,6 +326,10 @@ void TWI_MasterSetBaud(uint32_t frequency) {
   // Arduino megaAVR #90.
   // 1/23/2021:
   // Grab the rest of the fix and add it in here.
+  // 4/28/2021:
+  // I give up. Use numerically determinined linearizations which will be calculated at compiletime. And make sure to permit a bucket slow enough that 1 MHz parts work on it.
+  // If we can't make the speed bucket requested, try to use fastest one we can. 2 speeds for each mode, half and full, that is 50 kHz and 100 kHz, 200kHz, and 400kHz, and 750 kHz and 1 MHz.
+  // If TWI isn't yet enabled, and user calls a function that initializes the master baud rate to an FMP speed, we will now enable it.
 }
 
 /*! \brief TWI write transaction.
