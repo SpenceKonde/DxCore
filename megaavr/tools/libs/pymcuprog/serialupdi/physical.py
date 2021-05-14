@@ -14,7 +14,7 @@ class UpdiPhysical:
     PDI physical driver using a given serial port at a given baud
     """
 
-    def __init__(self, port, baud=115200, chunk=48):
+    def __init__(self, port, baud=115200):
         """
         Initialise the serial port
         """
@@ -25,12 +25,14 @@ class UpdiPhysical:
         self.port = port
         self.baud = baud
         self.ser = None
-        self.chunk = chunk
 
         self.initialise_serial(self.port, self.baud)
 
         # send an initial break as handshake
         self.send([constants.UPDI_BREAK])
+
+    def change_baud(self, newbaud):
+        self.ser.baudrate = newbaud
 
     def initialise_serial(self, port, baud):
         """
@@ -102,18 +104,12 @@ class UpdiPhysical:
             Sends a char array to UPDI with NO inter-byte delay
             Note that the byte will echo back
         """
-        if len(command) > self.chunk:
-            i = 0
-            while i < len(command):
-                self.send(command[i:i+self.chunk])
-                i += self.chunk
-        else:
-            self.logger.info("send %d bytes", len(command))
-            self._loginfo("data: ", command)
+        self.logger.info("send %d bytes", len(command))
+        self._loginfo("data: ", command)
 
-            self.ser.write(command)
-            # it will echo back.
-            echo = self.ser.read(len(command))
+        self.ser.write(command)
+        # it will echo back.
+        echo = self.ser.read(len(command))
 
     def receive(self, size):
         """

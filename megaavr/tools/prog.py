@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 # -*- coding: utf-8 -*-
-import re
 import sys
 import os
 import argparse
@@ -14,6 +13,8 @@ import pymcuprog.pymcuprog_main as pymcu
 from pymcuprog.pymcuprog import setup_logging
 
 import logging
+
+import datetime
 
 
 class PyMcuException(Exception):
@@ -28,9 +29,19 @@ def main():
                         default="",
                         help="Action to perform {write, read, erase}.")
 
+    parser.add_argument("-b", "--baudrate",
+                        type=str,
+                        default="115200",
+                        help="baudrate, if applicable, (default: 115200).")
+
+    parser.add_argument("--blocksize",
+                        type=int,
+                        default=-1,
+                        help="Max number of bytes /usb packet. -1 (whole page) is recommended. serialupdi only. (default: -1)")
+
     parser.add_argument("-d", "--device",
                         type=str,
-                        help="Device type (e.g. attiny412, ...).")
+                        help="Part number, lowercase (e.g. attiny412, ...).")
 
     parser.add_argument("--fuses",
                         nargs='+',
@@ -40,7 +51,7 @@ def main():
 
     parser.add_argument("--fuses_print",
                         action="store_true",
-                        help="Print fuses values.")
+                        help="Print fuse values.")
 
     parser.add_argument("-f", "--filename",
                         type=str,
@@ -49,8 +60,8 @@ def main():
 
     parser.add_argument("-t", "--tool",
                         type=str,
-                        default="",
-                        help="Tool name, 'uart' for serial.")
+                        default="uart",
+                        help="Tool name, defaults to 'uart' (serialupdi) mode")
 
     parser.add_argument("-u", "--uart",
                         type=str,
@@ -60,11 +71,12 @@ def main():
     parser.add_argument("-s", "--serialnumber",
                         type=str,
                         default="",
-                        help="Tool USB serial (optional).")
+                        help="Tool USB serial (optional, for non-Serial UPDI programmers only).")
 
     parser.add_argument("-v", "--verbose",
-                        action="store_true",
-                        help="Display more info.")
+                        action="count",
+                        default=0,
+                        help="Display more info (can be repeated).")
 
     # Parse args
     args = parser.parse_args()
@@ -98,9 +110,14 @@ def main():
 
     print_report(args)
 
+    logging_level = logging.ERROR
+    if args.verbose == 1:
+        logging_level = logging.INFO
+    elif args.verbose > 1:
+        logging_level = logging.DEBUG
+
     try:
-        if args.verbose:
-            setup_logging(user_requested_level=logging.DEBUG)
+        setup_logging(user_requested_level=logging_level)
         return_code = pymcuprog_basic(args, fuses_dict)
         sys.exit(return_code)
     except PyMcuException as e:
@@ -110,7 +127,10 @@ def main():
 
 def run_pymcu_action(func, backend, *args, **kwargs):
     args_pymcu = argparse.Namespace(**kwargs)
+    time_start = datetime.datetime.now()
     status = func(backend, *args, args_pymcu)
+    time_stop = datetime.datetime.now()
+    print("Action took {:.2f}s".format((time_stop - time_start).total_seconds()))
     if status != pymcu.STATUS_SUCCESS:
         backend.end_session()
         backend.disconnect_from_tool()
@@ -119,6 +139,8 @@ def run_pymcu_action(func, backend, *args, **kwargs):
 
 def print_report(args):
     print("Arduino <---> pymcuprog bridge by Quentin Bolsee and Spence Konde")
+    print("Version 1.1.0 - May 2021")
+    print("Using serial port {} at {} baud.".format(args.uart, args.baudrate))
     print("Target: {}".format(args.device))
     if args.fuses != "":
         print("Set fuses: {}".format(args.fuses))
@@ -152,7 +174,7 @@ def pymcuprog_basic(args, fuses_dict):
 
     # start session
     args_start = argparse.Namespace(interface="updi",
-                                    clk=False,
+                                    clk=args.baudrate,
                                     high_voltage=False,
                                     user_row_locked_device=False,
                                     chip_erase_locked_device=False,
@@ -213,13 +235,16 @@ def pymcuprog_basic(args, fuses_dict):
                          memory=pymcu.MemoryNameAliases.ALL,
                          offset=0,
                          literal=None,
-                         verify=True,
-                         filename=args.filename)
+                         verify=False,
+                         filename=args.filename,
+                         blocksize=args.blocksize)
 
         run_pymcu_action(pymcu._action_verify, backend,
-                         filename=args.filename,
+                         memory=pymcu.MemoryNameAliases.ALL,
                          offset=0,
-                         literal=None)
+                         literal=None,
+                         filename=args.filename)
+
     elif args.action == "read":
         run_pymcu_action(pymcu._action_read, backend,
                          memory=pymcu.MemoryNames.FLASH,
