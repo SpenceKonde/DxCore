@@ -4,12 +4,23 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
+### 1.3.6
+* Improve #defines relating to on-chip peripherals which operate on specific pins.
+* Introduce dramatically enhanced performance for SerialUPDI programming method. This is now the recommended programming method. The read and write speed compared to jtag2updi is faster by 2:1 when the baud rates are equal, and SerialUPDI can operate at a baud rate three times higher with most serial adapters. SerialUPDI does not suffer from the bugs that afflicted jtag2updi either, and can be made with serial adapters that are cheaper than dirt: 7 for $5 including shipping - using only an external diode (with most serial adapters).
+* Correct TWI baud rates (change imported from from megaTinyCore #422)
+* Adjust TWI buffer sizes. Everything with at least 4096b of ram (ie, all parts supported by this core except the future AVR16DD) has 130 byte buffers (why 130? That *just* lets you squeeze in a full page read or write from an AT24-class EEPROM - and these parts have so much ram it's not even funny. We don't have to be cheap with it like we do on small parts. Everything else gets 32 byte buffers except for the smallest tinyAVR parts (which are handled by megaTinyCore anyway - but the Wire library versions are currently the same.
+* Ensure that Wire library correctly configures pin registers. Even when they were configured improperly.
+* Correct bug that prevented Servo and Servo_DxCore from compiling. Tidy the code surrounding the point where the issue arose (including eliminating the need to disable style checking there, and stuff the ugly stuff into ServoTimers.h with similarly ugly stuff.
+* Add prelimimnary
 
 ## Released Versions
 
+### 1.3.5
+* Board Manager re-release only. Windows toolchain package was mangled too.
+
 ### 1.3.4
 * Adopt Comparator library fixes from https://github.com/MCUdude/MegaCoreX/issues/115.
-* Board manager re-release to pick up fixed toolchain version for Linux/Mac; code is identical to 1.3.3 except for version bump and the programmers.txt change
+* Board manager re-release to pick up fixed toolchain version for Linux/Mac
 * Programmers.txt names tweaked - the changes in 1.3.3 were directly copied from megaTinyCore and referenced official boards that don't exist for the Dx family.
 * A number of minor internal changes and corrections.
 * Documentation enhancements.
