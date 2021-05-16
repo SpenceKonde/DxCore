@@ -50,6 +50,7 @@ inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
     if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP) {
       badArg("The mode passed to pinMode must be INPUT, OUTPUT, or INPUT_PULLUP (these have numeric values of 0, 1, or 2); it was given a constant that was not one of these.");
     }
+  }
 }
 
 
