@@ -1,3 +1,5 @@
+| Disable             | Enable              | Toggle |
+|---------------------|---------------------|--------------------|
 | PIN_DIR_OUTPUT<br/>PIN_DIR_OUT<br/>       | PIN_DIR_INPUT        |  |
 | PIN_DIR_OUT          | PIN_DIR_IN           | PIN_DIR_TOGGLE       |
 | PIN_DIRSET           | PIN_DIRCLR           | PIN_DIRTGL           |
