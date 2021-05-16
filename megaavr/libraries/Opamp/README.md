@@ -32,6 +32,16 @@ Opamp0.input_p = in_p::vdd_div2; // Connect positive opamp input to Vdd/2
 `OpampN.input_p` defaults to `in_p::pin` if not specified in the user program.
 
 
+
+### input_p_pin
+`OpampN.input_p_pin` is the pin number of the negative input pin for the opamp (PD1, PD4, or PE1 respectively). Use it to check your opamp's math and configuration (if you lack faith in one or more of: the laws of physics, Microchip's analog design talent, or your understanding of the opamp peripheral) or with digitalWrite() as yet another way to influence the behavior of the opamp, with subtly different specifics.
+
+##### Usage
+```c++
+Serial.print(analogRead(Opamp1.input_p_pin));
+```
+
+
 ### input_n
 Property for controlling what the negative opamp input connects to.
 Accepted values:
@@ -44,11 +54,22 @@ in_n::dac;    // Connect the input to the DAC internally
 
 ##### Usage
 ``` c++
-Opamp0.input_n = in_p::wiper; // Connect positive opamp input to the center of the resistor ladder
+Opamp0.input_n = in_n::wiper; // Connect negative opamp input to the center of the resistor ladder
 ```
+
 
 ##### Default state
 `OpampN.input_n` defaults to `in_n::pin` if not specified in the user program.
+
+
+### input_n_pin
+`OpampN.input_n_pin` is the pin number of the negative input pin for the opamp (PD3, PD7, or PE3 respectively). Use it to check your opamp's math and configuration (if you lack faith in one or more of: the laws of physics, Microchip's analog design talent, or your understanding of the opamp peripheral) or with digitalWrite() as yet another way to influence the behavior of the opamp, with subtly different specifics.
+
+##### Usage
+```c++
+Serial.print(analogRead(Opamp1.input_n_pin));
+```
+
 
 ### output
 Property for controlling the opamp output. Opamp output pins cannot be remapped. They are PD2, PD5, and PE2.
@@ -68,10 +89,35 @@ Opamp0.output = out::enable; // enable output
 ##### Default state
 `OpampN.output` defaults to `out::enable` for any initialized opamp if not specified in the user program (if an OpampN.init() is never called, it will not be turned on).
 
+### output_pin
+`OpampN.output_pin` is the pin number of the output pin for the opamp (PD2, PD5, or PE2 respectively). Hence you can do things like `analogRead(Opamp0.output_pin)`.
+
+##### Usage
+```c++
+Serial.print(analogRead(Opamp1.output_pin));
+
+```
+An example of practical use might be when using an opamp + DAC to provide the MVIO supply - you might not want to just leave it trying and failing to supply some excessively power-hungry device on the VDDIO2 rail, and instead shut it off and warn the user:
+
+``` c++
+  analogWrite(DAC_PIN,192);       // let analogWrite() initialize the DAC to Vcc * 075;
+  Opamp0.input_p = in_p::dac;     // Connect positive input to external input pin (PD1);
+  Opamp0.input_n = in_n::output;  // Connect negative input to the opamp output
+  Opamp0.output = out::enable;    // Enable output - it is now a voltage follower on the DAC...
+  Opamp0.init();                  // apply settings and
+  Opamp0.start();                 // Turn on opamp
+  delay(100);                     // Let it stabilize
+  if (analogRead(Opamp0.output_pin) < 650) {
+    // Uhoh, the opamp is configured to follow the DAC, the DAC is set to Vcc * 0.75, so we should get analogReading of appriox 768. Instead, we see under 650, which implies an excessive load is connected to the pin. Turn it off.
+    Opamp0.stop();
+    Serial.println("Excess load detected");
+  }
+
+```
 
 ### inrange
 Property for controlling the opamp input range - this is set globally, not per opamp. If it is not specified for a given opamp, `init` will not set it one way or the other.
-Accepted values:
+Accepted values:k,23q8i
 ``` c++
 in::rail_to_rail; // Consumes more power but can handle signal close to the ground and power rails. The default.
 in::conventional; // Consumes less power but can't handle signal close to the power rail.

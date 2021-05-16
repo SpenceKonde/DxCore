@@ -3,13 +3,13 @@
 
 // Pre-defined objects
 #if defined(OPAMP_OP0CTRLA)
-  Opamp Opamp0(0, OPAMP_OP0CTRLA, OPAMP_OP0STATUS, OPAMP_OP0RESMUX, OPAMP_OP0INMUX, OPAMP_OP0SETTLE, OPAMP_OP0CAL);
+  Opamp Opamp0(0, OPAMP_OP0CTRLA, OPAMP_OP0STATUS, OPAMP_OP0RESMUX, OPAMP_OP0INMUX, OPAMP_OP0SETTLE, OPAMP_OP0CAL, PIN_PD1, PIN_PD2, PIN_PD3);
 #endif
 #if defined(OPAMP_OP1CTRLA)
-  Opamp Opamp1(1, OPAMP_OP1CTRLA, OPAMP_OP1STATUS, OPAMP_OP1RESMUX, OPAMP_OP1INMUX, OPAMP_OP1SETTLE, OPAMP_OP1CAL);
+  Opamp Opamp1(1, OPAMP_OP1CTRLA, OPAMP_OP1STATUS, OPAMP_OP1RESMUX, OPAMP_OP1INMUX, OPAMP_OP1SETTLE, OPAMP_OP1CAL, PIN_PD4, PIN_PD5, PIN_PD7);
 #endif
 #if defined(OPAMP_OP2CTRLA)
-  Opamp Opamp2(2, OPAMP_OP2CTRLA, OPAMP_OP2STATUS, OPAMP_OP2RESMUX, OPAMP_OP2INMUX, OPAMP_OP2SETTLE, OPAMP_OP2CAL);
+  Opamp Opamp2(2, OPAMP_OP2CTRLA, OPAMP_OP2STATUS, OPAMP_OP2RESMUX, OPAMP_OP2INMUX, OPAMP_OP2SETTLE, OPAMP_OP2CAL, PIN_PE1, PIN_PE2, PIN_PE3);
 #endif
 
 
@@ -17,14 +17,17 @@
  * @brief Construct a new Opamp object
  *
  */
-// *INDENT-OFF* - code formatting check wants to make this hideous
+// *INDENT-OFF* - code formatting check wants to make this even more hideous
 Opamp::Opamp(uint8_t op_num,
              volatile uint8_t &op_ctrla,
              volatile uint8_t &op_status,
              volatile uint8_t &op_resmux,
              volatile uint8_t &op_inmux,
              volatile uint8_t &op_settle,
-             volatile uint8_t &op_cal)
+             volatile uint8_t &op_cal,
+             uint8_t ainp,
+             uint8_t out,
+             uint8_t ainn)
              :
              opamp_number(op_num),
              opamp_ctrla(op_ctrla),
@@ -32,7 +35,10 @@ Opamp::Opamp(uint8_t op_num,
              opamp_resmux(op_resmux),
              opamp_inmux(op_inmux),
              opamp_settle(op_settle),
-             opamp_cal(op_cal) {}
+             opamp_cal(op_cal),
+             output_pin(out),
+             input_p_pin(ainp),
+             input_n_pin(ainn) {}
 // *INDENT-ON*
 
 /**

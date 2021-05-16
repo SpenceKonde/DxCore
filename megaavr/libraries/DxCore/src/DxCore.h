@@ -180,6 +180,7 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
 #ifdef MVIO
   // File this under "abuse of the ternary operator"
   #define getMVIOStatus() ((FUSE.SYSCFG1 & 0x18) == 0x10 ? MVIO_DISABLED : ((FUSE.SYSCFG1 & 0x18) == 0x08 ? (MVIO.STATUS ? MVIO_OKAY : MVIO_UNDERVOLTAGE) : MVIO_BAD_FUSE))
+
 #else
   #define getMVIOStatus() MVIO_UNSUPPORTED
 #endif

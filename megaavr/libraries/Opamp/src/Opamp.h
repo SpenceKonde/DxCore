@@ -119,14 +119,20 @@ class Opamp {
           volatile uint8_t &op_resmux, \
           volatile uint8_t &op_inmux,  \
           volatile uint8_t &op_settle, \
-          volatile uint8_t &op_cal);
+          volatile uint8_t &op_cal,    \
+          uint8_t ainp,                \
+          uint8_t out,                 \
+          uint8_t ainn                 \
+          );
     uint8_t get_number();
     bool status();
     void calibrate(uint8_t cal_value);
     void init();
     static void start(bool state = true);
     static void stop();
-
+    const uint8_t output_pin;
+    const uint8_t input_p_pin;
+    const uint8_t input_n_pin;
     in_p::input_p_t  input_p       = in_p::pin;            // Positive opamp input
     in_n::input_n_t  input_n       = in_n::pin;            // Negative opamp input
     in::inrange_t    inrange       = in::unconfigured;     // Opamp input mode
