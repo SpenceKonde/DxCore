@@ -20,8 +20,9 @@
 #ifndef Arduino_h
 #define Arduino_h
 
-#include "core_parts.h"
+#include "core_devices.h"
 #include "api/ArduinoAPI.h"
+//#include "ioadd.h"
 
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
@@ -40,19 +41,8 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
     badArg("Fast digital pin must be a constant");
 }
 
-/* Analog reference options */
-
-/* Change in mega4809: two places to define analog reference
- - VREF peripheral defines internal reference
- - analog peripherals define internal/Vdd/external
-*/
-
- // internal from VREF
-
- /* Values shifted to avoid clashing with ADC REFSEL defines
-  Will shift back in analog_reference function
-  */
-
+/* Analog reference options - Configuring these is very simple, unlike tinyAVR 0/1
+   and megaAVR 0, and like tinyAVR 2-series. */
 #define INTERNAL1V024     VREF_REFSEL_1V024_gc
 #define INTERNAL2V048     VREF_REFSEL_2V048_gc
 #define INTERNAL4V096     VREF_REFSEL_4V096_gc
@@ -88,6 +78,41 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 #define interrupts() sei()
 #define noInterrupts() cli()
 
+
+#define ADC_ERROR_BAD_PIN_OR_CHANNEL                -32765
+#define ADC_ERROR_DISABLED                          -32767
+#define ADC_ERROR_BUSY                              -32766
+#define ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL       -2100000000
+// positive channel is not (0x80 | valid_channel) nor a digital pin number
+// referring to a pin with analog input.
+#define ADC_ENH_ERROR_BUSY                     -2100000001
+// The ADC is currently performing another conversion in the background (either
+// in free-running mode or a long-running burst conversion; taking a burst
+// accumulated reading and then calling a specified function when the result
+// was finally ready may be supported in a future version.
+#define ADC_ENH_ERROR_INVALID_SAMPLE_LENGTH    -2100000002
+// SAMPLEN can be specified when calling analogReadEnh; an invalid value was
+// specified. The maximum depends on the hardware.
+#define ADC_ENH_ERROR_RES_TOO_LOW              -2100000003
+// analogReadEnh() must not be called with a resolution lower than 8-bits.
+// you can right-shift as well as the library can.
+#define ADC_ENH_ERROR_RES_TOO_HIGH             -2100000004
+// Only resonlutions that can be generated through accumulator oversample
+// + decimation are supported, maximum is 13, 15, or 17 bits. This will
+// also be returned if a larger raw accumulated result is requested.
+#define ADC_DIFF_ERROR_BAD_NEG_PIN             -2100000005
+// Analog pin given as negative pin is not a valid negative mux pin
+#define ADC_ENH_ERROR_NOT_DIFF_ADC             -2100000006
+// analogReadDiff() called from a part without a differential ADC;
+// Never actually returned, because we give compile error here
+#define ADC_ENH_ERROR_DISABLED                 -2100000007
+// The ADC is not currently enabled. This error is disabled currently - if analogReadEnh encounters a disabled ADC, it will enable it, take the reading, and disable it again.
+#define ADC_ERROR_INVALID_CLOCK                     -32764
+// Returned by analogClockSpeed if the value in the register is currently unknown, or if an invalid frequency is requested.
+
+
+
+
 /* inlining of a call to delayMicroseconds() would throw it off */
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 
@@ -108,8 +133,8 @@ void resumeTCA1();                        // Restores core-mediated functionalit
 // These are in here so that - should it be necessary - library functions or user code could override these.
 void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0 - it also i
 //   init_DAC0()                          // no init_DAC0() - all that the core does is call DACReference().
+void init_clock()  __attribute__((weak)); // this is called first, to initialize the system clock.
 void init_timers() __attribute__((weak)); // this function is expected to configure all timers for PWM. init_millis() is called after this.
-void init_clock()  __attribute__((weak)); // this is called first, to initiate the system clock.
 void init_TCA0()   __attribute__((weak)); // called by init_timers()
 void init_TCA1()   __attribute__((weak)); // called by init_timers()
 void init_TCBs()   __attribute__((weak)); // called by init_timers()
@@ -117,6 +142,7 @@ void init_TCD0()   __attribute__((weak)); // called by init_timers()
 
 int32_t analogReadEnh( uint8_t pin,              uint8_t res, uint8_t gain);
 int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain);
+int16_t analogClockSpeed(int16_t frequency, uint8_t options);
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
@@ -204,16 +230,52 @@ extern const uint8_t digital_pin_to_timer[];
 #define PG 6
 #define NUM_TOTAL_PORTS 7
 
+//pinConfigure()
+#define PIN_DIR_OUTPUT       0x0001 // Alias
+#define PIN_DIR_INPUT        0x0002 // Alias
+#define PIN_DIR_OUT          0x0001 // Alias
+#define PIN_DIR_IN           0x0002 // Alias
+#define PIN_DIR_TOGGLE       0x0003 // Alias
+#define PIN_OUT_HIGH         0x0004 // Alias
+#define PIN_OUT_LOW          0x0008 // Alias
+#define PIN_OUT_TOGGLE       0x000C // Alias
+#define PIN_DIRSET           0x0001
+#define PIN_DIRCLR           0x0002
+#define PIN_DIRTGL           0x0003
+#define PIN_OUTSET           0x0004
+#define PIN_OUTCLR           0x0008
+#define PIN_OUTTGL           0x000C
+#define PIN_PULLUP           0x0100
+#define PIN_NOPULLUP         0x0200
+#define PIN_PULLUP_ON        0x0100
+#define PIN_PULLUP_OFF       0x0200
+#define PIN_PULLUP_TGL       0x0300 // I suppose I can see uses for this
+#define PIN_INVERT_ON        0x1000
+#define PIN_INVERT_OFF       0x2000
+#define PIN_INVERT_TGL       0x3000 // One of the less useful ones...
+#define PIN_INLVL_TTL        0x4000 // MVIO parts only
+#define PIN_INLVL_SCHMIT     0x8000 // MVIO parts only
+#define PIN_INLVL_ON         0x4000 // MVIO parts only
+#define PIN_INLVL_OFF        0x8000 // MVIO parts only
+#define PIN_INLVL_TGL        0xC000 // MVIO parts only. I cannot imagine ever using this.
+#define PIN_INPUT_ENABLE     0x0080
+#define PIN_INT_CHANGE       0x0090
+#define PIN_INT_RISE         0x00A0
+#define PIN_INT_FALL         0x00B0
+#define PIN_INPUT_DISABLE    0x00C0
+#define PIN_INT_LEVEL        0x00D0
+
 #define digitalPinToPort(pin)               ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_port[pin]         : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
 #define digitalPinToBitMask(pin)            ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
 #define digitalPinToTimer(pin)              ((pin  < NUM_TOTAL_PINS ) ? digital_pin_to_timer[pin]        : NOT_ON_TIMER)
-#define portToPortStruct(port)              ((port < NUM_TOTAL_PORTS) ? ((PORT_t *)  & PORTA + port)                  : NULL)
-#define digitalPinToPortStruct(pin)         ((pin  < NUM_TOTAL_PINS ) ? ((PORT_t *)  & PORTA + digitalPinToPort(pin)) : NULL)
+#define portToPortStruct(port)              (((port) < NUM_TOTAL_PORTS) ? (((PORT_t *) &PORTA) + (port))                  : NULL)
+#define digitalPinToPortStruct(pin)         ((pin  < NUM_TOTAL_PINS ) ? (((PORT_t *)  &PORTA) + digitalPinToPort(pin)) : NULL)
 #define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
 #define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
 #define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
 #define digitalPinToInterrupt(P) (P)
+#define getAnalogSampleDuration()           (ADC0.SAMPCTRL)
 
 /*#define portToDigitalPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).
 // If hardware has PORTx,
@@ -227,9 +289,9 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
 
 #define CORE_HAS_FASTIO 1                /* DxCore has the digitalReadFast() and digitalWriteFast()              */
 #define CORE_HAS_OPENDRAIN 1             /* DxCore has openDrain() and openDrainFast()                           */
-#define CORE_HAS_PINCONFIG 0             /* pinConfig is not yet implemented anywhere, but will be soon.         */
-#define CORE_HAS_TIMER_TAKEOVER 1        /* DxCore has takeOverTCAn() and takeOverTCD0()                         */
-#define CORE_HAS_TIMER_RESUME 1          /* DxCore has resumeTCAn() and resumeTCD0()                             */
+#define CORE_HAS_PINCONFIG 1             /* pinConfigure is now implemented                                      */
+#define CORE_HAS_TIMER_TAKEOVER 1        /* DxCore has takeOverTCA0(), takeOverTCA0() and takeOverTCD0()         */
+#define CORE_HAS_TIMER_RESUME 1          /* DxCore has resumeTCA0(), resumeTCAq() and resumeTCD0()               */
 #define SUPPORT_LONG_TONES 1             /* tone()s specifying duration are timed by counting the oscillations.
  * Frequency is in Hz, while duration is in ms, so (2 * frequency * duration)/1000 is the number of transitions
  * before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
@@ -237,10 +299,10 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
  * than around 7 minutes was requested (prior to this update, the maximum was a factor of two lower than that)
  * On parts like the Dx-series where there's no problem with flash space, we now, when duration > (2^16) ms (a
  * necessary precondition for overflow to occur) do ((frequency / 5) * (duration/100)) at cost of ~100b flash .  */
-#define ADC_DIFFERENTIAL 1               /* Basic modern-AVR differential ADC         */
-#define CORE_HAS_ANALOG_ENH 0            /* DxCore does not have analogReadEnh()  - yet! Coming by 1.4.0!        */
-#define CORE_HAS_ANALOG_DIFF 0           /* DxCore does not have analogReadDiff() - yet! Coming by 1.4.0!        */
-// #define MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore will have max res. of 15 bits via oversampling & decimation   */
+#define ADC_DIFFERENTIAL 1               /* Basic modern-AVR differential ADC                                    */
+#define CORE_HAS_ANALOG_ENH 1            /* DxCore has analogReadEnh()                                           */
+#define CORE_HAS_ANALOG_DIFF 1           /* DxCore has analogReadDiff()                                          */
+#define ADC_MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore has 15 bit maximum resolution via oversampling and decimation*/
 
 #ifdef OPAMP0
   #ifndef ADC_MAXIMUM_GAIN
@@ -271,6 +333,7 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
   #include "UART.h"
   int32_t analogReadEnh( uint8_t pin,              uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
+  int16_t analogClockSpeed(int16_t frequency = 0, uint8_t options = 0);
 #endif
 
 #include "pins_arduino.h"

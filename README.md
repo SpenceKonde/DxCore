@@ -253,49 +253,83 @@ DxCore provides the option to us any available timer on a part for the millis()/
 For more information, on the hardware timers of the supported parts, and how they are used by DxCore's built-in functionality, see the [Timers and DxCore](megaavr/extras/PWMandTimers.md)
 
 ### ADC Support
-These parts have many ADC channels available - see the pinout charts for the specifics, they can be read with analogRead() like on a normal AVR. While the An constants (ex, A0) are supported, and refer to the corresponding ADC channel (not the corresponding pin number), using these is deprecated - the recommended practice is to pass the digital pin number to analogRead(). Analog reference voltage can be selected as usual using `analogReference()`. Supported reference voltages are:
-* VDD (Vcc/supply voltage - default)
-* INTERNAL1V024
-* INTERNAL2V048
-* INTERNAL4V096
-* INTERNAL2V5
-* EXTERNAL
+These parts all have a large number of analog inputs - DA and DB-series have up to 24 analog inputs, while the DD-series has analog input on every pin that is not used to drive the HF crystal (though the pins on PORTC are only supported when MVIO is turned off) - plus the one on the UPDI pin which is not totally usable because the UPDI functionality). They can be read with analogRead() like on a normal AVR. While the `An` constants (ex, `A3`) are supported, and will read from the ADC channel of that number, they are in fact defined as the digital pin shared with that channel. Using the `An` constants is deprecated - the recommended practice is to just use the digital pin number, or better yet, use `PIN_Pxn` notation when calling analogRead(). Particularly since the release of 1.3.0 and megaTinyCore 2.3.0, a number of enhanced ADC features have been added to expose more of the power of the sophisticated ADC in these parts to users
 
-The 1.024V, 2.048V, and 4.096V options are particularly convenient when measuring analog voltages, as the ADC readings can be expediently converted to millivolts.
+### Reference Voltages
+Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are listed below:
 
-These parts support **12-bit analog readings** - by default this core configures the ADC to work in 10-bit mode for backwards compatibility. To switch between 10 and 12 bit modes, use the `analogReadResolution()` function.
-`analogReadResolution(10 or 12)` - sets the ADC to opperate in 10-bit or 12-bit mode, returning numbers from 0-1023, or 0-4095 respectively. 12-bit readings take about 2 microseconds longer than 10-bit ones (assuming default configuration - 1 MHz ADC clock); This returns a boolean. If it returns true, the value was accepted (ie, it was 10 or 12), otherwise, it will return false, and the value will be set to the default of 10-bit mode. Why have this wacky return value behavior? Well, on the tinyAVR 0/1-series and megaAVR 0-series, the accepted values are 8 and 10. On the tinyAVR 2-series, the accepted values are 8, 10, and 12 (and the 10 bit is done in software from a 12-bit measurement, to ensure backwards compatibility with "generic Arduino" code) - but this mish-mash of options leads to a risk of bugs being introduced when porting between even these very similar product lines. This only controls resolution of analogRead() proper; for more control over resolution the upcoming `analogReadEnh()` can be used.
-enable 12-bit readings, call `analogReadResolution(12)` - thereafter, analogRead() will return a number from 0 ~ 4095. It can be set back to 10-bit mode using `analogReadResolution(10)`
+ | AVR Dx-series (all)                     |
+ |-----------------------------------------|
+ | `VDD` (Vcc/supply voltage - default)    |
+ | `INTERNAL1V024`                         |
+ | `INTERNAL2V048`                         |
+ | `INTERNAL4V096`                         |
+ | `INTERNAL2V500`                         |
+ | `INTERNAL4V1` (alias of INTERNAL4V096)  |
+ | `EXTERNAL`                              |
+ |                                         |
 
-In addition to the pin numbers, you can read from the following sources:
-* ADC_DAC0 (Voltage being output by the DAC; if OUTEN is not set, you can still read the value this way)
-* ADC_GROUND (Ground - should be 0)
-* ADC_DACREF0 (AC0.DACREF voltage)
-* ADC_DACREF1 (AC2.DACREF voltage - DA/DB only)
-* ADC_DACREF2 (AC2.DACREF voltage - DA/DB only)
-* ADC_TEMPERATURE (Internal temperature sensor)
-* ADC_VDDDIV10    (Vdd / 10 - measure with a reference to find supply voltage easily. DB/DD only)
-* ADC_VDDIO2DIV10  (Vdd / 10 - measure with a reference to find supply voltage easily. DB/DD only)
 
-We have taken  advantage of the improvements in the ADC on the these parts to improve the speed of analogRead() by more than a factor of three compared to the classic AVR devices - the ADC clock which was constrained to the range 50-200kHz - on these parts (as well as tinyAVR 0/1-series and megaAVR 0-series) it can be run at 1.5MHz! To compensate for the faster ADC clock, we set ADC0.SAMPCTRL to 14 to extend the sampling period from the default of 2 ADC clock cycles to 16 - providing the same sampling period as most other AVR cores, which should preserve the same accuracy when measuring high impedance signals. If you are measuring a lower impedance signal and need even faster analogRead() performance - or if you are measuring a high-impedance signal and need a longer sampling time, you can adjust that setting. On the tinyAVR and megaAVR 0/1-series, this had a maximum of 0x1F (31). On the DA-series, the maximum is 0xFF (255); this is almost certainly too long.
+### Internal Sources
+In addition to reading from pins, you can read from a number of internal sources - this is done just like reading a pin, except the constant listed in the table below is used instead of the pin number:
+| DA-series                              | DB and DD-series                    |
+|----------------------------------------|-------------------------------------|
+| `ADC_GROUND` (Offset calibration?)     | `ADC_VDDDIV10`                      |
+| `ADC_TEMPERATURE`                      | `ADC_VDDIO2DIV10`                   |
+| `ADC_DAC0`                             | `ADC_GROUND` (offset calibration?)  |
+| `ADC_DACREF0`                          | `ADC_TEMPERATURE `                  |
+| `ADC_DACREF1`                          | `ADC_DAC0`                          |
+| `ADC_DACREF2`                          | `ADC_DACREF0`                       |
+|                                        | `ADC_DACREF1`                       |
+|                                        | `ADC_DACREF2`                       |
 
+DACREF0-2 are the the reference voltages for the analog comparators. You must use the DAC or DACREF sources to measure the supply voltage, as there is neither a way to measure Vdd directly nor the reference voltages before they go through the DACREF or DAC.
+
+
+### Analog Resolution
+The hardware supports increasing the resolution of analogRead() to the limit of the hardware's native resolution (10 or 12 bits); Additionally, we provide automatic oversampling and decimation up to the limit of what can be gathered in one batch using the accumulation feature; this is exposed through the analogReadEnh() function detailed below.
+
+### ADC Sampling Speed
+DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs! The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 1.5MHz at full resolution! We use use 1.2 to 1.33 MHz depending on the system clock. To compensate for the faster ADC clock, we set the sample duration to 14 to extend the sampling period from the default of 2 ADC clock cycles to 16 - providing approximately the same sampling period as on classic AVRs (which is probably a conservative decision).
+
+### Functions:
+This core includes the following analog reading related functions
+
+#### analogRead(pin)
+The standard analogRead(). Single-ended, and resolution set by analogReadResolution(), default 10. Negative return values indicate an error that we were not able to detect at compile time and issue a compile error for.
+
+#### analogReadResolution(resolution)
+Sets resolution for the analogRead() function. Unlike stock version, this returns true/false. If it returns false, the value passed was invalid, and resolution was set to the default, 10 bits. The only valid values are those that are supported natively by the hardware, plus 10 bit even if not natively supported, for compatibility.
+Hence, the only valid values are 8, 10 and - on the 2-series - 12.
+This is different from the Zero/Due/etc implementations, which allow you to pass anything from 1-32, and rightshift the minimum resolution or leftshift the maximum resolution as needed to get the requested range of values. Within the limited resourced of an 8-bit AVR with potentially only 4k of flash, this is a silly waste of resources; furthermore, padding a reading with zeros so it matches the format of a more precise measuring method strikes me as generally poor practice. Note also that we offer oversampling & decimation with `analogReadEnh()` and `analogReadDiff()`, which can extend the resolution keep the extra bits meaningful. `analogReadResolution()` only controls the resolution of analogRead() itself. The other functions take desired resolution as an argument.
+
+#### analogSampleDuration(duration)
+Sets sampling duration (SAMPLEN on 0/1 or SAMPDUR on 2-series) For high impedance voltage sources, use a longer sample length. For faster reads, use a shorter sample length. Passing 0 will approximately double analogRead()
+speed. This returns a `bool` - it is `true` if value is valid; on 0/1-series maximum is 31 and the duration of a sample is SAMPLEN + 2 (max. 33 ADC clock sampling duration); on 2-series any 8-bit value is valid, and duration is this many plus 0.5 (without PGA) or 1 (with PGA) ADC clocks. This value is used for all analog measurement functions.
+
+The megaTinyCore default is 14 for 0/1-series and 15 for the 2-series - for 16 or 15.5 ADC clocks (which is half as long on the 2-series, since it supports higher ADC clock speeds. ADC clock is configured 1-1.25 MHz on 0/1, and approx. 2.5 MHz on 2-series.
+
+Reducing it to the minimum will approximately cut the time analogRead() takes in half, but will have poor accuracy unless measuring very low impedance signals;
+
+#### analogReadEnh(pin, res=ADC_NATIVE_RESOLUTION, gain=0)
+Enhanced `analogRead()` - returns a `long` (`int32_t`), not an `int` (`int16_t`). Perform a single-ended read on the specified pin. `res` is resolution in bits, which may range from 8 to `ADC_MAX_OVERSAMPLED_RESOLUTION`. This maximum is 13 bits for 0/1-series parts, and 17 bits for 2-series parts. If this is less than the native ADC resolution, that resolution is used, and then it is right-shifted 1, 2, or 3 times; if it is more than the native resolution, the accumulation option which will take 4<sup>n</sup> samples (where `n` is `res` native resolution). Note that even with the faster ADC in the 2-series, and even without extending the sampling duration, a 1024 sample burst read is not instantaneous - with defaults it's around 12 ms for 1024-sample burst read, and at maximum sample duration it will take over 100ms. The accumulated result is then decimated (rightshifted n places) to yield a result with the requested resolution, which is returned. See Atmel app note AVR121 (https://ww1.microchip.com/downloads/en/appnotes/doc8003.pdf - the specific case of the 2-series is discussed in DS40002200 from Microchip, but it is a far less informative document).  Alternately, to get the raw accumulated ADC readings, pass one of the `ADC_ACC_n` constants for the second argument where `n` is a power of 2 up to 64 (0/1-series), 128 (Dx-series), or 1024 (2-series). Be aware, however, that the lowest bits of a raw accumulated reading should not be trusted (which is why the decimation step is needed, and why 4x the samples are required for every extra bit of resolution instead of 2x). On 2-series parts *the PGA can be used for single ended measurements*. Valid options for gain are 0 (PGA disabled, default), 1 (unity gain - may help in some circumstances - but that is the extent of my knowledge on that matter, and powers of 2 up to 16) - on 0/1-series parts, the gain argument should be omitted or 0.
+```c++
+  int32_t second_pin_voltage = analogReadEnh(PIN_PA2,13);
+  // measure voltage on PA2, to 13 bits of resolution, which will require either 3 or 1 bits of oversampling + decimation
+  // (depending on whether it is a 0/1 or 2-series part.)
 ```
-ADC0.SAMPCTRL=255; // maximum sampling length = 255+2 = 257 ADC clock cycles (0.26 milliseconds!)
-ADC0.SAMPCTRL=0; //minimum sampling length = 0+2 = 2 ADC clock cycles
+
+
+#### analogReadDiff(positive, negative, res=ADC_NATIVE_RESOLUTION, gain=0) *2-series only*
+Differential `analogRead()` - returns a `long` (`int32_t`), not an `int` (`int16_t`). Performs a differential read using the specified pins as the positive and negative inputs. Any analog input pin can be used for the positive side, but only pins on PORTA (tinyAVR 2-series) or PORTD/PORTE (AVR Dx-series) can be used as the negative input. The result returned is the voltage on the positive side, minus the voltage on the negative side, measured against the selected analog reference. The `res` parameter works the same way as for `analogReadEnh()`, as does the `gain` function. Gain becomes FAR more useful here than in single-ended mode as you can now take a very small difference and "magnify" it to make it easier to measure.
+
+```c++
+  int32_t diff_first_second = analogReadDiff(PIN_PA1, PIN_PA2, 12, 0);
+  // Simple differential read to with PA1 as positive and PA2 as negative. Presumable these are close in voltage.
+  // (I used two pots and manually adjusted them to be very close; also could have done like 10k-100ohm-10k resistor network)
 ```
 
-With the minimum sampling length, analogRead() speed would be approximately doubled from it's already-faster value.
-
-###
-
-
-#### Future Development
-Starting in 1.4.0 at the latest (it might sneak in earlier) three new functions will be available:
-`analogReadEnh(pin, resolution, sampling duration)` - enhanced analog read. This will read the voltage on a pin to a resolution of (resolution) bits (max. 15 on DxCore) using the burst accumulation feature to carry out oversampling, followed by decimation to yield the enhanced reading. To get n bits of additional resolution takes 4^n samples, meaning that it will take 4^3 = 64 times longer than a normal analogRead(). The minimum resolution is 10 bits (the lowest native resolution supported by the hardware)
-`analogReadDiff(positive, negative, resolution, sampling duration)` - differential analog read. This will perform a differential analog reading on the specified pair of pins. Only pins on PORTD or PORTE can be used as the negative pin. The latter two options function the same as in `analogReadEnh()`
-`analogSampleDuration(duration)` - a duration argument from 0 to 255 can be passed to this to set the sampling duration for ADC0.
-
-**ERRATA ALERT** There is a mildly annoying silicon bug in early revisions of the AVR DA parts (as of late 2020, these are still the only ones available) where whatever pin the ADC positive multiplexer is pointed at, digital reads are disabled. This core neatly works around it by setting the the ADC multiplexer to point at ADC_GROUND when it is not actively in use; however, be aware that you cannot, say, set an interrupt on a pin being subject to analogReads (not that this is particularly useful).
+**ERRATA ALERT** There is a mildly annoying silicon bug in early revisions of the AVR DA parts (as of a year post-release in 2021, these are still the only ones available) where whatever pin the ADC positive multiplexer is pointed at, digital reads are disabled. This core neatly works around it by setting the the ADC multiplexer to point at ADC_GROUND when it is not actively in use; however, be aware that you cannot, say, set an interrupt on a pin being subject to analogReads (not that this is particularly useful).
 
 ### DAC Support
 The DA-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). Call `analogWrite()` on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call `digitalWrite()` or `turnOffPWM()` on that pin.
@@ -339,7 +373,7 @@ void correctedDACWrite(uint8_t value) {
   } else if (dacref = 3) { // 2.500
     /* or this one */
   }
-  DAC0.DATAL=datal;
+  DAC0.DATAL=(datal << 6); // needs to be left-adjusted,
   DAC0.DATAH=value;
 }
 
@@ -361,6 +395,68 @@ Note that using this method will pull in just as much bloat as sprintf(), so it 
 All pins can be used with attachInterrupt() and detachInterrupt(), on `RISING`, `FALLING`, `CHANGE`, or `LOW`. All pins can wake the chip from sleep on `CHANGE` or `LOW`. Pins marked as ASync Interrupt pins on the pinout chart (this is marked by an arrow where they meet the chip on those charts - pins 2 and 6 on all ports have this feature) can be used to wake from sleep on `RISING` and `FALLING` edge as well. The Async Interrupt pins can also react to inputs shorter than one clock cycle (how *much* faster was not specified. )
 
 Advanced users are advised to instead set up interrupts manually, ignoring attachInterrupt and manipulating the relevant port registers appropriately and defining the ISR with the ISR() macro - this will produce smaller code (using less flash and ram) the ISRs will run faster as they don't have to check whether an interrupt is enabled for every pin on the port. Note that, currently, if attachInterrupt() is used ANYWHERE IN THE SKETCH, even within a library, a duplicate vector definition error will be thrown if you attempt to manually configure a pin interrupt. There are plans to address this in a future version (the solution is to put the interrupts themselves into different C source files for each, like how the UARTs are done, such that ) For full information and example, see: [Pin Interrupts](megaavr/extras/PinInterrupts.md)
+
+### Improved digital I/O
+
+#### openDrain()
+It has always been possible to get the benefit of an Open Drain configuration - you set a pin's output value to 0 and toggle it between input and output. This core provides a slightly smoother (also faster) wrapper around this thanusing pinmode (since pinMode must also concern itself with configuring the pullup, whether it needs to be changed or not, every time - it's actually significantly slower setting things input vs output. The openDrain() function takes a pin and a value - `LOW`, `FLOATING` (or `HIGH`) or `CHANGE`. openDrain always makes sure the output buffer is not set to drive the pin high; often the other end of a pin you[re using in open drain mode may be connected to something running from a lower supply voltage, where setting it OUTPUT with the pin set high could damage the other device. openDrainFast() is also provided; as of 1.3.2, it also writes the pin LOW prior to setting it output or toggling it with change. `CHANGE` is slightly slower and takes an extra 2 words of flash because the VPORT register only has set bit index and clear bit index, so we have to use a full STS instruction to write to the `PORT.DIRTGL` register. Use pinMode() to set the pin `INPUT_PULLUP` beforre you start using `openDrain()`, or use `pinConfigure()` if you need the pullup enabled too.
+
+```c++
+openDrain(PIN_PA1, LOW); // sets pin output, LOW.
+openDrain(PIN_PA1, FLOATING); // sets pin input and lets it float.
+```
+
+#### Fast Digital I/O
+This core includes the Fast Digital I/O functions, digitalReadFast(), digitalWriteFast() and openDrainFast(). These are always inlined, but still take up less flash than the normal version of the function, and execute the in a single clock cycle. The catch is that the pin MUST be a known constant at compile time. For the fastest, least flash-hungry results, you should use a compile-time known constant for the pin value as well. Remember than there are three options here, not just two. If you only want two of the options, you will get smaller binaries that run faster by using the ternary operator to explicitly tell the compiler that the value is only ever going to be those two values, and then it can optimize away the third case.
+
+```c++
+digitalWriteFast(PIN_PD0,val); // This one is slower than the one below:
+digitalWriteFast(PIN_PD0,val?HIGH:LOW)
+
+```
+| function            | Any value | HIGH/LOW |   fixed |
+|---------------------|-----------|----------|---------|
+| openDrainFast()     | 14 words  | 7 words  | 2 words if LOW<br/>1 if FLOATING |
+| digitalWriteFast()  | 10 words  | 6 words  | 1 words |
+
+Execution time is 1 or 2 clocks per word that is actually executed (not all of them are in the multiple possibility options. in the case of the "any option" digitalWrite, if it's LOW, if change, 6, and if HIGH, 7
+Note that the HIGH/LOW numbers include the overhead of a val?HIGH:LOW statement. That is how the numbers were generated - you can use a variable of volatile uint8_t and that will prevent the compiler from making; 3 and 5 for the two word case. Which highlights one problem: the execution times now depend on the values, qand rather strongly. Another reason to, as much as possible, to get your assumptions about it's value - even if you never set it-  so you can see how large the the binary is while keeping the test case as simple as possible.
+
+1 word is 2 bytes; when openDrainFast is not setting the pin FLOATING, it needs an extra word to set the output to low level as well (just in case); if CHANGE is an option, it also uses an extra 2 words because instead of a single instruction against VPORT.IN, it needs to load the pin bit mask into a register (1 word) and use STS to write it (2 words) - and it also does the clearing of the output value - hence how we end up with the penalty of 4 for the unrestricted case vs digitalWriteFast
+
+
+
+#### pinConfigure()
+pinConfigure is a somewhat ugly function to expose all options that can be configured on a per-pin basis. It is called as shown here; you can bitwise-or any number of the constants shown in the table below. All of those pin functions will be configured as specified. Pin functions that don't have a corresponding option OR'ed into the second argument will not be changed:
+
+```c++
+pinConfigure(PIN_PA4,(PIN_DIR_INPUT | PIN_PULLUP_ON | PIN_OUT_LOW | PIN_INLVL_TTL));
+// Set PIN_PA4 to input, with pullup enabled and output value of LOW (ready for openDrainFast() and using TTL logic levels. Do not change settings on invert or input sense.
+// This might be used for some sort of bi-directional open-drain communication protocol with a device operating at lower voltage.
+
+pinConfigure(PIN_PD4,(PIN_DIR_INPUT | PIN_OUT_LOW | PIN_PULLUP_OFF | PIN_INVERT_OFF | PIN_INLVL_SCHMITT | PIN_INPUT_ENABLE));
+// Set PD4 inpit, with output register set low, pullup, invert, and alternate levels off, and digital input enabled. Ie, the reset condition!
+
+```
+
+
+| Functionality |   Enable  | Disable            | Toggle |
+|---------------|-------|---------------------|--------------------|
+| Direction, pinMode() | `PIN_DIR_OUTPUT`<br/>`PIN_DIR_OUT`<br/>`PIN_DIRSET` | `PIN_DIR_INPUT`<br/>`PIN_DIR_IN`<br/>`PIN_DIRCLR`       | `PIN_DIR_TOGGLE`<br/>`PIN_DIRTGL` |
+| Pin output, HIGH or LOW | `PIN_OUT_HIGH`<br/>`PIN_OUTSET`         | `PIN_OUT_LOW`<br/>`PIN_OUTCLR`          | `PIN_OUT_TOGGLE`<br/>`PIN_OUTTGL`       |
+| Internal Pullup  | `PIN_PULLUP_ON`<br/>`PIN_PULLUP`        | `PIN_PULLUP_OFF`<br/>`PIN_NOPULLUP`       | `PIN_PULLUP_TGL`       |
+| Invert HIGH and LOW |`PIN_INVERT_ON`        | `PIN_INVERT_OFF`       | `PIN_INVERT_TGL`       |
+| Use TTL levels (DB/DD only) | `PIN_INLVL_TTL`<br/>`PIN_INLVL_ON`        | `PIN_INLVL_SCHMITT`<br/>`PIN_INLVL_OFF`     | Not supported<br/>No plausible use case      |
+| Digital input buffer | `PIN_INPUT_ENABLE`     | `PIN_INPUT_DISABLE`    | Not supported<br/>No plausible use case |
+| Interrupt on change | `PIN_INT_CHANGE`       | `PIN_INPUT_ENABLE` or<br/>`PIN_INPUT_DISABLE`     | Not applicable |
+| Interrupt on Rise  | `PIN_INT_RISE`         | `PIN_INPUT_ENABLE` or<br/>`PIN_INPUT_DISABLE`     | Not applicable |
+| Interrupt on Fall  | `PIN_INT_FALL`         | `PIN_INPUT_ENABLE` or<br/>`PIN_INPUT_DISABLE`      | Not applicable |
+| Interrupt on LOW  | `PIN_INT_LEVEL`        | `PIN_INPUT_ENABLE` or<br/>`PIN_INPUT_DISABLE`      | Not applicable |
+
+#### INLVL - input logic levels
+On MVIO parts, pins can be configured to use one of two sets of input voltages: either the normal schmnitt
+
+
 
 ### Assembler Listing generation
 Like my other cores, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder. Starting in 1.3.3, a memory map is also created.
@@ -456,16 +552,16 @@ This can be set to 102, 103, or 104 depending on flash size:
 There are a number of macros for determining what (if any) features the core supports (these are shared with megaTinyCore)
 * `CORE_HAS_FASTIO` (1) - If defined as 1 or higher. indicates that digitalWriteFast() and digitalReadFast() is available. If undefined or defined as 0, these are not available. If other "fast" versions are implemented, they would be signified by this being defined as a higher number. If defined as -1, there are no digital____Fast() functions, but with constant pins, these functions are optimized aggressively for speed and flash usage (though not all the way down to 1 instruction).
 * `CORE_HAS_OPENDRAIN ` (1) - If defined as 1, indicates that openDrain() and (assuming `CORE_HAS_FASTIO` is >= 1) openDrainFast() are available. If undefined or 0, these are not available.
-* `CORE_HAS_PINCONFIG ` (0) - If defined as Indicates that pinConfig() is available. If not defined or defined as 0, it is not available.
+* `CORE_HAS_PINCONFIG ` (1) - If defined as Indicates that pinConfigure() is available. If not defined or defined as 0, it is not available.
 * `CORE_HAS_TIMER_TAKEOVER` (1) - if defined as 1, takeOverTCxn() functions are available to let user code take full control of TCA0, TCA1 and/or TCD0.
 * `CORE_HAS_TIMER_RESUME` (1)- if defined as 1, the corresponding resumeTCxn() functions, which reinitialize them and return them to their normal core-integrated functions, are available.
 * `ADC_NATIVE_RESOLUTION` (12)- This is the maximum resolution, in bits, of the ADC without using oversampling.
 * `ADC_NATIVE_RESOLUTION_LOW` (10) - The ADC has a resolution setting that chooses between ADC_NATIVE_RESOLUTION, and a lower resolution.
-* `DIFFERENTIAL_ADC` (1) - This is defined as 1 if the part has a basic differential ADC (no gain, and V<sub>analog_in</sub> constrainted to between Gnd and V<sub>Ref</sub>), and 2 if it has a full-featured one. It does not indicate whether said differential capability is exposed by the core.
+* `ADC_DIFFERENTIAL` (1) - This is defined as 1 if the part has a basic differential ADC (no gain, and V<sub>analog_in</sub> constrainted to between Gnd and V<sub>Ref</sub>), and 2 if it has a full-featured one. It does not indicate whether said differential capability is exposed by the core.
 * `SUPPORT_LONG_TONES` (1)  - On some modern AVR cores, an intermediate value in the tone duration calculation can overflow (which is timed by counting times the pin is flipped) leading to a maximum duration of 4.294 million millisecond. This is worst at high frequencies, and can manifest at durations as short as 65 seconds worst case. Working around this, however, costs some flash, and some cores may make the choice to not address it (megaTinyCore only supports long tones on parts with more than 8k of flash).  If `SUPPORT_LONG_TONES` is defined as 1, as long as (duration * frequency)/500 < 4.294 billion, the duration will not be truncated. If it is defined as 0, the bug was known to the core maintainer and they chose not to fully correct it (eg, to save flash) but took the obvious step to reduce the impact, it will be truncated if (duration * frequency) exceeds 4.294 billion. If `SUPPORT_LONG_TONES` is not defined at all, the bug may be present in its original form, in which case the duration will be truncated if (duration * frequency) exceeds 2.14 billion.
-* `CORE_HAS_ANALOG_ENH` (0)  - If defined as 1, analogReadEnh() (enhanced analogRead) is available. Otherwise, it is not.
-* `CORE_HAS_ANALOG_DIFF` (0)  - If defined as 1, analogReadDiff() (differential enhanced analogRead) is available. Otherwise, it is not.  It has same features as enhanced, except that it takes a differential measurement.
-* `MAX_OVERSAMPLED_RESOLUTION` - If either `CORE_HAS_ANALOG_ENH` or `CORE_HAS_ANALOG_DIFF` is 1, this will be defined as the maximum resolution obtainable automatically via oversampling and decimation using those functions. This will be 15 on the Dx-series parts in the near future when these functions are added.
+* `CORE_HAS_ANALOG_ENH` (1)  - If defined as 1, analogReadEnh() (enhanced analogRead) is available. Otherwise, it is not.
+* `CORE_HAS_ANALOG_DIFF` (1)  - If defined as 1, analogReadDiff() (differential enhanced analogRead) is available. Otherwise, it is not.  It has same features as enhanced, except that it takes a differential measurement.
+* `ADC_MAX_OVERSAMPLED_RESOLUTION` (15) - If either `CORE_HAS_ANALOG_ENH` or `CORE_HAS_ANALOG_DIFF` is 1, this will be defined as the maximum resolution obtainable automatically via oversampling and decimation using those functions.
 * `ADC_MAXIMUM_GAIN` - Some parts have an amplifier, often used for differential readings. The Dx-series are not among them. If this is defined as a positive number, it is the maximum gain available. If this is defined as -1, there are one or more `OPAMP` peripherals available which could be directed towards the same purpose, though more deliberation would be needed. If it is defined as -128 (which may come out as 128 if converted to an unsigned integer), there is a gain stage on the differential ADC, but it is a classic AVR, so the available gain options depend on which pins are being measured, and there is a different procedure as detailed in the core documentation (ex, ATTinyCore 2.0.0 and later). If it is 0 or undefined, there is no built-in analog gain state for the ADC, or it is not exposed through the core.
 
 

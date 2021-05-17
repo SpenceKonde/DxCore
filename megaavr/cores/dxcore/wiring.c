@@ -856,22 +856,22 @@ void set_millis(uint32_t newmillis)
 /********************************* ADC ****************************************/
 #if defined(ADC0)
   void __attribute__((weak)) init_ADC0() {
-    #if F_CPU >= 32000000
-      ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
-    #elif F_CPU >= 32000000
-      ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1 MHz
-    #elif F_CPU >= 28000000
-      ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1 MHz
+    #if F_CPU >= 48000000
+      ADC0.CTRLC = ADC_PRESC_DIV48_gc; //1 @ 48 MHz academic because almost certainly unachievable.
+    #elif F_CPU >  40000000
+      ADC0.CTRLC = ADC_PRESC_DIV32_gc; //1.25 @ 40 to 1.5 @ 48. Probably not achievable.
+    #elif F_CPU >= 36000000
+      ADC0.CTRLC = ADC_PRESC_DIV28_gc; //1.286 @ 36, 1.429 @ 40 MHz
+    #elif F_CPU >  28000000
+      ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1.33 @ 32 MHz, 1.
     #elif F_CPU >= 24000000
-      ADC0.CTRLC = ADC_PRESC_DIV24_gc; //1 MHz
+      ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1.2 @ 24, 1.25 @ 25, 1.4 @ 28  MHz
     #elif F_CPU >= 20000000
-      ADC0.CTRLC = ADC_PRESC_DIV20_gc; //1 MHz
-    #elif F_CPU >= 16000000
-      ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1 MHz
-    #elif F_CPU >= 12000000
-      ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1 MHz
+      ADC0.CTRLC = ADC_PRESC_DIV16_gc; //1.25 @ 20 MHz
+    #elif F_CPU >  12000000
+      ADC0.CTRLC = ADC_PRESC_DIV12_gc; //1.333 @ 16 MHz
     #elif F_CPU >= 8000000
-      ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1 MHz
+      ADC0.CTRLC = ADC_PRESC_DIV8_gc;  //1-1.5 MHz
     #elif F_CPU >= 4000000
       ADC0.CTRLC = ADC_PRESC_DIV4_gc;  //1 MHz
     #else  // 1 MHz / 2 = 500 kHz - the lowest setting
