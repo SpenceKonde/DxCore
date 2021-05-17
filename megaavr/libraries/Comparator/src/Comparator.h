@@ -87,7 +87,7 @@ class AnalogComparator {
                      register8_t &in2_n);
     void init();
     void start(bool state = true);
-    void stop();
+    void stop(bool restorepins = false);
     void attachInterrupt(voidFuncPtr callback, uint8_t mode);
     void detachInterrupt();
     bool read() {

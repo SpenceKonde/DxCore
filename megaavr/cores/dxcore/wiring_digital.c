@@ -53,7 +53,65 @@ inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
   }
 }
 
-
+void pinConfigure(uint8_t pin, uint16_t pinconfig) {
+  check_valid_digital_pin(pin);
+  uint8_t bit_mask = digitalPinToBitMask(pin);
+  if (bit_mask == NOT_A_PIN) {
+    return;                             /* ignore invalid pins passed at runtime */
+  }
+  volatile uint8_t *portbase = (volatile uint8_t*) digitalPinToPortStruct(pin);
+  uint8_t bit_pos = digitalPinToBitPosition(pin);
+  uint8_t setting = pinconfig & 0x03; //grab direction bits
+  if (setting) {
+    *(portbase + setting) = bit_mask;
+  }
+  pinconfig >>= 2;
+  setting = pinconfig & 0x03; // as above, only for output
+  if (setting) {
+    *(portbase + 4 + setting) = bit_mask;
+  }
+  if (!(pinconfig & 0xFC)) return;
+  pinconfig >>= 2;
+  uint8_t oldSREG = SREG;
+  cli();
+  uint8_t pinncfg = *(portbase + 0x10 + bit_pos);
+  if (pinconfig & 0x08 ) {
+    pinncfg = (pinncfg & 0xF8 ) | (pinconfig & 0x07);
+  }
+  uint8_t temp = pinconfig & 0x30;
+  if (temp) {
+    if (temp == 0x30) {
+      pinncfg ^= 0x08;    // toggle pullup
+    } else if (temp == 0x20) {
+      pinncfg &= ~(0x08); // clear
+    } else {
+      pinncfg |= 0x08;    // set
+    }
+  }
+  pinconfig >>= 8; // now it's just the last 4 bits.
+  #ifdef MVIO // only MVIO parts have the TTL levels. Their utility in that case is obvious: when you run out of MV pins, you can still use lower voltage lines as inputs, or drive them open drain - but you can't read them reliably with the schmitt trigger input, while the TTL is rock solid reliable.
+  temp = pinconfig & 0x03;
+  if (temp) {
+    if (temp == 0x01) {
+      pinncfg |= 0x40; // set
+    } else {
+      pinncfg &= ~(0x40);   // clear - toggle not supported.
+    }
+  }
+  #endif
+  temp = pinconfig & 0x0C;
+  if (temp) {
+    if (temp == 0x0C) {
+      pinncfg ^= 0x80;    // toggle invert
+    } else if (temp == 0x02) {
+      pinncfg &= ~(0x80); // clear
+    } else {
+      pinncfg |= 0x80;    // set
+    }
+  }
+  *(portbase + 0x10 + bit_pos)=pinncfg;
+  SREG=oldSREG; //reenable interrupts
+}
 
 void pinMode(uint8_t pin, uint8_t mode) {
   check_valid_digital_pin(pin);         /* generate compile error if a constant that is not a valid pin is used as the pin */
@@ -345,7 +403,7 @@ void openDrain(uint8_t pin, uint8_t state){
     port->DIRSET=bit_mask;
   else if (state == CHANGE)
     port->DIRTGL=bit_mask;
-  else // assume FLOAT
+  else // assume FLOATING
     port->DIRCLR=bit_mask;
   turnOffPWM(pin);
   }
@@ -364,10 +422,12 @@ inline __attribute__((always_inline)) void openDrainFast(uint8_t pin, uint8_t va
   PORT_t *portstr;
   portstr=(PORT_t *)(0x400+(20*port));
 
-  if (val == LOW)
+  if (val == LOW) {
+    vport->OUT &= ~mask;
     vport->DIR |= mask;
-  else if (val==CHANGE)
+  } else if (val==CHANGE) {
+    vport->OUT &= ~mask;
     portstr->DIRTGL = mask;
-  else// FLOAT
+  } else// FLOAT
     vport->DIR &= ~mask;
 }

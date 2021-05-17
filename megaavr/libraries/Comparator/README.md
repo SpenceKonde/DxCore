@@ -145,7 +145,7 @@ Variable for pin swapping the physical output pin to its alternative position. S
 Accepted values:
 ```c++
 out::no_swap;  // Use default pin position
-out::pin_swap; // Use alternative position
+out::pin_swap; // Use alternative position (48 and 64-pin parts only)
 ```
 
 ##### Usage

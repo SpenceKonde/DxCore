@@ -8,8 +8,8 @@ name=DxCore
 versionnum.major=1
 versionnum.minor=3
 versionnum.patch=6
-versionnum.postfix=-dev
-versionnum.released=0
+versionnum.postfix=
+versionnum.released=1
 
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
 

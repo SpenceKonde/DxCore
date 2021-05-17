@@ -20,8 +20,8 @@
 
 void setup() {
   // Configure relevant comparator parameters
-  Comparator.input_p = in_p::in3;      // Use positive input 3 (PD6)
-  Comparator.input_n = in_n::in2;      // Use negative input 2 (PD7)
+  Comparator.input_p = in_p::in0;      // Use positive input 3 (PD6)
+  Comparator.input_n = in_n::in1;      // Use negative input 2 (PD7)
   Comparator.hysteresis = hyst::large; // Use a 50mV hysteresis
   Comparator.output = out::enable;     // Enable output on digital pin 7 (PA7)
 
