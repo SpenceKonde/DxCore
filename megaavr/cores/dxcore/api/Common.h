@@ -8,7 +8,7 @@ void yield(void);
 
 #define LOW              0
 #define HIGH             1
-#define FLOAT         HIGH
+#define FLOATING         HIGH
 #define CHANGE           4
 #define FALLING          2
 #define RISING           3
@@ -100,19 +100,10 @@ int main() __attribute__((weak));
 
 void    pinMode(         pin_size_t pinNumber, uint8_t mode);
 void    digitalWrite(    pin_size_t pinNumber, uint8_t val);
-void    digitalWriteFast(pin_size_t pinNumber, uint8_t val);
 int8_t  digitalRead(     pin_size_t pinNumber);
-int8_t  digitalReadFast( pin_size_t pinNumber);
-void    openDrain(       pin_size_t pinNumber, uint8_t val);
-void    openDrainFast(   pin_size_t pinNumber, uint8_t val);
 void    analogWrite(     pin_size_t pinNumber, int value);
-void    turnOffPWM(      pin_size_t pinNumber);
-void    pinConfig(       pin_size_t pinNumber, uint16_t mode);
 int     analogRead(      pin_size_t pinNumber);
 void    analogReference(         uint8_t mode);
-bool    analogReadResolution(     uint8_t res);
-bool    analogSampleDuration(     uint8_t dur);
-void    DACReference(            uint8_t mode);
 
 unsigned long millis(void);
 unsigned long micros(void);

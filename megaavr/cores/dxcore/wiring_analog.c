@@ -174,7 +174,7 @@ int16_t analogRead(uint8_t pin) {
 
   int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((unused)) uint8_t gain) {
     /* Combined implementation for enhanced and differential ADC reads. Gain is ignored, these have no PGA.
-     * However, note that if the user passed a constant gain argbument, which is what almost anyone would
+     * However, note that if the user passed a constant gain argument, which is what almost anyone would
      * do, THAT would be a compile error. Only deviant code that dynamically determines the gain and
      * neglects to verify that the part in question has a PGA can end up in a situation where code may
      * think it is getting gain applied, but none is. I will ensure that it is documented that any code

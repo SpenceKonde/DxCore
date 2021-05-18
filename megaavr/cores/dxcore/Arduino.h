@@ -116,33 +116,67 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 /* inlining of a call to delayMicroseconds() would throw it off */
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 
-bool digitalPinHasPWMNow(uint8_t p);
-uint8_t digitalPinToTimerNow(uint8_t p);
+
+/*
+ * Extended API - Enhanced DxCore features
+ * These are functions users might call from the
+ * sketch, or in some cases, override.
+ * 1. Timer + millis() control.
+ * 2. initialization routines to override
+ * 3. Advanced Analog functionality
+ * 4. Advanced Digital functionality
+ ************************************************/
 
 
-void init_millis();                       // called by init_timers() to set up millis for the first time.
+// stop, restart and set millis intended for switching to RTC for millis timekeeping while sleeping.
 void stop_millis();                       // stop the timer being used for millis, and disable the interrupt.
 void restart_millis();                    // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
 void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the specified number of milliseconds.
+// Allows for user to mark a timer "do not touch" for purposes of analogWrite and the like, so you can take over a timer and reconfigure it, and not worry about digitalWrite() flipping a CMPEN bit.
+// On megaTinyCore this also prevents the situation where PWM is remapped, but then when the user is digitalWrite'ing pins that default to having PWM, it would turn off the PWM now coming from another pin
+// This is not an issue because we fully support portmux (can't spare the flash overhead on the tinies, people already complain that the core uses too much flash)
 void takeOverTCA0();                      // Can be used to tell core not to use TCA0 for any API calls - user has taken it over.
 void takeOverTCA1();                      // Can be used to tell core not to use TCA1 for any API calls - user has taken it over.
 void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
 void resumeTCA0();                        // Restores core-mediated functionality that uses TCA0 after reconfiguring it.
-void resumeTCA1();                        // Restores core-mediated functionality that uses TCA0 after reconfiguring it.
+void resumeTCA1();                        // Restores core-mediated functionality that uses TCA1 after reconfiguring it.
+bool digitalPinHasPWMNow(uint8_t p);      // Returns true if the pin can currently output PWM by virtue of having TCA (considering PORTMUX) pointed at it.
+uint8_t digitalPinToTimerNow(uint8_t p);  // Returns the timer that is associated with the pin now (considering PORTMUX)
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
-void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0 - it also i
-//   init_DAC0()                          // no init_DAC0() - all that the core does is call DACReference().
 void init_clock()  __attribute__((weak)); // this is called first, to initialize the system clock.
+void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0
+//   init_DAC0()                          // no init_DAC0() - all that the core does is call DACReference().
 void init_timers() __attribute__((weak)); // this function is expected to configure all timers for PWM. init_millis() is called after this.
-void init_TCA0()   __attribute__((weak)); // called by init_timers()
-void init_TCA1()   __attribute__((weak)); // called by init_timers()
+void init_TCA0()   __attribute__((weak)); // called by init_timers() - If you must override the init_timers() (try to do one of these instead)
+void init_TCA1()   __attribute__((weak)); // called by init_timers() - you need to call init() methods for all timers you want analogWrite to work with
 void init_TCBs()   __attribute__((weak)); // called by init_timers()
 void init_TCD0()   __attribute__((weak)); // called by init_timers()
+void init_millis();                       // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
+
+//
+// ANALOG EXTENDED FUNCTIONS
+//
+// Covered in documentation.
 
 int32_t analogReadEnh( uint8_t pin,              uint8_t res, uint8_t gain);
 int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain);
 int16_t analogClockSpeed(int16_t frequency, uint8_t options);
+bool    analogReadResolution(uint8_t res);
+bool    analogSampleDuration(uint8_t dur);
+void    DACReference(uint8_t mode);
+
+//
+// DIGITAL I/O EXTENDED FUNCTIONS
+//
+// Covered in documentation.
+
+void    openDrain(          pin_size_t pinNumber, uint8_t val);
+int8_t  digitalReadFast(    pin_size_t pinNumber);
+void    digitalWriteFast(   pin_size_t pinNumber, uint8_t val);
+void    openDrainFast(      pin_size_t pinNumber, uint8_t val);
+void    pinConfigure(       pin_size_t pinNumber, uint16_t mode);
+void    turnOffPWM(         pin_size_t pinNumber);
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
@@ -250,14 +284,13 @@ extern const uint8_t digital_pin_to_timer[];
 #define PIN_PULLUP_ON        0x0100
 #define PIN_PULLUP_OFF       0x0200
 #define PIN_PULLUP_TGL       0x0300 // I suppose I can see uses for this
-#define PIN_INVERT_ON        0x1000
-#define PIN_INVERT_OFF       0x2000
-#define PIN_INVERT_TGL       0x3000 // One of the less useful ones...
-#define PIN_INLVL_TTL        0x4000 // MVIO parts only
-#define PIN_INLVL_SCHMIT     0x8000 // MVIO parts only
-#define PIN_INLVL_ON         0x4000 // MVIO parts only
-#define PIN_INLVL_OFF        0x8000 // MVIO parts only
-#define PIN_INLVL_TGL        0xC000 // MVIO parts only. I cannot imagine ever using this.
+#define PIN_INVERT_ON        0x4000
+#define PIN_INVERT_OFF       0x8000
+#define PIN_INVERT_TGL       0xC000 // One of the less useful ones...
+#define PIN_INLVL_TTL        0x1000 // MVIO parts only
+#define PIN_INLVL_SCHMIT     0x2000 // MVIO parts only
+#define PIN_INLVL_ON         0x1000 // MVIO parts only
+#define PIN_INLVL_OFF        0x2000 // MVIO parts only
 #define PIN_INPUT_ENABLE     0x0080
 #define PIN_INT_CHANGE       0x0090
 #define PIN_INT_RISE         0x00A0

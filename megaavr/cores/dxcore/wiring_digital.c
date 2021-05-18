@@ -53,6 +53,8 @@ inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
   }
 }
 
+
+
 void pinConfigure(uint8_t pin, uint16_t pinconfig) {
   check_valid_digital_pin(pin);
   uint8_t bit_mask = digitalPinToBitMask(pin);
@@ -70,7 +72,7 @@ void pinConfigure(uint8_t pin, uint16_t pinconfig) {
   if (setting) {
     *(portbase + 4 + setting) = bit_mask;
   }
-  if (!(pinconfig & 0xFC)) return;
+  if (!(pinconfig & 0x03FFC)) return;
   pinconfig >>= 2;
   uint8_t oldSREG = SREG;
   cli();
@@ -81,7 +83,7 @@ void pinConfigure(uint8_t pin, uint16_t pinconfig) {
   uint8_t temp = pinconfig & 0x30;
   if (temp) {
     if (temp == 0x30) {
-      pinncfg ^= 0x08;    // toggle pullup
+      pinncfg ^= 0x08;    // toggle pullup - of dubious utility
     } else if (temp == 0x20) {
       pinncfg &= ~(0x08); // clear
     } else {
@@ -89,21 +91,27 @@ void pinConfigure(uint8_t pin, uint16_t pinconfig) {
     }
   }
   pinconfig >>= 8; // now it's just the last 4 bits.
-  #ifdef MVIO // only MVIO parts have the TTL levels. Their utility in that case is obvious: when you run out of MV pins, you can still use lower voltage lines as inputs, or drive them open drain - but you can't read them reliably with the schmitt trigger input, while the TTL is rock solid reliable.
+  #ifdef MVIO // only MVIO parts have the TTL levels.
+  // Their utility in a mixed voltage system is obvious: when you run out
+  // of MV pins, you can still use lower voltage lines as inputs, or drive them open drain
+  // but not if you can't read them reliably. The schmitt trigger is only guaranteed to read
+  // high above 0.8*Vcc, so even 3.3v logic (which usually *does* work) isn't in spec!
   temp = pinconfig & 0x03;
   if (temp) {
     if (temp == 0x01) {
       pinncfg |= 0x40; // set
     } else {
-      pinncfg &= ~(0x40);   // clear - toggle not supported.
+      pinncfg &= ~(0x40);   // clear - toggle not supported. I question the usefulness of the other PINnCTRL toggles,
+      // but I am more confident here than in those cases, that if you want a toggle INLVL option, you're doing something
+      // sufficiently wrong that it is more helpful to not give you that tool than help you go further into the weeds.
     }
   }
   #endif
   temp = pinconfig & 0x0C;
   if (temp) {
     if (temp == 0x0C) {
-      pinncfg ^= 0x80;    // toggle invert
-    } else if (temp == 0x02) {
+      pinncfg ^= 0x80;    // toggle invert - of dubious utility
+    } else if (temp == 0x08) {
       pinncfg &= ~(0x80); // clear
     } else {
       pinncfg |= 0x80;    // set
