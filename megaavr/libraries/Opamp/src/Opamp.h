@@ -123,7 +123,7 @@ class Opamp {
           volatile uint8_t &op_inmux,  \
           volatile uint8_t &op_settle, \
           volatile uint8_t &op_cal     \
-          );
+         );
     uint8_t get_number();
     bool status();
     void calibrate(uint8_t cal_value);

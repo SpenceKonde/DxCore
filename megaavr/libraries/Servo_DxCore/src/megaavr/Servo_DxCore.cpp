@@ -102,7 +102,7 @@ void ServoHandler(int timer) {
 }
 
 /* Defined in ServoTimers.h */
-ISR(SERVO_INT_vect){
+ISR(SERVO_INT_vect) {
   ServoHandler(0);
 }
 
