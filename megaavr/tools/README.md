@@ -2,7 +2,7 @@
 The tools directory contains tooling written in the python language for uploading code. Currently, it is all related to the serial-updi (UPDI over a simple serial adapter)
 
 
-# serial-updi
+# SerialUPDI
 Arduino <--> pymcuprog Bridge
 By Spence Konde and Quentin Bolsee
 An Arduino IDE friendly launch script for pymcuprog, including performance enhancements .
@@ -30,12 +30,13 @@ And because the alternatives all have problems:
 * The CP2102 doesn't support the top speed for Dx-series (345600 baud) - or, if you configure it to support that with the utility from Silicon Labs, you lose support for 460800 for tinyAVR.
 
 * The HT42B534 has a variety of unusual attributes, some good, some bad.
-  * It doesn't support arbitrary baud rates - no 345600 for Dx-series, or anything between 256 and 460.
-  * On the one hand, it uses standard windows CDC drivers; that's not a bad thing - not that I've ever found keeping serial drivers installed for other adapters to be a terrible burden. Unfortunately, they don't work very well. Setting it to a speed it doesn't like not only doesn't have the desired effect, but the attempt blocks rather than terminating gracefully. serialupdi has a fairly short timeout builtin and errors; many terminal programs will just hang until you restart them or unplug the serial adapter and plug it back in. Sometimes it stays behind in device manager after unplugging it, particularly after it hangs.
+  * It doesn't support arbitrary baud rates - no 345600 for Dx-series, or anything between 256k and 460.8k. This kind df sucks.
+  * On the one hand, it uses standard windows CDC drivers; that's not a bad thing. (Not that I've ever found keeping serial drivers installed for other adapters to be a terrible burden.) Except when the standard drivers don't work very well. Setting it to a speed it doesn't like not only doesn't have the desired effect, but the attempt blocks rather than terminating gracefully. serialupdi has a fairly short timeout builtin and errors; many terminal programs will just hang until you restart them or unplug the serial adapter and plug it back in. Sometimes it stays behind in device manager after unplugging it, particularly after it hangs.
   * Modem control inputs are wrong: All show off until any one changes state, then all show opposite of actual value. Inverted behavior continues until next reset.
   * The chip (though not the available adapters) have a VDDIO pin to set output voltages, ie, a built-in level shifter. CH340 can only do 3.3V-5V, HT42 can do 1.8-5v. It would be a very nice feature if it was exposed in breakout boards;
   * They are almost CH340 cheap.
   * The latency is significantly lower than other serial adapters. Earlier during the spring 2021 optimization effort, after optimization for the "simpler case" of writing to a Dx-series (it is simpler in that there are larger pages, hence larger blocks of time spent , the speed of uploads was determined in large part by latency, rather than raw speed. This version performed significantly better on the HT42B534. Subsequent optimization allowed the speed of the other adapters to nearly equal that of the HT42B534, without the rest of it's quirks.
+  * Unfortunately as a consequence of that, at higher baud rates it fails to program tinyAVR parts because it starts sending the next before a page write cycle is completed. while the other adapters have so much latency that they give the chip time for it's page write by default. This will be addressed in a future version.
 
 ### A note on breakout boards
 Some tinyAVR and other UPDI-based part breakout boards have an on-board resistor. Sometimes this is a 4.7k one. That is NOT appropriate. I was part of the problem for a while. I think the original mistake came from people conflating the pyupdi resistor with a generally appropriate one. When I started megaTinyCore, my early collaborator was making hardware with a 4.7k resistor; I assumed he was doing it right. While this does work with dedicated programmers, including jtag2updi, it doesn't work with serial UPDIO. It will work with dedicated programmers like jtag2updi, as long as they don't have their own resistor. Suffice to say, for a time it was a very common belief. I use 470 ohms now, but I can't find fault with a design over it not having the resistor. Expecting the programmer to be able to provide series resistance is not an unfair expectation, 
