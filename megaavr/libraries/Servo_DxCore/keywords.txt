@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-Servo_DxCore  KEYWORD1  Servo_DxCore
+Servo_DxCore	KEYWORD1	Servo_DxCore
 Servo	KEYWORD1	Servo
 
 #######################################

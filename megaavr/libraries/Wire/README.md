@@ -16,7 +16,7 @@ Wire.usePullups();
 ```
 
 ## Wire.setClock()
-`Wire.setClock()` is not exact (nor is it on the official core). The clock speed always depends on network conditions - the baud generator adapts to electrical conditions on the pins and - if they are rising more slowly than they should) it will run more slowly. To use speeds higher than 400 kHz, the main clock must be higher than 8 MHz, and TWI must either be disabled, or `FMPEN` must be set (`TWI0.CTRLA |= TWI_FMPEN_bm` - like the rest of TWI0.CTRLA, it must be set prior to calling begin(); they cannot be configured while the peripheral is enabled). 
+`Wire.setClock()` is not exact (nor is it on the official core). The clock speed always depends on network conditions - the baud generator adapts to electrical conditions on the pins and - if they are rising more slowly than they should) it will run more slowly. To use speeds higher than 400 kHz, the main clock must be higher than 8 MHz, and TWI must either be disabled, or `FMPEN` must be set (`TWI0.CTRLA |= TWI_FMPEN_bm` - like the rest of TWI0.CTRLA, it must be set prior to calling begin(); they cannot be configured while the peripheral is enabled).
 
 Prior to 5/2021, Wire.setClock() did not work correctly and TWI baud rates could be wrong in either direction on any part.
 
