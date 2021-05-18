@@ -18,6 +18,9 @@
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
   Modified 2017 by Chuck Todd (ctodd@cableone.net) to correct Unconfigured Slave Mode reboot
+  Modified 2019-2021 by Spence Konde for megaTinyCore and DxCore.
+  This version is part of megaTinyCore and DxCore; it is not expected
+  to work with other hardware or cores without modifications.
 */
 
 extern "C" {
@@ -55,8 +58,10 @@ TwoWire::TwoWire() {
 
 // Public Methods //////////////////////////////////////////////////////////////
 // True if pin specification actually exists
-// We now compile-error if a compiletime known pin mapping is requested that is invalid.
+// We now compile-error if a compile time known pin mapping is requested that is invalid.
 // Note that we do not currently support the dual TWI mode
+// *INDENT-OFF* This is hard enough to follow indented by hand
+// would be a total nightmare the way astyle wants it.
 bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
   #if defined(PORTMUX_CTRLB) /* tinyAVR 0/1 with TWI mux options */
     #if defined(PIN_WIRE_SDA_PINSWAP_1) && defined(PIN_WIRE_SCL_PINSWAP_1)
@@ -157,7 +162,7 @@ bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
     #endif
   #else // No TWI pin options - why call this?
     if (__builtin_constant_p(sda_pin) && __builtin_constant_p(scl_pin)) {
-      /* constant case - error if there's no swap and the swap attempt is known at compiletime */
+      /* constant case - error if there's no swap and the swap attempt is known at compile time */
       if (sda_pin != PIN_WIRE_SDA || scl_pin != PIN_WIRE_SCL) {
         badCall("This part does not support alternate Wire pins, if Wire.pins() is called, it must be passed the default pins");
         return false;
@@ -172,7 +177,7 @@ bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
 
 bool TwoWire::swap(uint8_t state) {
   #if defined(PORTMUX_CTRLB) /* tinyAVR 0/1-series */
-    #if defined(PIN_WIRE_SDA_PINSWAP_1))
+    #if (defined(PIN_WIRE_SDA_PINSWAP_1))
       if (state == 1) {
         // Use pin swap
         PORTMUX.CTRLB |= PORTMUX_TWI0_bm;
@@ -299,6 +304,7 @@ void TwoWire::usePullups() {
   #endif
 }
 
+// *INDENT-ON* The rest is okay to stylecheck
 void TwoWire::begin(void) {
   rxBufferIndex = 0;
   rxBufferLength = 0;
