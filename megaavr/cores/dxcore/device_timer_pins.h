@@ -179,8 +179,8 @@
       #define PIN_TCD0_WOD_ALT3     PIN_PG7
 
     #else
-      #define PIN_TCD0_WOA_ALT1     NOT_A_PIN
-      #define PIN_TCD0_WOB_ALT1     NOT_A_PIN
+      #define PIN_TCD0_WOC_ALT1     NOT_A_PIN
+      #define PIN_TCD0_WOD_ALT1     NOT_A_PIN
       // Half port E for 48-pin
       #define PIN_TCA0_WO4_ALT4     NOT_A_PIN
       #define PIN_TCA0_WO5_ALT4     NOT_A_PIN

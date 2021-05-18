@@ -201,7 +201,7 @@
 // However, without it, things don't know that they are working with DxCore.
 // So we put in a placeholder so defined(DXCORE) is true.
 #ifndef DXCORE
-  #define DXCORE "Unknown 1.3.3+"
+  #define DXCORE "Unknown 1.3.6+"
 #endif
 
 
@@ -231,11 +231,14 @@
 
 #if defined(__AVR_DA__)
   #define ERRATA_ADC_PIN_DISABLE 1
+  #define ERRATA_TCA1_PORTMUX 1
   #define ID_ADC_BUG ERRATA_ADC_PIN_DISABLE
 #endif
 
-#if defined(DB_64_PINS)
-  #define ERRATA_TCA1_PORTMUX 1
+#if defined (__AVR_DB__)
+  // They changed the damned name after selling the part for 6 months!
+  // annoyingly you can't even test if it's using the new version of the headers because it's an enum
+  #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)

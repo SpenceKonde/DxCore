@@ -928,8 +928,10 @@ void  __attribute__((weak)) init_clock() {
 
 
     #if (F_CPU == 32000000)
+      #warning "32 MHz, currently selected for F_CPU, exceeds manufacturer's specifications (but usually works)."
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0B<< CLKCTRL_FREQSEL_gp ));
     #elif (F_CPU == 28000000)
+      #warning "28 MHz, currently selected for F_CPU, exceeds manufacturer's specifications (but usually works)."
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm ) | (0x0A<< CLKCTRL_FREQSEL_gp ));
 
     #elif (F_CPU == 24000000)
@@ -982,6 +984,9 @@ void  __attribute__((weak)) init_clock() {
       #error "F_CPU defined as an unsupported value"
     #endif
   #elif (CLOCK_SOURCE==1 || CLOCK_SOURCE==2)
+    #if F_CPU > 32000000
+      #warning "The currently selected operating frequency greatly exceeds manufacturer specifications, if experiencing resets, hangs or other runtime issues, they may be caused by this overclocking"
+    #endif
     // For this, we don't really care what speed it is at - we will run at crystal frequency, and trust the user to select a speed matching that.
     // We don't prescale from crystals, and won't unless someone gives a damned convincing reason why that feature is important.
     // Crystals in the relevant frequency range are readily available.
@@ -1010,23 +1015,24 @@ void  __attribute__((weak)) init_clock() {
         _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_SELHF_EXTCLOCK_gc|CLKCTRL_ENABLE_bm));
       #else
         // external crystal
-        #ifndef XTAL_DRIVE
+        #ifndef USE_XTAL_DRIVE
           // WHAT ARE THE TRADEOFFS INVOLVED HERE????
-          // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with EVERY OPTION!
+          // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with EVERY OPTION! And no loading caps - just parasitic capacitance as my loading caps :-P
           #if (F_CPU>24000000)
-            #define XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
+            #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
           #elif (F_CPU>16000000)
-            #define XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
+            #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
           #elif(F_CPU>8000000)
-            #define XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
+            #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
           #else
-            #define XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
+            #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
           #endif
         #endif
-        #ifndef CSUTHF
-          #define CSUTHF CLKCTRL_CSUTHF_256_gc
+        #ifndef USE_CSUTHF
+          #define USE_CSUTHF CLKCTRL_CSUTHF_256_gc
         #endif
-      _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_CSUTHF_1K_gc|XTAL_DRIVE|CLKCTRL_SELHF_CRYSTAL_gc|CLKCTRL_ENABLE_bm));
+      _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(USE_CSUTHF|USE_XTAL_DRIVE|CLKCTRL_SELHF_XTAL_gc|CLKCTRL_ENABLE_bm));
+      /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
       #endif
     #endif
     uint16_t i=4096;
@@ -1034,10 +1040,10 @@ void  __attribute__((weak)) init_clock() {
     while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC_bm) {
       i--;
       if(i==0) blinkCode(3);
-      // crystals can a lot longer to reach stability.
+      // crystals can take a lot longer to reach stability.
     }
   #else
-    #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); DxCore does not support any other options (and it isn't even clear what such an option might be, other than a 32.768k low speed crystal, which would be an unspeakably miserable experience with Arduino"
+    #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
   #endif
 }
 
