@@ -195,7 +195,7 @@ int16_t analogRead(uint8_t pin) {
      *  Phase 1: Input Processing  |
      ******************************/
     //if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
-    // 5/16 - uhhhhl if it's disabled, we should reenable it, take the reading, and our cleanup will turn it off again...
+    // 5/16 - uhhhhl if it's disabled, we should re-enable it, take the reading, and our cleanup will turn it off again...
     uint8_t sampnum;
     if (res & 0x80) { //raw accumulation
       sampnum=res & 0x7F;
@@ -269,7 +269,7 @@ int16_t analogRead(uint8_t pin) {
         // result length in bits, but count the bits beyond native resolution twice, since each one needs a bit of decimation.
         uint8_t shift = res - ADC_NATIVE_RESOLUTION;
         // but if it exceeds 16 bits it gets truncated
-        // Effectively there are three posible oversampling values: 13, 14, and 15, and they need 1, 2, amd 1 shift, respectively.
+        // Effectively there are three possible oversampling values: 13, 14, and 15, and they need 1, 2, amd 1 shift, respectively.
         if (resbits > 16) {
           shift -= (resbits - 16); // these "shifts" were already done for us by the hardware to make the number in the result register.
         }
@@ -281,7 +281,7 @@ int16_t analogRead(uint8_t pin) {
       } else if (res == 8) {
         result >>= 2;
       } else { //((res == ADC_NATIVE_RESOLUTION - 1) || (res == ADC_NATIVE_RESOLUTION_LOW - 1))
-        //9 or 11 bit res, beause people are weird and might do this
+        //9 or 11 bit res, because people are weird and might do this
         result >>= 1;
       }
     } // end of resolutions that require postprocessing.

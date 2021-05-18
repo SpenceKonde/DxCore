@@ -44,7 +44,7 @@ Some tinyAVR and other UPDI-based part breakout boards have an on-board resistor
 * Vcc, Gnd of serial adapter to Vcc, Gnd of target
 * 4.7k resistor between Tx and Rx of adapter (many adapters have built-in 1k, 1.5k, or 2.2k resistor in series with Tx; these should use a proportionally smaller resistor)
   * For better results, a smaller resistor (that built-in one on most adapters, mentioned above, will do perfectly here) and a small schottky diode (band towards Tx, other end connected to Rx) can be used (use a "small signal diode" - larger general purpose diodes may have properties that make them less suitable for this) The diode substantially widens the tolerances of this programming method, and significantly improves reliability.
-   * My top pick here is the BAT54C,235; it's in a tiny SOT-23 package (it's 2 diodes both weith the "band" towards the pin thats' alone on one side) Why? Because, assuming your serial adapter has the pins on 0.1" header, and TX and RX are next to eachother (both extremely common) the the diode fits right in beteeen them. and with no lead that could later fatigue and break the result is less likely to be damaged by rough handling. Then if I want to more ovbviously mark it as a UPDI programmer, I might cut off the Tx, DTR and CTS pin; always remember that you can get serial adapters for a buck a piece on ebay.
+   * My top pick here is the BAT54C,235; it's in a tiny SOT-23 package (it's 2 diodes both weith the "band" towards the pin thats' alone on one side) Why? Because, assuming your serial adapter has the pins on 0.1" header, and TX and RX are next to each other (both extremely common) the the diode fits right in between them. and with no lead that could later fatigue and break the result is less likely to be damaged by rough handling. Then if I want to more ovbviously mark it as a UPDI programmer, I might cut off the Tx, DTR and CTS pin; always remember that you can get serial adapters for a buck a piece on ebay.
 * Rx of adapter to UPDI pin of target. A small resistor (under 1k - like the 470 ohm one we generally recommend) in series with this is fine.
 
 
@@ -151,7 +151,7 @@ Resistor-based schemes - these have a narrower window of parameters under which 
 If you look at the UPDI line on a 'scope while it is malfunctioning, you will see that sometimes
 the voltage is not going all the way down to ground when one side tries to assert it.
 
-They are not recommended unless there is something keeping you from using a diode cofiguration.
+They are not recommended unless there is something keeping you from using a diode configuration.
 
 
 The PyUPDI classic:
@@ -277,7 +277,7 @@ Within the region of interest, baud is large relative to d, so C is nearly const
 At low baud rates, `T` tends towards a inverse relationship with baud.
 At high baud rates, `T` tends toward a function of size, NVM version, and serial adapter only. Overcoming this limit requires reducing the number of USB transactions per page written, or block read.
 
-T<sub>read</sub> is the same on all parts; an unimplemeneted change could push it a bit lower by bringing N all the way down to 1 from 2. The practical impact, however, is very small; after the end of the perfomance enhancement push, T<sub>read</sub>, reading in 512b blocks is dominated by the second term.
+T<sub>read</sub> is the same on all parts; an unimplemented change could push it a bit lower by bringing N all the way down to 1 from 2. The practical impact, however, is very small; after the end of the performance enhancement push, T<sub>read</sub>, reading in 512b blocks is dominated by the second term.
 
 For the Dx-series parts as shown in the above table, with the full suite of optimization, T<sub>read</sub> = T<sub>write</sub> (the same change is likely possible here; the improvement is maybe 10%)
 

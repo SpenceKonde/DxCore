@@ -13,7 +13,7 @@ Class for interfacing with the built-in logic block (sometimes referred to as `L
 These objects expose all configuration options as member variables as documented below, as well as member methods to set the applicable registers.
 
 ### enable
-Variable for enabling or disabling a logic block.
+Property controlling whether the logic block is enabled. Like all properties, you must call LogicN.init() to apply any changes.
 Accepted values:
 ```c++
 true;  // Enable the current logic block
@@ -82,7 +82,7 @@ Logic0.input2 = in::input_pullup; // Connect the input 2 from block 0 to its GPI
 
 
 ### output
-Variable for changing the logic block output pin behavior. Note that the output of the logic block still can be used internally if the output pin is disabled.
+Property controlling the logic block output pin behavior. Note that the output of the logic block still can be used internally if the output pin is disabled. The pin's direction and output value are overridden, so you do not need to set the pin `OUTPUT` first.
 Accepted values:
 ```c++
 out::disable; // Disable the output GPIO pin. Useful when triggering an interrupt instead.
@@ -99,7 +99,7 @@ Logic0.output = out::disable; // Disable the output GPIO pin.
 
 
 ### output_swap
-Variable for pin swapping the physical output pin to its alternative position. See the pinout diagrams in the [Core this is part of](../../../README.md) for more info.
+Property controlling whether to use the alternate output pin. See the pinout diagrams in the [Core this is part of](../../../README.md) for more info.
 Accepted values:
 ```c++
 out::no_swap;  // Use default pin position, pin 3 on the port
@@ -116,7 +116,7 @@ Logic0.output_swap = out::no_swap; // No pin swap for output of block0
 
 
 ### filter
-Variable to control whether the output passes through a synchronizer or filter. Useful when multiple logic blocks are connected internally to prevent race conditions and glitches that could arise due to the asynchronous nature of CCL clocking. Alternately, the delay itself may be desirable, or it can be combined with a configuration which would oscillate asynchronously to instead output a prescaled clock, which could, in turn, be used with "clock on event" to provide a type B timer with a prescaled clock. Either filter or synchronizer is required for edge detector, below.
+Property to control whether the output is passed through a filter or synchronizer. Useful when multiple logic blocks are connected internally to prevent race conditions and glitches that could arise due to the asynchronous nature of CCL. Alternately, the delay itself may be desirable, or it can be combined with a configuration which inverts it's own output (and would otherwise oscillate asynchronously), but is clocked by some other source; this will then act to divide that clock speed by 4 (synchronizer) or
 Accepted values:
 ```c++
 filter::disable;      // No filter used, asynchronous output.
@@ -138,7 +138,7 @@ See also [Prescaling Clocks with CCLs](https://github.com/SpenceKonde/AVR-Guidan
 
 
 ### clocksource
-Variable to set the clock source for the logic block; this is used for the synchronizer and filter only (otherwise, the logic blocks are asynchronous - and shockingly fast. You can rig them up so that they oscillate, and with the most direct approaches). Note that 32kHz-derived and unprescaled clock options are not available on 0-series and 1-series parts; keep this in mind if backwards portability is important. If sequential logic is used, it is clocked from the clock source used by the even-numbered logic block, if it uses a clock.
+Property to set the clock source for the logic block; this is used for the synchronizer and filter only (otherwise, the logic blocks are asynchronous - and shockingly fast. You can rig them up so that they oscillate, and with the most direct approaches, it can reach upwards of 100 MHz!). Note that 32kHz-derived and unprescaled clock options are not available on 0-series and 1-series parts; keep this in mind if backwards portability is important. If sequential logic is used, it is clocked from the clock source used by the even-numbered logic block, if it uses a clock.
 Accepted values:
 ```c++
 clocksource::clk_per;      // Clock from the peripheral clock (ie, system clock)
@@ -160,7 +160,7 @@ Logic2.clocksource = clocksource::oschf; // Set block 2 to use unprescaled high 
 
 
 ### edgedetect
-Variable for controlling use of the edge detector. The edge detector can be used to generate a pulse when detecting a rising edge on its input. To detect a falling edge, the TRUTH table should be programmed to provide inverted output. In order to avoid unpredictable behavior, a valid filter option must be enabled. Note that this is likely only of use when the output is being used for sequential logic or as the input to another logic block; it looks particularly useful on the odd LUT input to a J-K flip-flop sequential logic unit.
+Property to control use of the edge detector. The edge detector can be used to generate a pulse when detecting a rising edge on its input. To detect a falling edge, the TRUTH table should be programmed to provide inverted output. In order to avoid unpredictable behavior, a valid filter option must be enabled (note: that's what the datasheet says; it's not clear whether you can get the unpredictable behavior, or if the edge detecter won't be connected unless a filter or synchronizer is enabled). Note that this is likely only of use when the output is being used for sequential logic or as the input to another logic block; it looks particularly useful on the odd LUT input to a J-K flip-flop sequential logic unit.
 
 ```c++
 edgedetect::disable;      // No edge detection used
@@ -168,14 +168,14 @@ edgedetect::enable;       // Edge detection used
 ```
 
 ### sequencer
-Variable for connecting a "sequencer" to the logic block output - these are latches or flip-flops which remember a state. There is 1 sequencer per 2 CCLs, each controls one of the two inputs to a flip flop or latch; this option is ignored for the odd-numbered logic blocks. Flip-flops are clocked from the same clock source as the even logic block, latches are asynchronous.
+Property controlling the "sequencer" for this pair of logic blocks - these are latches or flip-flops which remember a state. There is 1 sequencer per 2 CCLs, each controls one of the two inputs to a flip flop or latch; this option is ignored for the odd-numbered logic blocks. Flip-flops are clocked from the same clock source as the even logic block, latches are asynchronous.
 
 Accepted values:
 ```c++
 sequencer::disable;      // No sequencer connected
 sequencer::d_flip_flop;  // D flip flop sequencer connected
 sequencer::jk_flip_flop; // JK flip flop sequencer connected
-sequencer::d_latch;      // Gated D latch sequencer connected - note that on most tinyAVR and megaAVR parts, this doesn't work. See the Errata.
+sequencer::d_latch;      // Gated D latch sequencer connected. Note that there was a widespread errata relating to this which people have only re
 sequencer::rs_latch;     // RS latch sequencer connected
 ```
 
@@ -189,8 +189,12 @@ Logic0.sequencer = sequencer::disable; // Disable sequencer
 
 
 ### truth
-Variable to hold the 8-bit truth table value.
-Accepted values between 0x00 and 0xFF.
+This property contains the 8-bit truth table value.
+Accepted values between 0x00 and 0xFF - this is where the input values are looked up to determine what value to output.
+
+In2:in0 are treated as a 3-bit number (so 0-7), that bit number (starting from 0) determines the output value.
+
+Ex: If in1 and in0 are high, and in2 is low, input is 3, (0b011 = 3). If the truth table is 0x89 - `0b10001001` - then the output will be high (0b1000*1*001). Put another way, the output it high if `truth & (1 << input)` is true.
 
 ##### Usage
 ```c++
@@ -200,9 +204,9 @@ Logic0.truth = 0xF0;
 ##### Default state
 `LogicN.truth` defaults to `0x00` if not specified in the user program.
 
+## Methods
 
-
-## init()
+### init()
 Method for initializing a logic block; the settings you have previously configured will be applied and pins configured as requested at this time only.
 
 ##### Usage
@@ -212,20 +216,44 @@ Logic1.init(); // Initialize block 1
 ```
 
 
-## start()
-Method for starting the CCL hardware after desired blocks have been initialized using `LogicN.init()`.
+### start()
+Static method for starting the CCL hardware after desired blocks have been initialized using `LogicN.init()`.
 
 ##### Usage
 ```c++
 Logic::start(); // Start CCL hardware
 ```
 
-## stop()
-Method for stopping the CCL hardware, for example to reconfigure the logic blocks.
+### stop()
+Static method for stopping the CCL hardware, for example to reconfigure the logic blocks.
 
 ##### Usage
 ```c++
 Logic::stop(); // Stop CCL
+```
+
+### attachInterrupt()
+Method for enabling interrupts for a specific block.
+Valid arguments for the third parameters are `RISING`, `FALLING` and `CHANGE`.
+
+##### Usage
+```c++
+Logic0.attachInterrupt(blinkLED, RISING); // Runthe blinkLED function when the putput goes high
+
+void blinkLED()
+{
+  digitalWrite(myLedPin, CHANGE);
+}
+```
+
+
+### detachInterrupt()
+Method for disabling interrupts for a specific block.
+This method isn't available on tinyAVR 0/1-series.
+
+##### Usage
+```c++
+Logic0.detachInterrupt(); // Disable interrupts for block 0
 ```
 
 ## Reconfiguring
@@ -282,3 +310,7 @@ This method isn't available on tinyAVR 0/1-series.
 ```c++
 Logic0.detachInterrupt(); // Disable interrupts for block 0
 ```
+
+
+## Note on terminology`*`
+Yes, technically, C++ doesn't have "properties" or "methods" - these are "member variables" and "member functions" in C++ parlance. They mean the same thing. I've chosen to use the more familiar, preseent day terminology.

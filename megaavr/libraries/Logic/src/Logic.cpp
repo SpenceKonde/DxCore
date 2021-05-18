@@ -1,5 +1,5 @@
 #include "Logic.h"
-
+// *INDENT-OFF* // This file was lovingly hand indented, thankyouverymuch!
 // Array for storing ISR function pointers
 #if defined(CCL_CCL_vect)
   #if defined(TRUTH5)
@@ -113,7 +113,7 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_ATtiny426__)  || defined(__AVR_ATtiny826__) || \
-      defined(__AVR_ATtiny1616__) || defined(__AVR_ATtiny3216__)
+      defined(__AVR_ATtiny1626__) || defined(__AVR_ATtiny3226__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -142,7 +142,7 @@ static const struct Logic::CCLBlock blocks[] = {
   },
   #endif
   #if defined(__AVR_ATtiny427__)  || defined(__AVR_ATtiny827__) ||  \
-      defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__)
+      defined(__AVR_ATtiny1627__) || defined(__AVR_ATtiny3227__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -215,7 +215,7 @@ static const struct Logic::CCLBlock blocks[] = {
       defined(__AVR_AVR64EA32__)  || defined(__AVR_AVR64EA28__)  ||  \
       defined(__AVR_AVR32EA32__)  || defined(__AVR_AVR32EA28__)  ||  \
       defined(__AVR_AVR16EA32__)  || defined(__AVR_AVR16EA28__)  ||  \
-defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR8EA28__)
+      defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR8EA28__)
   #define PORTMUX_CCL PORTMUX.CCLROUTEA
   #define PORTMUX_ALTOUT_bm (1 << block.number)
   {
@@ -410,12 +410,14 @@ static volatile register8_t &PINCTRL(PORT_t &port, const uint8_t pin_bm) {
   if (pin_bm == PIN3_bm) {
     return port.PIN3CTRL;
   }
+#ifdef MEGATINYCORE
   if (pin_bm == PIN4_bm) {
     return port.PIN4CTRL;
   }
   if (pin_bm == PIN5_bm) {
     return port.PIN5CTRL;
   }
+#endif
   if (pin_bm == PIN6_bm) {
     return port.PIN6CTRL;
   }
@@ -486,8 +488,7 @@ void Logic::init() {
 #if defined(CCL_CCL_vect)
 void Logic::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
   CCL_INTMODE0_t intmode;
-  switch (mode) {
-    // Set RISING, FALLING or CHANGE interrupt trigger for a block output
+  switch (mode) { // Set RISING, FALLING or CHANGE interrupt trigger for a block output
     case RISING:
       intmode = CCL_INTMODE0_RISING_gc;
       break;
@@ -497,8 +498,7 @@ void Logic::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
     case CHANGE:
       intmode = CCL_INTMODE0_BOTH_gc;
       break;
-    default:
-      // Only RISING, FALLING and CHANGE is supported
+    default: // Only RISING, FALLING and CHANGE is supported
       return;
   }
   #if defined(CCL_TRUTH4)

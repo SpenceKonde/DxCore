@@ -1,38 +1,58 @@
-/*
- * AVR Configurable Custom Logic library
- *
- * A library for interfacing with the AVR Configurable Custom Logic.
- * Developed in 2019 by MCUdude. https://github.com/MCUdude/
- * Example by Spence Konde, 2021 https://github.com/SpenceKonde/
- *
- * Example: Oscillate.ino
- *
- * In this example, we show some of the potential behaviors that you can get from the Logic and Event libraries that
- * involve one or more logic blocks oscillating. These demonstrations are likely to be most useful if you are
- * able to put a 'scope probe on PA3 (megaAVR or AVR Dx) or PA4 (tinyAVR).
- * In demos 1~4, we explore the possibilities of an asynchronous logic block oscillating as fast as it can.
- * Then, in demos 5-8, we demonstrate the use of the Filter and Synchronizer options to slow them down and make a
- * potentially practical tool from this concept: an independent prescaled clock output on an event channel.
- * Finally, in demo9a, 9b, and 9d, we demonstrate the potential use case of such configurations: clocking a timer
- *
- * demo9b is by far the most useful, demonstrating the clocking a type B timer from such a clock signal. Requires an
- * AVR Dx or tinyAVR 2-series part (the earlier devices do not support count-on-event for the type B timers).
- *
- * Some tests do not run on all devices due to hardware limitations. Where frequencies of pins are measured, I include
- * my measurements I made during development of the example.
- *
- * See also: Toolbox.md - general listing of a "toolbox" of logic and event combinations
- *           examples/BadExamples - A fever-dream of a sketch containing two equally inadvisable but apparently
- *              functional abuses of these concepts.
- *              In the first, a pair of logic blocks is connected as in demo4, and output on to the pin, conveniently
- *              located near the EXT_CLK pin. It is connected to that with a jumper. System clock prescale set to two
- *              and switched to the "external" clock.
- *              In the second, which is less related to these, the internal HF oscillator, already running
- *              at a third over the manufacturer specifications is used combined with an undocumented PLL setting
- *              in order to clock TCD0 at over 2.5x the rated maximmum speed. The TCD0 PWM output is then put into
- *              a logic block, output on a pin near the EXT_CLK pin, to which it is connected with a jumper. Finally
- *              the MCU's main clock source is switched to this 9.85 MHz"external" clock. AVR-Dx only.
- */
+/***********************************************************************|
+  | megaAVR Configurable Custom Logic library                             |
+  |                                                                       |
+  | Oscillate.ino                                                         |
+  |                                                                       |
+  | A library for interfacing with the megaAVR Configurable Custom Logic. |
+  | Developed in 2019 by MCUdude. https://github.com/MCUdude/             |
+  | Example by Spence Konde, 2020 https://github.com/SpenceKonde/         |
+  |                                                                       |
+  | In this example, we demonstrate the fact that these are ASYNCHRONOUS  |
+  | by (ab)using the CCL in a configuration which will oscillate - this   |
+  | example uses two logic blocks - though there are plenty of ways to    |
+  | make it oscillate with a single one (see if you can come up with some |
+  | - assuming you find this fun). If you set values for the filter, you  |
+  | get sane output frequencies - just what one would expect from the     |
+  | datasheet. But what fun is that?! If you turn them both off, it       |
+  | oscillates much faster - faster than the clock speed! with a sawtooth |
+  | waveform which (measured by my 'scope) clocks in at 37 MHz - from a   |
+  | part running at 20 MHz! Different configurations will result in       |
+  | different frequencies. The simplest one can oscillate at a whopping   |
+  | 92 MHz!                                                               |
+  |                                                                       |
+  | It is temperature dependenr - point a can of freeze spray (computer   |
+  | duster held upside-down, so the liquid comes out) and the frequency   |
+  | goes up. Aim a heat-gun or torch at it (use care - freeze spray DOES  |
+  | burn, and you do NOT want to inhale the combustion products or cause  |
+  | an inferno in your lab.) and the frequency goes down. Warnings:       |
+  | Hitting hot parts with freeze spray may crack the package, ruining the|
+  | part, and freeze spray will cause frost to form on the parts. Best to |
+  | disconnect them from power while they thaw and dry off before applying|
+  | power to them again. PCBs also burn if you are not careful with that  |
+  | torch) This is maximum-speed oscillation is of essentially zero       |
+  | practical use, but it sure is cool isn't it?                          |
+  |                                                                       |
+  | Maybe it could be used to examine a new silicon revision to see if    |
+  | there were any significant process changes? *shrug*                   |
+  |                                                                       |
+  | And yes, if you happen to want your part to run at an indeterminate   |
+  | and highly temperature dependent speed, you could then set the system |
+  | clock prescaler to 2, connect a jumper between the Logic0 output pin  |
+  | and EXTCLK pin, and switch to the external clock, leading to it       |
+  | running at around 18.5 MHz with wide variation depending on conditions|
+  | This is not recommended except as a silly joke, and it is thoroughly  |
+  | useless. Maybe if you miss the +/- 10% tolerance on the classic AVR   |
+  | internal oscillator?                                                  |
+  |                                                                       |
+  | In combination with the synchronizer/filter, though, it is has the    |
+  | potential to be far more useful - as it will allow generation of a    |
+  | prescaled system clock. On parts where a TCB can be clocked from an   |
+  | event, this allows one to work around the limited prescale options    |
+  | available for TCBs, without having to change the TCA prescaler. For   |
+  | more information on this, see: https://github.com/SpenceKonde/        |
+  | AVR-Guidance/blob/master/CCL_EVSYS_hacks/CCL_prescaling.md            |
+  |                                                                       |
+  |***********************************************************************/
 
 #include <Logic.h>
 #include <Event.h>

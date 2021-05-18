@@ -22,12 +22,7 @@
 #include <Logic.h>
 
 void setup() {
-  // Initialize logic block 0
-  // Logic block 0 has three inputs, PA0, PA1 and PA2.
-  // These are the pins directly above the UPDI pin
-  // Because PA0 is shared with the UPDI pin and is not usually an option
-  // we use PA3 via the event system in this example on ATtiny parts
-  // It has one output, PA5 on ATtiny, or alternate PB6 on 20 and 24-pin ATtiny.
+
 
   Logic0.enable = true;               // Enable logic block 0
 
@@ -53,17 +48,4 @@ void setup() {
 
 void loop() {
   // When using configurable custom logic the CPU isn't doing anything!
-}
-
-void showHex(const byte b) {
-  char x = (b >> 4) | '0';
-  if (x > '9') {
-    x += 7;
-  }
-  Serial.write(x);
-  x = (b & 0x0F) | '0';
-  if (x > '9') {
-    x += 7;
-  }
-  Serial.write(x);
 }

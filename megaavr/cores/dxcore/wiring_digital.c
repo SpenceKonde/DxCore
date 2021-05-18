@@ -118,7 +118,7 @@ void pinConfigure(uint8_t pin, uint16_t pinconfig) {
     }
   }
   *(portbase + 0x10 + bit_pos)=pinncfg;
-  SREG=oldSREG; //reenable interrupts
+  SREG=oldSREG; //re-enable interrupts
 }
 
 void pinMode(uint8_t pin, uint8_t mode) {

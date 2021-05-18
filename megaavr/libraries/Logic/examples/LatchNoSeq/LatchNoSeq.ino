@@ -7,23 +7,23 @@
   | Developed in 2019 by MCUdude.                                         |
   | https://github.com/MCUdude/                                           |
   |                                                                       |
-  | In this example we use the configurable logic peripherals in the      |
-  |  an AVR to act as a "latch" WITHOUT using both LUTs and the sequencer |
+  | In this example we use the configurable logic peripherals in AVR      |
+  | to act as a "latch" WITHOUT using both LUTs and the sequencer         |
   | For the even-numbered logic block(s) we can simply use the feedback   |
   | input. Otherwise we need to use the event system.                     |
   |                                           3-input     truth table:    |
-  | This is shown in the example for Logic1   |PA2|PA1|CCL| Y |           |
-  |                                           |---|---|---|---|           |
-  |                                           | 0 | 0 | 0 | 0 |           |
-  |                                           | 0 | 0 | 1 | 1 |           |
-  |                                           | 0 | 1 | 0 | 1 |           |
-  |                                           | 0 | 1 | 1 | 1 |           |
-  |                                           | 1 | 0 | 0 | 0 |           |
-  |                                           | 1 | 0 | 1 | 0 |           |
-  |                                           | 1 | 1 | 0 | 0 |           |
-  |                                           | 1 | 1 | 1 | 1 |           |
+  | We use CCL LUT event as our "feedback",   |PA2|PA1|CCL| Y |           |
+  | PA1 is RESET and PA2 is SET, both         |---|---|---|---|           |
+  | active low                                | 0 | 0 | 0 | 0 |           |
+  | Connect a button between those and Gnd    | 0 | 0 | 1 | 1 |           |
+  | Pressing button on PA2 will set output    | 0 | 1 | 0 | 1 |           |
+  | HIGH and pressing button on PA1 will set  | 0 | 1 | 1 | 1 |           |
+  | output LOW, and pressing neither will do  | 1 | 0 | 0 | 0 |           |
+  | nothing.                                  | 1 | 0 | 1 | 0 |           |
+  | We could even then fire an interrupt from | 1 | 1 | 0 | 0 |           |
+  | that pin                                  | 1 | 1 | 1 | 1 |           |
   |                                                                       |
-  |                                                                       |
+  | The sky (well, and the number of LUTs) is the limit!!                 |
   |***********************************************************************/
 
 #include <Logic.h>

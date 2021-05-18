@@ -183,7 +183,7 @@
   #error "Unrecognized combination of flash size and chip type"
 #endif
 
-#define PORTMUX_TCA0 2 //1 = each wave output cannnel can be moved indivdualy, like tinyAVRs
+#define PORTMUX_TCA0 2 //1 = each wave output cannnel can be moved individually, like tinyAVRs
 
 
 /* after defining the PART_ID, use it to determine which timer output pins exist and give you a define for them. */
