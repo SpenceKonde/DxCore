@@ -4,16 +4,23 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
+## Released Versions
+
 ### 1.3.6
 * Improve #defines relating to on-chip peripherals which operate on specific pins.
-* Introduce dramatically enhanced performance for SerialUPDI programming method. This is now the recommended programming method. The read and write speed compared to jtag2updi is faster by 2:1 when the baud rates are equal, and SerialUPDI can operate at a baud rate three times higher with most serial adapters. SerialUPDI does not suffer from the bugs that afflicted jtag2updi either, and can be made with serial adapters that are cheaper than dirt: 7 for $5 including shipping - using only an external diode (with most serial adapters).
-* Correct TWI baud rates (change imported from from megaTinyCore #422)
-* Adjust TWI buffer sizes. Everything with at least 4096b of ram (ie, all parts supported by this core except the future AVR16DD) has 130 byte buffers (why 130? That *just* lets you squeeze in a full page read or write from an AT24-class EEPROM - and these parts have so much ram it's not even funny. We don't have to be cheap with it like we do on small parts. Everything else gets 32 byte buffers except for the smallest tinyAVR parts (which are handled by megaTinyCore anyway - but the Wire library versions are currently the same.
+* Introduce dramatically enhanced performance for SerialUPDI (it has a name now!) programming method. This is now the recommended programming method. The read and write speed compared to jtag2updi is faster by 2:1 when the baud rates are equal, and SerialUPDI can operate at a baud rate three times higher with most serial adapters. SerialUPDI does not suffer from the bugs that afflicted jtag2updi either, and can be made with serial adapters that are cheaper than dirt: 7 for $5 including shipping - using only an external diode! There is essentially no reason to use jtag2updi on a Dx-series part other than having already built a dedicated jtag2updi programmer.
 * Ensure that Wire library correctly configures pin registers. Even when they were configured improperly.
+* Correct TWI baud rates (change imported from from megaTinyCore #422)
+* Adjust TWI buffer sizes. Everything with at least 4096b of ram (ie, all parts supported by this core except the future AVR16DD) has 130 byte buffers (why 130? That *just* lets you squeeze in a full page read or write from an AT24-class EEPROM - and these parts have so much ram it's not even funny. We don't have to be cheap with it like we do on small parts. Everything else gets 32 byte buffers except for the smallest tinyAVR parts (the same version of Wire and associated files is used here and on megaTinyCore)
 * Correct bug that prevented Servo and Servo_DxCore from compiling. Tidy the code surrounding the point where the issue arose (including eliminating the need to disable style checking there, and stuff the ugly stuff into ServoTimers.h with similarly ugly stuff.
-* Add prelimimnary
-
-## Released Versions
+* Changed name of constant to FLOATING instead of FLOAT, as that is used for some floating point related things. Actually documented openDrain() so people might end up actually using it. You can also just use HIGH - it just seems dirty to call it that, when we're NOT driving it high.
+* Implement pinConfigure() to set weird options in PINnCTRL easily, in arbitrary combinations.
+* Implement all the new ADC functionality, including analogClockSpeed, as well as analogReadEnh and analogReadDiff!
+* Most keywords from datasheet imported to keywords.txt. Some values were dumped to reduce the length, and it's still crazy long.
+* Massive boards.txt cleanup (internal - but far more navigable!)
+* Correct bug with CRYSTAL vs XTAL (thanks Microchip, for changing the names your headers define after product release, and with no compatibility layer). Slight cleanup in init_clock(). Add compatibility measures to Arduino.h
+* Correct bug with new.h/new.cpp missing a key method (#434)
+* The Opamp library's `Opamp0` (and the other two) objects now have public member variables: input_p_pin, output_pin, and input_n_pin. so you can do analogRead(Opamp0.output_pin) - mostly intended to permite more modular code, and code where references are used such that
 
 ### 1.3.5
 * Board Manager re-release only. Windows toolchain package was mangled too.
