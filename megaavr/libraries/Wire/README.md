@@ -6,7 +6,7 @@ Like most peripherals, the TWI interface can be swapped to an alternate set of p
 
 `Wire.swap(1) or Wire.swap(0)` will set the the mapping to the alternate (1) or default (0) pins. On parts which do not support an alternate pinout for this peripheral, `Wire.swap()` will generate a compile error if a value known at compile time and not 0 is passed to it; on parts which do, a compile-time-known value that is neither 0 nor 1 will similarly generate an error. An invalid value that is *not* known at compile time will instead result in swap() returning false and selecting the default pins.
 
-`Wire.swap(1)` corresponds to the `ALT_2` pin mapping from the datasheet. `Wire.swap(0)` corresponds to the to the `DEFAULT` pin mapping. The `ALT_1` pin mapping is not supported, as it is the same as default except when dual mode is enabled. Dual mode is not supported by the Wire library; I am aware of no Arduino library implementations of dual mode. This may be implemented at some point in the future, but I do not expect to be able to get to it anytime soon. The hardware also supports master and slave on the *same* pins, but this is ALSO not supported by this library, for the same reason. I would be overjoyed to receive a pull request to add this functionality. 
+`Wire.swap(1)` corresponds to the `ALT_2` pin mapping from the datasheet. `Wire.swap(0)` corresponds to the to the `DEFAULT` pin mapping. The `ALT_1` pin mapping is not supported, as it is the same as default except when dual mode is enabled.
 
 `Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins `SDA` and `SCL`. If this is not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than Wire.swap(); that method is preferred. As with `Wire.swap()`, this will generate a compile error if the pins are compile-time-known constants which are not a valid SDA/SCL pair.
 
@@ -30,3 +30,9 @@ Wire.begin(uint8_t address, bool receive_broadcast, uint8_t second_address)
 
 ## Errata warning
 All modern AVRs, since the release of the first tinyAVR 0/1-series, through the AVR DB-series, have always had a silicon bug relating to the TWI pins. When the TWI peripheral takes control of the SCL and SDA, it correctly controls their being an INPUT or OUTPUT - but it fails to also take over the output value... That means that if the PORTx.OUT bit is 1 for either of the pins, it would be trying to drive the line high instead of low, and the I2C bus would be non-functional. As of 2.2.6, we always clear those bits in begin(); this was not done on older versions. In any event, do not `digitalWrite()` either of the pins  `HIGH` or set their `pinMode()` to `INPUT_PULLUP` after calling `Wire.begin()`.
+
+## Dual Mode not supported
+Dual mode is not supported by the Wire library; I am aware of no Arduino library implementations of dual mode. This may be implemented at some point in the future, but I do not expect to be able to get to it anytime soon. This is a more difficult task than most development work, and it's not clear to me how to extend the state machine model in the library to handle the same module acting as both master and slave. The hardware also supports master and slave on the *same* pins, but this is ALSO not supported by this library, for the same reason. I would be overjoyed to receive a pull request to add this functionality. 
+
+## The second TWI
+Most of these parts have a second TWI interface. A Wire1 library that is compatible with any library that was compatible with Wire (and I mean that in both senses of "any") is possible, but I do not have the skill with C++ classes to do it. If you do and want to be a hero: [Issue #54](https://github.com/SpenceKonde/DxCore/issues/54)
