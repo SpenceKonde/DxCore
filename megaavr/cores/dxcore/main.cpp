@@ -42,10 +42,7 @@ int main(void)
     // since the "application" is actually split across "boot" and "application" pages of flash... and it's vectors
     // are all in the section defined as "boot" section, tell the interrupt controller that, otherwise nothing'll work!
     // This could just as well be set in init() - any time before interrupts are enabled - but this way as much of
-    // the stuff pulled in by this as possible is kept in one place.
-    // This shit is so hideous, I'll spare the normal core-modifying-people having to deal with it, and they can
-    // just imagine there's an actual bootloader, instead spm z+ ret shoved into a section that as I read the gcc docs
-    // doesn't even make sense on a <256k processor that doesn't call ijmp or icall anyway!
+    // the stuff related to this is in the same file.
   #endif
   init();
 
