@@ -145,7 +145,7 @@ clocksource::clk_per;      // Clock from the peripheral clock (ie, system clock)
 clocksource::in2;          // Clock from the selected input2; it is treated as a 0 in the truth table.
 clocksource::oschf;        // Clock from the **unprescaled** internal HF oscillator. Same as clk_per if system clock not prescaled.
 clocksource::osc32k;       // Clock from the internal 32.768 kHz oscillator
-clocksource::osc1l;        // Clock from the internal 32.768 kHz oscillator prescaled by 32
+clocksource::osc1k;        // Clock from the internal 32.768 kHz oscillator prescaled by 32
 ```
 
 
@@ -192,7 +192,7 @@ Logic0.sequencer = sequencer::disable; // Disable sequencer
 This property contains the 8-bit truth table value.
 Accepted values between 0x00 and 0xFF - this is where the input values are looked up to determine what value to output.
 
-In2:in0 are treated as a 3-bit number (so 0-7), that bit number (starting from 0) determines the output value.
+in2:in0 are treated as a 3-bit number (so 0-7), that bit number (starting from 0) determines the output value.
 
 Ex: If in1 and in0 are high, and in2 is low, input is 3, (0b011 = 3). If the truth table is 0x89 - `0b10001001` - then the output will be high (0b1000*1*001). Put another way, the output it high if `truth & (1 << input)` is true.
 
@@ -314,3 +314,4 @@ Logic0.detachInterrupt(); // Disable interrupts for block 0
 
 ## Note on terminology`*`
 Yes, technically, C++ doesn't have "properties" or "methods" - these are "member variables" and "member functions" in C++ parlance. They mean the same thing. I've chosen to use the more familiar, preseent day terminology.
+
