@@ -3,7 +3,7 @@ The errata for the DA128 parts was a rather depressing document. A large number 
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
 Issue    | Severity | Source    | 128DA | 64DA | 32DA |  128DB
 ---------|----------|-----------|-------|------|------|--------
-Vector table is wrong     | 5        | AVRFreaks | NO    | NO   | YES | NO
+Vector table is wrong     | 5        | AVRFreaks | NO    | NO   | Recalled&fixed | NO
 ADC disables digital input| 2        | Microchip | YES   | YES  | YES | NO
 Memory mapped flash issues| 3        | Microchip | YES   | NO   | N/A | NO
 TCA1 Remap on PORTE/G     | 1        | Microchip | YES   | NO?  | N/A | NO
