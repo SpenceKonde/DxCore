@@ -1,30 +1,37 @@
 # Errata and Extras
 The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Worse still, the document released in April 2020 by Microchip is not even complete - and it certainly does a poor job of explaining some of the most important issues that it does mention. Microchip does a very poor job of documenting this errata and updating the silicon errata sheets as new issues are discovered.
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
-Issue    | Severity | Source    | 128DA | 64DA | 32DA |  128DB
----------|----------|-----------|-------|------|------|--------
-Vector table is wrong     | 5        | AVRFreaks | NO    | NO   | Recalled&fixed | NO
-ADC disables digital input| 2        | Microchip | YES   | YES  | YES | NO
-Memory mapped flash issues| 3        | Microchip | YES   | NO   | N/A | NO
-TCA1 Remap on PORTE/G     | 1        | Microchip | YES   | NO?  | N/A | NO
-TWI Pins must be LOW      | 1        | Microchip | YES   | YES  | YES | YES
-SPI SSD only works on alt pins | 2   | Microchip | YES   | NO?  | NO? | NO?
-USART Open Drain TX must be INPUT | 1| Microchip | YES   | YES  | YES | YES
-TWI SDA Hold Times        | 1        | Microchip | YES   | NO?  | NO? | NO?
-ZCD Output remapping broken| 1       | Microchip | NO?   | YES  | YES | A4 only
-No Event on PB6,7 PE4,5,6,7 | 3      | Microchip | YES   | NO?  | N/A | NO?
-All CCL LUTs enable-locked to CCL| 2 | Microchip | Likely| Likely|Likely | YES
-CCL3 on 32/28-pin no LINK input| 2   | Microchip | YES   | YES  | YES | A4 only
-Initial fuses don't match datasheet | 1 | Microchip | A6 | ???  | ??? | A4 week 21 and older
-TCD0 portmux options broken | 3        | Microchip | Yes | Likely | Likely | Yes
-ADC increased offset in single-ended | 4 | Microchip | N/A | N/A | N/A | A4 only
-OPAMP power consumption 3x higher than expected | 1 | Microchip | ??? | ??? | ??? | A4 only
-OPAMP IRSEL bit read-only | 1 | Microchip | N/A | N/A | N/A | A4 only
-PLL doesn't work from ext. xtal | 1 | Microchip | N/A | N/A | N/A | Yes
+Issue                          | Severity | Source    | 128DA | 64DA | 32DA    |  128DB  | 64DB  | 32DB  | 64DD  | 32DD  | 16DD  | Notes |
+--------------------------------------|---|-----------|-------|------|---------|---------|-------|-------|-------|-------|-------|-------|
+Increased Current if Vdd falls < 2.1V | 2 | Microchip | NO?   | NO?  | NO?     | YES     | YES   | YES   |       |       |       | 
+Vector table is wrong                 | 5 | AVRFreaks | NO    | NO   |RECALLED | NO      | NO    | NO    |       |       |       |
+CRC check on reset non-functional     | 1 | AVRFreaks | A6    | NO   | NO      | NO      | NO    | NO    |       |       |       | I suspect this is what got A7 out so fast. |
+ADC disables digital input            | 2 | Microchip | YES   | YES  | YES     | NO      | NO    | NO    |       | N/A   | N/A   |
+Memory mapped flash issues            | 3 | Microchip | YES   | NO   | N/A     | NO      | NO    | N/A   |       | N/A   | N/A   |
+TCA restart resets counter direction  | 2 | Microchip | YES   | YES  | YES     | YES     | YES   | N/A   |       | N/A   | N/A   |
+TCB CCMPH/CCMPL act as 16-bit in PWM  | 2 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       | N/A   | N/A   | Has impacted all modern AVRs |
+TCA1 Remap on PORTE/G                 | 3 | Microchip | YES   | NO?  | N/A     | NO      | NO    | N/A   | N/A   | N/A   | N/A   | This is a real pain now that we support alt mappings! |
+TWI Pins must be LOW                  | 1 | Microchip | YES   | YES  | YES     | YES     | NO??  | NO??  |       | N/A   | N/A   | Has impacted all modern AVRs |
+SPI SSD only works on alt pins        | 2 | Microchip | YES   | NO?  | NO?     | NO?     | NO?   | NO?   |       | N/A   | N/A   | 
+USART Open Drain TX must be INPUT     | 1 | Microchip | YES   | YES  | YES     | YES     | NO?   | NO?   |       | N/A   | N/A   | Has impacted all modern AVRs       |
+USART start of frame detect in active | 3 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       | N/A   | N/A   | Has impacted all modern AVRs       |
+TWI SDA Hold Times                    | 1 | Microchip | YES   | NO?  | NO?     | NO?     | NO?   | NO    |       | N/A   | N/A   | Writing code for m
+ZCD Output remapping broken           | 1 | Microchip | NO?   | YES  | YES     | A4      | NO?   | NO    |       | N/A   | N/A   | 
+No Event on PB6,7 PE4,5,6,7           | 3 | Microchip | YES   | NO   | N/A     | NO      | NO    | N/A   |       | N/A   | N/A   | Can generally be worked around     |
+All CCL LUTs enable-locked to CCL     | 2 | Microchip | YES   | YES  | YES     | YES     | NO??  | NO??  |       | N/A   | N/A   | Has impacted all modern AVRs       |
+CCL3 on 32/28-pin no LINK input       | 2 | Microchip | YES   | YES  | YES     | A4      | NO    | NO    |       | N/A   | N/A   | 
+Initial fuses don't match datasheet   | 1 | Microchip | A6    | ???  | ???     | A4      | NO    | NO    |       | N/A   | N/A   | No practical implications          |
+TCD count prescale breaks async input | 1 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       | N/A   | N/A   | Has impacted all modern AVRs       |
+TCD0 portmux options broken           | 3 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       | N/A   | N/A   | Intensely frustrating!             |
+ADC increased offset in single-ended  | 4 | Microchip | N/A   | N/A  | N/A     | A4      | NO    | NO    |       | N/A   | N/A   | Fixed mighty fast!                 |
+OPAMP power consumption 3x higher     | 1 | Microchip | N/A   | N/A  | N/A     | A4      | NO    | NO    |       | N/A   | N/A   |
+OPAMP IRSEL bit read-only             | 1 | Microchip | N/A   | N/A  | N/A     | A4      | NO    | NO    |       | N/A   | N/A   |
+PLL doesn't work from ext. xtal       | 1 | Microchip | N/A   | N/A  | N/A     | Yes     | YES   | YES   |       | N/A   | N/A   |
 
 NO? means not mentioned in errata, but has not been confirmed as not being present in that size of chip.
+NO?? means the same, but I am particularly doubtful.
 N/A for the 32DA: There's no AVR32DA64, hence the 64-pin-only issues don't apply.The flash mapping is likewise not an issue there as they only have one section of flash.
-The * indicates that this issue is universal and applies to every modern AVR
+
 
 Alas - 9 months after the release of the DA-series,we have seen only the AVR128DB get a new silicon rev that fixed a significant number of issues, though the AVR32DA is getting respun to fix vector issue, presumably (since it was recalled)
 
@@ -36,7 +43,7 @@ See [ModernRevSerial](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/
 All written my me, not copied from Microchip.
 
 ### Vector Table is Wrong on AVR32DA
-Remember how the ATmega808 and 809 had 4-byte interrupt vectors in hardware, but for a while the toolchain tried to generate 2-byte vector tables for it, unsurprisingly that didn't work. Well this is much worse: it's the other way around! Not only does the toolchain generate binaries that don't work, it cannot be fixed with a toolchain update, because the hardware only supports a 2-byte (rjmp) vector, but the chip has 32k of flash, so only a quarter of the chip would be accessible for interrupt vectors. **Impacted AVR32DA parts are not usable**, and they are apparently being recalled, according to a Microchip employee posting on the AVRFreaks forum. However, that was late October; as of early February the fact that the chips are impacted by an errata that renders them completely unusable is still not mentioned on the silicon errata. It really raises some questions about their test procedures (They produced a new chip, packaged them, and shipped them, advertising them as fit for use in life safety critical applications without having tested even the equivalent of blink - AND it was a screwup that they did the opposite of on the smallest flash version of the prior product line, so they should have been specifically checking for it...) This definitely impacts the A4 silicon revision. It is unclear whether the A5 revision is impacted.
+Remember how the ATmega808 and 809 had 4-byte interrupt vectors in hardware, but for a while the toolchain tried to generate 2-byte vector tables for it, unsurprisingly that didn't work. Well this is much worse: it's the other way around! Not only does the toolchain generate binaries that don't work, it cannot be fixed with a toolchain update, because the hardware only supports a 2-byte (rjmp) vector, but the chip has 32k of flash, so only a quarter of the chip would be accessible for interrupt vectors. **Impacted AVR32DA parts are not usable**, and they are apparently being recalled, according to a Microchip employee posting on the AVRFreaks forum. However, that was late October; as of early February the fact that the chips are impacted by an errata that renders them completely unusable is still not mentioned on the silicon errata. It really raises some questions about their test procedures (They produced a new chip, packaged them, and shipped them, advertising them as fit for use in life safety critical applications without having tested even the equivalent of blink - AND it was a screwup that they did the opposite of on the smallest flash version of the prior product line, so they should have been specifically checking for it...). Effected chips were pulled from the market and that's why between the fall and late winter, the 32 k parts were unavailable.
 
 ### ADC disables digital input
 *If an input pin is selected to be analog input, the digital input function for those pins is automatically disabled*
@@ -115,10 +122,12 @@ You don't even need an external clock source to overclock these bad boys! You ca
 
 Using DxCore, you don't even need to go to all that effort - you can just select 28 MHz or 32 MHz from the Tools -> Clock Speed menu, and upload your sketch and it will run at the higher clock speed!
 
+With an external oscillator, you can go higher still! I got 40 MHz no problem, 48 started to get math errors, at least on the chip I tried it on. Crystals are on order to see how well those do compared to the more expensive oscillators. I also plan to test with the high temp spec'ed parts in case those are just the top-bin, and hence would work at higher speeds at room temperature. 
+
 ### Overclocking the PLL
 The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that...
 
-Also, note the removed option in the io header - apparently it can be run at x4 multiplication factor. In fact, it works at 32 MHz x 4 = 128 MHz at room temperature...
+Also, note the removed option in the io header - apparently it can be run at x4 multiplication factor. In fact, it works at 32 MHz x 4 = 128 MHz at room temperature... When I tried 4x multiplication on a 40 MHz external oscillator, however, the output of TCD0 (the only thing that can use the PLL) had glitches, especially when you tried to change the duty cycle. 
 
 The PLL did not work at all work with the oscillator at 4 MHz (though it worked at 8 MHz and 12 MHz). These parts seem to have a huge safety margin on their clock subsystem.
 
