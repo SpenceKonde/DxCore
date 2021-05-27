@@ -229,6 +229,9 @@ unsigned long microsecondsToClockCycles(unsigned long microseconds);
 #define TIMERRTC      0x90
 #define DACOUT        0x80
 
+// These are used in portmux options because Microchip is not consistent in their I/O headers!
+#define NOT_A_MUX     0xFF //invalid portmux options
+#define MUX_NONE      0x7F // Standin for the NONE option that can be used when calling swap.
 
 // These are lookup tables to find pin parameters from Arduino pin numbers
 // They are defined in the variant's pins_arduino.h

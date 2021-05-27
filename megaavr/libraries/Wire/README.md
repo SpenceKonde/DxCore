@@ -4,9 +4,17 @@ All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin ve
 ## Pin Mappings
 Like most peripherals, the TWI interface can be swapped to an alternate set of pins; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin().
 
-`Wire.swap(1) or Wire.swap(0)` will set the the mapping to the alternate (1) or default (0) pins. On parts which do not support an alternate pinout for this peripheral, `Wire.swap()` will generate a compile error if a value known at compile time and not 0 is passed to it; on parts which do, a compile-time-known value that is neither 0 nor 1 will similarly generate an error. An invalid value that is *not* known at compile time will instead result in swap() returning false and selecting the default pins.
+`Wire.swap()` will set the the mapping to the specified state. On parts which do not support an alternate pinout for this peripheral, `Wire.swap()` will generate a compile error if a value known at compile time and not 0 is passed to it; on parts which do, a compile-time-known value that is not valid will similarly generate an error. An invalid value that is *not* known at compile time will instead result in swap() returning false and selecting the default pins. Alternate mapping 1 is supported, in order to make the librarty self-consistent and future-proof - but because dual mode is not supported, it behaves identically to the default.
 
-`Wire.swap(1)` corresponds to the `ALT_2` pin mapping from the datasheet. `Wire.swap(0)` corresponds to the to the `DEFAULT` pin mapping. The `ALT_1` pin mapping is not supported, as it is the same as default except when dual mode is enabled.
+| Pin mapping | 64-pin | 48-pin | 32-pin  | 28-pin  | 20-pin | 14-pin | SDA | SCL | Dual SDA | Dual SCL |
+|-------------|--------|--------|---------|---------|--------|--------|-----|-----|----------|----------|
+| DEFAULT (0) |  YES   |  YES   |   YES   |   YES   |  YES   |  YES   | PA2 | PA3 | PC2      | PC3      |
+| ALT_1   (1) |  YES   |  YES   |   YES*  |   YES*  |  YES*  |  YES*  | PA2 | PA3 | PC6      | PC7      |
+| ALT_2   (2) |  YES   |  YES   |   YES*  |   YES*  |  YES*  |  YES*  | PC2 | PC3 | PC6      | PC7      |
+| ALT_3   (3) |  NO    |  NO    | DD only | DD only |  YES   |  YES   | PA0 | PA1 | PC2      | PC3      |
+`* indicates that the dual mode pins are unavailable which will be relevant if we ever support dual mode. `
+
+The Wire.Swap() values are shown in parenthesis.
 
 `Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins `SDA` and `SCL`. If this is not a valid mapping option, it will return false and set the mapping to the default. This uses more flash than Wire.swap(); that method is preferred. As with `Wire.swap()`, this will generate a compile error if the pins are compile-time-known constants which are not a valid SDA/SCL pair.
 
@@ -17,12 +25,12 @@ Wire.usePullups();
 ```
 
 ## Wire.setClock()
-`Wire.setClock()` is not exact (nor is it on the official core; this implementation should do a better job of matching the requested clock speed than the previous implementations). The clock speed always depends on bus conditions - the baud generator adapts to the observed rise times and voltage levels - if they are rising more slowly than they should, it will run more slowly. To use speeds higher than 400 kHz, the main clock must be higher than 8 MHz. Note that this disables and reenables the TWI module.
+`Wire.setClock()` is not exact (nor is it on the official core; this implementation should do a better job of matching the requested clock speed than the previous implementations). The clock speed always depends on bus conditions - the baud generator adapts to the observed rise times and voltage levels - if they are rising more slowly than they should, it will run more slowly. To use speeds higher than 400 kHz, the main clock must be higher than 8 MHz. Note that this disables and reenables the TWI module. This must be called *after* `Wire.begin()`
 
-Prior to 5/2021, Wire.setClock() did not work correctly and TWI baud rates could be wrong in either direction on any part. In 1.3.6, this is impacted by a newly introduced bug which may prevent the TWI bus from functioning correctly when it is called after `Wire.begin()`
+Prior to 5/2021, Wire.setClock() did not work correctly and TWI baud rates could be wrong in either direction on any part. In 1.3.6, a botched fix prevented TWI from working after calling setClock().
 
 ## Extra Features
-As courtesey of https://github.com/LordJakson, in slave mode , it is now possible to respond to the general call (0x00) address as well. This is controlled by the optional second argument to Wire.begin(). If the argument is supplied amd true, general call broadcasts will also trigger the interrupt. These parts also support optionally having a second address, or allow you to mask (ignore) some bits in the address. The optional third argument, if supplied, is passed unaltered to the TWI0.SADDRMASK register. If the low bit is 0, any bits set 1 will be ignored (masked off bits will be treated as matching). If the low bit is 1, it will instead act as a second address that the device can respond to. Hence with maximum options, the slave mode begin() call is:
+Courtesey of https://github.com/LordJakson, in slave mode, it is possible to respond to the general call (0x00) address as well. This is controlled by the optional second argument to Wire.begin(). If the argument is supplied amd true, general call broadcasts will also trigger the interrupt. These parts also support optionally having a second address, or allow you to mask (ignore) some bits in the address. The optional third argument, if supplied, is passed unaltered to the TWI0.SADDRMASK register. If the low bit is 0, any bits set 1 will be ignored (masked off bits will be treated as matching). If the low bit is 1, it will instead act as a second address that the device can respond to. Hence with maximum options, the slave mode begin() call is:
 
 ```
 Wire.begin(uint8_t address, bool receive_broadcast, uint8_t second_address)
