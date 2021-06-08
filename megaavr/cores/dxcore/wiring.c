@@ -287,6 +287,9 @@ unsigned long millis()
       #elif (F_CPU == 30000000UL)
         ticks = ticks >> 4;
         microseconds = overflows * 1000 + (ticks + (ticks >> 3) - (ticks >> 4) + (ticks >> 8)); // Damned near perfect.
+      #elif (F_CPU == 25000000UL)
+        ticks = ticks >> 4;
+        microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 5)); // - (ticks >> 7)
         // Multiples of 12
         // + (ticks >> 3) - (ticks >> 5) is better than + (ticks >> 4) + (ticks >> 5) - same average, but alternating + and - gives less rounding error.
       #elif (F_CPU == 48000000UL) // Extreme overclocking (almost works w/external clock!)
@@ -328,7 +331,7 @@ unsigned long millis()
             F_CPU == 48000000UL || F_CPU == 14000000UL || F_CPU == 30000000UL || F_CPU == 20000000UL || \
             F_CPU == 10000000UL || F_CPU ==  5000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || \
             F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || \
-            F_CPU ==  1000000UL || F_CPU ==  2000000UL)
+            F_CPU ==  1000000UL || F_CPU ==  2000000UL || F_CPU == 25000000UL)
         #warning "Millis timer (TCBn) at this frequency unsupported, micros() will return totally bogus values."
       #endif
     #else //TCA

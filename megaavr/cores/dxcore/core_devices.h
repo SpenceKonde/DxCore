@@ -1,5 +1,12 @@
-#ifndef Core_Parts_h
-#define Core_Parts_h
+/* core_devices - a part of Arduino.h for DxCore 1.3.0 and later
+ * This is directly included by Arduino.h and nothing else; it just moves
+ * clutter out of that file.
+ *
+ * Spence Konde 2021 - DxCore is free software (LGPL 2.1)
+ * See LICENSE.txt for full legal boilerplate if you must */
+
+#ifndef Core_Devices_h
+#define Core_Devices_h
 #include <avr/io.h>
 
 /*
@@ -185,14 +192,51 @@
 
 #define PORTMUX_TCA0 2 //1 = each wave output cannnel can be moved individually, like tinyAVRs
 
+#define CORE_HAS_FASTIO 1                /* DxCore has the digitalReadFast() and digitalWriteFast()              */
+#define CORE_HAS_OPENDRAIN 1             /* DxCore has openDrain() and openDrainFast()                           */
+#define CORE_HAS_PINCONFIG 1             /* pinConfigure is now implemented                                      */
+#define CORE_HAS_TIMER_TAKEOVER 1        /* DxCore has takeOverTCA0(), takeOverTCA0() and takeOverTCD0()         */
+#define CORE_HAS_TIMER_RESUME 1          /* DxCore has resumeTCA0(), resumeTCAq() and resumeTCD0()               */
+#define CORE_SUPPORT_LONG_TONES 1             /* tone()s specifying duration are timed by counting the oscillations.
+ * Frequency is in Hz, while duration is in ms, so (2 * frequency * duration)/1000 is the number of transitions
+ * before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
+ * overflow when frequency * duration > 4.2b. A high-pitched tone of 20 kHz would overflow if a delay of longer
+ * than around 7 minutes was requested (prior to this update, the maximum was a factor of two lower than that)
+ * On parts like the Dx-series where there's no problem with flash space, we now, when duration > (2^16) ms (a
+ * necessary precondition for overflow to occur) do ((frequency / 5) * (duration/100)) at cost of ~100b flash .  */
+#define ADC_DIFFERENTIAL 1               /* Basic modern-AVR differential ADC                                    */
+#define CORE_HAS_ANALOG_ENH 1            /* DxCore has analogReadEnh()                                           */
+#define CORE_HAS_ANALOG_DIFF 1           /* DxCore has analogReadDiff()                                          */
+#define ADC_MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore has 15 bit maximum resolution via oversampling and decimation*/
 
-/* after defining the PART_ID, use it to determine which timer output pins exist and give you a define for them. */
-#include "device_timer_pins.h"
+#ifdef OPAMP0
+  #ifndef ADC_MAXIMUM_GAIN
+    #define ADC_MAXIMUM_GAIN -1            /* DB-series can use their OPAMPs as a PGA         */
+  #endif
+  #define PIN_OPAMP0_INP PIN_PD1
+  #define PIN_OPAMP0_OUT PIN_PD2
+  #define PIN_OPAMP0_INN PIN_PD3
+  #ifdef OPAMP1
+    #define PIN_OPAMP1_INP PIN_PD4
+    #define PIN_OPAMP1_OUT PIN_PD5
+    #define PIN_OPAMP1_INN PIN_PD7
+  #endif
+  #ifdef OPAMP2
+    #define PIN_OPAMP2_INP PIN_PE1
+    #define PIN_OPAMP2_OUT PIN_PE2
+    #define PIN_OPAMP2_INN PIN_PE3
+  #endif
+#else
+  #define ADC_MAXIMUM_GAIN 0                /* DA and DD series don't have any                */
+#endif
 
-
-
-
-
+// If not otherwise specified, we will assume the DAC outputs on PD6 - No product has
+// been announced with it anywhere else, nor has any product been announced with more than 1.
+#ifdef DAC0
+  #ifndef PIN_DACOUT
+    #define PIN_DACOUT PIN_PD6
+  #endif
+#endif
 
 // These pieces of version numbers get passed in as command line arguments by platform.txt.
 #define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
@@ -201,7 +245,7 @@
 // However, without it, things don't know that they are working with DxCore.
 // So we put in a placeholder so defined(DXCORE) is true.
 #ifndef DXCORE
-  #define DXCORE "Unknown 1.3.6+"
+  #define DXCORE "Unknown 1.3.7+"
 #endif
 
 
