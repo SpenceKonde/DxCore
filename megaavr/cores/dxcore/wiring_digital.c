@@ -91,26 +91,37 @@ void pinConfigure(uint8_t pin, uint16_t pinconfig) {
     }
   }
   pinconfig >>= 8; // now it's just the last 4 bits.
-  #ifdef MVIO // only MVIO parts have the TTL levels.
-  // Their utility in a mixed voltage system is obvious: when you run out
-  // of MV pins, you can still use lower voltage lines as inputs, or drive them open drain
-  // but not if you can't read them reliably. The schmitt trigger is only guaranteed to read
-  // high above 0.8*Vcc, so even 3.3v logic (which usually *does* work) isn't in spec!
+  #ifdef MVIO
+  /* only MVIO parts have this option
+   *
+   * Their utility in a mixed voltage system is obvious: when you run out
+   * of MV pins, you can use as many GPIO pins as you want as open drain outputs, but what if
+   * you need inputs? Assuming VDD > VDDIO2, any GPIO pin could be connected to that source
+   * but normally you can't read them reliably. The schmitt trigger is only guaranteed to read
+   * HIGH above 0.8*Vcc, so even 3.3v logic (which is widely known to be pretty reliable)
+   * isn't in spec for a part running Vdd = 5.0 V!
+   *
+   * The solution is to set INLVL to TTL mode, which guarantees a LOW when Vin < 0.8 V and
+   * a HIGH when Vin > 1.6 V.
+   *
+   * Whenever you're interacting with something that might use lower logic level, enable this.
+   * Set or clear only - toggle not supported. I question the usefulness of the other PINnCTRL
+   * toggles, but here I have very little doubt: If you want a toggle INLVL option, you're in an
+   * X-Y problem and are going about something sufficiently wrong  that it is more helpful to not
+   * give you that tool than help you go further into the weeds. */
   temp = pinconfig & 0x03;
   if (temp) {
     if (temp == 0x01) {
       pinncfg |= 0x40; // set
     } else {
-      pinncfg &= ~(0x40);   // clear - toggle not supported. I question the usefulness of the other PINnCTRL toggles,
-      // but I am more confident here than in those cases, that if you want a toggle INLVL option, you're doing something
-      // sufficiently wrong that it is more helpful to not give you that tool than help you go further into the weeds.
+      pinncfg &= ~(0x40);   // clear
     }
   }
   #endif
   temp = pinconfig & 0x0C;
   if (temp) {
     if (temp == 0x0C) {
-      pinncfg ^= 0x80;    // toggle invert - of dubious utility
+      pinncfg ^= 0x80;    // toggle invert - of dubious utility, but I'll accept it.
     } else if (temp == 0x08) {
       pinncfg &= ~(0x80); // clear
     } else {
