@@ -8,8 +8,9 @@ By Spence Konde and Quentin Bolsee
 An Arduino IDE friendly launch script for pymcuprog, including performance enhancements .
 
 ### Required Hardware
+There has been some debate and questions have been raised over whether the recommendations below are the best. More study is required.
 1. A USB serial adapter These can be had for as low as $1 on ebay and aliexpress based on the CH340G, slightly more for CP210. Ideally, you want to dedicate a serial adapter to this purpose for ease of use, rather than havign to connect and disconnect things every rtime you want to use it.
-1. a fast signal schottky diode such as a 1N4148 or any of many others (recommended) or a resistor (see below to figure out value)).
+1. a fast signal schottky diode (recommended) or a resistor (see below to figure out value)). Schottky, not silicon! Silicon are on the edge of working, when the whole point of using a schottky diode instead of a resistor is to move the system thoroughly into the working regime, instead of running on the edge between working and busted.
 1. 1 resistor, a few hundred ohms - 220 to 1k, even 2k is fine (may not be needed).
 2. A few jumper wires.
 
