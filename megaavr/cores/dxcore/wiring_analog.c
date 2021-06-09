@@ -686,7 +686,7 @@ void takeOverTCA1() {
 void resumeTCA1() {
   TCA1.SPLIT.CTRLA = 0;         // Stop TCA1
   TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA1
-  init_TCA0();                  // reinitialize TCA1
+  init_TCA1();                  // reinitialize TCA1
   PeripheralControl |= TIMERA1; // Mark timer as core controlled
   #if defined(MILLIS_USE_TIMERA1)
     restart_millis();              // If we stopped millis for takeover, restart
