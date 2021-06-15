@@ -7,8 +7,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Add a list of functions and #defined macros, and a list of "dont use names like_____" warnings.
 * Correct micros on some really obscure frequencies
 * Fix typo in resumeTCA1()
-* init_millis() is supposed to be weakly defined so you can override it to kneecap millis from within your code, without relying on menu option. It doesn't get you working delay or anything, but I've done that at times when I don't use any Arduino timekeeping, but just need all interrutps to be gone.
-* Split DxCore.h into DxCore.h and DxCore.cpp, because othwerwise you couldn't include it from more than one file without duplicate definitions.
+* init_millis() is supposed to be weakly defined so you can override it to kneecap millis from within your code, without relying on menu option. It doesn't get you working delay or anything, but I've done that at times when I don't use any Arduino timekeeping, but just need all interrupts to be gone.
+* Split DxCore.h into DxCore.h and DxCore.cpp, because otherwise you couldn't include it from more than one file without duplicate definitions.
 * (pending - if there are issues with current github version this is why) Massive, comprehehsive, and overarching refactoring of almost every aspect of the pinswap system for serial because the existing implementation was.... not well suited to adaptation to the case of N pin mappings per serial port with N > 2 (and even where N = 2 it was marginal). Work done here will be used in megaTinyCore 2.5.0 for the planned serial overhaul and efficiency improvements there.
 * add getAnalogReference(), getDACReference(), getAnalogSampleDuration() and getAnalogReadResolution() macros (all are trivial, all should have existed for a long time.)
 

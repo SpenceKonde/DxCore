@@ -992,7 +992,7 @@ void  __attribute__((weak)) init_clock() {
     #endif
   #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
     #if F_CPU > 40000000
-      #warning "Selected frequency greatly exceeds manufacturer specifications - this may cause hangs, resets, or even incorrect results from arithmatic and logic operations; be sure to consider this when debugging"
+      #warning "Selected frequency greatly exceeds manufacturer specifications - this may cause hangs, resets, or even incorrect results from arithmetic and logic operations; be sure to consider this when debugging"
     #elif F_CPU > 24000000
       #warning "Selected frequency exceeds manufacturer specifications. Although these parts overclock very well, be sure to exclude overclocking-induced problems when debugging."
     #endif

@@ -30,11 +30,15 @@ resource to cooy+paste starting points from.
 
 #endif
 
-void setup () {
+void setup() {
 
 
 }
 
+
+void loop() {
+  openDrainBitBang()
+}
 
 /*-----------------------------------------------------------------------------
 openDrain(pin,value) and openDrainFast(pin,value)
@@ -58,12 +62,6 @@ nothing else connected to it is driving the pin LOW; otherwise the pin will
 float.
   CHANGE toggles the direction.
 
-  All non-Fast versions will also set the pin's output value to LOW, so they.
-  double as a "pin-mode-like" call that can be used to initialize pins; The
-  Fast versions do not. Be sure that the pin's output value is LOW before
-  calling them if the pin being driven HIGH would be destryctuve to your
-  configuration.
-
   Like all Fast I/O functions, you must pass a constant pin and you should try
   to pass a constant value as well. The function when both are constant, and
   the value is not CHANGE optimizes to a single cbi or sbi instruction, occupying
@@ -86,9 +84,13 @@ void openDrainBitbang(uint32_t data) {
   // When it's not waiting for the pins to rise back to HIGH, the code runs
   for (uint8_t i = 0; i < 32; i++ ) {
     while (digitalReadFast(DEMO_PIN) != HIGH || digitalReadFast(DEMO_PIN2 != HIGH));
-    //Wait for them to be high
+    //Wait for them to be pulled high - probably won't loop, but maybe high capacitance on
+    //the lines or weak pullups, or other device holding low (like I2C clock stretching)
+    _NOPNOP(); // wait four clocks so the receiver has a chance to see the same thing as we did; We could even wait longer here
+    _NOPNOP();
     if (((uint8_t)data) & 0x01) {
-      openDrainFast(DEMO_PIN2,LOW);
+      openDrainFast(DEMO_PIN2,LOW); ///set up data line - this likely compiles to cbi, sbrc, sbi
+      // (certainly that's what you;'d expect the compiler to to do, but somethimes it's not so smart)
     }
     openDrainFast(DEMO_PIN,LOW);
     data >>= 1;  //if we'd immediately released it, it would only be low for a fraction of a microsecond.
