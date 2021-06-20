@@ -34,7 +34,7 @@ Also, TCA0 can output PWM on pins 0-2 (0-5 for the large )
 
 unsigned int DutyCycle = 0;
 // picked more or less randomly, other than the fact that everything has it, so it makes a good example :-)
-uint8_t OutputPin = PIN_PC1;
+uint8_t OutputPin = PIN_PC0;
 
 
 void setup() {
@@ -69,7 +69,7 @@ This generates PWM similar to the first example (though without the silly interr
 #error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
-uint8_t OutputPin = PIN_PC1;
+uint8_t OutputPin = PIN_PC0;
 
 unsigned int Period=0xFFFF;
 
@@ -141,14 +141,14 @@ void setup() {
   TCA0.SINGLE.CTRLB = (TCA_SINGLE_CMP2EN_bm | TCA_SINGLE_WGMODE_SINGLESLOPE_gc); //Single slope PWM mode, PWM on WO0
   TCA0.SINGLE.PER = 0x00FF; // Count all the way up to 0x00FF (255) - 8-bit PWM
   // At 20MHz, this gives ~78.125kHz PWM
-  TCA0.SINGLE.CMP0 = 0;
+  TCA0.SINGLE.CMP2 = 0;
   TCA0.SINGLE.CTRLA = TCA_SINGLE_ENABLE_bm; //enable the timer with no prescaler
 }
 
 void loop() { //Lets generate some output just to prove it works
   static byte pass = 0;
   static unsigned int duty = 255;
-  TCA0.SINGLE.CMP0 = duty-- ; //step down the duty cycle each iteration through loop;
+  TCA0.SINGLE.CMP2 = duty-- ; //step down the duty cycle each iteration through loop;
   delay(100);  //so we can see the duty cycle changing over time on the scope/with an LED
   if (!duty) {
     if (pass == 0) {
@@ -187,10 +187,10 @@ void setup() {
   pinMode(PIN_PD2, OUTPUT); //PD2 - TCA0 WO2
   pinMode(PIN_PD3, OUTPUT); //PD3 - TCA0 WO3
   PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTD_gc; // Variety! Also on all parts!
-  TCA0.SPLIT.CTRL = CA_SPLIT_LCMP2EN_bm | TCA_SPLIT_HCMP0EN_bm; //PWM on WO2, WO3
+  TCA0.SPLIT.CTRLB = TCA_SPLIT_LCMP2EN_bm | TCA_SPLIT_HCMP0EN_bm; //PWM on WO2, WO3
   TCA0.SPLIT.LPER = 0xFF; // Count all the way down from 255 on WO0/WO1/WO2
   TCA0.SPLIT.HPER = 0xFE; // Count down from only 254 on WO3/WO4/WO5
-  TCA0.SPLIT.LCMP0 = 128; // 50% duty cycle
+  TCA0.SPLIT.LCMP2 = 128; // 50% duty cycle
   TCA0.SPLIT.HCMP0 = 127; // 50% duty cycle
   TCA0.SPLIT.CTRLA = TCA_SPLIT_CLKSEL_DIV256_gc | TCA_SPLIT_ENABLE_bm; //enable the timer with prescaler of 256 - slow it down so the phases shift more slowly, but not so slow it would flicker...
 }
