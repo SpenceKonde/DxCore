@@ -21,10 +21,10 @@ void setup() {
   pinMode(PIN_PD2, OUTPUT); //PD2 - TCA0 WO2
   pinMode(PIN_PD3, OUTPUT); //PD3 - TCA0 WO3
   PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTD_gc; // Variety! Also on all parts!
-  TCA0.SPLIT.CTRL = CA_SPLIT_LCMP2EN_bm | TCA_SPLIT_HCMP0EN_bm; //PWM on WO2, WO3
+  TCA0.SPLIT.CTRLB = TCA_SPLIT_LCMP2EN_bm | TCA_SPLIT_HCMP0EN_bm; //PWM on WO2, WO3
   TCA0.SPLIT.LPER = 0xFF; // Count all the way down from 255 on WO0/WO1/WO2
   TCA0.SPLIT.HPER = 0xFE; // Count down from only 254 on WO3/WO4/WO5
-  TCA0.SPLIT.LCMP0 = 128; // 50% duty cycle
+  TCA0.SPLIT.LCMP2 = 128; // 50% duty cycle
   TCA0.SPLIT.HCMP0 = 127; // 50% duty cycle
   TCA0.SPLIT.CTRLA = TCA_SPLIT_CLKSEL_DIV256_gc | TCA_SPLIT_ENABLE_bm; //enable the timer with prescaler of 256 - slow it down so the phases shift more slowly, but not so slow it would flicker...
 }

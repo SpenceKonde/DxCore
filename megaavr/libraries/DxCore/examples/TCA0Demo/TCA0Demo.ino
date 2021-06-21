@@ -11,7 +11,7 @@
 
 unsigned int DutyCycle = 0;
 // picked more or less randomly, other than the fact that everything has it, so it makes a good example :-)
-uint8_t OutputPin = PIN_PC1;
+uint8_t OutputPin = PIN_PC0;
 
 
 void setup() {

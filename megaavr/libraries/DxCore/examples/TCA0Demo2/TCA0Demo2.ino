@@ -12,7 +12,7 @@
   #error "This sketch takes over TCA0, don't use for millis here."
 #endif
 
-uint8_t OutputPin = PIN_PC1;
+uint8_t OutputPin = PIN_PC0;
 
 unsigned int Period = 0xFFFF;
 
