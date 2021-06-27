@@ -351,7 +351,7 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
 #endif
 
 #include "pins_arduino.h"
-//#include "pinswap.h"
+#include "pinswap.h"
 
 
 

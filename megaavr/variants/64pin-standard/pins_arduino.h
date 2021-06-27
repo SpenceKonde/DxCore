@@ -4,13 +4,11 @@
 
 #include <avr/pgmspace.h>
 #include "timers.h"
-/*
-       ##  #     # ####      ###        #   #  #
+/*     ##  #     # ####      ###        #   #  #
       #  # #     # #   #     #  #      #    #  #
       ####  #   #  ####      #  # # # ####  ####
       #  #   # #   # #       #  #  #  #   #    #
-      #  #    #    #  #      ###  # #  ###     #
-*/
+      #  #    #    #  #      ###  # #  ###     #                              */
 #define DEFAULT_64PIN_PINOUT
 
 // Arduino pin macros
@@ -133,13 +131,11 @@ and hence what number it should be set to! */
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5 && (p) != PIN_PB6 && (p) != PIN_PB6))
 
 
-/*
-      ####   ###  ####  ##### #   # #   # #   #
-      #   # #   # #   #   #   ## ## #   #  # #
-      ####  #   # ####    #   # # # #   #   #
-      #     #   # # #     #   #   # #   #  # #
-      #      ###  #  #    #   #   #  ###  #   #
-*/
+/*          ####   ###  ####  ##### #   # #   # #   #
+            #   # #   # #   #   #   ## ## #   #  # #
+            ####  #   # ####    #   # # # #   #   #
+            #     #   # # #     #   #   # #   #  # #
+            #      ###  #  #    #   #   #  ###  #   #                         */
 
 #define SPI_INTERFACES_COUNT   1 /* See SPI.h +*/
 

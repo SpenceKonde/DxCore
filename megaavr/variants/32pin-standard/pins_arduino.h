@@ -34,7 +34,7 @@
  * need to determine the pin number of bit 3 of that port so you can call
  * turnOffPWM() on it - PIN_PD0+3 is a 15, PIN_PD3. Calling I/O functions
  * will still fail with PIN_PD0, but fail harmlessly, because everything
- * (bit_mask, bit_position, etc) resolves to NOT_A_PIN */
+ * (bit_mask, bit_position, etc) resolves to NOT_A_PIN                        */
 #define PIN_PD1 (13)
 #define PIN_PD2 (14)
 #define PIN_PD3 (15)
@@ -91,23 +91,19 @@
 #define TCB2_PINS 0x00                  // TCB2 output on PC0 instead of PB4
 #define TCD0_PINS 0x00                  // TCD0 output on PA4~PA7
 
-
 #define PIN_TCA0_WO0_INIT PIN_PD0
 #define PIN_TCD0_WOA_INIT PIN_PA4
 
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 
-
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
 
-/*
-      ####   ###  ####  ##### #   # #   # #   #
-      #   # #   # #   #   #   ## ## #   #  # #
-      ####  #   # ####    #   # # # #   #   #
-      #     #   # # #     #   #   # #   #  # #
-      #      ###  #  #    #   #   #  ###  #   #
-*/
+/*          ####   ###  ####  ##### #   # #   # #   #
+            #   # #   # #   #   #   ## ## #   #  # #
+            ####  #   # ####    #   # # # #   #   #
+            #     #   # # #     #   #   # #   #  # #
+            #      ###  #  #    #   #   #  ###  #   #                         */
 
 #define SPI_INTERFACES_COUNT   1 /* See SPI.h */
 
@@ -195,13 +191,11 @@
 #define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
 #define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 
-/*
-       ##  #   #  ##  #     ###   ###      ####  ### #   #  ###
+/*     ##  #   #  ##  #     ###   ###      ####  ### #   #  ###
       #  # ##  # #  # #    #   # #         #   #  #  ##  # #
       #### # # # #### #    #   # #  ##     ####   #  # # #  ###
       #  # #  ## #  # #    #   # #   #     #      #  #  ##     #
-      #  # #   # #  # ####  ###   ###      #     ### #   #  ###
-*/
+      #  # #   # #  # ####  ###   ###      #     ### #   #  ###               */
 
 #ifndef MVIO
   // 32-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
@@ -242,12 +236,14 @@ static const uint8_t A18 = PIN_A18;
 static const uint8_t A19 = PIN_A19;
 static const uint8_t A20 = PIN_A20;
 static const uint8_t A21 = PIN_A21;
+
 /* AINn = (0x80 | n)
  * can be turned into digital pins with analogInputToDigitalPin(), but do not
  * directly work in digital I/O (this can be changed, but I'd rather not have
  * to, as it slows down every non-compiletime-known call to digital I/O. Just
  * because these parts can be clocked higher doesn't mean we should bog them
  * down until they run slower. */
+
 #define  AIN0  ADC_CH(0)
 #define  AIN1  ADC_CH(1)
 #define  AIN2  ADC_CH(2)
@@ -263,13 +259,11 @@ static const uint8_t A21 = PIN_A21;
 #define AIN20 ADC_CH(20)
 #define AIN21 ADC_CH(21)
 
-/*
-            ####  ### #   #      ##  ####  ####   ##  #   #  ###
+/*          ####  ### #   #      ##  ####  ####   ##  #   #  ###
             #   #  #  ##  #     #  # #   # #   # #  #  # #  #
             ####   #  # # #     #### ####  ####  ####   #    ###
             #      #  #  ##     #  # # #   # #   #  #   #       #
-            #     ### #   #     #  # #  #  #  #  #  #   #    ###
-*/
+            #     ### #   #     #  # #  #  #  #  #  #   #    ###              */
 #ifdef ARDUINO_MAIN
 
 const uint8_t digital_pin_to_port[] = {
@@ -300,6 +294,7 @@ const uint8_t digital_pin_to_port[] = {
   PF, // 24 PF4/AIN20/TCB0 PWM
   PF, // 25 PF5/AIN21/TCB1 PWM
   PF  // 26 PF6 RESET
+      // 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
@@ -335,6 +330,7 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN4_bp, // 24 PF4/AIN14/TCB0 PWM
   PIN5_bp, // 25 PF5/AIN15/TCB1 PWM
   PIN6_bp  // 26 PF6 RESET
+           // 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
@@ -370,19 +366,20 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN4_bm, // 24 PF4/AIN14/TCB0 PWM
   PIN5_bm, // 25 PF5/AIN15/TCB1 PWM
   PIN6_bm  // 26 PF6 RESET
+           // 27 PF7 UPDI
 };
 
 const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
-  NOT_ON_TIMER, //  1 PA1/USART0_Rx
+  NOT_ON_TIMER, //  0 PA0/XTAL1/CLKIN
+  NOT_ON_TIMER, //  1 PA1/XTAL2
   TIMERB0,      //  2 PA2/SDA
   TIMERB1,      //  3 PA3/SCL
   TIMERD0,      //  4 PA4/MOSI      WOA
   TIMERD0,      //  5 PA5/MISO      WOB
   TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
   TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  TIMERB2,      //  8 PC0/USART1_Tx
-  NOT_ON_TIMER, //  9 PC1/USART1_Rx
+  TIMERB2,      //  8 PC0
+  NOT_ON_TIMER, //  9 PC1
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
   #ifndef MVIO
@@ -395,15 +392,16 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 15 PD3/AIN3
   NOT_ON_TIMER, // 16 PD4/AIN4
   NOT_ON_TIMER, // 17 PD5/AIN5
-  DACOUT,       // 18 PD6/AIN6
+  DACOUT,       // 18 PD6/AIN6/DAC
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
-  NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 22 PF2/AIN12
-  NOT_ON_TIMER, // 23 PF3/AIN13
-  NOT_ON_TIMER, // 24 PF4/AIN14
-  NOT_ON_TIMER, // 25 PF5/AIN15
+  NOT_ON_TIMER, // 20 PF0/AIN16TOSC1
+  NOT_ON_TIMER, // 21 PF1/AIN17TOSC2
+  NOT_ON_TIMER, // 22 PF2/AIN18
+  NOT_ON_TIMER, // 23 PF3/AIN19
+  NOT_ON_TIMER, // 24 PF4/AIN20
+  NOT_ON_TIMER, // 25 PF5/AIN21
   NOT_ON_TIMER  // 26 PF6 RESET
+                // 27 PF7 UPDI
 };
 
 #endif

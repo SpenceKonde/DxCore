@@ -83,6 +83,6 @@ int16_t getMVIOVoltage();
   #define REG_3V1 0b11000100
   #define REG_3V3 0b10000000
   #define REG_4V0 0b11001000
-  #define REG_5V0 0b110011
+  #define REG_5V0 0b11001100
 #endif
 #endif
