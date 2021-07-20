@@ -1,9 +1,9 @@
-serialupdi.name=SerialUPDI with 4.7k resistor or diode (230400 baud)
-serialupdi.protocol=uart
-serialupdi.program.extra_params=-u {serial.port} -b 230400
-serialupdi.program.protocol=uart
-serialupdi.program.tool=pymcuprog
-serialupdi.bootloader.tool=pymcuprog
+serialupdi230k.name=SerialUPDI with 4.7k resistor or diode (230400 baud)
+serialupdi230k.protocol=uart
+serialupdi230k.program.extra_params=-u {serial.port} -b 230400
+serialupdi230k.program.protocol=uart
+serialupdi230k.program.tool=serialupdi
+serialupdi230k.bootloader.tool=serialupdi
 
 jtag2updi.name=jtag2updi
 jtag2updi.communication=serial
@@ -17,8 +17,8 @@ serialupdi345k.name=SerialUPDI with 4.7k resistor or diode (Max. speed for Dx, 3
 serialupdi345k.protocol=uart
 serialupdi345k.program.extra_params=-u {serial.port} -b 345600
 serialupdi345k.program.protocol=uart
-serialupdi345k.program.tool=pymcuprog
-serialupdi345k.bootloader.tool=pymcuprog
+serialupdi345k.program.tool=serialupdi
+serialupdi345k.bootloader.tool=serialupdi
 
 nedbg.name=Curiosity Nano (nEDBG, debug chip: ATSAMD21E18)
 nedbg.communication=usb
@@ -66,12 +66,12 @@ serialupdi57k.name=SerialUPDI with 4.7k resistor or diode (SLOW - 57600 baud)
 serialupdi57k.protocol=uart
 serialupdi57k.program.extra_params=-u {serial.port} -b 57600
 serialupdi57k.program.protocol=uart
-serialupdi57k.program.tool=pymcuprog
-serialupdi57k.bootloader.tool=pymcuprog
+serialupdi57k.program.tool=serialupdi
+serialupdi57k.bootloader.tool=serialupdi
 
 serialupdiHT42.name=SerialUPDI with 4.7k resistor or diode (Max. Dx speed for HT43B534 adapters only, 460800 baud, chunked)
 serialupdiHT42.protocol=uart
 serialupdiHT42.program.extra_params=-u {serial.port} -b 460800 --blocksize 32
 serialupdiHT42.program.protocol=uart
-serialupdiHT42.program.tool=pymcuprog
-serialupdiHT42.bootloader.tool=pymcuprog
+serialupdiHT42.program.tool=serialupdi
+serialupdiHT42.bootloader.tool=serialupdi

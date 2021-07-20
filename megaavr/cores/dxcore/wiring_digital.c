@@ -136,14 +136,11 @@ void pinMode(uint8_t pin, uint8_t mode) {
   check_valid_digital_pin(pin);         /* generate compile error if a constant that is not a valid pin is used as the pin */
   check_valid_pin_mode(mode);           /* generate compile error if a constant that is not a valid pin mode is used as the mode */
   uint8_t bit_mask = digitalPinToBitMask(pin);
-
   if ((bit_mask == NOT_A_PIN) || (mode > INPUT_PULLUP)) {
     return;                             /* ignore invalid pins passed at runtime */
   }
-
   PORT_t *port = digitalPinToPortStruct(pin);
-  //if (port == NULL) return;           /* skip this test; if bit_mask isn't NOT_A_PIN, port won't be null.
-
+  //if (port == NULL) return;           /* skip this test; if bit_mask isn't NOT_A_PIN, port won't be null - if it is, pins_arduino.h contains errors and we can't expect any digital I/O to work correctly.
   if (mode == OUTPUT) {
     port->DIRSET = bit_mask;            /* Configure direction as output and done*/
   } else {                              /* mode == INPUT or INPUT_PULLUP - more complicated */
@@ -273,66 +270,63 @@ void digitalWrite(uint8_t pin, uint8_t val) {
 
   /* Get port */
   PORT_t *port = digitalPinToPortStruct(pin);
-
-
-  /*
-  Set output to value
+  /* Set output to value
   This now runs even if port set INPUT in order to emulate
   the behavior of digitalWrite() on classic AVR devices, where
   you could digitalWrite() a pin while it's an input, to ensure
   that the value of the port was set correctly when it was
-  changed to an output. Code in the wild relies on this behavior.
-  */
+  changed to an output. Code in the wild relies on this behavior. */
 
   if (val == LOW) { /* If LOW */
     port->OUTCLR = bit_mask;
-  } else if (val == CHANGE) { /* If TOGGLE */
+  } else if (val == CHANGE) { /* If TOGGLE
+     * For the pullup setting part below
+     * we need to know if it's been set high or low
+     * otherwise the pullup state could get out of
+     * sync with the output bit. Annoying! But we should
+     * have to read it before writing OUTTGL, since that can
+     * have a 1 clock delay. So read first + invert */
+    val = !(port->OUT & bit_mask);
     port->OUTTGL = bit_mask;
-    // Now, for the pullup setting part below
-    // we need to know if it's been set high or low
-    // otherwise the pullup state could get out of
-    // sync with the output bit. Annoying!
-    val = port->OUT & bit_mask;
     // val will now be 0 (LOW) if the toggling made it LOW
-    // or bit_mask if not. And further down, we only need to
-    // know if it's
-  /* If HIGH OR  > TOGGLE  */
-  } else {
+    // or 1 (HIGH) otherwise.
+  } else { /* If HIGH OR  > TOGGLE  */
     port->OUTSET = bit_mask;
   }
-
-  /* Input direction */
-  if (!(port->DIR & bit_mask)) {
-    /* Old implementation has side effect when pin set as input -
-      pull up is enabled if this function is called.
-      Should we purposely implement this side effect?
-    */
-
-    /* Get bit position for getting pin ctrl reg */
+  if (!(port->DIR & bit_mask)) { /* Input direction */
+    /* on classic AVR, digitalWrite() has side effect
+     * that when pin set as input, the pull-up is
+     * enabled if this function is called.
+     * Code in the wild relies on this so we'd better implement it
+     * which sucks, cause this function would be way faster w/out it
+     *
+     * Get bit position for getting pin ctrl reg */
     uint8_t bit_pos = digitalPinToBitPosition(pin);
 
     /* Calculate where pin control register is */
     volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
 
-    /* Save system status and disable interrupts */
-    uint8_t status = SREG;
+    uint8_t status = SREG;                /* Save system status and disable interrupts */
     cli();
-
-    if (val == LOW) {
-      /* Disable pullup */
-      *pin_ctrl_reg &= ~PORT_PULLUPEN_bm;
-    } else {
-      /* Enable pull-up */
-      *pin_ctrl_reg |= PORT_PULLUPEN_bm;
+    if (val == LOW) {                     /* We set it LOW so turn them off */
+      *pin_ctrl_reg &= ~PORT_PULLUPEN_bm; /* Disable pull-up */
+    } else {                              /* We set it HIGH so turn them on */
+      *pin_ctrl_reg |= PORT_PULLUPEN_bm;  /* Enable pull-up  */
     }
 
-    /* Restore system status */
-    SREG = status;
+    SREG = status; /* Restore system status */
   }
-  /* Turn off PWM if applicable */
-  // If the pin supports PWM output, we need to turn it off
-  // Better to do so AFTER we have set PORTx.OUT to what we want it to be when we're done
-  // The glitch would be super short, of course, but why make a glitch we don't have to?
+  /* Turn off PWM if applicable
+   * If the pin supports PWM output, we need to turn it off.
+   * Better to do so AFTER we have set PORTx.OUT to what we
+   * want it to be when we're done. The glitch would be short
+   * (though non-negligible since all these functions are, of
+   * course, slow - the worst case being a TCD pin currently
+   * analogWritten() 255, then digitallyWritten() to HIGH, which
+   * would turn it off for the time between turnOffPWM() and
+   * PORT->OUTCLR)
+   * Since there's no penalty, why make a glitch we don't have to?
+   */
   turnOffPWM(pin);
 }
 
@@ -373,7 +367,7 @@ int8_t digitalRead(uint8_t pin) {
   if (bit_mask == NOT_A_PIN) {
     return -1;
   }
-  // Origionbally the Arduino core this was derived from turned off PWM on the pin
+  // Originally the Arduino core this was derived from turned off PWM on the pin
   // I cannot fathom why, insofar as the Arduino team sees Arduino as an educational
   // tool, and I can't think of a better way to learn about PWM...
   //
