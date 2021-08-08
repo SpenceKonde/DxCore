@@ -45,10 +45,10 @@ Note that you must install via board manager or replace your tool chain with the
 * [AVR128DB32, AVR64DB32, AVR32DB32](megaavr/extras/DB32.md)
 * [AVR128DB48, AVR64DB48, AVR32DB48](megaavr/extras/DB48.md)
 * [AVR128DB64 and AVR64DB64](megaavr/extras/DB64.md)
-* AVR64DD14, AVR32DD14, AVR16DD14 (pending release - I suspect H1 2020)
-* AVR64DD20, AVR32DD20, AVR16DD20 (pending release - I suspect H1 2020)
-* AVR64DD28, AVR32DD28, AVR16DD28 (pending release - I suspect H1 2020)
-* AVR64DD32, AVR32DD32, AVR16DD32 (pending release - I suspect H1 2020)
+* AVR64DD14, AVR32DD14, AVR16DD14 (pending release - I suspect H2 2021)
+* AVR64DD20, AVR32DD20, AVR16DD20 (pending release - I suspect H2 2021)
+* AVR64DD28, AVR32DD28, AVR16DD28 (pending release - I suspect H2 2021)
+* AVR64DD32, AVR32DD32, AVR16DD32 (pending release - I suspect H2 2021)
 **PINOUT CHART NOTE** - the pinout diagrams do not show the TCA0, TCA1, or TCD0 remapping options currently, only the default ones.
 
 My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sink-ism just to take up pins. But the 27 I/O pins on the 32-pin parts can go faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - though I think I could just squeeze that project into a DA32).
