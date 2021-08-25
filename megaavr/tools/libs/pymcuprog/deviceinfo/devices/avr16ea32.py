@@ -1,19 +1,19 @@
 
 """
-Required device info for the avr128da28 devices
-The following data was collected from device pack Microchip.AVR-Dx_DFP 1.5.81
+Required device info for the avr16ea32 devices
+The following data was collected from device pack Atmel.AVR-EA_DEV_DFP 1.0.20
 """
 
 from pymcuprog.deviceinfo.eraseflags import ChiperaseEffect
 
 DEVICE_INFO = {
-    'name': 'avr128da28',
+    'name': 'avr16ea32',
     'architecture': 'avr8x',
 
     # eeprom
     'eeprom_address_byte': 0x00001400,
     'eeprom_size_bytes': 0x0200,
-    'eeprom_page_size_bytes': 0x1,
+    'eeprom_page_size_bytes': 0x8,
     'eeprom_read_size_bytes': 1,
     'eeprom_write_size_bytes': 1,
     'eeprom_chiperase_effect': ChiperaseEffect.CONDITIONALLY_ERASED_AVR,
@@ -29,8 +29,8 @@ DEVICE_INFO = {
     'fuses_isolated_erase': False,
 
     # internal_sram
-    'internal_sram_address_byte': 0x4000,
-    'internal_sram_size_bytes': 0x4000,
+    'internal_sram_address_byte': 0x7800,
+    'internal_sram_size_bytes': 0x0800,
     'internal_sram_page_size_bytes': 1,
     'internal_sram_read_size_bytes': 1,
     'internal_sram_write_size_bytes': 1,
@@ -57,19 +57,19 @@ DEVICE_INFO = {
 
     # user_row
     'user_row_address_byte': 0x00001080,
-    'user_row_size_bytes': 0x20,
-    'user_row_page_size_bytes': 0x20,
+    'user_row_size_bytes': 0x40,
+    'user_row_page_size_bytes': 0x40,
     'user_row_read_size_bytes': 1,
-    'user_row_write_size_bytes': 1,
+    'user_row_write_size_bytes': 0x40,
     'user_row_chiperase_effect': ChiperaseEffect.NOT_ERASED,
     'user_row_isolated_erase': True,
 
     # flash
     'flash_address_byte': 0x00800000,
-    'flash_size_bytes': 0x20000,
-    'flash_page_size_bytes': 0x200,
+    'flash_size_bytes': 0x4000,
+    'flash_page_size_bytes': 0x40,
     'flash_read_size_bytes': 2,
-    'flash_write_size_bytes': 2,
+    'flash_write_size_bytes': 0x40,
     'flash_chiperase_effect': ChiperaseEffect.ALWAYS_ERASED,
     'flash_isolated_erase': True,
 
@@ -80,5 +80,6 @@ DEVICE_INFO = {
     'interface': 'UPDI',
     'address_size': '24-bit',
     'prog_clock_khz': 1800,
-    'device_id': 0x1E970A,
+    'device_id': 0x1E9436,
+
 }
