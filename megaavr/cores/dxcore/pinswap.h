@@ -71,9 +71,10 @@ static const uint8_t SCL = PIN_WIRE_SCL;
   static const uint8_t SDA1_ALT2 = PIN_WIRE1_SDA_PINSWAP_2;
   static const uint8_t SCL1_ALT2 = PIN_WIRE1_SCL_PINSWAP_2;
 #endif
-static const uint8_t SDA1 = PIN_WIRE1_SDA;
-static const uint8_t SCL1 = PIN_WIRE1_SCL;
-
+#ifdef PIN_WIRE1_SCL
+  static const uint8_t SDA1 = PIN_WIRE1_SDA;
+  static const uint8_t SCL1 = PIN_WIRE1_SCL;
+#endif
 
 #ifdef PIN_WIRE1_SCL
   #ifdef PIN_WIRE1_SCL_PINSWAP_2
