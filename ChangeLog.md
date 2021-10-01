@@ -2,16 +2,31 @@
 This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of DxCore. Note that this document is maintained by a human, who is - by nature - imperfect; sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare.
 
 ## Changes not yet in release
+### Planned 1.4.0
+* Completely new Wire.h library weith exciting features
+  * Master + Slave on the same TWI - either using the same pins or in dual mode
+  * Support for TWI1 assuming your device has it.
+  * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library.
+  * Add a timeout so that a malfunctioning slave can't cause the master to hang forever.
+[ ] DD-series support, assuming they ever come out.
+[ ] DD or not, changes to Serial will be in - all under the surface; the interface remains the same.
+
+### Planned 1.3.7
 Add missing device definitions to SerialUPDI, including some that microchip has failed to release for currently available silicon.
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 * pins_arduino formatting improvements echoing what I did to boards.txt.
-* Add a list of functions and #defined macros, and a list of "dont use names like_____" warnings.
+* Add a list of functions and #defined macros, and a list of "dont use names like these" warnings.
 * Correct micros on some really obscure frequencies
 * Fix typo in resumeTCA1()
 * init_millis() is supposed to be weakly defined so you can override it to kneecap millis from within your code, without relying on menu option. It doesn't get you working delay or anything, but I've done that at times when I don't use any Arduino timekeeping, but just need all interrupts to be gone.
 * Split DxCore.h into DxCore.h and DxCore.cpp, because otherwise you couldn't include it from more than one file without duplicate definitions.
 * (pending - if there are issues with current github version this is why) Massive, comprehehsive, and overarching refactoring of almost every aspect of the pinswap system for serial because the existing implementation was.... not well suited to adaptation to the case of N pin mappings per serial port with N > 2 (and even where N = 2 it was marginal). Work done here will be used in megaTinyCore 2.5.0 for the planned serial overhaul and efficiency improvements there.
 * add getAnalogReference(), getDACReference(), getAnalogSampleDuration() and getAnalogReadResolution() macros (all are trivial, all should have existed for a long time.)
+* Move to C++17 pulling in the changes from megaTinyCore.
+* Fix documentation issues around the new ADC features.
+* Correct issue with name of portToPinZero() a macro used by the DxCore library to assist in maanaging TCA multiplexing.
+[ ] Add new pinswapping machinery for serial, and enhanced variant files.
+[ ] Add new ways to handle the more convoluted pin multiplexing options available on the DD-series, EA-series, and DU-series.
 
 ## Released Versions
 

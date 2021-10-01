@@ -27,16 +27,20 @@
 #include "Arduino.h"
 #include <avr/pgmspace.h>
 
+/* magic value passsed as the negative pin to tell the _analogReadEnh() (which implementes both thenew ADC
+ * functions) to tell them what kind of mode it's to be used in. This also helps with
+ * providing useful and accurate error messages and codes at runtime.                                                 */
+
 #define SINGLE_ENDED 254
-/* magic value passsed as the negative pin to tell the _analogReadEnh() the enhanced and differential ADC wrappers to give slightly different errors if it fails runtime error checking.*/
 inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
   if(__builtin_constant_p(pin)) {
-    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN)
-    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
-    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
-    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
-    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
+      /* Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+       * While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+       * taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+       * Passing -1/255/NOT_A_PIN to the digital I/O functions is too likely to be intended                          */
       badArg("digital I/O function called is constant, but not a valid pin");
+    }
   }
 }
 

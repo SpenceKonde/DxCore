@@ -34,64 +34,46 @@
  * The #ifdef construction makes it absolutely obvious to someone reading this that it won't
  * work if there's a missing USART in the middle, eg. if they ever released something with a
  * USART0 and USART2 but no USART1.                                                       */
+#if defined(USART0)
+  #if defined(USART0)
+#endif
+
+
 
 const uint8_t _usart_ports[][4] PROGMEM = {
-  {PORTMUX_USART0_gm, 0, 2, PORTMUX_USART0_NONE_gc},
+  {PORTMUX_USART0_gm, 0, 2, HWSERIAL0_MUX_PINSWAP_NONE},
   #if defined(USART1)
-    {PORTMUX_USART1_gm, 0, 2, PORTMUX_USART1_NONE_gc},
+    {PORTMUX_USART1_gm, 0, 2, HWSERIAL1_MUX_PINSWAP_NONE},
     #if defined(USART2)
-      {PORTMUX_USART2_gm, 0, 2, PORTMUX_USART2_NONE_gc},
+      {PORTMUX_USART2_gm, 0, 2, HWSERIAL2_MUX_PINSWAP_NONE},
       #if defined(USART3)
         #if (PORTMUX_USART0_gm == 7)
-          {PORTMUX_USART3_gm, 1, 2, PORTMUX_USART3_NONE_gc},
+          {PORTMUX_USART3_gm, 1, 2, HWSERIAL3_MUX_PINSWAP_NONE},
           // I mean, they'd have to move it to the next register right?
         #else
-          {PORTMUX_USART3_gm, 0, 2, PORTMUX_USART3_NONE_gc},
+          {PORTMUX_USART3_gm, 0, 2, HWSERIAL3_MUX_PINSWAP_NONE},
         #endif
         #if defined(USART4)
-          {PORTMUX_USART4_gm, 1, 2, PORTMUX_USART4_NONE_gc},
+          {PORTMUX_USART4_gm, 1, 2, HWSERIAL4_MUX_PINSWAP_NONE},
           #if defined(USART5)
-            {PORTMUX_USART5_gm, 1, 2, PORTMUX_USART5_NONE_gc},
+            {PORTMUX_USART5_gm, 1, 2, HWSERIAL5_MUX_PINSWAP_NONE},
           #endif
         #endif
       #endif
     #endif
   #endif
 };
+#if defined(USART0)
+  const uint8_t _usart0_pins[][5] PROGMEM = {
+    #if (defined(HWSERIAL0_MUX) && HWSERIAL0_MUX != NOT_A_MUX)
+      {HWSERIAL0_MUX, PIN_HWSERIAL0_TX, PIN_HWSERIAL0_RX, PIN_HWSERIAL0_XCK, PIN_HWSERIAL0_XDIR},
+    #endif
+    #ifdef (defined(HWSERIAL0_MUX_PINSWAP1) && HWSERIAL0_MUX_PINSWAP1 != NOT_A_MUX)
+      {HWSERIAL0_MUX_PINSWAP1, PIN_HWSERIAL0_TX_PINSWAP1, PIN_HWSERIAL0_RX_PINSWAP1, PIN_HWSERIAL0_XCK_PINSWAP1, PIN_HWSERIAL0_XDIR_PINSWAP1},
+    #endif
+  }
+#endif
 
-
-
-const usart_pinset usart2_pins[][5] PROGMEM = {
-  {HWSERIAL0_MUX,              PIN_HWSERIAL1_TX,             PIN_HWSERIAL1_RX,             PIN_HWSERIAL1_XCK,            PIN_HWSERIAL1_XDIR},
-  #ifdef HWSERIAL0_MUX_PINSWAP_1
-    {HWSERIAL0_MUX_PINSWAP_1,    PIN_HWSERIAL1_TX_PINSWAP_1,   PIN_HWSERIAL1_RX_PINSWAP_1,   PIN_HWSERIAL1_XCK_PINSWAP_1,  PIN_HWSERIAL1_XDIR_PINSWAP_1},
-  #endif
-};
-
-const usart_pinset usart2_pins[2] PROGMEM = {
-  {PORTMUX_USART2_DEFAULT_gc, PIN_PF0,   PIN_PF1,   PIN_PF2,   PIN_PF3},
-  {PORTMUX_USART2_ALT1_gc,    PIN_PF4,   PIN_PF4,   NOT_A_PIN, NOT_A_PIN},
-};
-
-const usart_pinset usart2_pins[2] PROGMEM = {
-  {PORTMUX_USART2_DEFAULT_gc, PIN_PF0,   PIN_PF1,   PIN_PF2,   PIN_PF3},
-  {PORTMUX_USART2_ALT1_gc,    PIN_PF4,   PIN_PF4,   NOT_A_PIN, NOT_A_PIN},
-};
-
-const usart_pinset usart2_pins[2] PROGMEM = {
-  {PORTMUX_USART2_DEFAULT_gc, PIN_PF0,   PIN_PF1,   PIN_PF2,   PIN_PF3},
-  {PORTMUX_USART2_ALT1_gc,    PIN_PF4,   PIN_PF4,   NOT_A_PIN, NOT_A_PIN},
-};
-
-const usart_pinset usart2_pins[2] PROGMEM = {
-  {PORTMUX_USART2_DEFAULT_gc, PIN_PF0,   PIN_PF1,   PIN_PF2,   PIN_PF3},
-  {PORTMUX_USART2_ALT1_gc,    PIN_PF4,   PIN_PF4,   NOT_A_PIN, NOT_A_PIN},
-};
-
-const usart_pinset usart2_pins[2] PROGMEM = {
-  {PORTMUX_USART2_DEFAULT_gc, PIN_PF0,   PIN_PF1,   PIN_PF2,   PIN_PF3},
-  {PORTMUX_USART2_ALT1_gc,    PIN_PF4,   PIN_PF4,   NOT_A_PIN, NOT_A_PIN},
-};
 
 void write_hwserial_mux(uint8_t port_num, uint8_t muxlevel);
 
@@ -102,7 +84,7 @@ bool hwserial_mux(uint8_t port_num, uint8_t  muxlevel, bool enact) {
     return true;
   }
   if (muxlevel < usart_ports[port_num].mux_count) { // Serialn.swap(muxlevel) calls this with muxlevel or MUX_NONE
-    if (enact) write_hwserial_mux(port_num,pgm_read_byte_near(usart_ports[port_num].pins[muxlevel][MUX_VALUE])); //again we need the group code, which is different from mux level (bitshifted)
+    if (enact) write_hwserial_mux(port_num, pgm_read_byte_near(usart_ports[port_num].pins[muxlevel][MUX_VALUE])); //again we need the group code, which is different from mux level (bitshifted)
     return true;
   }
   return false;

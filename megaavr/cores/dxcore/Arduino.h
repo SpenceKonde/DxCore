@@ -263,10 +263,13 @@ extern const uint8_t digital_pin_to_timer[];
 
 /* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
 
-#define NOT_A_PIN         (255) // Generally, you should check for getting this when you ask for a pin  ;-)
-#define NOT_A_PORT        (255) // Same numeric value, but used for improved code readability
+#define NOT_A_PIN         (255)
+// Generally, you should check for getting this when you ask for a pin  ;-)
+#define NOT_A_PORT        (255)
+// Same numeric value, but used for improved code readability
 #define NOT_AN_INTERRUPT  (255)
-#define NOT_A_MUX         (255) // invalid portmux options
+#define NOT_A_MUX         (255)
+// invalid portmux options
 // When cast to int8_t these are -1, but it is critical to define them as 255, not -1 because we check if they're less than the number of something
 
 #define PA 0
