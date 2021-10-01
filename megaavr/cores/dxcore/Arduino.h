@@ -99,9 +99,6 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 // in free-running mode or a long-running burst conversion; taking a burst
 // accumulated reading and then calling a specified function when the result
 // was finally ready may be supported in a future version.
-#define ADC_ENH_ERROR_INVALID_SAMPLE_LENGTH    -2100000002
-// SAMPLEN can be specified when calling analogReadEnh; an invalid value was
-// specified. The maximum depends on the hardware.
 #define ADC_ENH_ERROR_RES_TOO_LOW              -2100000003
 // analogReadEnh() must not be called with a resolution lower than 8-bits.
 // you can right-shift as well as the library can.
@@ -266,10 +263,10 @@ extern const uint8_t digital_pin_to_timer[];
 
 /* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
 
-#define NOT_A_PIN         255 // Generally, you should check for getting this when you ask for a pin  ;-)
-#define NOT_A_PORT        255 // Same numeric value, but used for improved code readability
-#define NOT_AN_INTERRUPT  255
-#define NOT_A_MUX         255 // invalid portmux options
+#define NOT_A_PIN         (255) // Generally, you should check for getting this when you ask for a pin  ;-)
+#define NOT_A_PORT        (255) // Same numeric value, but used for improved code readability
+#define NOT_AN_INTERRUPT  (255)
+#define NOT_A_MUX         (255) // invalid portmux options
 // When cast to int8_t these are -1, but it is critical to define them as 255, not -1 because we check if they're less than the number of something
 
 #define PA 0
@@ -285,36 +282,40 @@ extern const uint8_t digital_pin_to_timer[];
 // You can bitwise OR as many of these as you want, or just do one. Very
 // flexible function; not the world's fastest though. Directives are handled
 // in the order they show up on this list.
-#define PIN_DIR_OUTPUT       0x0001 // Alias
-#define PIN_DIR_INPUT        0x0002 // Alias
-#define PIN_DIR_OUT          0x0001 // Alias
-#define PIN_DIR_IN           0x0002 // Alias
-#define PIN_DIR_TOGGLE       0x0003 // Alias
-#define PIN_OUT_HIGH         0x0004 // Alias
-#define PIN_OUT_LOW          0x0008 // Alias
-#define PIN_OUT_TOGGLE       0x000C // Alias
 #define PIN_DIRSET           0x0001
 #define PIN_DIRCLR           0x0002
 #define PIN_DIRTGL           0x0003
+#define PIN_DIR_OUTPUT       0x0001 // Alias
+#define PIN_DIR_OUT          0x0001 // Alias
+#define PIN_DIR_INPUT        0x0002 // Alias
+#define PIN_DIR_IN           0x0002 // Alias
+#define PIN_DIR_TOGGLE       0x0003 // Alias
+#define PIN_DIR_TGL          0x0003 // Alias
 #define PIN_OUTSET           0x0004
 #define PIN_OUTCLR           0x0008
 #define PIN_OUTTGL           0x000C
+#define PIN_OUT_HIGH         0x0004 // Alias
+#define PIN_OUT_LOW          0x0008 // Alias
+#define PIN_OUT_TOGGLE       0x000C // Alias
+#define PIN_OUT_TGL          0x000C // Alias
 #define PIN_INPUT_ENABLE     0x0080
 #define PIN_INT_CHANGE       0x0090
 #define PIN_INT_RISE         0x00A0
 #define PIN_INT_FALL         0x00B0
 #define PIN_INPUT_DISABLE    0x00C0
 #define PIN_INT_LEVEL        0x00D0
-#define PIN_PULLUP           0x0100 // Alias
-#define PIN_NOPULLUP         0x0200 // Alias
 #define PIN_PULLUP_ON        0x0100
 #define PIN_PULLUP_OFF       0x0200
+#define PIN_PULLUP_TOGGLE    0x0300 // I suppose I can see uses for this
+#define PIN_PULLUP           0x0100 // Alias
+#define PIN_NOPULLUP         0x0200 // Alias
 #define PIN_PULLUP_TGL       0x0300 // I suppose I can see uses for this
 #define PIN_INVERT_ON        0x4000
 #define PIN_INVERT_OFF       0x8000
 #define PIN_INVERT_TGL       0xC000 // One of the less useful ones...
+#define PIN_INVERT_TOGGLE    0xC000 // One of the less useful ones...
 #define PIN_INLVL_TTL        0x1000 // MVIO parts only
-#define PIN_INLVL_SCHMIT     0x2000 // MVIO parts only
+#define PIN_INLVL_SCHMITT    0x2000 // MVIO parts only
 #define PIN_INLVL_ON         0x1000 // MVIO parts only
 #define PIN_INLVL_OFF        0x2000 // MVIO parts only
 
@@ -329,9 +330,9 @@ extern const uint8_t digital_pin_to_timer[];
 #define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
 #define digitalPinToInterrupt(P)            (P) // pin number and int number are the same (wait, are they? I don't think they are on the 64-pin parts because of reset.
 
-/*#define portToDigitalPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).
+/*#define portToPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).
 // If hardware has PORTx,
-if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_position) \
+if ((digitalPinToPort(portToPinZero(digitalPinToPort(some_pin)) + bit_position) \
                         == digitalPinToPort(some_pin)) is true if and only if there is a PIN n within the same port.   */
 
 #define portOutputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->OUT ) )
@@ -347,7 +348,7 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
   #include "UART.h"
   int32_t analogReadEnh( uint8_t pin,              uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
-  int16_t analogClockSpeed(int16_t frequency = 0, uint8_t options = 0);
+  int16_t analogClockSpeed(int16_t frequency = 0,  uint8_t options = 0);
 #endif
 
 #include "pins_arduino.h"
@@ -359,7 +360,7 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
 // A little bit of trickery - this allows Serial to be defined as something other than USART0
 // Use case is for boards where the main serial port is not USART0 to be used without the user
 // having to find/replace Serial with Serial2 or whatever on their existing code if that's where
-// the monitor is.
+// the monitor is. It requires that the board be defined by a variant file,
 #ifndef Serial
   #define Serial Serial0 //Error here? Check for missing ; previous line in sketch.
 #endif
@@ -409,10 +410,10 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
 // is on PORTC, the MVIO port.
 
 #if !defined(SERIAL_PORT_MONITOR)
-  #if defined(USART2) && (SERIAL_PORT_MONITOR != Serial2)
+  #if defined(USART2) && (SERIAL_PORT_MONITOR != Serial2) && (!defined(SERIAL_PORT_BOOT) || SERIAL_PORT_BOOT != Serial2)
     #define SERIAL_PORT_HARDWARE_OPEN Serial2
   #else
-    #if (SERIAL_PORT_MONITOR != Serial0)
+    #if (SERIAL_PORT_MONITOR != Serial0 ) && (!defined(SERIAL_PORT_BOOT) || SERIAL_PORT_BOOT != Serial0)
       #define SERIAL_PORT_HARDWARE_OPEN Serial0
     #else
       #define SERIAL_PORT_HARDWARE_OPEN Serial1
@@ -428,6 +429,7 @@ if ((digitalPinToPort(portToDigitalPinZero(digitalPinToPort(some_pin)) + bit_pos
 // For everyone else it's Serial1, and for non-DD parts, that is the only port
 // that could be used with MVIO (again, short of rerouting signals with
 // the event system)
+// Note that if MVIO is disabled, we cannot detect that.
   #if defined(DD_14_PINS) || defined(DD_20_PINS)
     #define SERIAL_PORT_MVIO Serial0
   #else

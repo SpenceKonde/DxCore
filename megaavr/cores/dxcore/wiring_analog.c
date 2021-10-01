@@ -54,10 +54,10 @@ inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
       if (res < ADC_NATIVE_RESOLUTION_LOW) {
             badArg("When a resolution is passed to analogReadEnh, it must be at least the minimum native resolution (8 bits)");
       } else if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) {
-        badArg("The highest resolution obtainable on these parts through oversampling and decimation with a single ADC operation 13 bits on 0/1-series or 17 on 2-series");
+        badArg("Requested resolution exceeds ADC capabilities. The highest resolution obtainable through oversampling and decimation is 15 bits (Dx-sereis) or 17 bits (Ex-series).");
       }
     } else if ((res & 0x7F) > 0x07) {
-      badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings");
+      badArg("Accumulation number invalid. Valid values are 8 - 15, or ADC_ACC_n where n is between 2 and 7.");
     }
   }
 }
@@ -73,7 +73,7 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(uint8_t pin) {
       if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
         pin &= 0x7f;
         if (pin > ADC_MAXIMUM_PIN_CHANNEL)
-          badArg("analogRead called with constant channel that is neither valid internal source nor an analog pin that exists on this part.");
+          badArg("analogRead called with constant channel number which is neither a valid internal source nor an analog pin");
       } else {
         pin = digitalPinToAnalogInput(pin);
       }
@@ -86,9 +86,9 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(uint8_t pin) {
 
 inline __attribute__((always_inline)) void check_valid_analog_pin_neg(pin_size_t pin) {
   if(__builtin_constant_p(pin)) {
-    if (!(pin == ADC_DAC0 || pin == ADC_GROUND))
-    { //if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
-      if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
+    if (!(pin == ADC_DAC0 || pin == ADC_GROUND)) {
+      //if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
+      if (pin > 0x80) { // high bit is set, indicating a channel number, not a pin, but not one of the special inputs?
         pin &= 0x7f;
           if (pin > ADC_MAXIMUM_PIN_CHANNEL) {
             badArg("analogReadDiff called with constant neg. channel that is neither a valid internal source nor an analog pin");
