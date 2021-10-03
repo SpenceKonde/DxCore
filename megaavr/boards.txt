@@ -49,7 +49,7 @@ avrda.upload.tool=avrdude
 avrda.build.board=avrda
 avrda.build.core=dxcore
 avrda.build.text_section_start=.text=0x0
-avrda.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} {bootloader.appspm}
+avrda.build.extra_flags={bootloader.appspm}
 avrda.build.export_merged_output=false
 avrda.build.mcupostfix=
 
@@ -71,6 +71,8 @@ avrda.bootloader.pymcuprogstring=-aerase
 avrda.menu.appspm.no=Disabled
 avrda.menu.appspm.no.bootloader.appspm=
 avrda.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrda.menu.appspm.full=Anywhere
+avrda.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrda.menu.appspm.16plus=Above 16k
 avrda.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrda.menu.appspm.16plus.bootloader.CODESIZE=32
@@ -95,8 +97,6 @@ avrda.menu.appspm.96plus.bootloader.CODESIZE=192
 avrda.menu.appspm.112plus=Above 112k (AVR128 only)
 avrda.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrda.menu.appspm.112plus.bootloader.CODESIZE=224
-avrda.menu.appspm.full=Anywhere
-avrda.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 
 
 # Chip (pins and memory size)
@@ -293,7 +293,6 @@ avrda.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrda.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal, no micros
 #avrda.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrda.menu.millis.disabled=Disabled
-avrda.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
 avrda.menu.millis.tcb0.build.millistimer=B0
 avrda.menu.millis.tcb1.build.millistimer=B1
 avrda.menu.millis.tcb2.build.millistimer=B2
@@ -344,7 +343,7 @@ avrdb.upload.tool=avrdude
 avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.text_section_start=.text=0x0
-avrdb.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} {bootloader.appspm}
+avrdb.build.extra_flags={bootloader.appspm}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 
@@ -368,6 +367,8 @@ avrdb.bootloader.pymcuprogstring=-aerase
 avrdb.menu.appspm.no=Disabled
 avrdb.menu.appspm.no.bootloader.appspm=
 avrdb.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrdb.menu.appspm.full=Anywhere
+avrdb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrdb.menu.appspm.16plus=Above 16k
 avrdb.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdb.menu.appspm.16plus.bootloader.CODESIZE=32
@@ -392,8 +393,6 @@ avrdb.menu.appspm.96plus.bootloader.CODESIZE=192
 avrdb.menu.appspm.112plus=Above 112k (AVR128 only)
 avrdb.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
-avrdb.menu.appspm.full=Anywhere
-avrdb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 
 
 # Chip (pins and memory size)
@@ -534,6 +533,10 @@ avrdb.menu.clock.32internal=32 MHz internal (overclocked)
 avrdb.menu.clock.32internal.build.f_cpu=32000000L
 avrdb.menu.clock.32internal.build.speed=32
 avrdb.menu.clock.32internal.build.clocksource=0
+avrdb.menu.clock.25crystal=25 MHz crystal
+avrdb.menu.clock.25crystal.build.f_cpu=25000000L
+avrdb.menu.clock.25crystal.build.speed=25
+avrdb.menu.clock.25crystal.build.clocksource=1
 avrdb.menu.clock.28crystal=28 MHz crystal (overclocked)
 avrdb.menu.clock.28crystal.build.f_cpu=28000000L
 avrdb.menu.clock.28crystal.build.speed=28
@@ -550,6 +553,10 @@ avrdb.menu.clock.40crystal=40 MHz crystal (overclocked)
 avrdb.menu.clock.40crystal.build.f_cpu=40000000L
 avrdb.menu.clock.40crystal.build.speed=40
 avrdb.menu.clock.40crystal.build.clocksource=1
+avrdb.menu.clock.25extclock=25 MHz ext. clock
+avrdb.menu.clock.25extclock.build.f_cpu=25000000L
+avrdb.menu.clock.25extclock.build.speed=25
+avrdb.menu.clock.25extclock.build.clocksource=2
 avrdb.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrdb.menu.clock.28extclock.build.f_cpu=28000000L
 avrdb.menu.clock.28extclock.build.speed=28
@@ -626,7 +633,6 @@ avrdb.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrdb.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
 #avrdb.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrdb.menu.millis.disabled=Disabled
-avrdb.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
 avrdb.menu.millis.tcb0.build.millistimer=B0
 avrdb.menu.millis.tcb1.build.millistimer=B1
 avrdb.menu.millis.tcb2.build.millistimer=B2
@@ -702,7 +708,7 @@ avrdaopti.upload.tool=avrdude
 avrdaopti.build.board=avrda
 avrdaopti.build.core=dxcore
 avrdaopti.build.text_section_start=.text=0x200
-avrdaopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdaopti.build.extra_flags=-DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdaopti.build.export_merged_output=false
 avrdaopti.build.mcupostfix=opti
 
@@ -854,6 +860,10 @@ avrdaopti.menu.clock.32internal=32 MHz internal (overclocked)
 avrdaopti.menu.clock.32internal.build.f_cpu=32000000L
 avrdaopti.menu.clock.32internal.build.speed=32
 avrdaopti.menu.clock.32internal.build.clocksource=0
+avrdaopti.menu.clock.25extclock=25 MHz ext. clock
+avrdaopti.menu.clock.25extclock.build.f_cpu=25000000L
+avrdaopti.menu.clock.25extclock.build.speed=25
+avrdaopti.menu.clock.25extclock.build.clocksource=2
 avrdaopti.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrdaopti.menu.clock.28extclock.build.f_cpu=28000000L
 avrdaopti.menu.clock.28extclock.build.speed=28
@@ -924,7 +934,6 @@ avrdaopti.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrdaopti.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
 #avrdaopti.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrdaopti.menu.millis.disabled=Disabled
-avrdaopti.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
 avrdaopti.menu.millis.tcb0.build.millistimer=B0
 avrdaopti.menu.millis.tcb1.build.millistimer=B1
 avrdaopti.menu.millis.tcb2.build.millistimer=B2
@@ -1035,7 +1044,7 @@ avrdbopti.upload.tool=avrdude
 avrdbopti.build.board=avrdb
 avrdbopti.build.core=dxcore
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags={build.millis} -DCLOCK_SOURCE={build.clocksource} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdbopti.build.extra_flags=-DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.mcupostfix=
 
@@ -1209,6 +1218,10 @@ avrdbopti.menu.clock.32internal=32 MHz internal (overclocked)
 avrdbopti.menu.clock.32internal.build.f_cpu=32000000L
 avrdbopti.menu.clock.32internal.build.speed=32
 avrdbopti.menu.clock.32internal.build.clocksource=0
+avrdbopti.menu.clock.25crystal=25 MHz crystal
+avrdbopti.menu.clock.25crystal.build.f_cpu=25000000L
+avrdbopti.menu.clock.25crystal.build.speed=25
+avrdbopti.menu.clock.25crystal.build.clocksource=1
 avrdbopti.menu.clock.28crystal=28 MHz crystal (overclocked)
 avrdbopti.menu.clock.28crystal.build.f_cpu=28000000L
 avrdbopti.menu.clock.28crystal.build.speed=28
@@ -1225,6 +1238,10 @@ avrdbopti.menu.clock.40crystal=40 MHz crystal (overclocked)
 avrdbopti.menu.clock.40crystal.build.f_cpu=40000000L
 avrdbopti.menu.clock.40crystal.build.speed=40
 avrdbopti.menu.clock.40crystal.build.clocksource=1
+avrdbopti.menu.clock.25extclock=25 MHz ext. clock
+avrdbopti.menu.clock.25extclock.build.f_cpu=25000000L
+avrdbopti.menu.clock.25extclock.build.speed=25
+avrdbopti.menu.clock.25extclock.build.clocksource=2
 avrdbopti.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrdbopti.menu.clock.28extclock.build.f_cpu=28000000L
 avrdbopti.menu.clock.28extclock.build.speed=28
@@ -1295,7 +1312,6 @@ avrdbopti.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrdbopti.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
 #avrdbopti.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrdbopti.menu.millis.disabled=Disabled
-avrdbopti.build.millis=-DMILLIS_USE_TIMER{build.millistimer}
 avrdbopti.menu.millis.tcb0.build.millistimer=B0
 avrdbopti.menu.millis.tcb1.build.millistimer=B1
 avrdbopti.menu.millis.tcb2.build.millistimer=B2
