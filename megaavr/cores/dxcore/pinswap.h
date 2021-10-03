@@ -71,53 +71,56 @@ static const uint8_t SCL = PIN_WIRE_SCL;
   static const uint8_t SDA1_ALT2 = PIN_WIRE1_SDA_PINSWAP_2;
   static const uint8_t SCL1_ALT2 = PIN_WIRE1_SCL_PINSWAP_2;
 #endif
-static const uint8_t SDA1 = PIN_WIRE1_SDA;
-static const uint8_t SCL1 = PIN_WIRE1_SCL;
+
+#ifdef TWI1
+  static const uint8_t SDA1 = PIN_WIRE1_SDA;
+  static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 
-#ifdef PIN_WIRE1_SCL
-  #ifdef PIN_WIRE1_SCL_PINSWAP_2
-    #define SDA1_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm) == 8 ? SDA1_ALT2 : SDA))
-    #define SCL1_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm) == 8 ? SCL1_ALT2 : SCL))
-  #else
-    #define SDA1_NOW (PIN_WIRE1_SDA)
-    #define SCL1_NOW (PIN_WIRE1_SCL)
+  #ifdef PIN_WIRE1_SCL
+    #ifdef PIN_WIRE1_SCL_PINSWAP_2
+      #define SDA1_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm) == 8 ? SDA1_ALT2 : SDA))
+      #define SCL1_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm) == 8 ? SCL1_ALT2 : SCL))
+    #else
+      #define SDA1_NOW (PIN_WIRE1_SDA)
+      #define SCL1_NOW (PIN_WIRE1_SCL)
+    #endif
   #endif
 #endif
+/* Now for a doozy - SPI0 - which has all 7 possible options, and up to 5 on some parts!
+ * The specific pins are in the variants files. PIN_SPI_SCK_*/
 
-/* Now for a doozy - SPI0 - which has all 7 possible options, and up to 5 on some parts! */
-
-#ifdef PIN_SPI_SCK_PINSWAP_1
+#ifdef PIN_SPI_MUX_PINSWAP_1
   static const uint8_t SS_ALT1   = PIN_SPI_SS_PINSWAP_1;
   static const uint8_t MOSI_ALT1 = PIN_SPI_MOSI_PINSWAP_1;
   static const uint8_t MISO_ALT1 = PIN_SPI_MISO_PINSWAP_1;
   static const uint8_t SCK_ALT1  = PIN_SPI_SCK_PINSWAP_1;
 #endif
-#ifdef PIN_SPI_SCK_PINSWAP_2
+#ifdef PIN_SPI_MUX_PINSWAP_2
   static const uint8_t SS_ALT2   = PIN_SPI_SS_PINSWAP_2;
   static const uint8_t MOSI_ALT2 = PIN_SPI_MOSI_PINSWAP_2;
   static const uint8_t MISO_ALT2 = PIN_SPI_MISO_PINSWAP_2;
   static const uint8_t SCK_ALT2  = PIN_SPI_SCK_PINSWAP_2;
 #endif
-#ifdef PIN_SPI_SCK_PINSWAP_3
+#ifdef PIN_SPI_MUX_PINSWAP_3
   static const uint8_t SS_ALT3   = PIN_SPI_SS_PINSWAP_3;
   static const uint8_t MOSI_ALT3 = PIN_SPI_MOSI_PINSWAP_3;
   static const uint8_t MISO_ALT3 = PIN_SPI_MISO_PINSWAP_3;
   static const uint8_t SCK_ALT3  = PIN_SPI_SCK_PINSWAP_3;
 #endif
-#ifdef PIN_SPI_SCK_PINSWAP_4
+#ifdef PIN_SPI_MUX_PINSWAP_4
   static const uint8_t SS_ALT4   = PIN_SPI_SS_PINSWAP_4;
   static const uint8_t MOSI_ALT4 = PIN_SPI_MOSI_PINSWAP_4;
   static const uint8_t MISO_ALT4 = PIN_SPI_MISO_PINSWAP_4;
   static const uint8_t SCK_ALT4  = PIN_SPI_SCK_PINSWAP_4;
 #endif
-#ifdef PIN_SPI_SCK_PINSWAP_5
+#ifdef PIN_SPI_MUX_PINSWAP_5
   static const uint8_t SS_ALT5   = PIN_SPI_SS_PINSWAP_5;
   static const uint8_t MOSI_ALT5 = PIN_SPI_MOSI_PINSWAP_5;
   static const uint8_t MISO_ALT5 = PIN_SPI_MISO_PINSWAP_5;
   static const uint8_t SCK_ALT5  = PIN_SPI_SCK_PINSWAP_5;
 #endif
-#ifdef PIN_SPI_SCK_PINSWAP_6
+#ifdef PIN_SPI_MUX_PINSWAP_6
   static const uint8_t SS_ALT6   = PIN_SPI_SS_PINSWAP_6;
   static const uint8_t MOSI_ALT6 = PIN_SPI_MOSI_PINSWAP_6;
   static const uint8_t MISO_ALT6 = PIN_SPI_MISO_PINSWAP_6;
@@ -135,51 +138,57 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
   static const uint8_t SCK  = PIN_SPI_SCK;
 #endif
 
-// take advantage of knowledge that DDs don't have 1 or 2, DA/DB don't have 3+
+
+#define SPI_MUX_NOW() (PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm)
+#define SS_NOW(...)   ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); SS_NOW_IMPL();   })
+#define MOSI_NOW(...) ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); MOSI_NOW_IMPL(); })
+#define MISO_NOW(...) ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); MISO_NOW_IMPL(); })
+#define SCK_NOW(...)  ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); SCK_NOW_IMPL();  })
+
+// take advantage of knowledge that DDs don't have 1 or 2, DA/DB don't have 3.
 // and we test 4. 6. 3, 5 for the DD's that have 0, 3, 4, 5, 6 first because on DD14, those are checked first and will minimize execution time...
 // we can't rule out cases where some but not all of the pins are not present, even essential pins like SCK, because when operating as master, they can use event system to output a clock on EVOUT or something.
 
 #ifdef SPI_MUX_PINSWAP_4
-  #define PIN_SS_NOW_3456   ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_4 ?   SS_ALT4 : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_6 ?   SS_ALT6  : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_3 ?   SS_ALT3  :   SS_ALT5)))
-  #define PIN_MOSI_NOW_3456 ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_4 ? MOSI_ALT4 : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_6 ? MOSI_ALT6  : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_3 ? MOSI_ALT3  : MOSI_ALT5)))
-  #define PIN_MISO_NOW_3456 ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_4 ? MISO_ALT4 : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_6 ? MISO_ALT6  : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_3 ? MISO_ALT3  : MISO_ALT5)))
-  #define PIN_SCK_NOW_3456  ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_4 ?  SCK_ALT4 : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_6 ?  SCK_ALT6  : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_3 ?  SCK_ALT3  :  SCK_ALT5)))
+  #define PIN_SS_NOW_3456   (spimux == SPI_MUX_PINSWAP_4 ?   SS_ALT4 : (spimux == SPI_MUX_PINSWAP_6 ?   SS_ALT6  : (spimux == SPI_MUX_PINSWAP_3 ?   SS_ALT3  :   SS_ALT5)))
+  #define PIN_MOSI_NOW_3456 (spimux == SPI_MUX_PINSWAP_4 ? MOSI_ALT4 : (spimux == SPI_MUX_PINSWAP_6 ? MOSI_ALT6  : (spimux == SPI_MUX_PINSWAP_3 ? MOSI_ALT3  : MOSI_ALT5)))
+  #define PIN_MISO_NOW_3456 (spimux == SPI_MUX_PINSWAP_4 ? MISO_ALT4 : (spimux == SPI_MUX_PINSWAP_6 ? MISO_ALT6  : (spimux == SPI_MUX_PINSWAP_3 ? MISO_ALT3  : MISO_ALT5)))
+  #define PIN_SCK_NOW_3456  (spimux == SPI_MUX_PINSWAP_4 ?  SCK_ALT4 : (spimux == SPI_MUX_PINSWAP_6 ?  SCK_ALT6  : (spimux == SPI_MUX_PINSWAP_3 ?  SCK_ALT3  :  SCK_ALT5)))
 #endif
 #if !defined(__AVR_DD__)
   #ifdef SPI_MUX_PINSWAP_1
     #ifdef SPI_MUX_PINSWAP_2
-      #define SS_NOW    ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? SS_ALT1    : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_2 ? SS_ALT2    :  PIN_SPI_SS)))
-      #define MOSI_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? MOSI_ALT1  : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_2 ? MOSI_ALT2  : PIN_SPI_MOSI)))
-      #define MISO_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? MISO_ALT1  : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_2 ? MISO_ALT2  : PIN_SPI_MISO)))
-      #define SCK_NOW   ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? SCK_ALT1   : ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_2 ? SCK_ALT2   : PIN_SPI_SCK)))
+      #define SS_NOW_IMPL()   ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? SS_ALT1    : (spimux == SPI_MUX_PINSWAP_2 ? SS_ALT2    :  PIN_SPI_SS)))
+      #define MOSI_NOW_IMPL() ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? MOSI_ALT1  : (spimux == SPI_MUX_PINSWAP_2 ? MOSI_ALT2  : PIN_SPI_MOSI)))
+      #define MISO_NOW_IMPL() ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? MISO_ALT1  : (spimux == SPI_MUX_PINSWAP_2 ? MISO_ALT2  : PIN_SPI_MISO)))
+      #define SCK_NOW_IMPL()  ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? SCK_ALT1   : (spimux == SPI_MUX_PINSWAP_2 ? SCK_ALT2   : PIN_SPI_SCK)))
     #else // DA/DB with 48 or fewer pins
-      #define SS_NOW    ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? SS_ALT1    : PIN_SPI_SS))
-      #define MOSI_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? MOSI_ALT1  : PIN_SPI_MOSI))
-      #define MISO_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? MISO_ALT1  : PIN_SPI_MISO))
-      #define SCK_NOW   ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) == SPI_MUX_PINSWAP_1 ? SCK_ALT1   : PIN_SPI_SCK))
+      #define SS_NOW_IMPL()   ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? SS_ALT1    : PIN_SPI_SS))
+      #define MOSI_NOW_IMPL() ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? MOSI_ALT1  : PIN_SPI_MOSI))
+      #define MISO_NOW_IMPL() ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? MISO_ALT1  : PIN_SPI_MISO))
+      #define SCK_NOW_IMPL()  ((uint8_t) (spimux == SPI_MUX_PINSWAP_1 ? SCK_ALT1   : PIN_SPI_SCK))
     #endif
   #else // No pinswap 1 or 2 - but not a DD
-    #define SS_NOW    PIN_SPI_SS
-    #define MOSI_NOW  PIN_SPI_MOSI
-    #define MISO_NOW  PIN_SPI_MISO
-    #define SCK_NOW   PIN_SPI_SCK
+    #define SS_NOW_IMPL()   PIN_SPI_SS
+    #define MOSI_NOW_IMPL() PIN_SPI_MOSI
+    #define MISO_NOW_IMPL() PIN_SPI_MISO
+    #define SCK_NOW_IMPL()  PIN_SPI_SCK
   #endif
 #else // default available means it's not a DD14
   #ifdef SPI_MUX
-    #define SS_NOW    ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) != SPI_MUX ?   PIN_SS_3456 : PIN_SPI_SS))
-    #define MOSI_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) != SPI_MUX ? PIN_MOSI_3456 : PIN_SPI_MOSI))
-    #define MISO_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) != SPI_MUX ? PIN_MISO_3456 : PIN_SPI_MISO))
-    #define SCK_NOW   ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm) != SPI_MUX ?  PIN_SCK_3456 : PIN_SPI_SCK))
+    #define SS_NOW_IMPL()   ((uint8_t) (spimux != SPI_MUX ?   PIN_SS_3456 : PIN_SPI_SS))
+    #define MOSI_NOW_IMPL() ((uint8_t) (spimux != SPI_MUX ? PIN_MOSI_3456 : PIN_SPI_MOSI))
+    #define MISO_NOW_IMPL() ((uint8_t) (spimux != SPI_MUX ? PIN_MISO_3456 : PIN_SPI_MISO))
+    #define SCK_NOW_IMPL()  ((uint8_t) (spimux != SPI_MUX ?  PIN_SCK_3456 : PIN_SPI_SCK))
   #else
-    #define SS_NOW    ((uint8_t) PIN_SS_3456
-    #define MOSI_NOW  ((uint8_t) PIN_MOSI_3456
-    #define MISO_NOW  ((uint8_t) PIN_MISO_3456
-    #define SCK_NOW   ((uint8_t) PIN_SCK_3456
+    #define SS_NOW_IMPL()   ((uint8_t) PIN_SS_3456
+    #define MOSI_NOW_IMPL() ((uint8_t) PIN_MOSI_3456
+    #define MISO_NOW_IMPL() ((uint8_t) PIN_MISO_3456
+    #define SCK_NOW_IMPL()  ((uint8_t) PIN_SCK_3456
   #endif
 #endif
 
 /* SPI1 is easy-peasy */
-
 #ifdef PIN_SPI1_SCK_PINSWAP_1
   static const uint8_t SS1_ALT1   = PIN_SPI1_SS_PINSWAP_1;
   static const uint8_t MOSI1_ALT1 = PIN_SPI1_MOSI_PINSWAP_1;
@@ -218,222 +227,4 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
   #endif
 #endif
 
-// Hardware Serial
-
-typedef enum PIN_HWSERIAL_enum
-{
-  PIN_TX    = (0),
-  PIN_RX    = (1),
-  PIN_XCK   = (2),
-  PIN_XDIR  = (3),
-  MUX_VALUE = (4)
-} PIN_HWSERIAL_t;
-
-typedef enum MUX_HWSERIAL_enum
-{
-  MUX_DEFAULT = (0x00),
-  MUX_ALT1    = (0x01),
-  MUX_ALT2    = (0x02),
-  MUX_ALT3    = (0x03),
-  MUX_ALT4    = (0x04),
-  MUX_ALT5    = (0x05),
-  MUX_ALT6    = (0x06),
-  MUX_NONE    = (0xF7)
-} MUX_HWSERIAL_t;
-/*
-typedef struct usart_pinset_struct {
-  uint8_t mux_gc;
-  uint8_t tx;
-  uint8_t rx;
-  uint8_t xck;
-  uint8_t xdir;
-} usart_pinset_t;
-*/
-typedef struct usart_port_struct {
-  volatile uint8_t *muxreg;
-  uint8_t mux_gm;
-  uint8_t mux_count;
-  uint8_t mux_none;
-  uint8_t mux_none_gc;
-  const uint8_t *pins;
-} usart_port_t;
-
-bool hwserial_mux(uint8_t port_num, MUX_HWSERIAL_t muxlevel, bool enact);
-void write_hwserial_mux(uint8_t port_num, uint8_t muxlevel);
-uint8_t mux_from_pins(uint8_t port_num, uint8_t tx, uint8_t rx);
-uint8_t getPin(uint8_t port_num, MUX_HWSERIAL_t muxlevel, PIN_HWSERIAL_t pin);
-
-
-
-/* I don't thiiink we want this? */
-#if defined(DEFINE_UNUSED_Pxn_PINS)
-  #ifndef PIN_PA0
-    #define PIN_PA0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA1
-    #define PIN_PA1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA2
-    #define PIN_PA2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA3
-    #define PIN_PA3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA4
-    #define PIN_PA4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA5
-    #define PIN_PA5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA6
-    #define PIN_PA6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PA7
-    #define PIN_PA7 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB0
-    #define PIN_PB0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB1
-    #define PIN_PB1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB2
-    #define PIN_PB2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB3
-    #define PIN_PB3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB4
-    #define PIN_PB4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB5
-    #define PIN_PB5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB6
-    #define PIN_PB6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PB7
-    #define PIN_PB7 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC0
-    #define PIN_PC0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC1
-    #define PIN_PC1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC2
-    #define PIN_PC2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC3
-    #define PIN_PC3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC4
-    #define PIN_PC4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC5
-    #define PIN_PC5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC6
-    #define PIN_PC6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PC7
-    #define PIN_PC7 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD0
-    #define PIN_PD0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD1
-    #define PIN_PD1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD2
-    #define PIN_PD2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD3
-    #define PIN_PD3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD4
-    #define PIN_PD4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD5
-    #define PIN_PD5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD6
-    #define PIN_PD6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PD7
-    #define PIN_PD7 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE0
-    #define PIN_PE0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE1
-    #define PIN_PE1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE2
-    #define PIN_PE2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE3
-    #define PIN_PE3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE4
-    #define PIN_PE4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE5
-    #define PIN_PE5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE6
-    #define PIN_PE6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PE7
-    #define PIN_PE7 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF0
-    #define PIN_PF0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF1
-    #define PIN_PF1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF2
-    #define PIN_PF2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF3
-    #define PIN_PF3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF4
-    #define PIN_PF4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF5
-    #define PIN_PF5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF6
-    #define PIN_PF6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PF7
-    #define PIN_PF7 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG0
-    #define PIN_PG0 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG1
-    #define PIN_PG1 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG2
-    #define PIN_PG2 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG3
-    #define PIN_PG3 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG4
-    #define PIN_PG4 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG5
-    #define PIN_PG5 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG6
-    #define PIN_PG6 NOT_A_PIN
-  #endif
-  #ifndef PIN_PG7
-    #define PIN_PG7 NOT_A_PIN
-  #endif
-#endif
 #endif //PINSWAP_H
