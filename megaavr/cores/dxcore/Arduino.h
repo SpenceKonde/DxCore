@@ -172,10 +172,10 @@ bool       analogReadResolution(uint8_t res);
 bool       analogSampleDuration(uint8_t dur);
 void               DACReference(uint8_t mode);
 
-#define      getAnalogReference() (VREF.ADC0REF & VREF_REFSEL_gm)
-#define         getDACReference() (VREF.DAC0REF & VREF_REFSEL_gm)
-#define getAnalogSampleDuration() (ADC0.SAMPCTRL)
-#define getAnalogReadResolution() ((ADC0.CTRLA & ADC_RESSEL_gm) == ADC_RESSEL_10BIT_gc) ? 10 : ((ADC0.CTRLA & ADC_RESSEL_gm) ? -1 : 12);
+uint8_t      getAnalogReference();
+uint8_t         getDACReference();
+uint8_t getAnalogSampleDuration();
+int8_t  getAnalogReadResolution();
 
 //
 // DIGITAL I/O EXTENDED FUNCTIONS

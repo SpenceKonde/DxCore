@@ -272,7 +272,7 @@ unsigned long millis()
     #elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
         // The below bitshifts implement dividing by (1/2 clocks per us) since TCB's can only prescale by 2. So we at say 36 MHz, it counts to 17999 for each ms, so  we need to divide the ticks by 1000us.
         // Oddball clock speeds
-      #if   (F_CPU == 44000000UL) // Extreme overclocking (might work w/external clock, maybe)
+      #if   (F_CPU == 44000000UL) // Extreme overclocking (might work w/external clock)
         ticks = ticks >> 4;
         microseconds = overflows * 1000 + (ticks - (ticks >> 2) - (ticks >> 5) + (ticks >> 7)); // Extremely close, and rounding will tend to help
       #elif (F_CPU == 36000000UL) // Overclocked but likely to work w/external clock or xtal
@@ -292,7 +292,7 @@ unsigned long millis()
         microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 5)); // - (ticks >> 7)
         // Multiples of 12
         // + (ticks >> 3) - (ticks >> 5) is better than + (ticks >> 4) + (ticks >> 5) - same average, but alternating + and - gives less rounding error.
-      #elif (F_CPU == 48000000UL) // Extreme overclocking (almost works w/external clock!)
+      #elif (F_CPU == 48000000UL) // Extreme overclocking (sometimes works w/ext. clock on E-spec parts!)
         ticks = ticks >> 5;
         microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 3) - (ticks >> 5)); // - (ticks >> 7)
       #elif (F_CPU == 24000000UL)
@@ -327,11 +327,11 @@ unsigned long millis()
             // also works at 2MHz, since we use CLKPER for 1MHz vs CLKPER/2 for all others.
         microseconds   = overflows * 1000 + ticks;
       #endif
-      #if !(F_CPU == 40000000UL || F_CPU == 44000000UL || F_CPU == 36000000UL || F_CPU == 28000000UL || \
-            F_CPU == 48000000UL || F_CPU == 14000000UL || F_CPU == 30000000UL || F_CPU == 20000000UL || \
+      #if !(F_CPU == 48000000UL || F_CPU == 44000000UL || F_CPU == 36000000UL || F_CPU == 28000000UL || \
+            F_CPU == 40000000UL || F_CPU == 30000000UL || F_CPU == 25000000UL || F_CPU == 20000000UL || \
             F_CPU == 10000000UL || F_CPU ==  5000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || \
             F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || \
-            F_CPU ==  1000000UL || F_CPU ==  2000000UL || F_CPU == 25000000UL)
+            F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 14000000UL )
         #warning "Millis timer (TCBn) at this frequency unsupported, micros() will return totally bogus values."
       #endif
     #else //TCA
@@ -940,94 +940,84 @@ void set_millis(uint32_t newmillis)
 void  __attribute__((weak)) init_clock() {
 
   #if CLOCK_SOURCE == 0
-    //internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
-    /* pattern is:
-    F_CPU     CLKCTRL_FREQSEL
-    1 MHz     0x0
-    2 MHz     0x1
-    3 MHz     0x2
-    4 MHz     0x3
-    Reserved  0x4
-    8 MHz     0x5
-    12 MHz    0x6
-    16 MHz    0x7
-    20 MHz    0x8
-    24 MHz    0x9
-    28 MHz    0xA  - undocumented, unofficial
-    32 MHz    0xB  - undocumented, unofficial
-    */
+    /*
+     * internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
+     *  F_CPU    CLKCTRL_FREQSEL
+     *  1 MHz    0x0
+     *  2 MHz    0x1
+     *  3 MHz    0x2
+     *  4 MHz    0x3  - default at power on reset
+     * Reserved  0x4
+     *  8 MHz    0x5
+     * 12 MHz    0x6
+     * 16 MHz    0x7
+     * 20 MHz    0x8
+     * 24 MHz    0x9
+     * 28 MHz    0xA  - undocumented
+     * 32 MHz    0xB  - undocumented
+     * 20 MHz    0xC  - repeat
+     * 24 MHz    0xD  - repeat
+     * 28 MHz    0xE  - repeat
+     * 32 MHz    0xF  - repeat
+     */
     /* Some speeds not otherwise possible can be generated with the internal oscillator by prescaling
-    This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
-    It was not done for 14, 7, 6, and all the thirds-of-MHz that you can get with the divide by 6 option.
-    */
-
+     * This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
+     * It was not done for 14, 7, 6, nor any of the other stupid frequencies that can be generated this way.
+     */
+    /* Notice: Give us a FREQing break! In ATpack version 1.9.103, they renamed another field...
+     * FREQSEL was changed to FRQSEL. It is unclear to me why it was necessary to make a breaking change
+     * impacting nearly all existing code that used the internal oscillator on these parts but it must
+     * have been very important to eliminate that E.
+     * We here use the old spelling, and breathe a sigh of relief that we didn't use the group code names.
+     * Our supplied core_devices.h will work around this: if the the old spelling of the group masks and
+     * is not defined, we define it to the new spelling (and if neither is defined, then we are attempting
+     * to compile for something that isn't a supported part so failure is expected). core_devices.h doesn't
+     * patch up the group codes, and those should not be used until a toolchain package with the new names
+     * is ready for DxCore. This will happen only after ship dates are available for DD-series parts with
+     * less than 64k of flash major changes/fixes are put in that impact available parts.
+     */
 
     #if (F_CPU == 32000000)
-      #warning "32 MHz, currently selected for F_CPU, exceeds manufacturer's specifications (but usually works)."
+      /* Overclocked - generally reliable at room temperature*/
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x0B<< CLKCTRL_FREQSEL_gp));
     #elif (F_CPU == 28000000)
-      #warning "28 MHz, currently selected for F_CPU, exceeds manufacturer's specifications (but usually works)."
+      /* Overclocked - generally quite reliable at room temperature */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x0A<< CLKCTRL_FREQSEL_gp));
-
     #elif (F_CPU == 24000000)
-      /* No division on clock - fastest speed that's in spec */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x09<< CLKCTRL_FREQSEL_gp));
-
     #elif (F_CPU == 20000000)
-      /* No division on clock */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x08<< CLKCTRL_FREQSEL_gp));
-
     #elif (F_CPU == 16000000)
-      /* No division on clock */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x07<< CLKCTRL_FREQSEL_gp));
-
-    #elif (F_CPU == 12000000)
-      /* should it be 24MHz prescaled by 2? */
+    #elif (F_CPU == 12000000) /* should it be 24MHz prescaled by 2? */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x06<< CLKCTRL_FREQSEL_gp));
-
-    #elif (F_CPU == 10000000)
-      /* 20 prescaled by 2 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,(CLKCTRL_PDIV_2X_gc|CLKCTRL_PEN_bm));
+    #elif (F_CPU == 10000000) /* 10 MHz = 20 MHz prescaled by 2 */
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc |  CLKCTRL_PEN_bm));
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x08<< CLKCTRL_FREQSEL_gp));
-
-    #elif (F_CPU == 8000000)
-      /* Should it be 16MHz prescaled by 2? */
+    #elif (F_CPU == 8000000)  /* Should it be 16MHz prescaled by 2? */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x05<< CLKCTRL_FREQSEL_gp));
-
-    #elif (F_CPU == 5000000)
-      /* 20 prescaled by 4 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,(CLKCTRL_PDIV_4X_gc|CLKCTRL_PEN_bm));
+    #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc |  CLKCTRL_PEN_bm));
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x08<< CLKCTRL_FREQSEL_gp));
-
-    #elif (F_CPU == 4000000)
-      /* Should it be 16MHz prescaled by 4? */
+    #elif (F_CPU == 4000000) /* Should it be 16MHz prescaled by 4? */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x03<< CLKCTRL_FREQSEL_gp));
-
-    #elif (F_CPU == 3000000)
-      /* There's like, no support for this anywhere in the core!  */
+    #elif (F_CPU == 3000000) /* There's like, no support for this anywhere in the core!  */
       #warning "3 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x02<< CLKCTRL_FREQSEL_gp));
-
     #elif (F_CPU == 2000000)
-      /* Should it be 16MHz prescaled by 8? */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x01<< CLKCTRL_FREQSEL_gp));
-
     #elif (F_CPU == 1000000)
-      /* Should it be 16MHz prescaled by 16? */
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x00<< CLKCTRL_FREQSEL_gp));
     #else
       #error "F_CPU defined as an unsupported value"
     #endif
   #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
-    #if F_CPU > 40000000
-      #warning "Selected frequency greatly exceeds manufacturer specifications - this may cause hangs, resets, or even incorrect results from arithmetic and logic operations; be sure to consider this when debugging"
-    #elif F_CPU > 24000000
-      #warning "Selected frequency exceeds manufacturer specifications. Although these parts overclock very well, be sure to exclude overclocking-induced problems when debugging."
-    #endif
-    // For this, we don't really care what speed it is at - we will run at crystal frequency, and trust the user to select a speed matching that.
-    // We don't prescale from crystals, and won't unless someone gives a damned convincing reason why that feature is important.
-    // Crystals in the relevant frequency range are readily available.
-    // So are oscillators... but there's a catch:
+    /* For this, we don't really care what speed it is at - we will run at crystal frequency, and **the user must pick the right one**
+     * It is impractical to determine what we're running at at runtime, and the user should really knoe the basic parameters of the
+     * crystal - it's usually printed on the damned thing. We don't prescale from crystals, and won't unless someone gives a damned
+     * convincing reason why that feature is important.
+     * Crystals in the relevant frequency range are readily available.
+     * So are oscillators, though for reasons I don't understand, cost an arm and a leg. The DA-series doesn't support crystals*/
     #if !defined(CLKCTRL_XOSCHFCTRLA)
       // it's an AVR DA-series
       #if (CLOCK_SOURCE == 1)
@@ -1053,13 +1043,14 @@ void  __attribute__((weak)) init_clock() {
       #else
         // external crystal
         #ifndef USE_XTAL_DRIVE
-          // WHAT ARE THE TRADEOFFS INVOLVED HERE????
-          // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with EVERY OPTION! And no loading caps - just parasitic capacitance as my loading caps :-P
-          #if (F_CPU>24000000)
+          // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
+          // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
+          // but nobody is likely to care. Lower speed settings use less power, I *think*.
+          #if     (F_CPU > 24000000)
             #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
-          #elif (F_CPU>16000000)
+          #elif   (F_CPU > 16000000)
             #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
-          #elif(F_CPU>8000000)
+          #elif   (F_CPU >  8000000)
             #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
           #else
             #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
@@ -1087,10 +1078,17 @@ void  __attribute__((weak)) init_clock() {
 /********************************* CLOCK FAILURE HANDLING **************************************/
 /*
  * These are used for blink codes which indicate issues that would prevent meaningful startup
- * I mean, we could leave it running at 4 MHz and run the sketch, but I think at that point
- * it's more useful to abort startup than to leave the user wondering why the sketch is
- * running at an unexpected speed. The odd number of "change" blinks in long phase makes it
- * extremely distinctive. It will blink at you, and then repeat that pattern - inverted.
+ * While we could leave it running at 4 MHz and run the sketch, I think at that point it is
+ * more useful to abort startup than to leave the user wondering why the sketch is running
+ * otherwise correctly at an unexpected speed. "Why is my sketch running really slow?" on
+ * the classic AVRs is a very common complaint due to people forgetting to turn off the
+ * CLKDIV8 there. Instead, if the code doesn't work at all with some alternative clock
+ * uploading other code is not impeded (the chip is not softbricked) and the user will
+ * hopefully be able to deduce that there is a problem with the clock, even without an LED on
+ * PA7 - however, if an LED is connected, a blink code will be shown. The most distinctive
+ * aspect of them is that, having an odd number of "change" operations, the pattern will be
+ * shown, and then the inverted pattern will be shown, This is unlikely to be similar to
+ * anything the user might upload.
  */
 #if (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
 
@@ -1154,21 +1152,49 @@ void init_timers() {
  /* TIMER INITIALIZATION CODE START
   *
   * Basic PWM Timer initialization
-  * Type A timer for millis and/or PWM
-  * Type B timer for PWM (not millis)
+  * Type A timer for millis and/or PWM Type B timer for PWM (not millis)
   *
-  * 8-bit PWM with PER/TOP = 0xFD / 254
-  * (254+1 = 255; 255 is a particularly
-  * magical number for millis-math, as it
-  * turns out. Naturally, the Arduino dev
-  * team does not appear to do any of the
-  * work they do in Eclipse or
-  * another platformy language is that
+  * 8-bit PWM with PER/TOP = 0xFD / 254 for a 255 clock period (not 256)
+  * Therre are two important reasons that we want a 255 clock period not 256 as
+  * one might expect. If TCA is used for millis, we find that 255 is a magical
+  * number that makes a bunch of math work out exactly with integers.
+  * This prevents the rounding errors from manifesting in millis() return values.
   *
+  * For PWM, it is also critical. There are 256 possible inputs to analogWrite()
+  * which are valid. But if we count to 255, then the pin would have 257 states
+  * There is always a compare value that can be chosen that results in no PWM
+  * (which end depends on the timer and implementation details), giving constant
+  * HIGH or LOW. However, the opposite extreme corresponds to 1 cycle away from
+  * constant output.
+  * You cannot smoothly map 256 inputs to 256 outputs. Worse still, most schemes
+  * that do not account for this have the glitch at the bottom, meaning that
+  * analogWrite(pin,0) sets the pin low, while analogWrite(pin,0) gives not
+  * 1/256th duty cycle but 2/256ths, and any scheme will put it at one of the ends
+  * unless it explicitly accounts for this. And the ends are of course the worst place
+  * for such artifacts. Few notice or care whether an LED has a duty cycle of 128/256ths
+  * or 127/256ths. But they absolutely know the difference between 1/256th and 2/256ths.
+  * Since things may be active LOW or active HIGH, the same issue applies to
+  * the top of the range.
+  * Thus, by counting to 254, we have 255 valid compare values and 256 valid
+  * analogWrite() values without any discontinuities, and the millis math works
+  * out better.
   *
-  * Sure makes you wish there was a
-  * 1/128 prescaling option doesn't it?
-  * (The "target" frequency is 1kHz; we manage to keep it between ~0.5 and ~1.5 kHz. )
+  * PWM frequency vs clock frequency
+  * for TCA and TCB timers as configured by the core.
+  * The "target" frequency is 1kHz. This is the same as the standard boards
+  * and is a sensible default: It's fast enough that most things don't have
+  * noticible flicker/etc, but you can still PWM the gate of a MOSFET at
+  * that speed and get away with it for small MOSFETs with low gate charge.
+  * As the frequency gets much faster, you enter the teritory where the pin
+  * can't drive the gate hard enough for the fet to spend most of it's time
+  * either ON or OFF, switching losses increase, the MOSFET gets hot, and
+  * in some cases, failure of the FET can occur at a much lower load than
+  * would be expected.
+  *
+  * The cannonical value is 980 Hz on 16 MHz Uno: 16,000,000/ (255 * 64)
+  * or 1000/1020; counting to 255 gives 256 clocks and a slightly slower
+  * 976 Hz (1000/1024). Generally, it is F_CPU/(cycle_length * prescale).
+  * equivalent to F_CPU/((TOP + 1) * prescale).
   *
   *  F_CPU    Prescale   F_PWM
   * 48 MHz      256     735 Hz
@@ -1176,9 +1202,9 @@ void init_timers() {
   * 40 MHz      256     613 Hz
   * 36 MHz      256     551 Hz
   * 32 MHz      256     490 Hz
-  * 28 MHz      256     429 Hz
-  * 25 MHz       64    1532 Hz
-  * 24 MHz       64    1471 Hz
+  * 28 MHz      256     429 Hz  // Better this than 1716 Hz
+  * 25 MHz       64    1532 Hz  // Ewwww! It's this or 375 though!
+  * 24 MHz       64    1471 Hz  // Higher than I'd like...
   * 20 MHz       64    1225 Hz
   * 16 MHz       64     980 Hz
   * 12 MHz       64     735 Hz
@@ -1187,6 +1213,8 @@ void init_timers() {
   *  5 MHz       16    1225 Hz
   *  4 MHz       16     980 Hz
   *  1 MHz        8     490 Hz
+  *
+  * It sure makes you wish there were a 1/128 prescale option doesn't it?
   */
 
 
@@ -1206,8 +1234,12 @@ void __attribute__((weak)) init_TCA0() {
   TCA0.SPLIT.LPER    = PWM_TIMER_PERIOD;
   TCA0.SPLIT.HPER    = PWM_TIMER_PERIOD;
 
-  /* Default duty 0%, will re-assign in analogWrite() */
-  // 2/1/2021: Why the heck are we bothering to set these AT ALL?! The duty cycles for *non-active* compare channels?!
+  /* No need to set the compare values. PWM is not enabled on startup and
+   * analogWrite() sets this. This saves 12 instruction words because each
+   * assignment becomes a 2-word STS instruction. A smarter compiler that
+   * was better able to detect when STD would safe flash/time could do these
+   * more efficiently. But they don't need to be done so it's academic.
+   */
   /*
   TCA0.SPLIT.LCMP0 = 0;
   TCA0.SPLIT.HCMP0 = 0;
@@ -1217,7 +1249,9 @@ void __attribute__((weak)) init_TCA0() {
   TCA0.SPLIT.HCMP2 = 0;
   */
 
-  /* Use prescale appropriate for system clock speed */
+  /* Use prescale appropriate for system clock speed
+   * Detect conflict between wiring.c and timers.h if we spot them, as that indicates
+   * a defect in the core and would result in extremely bad behavior*/
 
   #if (F_CPU > 25000000) //use 256 divider when clocked over 25 MHz
     #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 256)
@@ -1244,52 +1278,35 @@ void __attribute__((weak)) init_TCA0() {
 
 #if defined(TCA1)
 void __attribute__((weak)) init_TCA1() {
-  /* TCA0_PINS from pins_arduino.h */
-  // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
-  // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
-  // this, in the interest of making init_TCA0 more usable as the reverse of takeOverTCA0()
+  /* For comments see initTCA0() above */
   PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | TCA1_PINS;
 
   /* Enable Split Mode */
   TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
 
-  //Only 1 WGM so no need to specifically set up.
-
   /* Period setting, 8-bit register in SPLIT mode */
   TCA1.SPLIT.LPER    = PWM_TIMER_PERIOD;
   TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
 
-  /* Default duty 0%, will re-assign in analogWrite() */
-  // 2/1/2021: Why the heck are we bothering to set these AT ALL?! The duty cycles for *non-active* compare channels?!
-  /*
-  TCA1.SPLIT.LCMP0 = 0;
-  TCA1.SPLIT.HCMP0 = 0;
-  TCA1.SPLIT.LCMP1 = 0;
-  TCA1.SPLIT.HCMP1 = 0;
-  TCA1.SPLIT.LCMP2 = 0;
-  TCA1.SPLIT.HCMP2 = 0;
-  */
-
-  /* Use prescale appropriate for system clock speed */
 
   #if (F_CPU > 25000000) //use 256 divider when clocked over 25 MHz
     #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 256)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
     #endif
     TCA1.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
   #elif (F_CPU > 5000000) //use 64 divider unless it's 5 MHz or under
     #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 64)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
     #endif
     TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
   #elif (F_CPU > 1000000) // anything above 1 MHz
     #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 16)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
     #endif
     TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
   #else
     #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 8)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
     #endif
     TCA1.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
   #endif
@@ -1299,7 +1316,12 @@ void __attribute__((weak)) init_TCA1() {
 void __attribute__((weak)) init_TCBs() {
 
   /*    TYPE B TIMERS  */
-  // Set up routing (defined in pins_arduino.h)
+  /* Set up routing (defined in pins_arduino.h)
+   * This is a heinously ugly use of the preprocessor, but all alternatives
+   * are even uglier and messier. Notice how there's no semicolon until after
+   * the preprocessor conditionals.
+   */
+
   PORTMUX.TCBROUTEA = 0
   #if defined(TCB0)
                         | TCB0_PINS
@@ -1323,15 +1345,15 @@ void __attribute__((weak)) init_TCBs() {
 
   // Find end timer
   #if defined(TCB4)
-    TCB_t *timer_B_end = (TCB_t *)&TCB4;
+    TCB_t *timer_B_end = (TCB_t *) &TCB4;
   #elif defined(TCB3)
-    TCB_t *timer_B_end = (TCB_t *)&TCB3;
+    TCB_t *timer_B_end = (TCB_t *) &TCB3;
   #elif defined(TCB2)
-    TCB_t *timer_B_end = (TCB_t *)&TCB2;
+    TCB_t *timer_B_end = (TCB_t *) &TCB2;
   #elif defined(TCB1)
-    TCB_t *timer_B_end = (TCB_t *)&TCB1;
+    TCB_t *timer_B_end = (TCB_t *) &TCB1;
   #else
-    TCB_t *timer_B_end = (TCB_t *)&TCB0;
+    TCB_t *timer_B_end = (TCB_t *) &TCB0;
   #endif
 
   // Timer B Setup loop for TCB[0:end]
@@ -1363,11 +1385,29 @@ void __attribute__((weak)) init_TCBs() {
 }
 
 #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
+/* Configure TCD0 for PWM in the non-millis case; currently we do not support
+ * TCD0 driven millis on the Dx-series, but we may have to for the DD-series
+ * because, particularly in low pincounts, they are highly timer-constrained.
+ * With just 1 TCA, 2 TCBs and TCD0 we find outselves in the same boat as the
+ * tinyAVRs. With the same timer layout as the "golden" 1-series, we shouldn't
+ * be more constrained on this much fancier part. There, we *default* TCD0
+ * because it's the least "useful" to take over.
+ * TCD0 is a strange timer - most registers can only be changed with it disabled
+ * and many require protected writes (ie, it is meant for critical operations
+ * where miswrites have catastrophic consequences). Wierder still, because it
+ * is async (and may be clocked faster than the CPU) the current count isn't
+ * available directly. You have to do a software capture, wait for a few clocks
+ * for sync (I think 2-3 synchronizer clocks there, 2-3 system clocks back).
+ * and then you can read that value. See the millis implementations
+ */
 void __attribute__((weak)) init_TCD0() {
-  TCD0.CMPBCLR  = TIMERD0_TOP_SETTING;    // 510 counts, starts at 0, not 1!
-  TCD0.CMPACLR  = 0x0FFF;                 // Match with CMPBCLR clears all outputs. This just needs to be higher than
+  TCD0.CMPBCLR  = TIMERD0_TOP_SETTING;    // From timers.h - is equal to (255 * 2^n)-1 where n is an integer value. This lets us lower
+                                          // PWM frequency, or hold it constant and lower the sync prescale, reducing sync delays.
+  TCD0.CMPACLR  = 0x0FFF;                 // Match with CMPBCLR clears all outputs. This just needs to be higher than it will count to.
   TCD0.CTRLC    = 0x80;                   // WOD outputs PWM B, WOC outputs PWM A
-  TCD0.CTRLB    = TCD_WGMODE_ONERAMP_gc;  // One Slope
-  TCD0.CTRLA    = TIMERD0_CLOCK_SETTING | TCD_ENABLE_bm;  // 5, 10 MHz OSCHF, all others CLKPER. count prescale 32 except 1 MHz, prescale 4.
+  TCD0.CTRLB    = TCD_WGMODE_ONERAMP_gc;  // One ramp or dual slope are the only options that are viable to reproduce classic behavior.
+                                          // and the latter is incompatible with using it as millis timer, and we want to share as much
+                                          // code as we can between the TCD0 and non-TCD0 millis.
+  TCD0.CTRLA    = TIMERD0_CLOCK_SETTING | TCD_ENABLE_bm;  // See timers.h for determination of clock settings.
 }
 #endif

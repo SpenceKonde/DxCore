@@ -207,27 +207,27 @@ class UartClass : public HardwareSerial
     void _poll_tx_data_empty(void);
 };
 
-#if defined(HWSERIAL0)
+#if defined(USART0)
   extern UartClass Serial0;
   #define HAVE_HWSERIAL0
 #endif
-#if defined(HWSERIAL1)
+#if defined(USART1)
   extern UartClass Serial1;
   #define HAVE_HWSERIAL1
 #endif
-#if defined(HWSERIAL2)
+#if defined(USART2)
   extern UartClass Serial2;
   #define HAVE_HWSERIAL2
 #endif
-#if defined(HWSERIAL3)
+#if defined(USART3)
   extern UartClass Serial3;
   #define HAVE_HWSERIAL3
 #endif
-#if defined(HWSERIAL4)
+#if defined(USART4)
   extern UartClass Serial4;
   #define HAVE_HWSERIAL4
 #endif
-#if defined(HWSERIAL5)
+#if defined(USART5)
   extern UartClass Serial5;
   #define HAVE_HWSERIAL5
 #endif

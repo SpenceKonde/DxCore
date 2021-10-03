@@ -29,34 +29,63 @@
 #endif
 
 
-/*
- * Compatibility - General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
- * They now appear to have decided they don't like either of these conventions, and are grouping them under a "General Purpose Register"
- * "peripheral". I cannot argue that GPR doesn't make more sense, as there's not really any I/O occurring here (ofc they were referring
- * to the IN and OUT instructions, which can be used on these), but I certainly wouldn't have changed a convention like this. And if I
- * really had to... I would be too ashamed to do it again in just a couple of years because I realized I didn't like the first change
- * much either. Then again, maybe this just brings to mind that old line about talking cookware...
- */
+/* Microchip has shown a tendency to rename registers bitfields and similar between product lines, even when the behavior is identical.
+ * This is a major hindrance to writing highly portable code. This is not expected to present any sort of issue. HOWEVER if it does,
+ * The line above can be uncommented to disable all of the places where we find this and add define the old names to point to new ones.
+ * The spelling of here is intentional. With it undefined, we will define the backwards compatible names, but if not.
+ * If instead the user seeks to thwart compatibility (or alert themselves to code where they used old names) they are seeing the
+ * opposite of backward compatibility, what some wags have terms "backward combatibility" */
 
-// Pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn .
-#ifndef GPIOR0
-  #define GPIOR0 (GPR_GPR0)
-  #define GPIOR1 (GPR_GPR1)
-  #define GPIOR2 (GPR_GPR2)
-  #define GPIOR3 (GPR_GPR3)
+// #define BACKWARD_COMBATIBILITY_MODE
+
+
+#if !defined(BACKWARD_COMBATIBILITY_MODE)
+  #if defined(RTC_CLKSEL)
+  /* Man they just *HAD* to change the names of these values that get assingned to the same register and do the same thing didn't they?
+   * Worse still we can't even verify that they are present... just blindly definr and pray. Enums can't be seen by macros   */
+    #define RTC_CLKSEL_INT32K_gc  RTC_CLKSEL_OSC32K_gc
+    #define RTC_CLKSEL_OSC1K_gc   RTC_CLKSEL_INT1K_gc
+    #define RTC_CLKSEL_TOSC32K_gc RTC_CLKSEL_XTAL32K_gc
+  #endif
+
+  /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
+   * They now appear to have decided they don't like either of the previous conventions, one just a few years old. Now they are grouping
+   * them under a "General Purpose Register". "peripheral". I cannot argue that GPR doesn't make more sense, as there's not really any
+   * I/O occurring here (ofc they were referring to the IN and OUT instructions, which can be used on these), but I certainly wouldn't
+   * have changed a convention like this, at least not when I had just done so a few years prior. */
+
+  // Pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn .
+  #ifndef GPIOR0
+    #define GPIOR0 (GPR_GPR0)
+    #define GPIOR1 (GPR_GPR1)
+    #define GPIOR2 (GPR_GPR2)
+    #define GPIOR3 (GPR_GPR3)
+  #endif
+
+  // For a while, these were called GPIO in the i/o headers...
+  #ifndef GPIO0
+    #define GPIO0 (GPR_GPR0)
+    #define GPIO1 (GPR_GPR1)
+    #define GPIO2 (GPR_GPR2)
+    #define GPIO3 (GPR_GPR3)
+  #endif
+
+  // Of course in these more enlightened times, we know better!
+  // They are are the 4 registers in the GPR peripheral, GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
+  // but if we dont use the flat name, it could cause problems when substituted in under some conditions.
 #endif
-// For a while, these were called GPIO in the i/o headers...
-#ifndef GPIO0
-  #define GPIO0 (GPR_GPR0)
-  #define GPIO1 (GPR_GPR1)
-  #define GPIO2 (GPR_GPR2)
-  #define GPIO3 (GPR_GPR3)
-#endif
+
+
+
+
+
 
 // Chip families
 // 0b ffssfppp
 // ff__f is a 3-bit family code 00__0 is the DA, 00__1 is DB,
-// 01__0 is DD.
+// 01__0 is DD. Dx-series grows up from bottom, Ex-series down
+// from top in order of availability of silicon. So the next two
+// are going to be 11__1 for the EA and 01__1 for the DU
 // ss is flash size; 0 is smallest flash in family, 1 second smallest
 // (generally 2x smallest) 2 for next size up, and 3 for an even larger
 // one.
@@ -180,6 +209,11 @@
 #endif
 
 
+
+
+
+
+
 #if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (CORE_PART_ID_LOW & ID_AVR_DD))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
 #elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (CORE_PART_ID_LOW & ID_AVR_DD))
@@ -266,7 +300,7 @@
 // with maximum accumulation of Dx, for example, 12 + 7 = 19, so the internal representation would be a 19-bit number
 // but only the 16 most significant bits are presented in ADC0.RES. analogReadEnh() accounts for this when
 // asked to oversample and decimate.
-#ifndef __AVR_DA__
+#if (defined(__AVR_DB__) && defined(__AVR_DD__))
   // DB-series and DD-series parts have an INLVL bit on the PINnCTRL registers. If set, pin is in TTL-input mode and the voltage considered high/low does not depend on Vdd
   #define PORT_ID_INLVL 1
 #else
@@ -283,6 +317,21 @@
   // They changed the damned name after selling the part for 6 months!
   // annoyingly you can't even test if it's using the new version of the headers because it's an enum
   #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
+#endif
+
+#if !defined(CLKCTRL_FREQSEL_gm)
+  // And one version later they did it again...
+  #define CLKCTRL_FREQSEL_gm CLKCTRL_FRQSEL_gm
+#endif
+
+#if !defined(CLKCTRL_FREQSEL_gp)
+  // This impacts all frequency group codes too; those aren't corrected: use the new spelling!
+  #define CLKCTRL_FREQSEL_gp CLKCTRL_FRQSEL_gp
+#endif
+
+#if defined(__AVR_DA__) || defined(__AVR_DB__)
+  // No device has been released that doesn't have this bug!
+  #define ERRATA_TCB_CCMP 1
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
