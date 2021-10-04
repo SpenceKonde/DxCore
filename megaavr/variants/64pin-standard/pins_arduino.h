@@ -66,8 +66,8 @@
 #define PIN_PG5 (51)
 #define PIN_PG6 (52)
 #define PIN_PG7 (53)
-#define PIN_PF6 (54)
-
+#define PIN_PF6 (54) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
+/*      PIN_PF7 (55) UPDI pin not available for alternative functions */
 
 #define NUM_DIGITAL_PINS                  55
 #define NUM_ANALOG_INPUTS                 22
@@ -94,7 +94,7 @@ and hence what number it should be set to! */
 #define analogChannelToDigitalPin(p)      ((p) < 22 ? ((p) + PIN_PD0) : NOT_A_PIN)
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* handle analog channels too */
-#define portToDigitalPinZero(port)        (((port) < PG) ? (port) * 8 : (port == PG ? 46 : NOT_A_PIN));
+#define portToPinZero(port)               (((port) < PG) ? (port) * 8 : (port == PG ? 46 : NOT_A_PIN));
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5) || ((p) == PIN_PG3))
@@ -197,6 +197,7 @@ and hence what number it should be set to! */
 #define HWSERIAL0                       &USART0               /* So far I see no reason not to just use &USART0 here...    */
 #define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect       /* Nope - we can determine this already, is pure duplication */
 #define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num   /* Nope - that AND it's not even used anymore */
+#define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
 #define HWSERIAL0_MUX_COUNT             2                     /* stays - can be deduced, but only in ugly ways */
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc  /* Nope, redundant */
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc     /* Nope, redundant - also horribly verbose and ugly*/
@@ -273,6 +274,7 @@ and hence what number it should be set to! */
 #define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
 #define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc
 #define HWSERIAL4_MUX_PINSWAP_NONE      PORTMUX_USART4_NONE_gc
+#define PIN_HWSERIAL4_TX                PIN_PE0
 #define PIN_HWSERIAL4_RX                PIN_PE1
 #define PIN_HWSERIAL4_XCK               PIN_PE2
 #define PIN_HWSERIAL4_XDIR              PIN_PE3

@@ -54,7 +54,8 @@
 #define PIN_PF3 (37)
 #define PIN_PF4 (38)
 #define PIN_PF5 (39)
-#define PIN_PF6 (40)
+#define PIN_PF6 (40) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
+/*      PIN_PF7 (41) UPDI pin not available for alternative functions */
 
 #define PINS_COUNT                     41
 #define NUM_DIGITAL_PINS               PINS_COUNT
@@ -77,7 +78,7 @@
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
 
-#define portToDigitalPinZero(port)        (((port) < PF) ? (((port) * 8) - (((port) > 1) ? 2 : 0) : ((port) == PF ? PIN_PF0 : NOT_A_PIN))
+#define portToPinZero(port)               (((port) < PF) ? (((port) * 8) - (((port) > 1) ? 2 : 0) : ((port) == PF ? PIN_PF0 : NOT_A_PIN))
 
 // Timer pin swaps
 #define TCA0_PINS PORTMUX_TCA0_PORTC_gc     // TCA0 output on PD[0:5]
@@ -239,16 +240,16 @@
 #define HWSERIAL4_DRE_VECTOR_NUM        USART4_DRE_vect_num
 #define HWSERIAL4_RXC_VECTOR            USART4_RXC_vect
 #define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
-#define HWSERIAL4_MUX_PINSWAP_1         NOT_A_MUX
+#define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc  /* destined for removal */
 #define HWSERIAL4_MUX_PINSWAP_NONE      PORTMUX_USART4_NONE_gc
 #define PIN_HWSERIAL4_TX                PIN_PE0
 #define PIN_HWSERIAL4_RX                PIN_PE1
 #define PIN_HWSERIAL4_XCK               PIN_PE2
 #define PIN_HWSERIAL4_XDIR              PIN_PE3
-#define PIN_HWSERIAL4_TX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL4_RX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL4_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL4_XDIR_PINSWAP_1    NOT_A_PIN
+#define PIN_HWSERIAL4_TX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL4_RX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL4_XCK_PINSWAP_1     NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL4_XDIR_PINSWAP_1    NOT_A_PIN  /* destined for removal */
 
 // PIN_An = digital pin number of analog channel n
 #define PIN_A0   PIN_PD0

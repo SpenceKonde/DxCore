@@ -39,7 +39,8 @@
 #define PIN_PD7 (19)
 #define PIN_PF0 (20)
 #define PIN_PF1 (21)
-#define PIN_PF6 (22)
+#define PIN_PF6 (22) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
+/*      PIN_PF7 (23) UPDI pin not available for alternative functions */
 
 #define PINS_COUNT                     23
 #define NUM_DIGITAL_PINS               PINS_COUNT
@@ -60,7 +61,7 @@
 #define analogChannelToDigitalPin(p)        ((p) < 8 ? ((p) + PIN_PD0) : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
-#define portToDigitalPinZero(port)        ((port) == 0 ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
+#define portToPinZero(port)               ((port) == 0 ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
 
 
 // PWM pins
@@ -153,16 +154,16 @@
 #define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
 #define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_1         NOT_A_MUX
+#define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc   /* destined for removal */
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL1_RX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL1_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN
+#define PIN_HWSERIAL1_TX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL1_RX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL1_XCK_PINSWAP_1     NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN  /* destined for removal */
 
 // USART 2
 #define HWSERIAL2                       &USART2
@@ -170,16 +171,16 @@
 #define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
 #define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
-#define HWSERIAL2_MUX_PINSWAP_1         NOT_A_MUX
+#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc  /* destined for removal */
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
 #define PIN_HWSERIAL2_TX                PIN_PF0
 #define PIN_HWSERIAL2_RX                PIN_PF1
 #define PIN_HWSERIAL2_XCK               NOT_A_PIN
 #define PIN_HWSERIAL2_XDIR              NOT_A_PIN
-#define PIN_HWSERIAL2_TX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL2_RX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
+#define PIN_HWSERIAL2_TX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL2_RX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN  /* destined for removal */
+#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN  /* destined for removal */
 
 /*
        ##  #   #  ##  #     ###   ###      ####  ### #   #  ###
