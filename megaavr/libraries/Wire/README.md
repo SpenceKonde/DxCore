@@ -1,5 +1,8 @@
 # Wire (TWI/I2C)
-All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin version, which has one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. There is at present no TWI1 library, see: https://github.com/SpenceKonde/DxCore/issues/54
+For the next big release (likely 1.4.0), this library will be overhauled with Dual mode and non-dual master + slave and a much lower flash usage, along with proper TWI1 support. It will be made available for beta testing as soon as 1.3.7 is releaased
+
+
+All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin versions, which have one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. ~There is at present no TWI1 library, see: https://github.com/SpenceKonde/DxCore/issues/54~
 
 ## Pin Mappings
 Like most peripherals, the TWI interface can be swapped to an alternate set of pins; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin().
