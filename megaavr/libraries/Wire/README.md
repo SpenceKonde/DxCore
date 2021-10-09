@@ -11,6 +11,7 @@ Like most peripherals, the TWI interface can be swapped to an alternate set of p
 | ALT_1   (1) |  YES   |  YES   |   YES*  |   YES*  |  YES*  |  YES*  | PA2 | PA3 | PC6      | PC7      |
 | ALT_2   (2) |  YES   |  YES   |   YES*  |   YES*  |  YES*  |  YES*  | PC2 | PC3 | PC6      | PC7      |
 | ALT_3   (3) |  NO    |  NO    | DD only | DD only |  YES   |  YES   | PA0 | PA1 | PC2      | PC3      |
+
 `* indicates that the dual mode pins are unavailable which will be relevant if we ever support dual mode. `
 
 `Wire.swap(pin_set)` will set the the pin mapping to the specified set of pins. Only 1-series parts with more than 8 pins support this; on other parts,  `Wire.swap()` will generate a compile error if a value known at compile time and not 0 is passed to it. On 1-series parts that do have an alternate pin mapping, a compile-time-known value that is not a 0 or 1 will similarly generate a compile error. An invalid value that is *not* known at compile time (in either case) will instead result in swap() returning false and selecting the default pins.
