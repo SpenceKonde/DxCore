@@ -1,30 +1,40 @@
 /**********************************************************/
-/* Optiboot bootloader for Arduino                        */
+/* Optiboot bootloader for AVR Dx-series                  */
+/* This fork is based on the version that was used for    */
+/* tinyAVRs in megaTinyCore, and MegaCoreX adapted to the */
+/* once-more all new NVM facilities in the Dx-series.     */
 /*                                                        */
-/* http://optiboot.googlecode.com                         */
+/* Like those, Dx-series has a conceptually similar       */
+/* NVMCTRL - but only erase is done by the page. Writes   */
+/* can be done by the word with SPM or the byte with ST.  */
+/* Either way, data is written immediately.               */
 /*                                                        */
-/* Arduino-maintained version : See README.TXT            */
-/* http://code.google.com/p/arduino/                      */
-/*  It is the intent that changes not relevant to the     */
-/*  Arduino production environment get moved from the      */
-/*  optiboot project to the arduino project in "lumps."   */
 /*                                                        */
-/* Heavily optimised bootloader that is faster and        */
-/* smaller than the Arduino standard bootloader           */
+/*   Supports DA, DB and will need almost nothing to      */
+/*   add support for DD                                   */
 /*                                                        */
-/* Enhancements:                                          */
-/*   Fits in 512 bytes, saving 1.5K of code space         */
+/*   Writes by word, not byte. Not troubled by the flash  */
+/*   errata on the AVR128DA                               */
+/*                                                        */
+/*   Fits in 512 bytes                                    */
+/*                                                        */
 /*   Higher baud rate speeds up programming               */
+/*                                                        */
 /*   Written almost entirely in C                         */
+/*                                                        */
 /*   Customisable timeout with accurate timeconstant      */
 /*                                                        */
-/* What you lose:                                         */
 /*   Implements a skeleton STK500 protocol which is       */
 /*     missing several features including EEPROM          */
 /*     programming and non-page-aligned writes            */
-/*   High baud rate breaks compatibility with standard    */
-/*     Arduino flash settings                             */
 /*                                                        */
+/*   Hardened against case where execution reached 0x0000 */
+/*     without a reset (error condition or naive way to   */
+/*     jump to the bootloader                             */
+/*                                                        */
+/* This version is included as part of DxCore             */
+/*                                                        */
+/* Copyright 2020-2021 by Spence Konde                    */
 /* Copyright 2013-2019 by Bill Westfield.                 */
 /* Copyright 2010 by Peter Knight.                        */
 /*                                                        */
@@ -107,7 +117,9 @@
 
 /**********************************************************/
 /* Edit History:                                          */
-/*                                                        */
+/* Oct 2021                                               */
+/*     Fixed comments so it doesn't talk about the 328p   */
+/*     and reflects what this version does.               */
 /* Aug 2020                                               */
 /*     Adapted to Dx-series -Spence Konde                 */
 /* Aug 2019                                               */
@@ -152,7 +164,8 @@ optiboot_version = 256 * (OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVE
  * The *only* thing that needs to run from the bootloader section is the actual instruction
  * that writes to or erases flash, that is, the spm instruction (or for certain cases, st - but we don't
  * concern ourselves with those since the most commonly found part in the hands of our target users
- * is the AVR128DA, and writing through flash-mapping is busted on theose. The NVMCTRL.CTRLA register works everywhere.
+ * is the AVR128DA, and writing through flash-mapping is busted on theose. The NVMCTRL.CTRLA register can be
+ * written from anywhere, unlike the tinyAVRs. so in the snippet of assembly to write a word, we would only need to change the spm instruction to an appropriate call instruction, and all will be right with the world.
  * This method consists of just the minimum two instructions in the bootloader section,
  */
 
@@ -383,7 +396,8 @@ int main (void) {
   // 11/14:
   // NASTY bug - we also need to check for no reset flags being set (ie, direct entry)
   // and run bootloader in that case, otherwise bootloader won't run, among other things, after fresh
-  // bootloading!
+  // bootloading.
+  //
   // 11/29:
   // 1. Realized we never took this branch because makefile never sets START_APP_ON_POR when it should.
   // 2. Realized (!(ch & (~RSTCTRL_BORF_bm))) is the same as (ch==RSTCTRL_BORF_bm) - but saves flash!
@@ -394,10 +408,11 @@ int main (void) {
   ch = RSTCTRL.RSTFR;   // get reset cause
 
   if (ch==0) {
-    // if app jumped direct to bootloader, we are in dangerous territory; the peripherals could be
+    // If app jumped direct to bootloader, we are in dangerous territory; the peripherals could be
     // a million flavors of bad! We assume everything is freshly reset. So, to stay safe, reset
     // immediately via software reset. Since this is an entry condition, we will achieve the naive
-    // fool's intent (directly entering the bootloader)
+    // fool's intent (directly entering the bootloader).
+    // We can also end up here on a freshly bootloaded chip, and
     _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
   }
   #if defined(START_APP_ON_POR)
@@ -437,8 +452,8 @@ int main (void) {
   // Removed "FANCY_RESET_LOGIC" code that we didn't use.
   // We used to reset the WDT here. It is unclear why we felt a need to do that.
   // The only time we could be here without a reset is if app jumped direct to
-  // bootloader. This will, except on 128k parts, trigger a reset, and on 128l
-  // parts it will as soon as I can find another 6 bytes of flash.
+  // bootloader. In this case reset flags will be empty, which triggers a
+  // defensive reset. since the peripherals could be hosed.
   // Hence, if WDT is on, it was fused on so we can't touch it
   // but we just got out of reset less than 3 us ago, so don't have to worry
 
@@ -535,7 +550,7 @@ int main (void) {
         getNch(4);
         putch(0x00);
       #endif
-    /* Write up to 1 page of flash (or EEPROM, except that isn't supports due to space) */
+    /* Write up to 1 page of flash (or EEPROM, except that isn't supported due to space) */
     } else if (ch == STK_PROG_PAGE) {
       uint8_t desttype;
       uint8_t *bufPtr;
@@ -550,6 +565,15 @@ int main (void) {
       #endif
       desttype = getch();
 
+      /* Having worked with SerialUPDI now and having a better idea of what the Dx
+       * series is capable of: This way is dumb. We are only ingesting data at 115 baud.
+       * That is something like 9us per bit, so 90 per byte and 180 per word. It only takes 70 us
+       * to write a word, so could have it written before even half of the following word has arrived.
+       * Serial ports keep working while writing to flash - you just can't react to them in that time
+       * We have 2 bytes of buffer (RXDATA, and a buffer behind it), plus the shift register. So as
+       * long as you can write pages faster than they come in, you don't need to make a buffer in RAM
+       * At 115200 baud, we exceed it by nearly a factor of 3. Removing that would save a few bytes
+       *
       // read a page worth of contents
       bufPtr = buff.bptr;
       do {
