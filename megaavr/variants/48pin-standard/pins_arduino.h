@@ -240,7 +240,7 @@
 #define HWSERIAL4_DRE_VECTOR_NUM        USART4_DRE_vect_num
 #define HWSERIAL4_RXC_VECTOR            USART4_RXC_vect
 #define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
-#define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc  /* destined for removal */
+#define HWSERIAL4_MUX_PINSWAP_1         NOT_A_MUX  /* destined for removal */
 #define HWSERIAL4_MUX_PINSWAP_NONE      PORTMUX_USART4_NONE_gc
 #define PIN_HWSERIAL4_TX                PIN_PE0
 #define PIN_HWSERIAL4_RX                PIN_PE1

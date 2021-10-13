@@ -3,13 +3,15 @@
 
 #include <avr/pgmspace.h>
 #include "timers.h"
-/*
-       ##  #     # ####      ###      ###   ##
-      #  # #     # #   #     #  #        # #  #
-      ####  #   #  ####      #  # # #  ##    #
-      #  #   # #   # #       #  #  #     #  #
-      #  #    #    #  #      ###  # # ###  ####
-*/
+/******************************************************
+ *                                                    *
+ *      ##  #     # ####      ###      ###   ##       *
+ *     #  # #     # #   #     #  #        # #  #      *
+ *     ####  #   #  ####      #  # # #  ##    #       *
+ *     #  #   # #   # #       #  #  #     #  #        *
+ *     #  #    #    #  #      ###  # # ###  ####      *
+ * Well, DA/DB32 at least. Not DD,
+ *****************************************************/
 
 #define DEFAULT_32PIN_PINOUT
 
@@ -164,7 +166,7 @@
 #define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
 #define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc /* destined for removal */
+#define HWSERIAL1_MUX_PINSWAP_1         NOT_A_MUX /* destined for removal */
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
