@@ -308,16 +308,16 @@ This isn't going to win a beauty contest internally. But it doesn't grab every I
 ### On-chip Opamps
 The DB-series parts have 2 or 3 on-chip opamps, with programmable resistor ladder, configurable for a variety of applications. They can be used as a voltage follower (you can follow the DAC and then use the output to drive VDDIO2, though the current is still only tens of mA, that's usually enough - driving heavy loads at the lower voltage is an unusual use case (I imagine powering low voltage sensors is not particularly rare - but those sort of modern sensors are also usually very low current).
 
-We provide a basic wrapper in the form of the [Opamp Library](https://github.com/SpenceKonde/DxCore/master/megaavr/libraries/Opamp) by MCUDude.
+We provide a basic wrapper in the form of the [Opamp Library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Opamp) by MCUDude.
 
 ### Configurable Custom Logic
-The CCL is exposed through the [Logic library](https://github.com/SpenceKonde/DxCore/master/megaavr/libraries/Logic) by MCUDude.
+The CCL is exposed through the [Logic library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Logic) by MCUDude.
 
 ### Event System
-The event system is exposed through the [Event library](https://github.com/SpenceKonde/DxCore/master/megaavr/libraries/Event) by MCUDude.
+The event system is exposed through the [Event library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Event) by MCUDude.
 
 ### Comparators
-The analog comparators are exposed through the [Comparator library](https://github.com/SpenceKonde/DxCore/master/megaavr/libraries/Comparator) by MCUDude.
+The analog comparators are exposed through the [Comparator library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Comparator) by MCUDude.
 
 ## List of Tools sub-menus
 * Tools -> Chip - sets the specific part within a selected family to compile for and upload to.

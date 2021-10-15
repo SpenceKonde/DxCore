@@ -203,4 +203,4 @@ void correctedDACWrite(uint8_t value) {
 ## Opamps
 The DB-series may not have the true PGA that other the EA will have - but they do have 2 or 3 on-chip opamops, which can be used to create various sorts of amplifiers to the benefit of the ADC, in addition to many other uses.
 
-See the documentation for the [Opamp Library](https://github.com/SpenceKonde/DxCore/master/megaavr/libraries/Opamp) by MCUDude.
+See the documentation for the [Opamp Library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Opamp) by MCUDude.
