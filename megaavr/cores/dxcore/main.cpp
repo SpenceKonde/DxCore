@@ -16,12 +16,14 @@ void initVariant() __attribute__((weak));
 void initVariant() { }
 
 int main()  __attribute__((weak));
-/* The main function - call initialization functions (in wiring.c) then setup, and finally loop repeatedly.
- * If serial event is enabled (which should be unusual, as it is no longer a menu option even, that gets
- * checked for after each call to loop). Note that if SPM from App without optiboot is enabled, there is
- * an extra bit of initialization code in .init3 to fix the vectors and still happen if user overrides main.
- * In the past there was a USB-related function here, that is removed, as work will be needed in any event
- * at the core level if VUSB-based "stuff" arrives that needs support at this level */
+/* The main function - call initialization functions (in wiring.c) then setup, and finally loop *
+ * repeatedly. If SerialEvent is enabled (which should be unusual, as it is no longer a menu    *
+ * option even, that gets checked for after each call to loop). Note that _pre_main() is        *
+ * called first in non-optiboot configurations (neither is needed on Optibooot configurations() *
+ * an extra bit of initialization code in .init3 to fix the vectors and still happen if user    *
+ * overrides main. In the past there was a USB-related function here, that is removed, as work  *
+ * will be needed in any event at the core level if VUSB-based "stuff" arrives, but really I'm  *
+ * just waiting for the DU-series now                                                           */
 int main() {
   init(); //Interrupts are turned on just prior to init() returning.
   initVariant();
@@ -34,32 +36,144 @@ int main() {
   }
 }
 
+void __attribute__((weak)) onPreMain();
+void __attribute__((weak)) onPreMain() {
+  /* USER CODE THAT NEEDS TO RUN  WAY EARLY GOES HERE */
+}
+
+
+
+#if (!defined(USING_OPTIBOOT))
+
+
+
+/*********************************** CHECK RESET FLAGS ******************************************/
+/* If we are not using Optiboot, we need to check the reset flagss, and reset via software for  *
+ * a clean start. Unfortunately, if we clear the registers here, we'll prevent user code from   *
+ * seeing them, which isnt helpful. As documented in the reset guide, we suggest overriding     *
+ * this function with your own version. One example is included below and others in that guide  *
+ * init_reset_Flags() should be overridden with one of the ones from the reset guide in any     *
+ * production code.                                                                             *
+ * If using optiboot, this will never be called, because Optiboot does the same thing.          *
+ * By the time app runs, the flags will have been cleared and moved to GPR.GPR0 (it needs to    *
+ * clear flags to honor bootloader entry conditions, so I didn't have a choice about that.      *
+ * This function is called before *anything* else, so the chip is a blank slate - or it's       *
+ * state is unknown. You're probably running at 4 MHz unless it was a dirty reset, in which     *
+ * case it could be anything. No timekeeping is possible, period. Tne only exception is the     *
+ * WDT reset timer with is independent of the HF oscillators and is designed to reset you out   *
+ * of hangs amd bad states fthat you end up with when a bug causes the code but not the         *
+ * hardware to reset,                                                                           *
+ * Interrupts are disabled, or in event of dirty reset                                          *
+ * LVL0EX bit will block them. In the event of a clean reset, nothing is set up.  There is no   *
+ * PWM, no timekeeping of any millis/micros/delay see no time passing and and all delays,       *
+ * delay_microseconds, _delay_ms() and _delay_us(), are the wrong length because they are       *
+ * based on F_CPU.                                                                              *
+ * If you end up here from a dirty reset, you know nothing about the configuration of the       *
+ * peripherals. Check the flags, save them if you need them, and maybe turn on an LED while     *
+ * waiting for the WDT to trigger. If you're debugging something really nasty, you can try to   *
+ * gather data about the nature of the fault. For example, turn on an LED if\ LVL0EX is set     *
+ * meaning you got here from a missing ISR. With one of those little boards with 6 LEDs on      *
+ * (many are available reasonably cheaply on aliexpress et al.) end up being very useful        *
+ * for this sort of thing.                                                                      */
+
+  /* Minimum: Reset if we wound up here through malfunction - this relies on user clearing the  *
+   * register on startup, which is rarely done in Arduino land.                                 */
+  void __attribute__((weak)) init_reset_flags() ;
+  void __attribute__((weak)) init_reset_flags() {
+    if (RSTCTRL.RSTFR == 0){
+      _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
+    }
+  }
+
+
+/* This is the simplest solution that clears the flags. However, it is trivial to extend to     *
+ * the case where we want to preseve the flags. In the below code, simply move the `flags`      *
+ * declaration outside of the function, making it a global variable. You can then read it at    *
+ * your leisure                                                                                 *
+ * Read the RESET GUIDE for more information on hardening your code against dirty resets.       */
+
+/*
+// Better: Reset if we wound up here through malfunction and clear flags.
+  void init_reset_flags() {
+    uint8_t flags = RSTCTRL.RSTFR;  // Make this a global instead if you wil need to access
+    RSTCTRL.RSTFR == flags          // Write 1 to a bit to clear it.
+    if (flags == 0){                // Reset cause - if 0 (no reset), that indicates a
+      _PROTECTED_WRITE(RSTCTRL.SWRR, 1);  // malfunction of some sort occurred
+    }
+  }
+*/
+#endif
+
 /* If using SPM from app, but not actually using Optiboot, we need to point the vector tables in the right place.
  * since the "application" is actually split across "boot" and "application" pages of flash... and it's vectors
  * are all in the section defined as "boot" section, tell the interrupt controller that, otherwise nothing'll work!
- * This could just as well be set in init() - any time before interrupts are enabled - but this way as much of
- * the stuff related to this is in the same file. We need to do this even if the user overrides main() which we
- *supposedly support. Hence, it gets placed in .init3, so it runs after stack and zero reg are set up. */
+ * This could just as well be set in init() but for the fact that we support overriding main(). I don't know if
+ * anyone who is doing that wants to use my flashwrite library, but it seems plausible.
+ * And while we way you need to take full responsability for setting up the part if you do, nobody is going
+ * to figure this out; that's not a reasonable expectation.
+ * We also at the same time make sure there's a reset flag. We can't clear it, even though that
+ * needs to be done becauwe then it wouldn't be there if user needed it. But we will document the
+ * need to clear it and suggest overriding init_reset_flags(), and give the examples.
+ */
 
-#if (!defined(USING_OPTIBOOT) && defined(SPM_FROM_APP))
-  void fixVectors() __attribute__((used)) __attribute__ ((section (".init3")));
-  void fixVectors() {
-    _PROTECTED_WRITE(CPUINT_CTRLA,CPUINT_IVSEL_bm);
-  }
-  #if (SPM_FROM_APP==-1)
-    /* Declared as being located in .trampolines so it gets put way at the start of the binary. This guarantees that
-     * it will be in the first page of flash. Must be marked ((used)) or LinkTime Optimization (LTO) will see
-     * that nothing actually calls it and optimize it away. The trick of course is that it can be called if
-     * the user wants to - but it's designed to be called via hideous methods like
-     * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (zaddress))
-     * see Flash.h */
-    void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
-    void __spm_entrypoint (void)
-    {
-      __asm__ __volatile__(
-               "EntryPointSPM:"           "\n\t" // this is the label we call
-                "spm z+"                  "\n\t" // write r0, r1 to location pointed to by r30,r31, increment r30
-                "ret"::);                        // by 2, and then return.
+/* So we need to do 1 or 2 things - as long as we're not using Optiboot, we should force a      *
+ * software reset if we don't see any reset flags on startup - init_reset_flags() does that,    *
+ * Then if we're using SPM from app, we need to also flip the it that move s the interrupts     *
+ * to the start of flash.
+ */
+
+/**************************************************************************************************
+ * INITIALIZATION FUNCTIONS LOCATED ANYWHERE SPECIAL GO HERE!                                     *
+ *                                                                                                *
+ * They *MUST* be declared with both the ((naked)) ahd ((used)) attributes! Without the latter,   *
+ * the optimizer will eliminate them. Without the former, the sketch will not start...            *
+ * Wait what? Yeah, it was generating a and outputting a ret instruction, which caused the        *
+ * sketch to return to nowhere under certain conditions and never reach main() at all.            *
+ * I do not understand how the old vector fixer allowed the sketch to start ever... but           *
+ * since it was only compiled in when flash write was enabled it could have been missed for a     *
+ * long time.                                                                                     *
+ **************************************************************************************************/
+
+#if (!defined(USING_OPTIBOOT))
+  void _pre_main() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+  // this runs, as tthe name implies, before the main() function is called.
+  #if !defined(SPM_FROM_APP)
+    // If we're not doing the SPM stuff, we need only check the flags
+    void _pre_main() {
+      init_reset_flags();
+      onPreMain();
     }
+  #else
+    // if we are, we also need to move the vectors. See longwinded deascription above.
+    void _pre_main() {
+      init_reset_flags();
+      _PROTECTED_WRITE(CPUINT_CTRLA,CPUINT_IVSEL_bm);
+      onPreMain();
+    }
+    #if (SPM_FROM_APP==-1)
+      /* Declared as being located in .init3 so it gets put way at the start of the binary. This guarantees that
+       * it will be in the first page of flash. Must be marked ((used)) or LinkTime Optimization (LTO) will see
+       * that nothing actually calls it and optimize it away. The trick of course is that it can be called if
+       * the user wants to - but it's designed to be called via hideous methods like
+       * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (zaddress))
+       * see Flash.h */
+      void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+      void __spm_entrypoint (void)
+      {
+        __asm__ __volatile__(
+                  "rjmp .+4"                "\n\t" // Jump over this if we got here the wrong way
+                 "EntryPointSPM:"           "\n\t" // this is the label we call
+                  "spm z+"                  "\n\t" // write r0, r1 to location pointed to by r30,r31 with posrincewmwr
+                  "ret"::);                        // by 2, and then return.
+      }
+    #endif
   #endif
+  // Finally, none of thwse three things need to be done if running optiboot!
+  // We want the vectors in the alt location, it checks, clears, and stashes the reswet flags (in GPR0)
+  // and it providews the entrypoint we call to write to flash.
+#else
+  void _pre_main() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+    void _pre_main() {
+    onPreMain();
+  }
 #endif
