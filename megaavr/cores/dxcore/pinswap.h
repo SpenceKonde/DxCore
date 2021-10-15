@@ -140,11 +140,18 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 
 #define SPI_MUX_NOW() (PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm)
-#define SS_NOW(...)   ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); SS_NOW_IMPL();   })
-#define MOSI_NOW(...) ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); MOSI_NOW_IMPL(); })
-#define MISO_NOW(...) ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); MISO_NOW_IMPL(); })
-#define SCK_NOW(...)  ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); SCK_NOW_IMPL();  })
 
+#if !defined(__AVR_DD__) && !defined(SPI_MUX_PINSWAP_1) && !defined(SPI_MUX_PINSWAP_2)
+  #define SS_NOW(...)   ({  SS_NOW_IMPL();})
+  #define MOSI_NOW(...) ({MOSI_NOW_IMPL();})
+  #define MISO_NOW(...) ({MISO_NOW_IMPL();})
+  #define SCK_NOW(...)  ({ SCK_NOW_IMPL();})
+#else
+  #define SS_NOW(...)   ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm);   SS_NOW_IMPL(); })
+  #define MOSI_NOW(...) ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); MOSI_NOW_IMPL(); })
+  #define MISO_NOW(...) ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm); MISO_NOW_IMPL(); })
+  #define SCK_NOW(...)  ({uint8_t spimux=(PORTMUX.SPIROUTEA & PORTMUX_SPI0_gm);  SCK_NOW_IMPL(); })
+#endif
 // take advantage of knowledge that DDs don't have 1 or 2, DA/DB don't have 3.
 // and we test 4. 6. 3, 5 for the DD's that have 0, 3, 4, 5, 6 first because on DD14, those are checked first and will minimize execution time...
 // we can't rule out cases where some but not all of the pins are not present, even essential pins like SCK, because when operating as master, they can use event system to output a clock on EVOUT or something.
