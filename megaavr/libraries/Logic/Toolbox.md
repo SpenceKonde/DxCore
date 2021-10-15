@@ -1,6 +1,47 @@
-# LUT as LATCH
-In my opinion, this is one of the fundamental pieces of many of the "CCL Unleashed" type of applications. A "Latch" acts much like an RS-latch (the sequential logic option!) only using just one LUT
+# General Notes
+* Remember that the whole Logic system must be turned off to make changes to any block. This may be problematic. Event channels, however, can be reconfigured on the fly! This provides a way to switch the behavior of Logic blocks without turning off the CCL peripheral while you do so.
+* In this document we've often used the filter as just a delay. Remember that it *does* also filter!
+* In all of the examples, we turn on the output pin for the logic blocks we are using. This is largely for debugging purposes (except on some silicon revisions of tinyAVR devices, where LINK input only works when the output pin of the logic block it is linked to is enabled - event output does work without enabling the output pin, however, so an event channel can be substituted, if one can be spared. See the silicon errata for your part to be sure that it's free of the LINK bug).
+* Anything that works with the output ofg a logic block, when the logic block is the even one, it takes the output of the sequencer. When the sequencer is in use, only the output of the odd logic block before the sequencer is available, as the sequencer output replaces the even block output
 
+# Secrets of the CCL Inputs
+The CCLs have a bunch of inputs; these are listed under the INSELx bitfields of LUTnCTRLB and LUTnCTRLC. The descriptions in the table are extremely terse; one might assume that a feature which opened fundamentally new use cases to a part family would have at least a full sentence describing them; this does not appear to have been the case. As I see it, the following are ambiguous. Where I have determined the actual behaviour, this is noted.
+* MASK - Clearly described, masked inputs always read 0.
+* FEEDBACK - Feedback always takes the output of the sequencer (if it is in use) or the EVEN logic block.
+* LINK - Gets the output of LUT+1, nothing confusing here.
+* EVENT - Worth noting that while you can't modify the LUT without briefly disabling first the whole CCL, then the block in question, and then reenabling them both, you can freely modify the event system registers and change which event channel these are "tuned in" to.
+* IO - This is async. How does this interact with the PORTx.PINnCTRL register? digital input disable bit? INVEN? INLVL?
+* can - Anyone know of anything weird here?
+* USARTn - "TX input source"???  My best guess is that this is the IRDA TX output mechanism that the USART chapter mentions, the counterpart to the RX input event. In actual IRDA this would be a stream of pulses, (ie, it would probably be used with one of the timer outputs) but you can also just use it to pipe the output to a different pin or peripheral. Probably more widely useful, this would also imply that you could move the TX pin to any pin capable of carrying output from the CCL or an event channel! It is hoped that an example of this can be added in the near future.
+* TCA/TCD/TCB - these take the WO (waveform output) from the timers. Unlike the compare match event channels, which just give you a pulse, these give a high or low that matches the state that the pin would have!
+  * Remap PWM onto CCL output pins when there is no suitable pin otherwise available.
+  * Modulate one PWM signal with another at a different frequency (like you could do on some classic AVRs, with one specific channel on two timers on one pin).
+  * switch the behavior of a CCL logic block or cascade based on time or - via clock-on-event - a certain number of events. For example, a signal from some peripheral could be used only until it had n positive transitions of an incoming clock signal, after which it was switched off (a complementary logic block could turn it on for a different pin, too), even if the constraints of the system preclude using interrupts for this due to interrupt response time (see note in [Pin Interrupts](../../extras/PinInterrupts.md)). This is used in some of my code to "split" WS2812 signals so that something outputting a signal for a string of 400 LEDs could get the first 200 sent to one string, and the second 200 send to a different string (so you could feed data to the middle of the string - where it's also more efficient to feed the power!)
+  * Switch one pin between one of several duty cycles or pulse lengths *instantly* in response to an event (by generating each on it's own channel, then having one logic input switch between them)
+* SPI - SPI inputs are either MOSI or SCK. And SCK only on IN2.  (note: On tinyAVR 0/1-series, the SPI inputs are given as SCK, MOSI, and MISO instead or MOSI, MOSI, SCK. MISO seems to have been dropped for all parts released after that, though). These inputs only work in master mode (at least on the DX and 2-series parts - 0/1-series parts may be different - the MISO input gives one reason to wonder, at least). I think the idea of the SPI inputs is that you can use MOSI and SCK to implement special methods for sending data using SPI - for example, manchester encoding it for special protocols. I have not done anything particularly exciting with this on paper - the inability to use an arbitrary clock speed/source for SPI precludes many of the obvious use cases here.
+* ACn, ZCDn - clearly described, no further explanation needed.
+
+## Pin I/O List
+* Input from pin
+  * 3 preferred inputs on the blocks "home" port: No added cost.
+    * Px0
+    * Px1
+    * Px2
+  * Pin inputs already connected to an event channel
+  * Any pin on any port for which at least one event channel is available. Cost: 1 event channel
+* Output on pin
+  * Preferred outputs on the block's "home" port: No added cost
+    * Px3
+    * Px6 (alternate)
+  * Event output on any port. Cost: 1 event channel if CCL output isn't already on event channel.
+    * Py2
+    * Py7 (alternate)
+
+
+# Switches
+
+## LUT as LATCH
+In my opinion, this is one of the fundamental pieces of many of the "CCL Unleashed" type of applications. A "Latch" acts much like an RS-latch (the sequential logic option) - covering only simple cases (where there is no processing of either input through logic needed) - but uses only one logic block, instead of a pair of them. Since no part has enough logic blocks, and considering how quickly you can use them, anything that lets us use one fewer logic block is a blessing.
 This example makes use of the Logic and Event libraries to keep code readable. If you're at the point where you're comfortable without them, you don't need me to tell you how to not use them.
 
 ```c++
@@ -67,6 +108,7 @@ void loop() {
 ### Explanation
 The concept is straightforward; there are a few things in above that are noteworthy:
 1. The "pin" input to logic doesn't set pinMode - thus, you can use an *OUTPUT* as your input to the logic block. Why would you do such a silly thing? Because it gives you a way to switch logic blocks between two states, whereas soft_event only provides a very brief pulse.
+2. You can't reconfigure logic blocks without shutting down the CCL entirely, so you *DO* need to do things like this if you need it to continue operating without an interruption (either on this channel - or on some other logic block)
 
 
 # Toggle
@@ -95,6 +137,8 @@ void setup() {
   Logic0.filter = filter::filter or sync;   // synchronizer delays each edge 2 clocks, filter by 4.
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
+
+  Logic::start();                           // Start the CCL hardware
 }
 
 ```
@@ -190,7 +234,7 @@ void setup() {
   Logic1.input2 = in::feedback;             // Feedback (from Logic0)
   Logic1.output = out::enable;              // enable logic block 1 output pin
   Logic1.filter = filter::filter or sync;   // synchronizer delays each edge 2 clocks, filter by 4.
-  Logic0.clocksource = clocksource::in2;    // Clock from input 2, the output of Logic0
+  Logic1.clocksource = clocksource::in2;    // Clock from input 2, the output of Logic0
   Logic1.truth = 0x02;                      // Set truth table: Copy, HIGH if input0 HIGH
   Logic1.init();                            // Initialize logic block 1
 
@@ -217,14 +261,5 @@ The output from the "second" logic block (the one clocked from the "first") is a
 * If you are using more than one multiplication stage, you are probably approaching your problem the wrong way.
 
 
-# General Notes
-* Remember that the whole Logic system must be turned off to make changes to any block. This may be problematic. Event channels, however, can be reconfigured on the fly! This provides a way to switch the behavior of Logic blocks without turning off the CCL peripheral while you do so.
-* In this document we've often used the filter as just a delay. Remember that it *does* also filter!
-* In all of the examples, we turn on the output pin for the logic blocks we are using. This is largely for debugging purposes (except on some silicon revisions of tinyAVR devices, where LINK input only works when the output pin of the logic block it is linked to is enabled - event output does work without enabling the output pin, however, so an event channel can be substituted, if one can be spared. See the silicon errata for your part to be sure).
-
 # One more thing...
-I keep having the feeling that it should be possible to set a device as an SPI slave. Then have it generate a square wave period 1.25 us from the "third" type D pwm channel directed (using external connections) at it's own SCK pin. Feed MISO to logic. MISO state controls a Selector (see above) to choose whether an output is TCD WOA or TCD WOB. Those each start HIGH, the "1"  goes low 3/5ths of the way into the cycle, the "0" 1/5th. This goes to the *actual* output pin. And naturally, you would also be driving your own SS pin low through a jumper while doing this... Your ISR would throw a byte in the SPI data buffer, increment the index, and return (simple!). The result being that you would end up generating "morse code" type output, the sort of thing you normally have to bitbang... without bitbanging. Now what is this data that has to go out at 1.25 us per bit, no faster, but which we have to push out in such volume that we are willing to do all these crazy contortions to do it without CPU involvement? Well, it would be coming from a uint8_t array named something like "pixels"... - this would be a neopixel controller.
-
-I have yet to find a reason why this shouldn't work (finding that the SPI feeds to the CCL were master only was a bummer, but it's not like you can't use event channels). The whole thing is *weird* - but with WS2812 LEDs, you are shackled to the 30us per LED per frame data rate. On every step of that programming you need to be thinking about your need to get that data pushed out. You want to do garage-door-opener style remote control? Okayyy, but you can't transmit or receive while writing data to the LEDs.
-
-Meanwhile, at 32 MHz, which the Dx-series can do no problem, you almost feel guilty using a bitbanging routine, because your "hand tuned assembly" is spending literally 80% of it's time in delay instructions, and calling it "tuning" feels a bit generous when what you did was select your nop, rjmp .+0, and ret instructions so there was just one batch of them and you had only to rcall different places within it for the three different delay durations you can need... all to save a single-digit number of words on a 128k flash chip)....
+As I noted above, the SPI clock is too inflexible for many applications that the CCL SPI handling initially seemed suitable for. I think it still is, just less gracefully (two jumpered pins needed, but it should be possible to set a device as an SPI slave, wire outputs to SS and SCK, so you can assert SS and supply an arbitrary clock... at which point. the SPI modules is no longer an SPI module. You'd probably run in buffered mode because the whole idea is to give yourself more maneuvering room when you've got something with tight timing constraints to satisfy, and you've got a buffered shift register that signals with interrupt when it needs to be fed.  jumpered to SS and SCK so code on the device could assert SS, and provide an arbitrary clock signal to the SPI in slave made. If you put that into buffered mode and kept it fed properly, this would give you your arbitrary-SCK-SPI-port. And the components above could - if desired be used to get output in a different form. You would need to use pin inputs to get the values being output on the MISO line, of course, if you needed that... I think this can be used to create an interrupt driven WS2812 driver, or to take WS2812B datastream as input...
