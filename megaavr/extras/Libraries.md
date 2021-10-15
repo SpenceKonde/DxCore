@@ -53,9 +53,9 @@ SoftwareSerial was - against my better judgement - brought over. It is unmodifie
 [SPI.h readme](../libraries/SPI/README.md) The included version of SPI.h includes all the standard Arduino API functions, the `swap()` and `pins()` methods, and as of 1.3.0 supports using either SPI0 or SPI1 to increase the range of available pins without compromising compatibility. See the readme for details and the sordid story of why that was an issue. If you're not using the SPI1 pinsets, you could manually implement SPI slave on SPI1 while using SPI.h as master with the SPI0 pin sets.
 
 ### Wire
-[SPI.h readme](../libraries/Wire/README.md) The included version of the Wire library provides TWI master or slave functionality; it provides all the functionality of the official Arduino Wire library - **EXCEPT** that it does not automatically enable the on-chip pull-up resistors like most parts and cores do; as of 1.3.0 we provide a Wire.usePullups() method to enable them. This version of Wire also adds the ability to respond to broadcast/general call messages and/or recognize a second address or mask some bits in the address, see the linked Wire readme for more information.
+[Wire.h readme](../libraries/Wire/README.md) The included version of the Wire library provides TWI master or slave functionality; it provides all the functionality of the official Arduino Wire library - **EXCEPT** that it does not automatically enable the on-chip pull-up resistors like most parts and cores do; as of 1.3.0 we provide a Wire.usePullups() method to enable them. This version of Wire also adds the ability to respond to broadcast/general call messages and/or recognize a second address or mask some bits in the address, see the linked Wire readme for more information.
 
-The version following the 1.3.7 release will contain a near total reimplementation of Wire.h with lower flash usage, dual mode support and support for the second TWI. 
+The version following the 1.3.7 release will contain a near total reimplementation of Wire.h with lower flash usage, dual mode support and support for the second TWI.
 
 ## Common Hardware
 Two classes of hardware stand out for their popularity and (prior to these libraries) the poor quality of available libraries for post-2016 AVR microcontrollers
