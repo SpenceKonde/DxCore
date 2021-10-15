@@ -30,6 +30,24 @@
   #error "F_CPU not defined"
 #endif
 
+/* Evwn when millis is off, we should still bhve access to the clock cycle counting maqcros. Thats the  only way ww can get time estimates there!
+*/
+  inline uint16_t clockCyclesPerMicrosecond(){
+    // no exception for TCD0 here, since internal osc speed isn't fixed to oine of 2 settings.
+    return ((F_CPU) / 1000000L);
+  }
+
+
+  inline unsigned long clockCyclesToMicroseconds(unsigned long cycles){
+    return (cycles / clockCyclesPerMicrosecond());
+  }
+
+  inline unsigned long microsecondsToClockCycles(unsigned long microseconds){
+    return (microseconds * clockCyclesPerMicrosecond());
+  }
+
+
+
 #ifndef MILLIS_USE_TIMERNONE
 
 #ifdef MILLIS_USE_TIMERRTC_XTAL
@@ -56,20 +74,6 @@
 
 //overflow count is tracked for all timer options, even the RTC, except for TCBs where it is equal to millis.
 #if !defined(MILLIS_USE_TIMERRTC)
-
-  inline uint16_t clockCyclesPerMicrosecond(){
-    // no exception for TCD0 here, since internal osc speed isn't fixed to oine of 2 settings.
-    return ((F_CPU) / 1000000L);
-  }
-
-
-  inline unsigned long clockCyclesToMicroseconds(unsigned long cycles){
-    return (cycles / clockCyclesPerMicrosecond());
-  }
-
-  inline unsigned long microsecondsToClockCycles(unsigned long microseconds){
-    return (microseconds * clockCyclesPerMicrosecond());
-  }
 
 
 
@@ -335,45 +339,48 @@ unsigned long millis()
         #warning "Millis timer (TCBn) at this frequency unsupported, micros() will return totally bogus values."
       #endif
     #else //TCA
-      #if   (F_CPU == 48000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
+      #if   (F_CPU == 48000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks + (ticks >> 2) + (ticks >> 4) + (ticks >> 5));
-      #elif (F_CPU == 44000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
+            + ((ticks * 5) + ((uint16_t)(ticks >> 2) + (ticks >> 4) + (ticks >> 5)));
+      #elif (F_CPU == 44000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks + (ticks >> 1) - (ticks >> 4) + (ticks >> 6));
-      #elif (F_CPU == 40000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
+            + ((ticks * 6) - ((uint16_t)(ticks >> 3) - (ticks >> 4)));
+      #elif (F_CPU == 40000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks + (ticks >> 1) + (ticks >> 3) - (ticks >> 5));
-      #elif (F_CPU == 36000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
+            + ((ticks * 6) + ((uint16_t)(ticks >> 1) - (ticks >> 3) + ticks >> 5));
+      #elif (F_CPU == 36000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 2 - (ticks >> 2) + (ticks >> 5));
+            + ((ticks * 7)  + ((uint16_t)(ticks >> 3) - (ticks >> 6)));
       #elif (F_CPU == 30000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 2 + (ticks >> 3));
+            + ((ticks * 2) + ((uint16_t)(ticks >> 3)));
       #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 2 + (ticks >> 2) + (ticks >> 5) + (ticks >> 6));
+            + ((ticks * 2) + ((uint16_t)(ticks >> 2) + (ticks >> 5)));
+      #elif (F_CPU == 25000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+            + (ticks * 2 + ((uint16_t)(ticks >> 1) + (ticks >> 4)));
       #elif (F_CPU == 24000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 3 - (ticks >> 2) - (ticks >> 4) - (ticks >> 5));
+            + (ticks * 3 - ((uint16_t)(ticks >> 2) - (ticks >> 4) - (ticks >> 5)));
       #elif (F_CPU == 20000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 3 + (ticks >> 2) - (ticks >> 4));
+            + (ticks * 3 + ((uint16_t)(ticks >> 2) - (ticks >> 4)));
       #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 4 + (ticks >> 1) + (ticks >> 4) + (ticks >> 5));
+            + (ticks * 4 + ((uint16_t)(ticks >> 1) + (ticks >> 4) + (ticks >> 5)));
       #elif (F_CPU == 12000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 5 + (ticks >> 2) + (ticks >> 4) + (ticks >> 5));
+            + (ticks * 5 + ((uint16_t)(ticks >> 2) + (ticks >> 4) + (ticks >> 5)));
       #elif (F_CPU == 10000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks << 3) - (ticks << 1) + (ticks >> 1) - (ticks >> 3));
+            + ((ticks << 3) - ((uint16_t)(ticks << 1) + (ticks >> 1) - (ticks >> 3)));
       #elif (F_CPU ==  5000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 16)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
             + (ticks * 3 + (ticks >> 2) - (ticks >> 4));
       #else
         #if (TIME_TRACKING_TIMER_DIVIDER%(F_CPU/1000000))
-          #warning "Millis timer (TCBn) at this frequency unsupported, micros() will return bogus values."
+          #warning "Millis timer (TCAn) at this frequency unsupported, micros() will return bogus values."
         #endif
         microseconds = ((overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
           + (ticks * (clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)/TIME_TRACKING_TIMER_PERIOD)));
@@ -709,7 +716,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
 
 #if defined(DELAYMICROS_TWELVE)
   __asm__ __volatile__ (
-    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "1: sbiw %0, 1" "\n\t" // 2 cycles
     "rjmp .+2" "\n\t"     // 2 cycles - jump over next instruction.
     "ret" "\n\t"          // 4 cycles - rjmped over initially....
     "rcall .-4" "\n\t"    // 2 cycles - ... but then called here
@@ -717,7 +724,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   );
 #elif defined(DELAYMICROS_TEN)
   __asm__ __volatile__ (
-    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "1: sbiw %0, 1" "\n\t" // 2 cycles
     "rjmp .+0" "\n\t"     // 2 cycles each;
     "rjmp .+0" "\n\t"     // 2 cycles each;
     "rjmp .+0" "\n\t"     // 2 cycles each;
@@ -725,14 +732,14 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   );
 #elif defined(DELAYMICROS_EIGHT)
   __asm__ __volatile__ (
-    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "1: sbiw %0, 1" "\n\t" // 2 cycles
     "rjmp .+0" "\n\t"     // 2 cycles each;
     "rjmp .+0" "\n\t"     // 2 cycles each;
     "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
   );
 #elif defined(DELAYMICROS_SEVEN)
   __asm__ __volatile__ (
-    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "1: sbiw %0, 1" "\n\t" // 2 cycles
     "rjmp .+0" "\n\t"     // 2 cycles
     "nop"      "\n\t"     // 1 cycle
     "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
@@ -741,7 +748,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // the classic 4 cycle delay loop...
   // busy wait
   __asm__ __volatile__ (
-    "1: sbiw %0,1" "\n\t" // 2 cycles
+    "1: sbiw %0, 1" "\n\t" // 2 cycles
     "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
   );
 #endif
@@ -842,10 +849,10 @@ void init_millis()
       // to do: add support for RTC timer initialization
       RTC.PER = 0xFFFF;
     #ifdef MILLIS_USE_TIMERRTC_XTAL
-      _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x03);
+      _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, 0x03);
       RTC.CLKSEL = 2; //external crystal
     #else
-      _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,0x02);
+      _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA, 0x02);
       //RTC.CLKSEL = 0; this is the power on value
     #endif
       RTC.INTCTRL = 0x01; //enable overflow interrupt
@@ -856,7 +863,7 @@ void init_millis()
       _timer->INTCTRL = TCB_CAPT_bm;
       // Clear timer mode (since it will have been set as PWM by init())
       _timer->CTRLB = 0;
-      // CLK_PER/1 is 0b00,. CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
+      // CLK_PER/1 is 0b00, . CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
       _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
     #endif
   #endif
@@ -976,38 +983,42 @@ void  __attribute__((weak)) init_clock() {
      * is ready for DxCore. This will happen only after ship dates are available for DD-series parts with
      * less than 64k of flash major changes/fixes are put in that impact available parts.
      */
-
+     /* 10/13: made this more efficient. - we were doing  a read mofiofy erite on protected rteg for no reason!
+      * This code runs right aftter reset, and we normally assume that registers are in there reset state.
+      * Also code defensively around renaming of bitfield in some ATPack versions.
+      */
     #if (F_CPU == 32000000)
       /* Overclocked - generally reliable at room temperature*/
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x0B<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0B << 2));
     #elif (F_CPU == 28000000)
       /* Overclocked - generally quite reliable at room temperature */
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x0A<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
     #elif (F_CPU == 24000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x09<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2));
     #elif (F_CPU == 20000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x08<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
     #elif (F_CPU == 16000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x07<< CLKCTRL_FREQSEL_gp));
-    #elif (F_CPU == 12000000) /* should it be 24MHz prescaled by 2? */
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x06<< CLKCTRL_FREQSEL_gp));
-    #elif (F_CPU == 10000000) /* 10 MHz = 20 MHz prescaled by 2 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc |  CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x08<< CLKCTRL_FREQSEL_gp));
-    #elif (F_CPU == 8000000)  /* Should it be 16MHz prescaled by 2? */
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x05<< CLKCTRL_FREQSEL_gp));
-    #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc |  CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x08<< CLKCTRL_FREQSEL_gp));
-    #elif (F_CPU == 4000000) /* Should it be 16MHz prescaled by 4? */
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x03<< CLKCTRL_FREQSEL_gp));
-    #elif (F_CPU == 3000000) /* There's like, no support for this anywhere in the core!  */
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2));
+    #elif (F_CPU == 12000000)
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x06 << 2)); /* should it be 24MHz prescaled by 2? */
+    #elif (F_CPU == 8000000)
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2)); /* Should it be 16MHz prescaled by 2? */
+    #elif (F_CPU == 4000000)
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x03 << 2)); /* Should it be 16MHz prescaled by 4? */
+    #elif (F_CPU == 3000000)
       #warning "3 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x02<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2)); /* There's like, no support for this anywhere in the core!  */
     #elif (F_CPU == 2000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x01<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2));
     #elif (F_CPU == 1000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (CLKCTRL_OSCHFCTRLA & ~CLKCTRL_FREQSEL_gm) | (0x00<< CLKCTRL_FREQSEL_gp));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2));
+      /* Prescaled clock options */
+    #elif (F_CPU == 10000000) /* 10 MHz = 20 MHz prescaled by 2 */
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
+    #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
     #else
       #error "F_CPU defined as an unsupported value"
     #endif
@@ -1025,8 +1036,8 @@ void  __attribute__((weak)) init_clock() {
       #else
         //external clock
         uint8_t i = 255;
-        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,CLKCTRL_CLKSEL_EXTCLK_gc);
-        while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC_bm) {
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
+        while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
           i--;
           if(i == 0) blinkCode(3);
           // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
@@ -1035,11 +1046,11 @@ void  __attribute__((weak)) init_clock() {
     #else
       // it's a DB; likely the DD will be the same as well
       // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC,CLKCTRL_CFDSRC_CLKMAIN_gc|CLKCTRL_CFDEN_bm);
-      _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL,CLKCTRL_CFD_bm);
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
+      _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
       #if (CLOCK_SOURCE == 2)
         //external clock
-        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(CLKCTRL_SELHF_EXTCLOCK_gc|CLKCTRL_ENABLE_bm));
+        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (CLKCTRL_SELHF_EXTCLOCK_gc | CLKCTRL_ENABLE_bm));
       #else
         // external crystal
         #ifndef USE_XTAL_DRIVE
@@ -1059,15 +1070,15 @@ void  __attribute__((weak)) init_clock() {
         #ifndef USE_CSUTHF
           #define USE_CSUTHF CLKCTRL_CSUTHF_256_gc
         #endif
-      _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA,(USE_CSUTHF|USE_XTAL_DRIVE|CLKCTRL_SELHF_XTAL_gc|CLKCTRL_ENABLE_bm));
+      _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
       /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
       #endif
     #endif
     uint16_t i = 4096;
-    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,CLKCTRL_CLKSEL_EXTCLK_gc);
-    while(CLKCTRL.MCLKSTATUS&CLKCTRL_SOSC_bm) {
+    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
+    while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
       i--;
-      if(i == 0) blinkCode(3);
+      if(i == 0) onClockTimeout();
       // crystals can take a lot longer to reach stability.
     }
   #else
@@ -1075,55 +1086,65 @@ void  __attribute__((weak)) init_clock() {
   #endif
 }
 
+
 /********************************* CLOCK FAILURE HANDLING **************************************/
-/*
- * These are used for blink codes which indicate issues that would prevent meaningful startup
- * While we could leave it running at 4 MHz and run the sketch, I think at that point it is
- * more useful to abort startup than to leave the user wondering why the sketch is running
- * otherwise correctly at an unexpected speed. "Why is my sketch running really slow?" on
- * the classic AVRs is a very common complaint due to people forgetting to turn off the
- * CLKDIV8 there. Instead, if the code doesn't work at all with some alternative clock
- * uploading other code is not impeded (the chip is not softbricked) and the user will
- * hopefully be able to deduce that there is a problem with the clock, even without an LED on
- * PA7 - however, if an LED is connected, a blink code will be shown. The most distinctive
- * aspect of them is that, having an odd number of "change" operations, the pattern will be
- * shown, and then the inverted pattern will be shown, This is unlikely to be similar to
- * anything the user might upload.
- */
+/*                                                                                             *
+ * These are used for blink codes which indicate issues that would prevent meaningful startup  *
+ * While we could leave it running at 4 MHz and run the sketch, I think at that point it is    *
+ * more useful to abort startup than to leave the user wondering why the sketch is running     *
+ * otherwise correctly at an unexpected speed. "Why is my sketch running really slow?" on      *
+ * the classic AVRs is a very common complaint due to people forgetting to turn off the        *
+ * CLKDIV8 there. Instead, if the code doesn't work at all with some alternative clock         *
+ * uploading other code is not impeded (the chip is not softbricked) and the user will         *
+ * hopefully be able to deduce that there is a problem with the clock, even without an LED on  *
+ * PA7 - however, if an LED is connected, a blink code will be shown. The most distinctive     *
+ * aspect of them is that, having an odd number of "change" operations, the pattern will be    *
+ * shown, and then the inverted pattern will be shown, This is unlikely to be similar to       *
+ * anything the user might upload.                                                             */
+
+
 #if (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
-
-  // These two functions need only exist if not using internal clock source.
-
-  void blinkCode(uint8_t blinkcount) {
-    VPORTA.DIR|=0x80;
-    while(1) {
-      for (byte i = 3;i!=0;i--){
-        VPORTA.IN|=0x80;
-        for (byte j = 20;j!=0;j--) asmDelay(50000);
-      }
-      for (byte i = blinkcount;i!=0;i--){
-        VPORTA.IN|=0x80;
-        asmDelay(50000);
-        VPORTA.IN|=0x80;
-        for (byte j = 9;j!=0;j--) asmDelay(50000);
-      }
-    }
-  }
-
-
-  // If this gets called, then we tried - and failed - to configure an external clock source!
-  // running at 4 MHz due to missing clock, so 1 pass through loop = 1 us
-
-  void asmDelay(uint16_t us) {
+  void _asmDelay(uint16_t us) {
     __asm__ __volatile__ (
-      "1: sbiw %0,1" "\n\t" // 2 cycles
+      "1: sbiw %0, 1" "\n\t" // 2 cycles
       "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
     );
   }
+  // These two functions need only exist if not using internal clock source.
+  void _blinkCode(uint8_t blinkcount) {
+    openDrainFast(LED_BUILTIN, LOW);
+    while(1) {
+      for (byte i = 3; i != 0; i--){
+        digitalWriteFast(LED_BUILTIN, CHANGE);
+        for (byte j = 20; j != 0; j--) {
+          _asmDelay(50000);
+      }
+      for (byte i = blinkcount; i != 0; i--){
+        digitalWriteFast(LED_BUILTIN, CHANGE);
+        _asmDelay(50000);
+        digitalWriteFast(LED_BUILTIN, CHANGE);
+        for (byte j = 9; j != 0; j--) {
+          _asmDelay(50000);
+        }
+      }
+    }
+  }
+}
+
+void __attribute__((weak)) onClockTimeout() {
+  _blinkCode(3);
+}
+  // If this gets called, then we tried - and failed - to configure an external clock source!
+  // running at 4 MHz due to missing clock, so 1 pass through loop = 1 us
+
+
 
   #ifdef CLKCTRL_CFD_vect
     ISR(CLKCTRL_CFD_vect){
-      blinkCode(4);
+      onClockFailure();
+    }
+    void __attribute__((weak)) onClockFailure() {
+       _blinkCode(4);
     }
   #endif
 #endif
@@ -1137,9 +1158,13 @@ uint8_t PeripheralControl = 0xFF;
 
 void init_timers() {
 
+
   init_TCA0();
   #if (defined(TCA1))
+    PORTMUX.TCAROUTEA = TCA0_PINS | TCA1_PINS;
     init_TCA1();
+  #else
+    PORTMUX.TCAROUTEA = TCA0_PINS;
   #endif
 
   init_TCBs();
@@ -1168,7 +1193,7 @@ void init_timers() {
   * constant output.
   * You cannot smoothly map 256 inputs to 256 outputs. Worse still, most schemes
   * that do not account for this have the glitch at the bottom, meaning that
-  * analogWrite(pin,0) sets the pin low, while analogWrite(pin,0) gives not
+  * analogWrite(pin, 0) sets the pin low, while analogWrite(pin, 0) gives not
   * 1/256th duty cycle but 2/256ths, and any scheme will put it at one of the ends
   * unless it explicitly accounts for this. And the ends are of course the worst place
   * for such artifacts. Few notice or care whether an LED has a duty cycle of 128/256ths
@@ -1220,11 +1245,6 @@ void init_timers() {
 
 void __attribute__((weak)) init_TCA0() {
   /* TCA0_PINS from pins_arduino.h */
-  // We handle this in the init_TCAn() routines for Dx-series; future low-flash chips with many peripherals will likely
-  // batch the PORTMUX configurations during init() routines to save flash. Here we can afford a few extravagances like
-  // this, in the interest of making init_TCA0 more usable as the reverse of takeOverTCA0()
-  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | TCA0_PINS;
-
   /* Enable Split Mode */
   TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
 
@@ -1278,8 +1298,6 @@ void __attribute__((weak)) init_TCA0() {
 
 #if defined(TCA1)
 void __attribute__((weak)) init_TCA1() {
-  /* For comments see initTCA0() above */
-  PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | TCA1_PINS;
 
   /* Enable Split Mode */
   TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
