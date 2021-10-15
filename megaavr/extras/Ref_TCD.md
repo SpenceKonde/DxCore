@@ -11,7 +11,7 @@ In addition to the synchronization, some of the intentional features make it cha
 ```c++
 analogWrite(PIN_PA4,128); // 50% PA4. - like usual
 analogWrite(PIN_PA7,192); // 50% PA4, 75% PA7 - like usual
-analogWrite(PIN_PA6, 64); // 25% PA5, 25% PA6, 75% PA7 - PA4 and PA6 are bothe channel A
+analogWrite(PIN_PA6, 64); // 25% PA5, 25% PA6, 75% PA7 - PA4 and PA6 are both channel A
 //use digitalWrite to turn off the PWM on a pin
 // or call turnOffPwm(pin);
 ```
@@ -29,7 +29,7 @@ TCD0.CMPBCLR = 1019;
 while (!(TCD0.STATUS & TCD_CMDRDY_bm)); //make sure it's ready to accept command
 TCD0.CTRLE=TCD_SYNCEOC_bm; //note that analogWrite on any TCD0 pin will do it too.
 
-/* Example 2: one PWM channel enabled - assumme we are starting from TOP = 254 */
+/* Example 2: one PWM channel enabled - assume we are starting from TOP = 254 */
 analogWrite(PIN_PA4,128);
 TCD0.CMPBCLR = 1019;
 
@@ -63,12 +63,12 @@ analogWrite(PIN_PA5,64);     // Works as expected now.
  *   This is one of very few times that the core lets you keep using the API calls aftwr reconfiguring a peripheral.
  *    There is too much overrhead to handle if we try to handle the general case, but there are good reasons for letting
  *    users shift the freequency of this one to make different tradeoffs. The implementation stays simple as long as specific values were used.
- *    and the overhead was tiny. Doing anything more complicated, the overhead shoots through the roof and thats what taking over the timer is for.
- *    but thi way, you can nudge the timer frequency up and down by factors of 2 to get it in an acceptable range for what you're PWMing
+ *    and the overhead was tiny. Doing anything more complicated, the overhead shoots through the roof and that's what taking over the timer is for.
+ *    but this way, you can nudge the timer frequency up and down by factors of 2 to get it in an acceptable range for what you're PWMing
  *    (ex, big FETs which often need a driver above 1 kHz or vs, say, a FET driver where you probably want to PWM as fast as you can, within limits).
  *  Notes:
  *    1. If one of the channesls is not outputting PWM from TCD0 and one is, nothing weird happens until you write the second PWM chanenl with analogWrite.
-      2. If you do not change the period, nothing wierd happens.
+      2. If you do not change the period, nothing weird happens.
  *    3.  Outputting 0% or 100% duty cycle doesn't count, even if it' still connected to the compare channel to prevent PWM glitches d when channels are toggled.
  *        It will keep doing that, no matter what you do to the period.
  *    4. Turning on another channel will always cause a glitch if it isn't already connected to the timer. But you can do that first with analogWrite(pin,0).
@@ -88,7 +88,7 @@ Setting the compare match higher than TOP keeps it from ever changing state (set
 analogWrite(PIN_PA4,0);
 analogWrite(PIN_PA5,255); // high and low levels behave the same.
 TCD0.CMPBCLR = 1019;       // increasee period.
-analogWrite(PIN_PA5,64);   // This can't make anything wierd happen, no other PWM coming out.
+analogWrite(PIN_PA5,64);   // This can't make anything weird happen, no other PWM coming out.
 delay(5000);  //we later want to increase frequency, we can do this:
 TCD0.CMPBCLR = 509;
 analogWrite(PIN_PA5,64);   // Still just one active channel, everything normal.
@@ -108,7 +108,7 @@ TCD0.CTRLE=TCD_SYNCEOC_bm; //will be applied at the end of the current PWM cycle
 
 ```c
 
-/* Example 7: Changeing prescaler - will cause brief glitch as you have to enable-cycle timer. */
+/* Example 7: Changing prescaler - will cause brief glitch as you have to enable-cycle timer. */
 
 /* Calculate desired value by ORing one CLKSEL, one CNTPRES, and one SYNCPRES.
  *  TCD_CLKSEL_OSCHF_gc         TCD_CNTPRES_DIV1_gc     TCD_SYNCPRES_DIV1_gc

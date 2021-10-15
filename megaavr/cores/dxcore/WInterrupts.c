@@ -21,7 +21,7 @@
 
 #if !defined(CORE_ATTACH_OLD)
 /* Well, I couldn't get it to autodetect awhere you're putting constant pins on interrupts, but there are tiny
- * that you can call when using manual enabling;. Referencing them casues it to grab the associated vector, though it does have to be called to actually enable it - that's how we
+ * that you can call when using manual enabling;. Referencing them causes it to grab the associated vector, though it does have to be called to actually enable it - that's how we
  * avoid wasting resourceses - each one not  used also drops an array of 8 pointers to ISRs.
  *
  * attachPortAEnable()      attachPortBEnable()     attachPortCEnable()    attachPortDEnable()
@@ -163,9 +163,9 @@
       "push  r30"        "\n\t"
       "push  r31"        "\n\t"
       ::);
-    asm volatile (  //This gets us the adddress of intFunc in Y pointer reg.
+    asm volatile (  //This gets us the address of intFunc in Y pointer reg.
       "add   r26,   r16"  "\n\t" // get the address of the functions for this port
-      "adc   r27,    r1"  "\n\t" // by adding the othe offcet we had the compiler feed us and turn into a pair of ldi's
+      "adc   r27,    r1"  "\n\t" // by adding the other offcet we had the compiler feed us and turn into a pair of ldi's
       "ld    r28,     X+" "\n\t" // load the pointer to this port's function array to Y
       "ld    r29,     X"  "\n\t" // pointer reg.
       "add   r16,   r16"  "\n\t" // now this is the address of the start of the VPORT
@@ -190,7 +190,7 @@
       "rjmp  loopstart"   "\n\t" // Restart loop after.
     "end:"                "\n\t" // sooner   or later r17 will be 0 and we'll branch here.
       "mov   r16,  r26"   "\n\t" // So when we do this, we end up with VPORTA.FLAGS address in r16
-      "ldi   r27,    0"   "\n\t" //  high byte is 0 (we  movw r16 and r17 together because we do NOT know that r17 is 0 if the port intfunc poointer was null)
+      "ldi   r27,    0"   "\n\t" //  high byte is 0 (we  movw r16 and r17 together because we do NOT know that r17 is 0 if the port intfunc pointer was null)
       "st      X,  r15"   "\n\t" // store that to clerar the flags....
       "pop   r31"         "\n\t"
       "pop   r30"         "\n\t"
@@ -211,7 +211,7 @@
       "pop   r0"          "\n\t"
       "out   0x3b,  r0"   "\n\t"
       "pop   r0"          "\n\t"
-      "out   0x3f,  r0"   "\n\t" // between thses is where there had been stuff added to the stack that we flushed.
+      "out   0x3f,  r0"   "\n\t" // between these is where there had been stuff added to the stack that we flushed.
       "pop   r0"          "\n\t"
       "pop   r16"         "\n\t" // this was the second reg we pushed, so we had a place to store the port
       "pop   r1"          "\n\t"
@@ -241,15 +241,15 @@
  * we do a minimum amount if work here to ensure that isrBody() can do everything it needs to. First, it needs one scratch register to pop the return address of
  * the port=-specific ISR into, getting it off the stack. That's what we use r1 for. Next, it needs to know what port it will use. We do that with r16 since it's
  * call-saved and and we need to know this both before and after we call the first user-attached callback, So we push rhe old r16 valuw, and load a value equal to
- * twice the port in (we need to know both this, and 4x the port. halcing it for one purpose and not teh other is the same as doubling it or one and not the other
+ * twice the port in (we need to know both this, and 4x the port. halcing it for one purpose and not the other is the same as doubling it or one and not the other
  * so there's no advantage of one ofthose over the other, but both are clearly be3tter than just passing the port number alone, and having to double it one more
  * time. (saves 1b). We don't need r0 to shred other return address, so that can also wait for the main routine.
- * So with that ready, we call isrBody() and tell the compiler that code will never get any further in this ISR, so it doesn't need to handle the potenial forthe
+ * So with that ready, we call isrBody() and tell the compiler that code will never get any further in this ISR, so it doesn't need to handle the potential forthe
  * isrBody to return normally though that doesn't change the binary it builds, since it's already a naked ISR.
  *
  * The isrBody() has two consecutive blocks of inline assembly, First, we finish the prologue - we trash the top two vanlues from the stack
  * which are the return address (ie, the point in the port-specific ISR. Then we start pushing all the call-used registers except r1 and r16 which were already pushed
- * we also need to push one additional call-saved reg, r15 because we neeed to store the flags we read.
+ * we also need to push one additional call-saved reg, r15 because we need to store the flags we read.
  *
  * The second one is separate only so we can grab the address of the intFunc array in memory which is a pair of bytes that get loaded at that point with ldi.
  * we couldn't have ldi'ed them sooner because we didn't have anywhere to load them to. To that we add the pre-doubled port number. (ever wonder why gcc needs
@@ -266,7 +266,7 @@
  *
  * For each of the ones that we do have a flag for, we load that pointer into Z with postincrement, subtract 0 from it and look at zero flag tomake sure it'snot null.
  * assuming it's not, we fire icall to call theuser function. Either way we then repeat the loop until out of flags.
- * which at lastest will happen when we're also at end of the ports intfunc array....
+ * which at latest will happen when we're also at end of the ports intfunc array....
  * Then, with the initial flags still in 15 and the the VPORT adderess in r16 copy that once more to a pointer register, 0 the high byte, and store the flags value we read to clear it.
  * then it's just a matter of making sure we pop everything we pushed onto the stack in the reverse order, including r16 and r1 in before isrBody() and reti to exit the interrupt..
  *  *PHEW*

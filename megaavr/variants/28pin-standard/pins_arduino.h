@@ -255,7 +255,7 @@ static const uint8_t A17 = PIN_A17;
     PC, //  9 PC1/USART1_Rx/TCA0 PWM
     PC, // 10 PC2/TCA0 PWM
     PC, // 11 PC3/TCA0 PWM
-    PD, // 12 PD0/AIN0 - bit position and bit mask aren't defined if the pin doesn't exist, but we somethimes need to get port since it is the zero-pin.
+    PD, // 12 PD0/AIN0 - bit position and bit mask aren't defined if the pin doesn't exist, but we sometimes need to get port since it is the zero-pin.
     PD, // 13 PD1/AIN1
     PD, // 14 PD2/AIN2
     PD, // 15 PD3/AIN3/LED_BUILTIN

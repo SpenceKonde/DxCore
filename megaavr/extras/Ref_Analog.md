@@ -33,7 +33,7 @@ In addition to reading from pins, you can read from a number of internal sources
 |                         | `ADC_DACREF1`             | `ADC_DACREF1`           |
 |                         | `ADC_DACREF2`             |                         |
 
-The Ground internal sources are presumable meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, andd often all the channels could be measured
+The Ground internal sources are presumable meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, and often all the channels could be measured
 
 DACREF0-2 are the the reference voltages for the analog comparators. On the DA-series, there is no way to measure the supply voltage other than using DAC or DACREF source: you can neither directly measure a reference voltage like some parts, nor is there any way to get a fraction of the supply voltage like the DB and DD-series support.  Note also that on the DB series, you can't measure the outputs of the OPAMPs directly - you must output to the pin and measure that, however much the high-level descriptions sound like there is a way to route the opamp signals internally.
 
@@ -41,7 +41,7 @@ DACREF0-2 are the the reference voltages for the analog comparators. On the DA-s
 The hardware supports increasing the resolution of analogRead() to the limit of the hardware's native resolution (10 or 12 bits); Additionally, we provide automatic oversampling and decimation up to the limit of what can be gathered using the accumulation feature allowing up to 15 bits of resolution (17 on future Ex-series); this is exposed through the `analogReadEnh()` function detailed below.
 
 ## ADC Sampling Speed
-DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (up to 3 MHz with internal ref, twice that on external of Vdd referenc at full resolution. We use use 1.0 to 1.5 MHz on Dx, and will target 2-2.5 by default on EA unless someone provides information that shuggests I shouldn't.  To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being sgnoificant;y faster. On the 2-series, we'll  aim a bit lower with the sample duration as wecan actually calculate some numbers
+DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (up to 3 MHz with internal ref, twice that on external of Vdd reference at full resolution. We use use 1.0 to 1.5 MHz on Dx, and will target 2-2.5 by default on EA unless someone provides information that shuggests I shouldn't.  To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being sgnoificant;y faster. On the 2-series, we'll  aim a bit lower with the sample duration as wecan actually calculate some numbers
 
 ## ADC Function Reference
 This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application.
@@ -114,7 +114,7 @@ Serial.println(analogClockSpeed()); // prints a number near 300 - the closest to
 Serial.println(analogClockSpeed(3000)); // sets prescaler such that frequency of ADC clock is as close to but not more than  2000 (kHz)
 // as possible which is the maximum supported according to the datasheet. Any number of 2000 or higher will get same results.
 Serial.println(analogClockSpeed(20)); // A ridiculously slow ADC clock request. Datasheet says minimum is 125. Maximum prescaler is 256, so this would
-                                      // set the ADC clock to that fot the lowest ADC clock possible with this clock speed and return that (93 kHz (93.75 truncated to int)).
+                                      // set the ADC clock to that for the lowest ADC clock possible with this clock speed and return that (93 kHz (93.75 truncated to int)).
 
 // For Ex-series
 Serial.println(analogClockSpeed(20000)); // Above manufacurer max spec, so seeks out a value that is no larger than that spec 3000 if internal reference selected or 6000 otherwise.

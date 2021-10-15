@@ -1,13 +1,13 @@
 # Teaser for the upcoming improvements to memory map output format
 Because wehat we have is nearly usefulss the formatting is such garbage.
 
-The objectives are - combine a wider column abbreviated names  to not haver the first column maje an unrecognizable mess out of the rest of it. Truncate the file paths. Nobody needs to know where avr-gcc object libraries were built, the source isn't gonna be there on your computer! And very few people will bother Type has too wide of a colun, ther line number is mishabndled , and they tend to get destrotyed when imported to spteradsheets
+The objectives are - combine a wider column abbreviated names  to not haver the first column maje an unrecognizable mess out of the rest of it. Truncate the file paths. Nobody needs to know where avr-gcc object libraries were built, the source isn't gonna be there on your computer! And very few people will bother Type has too wide of a colun, there line number is mishabndled , and they tend to get destrotyed when imported to spteradsheets
 
 It dates to an era of narrow 80 column terminals and everything having shoert names. Neither of thoser hold true today. Since we now pull in python anyway, we sh9uld to9rally be able to pass two file bames to it, such that if shit happened, it would just nor get rthe improvement (ie, do it after everything elser)
 
-My currenty plan is that one map file will be made normally. From that we will then try to make a human readable version and a .csv for spreadsheet tools. A failue then would just show errors but still get you the version of thile you geet now.
+My currently plan is that one map file will be made normally. From that we will then try to make a human readable version and a .csv for spreadsheet tools. A failure then would just show errors but still get you the version of thile you geet now.
 
-I think it should also be possibkle to fix the "useless address" issue in the assenmbly listings, Where it calculates relative offsets RAMand Registers to fill in as commments. Registers are described relative to the lengths of sections in a different address soace and the like. And it's not hard to do a better hjob there. Could also count indtructions in there and generate a little repor. I did two samples, on of just over 1k instructions annother of just over 5k....  tothe end of the programmory, many parts of flash are described in relative to EEPROM/FUSE/LOCK addresses. As I said, it's obviously wrong, and the worst offenders are easy to detect and reoplace with something more less seless. Even just showing ther 16-bit address would be great, And these parts are so consistent that can hardly hekop but know where everything is.
+I think it should also be possibkle to fix the "useless address" issue in the assenmbly listings, Where it calculates relative offsets RAMand Registers to fill in as comments. Registers are described relative to the lengths of sections in a different address soace and the like. And it's not hard to do a better hjob there. Could also count indtructions in there and generate a little repor. I did two samples, on of just over 1k instructions another of just over 5k....  to the end of the programmory, many parts of flash are described in relative to EEPROM/FUSE/LOCK addresses. As I said, it's obviously wrong, and the worst offenders are easy to detect and reoplace with something more less seless. Even just showing there 16-bit address would be great, And these parts are so consistent that can hardly hekop but know where everything is.
 
 ```
  I wonder how the distributions vary by compiler version? by author? By ratio of C to C++?
@@ -15,8 +15,8 @@ I think it should also be possibkle to fix the "useless address" issue in the as
 
 Certainly for AVRxt one sample I grabbed points to it being a very good deal for us.
   More than 1/3rd of instructions were either push, pop, or ldi in both damples!. ldi is no surprise, but push and pop were. 139 ldi, 139, push, and (alarmingly) only 136 pops....
-  But push and pop are clumpy. ISRs and badly wwritten functions with unreasonable numbers of arguments tend to use them alot.
-  Tight, hand-optimized assembly - which is what humans are most involved in - doesn't make heavty use of them. They are, in effect, a weay to deal eith the lack of hand optimization modt code faces.
+  But push and pop are clumpy. ISRs and badly wwritten functions with unreasonable numbers of arguments tend to use them a lot.
+  Tight, hand-optimized assembly - which is what humans are most involved in - doesn't make heavty use of them. They are, in effect, a weay to deal with the lack of hand optimization modt code faces.
   The next two were another huge surprise. I'm used to being annoyed at missed opportunities to std/ldd. But in fact, they were the 4th and 5th most used.
   They were followed by movw and sts, with population falling to half of those for anything outside of those top 7, which made up 63% of the sample
   Skips formed 1% of the sample. Branches 2.6%, only breq, brne, brcc abd brcs were used.
@@ -29,7 +29,7 @@ With another larger sample, we confirmed much of this puicture:
   Skips formed 0.8% of the sample, and branches 4.1%.
   brne, breq brcc brcs formed the majority, bur there were 10 brge's and a single brpl
 
-In neither case did the total nubmer of different instructions ued exceed 60. Amazing that half of the instuctions never end upo gertting used.d
+In neither case did the total number of different instructions ued exceed 60. Amazing that half of the instuctions never end upo gertting used.d
 ```
 
 
@@ -562,7 +562,7 @@ __eeprom_end                                                                    
 
 
 
-New one **almost** pastes striaght into markdown, too - except that the double underscores have a meaning in markdown.
+New one **almost** pastes straight into markdown, too - except that the double underscores have a meaning in markdown.
 
 
 Memory Map for dummy.ino generated on:                                            Using avr-gcc version

@@ -1,5 +1,5 @@
 # Wire (TWI/I2C)
-For the next big release (likely 1.4.0), this library will be overhauled with Dual mode and non-dual master + slave and a much lower flash usage, along with proper TWI1 support. It will be made available for beta testing as soon as 1.3.7 is releaased
+For the next big release (likely 1.4.0), this library will be overhauled with Dual mode and non-dual master + slave and a much lower flash usage, along with proper TWI1 support. It will be made available for beta testing as soon as 1.3.7 is released
 
 
 All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin versions, which have one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. ~There is at present no TWI1 library, see: https://github.com/SpenceKonde/DxCore/issues/54~

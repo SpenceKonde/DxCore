@@ -1,4 +1,4 @@
-  # Errata and Extras
+# Errata
 The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Reasonably complete errata sheets were not available until 8 months after release - and the errata sheet does a poor job of explaining some of the most important issues that it does mention. Where a revision is named, that is the last revision which exhibits this errata q
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected:
 Issue                          | Severity | Source    | 128DA | 64DA | 32DA    |  128DB  | 64DB  | 32DB  | 64DD  | 32DD  | 16DD  | Notes                              |
@@ -132,26 +132,7 @@ The opamp modules consume 3x the expected (from datasheet) power. Fixed in A5 re
 ### PLL on DB-series doesn't run from external crystal
 If the SOURCE bit in CLKCTRL.PLLCTRLA is set to 1, datasheet implies that it should be clocked from external clock or crystal; with external crystal, it does not appear to generate any output. I doubt anyone here cares, but, I tripped over this almost immediately when I started playing with the crystal as clock on DB-series... (was trying to make sure that clock sources were "requested" so the bits would be set in CLKCTRL.MCLKSTATUS.
 
-## Extras (anti-errata)
-Well, that was depressing wasn't it?
-
-Here's the good news - there is also a little bit of undocumented behavior that is favorable too (I feel like there was another one here, but can't remember what it is)
-
-### Overclocking
-You don't even need an external clock source to overclock these bad boys! You can do it... just by setting the CLKCTRL.OSCHFCTRLA FREQSEL bits higher! You can only go up to 32 MHz that way - after that (0x0C-0x0F), it goes back to the settings from 0x08-0x0B - 20-32 MHz all over again - but an extra 33% clock speed is hard to argue with - of course, these are not guaranteed to work, probably won't work across the whole temperature range, and so on... but they do work for me on all the parts I've tried it on room temperature. It also gives one hope that - armed with an external clock source - there's more room to crank up the speed on these - if you for some reason weren't satisfied with ~24~ 32 MHz in practice, 24 MHz guaranteed at 1.8-5.5V on an architecture that until this year was limited to 20 MHz at 4.5-5.5V and a mere 4 MHz at 1.8V...
-
-Using DxCore, you don't even need to go to all that effort - you can just select 28 MHz or 32 MHz from the Tools -> Clock Speed menu, and upload your sketch and it will run at the higher clock speed!
-
-With an external oscillator, you can go higher still! I got 40 MHz no problem, 48 started to get math errors, at least on the chip I tried it on. Crystals are on order to see how well those do compared to the more expensive oscillators. I also plan to test with the high temp spec'ed parts in case those are just the top-bin, and hence would work at higher speeds at room temperature. Update: Sample size 1, the first extended temperature spec part that I put a 48 MHz oscillator on seems to work...
-
-### Overclocking the PLL
-The system clock isn't the only thing that has breathing room either (at least at 5v and 25C, on the parts I tested) - the PLL, which is spec'ed for 16-24 MHz internal HF oscillator frequency as input only, 48 MHz max frequency (24 MHz multiplied by 2)? It runs at the 3x multiplier, all the way up to 32 MHz system clock... and I checked, TDC0 really was ticking over at 96 MHz! It seems to work at a lower max frequency than they spec, too - I was getting perfectly good output at 8 MHz in (tripled). Now, how useful is this crazy clock speed when all you can do with it is run one async timer? Okay, it's not the most useful feature ever.... but it is good for something. Will take someone with sensitive current meters and too much time on their hands to figure out if it could, for example, be used to maintain PWM frequency while saving power with lower system clock, or things like that...
-
-Also, note the removed option in the io header - apparently it can be run at x4 multiplication factor. In fact, it works at 32 MHz x 4 = 128 MHz at room temperature... When I tried 4x multiplication on a 40 MHz external oscillator, however, the output of TCD0 (the only thing that can use the PLL) had glitches, especially when you tried to change the duty cycle.
-
-The PLL did not work at all work with the oscillator at 4 MHz (though it worked at 8 MHz and 12 MHz). These parts seem to have a huge safety margin on their clock subsystem.
-
-### Interesting things removed from early io headers
+## Interesting things removed from early io headers
 Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but...
 
 ```

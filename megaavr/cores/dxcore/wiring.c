@@ -30,7 +30,7 @@
   #error "F_CPU not defined"
 #endif
 
-/* Evwn when millis is off, we should still bhve access to the clock cycle counting maqcros. Thats the  only way ww can get time estimates there!
+/* Evwn when millis is off, we should still bhve access to the clock cycle counting maqcros. That's the  only way ww can get time estimates there!
 */
   inline uint16_t clockCyclesPerMicrosecond(){
     // no exception for TCD0 here, since internal osc speed isn't fixed to oine of 2 settings.
@@ -1208,7 +1208,7 @@ void init_timers() {
   * for TCA and TCB timers as configured by the core.
   * The "target" frequency is 1kHz. This is the same as the standard boards
   * and is a sensible default: It's fast enough that most things don't have
-  * noticible flicker/etc, but you can still PWM the gate of a MOSFET at
+  * noticeable flicker/etc, but you can still PWM the gate of a MOSFET at
   * that speed and get away with it for small MOSFETs with low gate charge.
   * As the frequency gets much faster, you enter the teritory where the pin
   * can't drive the gate hard enough for the fet to spend most of it's time
@@ -1216,7 +1216,7 @@ void init_timers() {
   * in some cases, failure of the FET can occur at a much lower load than
   * would be expected.
   *
-  * The cannonical value is 980 Hz on 16 MHz Uno: 16,000,000/ (255 * 64)
+  * The canonical value is 980 Hz on 16 MHz Uno: 16,000,000/ (255 * 64)
   * or 1000/1020; counting to 255 gives 256 clocks and a slightly slower
   * 976 Hz (1000/1024). Generally, it is F_CPU/(cycle_length * prescale).
   * equivalent to F_CPU/((TOP + 1) * prescale).
@@ -1406,7 +1406,7 @@ void __attribute__((weak)) init_TCBs() {
 /* Configure TCD0 for PWM in the non-millis case; currently we do not support
  * TCD0 driven millis on the Dx-series, but we may have to for the DD-series
  * because, particularly in low pincounts, they are highly timer-constrained.
- * With just 1 TCA, 2 TCBs and TCD0 we find outselves in the same boat as the
+ * With just 1 TCA, 2 TCBs and TCD0 we find ourselves in the same boat as the
  * tinyAVRs. With the same timer layout as the "golden" 1-series, we shouldn't
  * be more constrained on this much fancier part. There, we *default* TCD0
  * because it's the least "useful" to take over.

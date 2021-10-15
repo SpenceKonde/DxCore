@@ -64,7 +64,7 @@ void initThirdPWM() {
   Logic0.truth = (0xB2);
   // low nybble is when input 2 is low. Value 2, 0b0010, means the output pin is driven low
   // and only switches if input 0 goes high, and then we will output high until,
-  //er the high nybble, 0xB, 9b1011: it when intput 1 goes high, it turns off again
+  //er the high nybble, 0xB, 9b1011: it when input 1 goes high, it turns off again
   // . when input 0 goes high,
   // Hence it's high between TCD0_CMPBCLR and TCD_PROGEV (delayed eventt, triggered  from CMPBCLR)
   Logic0.init();
@@ -72,7 +72,7 @@ void initThirdPWM() {
 }
 
 void PA3DutyCycle(uint8_t duty) {
-  // You can handle the half duty issue here, if it is relevant at hte chip and clock speed you are using
+  // You can handle the half duty issue here, if it is relevant at the chip and clock speed you are using
   // with the magic of the invert function!
   // if (duty > 0x80) {
   //   PORTA.PIN3CTRL |= PORT_INVEN_bm;

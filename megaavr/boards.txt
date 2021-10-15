@@ -1433,7 +1433,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.clock.48extclock.build.clocksource=2
 
 #------------------------------------#
-# BrownOut detection (BOD) optionn   #
+# BrownOut detection (BOD) option   #
 #____________________________________#
 #                               #
 #    Completely speculative     #

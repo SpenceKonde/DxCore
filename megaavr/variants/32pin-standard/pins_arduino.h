@@ -275,7 +275,7 @@ static const uint8_t A21 = PIN_A21;
     PC, //  9 PC1/USART1_Rx
     PC, // 10 PC2
     PC, // 11 PC3
-    PD, // 12 PD0/AIN0 - bit position and bit mask aren't defined if the pin doesn't exist, but we somethimes need to get port since it is the zero-pin.
+    PD, // 12 PD0/AIN0 - bit position and bit mask aren't defined if the pin doesn't exist, but we sometimes need to get port since it is the zero-pin.
     PD, // 13 PD1/AIN1
     PD, // 14 PD2/AIN2
     PD, // 15 PD3/AIN3

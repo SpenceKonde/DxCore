@@ -198,6 +198,7 @@ tools.serialupdi.bootloader.params.noverify=
 tools.serialupdi.program.params.verbose=
 tools.serialupdi.program.params.quiet=
 tools.serialupdi.upload.verify=
+tools.serialupdi.upload.pattern=echo "This can't happen, but has to be here or automated tests fail"
 tools.serialupdi.program.params.noverify=
 
 # "Erase" recipe is called prior to bootloader recipe. It is not required on any AVR that I am aware of, though classic AVR cores sometimes wrote fuses and the bootloader image in separate steps.

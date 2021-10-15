@@ -82,7 +82,7 @@ No 32k versions, and only part of DA and DB-series
 #define NUM_DIGITAL_PINS                  (55)
 #define PINS_COUNT                        (NUM_DIGITAL_PINS)
 #define NUM_ANALOG_INPUTS                 (22)
-#define NUM_RESERVED_PINS                  (0)    /* Pins tha aren't counted in NUM_DIGITAL PINS because they are used by the hardware implementation on the board. 0 for bare-chip/generic*/
+#define NUM_RESERVED_PINS                  (0)    /* Pins that aren't counted in NUM_DIGITAL PINS because they are used by the hardware implementation on the board. 0 for bare-chip/generic*/
 #define NUM_INTERNALLY_USED_PINS           (0)    /* As above, but including things that don't have numbers for other reasons. Always 0 */
 #define NUM_I2C_PINS                       (2)
 #define NUM_SPI_PINS                       (3)

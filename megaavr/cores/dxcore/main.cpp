@@ -50,7 +50,7 @@ void __attribute__((weak)) onPreMain() {
 /*********************************** CHECK RESET FLAGS ******************************************/
 /* If we are not using Optiboot, we need to check the reset flagss, and reset via software for  *
  * a clean start. Unfortunately, if we clear the registers here, we'll prevent user code from   *
- * seeing them, which isnt helpful. As documented in the reset guide, we suggest overriding     *
+ * seeing them, which isn't helpful. As documented in the reset guide, we suggest overriding     *
  * this function with your own version. One example is included below and others in that guide  *
  * init_reset_Flags() should be overridden with one of the ones from the reset guide in any     *
  * production code.                                                                             *
@@ -87,7 +87,7 @@ void __attribute__((weak)) onPreMain() {
 
 
 /* This is the simplest solution that clears the flags. However, it is trivial to extend to     *
- * the case where we want to preseve the flags. In the below code, simply move the `flags`      *
+ * the case where we want to preserve the flags. In the below code, simply move the `flags`      *
  * declaration outside of the function, making it a global variable. You can then read it at    *
  * your leisure                                                                                 *
  * Read the RESET GUIDE for more information on hardening your code against dirty resets.       */
@@ -95,7 +95,7 @@ void __attribute__((weak)) onPreMain() {
 /*
 // Better: Reset if we wound up here through malfunction and clear flags.
   void init_reset_flags() {
-    uint8_t flags = RSTCTRL.RSTFR;  // Make this a global instead if you wil need to access
+    uint8_t flags = RSTCTRL.RSTFR;  // Make this a global instead if you will need to access
     RSTCTRL.RSTFR == flags          // Write 1 to a bit to clear it.
     if (flags == 0){                // Reset cause - if 0 (no reset), that indicates a
       _PROTECTED_WRITE(RSTCTRL.SWRR, 1);  // malfunction of some sort occurred
@@ -109,7 +109,7 @@ void __attribute__((weak)) onPreMain() {
  * are all in the section defined as "boot" section, tell the interrupt controller that, otherwise nothing'll work!
  * This could just as well be set in init() but for the fact that we support overriding main(). I don't know if
  * anyone who is doing that wants to use my flashwrite library, but it seems plausible.
- * And while we way you need to take full responsability for setting up the part if you do, nobody is going
+ * And while we way you need to take full responsibility for setting up the part if you do, nobody is going
  * to figure this out; that's not a reasonable expectation.
  * We also at the same time make sure there's a reset flag. We can't clear it, even though that
  * needs to be done becauwe then it wouldn't be there if user needed it. But we will document the
@@ -136,7 +136,7 @@ void __attribute__((weak)) onPreMain() {
 
 #if (!defined(USING_OPTIBOOT))
   void _pre_main() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
-  // this runs, as tthe name implies, before the main() function is called.
+  // this runs, as the name implies, before the main() function is called.
   #if !defined(SPM_FROM_APP)
     // If we're not doing the SPM stuff, we need only check the flags
     void _pre_main() {
