@@ -90,7 +90,7 @@ void openDrainBitbang(uint32_t data) {
     _NOPNOP();
     if (((uint8_t)data) & 0x01) {
       openDrainFast(DEMO_PIN2,LOW); ///set up data line - this likely compiles to cbi, sbrc, sbi
-      // (certainly that's what you;'d expect the compiler to to do, but somethimes it's not so smart)
+      // (certainly that's what you;'d expect the compiler to to do, but sometimes it's not so smart)
     }
     openDrainFast(DEMO_PIN,LOW);
     data >>= 1;  //if we'd immediately released it, it would only be low for a fraction of a microsecond.

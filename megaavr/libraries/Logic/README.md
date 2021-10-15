@@ -314,4 +314,3 @@ Logic0.detachInterrupt(); // Disable interrupts for block 0
 
 ## Note on terminology`*`
 Yes, technically, C++ doesn't have "properties" or "methods" - these are "member variables" and "member functions" in C++ parlance. They mean the same thing. I've chosen to use the more familiar, preseent day terminology.
-

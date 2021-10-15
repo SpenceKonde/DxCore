@@ -1,0 +1,261 @@
+
+
+Symbols from C:\Users\Spence\AppData\Local\Temp\arduino_build_870305/dummy.ino.elf:
+
+Name                  Value   Class        Type         Size     Line  Section
+
+__heap_end          |00000000|   W  |            NOTYPE|        |     |*ABS*
+__TEXT_REGION_ORIGIN__|00000000|   W  |            NOTYPE|        |     |*ABS*
+__tmp_reg__         |00000000|   a  |            NOTYPE|        |     |*ABS*
+__vector_default    |00000000|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:61
+__vectors           |00000000|   T  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:61
+__zero_reg__        |00000001|   a  |            NOTYPE|        |     |*ABS*
+__FUSE_REGION_LENGTH__|00000010|   A  |            NOTYPE|        |     |*ABS*
+__CCP__             |00000034|   a  |            NOTYPE|        |     |*ABS*
+__RAMPZ__           |0000003b|   a  |            NOTYPE|        |     |*ABS*
+__SP_L__            |0000003d|   a  |            NOTYPE|        |     |*ABS*
+__SP_H__            |0000003e|   a  |            NOTYPE|        |     |*ABS*
+__SREG__            |0000003f|   a  |            NOTYPE|        |     |*ABS*
+__ctors_start       |00000100|   T  |            NOTYPE|        |     |.text
+__trampolines_end   |00000100|   T  |            NOTYPE|        |     |.text
+__trampolines_start |00000100|   T  |            NOTYPE|        |     |.text
+__ctors_end         |00000102|   T  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:230
+__dtors_end         |00000102|   T  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:230
+__dtors_start       |00000102|   T  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:230
+__init              |00000102|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:230
+_pre_main()         |0000010e|   T  |              FUNC|00000014|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/main.cpp:112
+__do_copy_data      |00000122|   T  |            NOTYPE|0000001a|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2373
+__do_clear_bss      |0000013c|   T  |            NOTYPE|00000010|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2441
+.do_clear_bss_loop  |00000144|   t  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2446
+.do_clear_bss_start |00000146|   t  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2448
+__do_global_ctors   |0000014c|   T  |            NOTYPE|00000016|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2466
+__bad_interrupt     |0000016a|   T  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_1          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_10         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_11         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_12         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_13         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_14         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_15         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_16         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_17         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_18         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_2          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_21         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_22         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_23         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_24         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_25         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_26         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_27         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_28         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_29         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_3          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_31         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_32         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_33         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_34         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_35         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_36         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_37         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_38         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_39         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_4          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_40         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_41         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_42         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_43         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_44         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_45         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_46         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_47         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_48         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_49         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_5          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_50         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_51         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_52         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_53         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_54         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_55         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_56         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_57         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_58         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_59         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_6          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_60         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_61         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_62         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_63         |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_7          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_8          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+__vector_9          |0000016a|   W  |            NOTYPE|        |     |.text	../../../../crt1/gcrt1.S:209
+SPIClass::endTransaction() [clone .constprop.39]|0000016c|   t  |              FUNC|0000015a|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\libraries\SPI\src/SPI.cpp:511
+__EEPROM_REGION_LENGTH__|00000200|   A  |            NOTYPE|        |     |*ABS*
+SPIClass::transfer(unsigned char) [clone .constprop.38]|000002c6|   t  |              FUNC|00000016|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\libraries\SPI\src/SPI.cpp:545
+SPIClass::transfer(void*, unsigned int) [clone .constprop.37]|000002dc|   t  |              FUNC|00000028|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\libraries\SPI\src/SPI.cpp:568
+SPIClass::beginTransaction(SPISettings) [clone .constprop.35]|00000304|   t  |              FUNC|00000184|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\libraries\SPI\src/SPI.cpp:499
+__LOCK_REGION_LENGTH__|00000400|   A  |            NOTYPE|        |     |*ABS*
+__SIGNATURE_REGION_LENGTH__|00000400|   A  |            NOTYPE|        |     |*ABS*
+__USER_SIGNATURE_REGION_LENGTH__|00000400|   A  |            NOTYPE|        |     |*ABS*
+EthernetUDP::available()|00000488|   t  |              FUNC|00000008|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:50
+EthernetUDP::flush()|00000490|   t  |              FUNC|00000002|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:179
+UartClass::availableForWrite()|00000492|   t  |              FUNC|0000001e|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:337
+UartClass::read()   |000004b0|   t  |              FUNC|00000028|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:321
+UartClass::peek()   |000004d8|   t  |              FUNC|0000001c|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:313
+UartClass::available()|000004f4|   t  |              FUNC|00000018|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:309
+UartClass::end()    |0000050c|   t  |              FUNC|00000032|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:293
+UartClass::_tx_data_empty_irq()|0000053e|   t  |              FUNC|00000056|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:107
+UartClass::_poll_tx_data_empty()|00000594|   t  |              FUNC|0000001e|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:135
+UartClass::write(unsigned char)|000005b2|   t  |              FUNC|00000068|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:374
+UartClass::flush()  |0000061a|   t  |              FUNC|00000028|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:346
+Print::write(unsigned char const*, unsigned int)|00000642|   t  |              FUNC|0000005a|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/Print.cpp:30
+UartClass::operator bool()|0000069c|   t  |              FUNC|00000004|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.h:200
+micros              |000006a0|   t  |              FUNC|0000007e|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:204
+delay               |0000071e|   t  |              FUNC|00000060|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:390
+millis              |0000077e|   t  |              FUNC|00000018|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:176
+W5100Class::resetSS()|00000796|   t  |              FUNC|00000010|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:200
+W5100Class::setSS() |000007a6|   t  |              FUNC|00000010|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:376
+W5100Class::write(unsigned int, unsigned char const*, unsigned int)|000007b6|   t  |              FUNC|00000138|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:372
+W5100Class::writeMR(unsigned char)|000008ee|   t  |              FUNC|00000024|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.cpp:380
+W5100Class::RBASE(unsigned char)|00000912|   t  |              FUNC|0000001c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:193
+W5100Class::writeSn(unsigned char, unsigned int, unsigned char*, unsigned int)|0000092e|   t  |              FUNC|00000020|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:326
+W5100Class::writeSnDPORT(unsigned char, unsigned int)|0000094e|   t  |              FUNC|00000028|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:241
+W5100Class::writeSnPORT(unsigned char, unsigned int)|00000976|   t  |              FUNC|00000028|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:279
+W5100Class::writeSn(unsigned char, unsigned int, unsigned char)|0000099e|   t  |              FUNC|00000038|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:276
+EthernetUDP::write(unsigned char)|000009d6|   t  |              FUNC|0000002c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:236
+EthernetServer::write(unsigned char)|00000a02|   t  |              FUNC|0000002c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:89
+EthernetClient::operator==(EthernetClient const&)|00000a2e|   t  |              FUNC|00000016|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetServer.cpp:159
+EthernetClient::write(unsigned char)|00000a44|   t  |              FUNC|0000002c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:174
+EthernetClient::setConnectionTimeout(unsigned int)|00000a70|   t  |              FUNC|00000008|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:81
+EthernetClient::operator!=(EthernetClient const&)|00000a78|   t  |              FUNC|00000014|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:241
+EthernetClient::operator!=(bool)|00000a8c|   t  |              FUNC|00000004|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:236
+EthernetClient::operator==(bool)|00000a90|   t  |              FUNC|00000006|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:236
+EthernetClient::operator bool()|00000a96|   t  |              FUNC|00000010|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:233
+EthernetUDP::localPort()|00000aa6|   t  |              FUNC|00000008|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:232
+EthernetUDP::remotePort()|00000aae|   t  |              FUNC|00000008|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:208
+EthernetUDP::remoteIP()|00000ab6|   t  |              FUNC|00000020|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:207
+EthernetUDP::read(char*, unsigned int)|00000ad6|   t  |              FUNC|0000000e|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/IPAddress.h:28
+UartClass::begin(unsigned long)|00000ae4|   t  |              FUNC|00000012|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.h:199
+Print::flush()      |00000af6|   t  |              FUNC|00000002|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.h:170
+Print::availableForWrite()|00000af8|   t  |              FUNC|00000006|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.h:170
+pinMode             |00000afe|   t  |              FUNC|00000066|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring_digital.c:135
+UartClass::begin(unsigned long, unsigned int)|00000b64|   t  |              FUNC|000000de|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring_digital.c:149
+SPISettings::SPISettings(unsigned long, unsigned char, unsigned char) [clone .constprop.33]|00000c42|   t  |              FUNC|0000000c|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART.cpp:291
+EthernetUDP::beginPacket(IPAddress, unsigned int)|00000c4e|   t  |              FUNC|00000088|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\libraries\SPI\src/SPI.h:225
+Print::write(char const*) [clone .part.2]|00000cd6|   t  |              FUNC|0000001e|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/Print.h:47
+Print::printNumber(unsigned long, unsigned char)|00000cf4|   t  |              FUNC|0000008a|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/Print.h:49
+Print::print(int, int) [clone .constprop.18]|00000d7e|   t  |              FUNC|00000066|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/Print.cpp:245
+IPAddress::printTo(Print&) const|00000de4|   t  |              FUNC|00000090|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/Print.cpp:96
+Print::println(char const*)|00000e74|   t  |              FUNC|00000024|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/IPAddress.cpp:115
+W5100Class::read(unsigned int, unsigned char*, unsigned int)|00000e98|   t  |              FUNC|000000f8|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.cpp:391
+EthernetClass::socketPeek(unsigned char)|00000f90|   t  |              FUNC|00000050|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:367
+EthernetUDP::peek() |00000fe0|   t  |              FUNC|0000001c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:374
+EthernetClient::peek()|00000ffc|   t  |              FUNC|00000032|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:174
+W5100Class::read(unsigned int)|0000102e|   t  |              FUNC|00000020|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:113
+W5100Class::readMR()|0000104e|   t  |              FUNC|00000006|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:162
+W5100Class::softReset() [clone .part.0]|00001054|   t  |              FUNC|00000028|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.cpp:205
+W5100Class::init() [clone .part.4]|0000107c|   t  |              FUNC|000001f8|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.cpp:90
+EthernetClass::begin(unsigned char*, IPAddress) [clone .constprop.20]|00001274|   t  |              FUNC|00000156|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:155
+W5100Class::readSn(unsigned char, unsigned int)|000013ca|   t  |              FUNC|0000001a|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Ethernet.cpp:64
+W5100Class::execCmdSn(unsigned char, SockCMD)|000013e4|   t  |              FUNC|0000001c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:232
+EthernetClass::socketDisconnect(unsigned char)|00001400|   t  |              FUNC|00000034|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:273
+EthernetClass::socketClose(unsigned char)|00001434|   t  |              FUNC|00000034|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:253
+EthernetUDP::stop() |00001468|   t  |              FUNC|00000018|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:213
+W5100Class::readSnSR(unsigned char)|00001480|   t  |              FUNC|00000006|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:55
+EthernetClass::socketStatus(unsigned char)|00001486|   t  |              FUNC|00000034|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:56
+EthernetServer::operator bool()|000014ba|   t  |              FUNC|00000056|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:202
+EthernetClient::connected()|00001510|   t  |              FUNC|00000042|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetServer.cpp:121
+EthernetClient::stop()|00001552|   t  |              FUNC|00000066|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:161
+EthernetUDP::endPacket()|000015b8|   t  |              FUNC|00000082|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:147
+W5100Class::readSn(unsigned char, unsigned int, unsigned char*, unsigned int)|0000163a|   t  |              FUNC|00000020|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:528
+EthernetClass::socketBeginMulticast(unsigned char, IPAddress, unsigned int) [clone .constprop.9]|0000165a|   t  |              FUNC|000001b6|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:226
+EthernetUDP::beginMulticast(IPAddress, unsigned int)|00001810|   t  |              FUNC|0000007a|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:196
+write_data(unsigned char, unsigned int, unsigned char const*, unsigned int)|0000188a|   t  |              FUNC|000000e8|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:188
+getSnTX_FSR(unsigned char)|00001972|   t  |              FUNC|00000074|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:415
+EthernetClass::socketSendAvailable(unsigned char)|000019e6|   t  |              FUNC|00000052|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:395
+EthernetClient::flush()|00001a38|   t  |              FUNC|00000026|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:481
+EthernetClient::availableForWrite()|00001a5e|   t  |              FUNC|00000010|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:128
+EthernetClass::socketSend(unsigned char, unsigned char const*, unsigned int)|00001a6e|   t  |              FUNC|000000e0|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:74
+EthernetClient::write(unsigned char const*, unsigned int)|00001b4e|   t  |              FUNC|00000034|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:461
+EthernetUDP::write(unsigned char const*, unsigned int)|00001b82|   t  |              FUNC|0000008c|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/Print.h:39
+getSnRX_RSR(unsigned char)|00001c0e|   t  |              FUNC|00000064|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:97
+EthernetClass::socketRecvAvailable(unsigned char)|00001c72|   t  |              FUNC|00000068|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:271
+EthernetServer::available()|00001cda|   t  |              FUNC|00000108|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:357
+EthernetServer::write(unsigned char const*, unsigned int)|00001de2|   t  |              FUNC|0000009c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetServer.cpp:66
+EthernetClient::available()|00001e7e|   t  |              FUNC|00000010|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetServer.cpp:179
+EthernetClass::socketRecv(unsigned char, unsigned char*, int)|00001e8e|   t  |              FUNC|000001a2|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetServer.cpp:179
+EthernetUDP::read(unsigned char*, unsigned int)|00002030|   t  |              FUNC|0000003c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:290
+EthernetUDP::read() |0000206c|   t  |              FUNC|00000052|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:151
+EthernetClient::read()|000020be|   t  |              FUNC|00000032|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:135
+EthernetClient::read(unsigned char*, unsigned int)|000020f0|   t  |              FUNC|00000010|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:119
+EthernetClass::socketBegin(unsigned char, unsigned int)|00002100|   t  |              FUNC|0000016c|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:121
+EthernetUDP::begin(unsigned int)|0000226c|   t  |              FUNC|00000038|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/socket.cpp:124
+EthernetServer::begin()|000022a4|   t  |              FUNC|00000076|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:41
+EthernetClient::connect(IPAddress, unsigned int)|0000231a|   t  |              FUNC|00000120|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetServer.cpp:33
+EthernetClient::remotePort()|0000243a|   t  |              FUNC|0000005e|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:65
+EthernetClient::localPort()|00002498|   t  |              FUNC|0000005e|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:279
+EthernetUDP::parsePacket()|000024f6|   t  |              FUNC|000000ac|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src\utility/w5100.h:276
+DNSClient::getHostByName(char const*, IPAddress&, unsigned int) [clone .constprop.10]|000025a2|   t  |              FUNC|00000480|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:120
+EthernetUDP::beginPacket(char const*, unsigned int)|00002a22|   t  |              FUNC|000000d8|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/Dns.cpp:237
+EthernetClient::connect(char const*, unsigned int)|00002afa|   t  |              FUNC|00000108|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetUdp.cpp:71
+EthernetClient::remoteIP()|00002c02|   t  |              FUNC|0000008e|     |.text	C:\arduino-1.8.13\libraries\Ethernet\src/EthernetClient.cpp:39
+__vector_20         |00002c90|   T  |              FUNC|00000054|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART0.cpp:49
+__vector_19         |00002ce4|   T  |              FUNC|00000064|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART0.cpp:40
+__vector_30         |00002d48|   T  |              FUNC|00000050|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:128
+global constructors keyed to 65535_0_dummy.ino.cpp.o.4248|00002d98|   t  |              FUNC|00000158|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:141
+main                |00002ef0|   T  |              FUNC|00000376|     |.text	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/main.cpp:27
+__muluhisi3         |00003266|   T  |            NOTYPE|00000014|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:626
+__udivmodsi4        |0000327a|   T  |            NOTYPE|00000044|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:1638
+__udivmodsi4_loop   |00003286|   t  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:1646
+__udivmodsi4_ep     |000032a0|   t  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:1660
+__umulhisi3         |000032be|   T  |            NOTYPE|0000001e|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:564
+__ashrdi3           |000032dc|   T  |            NOTYPE|00000004|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:3122
+__lshrdi3           |000032e0|   T  |            NOTYPE|00000036|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:3131
+__cmpdi2_s8         |00003316|   T  |            NOTYPE|00000018|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2102
+__tablejump2__      |0000332e|   T  |            NOTYPE|00000012|     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2296
+memset              |00003340|   T  |              FUNC|0000000e|     |.text
+_exit               |0000334e|   T  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2278
+exit                |0000334e|   W  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2278
+__stop_program      |00003350|   t  |            NOTYPE|        |     |.text	/home/admin/build/toolchain-avr-special/gcc-build/avr/avrxmega4/libgcc/../../../../gcc/libgcc/config/avr/lib1funcs.S:2280
+__data_load_start   |00003352|   A  |            NOTYPE|        |     |*ABS*
+_etext              |00003352|   T  |            NOTYPE|        |     |.text
+__data_load_end     |000035c2|   A  |            NOTYPE|        |     |*ABS*
+__DATA_REGION_LENGTH__|00004000|   A  |            NOTYPE|        |     |*ABS*
+__stack             |00007fff|   W  |            NOTYPE|        |     |*ABS*
+__RODATA_PM_OFFSET__|00008000|   A  |            NOTYPE|        |     |*ABS*
+__TEXT_REGION_LENGTH__|00020000|   A  |            NOTYPE|        |     |*ABS*
+__DATA_REGION_ORIGIN__|00804000|   A  |            NOTYPE|        |     |*ABS*
+__data_start        |00804000|   D  |            NOTYPE|        |     |.data
+local_port          |00804000|   d  |            OBJECT|00000002|     |.data
+mac                 |00804002|   d  |            OBJECT|00000006|     |.data	C:\Users\Spence\Documents\Arduino\dummy/dummy.ino:25
+vtable for EthernetClient|0080400e|   d  |            OBJECT|0000002e|     |.data
+vtable for EthernetUDP|0080403c|   d  |            OBJECT|0000002a|     |.data
+digital_pin_to_bit_position|00804066|   d  |            OBJECT|00000037|     |.data	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\variants\64pin-standard/pins_arduino.h:465
+digital_pin_to_port |0080409d|   d  |            OBJECT|00000037|     |.data	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\variants\64pin-standard/pins_arduino.h:396
+digital_pin_to_bit_mask|008040d4|   d  |            OBJECT|00000037|     |.data	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\variants\64pin-standard/pins_arduino.h:533
+CSWTCH.77           |0080410b|   d  |            OBJECT|00000005|     |.data
+vtable for UartClass|00804110|   d  |            OBJECT|0000001a|     |.data
+vtable for IPAddress|0080412a|   d  |            OBJECT|00000006|     |.data
+vtable for EthernetServer|00804130|   d  |            OBJECT|00000010|     |.data
+__bss_start         |00804270|   B  |            NOTYPE|        |     |.bss
+__data_end          |00804270|   D  |            NOTYPE|        |     |.data
+_edata              |00804270|   D  |            NOTYPE|        |     |.data
+W5100Class::ss_pin_mask|00804270|   b  |            OBJECT|00000001|     |.bss
+W5100Class::ss_pin_offs|00804271|   b  |            OBJECT|00000001|     |.bss
+W5100Class::CH_BASE_MSB|00804272|   b  |            OBJECT|00000001|     |.bss
+timer_millis        |00804273|   b  |            OBJECT|00000004|     |.bss	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/wiring.c:43
+state               |00804277|   b  |            OBJECT|00000038|     |.bss
+EthernetServer::server_port|008042af|   b  |            OBJECT|00000010|     |.bss
+W5100Class::chip    |008042bf|   b  |            OBJECT|00000001|     |.bss
+W5100Class::init()::initialized|008042c0|   b  |            OBJECT|00000001|     |.bss
+INADDR_NONE         |008042c1|   b  |            OBJECT|00000006|     |.bss	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore\api/IPAddress.cpp:117
+Serial0             |008042c7|   b  |            OBJECT|0000009b|     |.bss	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\cores\dxcore/UART0.cpp:58
+EthernetClass::_dnsServerAddress|00804362|   b  |            OBJECT|00000006|     |.bss
+SPI                 |00804368|   b  |            OBJECT|0000004a|     |.bss	C:\Users\Spence\Documents\Arduino\hardware\DxCore\megaavr\libraries\SPI\src/SPI.cpp:577
+DEFAULT_SPI_SETTINGS|008043b2|   b  |            OBJECT|00000002|     |.bss
+server              |008043b4|   b  |            OBJECT|00000006|     |.bss	C:\Users\Spence\Documents\Arduino\dummy/dummy.ino:33
+ip                  |008043ba|   b  |            OBJECT|00000006|     |.bss	C:\Users\Spence\Documents\Arduino\dummy/dummy.ino:28
+__bss_end           |008043c0|   B  |            NOTYPE|        |     |.bss
+_end                |008043c0|   N  |            NOTYPE|        |     |.comment
+__eeprom_end        |00810000|   N  |            NOTYPE|        |     |.comment

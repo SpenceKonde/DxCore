@@ -16,23 +16,24 @@ Analog reference voltage can be selected as usual using analogReference(). Suppo
  | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.006 V |      4.55 V |      2 |
  | `EXTERNAL`                              | VREF pin|        VREF |      6 |
 
- Number column contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
+ You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last columncolumn contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
 
  External reference voltage should be between 1.8v and Vdd. `INTERNAL` is not a supported reference, since there is no obvious reason why one of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V, but they do not guarantee it it's properties, and I do not know whether it remains useful all the way down to the minimum operating voltage of 1.8 V - I suspect it does, but verify first (please let me know if you have further information). Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
 
-
 ## Internal Sources
 In addition to reading from pins, you can read from a number of internal sources - this is done just like reading a pin, except the constant listed in the table below is used instead of the pin number:
-| DA-series                          | DB and DD-series                    |
-|------------------------------------|-------------------------------------|
-| `ADC_GROUND` (Offset calibration?) | `ADC_VDDDIV10`                      |
-| `ADC_TEMPERATURE`                  | `ADC_VDDIO2DIV10`                   |
-| `ADC_DAC0`                         | `ADC_GROUND` (offset calibration?)  |
-| `ADC_DACREF0`                      | `ADC_TEMPERATURE `                  |
-| `ADC_DACREF1`                      | `ADC_DAC0`                          |
-| `ADC_DACREF2`                      | `ADC_DACREF0`                       |
-|                                    | `ADC_DACREF1`                       |
-|                                    | `ADC_DACREF2`                       |
+| DA-series               | DB and DD-series          | EA-series (speculative) |
+|-------------------------|---------------------------|-------------------------|
+| `ADC_GROUND`            | `ADC_VDDDIV10`            | `ADC_VDDDIV10`          |
+| `ADC_TEMPERATURE`       | `ADC_VDDIO2DIV10`         | `ADC_VDDIO2DIV10`       |
+| `ADC_DAC0`              | `ADC_GROUND`              | `ADC_GROUND`            |
+| `ADC_DACREF0`           | `ADC_TEMPERATURE `        | `ADC_TEMPERATURE `      |
+| `ADC_DACREF1`           | `ADC_DAC0`                | `ADC_DAC0`              |
+| `ADC_DACREF2`           | `ADC_DACREF0`             | `ADC_DACREF0`           |
+|                         | `ADC_DACREF1`             | `ADC_DACREF1`           |
+|                         | `ADC_DACREF2`             |                         |
+
+The Ground internal sources are presumable meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, andd often all the channels could be measured
 
 DACREF0-2 are the the reference voltages for the analog comparators. On the DA-series, there is no way to measure the supply voltage other than using DAC or DACREF source: you can neither directly measure a reference voltage like some parts, nor is there any way to get a fraction of the supply voltage like the DB and DD-series support.  Note also that on the DB series, you can't measure the outputs of the OPAMPs directly - you must output to the pin and measure that, however much the high-level descriptions sound like there is a way to route the opamp signals internally.
 
@@ -40,10 +41,13 @@ DACREF0-2 are the the reference voltages for the analog comparators. On the DA-s
 The hardware supports increasing the resolution of analogRead() to the limit of the hardware's native resolution (10 or 12 bits); Additionally, we provide automatic oversampling and decimation up to the limit of what can be gathered using the accumulation feature allowing up to 15 bits of resolution (17 on future Ex-series); this is exposed through the `analogReadEnh()` function detailed below.
 
 ## ADC Sampling Speed
-DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (more on Ex-series) at full resolution! We use use 1.0 to 1.5 MHz depending on the system clock. To compensate for the faster ADC clock, we extend the sampling period from the default of 2 ADC clock cycles to 16 - providing approximately the same sampling period as on classic AVRs (which is probably a conservative decision). See below for more information.
+DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (up to 3 MHz with internal ref, twice that on external of Vdd referenc at full resolution. We use use 1.0 to 1.5 MHz on Dx, and will target 2-2.5 by default on EA unless someone provides information that shuggests I shouldn't.  To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being sgnoificant;y faster. On the 2-series, we'll  aim a bit lower with the sample duration as wecan actually calculate some numbers
 
 ## ADC Function Reference
 This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application.
+
+### getAnalogReference() and getDACReference()
+These return the numbers listes in the reference table at the top as a `uint8_t`
 
 ### analogRead(pin)
 The standard analogRead(). Single-ended, and resolution set by analogReadResolution(), default 10 for compatibility. Negative return values indicate an error that we were not able to detect at compile time. Return type is a 16-bit signed integer (`int` or `int16_t`).
@@ -60,7 +64,9 @@ speed. This returns a `bool` - it is `true` if value is valid.
 
 This value is used for all analog measurement functions.
 
-The DxCore default is 14, which will result in a 16 ADC clock sampling time. For most signals this is more than needed, and the Microchip default is 0, giving 2, while documentation indicates that the ADC is optimized for signals with an impedance of around 10k. Reducing it to the minimum will approximately cut the time analogRead() takes in half. It will result in less accurate readings of high impedance signals, though it's not clear how high they can be before this becomes a concern - Microchip seems to have carefully avoided giving any explicit recommendation on this parameter, though it seems to imply that 0 is acceptable up to 10k.
+The DxCore default is 14, which will result in a 16 ADC clock sampling time. For most signals this is more than needed, and the Microchip default is 0, giving 2, while documentation indicates that the ADC is optimized for signals with an impedance of around 10k. Reducing it to the minimum will approximately cut the time analogRead() takes in half. It will result in less accurate readings of high impedance signals, though it's not clear how high they can be before this becomes a concern.
+
+On the 2-series, we are at least iven some numbers: 8pF for the sample and hold cap, and 10k input resistance so a 10k source impedance would give 0.16us time constant, implying that even a 4 ADC clock sampling time is excessive, but at such clock speeds, impedance much above that would need a longer sampling period. You probab
 
 ### analogReadEnh(pin, res=ADC_NATIVE_RESOLUTION, gain=0)
 Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res` is resolution in bits, which may range from 8 to `ADC_MAX_OVERSAMPLED_RESOLUTION`. This maximum is 15 bits for Dx-series parts, and 17 for Ex-series. If this is less than the native ADC resolution, that resolution is used, and then it is right-shifted 1, 2, or 3 times; if it is more than the native resolution, the accumulation option which will take 4<sup>n</sup> samples (where `n` is `res` native resolution) is selected. Note that maximum sample burst reads are not instantaneous, and in the most extreme cases can take milliseconds. Depending on the nature of the signal - or the realtime demands of your application - the time required for all those samples may limit the resolution that is acceptable. The accumulated result is then decimated (rightshifted n places) to yield a result with the requested resolution, which is returned. See Atmel app note AVR121 (https://ww1.microchip.com/downloads/en/appnotes/doc8003.pdf - the specific case of the new ADC on the Ex and tinyAVR 2-series is discussed in DS40002200 from Microchip, but it is a far less informative document). Alternately, to get the raw accumulated ADC readings, pass one of the `ADC_ACC_n` constants for the second argument where `n` is a power of 2 up to 128 (Dx-series), or up to 1024 (Ex-series). The Dx-series only makes available the 16 MSBs, so when accumulating more than 16 samples, the value will be truncated to 16 bits. Be aware that the lowest bits of a raw accumulated reading should not be trusted.; they're noise, not data (which is why the decimation step is needed, and why 4x the samples are required for every extra bit of resolution instead of 2x). On Ex-series parts *the PGA can be used for single ended measurements*. Valid options for gain on the Ex-series are 0 (PGA disabled, default), 1 (unity gain - may be appropriate under some circumstances, though I don't know what those are), or powers of 2 up to 16 (for 2x to 16x gain). On Dx-series parts, the gain argument should be omitted or 0; these do not have a PGA.
@@ -127,9 +133,6 @@ Returns either 10 or 12, the current resolution set for analogRead.
 
 ### getAnalogSampleDuration()
 Returns the number of ADC clocks by which the minimum 2 clock sample length has been extended.
-
-### getAnalogReference() and getDACReference()
-These return the numbers listes in the references section, for the currently selected reference for ADC and DAC.
 
 ## ADC Runtime errors
 When taking an analog reading, you may receive a value near -2.1 billion - these are runtime error codes.
