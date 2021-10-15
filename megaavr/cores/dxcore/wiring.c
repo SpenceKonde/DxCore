@@ -347,7 +347,7 @@ unsigned long millis()
             + ((ticks * 6) - ((uint16_t)(ticks >> 3) - (ticks >> 4)));
       #elif (F_CPU == 40000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 6) + ((uint16_t)(ticks >> 1) - (ticks >> 3) + ticks >> 5));
+            + ((ticks * 6) + ((uint16_t)(ticks >> 1) - (ticks >> 3) + (ticks >> 5)));
       #elif (F_CPU == 36000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
             + ((ticks * 7)  + ((uint16_t)(ticks >> 3) - (ticks >> 6)));

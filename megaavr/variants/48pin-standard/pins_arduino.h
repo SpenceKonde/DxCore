@@ -78,12 +78,14 @@ EA-series parts.
 #define NUM_SPI_PINS                   3
 #define NUM_TOTAL_FREE_PINS            NUM_DIGITAL_PINS
 #define NUM_TOTAL_PINS                 NUM_DIGITAL_PINS
-#define EXTERNAL_NUM_INTERRUPTS        47
-//#define ANALOG_INPUT_OFFSET          12 //See comments in 64-pin variant.
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS        47
+#endif
+
 
 #define digitalPinToAnalogInput(p)        (((p) > PIN_PC7 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 18) : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)      (((p) < 12) ? ((p) + PIN_PD0) : (((p) < 16 || p > 21) ? NOT_A_PIN : ((p) + PIN_F0 - 16)))

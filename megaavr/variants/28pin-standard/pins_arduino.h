@@ -65,7 +65,11 @@ on how I handle the pinmapping/portmux stuff
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
-#define EXTERNAL_NUM_INTERRUPTS        47
+
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS        47
+#endif
+
 #define digitalPinToAnalogInput(p)     (((p) >= PIN_PC3 && (p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN))
 
 #define analogChannelToDigitalPin(p)        ((p) < 8 ? ((p) + PIN_PD0) : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))

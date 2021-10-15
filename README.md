@@ -327,20 +327,22 @@ The analog comparators are exposed through the [Comparator library](https://gith
 * Tools -> Reset/UPDI - This menu option can be set to Reset (default) or Input; the latter allows this pin to be used as a normal input. DD-series have extra options to configure the UPDI pin as well, and on these parts, This setting is applied to DA and DB series on all UPDI uploads without a "burn bootloader" cycle. It is not set on DD-series parts - the UPDI disable option makes this fuse "unsafe" to reconfigure.
 * Tools -> B.O.D. Mode (active/sleeping) - Determines whether to enable Brown Out Detection when the chip is not sleeping, and while it is. Only combinations where active is at least as aggressive as sleep mode are shown, as those are the only sensible operating modees.=. You must burn bootloader after changing this to apply the changes.
 * Tools -> millis()/micros() - If set to enable (default), millis(), micros() and pulseInLong() will be available. If set to disable, these will not be available, Serial methods which take a timeout as an argument will not have an accurate timeout (though the actual time will be proportional to the timeout supplied); delay will still work, though it's done using delayMicroseconds(), so interrupts are disabled for 1ms at a time during the delay, and any interrupts that happen during the delay will add to the length of the delay. Depending on the part, options to force millis/micros onto any type A or B timer on the chip are also available from this menu.
-* ~Tools -> MVIO~ - As of 1.3.1, the MVIO option is removed from the Tools sub-menus. It is the default configuration, and nobody was able to describe a situation in which leaving it enabled in a correctly designed circuit would have detectable consequences. I was unable to come up with any cases where, in an incorrectly designed circuit, disabling MVIO would result in different behavior and the difference wasn't "if MVIO was enabled, the chip would continue to operate, if it was disabled, the chip would suffer an immediate hardware failure". Disabling MVIO on the chip installed in a circuit where it was intended to be using MVIO would also have that imnpact. Having nothing to gain by disabling it, that option was removed.
+* Tools -> MVIO - MVIO option is back. It is not a risk of hardware damage if it is turned off, and apparently it saves a bit of power to turn it off. Disabling it when you shouldn't doesn't keep the pins from being readable and writable, nor does it short the VDDIO pin to VDD.... it just mo longer watches the voltage to ensure sane behavior if insufficient voltage is applied on VDDIO2. Probably burns a tiny bit of power like BOD does.
 * Tools -> Write flash from App - Either disabled (Flash.h library does not work), "Everywhere" (allow writes everywhere in the flash after first page), or allow writes only above a certain address. On Optiboot definirtions, it's always enabled for writes anywhere.
-* Tools -> printf() imoplementation - The default option can be swapped for a lighter weight version that omits most functionality to save a tiny amount of flash, or for a full implementation (which allows printing floats with it) at the cost of about 1k extra. Note that if non-default options are selected, the implementation is always linked in, and will take space even if not called. Normal Arduino boards are set to default. They also don't have `Serial.printf()`.
+* Tools -> printf() imoplementation - The default option can be swapped for a lighter weight version that omits most functionality to save a tiny amount of flash, or for a full implementation (which allows printing floats with it) at the cost of about 1k extra. Note that if non-default options are selected, the implementation is always linked in, and will take space even if not called. Normal Arduino boards are set to default. They also don't have `Serial.printf()`
+* Tools -> attachInterrupt Mode - Choose from 3 options - the new, enabled on all pins always (like the old one), Manual (as above, but you must call attacbPortAEnable() (replace A with the letter of the port) before attachbing the interrupt. No option to disasble (in fact, most of the work is done by just referencing the function - though I currently have it setting a flag. Semantics may change here. The main point of this is that (in addition to saving an amount of flash that doesn't much matter on the Dx-series) attachingInterrupt() on one pin (called by a library, say) will not glom onto every single port's pin interrupt vectors so you can't manually define any. The interrupts are still just as slow (it's inherrent to calling a function by pointer from an ISR.
 
 
 ## Additional DxCore documentation
 ### Reference
-#### Analog Input (ADC) and output (DAC)
-#### Digital I/O and enhanced options
-#### Reset control and the WDT
-#### Optiboot Bootloader
-#### TCD0
-#### Considerations for robust applications (general)
-#### Identification of core features programmatically
+#### [Analog Input (ADC) and output (DAC)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
+#### [Digital I/O and enhanced options](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
+#### [TCD0](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD0.md)
+#### [Considerations for robust applications](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Robust.md)
+#### [Identification of core features programmatically](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Defines.md)
+#### [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
+#### [Optiboot Bootloader](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_SerialUPDI.md)
+#### [SerialUPDI](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)
 ### Older guides inherited from megaTinyCore
 #### [Power Saving techniques and Sleep](megaavr/extras/PowerSave.md)
 #### [Direct Port Manipulation](megaavr/extras/DirectPortManipulation.md)

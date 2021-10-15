@@ -70,12 +70,14 @@ This file may or may not be different for the
 #define NUM_SPI_PINS                   6 // (MISO / MOSI / SCK)
 #define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
 #define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-//#define ANALOG_INPUT_OFFSET          12 //See comments in 64-pin variant.
+
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
-#define EXTERNAL_NUM_INTERRUPTS        47
 
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS        47
+#endif
 
 #define digitalPinToAnalogInput(p)        (((p) > PIN_PC3 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)      ((p) < 8 ? ((p) + PIN_PD0) : (((p) > 15 && (p) < 22) ? ((p) - 16 + PIN_PF0) : NOT_A_PIN))

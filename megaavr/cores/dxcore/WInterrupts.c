@@ -28,7 +28,7 @@
  * attachPortEEnable()      attachPortFEnable()     attachPortGEnable()
  *
  * So you get the option wehether to enable it for each port.  Each port also doesn't get it's own bloated ISR composed almost entirely of pushes and pops for calling a function
- * it was done by doing rather evil things here buit it does appear to work!
+ * it was done by doing rather evil things here but it does appear to work!
  */
  /*Only create arrays for ports that exist) */
   #ifdef PORTA

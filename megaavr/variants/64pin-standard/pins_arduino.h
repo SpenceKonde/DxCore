@@ -88,8 +88,10 @@ No 32k versions, and only part of DA and DB-series
 #define NUM_SPI_PINS                       (3)
 #define NUM_TOTAL_FREE_PINS               (NUM_DIGITAL_PINS) /* Is this even used by ANYTHING?! */
 #define NUM_TOTAL_PINS                    (NUM_DIGITAL_PINS)
-#define EXTERNAL_NUM_INTERRUPTS           (56)  //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
-#define ANALOG_INPUT_OFFSET                (0)  /* part of the mess used to make the analog pin vs digital pin dichotomy less incoherent. We exchew those terms entirely, and all the compromises they drag in. No digital pins. No analog pins. PIN_Pxn fo */
+
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS           (56)  //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
+#endif
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                     PIN_PA7
