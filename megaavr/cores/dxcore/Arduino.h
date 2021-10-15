@@ -160,6 +160,15 @@ void init_TCBs()   __attribute__((weak)); // called by init_timers()
 void init_TCD0()   __attribute__((weak)); // called by init_timers()
 void init_millis() __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
 
+#ifndef CORE_ATTACH_OLD
+  void attachPortAEnable();               // With the new experimental attachInterruopt code in manual moode, you ccall these to initiate it (if it gets done )
+  void attachPortBEnable();
+  void attachPortCEnable();
+  void attachPortDEnable();
+  void attachPortEEnable();
+  void attachPortFEnable();
+  void attachPortGEnable();
+#endif
 //
 // ANALOG EXTENDED FUNCTIONS
 //
