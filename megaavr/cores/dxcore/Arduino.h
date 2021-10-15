@@ -160,6 +160,9 @@ void init_TCBs()   __attribute__((weak)); // called by init_timers()
 void init_TCD0()   __attribute__((weak)); // called by init_timers()
 void init_millis() __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
 
+void onClockFailure() __attribute__((weak)); // called by the clock failure detection ISR. Default action is a blink code with 4 blinks.
+void onClockTimeout() __attribute__((weak)); // called if we try to switch to external cloc, but it doesn't work. Default action is a blink code with 4 blinks.
+
 #ifndef CORE_ATTACH_OLD
   void attachPortAEnable();               // With the new experimental attachInterruopt code in manual moode, you ccall these to initiate it (if it gets done )
   void attachPortBEnable();
@@ -205,10 +208,26 @@ void          turnOffPWM(uint8_t pinNumber               );
   #define _NOP() do { __asm__ volatile ("nop"); } while (0)
 #endif
 
-uint16_t clockCyclesPerMicrosecondComp(uint32_t clk);
 uint16_t clockCyclesPerMicrosecond();
-uint32_t clockCyclesToMicroseconds(unsigned long cycles);
-uint32_t microsecondsToClockCycles(unsigned long microseconds);
+uint32_t clockCyclesToMicroseconds(uint32_t cycles);
+uint32_t microsecondsToClockCycles(uint32_t microseconds);
+
+// Currently DxCore has no cases where the millis timer isn';t derived from system clock, but that will change
+/* This becomes important when we support other timers for timekeeping. The Type D timer can be faster, requiring:
+ * These talk about the timebase from which millis is derived, not the actual timer counting frequency.
+ * That is, it's used to calculqte the values that are we multipliy by the prescaler to get the timekeeping stuff.
+ * These can be different from the above only when the millis timer isn't running from CLK_PER.
+     For example, if we run it from a TCD clocked from internal HF but we are running on a crystal.
+     That's a strange way to use the TCD, but
+ * megaTinyCore has these, and we will have wsomething analogou.
+
+uint16_t millisClockCyclesPerMicrosecond();
+uint32_t millisClockCyclesToMicroseconds(uint32_t cycles);
+uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
+
+ * the time and sleep library will require some things like this.
+ */
+
 
 /* Timers and Timer-like-things
  * These are used for two things: Identifying the timer on a pin in
@@ -342,10 +361,10 @@ extern const uint8_t digital_pin_to_timer[];
 #define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
 #define digitalPinToInterrupt(P)            (P) // pin number and int number are the same (wait, are they? I don't think they are on the 64-pin parts because of reset.
 
-/*#define portToPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).
-// If hardware has PORTx,
-if ((digitalPinToPort(portToPinZero(digitalPinToPort(some_pin)) + bit_position) \
-                        == digitalPinToPort(some_pin)) is true if and only if there is a PIN n within the same port.   */
+/*
+#define portToPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).
+ The main application involves taking advantage of the fact that we always number pins in order within each port and never shuffle ports around; it wound up being necessary when I was working with the automatic PWM pin remapping.
+*/
 
 #define portOutputRegister(P) ( (volatile uint8_t *)( &portToPortStruct(P)->OUT ) )
 #define portInputRegister(P)  ( (volatile uint8_t *)( &portToPortStruct(P)->IN ) )
@@ -372,7 +391,7 @@ if ((digitalPinToPort(portToPinZero(digitalPinToPort(some_pin)) + bit_position) 
 // A little bit of trickery - this allows Serial to be defined as something other than USART0
 // Use case is for boards where the main serial port is not USART0 to be used without the user
 // having to find/replace Serial with Serial2 or whatever on their existing code if that's where
-// the monitor is. It requires that the board be defined by a variant file,
+// the monitor is. It requires that the board be defined by a variant file
 #ifndef Serial
   #define Serial Serial0 //Error here? Check for missing ; previous line in sketch.
 #endif

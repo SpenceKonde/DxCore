@@ -23,7 +23,6 @@
 #ifndef WiringPrivate_h
 #define WiringPrivate_h
 
-#include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -34,12 +33,16 @@
 extern "C"{
 #endif
 
+
 extern uint8_t PeripheralControl;
 
 uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, unsigned long maxloops);
 
 typedef void (*voidFuncPtr)(void);
 
+#ifndef CORE_ATTACH_OLD
+  void __attribute__((naked)) __attribute__((noreturn)) isrBody();
+#endif
 #ifdef __cplusplus
 } // extern "C"
 #endif
