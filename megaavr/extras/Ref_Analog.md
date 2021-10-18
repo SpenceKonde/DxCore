@@ -204,3 +204,20 @@ void correctedDACWrite(uint8_t value) {
 The DB-series may not have the true PGA that other the EA will have - but they do have 2 or 3 on-chip opamops, which can be used to create various sorts of amplifiers to the benefit of the ADC, in addition to many other uses.
 
 See the documentation for the [Opamp Library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Opamp) by MCUDude.
+
+
+## Analog *channel* identifiers
+The ADC is configured in terms of channel numbers, not pin numbers. analogRead() hence converts the number of a pin with an analog channel associated with it to the number of that analog channel, so there is no need to deal with the analog channel numbers. The one exception to that is in the case of the non-pin inputs, the constants like ADC_DAC and ADC_VDDDIV10. I have a simple system to internally signal when a number isn;t an digital pin number, but an analog channel number. These are what I cal analog channel identifiers, and they're the value that the analog mux is set to in order, with the high bit set 1 (no part has more than 128 possible values on their mux, let alone 128 valid ones; the precise numeric values will be handled on an adhoc basis if/when it becomes an issue. With 254 valid values, the current design provides room for 127 digital pins and 127 analog inputs. No AVR released has come anywhere close to that.
+
+These numbers (they do have defines in the variants, and `ADC_CH()` will take an analog channel number (ex, "0") and turn it into the analog channel identifier. But you never need to do that unless you're getting very deep into a custom ADC library . ) The most common exaople when channels are used is when reading from things that are not pins - like the internal tap on the DAC output, or the VDDDIV10 value to find the supply voltage. These may overlap with pin numbers. Also internally, channel numbers are sometimes passed between functions. They are defined for pins that exist as analog channels, with names of rthe form `AINn` but **you should never use the AIN values** except in truly extraordinary conditions, and even then it's probably inappropriate. However I felt like mention of them here wax needed. Some macros abd helper funbctions involved are:
+
+```
+digitalPinToAnalogInput(pin) - converts an digital pin to an anbalog channel *without* the bit that says it's a channel (desiugned for the very last step of analogRead preparationm where we turn the pin number into the channel to set the MUX. )
+analogChannelToDigitalPin(p) - converts an analog channe *number* to a digital pin.
+analogInputToDigitalPin(p)   - converts an analog channel identifier ti a digital pin number.
+digitalOrAnalogPinToDigital(p) - converts an analog chanel iudentifier or digital puin to a digital pin number
+ADC_CH(channel number)        - converts channel numbers to analog chaannel identifier
+
+```
+
+Try not to use these unless you're getting really deep into library development and direct interaction with the ADC.

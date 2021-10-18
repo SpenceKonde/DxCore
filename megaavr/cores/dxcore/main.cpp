@@ -135,17 +135,17 @@ void __attribute__((weak)) onPreMain() {
  **************************************************************************************************/
 
 #if (!defined(USING_OPTIBOOT))
-  void _pre_main() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+  void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
   // this runs, as the name implies, before the main() function is called.
   #if !defined(SPM_FROM_APP)
     // If we're not doing the SPM stuff, we need only check the flags
-    void _pre_main() {
+    void _initThreeStuff() {
       init_reset_flags();
       onPreMain();
     }
   #else
     // if we are, we also need to move the vectors. See longwinded deascription above.
-    void _pre_main() {
+    void _initThreeStuff() {
       init_reset_flags();
       _PROTECTED_WRITE(CPUINT_CTRLA,CPUINT_IVSEL_bm);
       onPreMain();
@@ -157,7 +157,8 @@ void __attribute__((weak)) onPreMain() {
        * the user wants to - but it's designed to be called via hideous methods like
        * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (zaddress))
        * see Flash.h */
-      void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+      /* No, we CANT move it to init3 - PROGMEM goes between trampolines and code! */
+      void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
       void __spm_entrypoint (void)
       {
         __asm__ __volatile__(
@@ -172,8 +173,8 @@ void __attribute__((weak)) onPreMain() {
   // We want the vectors in the alt location, it checks, clears, and stashes the reswet flags (in GPR0)
   // and it providews the entrypoint we call to write to flash.
 #else
-  void _pre_main() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
-    void _pre_main() {
+  void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
+  void _initThreeStuff() {
     onPreMain();
   }
 #endif

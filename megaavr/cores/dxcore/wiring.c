@@ -341,43 +341,40 @@ unsigned long millis()
     #else //TCA
       #if   (F_CPU == 48000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 5) + ((uint16_t)(ticks >> 2) + (ticks >> 4) + (ticks >> 5)));
+            + (ticks * 5) + ((ticks >> (uint8_t) 2) + (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 5));
       #elif (F_CPU == 44000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 6) - ((uint16_t)(ticks >> 3) - (ticks >> 4)));
+            + (ticks * 6) - ((ticks >> (uint8_t) 3) + (ticks >> (uint8_t) 4));
       #elif (F_CPU == 40000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 6) + ((uint16_t)(ticks >> 1) - (ticks >> 3) + (ticks >> 5)));
+            + (ticks * 6) + ((ticks >> (uint8_t) 1) - (ticks >> (uint8_t) 3) + (ticks >> (uint8_t) 5));
       #elif (F_CPU == 36000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 7)  + ((uint16_t)(ticks >> 3) - (ticks >> 6)));
+            + (ticks * 7) + ((ticks >> (uint8_t) 3) - (ticks >> (uint8_t) 6));
       #elif (F_CPU == 30000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 2) + ((uint16_t)(ticks >> 3)));
+            + (ticks * 8) + ((ticks >> (uint8_t) 1) + (ticks >> (uint8_t) 5) + (ticks >> (uint8_t) 7));
       #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks * 2) + ((uint16_t)(ticks >> 2) + (ticks >> 5)));
+            + (ticks * 2) + ((ticks >> (uint8_t) 2) + (ticks >> (uint8_t) 5));
       #elif (F_CPU == 25000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 2 + ((uint16_t)(ticks >> 1) + (ticks >> 4)));
+            + (ticks * 2) + ((ticks >> (uint8_t) 1) + (ticks >> (uint8_t) 4));
       #elif (F_CPU == 24000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 3 - ((uint16_t)(ticks >> 2) - (ticks >> 4) - (ticks >> 5)));
+            + (ticks * 3) - ((ticks >> (uint8_t) 1) - (ticks >> (uint8_t) 3) - (ticks >> (uint8_t) 5) - (ticks >> (uint8_t) 7));
       #elif (F_CPU == 20000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 3 + ((uint16_t)(ticks >> 2) - (ticks >> 4)));
-      #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
-        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 4 + ((uint16_t)(ticks >> 1) + (ticks >> 4) + (ticks >> 5)));
+            + (ticks * 3) + ((ticks >> (uint8_t) 2) - (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 6));
       #elif (F_CPU == 12000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 5 + ((uint16_t)(ticks >> 2) + (ticks >> 4) + (ticks >> 5)));
+            + (ticks * 5) + ((ticks >> (uint8_t) 2) + (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 5));
       #elif (F_CPU == 10000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + ((ticks << 3) - ((uint16_t)(ticks << 1) + (ticks >> 1) - (ticks >> 3)));
+            + (ticks * 6) + ((ticks >> (uint8_t) 1) - (ticks >> (uint8_t) 3) + (ticks >> (uint8_t) 5));
       #elif (F_CPU ==  5000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 16)
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * 3 + (ticks >> 2) - (ticks >> 4));
+            + (ticks * 3) + ((ticks >> (uint8_t) 2) - (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 6));
       #else
         #if (TIME_TRACKING_TIMER_DIVIDER%(F_CPU/1000000))
           #warning "Millis timer (TCAn) at this frequency unsupported, micros() will return bogus values."
@@ -393,7 +390,7 @@ unsigned long millis()
 
 #endif //end of non-MILLIS_USE_TIMERNONE code
 
-#if !(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC)) //delay implementation when we do have micros()
+#if   (!(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC))) //delay implementation when we do have micros()
 void delay(unsigned long ms)
 {
   uint32_t start = micros();
@@ -1036,7 +1033,7 @@ void  __attribute__((weak)) init_clock() {
       #else
         //external clock
         uint8_t i = 255;
-        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc); //
         while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
           i--;
           if(i == 0) blinkCode(3);
@@ -1273,7 +1270,7 @@ void __attribute__((weak)) init_TCA0() {
    * Detect conflict between wiring.c and timers.h if we spot them, as that indicates
    * a defect in the core and would result in extremely bad behavior*/
 
-  #if (F_CPU > 25000000) //use 256 divider when clocked over 25 MHz
+  #if (F_CPU > 30000000) //use 256 divider when clocked over 25 MHz
     #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 256)
       #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
     #endif
@@ -1307,7 +1304,7 @@ void __attribute__((weak)) init_TCA1() {
   TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
 
 
-  #if (F_CPU > 25000000) //use 256 divider when clocked over 25 MHz
+  #if (F_CPU > 30000000) //use 256 divider when clocked over 25 MHz
     #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 256)
       #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
     #endif

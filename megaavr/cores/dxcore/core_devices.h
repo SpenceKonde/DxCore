@@ -19,9 +19,15 @@
  * 102's have 2 sections, 104's have 4 sections.
  */
 #if (__AVR_ARCH__ == 104)
-  #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION3")))
+  #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION3")))
+  #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
+  #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
+  #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION0")))
+  #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION1")))
 #elif (__AVR_ARCH__ == 102)
-  #define MAPPED_PROGMEM __attribute__ (( __section__(".FLMAP_SECTION1")))
+  #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION1")))
+  #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
+  #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
 #else
   // __AVR_ARCH__ == 103, so all of the flash is memory mapped, and the linker
   // will automatically leave const variables in flash.
@@ -209,9 +215,47 @@
 #endif
 
 
+#if defined(__AVR_DA__)
+  #define _AVR_FAMILY "DA"
+#elif defined(__AVR_DB__)
+  #define _AVR_FAMILY "DB"
+#elif defined(__AVR_DD__)
+  #define _AVR_FAMILY "DD"
+#elif defined(__AVR_DU__)
+  #define _AVR_FAMILY "DU"
+#elif defined(__AVR_EA__)
+  #define _AVR_FAMILY "EA"
+#else
+  #define _AVR_FAMILY "UNKNOWN"
+#endif
 
+#if defined(DX_14_PINS )
+  #define _AVR_PINCOUNT 14
+#elif defined(DX_20_PINS )
+  #define _AVR_PINCOUNT 29
+#elif defined(DX_28_PINS )
+  #define _AVR_PINCOUNT 28
+#elif defined(DX_32_PINS )
+  #define _AVR_PINCOUNT 32
+#elif defined(DX_48_PINS )
+  #define _AVR_PINCOUNT 48
+#elif defined(DX_64_PINS )
+  #define _AVR_PINCOUNT 64
+#endif
 
-
+#if PROGMEM_SIZE ==   0x20000
+  #define _AVR_FLASH 128
+#elif PROGMEM_SIZE == 0x10000
+  #define _AVR_FLASH 64
+#elif PROGMEM_SIZE == 0x8000
+  #define _AVR_FLASH 32
+#elif PROGMEM_SIZE == 0x4000
+  #define _AVR_FLASH 16
+#elif PROGMEM_SIZE == 0x2000
+  #define _AVR_FLASH 8
+#elif PROGMEM_SIZE == 0x1000
+  #define _AVR_FLASH 4
+#endif
 
 
 #if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (CORE_PART_ID_LOW & ID_AVR_DD))
@@ -336,6 +380,41 @@
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   #define ERRATA_TCD_PORTMUX 1
+#endif
+
+/* This macro is for when you want to set the internal to whatever F_CPU is, for
+ * example to react to crystal not being found on startoup, when you have one selected
+ * The default behavior is to hang and proceed no further while issuing a blink code,
+ * but you might instead want to ignore that failure, and instead use the less
+ * accurate (but still pretty damned good) internal one. See the DxCore clock source referenc */
+#if (F_CPU == 32000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0B << 2))
+#elif (F_CPU == 28000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2))
+#elif (F_CPU == 24000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2))
+#elif (F_CPU == 20000000)
+  #define switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2))
+#elif (F_CPU == 16000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2))
+#elif (F_CPU == 12000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x06 << 2))
+#elif (F_CPU == 8000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2))
+#elif (F_CPU == 4000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x03 << 2))
+#elif (F_CPU == 3000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2))
+#elif (F_CPU == 2000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2))
+#elif (F_CPU == 1000000)
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2))
+#elif (F_CPU == 10000000)
+  #define _switchInternalToF_CPU() {_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm)); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
+#elif (F_CPU == 5000000)
+  #define _switchInternalToF_CPU() {_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm)); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
+#else
+  #define _switchInternalToF_CPU() badCall("The switchInternalToF_CPU() macro can only set the internal oscillator to speeds that are supported by it.")
 #endif
 
 #endif
