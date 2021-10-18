@@ -15,6 +15,27 @@ void initVariant() __attribute__((weak));
  * setup, like FreeRTOS - it would have been nice if the official API included such a callback. */
 void initVariant() { }
 
+void __attribute__((weak)) onPreMain();
+void __attribute__((weak)) onPreMain() {
+  /* USER CODE THAT NEEDS TO RUN WAY EARLY GOES HERE */
+}
+void __attribute__((weak)) onBeforeInit();
+void __attribute__((weak)) onBeforeInit() {
+  /* USER CODE THAT NEEDS TO RUN VERY EARLY, BUT NEEDS GLOBAL CLASS OBJECT TO EXIST GOES HERE */
+}
+uint8_t  __attribute__((weak)) onAfterInit();
+uint8_t __attribute__((weak)) onAfterInit() {
+  /* User code that needs to run before interrupts are enabled. but after all other core initialization can go here.
+   * return 1 to not enable interrupts) */
+  return 0;
+}
+
+
+
+
+
+
+
 int main()  __attribute__((weak));
 /* The main function - call initialization functions (in wiring.c) then setup, and finally loop *
  * repeatedly. If SerialEvent is enabled (which should be unusual, as it is no longer a menu    *
@@ -25,21 +46,19 @@ int main()  __attribute__((weak));
  * will be needed in any event at the core level if VUSB-based "stuff" arrives, but really I'm  *
  * just waiting for the DU-series now                                                           */
 int main() {
+  onBeforeInit(); //Emnpty callback called before init but after the .init stuff. First normal code executed
   init(); //Interrupts are turned on just prior to init() returning.
   initVariant();
+  if (!onAfterInit()) sei();  //enable interrupts.
   setup();
   for (;;) {
     loop();
-    #ifdef ENABLE_SERIAL_EVENT
+    #ifdef ENABLE_SERIAL_EVENT /* this is never true unless core is modified */
       if (serialEventRun) serialEventRun();
     #endif
   }
 }
 
-void __attribute__((weak)) onPreMain();
-void __attribute__((weak)) onPreMain() {
-  /* USER CODE THAT NEEDS TO RUN  WAY EARLY GOES HERE */
-}
 
 
 

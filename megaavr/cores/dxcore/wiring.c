@@ -775,8 +775,7 @@ void init()
   #ifndef MILLIS_USE_TIMERNONE
     init_millis();
   #endif
-  // Finally, we enable interrupts; immediately following this, setup will be ve called.
-  sei();
+  // enabling interrupts is done in main.cpp after a final empty funcftion (that the ucer can override) is called.
 }
 
 
