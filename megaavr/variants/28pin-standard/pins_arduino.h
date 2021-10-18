@@ -130,8 +130,6 @@ on how I handle the pinmapping/portmux stuff
 // TWI 0
 #define PIN_WIRE_SDA           PIN_PA2
 #define PIN_WIRE_SCL           PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_1 PIN_PA2
-#define PIN_WIRE_SCL_PINSWAP_1 PIN_PA3
 #define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
 #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
 
