@@ -144,8 +144,8 @@ void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the s
 void takeOverTCA0();                      // Can be used to tell core not to use TCA0 for any API calls - user has taken it over.
 void takeOverTCA1();                      // Can be used to tell core not to use TCA1 for any API calls - user has taken it over.
 void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
-void resumeTCA0();                        // Restores core-mediated functionality that uses TCA0 after reconfiguring it.
-void resumeTCA1();                        // Restores core-mediated functionality that uses TCA1 after reconfiguring it.
+void resumeTCA0();                        // Restores core-mediated functionality that uses TCA0 and restores default TCA0 configuration.
+void resumeTCA1();                        // Restores core-mediated functionality that uses TCA1 and restores default TCA1 configuration.
 //bool digitalPinHasPWMNow(uint8_t p);    // Macro. Returns true if the pin can currently output PWM using analogWrite(), regardless of which timer is used and considering current PORTMUX setting
 uint8_t digitalPinToTimerNow(uint8_t p);  // Returns the timer that is associated with the pin now (considering PORTMUX)
 
@@ -153,7 +153,6 @@ uint8_t digitalPinToTimerNow(uint8_t p);  // Returns the timer that is associate
 void init_clock()  __attribute__((weak)); // this is called first, to initialize the system clock.
 void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0
 //   init_DAC0()                          // no _init_DAC0() - all that the core does is call DACReference().
-void init_timers() __attribute__((weak)); // this function is expected to configure all timers for PWM. _init_millis() is called after this.
 void init_TCA0()   __attribute__((weak)); // called by init_timers() - If you must override the _init_timers() (try to do one of these instead)
 void init_TCA1()   __attribute__((weak)); // called by init_timers() - you need to call init() methods for all timers you want analogWrite to work with
 void init_TCBs()   __attribute__((weak)); // called by init_timers()
@@ -161,7 +160,7 @@ void init_TCD0()   __attribute__((weak)); // called by init_timers()
 void init_millis() __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
 
 void onClockFailure() __attribute__((weak)); // called by the clock failure detection ISR. Default action is a blink code with 4 blinks.
-void onClockTimeout() __attribute__((weak)); // called if we try to switch to external cloc, but it doesn't work. Default action is a blink code with 4 blinks.
+void onClockTimeout() __attribute__((weak)); // called if we try to switch to external cloc, but it doesn't work. Default action is a blink code with 3 blinks.
 
 #ifndef CORE_ATTACH_OLD
   void attachPortAEnable();               // With the new experimental attachInterruopt code in manual moode, you ccall these to initiate it (if it gets done )
@@ -255,7 +254,8 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  * The DAC is listed here because analogWrite() uses it almost exactly like
  * a PWM timer.
  * RTC can be used as a millis timekeeping source (well, not currently on
- * DxCore, but soon).
+ * DxCore, but it can on megaTinyCore, and might one day be possible on DxCore
+ * though I'm not sure I want to implement it that way).
  *****************************************************************************/
 
 #define NOT_ON_TIMER  0x00
@@ -266,7 +266,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERB2       0x22
 #define TIMERB3       0x23
 #define TIMERB4       0x24
-#define TIMERD0       0x40 /* in PWM context will show up as (TIMERD0 | 0-7), ex 0x40, 0x42 etc - that part is the mux value. nothng that s not TCD0 will have bit 6 set. */
+#define TIMERD0       0x40 /* in PWM context will show up as (TIMERD0 | 0-7), ex 0x40, 0x42 etc - that part is the mux value (not the channel). nothing that is not TCD0 will have bit 6 set. */
 #define TIMERRTC      0x90
 #define DACOUT        0x80
 

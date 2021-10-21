@@ -17,15 +17,16 @@ void initVariant() { }
 
 void __attribute__((weak)) onPreMain();
 void __attribute__((weak)) onPreMain() {
-  /* USER CODE THAT NEEDS TO RUN WAY EARLY GOES HERE */
+  /* Override with any user code that needs to run WAY early, in .init3 */
 }
 void __attribute__((weak)) onBeforeInit();
 void __attribute__((weak)) onBeforeInit() {
-  /* USER CODE THAT NEEDS TO RUN VERY EARLY, BUT NEEDS GLOBAL CLASS OBJECT TO EXIST GOES HERE */
+  /* Override with any user code that needs to run before init() */
 }
-uint8_t  __attribute__((weak)) onAfterInit();
+uint8_t __attribute__((weak)) onAfterInit();
 uint8_t __attribute__((weak)) onAfterInit() {
-  /* User code that needs to run before interrupts are enabled. but after all other core initialization can go here.
+  /* Override with any user code that needs to run before interrupts are
+   * enabled but after all other core initialization.
    * return 1 to not enable interrupts) */
   return 0;
 }

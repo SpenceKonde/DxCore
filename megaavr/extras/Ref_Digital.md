@@ -96,29 +96,80 @@ These are the maximum voltage guaranteed to qualify as LOW and the minimum guara
 
 Particularly in the context of these MVIO-equipped parts, however, the TTL input level option has an obvious major advatage: It makes communication with parts that run at lower voltages easier, and reduces competition for the limited number of MVIO pins. If we allow the low part to control it push-pull (aka totam-pole and other names), and treat it as an `INPUT`, we will always read what they intend. The fact that you can switch a pin between input and output, while pulling it up externally was noted above, and the voltage it was pulled up to could be the lower operating vboltage. That can be done on any AVR. But with INLVL, this scheme is viable for a bidirectional line: the The line between devices could either be pulled up to the lowest operating voltage externally, with the DB or DD series part manipulating the pin as an open drain output (see above). One need not stop with just two devices - multiple DB/DD-series parts with `INVLV = TTL` set could communicate with multiple devices operating at the low voltage, as long as none of them ever drove it `HIGH` (though, if it was low, they would not know which device was doing that. The designer would have to make sure this approach made sense in that regard, and that everything was smart enough to not hold onto the line or anything.
 
-## Slew Rate Limiting
-All of the Dx-series parts have the option to limit the [slew rate](https://en.wikipedia.org/wiki/Slew_rate) for the OUTPUT pins on a on a per-port basis. This is typically done because fast-switching digital pins contain high-frequency components (in this sense, high frequency doesn't necessarily mean that it repeats, only that if it continued, it would be high frequency; this way of thinking is useful in elecrical engineering), which can contribute to EMI, as well as ringing (if you're ever looked on a scope and noticed that after a transition, the voltage briefly oscillates around the final voltage - that's ringing) which may confuse downstream devices. You may not know exactly *why* it's an issue, either, rather a datasheet may specify a maximum slew rate on it's inputs.
+## PINCONFIG and associated registers
+The hardware has a series of registers - one shared across all ports, `PORTx.PINCONFIG` with bitfields matching the ones in the the PINnCTRL registers, and three which always read zero, `PORTx.PINCTRLUPD`,  `PORTx.PINCTRLSET` and  `PORTx.PINCTRLCLR`. These allow mass updating of the PINnCTRL registers: Every pin corresponding to a 1 on the port will have the contents of their PINnCTRL register either set to (`PINCTRLUPD`), bitwise-OR'ed with (`PINCTRLSET`) or bitwise-AND'ed with the inverse (`PORTx.PINCTRLCLR`) of the  `PINCONFIG` register.
 
+So:
 ```c
+PORTA.PINCONFIG = PORT_PULLUPEN_bm;
+PORTA.PINCTRLSET = 0b11110000; // Turns on the pullup on PA4~7
+PORTB.PINCTRLUPD = 0b10000001; // Sets PINnCTRL to only have pullup enabled on PB0 and PB7. If one of those pins was inverted or using TTL levels or had an interrupt on it, it doesn't anymore.
+PORTC.PINCTRLCLR = 0b11111111; // Turns off the pullup on every pin on PORTC
+PORTA.PINCONFIG = PORT_PULLUPEN_bm | PORT_INVEN_bm; //invert and turn on pullup
+PORTG.PINCTRLUPD = 0b00001111; // inverts and turns on pullups on PG0~3
+PORTF.PINCTRLUPD = 0b01010101; // inverts and turns on pullups on PF 0, 2, 4, and 6.
+
+/* executes faster and looks less hideous than: */
+PORTA.PIN4CTRL |=  PORT_PULLUPEN_bm; //Read-modify-write takes 6 clocks and 5 words of flash! - lds, ori, sts
+PORTA.PIN5CTRL |=  PORT_PULLUPEN_bm;
+PORTA.PIN6CTRL |=  PORT_PULLUPEN_bm;
+PORTA.PIN7CTRL |=  PORT_PULLUPEN_bm;
+PORTB.PIN0CTRL  =  PORT_PULLUPEN_bm; // Simple write 2 clocks 2 words to write, plus a single 1 for the whole group to load the value to a working register.
+PORTB.PIN7CTRL  =  PORT_PULLUPEN_bm;
+PORTC.PIN0CTRL &= ~PORT_PULLUPEN_bm; // 6 clocks again!
+PORTC.PIN1CTRL &= ~PORT_PULLUPEN_bm;
+PORTC.PIN2CTRL &= ~PORT_PULLUPEN_bm;
+PORTC.PIN3CTRL &= ~PORT_PULLUPEN_bm;
+PORTC.PIN4CTRL &= ~PORT_PULLUPEN_bm;
+PORTC.PIN5CTRL &= ~PORT_PULLUPEN_bm;
+PORTC.PIN6CTRL &= ~PORT_PULLUPEN_bm;
+PORTC.PIN7CTRL &= ~PORT_PULLUPEN_bm;
+PORTF.PIN4CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTF.PIN5CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTF.PIN6CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTF.PIN7CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTG.PIN0CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTG.PIN1CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTG.PIN2CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+PORTG.PIN3CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
+
+/* The above contrived examples are 7 x 3 - 21 clocks and 21 words for the multipinconfiguration method.
+ * versus 4*6 + 2*2+1 + 8*6 + 2*8+1 = 94 clocks and 82 words of flash for the alternative.
+ * The contrast is even more stark  for somee realistic scenarios on high pincount devices.
+ */
+
+```
+
+All bits make sense with PINCTRLUPD - some more than others - as long as you don't forget that it will replace whatever it sthere currently.
+The lower three bits, controlling whether the pin is acting as an interrupt, may have surprising effects with  `PORTx.PINCTRLSET` and  `PORTx.PINCTRLCLR`. For PINCTRLSET they should never be 1 (any of them). For PINCTRLCLR, all should be 0 or all should be 1 ( 0b00000111 would turn off pin interrupts on the pins it's applied to without otherwise changing PINnCTRL register contents). Otherwise, the concept of flipping individual bits makes little sense for that last bitfield - the bits individually do not have a separate function, there is just the function of those three bits as a group. When changing the input sense configuration on large numbers of pins, use PINCTRLUPD instead.
+
+This system is most useful at startup for devices running on battery to meet the datasheet requirement that the pins not be allowed to float if their digital input buffers are enabled.
+
+This core *currently* does not make use of this feature.
+
+## Slew Rate Limiting
+All of the Dx-series parts have the option to limit the [slew rate](https://en.wikipedia.org/wiki/Slew_rate) for the OUTPUT pins on a on a per-port basis. This is typically done because fast-switching digital pins contain high-frequency components (in this sense, high frequency doesn't necessarily mean that it repeats, only that if it continued, it would be high frequency; this way of thinking is useful in elecrical engineering), which can contribute to EMI, as well as ringing (if you're ever looked on a scope and noticed that after a transition, the voltage briefly oscillates around the final voltage - that's ringing) which may confuse downstream devices (not usually, at least in arduino land, though). Often, you will not know exactly *why* it's an issue, either, rather a datasheet may specify a maximum slew rate on it's inputs.
+```c
+// These work but are slow and inefficient.
 // Enable slew rate limiting on PORTA
 PORTA.PORTCTRL |= PORT_SRL_bm;
 // Disable slew rate limiting on PORTA
 PORTA.PORTCTRL &= ~PORT_SRL_bm;
 ```
-However, because there is only one bit in this register, you don't actually need to use the |= and &= operators, which do a read-modify-write operation, taking 10 bytes and 6 clocks each. Instead, you can use simple assignment. This saves 4 bytes (3 clocks) when enabling, and 6 bytes (4 clocks) on disabling. (going from `LDS, ORI/ANDI, STS` to `LDI, STS` and just `STS`, since avr-gcc always keeps a "known zero" in r1). Of course, if a future part with more port options comes out, porting to that part would require a code change if you also wanted to use one of those new bits. I suggest a reminder that it's a shortcut if you take it
+However, because there is only one bit in this register, you don't actually need to use the |= and &= operators, which do a read-modify-write operation, taking 10 bytes and 6 clocks each. Instead, you can use simple assignment. This saves 4 bytes (3 clocks) when enabling, and 6 bytes (4 clocks) on disabling. (going from `LDS, ORI/ANDI, STS` to `LDI, STS` and just `STS`, since avr-gcc always keeps a "known zero" in r1). Of course, if a future part with more port options comes out, porting to that part would require a code change if you also wanted to use one of those new bits. I suggest a reminder that it's a shortcut if you take it, like the comment below.
 
 ```c
-// Enable slew rate limiting on PORTA
+// Enable slew rate limiting on PORTA more efficiently
 PORTA.PORTCTRL = PORT_SRL_bm; // simple assignment is okay because on DA, DB, and DD-series parts, no other bits of PORTCTRL are used, saves 2 words and 3 clocks
 // Disable slew rate limiting on PORTA
 PORTA.PORTCTRL = 0;           // simple assignment is okay because on DA, DB, and DD-series parts, no other bits of PORTCTRL are used, saves 3 words and 4 clocks
 ```
 
-These parts (like many electronics) are better at driving pins low than high (all values are from the typ. column - neither min nor max are specified):
+These parts (like many electronics) are better at driving pins low than high (all values are from the typ. column - neither min nor max are specified; one gets the impression that this is not tightly controlled):
 
 | Direction   | Normal | Slew Rate Limited |
 |-------------|--------|-------------------|
 | Rising      |  22 ns |             45 ns |
 | Falling     |  16 ns |             30 ns |
 
-Running at 24 MHz, 1 clock cycle is just over 40 ns, to give a point of comparison, since Arduino users don't have to think in nanoseconds very often.
+With a 24 MHz system clock, that means "normal" would be just ovwr half a clock cycle while rising, and just under half a clock cycle falling; with slew rate limiting, it would be just over a clock cycle rising, and 3/4ths of a clock cycle on the falling side.

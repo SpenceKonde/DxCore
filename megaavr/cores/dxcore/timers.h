@@ -84,7 +84,7 @@
 #define PWM_TIMER_PERIOD  0xFE  /* For frequency */
 #define PWM_TIMER_COMPARE 0x80  /* For duty cycle */
 
-#if defined(MILLIS_USE_TIMERA0)
+#if   defined(MILLIS_USE_TIMERA0)
   #define MILLIS_TIMER TIMERA0
 #elif defined(MILLIS_USE_TIMERA1)
   #define MILLIS_TIMER TIMERA1

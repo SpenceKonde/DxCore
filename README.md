@@ -70,40 +70,7 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
   * 40MHz Ext. Clock or Crystal
   * 48MHz Ext. Clock or Crystal
 
-See the [Clock Options reference]((https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clock.md))
-
-Running at 48 MHz is an ambitious overclock and is totally unnecessary. So far, I had success at room temperature with external clocks, but not external crystals, and only when using the E-spec (extended temperature range) parts (which makes sense). I am surprised how they will "just work" at 40 from a crystal though, even I-spec parts seem to do it. However, not all parts are capable of this. Out of around a dozen parts, I've so far found 1 that doesn't work at 40. CLKOUT will keeo running, and it will run for a very short time and then hang (which is honestly really weird. )
-
-There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - (in my tests the PLL worked well beyond the spec in both directions, at least at room temperature, not that you'd want to do that in production) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future. There might be reasons to just run the TCD off the unprescaled clock in order to.... I'm not sure what....
-
-The DA-series does not support use of an external high frequency crystal - the internal oscillator is tightly calibrated enough that the internal clock will work fine for UART communication no problem (they're within a fraction of a percent at room temp) with very little voltage dependence (they have an internal regulator to generate the core voltage, which runs at a much lower voltage, and I suspect that's where the internal oscillator is located. If needed, they can use an external watch crystal to automatically tune the internal oscillator frequency, a feature called Auto-Tune. Though they specify +/- 3% internal oscillator speed, in practice, I have yet to find one that was off by more than 1 calibration "notch" at room temperature - the accuracy is limited by the granularity of tuning more than anything else. These are just in a different universe than the classic AVRs where a couple percent was normal. I had to use a torch aimped at the chip to swing the temperature enough that autotune had to correct the frequency on the fly (resting the soldering iron on it didn't. The modern AVR internal oscillator is really good. Nonetheless, we provide a wrapper around enabling external 32K crystal and enabling/disabling Auto-Tune in [the DxCore library](megaavr/libraries/DxCore).
-
-```c
-#include <DxCore.h>
-
-void setup() {
-  //optionally call configXOSC32K() to get specific crystal settings; otherwise it uses conservative defaults.
-  enableAutoTune(); //that easy - this returns 0 on success, you can check that if you want to be particularly
-  // careful about whether or not it worked it can not-work if the crystal doesn't actually start
-  // oscillating, either due to design flaws  inappropriate loading caps, improper crystal selection,
-  // or poor layout, or for other reasons such as damage, extreme temperature, and so on.
-
-  // more stuff after this to set up your sketch
-}
-
-```
-
-There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? *Me neither*, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore - I'd be lying if I said I missed the struggle to make millis and micros accurate with weirdo clock speeds back on ATTinyCore (which in turn was done to support UART crystals, because some people are very picky about baud rate accuracy. You may laugh at their posts about making sure the clock is perfect for serial - but if you're not careful, on classic AVRs, the granularit of USART baud rates was horrendous near the higher speeds! 8 MHz classic AVRs wanting to use 115200 baud had a choice between 4% too fast, and 3.5% too slow.  There is no longer a need to use weirdo crystals - the fractional baud rate generator has solved the baud rate generation issue decisively!
-
-### Clock troubleshooting
-On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation far more gracefully. Largely this is simply because they don't set it with fuses - it is set by the appllication at runtime (when you compile DxCore, it builds with the selected frequency options) including switching clock sources before calling setup(). Sometimes the sketch will just cease to function entirely when it tries to switch. We attempt to show a blink code - but this doesn't seem to work as well as it should. In any event, there are no challenges recovering from it. Just change the clock source to an internal one, upload normally and you're good.
-
-#### Blink Codes
-All blink codes issued by the core start with the LED pin switching states three times (ie, if it is off, it will turn on, off, then on again), followed by a number of flashes indicating the nature of the failure. This will then repeat - since it initially changes state three times, this means that the pattern will be inverted the second time through. The number of short flashes indicates the nature of the problem: Three flashes indicates that the selected clock source was not present at startup. Four flashes indicates that it was present at startup, but then disappeared while it was running. It is hoped that this will make the blink codes distinctive enough that they cannot be mistaken for the running sketch. You can override the `onClockFailure()` and `onClockTimeout()` functions to run different code. The clock failure detection seems flaky, and often it just resets instead. when onClockTimeout() is called, it will be just after startup running at 4 MHz; scale any baud rates by (baud rate compiled for)/(4 MJz) to calculate the baud rate to ask it for. These may be most important if PA7 needs to be repurposed, and you can't have it taking over that pin no matter what. Also, be warned that they are not bulletproof - sometimes clock problems will just not work, issuing neither blink code.
-
-**The AVR DA-series does not provide clock failure detection (CFD)** - on DA-series parts, if the external clock is removed, it will just stop unless you use the watchdog timer to reset it in the event of such a hang.
-
-**Disruptions to the crystal pins can trigger a reset** when that crystal is used as the main clock source (come to think of it, I'm not sure if this is a clean or dirty reset ). This means that even if the chip was running prior to a disruption to the crystal, you may end up with the 3-blink code, not the 4-blink one. These blink codes are meant only as a debugging aid ("your crystal oscillator isn't" is typically enough to get you on the right path anyway) - they do not replace careful (or - in this case - basic) observation of a malfunctioning project.
+If a watch crystal (but no high frequency one) is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the imoprovement is small exceopt at extreme temperatures. See the [Clock Options reference]((https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md))
 
 ## UPDI programming
 The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface) used on the AVR Dx-series, tinyAVR 0/1/2-series, megaAVR 0-series, and which will likely be used for all AVR microcontrollers for the foreseeable future. In addition to purchasing a purpose-made UPDI programmer (such as the ones produced by Microchip), there are two very low-cost approaches to creating a UPDI programmer:
@@ -160,7 +127,6 @@ The most any announced AVR has had is 86 digital pins and 32 analog ones; In the
 
 
 ## Exposed Hardware Features
-
 
 ### ADC Support
 These parts all have a large number of analog inputs - DA and DB-series have up to 24 analog inputs, while the DD-series has analog input on every pin that is not used to drive the HF crystal (though the pins on PORTC are only supported when MVIO is turned off, which may or may not be supported by DxCore directly). They can be read with analogRead() like on a normal AVR, and we default to 10-bit resolution; you can change to 12-bit with `analogReadResolution()`, and use the enhanced analogRead functions to take automatically oversampled, decimated readings for higher resolution or take differential measurements. There are 4 internal voltage references in 1.024, 2.048, 4.096 and 2.5V, plus support for external reference voltage (and Vdd of course). ADC readings are taken 3 times faster than an classic AVR, and that speed can be doubled again if what you are measuring is low impedance, or extend the sampling time by a factor of 16 for reading very high impedance sources.
@@ -322,10 +288,9 @@ DxCore provides the option to us any available timer on a part for the millis()/
 For more information, on the hardware timers of the supported parts, and how they are used by DxCore's built-in functionality, see the [Timers and DxCore](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/PWMandTimers.md)
 
 ### Improved digital I/O
-This core adds a number of new features include fast digital I/O (1-14 clocks depending on what's known at compile time, and 2-28 bytes of flash,+ and for configuring all per-pin settings the hardware has.
+This core adds a number of new features include fast digital I/O (1-14 clocks depending on what's known at compile time, and 2-28 bytes of flash, and for configuring all per-pin settings the hardware has with `pinConfigure()`
 
 See the [Improved Digital I/O Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
-
 
 ## List of Tools sub-menus
 * Tools -> Chip - sets the specific part within a selected family to compile for and upload to.
@@ -345,18 +310,21 @@ See the [Improved Digital I/O Reference](https://github.com/SpenceKonde/DxCore/b
 
 ## Additional DxCore documentation
 ### Reference
-#### [Analog Input (ADC) and output (DAC)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
-#### [Digital I/O and enhanced options](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
-#### [TCD0](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD.md)
-#### [Considerations for robust applications](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Robust.md)
-#### [Identification of core features programmatically](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Defines.md)
-#### [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
-#### [Optiboot Bootloader](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_SerialUPDI.md)
-#### [SerialUPDI](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)
-### Older guides inherited from megaTinyCore
-#### [Power Saving techniques and Sleep](megaavr/extras/PowerSave.md)
-#### [Direct Port Manipulation](megaavr/extras/DirectPortManipulation.md)
-#### [Pin Interrupts](megaavr/extras/PinInterrupts.md)
+#### [Analog Input (ADC) and output (DAC)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md) - The API reference for the analog-related functionality that is included in this core beyond the standard Arduino API.
+#### [Digital I/O and enhanced options](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md) - The API reference for the digital I/O-related functionality that is included in this core beyond the standard Arduino API, as well as a few digital I/O related features that exist in the hardware which we provide no wrapper around.
+#### [TCD0](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD.md) - the type D timer is a powerful timer, but has quirks which one must be aware of if using it. This describes what you can do without having to take full control of thid
+#### [Considerations for robust applications](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Robust.md) - **Must read for production systems**
+#### [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md) - The sources of reset, and how to handle reset cause flags to ensure clean resets and proper functioning in adcverse events. **Must read for production systems**
+#### [Optiboot Bootloader](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md) - an Optiboot-derived bootloader is provided and may be optionally used. This covers relevant considerations for deciding whether to use it as well.
+#### [SerialUPDI](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_SerialUPDI.md) - the recommended tool for UPDI programming.
+#### [Clock Information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) - supported clock sources and considerations for the use thereof.
+#### [Callbacks/weakly defined functions](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_CallBacka.md) provided by the core that can be overridden with code to run in the event of certain conditions, or at certain times in the startup process.
+#### [Identification of core features programmatically](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Defines.md) - used by megaTinyCore as well.
+### Older guides inherited from megaTinyCore.
+These guides may not account for all of differences between DxCore and megaTinyCore, and may not reflect recent changes.
+#### [Power Saving techniques and Sleep](megaavr/extras/PowerSave.md) - There are plans for a better wrapper around this sort of functionality, which keep getting deferred as more pressing issues come up.
+#### [Direct Port Manipulation](megaavr/extras/DirectPortManipulation.md) - It's similar to classic AVRs, but a bit more complicated. See also digital I/O
+#### [Pin Interrupts](megaavr/extras/PinInterrupts.md) - Manually defining pin interrupts, becauuse attachInterrupt results in interrupts which respond slowly.
 
 ## Support Continued Development
 I sell breakout boards with regulator, UPDI header, and Serial header and other basic supporting parts in my Tindie shop, as well as the bare boards. Buying from my store helps support further development on the core, and is a great way to get started using these exciting new parts with Arduino. Note that we do not currently sell a 28-pin version - this did not seem like a compelling part with the availability of the 32-pin version; the main appeal of the 28-pin part is that it is available in a through-hole version. As we would not be able to make the 28-pin version significantly smaller, there did not seem to be a compelling reason to create a 28-pin version. We may revisit this decision in the future, including potentially a 28-pin bare board for the through-hole version, suitable for assembly by those not experienced with drag soldering.
@@ -373,7 +341,7 @@ I sell breakout boards with regulator, UPDI header, and Serial header and other 
 If you are manually manipulating registers controlling a peripheral, you should not count on the behavior of API functions that relate to the same peripheral, nor should you assume that calling said API functions will be harmless either. For example, if you reconfigure TCA0, you should not expect that using analogWrite() will work correctly on TCA0-based pins (for example, if it's no longer in split mode, analogWrite, might overwrite one half of the compare value. If you have reconfigured the ADC for free running mode, analogRead() will return errors, and so on.
 
 ### Timer PWM and exceptions
-In the special case of TCA0, TCA1, and TCD0, a special function called `takeOverTCAn()` (or `takeOverTCD0()`) is provided - calling this will tell the core that you are assuming full responsibility for everything related to that timer. analogWrite on pins it is pointed at will not turn on PWM, nor will digitalWrite turn it off. This function will not be available for any timer used to control millis timekeeping. Note that if you are using PWM on a pin provided by a type B timer (not recommended, they're lousy at it) this depends on the prescaler settings of a type A timer (one of the reasons they're lousy PWM timers), by default we use TCA0's prescaled clock for the TCBs, so taking over TCA1, if present, will not impact PWM generated by TCBs unless you have reconfigured them to use TCA1. We do not change that option after at any point after user code has started running, so you can move it to use TCA1 and take over TCA0 and keep using analogWrite() on the TCB-controlled pins. In order to help make manual timer configuration as easy as possible, we also tell type A timers to do a hard reset, which sets them back to power on reset configuration.
+In the special case of TCA0, TCA1, and TCD0, a special function called `takeOverTCAn()` (or `takeOverTCD0()`) is provided - calling this will tell the core that you are assuming full responsibility for everything related to that timer. analogWrite on pins it is pointed at will not turn on PWM, nor will digitalWrite turn it off. This function will not be available for any timer used to control millis timekeeping (and manually reconfiguring such a timer should be expected to break timekeeping. Note that if you are using PWM on a pin provided by a type B timer (not recommended, they're lousy at it) they depend on the prescaler settings of a type A timer (one of the reasons they're lousy PWM timers), by default we use TCA0's prescaled clock for the TCBs, so taking over TCA1, if present, will not impact PWM generated by TCBs unless you have reconfigured them to use TCA1. We do not change that option after at any point after user code has started running, so you can move it to use TCA1 and take over TCA0 and keep using analogWrite() on the TCB-controlled pins. In order to help make manual timer configuration as easy as possible, we also tell type A timers to do a hard reset, which sets them back to power on reset configuration.
 
 Becausue TCD0 does not have that option, you will start from our initial configuration. We'll stop changing it, but we can't reset it to power on state. That timer is so wacky and strange and complicated, realistically you're going to be dumping the values of all the registers to examine anyway throughout the development process anyway. Outside of the XMega parts (where almost everything is a nightmarish maze) this is possibly the most complicated peripheral in the AVR line. Certainly within ones that people use with Arduino, it is. Read the part about synchronization in the datasheet several times.
 
