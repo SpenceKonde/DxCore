@@ -251,6 +251,10 @@ avrda.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrda.menu.clock.28extclock.build.f_cpu=28000000L
 avrda.menu.clock.28extclock.build.speed=28
 avrda.menu.clock.28extclock.build.clocksource=2
+avrda.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+avrda.menu.clock.30extclock.build.f_cpu=30000000L
+avrda.menu.clock.30extclock.build.speed=30
+avrda.menu.clock.30extclock.build.clocksource=2
 avrda.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrda.menu.clock.32extclock.build.f_cpu=32000000L
 avrda.menu.clock.32extclock.build.speed=32
@@ -366,14 +370,14 @@ avrda.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-avrda.menu.startuptime.8= 8ms
-avrda.menu.startuptime.1= 0ms
-avrda.menu.startuptime.1= 1ms
-avrda.menu.startuptime.2= 2ms
-avrda.menu.startuptime.4= 4ms
-avrda.menu.startuptime.16= 16ms
-avrda.menu.startuptime.32= 32ms
-avrda.menu.startuptime.64= 64ms
+avrda.menu.startuptime.8=8ms
+avrda.menu.startuptime.1=0ms
+avrda.menu.startuptime.1=1ms
+avrda.menu.startuptime.2=2ms
+avrda.menu.startuptime.4=4ms
+avrda.menu.startuptime.16=16ms
+avrda.menu.startuptime.32=32ms
+avrda.menu.startuptime.64=64ms
 avrda.menu.startuptime.0.bootloader.SYSCFG1=0x00
 avrda.menu.startuptime.1.bootloader.SYSCFG1=0x01
 avrda.menu.startuptime.2.bootloader.SYSCFG1=0x02
@@ -611,6 +615,10 @@ avrdb.menu.clock.28crystal=28 MHz crystal (overclocked)
 avrdb.menu.clock.28crystal.build.f_cpu=28000000L
 avrdb.menu.clock.28crystal.build.speed=28
 avrdb.menu.clock.28crystal.build.clocksource=1
+avrdb.menu.clock.30crystal=30 MHz ext. clock (overclocked)
+avrdb.menu.clock.30crystal.build.f_cpu=30000000L
+avrdb.menu.clock.30crystal.build.speed=30
+avrdb.menu.clock.30crystal.build.clocksource=1
 avrdb.menu.clock.32crystal=32 MHz crystal (overclocked)
 avrdb.menu.clock.32crystal.build.f_cpu=32000000L
 avrdb.menu.clock.32crystal.build.speed=32
@@ -631,6 +639,10 @@ avrdb.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrdb.menu.clock.28extclock.build.f_cpu=28000000L
 avrdb.menu.clock.28extclock.build.speed=28
 avrdb.menu.clock.28extclock.build.clocksource=2
+avrdb.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+avrdb.menu.clock.30extclock.build.f_cpu=30000000L
+avrdb.menu.clock.30extclock.build.speed=30
+avrdb.menu.clock.30extclock.build.clocksource=2
 avrdb.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdb.menu.clock.32extclock.build.f_cpu=32000000L
 avrdb.menu.clock.32extclock.build.speed=32
@@ -759,14 +771,14 @@ avrdb.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-avrdb.menu.startuptime.8= 8ms
-avrdb.menu.startuptime.0= 0ms
-avrdb.menu.startuptime.1= 1ms
-avrdb.menu.startuptime.2= 2ms
-avrdb.menu.startuptime.4= 4ms
-avrdb.menu.startuptime.16= 16ms
-avrdb.menu.startuptime.32= 32ms
-avrdb.menu.startuptime.64= 64ms
+avrdb.menu.startuptime.8=8ms
+avrdb.menu.startuptime.0=0ms
+avrdb.menu.startuptime.1=1ms
+avrdb.menu.startuptime.2=2ms
+avrdb.menu.startuptime.4=4ms
+avrdb.menu.startuptime.16=16ms
+avrdb.menu.startuptime.32=32ms
+avrdb.menu.startuptime.64=64ms
 avrdb.menu.startuptime.0.bootloader.sutbits=000
 avrdb.menu.startuptime.1.bootloader.sutbits=001
 avrdb.menu.startuptime.2.bootloader.sutbits=010
@@ -1015,6 +1027,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.clock.28crystal.build.f_cpu=28000000L
 #avrdd.menu.clock.28crystal.build.speed=28
 #avrdd.menu.clock.28crystal.build.clocksource=1
+#avrdd.menu.clock.30crystal=30 MHz crystal (overclocked)
+#avrdd.menu.clock.30crystal.build.f_cpu=30000000L
+#avrdd.menu.clock.30crystal.build.speed=30
+#avrdd.menu.clock.30crystal.build.clocksource=1
 #avrdd.menu.clock.32crystal=32 MHz crystal (overclocked)
 #avrdd.menu.clock.32crystal.build.f_cpu=32000000L
 #avrdd.menu.clock.32crystal.build.speed=32
@@ -1035,6 +1051,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.clock.28extclock.build.f_cpu=28000000L
 #avrdd.menu.clock.28extclock.build.speed=28
 #avrdd.menu.clock.28extclock.build.clocksource=2
+#avrdd.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+#avrdd.menu.clock.30extclock.build.f_cpu=30000000L
+#avrdd.menu.clock.30extclock.build.speed=30
+#avrdd.menu.clock.30extclock.build.clocksource=2
 #avrdd.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 #avrdd.menu.clock.32extclock.build.f_cpu=32000000L
 #avrdd.menu.clock.32extclock.build.speed=32
@@ -1144,14 +1164,14 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-#avrdd.menu.startuptime.8= 8ms
-#avrdd.menu.startuptime.0= 0ms
-#avrdd.menu.startuptime.1= 1ms
-#avrdd.menu.startuptime.2= 2ms
-#avrdd.menu.startuptime.4= 4ms
-#avrdd.menu.startuptime.16= 16ms
-#avrdd.menu.startuptime.32= 32ms
-#avrdd.menu.startuptime.64= 64ms
+#avrdd.menu.startuptime.8=8ms
+#avrdd.menu.startuptime.0=0ms
+#avrdd.menu.startuptime.1=1ms
+#avrdd.menu.startuptime.2=2ms
+#avrdd.menu.startuptime.4=4ms
+#avrdd.menu.startuptime.16=16ms
+#avrdd.menu.startuptime.32=32ms
+#avrdd.menu.startuptime.64=64ms
 #avrdd.menu.startuptime.0.bootloader.sutbits=000
 #avrdd.menu.startuptime.1.bootloader.sutbits=001
 #avrdd.menu.startuptime.2.bootloader.sutbits=010
@@ -1300,12 +1320,11 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #------------------------------------#
 # Clock speed and source options     #
 #____________________________________#
-# No information on int. osc    #
+# No information on int. osc yet#
 # this imagines it's the Dx osc #
-# but paper limit is lower      #
-# 100% possible it could be more#
-# like tiny, and this would need$
-# to change accordingly.        #
+# and the lower clock speed is  #
+# only on paper - the best case #
+# That's unlikely.              #
 #_______________________________#
 #avrea.menu.clock.20internal=20 MHz internal
 #avrea.menu.clock.20internal.build.f_cpu=20000000L
@@ -1391,6 +1410,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.clock.28crystal.build.f_cpu=28000000L
 #avrea.menu.clock.28crystal.build.speed=28
 #avrea.menu.clock.28crystal.build.clocksource=1
+#avrea.menu.clock.30crystal=30 MHz crystal (overclocked)
+#avrea.menu.clock.30crystal.build.f_cpu=30000000L
+#avrea.menu.clock.30crystal.build.speed=30
+#avrea.menu.clock.30crystal.build.clocksource=1
 #avrea.menu.clock.32crystal=32 MHz crystal (overclocked)
 #avrea.menu.clock.32crystal.build.f_cpu=32000000L
 #avrea.menu.clock.32crystal.build.speed=32
@@ -1415,6 +1438,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.clock.28extclock.build.f_cpu=28000000L
 #avrea.menu.clock.28extclock.build.speed=28
 #avrea.menu.clock.28extclock.build.clocksource=2
+#avrea.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+#avrea.menu.clock.30extclock.build.f_cpu=30000000L
+#avrea.menu.clock.30extclock.build.speed=30
+#avrea.menu.clock.30extclock.build.clocksource=2
 #avrea.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 #avrea.menu.clock.32extclock.build.f_cpu=32000000L
 #avrea.menu.clock.32extclock.build.speed=32
@@ -1433,10 +1460,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.clock.48extclock.build.clocksource=2
 
 #------------------------------------#
-# BrownOut detection (BOD) option   #
+# BrownOut detection (BOD) option    #
 #____________________________________#
-#                               #
 #    Completely speculative     #
+#   Assumes same as Dx-series   #
 #_______________________________#
 #avrea.menu.bodvoltage.1v9=1.9V
 #avrea.menu.bodvoltage.1v9.bootloader.bodlevbits=000
@@ -1479,7 +1506,6 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #------------------------------------#
 # Reset pin as INPUT, UPDI as I/O    #
 #____________________________________#
-#                               #
 #  Values speculative           #
 #  Features Known               #
 #_______________________________#
@@ -1530,14 +1556,17 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-#avrea.menu.startuptime.8= 8ms
-#avrea.menu.startuptime.1= 0ms
-#avrea.menu.startuptime.1= 1ms
-#avrea.menu.startuptime.2= 2ms
-#avrea.menu.startuptime.4= 4ms
-#avrea.menu.startuptime.16= 16ms
-#avrea.menu.startuptime.32= 32ms
-#avrea.menu.startuptime.64= 64ms
+#                               #
+#  Speculative but likely       #
+#_______________________________#
+#avrea.menu.startuptime.8=8ms
+#avrea.menu.startuptime.1=0ms
+#avrea.menu.startuptime.1=1ms
+#avrea.menu.startuptime.2=2ms
+#avrea.menu.startuptime.4=4ms
+#avrea.menu.startuptime.16=16ms
+#avrea.menu.startuptime.32=32ms
+#avrea.menu.startuptime.64=64ms
 #avrea.menu.startuptime.0.bootloader.SYSCFG1=0x00
 #avrea.menu.startuptime.1.bootloader.SYSCFG1=0x01
 #avrea.menu.startuptime.2.bootloader.SYSCFG1=0x02
@@ -1599,6 +1628,7 @@ avrdaopti.build.appspmabr=
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 # AVR-DA (Optiboot) submenu options      #
 #________________________________________#
+#                                    #
 # Chip (memory and pincount)         #
 #____________________________________#
 avrdaopti.menu.chip.128DA28=AVR128DA28
@@ -1739,6 +1769,10 @@ avrdaopti.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrdaopti.menu.clock.28extclock.build.f_cpu=28000000L
 avrdaopti.menu.clock.28extclock.build.speed=28
 avrdaopti.menu.clock.28extclock.build.clocksource=2
+avrdaopti.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+avrdaopti.menu.clock.30extclock.build.f_cpu=30000000L
+avrdaopti.menu.clock.30extclock.build.speed=30
+avrdaopti.menu.clock.30extclock.build.clocksource=2
 avrdaopti.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdaopti.menu.clock.32extclock.build.f_cpu=32000000L
 avrdaopti.menu.clock.32extclock.build.speed=32
@@ -1847,14 +1881,14 @@ avrdaopti.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-avrdaopti.menu.startuptime.8= 8ms
-avrdaopti.menu.startuptime.1= 0ms
-avrdaopti.menu.startuptime.1= 1ms
-avrdaopti.menu.startuptime.2= 2ms
-avrdaopti.menu.startuptime.4= 4ms
-avrdaopti.menu.startuptime.16= 16ms
-avrdaopti.menu.startuptime.32= 32ms
-avrdaopti.menu.startuptime.64= 64ms
+avrdaopti.menu.startuptime.8=8ms
+avrdaopti.menu.startuptime.1=0ms
+avrdaopti.menu.startuptime.1=1ms
+avrdaopti.menu.startuptime.2=2ms
+avrdaopti.menu.startuptime.4=4ms
+avrdaopti.menu.startuptime.16=16ms
+avrdaopti.menu.startuptime.32=32ms
+avrdaopti.menu.startuptime.64=64ms
 avrdaopti.menu.startuptime.0.bootloader.SYSCFG1=0x00
 avrdaopti.menu.startuptime.1.bootloader.SYSCFG1=0x01
 avrdaopti.menu.startuptime.2.bootloader.SYSCFG1=0x02
@@ -2136,6 +2170,10 @@ avrdbopti.menu.clock.28crystal=28 MHz crystal (overclocked)
 avrdbopti.menu.clock.28crystal.build.f_cpu=28000000L
 avrdbopti.menu.clock.28crystal.build.speed=28
 avrdbopti.menu.clock.28crystal.build.clocksource=1
+avrdbopti.menu.clock.30crystal=30 MHz ext. clock (overclocked)
+avrdbopti.menu.clock.30crystal.build.f_cpu=30000000L
+avrdbopti.menu.clock.30crystal.build.speed=30
+avrdbopti.menu.clock.30crystal.build.clocksource=1
 avrdbopti.menu.clock.32crystal=32 MHz crystal (overclocked)
 avrdbopti.menu.clock.32crystal.build.f_cpu=32000000L
 avrdbopti.menu.clock.32crystal.build.speed=32
@@ -2156,6 +2194,10 @@ avrdbopti.menu.clock.28extclock=28 MHz ext. clock (overclocked)
 avrdbopti.menu.clock.28extclock.build.f_cpu=28000000L
 avrdbopti.menu.clock.28extclock.build.speed=28
 avrdbopti.menu.clock.28extclock.build.clocksource=2
+avrdbopti.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+avrdbopti.menu.clock.30extclock.build.f_cpu=30000000L
+avrdbopti.menu.clock.30extclock.build.speed=30
+avrdbopti.menu.clock.30extclock.build.clocksource=2
 avrdbopti.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdbopti.menu.clock.32extclock.build.f_cpu=32000000L
 avrdbopti.menu.clock.32extclock.build.speed=32
@@ -2271,14 +2313,14 @@ avrdbopti.menu.mvio.disabled.bootloader.mviobits=10
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-avrdbopti.menu.startuptime.8= 8ms
-avrdbopti.menu.startuptime.0= 0ms
-avrdbopti.menu.startuptime.1= 1ms
-avrdbopti.menu.startuptime.2= 2ms
-avrdbopti.menu.startuptime.4= 4ms
-avrdbopti.menu.startuptime.16= 16ms
-avrdbopti.menu.startuptime.32= 32ms
-avrdbopti.menu.startuptime.64= 64ms
+avrdbopti.menu.startuptime.8=8ms
+avrdbopti.menu.startuptime.0=0ms
+avrdbopti.menu.startuptime.1=1ms
+avrdbopti.menu.startuptime.2=2ms
+avrdbopti.menu.startuptime.4=4ms
+avrdbopti.menu.startuptime.16=16ms
+avrdbopti.menu.startuptime.32=32ms
+avrdbopti.menu.startuptime.64=64ms
 avrdbopti.menu.startuptime.0.bootloader.sutbits=000
 avrdbopti.menu.startuptime.1.bootloader.sutbits=001
 avrdbopti.menu.startuptime.2.bootloader.sutbits=010
@@ -2568,6 +2610,10 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.clock.28crystal.build.f_cpu=28000000L
 #avrddopti.menu.clock.28crystal.build.speed=28
 #avrddopti.menu.clock.28crystal.build.clocksource=1
+#avrddopti.menu.clock.30crystal=30 MHz ext. clock (overclocked)
+#avrddopti.menu.clock.30crystal.build.f_cpu=30000000L
+#avrddopti.menu.clock.30crystal.build.speed=30
+#avrddopti.menu.clock.30crystal.build.clocksource=1
 #avrddopti.menu.clock.32crystal=32 MHz crystal (overclocked)
 #avrddopti.menu.clock.32crystal.build.f_cpu=32000000L
 #avrddopti.menu.clock.32crystal.build.speed=32
@@ -2588,6 +2634,10 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.clock.28extclock.build.f_cpu=28000000L
 #avrddopti.menu.clock.28extclock.build.speed=28
 #avrddopti.menu.clock.28extclock.build.clocksource=2
+#avrddopti.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+#avrddopti.menu.clock.30extclock.build.f_cpu=30000000L
+#avrddopti.menu.clock.30extclock.build.speed=30
+#avrddopti.menu.clock.30extclock.build.clocksource=2
 #avrddopti.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 #avrddopti.menu.clock.32extclock.build.f_cpu=32000000L
 #avrddopti.menu.clock.32extclock.build.speed=32
@@ -2689,14 +2739,14 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #------------------------------------#
 # Startup time options               #
 #____________________________________#
-#avrddopti.menu.startuptime.8= 8ms
-#avrddopti.menu.startuptime.0= 0ms
-#avrddopti.menu.startuptime.1= 1ms
-#avrddopti.menu.startuptime.2= 2ms
-#avrddopti.menu.startuptime.4= 4ms
-#avrddopti.menu.startuptime.16= 16ms
-#avrddopti.menu.startuptime.32= 32ms
-#avrddopti.menu.startuptime.64= 64ms
+#avrddopti.menu.startuptime.8=8ms
+#avrddopti.menu.startuptime.0=0ms
+#avrddopti.menu.startuptime.1=1ms
+#avrddopti.menu.startuptime.2=2ms
+#avrddopti.menu.startuptime.4=4ms
+#avrddopti.menu.startuptime.16=16ms
+#avrddopti.menu.startuptime.32=32ms
+#avrddopti.menu.startuptime.64=64ms
 #avrddopti.menu.startuptime.0.bootloader.sutbits=000
 #avrddopti.menu.startuptime.1.bootloader.sutbits=001
 #avrddopti.menu.startuptime.2.bootloader.sutbits=010
@@ -2733,3 +2783,258 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 # We seriously don't know enough for     #
 # this level of speculation.             #
 #________________________________________#
+
+
+
+###################################################################################
+#                                                                                 #
+#  ###       ####                                                    ####  ####    #
+# #   # #### #   # #   #  #  #  #  ###      #  #  ##  #  #  ###      #   # #   #   #
+# #####   #  #   # #   #  #  ## # #   #     ## # #  # ## # #   #     #   # ####    #
+# #   #  #   #   # #   #  #  # ## #   #     # ## #### # ## #   #     #   # #   #   #
+# #   # #### ####   ###   #  #  #  ###      #  # #  # #  #  ###      ####  ####    #
+#_________________________________________________________________________________#
+#                                        #
+# Parameters and defaults for DB parts   #
+#________________________________________#
+azduinonanodb.build.board=avrdb
+azduinonanodb.build.core=dxcore
+azduinonanodb.build.text_section_start=.text=0x200
+azduinonanodb.build.extra_flags=-DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+azduinonanodb.build.export_merged_output=true
+azduinonanodb.build.printf=
+#------------------------------------#
+# Bootloading parameters and fuses   #
+#____________________________________#
+azduinonanodb.bootloader.tool=avrdude
+azduinonanodb.bootloader.WDTCFG=0x00
+azduinonanodb.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+#azduinonanodb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
+azduinonanodb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+azduinonanodb.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
+azduinonanodb.bootloader.CODESIZE=0x00
+azduinonanodb.bootloader.BOOTSIZE=0x01
+azduinonanodb.bootloader.portname=Serial0
+azduinonanodb.bootloader.portswap=1
+azduinonanodb.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex:i
+azduinonanodb.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex -a write
+#------------------------------------#
+# Upload parameters for Optiboot     #
+#____________________________________#
+azduinonanodb.upload.tool=avrdude
+azduinonanodb.upload.protocol=arduino
+azduinonanodb.upload.extra_params=-D
+azduinonanodb.upload.speed=115200
+#------------------------------------#
+# Exported hex/lst/map names will    #
+# indicate selected options. These   #
+# are only to do that, nothing else  #
+#____________________________________#
+azduinonanodb.build.mcupostfix=opti
+azduinonanodb.build.printfabr=
+azduinonanodb.build.appspmabr=
+
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+# AVR-DB submenu options                 #
+#________________________________________#
+# Chip (memory and pincount)         #
+#____________________________________#
+azduinonanodb.menu.chip.128DB32=AVR128DB32 (Azduino Nano DB)
+azduinonanodb.menu.chip.128DB32.build.mcu=avr128db32
+azduinonanodb.menu.chip.128DB32.bootloader.file=optiboot_dx128
+azduinonanodb.menu.chip.128DB32.upload.maximum_size=130560
+azduinonanodb.menu.chip.128DB32.upload.maximum_data_size=16384
+azduinonanodb.menu.chip.128DB32.build.variant=32pin-standard
+azduinonanodb.menu.chip.128DB48=AVR128DB48 (Azduino Nano++ DB)
+azduinonanodb.menu.chip.128DB48.build.mcu=avr128db48
+azduinonanodb.menu.chip.128DB48.bootloader.file=optiboot_dx128
+azduinonanodb.menu.chip.128DB48.upload.maximum_size=130560
+azduinonanodb.menu.chip.128DB48.upload.maximum_data_size=16384
+azduinonanodb.menu.chip.128DB48.build.variant=48pin-standard
+azduinonanodb.menu.chip.128DB64=AVR64DB64
+azduinonanodb.menu.chip.128DB64.build.mcu=avr128db64
+azduinonanodb.menu.chip.128DB64.bootloader.file=optiboot_dx128
+azduinonanodb.menu.chip.128DB48.upload.maximum_size=130560
+azduinonanodb.menu.chip.128DB48.upload.maximum_data_size=16384
+azduinonanodb.menu.chip.128DB64.build.variant=64pin-standard
+
+#------------------------------------#
+# Clock speed and source options     #
+#____________________________________#
+azduinonanodb.menu.clock.24internal=24 MHz internal
+azduinonanodb.menu.clock.24internal.build.f_cpu=24000000L
+azduinonanodb.menu.clock.24internal.build.speed=24
+azduinonanodb.menu.clock.24internal.build.clocksource=0
+azduinonanodb.menu.clock.20internal=20 MHz internal
+azduinonanodb.menu.clock.20internal.build.f_cpu=20000000L
+azduinonanodb.menu.clock.20internal.build.speed=20
+azduinonanodb.menu.clock.20internal.build.clocksource=0
+azduinonanodb.menu.clock.16internal=16 MHz internal
+azduinonanodb.menu.clock.16internal.build.f_cpu=16000000L
+azduinonanodb.menu.clock.16internal.build.speed=16
+azduinonanodb.menu.clock.16internal.build.clocksource=0
+azduinonanodb.menu.clock.24crystal=24 MHz crystal
+azduinonanodb.menu.clock.24crystal.build.f_cpu=24000000L
+azduinonanodb.menu.clock.24crystal.build.speed=24
+azduinonanodb.menu.clock.24crystal.build.clocksource=1
+azduinonanodb.menu.clock.20crystal=20 MHz crystal
+azduinonanodb.menu.clock.20crystal.build.f_cpu=20000000L
+azduinonanodb.menu.clock.20crystal.build.speed=20
+azduinonanodb.menu.clock.20crystal.build.clocksource=1
+azduinonanodb.menu.clock.16crystal=16 MHz crystal
+azduinonanodb.menu.clock.16crystal.build.f_cpu=16000000L
+azduinonanodb.menu.clock.16crystal.build.speed=16
+azduinonanodb.menu.clock.16crystal.build.clocksource=1
+azduinonanodb.menu.clock.32crystal=32 MHz crystal (overclocked)
+azduinonanodb.menu.clock.32crystal.build.f_cpu=32000000L
+azduinonanodb.menu.clock.32crystal.build.speed=32
+azduinonanodb.menu.clock.32crystal.build.clocksource=1
+azduinonanodb.menu.clock.40crystal=40 MHz crystal (overclocked)
+azduinonanodb.menu.clock.40crystal.build.f_cpu=40000000L
+azduinonanodb.menu.clock.40crystal.build.speed=40
+azduinonanodb.menu.clock.40crystal.build.clocksource=1
+azduinonanodb.menu.clock.32internal=32 MHz internal (overclocked)
+azduinonanodb.menu.clock.32internal.build.f_cpu=32000000L
+azduinonanodb.menu.clock.32internal.build.speed=32
+azduinonanodb.menu.clock.32internal.build.clocksource=0
+azduinonanodb.menu.clock.12internal=12 MHz internal
+azduinonanodb.menu.clock.12internal.build.f_cpu=12000000L
+azduinonanodb.menu.clock.12internal.build.speed=12
+azduinonanodb.menu.clock.12internal.build.clocksource=0
+azduinonanodb.menu.clock.10internal=10 MHz internal
+azduinonanodb.menu.clock.10internal.build.f_cpu=10000000L
+azduinonanodb.menu.clock.10internal.build.speed=10
+azduinonanodb.menu.clock.10internal.build.clocksource=0
+azduinonanodb.menu.clock.8internal=8 MHz internal
+azduinonanodb.menu.clock.8internal.build.f_cpu=8000000L
+azduinonanodb.menu.clock.8internal.build.speed=8
+azduinonanodb.menu.clock.8internal.build.clocksource=0
+azduinonanodb.menu.clock.4internal=4 MHz internal
+azduinonanodb.menu.clock.4internal.build.f_cpu=4000000L
+azduinonanodb.menu.clock.4internal.build.speed=4
+azduinonanodb.menu.clock.4internal.build.clocksource=0
+azduinonanodb.menu.clock.1internal=1 MHz internal
+azduinonanodb.menu.clock.1internal.build.f_cpu=1000000L
+azduinonanodb.menu.clock.1internal.build.speed=1
+azduinonanodb.menu.clock.1internal.build.clocksource=0
+azduinonanodb.menu.clock.30crystal=30 MHz crystal (overclocked)
+azduinonanodb.menu.clock.30crystal.build.f_cpu=30000000L
+azduinonanodb.menu.clock.30crystal.build.speed=30
+azduinonanodb.menu.clock.30crystal.build.clocksource=1
+azduinonanodb.menu.clock.28internal=28 MHz internal (overclocked)
+azduinonanodb.menu.clock.28internal.build.f_cpu=28000000L
+azduinonanodb.menu.clock.28internal.build.speed=28
+azduinonanodb.menu.clock.28internal.build.clocksource=0
+
+#------------------------------------#
+# BrownOut detection (BOD) options   #
+#____________________________________#
+azduinonanodb.menu.bodvoltage.1v9=1.9V
+azduinonanodb.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+azduinonanodb.menu.bodvoltage.2v45=2.45V
+azduinonanodb.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+azduinonanodb.menu.bodvoltage.2v70=2.70V
+azduinonanodb.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+azduinonanodb.menu.bodvoltage.2v85=2.85V
+azduinonanodb.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+azduinonanodb.menu.bodmode.disabled=Disabled/Disabled
+azduinonanodb.menu.bodmode.enabled=Enabled/Enabled
+azduinonanodb.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+azduinonanodb.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+azduinonanodb.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+azduinonanodb.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+azduinonanodb.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+azduinonanodb.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
+azduinonanodb.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
+azduinonanodb.menu.bodmode.disabled.bootloader.BODCFG=0x00
+azduinonanodb.menu.bodmode.enabled.bootloader.bodmodebits=00101
+azduinonanodb.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
+azduinonanodb.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
+azduinonanodb.menu.bodmode.samplefast.bootloader.bodmodebits=01010
+azduinonanodb.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
+azduinonanodb.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
+azduinonanodb.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
+azduinonanodb.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
+
+#------------------------------------#
+# Reset pin as input option          #
+#____________________________________#
+azduinonanodb.menu.resetpin.reset=Hardware Reset (recommended)
+azduinonanodb.menu.resetpin.reset.bootloader.resetpinbits=10
+azduinonanodb.menu.resetpin.input=Input (no output, ever)
+azduinonanodb.menu.resetpin.input.bootloader.resetpinbits=00
+
+#------------------------------------#
+# millis/micros timing source        #
+#____________________________________#
+azduinonanodb.menu.millis.tcb2=TCB2 (recommended)
+azduinonanodb.menu.millis.disabled=Disabled (delay() only)
+azduinonanodb.menu.millis.tcb0=TCB0
+azduinonanodb.menu.millis.tcb1=TCB1
+azduinonanodb.menu.millis.tcb3=TCB3 (48/64-pin parts only)
+azduinonanodb.menu.millis.tca0=TCA0
+azduinonanodb.menu.millis.tca1=TCA1 (48/64-pin parts only)
+azduinonanodb.menu.millis.tcb0.build.millistimer=B0
+azduinonanodb.menu.millis.tcb1.build.millistimer=B1
+azduinonanodb.menu.millis.tcb2.build.millistimer=B2
+azduinonanodb.menu.millis.tcb3.build.millistimer=B3
+azduinonanodb.menu.millis.tca0.build.millistimer=A0
+azduinonanodb.menu.millis.tca1.build.millistimer=A1
+azduinonanodb.menu.millis.disabled.build.millistimer=NONE
+
+#------------------------------------#
+# printf() version options           #
+#____________________________________#
+azduinonanodb.menu.printf.default=Default (doesn't print floats, 1.4k flash use)
+azduinonanodb.menu.printf.full=Full, 2.6k, prints floats
+azduinonanodb.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
+azduinonanodb.menu.printf.full.build.printfabr=.pfF
+azduinonanodb.menu.printf.minimal=Minimal, 1.1k flash used
+azduinonanodb.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
+azduinonanodb.menu.printf.minimal.build.printfabr=.pfM
+
+#------------------------------------#
+# attachInterrupt Mode               #
+#____________________________________#
+azduinonanodb.menu.attach.allenabled=On all pins, like usual
+azduinonanodb.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+azduinonanodb.menu.attach.manual=Only enabled ports. Please see documentation.
+azduinonanodb.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+azduinonanodb.menu.attach.oldversion=Old version, (may fix bugs)
+azduinonanodb.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+
+#------------------------------------#
+# MVIO menu                          #
+#____________________________________#
+azduinonanodb.menu.mvio.enabled=Enabled
+azduinonanodb.menu.mvio.enabled.bootloader.mviobits=01
+azduinonanodb.menu.mvio.disabled=Disabled
+azduinonanodb.menu.mvio.disabled.bootloader.mviobits=10
+
+#------------------------------------#
+# Startup time options               #
+#____________________________________#
+azduinonanodb.menu.startuptime.8=8ms
+azduinonanodb.menu.startuptime.0=0ms
+azduinonanodb.menu.startuptime.1=1ms
+azduinonanodb.menu.startuptime.2=2ms
+azduinonanodb.menu.startuptime.4=4ms
+azduinonanodb.menu.startuptime.16=16ms
+azduinonanodb.menu.startuptime.32=32ms
+azduinonanodb.menu.startuptime.64=64ms
+azduinonanodb.menu.startuptime.0.bootloader.sutbits=000
+azduinonanodb.menu.startuptime.1.bootloader.sutbits=001
+azduinonanodb.menu.startuptime.2.bootloader.sutbits=010
+azduinonanodb.menu.startuptime.4.bootloader.sutbits=011
+azduinonanodb.menu.startuptime.8.bootloader.sutbits=100
+azduinonanodb.menu.startuptime.16.bootloader.sutbits=101
+azduinonanodb.menu.startuptime.32.bootloader.sutbits=110
+azduinonanodb.menu.startuptime.64.bootloader.sutbits=111
+
+#------------------------------------#
+# Optiboot upload timeout            #
+#____________________________________#
+azduinonanodb.bootloader.timeout=
+azduinonanodb.bootloader.port=_ser0_alt
+azduinonanodb.bootloader.portname=Serial
+azduinonanodb.bootloader.portswap=1
