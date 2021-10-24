@@ -238,14 +238,16 @@ void turnOffPWM(uint8_t pin)
           volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), digitalPinToBitMask(pin));
           // at least get it before disablling interrupts.
         #endif
-        uint8_t oldSREG = SREG;
-        cli();
-        TCD0.CTRLA &= ~TCD_ENABLE_bm; // stop the timer
         // This is slightly dangerous - if the timer isn't running, it will start the timer. But it will only do any of that if
         // it was currently set to output PWM, so it's very hard to imagine triggering it with just innocent calls to digitalWrite
         // in a constructor - we do not promise core functions will behave if users are reconfiguring peripherals in arbitrary ways.
+        uint8_t oldSREG = SREG;
+        cli();
+        TCD0.CTRLA &= ~TCD_ENABLE_bm; // stop the timer
+        // Experimentally found ENRDY must be set set to configure FAULTCTRL
+        while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
         _PROTECTED_WRITE(TCD0.FAULTCTRL,TCD0.FAULTCTRL & ~fcset);
-        while (!(TCD0.STATUS & TCD_ENRDY_bm)); // wait until we can restart it
+        //while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
         TCD0.CTRLA |= TCD_ENABLE_bm;  // re-enable it
         #if defined(NO_GLITCH_TIMERD0)
           *pin_ctrl_reg &= ~(PORT_INVEN_bm);
