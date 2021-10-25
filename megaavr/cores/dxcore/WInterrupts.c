@@ -178,8 +178,8 @@
       "mov   r17,   r15"  "\n\t" //copy that flags to r17;
     "loopstart:"          "\n\t"
       "lsr   r17"         "\n\t" // shift it right one place, now the LSB is in carry.
-      "brcs  .+6"         "\n\t" // // means we have something to do this time.
-      "breq  end"         "\n\t" // rhis means carry wasn't set and r17 is 0. - we're done.
+      "brcs  .+6"         "\n\t" // means we have something to do this time.
+      "breq  end"         "\n\t" // This means carry wasn't set and r17 is 0. - we're done.
       "adiw  r28,    2"   "\n\t" // otherwise it's not a the int we care about, increment Y by 2, so it will point to the next element.
       "rjmp  loopstart"   "\n\t" // restart the loop in that case.
       "ld    r30,    Y+"  "\n\t" // load the function pointer;
