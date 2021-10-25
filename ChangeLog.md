@@ -35,6 +35,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Correct issue with name of portToPinZero() a macro used by the DxCore library to assist in managing TCA multiplexing.
   * Split DxCore.h into DxCore.h and DxCore.cpp, because otherwise you couldn't include it from more than one file without duplicate definitions.
   * Fixed bug that caused analogWrite() to reject all pins as invalid (a simple typo - I'd meant to do an `if () {...}` structure spread across 3 lines in the normal fashion - but instead wound up with an `if () {} ...` structure, so whether or not you passed and invalid pin, it will reject it and produce a compile error.
+  * Fixed bug in digitalPinHasPWM macros on non-64-pin parts. How had this gone unnoticed?!!
 * PWM and timekeeping
   * Correct bug with TCD PWM which could fail to enable PWM because of being unable to set TCD0.FAULTCTRL immediately after disabling the timer - the disabling hadn't yet taken effect. Only happened when the TCD clock was slower than system clock, IIRC some other things manifested in that way. Once we set FAULTCTRL, there is no further sync delay needed before reenabling.
   * Fix broken timekeeping on overclocked devices with TCA as millis source.

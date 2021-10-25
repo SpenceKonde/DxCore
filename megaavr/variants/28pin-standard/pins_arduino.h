@@ -80,13 +80,13 @@ on how I handle the pinmapping/portmux stuff
 
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0))
 #elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
 #endif
 
 // Timer pin mapping
@@ -102,7 +102,7 @@ on how I handle the pinmapping/portmux stuff
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
 
 /*          ####   ###  ####  ##### #   # #   # #   #
             #   # #   # #   #   #   ## ## #   #  # #
