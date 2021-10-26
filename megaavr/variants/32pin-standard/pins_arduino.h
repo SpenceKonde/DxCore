@@ -144,14 +144,14 @@ This file may or may not be different for the
 // TWI 1
 #define PIN_WIRE1_SDA           PIN_PF2
 #define PIN_WIRE1_SCL           PIN_PF3
-#define PIN_WIRE1_SDA_PINSWAP_1 PIN_PF2
-#define PIN_WIRE1_SCL_PINSWAP_1 PIN_PF3
 
 // USART 0
 #define HWSERIAL0                       &USART0
 #define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
 #define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
 #define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
+#define HWSERIAL0_MUX_COUNT             2
+#define HWSERIAL0_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
@@ -169,6 +169,8 @@ This file may or may not be different for the
 #define HWSERIAL1_DRE_VECTOR            USART1_DRE_vect
 #define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
 #define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
+#define HWSERIAL1_MUX_COUNT             2
+#define HWSERIAL1_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_1         NOT_A_MUX /* destined for removal */
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
@@ -186,6 +188,8 @@ This file may or may not be different for the
 #define HWSERIAL2_DRE_VECTOR            USART2_DRE_vect
 #define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
 #define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
+#define HWSERIAL2_MUX_COUNT             2
+#define HWSERIAL2_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc

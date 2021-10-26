@@ -30,12 +30,13 @@
 
 #include "UART.h"
 #include "UART_private.h"
+#include "UART_swap.h"
 
 // this next line disables the entire UART.cpp if there's no hardware serial
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3) || defined(HAVE_HWSERIAL4) || defined(HAVE_HWSERIAL5)
 
-// As of 1.3.3 serialevent is no longer exposed through the core. It is deprecated on official core - screw it.
+// As of 1.3.3 serialEvent is no longer exposed through the core. It is deprecated on official core - screw it.
   // SerialEvent functions are weak, so when the user doesn't define them,
   // the linker just sets their address to 0 (which is checked below).
   // The Serialx_available is just a wrapper around Serialx.available(),
@@ -72,8 +73,7 @@
       bool Serial5_available() __attribute__((weak));
     #endif
 
-    void serialEventRun(void)
-    {
+    void serialEventRun(void) {
     #if defined(HAVE_HWSERIAL0)
       if (Serial0_available && serialEvent && Serial0_available()) serialEvent();
     #endif
@@ -87,10 +87,10 @@
       if (Serial3_available && serialEvent3 && Serial3_available()) serialEvent3();
     #endif
     #if defined(HAVE_HWSERIAL4)
-      if (Serial3_available && serialEvent4 && Serial4_available()) serialEvent4();
+      if (Serial4_available && serialEvent4 && Serial4_available()) serialEvent4();
     #endif
     #if defined(HAVE_HWSERIAL5)
-      if (Serial3_available && serialEvent5 && Serial5_available()) serialEvent5();
+      if (Serial5_available && serialEvent5 && Serial5_available()) serialEvent5();
     #endif
     }
   #endif
@@ -104,38 +104,98 @@
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-void UartClass::_tx_data_empty_irq(void) {
-  // Check if tx buffer already empty.
-  if (_tx_buffer_head == _tx_buffer_tail) {
+void UartClass::_rx_complete_irq(UartClass& uartClass) {
+  // if (bit_is_clear(*_rxdatah, USART_PERR_bp)) {
+  uint8_t rxDataH = uartClass._hwserial_module->RXDATAH;
+  uint8_t c = uartClass._hwserial_module->RXDATAL;  // no need to read the data twice. read it, then decide what to do
+  rx_buffer_index_t rxHead = uartClass._rx_buffer_head;
+
+  if (!(rxDataH & USART_PERR_bm)) {
+    // No Parity error, read byte and store it in the buffer if there is room
+    // unsigned char c = uartClass._hwserial_module->RXDATAL;
+    rx_buffer_index_t i = (unsigned int)(rxHead + 1) % SERIAL_RX_BUFFER_SIZE;
+
+    // if we should be storing the received character into the location
+    // just before the tail (meaning that the head would advance to the
+    // current location of the tail), we're about to overflow the buffer
+    // and so we don't write the character or advance the head.
+    if (i != uartClass._rx_buffer_tail) {
+      uartClass._rx_buffer[rxHead] = c;
+      uartClass._rx_buffer_head = i;
+    }
+  }   // else {
+    // Parity error, read byte but discard it
+    // uartClass._hwserial_module->RXDATAL;
+  //}
+}
+
+
+void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
+  USART_t* usartModule = (USART_t*)uartClass._hwserial_module;  // reduces size a little bit
+
+  tx_buffer_index_t txTail = uartClass._tx_buffer_tail;
+  // Check if tx buffer already empty. when called by _poll_tx_data_empty()
+
+  if (uartClass._tx_buffer_head == txTail) {
     // Buffer empty, so disable "data register empty" interrupt
-    (*_hwserial_module).CTRLA &= (~USART_DREIE_bm);
+    usartModule->CTRLA &= (~USART_DREIE_bm);
     return;
   }
 
   // There must be more data in the output
   // buffer. Send the next byte
-  unsigned char c = _tx_buffer[_tx_buffer_tail];
-  _tx_buffer_tail = (_tx_buffer_tail + 1) & (SERIAL_TX_BUFFER_SIZE-1); //% SERIAL_TX_BUFFER_SIZE;
+
+  uint8_t c = uartClass._tx_buffer[txTail];
 
   // clear the TXCIF flag -- "can be cleared by writing a one to its bit
   // location". This makes sure flush() won't return until the bytes
-  // actually got written. It is critical to do this BEFORE we write the next byte ou
-  (*_hwserial_module).STATUS = USART_TXCIF_bm;
+  // actually got written. It is critical to do this BEFORE we write the next byte
+  usartModule->STATUS = USART_TXCIF_bm;
+  usartModule->TXDATAL = c;
 
-  (*_hwserial_module).TXDATAL = c;
+  txTail = (txTail + 1) & (SERIAL_TX_BUFFER_SIZE-1);  //% SERIAL_TX_BUFFER_SIZE;
 
-  if (_tx_buffer_head == _tx_buffer_tail) {
+  if (uartClass._tx_buffer_head == txTail) {
     // Buffer empty, so disable "data register empty" interrupt
-    (*_hwserial_module).CTRLA &= (~USART_DREIE_bm);
+    usartModule->CTRLA &= (~USART_DREIE_bm);
   }
+  uartClass._tx_buffer_tail = txTail;
+
+
+// an attempt to put the annoying part in assembler. can NOT considered to be reliable.
+// also, since the compiler has to push/pop r28/r29 it ends up as big as the C version
+// Is probably faster though, since every Y+x here is replaced by ADIW X, x; ST/LD X, y; SBIW X, x in C.
+// the assembly basically cuts 4 cycles on every memory access...
+// It would be better to implement the assembler interrupt routines in a separate .S file
+/*
+  asm volatile (
+    "MOVW R30, %0   \n\t"   // make sure the uartClass is actually in Z
+    "LDD  R28, Z+12 \n\t"   // load USART module pointer
+    "LDD  R29, Z+13 \n\t"   // same as above, high byte
+    "LDI  R18, 0x40 \n\t"   // load USART_TXCIF_bm
+    "STD  Y+4, R18  \n\t"   // and store to STATUS
+    "STD  Y+2, %1   \n\t"   // store c
+    "LDD  R18, Z+21 \n\t"   // load head
+    "CPSE R18, %2   \n\t"   // compare with new tail
+    "RJMP end       \n\t"
+    "LDD  R18, Y+5  \n\t"   // load CTRLA
+    "ANDI R18, 0xDF \n\t"   // &= (~USART_DREIE_bm)
+    "STD  Y+5, R18  \n\t"   // store to CTRLA
+    "end:           \n\t"
+    "STD  Z+22, %2  \n\t"   // store new tail to uartClass._tx_buffer_tail
+    : 
+    : "m" (uartClass), "r" (c), "r" (txTail)
+    : "r18", "r28", "r29", "r30", "r31"
+    );
+*/
 }
 
 // To invoke data empty "interrupt" via a call, use this method
 void UartClass::_poll_tx_data_empty(void) {
   if ((!(SREG & CPU_I_bm)) ||  CPUINT.STATUS) {
-    // 3/25/21 - Since a disabled DRE should mean "there is nothingh in TX buffer"
-    // that shouold not be one of the conditions that triggers the manual call to the ISR.
-    // If we are here but DREIE == 0 either it's flush waitihg on last character,almost certainly...
+    // 3/25/21 - Since a disabled DRE should mean "there is northing in TX buffer"
+    // that should not be one of the conditions that triggers the manual call to the ISR.
+    // If we are here but DREIE == 0 either it's flush waiting on last character,almost certainly...
     // Interrupts are disabled either globally or for data register empty,
     // or we are in another ISR. (It doesn't matter *which* ISR we are in
     // whether it's another level 0, the priority one, or heaven help us
@@ -149,7 +209,7 @@ void UartClass::_poll_tx_data_empty(void) {
 
     // Invoke interrupt handler only if conditions data register is empty
     if ((*_hwserial_module).STATUS & USART_DREIF_bm) {
-      _tx_data_empty_irq();
+      _tx_data_empty_irq(*this);
     }
   }
   // In case interrupts are enabled, the interrupt routine will be invoked by itself
@@ -159,28 +219,23 @@ void UartClass::_poll_tx_data_empty(void) {
 // Public Methods //////////////////////////////////////////////////////////////
 
 // Invoke this function before 'begin' to define the pins used
-bool UartClass::pins(uint8_t tx, uint8_t rx) {
-  for (_pin_set = 0; _pin_set < SERIAL_PIN_SETS; ++_pin_set) {
-    if (tx == _hw_set[_pin_set].tx_pin && rx == _hw_set[_pin_set].rx_pin) {
-      // We are good, this set of pins is supported
-      return true;
-    }
-  }
-  _pin_set = 0; // Default to standard
-  return false;
+uint8_t UartClass::pins(uint8_t tx, uint8_t rx) {
+  uint8_t ret_val = _pins(_usart_pins, _mux_count, tx, rx);   // return -1 (255) when correct swap number wasn't found
+  return swap(ret_val);   // this should technically work, right?
+  // if (ret_val != 255){
+  //  _pin_set = ret_val;
+  //  return true;
+  // } else {
+  //  return false;
+  // }
 }
 
-bool UartClass::swap(uint8_t state) {
-  if (state == 1) { // Use alternative pin position
+uint8_t UartClass::swap(uint8_t state) {
+  if (state < _mux_count) {
     _pin_set = state;
     return true;
-  } else if (state == 0) { // Use default pin position
-    _pin_set = 0;
-    return true;
-  } else { // Invalid swap value. Use default position
-    _pin_set = 0;
-    return false;
   }
+  return false;
 }
 
 void UartClass::begin(unsigned long baud, uint16_t config) {
@@ -194,16 +249,16 @@ void UartClass::begin(unsigned long baud, uint16_t config) {
     this->end();
   }
 
-  struct UartPinSet *set = &_hw_set[_pin_set];
+//  struct UartPinSet *set = &_hw_set[_pin_set];
 
   int32_t baud_setting = 0;
   uint8_t rxmode = 0;
 
   // Use CLK2X if appropriate.
   #if (F_CPU > 2000000)
-  if(baud >= (38400 * (F_CPU / 1000000))) {
+  if (baud >= (38400 * (F_CPU / 1000000))) {
     rxmode = USART_RXMODE_CLK2X_gc;
-    baud=baud >> 1;
+    baud = baud >> 1;
   } /*
   since this is the default, we don't need to set this, saving a bit of flash.
   else {
@@ -211,7 +266,7 @@ void UartClass::begin(unsigned long baud, uint16_t config) {
   }
   */
   #else
-  //if clocked at 1 or 2 MHz, always use CLK2X mode and save a bit of space, we correct for not shifting the baud value below, as it saves a bit of flash
+  // if clocked at 1 or 2 MHz, always use CLK2X mode and save a bit of space, we correct for not shifting the baud value below, as it saves a bit of flash
     rxmode = USART_RXMODE_CLK2X_gc;
   #endif
 
@@ -219,17 +274,17 @@ void UartClass::begin(unsigned long baud, uint16_t config) {
 
 
 
-  //See #131 for more info on this
-  #if (CLOCK_SOURCE==0 && PROGMEM_SIZE > 4096 && (defined(UARTBAUD3V) || defined(UARTBAUD5V)))
+  // See #131 for more info on this
+  #if (CLOCK_SOURCE == 0 && PROGMEM_SIZE > 4096 && (defined(UARTBAUD3V) || defined(UARTBAUD5V)))
     // if the flash is 2k or 4k, we really can't spare the flash for the baud rate correction...
     // it's close enough to work under normal circumstances anyway.
-    #if (F_CPU==20000000UL || F_CPU==10000000UL || F_CPU==5000000UL) //this means we are on the 20MHz oscillator
+    #if (F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)  // this means we are on the 20MHz oscillator
       #ifdef UARTBAUD3V
         int8_t sigrow_val = SIGROW.OSC20ERR3V;
       #else
         int8_t sigrow_val = SIGROW.OSC20ERR5V;
       #endif
-    #else //we are on 16MHz one
+    #else   // we are on 16MHz one
       #ifdef UARTBAUD3V
         int8_t sigrow_val = SIGROW.OSC16ERR3V;
       #else
@@ -237,23 +292,23 @@ void UartClass::begin(unsigned long baud, uint16_t config) {
       #endif
     #endif
     #if (F_CPU > 2000000)
-      //if we are above 2 MHz, baud was corrected above if CLK2X used.
+      // if we are above 2 MHz, baud was corrected above if CLK2X used.
       baud_setting = ((8 * F_CPU) / baud);
     #else
-      //if clocked at 1 or 2 MHz, always use CLK2X mode and save a bit of flash...
+      // if clocked at 1 or 2 MHz, always use CLK2X mode and save a bit of flash...
       baud_setting = ((16 * F_CPU) / baud);
     #endif
     baud_setting *= (1024 + sigrow_val);
     baud_setting /= 2048;
-    if (baud_setting>65535){
-      baud_setting=65535;
+    if (baud_setting > 65535) {
+      baud_setting = 65535;
     }
-    #else
+  #else
     #if (F_CPU > 2000000)
-      //if we are above 2 MHz, baud was corrected above if CLK2X used.
+      // if we are above 2 MHz, baud was corrected above if CLK2X used.
       baud_setting = (((4 * F_CPU) / baud));
     #else
-      //if clocked at 1 or 2 MHz, always use CLK2X mode and save a bit of flash...
+      // if clocked at 1 or 2 MHz, always use CLK2X mode and save a bit of flash...
       baud_setting = (((8 * F_CPU) / baud));
     #endif
   #endif
@@ -273,18 +328,18 @@ void UartClass::begin(unsigned long baud, uint16_t config) {
 
   (*_hwserial_module).CTRLA |= USART_RXCIE_bm;
 
-
+  _set_pins(_usart_pins, _mux_count, _pin_set, true);
   // Let PORTMUX point to alternative UART pins as requested
-  #ifdef PORTMUX_CTRLB
-    PORTMUX.CTRLB = set->mux | (PORTMUX.CTRLB & ~_hw_set[1].mux);
-  #else
-    PORTMUX.USARTROUTEA = set->mux | (PORTMUX.USARTROUTEA & ~_hw_set[1].mux);
-  #endif
+//  #ifdef PORTMUX_CTRLB
+//    PORTMUX.CTRLB = set->mux | (PORTMUX.CTRLB & ~_hw_set[1].mux);
+//  #else
+//    PORTMUX.USARTROUTEA = set->mux | (PORTMUX.USARTROUTEA & ~_hw_set[1].mux);
+//  #endif
 
   // Set pin state for swapped UART pins
-  pinMode(set->rx_pin, INPUT_PULLUP);
-  //digitalWrite(set->tx_pin, HIGH);
-  pinMode(set->tx_pin, OUTPUT);
+//  pinMode(set->rx_pin, INPUT_PULLUP);
+//  digitalWrite(set->tx_pin, HIGH);
+//  pinMode(set->tx_pin, OUTPUT);
 
   // Restore SREG content
   SREG = oldSREG;
@@ -307,7 +362,7 @@ void UartClass::end() {
 }
 
 int UartClass::available(void) {
-  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + _rx_buffer_head - _rx_buffer_tail)) & (SERIAL_RX_BUFFER_SIZE-1); //% SERIAL_RX_BUFFER_SIZE;
+  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + _rx_buffer_head - _rx_buffer_tail)) & (SERIAL_RX_BUFFER_SIZE-1);   //% SERIAL_RX_BUFFER_SIZE;
 }
 
 int UartClass::peek(void) {
@@ -324,7 +379,7 @@ int UartClass::read(void) {
     return -1;
   } else {
     unsigned char c = _rx_buffer[_rx_buffer_tail];
-    _rx_buffer_tail = (rx_buffer_index_t)(_rx_buffer_tail + 1) & (SERIAL_RX_BUFFER_SIZE-1); // % SERIAL_RX_BUFFER_SIZE;
+    _rx_buffer_tail = (rx_buffer_index_t)(_rx_buffer_tail + 1) & (SERIAL_RX_BUFFER_SIZE-1);   // % SERIAL_RX_BUFFER_SIZE;
     return c;
   }
 }
@@ -363,13 +418,82 @@ void UartClass::flush() {
 
   // Spin until the data-register-empty-interrupt is disabled and TX complete interrupt flag is raised
   while (((*_hwserial_module).CTRLA & USART_DREIE_bm) || (!((*_hwserial_module).STATUS & USART_TXCIF_bm))) {
-
     // poll this, which will ensure that bytes keep getting sent even if interrupts are disabled or something.
     _poll_tx_data_empty();
   }
   // When we get here, nothing is queued anymore (DREIE is disabled) and
   // the hardware finished transmission (TXCIF is set).
 }
+
+
+
+
+void UartClass::_mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code) {
+  uint8_t* portReadPointer = pinInfo + (mux_count * USART_PINS_WIDTH);  // Due to pinInfo being a pointer to a two-dimensional array, the offset has to be calculated 'by hand'
+  uint32_t portRead = pgm_read_dword_near(portReadPointer);             // and stating what it points to and casting everywhere makes it annoying
+  volatile uint8_t* portmux = (uint8_t*)(uint16_t)portRead;   // use the first two bytes
+  uint8_t temp   = *portmux;
+  temp          &= ~((uint8_t)(portRead >> 16));    // use third byte
+  temp          |= mux_code;
+  *portmux       = temp;
+}
+
+
+void UartClass::_set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting, uint8_t enable/*, uint8_t extras_bm*/) {
+  uint8_t* pinInfoPointer = pinInfo + (mux_setting * USART_PINS_WIDTH);
+  uint8_t muxReadInfo = pgm_read_byte_near(pinInfoPointer);
+//  uint32_t pinReadInfo = pgm_read_dword_near(pinInfoPointer + 1);  // the following is more efficient then using a pgm byte read for single bytes
+//  uint8_t txReadInfo =   (uint8_t) (pinReadInfo);           // since this way the compiler uses LPM Z+ instead of incrementing r18/r19, then
+//  uint8_t rxReadInfo =   (uint8_t) (pinReadInfo >> 8);      // MOVW r30, r18 and only then LPM Z. (r18/r19 were the registers in my case, may differ)
+//  uint8_t xclkReadInfo =  (uint8_t) (pinReadInfo >> 16);    // also, memcpy_P is significantly bigger then read_dword_near
+//  uint8_t xdirReadInfo = (uint8_t) (pinReadInfo >> 24);
+  uint16_t pinReadInfo = pgm_read_word_near(pinInfoPointer + 1);
+  uint8_t txReadInfo =   (uint8_t) (pinReadInfo);
+  uint8_t rxReadInfo =   (uint8_t) (pinReadInfo >> 8);
+
+  if (enable == 0) {  // disable pins
+    pinMode(rxReadInfo, PIN_INPUT_DISABLE);
+    pinMode(txReadInfo, PIN_INPUT_DISABLE);
+    // if (extras_bm & 0x01) {  // XCLK / XDIR / MSPI support prototype
+    //  pinMode(xckReadInfo, PIN_INPUT_DISABLE);
+    // } else if (extras_bm 0x04) {
+    //  pinMode(xdirReadInfo, PIN_INPUT_DISABLE);
+    // }
+  } else {
+    pinMode(rxReadInfo, INPUT_PULLUP);
+    pinMode(txReadInfo, OUTPUT);
+    // if (extras_bm & 0x01) {  // XCLK / XDIR / MSPI support prototype
+    //  pinMode(xckReadInfo, INPUT);
+    // } if (extras_bm & 0x02) {
+    //  pinMode(xckReadInfo, OUTPUT);
+    // } if (extras_bm & 0x04) {
+    //  pinMode(xdirReadInfo, OUTPUT);
+    _mux_set(pinInfo, mux_count, muxReadInfo);
+  }
+}
+
+
+uint8_t UartClass::_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
+  if (tx_pin != NOT_A_PIN && rx_pin != NOT_A_PIN) {
+    pinInfo++;  // prepare to read the information with one byte offset
+    for (uint8_t i = 0; i < mux_count; i++) {
+      // uint8_t* pins = pinInfo + (i * USART_PINS_WIDTH);  // get the pointer to the second dimension of the two-dimensional pin array
+
+      uint16_t pinReadInfo = pgm_read_word_near(pinInfo);
+      uint8_t txReadInfo = (uint8_t) (pinReadInfo);
+      uint8_t rxReadInfo = (uint8_t) (pinReadInfo >> 8);
+
+      if (tx_pin == txReadInfo && rx_pin == rxReadInfo) {
+        return i;   // returns the swap number
+      }
+
+      pinInfo += USART_PINS_WIDTH;
+    }
+  }
+  return 255;
+}
+
+
 
 size_t UartClass::write(uint8_t c) {
   _written = true;
@@ -389,7 +513,7 @@ size_t UartClass::write(uint8_t c) {
      * Thus, the only possible way this could happen is if an interrupt also tried to write to serial,
      * *immediately* after we checked that the buffer was empty, before we made it not empty. And
      * in that case, without this line it would lose one of the characters... with that line, it could
-     * stop servicing DRE until another serial wright, AND lose a character. I think it's a full 10 bytes
+     * stop servicing DRE until another serial write, AND lose a character. I think it's a full 10 bytes
      * 2 to read with LDS, 1 to modify, 2 to write back with STS. It's gone!    -Spence 4/2021
      * Original comments:
      // Make sure data register empty interrupt is disabled to avoid
@@ -400,10 +524,10 @@ size_t UartClass::write(uint8_t c) {
     return 1;
   }
 
-  tx_buffer_index_t i = (_tx_buffer_head + 1) & (SERIAL_TX_BUFFER_SIZE-1); // % SERIAL_TX_BUFFER_SIZE;
+  tx_buffer_index_t i = (_tx_buffer_head + 1) & (SERIAL_TX_BUFFER_SIZE-1);  // % SERIAL_TX_BUFFER_SIZE;
 
-  //If the output buffer is full, there's nothing for it other than to
-  //wait for the interrupt handler to empty it a bit (or emulate interrupts)
+  // If the output buffer is full, there's nothing for it other than to
+  // wait for the interrupt handler to empty it a bit (or emulate interrupts)
   while (i == _tx_buffer_tail) {
     _poll_tx_data_empty();
   }
@@ -417,7 +541,7 @@ size_t UartClass::write(uint8_t c) {
   return 1;
 }
 
-void UartClass::printHex (const uint8_t b) {
+void UartClass::printHex(const uint8_t b) {
   char x = (b >> 4) | '0';
   if (x > '9')
     x += 7;
@@ -428,27 +552,25 @@ void UartClass::printHex (const uint8_t b) {
   write(x);
 }
 
-void UartClass::printHex(const uint16_t w, bool swaporder){
+void UartClass::printHex(const uint16_t w, bool swaporder) {
   uint8_t *ptr = (uint8_t *) &w;
-  if (swaporder){
+  if (swaporder) {
     printHex(*(ptr++));
     printHex(*(ptr));
-  }
-  else {
+  } else {
     printHex(*(ptr + 1));
     printHex(*(ptr));
   }
 }
 
-void UartClass::printHex(const uint32_t l, bool swaporder){
+void UartClass::printHex(const uint32_t l, bool swaporder) {
   uint8_t *ptr = (uint8_t *) &l;
-  if (swaporder){
+  if (swaporder) {
     printHex(*(ptr++));
     printHex(*(ptr++));
     printHex(*(ptr++));
     printHex(*(ptr));
-  }
-  else {
+  } else {
     ptr+=3;
     printHex(*(ptr--));
     printHex(*(ptr--));
@@ -456,6 +578,7 @@ void UartClass::printHex(const uint32_t l, bool swaporder){
     printHex(*(ptr));
   }
 }
+
 uint8_t * UartClass::printHex(uint8_t* p, uint8_t len, char sep) {
   for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
@@ -474,11 +597,11 @@ uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporde
   return p;
 }
 
-/* at minimum, this stops warnings, but I think there are corner cases hee the non-volatile implementations gives wrong results when passed pointers to hardware registers.*/
+/* at minimum, this stops warnings, but I think there are corner cases when the non-volatile implementations gives wrong results when passed pointers to hardware registers.*/
 volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
   for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
-    uint8_t t=*p++;
+    uint8_t t = *p++;
     printHex(t);
   }
   println();
@@ -488,7 +611,7 @@ volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char se
 volatile uint16_t * UartClass::printHex(volatile uint16_t* p, uint8_t len, char sep, bool swaporder) {
   for (byte i = 0; i < len; i++) {
     if (sep && i) write(sep);
-    uint16_t t=*p++;
+    uint16_t t = *p++;
     printHex(t, swaporder);
   }
   println();

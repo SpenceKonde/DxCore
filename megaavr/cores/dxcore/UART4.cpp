@@ -37,25 +37,23 @@
 #if defined(HAVE_HWSERIAL4)
 
 #if defined(HWSERIAL4_RXC_VECTOR)
-ISR(HWSERIAL4_RXC_VECTOR)
-{
-  Serial4._rx_complete_irq();
+ISR(HWSERIAL4_RXC_VECTOR) {
+  UartClass::_rx_complete_irq(Serial4);
 }
 #else
 #error "Don't know what the Data Received interrupt vector is called for Serial4"
 #endif
 
 #if defined(HWSERIAL4_DRE_VECTOR)
-ISR(HWSERIAL4_DRE_VECTOR)
-{
-  Serial4._tx_data_empty_irq();
+ISR(HWSERIAL4_DRE_VECTOR) {
+  UartClass::_tx_data_empty_irq(Serial4);
 }
 #else
 #error "Don't know what the Data Register Empty interrupt vector is called for Serial4"
 #endif
 
 #if defined(HWSERIAL4)
-  UartClass Serial4(HWSERIAL4, HWSERIAL4_DRE_VECTOR_NUM, PIN_HWSERIAL4_RX, PIN_HWSERIAL4_TX, HWSERIAL4_MUX, PIN_HWSERIAL4_RX_PINSWAP_1, PIN_HWSERIAL4_TX_PINSWAP_1, HWSERIAL4_MUX_PINSWAP_1);
+  UartClass Serial4(HWSERIAL4, (uint8_t*)_usart4_pins, MUXCOUNT_USART4, 0);
 #endif
 
 // Function that can be weakly referenced by serialEventRun to prevent
@@ -64,4 +62,4 @@ bool Serial4_available() {
   return Serial4.available();
 }
 
-#endif // HAVE_HWSERIAL4
+#endif  // HAVE_HWSERIAL4

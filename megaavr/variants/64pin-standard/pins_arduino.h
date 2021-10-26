@@ -204,6 +204,7 @@ No 32k versions, and only part of DA and DB-series
 #define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num   /* Nope - that AND it's not even used anymore */
 #define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
 #define HWSERIAL0_MUX_COUNT             2                     /* stays - can be deduced, but only in ugly ways */
+#define HWSERIAL0_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc  /* Nope, redundant */
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc     /* Nope, redundant - also horribly verbose and ugly*/
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc     /* Wasn't there before anyway */
@@ -222,6 +223,7 @@ No 32k versions, and only part of DA and DB-series
 #define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
 #define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
 #define HWSERIAL1_MUX_COUNT             2
+#define HWSERIAL1_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
@@ -240,6 +242,7 @@ No 32k versions, and only part of DA and DB-series
 #define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
 #define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
 #define HWSERIAL2_MUX_COUNT             2
+#define HWSERIAL2_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
@@ -258,6 +261,7 @@ No 32k versions, and only part of DA and DB-series
 #define HWSERIAL3_DRE_VECTOR_NUM        USART3_DRE_vect_num
 #define HWSERIAL3_RXC_VECTOR            USART3_RXC_vect
 #define HWSERIAL3_MUX_COUNT             2
+#define HWSERIAL3_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL3_MUX                   PORTMUX_USART3_DEFAULT_gc
 #define HWSERIAL3_MUX_PINSWAP_1         PORTMUX_USART3_ALT1_gc
 #define HWSERIAL3_MUX_PINSWAP_NONE      PORTMUX_USART3_NONE_gc
@@ -276,6 +280,7 @@ No 32k versions, and only part of DA and DB-series
 #define HWSERIAL4_DRE_VECTOR_NUM        USART4_DRE_vect_num
 #define HWSERIAL4_RXC_VECTOR            USART4_RXC_vect
 #define HWSERIAL4_MUX_COUNT             2
+#define HWSERIAL4_MUX_REGISTER          &PORTMUX.USARTROUTEB
 #define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
 #define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc
 #define HWSERIAL4_MUX_PINSWAP_NONE      PORTMUX_USART4_NONE_gc
@@ -294,6 +299,7 @@ No 32k versions, and only part of DA and DB-series
 #define HWSERIAL5_DRE_VECTOR_NUM        USART5_DRE_vect_num
 #define HWSERIAL5_RXC_VECTOR            USART5_RXC_vect
 #define HWSERIAL5_MUX_COUNT             2
+#define HWSERIAL5_MUX_REGISTER          &PORTMUX.USARTROUTEB
 #define HWSERIAL5_MUX                   PORTMUX_USART5_DEFAULT_gc
 #define HWSERIAL5_MUX_PINSWAP_1         PORTMUX_USART5_ALT1_gc
 #define HWSERIAL5_MUX_PINSWAP_NONE      PORTMUX_USART5_NONE_gc
