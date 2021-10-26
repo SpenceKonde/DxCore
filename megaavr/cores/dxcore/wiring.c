@@ -270,39 +270,242 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       #if defined(MILLIS_USE_TIMERD0)
         #error "Timer D is not supported as a millis source on the AVR DA or DB series."
       #elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
-          // The below bitshifts implement dividing by (1/2 clocks per us) since TCB's can only prescale by 2. So we at say 36 MHz, it counts to 17999 for each ms, so  we need to divide the ticks by 1000us.
+        /* Ersatz Division for TCBs - now with inline assembly!
+         *
+         * It's well known that division is an operator you want to avoid like the plague on AVR.
+         * Not only is it slow, the execution time isn't even easy to analyze - it depends on the
+         * two opperands, particularly the divisor... so you can't just look at the generated
+         * assembly and count clock cycles, you've got to either time it expoerimentally with
+         * a representative set of sample data, or know how many times it will pass through the
+         * loops and then count clock cycles. If the operands aren't constant (if they are, you
+         * can probably manage to get it optimized away at compile time) your best hope is likely
+         * simulation, assuming you know enough about the values it will end up having to divide.
+         *
+         * Anyway. You don't want to be doing division. But that's what you need in order to
+         * appropriately scale the ick count from the prescaler-deprived TCBs. Since many users
+         * reconfigure the TCA for advanced PWM, using the TCA-prescaled clock was a non-starter
+         * particularly since many parts have only one TCA. But division can be approximated
+         * very closely if the divisor is constant using a series of bitshifts and addition/subtraction.
+         *
+         * The series of shifts was determined numerically with a spreadsheet that calculated the results for
+         * each value that could come from the initial round of rightshifts for any combination of
+         * bitshifts and provided a number of statistics to select based on. Bacwards time travel must
+         * never happenb, or if it does, it must be a shorter backward step than micros runtime - 1 us
+         * otherwise delay() will break and timeouts can instantly expire when it is hit. Similarly,
+         * one wants to avoid large jumps forward, and cases where more consecutive "actual" times
+         * than absolutely necessary return the same value (time should flow at a constant rate).
+         * Finally, the artifacts of the calulation that are unavoidable should be distributed uniformly.
+         * Undershooting or overshooting 999 endpoint at the counter's maximum value is the usual
+         * source of large jumps (at the overflow point) in either direction. Terms should, as much as
+         * possible alternate between positive and negative to minimize artifacs.
+         *
+         * The most popular/important speeds are hand-implemented in assembly because the compiler
+         * was doing a miserable job of it - wasting 20-30% of the execution time and it's one of the few
+         * Arduino API functions that users will be surprised and dismayed to find running slowiy.
+         * Not only does it run faster on "normal" boards (the 16 MHz clock eliminates the need to divide
+         * DxCore offers many speeds where the math doesn't all optimize away to nothing like it does at
+         * 1/2/4/8/16/32.
+         *
+         * Do notice that we are replacing a smaller number of terms, and it's still much faster
+         * The 19's went from 5 term ersatz-division to 6, while 12's went from 5 terms to 9, yet still
+         * got a lot faster. The terrible twelves are the frequency most difficult to do this with.
+         * Ironically, one of the the two that are is easiest is 36, which is good enough with 3 and
+         * effectively exact (That "middle 12" is closer than the other 12's get with 9!)
+         * 25 also matches it. Maybe it's something 25 and 36 being perfect squares?
+         *
+         * The three problems were that:
+         * 1. Compiler generated code stubbornly insisted doing repeated shift operation in a loop
+         * with 3 cycle per iteration (the shift itself took only 2)
+         * 2. Compiler could not be convinced to do things that we know will always be < 255 as
+         * bytes. Sure, it wouldn't know that - it's not legal for it to do that on it's own.
+         * But even when I cast everything to uint8_t, it would shift a 16-bit value around
+         * unnecessarily.
+         * 3. It would distribute the ticks >> 4. That is, it wouldn't shift the value of
+         * ticks in place, even though it wasn't referenced after this because I was assinging
+         * the result to ticks, and hence the old value was "dead"
+         * Instead, it would copy it, shift the copy 3 or 4 places. Then when it needed the
+         * ticks >> 2, it would make a copy of the ORIGINAL and shift that 6 places,
+         * instead of copying the copy and shifting just 2 places.
+         *
+         * A general trend seems to be that the compiler is not smart enough to "reuse" an
+         * existing value that has already been shifted such that it's closer to the target.
+         * at least for multi-byte variables. This is not the worst example of it I've run into
+         * but the micros() function is a little bit sensitive to the execution time.
+         * Apparently people sometimes want to *do something* in response to the value it
+         * returns - and they seem to want to do that in a timely manner, otherwise they'd
+         * have not bothered to record a time so accurately...
+         */
           // Oddball clock speeds
-        #if   (F_CPU == 44000000UL) // Extreme overclocking (might work w/external clock)
+        #if   (F_CPU == 44000000UL) // Extreme overclocking
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks - (ticks >> 2) - (ticks >> 5) + (ticks >> 7)); // Extremely close, and rounding will tend to help
-        #elif (F_CPU == 36000000UL) // Overclocked but likely to work w/external clock or xtal
+          microseconds = overflows * 1000 + (ticks - /* (ticks >> 1) + (ticks >> 2) - */ + (ticks >> 5) + /* (ticks >> 6) - */ (ticks >> 7)); // + (ticks >> 10)
+        #elif (F_CPU == 36000000UL) // 50% overclock!
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks - (ticks >> 3) + (ticks >> 6)); // Very close
-        #elif (F_CPU == 28000000UL)
+          microseconds = overflows * 1000 + (ticks - (ticks >> 3) + (ticks >> 6)); // - (ticks >> 9) + (ticks >> 10) // with 5 terms it is DEAD ON
+        #elif (F_CPU == 28000000UL) // Not supported by DxCore - nobody wants it.
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 3) + (ticks >> 6) + (ticks >> 8)); // Extremely close, and rounding will tend to help.
-        #elif (F_CPU == 14000000UL) /* not supported by the core! */
+          microseconds = overflows * 1000 + (ticks + (ticks >> 2) - (ticks >> 3) + (ticks >> 5) - (ticks >> 6)); // + (ticks >> 8) - (ticks >> 9)
+        #elif (F_CPU == 14000000UL) // Not supported by DxCore - nobody wants it.
           ticks = ticks >> 3;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 3) + (ticks >> 6) + (ticks >> 8)); // Extremely close, and rounding will tend to help.
-        #elif (F_CPU == 30000000UL)
+          microseconds = overflows * 1000 + (ticks + (ticks >> 2) - (ticks >> 3) + (ticks >> 5) - (ticks >> 6)); // + (ticks >> 8) - (ticks >> 9)
+        #elif (F_CPU == 30000000UL) // Easy overclock
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 3) - (ticks >> 4) + (ticks >> 8)); // Damned near perfect.
-        #elif (F_CPU == 25000000UL)
+          microseconds = overflows * 1000 + (ticks + (ticks >> 3) - (ticks >> 4) + (ticks >> 7) - (ticks >> 8)); // 5 terms is the optimal. Good but not as close as we get for most.
+        #elif (F_CPU == 25000000UL) // Barely overclocked.
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 5)); // - (ticks >> 7)
-          // Multiples of 12
-          // + (ticks >> 3) - (ticks >> 5) is better than + (ticks >> 4) + (ticks >> 5) - same average, but alternating + and - gives less rounding error.
-        #elif (F_CPU == 48000000UL) // Extreme overclocking (sometimes works w/ext. clock on E-spec parts!)
+          microseconds = overflows * 1000 + (ticks + /* (ticks >> 1) -*/ (ticks >> 2) + /* (ticks >> 4) -*/ (ticks >> 5)); // DEAD ON with 5 terms
+
+        /* The Terrible Twelves (or threes) - Twelve may be a great number in a lot of ways... but here, it's actually 3 in disguise.
+         * NINE TERMS in the damned bitshift division expansion. And the result isn't even amazing. - it's worse than what can be done
+         * with just 5 terms for dividing by 36 or 25... where you're dividing by 9 and 12.5 respectively, or after the initial shifts, by
+         * 0.78125 and 1.25, and comparable to the best series for division by 1.375 (44 MHz) or 0.9375 (30 MHz) which each have 7 terms,
+         * though it's better than the best possible for the division by 0.875 associated with 28 MHs clocks which is also a 7 term one.
+         * This ends on This is division by 0.75, which sounds like it should be the easiest out of the lot.
+
+         * This does the following:
+         * ticks = ticks >> (1, 2, 3, 4, or 6 for 3 MHz, 6 MHz, 12 MHz, 24 MHz, or 48 MHz)
+         * ticks = ticks + (ticks >> 1) - (ticks >> 2) + (ticks >> 3) - (ticks >> 4) + (ticks >> 5) - (ticks >> 6) + (ticks >> 7) - (ticks >> 9)
+         *
+         * Equivalent to :
+         * ticks = ticks / (1.5, 3, 6, 12, or 24)
+         *
+         * Division is way too too slow, but we need to convert current timer ticks, which
+         * are are 0-2999, 0-5999, 0-11999, or 0-23999 into the 3 least significant digits
+         * of the number of microseconds so that it can be added to overflows * 1000.
+         *
+         * Runtime is 28, 30, 32, or 34 clocks
+         * 3 and 6 MHz not a supported speed.
+         * 57 replaced with 30 save 27 clocks @ 12 = 2 us saved
+         * 67 replaced with 32 save 35 clocks @ 24 = 1.5us saved
+         * 77 replaced with 34 save 43 clocks @ 48 = 1 us saved
+         */
+        #elif (F_CPU == 48000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || F_CPU == 6000000UL || 3000000UL)
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            #if (F_CPU != 3000000UL)
+              "lsr r1"        "\n\t"
+              "ror r0"        "\n\t"
+            #endif
+            #if (F_CPU == 12000000UL || F_CPU == 24000000UL || F_CPU == 48000000UL)
+              "lsr r1"      "\n\t"  //sacrifice 1 word for 9 clocks on the 12 MHz configuration
+              "ror r0"      "\n\t"
+            #endif
+            #if (F_CPU == 24000000UL || F_CPU == 48000000UL)
+              "lsr r1"      "\n\t"  // sacrifice 3 words for 12 clocks on the 24 MHz configuration
+              "ror r0"      "\n\t"
+            #endif
+            #if (F_CPU == 48000000UL )
+              "lsr r1"      "\n\t"  // sacrifice 5 words for 15 clocks on the 48 MHz configuration.
+              "ror r0"      "\n\t"
+            #endif
+            "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code.
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"  //
+            "add %A0, r0"   "\n\t"  // + ticks >> 1
+            "adc %B0, r1"   "\n\t"  //
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  // ticks >> 2. Now it's under 250, and r31 is 0
+            "mov r1,r0"     "\n\t"  // copy over
+            "lsr r1 "       "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >>3
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 4
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 5
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 6
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 7
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 9
+            "eor r1,r1"     "\n\t"  // clear out r1
+            "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+            "sbc %B0,r1"    "\n"  // carry
+            : "+r" (ticks)); // Do the rest in C
+          microseconds = overflows * 1000 + ticks; // nice and clean.
+
+        /* The Troublesome Tens - I initially fumbled this after the **now** r1 is 0 line
+         * I did several dumb things - at first I thought it was my pointless moving and
+         * adding. But the real problem was that on that line, I'd just deleted the
+         * now unnecessary lsr r1, leaving the next as ror instead of lsr. So instead of pushing
+         * that bit into the void, it came back as the new high bit, causing the device to travel
+         * back in time. Unfortunately, a few hundred milliseconds isn't far back enough to
+         * snag a winning ticket for todays lotto, but more than than the execution time
+         * of micros is far enough back to thoroughly break delay() Even if I could just go back
+         * just far enough to tell myself where the bug was, I'd take it...
+         *
+         * This does the following:
+         * ticks = ticks >> (1, 2, 3, or 4 for 5 MHz, 10 MHz, 20 MHz, or 40 MHz)
+         * ticks = ticks - (ticks >> 2) + (ticks >> 4) - (ticks >> 6) + (ticks >> 8)
+         *
+         * Equivalent to:
+         * ticks = tick / (2.5, 5, 10, or 20)
+         * Division is way too slow, but we need to convert current timer ticks, which
+         * are 0-2499, 0-4999, 0-9999, or 0-19999, into the 3 least significant digits
+         * of the number of microseconds so that it can be added to overflows * 1000.
+         *
+         * Runtime is 23,25,27, or 29 clocks, savings vs the best I could do in C
+         *
+         * 33 replaced with 23 save 10 clocks @ 5  = 2 us saved
+         * 46 replaced with 25 save 21 clocks @ 10 = 2.5 us saved
+         * 56 replaced with 27 save 29 clocks @ 20 = 1.5 us saved
+         * 66 replaced with 29 save 37 clocks @ 40 = 1 us saved
+         */
+        #elif (F_CPU == 40000000UL || F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            #if (F_CPU == 10000000UL || F_CPU == 20000000UL || F_CPU == 40000000UL)
+              "lsr r1"      "\n\t"  //sacrifice 1 word for 9 clocks
+              "ror r0"      "\n\t"
+            #endif
+            #if (F_CPU == 20000000UL || F_CPU == 40000000UL)
+              "lsr r1"      "\n\t"  // sacrifice 3 words for 12 clocks
+              "ror r0"      "\n\t"  // 20/40 only
+            #endif
+            #if (F_CPU == 40000000UL )
+              "lsr r1"      "\n\t"  // sacrifice 5 words for 15 clocks
+              "ror r0"      "\n\t"  // 40 only
+            #endif
+            "movw %A0,r0"   "\n\t"  // ticks
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"  //   ticks >> 2.
+            "sub %A0, r0"   "\n\t"  // - ticks >> 2
+            "sbc %B0, r1"   "\n\t"  // It could be 312 so we can't do what we did for the 12's
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"  // **now** r1 is 0.
+            "lsr r0"        "\n\t"
+            "mov r1,r0"     "\n\t"  // + ticks >> 4
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 6
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 8
+            "eor r1,r1"     "\n\t"  // restore zero_reg
+            "add %A0,r0"    "\n\t"  // add to the shifted ticks
+            "adc %B0,r1"    "\n"    // carry, do rest in c.
+            : "+r" (ticks));
+          microseconds = overflows * 1000 + ticks;
+/* replaces:
+        #elif (F_CPU == 48000000UL) // Extreme overclocking
           ticks = ticks >> 5;
           microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 3) - (ticks >> 5)); // - (ticks >> 7)
-        #elif (F_CPU == 24000000UL)
+        #elif (F_CPU == 24000000UL) // max rated speed
           ticks = ticks >> 4;
           microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 3) - (ticks >> 5)); // - (ticks >> 7)
         #elif (F_CPU == 12000000UL)
           ticks = ticks >> 3;
           microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 3) - (ticks >> 5)); // - (ticks >> 7)
-          // multiples of 10
-        #elif (F_CPU == 40000000UL) // appears to actually work!
+        // Never was an implementation for 6, but it's obvious what the old style implementation would be,
+
+        #elif (F_CPU == 40000000UL) // overclocked aggressively
           ticks = ticks >> 4;
           microseconds = overflows * 1000 + (ticks - (ticks >> 2) + (ticks >> 4) - (ticks >> 6)); // + (ticks >> 8)
         #elif (F_CPU == 20000000UL)
@@ -314,69 +517,76 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
         #elif (F_CPU ==  5000000UL)
           ticks = ticks >> 1;
           microseconds = overflows * 1000 + (ticks - (ticks >> 2) + (ticks >> 4) - (ticks >> 6)); // + (ticks >> 8)
-          // powers of 2
+*/
+
+        // powers of 2  - and a catchall for parts without dedicated implementations. It gives wrong results, but
+        // it also doesn't take forever like doing division would.
         #elif (F_CPU  == 32000000UL || F_CPU > 24000000UL)
           microseconds = overflows * 1000 + (ticks >> 4);
         #elif (F_CPU  == 16000000UL || F_CPU > 12000000UL)
           microseconds = overflows * 1000 + (ticks >> 3);
         #elif (F_CPU  ==  8000000UL || F_CPU >  6000000UL)
           microseconds = overflows * 1000 + (ticks >> 2);
-        #elif (F_CPU  ==  4000000UL || F_CPU >  3000000UL)
+        #elif (F_CPU  ==  4000000UL || F_CPU >=  3000000UL)
           microseconds = overflows * 1000 + (ticks >> 1);
         #else //(F_CPU == 1000000UL || F_CPU == 2000000UL) - here clock is running at system clock instead of half system clock.
               // also works at 2MHz, since we use CLKPER for 1MHz vs CLKPER/2 for all others.
           microseconds   = overflows * 1000 + ticks;
         #endif
-        #if !(F_CPU == 48000000UL || F_CPU == 44000000UL || F_CPU == 36000000UL || F_CPU == 28000000UL || \
-              F_CPU == 40000000UL || F_CPU == 30000000UL || F_CPU == 25000000UL || F_CPU == 20000000UL || \
-              F_CPU == 10000000UL || F_CPU ==  5000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || \
-              F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || \
-              F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 14000000UL )
-          #warning "Millis timer (TCBn) at this frequency unsupported, micros() will return totally bogus values."
+        #if !((F_CPU == 48000000UL || F_CPU == 36000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || /* multiples of 12           */ \
+               F_CPU == 40000000UL || F_CPU == 30000000UL || F_CPU == 20000000UL || F_CPU == 10000000UL || /* multiples of 10           */ \
+               F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || /* powers of 2               */ \
+               F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 25000000UL || F_CPU ==  5000000UL || /* powers of 2 cont, 25, 5   */ \
+               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL) &&                       /* oddball frequencies       */ \
+              ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) ||     /* warn fools who messed with the */ \
+               (TIME_TRACKING_TIMER_DIVIDER == 1 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 1000000)))/* timers.h file too*/
+          /* and expected that the core would sort out how to make the timer work correctly without them implementing it. No luck       */
+          #warning "Millis timer (TCBn) at this frequency and/or configuration unsupported, micros() will return totally bogus values."
         #endif
-      #else //TCA
+      #else //TCA - makes ab arrempt
         #if   (F_CPU == 48000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
+          /* Please compiler, do the math with uint8_t's not ints! */
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 5) + ((ticks >> (uint8_t) 2) + (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 5));
+              + (ticks * 5) + (((uint8_t) ticks >> (uint8_t) 2) + ((uint8_t) ticks >> (uint8_t) 4) + ((uint8_t) ticks >> (uint8_t) 5));
         #elif (F_CPU == 44000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 6) - ((ticks >> (uint8_t) 3) + (ticks >> (uint8_t) 4));
+              + (ticks * 6) - (((uint8_t) ticks >> (uint8_t) 3) + ((uint8_t) ticks >> (uint8_t) 4));
         #elif (F_CPU == 40000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 6) + ((ticks >> (uint8_t) 1) - (ticks >> (uint8_t) 3) + (ticks >> (uint8_t) 5));
+              + (ticks * 6) + (((uint8_t) ticks >> (uint8_t) 1) - ((uint8_t) ticks >> (uint8_t) 3) + ((uint8_t) ticks >> (uint8_t) 5));
         #elif (F_CPU == 36000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 256)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 7) + ((ticks >> (uint8_t) 3) - (ticks >> (uint8_t) 6));
+              + (ticks * 7) + (((uint8_t) ticks >> (uint8_t) 3) - ((uint8_t) ticks >> (uint8_t) 6));
         #elif (F_CPU == 30000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 8) + ((ticks >> (uint8_t) 1) + (ticks >> (uint8_t) 5) + (ticks >> (uint8_t) 7));
+              + (ticks * 8) + (((uint8_t) ticks >> (uint8_t) 1) + ((uint8_t) ticks >> (uint8_t) 5) + ((uint8_t) ticks >> (uint8_t) 7));
         #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 2) + ((ticks >> (uint8_t) 2) + (ticks >> (uint8_t) 5));
+              + (ticks * 2) + (((uint8_t) ticks >> (uint8_t) 2) + ((uint8_t) ticks >> (uint8_t) 5));
         #elif (F_CPU == 25000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 2) + ((ticks >> (uint8_t) 1) + (ticks >> (uint8_t) 4));
+              + (ticks * 2) + (((uint8_t) ticks >> (uint8_t) 1) + ((uint8_t) ticks >> (uint8_t) 4));
         #elif (F_CPU == 24000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 3) - ((ticks >> (uint8_t) 1) - (ticks >> (uint8_t) 3) - (ticks >> (uint8_t) 5) - (ticks >> (uint8_t) 7));
+              + (ticks * 3) - (((uint8_t) ticks >> (uint8_t) 1) - ((uint8_t) ticks >> (uint8_t) 3) - ((uint8_t) ticks >> (uint8_t) 5) - ((uint8_t) ticks >> (uint8_t) 7));
         #elif (F_CPU == 20000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 3) + ((ticks >> (uint8_t) 2) - (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 6));
+              + (ticks * 3) + (((uint8_t) ticks >> (uint8_t) 2) - ((uint8_t) ticks >> (uint8_t) 4) + ((uint8_t) ticks >> (uint8_t) 6));
         #elif (F_CPU == 12000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 5) + ((ticks >> (uint8_t) 2) + (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 5));
+              + (ticks * 5) + (((uint8_t) ticks >> (uint8_t) 2) + ((uint8_t) ticks >> (uint8_t) 4) + ((uint8_t) ticks >> (uint8_t) 5));
         #elif (F_CPU == 10000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 6) + ((ticks >> (uint8_t) 1) - (ticks >> (uint8_t) 3) + (ticks >> (uint8_t) 5));
+              + (ticks * 6) + (((uint8_t) ticks >> (uint8_t) 1) - ((uint8_t) ticks >> (uint8_t) 3) + ((uint8_t) ticks >> (uint8_t) 5));
         #elif (F_CPU ==  5000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 16)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-              + (ticks * 3) + ((ticks >> (uint8_t) 2) - (ticks >> (uint8_t) 4) + (ticks >> (uint8_t) 6));
+              + (ticks * 3) + (((uint8_t) ticks >> (uint8_t) 2) - ((uint8_t) ticks >> (uint8_t) 4) + ((uint8_t) ticks >> (uint8_t) 6));
         #else
           #if (TIME_TRACKING_TIMER_DIVIDER % (F_CPU / 1000000))
             #warning "Millis timer (TCAn) at this frequency unsupported, micros() will return bogus values."
           #endif
-          microseconds = ((overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-            + (ticks * (clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)/TIME_TRACKING_TIMER_PERIOD)));
+          microseconds = ((overflows *  clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+                            + (ticks * (clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF) / TIME_TRACKING_TIMER_PERIOD)));
         #endif
       #endif //end of timer-specific part of micros calculations
       return microseconds;

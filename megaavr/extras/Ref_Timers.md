@@ -162,32 +162,34 @@ Except when the resolution is way down near the minimum, the device spends more 
 
 
 ### TCBn for millis timekeeping
-When TCB2 (or other type B timer) is used for millis() timekeeping, it is set to run at the system clock prescaled by 2 (1 at 1 MHz system clock) and tick over every millisecond. This makes the millis ISR very fast, and provides 1ms resolution at all speeds for millis. The micros() function also has 1 us resolution at all clock speeds (though there are small deterministic distortions due to the performance shortcuts used for the microsecond calculations. The type B timer is an ideal timer for millis - as these parts have plenty of them, TCB2 is used by default on all parts exceopt DD-series devices with only 2 type B timers, which use TCB1 instead. Except on those smaller DD-series parts, there is rarely competition for type B timers for other purposes, like tone(), servo, input capture or outputting pulses of a controlled length, which is a relatively common procedure; it is anticipated that as libraries for IR, 433MHz OOK'ed remote control, and similar add support for the modern AVR parts, that these timers will see even more use.
+When TCB2 (or other type B timer) is used for millis() timekeeping, it is set to run at the system clock prescaled by 2 (1 at 1 MHz system clock) and tick over every millisecond. This makes the millis ISR very fast, and provides 1ms resolution at all speeds for millis. The micros() function also has 1 us or almost-1 us resolution at all clock speeds (though there are small deterministic distortions due to the performance shortcuts used for the microsecond calculations. The type B timer is an ideal timer for millis - as these parts (except for future DD-series parts) have plenty of them, TCB2 is used by default on all parts exceopt DD-series devices with only 2 type B timers, which use TCB1 instead. Except on those smaller DD-series parts, there is rarely competition for type B timers for other purposes, like tone(), servo, input capture or outputting pulses of a controlled length, which is a relatively common procedure; it is anticipated that as libraries for IR, 433MHz OOK'ed remote control, and similar add support for the modern AVR parts, that these timers will see even more use.
 
 
 |   CLK_PER | millis() | micros() | % in ISR | micros() time |
 |-----------|----------|----------|----------|---------------|
-|    48 MHz |     1 ms |     1 us |   0.14 % |          3 us |
+|    48 MHz |     1 ms |  1.33 us |   0.14 % | *      2.5 us |
 |    44 MHz |     1 ms |     1 us |   0.15 % |               |
-|    40 MHz |     1 ms |     1 us |   0.17 % |          4 us |
+|    40 MHz |     1 ms |     1 us |   0.17 % | *        3 us |
 |    36 MHz |     1 ms |     1 us |   0.18 % |          3 us |
 |    32 MHz |     1 ms |     1 us |   0.20 % |          3 us |
-|    30 MHz |     1 ms |     1 us |   0.22 % |               |
-|    28 MHz |     1 ms |     1 us |   0.23 % |               |
-|    25 MHz |     1 ms |     1 us |   0.26 % |          6 us |
-|    24 MHz |     1 ms |     1 us |   0.27 % |          7 us |
-|    20 MHz |     1 ms |     1 us |   0.33 % |          7 us |
+|    30 MHz |     1 ms |  1.07 us |   0.22 % |               |
+|    28 MHz |     1 ms |  1.14 us |   0.23 % |               |
+|    25 MHz |     1 ms |  1.28 us |   0.26 % |          6 us |
+|    24 MHz |     1 ms |  1.33 us |   0.27 % | *        5 us |
+|    20 MHz |     1 ms |     1 us |   0.33 % | *        6 us |
 |    16 MHz |     1 ms |     1 us |   0.40 % |          6 us |
-|    12 MHz |     1 ms |     1 us |   0.54 % |         12 us |
-|    10 MHz |     1 ms |     1 us |   0.65 % |         13 us |
+|    12 MHz |     1 ms |  1.33 us |   0.54 % | *       10 us |
+|    10 MHz |     1 ms |     1 us |   0.65 % | *       10 us |
 |     8 MHz |     1 ms |     1 us |   0.80 % |         11 us |
-|     5 MHz |     1 ms |     1 us |   1.30 % |         25 us |
+|     5 MHz |     1 ms |     1 us |   1.30 % | *       23 us |
 |     4 MHz |     1 ms |     1 us |   1.60 % |         21 us |
 |     1 MHz |     1 ms |     1 us |   6.50 % |         78 us |
-Resolution is always exactly 1ms for millis, and whereas TCAn micros() is limited by the resolution of the timer, here it's instead limited only by the resolution of the value we are returning. The timer count and the running tally of overflows could get us microseconds limited only by F_CPU/2
+
+Resolution is always exactly 1ms for millis, and whereas TCAn micros() is limited by the resolution of the timer, here it's instead limited only by the fact that the calculations drop the least significant bits first; this results in a value that may be as low as 750, yet is being mapped to 0-999, for 1.33 us resolution in the worst cases. The timer count and the running tally of overflows could get us microseconds limited only by F_CPU/2
 The percentage of time spent in the ISR varies in inverse proportion to the clock speed - the ISR simply increments a counter and clears its flags. 65 clocks from interrupt bit set to interrupted code resuming.
 
-The time that micros takes to return a value varies significatly with F_CPU. Specifically, powers of 2 are highly favorable, and almost all the calculations drop out of the 1 MHz case. micros takes between 78 and 160 clocks to run. Each factor of 2 increase in clock speed results in 10 extra clocks being added to micros in most cases (bitshifts, while faster than division, are still slow when you need multiples of them on larger types
+The time that micros takes to return a value varies significatly with F_CPU. Specifically, powers of 2 are highly favorable, and almost all the calculations drop out of the 1 MHz case. micros takes between 78 and 160 clocks to run. Each factor of 2 increase in clock speed results in 5 extra clocks being added to micros in most cases (bitshifts, while faster than division, are still slow when you need multiples of them on larger types, especially in compiler-generated code)
+* indicates that the shift & sum ersatz-division is done in hand-optimized assembly because I just couldn't stand how stupid the and stubborn the compiler was, and by the time I was done analyzing it, implementing it was trivial. This improves accuracy, particularly in the case significantly as well. In these optimized cases, as well as the powers of 2, the results are as good as possible in light of the specified resolution - where resolution is coarser than 1us, (1/resolution) of possible values for the three lowest digits (in normal base 10 number systems) is skipped and never shows up. These skipped values are distributed evenly between 1 and 999. For example, for 12/24/48, that means 250 values never show up. Of the remaining 750, 500 will show for only 1 "actual" microsecond value, and 250 for 2 consecutive "actual" microsecond values. See the table at the end of this document for the list of skipped least-significant-digit combinations. None of the optimized options will ever go back in time, even by a single microsecond (as long as the chance of backward time travel is limited to less than the time it takes micros to execute, it can't break delay(), cause timeouts to instantly expire or cause other catastrophic consequences) nor are more than 2 values in a row ever skipped where resolution > 1us.
 
 ### TCD0 for millis timekeeping
 TCD0 is not supported for millis timekeeping on these parts. Originally it was imagined that the implementation from megaTinyCore could simply be used - but there the main clock was prescaled from 16 or 20 MHz, and TCD0 ran from unprescaled osc, giving 2 channels of normal speed PWM and a predictable timebase for millis even clocked at 1 MHz. Here, the value proposition isn't as strong: there are more timers available, and the type D timer is readily put to use generating high frequency PWM which is more accessible thanks to the PLL  and higher maximum system clock speeds, which not only determine maximum frequency, but also how complicated calculations that have be performed at a specified frequency can be.  calculations that were on the edge of being too slow on the 0/1-series to be. (ex, motor control applications which must be outside of the range of human hearing for quieter operation. Note that such applications most certainly require a MOSFET gate driver. 50 kHz is an order of magnitude above the highest plausible frequency of PWM that could be used to drive a gate directly). .
@@ -207,3 +209,36 @@ The Servo library included with this core uses one Type B timer. It defaults to 
 Regardless of which type B timer it uses, Servo configures that timer in Periodic Interrupt mode (`CNTMODE`=0) mode with CLK_PER/2 or CLK_PER as the clock source, so there is no dependence on the TCA prescaler. The timer's interrupt vector is used, and it's period is constantly adjusted as needed to generate the requested pulse lengths. In 1.1.9 and later, CLK_PER is used if the system clock is below 10MHz to generate smoother output and improve performance at low clock speeds.
 
 The above also applies to the Servo_DxCore library; it is an exact copy except for the name. If you have installed a version of Servo via Library Manager or by manually placing it in your sketchbook/libraries folder, the IDE will use that in preference to the one supplied with this core. Unfortunately, that version is not compatible with the Dx-series parts. Include Servo_megaTinyCore.h instead in this case. No changes to your code are needed other than the name of the library you include.
+
+
+
+## Appendix: TCB Micros Artifacts
+3, 6, 12, 24, and 48 MHz, with the new optimized micros code, running from a TCB, is known to skip these (and only these) 250 values when determining the least significant thousand micros. That is, if you repeatedly calculate `micros % 1000`, none of these will show up until it has been running long enough for micros to overflow.
+
+```text
+2, 7, 10, 13, 18, 23, 28, 31,  34,  39,  42,  45,  50,  53,  56,  61,  66,  71,  74,  77,  82,  87,  92,  95,  98, 103, 108, 113, 116, 119, 124, 127, 130,
+135, 138, 141, 146, 151, 156, 159, 162, 167, 170, 173, 178, 181, 184, 189, 194, 199, 202, 205, 210, 213, 216, 221, 224, 227, 232, 237, 242, 245, 248, 253,
+258, 263, 266, 269, 274, 279, 284, 287, 290, 295, 298, 301, 306, 309, 312, 317, 322, 327, 330, 333, 338, 341, 344, 349, 352, 355, 360, 365, 370, 373, 376,
+381, 384, 387, 392, 395, 398, 403, 408, 413, 416, 419, 424, 429, 434, 437, 440, 445, 450, 455, 458, 461, 466, 469, 472, 477, 480, 483, 488, 493, 498, 501,
+504, 509, 512, 515, 520, 523, 526, 531, 536, 541, 544, 547, 552, 555, 558, 563, 566, 569, 574, 579, 584, 587, 590, 595, 600, 605, 608, 611, 616, 621, 626,
+629, 632, 637, 640, 643, 648, 651, 654, 659, 664, 669, 672, 675, 680, 685, 690, 693, 696, 701, 706, 711, 714, 717, 722, 725, 728, 733, 736, 739, 744, 749,
+754, 757, 760, 765, 770, 775, 778, 781, 786, 791, 796, 799, 802, 807, 810, 813, 818, 821, 824, 829, 834, 839, 842, 845, 850, 853, 856, 861, 864, 867, 872,
+877, 882, 885, 888, 893, 896, 899, 904, 907, 910, 915, 920, 925, 928, 931, 936, 941, 946, 949, 952, 957, 962, 967, 970, 973, 978, 981, 984, 989, 992, 995
+```
+
+The repeats are:
+```text
+0, 4, 8, 12, 16, 20, 24,  27,  32,  36,  40,  44,  48,  52,  57,  60,  64,  68,  72,  76,  80,  84,  88,  91,  96, 100, 104, 107, 111, 115, 120, 123, 128,
+132, 136, 140, 144, 148, 152, 155, 160, 164, 168, 172, 176, 180, 185, 188, 192, 196, 200, 204, 208, 212, 217, 220, 225, 229, 233, 236, 240, 244, 249, 252,
+256, 260, 264, 268, 272, 276, 280, 283, 288, 292, 296, 300, 304, 308, 313, 316, 320, 324, 328, 332, 336, 340, 345, 348, 353, 357, 361, 364, 368, 372, 377,
+380, 385, 389, 393, 397, 401, 405, 409, 412, 417, 421, 425, 428, 432, 436, 441, 444, 448, 452, 456, 460, 464, 468, 473, 476, 481, 485, 489, 492, 496, 500,
+505, 508, 513, 517, 521, 525, 529, 533, 537, 540, 545, 549, 553, 557, 561, 565, 570, 573, 577, 581, 585, 589, 593, 597, 601, 604, 609, 613, 617, 620, 624,
+628, 633, 636, 641, 645, 649, 653, 657, 661, 665, 668, 673, 677, 681, 684, 688, 692, 697, 700, 704, 708, 712, 716, 720, 724, 729, 732, 737, 741, 745, 748,
+752, 756, 761, 764, 768, 772, 776, 780, 784, 788, 792, 795, 800, 804, 808, 812, 816, 820, 825, 828, 832, 836, 840, 844, 848, 852, 857, 860, 865, 869, 873,
+876, 880, 884, 889, 892, 897, 901, 905, 909, 913, 917, 921, 924, 929, 933, 937, 940, 944, 948, 953, 956, 960, 964, 968, 972, 976, 980, 985, 988, 993, 997,
+```
+Similar lists can be generated for any other clock speed where resolution is coarser than 1us and a TCB is used.
+
+The number of values will, for ideal values, be `(1000) * (1 - (1 / resolution))` or something very close to that. Non-ideal series of terms or particularly adverse clock speeds may have more than that, as well as more cases of consecutive times that get the same micros value. If the terms were chosen poorly, it is possible for a time t give micros M where M(t-1) > M(t), violating the assumptions of the rest of the core and breaking EVERYTHING. 1.3.7 is belived to be free of them for all supported clock speeds. Likewise, it is possible for there to be larger skips or discontinuities, where M(t) - M(t-1) > 2, in constrast to skips listed above (where M(t) - M(t-1) = 2 ) or consecutive times return a repeated value (ie, M(t) = M(t-1))
+
+Timer options which have resolution of 1us (internally, it is lower) may have repeats or skips if fewer than the optimal number of terms were used (as is the case with non optimized options) or where the clock speed is particularky hard to work with, like the 28 MHz one.
