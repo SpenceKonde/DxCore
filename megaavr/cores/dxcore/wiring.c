@@ -456,20 +456,20 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
          */
         #elif (F_CPU == 40000000UL || F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)
           __asm__ __volatile__(
-            "movw r0,%A0"   "\n\t"
+            "movw r0,%A0"   "\n\t"  // no savings until after the initial rightshifts at 5 MHz
             "lsr r1"        "\n\t"
             "ror r0"        "\n\t"
             #if (F_CPU == 10000000UL || F_CPU == 20000000UL || F_CPU == 40000000UL)
-              "lsr r1"      "\n\t"  //sacrifice 1 word for 9 clocks
+              "lsr r1"      "\n\t"  // sacrifice 1 word for 9 clocks at 10 MHz
               "ror r0"      "\n\t"
             #endif
             #if (F_CPU == 20000000UL || F_CPU == 40000000UL)
-              "lsr r1"      "\n\t"  // sacrifice 3 words for 12 clocks
-              "ror r0"      "\n\t"  // 20/40 only
+              "lsr r1"      "\n\t"  // sacrifice 3 words for 12 clocks at 20 MHz
+              "ror r0"      "\n\t"
             #endif
             #if (F_CPU == 40000000UL )
-              "lsr r1"      "\n\t"  // sacrifice 5 words for 15 clocks
-              "ror r0"      "\n\t"  // 40 only
+              "lsr r1"      "\n\t"  // sacrifice 5 words for 15 clocks at 40 MHz
+              "ror r0"      "\n\t"
             #endif
             "movw %A0,r0"   "\n\t"  // ticks
             "lsr r1"        "\n\t"
@@ -527,7 +527,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
           microseconds = overflows * 1000 + (ticks >> 3);
         #elif (F_CPU  ==  8000000UL || F_CPU >  6000000UL)
           microseconds = overflows * 1000 + (ticks >> 2);
-        #elif (F_CPU  ==  4000000UL || F_CPU >=  3000000UL)
+        #elif (F_CPU  ==  4000000UL || F_CPU >= 3000000UL)
           microseconds = overflows * 1000 + (ticks >> 1);
         #else //(F_CPU == 1000000UL || F_CPU == 2000000UL) - here clock is running at system clock instead of half system clock.
               // also works at 2MHz, since we use CLKPER for 1MHz vs CLKPER/2 for all others.
@@ -537,7 +537,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
                F_CPU == 40000000UL || F_CPU == 30000000UL || F_CPU == 20000000UL || F_CPU == 10000000UL || /* multiples of 10           */ \
                F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || /* powers of 2               */ \
                F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 25000000UL || F_CPU ==  5000000UL || /* powers of 2 cont, 25, 5   */ \
-               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL) &&                       /* oddball frequencies       */ \
+               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU --  3000000UL)&& /* oddball frequencies       */ \
               ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) ||     /* warn fools who messed with the */ \
                (TIME_TRACKING_TIMER_DIVIDER == 1 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 1000000)))/* timers.h file too*/
           /* and expected that the core would sort out how to make the timer work correctly without them implementing it. No luck       */
