@@ -379,7 +379,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
          * 67 replaced with 32 save 35 clocks @ 24 = 1.5us saved
          * 77 replaced with 34 save 43 clocks @ 48 = 1 us saved
          */
-        #elif (F_CPU == 48000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || F_CPU == 6000000UL || 3000000UL)
+        #elif (F_CPU == 48000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || F_CPU == 6000000UL || F_CPU == 3000000UL)
           __asm__ __volatile__(
             "movw r0,%A0"   "\n\t"
             "lsr r1"        "\n\t"
@@ -537,10 +537,10 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
                F_CPU == 40000000UL || F_CPU == 30000000UL || F_CPU == 20000000UL || F_CPU == 10000000UL || /* multiples of 10           */ \
                F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || /* powers of 2               */ \
                F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 25000000UL || F_CPU ==  5000000UL || /* powers of 2 cont, 25, 5   */ \
-               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU --  3000000UL)&& /* oddball frequencies       */ \
+               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU ==  3000000UL)&& /* oddball frequencies       */ \
               ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) ||     /* warn fools who messed with the */ \
                (TIME_TRACKING_TIMER_DIVIDER == 1 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 1000000)))/* timers.h file too*/
-          /* and expected that the core would sort out how to make the timer work correctly without them implementing it. No luck       */
+          /* and expected that the core would sort out how to make the timer work correctly without them implementing it. No such luck  */
           #warning "Millis timer (TCBn) at this frequency and/or configuration unsupported, micros() will return totally bogus values."
         #endif
       #else //TCA - makes ab arrempt
