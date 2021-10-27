@@ -49,6 +49,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Fix obscure bug with TCB when used as PWM after you have manipulated the timer in ways rarely encountered on this core.
   * Correct micros on more obscure frequencies, mostly overclocked ones for which no division-without-division was available.
   * Support 25 and 30 MHz operation from an external crystal or clock source. This makes the list of frequencies match what whe support on megaTinyCore via tuning of the internal oscillator, and answers user requests (this would not normally be added because of user requests alone - more suitable crystals are inexpensive and readily available, and the internal oscillator is very well calibrated so external crystals are rarely necessary anyway. Seems we have more than one user who has an abundance of 25 MHz crystals and is too cheap to buy new ones.)
+  * Got fed up with the crap job the compiler did of on type B timer micros math. The two most importnant mathy (non-power-of-two MHz) clocks - 20 (and 40/10/5) and 24 (also 48/12) MHz are two of the hardest to do with bitshift-division. The compiler's incredible stupidity was just too much.
   * Fix typo in resumeTCA1()
   * init_millis() is supposed to be weakly defined so you can override it to kneecap millis from within your code, without relying on menu option. It wasn't
 * Absolutely massive documentation overhaul
