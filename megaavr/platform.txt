@@ -9,7 +9,7 @@ versionnum.major=1
 versionnum.minor=3
 versionnum.patch=7
 versionnum.postfix=
-versionnum.released=0
+versionnum.released=1
 
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
 
