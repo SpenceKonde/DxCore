@@ -113,12 +113,13 @@ When a single number is used to refer to a pin - in the documentation, or in you
 #### An and PIN_An constants (for compatibility)
 The core also provides An and PIN_An constants (where n is a number from 0 to the number of analog inputs). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind analogRead() - but here, they are just #defined as the corresponding Arduino pin number. The An names are intentionally not shown on the pinout charts, as this is a deprecated way of referring to pins. However, these channels are shown on the pinout charts as the ADCn markings, and full details are available in the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel.
 
-DB-series parts with 32 or 28 pins don't have a an analog channel 0. It's located on pin PD0, which was displaced by the VDDIO2 pin.
+#### There is no A0 aka PIN_PD0 aka 12 on DB-series parts with less than 48 pins.
+DB-series parts with 32 or 28 pins don't have a an analog channel 0. It's located on pin PD0, which was displaced by the VDDIO2 pin. Based on the errata - the PD0 pad exists on the chip... but doesn't have any bond wire attached to it. Per manufacturer recommendations we disable the digital input buffer to save power.
 
 ## Exposed Hardware Features
 
 ### ADC Support
-These parts all have a large number of analog inputs - DA and DB-series have up to 24 analog inputs, while the DD-series has analog input on every pin that is not used to drive the HF crystal (though the pins on PORTC are only supported when MVIO is turned off, which may or may not be supported by DxCore directly). They can be read with analogRead() like on a normal AVR, and we default to 10-bit resolution; you can change to 12-bit with `analogReadResolution()`, and use the enhanced analogRead functions to take automatically oversampled, decimated readings for higher resolution or take differential measurements. There are 4 internal voltage references in 1.024, 2.048, 4.096 and 2.5V, plus support for external reference voltage (and Vdd of course). ADC readings are taken 3 times faster than an classic AVR, and that speed can be doubled again if what you are measuring is low impedance, or extend the sampling time by a factor of 16 for reading very high impedance sources.
+These parts all have a large number of analog inputs - DA and DB-series have up to 22 analog inputs, while the DD-series has analog input on every pin that is not used to drive the HF crystal (though the pins on PORTC are only supported when MVIO is turned off). They can be read with analogRead() like on a normal AVR, and we default to 10-bit resolution; you can change to the full 12-bit with `analogReadResolution()`, and use the enhanced analogRead functions to take automatically oversampled, decimated readings for higher resolution and to take differential measurements. There are 4 internal voltage references in 1.024, 2.048, 4.096 and 2.5V, plus support for external reference voltage (and Vdd of course). ADC readings are taken 3 times faster than an classic AVR, and that speed can be doubled again if what you are measuring is low impedance, or extend the sampling time by a factor greatly for reading very high impedance sources. This is detailed in the analog reference.
 
 ### DAC Support
 The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference or control voltage, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). Call `analogWrite()` on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call `digitalWrite()` or `turnOffPWM()` on that pin.
@@ -200,18 +201,50 @@ For full information and example, but postentially dated information (attachInte
 There are three options, controlled by the Tools -> attachInterrupt Mode submenu: the new, enabled on all pins always (like the old one), manual (ports must be enabled before attaching to them), and old version (if the new implementation turns out to break something). Manual mode is required for the main benefit. In manual mode, you must call attachPortAEnable() (replace A with the letter of the port) before attaching the interrupt. The main point of this is that (in addition to saving an amount of flash that doesn't much matter on the Dx-series) attachInterrupt() on one pin (called by a library, say) will not glom onto every single port's pin interrupt vectors so you can't manually define any. The interrupts are still just as slow (it's inherrent to calling a function by pointer from an ISR - and low-numbered pins are faster to start executing than high numbered ones. The method to enable may change - I had hoped that I could detect which pins were used, but I couldn't get the function chose which ports to enable to not count as "referencing" those ports, and hence pull inthe ISR. I am not happy with it, but "can't use any pin interrupts except through attachInterrupt() if using a library that uses attachInterrupt()" is significantly worse.
 
 ### On-chip Opamps
-The DB-series parts have 2 or 3 on-chip opamps, with programmable resistor ladder, configurable for a variety of applications. They can be used as a voltage follower (you can follow the DAC and then use the output to drive VDDIO2, though the current is still only tens of mA, that's usually enough - driving heavy loads at the lower voltage is an unusual use case (I imagine powering low voltage sensors is not particularly rare - but those sort of modern sensors are also usually very low current).
+The DB-series parts have 2 (28 or 32 pin) or 3 (48/64 pin) on-chip opamps, with programmable resistor ladder, configurable for a variety of applications. They can be used as a voltage follower (you can follow the DAC and then use the output to drive VDDIO2, though the current is still only tens of mA, that's usually enough - driving heavy loads at the lower voltage is an unusual use case (I imagine powering low voltage sensors is not particularly rare - but those sort of modern sensors are also usually very low current).
 
 We provide a basic wrapper in the form of the [Opamp Library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Opamp) by MCUDude.
 
 ### Configurable Custom Logic
-The CCL is exposed through the [Logic library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Logic) by MCUDude.
+The CCL is exposed through the [Logic library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Logic) by MCUDude. Number of logic blocks depends on series and pincount:
+* 64/48 pin DA/DB have 6
+* Everything else has 4
 
 ### Event System
-The event system is exposed through the [Event library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Event) by MCUDude.
+The event system is exposed through the [Event library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Event) by MCUDude. Number of channels depends on series and pincount:
+* 8 channels on 28/32-pin DA/DB
+* 10 on larger DA/DB
+* 6 on everything else.
 
-### Comparators
-The analog comparators are exposed through the [Comparator library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Comparator) by MCUDude.
+### Analog Comparators
+The analog comparators are exposed through the [Comparator library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Comparator) by MCUDude. Availability varies by pincount:
+* 2 on 28 and 32 pin DA/DB
+* 3 on 48/64 pin DA/DB
+* 1 on all DD.
+* 2 on all EA-series regardless of pincount.
+
+### Zero-Crossing Detector
+The ZCD(s) are exposed through the [ZCD library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/ZCD) by MCUDude. Availability depends on pincount:
+* 2 on 28 and 32 pin DA/DB
+* 3 on 48/64 pin DA/DB
+* 1 on all DD
+* The EA-series does not have any
+
+### Timers
+These parts for the most part are swimming in timers:
+* TCA
+  * 2 on 48/64 pin DA/DB and all EA-series
+  * 1 elsewhere
+* TCB
+  * 5 on 64-pin parts
+  * 4 on 48-pin parts and all EA-series
+  * 3 on all 28/32-pin Dx-series
+  * 2 on smaller parts
+* TCD
+  * 1 on all DA, DB, and DD parts
+  * None on DU (presumably it's what they're using to generate the 48 MHz reference clock needed for standards compliant USB 2.0)
+  * None on the EA-series
+
 
 ## Major core features
 
