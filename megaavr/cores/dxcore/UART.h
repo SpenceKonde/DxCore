@@ -169,8 +169,8 @@ class UartClass : public HardwareSerial {
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
     void begin(unsigned long, uint16_t);
     void end();
-    uint8_t pins(uint8_t tx, uint8_t rx);
-    uint8_t swap(uint8_t state);
+    bool pins(uint8_t tx, uint8_t rx);
+    bool swap(uint8_t state);
     void printHex(const uint8_t b);
     void printHex(const uint16_t w, bool swaporder = 0);
     void printHex(const uint32_t l, bool swaporder = 0);

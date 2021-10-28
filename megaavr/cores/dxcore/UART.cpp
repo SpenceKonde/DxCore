@@ -132,19 +132,18 @@ void UartClass::_rx_complete_irq(UartClass& uartClass) {
 
 void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
   USART_t* usartModule = (USART_t*)uartClass._hwserial_module;  // reduces size a little bit
-
   tx_buffer_index_t txTail = uartClass._tx_buffer_tail;
+/*
   // Check if tx buffer already empty. when called by _poll_tx_data_empty()
-
   if (uartClass._tx_buffer_head == txTail) {
     // Buffer empty, so disable "data register empty" interrupt
     usartModule->CTRLA &= (~USART_DREIE_bm);
     return;
-  }
+  } //moved to poll function to make ISR smaller and faster
+*/
 
   // There must be more data in the output
   // buffer. Send the next byte
-
   uint8_t c = uartClass._tx_buffer[txTail];
 
   // clear the TXCIF flag -- "can be cleared by writing a one to its bit
@@ -209,6 +208,11 @@ void UartClass::_poll_tx_data_empty(void) {
 
     // Invoke interrupt handler only if conditions data register is empty
     if ((*_hwserial_module).STATUS & USART_DREIF_bm) {
+      if (_tx_buffer_head != _tx_buffer_tail) {
+        // Buffer empty, so disable "data register empty" interrupt
+        (*_hwserial_module).CTRLA &= (~USART_DREIE_bm);
+        return;
+      }
       _tx_data_empty_irq(*this);
     }
   }
@@ -219,7 +223,7 @@ void UartClass::_poll_tx_data_empty(void) {
 // Public Methods //////////////////////////////////////////////////////////////
 
 // Invoke this function before 'begin' to define the pins used
-uint8_t UartClass::pins(uint8_t tx, uint8_t rx) {
+bool UartClass::pins(uint8_t tx, uint8_t rx) {
   uint8_t ret_val = _pins(_usart_pins, _mux_count, tx, rx);   // return -1 (255) when correct swap number wasn't found
   return swap(ret_val);   // this should technically work, right?
   // if (ret_val != 255){
@@ -230,8 +234,8 @@ uint8_t UartClass::pins(uint8_t tx, uint8_t rx) {
   // }
 }
 
-uint8_t UartClass::swap(uint8_t state) {
-  if (state < _mux_count) {
+bool UartClass::swap(uint8_t state) {
+  if (state <= _mux_count) {
     _pin_set = state;
     return true;
   }
@@ -429,47 +433,62 @@ void UartClass::flush() {
 
 
 void UartClass::_mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code) {
-  uint8_t* portReadPointer = pinInfo + (mux_count * USART_PINS_WIDTH);  // Due to pinInfo being a pointer to a two-dimensional array, the offset has to be calculated 'by hand'
-  uint32_t portRead = pgm_read_dword_near(portReadPointer);             // and stating what it points to and casting everywhere makes it annoying
-  volatile uint8_t* portmux = (uint8_t*)(uint16_t)portRead;   // use the first two bytes
+#if HWSERIAL_MUX_REG_COUNT > 1  // for big pincount devices that have more then one USART PORTMUX register
+  uint8_t* portReadPointer = pinInfo + (mux_count * USART_PINS_WIDTH) + 1;
+  uint16_t portRead = pgm_read_word_near(portReadPointer);
+  volatile uint8_t* portmux = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)portRead);
   uint8_t temp   = *portmux;
-  temp          &= ~((uint8_t)(portRead >> 16));    // use third byte
+  temp          &= ~((uint8_t)(portRead >> 8));
   temp          |= mux_code;
   *portmux       = temp;
+#else
+  uint8_t* portReadPointer = pinInfo + (mux_count * USART_PINS_WIDTH) + 2;
+  uint8_t portRead = pgm_read_byte_near(portReadPointer);     // only read the group mask
+  volatile uint8_t* portmux = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE);
+  uint8_t temp   = *portmux;
+  temp          &= ~(portRead);
+  temp          |= mux_code;
+  *portmux       = temp;
+#endif
 }
 
 
 void UartClass::_set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting, uint8_t enable/*, uint8_t extras_bm*/) {
   uint8_t* pinInfoPointer = pinInfo + (mux_setting * USART_PINS_WIDTH);
-  uint8_t muxReadInfo = pgm_read_byte_near(pinInfoPointer);
+  uint16_t pinReadInfo = pgm_read_word_near(pinInfoPointer);
+  uint8_t muxReadInfo = (uint8_t) (pinReadInfo);
+//  old implementation below for MSPI
 //  uint32_t pinReadInfo = pgm_read_dword_near(pinInfoPointer + 1);  // the following is more efficient then using a pgm byte read for single bytes
 //  uint8_t txReadInfo =   (uint8_t) (pinReadInfo);           // since this way the compiler uses LPM Z+ instead of incrementing r18/r19, then
 //  uint8_t rxReadInfo =   (uint8_t) (pinReadInfo >> 8);      // MOVW r30, r18 and only then LPM Z. (r18/r19 were the registers in my case, may differ)
 //  uint8_t xclkReadInfo =  (uint8_t) (pinReadInfo >> 16);    // also, memcpy_P is significantly bigger then read_dword_near
 //  uint8_t xdirReadInfo = (uint8_t) (pinReadInfo >> 24);
-  uint16_t pinReadInfo = pgm_read_word_near(pinInfoPointer + 1);
-  uint8_t txReadInfo =   (uint8_t) (pinReadInfo);
-  uint8_t rxReadInfo =   (uint8_t) (pinReadInfo >> 8);
 
-  if (enable == 0) {  // disable pins
-    pinMode(rxReadInfo, PIN_INPUT_DISABLE);
-    pinMode(txReadInfo, PIN_INPUT_DISABLE);
-    // if (extras_bm & 0x01) {  // XCLK / XDIR / MSPI support prototype
-    //  pinMode(xckReadInfo, PIN_INPUT_DISABLE);
-    // } else if (extras_bm 0x04) {
-    //  pinMode(xdirReadInfo, PIN_INPUT_DISABLE);
-    // }
-  } else {
-    pinMode(rxReadInfo, INPUT_PULLUP);
-    pinMode(txReadInfo, OUTPUT);
-    // if (extras_bm & 0x01) {  // XCLK / XDIR / MSPI support prototype
-    //  pinMode(xckReadInfo, INPUT);
-    // } if (extras_bm & 0x02) {
-    //  pinMode(xckReadInfo, OUTPUT);
-    // } if (extras_bm & 0x04) {
-    //  pinMode(xdirReadInfo, OUTPUT);
-    _mux_set(pinInfo, mux_count, muxReadInfo);
+  if (mux_setting < mux_count) {
+    uint8_t txReadInfo =   (uint8_t) (pinReadInfo >> 8);
+    uint8_t rxReadInfo =   txReadInfo + 1;
+
+    if (enable == 0) {  // disable pins
+      pinMode(txReadInfo, PIN_INPUT_DISABLE);
+      pinMode(rxReadInfo, PIN_INPUT_DISABLE);
+      // if (extras_bm & 0x01) {  // XCLK / XDIR / MSPI support prototype
+      //  pinMode(xckReadInfo, PIN_INPUT_DISABLE);
+      // } else if (extras_bm 0x04) {
+      //  pinMode(xdirReadInfo, PIN_INPUT_DISABLE);
+      // }
+      return;
+    } else {
+      pinMode(txReadInfo, OUTPUT);
+      pinMode(rxReadInfo, INPUT_PULLUP);
+      // if (extras_bm & 0x01) {  // XCLK / XDIR / MSPI support prototype
+      //  pinMode(xckReadInfo, INPUT);
+      // } if (extras_bm & 0x02) {
+      //  pinMode(xckReadInfo, OUTPUT);
+      // } if (extras_bm & 0x04) {
+      //  pinMode(xdirReadInfo, OUTPUT);
+    }
   }
+  _mux_set(pinInfo, mux_count, muxReadInfo);
 }
 
 
@@ -479,9 +498,9 @@ uint8_t UartClass::_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, ui
     for (uint8_t i = 0; i < mux_count; i++) {
       // uint8_t* pins = pinInfo + (i * USART_PINS_WIDTH);  // get the pointer to the second dimension of the two-dimensional pin array
 
-      uint16_t pinReadInfo = pgm_read_word_near(pinInfo);
-      uint8_t txReadInfo = (uint8_t) (pinReadInfo);
-      uint8_t rxReadInfo = (uint8_t) (pinReadInfo >> 8);
+      uint8_t pinReadInfo = pgm_read_byte_near(pinInfo);
+      uint8_t txReadInfo = pinReadInfo;
+      uint8_t rxReadInfo = txReadInfo + 1;
 
       if (tx_pin == txReadInfo && rx_pin == rxReadInfo) {
         return i;   // returns the swap number
