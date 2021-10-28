@@ -2,18 +2,22 @@
 This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of DxCore. Note that this document is maintained by a human, who is - by nature - imperfect; sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare.
 
 ## Changes not yet in release
+Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes. This release really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
 ### Planned 1.4.0
-* Completely new Wire.h library weith exciting features
+__ DD-series support, assuming they ever come out (All that's left undone here is the variant files, which were delayed by the serial questions, but now that those have been answered, that can proceed.
+
+### Planned next release:
+__ Completely new Wire.h library weith exciting features - Thanks to @MX682X!
   * Master + Slave on the same TWI - either using the same pins or in dual mode
   * Support for TWI1 assuming your device has it.
-  * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library.
-[ ] DD-series support, assuming they ever come out.
-[ ] DD or not, changes to Serial are badly needed.
-[ ] Major rearchitecture of the pinswap handling for serial because the existing implementation was not well suited to adaptation to the case of N pin mappings per serial port where N > 2 (and even where N = 2 it was marginal). This new mess isn't yet *used* by HardwareSerial, but we will soon.
+  * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
+__ Looks like we we're getting those serial changes - also thanks to @MX682X!
+__ Expanded Event library from collaboration with @MCUDude
 
 
-### Planned 1.3.7
-Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes. This release really snowballed.... It was supposed to be a quick, small release!
+
+
+1.3.7
 * General:
   * reimplemented attachInterrupts completely, so it now has a separate file for eaach port.  It doesn't do what I'd hoped to be able to do, get it to automatically only include ports you attach to; so I default to it being on all ports for compatibility, but have menu option to either do that manually - or revert to the old version if I broke something. Note: I didn't bother fixing PORTG on the old version implementation. That never worked, and nobody noticed! The new version is smaller.
   * Move to C++17 pulling in the changes from megaTinyCore (to new.cpp and new.h)
