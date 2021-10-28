@@ -7,26 +7,27 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 | Clock Speed | Within Spec |      Internal |  Ext. Crystal |    Ext. Clock | Notes
 |-------------|-------------|---------------|---------------|---------------|---------------
 |       1 MHz |         Yes |           Yes | Not by DxCore | Not by DxCore | 1 MHz is used for low power stuff, but xtal/ext osc uses more power.
-|       2 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported because nobody wants it
-|       3 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | As above, plus makes math hard
+|       2 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported. micros() would work, delayMicroseconds would not.
+|       3 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported. micros() would work. delayMicroseconds would not. micros() comes for free with 6/12/24/48
 |       4 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | 4 MHz Internal is default. Optiboot always uses this.
+|       6 MHz |         Yes |     Prescaled | Not by DxCore | Not by DxCore | Unsupported. Prescale 12 by 2. micros would work, delayMicroseconds would not.
+|       7 MHz |         Yes |            No | Not by DxCore | Not by DxCore | Unsupported. Prescale 24 by 4. micros would work, delayMicroseconds would not.
 |       8 MHz |         Yes |           Yes |           Yes |           Yes |
 |      12 MHz |         Yes |           Yes |           Yes |           Yes |
+|      14 MHz |       Kinda | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported. Prescale 28 by 2. micros would work, delayMicroseconds would not.
 |      16 MHz |         Yes |           Yes |           Yes |           Yes |
 |      20 MHz |         Yes |           Yes |           Yes |           Yes |
 |      24 MHz |         Yes |           Yes |           Yes |           Yes |
-|      25 MHz |          No |            No |           Yes |           Yes | A lot of people have infinite 25 MHz crystals
+|      25 MHz |          No |            No |           Yes |           Yes | A lot of people have infinite 25 MHz crystals, apparently.
 |      28 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp. Lousy speed
-|      30 MHz |          No |           Yes |           Yes |           Yes | Max. megaTinyCore overclock for 0/1series via tuned internal
+|      30 MHz |          No |           Yes |           Yes |           Yes | Max. megaTinyCore overclock for 0/1 series via tuned internal
 |      32 MHz |          No |           Yes |           Yes |           Yes | Generally works at toom temp.
-|      36 MHz |          No |            No |           Yes |           Yes |
-|      40 MHz |          No |            No |    Most chips |           Yes | Majority of parts, even non-E-spec work w/xtal @ room temp.
-|      44 MHz |          No |            No | Not by DxCore | Not by DxCore | I appear to have done all the "work" to support it
+|      36 MHz |          No |            No |           Yes |           Yes | Never tested it, oddly enough. Will probably work on nearly all parts in favorable conditions.
+|      40 MHz |          No |            No |    Most chips |    Most chips | Majority of parts, even non-E-spec work w/xtal @ room temp. Some can't. Switching to external CLOCK might help.
+|      44 MHz |          No |            No |  May not work | Not by DxCore | Unsupported because nobody wants it. I think it would just work though, if there was any reason to use it.
 |      48 MHz |          No |            No |  Doesn't work |    Some chips | Some E-spec (extended temp. range) can do it.
 
-
-
-Running at 48 MHz is an ambitious overclock and is totally unnecessary. So far, I had success at room temperature with external clocks, but not external crystals, and only when using the E-spec (extended temperature range) parts (which makes sense). I am surprised how they will "just work" at 40 from a crystal though, even I-spec parts seem to do it. However, not all parts are capable of this. Out of around a dozen parts, I've so far found 1 that doesn't work at 40. CLKOUT will keeo running, and it will run for a very short time and then hang (which is honestly really weird. )
+Running at 48 MHz is an ambitious overclock and is totally unnecessary. So far, I had success at room temperature with external clocks, but not external crystals, and only when using the E-spec (extended temperature range) parts (which makes sense). I am surprised how they will "just work" at 40 from a crystal though, even I-spec parts usually do However, not all parts are capable of this. Out of around a dozen parts, I've so far found 1 that doesn't work at 40. As usual with AVRs, it's the ALU that starts failing first. I have an I-spec that, at 48 external clock will run a program that does a 1 second delay between calling micros (so lots of math is being done, then prints it). Like with over-overclocked tinies, if it's not so high that they crash immediately, they start getting math wrong, which shows up as 0's being printed for micros/millis(). This is unstable, as eventually a return address will get broken, it will return to that, and everything will fail (this may now turn into a reset if you're properly handling reset flags)
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - (in my tests the PLL worked well beyond the spec in both directions, at least at room temperature, not that you'd want to do that in production) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future. There might be reasons to just run the TCD off the unprescaled clock in order to.... I'm not sure what....
 
@@ -126,9 +127,9 @@ void setup() {
 
 ```
 
-`_switchInternalToF_CPU()` is a macro provided essentially for this and only this purpose (I can't think of any other use cases...).  While you could of course write to `CLKCTRL_OSCHFCTRLA` and that's notmally what we would tell you to do,, Microchip has changed the name of the bitfield in a released ATPACK which is not yet being used by this core. To futureproof against that, this macro, like the initialization routines, uses the bare numbers, and if I told you to use one spelling, it would break in the next toolchain version,, and if I told you the spelling that would work in the next compiler version, it wouldn't work today. But because you need the raw numbers, and because no use case where F_CPU != Actual CPU frequency which are supported by DxCore, this macro seemed like the quickest cleanest approach.
+`_switchInternalToF_CPU()` is a macro provided essentially for this and only this purpose (I can't think of any other use cases...).  While you could of course write to `CLKCTRL_OSCHFCTRLA` and that's normally what we would tell you to do,, Microchip has changed the name of the bitfield in a released ATpack which is not yet being used by this core. To futureproof against that, this macro, like the initialization routines, uses the bare numbers, and if I told you to use one spelling, it would break in the next toolchain version, and if I told you the spelling that would work in the next compiler version, it wouldn't work today. But working with a bunch of raw numbers and remembering what they do is
 
-An analogous situation in the event of clock failure is probably not a good idea; the clock failure detection interrupt hardly ever triggers in my experience, even when I, say, cause the crystal to stop oscillating by connecting a long wire to it. In these cases, the failure rarely results in the CDF interrupt being called. Instead, I would suggest you just reset if you want to fallback to internal - use the avove code to detect the clock timeout at startup, and, if the WDT is not running, override onClockFailure to reset, where presumably the startup would find that it didn't have a clock and set intoernal clock correctly:
+An analogous situation in the event of clock failure is probably not a good idea; the clock failure detection interrupt hardly ever triggers in my experience, even when I, say, cause the crystal to stop oscillating by connecting a long wire to it or touching it a non-rigid but internally conducting object (which changes capacitance) connected to a nearly 6 foot long, oddly shaped and utterly untuned squishy antenna (respectivly, I think the technical terms for those are "hand" and "body, but that's way outside my field). In these cases, the failure rarely results in the CFD interrupt being called. Instead, I would suggest you just reset if you want to fallback to internal - use the above code to detect the clock timeout at startup, and override onClockFailure to simply reset, where presumably the startup would find that it didn't have a clock and set intoernal clock correctly:
 ```c++
 void onClockFailure() {
   _PROTECTED_WRITE(RSTCTRL.SWRR,1); //issue a software reset.

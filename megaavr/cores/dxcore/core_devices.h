@@ -39,8 +39,9 @@
  * This is a major hindrance to writing highly portable code. This is not expected to present any sort of issue. HOWEVER if it does,
  * The line above can be uncommented to disable all of the places where we find this and add define the old names to point to new ones.
  * The spelling of here is intentional. With it undefined, we will define the backwards compatible names, but if not.
- * If instead the user seeks to thwart compatibility (or alert themselves to code where they used old names) they are seeing the
- * opposite of backward compatibility, what some wags have terms "backward combatibility" */
+ * If instead the user seeks to thwart compatibility (or alert themselves to code where they used old names) they are seeking the
+ * opposite of backward compatibility like (apparently) Microchip is, Some wags have have termed this "backward combatibility"
+ * in that case, you can enable backwards combatibility mode and none of these macros */
 
 // #define BACKWARD_COMBATIBILITY_MODE
 
@@ -53,14 +54,13 @@
     #define RTC_CLKSEL_OSC1K_gc   RTC_CLKSEL_INT1K_gc
     #define RTC_CLKSEL_TOSC32K_gc RTC_CLKSEL_XTAL32K_gc
   #endif
-
   /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
    * They now appear to have decided they don't like either of the previous conventions, one just a few years old. Now they are grouping
    * them under a "General Purpose Register". "peripheral". I cannot argue that GPR doesn't make more sense, as there's not really any
    * I/O occurring here (ofc they were referring to the IN and OUT instructions, which can be used on these), but I certainly wouldn't
    * have changed a convention like this, at least not when I had just done so a few years prior. */
 
-  // Pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn .
+  // All non-xmega pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn
   #ifndef GPIOR0
     #define GPIOR0 (GPR_GPR0)
     #define GPIOR1 (GPR_GPR1)
@@ -68,41 +68,96 @@
     #define GPIOR3 (GPR_GPR3)
   #endif
 
-  // For a while, these were called GPIO in the i/o headers...
+  /* In one xMega AVR, they were GPIOn, rather than GPIORn
+   * One? Yup: The ATxmega32d4. Not the 32d3, nor the 32e5, nor anything else. All the xmega's have GPIORs
+   * and their headers list the GPIOn names too. But.... they ar
+   * but there is only a single header file with them not marked as "Deprecated": ATxmega32D4
+   * 24 of the 46 xmega parts with headers in the compiler packages (including the 32d3 and 32e5) had the
+   * 4 GPIOR's that we have, and had GPIOn and GPIO_GPIOn present but marked as deprecated.
+   * On those parts, these are at addresses 0x0000-0x003, and 0x0004-0x000F do not appear to be used.
+   * The other 22.... had THE ENTIRE FIRST HALF OF THE LOW I/O SPACE as GPIOR0-GPIORF!
+   * Which ones got all of them and which ones only got 4 seems to have been chosen in typical
+   * Atmel fashion (in other words, randomly). No apparent pattern in time or other parameters.
+   * Either way, that left them with space for only 4 VPORT register sets (like the ones we got)
+   * These had to be configured to point to the desired port.
+   * I'm sure everyone is greatful for the fact that the folks designing the Dx-series have their
+   * heads screwed on properly and realized that 4 GPIOR-- excuse me, GPRs, 4 awkward VPORTs and
+   * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
+   * xmega line, and decided that wasn't a winning formula */
   #ifndef GPIO0
     #define GPIO0 (GPR_GPR0)
+    #define GPIO_GPIO0 (GPR_GPR0)
     #define GPIO1 (GPR_GPR1)
+    #define GPIO_GPIO0 (GPR_GPR1)
     #define GPIO2 (GPR_GPR2)
+    #define GPIO_GPIO0 (GPR_GPR2)
     #define GPIO3 (GPR_GPR3)
+    #define GPIO_GPIO0 (GPR_GPR3)
+  #endif
+  /* Of course in these more enlightened times, we know better!
+
+   * They are are the 4 registers in the GPR "peripheral", GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
+   * Let's not split hairs about whether calling 4 registers that do absolutely nothing other than being
+   * located at addresses 0x1C, 0x1D, 0x1E and 0x1F allowing use of all the glorious instructions that brings
+   * SBI, CBI, SBIS, SBIC, IN, and OUT, is enough to qualify as a peripheral.
+   * Anyway - the flat names were used because if we don't, in some situations that winds up causing weird
+   * problems. */
+
+  #if defined (__AVR_DB__)
+    /* They changed the damned name after selling the part for 6 months!
+     * annoyingly you can't even test if it's using the new version of the headers because it's an enum! */
+    #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
   #endif
 
-  // Of course in these more enlightened times, we know better!
-  // They are are the 4 registers in the GPR peripheral, GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
-  // but if we dont use the flat name, it could cause problems when substituted in under some conditions.
+  #if !defined(CLKCTRL_FREQSEL_gm) /* And one version later they did it again... */
+    #define CLKCTRL_FREQSEL_gm CLKCTRL_FRQSEL_gm
+  #endif
+
+  #if !defined(CLKCTRL_FREQSEL_gp) /* This impacts all frequency group codes too; those aren't corrected (same enum thing) */
+    #define CLKCTRL_FREQSEL_gp CLKCTRL_FRQSEL_gp
+  #endif
 #endif
 
+/* Chip families
+ *
+ * 0b ffssfppp
+ *
+ * ff__f is a 3-bit family code 00__0 is the DA, 00__1 is DB,
+ * 01__0 is DD. Dx-series grows up from bottom, Ex-series down
+ * from top in order of availability of silicon. So the next two
+ * are going to be 11__1 for the EA and 01__1 for the DU
+ * ss is flash size; 0 is smallest flash in family, 1 second smallest
+ * (generally 2x smallest) 2 for next size up, and 3 for an even larger
+ * one.
+ * ppp is code for the pincount.
+ * interestingly enough this range can extend to cover all pincounts used
+ * in recent times on AVR devices except the 100-pin '2560. There  is
+ * only one smaller one, the 8-pin of the '85  and 'xy2 - 000
+ * while the gap at 0x03 is for the 24-pin package.
+ *
+ * I wonder if we will see another 100-pin monster AVR? There are some
+ * significant issues involved in that (they're out of addresses in
+ * low IO space for VPORTs). There is precedent in the ATmega2560 for
+ * the extra ports just not having atomic single cycle bit access.
+ * They didn't even put the PORTx/DDRx/PINx registers into the high I/O
+ * they got stuck off in the LD/ST swamp. And back on those parts, even with
+ * st, writing to them was 2 clocks. People would probably expect 256k flash
+ * from it though, cause they'd want to replace roloes held by 2560's, and
+ * that introduces another layer of garbage (1 extra clock cycle for every
+ * call, rcall, reti and ret - because it's an extra thing to push onto the
+ * stack and pop off the stack.
+ */
 
+// These pieces of version numbers get passed in as command line arguments by platform.txt.
+#define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
 
-
-
-
-// Chip families
-// 0b ffssfppp
-// ff__f is a 3-bit family code 00__0 is the DA, 00__1 is DB,
-// 01__0 is DD. Dx-series grows up from bottom, Ex-series down
-// from top in order of availability of silicon. So the next two
-// are going to be 11__1 for the EA and 01__1 for the DU
-// ss is flash size; 0 is smallest flash in family, 1 second smallest
-// (generally 2x smallest) 2 for next size up, and 3 for an even larger
-// one.
-// ppp is code for the pincount.
-// interestingly enough this range can extend to cover all pincounts used
-// in recent times on AVR devices except the 100-pin '2560. There  is
-// only one smaller one, the 8-pin of the '85  and 'xy2 - 000
-// while the gap at 0x03 is for the 24-pin package.
-// I wonder if we will see another 100-pin monster AVR? There are some
-// significant issues involved in that (they're out of addresses in
-// low IO space for VPORTs), so I'm not going to include a
+/* Sometimes this define, passed in from command line, has gotten lost entirely.
+ * However, without it, things don't know that they are working with DxCore.
+ * So we put in a placeholder so defined(DXCORE) is true.
+ */
+#ifndef DXCORE
+  #define DXCORE "Unknown 1.3.7+"
+#endif
 
 
 #define ID_AVR128DA     0x20
@@ -205,26 +260,19 @@
   #error "Can't-happen: unknown chip somehow being used"
 #endif
 
-#ifdef __AVR_DD__
-  #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
-  #define ADC_MAXIMUM_PIN_CHANNEL 31
-  #define ADC_MAXIMUM_NEGATIVE_PIN 15 /* unconfirmed - io headers are not updated for the ADC */
-#else
-  #define ADC_MAXIMUM_PIN_CHANNEL 21
-  #define ADC_MAXIMUM_NEGATIVE_PIN 15
-#endif
-
-
 #if defined(__AVR_DA__)
   #define _AVR_FAMILY "DA"
 #elif defined(__AVR_DB__)
   #define _AVR_FAMILY "DB"
 #elif defined(__AVR_DD__)
   #define _AVR_FAMILY "DD"
+  #error "These are not available yet, and support for them is incomplete - the assumption being it's a DB except where headers + product brief say otherwise."
 #elif defined(__AVR_DU__)
   #define _AVR_FAMILY "DU"
+  #error "These are not available yet! There isn't even a non-retracted product brief!"
 #elif defined(__AVR_EA__)
   #define _AVR_FAMILY "EA"
+  #error "These are not available yet. There is no datasheet, not even an I/O header for them. "
 #else
   #define _AVR_FAMILY "UNKNOWN"
 #endif
@@ -268,118 +316,99 @@
   #error "Unrecognized combination of flash size and chip type"
 #endif
 
-#define PORTMUX_TCA0 2 //1 = each wave output cannnel can be moved individually, like tinyAVRs
-
-#define CORE_HAS_FASTIO 1                /* DxCore has the digitalReadFast() and digitalWriteFast()              */
-#define CORE_HAS_OPENDRAIN 1             /* DxCore has openDrain() and openDrainFast()                           */
-#define CORE_HAS_PINCONFIG 1             /* pinConfigure is now implemented                                      */
-#define CORE_HAS_TIMER_TAKEOVER 1        /* DxCore has takeOverTCA0(), takeOverTCA0() and takeOverTCD0()         */
-#define CORE_HAS_TIMER_RESUME 1          /* DxCore has resumeTCA0(), resumeTCAq() and resumeTCD0()               */
-#define CORE_SUPPORT_LONG_TONES 1             /* tone()s specifying duration are timed by counting the oscillations.
- * Frequency is in Hz, while duration is in ms, so (2 * frequency * duration)/1000 is the number of transitions
- * before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
- * overflow when frequency * duration > 4.2b. A high-pitched tone of 20 kHz would overflow if a delay of longer
- * than around 7 minutes was requested (prior to this update, the maximum was a factor of two lower than that)
- * On parts like the Dx-series where there's no problem with flash space, we now, when duration > (2^16) ms (a
- * necessary precondition for overflow to occur) do ((frequency / 5) * (duration/100)) at cost of ~100b flash .  */
-#define ADC_DIFFERENTIAL 1               /* Basic modern-AVR differential ADC                                    */
-#define CORE_HAS_ANALOG_ENH 1            /* DxCore has analogReadEnh()                                           */
-#define CORE_HAS_ANALOG_DIFF 1           /* DxCore has analogReadDiff()                                          */
-#define ADC_MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore has 15 bit maximum resolution via oversampling and decimation*/
-
-#ifdef OPAMP0
-  #ifndef ADC_MAXIMUM_GAIN
-    #define ADC_MAXIMUM_GAIN -1            /* DB-series can use their OPAMPs as a PGA         */
-  #endif
-  #define PIN_OPAMP0_INP PIN_PD1
-  #define PIN_OPAMP0_OUT PIN_PD2
-  #define PIN_OPAMP0_INN PIN_PD3
-  #ifdef OPAMP1
-    #define PIN_OPAMP1_INP PIN_PD4
-    #define PIN_OPAMP1_OUT PIN_PD5
-    #define PIN_OPAMP1_INN PIN_PD7
-  #endif
-  #ifdef OPAMP2
-    #define PIN_OPAMP2_INP PIN_PE1
-    #define PIN_OPAMP2_OUT PIN_PE2
-    #define PIN_OPAMP2_INN PIN_PE3
-  #endif
-#else
-  #define ADC_MAXIMUM_GAIN 0                /* DA and DD series don't have any                */
-#endif
-
-// If not otherwise specified, we will assume the DAC outputs on PD6 - No product has
-// been announced with it anywhere else, nor has any product been announced with more than 1.
-#ifdef DAC0
-  #ifndef PIN_DACOUT
-    #define PIN_DACOUT PIN_PD6
-  #endif
-#endif
-
-// These pieces of version numbers get passed in as command line arguments by platform.txt.
-#define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
-
-// Sometimes this define, passed in from command line, has gotten lost entirely.
-// However, without it, things don't know that they are working with DxCore.
-// So we put in a placeholder so defined(DXCORE) is true.
-#ifndef DXCORE
-  #define DXCORE "Unknown 1.3.7+"
-#endif
-
-
  /* HARDWARE FEATURES - Used by #ifdefs and as constants in calculations in
   * the core and in libraries; it is hoped that these are at least somewhat
   * useful to users, as well. These are described in more detail in the
   * README. */
 
-#define ADC_NATIVE_RESOLUTION 12
-#define ADC_NATIVE_RESOLUTION_LOW 10
-// Maximum burst accumulation
-#define ADC_MAXIMUM_ACCUMULATE 128
-// Maximum SAMPLEN or SAMPDUR
-#define ADC_MAXIMUM_SAMPDUR 0xFF
-// ADC Result Size (bits)
-#define ADC_RESULT_SIZE 16
-// if (ADC_NATIVE_RESOLUTION + Log2(ADC_MAXIMUM_ACCUMULATE)) > ADC_RESULT_SIZE, long accumulations are truncated.
-// with maximum accumulation of Dx, for example, 12 + 7 = 19, so the internal representation would be a 19-bit number
-// but only the 16 most significant bits are presented in ADC0.RES. analogReadEnh() accounts for this when
-// asked to oversample and decimate.
+#define DEVICE_PORTMUX_TCA              2 /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
+                                             2 = all wave output channels move together */
+#define CORE_HAS_FASTIO                 1 /* DxCore has the digitalReadFast() and digitalWriteFast()              */
+#define CORE_HAS_OPENDRAIN              1 /* DxCore has openDrain() and openDrainFast()                           */
+#define CORE_HAS_PINCONFIG              1 /* pinConfigure is now implemented                                      */
+#define CORE_HAS_TIMER_TAKEOVER         1 /* DxCore has takeOverTCA0(), takeOverTCA0() and takeOverTCD0()         */
+#define CORE_HAS_TIMER_RESUME           1 /* DxCore has resumeTCA0(), resumeTCAq() and resumeTCD0()               */
+#define CORE_SUPPORT_LONG_TONES         1              /* tone()s specifying duration are timed by counting the oscillations.
+ * Frequency is in Hz, while duration is in ms, so (2 * frequency * duration)/1000 is the number of transitions
+ * before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
+ * overflow when frequency * duration > 4.2b. A high-pitched tone of 20 kHz would overflow if a delay of longer
+ * than around 7 minutes was requested (prior to this update, the maximum was a factor of two lower than that)
+ * On parts like the Dx-series where there's no problem with flash space, we now, when duration > (2^16) ms (a
+ * necessary precondition for overflow to occur) do ((frequency / 5) * (duration/100)) at cost of ~100b flash .   */
+#define ADC_DIFFERENTIAL                1 /* Basic modern-AVR differential ADC                                    */
+#define CORE_HAS_ANALOG_ENH             1 /* DxCore has analogReadEnh()                                           */
+#define CORE_HAS_ANALOG_DIFF            1 /* DxCore has analogReadDiff()                                          */
+#define ADC_MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore has 15 bit maximum resolution via oversampling and decimation */
+#define ADC_NATIVE_RESOLUTION          12 /*                                                                      */
+#define ADC_NATIVE_RESOLUTION_LOW      10 /*                                                                      */
+#define ADC_MAXIMUM_ACCUMULATE        128 /* Maximum burst accumulation                                           */
+#define ADC_MAXIMUM_SAMPDUR          0xFF /* Maximum SAMPLEN or SAMPDUR                                           */
+#define ADC_RESULT_SIZE                16 /* ADC Result Size (bits)                                               */
+
+#ifdef __AVR_DD__
+  #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
+  #define ADC_MAXIMUM_PIN_CHANNEL      31
+  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* unconfirmed - io headers are not updated for the ADC                     */
+#else
+  #define ADC_MAXIMUM_PIN_CHANNEL      21 /* Highest number that might be associated with a pin. Not the same as the  *
+                                           * number of actual channels, eg, low pincount devices "holes" in this      */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* Highest channel number for negative pin of ADC. Only defined if pins are */
+#endif                                    /* specified freeoly, not with a different channel number                   */
+#ifndef OPAMP0
+  #define ADC_MAXIMUM_GAIN              0   /* DA and DD series don't have any                */
+#else
+  #ifndef ADC_MAXIMUM_GAIN
+    #define ADC_MAXIMUM_GAIN           -1  /* DB-series can use their OPAMPs as a PGA         */
+  #endif
+  #define PIN_OPAMP0_INP          PIN_PD1
+  #define PIN_OPAMP0_OUT          PIN_PD2
+  #define PIN_OPAMP0_INN          PIN_PD3
+  #ifdef OPAMP1
+    #define PIN_OPAMP1_INP        PIN_PD4
+    #define PIN_OPAMP1_OUT        PIN_PD5
+    #define PIN_OPAMP1_INN        PIN_PD7
+  #endif
+  #ifdef OPAMP2
+    #define PIN_OPAMP2_INP        PIN_PE1
+    #define PIN_OPAMP2_OUT        PIN_PE2
+    #define PIN_OPAMP2_INN        PIN_PE3
+  #endif
+#endif
+#ifdef DAC0
+  #ifndef PIN_DACOUT
+    #define PIN_DACOUT PIN_PD6
+  #endif
+#endif
 #if (defined(__AVR_DB__) && defined(__AVR_DD__))
-  // DB-series and DD-series parts have an INLVL bit on the PINnCTRL registers. If set, pin is in TTL-input mode and the voltage considered high/low does not depend on Vdd
   #define PORT_ID_INLVL 1
 #else
   #define PORT_ID_INLVL 0
 #endif
+/* if (ADC_NATIVE_RESOLUTION + Log4(ADC_MAXIMUM_ACCUMULATE)) > ADC_RESULT_SIZE, long accumulations are truncated.
+ * with maximum accumulation of Dx, for example, 12 + 7 = 19, so the internal representation would be a 19-bit number
+ * but only the 16 most significant bits are presented in ADC0.RES. analogReadEnh() accounts for this when
+ * asked to oversample and decimate.
+ *
+ * If not otherwise specified, we will assume the DAC outputs on PD6 - No product has
+ * been announced with it anywhere else, nor has any product been announced with more than 1. */
 
-#if defined(__AVR_DA__)
-  #define ERRATA_ADC_PIN_DISABLE 1
-  #define ERRATA_TCA1_PORTMUX 1
-  #define ID_ADC_BUG ERRATA_ADC_PIN_DISABLE
-#endif
-
-#if defined (__AVR_DB__)
-  // They changed the damned name after selling the part for 6 months!
-  // annoyingly you can't even test if it's using the new version of the headers because it's an enum
-  #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
-#endif
-
-#if !defined(CLKCTRL_FREQSEL_gm)
-  // And one version later they did it again...
-  #define CLKCTRL_FREQSEL_gm CLKCTRL_FRQSEL_gm
-#endif
-
-#if !defined(CLKCTRL_FREQSEL_gp)
-  // This impacts all frequency group codes too; those aren't corrected: use the new spelling!
-  #define CLKCTRL_FREQSEL_gp CLKCTRL_FRQSEL_gp
+/* ERRATA TESTS */
+/* Not exhaustive, we'd need another file if I wanted to test for all the bugs. These are just the worst ones */
+/* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
+#if defined(__AVR_DA__) && _AVR_FLASH == 128)
+  #define ERRATA_ADC_PIN_DISABLE      1
+  #define ERRATA_TCA1_PORTMUX         1
+  #define ERRATA_NVM_ST_BUG           1
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // No device has been released that doesn't have this bug!
-  #define ERRATA_TCB_CCMP 1
+  #define ERRATA_TCB_CCMP             1
+  #define ERRATA_CCL_PROTECTIOMN      1
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
-  #define ERRATA_TCD_PORTMUX 1
+  #define ERRATA_TCD_PORTMUX          1
 #endif
 
 /* This macro is for when you want to set the internal to whatever F_CPU is, for
@@ -394,7 +423,7 @@
 #elif (F_CPU == 24000000)
   #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2))
 #elif (F_CPU == 20000000)
-  #define switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2))
+  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2))
 #elif (F_CPU == 16000000)
   #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2))
 #elif (F_CPU == 12000000)
@@ -414,7 +443,7 @@
 #elif (F_CPU == 5000000)
   #define _switchInternalToF_CPU() {_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm)); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
 #else
-  #define _switchInternalToF_CPU() badCall("The switchInternalToF_CPU() macro can only set the internal oscillator to speeds that are supported by it.")
+  #define _switchInternalToF_CPU() badCall("The _switchInternalToF_CPU() macro can only set the internal oscillator to speeds that are supported by it.")
 #endif
 
 #endif
