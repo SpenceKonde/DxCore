@@ -88,11 +88,11 @@
     #define GPIO0 (GPR_GPR0)
     #define GPIO_GPIO0 (GPR_GPR0)
     #define GPIO1 (GPR_GPR1)
-    #define GPIO_GPIO0 (GPR_GPR1)
+    #define GPIO_GPIO1 (GPR_GPR1)
     #define GPIO2 (GPR_GPR2)
-    #define GPIO_GPIO0 (GPR_GPR2)
+    #define GPIO_GPIO2 (GPR_GPR2)
     #define GPIO3 (GPR_GPR3)
-    #define GPIO_GPIO0 (GPR_GPR3)
+    #define GPIO_GPIO3 (GPR_GPR3)
   #endif
   /* Of course in these more enlightened times, we know better!
 
@@ -103,18 +103,42 @@
    * Anyway - the flat names were used because if we don't, in some situations that winds up causing weird
    * problems. */
 
-  #if defined (__AVR_DB__)
+  #if defined (CLKCTRL_SELHF_bm)
     /* They changed the damned name after selling the part for 6 months!
      * annoyingly you can't even test if it's using the new version of the headers because it's an enum! */
     #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
   #endif
-
-  #if !defined(CLKCTRL_FREQSEL_gm) /* And one version later they did it again... */
-    #define CLKCTRL_FREQSEL_gm CLKCTRL_FRQSEL_gm
-  #endif
-
-  #if !defined(CLKCTRL_FREQSEL_gp) /* This impacts all frequency group codes too; those aren't corrected (same enum thing) */
-    #define CLKCTRL_FREQSEL_gp CLKCTRL_FRQSEL_gp
+  /* And one version later they did it again... */
+  #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)
+    #define CLKCTRL_FREQSEL_gm     CLKCTRL_FRQSEL_gm        /*    Group Mask                  */
+    #define CLKCTRL_FREQSEL_gp     CLKCTRL_FRQSEL_gp        /*    Group Position              */
+    //                                                      /*    Group Codes                 */
+    #define CLKCTRL_FREQSEL_1M_gc  CLKCTRL_FRQSEL_1M_gc     /*  1 MHz system clock            */
+    #define CLKCTRL_FREQSEL_2M_gc  CLKCTRL_FRQSEL_2M_gc     /*  2 MHz system clock            */
+    #define CLKCTRL_FREQSEL_3M_gc  CLKCTRL_FRQSEL_3M_gc     /*  3 MHz system clock            */
+    #define CLKCTRL_FREQSEL_4M_gc  CLKCTRL_FRQSEL_4M_gc     /*  4 MHz system clock default    */
+    #define CLKCTRL_FREQSEL_8M_gc  CLKCTRL_FRQSEL_8M_gc     /*  8 MHz system clock            */
+    #define CLKCTRL_FREQSEL_12M_gc CLKCTRL_FRQSEL_12M_gc    /* 12 MHz system clock            */
+    #define CLKCTRL_FREQSEL_16M_gc CLKCTRL_FRQSEL_16M_gc    /* 16 MHz system clock            */
+    #define CLKCTRL_FREQSEL_20M_gc CLKCTRL_FRQSEL_20M_gc    /* 20 MHz system clock            */
+    #define CLKCTRL_FREQSEL_24M_gc CLKCTRL_FRQSEL_24M_gc    /* 24 MHz system clock            */
+    #define CLKCTRL_FREQSEL_28M_gc CLKCTRL_FRQSEL_28M_gc    /* 28 MHz system clock unofficial */
+    #define CLKCTRL_FREQSEL_32M_gc CLKCTRL_FRQSEL_32M_gc    /* 32 MHz system clock unofficial */
+  #elif defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm)
+    #define CLKCTRL_FRQSEL_gm     CLKCTRL_FREQSEL_gm        /*    Group Mask                  */
+    #define CLKCTRL_FRQSEL_gp     CLKCTRL_FREQSEL_gp        /*    Group Position              */
+    //                                                      /*    Group Codes                 */
+    #define CLKCTRL_FRQSEL_1M_gc  CLKCTRL_FREQSEL_1M_gc     /*  1 MHz system clock            */
+    #define CLKCTRL_FRQSEL_2M_gc  CLKCTRL_FREQSEL_2M_gc     /*  2 MHz system clock            */
+    #define CLKCTRL_FRQSEL_3M_gc  CLKCTRL_FREQSEL_3M_gc     /*  3 MHz system clock            */
+    #define CLKCTRL_FRQSEL_4M_gc  CLKCTRL_FREQSEL_4M_gc     /*  4 MHz system clock default    */
+    #define CLKCTRL_FRQSEL_8M_gc  CLKCTRL_FREQSEL_8M_gc     /*  8 MHz system clock            */
+    #define CLKCTRL_FRQSEL_12M_gc CLKCTRL_FREQSEL_12M_gc    /* 12 MHz system clock            */
+    #define CLKCTRL_FRQSEL_16M_gc CLKCTRL_FREQSEL_16M_gc    /* 16 MHz system clock            */
+    #define CLKCTRL_FRQSEL_20M_gc CLKCTRL_FREQSEL_20M_gc    /* 20 MHz system clock            */
+    #define CLKCTRL_FRQSEL_24M_gc CLKCTRL_FREQSEL_24M_gc    /* 24 MHz system clock            */
+    #define CLKCTRL_FRQSEL_28M_gc CLKCTRL_FREQSEL_28M_gc    /* 28 MHz system clock unofficial */
+    #define CLKCTRL_FRQSEL_32M_gc CLKCTRL_FREQSEL_32M_gc    /* 32 MHz system clock unofficial */
   #endif
 #endif
 
@@ -145,7 +169,7 @@
  * from it though, cause they'd want to replace roloes held by 2560's, and
  * that introduces another layer of garbage (1 extra clock cycle for every
  * call, rcall, reti and ret - because it's an extra thing to push onto the
- * stack and pop off the stack.
+ * stack and pop off the stack as part of those instructions...
  */
 
 // These pieces of version numbers get passed in as command line arguments by platform.txt.
@@ -169,7 +193,6 @@
 #define ID_AVR64DD      0x60
 #define ID_AVR32DD      0x50
 #define ID_AVR16DD      0x40
-#define ID_8_PINS       0x00
 #define ID_14_PINS      0x01
 #define ID_20_PINS      0x02
 #define ID_24_PINS      0x03
@@ -177,9 +200,15 @@
 #define ID_32_PINS      0x05
 #define ID_48_PINS      0x06
 #define ID_64_PINS      0x07
+
+#define ID_AVR_DA       0x00
 #define ID_AVR_DB       0x08
 #define ID_AVR_DD       0x40
-#define ID_AVR_DA       0x00
+#define ID_AVR_DU       0x48
+/*      ID_AVR_??       0x80 */
+/*      ID_AVR_??       0x88 */
+/*      ID_AVR_??       0xC0 */
+#define ID_AVR_EA       0xC8
 
 #define ID_MASK_SERIES  0xC8
 #define ID_MASK_FLASH   0x30
@@ -214,103 +243,143 @@
   #define DB_64_PINS
   #define DX_64_PINS
   #define Dx_64_PINS
-  #define CORE_PART_ID_LOW ID_64_PINS | ID_AVR_DB
+  #define CORE_PART_ID_LOW (ID_64_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB48__) || defined(__AVR_AVR64DB48__) || defined(__AVR_AVR32DB48__)
   #define DB_48_PINS
   #define DX_48_PINS
   #define Dx_48_PINS
-  #define CORE_PART_ID_LOW ID_48_PINS | ID_AVR_DB
+  #define CORE_PART_ID_LOW (ID_48_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB32__) || defined(__AVR_AVR64DB32__) || defined(__AVR_AVR32DB32__)
   #define DB_32_PINS
   #define DX_32_PINS
   #define Dx_32_PINS
-  #define CORE_PART_ID_LOW ID_32_PINS | ID_AVR_DB
+  #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB28__) || defined(__AVR_AVR64DB28__) || defined(__AVR_AVR32DB28__)
   #define DB_28_PINS
   #define DX_28_PINS
   #define Dx_28_PINS
-  #define CORE_PART_ID_LOW ID_28_PINS | ID_AVR_DB
+  #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
   #define DD_32_PINS
   #define DX_32_PINS
   #define Dx_32_PINS
-  #define CORE_PART_ID_LOW ID_32_PINS | ID_AVR_DD
+  #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DD)
   #define __AVR_DD__
 #elif defined(__AVR_AVR64DD28__)  || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
   #define DD_28_PINS
   #define DX_28_PINS
   #define Dx_28_PINS
-  #define CORE_PART_ID_LOW ID_28_PINS | ID_AVR_DD
+  #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DD)
   #define __AVR_DD__
 #elif defined(__AVR_AVR64DD20__)  || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
   #define DD_20_PINS
   #define DX_20_PINS
-  #define CORE_PART_ID_LOW ID_20_PINS | ID_AVR_DD
+  #define CORE_PART_ID_LOW (ID_20_PINS | ID_AVR_DD)
   #define __AVR_DD__
 #elif defined(__AVR_AVR64DD14__)  || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
   #define DD_14_PINS
   #define DX_14_PINS
-  #define CORE_PART_ID_LOW ID_14_PINS | ID_AVR_DD
+  #define CORE_PART_ID_LOW (ID_14_PINS | ID_AVR_DD)
   #define __AVR_DD__
+#elif defined(__AVR_AVR64DU32__)  || defined(__AVR_AVR32DU32__) || defined(__AVR_AVR16DU32__)
+  #define DU_32_PINS
+  #define DX_32_PINS
+  #define Dx_32_PINS
+  #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DU)
+  #define __AVR_DU__
+#elif defined(__AVR_AVR64DU28__)  || defined(__AVR_AVR32DU28__) || defined(__AVR_AVR16DU28__)
+  #define DU_28_PINS
+  #define DX_28_PINS
+  #define Dx_28_PINS
+  #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DU)
+  #define __AVR_DU__
+#elif defined(__AVR_AVR32DU20__)  || defined(__AVR_AVR16DU20__)
+  #define DU_20_PINS
+  #define DX_20_PINS
+  #define CORE_PART_ID_LOW (ID_20_PINS | ID_AVR_DU)
+  #define __AVR_DU__
+#elif defined(__AVR_AVR32DU14__)  || defined(__AVR_AVR16DU14__)
+  #define DU_14_PINS
+  #define DX_14_PINS
+  #define CORE_PART_ID_LOW (ID_14_PINS | ID_AVR_DU)
+  #define __AVR_DU__
+#elif defined(__AVR_AVR8EA48__)   || defined(__AVR_AVR16EA48__) || defined(__AVR_AVR64EA48__) || defined(__AVR_AVR32EA48__)
+  #define EA_48_PINS
+  #define EX_48_PINS
+  #define Ex_48_PINS
+  #define CORE_PART_ID_LOW (ID_48_PINS)
+  #define __AVR_EA__
+#elif defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR16EA32__) || defined(__AVR_AVR64EA32__) || defined(__AVR_AVR32EA32__)
+  #define EA_32_PINS
+  #define EX_32_PINS
+  #define Ex_32_PINS
+  #define CORE_PART_ID_LOW (ID_32_PINS)
+  #define __AVR_EA__
+#elif defined(__AVR_AVR8EA28__)   || defined(__AVR_AVR16EA28__) || defined(__AVR_AVR64EA28__) || defined(__AVR_AVR32EA28__)
+  #define EA_28_PINS
+  #define EX_28_PINS
+  #define Ex_28_PINS
+  #define CORE_PART_ID_LOW (ID_28_PINS)
+  #define __AVR_EA__
 #else
   #error "Can't-happen: unknown chip somehow being used"
 #endif
 
-#if defined(__AVR_DA__)
+#if   defined(__AVR_DA__)
   #define _AVR_FAMILY "DA"
 #elif defined(__AVR_DB__)
   #define _AVR_FAMILY "DB"
 #elif defined(__AVR_DD__)
   #define _AVR_FAMILY "DD"
-  #error "These are not available yet, and support for them is incomplete - the assumption being it's a DB except where headers + product brief say otherwise."
+  #error "These are not available yet, and support for them is not ready, when datasheet or silicon is available, support will be completed."
 #elif defined(__AVR_DU__)
   #define _AVR_FAMILY "DU"
-  #error "These are not available yet! There isn't even a non-retracted product brief!"
+  #error "These are not available yet. There isn't even a non-retracted product brief!"
 #elif defined(__AVR_EA__)
   #define _AVR_FAMILY "EA"
-  #error "These are not available yet. There is no datasheet, not even an I/O header for them. "
+  #error "These are not available yet, and support for them is not ready, when datasheet or silicon is available, support will be completed."
 #else
   #define _AVR_FAMILY "UNKNOWN"
 #endif
 
-#if defined(DX_14_PINS )
-  #define _AVR_PINCOUNT 14
-#elif defined(DX_20_PINS )
-  #define _AVR_PINCOUNT 29
-#elif defined(DX_28_PINS )
-  #define _AVR_PINCOUNT 28
-#elif defined(DX_32_PINS )
-  #define _AVR_PINCOUNT 32
-#elif defined(DX_48_PINS )
-  #define _AVR_PINCOUNT 48
-#elif defined(DX_64_PINS )
-  #define _AVR_PINCOUNT 64
+#if   defined(DX_14_PINS)
+     #define                  _AVR_PINCOUNT 14
+#elif defined(DX_20_PINS)
+     #define                  _AVR_PINCOUNT 20
+#elif defined(DX_28_PINS)
+     #define                  _AVR_PINCOUNT 28
+#elif defined(DX_32_PINS)
+     #define                  _AVR_PINCOUNT 32
+#elif defined(DX_48_PINS)
+     #define                  _AVR_PINCOUNT 48
+#elif defined(DX_64_PINS)
+     #define                  _AVR_PINCOUNT 64
 #endif
 
 #if PROGMEM_SIZE ==   0x20000
-  #define _AVR_FLASH 128
+  #define                     _AVR_FLASH 128
 #elif PROGMEM_SIZE == 0x10000
-  #define _AVR_FLASH 64
+  #define                     _AVR_FLASH  64
 #elif PROGMEM_SIZE == 0x8000
-  #define _AVR_FLASH 32
+  #define                     _AVR_FLASH  32
 #elif PROGMEM_SIZE == 0x4000
-  #define _AVR_FLASH 16
+  #define                     _AVR_FLASH  16
 #elif PROGMEM_SIZE == 0x2000
-  #define _AVR_FLASH 8
+  #define                     _AVR_FLASH   8
 #elif PROGMEM_SIZE == 0x1000
-  #define _AVR_FLASH 4
+  #define                     _AVR_FLASH   4
 #endif
 
 
-#if   (PROGMEM_SIZE == 0x20000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE == 0x10000 && (CORE_PART_ID_LOW & ID_AVR_DD))
+#if   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
-#elif (PROGMEM_SIZE == 0x10000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x8000 && (CORE_PART_ID_LOW & ID_AVR_DD))
+#elif (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
-#elif (PROGMEM_SIZE ==  0x8000 && !defined(__AVR_DD__)) || (PROGMEM_SIZE ==  0x4000 && (CORE_PART_ID_LOW & ID_AVR_DD))
+#elif (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"
@@ -326,15 +395,12 @@
 #define CORE_HAS_FASTIO                 1 /* DxCore has the digitalReadFast() and digitalWriteFast()              */
 #define CORE_HAS_OPENDRAIN              1 /* DxCore has openDrain() and openDrainFast()                           */
 #define CORE_HAS_PINCONFIG              1 /* pinConfigure is now implemented                                      */
-#define CORE_HAS_TIMER_TAKEOVER         1 /* DxCore has takeOverTCA0(), takeOverTCA0() and takeOverTCD0()         */
-#define CORE_HAS_TIMER_RESUME           1 /* DxCore has resumeTCA0(), resumeTCAq() and resumeTCD0()               */
-#define CORE_SUPPORT_LONG_TONES         1              /* tone()s specifying duration are timed by counting the oscillations.
- * Frequency is in Hz, while duration is in ms, so (2 * frequency * duration)/1000 is the number of transitions
- * before it should write the pin low and turn off the timer. Obviously the 2 can be factored, but it will still
- * overflow when frequency * duration > 4.2b. A high-pitched tone of 20 kHz would overflow if a delay of longer
- * than around 7 minutes was requested (prior to this update, the maximum was a factor of two lower than that)
- * On parts like the Dx-series where there's no problem with flash space, we now, when duration > (2^16) ms (a
- * necessary precondition for overflow to occur) do ((frequency / 5) * (duration/100)) at cost of ~100b flash .   */
+#define CORE_HAS_TIMER_TAKEOVER         1 /* DxCore has takeOverTCA0(), takeOverTCA1() and takeOverTCD0()         */
+#define CORE_HAS_TIMER_RESUME           1 /* DxCore has   resumeTCA0(),   resumeTCA1(); there is no resumeTCD0()  */
+#define CORE_SUPPORT_LONG_TONES         1 /* tone()s specifying duration are timed by counting the oscillations.  */
+                                          /* This causes problem for long high frequency tones. By rearranging a  */
+                                          /* division operator, we can expand the range by a factor of 100, so    */
+                                          /* that no reasonable tone will trigger it at cost of 100 bytes or so   */
 #define ADC_DIFFERENTIAL                1 /* Basic modern-AVR differential ADC                                    */
 #define CORE_HAS_ANALOG_ENH             1 /* DxCore has analogReadEnh()                                           */
 #define CORE_HAS_ANALOG_DIFF            1 /* DxCore has analogReadDiff()                                          */
@@ -344,21 +410,19 @@
 #define ADC_MAXIMUM_ACCUMULATE        128 /* Maximum burst accumulation                                           */
 #define ADC_MAXIMUM_SAMPDUR          0xFF /* Maximum SAMPLEN or SAMPDUR                                           */
 #define ADC_RESULT_SIZE                16 /* ADC Result Size (bits)                                               */
-
 #ifdef __AVR_DD__
-  #error "The AVR DD series is not supported yet because the datasheet is not available. It should not be possible to see this message, as when boards.txt entries are added, this message would be removed"
-  #define ADC_MAXIMUM_PIN_CHANNEL      31
-  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* unconfirmed - io headers are not updated for the ADC                     */
+  #define ADC_MAXIMUM_PIN_CHANNEL      31 /* Highest number that might be associated with a pin - there may be    */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* one or more holes where pins that only exist on other parts would be */
 #else
-  #define ADC_MAXIMUM_PIN_CHANNEL      21 /* Highest number that might be associated with a pin. Not the same as the  *
-                                           * number of actual channels, eg, low pincount devices "holes" in this      */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* Highest channel number for negative pin of ADC. Only defined if pins are */
-#endif                                    /* specified freeoly, not with a different channel number                   */
-#ifndef OPAMP0
-  #define ADC_MAXIMUM_GAIN              0   /* DA and DD series don't have any                */
-#else
+  #define ADC_MAXIMUM_PIN_CHANNEL      21 /* The negative input for differential measurements is limited to the   */
+                                          /* first 16 pins on DA and DB parts. It is not clear what will be done  */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* for the DD and EA-series. The tinyAVR 2-series had 7 pins of PORTA   */
+#endif                                    /* only. but the EA=series will likely have more options.               */
+#if defined(ADC0_PGACTRL)                 /* The product briefs do not mention either way                         */
+  #define ADC_MAXIMUM_GAIN             16 /* The EA series will have a PGA like the 2-series parts.               */
+#elif defined(OPAMP0)
   #ifndef ADC_MAXIMUM_GAIN
-    #define ADC_MAXIMUM_GAIN           -1  /* DB-series can use their OPAMPs as a PGA         */
+    #define ADC_MAXIMUM_GAIN           -1  /* DB-series can use their OPAMPs as a PGA                             */
   #endif
   #define PIN_OPAMP0_INP          PIN_PD1
   #define PIN_OPAMP0_OUT          PIN_PD2
@@ -395,10 +459,10 @@
 /* ERRATA TESTS */
 /* Not exhaustive, we'd need another file if I wanted to test for all the bugs. These are just the worst ones */
 /* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
-#if defined(__AVR_DA__) && _AVR_FLASH == 128)
-  #define ERRATA_ADC_PIN_DISABLE      1
-  #define ERRATA_TCA1_PORTMUX         1
-  #define ERRATA_NVM_ST_BUG           1
+#if defined(__AVR_DA__) && (_AVR_FLASH == 128)
+  #define ERRATA_TCA1_PORTMUX         1 /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
+  #define ERRATA_PORTS_B_E_EVSYS      1 /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
+  #define ERRATA_NVM_ST_BUG           1 /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
@@ -408,40 +472,57 @@
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
+  // Almost certainly won't be in the DD.
   #define ERRATA_TCD_PORTMUX          1
+  #define ERRATA_ADC_PIN_DISABLE      1
 #endif
 
 /* This macro is for when you want to set the internal to whatever F_CPU is, for
  * example to react to crystal not being found on startoup, when you have one selected
  * The default behavior is to hang and proceed no further while issuing a blink code,
  * but you might instead want to ignore that failure, and instead use the less
- * accurate (but still pretty damned good) internal one. See the DxCore clock source referenc */
+ * accurate (but still pretty damned good) internal one. See the DxCore clock source reference
+ * Setting it to any other speed is not recommended all the timing elsewhere will be totally busted.
+ */
+
+#define  _setPrescale2x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale4x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale8x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_8X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale16x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_16X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale32x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_32X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale64x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_64X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale6x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_6X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale10x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_10X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale12x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_12X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale24x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_24X_gc | CLKCTRL_PEN_bm)))
+#define _setPrescale48x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_48X_gc | CLKCTRL_PEN_bm)))
+
 #if (F_CPU == 32000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0B << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0B << 2))
 #elif (F_CPU == 28000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2))
 #elif (F_CPU == 24000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2))
 #elif (F_CPU == 20000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2))
 #elif (F_CPU == 16000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2))
 #elif (F_CPU == 12000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x06 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x06 << 2))
 #elif (F_CPU == 8000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2))
 #elif (F_CPU == 4000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x03 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x03 << 2))
 #elif (F_CPU == 3000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2))
 #elif (F_CPU == 2000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2))
 #elif (F_CPU == 1000000)
-  #define _switchInternalToF_CPU() _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2))
+  #define _switchInternalToF_CPU()                     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2))
 #elif (F_CPU == 10000000)
-  #define _switchInternalToF_CPU() {_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm)); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
+  #define _switchInternalToF_CPU() { _setPrescale2x(); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
 #elif (F_CPU == 5000000)
-  #define _switchInternalToF_CPU() {_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm)); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
+  #define _switchInternalToF_CPU() { _setPrescale4x(); _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));}
 #else
   #define _switchInternalToF_CPU() badCall("The _switchInternalToF_CPU() macro can only set the internal oscillator to speeds that are supported by it.")
 #endif
