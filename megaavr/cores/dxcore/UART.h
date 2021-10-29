@@ -170,7 +170,7 @@ class UartClass : public HardwareSerial {
     void begin(unsigned long, uint16_t);
     void end();
     bool pins(uint8_t tx, uint8_t rx);
-    bool swap(uint8_t state);
+    bool swap(int8_t state);
     void printHex(const uint8_t b);
     void printHex(const uint16_t w, bool swaporder = 0);
     void printHex(const uint32_t l, bool swaporder = 0);
@@ -208,8 +208,7 @@ class UartClass : public HardwareSerial {
     void _poll_tx_data_empty(void);
     static void _set_pins(uint8_t* pinInfo, uint8_t port_num, uint8_t mux_setting, uint8_t enable/*, uint8_t extras_bm = 0*/);
     static void  _mux_set(uint8_t* pinInfo, uint8_t port_num, uint8_t mux_code);
-    static uint8_t  _swap(uint8_t port_num, uint8_t swap_num);
-    static uint8_t  _pins(uint8_t* pinInfo, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin);
+    static int8_t  _pins(uint8_t* pinInfo, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin);
 };
 
 #if defined(USART0)

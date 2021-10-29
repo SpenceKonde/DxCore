@@ -79,9 +79,9 @@
  * 2. It counts up the mux options that exist - if they are defined but NOT_A_MUX (indicating gaps in table), then the row of the table is filled with NOT_A_PIN.
  *    This should be done if (and only if) subsequent options do have pins. For example, on DA/DB with 28/32 pins, USART1 has only 1 available mux option with pins
  *    HWSERIAL1_MUX_PINSWAP1 should not be defined, and the table created will have a single row.
- *    
+ *
  *    Appended to the portmux option is one more element containing the address of the PINMUX register, the group mask and the PINSWAP_NONE. One byte is not used.
- *    This was done to reduce the amount of calls to pgm_read_byte. 
+ *    This was done to reduce the amount of calls to pgm_read_byte.
  */
 /* The king, USART0 is the most flexible of the hardware serial ports on newer devices, with an extra bit in the PORTMUX allowing up to 7 pinful mux options. */
 #define USART_PINS_WIDTH 3  // basically a sizeof(), but as define, needed for some functions

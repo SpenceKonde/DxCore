@@ -182,7 +182,7 @@ void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
     "STD  Y+5, R18  \n\t"   // store to CTRLA
     "end:           \n\t"
     "STD  Z+22, %2  \n\t"   // store new tail to uartClass._tx_buffer_tail
-    : 
+    :
     : "m" (uartClass), "r" (c), "r" (txTail)
     : "r18", "r28", "r29", "r30", "r31"
     );
@@ -224,8 +224,8 @@ void UartClass::_poll_tx_data_empty(void) {
 
 // Invoke this function before 'begin' to define the pins used
 bool UartClass::pins(uint8_t tx, uint8_t rx) {
-  uint8_t ret_val = _pins(_usart_pins, _mux_count, tx, rx);   // return -1 (255) when correct swap number wasn't found
-  return swap(ret_val);   // this should technically work, right?
+  uint8_t ret_val = _pins(_usart_pins, _mux_count, tx, rx);   // return 127 when correct swap number wasn't found
+  return swap(ret_val);
   // if (ret_val != 255){
   //  _pin_set = ret_val;
   //  return true;
@@ -234,8 +234,15 @@ bool UartClass::pins(uint8_t tx, uint8_t rx) {
   // }
 }
 
-bool UartClass::swap(uint8_t state) {
-  if (state <= _mux_count) {
+bool UartClass::swap(int8_t state) {
+  if (state < _mux_count) {
+      if (state < 0) {  // this accepts a value between -128 and -1 and treats it as pin mux none, if available
+        #if defined(HWSERIAL_MUX_PINSET_NONE)
+          _pin_set = _mux_count;
+        #else
+          return false;
+        #endif
+      }
     _pin_set = state;
     return true;
   }
@@ -464,7 +471,7 @@ void UartClass::_set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setti
 //  uint8_t xclkReadInfo =  (uint8_t) (pinReadInfo >> 16);    // also, memcpy_P is significantly bigger then read_dword_near
 //  uint8_t xdirReadInfo = (uint8_t) (pinReadInfo >> 24);
 
-  if (mux_setting < mux_count) {
+  if (mux_setting < mux_count) {  // if false, pinmux none was selected
     uint8_t txReadInfo =   (uint8_t) (pinReadInfo >> 8);
     uint8_t rxReadInfo =   txReadInfo + 1;
 
@@ -492,7 +499,7 @@ void UartClass::_set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setti
 }
 
 
-uint8_t UartClass::_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
+int8_t UartClass::_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
   if (tx_pin != NOT_A_PIN && rx_pin != NOT_A_PIN) {
     pinInfo++;  // prepare to read the information with one byte offset
     for (uint8_t i = 0; i < mux_count; i++) {
@@ -509,7 +516,7 @@ uint8_t UartClass::_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, ui
       pinInfo += USART_PINS_WIDTH;
     }
   }
-  return 255;
+  return 127;   // negative values are reserved for swap NONE
 }
 
 
