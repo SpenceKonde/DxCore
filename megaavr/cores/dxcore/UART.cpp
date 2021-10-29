@@ -236,15 +236,14 @@ bool UartClass::pins(uint8_t tx, uint8_t rx) {
 
 bool UartClass::swap(int8_t state) {
   if (state < _mux_count) {
-      if (state < 0) {  // this accepts a value between -128 and -1 and treats it as pin mux none, if available
-        #if defined(HWSERIAL_MUX_PINSET_NONE)
-          _pin_set = _mux_count;
-        #else
-          return false;
-        #endif
-      }
-    _pin_set = state;
-    return true;
+    if (state < 0) {  // this accepts a value between -128 and -1 and treats it as pin mux none, if available
+      #if defined(HWSERIAL_MUX_PINSET_NONE)
+        _pin_set = _mux_count;
+      #endif
+    } else {
+      _pin_set = state;
+      return true;
+    }
   }
   return false;
 }
