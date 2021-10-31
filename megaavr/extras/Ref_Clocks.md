@@ -21,7 +21,7 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 |      25 MHz |          No |            No |           Yes |           Yes | A lot of people have infinite 25 MHz crystals, apparently.
 |      28 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp. Lousy speed
 |      30 MHz |          No |           Yes |           Yes |           Yes | Max. megaTinyCore overclock for 0/1 series via tuned internal
-|      32 MHz |          No |           Yes |           Yes |           Yes | Generally works at toom temp.
+|      32 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp.
 |      36 MHz |          No |            No |           Yes |           Yes | Never tested it, oddly enough. Will probably work on nearly all parts in favorable conditions.
 |      40 MHz |          No |            No |    Most chips |    Most chips | Majority of parts, even non-E-spec work w/xtal @ room temp. Some can't. Switching to external CLOCK might help.
 |      44 MHz |          No |            No |  May not work | Not by DxCore | Unsupported because nobody wants it. I think it would just work though, if there was any reason to use it.
@@ -141,7 +141,7 @@ A number of behaviors have been observed when the clock has been configured wron
 
 * If there is a crystal/oscillator which does not oscillate at all, you will get the blink code On-Off-On, then 3 brief "antiblinks" where the led turns off momentarily, then Off-On-Off and 3 brief flashes, repeating. (this pattern of alternating inverted output is meant to be unlikely to mimic sketch behavior).
 * If there is a crystal, and is mostly non-functional, but is close enough to working that the clock controller thinks it is OK while it's not actually working, it will typically hang or bootloop. This is commonly seen when inappropriate loading capacitors are used.
-* If the clock source fails whike the system is running, a DA-series will hang (until somerthing resets it - the WDT, the reset button, or powecycling are the only ways to get it out of this state. Sometimes DB-series with the CFD enabled do that too.
+* If the clock source fails while the system is running, a DA-series will hang (until somerthing resets it - the WDT, the reset button, or powecycling are the only ways to get it out of this state. Sometimes DB-series with the CFD enabled do that too.
 * A clock failure while running very often resets the chip (likely a [dirty reset](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md#the-danger-of-dirty-resets))
 * A clock source that resets the chip or hangs immediately upon switching to it (easier to detect if using Optiboot - though you could blink an LED before the switch to see if it's hanging or bootlooping by overriding onPreMain():
 ```

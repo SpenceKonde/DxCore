@@ -17,7 +17,7 @@ __ Expanded Event library from collaboration with @MCUDude
 
 ## Released Versions
 
-1.3.8
+### ~1.0.7~ 1.3.8
 * General:
   * Reimplemented attachInterrupts completely, so it now has a separate file for eaach port.  It doesn't do what I'd hoped to be able to do, get it to automatically only include ports you attach to; so I default to it being on all ports for compatibility, but have menu option to either do that manually - or revert to the old version if I broke something. Note: I didn't bother fixing PORTG on the old version implementation. That never worked, and nobody noticed! The new version is smaller.
   * Move to C++17 pulling in the changes from megaTinyCore (to new.cpp and new.h)
