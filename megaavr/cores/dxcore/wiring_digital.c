@@ -27,19 +27,34 @@
 #include "pins_arduino.h"
 
 
-
 inline __attribute__((always_inline)) void check_valid_digital_pin(uint8_t pin)
 {
   if(__builtin_constant_p(pin)) {
     if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
-      // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
-      // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
-      // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
-      // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
       if (pin & 0x80) {
         badArg("Digital pin is constant, but not a valid pin - it is > 0x80 and not NOT_A_PIN. At present, this function only accepts digital pin numbers, NOT analog channel numbers.");
       } else {
         badArg("Digital pin is constant, but not a valid pin");
+      }
+    } else {
+      #if (CLOCK_SOURCE == 2)
+        if (pin == 0)
+          badArg("Digital pin is constant PIN_PA0, but that pin is used for the selected external clock source and is not available for other uses.");
+        else
+      #elif (CLOCK_SOURCE == 1)
+        if (pin < 2)
+          badArg("Digital pin is constant, PIN_PA0 or PA1, used for selected external crystal, and are nor available for other uses.");
+        else
+      #endif
+      {
+      #if defined(XTAL_PINS_HARDWIRED)
+        if (pin < 2)
+          badArg("Digital Pin is constant PIN_PA0 or PA1, but those are hardwired to ab external crystal and not available for other uses");
+      #endif
       }
     }
   }
@@ -54,12 +69,49 @@ inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
 }
 
 
+/* this little dance exists to allow pins to be marked as unusable as outputs in the board definition or by a compiletime -D parameter. */
+void _pinConfigure(uint8_t pin, uint16_t pinconfig); // forward declare the REAL implementation.
 
-void pinConfigure(uint8_t pin, uint16_t pinconfig) {
+
+/* This freakin mess gets distilled to just the call, or the call preceeded by a simple
+ * if that when true clears the low two bits of pinconfig
+ * or to a call to badArg() to report that it's known at compiletime that this will fail.
+ */
+
+inline __attribute__((always_inline)) void pinConfigure(uint8_t pin, uint16_t pinconfig) {
   check_valid_digital_pin(pin);
+  #if defined(HARDWIRE_INPUT_ONLY)
+    if   (__builtin_constant_p(pin) && pin == HARDWIRE_INPUT_ONLY) {
+      if (__builtin_constant_p(pinconfig)) {
+        if (pinconfig & 0x01) {
+          badArg("This pin cannot be set as an output because of hardware constraints on the board selected and must always be INPUT only");
+        }
+      } else {
+        if (pinconfig & 0x01) {
+          pinconfig = pinconfig & 0xFFFC;
+        }
+      }
+    } else {
+      if (__builtin_constant_p(pinconfig)) {
+        if (pinconfig & 0x01) {
+          if (pin == HARDWIRE_INPUT_ONLY){
+            pinconfig = pinconfig & 0xFFFC;
+          }
+        }
+      } else {
+        if (pinconfig & 0x01 && pin == HARDWIRE_INPUT_ONLY) {
+          pinconfig = pinconfig & 0xFFFC;
+        }
+      }
+    }
+  #endif
+  _pinConfigure(pin,pinconfig);
+}
+
+void _pinConfigure(uint8_t pin, uint16_t pinconfig) {
   uint8_t bit_mask = digitalPinToBitMask(pin);
-  if (bit_mask == NOT_A_PIN) {
-    return;                             /* ignore invalid pins passed at runtime */
+  if (bit_mask == NOT_A_PIN || !pinconfig) {
+    return; /* ignore invalid pins passed at runtime ot pinconfig or invalid pins that can't be written to. */
   }
   volatile uint8_t *portbase = (volatile uint8_t*) digitalPinToPortStruct(pin);
   uint8_t bit_pos = digitalPinToBitPosition(pin);
@@ -128,13 +180,47 @@ void pinConfigure(uint8_t pin, uint16_t pinconfig) {
       pinncfg |= 0x80;    // set
     }
   }
-  *(portbase + 0x10 + bit_pos)=pinncfg;
+  *(portbase + 0x10 + bit_pos) = pinncfg;
   SREG=oldSREG; //re-enable interrupts
 }
 
-void pinMode(uint8_t pin, uint8_t mode) {
+void _pinMode(uint8_t pin, uint8_t mode); //Forward Declaration
+
+//Same purpose as the mess before pinConfigure()
+
+inline __attribute__((always_inline)) void pinMode(uint8_t pin, uint8_t mode) {
   check_valid_digital_pin(pin);         /* generate compile error if a constant that is not a valid pin is used as the pin */
   check_valid_pin_mode(mode);           /* generate compile error if a constant that is not a valid pin mode is used as the mode */
+  #if defined(HARDWIRE_INPUT_ONLY)
+    if (__builtin_constant_p(pin)) {
+      if (pin == HARDWIRE_INPUT_ONLY) {
+        if (__builtin_constant_p(mode)) {
+          if (mode == OUTPUT) {
+            badArg("This pin cannot be set as an output because of hardware constraints on the board selected and must always be INPUT only");
+            return;
+          }
+        } else {
+          if (mode == OUTPUT) {
+            return;
+          }
+        }
+      }
+    } else {
+      if (pin == HARDWIRE_INPUT_ONLY) {}
+        if (__builtin_constant_p(mode)) {
+          if (mode == OUTPUT) {
+            return;
+          }
+        } else {
+          if (mode == OUTPUT) {
+            return;
+          }
+        }
+      }
+  #endif
+  _pinMode(pin, mode);
+}
+void _pinMode(uint8_t pin, uint8_t mode) {
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if ((bit_mask == NOT_A_PIN) || (mode > INPUT_PULLUP)) {
     return;                             /* ignore invalid pins passed at runtime */

@@ -137,7 +137,13 @@ void _delayMicroseconds(unsigned int us) __attribute__((noinline));
 // stop, restart and set millis intended for switching to RTC for millis timekeeping while sleeping.
 void stop_millis();                       // stop the timer being used for millis, and disable the interrupt.
 void restart_millis();                    // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
-void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the specified number of milliseconds.
+void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the specified number of milliseconds. DO NOT CALL with a number lower than the current millis count if you have any timeouts ongoing.
+                                          // they may expire instantly.
+void nudge_millis(uint16_t nudgemillis);  // Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
+                                          // way to advance the timer without needing to read the current millis yourself, and without a few other risks. (added becauise *I* needed it, but simple enough).
+                                          // The intended use case is when you know you're disabling millis for a long time, and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
+                                          // forward by a given amount.
+
 // Allows for user to mark a timer "do not touch" for purposes of analogWrite and the like, so you can take over a timer and reconfigure it, and not worry about digitalWrite() flipping a CMPEN bit.
 // On megaTinyCore this also prevents the situation where PWM is remapped, but then when the user is digitalWrite'ing pins that default to having PWM, it would turn off the PWM now coming from another pin
 // This is not an issue because we fully support portmux (can't spare the flash overhead on the tinies, people already complain that the core uses too much flash)

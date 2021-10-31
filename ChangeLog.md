@@ -31,6 +31,7 @@ __ Expanded Event library from collaboration with @MCUDude
   * Add (commented out) entries to boards.txt for DD series (only one thing is not known: size of bootsize/codesize segments) and EA without optiboot. Re-add MVIO menu: I finally checked on hardware, MVIO being disabled just seems to turn off the oversight of that behavior. With it disabled it does not short VDDIO2 to power rails as some, including myself, had feared it might. Add menu option to enable printf (and everything that uses it) to print floats.
   * Fix critical bug relating to flash writing (don't think it was ever in a release).
 * Pin-mapping related
+  * Wire.swap(2) was broken on parts that didnt have a pinswap 3. No parts, available nor announced, have a pinswap 3. Oops.
   * Fix bug in variants files regarding PA0, PA1 on all parts - the PORT needs to be defined accurately, but when they're not available, mask and position are NOT_A_PIN so accessing them when we know we can't will give compile error. Improve formatting.
   * Add `PIN_NOW` macros, eg, `SCL1_NOW`.
   * Fix bug where missing pin related macro on 28 pin parts related to TWI1 would cause compile errors (may not be in any release)

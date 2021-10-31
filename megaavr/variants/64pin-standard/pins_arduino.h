@@ -461,16 +461,15 @@ static const uint8_t A21 = PIN_A21;
 
   /* Use this for accessing PINnCTRL register */
   const uint8_t digital_pin_to_bit_position[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bp,            // PA0
+    #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+      PIN0_bp, // PA0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,//PA0 used for external crystal or clock, or is hardwired to one and not broken out.
     #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
+    #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+      NOT_A_PIN,//PA1 used for external crystal, or is hardwired to one and not broken out.
     #else
-      // PA1 used for external crystal.
-      PIN1_bp,
+      PIN1_bp, // PA1
     #endif
     PIN2_bp,  //   2 PA2
     PIN3_bp,  //   3 PA3
@@ -529,16 +528,15 @@ static const uint8_t A21 = PIN_A21;
   };
 
   const uint8_t digital_pin_to_bit_mask[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bm,            // PA0
+    #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+      PIN0_bm, // PA0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,//PA0 used for external crystal or clock, or is hardwired to one and not broken out.
     #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
+    #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+      NOT_A_PIN,//PA1 used for external crystal, or is hardwired to one and not broken out.
     #else
-      // PA1 used for external crystal.
-      PIN1_bm,
+      PIN1_bm, //1 PA1
     #endif
     PIN2_bm,  //   2 PA2
     PIN3_bm,  //   3 PA3

@@ -275,16 +275,15 @@ static const uint8_t A17 = PIN_A17;
 
   /* Use this for accessing PINnCTRL register */
   const uint8_t digital_pin_to_bit_position[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bp,            // PA0
+    #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+      PIN0_bp, // PA0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,//PA0 used for external crystal or clock, or is hardwired to one and not broken out.
     #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
+    #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+      NOT_A_PIN,//PA1 used for external crystal, or is hardwired to one and not broken out.
     #else
-      // PA1 used for external crystal.
-      PIN1_bp,
+      PIN1_bp, // PA1
     #endif
     PIN2_bp, //  2 PA2/SDA
     PIN3_bp, //  3 PA3/SCL
@@ -297,9 +296,9 @@ static const uint8_t A17 = PIN_A17;
     PIN2_bp, // 10 PC2
     PIN3_bp, // 11 PC3
     #ifndef MVIO
-      PIN0_bp, // 12 PD0/AIN0
+      PIN0_bp,//12 PD0/AIN0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,// PD0 got it's physical pin taken by the VDDIO2 pin.
     #endif
     PIN1_bp, // 13 PD1/AIN1
     PIN2_bp, // 14 PD2/AIN2
@@ -316,16 +315,15 @@ static const uint8_t A17 = PIN_A17;
 
   /* Use this for accessing PINnCTRL register */
   const uint8_t digital_pin_to_bit_mask[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bm,            // PA0
+    #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+      PIN0_bm, // PA0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,//PA0 used for external crystal or clock, or is hardwired to one and not broken out.
     #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
+    #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+      NOT_A_PIN,//PA1 used for external crystal, or is hardwired to one and not broken out.
     #else
-      // PA1 used for external crystal.
-      PIN1_bm,
+      PIN1_bm, //1 PA1
     #endif
     PIN2_bm, //  2 PA2/SDA
     PIN3_bm, //  3 PA3/SCL
@@ -338,9 +336,9 @@ static const uint8_t A17 = PIN_A17;
     PIN2_bm, // 10 PC2
     PIN3_bm, // 11 PC3
     #ifndef MVIO
-      PIN0_bm, // 12 PD0/AIN0
+      PIN0_bm,//12 PD0/AIN0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,// PD0 got it's physical pin taken by the VDDIO2 pin.
     #endif
     PIN1_bm, // 13 PD1/AIN1
     PIN2_bm, // 14 PD2/AIN2
@@ -363,15 +361,15 @@ static const uint8_t A17 = PIN_A17;
     TIMERD0,      //  4 PA4/MOSI      WOA
     TIMERD0,      //  5 PA5/MISO      WOB
     TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
-    TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
+    TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB LED_BUILTIN
     TIMERB2,      //  8 PC0/USART1_Tx
     NOT_ON_TIMER, //  9 PC1/USART1_Rx
     NOT_ON_TIMER, // 10 PC2
     NOT_ON_TIMER, // 11 PC3
-    NOT_ON_TIMER, // 12 (NOT A PIN on DB, DD)
+    NOT_ON_TIMER, // 12 PD0/AIN0 (Doesn't exist on DB)
     NOT_ON_TIMER, // 13 PD1/AIN1
     NOT_ON_TIMER, // 14 PD2/AIN2
-    NOT_ON_TIMER, // 15 PD3/AIN3/LED_BUILTIN
+    NOT_ON_TIMER, // 15 PD3/AIN3
     NOT_ON_TIMER, // 16 PD4/AIN4
     NOT_ON_TIMER, // 17 PD5/AIN5
     DACOUT,       // 18 PD6/AIN6

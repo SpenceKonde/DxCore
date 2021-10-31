@@ -297,16 +297,15 @@ static const uint8_t A21 = PIN_A21;
 
   /* Use this for accessing PINnCTRL register */
   const uint8_t digital_pin_to_bit_position[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bp,            // PA0
+    #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+      PIN0_bp, // PA0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,//PA0 used for external crystal or clock, or is hardwired to one and not broken out.
     #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
+    #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+      NOT_A_PIN,//PA1 used for external crystal, or is hardwired to one and not broken out.
     #else
-      // PA1 used for external crystal.
-      PIN1_bp,
+      PIN1_bp, // PA1
     #endif
     PIN2_bp, //  2 PA2/SDA
     PIN3_bp, //  3 PA3/SCL
@@ -337,18 +336,18 @@ static const uint8_t A21 = PIN_A21;
     PIN4_bp, // 24 PF4/AIN14/TCB0 PWM
     PIN5_bp, // 25 PF5/AIN15/TCB1 PWM
     PIN6_bp, // 26 PF6 RESET
-  //PIN6_bm  // 27 PF7 UPDI
+  //PIN7_bm  // 27 PF7 UPDI
   };
   const uint8_t digital_pin_to_bit_mask[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bm,            // PA0
+    #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+      PIN0_bm, // PA0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,//PA0 used for external crystal or clock, or is hardwired to one and not broken out.
     #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
+    #if (CLOCK_SOURCE == 1 || defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+      NOT_A_PIN,//PA1 used for external crystal, or is hardwired to one and not broken out.
     #else
-      PIN1_bm,
+      PIN1_bm, //1 PA1
     #endif
     PIN2_bm, //  2 PA2/SDA
     PIN3_bm, //  3 PA3/SCL
@@ -361,9 +360,9 @@ static const uint8_t A21 = PIN_A21;
     PIN2_bm, // 10 PC2
     PIN3_bm, // 11 PC3
     #ifndef MVIO
-      PIN0_bm, // 12 PD0/AIN0
+      PIN0_bm,//12 PD0/AIN0
     #else
-      NOT_A_PIN,
+      NOT_A_PIN,// PD0 got it's physical pin taken by the VDDIO2 pin.
     #endif
     PIN1_bm, // 13 PD1/AIN1
     PIN2_bm, // 14 PD2/AIN2
@@ -395,8 +394,7 @@ static const uint8_t A21 = PIN_A21;
     NOT_ON_TIMER, //  9 PC1
     NOT_ON_TIMER, // 10 PC2
     NOT_ON_TIMER, // 11 PC3
-    NOT_ON_TIMER, // 12 PD0/AIN0
-    NOT_ON_TIMER,
+    NOT_ON_TIMER, // 12 PD0/AIN0 (Doesn't exist on DB)
     NOT_ON_TIMER, // 13 PD1/AIN1
     NOT_ON_TIMER, // 14 PD2/AIN2
     NOT_ON_TIMER, // 15 PD3/AIN3

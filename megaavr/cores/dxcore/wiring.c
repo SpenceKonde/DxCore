@@ -134,6 +134,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
     #error "no millis timer selected"
   #endif
   {
+
     // copy these to local variables so they can be stored in registers
     // (volatile variables must be read from memory on every access)
     #if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
@@ -159,7 +160,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       //if RTC is used as timer, we only increment the overflow count
       timer_overflow_count++;
     #endif
-    /* Clear flag */
+     /* Clear flag */
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTFLAGS = TCA_SPLIT_HUNF_bm;
     #elif defined(MILLIS_USE_TIMERA1)
@@ -945,10 +946,8 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
 }
 
 
-void init()
-{
+void init() {
   // this is called by main() before setup() - configures the on-chip peripherals.
-  //
   #if ((defined(DB_28_PINS) || defined(DB_32_pins)) && !defined(NO_PIN_PD0_BUG))
     // PD0 does not exist on these parts - VDDIO2 took it's (physical) spot.
     // but due to a silicon bug, the input buffer is on, but it's input is floating. Per errata, we are supposed to turn it off.
@@ -969,8 +968,7 @@ void init()
 
 
 
-void stop_millis()
-{ // Disable the interrupt:
+void stop_millis() { // Disable the interrupt:
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("stop_millis() called, but millis is disabled from tools menu!");
   #else
@@ -989,8 +987,7 @@ void stop_millis()
   #endif
 }
 
-void restart_millis()
-{
+void restart_millis() {
   // Call this to restart millis after it has been stopped and/or millis timer has been molested by other routines.
   // This resets key registers to their expected states.
   #if defined(MILLIS_USE_TIMERNONE)
@@ -1014,8 +1011,7 @@ void restart_millis()
   #endif
 }
 
-void init_millis()
-{
+void init_millis() {
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("init_millis() is only valid with millis time keeping enabled.");
   #else
@@ -1055,8 +1051,7 @@ void init_millis()
 }
 
 
-void set_millis(uint32_t newmillis)
-{
+void set_millis(uint32_t newmillis){
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("set_millis() is only valid with millis timekeeping enabled.");
     GPR.GPR0 = newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
@@ -1076,9 +1071,24 @@ void set_millis(uint32_t newmillis)
     #endif
   #endif
 }
+/*
+void nudge_millis(uint16_t nudgesize) {
+  #if defined(MILLIS_USE_TIMERNONE)
+    badCall("set_millis() is only valid with millis timekeeping enabled.");
+    GPR.GPR0 = newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
+  #elif !(defined(MILLIS_USE_TIMERA0)||defined(MILLIS_USE_TIMERA1))
 
+    uint8_t oldSREG=SREG;
+    cli();
+    timer_millis += nudgesize;
+    SREG=oldSREG;
+  #else
+    badCall("Not yet supported for this timer, only TCBn");
+    GPR.GPR0=nudgesize;
+  #endif
+}
 
-
+*/
 
 /********************************* ADC ****************************************/
 #if defined(ADC0)

@@ -238,7 +238,7 @@ bool TwoWire::swap(uint8_t state) {
         return true;
       } else
     #endif
-    #if defined(PIN_WIRE_SDA_PINSWAP_3) && defined(PIN_WIRE_SCL_PINSWAP_3)
+    #if defined(PIN_WIRE_SDA_PINSWAP_2) && defined(PIN_WIRE_SCL_PINSWAP_2)
       if (state == 2) {
         // Use pin swap
         PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC) | 0x02;
