@@ -15,7 +15,7 @@ __ Looks like we we're getting those serial changes - also thanks to @MX682X!
 __ Expanded Event library from collaboration with @MCUDude
 
 
-
+## Released Versions
 
 1.3.7
 * General:
@@ -63,10 +63,6 @@ __ Expanded Event library from collaboration with @MCUDude
   * Improve documentation on ADC, advanced digital I/O, the principles behind what we consider invalid and generate errors on, and ways of resetting (including use of the WDT to reset when hung), moving those to their own file and linking from the readme. This treatment needs to be given to more of the document. It has suffered from too much info being crammed into one document, resulting in something with the form of a wall that many people don't read.
   * Clean up and improve comments, particularly in wiring.c
   * Add teaser for possible future improvements to "export compiled binary" assembly listings and memory map (for assemgly listings, I just want to get rid of the irrelevant and stupid offsets relative to randomly chosen constants that it often uses instead of references to more sensible landmarks (eg, offsets of peripheral registers referenced to any things like `__EEPROM_REGION_LENGTH__ + 0x45` and garbage like that - it assumes that all of these are addresses (and meaningful ones) which they almost never are. For the map, it needs the columns fixed, or at least the formatting tweaked so you can import it into a spreadsheet. Right now it requires a manual regex step just to get it clean enough that excel can import it, and is hopelessly unreadable as text without even more manual regex-application to it. We pull in a python installation for SerialUPDI, why not get some more use out of it processing the crap listing and memorymap output avrgcc gives us to work with?)
-
-
-
-## Released Versions
 
 ### 1.3.6
 * Improve #defines relating to on-chip peripherals which operate on specific pins.
