@@ -1,5 +1,5 @@
 # Startup order and callback-like-functions
-These are not callbacks. Callbacks are not efficient in this context. However, weakly defined functions like these acheive the same effect, and do so efficiently. To do so you override them - typically you would override one that isn't an empty function with an empty function to disable that initialization step, or you would override ones that default to an empty function with code that needs to run at the appointed time.
+These are not callbacks. Callbacks are not efficient in this context. However, weakly defined functions like these achieve the same effect, and do so efficiently. To do so you override them - typically you would override one that isn't an empty function with an empty function to disable that initialization step, or you would override ones that default to an empty function with code that needs to run at the appointed time.
 
 A callback would be where you supply a function pointer which we then call (which would end up as an icall instruction). Doing such a thing is much more costly, because the compiler can't assume it is constant. Hence call-used registers (even if the function doesn't use them) get saved and restored, function call overhead cannot be avoided, and the compiler can't optimize them. We try to avoid these. They're only used when the function to be called can actually change at runtime, mainly when "attaching" interrupts.
 
@@ -30,7 +30,7 @@ main()
       init_TCD0() - If present.
     init_millis() - This is called to kick off millis() timekeeping. This will configure TCD0 or any TCB if it is used for millis as well.
   initVariant() - A rare few libraries define this for stuff they need to run before setup.
-  onAfterInit() - Default simply retuns 0. Can be overridden. If 0 is returned, enable interrupts.
+  onAfterInit() - Default simply returns 0. Can be overridden. If 0 is returned, enable interrupts.
   setup() - Finally the normal setup() is called
   loop() - and the normal loop(), called continually.
 ```
@@ -75,7 +75,7 @@ onAfterInit runs just before setup is called, but after all other initialization
 ```c++
 void onBeforeInit() __attribute__((weak));{;}
 ```
-onBeforeInit is called as the first code in main, useful if you need to do something AFTER class constructors have run but BEFORE initalization.
+onBeforeInit is called as the first code in main, useful if you need to do something AFTER class constructors have run but BEFORE initialization.
 
 
 ## Clock Failure Handling
@@ -143,7 +143,7 @@ This is the wrong way to debug a problem that you think might be caused by a mal
 #### init_ADC0
 Initializes the ADC clock prescaler to get a legal frequency, sets up defaults and enables the ADC. It can be overridden with an empty function to prevent it from initializing the ADC to save flash if the ADC is not used.
 #### init_timers
-Calls initTCA9() and initTCA1() if TCA1 is present, and sets PORTMUX.TCAROUTEA() to match what variant specifies, then calls initTCBs(), and initTCD0(). No clear reason one would want to overrride
+Calls initTCA9() and initTCA1() if TCA1 is present, and sets PORTMUX.TCAROUTEA() to match what variant specifies, then calls initTCBs(), and initTCD0(). No clear reason one would want to override
 
 #### init_TCA0 and init_TCA1
 Initialize the type A timers for PWM. The one for a timer used as millis must not be overridden. It is not recommended to override these at all except with an empty function in order to leave the peripheral in reset state (but takeOverTCAn() will also put it back in it's reset state. If you don't want to use analogWrite() through the timer, instead call takeOverTCAn() - which you need to do even if these are overridden if you don't want analogWrite() and digitalWrite() to manipulate the timer.
@@ -155,7 +155,7 @@ Initializes the type B timers (the one used for millis is skipped if it's the hi
 Initializes the type D timer. It is not recommended to override this except with an empty function in order to leave the peripheral in reset state. This is particularly useful with the type D timer, which has no "hard reset" command, and it's got the enable-locked fields and he ENRDY bit - If you're going to take it over anyway, this makes sense to override in order to make your life easier when reconfiguring it. As with the others, it is recommended to override with just an empty function in that case.
 
 #### init_millis
-Initializes and kicks off millis timekeeping. If millis is handled by a type B or D timer, it also performs all initialization of that timer. Overriding this (with an empty function) is for debugging ONLY - it is a way of leaveing in place millis, micros (they will always return 0) and delay (it will hang forever) if you need to isolate the impact of the millis interrupt running.
+Initializes and kicks off millis timekeeping. If millis is handled by a type B or D timer, it also performs all initialization of that timer. Overriding this (with an empty function) is for debugging ONLY - it is a way of leaving in place millis, micros (they will always return 0) and delay (it will hang forever) if you need to isolate the impact of the millis interrupt running.
 
 If you just want to turn off millis, set the millis timer to "disabled". That both gets rid of the ISR and provides a working delay().
 
@@ -169,4 +169,4 @@ This is the ONLY one of these functions that is standard (other than init, setup
 
 
 initVariant is meant for variant files to call, but none of them ever do that on any core i've seen, and library authors use this sometimes for code that needs to run at startup.
-**DO NOT OVERRIDE THIS** in the sketch - it is reseved for library/core/board authors. It is part of the Arduino API and is present on all cores as far as I know.
+**DO NOT OVERRIDE THIS** in the sketch - it is reserved for library/core/board authors. It is part of the Arduino API and is present on all cores as far as I know.

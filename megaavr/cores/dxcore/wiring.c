@@ -295,7 +295,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
          * otherwise delay() will break and timeouts can instantly expire when it is hit. Similarly,
          * one wants to avoid large jumps forward, and cases where more consecutive "actual" times
          * than absolutely necessary return the same value (time should flow at a constant rate).
-         * Finally, the artifacts of the calulation that are unavoidable should be distributed uniformly.
+         * Finally, the artifacts of the calculation that are unavoidable should be distributed uniformly.
          * Undershooting or overshooting 999 endpoint at the counter's maximum value is the usual
          * source of large jumps (at the overflow point) in either direction. Terms should, as much as
          * possible alternate between positive and negative to minimize artifacs.
@@ -322,7 +322,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
          * But even when I cast everything to uint8_t, it would shift a 16-bit value around
          * unnecessarily.
          * 3. It would distribute the ticks >> 4. That is, it wouldn't shift the value of
-         * ticks in place, even though it wasn't referenced after this because I was assinging
+         * ticks in place, even though it wasn't referenced after this because I was assigning
          * the result to ticks, and hence the old value was "dead"
          * Instead, it would copy it, shift the copy 3 or 4 places. Then when it needed the
          * ticks >> 2, it would make a copy of the ORIGINAL and shift that 6 places,
@@ -726,7 +726,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   us -= 2;
 
 #elif F_CPU >= 36000000L
-  // Here we get tbe initial delay is about 24 cycles, so we pass through
+  // Here we get the initial delay is about 24 cycles, so we pass through
   // the loop once for 1us delay.
   __asm__ __volatile__ (
     "rjmp .+0" "\n\t"     // 2 cycles
@@ -1265,7 +1265,7 @@ void  __attribute__((weak)) init_clock() {
     #else
       // it's a DB/DD with the crystal supporting version of CLKCTRL.
       // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
-      // Unfortunatly, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in
+      // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in
       // a clock sufficiently broken that it resets instead.
       _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
       _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
@@ -1373,14 +1373,14 @@ void  __attribute__((weak)) init_clock() {
  * compare match from -0 through TOP). Which end depends on the timer and implementation        *
  * details), giving constant output, while the opposite extreme corresponds to 1 cycle away     *
  * from constant output. Constant output would thus be a 257th option. We would have no way to  *
- * specicfy that with a single byte value passed to analogWrite. The result being that - usualy *
+ * specicfy that with a single byte value passed to analogWrite. The result being that - usually *
  * at one end or the other, the first step was twice as large. The ends, of course are the      *
  * worst place for that. Most implementations that have the full 256 values results in          *
  * analogWrite(pin, 0) setting the pin LOW, while analogWrite(pin, 1) gives not 1/256th duty    *
  * cycle but 2/256ths, or they'll handle that end correctly but analogWrite(pin,255) will set   *
  * the pin HIGH and analogWrite(pin, 254) will give 254/256ths duty cycle. That meas that the   *
  * point where each step already matters the most will start with one double-step, This is      *
- * readily visible if dimming a LED - precisely at the time that each step makes tha largest    *
+ * readily visible if dimming a LED - precisely at the time that each step makes the largest    *
  * apparent difference in brightness.                                                           *
  * Thus, by counting to 254, we have 255 valid compare values, one of which is "Off" and the    *
  * 256 valid analogWrite() values map perfectly to them without any discontinuities.            *
@@ -1637,7 +1637,7 @@ void __attribute__((weak)) init_TCBs() {
  * polling loop on the status register only runs once or clocked from system clock and sync     *
  * prescaler is 1. Similarly, it cannot be enabled right after disabling it - the ENRDY bit must*
  * be set in the status register. We skip checking this here because, as we do many places the  *
- * initiialization functions assume that the chip starts from a reset condtition.               */
+ * initiialization functions assume that the chip starts from a reset condition.               */
 
 void __attribute__((weak)) init_TCD0() {
   TCD0.CMPACLR  = 0x0FFF;

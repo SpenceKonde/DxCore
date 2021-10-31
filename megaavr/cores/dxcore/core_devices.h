@@ -80,7 +80,7 @@
    * Atmel fashion (in other words, randomly). No apparent pattern in time or other parameters.
    * Either way, that left them with space for only 4 VPORT register sets (like the ones we got)
    * These had to be configured to point to the desired port.
-   * I'm sure everyone is greatful for the fact that the folks designing the Dx-series have their
+   * I'm sure everyone is grateful for the fact that the folks designing the Dx-series have their
    * heads screwed on properly and realized that 4 GPIOR-- excuse me, GPRs, 4 awkward VPORTs and
    * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
    * xmega line, and decided that wasn't a winning formula */

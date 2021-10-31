@@ -21,7 +21,7 @@ NVMCTRL.CTRLB |= 0x10; // sets the flash map to section one
 
 Reading from PROGMEM_MAPPED is easy on the high page. You just read from it
 
-There's a problem on the low page though; namely, the address is given relative the start of the flash not tothe start of the section. So if it starts at address 0x1000 it will be mapped to 0x9000.
+There's a problem on the low page though; namely, the address is given relative the start of the flash not to the start of the section. So if it starts at address 0x1000 it will be mapped to 0x9000.
 But the compiler still thinks it's address is 0x1000.
 
 There's a simple if rather ugly construction to fix it with minimal overhead though:
@@ -41,7 +41,7 @@ Note also that `pgm_read_x_near()` WORK TOO
 
 
 ## 128k parts
-Finally, onthe 128k parts, there are 4 flash sections.
+Finally, on the 128k parts, there are 4 flash sections.
 ```
 PROGMEM_MAPPED - Can be accessed with defauylt flashmap settings.
 PROGMEM_SECTION0 - The low quarter of the flash. Stuff oput here will start *AFTER* your application (if there is room).
@@ -61,11 +61,11 @@ and here's where it finally gets a little bit weird
 
 * **PROGMEM_SECTION1** and **PROGMEM_SECTION3** can be accessed directly, like normal variables, provided FLMAP isset to 1 or 3 (3 is default). The above trick of adding 0x8000 to them to get them into the right hlf of the address space isn't needed - they are already there.
 
-* **PROGMEN_SECTION2** and **PROGMEN_SECTION0** can be accessed if the flashmap is pointed in the correct section BUT you do need to tuse somnething likethetrick I showed aobove to offset the addreses by 32768;
+* **PROGMEN_SECTION2** and **PROGMEN_SECTION0** can be accessed if the flashmap is pointed in the correct section BUT you do need to tuse somnething likethetrick I showed aobove to offset the addresses by 32768;
 
 * **PROGMEM_SECTION2** and **PROGMEN_SECTION3** are out of range of normal lpm (pgm_read_byte_near). You need to jump thhrough the hoops described in any guide to progmem on larger AVRs to get a "farptr" THAT, in turn can be passed to pgm_read_nyte_far().
 
-Nonne of these things are particularly hard, but reading far progmem with the pgmspace macros is annoying, and has a larger performance penatly.
+Nonne of these things are particularly hard, but reading far progmem with the pgmspace macros is annoying, and has a larger performance penalty.
 
 While the actual instructiosnto read from the two methods don't take a different amount of time - ELPM and LPM are still 3-clock instructions, and LD is 2 plus 1 because it's flash (a fact that is buried in thei nstructionset manual), in practice, they are markedly slower because the macros in pgmspace arearen't super efficient, because they're little snippets of assembly which the compiler must treat as a black box, and they usually end up performing worse.
 
@@ -80,8 +80,8 @@ Sections 0, and 2 for the 128k partsm, accessing through mapping required changi
 
 And sections 0 and 1 on any part can always be accessed with pgm_read_x_near macros without any particular difficulty!
 
-So no matter what, theer are always two ways to acecessw the program space, and both are pretty easy.
+So no matter what, there are always two ways to acecessw the program space, and both are pretty easy.
 
-Butyou do need to put a little morethought into what you put where. Obviously, you startt from the high section, to get the mapped flash by default. After that if you know tyour application issmall even if the data it needs is huge, you can put itin the easier to work with section, or go the logically ocnistant route and work down from the enbd ioffkashm next moving intio section 2, then section1 ifthere is any space left. Also, it is verty common to just leave the flashmap at the startuop setting, and make that your luxury flash area, and if you need to, you can also put some stuff into progmem - and thiswoll work formost people.
+Butyou do need to put a little morethought into what you put where. Obviously, you startt from the high section, to get the mapped flash by default. After that if you know tyour application issmall even if the data it needs is huge, you can put itin the easier to work with section, or go the logically ocnistant route and work down from the enbd ioffkashm next moving intio section 2, then section1 ifthere is any space left. Also, it is verty common to just leave the flashmap at the startuop setting, and make that your luxury flash area, and if you need to, you can also put some stuff into progmem - and thiswoll work foremost people.
 
-Finally, I would be remiss if I didn't mentione the Flash.h libraryand the writing to flash from app option; the cleanest way is to limit writes to the last 32k of flash. Using that to save non-volatile data is a great approach. Not only that.... you couldeven use it to erase a bunch of flash, make sure that the NVMCTRL,CTRLA was set to LFWE mode, and if you're sert the app SPM permissions correctly, you can **simply assign values to that space in order to save data**!
+Finally, I would be remiss if I didn't mentioned the Flash.h libraryand the writing to flash from app option; the cleanest way is to limit writes to the last 32k of flash. Using that to save non-volatile data is a great approach. Not only that.... you couldeven use it to erase a bunch of flash, make sure that the NVMCTRL,CTRLA was set to LFWE mode, and if you're sert the app SPM permissions correctly, you can **simply assign values to that space in order to save data**!

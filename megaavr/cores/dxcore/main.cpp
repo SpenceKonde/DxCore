@@ -177,7 +177,7 @@ int main() {
        * the user wants to - but it's designed to be called via hideous methods like
        * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (zaddress))
        * see Flash.h */
-      /* No, we CANT move it to init3 - PROGMEM goes between trampolines and code! */
+      /* No, we CAN'T move it to init3 - PROGMEM goes between trampolines and code! */
       void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
       void __spm_entrypoint (void)
       {

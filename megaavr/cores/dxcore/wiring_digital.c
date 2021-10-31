@@ -69,13 +69,13 @@ inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
 }
 
 
-/* this little dance exists to allow pins to be marked as unusable as outputs in the board definition or by a compiletime -D parameter. */
+/* this little dance exists to allow pins to be marked as unusable as outputs in the board definition or by a compile time -D parameter. */
 void _pinConfigure(uint8_t pin, uint16_t pinconfig); // forward declare the REAL implementation.
 
 
-/* This freakin mess gets distilled to just the call, or the call preceeded by a simple
+/* This freakin mess gets distilled to just the call, or the call preceded by a simple
  * if that when true clears the low two bits of pinconfig
- * or to a call to badArg() to report that it's known at compiletime that this will fail.
+ * or to a call to badArg() to report that it's known at compile time that this will fail.
  */
 
 inline __attribute__((always_inline)) void pinConfigure(uint8_t pin, uint16_t pinconfig) {
@@ -111,7 +111,7 @@ inline __attribute__((always_inline)) void pinConfigure(uint8_t pin, uint16_t pi
 void _pinConfigure(uint8_t pin, uint16_t pinconfig) {
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if (bit_mask == NOT_A_PIN || !pinconfig) {
-    return; /* ignore invalid pins passed at runtime ot pinconfig or invalid pins that can't be written to. */
+    return; /* ignore invalid pins passed at runtime or pinconfig or invalid pins that can't be written to. */
   }
   volatile uint8_t *portbase = (volatile uint8_t*) digitalPinToPortStruct(pin);
   uint8_t bit_pos = digitalPinToBitPosition(pin);

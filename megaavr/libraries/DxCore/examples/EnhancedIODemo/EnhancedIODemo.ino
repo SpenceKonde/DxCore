@@ -48,12 +48,12 @@ digital I/O function. To get pullup, set it INPUT_PULLUP with pinMode first, the
 call openDrain() - remember that, emulating the behavior of classic AVRs, the
 core configures pins as inputs unless told otherwise.
   Usage:
-    openDrain(DEMO_PIN,LOW);
-    openDrain(DEMO_PIN,FLOATING);
-    openDrain(DEMO_PIN,CHANGE);
-    openDrainFast(DEMO_PIN,LOW);
-    openDrainFast(DEMO_PIN,FLOATING);
-    openDrainFast(DEMO_PIN,CHANGE);
+    openDrain(DEMO_PIN, LOW);
+    openDrain(DEMO_PIN, FLOATING);
+    openDrain(DEMO_PIN, CHANGE);
+    openDrainFast(DEMO_PIN, LOW);
+    openDrainFast(DEMO_PIN, FLOATING);
+    openDrainFast(DEMO_PIN, CHANGE);
 
   LOW sets pin mode to OUTPUT.
   FLOATING sets pin mode to INPUT. If there is a pullup
@@ -73,30 +73,30 @@ float.
 -----------------------------------------------------------------------------*/
 
 void openDrainBitbang(uint32_t data) {
-  pinMode(DEMO_PIN,INPUT_PULLUP);
-  pinMode(DEMO_PIN2,INPUT_PULLUP);
-  openDrain(DEMO_PIN,FLOATING);
-  openDrain(DEMO_PIN2,FLOATING);
+  pinMode(DEMO_PIN, INPUT_PULLUP);
+  pinMode(DEMO_PIN2, INPUT_PULLUP);
+  openDrain(DEMO_PIN, FLOATING);
+  openDrain(DEMO_PIN2, FLOATING);
   // Now both pins are open drains with their pullup enabled
   // now they use one as a clock, and the other as data in some sort of digital
   // communication scheme waiting to make sure the pins come back to HIGH like
   // I2C does.
   // When it's not waiting for the pins to rise back to HIGH, the code runs
-  for (uint8_t i = 0; i < 32; i++ ) {
+  for (uint8_t i = 0; i < 32; i++) {
     while (digitalReadFast(DEMO_PIN) != HIGH || digitalReadFast(DEMO_PIN2 != HIGH));
     //Wait for them to be pulled high - probably won't loop, but maybe high capacitance on
     //the lines or weak pullups, or other device holding low (like I2C clock stretching)
     _NOPNOP(); // wait four clocks so the receiver has a chance to see the same thing as we did; We could even wait longer here
     _NOPNOP();
     if (((uint8_t)data) & 0x01) {
-      openDrainFast(DEMO_PIN2,LOW); ///set up data line - this likely compiles to cbi, sbrc, sbi
+      openDrainFast(DEMO_PIN2, LOW); ///set up data line - this likely compiles to cbi, sbrc, sbi
       // (certainly that's what you;'d expect the compiler to to do, but sometimes it's not so smart)
     }
-    openDrainFast(DEMO_PIN,LOW);
+    openDrainFast(DEMO_PIN, LOW);
     data >>= 1;  //if we'd immediately released it, it would only be low for a fraction of a microsecond.
     // doing that math in there is liks a quarter microsecond delay.
-    openDrainFast(DEMO_PIN,FLOATING);
-    openDrainFast(DEMO_PIN2,FLOATING);
+    openDrainFast(DEMO_PIN, FLOATING);
+    openDrainFast(DEMO_PIN2, FLOATING);
     //release pins.
   }
 

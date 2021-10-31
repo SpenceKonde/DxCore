@@ -213,9 +213,9 @@ These numbers (they do have defines in the variants, and `ADC_CH()` will take an
 
 ```
 digitalPinToAnalogInput(pin) - converts an digital pin to an anbalog channel *without* the bit that says it's a channel (desiugned for the very last step of analogRead preparationm where we turn the pin number into the channel to set the MUX. )
-analogChannelToDigitalPin(p) - converts an analog channe *number* to a digital pin.
+analogChannelToDigitalPin(p) - converts an analog channel *number* to a digital pin.
 analogInputToDigitalPin(p)   - converts an analog channel identifier ti a digital pin number.
-digitalOrAnalogPinToDigital(p) - converts an analog chanel iudentifier or digital puin to a digital pin number
+digitalOrAnalogPinToDigital(p) - converts an analog channel iudentifier or digital puin to a digital pin number
 ADC_CH(channel number)        - converts channel numbers to analog chaannel identifier
 
 ```
