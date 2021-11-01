@@ -13,12 +13,12 @@ You called a function that does not make sense to call with the current hardware
 ##  Digital Functions
 See [Digital Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 ```c
-void    openDrain(uint8_t pinNumber, uint8_t val)
-int8_t  digitalReadFast(uint8_t pinNumber)
+int8_t  digitalReadFast( uint8_t pinNumber)
 void    digitalWriteFast(uint8_t pinNumber, uint8_t val)
-void    openDrainFast(uint8_t pinNumber, uint8_t val)
-void    pinConfigure(uint8_t pinNumber, uint16_t mode)
-void    turnOffPWM(uint8_t pinNumber)
+void    openDrainFast(   uint8_t pinNumber, uint8_t val)
+void    openDrain(       uint8_t pinNumber, uint8_t val)
+void    pinConfigure(    uint8_t pinNumber, uint16_t mode)
+void    turnOffPWM(      uint8_t pinNumber)
 ```
 ## Pin information
 These are almost all preprocessor macros, not functions, but what they expand to is appropriate for the stated datatypes/
@@ -119,12 +119,12 @@ This is an obsolete macro that is only present for compatibility with old code. 
 ##  Analog Functions
 See [Analog Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
 ```c
-  int32_t analogReadEnh(pin, uint8_t res, uint8_t gain)
+  int32_t analogReadEnh( uint8_t pin,              uint8_t res, uint8_t gain)
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain)
-  int16_t analogClockSpeed(int16_t frequency, uint8_t options)
+  int16_t analogClockSpeed(int16_t frequency,      uint8_t options)
   bool    analogReadResolution(uint8_t res)
   bool    analogSampleDuration(uint8_t dur)
-  void    DACReference(uint8_t mode)
+  void    DACReference(        uint8_t mode)
   uint8_t getAnalogReference()
   uint8_t getDACReference()
   uint8_t getAnalogSampleDuration()
@@ -194,11 +194,12 @@ The intended use case is when you know you're disabling interrupts for a long ti
 forward by that much to compensate. That's what *I* wanted it for.
 
 ### `_switchInternalToF_CPU()`
+Call this if you are running from the internal clock, but it is not at F_CPU - likely when overriding OnClockTimeout(). OnClockFailure() is generally useless.
 
 ## PWM control
-See [Timer and PWM reference]()
+See (https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
 ```
-  void takeOverTCA0();
+  void takeOverTCA0()
   void takeOverTCA1()
   void takeOverTCD0()
   void resumeTCA0()
