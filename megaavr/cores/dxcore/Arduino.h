@@ -152,15 +152,15 @@ void takeOverTCA1();                      // Can be used to tell core not to use
 void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
 void resumeTCA0();                        // Restores core-mediated functionality that uses TCA0 and restores default TCA0 configuration.
 void resumeTCA1();                        // Restores core-mediated functionality that uses TCA1 and restores default TCA1 configuration.
-//bool digitalPinHasPWMNow(uint8_t p);    // Macro. Returns true if the pin can currently output PWM using analogWrite(), regardless of which timer is used and considering current PORTMUX setting
+//bool digitalPinHasPWM(uint8_t p);       // Macro. Returns true if the pin can currently output PWM using analogWrite(), regardless of which timer is used and considering current PORTMUX setting
 uint8_t digitalPinToTimerNow(uint8_t p);  // Returns the timer that is associated with the pin now (considering PORTMUX)
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
 void init_clock()  __attribute__((weak)); // this is called first, to initialize the system clock.
 void init_ADC0()   __attribute__((weak)); // this is called to initialize ADC0
 //   init_DAC0()                          // no _init_DAC0() - all that the core does is call DACReference().
-void init_TCA0()   __attribute__((weak)); // called by init_timers() - If you must override the _init_timers() (try to do one of these instead)
-void init_TCA1()   __attribute__((weak)); // called by init_timers() - you need to call init() methods for all timers you want analogWrite to work with
+void init_TCA0()   __attribute__((weak)); // called by init_timers() - without this, pins that give PWM from TCA0 will not function.
+void init_TCA1()   __attribute__((weak)); // called by init_timers() - without this, pins that give PWM from TCA1 will not function, nor will the TCBs unless the clock source is changed.
 void init_TCBs()   __attribute__((weak)); // called by init_timers()
 void init_TCD0()   __attribute__((weak)); // called by init_timers()
 void init_millis() __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
@@ -169,7 +169,7 @@ void onClockFailure() __attribute__((weak)); // called by the clock failure dete
 void onClockTimeout() __attribute__((weak)); // called if we try to switch to external cloc, but it doesn't work. Default action is a blink code with 3 blinks.
 
 #ifndef CORE_ATTACH_OLD
-  void attachPortAEnable();               // With the new experimental attachInterruopt code in manual moode, you ccall these to initiate it (if it gets done )
+  void attachPortAEnable();
   void attachPortBEnable();
   void attachPortCEnable();
   void attachPortDEnable();
@@ -177,9 +177,8 @@ void onClockTimeout() __attribute__((weak)); // called if we try to switch to ex
   void attachPortFEnable();
   void attachPortGEnable();
 #endif
-//
+
 // ANALOG EXTENDED FUNCTIONS
-//
 // Covered in documentation.
 
 int32_t           analogReadEnh(uint8_t pin,                uint8_t res,  uint8_t gain);
@@ -209,10 +208,26 @@ void          turnOffPWM(uint8_t pinNumber               );
 #define digitalPinHasPWMNow(p)            (digitalPinToTimerNow(p) != NOT_ON_TIMER)
 
 // avr-libc defines _NOP() since 1.6.2
+// Spence: Better tell avr-gcc that, it seems to disagree
 #ifndef _NOP
-  #define _NOP() do { __asm__ volatile ("nop"); } while (0)
+  #define _NOP()    do { __asm__ volatile ("nop"); } while (0)
 #endif
-
+#ifndef _NOP2
+  #define _NOP2()   do { __asm__ volatile ("nop"); } while (0)
+#endif
+#ifndef _NOPNOP
+  #define _NOPNOP() do { __asm__ volatile ("rjmp .+0"); } while (0)
+#ifndef _NOP8
+  #define _NOP8()   do { __asm__ volatile ("rjmp .+2"  "\n\t" \
+                                           "ret"       "\n\t" \
+                                           "rcall .-4" "\n\t"); } while (0)
+#endif
+#ifndef _NOP14
+  #define _NOP14()  do { __asm__ volatile ("rjmp .+2"  "\n\t" \
+                                           "ret"       "\n\t" \
+                                           "rcall .-4" "\n\t" \
+                                           "rcall .-6" "\n\t" ); } while (0)
+#endif
 uint16_t clockCyclesPerMicrosecond();
 uint32_t clockCyclesToMicroseconds(uint32_t cycles);
 uint32_t microsecondsToClockCycles(uint32_t microseconds);
@@ -365,7 +380,7 @@ extern const uint8_t digital_pin_to_timer[];
 #define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
 #define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
 #define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
-#define digitalPinToInterrupt(P)            (P) // pin number and int number are the same (wait, are they? I don't think they are on the 64-pin parts because of reset.
+#define digitalPinToInterrupt(P)            (P)
 
 /*
 #define portToPinZero(port)           (in variant - needed to get from port number for TCA mux to the pins to turnOffPWM() on them).

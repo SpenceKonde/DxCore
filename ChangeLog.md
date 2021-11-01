@@ -14,6 +14,10 @@ __ Completely new Wire.h library weith exciting features - Thanks to @MX682X!
 __ Looks like we we're getting those serial changes - also thanks to @MX682X!
 __ Expanded Event library from collaboration with @MCUDude
 
+## Planned next version
+* Docs - added function (or macro - most are macros) reference that should contain all functions not present in the stock cores, and many that are but aren't properly documented.
+* Minor things
+  * Added a few variants of `_NOP()` for longer delays in minimum number of words. 2 clocks in 1, 8 clocks in 3, 14 clocks in 4 (simplest loop is 3 * n + 1 in 3 words, or pad with nop/rjmp .+0 for any number of clocks up to 770 in 3-4 words; in an ISR that loop is 3 * n + 4 in 5 words, everything else below 770 in 6 words)
 
 ## Released Versions
 
