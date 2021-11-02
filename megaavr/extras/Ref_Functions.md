@@ -94,7 +94,7 @@ void attachPortFEnable()
 void attachPortGEnable()
 ```
 ## Overridables
-See [Callback Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Callback.md)
+See [Callback Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Callbacks.md)
 ```c++
   void init_reset_flags()
   void onPreMain()
