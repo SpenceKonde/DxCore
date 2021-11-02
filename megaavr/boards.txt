@@ -765,10 +765,10 @@ avrdb.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
 # MVIO menu                              #
 #________________________________________#
 
-#avrdb.menu.mvio.enabled=Enabled
-#avrdb.menu.mvio.enabled.bootloader.mviobits=01
-#avrdb.menu.mvio.disabled=Disabled
-#avrdb.menu.mvio.disabled.bootloader.mviobits=10
+avrdb.menu.mvio.enabled=Enabled
+avrdb.menu.mvio.enabled.bootloader.mviobits=01
+avrdb.menu.mvio.disabled=Disabled
+avrdb.menu.mvio.disabled.bootloader.mviobits=10
 
 #----------------------------------------#
 # Startup time options                   #
