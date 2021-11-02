@@ -375,11 +375,11 @@
 #endif
 
 
-#if   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#if   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
-#elif (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
-#elif (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"

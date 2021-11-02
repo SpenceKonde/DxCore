@@ -18,10 +18,11 @@ __ Expanded Event library from collaboration with @MCUDude
 * Docs - added function (or macro - most are macros) reference that should contain all functions not present in the stock cores, and many that are but aren't properly documented.
 * Minor things
   * Added a few variants of `_NOP()` for longer delays in minimum number of words. 2 clocks in 1, 8 clocks in 3, 14 clocks in 4 (simplest loop is 3 * n + 1 in 3 words, or pad with nop/rjmp .+0 for any number of clocks up to 770 in 3-4 words; in an ISR that loop is 3 * n + 4 in 5 words, everything else below 770 in 6 words)
+* Correct critical bug that prevented all compiling for DA-series parts.
 
 ## Released Versions
 
-### ~1.0.7~ 1.3.8
+### ~1.3.7~ 1.3.8
 * General:
   * Reimplemented attachInterrupts completely, so it now has a separate file for eaach port.  It doesn't do what I'd hoped to be able to do, get it to automatically only include ports you attach to; so I default to it being on all ports for compatibility, but have menu option to either do that manually - or revert to the old version if I broke something. Note: I didn't bother fixing PORTG on the old version implementation. That never worked, and nobody noticed! The new version is smaller.
   * Move to C++17 pulling in the changes from megaTinyCore (to new.cpp and new.h)
