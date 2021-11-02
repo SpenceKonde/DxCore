@@ -13,12 +13,12 @@ You called a function that does not make sense to call with the current hardware
 ##  Digital Functions
 See [Digital Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 ```c
-int8_t  digitalReadFast( uint8_t pinNumber)
-void    digitalWriteFast(uint8_t pinNumber, uint8_t val)
-void    openDrainFast(   uint8_t pinNumber, uint8_t val)
-void    openDrain(       uint8_t pinNumber, uint8_t val)
-void    pinConfigure(    uint8_t pinNumber, uint16_t mode)
-void    turnOffPWM(      uint8_t pinNumber)
+int8_t  digitalReadFast( uint8_t pin)
+void    digitalWriteFast(uint8_t pin, uint8_t val)
+void    openDrainFast(   uint8_t pin, uint8_t val)
+void    openDrain(       uint8_t pin, uint8_t val)
+void    pinConfigure(    uint8_t pin, uint16_t mode)
+void    turnOffPWM(      uint8_t pin)
 ```
 ## Pin information
 These are almost all preprocessor macros, not functions, but what they expand to is appropriate for the stated datatypes/
@@ -194,7 +194,7 @@ The intended use case is when you know you're disabling interrupts for a long ti
 forward by that much to compensate. That's what *I* wanted it for.
 
 ### `_switchInternalToF_CPU()`
-Call this if you are running from the internal clock, but it is not at F_CPU - likely when overriding OnClockTimeout(). OnClockFailure() is generally useless.
+Call this if you are running from the internal clock, but it is not at F_CPU - likely when overriding `onClockTimeout()`  `onClockFailure()` is generally useless.
 
 ## PWM control
 See (https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
