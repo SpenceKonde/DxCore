@@ -381,7 +381,7 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
       frequency = constrain(frequency, 125, 2000);
     }
     uint8_t newpresc = 0;
-    while (((int16_t)pgm_read_word_near(&adc_prescale_to_clkadc[newpresc])> frequency) &&  newpresc < 8 && (pgm_read_word_near(&adc_prescale_to_clkadc[newpresc + 1]) > ((options & 0x01) ? 1 : 300) )) {
+    while (((int16_t)pgm_read_word_near(&adc_prescale_to_clkadc[newpresc])> frequency) &&  newpresc < 8 && (pgm_read_word_near(&adc_prescale_to_clkadc[newpresc + 1]) > ((options & 0x01) ? 1 : 125) )) {
       newpresc++;
     }
     ADC0.CTRLB = newpresc;

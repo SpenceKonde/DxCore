@@ -2809,8 +2809,8 @@ azduinoboard.build.text_section_start=.text=0x200
 azduinoboard.build.extra_flags=
 azduinoboard.build.export_merged_output=true
 azduinoboard.build.printf=
-azduinoboard.menu.board.NanoDB_A.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex:i
-azduinoboard.menu.board.NanoDB_A.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex -a write
+azduinoboard.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex:i
+azduinoboard.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex -a write
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#

@@ -110,23 +110,52 @@ There are a number of macros for determining what (if any) features the core sup
 * `SUPPORT_LONG_TONES = 1`  - On some modern AVR cores, an intermediate value in the tone duration calculation can overflow (which is timed by counting times the pin is flipped) leading to a maximum duration of 4.294 million millisecond. This is worst at high frequencies, and can manifest at durations as short as 65 seconds worst case. Working around this, however, costs some flash, and some cores may make the choice to not address it (megaTinyCore only supports long tones on parts with more than 8k of flash).  If `SUPPORT_LONG_TONES` is defined as 1, as long as (duration * frequency)/500 < 4.294 billion, the duration will not be truncated. If it is defined as 0, the bug was known to the core maintainer and they chose not to fully correct it (eg, to save flash) but took the obvious step to reduce the impact, it will be truncated if (duration * frequency) exceeds 4.294 billion. If `SUPPORT_LONG_TONES` is not defined at all, the bug may be present in its original form, in which case the duration will be truncated if (duration * frequency) exceeds 2.14 billion.
 * `CORE_HAS_ANALOG_ENH = 1` - If defined as 1, `analogReadEnh()` (enhanced analogRead) is available. Otherwise, it is not.
 * `CORE_HAS_ANALOG_DIFF = 1` - If defined as 1, `analogReadDiff()` (differential enhanced analogRead) is available. Otherwise, it is not.  It has same features as enhanced, except that it takes a differential measurement. If this is -128, (128 unsigned), it is a classic AVR, not a modern one with a differential ADC, and the core's analogRead implementation accepts the constants listed in the core documentation to make an analogRead
+
+## Hardware feature detection
 * `ADC_MAX_OVERSAMPLED_RESOLUTION = 15` - If either `CORE_HAS_ANALOG_ENH` or `CORE_HAS_ANALOG_DIFF` is 1, this will be defined as the maximum resolution obtainable automatically via oversampling and decimation using those functions.
 * `ADC_MAXIMUM_GAIN = 0 (DA, DD, DU) or -1 (DB)` - Some parts' ADC is blessed with a Programmable Gain Amplifier (PGA) amplifier, often used for differential readings (though if the 2-series is any guide, the EA-series will support it for all readings) The Dx-series are not among them, though the EA will have it. If this is defined as a positive number, it is the maximum gain available (16 on the EA). If this is defined as 0 that means there is no way to amplify an analog signal we might want to measure (if this is a problem you need external opamps). If this is defined as -1 (or 255 if stuffed into a uint8), there are one or more `OPAMP` peripherals available which could be directed towards the same purpose, though more deliberation and part specific work would be needed; they may be more flexible in some ways, but they are very rigid in others (for example, in that there is only one pin option for them. If it is defined as -128 (128 in a uint8) there is a gain stage on the differential ADC, but it is specified along with the pair of pins, not with separate configuration options. This also means that it's *NOT* a modern AVR! This is generally what is done on all classic AVRs with a differential ADC) so the available gain options depend on which pins are being measured, and there is a different procedure to use it, as detailed in the core documentation (ex, ATTinyCore 2.0.0 and later). If it is undefined, there is definitley no support exposed through the core, and it may not be a feature of the hardware at all.
 * `PORT_ID_INLVL = 1 on DD/DB only` - If 1, the input levels can be switched between TTL and Schmitt trigger. If undefined or 0, they cannot be.
 
-Next up is information about the part number:
+## Part number determination
 * `_AVR_FAMILY` - String - "DA", "DB", "DD, "DU, or "EA" depending on what kind of part it  is.
 * `_AVR_PINCOUNT` - The number of physical pins
 * `_AVR_FLASH` - Flash size, in KB - these three can be used to print the human readable part number easily.
 
-Finally, really important nasty errata are listed. (minor ones aren't). If the erratum is present, they will be 1, and if it never impacted this part, it not be defined. If/when these are fixed, they get replaced with a macro to check REVID and see if the bug is there or not (eg, `(SYSCFG.REVID >= 0xA5 ? 0 : 1)` for a bug fixed in A5 revision, like the ZCD PORTMUX bug. See the [errata summary](./Errata.md) for details on them, and the example below for the best way to test them
+## Hardware pin determination
+
+### Timers
+For type A and type D timers, defines are provided for each pin included by a `PORTMUX` option for a type A or type D timer. This is `NOT_A_PIN` if the pin in question is not available on the device. This includes PA0/PA1 when they are used for the clock source or PD0 when that pin was replaced by the `VDDIO2` pin. The type B timers are not yet covered.
+* `PIN_TCA1_WO0_DEFAULT`
+* `PIN_TCA1_WO5_ALT1`
+* `PIN_TCD0_WOA_DEFAULT`
+While Microchip has thus far been quite kind to us regarding keeping mappings consistent between part families, we can't count on that to always be the case. While these values can be deduced from datasheets, the point is to make it more straightforward to detect whether the pin is present and usable.
+
+### Other peripherals
+If present, any OPAMP peripherals have each of their pins defined as shown (where n is 0, 1, or 2) pins are defined as:
+* `PIN_OPAMPn_INP` - Positive Input to OPAMPn
+* `PIN_OPAMPn_OUT` - Output of OPAMPn
+* `PIN_OPAMPn_INN` - Negative Input of OPAMPn
+
+## Compatibility macros
+Occasionally Microchip has not kept the names of registers or bitfields consistent between families of parts, even when the function was not changed. In some cases these have even been changed between versions of the ATpack! The places where we've papered over identical register functionality with different names are:
+* The `GPIO`/`GPIOR`/`GPR` registers - they are now `GPR.GPRn`. The old names will work too, `GPIORn` is recommended for maximum compatibility.
+* The `TCA_SINGLE_EVACTA` bitfield - formerly known as `TCA_SINGLE_EVACT` and it's group codes. The old names will work too, permitting code portability from tinyAVR to Dx.
+* The `RTC_CLKSEL` group codes that were renamed on non-tiny parts. The old names will work too, permitting code portability from tinyAVR to Dx.
+* The `CLKCTRL_SELHF_CRYSTAL_gc` option on DB-series parts which was renamed to `CLKCTRL_SELHF_XTAL_gc`. This goes both ways, as different ATpacks name them differently.
+* All things `CLKCTRL_FREQSEL` related, which had the E dropped in some ATPACK versions. This goes both ways, as different ATpacks name them differently.
+
+## Errata
+There are macros to check if the parts are effected by major errata (minor ones aren't included, nor are ones that effect a peripheral that is only present on DxCore-supported parts and has it's own library included with the core. ). If the erratum is present, they will be 1, and if it never impacted this part, it not be defined. If/when these are fixed, they get replaced with a macro to check REVID and see if the bug is there or not (eg, `(SYSCFG.REVID >= 0xA5 ? 0 : 1)` for a bug fixed in A5 revision. See the [errata summary](./Errata.md) for details on them, and the example below for the best way to test them
 
 * `ERRATA_ADC_PIN_DISABLE`  - The bug on DA with digital input being disabled on the pin the ADC is pointed at. Transparently worked around by the core.
-* `ERRATA_TCA1_PORTMUX`     - The bug on DA 128 where the last 2 settings don't work for TCA1.
+* `ERRATA_TCA1_PORTMUX`     - The bug on DA128 where the last 2 settings don't work for TCA1.
+* `ERRATA_DAC_DRIFT`        - On effected chips (all DA-series up to and including A8), the DAC output buffer drifts over the lifetime of the part, and you should verify the output with the ADC.
 * `ERRATA_NVM_ST_BUG`       - The bug on DA 128 where memory protection is applied to more areas than it should be when writing using ST (our bootloader and the flash module use SPM instead. It's faster too.)
 * `ERRATA_TCB_CCMP`         - Impacts all parts with TCBs. CCMPL and CCMPH cannot be written individually. You must write both together, in that order, because they're treated like a 16-bit register, even in PWM mode.
 * `ERRATA_CCL_PROTECTION`   - Impacts all parts with a CCL. CCL settings cannot be changed without disabling the whole CCL - not just the LUT, which was apparently the intent.
 * `ERRATA_TCD_PORTMUX`      - Impacts all DA/DB parts. Only the default TCD0 port mapping works.
+
+
 
 ```c++
 int8_t funWithTCA1() {
@@ -140,8 +169,9 @@ int8_t funWithTCA1() {
   #endif
 }
 void setup() {
+  Serial.begin(115200);
   if funWithTCA1() {
-    Serial.println("ERROR: This chip cannot direct output from TCA1 to PG0:5 or PE4:7, use a newer chip to ");
+    Serial.println("ERROR: This chip cannot direct output from TCA1 to PG0:5 or PE4:7 due to silicon errata");
   } else {
     partyDown();  // defined elsewhere.
   }

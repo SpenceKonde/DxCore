@@ -41,7 +41,7 @@
  * The spelling of here is intentional. With it undefined, we will define the backwards compatible names, but if not.
  * If instead the user seeks to thwart compatibility (or alert themselves to code where they used old names) they are seeking the
  * opposite of backward compatibility like (apparently) Microchip is, Some wags have have termed this "backward combatibility"
- * in that case, you can enable backwards combatibility mode and none of these macros */
+ * in that case, you can enable backwards combatibility mode and none of these macros will be available.*/
 
 // #define BACKWARD_COMBATIBILITY_MODE
 
@@ -94,14 +94,24 @@
     #define GPIO3 (GPR_GPR3)
     #define GPIO_GPIO3 (GPR_GPR3)
   #endif
-  /* Of course in these more enlightened times, we know better!
-
-   * They are are the 4 registers in the GPR "peripheral", GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
+  /* They are are the 4 registers in the GPR "peripheral", GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
    * Let's not split hairs about whether calling 4 registers that do absolutely nothing other than being
    * located at addresses 0x1C, 0x1D, 0x1E and 0x1F allowing use of all the glorious instructions that brings
    * SBI, CBI, SBIS, SBIC, IN, and OUT, is enough to qualify as a peripheral.
    * Anyway - the flat names were used because if we don't, in some situations that winds up causing weird
    * problems. */
+
+  /* Code written for tinyAVR's TCA EVACT, which is identical to EVACTA on newer parts, would not work
+   * even though they have the same functionality
+   */
+  #define TCA_SINGLE_CNTEI_bm              TCA_SINGLE_CNTAEI_bm
+  #define TCA_SINGLE_CNTEI_bp              TCA_SINGLE_CNTAEI_bp
+  #define TCA_SINGLE_EVACT_gm              TCA_SINGLE_EVACTA_gm
+  #define TCA_SINGLE_EVACT_gp              TCA_SINGLE_EVACTA_gp
+  #define TCA_SINGLE_EVACT_CNT_POSEDGE_gc (TCA_SINGLE_EVACTA_CNT_POSEDGE_gc)
+  #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc (TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc)
+  #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc (TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc)
+  #define TCA_SINGLE_EVACT_UPDOWN_gc      (TCA_SINGLE_EVACTA_UPDOWN_gc)
 
   #if defined (CLKCTRL_SELHF_bm)
     /* They changed the damned name after selling the part for 6 months!
@@ -443,7 +453,7 @@
     #define PIN_DACOUT PIN_PD6
   #endif
 #endif
-#if (defined(__AVR_DB__) && defined(__AVR_DD__))
+#if (defined(__AVR_DB__) || defined(__AVR_DD__))
   #define PORT_ID_INLVL 1
 #else
   #define PORT_ID_INLVL 0
@@ -465,10 +475,14 @@
   #define ERRATA_NVM_ST_BUG           1 /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
 #endif
 
+#if defined(__AVR_DA__)
+  #define ERRATA_DAC_DRIFT            1
+#endif
+
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // No device has been released that doesn't have this bug!
   #define ERRATA_TCB_CCMP             1
-  #define ERRATA_CCL_PROTECTIOMN      1
+  #define ERRATA_CCL_PROTECTION       1
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)

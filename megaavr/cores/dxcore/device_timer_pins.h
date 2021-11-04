@@ -4,19 +4,25 @@
  * with PIN_(name of associated _gc constant) as the pin that the peripheral
  * will use for that fuhction - if it is present - and NOT_A_PIN if it is not
  * present. Nothing is defined if a peripheral doesn't exist - you still have
- * to test if TCD1 exists, for example; this is logically coherent, becayuse
+ * to test if TCA1 exists, for example; this is logically coherent, because
  * even if a timer had no pins connected to it for PWM, you could STILL USE
- * IT'S WAVEFORM OUTPUT PINS with CCL in order to do cool stuff */
-
-
-
-
+ * IT'S WAVEFORM OUTPUT with the CCL in order to something, including PWM */
 
 #ifndef Device_Timer_Pins_h
   #define Device_Timer_Pins_h
 
-  #define PIN_TCA0_WO0_DEFAULT      PIN_PA0
-  #define PIN_TCA0_WO1_DEFAULT      PIN_PA1
+  #if (CLOCK_SOURCE == 0) // PA0 only available when using internal oscillator.
+    #define PIN_TCA0_WO0_DEFAULT    PIN_PA0
+  #else
+    #define PIN_TCA0_WO0_DEFAULT    NOT_A_PIN
+  #endif
+
+  #if (CLOCK_SOURCE == 1) // crystal desn't have PA1 available either
+    #define PIN_TCA0_WO0_DEFAULT    NOT_A_PIN
+  #else
+    #define PIN_TCA0_WO1_DEFAULT    PIN_PA1
+  #endif
+
   #if ((ID_MASK_PINS & CORE_PART_ID) >= ID_14_PINS)
     #define PIN_TCA0_WO2_DEFAULT    PIN_PA2
     #define PIN_TCA0_WO3_DEFAULT    PIN_PA3

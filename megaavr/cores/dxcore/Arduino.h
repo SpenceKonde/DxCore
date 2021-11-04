@@ -39,10 +39,18 @@
 extern "C"{
 #endif
 
-// Constant checks error handler
+/* we call badArg() when we know at compile time that one or more arguments passed to
+ * the function is nonsensical or doomed to generate non-useful output. For example,
+ * analogWrite() on a constant pin that will never support PWM, or digitalWrite() on
+ * a pin number that is neither a pin nor NOT_A_PIN (which silently does nothing for
+ * compatibility).
+ * badCall() on the other hand is called if we know that regardless of what arguments
+ * are passed, that function is nonsensical with current settings, for example, millis()
+ * when millis timekeeping has been disabled */
 void badArg(const char*) __attribute__((error("")));
 void badCall(const char*) __attribute__((error("")));
 
+// The fast digital I/O functions only work when the pin is known at compile time.
 inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 {
   if(!__builtin_constant_p(pin))
@@ -196,7 +204,6 @@ int8_t  getAnalogReadResolution();
 //
 // DIGITAL I/O EXTENDED FUNCTIONS
 // Covered in documentation.
-
 void           openDrain(uint8_t pinNumber,   uint8_t val);
 int8_t   digitalReadFast(uint8_t pinNumber               );
 void    digitalWriteFast(uint8_t pinNumber,   uint8_t val);
@@ -217,6 +224,7 @@ void          turnOffPWM(uint8_t pinNumber               );
 #endif
 #ifndef _NOPNOP
   #define _NOPNOP() do { __asm__ volatile ("rjmp .+0"); } while (0)
+#endif
 #ifndef _NOP8
   #define _NOP8()   do { __asm__ volatile ("rjmp .+2"  "\n\t" \
                                            "ret"       "\n\t" \

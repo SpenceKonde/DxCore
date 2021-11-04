@@ -107,17 +107,17 @@ The Ex-series is expected to have prescalers similar to the tinyAVR 2-series: Ev
 In either case you don't need to know the range of prescalers, just ask for a frequency and we'll get as close as possible without exceeding it, and tell you what was picked
 
 ```c++
-Serial.println(analogClockSpeed()); // prints something between 1000 and 1500 depending on F_CPU
-analogClockSpeed(300); // set to 300 kHz
-Serial.println(analogClockSpeed()); // prints a number near 300 - the closest to 300 that was possible without going over.
+Serial.println(analogClockSpeed());     // prints something between 1000 and 1500 depending on F_CPU
+analogClockSpeed(300);                  // set to 300 kHz
+Serial.println(analogClockSpeed());     // prints a number near 300 - the closest to 300 that was possible without going over.
 // For Dx-series
-Serial.println(analogClockSpeed(3000)); // sets prescaler such that frequency of ADC clock is as close to but not more than  2000 (kHz)
-// as possible which is the maximum supported according to the datasheet. Any number of 2000 or higher will get same results.
-Serial.println(analogClockSpeed(20)); // A ridiculously slow ADC clock request. Datasheet says minimum is 125. Maximum prescaler is 256, so this would
-                                      // set the ADC clock to that for the lowest ADC clock possible with this clock speed and return that (93 kHz (93.75 truncated to int)).
+Serial.println(analogClockSpeed(3000)); // sets prescaler such that frequency of ADC clock is as close to but not more than 2000 (kHz) which is
+                                        // the maximum supported according to the datasheet. Any number of 2000 or higher will get same results.
+Serial.println(analogClockSpeed(20));   // A ridiculously slow ADC clock request. Datasheet says minimum is 125. Maximum prescaler is 256, so this would
+                                        // set the ADC clock to that for the lowest ADC clock possible with this clock speed and return that (93 kHz (93.75 truncated to int)).
 
 // For Ex-series
-Serial.println(analogClockSpeed(20000)); // Above manufacurer max spec, so seeks out a value that is no larger than that spec 3000 if internal reference selected or 6000 otherwise.
+Serial.println(analogClockSpeed(20000));   // Above manufacurer max spec, so seeks out a value that is no larger than that spec 3000 if internal reference selected or 6000 otherwise.
 Serial.println(analogClockSpeed(20000,1)); // Above manufacturer's spec. but we instruct it to ignore the spec and live dangerously.
 // The requested speed, far in excess of the maximum obtainable (which is several times the maximum supported) speed, with limits bypassed,
 // will lead it to choose the fastest possible ADC clock, which is only prescaled by a factor of 2, and return that value, likely 8000 or 10000
@@ -139,11 +139,11 @@ When taking an analog reading, you may receive a value near -2.1 billion - these
 The busy and disabled errors are the only ones that we never know at compile time.
 | Error name                     |     Value   | Notes
 |--------------------------------|-------------|---------------------------------------------------------------------
-|ADC_ERROR_INVALID_CLOCK         |      -32764 | Returned by analogSetClock() wt
+|ADC_ERROR_INVALID_CLOCK         |      -32764 | Returned by analogSetClock() if, somehow, it fails to find an appropriate value. May be a cant-happen.
 |ADC_ERROR_BAD_PIN_OR_CHANNEL    |      -32765 | The specified pin or ADC channel does not exist or does support analog reads.
 |ADC_ERROR_BUSY                  |      -32766 | The ADC is busy with another conversion
 |ADC_ERROR_DISABLED              |      -32767 | The ADC is disabled at this time.
-|ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL| -2100000000 | ADC input (or positive input) is neither a valid pin nor channel
+|ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL| -2100000000 | The specified pin or ADC channel does not exist or does support analog reads.
 |ADC_ENH_ERROR_BUSY              | -2100000001 | The ADC is busy with another conversion.
 |ADC_ENH_ERROR_RES_TOO_LOW       | -2100000003 | Minimum ADC resolution is 8 bits. If you really want less, you can always rightshit it.
 |ADC_ENH_ERROR_RES_TOO_HIGH      | -2100000004 | Maximum resolution, using automatic oversampling and decimation is 15, and will be 17 on Ex-series
@@ -152,7 +152,7 @@ The busy and disabled errors are the only ones that we never know at compile tim
 
 
 ## DAC Support
-The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference or control voltage, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). Call `analogWrite()` on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call `digitalWrite()` or `turnOffPWM()` on that pin. Regardless, will want to set a DAC reference voltage with `DACReference()` - same options and syntax as `analogReference()`. The default is the 1.024V reference, which isn't what you probably want!
+The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference or control voltage, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). Call `analogWrite()` on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call `digitalWrite()` or `turnOffPWM()` on that pin.
 
 To use it in 10-bit mode
 ```
@@ -167,9 +167,12 @@ DAC0.DATA=(dacvalue<<6);
 // disable DAC
 DAC0.CTRLA &= ~(DAC_OUTEN_bm | DAC_ENABLE_bm);
 ```
+### DAC Errata
+The silicon errata for the DA-series parts describes a "DAC Lifetime Drift" issue if the device is powered with the output buffer disabled, and suggest either keeping the DAC output continually enabled, or compensating by measuring the output voltage with the ADC and adjusting as needed. It is unclear if this is an issue even if the DAC is not enabled (for use as an internal source) without the output buffer being enabled, or whether simply powering the device at all causes this drift, nor is any information about the magnitude of the drift provided.
+
 
 ### DAC Error
-For rather silly reasons, I wound up taking a bunch of measurements with a millivolt meter hooked up to the DAC. At least on the chip I tested, at room temperature and Vcc = approx. 5v, both the 4.096 and 1.024V references were within 1%, and the voltages coming out of the DAC were a few mV low below around the half-way point. It looked to me like, feeding it 8-bit values, if your "dac writing" function secretly set the low 2-bits of DATA a value dependent on the 8 high-bits and the current reference voltage, you could get a significant improvement in accuracy of the output. Something like this would do well - at least on the chip I was looking at. I have too many other tasks to pursue further - but someone who likes analog stuff could have a lot of fun with this, for certain values of fun...
+For rather silly reasons, I wound up taking a bunch of measurements with a millivolt meter hooked up to the DAC. At least on the chip I tested, at room temperature and Vcc = approx. 5v, both the 4.096 and 1.024V references were within 1%, and the voltages coming out of the DAC were a few mV low below around the half-way point. It looked to me like, feeding it 8-bit values, if your "dac writing" function secretly set the low 2-bits of DATA a value dependent on the 8 high-bits and the current reference voltage, you could get a significant improvement in accuracy of the output. Something like this would do well - at least on the chip I was looking at. However, this was before the disclosure of the DAC errata, which throws a wrench into the works. I have too many other tasks to pursue further - but someone who likes analog stuff could have a lot of fun with this, for certain values of fun...
 ```c++
 /* Note - this is not part of the core, but an example of how you might uswe the core. */
 void correctedDACWrite(uint8_t value) {
