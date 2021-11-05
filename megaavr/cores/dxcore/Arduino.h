@@ -40,7 +40,7 @@ extern "C"{
 #endif
 
 /* we call badArg() when we know at compile time that one or more arguments passed to
- * the function is nonsensical or doomed to generate non-useful output. For example,
+ * the function is nonsensical or doomed to generate useless output. For example,
  * analogWrite() on a constant pin that will never support PWM, or digitalWrite() on
  * a pin number that is neither a pin nor NOT_A_PIN (which silently does nothing for
  * compatibility).

@@ -17,7 +17,7 @@
     #define PIN_TCA0_WO0_DEFAULT    NOT_A_PIN
   #endif
 
-  #if (CLOCK_SOURCE == 1) // crystal desn't have PA1 available either
+  #if (CLOCK_SOURCE == 1) // crystal doesn't have PA1 available either
     #define PIN_TCA0_WO0_DEFAULT    NOT_A_PIN
   #else
     #define PIN_TCA0_WO1_DEFAULT    PIN_PA1
