@@ -395,10 +395,10 @@ avrda.menu.startuptime.64.bootloader.SYSCFG1=0x07
 avrda.menu.appspm.no=Disabled
 avrda.menu.appspm.no.bootloader.appspm=
 avrda.menu.appspm.no.bootloader.BOOTSIZE=0x00
-avrda.menu.appapm.no.build.appspmabr=
+avrda.menu.appspm.no.build.appspmabr=
 avrda.menu.appspm.full=Anywhere
 avrda.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
-avrda.menu.appapm.full.build.appspmabr=.spmALL
+avrda.menu.appspm.full.build.appspmabr=.spmALL
 avrda.menu.appspm.16plus=Above 16k
 avrda.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrda.menu.appspm.16plus.bootloader.CODESIZE=32
@@ -799,7 +799,7 @@ avrdb.menu.appspm.no.build.appspmabr=
 avrdb.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avrdb.menu.appspm.full=Anywhere
 avrdb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
-avrdb.menu.appapm.full.build.appspmabr=.spmALL
+avrdb.menu.appspm.full.build.appspmabr=.spmALL
 avrdb.menu.appspm.16plus=Above 16k
 avrdb.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdb.menu.appspm.16plus.bootloader.CODESIZE=32
@@ -1195,7 +1195,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
 ##avrdd.menu.appspm.full=Anywhere
 ##avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
-#avrdd.menu.appapm.full.build.appspmabr=.spmALL
+#avrdd.menu.appspm.full.build.appspmabr=.spmALL
 ##avrdd.menu.appspm.16plus=Above 16k
 ##avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 ##avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
