@@ -275,8 +275,8 @@ class SPIClass {
     }
     */
     #ifdef CORE_ATTACH_OLD
-      void detachMaskedInterrupts();
-      void reattachMaskedInterrupts();
+    void detachMaskedInterrupts();
+    void reattachMaskedInterrupts();
     #endif
     SPI_t *_hwspi_module = &SPI0;
     uint8_t _uc_pinMISO;
@@ -288,17 +288,17 @@ class SPIClass {
     bool initialized;
     uint8_t interruptMode;
     #ifdef CORE_ATTACH_OLD
-      char interruptSave;
-      uint32_t interruptMask_lo;
-      uint32_t interruptMask_hi;
-      #if USE_MALLOC_FOR_IRQ_MAP
-        uint8_t *irqMap = NULL;
-      #else
-        volatile uint8_t irqMap[EXTERNAL_NUM_INTERRUPTS];
-      #endif
+    char interruptSave;
+    uint32_t interruptMask_lo;
+    uint32_t interruptMask_hi;
+    #if USE_MALLOC_FOR_IRQ_MAP
+    uint8_t *irqMap = NULL;
     #else
-      uint8_t old_sreg;
-      uint8_t in_transaction;
+    volatile uint8_t irqMap[EXTERNAL_NUM_INTERRUPTS];
+    #endif
+    #else
+    uint8_t old_sreg;
+    uint8_t in_transaction;
     #endif
 };
 

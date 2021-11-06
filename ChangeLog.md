@@ -24,6 +24,7 @@ __ Expanded Event library from collaboration with @MCUDude
 * Corrected bug relating to appspm and exported binary naming.
 * Correct critical bug that made SPI.h incompatible with the new attachInterrupt().
 * Correct critical bug compiling for 64-pin parts due to a stray charachter in the variant file.
+* Correct critical bug in 28-pin variant file that broke writes to pins 0 and 1 within every port!
 * Minor things
   * Added a few variants of `_NOP()` for longer delays in minimum number of words. 2 clocks in 1, 8 clocks in 3, 14 clocks in 4 (simplest loop is 3 * n + 1 in 3 words, or pad with nop/rjmp .+0 for any number of clocks up to 770 in 3-4 words; in an ISR that loop may add 1 clock to the start of the ISR and 2 clocks to the end, as well as 2 words to the size of the binary (though it won't if there's an, everything else below 770 in 6 words)
   * analogClockSpeed used 300 kHz as the minimum instead of 125 kHz.

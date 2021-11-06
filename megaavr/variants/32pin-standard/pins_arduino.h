@@ -283,20 +283,20 @@ const uint8_t digital_pin_to_port[] = {
   PF,           // 24 PF4/AIN20/TCB0 PWM
   PF,           // 25 PF5/AIN21/TCB1 PWM
   PF,           // 26 PF6 RESET
-// PF           // 27 PF7 UPDI
+  // PF         // 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = {
   #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
-    PIN0_bp,    //  0 PA0
+  PIN0_bp,      //  0 PA0/USART0_Tx
   #else
-    NOT_A_PIN,  //    PA0 used for external crystal or clock, or is hardwired to one and not broken out.
+  NOT_A_PIN,    //    PA0 XTAL0/CLKIN (used for external crystal or clock, or is hardwired to one and not broken out)
   #endif
   #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
-    NOT_A_PIN,  //    PA1 used for external crystal, or is hardwired to one and not broken out.
+  NOT_A_PIN,    //    PA1 XTAL1  (used for external crystal, or is hardwired to one and not broken out)
   #else
-    PIN1_bp,    //  1 PA1
+  PIN1_bp,      //  1 PA1/USART0_Rx
   #endif
   PIN2_bp,      //  2 PA2/SDA
   PIN3_bp,      //  3 PA3/SCL
@@ -309,9 +309,9 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN2_bp,      // 10 PC2
   PIN3_bp,      // 11 PC3
   #ifndef MVIO
-    PIN0_bp,    // 12 PD0/AIN0
+  PIN0_bp,      // 12 PD0/AIN0
   #else
-    NOT_A_PIN,
+  NOT_A_PIN,    // PD0 got it's physical pin taken by the VDDIO2 pin.
   #endif
   PIN1_bp,      // 13 PD1/AIN1
   PIN2_bp,      // 14 PD2/AIN2
@@ -327,18 +327,18 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN4_bp,      // 24 PF4/AIN14/TCB0 PWM
   PIN5_bp,      // 25 PF5/AIN15/TCB1 PWM
   PIN6_bp,      // 26 PF6 RESET
-//PIN7_bm       // 27 PF7 UPDI
+  //PIN7_bm     // 27 PF7 UPDI
 };
 const uint8_t digital_pin_to_bit_mask[] = {
   #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
-    PIN0_bm,    //  0 PA0
+  PIN0_bm,      //  0 PA0/USART0_Tx
   #else
-    NOT_A_PIN,  // PA0 used for external crystal or clock, or is hardwired to one and not broken out.
+  NOT_A_PIN,    //    PA0 XTAL0/CLKIN (used for external crystal or clock, or is hardwired to one and not broken out)
   #endif
-  #if (CLOCK_SOURCE == 1 || defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
-    NOT_A_PIN,  // PA1 used for external crystal, or is hardwired to one and not broken out.
+  #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+  NOT_A_PIN,    //    PA1 XTAL1  (used for external crystal, or is hardwired to one and not broken out)
   #else
-    PIN1_bm,    //  1 PA1
+  PIN1_bm,      //  1 PA1/USART0_Rx
   #endif
   PIN2_bm,      //  2 PA2/SDA
   PIN3_bm,      //  3 PA3/SCL
@@ -351,9 +351,9 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN2_bm,      // 10 PC2
   PIN3_bm,      // 11 PC3
   #ifndef MVIO
-    PIN0_bm,    // 12 PD0/AIN0
+  PIN0_bm,      // 12 PD0/AIN0
   #else
-    NOT_A_PIN,  // PD0 got it's physical pin taken by the VDDIO2 pin.
+  NOT_A_PIN,    // PD0 got it's physical pin taken by the VDDIO2 pin.
   #endif
   PIN1_bm,      // 13 PD1/AIN1
   PIN2_bm,      // 14 PD2/AIN2
@@ -369,38 +369,38 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN4_bm,      // 24 PF4/AIN14/TCB0 PWM
   PIN5_bm,      // 25 PF5/AIN15/TCB1 PWM
   PIN6_bm,      // 26 PF6 RESET
-//PIN6_bm       // 27 PF7 UPDI
+//PIN7_bm       // 27 PF7 UPDI
 };
 
 const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/XTAL1/CLKIN
-  NOT_ON_TIMER, //  1 PA1/XTAL2
-  TIMERB0,      //  2 PA2/SDA
-  TIMERB1,      //  3 PA3/SCL
-  TIMERD0,      //  4 PA4/MOSI      WOA
-  TIMERD0,      //  5 PA5/MISO      WOB
-  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  TIMERB2,      //  8 PC0
-  NOT_ON_TIMER, //  9 PC1
-  NOT_ON_TIMER, // 10 PC2
-  NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, // 12 PD0/AIN0 (Doesn't exist on DB)
-  NOT_ON_TIMER, // 13 PD1/AIN1
-  NOT_ON_TIMER, // 14 PD2/AIN2
-  NOT_ON_TIMER, // 15 PD3/AIN3
-  NOT_ON_TIMER, // 16 PD4/AIN4
-  NOT_ON_TIMER, // 17 PD5/AIN5
-  DACOUT,       // 18 PD6/AIN6/DAC
-  NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 20 PF0/AIN16TOSC1
-  NOT_ON_TIMER, // 21 PF1/AIN17TOSC2
-  NOT_ON_TIMER, // 22 PF2/AIN18
-  NOT_ON_TIMER, // 23 PF3/AIN19
-  NOT_ON_TIMER, // 24 PF4/AIN20
-  NOT_ON_TIMER, // 25 PF5/AIN21
-  NOT_ON_TIMER, // 26 PF6 RESET
-//NOT_ON_TIMER  // 27 PF7 UPDI
+  NOT_ON_TIMER,   //  0 PA0/XTAL1/CLKIN
+  NOT_ON_TIMER,   //  1 PA1/XTAL2
+  TIMERB0,        //  2 PA2/SDA
+  TIMERB1,        //  3 PA3/SCL
+  TIMERD0,        //  4 PA4/MOSI      WOA
+  TIMERD0,        //  5 PA5/MISO      WOB
+  TIMERD0,        //  6 PA6/SCK       WOC mirrors WOA
+  TIMERD0,        //  7 PA7/SS/CLKOUT WOD mirrors WOB
+  TIMERB2,        //  8 PC0
+  NOT_ON_TIMER,   //  9 PC1
+  NOT_ON_TIMER,   // 10 PC2
+  NOT_ON_TIMER,   // 11 PC3
+  NOT_ON_TIMER,   // 12 PD0/AIN0 (Doesn't exist on DB)
+  NOT_ON_TIMER,   // 13 PD1/AIN1
+  NOT_ON_TIMER,   // 14 PD2/AIN2
+  NOT_ON_TIMER,   // 15 PD3/AIN3
+  NOT_ON_TIMER,   // 16 PD4/AIN4
+  NOT_ON_TIMER,   // 17 PD5/AIN5
+  DACOUT,         // 18 PD6/AIN6/DAC
+  NOT_ON_TIMER,   // 19 PD7/AIN7/AREF
+  NOT_ON_TIMER,   // 20 PF0/AIN16TOSC1
+  NOT_ON_TIMER,   // 21 PF1/AIN17TOSC2
+  NOT_ON_TIMER,   // 22 PF2/AIN18
+  NOT_ON_TIMER,   // 23 PF3/AIN19
+  NOT_ON_TIMER,   // 24 PF4/AIN20
+  NOT_ON_TIMER,   // 25 PF5/AIN21
+  NOT_ON_TIMER,   // 26 PF6 RESET
+  //NOT_ON_TIMER  // 27 PF7 UPDI
 };
 #endif
 #endif

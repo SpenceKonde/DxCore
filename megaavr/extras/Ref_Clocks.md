@@ -19,13 +19,13 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
 |      20 MHz |         Yes |           Yes |           Yes |           Yes |
 |      24 MHz |         Yes |           Yes |           Yes |           Yes |
 |      25 MHz |          No |            No |           Yes |           Yes | A lot of people have infinite 25 MHz crystals, apparently.
-|      28 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp. Lousy speed
+|      28 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp. Lousy clock speed for calculations with.
 |      30 MHz |          No |           Yes |           Yes |           Yes | Max. megaTinyCore overclock for 0/1 series via tuned internal
 |      32 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp.
 |      36 MHz |          No |            No |           Yes |           Yes | Never tested it, oddly enough. Will probably work on nearly all parts in favorable conditions.
 |      40 MHz |          No |            No |    Most chips |    Most chips | Majority of parts, even non-E-spec work w/xtal @ room temp. Some can't. Switching to external CLOCK might help.
-|      44 MHz |          No |            No |  May not work | Not by DxCore | Unsupported because nobody wants it. I think it would just work though, if there was any reason to use it.
-|      48 MHz |          No |            No |  Doesn't work |    Some chips | Some E-spec (extended temp. range) can do it.
+|      44 MHz |          No |            No |  May not work | Not by DxCore | Unsupported because nobody wants it. All plumbing is implemented though, if there was any reason to use it.
+|      48 MHz |          No |            No |  Doesn't work |    Some chips | Some E-spec (extended temp. range) can do it from external clock.
 
 Running at 48 MHz is an ambitious overclock and is totally unnecessary. So far, I had success at room temperature with external clocks, but not external crystals, and only when using the E-spec (extended temperature range) parts (which makes sense). I am surprised how they will "just work" at 40 from a crystal though, even I-spec parts usually do However, not all parts are capable of this. Out of around a dozen parts, I've so far found 1 that doesn't work at 40. As usual with AVRs, it's the ALU that starts failing first. I have an I-spec that, at 48 external clock will run a program that does a 1 second delay between calling micros (so lots of math is being done, then prints it). Like with over-overclocked tinies, if it's not so high that they crash immediately, they start getting math wrong, which shows up as 0's being printed for micros/millis(). This is unstable, as eventually a return address will get broken, it will return to that, and everything will fail (this may now turn into a reset if you're properly handling reset flags)
 

@@ -67,7 +67,7 @@ EA-series parts.
 #define PIN_PF4 (38)
 #define PIN_PF5 (39)
 #define PIN_PF6 (40) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
-/*      PIN_PF7 (41) UPDI pin not available for alternative functions */
+/*      PIN_PF7 (41) UPDI pin not available for alternative functions on DA/DB parts*/
 
 #define PINS_COUNT                          (41)
 #define NUM_DIGITAL_PINS                    PINS_COUNT
@@ -335,8 +335,8 @@ static const uint8_t A21 = PIN_A21;
 /* this guards against multiple definition errors, since this file gets included by everything,
    but only in one case should these tables be generated */
 const uint8_t digital_pin_to_port[] = {
-  PA,           //  0 PA0/XTAL0/CLKIN
-  PA,           //  1 PA1/XTAL1
+  PA,           //  0 PA0/USART0_Tx/XTAL0/CLKIN
+  PA,           //  1 PA1/USART0_Rx/XTAL1
   PA,           //  2 PA2/SDA
   PA,           //  3 PA3/SCL
   PA,           //  4 PA4/MOSI
@@ -376,18 +376,18 @@ const uint8_t digital_pin_to_port[] = {
   PF,           // 38 PF4/AIN20
   PF,           // 39 PF5/AIN21
   PF,           // 40 PF6 RESET
-//PF,           // 55 PF7 (UPDI)
+  //PF,         // 55 PF7 (UPDI)
 };
 const uint8_t digital_pin_to_bit_position[] = {
-  #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED))
-    PIN0_bp,    //  0 PA0
+  #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+  PIN0_bp,      //  0 PA0/USART0_Tx
   #else
-    NOT_A_PIN,  //  0 PA0 used for external crystal or clock, or is hardwired to one and not broken out.
+  NOT_A_PIN,    //    PA0 XTAL0/CLKIN (used for external crystal or clock, or is hardwired to one and not broken out)
   #endif
-  #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED))
-    NOT_A_PIN,  //  1 PA1 used for external crystal, or is hardwired to one and not broken out.
+  #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+  NOT_A_PIN,    //    PA1 XTAL1  (used for external crystal, or is hardwired to one and not broken out)
   #else
-    PIN1_bp,    //  1 PA1
+  PIN1_bp,      //  1 PA1/USART0_Rx
   #endif
   PIN2_bp,      //  2 PA2/SDA
   PIN3_bp,      //  3 PA3/SCL
@@ -431,15 +431,15 @@ const uint8_t digital_pin_to_bit_position[] = {
 //PIN7_bm,      // 55 PF7 (UPDI)
 };
 const uint8_t digital_pin_to_bit_mask[] = {
-  #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED))
-    PIN0_bm,    //  0 PA0
+  #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
+  PIN0_bm,      //  0 PA0/USART0_Tx
   #else
-    NOT_A_PIN,  //  0 PA0 used for external crystal or clock, or is hardwired to one and not broken out.
+  NOT_A_PIN,    //    PA0 XTAL0/CLKIN (used for external crystal or clock, or is hardwired to one and not broken out)
   #endif
-  #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED))
-    NOT_A_PIN,  //  1 PA1 used for external crystal, or is hardwired to one and not broken out.
+  #if (CLOCK_SOURCE == 1 ||  defined(XTAL_PINS_HARDWIRED)) // PA1 also used for crystal
+  NOT_A_PIN,    //    PA1 XTAL1  (used for external crystal, or is hardwired to one and not broken out)
   #else
-    PIN1_bm,    //  1 PA1
+  PIN1_bm,      //  1 PA1/USART0_Rx
   #endif
   PIN2_bm,      //  2 PA2/SDA
   PIN3_bm,      //  3 PA3/SCL
@@ -480,51 +480,51 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN4_bm,      // 38 PF4/AIN14
   PIN5_bm,      // 39 PF5/AIN15/LED_BUILTIN
   PIN6_bm,      // 40 PF6 RESET
-//PIN7_bm,      // 55 PF7 (UPDI)
+  //PIN7_bm,    // 55 PF7 (UPDI)
 };
 const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
-  NOT_ON_TIMER, //  1 PA1/USART0_Rx
-  NOT_ON_TIMER, //  2 PA2/SDA
-  NOT_ON_TIMER, //  3 PA3/SCL
-  TIMERD0,      //  4 PA4/MOSI      WOA
-  TIMERD0,      //  5 PA5/MISO      WOB
-  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  NOT_ON_TIMER, //  8 PB0
-  NOT_ON_TIMER, //  9 PB1
-  NOT_ON_TIMER, // 10 PB2
-  NOT_ON_TIMER, // 11 PB3
-  NOT_ON_TIMER, // 12 PB4
-  NOT_ON_TIMER, // 13 PB5
-  TIMERB2,      // 16 PC0
-  TIMERB3,      // 17 PC1
-  NOT_ON_TIMER, // 18 PC2
-  NOT_ON_TIMER, // 19 PC3
-  NOT_ON_TIMER, // 20 PC4
-  NOT_ON_TIMER, // 21 PC5
-  NOT_ON_TIMER, // 20 PC6
-  NOT_ON_TIMER, // 21 PC7
-  NOT_ON_TIMER, // 22 PD0/AIN0
-  NOT_ON_TIMER, // 23 PD1/AIN1
-  NOT_ON_TIMER, // 24 PD2/AIN2
-  NOT_ON_TIMER, // 25 PD3/AIN3
-  NOT_ON_TIMER, // 26 PD4/AIN4
-  NOT_ON_TIMER, // 27 PD5/AIN5
-  DACOUT,       // 28 PD6/AIN6
-  NOT_ON_TIMER, // 29 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 30 PE0/AIN8
-  NOT_ON_TIMER, // 31 PE1/AIN9
-  NOT_ON_TIMER, // 32 PE2/AIN10
-  NOT_ON_TIMER, // 33 PE3/AIN11
-  NOT_ON_TIMER, // 34 PF0/USART2_Tx/TOSC1
-  NOT_ON_TIMER, // 35 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 36 PF2/AIN12
-  NOT_ON_TIMER, // 37 PF3/AIN13
-  TIMERB0,      // 38 PF4/AIN14
-  TIMERB1,      // 39 PF5/AIN15
-  NOT_ON_TIMER, // 40 PF6 RESET
-//NOT_ON_TIMER, // 55 PF7 (UPDI)
+  NOT_ON_TIMER,   //  0 PA0/USART0_Tx/CLKIN
+  NOT_ON_TIMER,   //  1 PA1/USART0_Rx
+  NOT_ON_TIMER,   //  2 PA2/SDA
+  NOT_ON_TIMER,   //  3 PA3/SCL
+  TIMERD0,        //  4 PA4/MOSI      WOA
+  TIMERD0,        //  5 PA5/MISO      WOB
+  TIMERD0,        //  6 PA6/SCK       WOC mirrors WOA
+  TIMERD0,        //  7 PA7/SS/CLKOUT WOD mirrors WOB
+  NOT_ON_TIMER,   //  8 PB0
+  NOT_ON_TIMER,   //  9 PB1
+  NOT_ON_TIMER,   // 10 PB2
+  NOT_ON_TIMER,   // 11 PB3
+  NOT_ON_TIMER,   // 12 PB4
+  NOT_ON_TIMER,   // 13 PB5
+  TIMERB2,        // 16 PC0
+  TIMERB3,        // 17 PC1
+  NOT_ON_TIMER,   // 18 PC2
+  NOT_ON_TIMER,   // 19 PC3
+  NOT_ON_TIMER,   // 20 PC4
+  NOT_ON_TIMER,   // 21 PC5
+  NOT_ON_TIMER,   // 20 PC6
+  NOT_ON_TIMER,   // 21 PC7
+  NOT_ON_TIMER,   // 22 PD0/AIN0
+  NOT_ON_TIMER,   // 23 PD1/AIN1
+  NOT_ON_TIMER,   // 24 PD2/AIN2
+  NOT_ON_TIMER,   // 25 PD3/AIN3
+  NOT_ON_TIMER,   // 26 PD4/AIN4
+  NOT_ON_TIMER,   // 27 PD5/AIN5
+  DACOUT,         // 28 PD6/AIN6
+  NOT_ON_TIMER,   // 29 PD7/AIN7/AREF
+  NOT_ON_TIMER,   // 30 PE0/AIN8
+  NOT_ON_TIMER,   // 31 PE1/AIN9
+  NOT_ON_TIMER,   // 32 PE2/AIN10
+  NOT_ON_TIMER,   // 33 PE3/AIN11
+  NOT_ON_TIMER,   // 34 PF0/USART2_Tx/TOSC1
+  NOT_ON_TIMER,   // 35 PF1/USART2_Rx/TOSC2
+  NOT_ON_TIMER,   // 36 PF2/AIN12
+  NOT_ON_TIMER,   // 37 PF3/AIN13
+  TIMERB0,        // 38 PF4/AIN14
+  TIMERB1,        // 39 PF5/AIN15
+  NOT_ON_TIMER,   // 40 PF6 RESET
+  //NOT_ON_TIMER, // 55 PF7 (UPDI)
 };
 
 #endif
