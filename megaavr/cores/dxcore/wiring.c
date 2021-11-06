@@ -424,8 +424,8 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
             "add r0,r1"     "\n\t"  // + ticks >> 9
             "eor r1,r1"     "\n\t"  // clear out r1
             "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
-            "sbc %B0,r1"    "\n"  // carry
-            : "+r" (ticks)); // Do the rest in C
+            "sbc %B0,r1"    "\n"    // carry
+            : "+r" (ticks));        // Do the rest in C
           microseconds = overflows * 1000 + ticks; // nice and clean.
 
         /* The Troublesome Tens - I initially fumbled this after the **now** r1 is 0 line
@@ -491,8 +491,8 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
             "add r0,r1"     "\n\t"  // + ticks >> 8
             "eor r1,r1"     "\n\t"  // restore zero_reg
             "add %A0,r0"    "\n\t"  // add to the shifted ticks
-            "adc %B0,r1"    "\n"    // carry, do rest in c.
-            : "+r" (ticks));
+            "adc %B0,r1"    "\n"    // carry
+            : "+r" (ticks));        // Do the rest in C
           microseconds = overflows * 1000 + ticks;
 /* replaces:
         #elif (F_CPU == 48000000UL) // Extreme overclocking
@@ -1149,18 +1149,18 @@ void nudge_millis(uint16_t nudgesize) {
     // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
     // to sa about it. I wonder if we should always pick the highest speed instead, and that that would have a higher
     // chance of success.
-    #if     (F_CPU > 24000000)
+    #if     (F_CPU >= 24000000)
       #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
-    #elif   (F_CPU > 16000000)
+    #elif   (F_CPU >= 16000000)
       #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
-    #elif   (F_CPU >  8000000)
+    #elif   (F_CPU >=  8000000)
       #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
     #else
       #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
     #endif
   #endif
   #ifndef USE_CSUTHF
-    #define USE_CSUTHF CLKCTRL_CSUTHF_256_gc
+    #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
   #endif
 #endif
 
@@ -1277,7 +1277,7 @@ void  __attribute__((weak)) init_clock() {
         // external crystal
         _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
         /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
-        uint16_t i = 4096; // crystals can take a lot longer to reach stability.
+        uint16_t i = 8192; // crystals can take a lot longer to reach stability.
       #endif
     #endif
     _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
