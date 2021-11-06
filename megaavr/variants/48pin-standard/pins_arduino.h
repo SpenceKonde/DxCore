@@ -376,7 +376,7 @@ const uint8_t digital_pin_to_port[] = {
   PF,           // 38 PF4/AIN20
   PF,           // 39 PF5/AIN21
   PF,           // 40 PF6 RESET
-  //PF,         // 55 PF7 (UPDI)
+  //PF,         // 41 PF7 (UPDI)
 };
 const uint8_t digital_pin_to_bit_position[] = {
   #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.
@@ -428,7 +428,7 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN4_bp,      // 38 PF4/AIN14
   PIN5_bp,      // 39 PF5/AIN15/LED_BUILTIN
   PIN6_bp,      // 40 PF6 RESET
-//PIN7_bm,      // 55 PF7 (UPDI)
+  //PIN7_bm,    // 41 PF7 (UPDI)
 };
 const uint8_t digital_pin_to_bit_mask[] = {
   #if (CLOCK_SOURCE == 0 && !defined(XTAL_PINS_HARDWIRED)) // PA0 used for external clock and crystal.

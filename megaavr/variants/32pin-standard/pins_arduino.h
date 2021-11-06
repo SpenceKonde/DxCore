@@ -283,7 +283,7 @@ const uint8_t digital_pin_to_port[] = {
   PF,           // 24 PF4/AIN20/TCB0 PWM
   PF,           // 25 PF5/AIN21/TCB1 PWM
   PF,           // 26 PF6 RESET
-  // PF         // 27 PF7 UPDI
+  //PF          // 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
@@ -369,7 +369,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN4_bm,      // 24 PF4/AIN14/TCB0 PWM
   PIN5_bm,      // 25 PF5/AIN15/TCB1 PWM
   PIN6_bm,      // 26 PF6 RESET
-//PIN7_bm       // 27 PF7 UPDI
+  //PIN7_bm     // 27 PF7 UPDI
 };
 
 const uint8_t digital_pin_to_timer[] = {
