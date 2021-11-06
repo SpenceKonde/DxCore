@@ -199,7 +199,7 @@ with 64 pins: AVR128DA64, AVR128DB64, AVR64DA64 and AVR64DB64 */
 // USART 0
 #define HWSERIAL0                       &USART0
 #define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
-#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num=
+#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
 #define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
 #define HWSERIAL0_MUX_COUNT             2
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
