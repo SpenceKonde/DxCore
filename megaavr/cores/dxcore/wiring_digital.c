@@ -191,7 +191,7 @@ void _pinMode(uint8_t pin, uint8_t mode); //Forward Declaration
 inline __attribute__((always_inline)) void pinMode(uint8_t pin, uint8_t mode) {
   check_valid_digital_pin(pin);         /* generate compile error if a constant that is not a valid pin is used as the pin */
   check_valid_pin_mode(mode);           /* generate compile error if a constant that is not a valid pin mode is used as the mode */
-  #if defined(HARDWIRE_INPUT_ONLY)
+  #if defined(HARDWIRE_INPUT_ONLY)      /* Ugly hack to avoid setting certain pin output */
     if (__builtin_constant_p(pin)) {
       if (pin == HARDWIRE_INPUT_ONLY) {
         if (__builtin_constant_p(mode)) {
@@ -206,17 +206,14 @@ inline __attribute__((always_inline)) void pinMode(uint8_t pin, uint8_t mode) {
         }
       }
     } else {
-      if (pin == HARDWIRE_INPUT_ONLY) {}
-        if (__builtin_constant_p(mode)) {
-          if (mode == OUTPUT) {
-            return;
-          }
-        } else {
-          if (mode == OUTPUT) {
-            return;
-          }
+      if (__builtin_constant_p(mode)) {
+        if (mode == OUTPUT) {
+          if (pin == HARDWIRE_INPUT_ONLY) return;
         }
+      } else {
+        if (pin == HARDWIRE_INPUT_ONLY && mode == OUTPUT) return;
       }
+    }
   #endif
   _pinMode(pin, mode);
 }

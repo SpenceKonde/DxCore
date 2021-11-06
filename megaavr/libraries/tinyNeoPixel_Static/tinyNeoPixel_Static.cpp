@@ -390,14 +390,13 @@ void tinyNeoPixel::show(void) {
       "nop"                      "\n\t" // 1    nop           (T =  2)
       "sbrc %[byte],  7"         "\n\t" // 1-2  if (b & 128)
        "mov  %[next], %[hi]"     "\n\t" // 0-1   next = hi    (T =  4)
-      "dec  %[bit]"              "\n\t" // 1    bit--         (T =  5)
+      "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T =  5)
       "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T =  6)
-      "nop"                      "\n\t" // 1    nop           (T =  7)
+      "dec  %[bit]"              "\n\t" // 1    bit--         (T =  7)
       "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T =  8)
-      "breq nextbyte20"          "\n\t" // 1-2  if (bit == 0) (from dec above)
-      "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 10)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 12)
-      "nop"                      "\n\t" // 1    nop           (T = 13)
+      "breq nextbyte20"          "\n\t" // 1-2  if (bit == 0) (from dec above) 9 if false
+      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 11)
+      "rjmp .+0"                 "\n\t" // 1    nop nop       (T = 13)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 14)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 16)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 18)
@@ -448,10 +447,10 @@ void tinyNeoPixel::show(void) {
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 15)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 16)
       "nop"                      "\n\t" // 1    nop           (T = 17)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 19)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 21)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 23)
+      "rcall delay6clock20"      "\n\t" // 2+4=6              (T = 23)
       "rjmp head20"              "\n\t" // 2    -> head20 (next bit out)
+     "delay6clock20:"            "\n\t" // called for a 6 cycle delay
+      "ret"                      "\n\t" // 4  rcall ret trick (T = 21)
      "nextbyte20:"               "\n\t" //                    (T = 11)
       "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 12)
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 14)
@@ -491,30 +490,28 @@ void tinyNeoPixel::show(void) {
       "st   %a[port],  %[hi]"    "\n\t" // 1    PORT = hi     (T =  1)
       "sbrc %[byte],  7"         "\n\t" // 1-2  if (b & 128)
       "mov  %[next], %[hi]"      "\n\t" // 0-1   next = hi    (T =  3)
-      "dec  %[bit]"              "\n\t" // 1    bit--         (T =  4)
-      "nop"                      "\n\t" // 1    nop           (T =  5)
+      "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T =  4)
+      "dec  %[bit]"              "\n\t" // 1    bit--         (T =  5)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T =  7)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T =  9)
       "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T = 10)
       "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T = 11)
-      "nop"                      "\n\t" // 1    nop           (T = 12)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 14)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 16)
-      "breq nextbyte24"          "\n\t" // 1-2  if (bit == 0) (from dec above)
-      "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 18)
+      "rcall smallerdelay24"     "\n\t" // 2+4=6              (T = 17)
+      "breq nextbyte24"          "\n\t" // 1-2  if (bit == 0) (from dec above) (T = 18 if false)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 19)
       "rcall seconddelay24"      "\n\t" // 2+4+3=9            (T = 28)
       "rjmp head24"              "\n\t" // 2    -> head20 (next bit out)
-     "seconddelay24:"            "\n\t" //
+     "seconddelay24:"            "\n\t" // called for a 9 cycle delay
       "nop"                      "\n\t" // 1
       "rjmp .+0"                 "\n\t" // 2
+     "smallerdelay24:"           "\n\t" // called for a 6 cycle delay
       "ret"                      "\n\t" // 4
-     "nextbyte24:"               "\n\t" // last bit of a byte (T = 18)
-      "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 19)
-      "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 20)
-      "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 22)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 24)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 26)
+     "nextbyte24:"               "\n\t" // last bit of a byte (T = 19)
+      "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 20)
+      "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 21)
+      "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 23)
+      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 25)
+      "nop"                      "\n\t" // 1    nop           (R = 26)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 28)
       "brne head24"              "\n"   // 2    if (i != 0) -> (next byte)  ()
     : [port]  "+e" (port),
@@ -701,6 +698,8 @@ void tinyNeoPixel::show(void) {
     // 50 inst. clocks per bit: HHHHHHHxxxxxxxxLLLLLLLLLL
     // ST instructions:         ^      ^       ^       (T=0,14,30)
 
+    // Yeah, this is kind of absurd. We're monopolizing the CPU for 50 cycles per bit. of which 10 + 12 + 17 = 39 are delays.
+
     volatile uint8_t next, bit;
 
     hi   = *port |  pinMask;
@@ -756,7 +755,7 @@ void tinyNeoPixel::show(void) {
 
     // 60 inst. clocks per bit: HHHHHHHxxxxxxxxLLLLLLLLLL
     // ST instructions:         ^      ^       ^       (T=0,16,35)
-
+    // More than 80% of his is delaying :-/
     volatile uint8_t next, bit;
 
     hi   = *port |  pinMask;
