@@ -244,8 +244,8 @@ class SPIClass {
     void transfer(void *buf, size_t count);
 
     // Transaction Functions
-    void usingInterrupt(int interruptNumber);
-    void notUsingInterrupt(int interruptNumber);
+    void usingInterrupt(uint8_t interruptNumber);
+    void notUsingInterrupt(uint8_t interruptNumber);
     void beginTransaction(SPISettings settings);
     void endTransaction(void);
 
@@ -264,16 +264,20 @@ class SPIClass {
 
     // These undocumented functions should not be used.  SPI.transfer()
     // polls the hardware flag which is automatically cleared as the
-    // AVR responds to SPI's interrupt
+    // AVR responds to SPI's interrupt.
+    // Well, they're now commented out too. there is no way anything good could come of these and no indication that they were ever anything more than useless stubs.
+    /*
     inline static void attachInterrupt() {
       SPI0.INTCTRL |= (SPI_IE_bm);
     }
     inline static void detachInterrupt() {
       SPI0.INTCTRL &= ~(SPI_IE_bm);
     }
-
-    void detachMaskedInterrupts();
-    void reattachMaskedInterrupts();
+    */
+    #ifdef CORE_ATTACH_OLD
+      void detachMaskedInterrupts();
+      void reattachMaskedInterrupts();
+    #endif
     SPI_t *_hwspi_module = &SPI0;
     uint8_t _uc_pinMISO;
     uint8_t _uc_pinMOSI = PIN_SPI_MOSI;
@@ -283,14 +287,18 @@ class SPIClass {
 
     bool initialized;
     uint8_t interruptMode;
-    char interruptSave;
-    uint32_t interruptMask_lo;
-    uint32_t interruptMask_hi;
-
-    #if USE_MALLOC_FOR_IRQ_MAP
-    uint8_t *irqMap = NULL;
+    #ifdef CORE_ATTACH_OLD
+      char interruptSave;
+      uint32_t interruptMask_lo;
+      uint32_t interruptMask_hi;
+      #if USE_MALLOC_FOR_IRQ_MAP
+        uint8_t *irqMap = NULL;
+      #else
+        volatile uint8_t irqMap[EXTERNAL_NUM_INTERRUPTS];
+      #endif
     #else
-    volatile uint8_t irqMap[EXTERNAL_NUM_INTERRUPTS];
+      uint8_t old_sreg;
+      uint8_t in_transaction;
     #endif
 };
 
