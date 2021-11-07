@@ -85,16 +85,17 @@ typedef enum X32K_ENABLE {
 } X32K_ENABLE_t;
 ```
 
-`void configXOSC32K(X32K_TYPE_t, X32K_ENABLE_t)`
+```c++
+void configXOSC32K(X32K_TYPE_t, X32K_ENABLE_t)
 // attempts to configure the external crystal or oscillator.
 // see above for valid values of these two arguments. This handles the enable-locking of many of these bits.
 // which means it may disable this clock source (CSUT is long enough that this likely matters!)
 // since CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm won't be true until something requests that clock source, you have to actually enable autotune in order to check the status...
 
-`void disableXOSC32K()`
-disables the external 32.768 kHz oscillator
+void disableXOSC32K()
+// disables the external 32.768 kHz oscillator
 
-`uint8_t enableAutoTune() `
+uint8_t enableAutoTune()
 // if configXOSC32K() was previously called, those settings will be retained, otherwise external oscillator is enabled with
 // 1 second startu time and normal (not low power) crystal.
 // Returns 1 if autotune was not successfully enabled - waited for CSUT + 0.5 seconds, and status still reported XOSC32K as not running/stable!
@@ -102,10 +103,10 @@ disables the external 32.768 kHz oscillator
 // under this circumstance, autotune will not impact the main clock - and the main clock, in fact, is likely more accurate than autotune would achieve.
 // Returns 0 if autotune is successfully enabled within the time permitted by XOSC32KCTRLA's currently configured CSUT bits.
 
-`uint8_t disableAutoTune()`
+uint8_t disableAutoTune()
 // Returns 255 (-1) if autotune was not enabled.
 // Returns 0 if autotune is successfully disabled.
-
+```
 
 ```c
 // example
@@ -149,6 +150,4 @@ void doStuffWithOSC() {
 
   //Done!
 }
-
-
 ```

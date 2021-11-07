@@ -7,7 +7,7 @@ As things are with the Arduino environment at the moment, this requires your sou
 1. Move your project to Arduino's library folder (usually in the `Documents\Arduino\libraries` folder in your home folder on Windows and in the `Arduino/libraries` folder in your home folder on linux). More information [here](https://www.arduino.cc/en/hacking/libraries).
 2. Create a `library.properties` file according to this [specification](https://arduino.github.io/arduino-cli/latest/library-specification/) in the root of your library. An example is:
 
-```
+```text
 name=your-library
 version=1.0.0
 author=Your name <your email>

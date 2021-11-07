@@ -17,7 +17,7 @@ SPI SSD only works on alt pins        | 2 | Microchip | YES   | NO?  | NO?     |
 USART Open Drain TX must be INPUT     | 1 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       |       |       | Has impacted all modern AVRs       |
 USART start of frame detect in active | 3 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       |       |       | Has impacted all modern AVRs       |
 TWI SDA Hold Times                    | 1 | Microchip | YES   | NO   | NO      | NO      | NO    | NO    |       |       |       |                                    |
-ZCD Output remapping broken           | 1 | Microchip | NO?   | YES  | YES     | A4      | A4    | NO    | N/A   | N/A   | N/A   | Can be worked around with events   |
+ZCD Output remapping broken           | 1 | Microchip | YES   | YES  | YES     | A4      | NO    | NO    | N/A   | N/A   | N/A   | Can be worked around with events   |
 No Event on PB6,7 PE4,5,6,7           | 3 | Microchip | YES   | NO   | N/A     | NO      | NO    | N/A   | N/A   | N/A   | N/A   | Use different pins.                |
 All CCL LUTs enable-locked to CCL     | 2 | Microchip | YES   | YES  | YES     | YES     | YES   | YES   |       |       |       | Has impacted all modern AVRs       |
 CCL3 on 32/28-pin no LINK input       | 2 | Microchip | YES   | YES  | YES     | A4      | NO    | NO    |       |       |       | Likely fixed for DD                |
@@ -135,7 +135,7 @@ If the SOURCE bit in CLKCTRL.PLLCTRLA is set to 1, datasheet implies that it sho
 ## Interesting things removed from early io headers
 Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but...
 
-```
+```c++
 #define EVSYS_USEROSCTEST  _SFR_MEM8(0x024B)
 ```
 An extra event user... OSCTEST? I wonder what it does! I guess there's only one way to find out, and that's to monitor the system clock carefully with that set, and then trigger the event! The real question is whether it is to test some special oscillator feature... or just test if the oscillator is "safe" at it's current speed by stressing it (and you'd want that to be an event so you can have it executing code maybe? I dunno!)
@@ -158,7 +158,7 @@ This (and the internal oscillator working up to 32 MHz) raises a question - what
 If `CLK_PER` was meant to be rated up to 32 MHz, and and PLL up to 64? 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60... 24 MHz could only go 2x - but who would run 24 MHz if 32 MHz was an option? - and the 4x would get you 64 MHz from the ever popular 16 MHz system clock. So that's my theory - they designed it in the hopes of being able to do 32 MHz and 64 MHz on the PLL, it didn't meet reliability requirements under pessimal conditions, so they dropped back to 24 MHz and 48 MHz PLL. I'm sure glad they left the 32 MHz oscillator option in place though!
 
 Analog Comparators had a third option for power profile... The higher the option, the lower the power consumption, but the higher the latency. I wonder if it actually works?
-```
+```c++
     AC_POWER_PROFILE3_gc = (0x03<<3),  /* Power profile 3 */
 ```
 

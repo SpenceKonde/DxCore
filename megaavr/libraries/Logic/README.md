@@ -223,37 +223,37 @@ Logic0.truth = 0xF0;
 
 ## Logic Methods
 
-#### init()
+### init()
 Method for initializing a logic block; the settings you have previously configured will be applied and pins configured as requested at this time only.
 
-##### Usage
+#### Usage
 ```c++
 Logic0.init(); // Initialize block 0
 Logic1.init(); // Initialize block 1
 ```
 
 
-#### start()
+### start()
 Static method for starting the CCL hardware after desired blocks have been initialized using `LogicN.init()`. See the section below on reconfiguring.
 
-##### Usage
+#### Usage
 ```c++
 Logic::start(); // Start CCL hardware
 ```
 
-#### stop()
+### stop()
 Static method for stopping the CCL hardware, for example to reconfigure the logic blocks.
 
-##### Usage
+#### Usage
 ```c++
 Logic::stop(); // Stop CCL
 ```
 
-#### attachInterrupt()
+### attachInterrupt()
 Method for enabling interrupts for a specific block.
 Valid arguments for the third parameters are `RISING`, `FALLING` and `CHANGE`.
 
-##### Usage
+#### Usage
 ```c++
 Logic0.attachInterrupt(blinkLED, RISING); // Runthe blinkLED function when the output goes high
 
@@ -264,11 +264,11 @@ void blinkLED()
 ```
 
 
-#### detachInterrupt()
+### detachInterrupt()
 Method for disabling interrupts for a specific block.
 This method isn't available on tinyAVR 0/1-series.
 
-##### Usage
+#### Usage
 ```c++
 Logic0.detachInterrupt(); // Disable interrupts for block 0
 ```
@@ -278,7 +278,7 @@ There are TWO levels of "enable protection" on the CCL hardware. According to th
 
 The unintended layer is that no logic block can be reconfigured without also disabling the whole CCL system. Changes can be freely made to the `Logic` classes, however, only the `init()` method will apply those changes, and you must call `Logic::stop()` before calling them, and `Logic::start()` afterwards. If/when parts become available where this is not necessary, this step may be omitted, and this library may be amended to provide a way to check.
 
-#### Example
+### Example
 ```c++
 
 
@@ -299,12 +299,10 @@ Logic::stop();  // have to turn off Logic0 too, even though I might not want to
 Logic1.init();  // apply changes to logic block 1
 Logic3.init();  // apply settings to logic block 3 for the first time
 Logic::start(); // re-enable
-
-
 ```
 
 ## Think outside the box
-To consider the CCL system as simply a built-in multifunction gate IC is to greatly undersell it. The true power of the CCL is in it's ability to use events directly, and to take inputs from almost everything. Even doing neat stuff like the above 0xD4 truth table on an even-numbered logic block with input 2 set to feedback to make an R/S latch without using the second logic block is only scratching the surface of what these can do! Taking that a step farther... you could then use the odd-numbered logic block with feedback to, say, switch between two waveform
+To consider the CCL system as simply a built-in multifunction gate IC is to greatly undersell it. The true power of the CCL is in it's ability to use events directly, and to take inputs from almost everything. Even doing neat stuff like the above 0xD4 truth table on an even-numbered logic block with input 2 set to feedback to make an R/S latch without using the second logic block is only scratching the surface of what these can do! Taking that a step farther... you could then use the odd-numbered logic block with that same feedback to, say, switch between two waveforms being output by one of the PWM timers...
 
-## Note on terminology`*`
+## Note on terminology
 Yes, technically, C++ doesn't have "properties" or "methods" - these are "member variables" and "member functions" in C++ parlance. They mean the same thing. I've chosen to use the more familiar, preseent day terminology.

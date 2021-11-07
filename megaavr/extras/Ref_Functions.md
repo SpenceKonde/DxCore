@@ -10,7 +10,7 @@ digitalWrite(100, HIGH); // This tests whether the pin is known to be invalid at
 uint8_t pinnbr = 100;
 digitalWrite(pinnbr, HIGH); // This will also error, because there is no chance for pinnbr to be anything other than 100.
 volatile uint8_t pinnumber = 100;
-digitalWrite(pinnumber, HIGH); // This will not error at compiletime, because the compiler cannot optimize away the volatile variable.
+digitalWrite(pinnumber, HIGH); // This will not error at compile time, because the compiler cannot optimize away the volatile variable.
 ```
 
 ### `void badArg("msg")`
@@ -207,7 +207,7 @@ Call this if you are running from the internal clock, but it is not at F_CPU - l
 
 ## PWM control
 See [Timer Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
-```
+```text
   void takeOverTCA0()
   void takeOverTCA1()
   void takeOverTCD0()

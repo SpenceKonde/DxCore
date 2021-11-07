@@ -62,7 +62,7 @@ Serial.println("I have more than 28 pins"); // WORKS, but likely BAD - You shoul
 #endif
 ```
 
-## Incorrect usage:
+## Incorrect usage
 ```c++
 #if defined(ID_20_PINS)
 Serial.println("I have 20 pins!"); // WRONG - ID_20_PINS is always defined as 0x02.

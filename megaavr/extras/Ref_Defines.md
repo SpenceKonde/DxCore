@@ -18,7 +18,7 @@ The option used for the millis/micros timekeeping is given by a define of the fo
 ### Using to check that correct menu option is selected
 If your sketch requires that the B0 is used as the millis timer, for example:
 
-```
+```c++
 #ifndef MILLIS_USE_TIMERB2
   #error "This sketch is written for use with TCB2 as the millis timing source"
 #endif
