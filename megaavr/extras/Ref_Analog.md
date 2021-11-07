@@ -27,7 +27,7 @@ In addition to reading from pins, you can read from a number of internal sources
 | `ADC_GROUND`            | `ADC_VDDDIV10`            | `ADC_VDDDIV10`          |
 | `ADC_TEMPERATURE`       | `ADC_VDDIO2DIV10`         | `ADC_VDDIO2DIV10`       |
 | `ADC_DAC0`              | `ADC_GROUND`              | `ADC_GROUND`            |
-| `ADC_DACREF0`           | `ADC_TEMPERATURE `        | `ADC_TEMPERATURE `      |
+| `ADC_DACREF0`           | `ADC_TEMPERATURE`         | `ADC_TEMPERATURE`       |
 | `ADC_DACREF1`           | `ADC_DAC0`                | `ADC_DAC0`              |
 | `ADC_DACREF2`           | `ADC_DACREF0`             | `ADC_DACREF0`           |
 |                         | `ADC_DACREF1`             | `ADC_DACREF1`           |
@@ -69,7 +69,7 @@ The DxCore default is 14, which will result in a 16 ADC clock sampling time. For
 On the 2-series, we are at least iven some numbers: 8pF for the sample and hold cap, and 10k input resistance so a 10k source impedance would give 0.16us time constant, implying that even a 4 ADC clock sampling time is excessive, but at such clock speeds, impedance much above that would need a longer sampling period. You probab
 
 ### analogReadEnh(pin, res=ADC_NATIVE_RESOLUTION, gain=0)
-Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res` is resolution in bits, which may range from 8 to `ADC_MAX_OVERSAMPLED_RESOLUTION`. This maximum is 15 bits for Dx-series parts, and 17 for Ex-series. If this is less than the native ADC resolution, that resolution is used, and then it is right-shifted 1, 2, or 3 times; if it is more than the native resolution, the accumulation option which will take 4<sup>n</sup> samples (where `n` is `res` native resolution) is selected. Note that maximum sample burst reads are not instantaneous, and in the most extreme cases can take milliseconds. Depending on the nature of the signal - or the realtime demands of your application - the time required for all those samples may limit the resolution that is acceptable. The accumulated result is then decimated (rightshifted n places) to yield a result with the requested resolution, which is returned. See Atmel app note AVR121 (https://ww1.microchip.com/downloads/en/appnotes/doc8003.pdf - the specific case of the new ADC on the Ex and tinyAVR 2-series is discussed in DS40002200 from Microchip, but it is a far less informative document). Alternately, to get the raw accumulated ADC readings, pass one of the `ADC_ACC_n` constants for the second argument where `n` is a power of 2 up to 128 (Dx-series), or up to 1024 (Ex-series). The Dx-series only makes available the 16 MSBs, so when accumulating more than 16 samples, the value will be truncated to 16 bits. Be aware that the lowest bits of a raw accumulated reading should not be trusted.; they're noise, not data (which is why the decimation step is needed, and why 4x the samples are required for every extra bit of resolution instead of 2x). On Ex-series parts *the PGA can be used for single ended measurements*. Valid options for gain on the Ex-series are 0 (PGA disabled, default), 1 (unity gain - may be appropriate under some circumstances, though I don't know what those are), or powers of 2 up to 16 (for 2x to 16x gain). On Dx-series parts, the gain argument should be omitted or 0; these do not have a PGA.
+Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res` is resolution in bits, which may range from 8 to `ADC_MAX_OVERSAMPLED_RESOLUTION`. This maximum is 15 bits for Dx-series parts, and 17 for Ex-series. If this is less than the native ADC resolution, that resolution is used, and then it is right-shifted 1, 2, or 3 times; if it is more than the native resolution, the accumulation option which will take 4<sup>n</sup> samples (where `n` is `res` native resolution) is selected. Note that maximum sample burst reads are not instantaneous, and in the most extreme cases can take milliseconds. Depending on the nature of the signal - or the realtime demands of your application - the time required for all those samples may limit the resolution that is acceptable. The accumulated result is then decimated (rightshifted n places) to yield a result with the requested resolution, which is returned. See [Atmel app note AVR121](https://ww1.microchip.com/downloads/en/appnotes/doc8003.pdf) - the specific case of the new ADC on the Ex and tinyAVR 2-series is discussed in the newer DS40002200 from Microchip, but it is a rather vapid document). Alternately, to get the raw accumulated ADC readings, pass one of the `ADC_ACC_n` constants for the second argument where `n` is a power of 2 up to 128 (Dx-series), or up to 1024 (Ex-series). The Dx-series only makes available the 16 MSBs, so when accumulating more than 16 samples, the value will be truncated to 16 bits. Be aware that the lowest bits of a raw accumulated reading should not be trusted.; they're noise, not data (which is why the decimation step is needed, and why 4x the samples are required for every extra bit of resolution instead of 2x). On Ex-series parts *the PGA can be used for single ended measurements*. Valid options for gain on the Ex-series are 0 (PGA disabled, default), 1 (unity gain - may be appropriate under some circumstances, though I don't know what those are), or powers of 2 up to 16 (for 2x to 16x gain). On Dx-series parts, the gain argument should be omitted or 0; these do not have a PGA.
 
 ```c++
   int32_t adc_reading = analogReadEnh(PIN_PD2,13);
@@ -155,14 +155,14 @@ The busy and disabled errors are the only ones that we never know at compile tim
 The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference or control voltage, it cannot be used to power other devices). This generates voltages between 0 and the selected VREF (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACReference() function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). Call `analogWrite()` on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call `digitalWrite()` or `turnOffPWM()` on that pin.
 
 To use it in 10-bit mode
-```
+```c++
 //assumes dacvalue is an unsigned 16-bit integer containing a number between 0 and 1023.
 
 // enable DAC
 DAC0.CTRLA |= (DAC_OUTEN_bm | DAC_ENABLE_bm);
 
 // write value to DAC
-DAC0.DATA=(dacvalue<<6);
+DAC0.DATA   = (dacvalue << 6);
 
 // disable DAC
 DAC0.CTRLA &= ~(DAC_OUTEN_bm | DAC_ENABLE_bm);
@@ -174,7 +174,7 @@ The silicon errata for the DA-series parts describes a "DAC Lifetime Drift" issu
 ### DAC Error
 For rather silly reasons, I wound up taking a bunch of measurements with a millivolt meter hooked up to the DAC. At least on the chip I tested, at room temperature and Vcc = approx. 5v, both the 4.096 and 1.024V references were within 1%, and the voltages coming out of the DAC were a few mV low below around the half-way point. It looked to me like, feeding it 8-bit values, if your "dac writing" function secretly set the low 2-bits of DATA a value dependent on the 8 high-bits and the current reference voltage, you could get a significant improvement in accuracy of the output. Something like this would do well - at least on the chip I was looking at. However, this was before the disclosure of the DAC errata, which throws a wrench into the works. I have too many other tasks to pursue further - but someone who likes analog stuff could have a lot of fun with this, for certain values of fun...
 ```c++
-/* Note - this is not part of the core, but an example of how you might uswe the core. */
+/* Note - this is not part of the core, but an example of how you might use the core. */
 void correctedDACWrite(uint8_t value) {
   // assumes DAC already enabled and outputting, just changing output value
   // elsewhere, pretend that it's not doing any of this.
@@ -214,12 +214,12 @@ The ADC is configured in terms of channel numbers, not pin numbers. analogRead()
 
 These numbers (they do have defines in the variants, and `ADC_CH()` will take an analog channel number (ex, "0") and turn it into the analog channel identifier. But you never need to do that unless you're getting very deep into a custom ADC library . ) The most common exaople when channels are used is when reading from things that are not pins - like the internal tap on the DAC output, or the VDDDIV10 value to find the supply voltage. These may overlap with pin numbers. Also internally, channel numbers are sometimes passed between functions. They are defined for pins that exist as analog channels, with names of rthe form `AINn` but **you should never use the AIN values** except in truly extraordinary conditions, and even then it's probably inappropriate. However I felt like mention of them here wax needed. Some macros abd helper funbctions involved are:
 
-```
-digitalPinToAnalogInput(pin) - converts an digital pin to an anbalog channel *without* the bit that says it's a channel (desiugned for the very last step of analogRead preparationm where we turn the pin number into the channel to set the MUX. )
-analogChannelToDigitalPin(p) - converts an analog channel *number* to a digital pin.
-analogInputToDigitalPin(p)   - converts an analog channel identifier ti a digital pin number.
-digitalOrAnalogPinToDigital(p) - converts an analog channel iudentifier or digital puin to a digital pin number
-ADC_CH(channel number)        - converts channel numbers to analog chaannel identifier
+```text
+digitalPinToAnalogInput(pin)    - converts an digital pin to an anbalog channel *without* the bit that says it's a channel (designed for the very last step of analogRead preparationm where we turn the pin number into the channel to set the MUX)
+analogChannelToDigitalPin(p)    - converts an analog channel *number* to a digital pin.
+analogInputToDigitalPin(p)      - converts an analog channel identifier ti a digital pin number.
+digitalOrAnalogPinToDigital(p)  - converts an analog channel identifier or digital pin to a digital pin number
+ADC_CH(channel number)          - converts channel numbers to analog chaannel identifier
 
 ```
 

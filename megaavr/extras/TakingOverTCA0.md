@@ -4,7 +4,7 @@ We have received many questions from users about how to take over one of the TCA
 
 The most common point of confusion is the fact that DxCore, out of the box, configures both TCA's for use in "Split Mode" - this allows it to generate 6 8-bit PWM signals. This provides 3 additional PWM pins (3 if TCB0 is needed for other purposes) - and since analogWrite() only supports 8-bit PWM anyway, when using the Arduino API functions, there is no loss of functionality imposed by this. But it must be disabled if you want to repurpose the timer.
 
-Another issue is that there are Arduino API functions that reach out and poke the timers (analogWrite and digitalWrite, mostly). As of DxCore 1.3.2 there is now a simple solution to both in the form of the `takeOverTCA0()` and `takeOverTCA1()` functions. Calling either of these turns off the timer in question, marks it as "taken over" internally to disable PWM from analogWrite/digitalWrite (which turns off PWM channels), ands issues a hard reset command, resetting every timer register to it's power on default! It will now be in SINGLE mode, so access it using the `TCA0.SINGLE` struct (I find the two structs very awkward and verbose, but the difference isn;t just that they have different bits enabled; in SINGLE mode the compare and period registers are 16-bit and use that procedure with the temp register to read correct data, and if you were to access the individual bytes, you'd get different results if you did it in the "wrong" order, but only in SINGLE mode; in SPLIT mode they are independent 8-bit registers). You don't have to worry about that if you access using the appropriate struct for the mode.
+Another issue is that there are Arduino API functions that reach out and poke the timers (analogWrite and digitalWrite, mostly). As of DxCore 1.3.2 there is now a simple solution to both in the form of the `takeOverTCA0()` and `takeOverTCA1()` functions. Calling either of these turns off the timer in question, marks it as "taken over" internally to disable PWM from analogWrite/digitalWrite (which turns off PWM channels), ands issues a hard reset command, resetting every timer register to it's power on default! It will now be in SINGLE mode, so access it using the `TCA0.SINGLE` struct (I find the two structs very awkward and verbose, but the difference isn't just that they have different bits enabled; in SINGLE mode the compare and period registers are 16-bit and use that procedure with the temp register to read correct data, and if you were to access the individual bytes, you'd get different results if you did it in the "wrong" order, but only in SINGLE mode; in SPLIT mode they are independent 8-bit registers). You don't have to worry about that if you access using the appropriate struct for the mode, because the data types are defined such that access will automatically be done correctly.
 
 ### TCBs doing pwm are clocked from TCA0
 TCBs only get prescale of /1 or 2/ - you want lower frequency for PWM. They can be clocked from the prescaled clock of a TCA though - and that's what we do. They all use TCA0. If you have both TCA's on your device, but only need to take over TCA0, you could change any TCB's you're using for PWM to use TCA1 as clock source - or just restart TCA0 at your final clock speed, if you know that will work for whatever the TCB PWM is driving . This is only used for PWM - TCBs use the /1 or /2 clock sources when used for Tone, Servo, and millis timekeeping. There are also the 2 channels of the TCD0 which can be used for PWM.
@@ -12,13 +12,13 @@ TCBs only get prescale of /1 or 2/ - you want lower frequency for PWM. They can 
 ### Avoid using the TCA you are reconfiguring for millis
 Reconfiguring a timer like this when it is used as the millis timer source will result in the derangement of timekeeping functionality. While this is less freqently an issue on DxCore vs megaTinyCore, since we have ample type B timers and default those for timekeeping, we do still provide the option to use the TCA(s) for timekeeping (maybe you need a large number of TCBs for some unusual use case). If you think this might be an issue in the future, or if you're writing code that will be used by the masses (whose capacity to use shared code under strange conditions never ceases to amaze me), you should trap that with a useful error with something like this:
 
-```
+```c++
 #ifdef MILLIS_USE_TIMERA0
 #error "This sketch takes over TCA0 - please use a different timer for millis"
 #endif
 ```
 
-# Examples
+## Examples
 Now for the fun part - example code! What's so much fun about example code? Because you can steal it and re-use it, of course!
 
 A note about the pin numbers - we use the PORT_Pxn notation to refer to pins; when I mention in the comments the pin number, that is an Arduino (logical) pin number, not a physical pin number (generally, this documentation does not refer to physical pin numbers except on the pinout charts).
@@ -26,8 +26,8 @@ A note about the pin numbers - we use the PORT_Pxn notation to refer to pins; wh
 Also, TCA0 can output PWM on pins 0-2 (0-5 for the large )
 
 
-### Example 1: 16-bit PWM in single mode, dual slope with interrupt.
-```
+### Example 1: 16-bit PWM in single mode, dual slope with interrupt
+```c++
 #if defined(MILLIS_USE_TIMERA0)
 #error "This sketch takes over TCA0, don't use for millis here."
 #endif
@@ -64,7 +64,7 @@ ISR(TCA0_OVF_vect) { // on overflow, we will increment TCA0.CMP0, this will happ
 ### Example 2: Variable frequency and duty cycle PWM
 This generates PWM similar to the first example (though without the silly interrupt to change the duty cycle), but takes it a step further and into more practical territory with two functions to set the duty cycle and frequency. Calling those instead of this PWMDemo() function is all you'd need to make use of this. Somewhere I think I have the same functionality implemented for the classic AVR "Timer1" style 16-bit timers.
 
-```
+```c++
 #if defined(MILLIS_USE_TIMERA0)
 #error "This sketch takes over TCA0, don't use for millis here."
 #endif
@@ -126,7 +126,7 @@ A user requested (#152) high speed PWM. They wanted split mode disabled, and PWM
 
 Do note that if pushing the PWM frequency is your aim, you can go considerably higher by using the Type D timer - it is rated for a TCD clock of up to 48 MHz.... (and I was able to generate PWM from it without anomalies with it clocked at 128 MHz (32 MHz system clock multiplied by 4) - these parts have a ton of headroom on frequency at room temp and under non-adverse conditions)
 
-```
+```c++
 #if defined(MILLIS_USE_TIMERA0)
 #error "This sketch takes over TCA0, don't use for millis here."
 #endif
@@ -175,7 +175,7 @@ A quick example of how cool split mode can be - You can get two different PWM fr
 
 Here, we've made it even more interesting by using two frequencies almost identical to each other.... they will "beat" against each other weith a frequency of 1.43 Hz (366 Hz / 256). You should be able to observe that with a bicolor LED (and appropriate resistor) between the two pins. These have two LEDs with opposite polarity, typically a red and a green, connected between two pins... the question is - what will it look like? How will it be different from a single color LED? Make predictions and then test them. When I (Spence) did this, my prediction was wrong.
 
-```
+```c++
 #if defined(MILLIS_USE_TIMERA0)
 #error "This sketch takes over TCA0, don't use for millis here."
 #endif

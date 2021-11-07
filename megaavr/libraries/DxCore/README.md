@@ -27,7 +27,7 @@ Returns `true` if an argument referring to a valid port was passed and a value w
 The AVR DB-series supports a new feature, Multi-Voltage IO (MVIO). When enabled by fuse (this is the default setting. DxCore does not support changing it, either - if it is not in use, VDDIO2 must be tied to VDD, so behavior is the same as if it were enabled - but if it was disabled on hardware wired with the expectation that it would be enabled, my understanding is that this could result in hardware damage). A new macro is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, whether it is enabled, and if so, whether VDDIO2 voltage is high enough that the MVIO pins (PORTC) are available.
 
 This returns one of the following constants:
-```
+```c++
 MVIO_DISABLED       -128
 MVIO_BAD_FUSE       -64
 MVIO_UNDERVOLTAGE    1
@@ -37,7 +37,7 @@ MVIO_UNSUPPORTED    -1
 
 These numeric values mean that `if(getMVIOStatus()){...}` will run the conditional statements if MVIO is not enabled and working. Similarly, `if(getMVIOStatus()>=0){...}` will run the conditional if MVIO is supported and enabled, whether or not there is an appropriate VDDIO2 voltage supplied.
 
-```c
+```c++
 void checkMVIO() {
   int status=getMVIOStatus();
   switch(status) {

@@ -15,7 +15,7 @@ There are two versions of this library provided. `tinyNeoPixel` implements the e
 The constructor is the declaration that you call outside of any function, to create the global tinyNeoPixel object.
 
 
-```
+```c++
 #include <tinyNeoPixel_Static.h>
 #define NUMLEDS 100
 byte pixels[NUMLEDS*3];
@@ -30,7 +30,7 @@ The equivalent example with the Static version uses only 1076 bytes and reports 
 
 
 `tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t=NEO_GRB)` - for `tinyNeoPixel` only.
-```
+```c++
 #include <tinyNeoPixel.h>
 #define NUMLEDS 100
 tinyNeoPixel leds = tinyNeoPixel(NUMLEDS, 5, NEO_GRB);
@@ -43,7 +43,7 @@ void setup() {
 This non-static tinyNeoPixel example uses 2236 bytes of flash, and reports using only 40 bytes of RAM (it actually uses 340 - and if you didn't have enough free memory the call to leds.begin() would fail, the LEDs would not be enabled, bnut the rest of the sketch would continue to run, which could be confusing to debug.
 
 `tinyNeoPixel()` -  Empty constructor for `tinyNeoPixel` only - for when you won't even know the type of LEDs, or how many of them, until your sketch starts running. You set pin and length later with `setPin()`, `updateLength()`, and `updateType()`, which must be set before you can control any LEDs. You might have the same code running a number of lighting displays, and store the specifics in EEPROM, as shown below:
-```
+```c++
 #include <tinyNeoPixel.h>
 #include <EEPROM.h>
 tinyNeoPixel leds = tinyNeoPixel();
@@ -109,7 +109,7 @@ This compiles to 2256 bytes and reports 40 bytes of RAM used as well (but, it is
 In order to specify the order of the colors on each LED, the third argument passed to the constructor should be one of these constants; a define is provided for every possible permutation, however only a small subset of those are widespread in the wild. GRB and
 
 #### For RGB LEDs
-```
+```c++
     NEO_RGB
     NEO_RBG
     NEO_GRB
@@ -118,7 +118,7 @@ In order to specify the order of the colors on each LED, the third argument pass
     NEO_BGR
 ```
 #### For RGBW LEDs
-```
+```c++
     NEO_WRGB
     NEO_WRBG
     NEO_WGRB
@@ -147,10 +147,10 @@ In order to specify the order of the colors on each LED, the third argument pass
 ### The name
 While this library was initially created in order to both ensure compatibility with, and through the Static version, fit within the flash and memory constraints of, the tinyAVR line of parts, this library is entirely suitable for non-tiny devices; It offers all the functionality of the Adafruit version on the library, with the addition of the Static mode - and has been ported to the AVRxt core, and where appropriate, core-specific matters are accounted for. Frankly, dynamic allocation has no place on an 8-bit microcontroller. Since almost all of the other pixel libraries *dont* work, considering the populkarity of WS2812 LEDs, I decided it would be improve the UX with the core to distribute a known working '2812 library with a standard API along with the cores.
 
-Why did I start from the Adafruit library, and not FASTLed? Because I can't make sense of that code - it also sort of exemplifies how I do not like libraries written or architected.
+Why did I start from the Adafruit library, and not FASTLed? Because I can't make sense of that code - it also sort of exemplifies the "kitchen-sinkism" that I detest in library design.
 
 ### New Adafruit additions
 If Adafruit has added new methods to their library, please report via an issue in one of my cores that ships with this library, and I will go pull them in!
 
 ### License
-Unlike the core itself (as noted within the library files), tinyNeoPixel is licensed under LGPL 3, not LGPL 2.1, since the Adafruit library was always LGPL3.
+Unlike the core itself (as noted within the library files and the core Readme)), tinyNeoPixel is licensed under LGPL 3, not LGPL 2.1, since the Adafruit library was always LGPL3.

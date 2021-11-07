@@ -2,7 +2,7 @@
 For the next big release (likely 1.4.0), this library will be overhauled with Dual mode and non-dual master + slave and a much lower flash usage, along with proper TWI1 support. It will be made available for beta testing as soon as 1.3.7 is released
 
 
-All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin versions, which have one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. ~There is at present no TWI1 library, see: https://github.com/SpenceKonde/DxCore/issues/54~
+All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin versions, which have one. TWI0 works exactly like the one on official Arduino boards using the Wire.h library. There is at present no TWI1 library [see #54](https://github.com/SpenceKonde/DxCore/issues/54) - but it's coming for 1.4.0!
 
 ## Pin Mappings
 Like most peripherals, the TWI interface can be swapped to an alternate set of pins; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin().
@@ -15,7 +15,7 @@ Like most peripherals, the TWI interface can be swapped to an alternate set of p
 | ALT_2   (2) |  YES   |  YES   |   YES*  |   YES*  |  YES*  |  YES*  | PC2 | PC3 | PC6      | PC7      |
 | ALT_3   (3) |  NO    |  NO    | DD only | DD only |  YES   |  YES   | PA0 | PA1 | PC2      | PC3      |
 
-`* indicates that the dual mode pins are unavailable which will be relevant if we ever support dual mode. `
+`*` indicates that the dual mode pins are unavailable, which will be relevant with the new Wire implementation coming in version 1.4.0
 
 `Wire.swap(pin_set)` will set the the pin mapping to the specified set of pins. Only 1-series parts with more than 8 pins support this; on other parts,  `Wire.swap()` will generate a compile error if a value known at compile time and not 0 is passed to it. On 1-series parts that do have an alternate pin mapping, a compile-time-known value that is not a 0 or 1 will similarly generate a compile error. An invalid value that is *not* known at compile time (in either case) will instead result in swap() returning false and selecting the default pins.
 

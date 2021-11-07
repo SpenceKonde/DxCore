@@ -5,19 +5,19 @@ When using Arduino functions, like digitalWrite and digitalRead, is too slow, th
 
 
 DIR is the register which determines if the pin is an input or an output (like DDRx registers in classic AVR). After reset, all pins are set to input (0 in the register). In order to use the pin as an output the bit in the register must be set to 1, which can be done as follows:
-```
+```c++
     PORTA.DIR = PIN4_bm
 ```
 This will set bit 4 on PORTA - if using an ATtiny1616, for example, that would correspond to Arduino pin 0.
 Multiple pins on the same port can be configured by writing each bit, or by setting multiple bitmasks (`_bm` is a macro for a bit mask):
-```
+```c++
     PORTA.DIR = 0b01001000;         // sets PA3 and PA6 as an output
     PORTA.DIR =  PIN3_bm | PIN6_bm;  // sets PA3 and PA6 as an output
     PORTA.DIR = (1 << 3) | (1 << 6)  // sets PA3 and PA6 as an output
 ```
 
 Besides setting the pins to an input (0) or output (1) in the DIR register, you can also use the DIRSET and DIRCLR registers to set (set as output) or clear (set as input) a specific pin:
-```
+```c++
     PORTA.DIRSET = PIN4_bm; // use PA4 as an output
     PORTA.DIRCLR = PIN4_bm; // use PA4 as an input
 ```
@@ -25,30 +25,30 @@ Besides setting the pins to an input (0) or output (1) in the DIR register, you 
 You can even toggle between an input or output by writing to the DIRTGL register.
 
 Turning the pin on and off is done with the OUT register (this works like the PORTx register of classic AVR). Writing a 1 to the corresponding pin will set an output pin HIGH while a 0 will set it LOW:
-```
+```c++
     PORTA.OUT |= PIN4_bm; // write PB4 high
     PORTA.OUT &=~PIN4_bm; // write PB4 low
 ```
 Note that the two examples above for flipping a single bit are not atomic - it's a read-modify-write operation. If an interrupt fires between the read and the write, the change that the ISR made will be reverted - if you have ISRs that are flipping pins (Servo.h does this), lines like those shown above would have to be be performed with interrupts disabled (just like classic AVR). Fortunately, the megaAVR architecture has a better solution - the OUTSET and OUTCLR registers, just like the DIRSET and DIRCLR registers described above - this is atomic:
-```
+```c++
     PORTA.OUTSET = PIN4_bm; // turn PA4 output on
     PORTA.OUTCLR = PIN4_bm; // turn PA4 output off
 ```
 Or when you just want to toggle the output you can use:
-```
+```c++
     PORTA.OUTTGL = PIN4_bm; // toggle PA4 output
 ```
 You can read the state of a pin by using the IN register (this is like the PINx register of classic AVR):
-```
+```c++
     bool status = PORTA.IN & PIN5_bm;
 ```
 Unlike the classic AVRs, setting a pin HIGH with the OUT register while it is set as an input will not turn on the internal pullup. If you want to use the internal pullup resistor, you can set this in the PINnCTRL register as follows:
-```
+```c++
     PORTA.PIN6CTRL |= PORT_PULLUPEN_bm; // use the internal pullup resistor on PA6
     PORTA.PIN6CTRL &= ~PORT_PULLUPEN_bm; // don't use the internal pullup resistor on PA6
 ```
 Note that this does mean that each pin has its own PINnCTRL register - unlike the classic AVRs where there was one register to control pullup for each port, with one bit per pin. The rest of the PINnCTRL register is used to configure pin interrupts on the pin. If not using pin interrupts with this pin, you can do:
-```
+```c++
     PORTA.PIN6CTRL = PORT_PULLUPEN_bm; // use the internal pullup resistor on PA6
     PORTA.PIN6CTRL = 0; // don't use the internal pullup resistor on PA6
 ```
@@ -60,7 +60,7 @@ On these parts (as shown above), the registers are normally accessed as members 
 The normal port registers are at addresses starting at 0x400. This means they are outside the range of the `sbi`, `cbi`, `in`, and `out` instructions. This can be an issue when porting code, or when writing assembler for these parts. Fortunately, to address this, each port has 4 VPORT registers - VPORTx.OUT, VPORTx.IN, VPORTx.DIR, and VPORTx.INTFLAGS - these are aliases of the corresponding PORTx registers, and can be used with `sbi`, `cbi`, `in` and `out` (the compiler will do this automatically). Writing 1 to a bit in VPORTx.IN will toggle the pin state if the pin is an output. Using the VPORTx registers in a way that can compile to `cbi` or `sbi`, like using the `PORTx.OUTSET` and similar, is atomic (you don't have to disable interrupts if an interrupt might also change the same register like you would with a read-modify-write cycle). Similarly, if you test against a specific bit within one of them (ex: `if(VPORTA.IN & (1 << 6))` it will compile down to `sbrc` or `sbis` (Skip if Bit in I/o register Set/Cleared), another bit-level access instruction for the low I/O registers.
 
 
-```
+```c++
 PORTA.DIR      |= 1<<4; // Not interrupt safe. 6 clock cycles, 10 bytes (lds, ori, sts)
 PORTA.DIRSET    = 1<<4; // Interrupt safe. 3 clock cycles, 6 bytes (ldi, sts)
 VPORTA.DIR     |= 1<<4; // Interrupt safe. 1 clock cycle, 2 bytes (sbi)
@@ -100,15 +100,7 @@ PORTx | PORTx.OUT | VPORTx.OUT
 PINx  | PORTx.IN | VPORTx.IN
 DDRx  | PORTx.DIR | VPORTx.DIR
 
-**NOTE** Unlike classic AVRs, setting the bit in PORTx.OUT while pin is set as an INPUT will *NOT* enable the pullups. Only the PORTx.PINnCTRL registers can do that. There is no VPORT register that allows changing pullup status.
+**NOTE** Unlike classic AVRs, setting the bit in PORTx.OUT while pin is set as an INPUT will *NOT* enable the pullups. Only the PORTx.PINnCTRL registers can do that. There is no `VPORT` register that allows changing pullup status.
 
-# Fast Digital I/O functions
-Like several other third party hardware packages, DxCore and megaTinyCore support Fast Digital I/O; this takes the form of a "Fast" version of `digitalRead()` and `digitalWrite()` - these require that the pin number be known at compile time (and will error if it's not). digitalWriteFast() is in fact just shorthand for a cbi/sbi on a VPORT register - though it looks nicer, lets you use Arduino pin numbers, and enforces correct syntax (whereas typing `VPORTA.OUT |= 1 << 3` you could put and =, or forget that you can only set one bit at a time - both of which compile without errors, even though they're not what you want). Similarly, digitalReadFast(), will usually compile down to sbic/sbis (assuming the compiler could do that if you'd put a test for `VPORT.IN & (1 << bit)`  there instead).
-
-```
-digitalWrite(MyPin,HIGH);       // Slowest (where MyPin is not constant)
-digitalWrite(PIN_PA4,HIGH);     // Slow
-PORTA.OUTSET    = 1 << 4;       // Fast (3 clocks)
-digitalWriteFast(PIN_PA4,HIGH)  // Fastest (1 clock)
-VPORTA.OUT      = 1 << 4;       // Fastest (1 clock)
-```
+## Fast Digital I/O functions
+Like several other third party hardware packages, DxCore and megaTinyCore support Fast Digital I/O so direct port manipulation need be usef much less often, see the [Digital I/O Reference](Ref_Digital.md).

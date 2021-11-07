@@ -141,7 +141,7 @@ Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more 
 An extra event user... OSCTEST? I wonder what it does! I guess there's only one way to find out, and that's to monitor the system clock carefully with that set, and then trigger the event! The real question is whether it is to test some special oscillator feature... or just test if the oscillator is "safe" at it's current speed by stressing it (and you'd want that to be an event so you can have it executing code maybe? I dunno!)
 
 This next one is the bitfield that controls what the PLL will multiply the input clock by...
-```
+```c++
 /* Multiplication factor select */
 typedef enum CLKCTRL_MULFAC_enum
 {
@@ -151,9 +151,9 @@ typedef enum CLKCTRL_MULFAC_enum
     CLKCTRL_MULFAC_4x_gc = (0x03<<0),  /* 4 x multiplication factor */
 } CLKCTRL_MULFAC_t;
 ```
-That last like was removed in later versions, to match the datasheet... And it does indeed work!
+That last like was removed in later versions, to match the datasheet... But it does indeed work!
 
-This (and the internal oscillator working up to 32 MHz) raises a question - what speed were they targeting during design? What if 24 MHz / 48 MHz wasn't the planned max, but what they had to back off to after they found that their process wasn't quite as good as they hoped, that is, under certain temperature and voltage conditions, it didn't meet the strict requirements for reliability that something you are going to put in your car or aeroplane and expect to work 100% of the time. Because with a 48 MHz maximum speed, there isn't a popular clock speed that they might be using the 4x multiplier on...
+This (and the internal oscillator working up to 32 MHz) raises a question - what speed were they targeting during design? What if 24 MHz / 48 MHz wasn't the planned max, but  they had to back off to after they found that their process wasn't quite as good as they hoped, that is, under certain temperature and voltage conditions, it didn't meet the strict requirements for reliability that something you are going to put in your car or aeroplane and expect to work 100% of the time - or they realized that there was simply more demand among big customers for wider operating temperature ranges...
 
 If `CLK_PER` was meant to be rated up to 32 MHz, and and PLL up to 64? 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60... 24 MHz could only go 2x - but who would run 24 MHz if 32 MHz was an option? - and the 4x would get you 64 MHz from the ever popular 16 MHz system clock. So that's my theory - they designed it in the hopes of being able to do 32 MHz and 64 MHz on the PLL, it didn't meet reliability requirements under pessimal conditions, so they dropped back to 24 MHz and 48 MHz PLL. I'm sure glad they left the 32 MHz oscillator option in place though!
 

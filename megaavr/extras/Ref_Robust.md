@@ -86,7 +86,7 @@ Mant MOSFET manufacturers, for mosfets with a heat spreading plate (ex, TO-220),
 
 I wrote a [document going into great depth about MOSFETs](https://github.com/SpenceKonde/ProductInfo/blob/master/MOSFETs/Guide.md) (since I sell them mounted on breakout boards in my [Tindie store](https://tindie.com/stores/drazzy)) - it had become clear from the questiosns I was getting that.... people didn't understand what the limitations were. That document covers them in great detail.
 
-### Automotive 12v power is notoriously noisy.
+### Automotive 12v power is notoriously noisy
 You need far more filtering than usual to get a safe 5v from automotive 12V.
 
 ## Testing

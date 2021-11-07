@@ -37,7 +37,7 @@ Considering widely known best practices for Arduino, I would argue that if you w
 
 ### An added benefit of the `MAPPED_PROGMEM` section
 Since it's memory mapped... you can cast to a pointer and use it like a normal constant variable!
-```
+```c++
 Flash.writeWord(myAddress,1234);
 if (myAddress > (PROGMEM_SIZE - 0x8000)) {
   // For sake of example, check that the address really is mapped...
@@ -58,10 +58,10 @@ if (myAddress > (PROGMEM_SIZE - 0x8000)) {
 
 uint16_t* newPtr=(uint16_t*)(uint16_t)myAddress;
 Serial.println(*newPtr);
+```
 
-```
 Note that it works in the other direction too... but it's less convenient. You could, for example:
-```
+```c++
 uint32_t targetAddress &hasWrongValue;
 if (targetAddress < 0x8000) {
   Serial("This is in RAM, not mapped flash!")
@@ -98,11 +98,11 @@ For addresses from 0x0000 through 0xFFFF, you can use the `pgm_read_*_near()` ma
 
 ### Compatibility Check - Flash.checkWritable()
 
-```
+```c++
 uint8_t Flash.checkWritable()
 ```
 
-```
+```c++
 uint8_t result = Flash.checkWritable();
 switch (result) {
   case FLASHWRITE_OK:
@@ -111,33 +111,31 @@ switch (result) {
   case FLASHWRITE_OLD:
     Serial.println("Bootloader is pre-1.3.0 - must be updated");
     break;
-  case FLASHWRITE_NOBOOT:
-    Serial.println("The current version of flashwrite.h requires use of a bootloader.");
+  case FLASHWRITE_FUSES:
+    Serial.println("Sketch was compiled for bootloader-free operation across limited sections of the flash, but fuses are set such that there is no writable flash.");
     break;
-  }
 }
 ```
 
-```
+```c++
 Return Values:
 FLASHWRITE_OK           = 0x00 // Bootloader present and supports this.
 FLASHWRITE_OLD          = 0x01 // If bootloader version is old, we know it won't work.
-FLASHWRITE_NOBOOT       = 0x10 // In 1.3.0, bootloader is reqired for this library.
+FLASHWRITE_NOBOOT       = 0x10 // No bootloader was found (Optiboot configurations only, so this is a very strange error to see)
 FLASHWRITE_DISABLED     = 0x02 // Bootloader would support it, but it was explicitly disabled (APP_NOSPM)
 FLASHWRITE_UNRECOGNIZED = 0x03 // Some weird unrecognized bootloader is installed
-FLASHWRITE_FUSES        = 0x14 // Fuse settings do not support writing to flash without a bootloader (Not yet implemented)
-FLASHWRITE_NYI          = 0x1F // Not using bootloader. 1.3.0 does not support this configuration yet.
+FLASHWRITE_FUSES        = 0x14 // Fuse settings do not support writing to flash without a bootloader (non-Optiboot configurations only).
 ```
 
-If ((returnvalue) & 0x10), we are not using the bootloader section to write the flash, and that's currently not supported.
+If ((returnvalue) & 0x10), we are not using a bootloader to write the flash, but rather a "fake" bootloader section (for unrestricted flash write) or we are using the app data section.
 
 ### Page Erase - Flash.erasePage()
 
-```
+```c++
 uint8_t Flash.erasePage(uint32_t address, uint8_t size = 1);
 ```
 
-```
+```c++
 // Erase the second-to-last page on an AVR128DA/DB
 // Any target address 0x1FC00~0x1FDFF will do the same thing jere
 uint8_t returnval = Flash.erasePage(0x1FC00);
@@ -160,7 +158,7 @@ if (returnval) {
 
 This will erase the page of flash speecified - this ignores the lower 9 bits (page size is 512 bytes on these parts). These parts support multipage erase; valid options for size are 1, 2, 4, 8, 16, or 32. Be aware that there are no "guard rails" here, other than the fact the bootloader cannot erase itself - that is to say,  you can erase the running application out from undetr you.
 
-```
+```c++
 Return Values:
 FLASHWRITE_OK         = 0x00 // Requested flash erased.
 FLASHWRITE_BADADDR    = 0x40 // An invalid address was specified (eg, location not on the flash)
@@ -172,12 +170,12 @@ FLASHWRITE_FAIL_x     = 0x80 // This was attempted, but NVMCTRL.STATUS showed an
 
 
 ### Writing Words or Bytes - Flash.write_____()
-```
+```c++
 uint8_t Flash.writeWord(uint32_t address, uint16_t data)
 uint8_t Flash.writeByte(uint32_t address, uint8_t data)
 ```
 
-```
+```c++
 
 uint16_t toWrite = 0xFEED;
 uint8_t returnval=Flash.writeWord(0x1FFFE,toWrite);
@@ -193,7 +191,7 @@ The address is byte oriented. When writing words, you must align with word bound
 
 `Flash.writeByte` writes a byte at a time; this is done by writing `0xFF__` or `0x__FF` (where the __ is your data) as a word, so the "empty" byte will not change anything that might be in the "other half" of the word.
 
-```
+```c++
 Return Values:
 FLASHWRITE_OK         = 0x00 // Requested flash written
 FLASHWRITE_BADADDR    = 0x40 // An invalid address was specified (eg, location not on the flash)
@@ -205,7 +203,7 @@ FLASHWRITE_FAIL_x     = 0x80 // This was attempted, but NVMCTRL.STATUS showed an
 ```
 
 ### Writing Arrays - Flash.writeWords(), Flash.writeBytes()
-```
+```c++
 Flash.writeWords(uint32_t address, uint16_t* data, uint16_t length)
 Flash.writeBytes(uint32_t address, uint8_t* data, uint16_t length)
 ```
@@ -215,7 +213,7 @@ This will write the supplied data to flash, starting from `address`.  Length is 
 When writing an array of words with `Flash.writeWord`, the address must be even, (as we write one word at a time), but there is no alignment requirement beyond that - writes can even cross the 64K boundary. No erase operation is performed by `Flash.writeWords()`, and the array passed must have at least `length` elements. `Flash.writeBytes` has no alignment requirement.
 
 
-```
+```c++
 Return Values:
 FLASHWRITE_OK         = 0x00 // Requested flash erased.
 FLASHWRITE_BADADDR    = 0x40 // An invalid address was specified (eg, location not on the flash)
@@ -230,7 +228,7 @@ FLASHWRITE_FAIL_x     = 0x8x // This was attempted, but NVMCTRL.STATUS showed an
 
 ## Reading - Flash.readByte(), Flash.readWord()
 
-```
+```c++
 Flash.readByte(uint32_t address)
 Flash.readWord(uint32_t address)
 ```
@@ -239,7 +237,7 @@ As the name implies, these will read either a byte or word from the flash - this
 
 ## Utility - Flash.mappedPointer(), Flash.flashAddress()
 
-```
+```c++
 Flash.mappedPointer(uint32_t address)
 Flash.flashAddress(uint8_t* ptr)
 ```
@@ -251,7 +249,7 @@ Flash.flashAddress() will go the opposite direction - passed a pointer to a loca
 ### FLASHWRITE_FAIL_x codes
 In the event that an attempted flash write to a board with a compatible bootloader fails, the applicable function will return `FLASHWRITE_FAIL_x` which has a numeric value between `0x80` and `0x87`. The three low bits are the values of the `ERROR` bitfields within `NVMCTRL.STATUS` (right-shifted 4 places, of course) at the conclusion of the failed write attempt; per the datasheet, these represent:
 
-```
+```c++
 0x80 - FLASHWRITE_FAIL - this is never returned as an error code.
 0x81 - FLASHWRITE_FAIL_INVALID - Invalid Command
 0x82 - FLASHWRITE_FAIL_PROTECT - Write Protect

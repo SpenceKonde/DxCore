@@ -2,15 +2,24 @@
 These are in addition to what is listed in the [Arduino Reference](https://arduino.cc/Reference).
 
 ## Error reporting
-When we can determine at compile time that your code won't do what you are trying to make it do, we do our best to stop compilation (and never stop compliation in other cases) This is the usual method; compilation fails if any of these are referenced in the code after all constant folding and such.
+One of the major challenges when writing embedded code is that there are no exceptions, so when something doesn't work correctly, you don't get an indication of what, exactly. prevented it from doing so. It's up to you to try to gather more data and analyze it to figure out where it is failing. Often, when you get to the end of it, the problem turns out to be something that one could have known ahead of time would certainly not work. While these methods are far from perfect, when we can determine at compile time that your code won't do what you are trying to make it do, will produce an error. These two "error" function calls are the mechanism used to actually create the error in almost all cases: compilation fails if any of these are referenced in the code after all constant folding and optimization.
+
+Internally these are often used with the compiler test `__builtin_constant_p()` which returns true if the argument is a compile-time known constant value subject to constant folding:
+```c
+digitalWrite(100, HIGH); // This tests whether the pin is known to be invalid at compile time, and since nothing supported by this core has 100 pins, will error.
+uint8_t pinnbr = 100;
+digitalWrite(pinnbr, HIGH); // This will also error, because there is no chance for pinnbr to be anything other than 100.
+volatile uint8_t pinnumber = 100;
+digitalWrite(pinnumber, HIGH); // This will not error at compiletime, because the compiler cannot optimize away the volatile variable.
+```
 
 ### `void badArg("msg")`
-You passed an argument to a function that is guaranteed to give garbage results, and we know at compile time, such as `analogRead(PinThatHasNoAnalogCapability)`. The message will indicate why that argument is invalid.
+This error means that you passed an argument to a function that is guaranteed to give garbage results, and we know at compile time, such as `analogRead(PinThatHasNoAnalogCapability)`. The message will indicate why that argument is invalid. The text will describe what was wrong with the argunment.
 
 ### `void badCall("msg")`
-You called a function that does not make sense to call with the current hardware or tools submenu options, such as `stop_millis()` when millis is disabled. The message will indicate why that call is invalid.
+This error means that you called a function that does not make sense to call with the current hardware or tools submenu selections, regardless of what values one passes. For example, calling `stop_millis()` when millis is disabled. The message will indicate why that call is invalid.
 
-##  Digital Functions
+## Digital Functions
 See [Digital Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 ```c
 int8_t  digitalReadFast( uint8_t pin)
@@ -83,7 +92,7 @@ This provides no guarantee that the pin is available or usable. For example, a 2
 
 ## Attach Interrupt Enable
 If using the old or default (all ports) options, these functions are not available; WInterrupt will define ALL port pin interrupt vectors if `attachInterrupt()` is referemced amywhere in the sketch or included library. This is the old behavior.
-If you are using the new implementation in manual mode you must call one of the following functions before attaching the interrupt (override `onPreMain()` if you need it ready for a class constructor. That port can have interrupts attached, but others cannot. That port cannot have manuallly written interrupts, which are typically 10-20 times faster), while the other ports can. I will also note that the implementation is hand-tuned assembly and that's still how slow it is. See the [Interrupt Reference for more information. ](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md)
+If you are using the new implementation in manual mode you must call one of the following functions before attaching the interrupt (override `onPreMain()` if you need it ready for a class constructor. That port can have interrupts attached, but others cannot. That port cannot have manuallly written interrupts, which are typically 10-20 times faster), while the other ports can. I will also note that the implementation is hand-tuned assembly and that's still how slow it is. See the [Interrupt Reference for more information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md).
 ```c
 void attachPortAEnable()
 void attachPortBEnable()
@@ -116,7 +125,7 @@ See [Callback Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaa
 This is an obsolete macro that is only present for compatibility with old code. It has nothing do do and simply expands to the sole arguent.
 
 
-##  Analog Functions
+## Analog Functions
 See [Analog Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
 ```c
   int32_t analogReadEnh( uint8_t pin,              uint8_t res, uint8_t gain)
@@ -197,7 +206,7 @@ forward by that much to compensate. That's what *I* wanted it for.
 Call this if you are running from the internal clock, but it is not at F_CPU - likely when overriding `onClockTimeout()`  `onClockFailure()` is generally useless.
 
 ## PWM control
-See (https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
+See [Timer Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
 ```
   void takeOverTCA0()
   void takeOverTCA1()

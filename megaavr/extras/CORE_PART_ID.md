@@ -3,7 +3,7 @@ For advanced users, CORE_PART_ID may be useful; Unless you actually need this le
 
 CORE_PART_ID may also be particularly useful when checking for errata, which are usually specific to family and flash size, but not pincount - but you still need to check `SYSCFG.REVID` (at runtime) to see if it's impacted or not. Well, hopefully, some day, when the errata gets fixed....
 
-# Be careful with macro names
+## Be careful with macro names
 Do not get them confused with things you test with `#ifdef` or `#if defined()` to find out about the chip that the code is being compiled for.
 
 ## Flash size and Series
@@ -38,8 +38,8 @@ So AVR64DA48 is 0x16, and AVR128DB64 is 0x2F. Masks and defines to test against 
 
 Use `ID_MASK_PINS` to match only the pincount bits and compare to the above constants.
 
-## Correct usage:
-```
+## Correct usage
+```c++
 #if (CORE_PART_ID & ID_MASK_SERIES) == ID_AVR_DA
 Serial.println("I am a DA-series"); //RIGHT - will be included when the series ID bits are equal to ID_AVR_DA (which happens to be 0b000).
 #endif
@@ -63,12 +63,12 @@ Serial.println("I have more than 28 pins"); // WORKS, but likely BAD - You shoul
 ```
 
 ## Incorrect usage:
-```
+```c++
 #if defined(ID_20_PINS)
 Serial.println("I have 20 pins!"); // WRONG - ID_20_PINS is always defined as 0x02.
 #endif
 
 #if ID_48_PINS && ID_AVR_DA
-Serial.println("I am an AVR DA-series with 48 pins"); // WRONG - never true! Both are always defined,  ID_48_PINS as 0x06, and ID_AVR_DA as 0.
+Serial.println("I am an AVR DA-series with 48 pins"); // WRONG - Both are always defined,  ID_48_PINS as 0x06, and ID_AVR_DA as 0.
 #endif
 ```

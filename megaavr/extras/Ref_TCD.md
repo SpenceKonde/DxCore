@@ -76,7 +76,7 @@ analogWrite(PIN_PA5,64);     // Works as expected now.
  *    6. Don't do ANY of this if TCD0 is used for millis!
  */
 ```
-### You can "stage" pins at constant levels so they won't put a glitch on the timer when you first write to them.
+### You can "stage" pins at constant levels so they won't put a glitch on the timer when you first write to them
 digitalWrite() or turnOffPWM() will turn them off.
 Setting the compare match higher than TOP keeps it from ever changing state (setting it to 0 does not, like many timers). But the solution is simple: Get the constant output, and invert the pin if needed. Use digitalWrite() to take control back from the timer (direct port manipulation and fast writes won't work on it until then)
 

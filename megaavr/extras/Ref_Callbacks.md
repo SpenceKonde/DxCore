@@ -8,7 +8,7 @@ Some of these were added in 1.3.7 (actually, quite a few of them were, which was
 
 ## Startup Sequence
 When execution reaches the application after reset or bootloader, it hits the reset vector first, andthen jumps where ver that is pointing and begins execution with the .init sections
-```
+```text
 .init2: This initializes the stack and clears r1 (the known zero) that avr-gcc needs. No C code before here works correctly!
 .init3: This calls the DxCore function _initThreeStuff()
 _initThreeStuff() is a creatively named internal early initialization routine; it cannot be overridden. but the functions it calls can be.

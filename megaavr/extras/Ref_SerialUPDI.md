@@ -54,7 +54,7 @@ Now, if you find yourself with 2-4 serial adapters plugged in at all times, FTDI
 ### A note on breakout boards
 Some tinyAVR and other UPDI-using-part breakout boards have an on-board resistor. Sometimes this is a 4.7k one. That is NOT appropriate. I was part of the problem for a while. I think the original mistake came from people conflating the pyupdi resistor with a generally appropriate series resistor. When I started megaTinyCore, my early collaborator was making hardware with a 4.7k resistor; I assumed he was doing it right. This doesn't work with serial UPDI. It will work with dedicated programmers like jtag2updi, as long as they don't have their own resistor, or that resistoe is an appropriate value. . Suffice to say, for a time it was a very common belief. I use 470 ohms now, but I can't find fault with a design over it not having the resistor. Expecting the programmer to be able to provide series resistance is not an unfair expectation,
 
-### Connections:
+### Connections
 * Vcc, Gnd of serial adapter to Vcc, Gnd of target
 * Add either a resistor or schottky diode between Tx and Rx (in the case of serial adapters without their own TX series resistor, an external one is needed. See the charts below.
 * Many adapters have a built-in 1k, 1.5k, or 2.2k resistor in series with Tx.
@@ -64,7 +64,7 @@ Some tinyAVR and other UPDI-using-part breakout boards have an on-board resistor
 * Rx of adapter to UPDI pin of target. A small resistor (under 1k - like the 470 ohm one we generally use) in series with this on the target board is fine.
 
 
-```
+```text
 USB Serial Adapter
 With internal 1-2k resistor on TX
 This is the case in 90% of USB serial adapters.
@@ -236,30 +236,30 @@ In NVM programming mode, you can read the flash as well as the "data space" (the
 
 ### Upload and verify performance
 
-    BAUD    |    FT232RL    kb/s   |     CP2102    kb/s |     CH340    kb/s  |    HT42B534    kb/s  |
-------------|----------------------|--------------------|--------------------|----------------------|
-115200      |     8.7 W /    8.8 R |     8.7 W /  8.8 R |  8.4 W /  8.5 R    |     9.0 W /  9.1 R   |
-230400      |    16.6.W /   16.4 R |    16.3 W / 16.5 R | 14.6 W / 16.6 R    |    17.7 W / 17.9 R   |
-345600*     |    24.3 W /   23.4 R |    23.2 W / 23.0 R | 22.5 W / 22.1 R    |        UNSUPPORTED   |
-460800**    |             N/A      |                N/A |             N/A    |     24.7W / 32.7 R   |
+|     BAUD    |    FT232RL    kb/s   |     CP2102    kb/s |     CH340    kb/s  |    HT42B534    kb/s  |
+|-------------|----------------------|--------------------|--------------------|----------------------|
+| 115200      |     8.7 W /    8.8 R |     8.7 W /  8.8 R |  8.4 W /  8.5 R    |     9.0 W /  9.1 R   |
+| 230400      |    16.6.W /   16.4 R |    16.3 W / 16.5 R | 14.6 W / 16.6 R    |    17.7 W / 17.9 R   |
+| 345600*     |    24.3 W /   23.4 R |    23.2 W / 23.0 R | 22.5 W / 22.1 R    |        UNSUPPORTED   |
+| 460800**    |             N/A      |                N/A |             N/A    |     24.7W / 32.7 R   |
 ** HT42B534 was run using a 32-byte block size, running with finite block size resulted in successful transfers for other parts, though the threshold block size varied - but a massive decrease in overall speed, similar to 115200 baud., as one will outrun the NVM controller writing at 460800 baud - I just had to see how it compared to the FT232RL. Both of them are running right up at the limit of the chip's ability to write data to the flash - and the FT232RL doesn't need any special measures taken and works with the tinyAVR parts too. On the other hand, the HT42B534 leads the pack at the (new as of 1.3.6) default of 230400 baud, and is dirt cheap (CH340-level prices).
 
 For comparison, on the Dx-series parts (which are easier to use as test subjects since they have more flash, so uploads take longer and are easier to time. These numbers were taken using a 128k test image, which is an optimal situation.
 
-Programmer      |  Read    | Write    | Notes                                    |
-----------------|----------|----------|------------------------------------------|
-jtag2updi       | 6.6 kb/s | 5.9 kb/s | Running on 16 MHz Nano                   |
-Curiosity Nano  | 5.9 kb/s | 3.3 kb/s | Via avrdude - which is likely (hopefully!) not ideal  |
-Optiboot Dx     |10.6 kb/s | 6.9 kb/s | 115200 baud as supplied by DxCore        |
+| Programmer      |  Read    | Write    | Notes                                    |
+|-----------------|----------|----------|------------------------------------------|
+| jtag2updi       | 6.6 kb/s | 5.9 kb/s | Running on 16 MHz Nano                   |
+| Curiosity Nano  | 5.9 kb/s | 3.3 kb/s | Via avrdude - which is likely (hopefully!) not ideal  |
+| Optiboot Dx     |10.6 kb/s | 6.9 kb/s | 115200 baud as supplied by DxCore        |
 
 Because of the smaller page sizes and the more timeconsuming rigmarole surrounsing that, ATtiny parts are slower to program; the smaller the pages, the slower it is - but the time for programming the entire flash is still less for smaller parts because there is less data to write, because net programming speed (byres/second after overheaad goes down more slowly than the flash sizes. The two write numbers are for parts with 64 byte and 128 byte pages, respectively.
 
-    BAUD      |     FT232RL    kb/s |     CP2102* kb/s   |     -   CH340    kb/s  |    HT42B534    kb/s       |
---------------|---------------------|--------------------|------------------------|---------------------------|
-115200        | 4.6, 6.2 W /  8.8 R | 4.3,6.2 W / 8.8 R  | 3.6, 5.2 W /  8.5 R    | 3.6,7.2 W / 9.1 R         |
-230400        | 7.5,10.0 W / 16.5 R | 7.1,9.6 W / 16.4 R | 4.9, 7.8 W / 15.6 R    |    Errors out             |
-345600*       | 9.1,13.6 W / 23.4 R |8.5,13.2 W / 23.1 R | 5.6, 9.5 W / 22.0 R    |    UNSUPPORTED            |
-460800        |10.4,15.6 W / 28.2 R |        Not tested  | 6.0,10.4 w / 26.8 R    |    Errors out             |
+|    BAUD    |     FT232RL    kb/s |     CP2102* kb/s   |     -   CH340    kb/s  |    HT42B534    kb/s       |
+|------------|---------------------|--------------------|------------------------|---------------------------|
+| 115200     | 4.6, 6.2 W /  8.8 R | 4.3,6.2 W / 8.8 R  | 3.6, 5.2 W /  8.5 R    | 3.6,7.2 W / 9.1 R         |
+| 230400     | 7.5,10.0 W / 16.5 R | 7.1,9.6 W / 16.4 R | 4.9, 7.8 W / 15.6 R    |    Errors out             |
+| 345600*    | 9.1,13.6 W / 23.4 R |8.5,13.2 W / 23.1 R | 5.6, 9.5 W / 22.0 R    |    UNSUPPORTED            |
+| 460800     |10.4,15.6 W / 28.2 R |        Not tested  | 6.0,10.4 w / 26.8 R    |    Errors out             |
 * The CP2102 does not, by default, support any speeds between 256kbaud and 460800 baud - but a free configuration utility from Silicon Labs enables customization of the baud rates in each range of requested speeds (though unfortunately, you can't define those ranges). I reconfigured mine for 345600 baud for development of with the Dx-series parts, which don't work at 460800, and did not bother to set it back to factory settings just to fill in the table; I would expect to see approximately 10kb/s and 15kb/s write speeds and around 26kb/s read speed. T
 
 In this case, S<sub>prog(64)</sub> = 2/3 S<sub>prog(128)</sub>, so t<sub>prog(16k)</sub> = 3/4 * t<sub>prog(32k)</sub>)  (t<sub>prog(16k)</sub> = (16/32) * t<sub>prog(32k)</sub>)/(S<sub>prog(64)</sub>/S<sub>prog(128)</sub>) = t<sub>prog(32k)</sub>) * (3/2)(1/2).)

@@ -32,12 +32,12 @@ in_p::pd2; // Synonym for in_p::in0, which is PD2 on all DxCore parts
 in_p::pd6; // Synonym for in_p::in3, which is PD6 on all DxCore parts
 ```
 
-##### Usage
+#### Usage
 ``` c++
 Comparator.input_p = in_p::in0;  // Connect positive input pin 0 to the positive pin of the comparator
 ```
 
-##### Default state
+#### Default state
 `Comparator.input_p` defaults to `in_p::in0` if not specified in the user program.
 
 
@@ -54,12 +54,12 @@ in_n::pd0;    // Synonym for in_n::in1, which is PD0 on all DxCore parts that ha
 in_n::pd7;    // Synonym for in_n::in2, which is PD7 on all DxCore parts
 ```
 
-##### Usage
+#### Usage
 ``` c++
 Comparator.input_n = in_n::in0;  // Connect negative input pin 0 to the negative pin of the comparator
 ```
 
-##### Default state
+#### Default state
 `Comparator.input_n` defaults to `in_n::in0` if not specified in the user program.
 
 
@@ -77,12 +77,12 @@ ref::vref_vdd;   // VDD as reference
 ref::vref_vrefa; // External reference from the VREFA pin
 ```
 
-##### Usage
+#### Usage
 ``` c++
 Comparator.reference = ref::vref_4v096;  // Use the internal 4.096V reference for the DACREF
 ```
 
-##### Default state
+#### Default state
 `Comparator.reference` defaults to `ref::disable` if not specified in the user program.
 
 
@@ -92,12 +92,12 @@ This is the formula for the DACREF output voltage:
 
 <img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
-##### Usage
+#### Usage
 ``` c++
 Comparator.dacref = 127;  // Divide the reference voltage by two
 ```
 
-##### Default state
+#### Default state
 `Comparator.dacref` defaults to `255` if not specified in the user program.
 
 
@@ -111,12 +111,12 @@ hyst::medium;  // 25mV hysteresis (±12.5mV)
 hyst::large;   // 50mV hysteresis (±25mV)
 ```
 
-##### Usage
+#### Usage
 ``` c++
 Comparator.hysteresis = hyst::large;  // Use 50V hysteresis
 ```
 
-##### Default state
+#### Default state
 `Comparator.hysteresis` defaults to `hyst::disable` if not specified in the user program.
 
 
@@ -131,12 +131,12 @@ out::invert;         // Enable output pin (PA7), signal inverted internally
 out::enable_invert;  // Identical to out::invert
 ```
 
-##### Usage
+#### Usage
 ``` c++
 Comparator.output = out::enable; // Enable output pin (PA7)
 ```
 
-##### Default state
+#### Default state
 `Comparator.output` defaults to `out::disable` if not specified in the user program.
 
 
@@ -148,12 +148,12 @@ out::no_swap;  // Use default pin position
 out::pin_swap; // Use alternative position (48 and 64-pin parts only)
 ```
 
-##### Usage
+#### Usage
 ```c++
 Comparator.output_swap = out::no_swap; // No pin swap for output
 ```
 
-##### Default state
+#### Default state
 `Comparator.output_swap` defaults to `out::no_swap` if not specified in the user program.
 
 
@@ -165,43 +165,43 @@ out::init_low;  // Output pin low after initialization
 out::init_high; // Output pin high after initialization
 ```
 
-##### Usage
+#### Usage
 ```c++
 Comparator.output_initval = out::init_high;
 ```
 
-##### Default state
+#### Default state
 `Comparator.output_initval` defaults to `out::init_low` if not specified in the user program.
 
 
-## init()
-Method for initializing the comparator.
+### init()
+Method for initializing the comparator. You must call this after specifying the desired options to write them to the peripheral registers.
 
-##### Usage
+#### Usage
 ```c++
 Comparator.init(); // Initialize comparator
 ```
 
-## start()
+### start()
 Method for starting the analog comparator.
-##### Usage
+#### Usage
 ```c++
 Comparator.start(); // Start comparator
 ```
 
 
-## stop()
+### stop()
 Method for stopping the analog comparator.
 
-##### Usage
+#### Usage
 ```c++
 Comparator.stop(); // Stop comparator
 ```
 
-## read()
+### read()
 Method to read current comparator value; returns the comparator output as a bool; this is effected by output invert.
 
-##### Usage
+#### Usage
 ```c++
 
 if (Comparator0.read()) {
@@ -210,11 +210,11 @@ if (Comparator0.read()) {
 ```
 
 
-## attachInterrupt()
+### attachInterrupt()
 Method for enabling analog comparator interrupt. The interrupt will trigger when the the comparator output changes.
 Valid arguments for the third parameters are `RISING`, `FALLING` and `CHANGE`. Clearing of the INTFLAG is handled by the library, and does not need to be done in your interrupt code.
 
-##### Usage
+#### Usage
 ```c++
 Comparator.attachInterrupt(blinkLED, RISING); // Run the blinkLED function when the comparator output goes high
 
@@ -224,10 +224,10 @@ void blinkLED() {
 ```
 
 
-## detachInterrupt()
+### detachInterrupt()
 Method for disabling analog comparator interrupt.
 
-##### Usage
+#### Usage
 ```c++
 Comparator.detachInterrupt(); // Disable interrupt
 ```

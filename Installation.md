@@ -1,3 +1,5 @@
+# DxCore Installation
+
 ## Supported IDE versions
 DxCore requires a version of the IDE later than 1.6.3; - it may require a much more recent version of the IDE. 1.8.13 is recommended.
 

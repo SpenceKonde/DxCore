@@ -63,7 +63,7 @@ These define the version of the core:
 * `DXCORE_RELEASED` - 1 if a released version, 0 if unreleased (ie, installed from github between releases).
 * `DXCORE_NUM` - DxCore version, as unsigned long.
 
-```
+```c++
 Serial.println(DXCORE);
 Serial.print(DXCORE_MAJOR);
 Serial.print(' '); // using ' ' instead of " " saves a tiny amount of flash!
@@ -76,13 +76,13 @@ Serial.println(DXCORE_NUM,HEX);
 
 ```
 Will produce output like:
-```
+```text
 1.3.7
 1 3 7 1
 01030401
 ```
 or - if your non-Arduino IDE is not able to handle the escaping and you happened to be using a 1.3.8 github build:
-```
+```text
 Unknown 1.3.7+
 1 3 8 0
 01030800

@@ -6,11 +6,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ### Planned 1.4.0
 __ DD-series support, assuming they ever come out (All that's left undone here is the variant files, which were delayed by the serial questions, but now that those have been answered, that can proceed.
 
-### 1.4.0 or earlierm, depending on events
+### 1.4.0 or earlier, depending on events
 __ Completely new Wire.h library with exciting features - Thanks to @MX682X!
-  * Master + Slave on the same TWI - either using the same pins or in dual mode
-  * Support for TWI1 assuming your device has it.
-  * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
+* Master + Slave on the same TWI - either using the same pins or in dual mode
+* Support for TWI1 assuming your device has it.
+* Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
 __ Looks like we we're getting those serial changes - also thanks to @MX682X!
 __ Expanded Event library from collaboration with @MCUDude
 
@@ -25,6 +25,7 @@ __ Expanded Event library from collaboration with @MCUDude
 * Correct critical bug that made SPI.h incompatible with the new attachInterrupt().
 * Correct critical bug compiling for 64-pin parts due to a stray character in the variant file.
 * Correct critical bug in 28-pin variant file that broke writes to pins 0 and 1 within every port!
+* Markdown linting.
 * Minor things
   * Added a few variants of `_NOP()` for longer delays in minimum number of words. 2 clocks in 1, 8 clocks in 3, 14 clocks in 4 (simplest loop is 3 * n + 1 in 3 words, or pad with nop/rjmp .+0 for any number of clocks up to 770 in 3-4 words; in an ISR that loop may add 1 clock to the start of the ISR and 2 clocks to the end, as well as 2 words to the size of the binary (though it won't if there's an, everything else below 770 in 6 words)
   * analogClockSpeed used 300 kHz as the minimum instead of 125 kHz.
@@ -103,7 +104,7 @@ __ Expanded Event library from collaboration with @MCUDude
 * Board Manager re-release only. Windows toolchain package was mangled too.
 
 ### 1.3.4
-* Adopt Comparator library fixes from https://github.com/MCUdude/MegaCoreX/issues/115.
+* Adopt Comparator library fixes from [https://github.com/MCUdude/MegaCoreX/issues/115](https://github.com/MCUdude/MegaCoreX/issues/115).
 * Board manager re-release to pick up fixed toolchain version for Linux/Mac
 * Programmers.txt names tweaked - the changes in 1.3.3 were directly copied from megaTinyCore and referenced official boards that don't exist for the Dx family.
 * A number of minor internal changes and corrections.

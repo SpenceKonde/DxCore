@@ -2,6 +2,8 @@
   EEPROM.h - EEPROM library
   Original Copyright (c) 2006 David A. Mellis.  All right reserved.
   New version by Christopher Andrews 2015.
+  Ported to post-2016 AVRs by Spence Konde.
+  This file is part of DxCore.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -24,6 +26,8 @@
 #include <inttypes.h>
 #include <avr/eeprom.h>
 #include <avr/io.h>
+
+#define EEPROM_INDEX_MASK (EEPROM_SIZE - 1)
 
 /***
     EERef class.
@@ -69,7 +73,7 @@ struct EERef {
 
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
-    *(uint8_t *)(MAPPED_EEPROM_START + index) = in;
+    *(uint8_t *)(MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK)) = in;
 
     SREG = oldSREG; //restore SREG and interrupts
 

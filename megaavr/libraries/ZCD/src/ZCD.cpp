@@ -10,6 +10,9 @@
 #if defined(ZCD2_ZCD_vect)
   ZeroCross zcd2(2, ZCD2, PORTE.PIN7CTRL);
 #endif
+#if defined(ZCD3_ZCD_vect)
+  ZeroCross zcd3(3, ZCD3, PORTC.PIN2CTRL);
+#endif
 
 
 // Array for storing ISR function pointers
@@ -17,7 +20,7 @@
   static volatile voidFuncPtr intFuncAC[3];
 #elif defined(ZCD1_ZCD_vect)
   static volatile voidFuncPtr intFuncAC[2];
-#elif defined(ZCD0_ZCD_vect)
+#elif defined(ZCD0_ZCD_vect) || defined(ZCD3_ZCD_vect)
   static volatile voidFuncPtr intFuncAC[1];
 #else
   #error "target does not have zero-cross detection hardware!"
@@ -98,8 +101,11 @@ void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
   }
 
   // Store function pointer
+  #ifdef __AVR_DD__
+  intFuncAC[0] = userFunc;
+  #else
   intFuncAC[zcd_number] = userFunc;
-
+  #endif
   // Set interrupt trigger and enable interrupt
   ZCD.INTCTRL = intmode;
 }
@@ -136,5 +142,15 @@ ISR(ZCD2_ZCD_vect) {
 
   // Clear flag
   ZCD2.STATUS = ZCD_CROSSIF_bm;
+}
+#endif
+
+#ifdef ZCD3_ZCD_vect
+ISR(ZCD3_ZCD_vect) {
+  // Run user function
+  intFuncAC[0]();
+
+  // Clear flag
+  ZCD3.STATUS = ZCD_CROSSIF_bm;
 }
 #endif

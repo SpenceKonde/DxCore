@@ -60,9 +60,9 @@ All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
   * 20MHz Internal, Ext. Clock or Crystal
   * 16MHz Internal, Ext. Clock or Crystal
   * 12MHz Internal, Ext. Clock or Crystal
-  *  8MHz Internal, Ext. Clock or Crystal
-  *  4MHz Internal, Ext. Clock or Crystal
-  *  1MHz Internal or Ext. Clock
+  * 8MHz  Internal, Ext. Clock or Crystal
+  * 4MHz  Internal, Ext. Clock or Crystal
+  * 1MHz  Internal or Ext. Clock
 * Overclocked (No guarantees on functioning)
   * 25MHz Ext Clock or Crystal
   * 28MHz Internal, Ext. Clock or Crystal
@@ -104,18 +104,18 @@ There is an included Optiboot derived bootloader included with the core. You may
 ## Ways to refer to pins
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
 
-#### PIN_Pxn Port Pin Numbers (recommended)
+### PIN_Pxn Port Pin Numbers (recommended)
 **This is the recommended way to refer to pins** Defines are provided of form PIN_Pxn, where x is the letter of the port (A through G), and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by port), making it much easier to port code between devices with the modern peripherals. Several pieces of demo code in the documentation take advantage of this.
 
 Direct port manipulation is possible on the parts (and is easier to write with if you use PIN_Pxn notation!) - in fact, in some ways direct port manipulation is more powerful than it was in the past. several powerful additional options are available for it - see [direct port manipulation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DirectPortManipulation.md).
 
-#### Arduino Pin Numbers (if you must)
+### Arduino Pin Numbers (if you must)
 When a single number is used to refer to a pin - in the documentation, or in your code - it is always the "Arduino pin number". These are the pin numbers shown on the pinout charts. All of the other ways of referring to pins are #defined to the corresponding Arduino pin number.
 
-#### An and PIN_An constants (for compatibility)
+### An and PIN_An constants (for compatibility)
 The core also provides An and PIN_An constants (where n is a number from 0 to the number of analog inputs). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind `analogRead()` - but here, they are just #defined as the corresponding Arduino pin number. The An names are intentionally not shown on the pinout charts, as this is a deprecated way of referring to pins. However, these channels are shown on the pinout charts as the ADCn markings, and full details are available in the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel.
 
-#### There is no A0 aka PIN_PD0 aka 12 on DB-series parts with less than 48 pins.
+### There is no A0 or PIN_PD0 aka 12 on DB-series or DD-series parts with less than 48 pins
 DB-series parts with 32 or 28 pins don't have a an analog channel 0. It's located on pin PD0, which was displaced by the `VDDIO`2 pin. Based on the errata - the PD0 pad exists on the chip... but doesn't have any bond wire attached to it. Per manufacturer recommendations we disable the digital input buffer to save power.
 
 ## Exposed Hardware Features
@@ -129,7 +129,6 @@ The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (
 See the [ADC and DAC Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
 
 Using the `An` constants is deprecated - the recommended practice is to just use the digital pin number, or better yet, use `PIN_Pxn` notation when calling `analogRead()`. Particularly since the release of 1.3.0 and megaTinyCore 2.3.0, a number of enhanced ADC features have been added to expose more of the power of the sophisticated ADC in these parts to users.
-
 
 ### Watchdog timer, software reset
 There are more options than on classic AVR for resetting, including if the code gets hung up somehow. The watchdog timer can only reset (use the RTC and PIT for timed interrupts)
@@ -278,7 +277,7 @@ There are a few interesting things to note here as we look towards future parts:
 
 ## Major core features
 
-### Memory-mapped flash? It's complicated.
+### Memory-mapped flash? It's complicated
 Unlike the tinyAVR 0/1/2-series and megaAVR 0-series parts, which are able to map their entire flash to memory, most Dx-series parts have too much flash for a 16-bit address space. They can only map 32KB at a time. The FLMAP bits in NVMCTRL.CTRLB control this mapping. Unfortunately, because this can be changed at runtime, the linker can't automatically put constants into flash on 64k and 128k parts. However, on 32k parts, it can, and does. The latest ATpacks have released support for that, but it unclear how to make that usable by Arduino.
 
 As of 1.2.0, you can declare a variable `PROGMEM_MAPPED` (note: we had to change the name of this in 1.3.7 - we discovered "MAPPED_PROGMEM" is defined in some io headers and means something else there so our code broke things) ; this will put it in the final section of flash (section 1 or 3 - they're 0-indexed); in this case, the data is not copied to RAM, and *you can use the variable directly to access it through the mapped flash!*
@@ -385,7 +384,7 @@ The sources of reset, and how to handle reset cause flags to ensure clean resets
 Covers a variety of design considerations for making something that will opperate reliably in the field, some specific to DxCore, others general. Lately I have been seeing a lot of projects get too far along without considering these. **Must read for production systems**
 ### Library documentation
 See the [library index](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Libraries.md) or readme files for each library (the former is mostly composed of links to the latter)
-### Older guides inherited from megaTinyCore.
+### Older guides inherited from megaTinyCore
 These guides may not account for all of differences between DxCore and megaTinyCore, and may not reflect recent changes.
 #### [Power Saving techniques and Sleep](megaavr/extras/PowerSave.md)
 There are plans for a better wrapper around this sort of functionality, which keep getting deferred as more pressing issues come up.
@@ -439,7 +438,7 @@ On official "megaavr" board package, TCA0 is configured for "Single mode" as a t
 ### TCA0/1 and all TCB's used for PWM have TOP at 254, not 255
 0 is a count, so at 255, there are 256 steps, and 255 of those will generate PWM output - but since Arduino defines 0 as always off and 255 as always on, there are only 254 possible values that it will use. The result of this is that (I don't remember which) either `analogWrite(pin,254)` results in it being LOW 2/256's of the time, or `analogWrite(pin,1)` results in it being `HIGH` 2/256's of the time. On DxCore, with 255 steps, 254 of which generate PWM, the hardware is configured to match the API. If you make a graph of measured duty cycle vs the value passed to analogWrite, it is a straight line with no kink or discontinuity and an intercept at 0. In the event that TCA0 is used for millis, as it happens, 255 also (mathematically) works out such that integer math gets exact results for millis timing with both 16 MHz derived and 20 MHz derived clock speeds (relevant when TCA0 is used for `millis()` timing). I have not attempted this math for other system clock speeds. The same thing is done for TCD0 (though at higher clock speeds, we multiply the input and TOP by a power of 2 - `analogWrite()` accounts for this - so that we can get the same output frequency as an 8-bit timer would at the same unprescaled clock speed (higher frequencies) while keeping the fastest synchronization prescaler for fastest synchronization between TCD0 and system clock domains).
 
-### digital I/O functions use old function signatures.
+### digital I/O functions use old function signatures
 They return and expect uint8_t (byte) values, not enums like the official megaavr board package does. Like classic AVR cores, constants like `LOW`, `HIGH`, etc are simply #defined to appropriate values. The use of enums instead broke many common Arduino programming idioms and existing code, increased flash usage, lowered performance, and made optimization more challenging. While the enum implementation made language design purists comfortable, and provided error checking for newbies - because you couldn't pass anything that wasn't a PinState to a digital I/O function, and would get that error checking if - as a newbie - you accidentally got careless. Many common practices were tripped up by this, like `if(digitalRead(pin))`, and so a compatibility layer was added to the official core - but then that got rid of what was probably the most compelling benefit, the fact that it did generate an error for new users if they passed bogus values. When all was said and done, instead of helping to shine a light on errors, it turned out have the opposite effect. When I discovered this on megaTinyCore was when wrestling with a pinMode call that seemed to do nothing... I was astonished to find that `PinMode(pin,OUTPUT)`, an obvious typo of `pinMode(pin,OUTPUT)` was valid syntax (comma operator turns pin,OUTPUT into OUTPUT, and it returns a new PinMode of value OUTPUT...), instead of a syntax error! This turned a 30-second bug into a 2-3 hour session of frustration. Anyway - the enums are not present here, and they never will be; this is the case with [MegaCoreX](https://github.com/MCUdude/MegaCoreX) and [megaTinyCore](https://github.com/SpenceKonde/megaTinyCore) as well.
 
 ### `analogReadResolution()` is different

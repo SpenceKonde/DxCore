@@ -9,7 +9,7 @@ There are two ways that you may end up writing an ISR, but most of the same cons
 
 The other way is directly - it's as if you are declaring a function, but instead of the name, you use the ISR() macro with the vector name as it's argument; these can have overhead as low as 21 clock cycles, split approximately evenly between before and after:
 
-```
+```c++
 ISR(CCL_CCL_vect) {
   //try to keep this part fast.
 }
@@ -96,7 +96,7 @@ If there is a list of the names defined for the interrupt vectors is present som
 
 `XX` indicates available on at least three of the four pincounts that series is available in.
 
-` X` indicates available on only one or two of the four sizes that series is available in (ex: TCA1 is only on 48 and 64 pin DA or DB)
+`X` indicates available on only one or two of the four sizes that series is available in (ex: TCA1 is only on 48 and 64 pin DA or DB)
 
 ## Why clearing flags is so complicated
 Almost all flags *can* be manually cleared - the ones that can be cleared automatically generally do that to be helpful:

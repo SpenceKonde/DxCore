@@ -52,4 +52,9 @@ class ZeroCross {
   extern ZeroCross zcd2;
 #endif
 
+#if defined(ZCD3_ZCD_vect)
+  extern ZeroCross zcd3;
+  #define zcd zcd3
+#endif
+
 #endif

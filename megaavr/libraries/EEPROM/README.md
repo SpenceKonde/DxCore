@@ -1,13 +1,14 @@
-## **EEPROM Library V2.0** for Arduino
+# **EEPROM Library V2.1.1** for Modern AVRs
 
 **Written by:** _Christopher Andrews_.
+**Ported by:** _Spence Konde_.
 
-### **What is the EEPROM library.**
+## **What is the EEPROM library?**
 
-Th EEPROM library provides an easy to use interface to interact with the internal non-volatile storage found in AVR based Arduino boards. This library will work on many AVR devices like ATtiny and ATmega chips.
+Th EEPROM library provides an easy to use interface to interact with the internal non-volatile storage found in AVR based Arduino boards. This version provides support for the tinyAVR 0/1/2-series, the megaAVR 0-series, and the AVR Dx-series, and is expected to work with the upcoming AVR Ex-series without modification. It is included with DxCore and megaTinyCore.
 
 ### **How to use it**
-The EEPROM library is included in your IDE download. To add its functionality to your sketch you'll need to reference the library header file. You do this by adding an include directive to the top of your sketch.
+The EEPROM library is included with all hardware packages for hardware with that functionality (which is almost universal).
 
 ```Arduino
 #include <EEPROM.h>
@@ -24,8 +25,6 @@ void loop(){
 
 The library provides a global variable named `EEPROM`, you use this variable to access the library functions. The methods provided in the EEPROM class are listed below.
 
-### Warning about invalid addresses
-It is possible to specify addresses beyond the end of the EEPROM or (through a negative number) ones before it's beginning. On parts with 256b of EEPROM, this just wraps around to the other end, like classic AVRs did. On parts with less, it will still wrap around, but addresses between the end of the EEPROM and 255 (after which it wraps around) read as 0x00 and cannot be written. On Dx-series parts, many of which have 512b of EEPROM, there is no wraparound, and if you go far enough out and try to write, you'll overwrite other stuff. Don't do that.
 
 ### EEPROM Sizes
 
@@ -37,6 +36,8 @@ It is possible to specify addresses beyond the end of the EEPROM or (through a n
 | megaAVR 0-series (all flash sizes) | 256b |
 | DA, DB, EA-series (all flash sizes) | 512b |
 | DD-series (all flash sizes) | 256b |
+
+As of version 2.1.1 of the EEPROM library, measures are taken to ensure that the EEPROM wraps around if an invalid address is used, rather than blindly writing and assuming that whatever is being pointed to is EEPROM
 
 You can view all the examples [here](examples/).
 
@@ -150,7 +151,9 @@ This is useful for STL objects, custom iteration and C++11 style ranged for loop
 This function returns an `EEPtr` pointing at the location after the last EEPROM cell.
 Used with `begin()` to provide custom iteration.
 
-**Note:** The `EEPtr` returned is invalid as it is out of range. See the warning about invalid addresses above.
+**Note:** The `EEPtr` returned is invalid as it is out of range.
 
-### EEPROM corruption due to low supply voltage
-If the power supply voltage is insufficient (as in, below operating specifications) while writing to the EEPROM, corruption can result; this includes the case where power is cut entirely while writing to the EEPROM. This phenomenon is described in the "Preventing Flash/EEPROM corruption" section (9.3.3) of the datasheet. Enabling the Brown-Out Detect functionality ("burn bootloader" required after changing those settings to apply them) will prevent this by holding the part in reset when below a minimum supply voltage. If BOD is for some reason unacceptable as a solution, the ADC could be used to read the supply voltage to ensure that it is within a normal operating range prior to writing to the EEPROM.
+## EEPROM corruption due to low supply voltage
+If the power supply voltage is insufficient (as in, below operating specifications) while writing to the EEPROM, corruption can result; this includes the case where power is cut entirely while writing to the EEPROM. This phenomenon is described in the "Preventing Flash/EEPROM corruption" section (9.3.3) of the datasheet. Enabling the Brown-Out Detect functionality ("burn bootloader" required after changing those settings to apply them) will prevent this by holding the part in reset when below a minimum supply voltage. Even better would be to use the VLM to detect when the operating voltage is perilously close to the BOD threshold. Alternate methods of ensuring that there is not expected to be a power failure within the next 11 ms might include monitoring the supply voltage with the ADC. It is also important to practice good hardware design: particularly, you should have sufficient board-level decoupling capacitors to make sure the power can't drop out so quickly that a write might not finish. And if user action is the likely cause of the power loss, one could flash an LED while writing or similar.
+
+In extreme cases - if your application **must** save state in the event of unexpected power loss, your best hope might not using EEPROM, but FLASH! EEPROM.h uses the EEEWR mode, which  while it offers excellent write endurance, is very slow, potentially as long as 11ms/byte. Flash, on the other hand, can write 2 bytes in just 70 us. If you were to keep a page of flash pre-erased and ready for a panic dump, you would have the best hope of doing that with Flash.h in the VLM interrupt. You could then check for it on startup, copy it somewhere else, and erase the page again to be ready in the event of the net crash. An example of this may be added approximately when I have a chance, likely not for a while.

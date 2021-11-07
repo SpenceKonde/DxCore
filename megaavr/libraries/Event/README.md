@@ -2,6 +2,7 @@
 A library for interfacing with the built-in Event system on the megaAVR-0 series MCUs.
 Developed by [MCUdude](https://github.com/MCUdude/).
 
+## What is the Event System?
 **From the datasheet:**
 > The Event System (EVSYS) enables direct peripheral-to-peripheral signaling. It allows a change in one peripheral (the event generator) to trigger actions in other peripherals (the event users) through event channels, without using the CPU. It is designed to provide short and predictable response times between peripherals, allowing for autonomous peripheral control and interaction, and also for synchronized timing of actions in several peripheral modules. It is thus a powerful tool for reducing the complexity, size, and execution time of the software.
 
@@ -14,21 +15,19 @@ There are two types of events - a "pulse" interrupt, which lasts for the duratio
 The event system, under the hood, is asynchronous - it can react faster than the system clock (often a lot faster). Per the datasheet:
 
 >Events can be either synchronous or asynchronous to the peripheral clock. Each Event System channel has two subchannels: one asynchronous and one synchronous.
-
 >The asynchronous subchannel is identical to the event output from the generator. If the event generator generates a signal asynchronous to the peripheral clock, the signal on the asynchronous subchannel will be asynchronous. If the event generator generates a signal synchronous to the peripheral clock, the signal on the asynchronous subchannel
 >will also be synchronous.
-
 >The synchronous subchannel is identical to the event output from the generator, if the event generator generates a signal synchronous to the peripheral clock. If the event generator generates a signal asynchronous to the peripheral clock, this signal is first synchronized before being routed onto the synchronous subchannel. Depending on when it occurs, synchronization will delay the event by two to three clock cycles. The Event System automatically performs
 >this synchronization if an asynchronous generator is selected for an event channel.
 
 The fact that it is asynchronous usually doesn't matter - it's either "faster than anything else" (if the user is async, or "2-3 clock cycles behind", but it is one of the things one should keep in mind when using these features, because every so often it does.
 
 
-### Some of these events seem kinda... weird?
+### Some of these events seem kinda... um... weird?
 At first glance, more than half of the users and generators seem, at best, odd - and a good few of them might appear entirely useless. *That was certainly my first impression! -Spence* Most of the event system can only truly be understood when considering the full range of generators and users - particularly the CCL . One of the tragedies of a datasheet is that it - generally - lacks a "why". Behind every mysterious event generator or user, and every crazy register option, there is a use case - maybe an obscure one - for which that functionality is a big deal.
 
 ### How do I read the levels of the event channels?
-From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers that connect the internal async channels to the sync ones to the bits of a register - but I'm not Microchip engineeer).
+From your code? As far as I can tell, short of piping them to a pin and reading that, you don't (and no, I really don't understand why they couldn't have tied those synchronizers they talk about, which connect the internal async channels to the sync ones to the bits of a register - but I'm not a Microchip engineeer).
 
 ## Event
 Class for interfacing with the Event systemn (`EVSYS`). Each event channel has its own object.
@@ -44,7 +43,12 @@ In short:
 * Channels 8 and 9 do not have any generators that take pins as inputs
 
 ## get_channel_number()
-Function to get the current channel number. Useful if the channel object has been passed to a function as reference.
+Function to get the current channel number. Useful if the channel object has been passed to a function as reference. The `Event_empty` object has channel number 255.
+
+### Declaration
+``` c++
+uint8_t get_channel_number();
+```
 
 ### Usage
 ``` c++
@@ -154,10 +158,11 @@ Event0.set_user(user::evoutd);       // Set evoutD (pin PD2) as event user
 
 ### Event User table
 Below is a table with all of the event users for the AVR Dx-series parts.
-#### Notes:
-* The `evoutN_pin_pN7` is the same as `evoutN_pin_pN2` but where the pin is swapped from 2 to 7. This means that for instance, `evouta_pin_pa2` can't be used in combination with `evouta_pin_pa7`.
+#### Notes
+* The `evoutN_pin_pN7` is the same as `evoutN_pin_pN2` but with the pin swapped using PORTMUX. This means that for instance, `evouta_pin_pa2` can't be used in combination with `evouta_pin_pa7`.
 * Many of these refer to specific pins or peripherals - on smaller pin-count devices, some of these event users are not available; Attempting to set a user that doesn't exist will result in a compile error.
 * There is no PF7 on either the DA or DB-series parts. There will be on the DD-series parts.
+* The DB and DD-series parts do not have a Peripheral Touch Controller (PTC). Just as well we can't use it because they keep all the libraries proprietary and it was never usable.
 
 
 | Event users             |                                    |

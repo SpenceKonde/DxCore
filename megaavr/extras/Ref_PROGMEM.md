@@ -5,16 +5,16 @@ So, accessing the flash from the app is a little bit more complicated here than 
 There only one section and its' always mappoed. This is agood thing, Becaaaause....  as a modern AVR with less than 48k of flash, it's __AVR_ARCH__ 103. All const variables will be automatically left in flash and accessed transparently. No special considerations are needed, and you can ignorethe flmap settings (which do noithing here). The compiler (well linker) does it all for you!
 
 ## 64k parts
-```
+```text
 PROGMEM_MAPPED - Can be accessed with defauylt flashmap settings.
 PROGMEM_SECTION0 - The lowhalf of theflash Stuff oput here will start *AFTER* your application.
 PROGMEM_SECTION1 - this ismapped by default, ie, PROGMEM_MAPPED is an alias of this/
 const PROGMEM - This covers ENTIRE flash. Stuff you put here will start *BEFORE* your application, but after the vector table and trampolines sections.
 ```
-Noitice `PROGMEM` itself requires const declaration. The others do not (I tried to make them const, I couldn't seem to make it work).
+Notice `PROGMEM` itself requires const declaration. The others do not (I tried to make them const, I couldn't seem to make it work).
 
 You can furthermore change the maopped section like this:
-```
+```c++
 NVMCTRL.CTRLB &= 0xEF; // sets the flash map to sectiuon zero
 NVMCTRL.CTRLB |= 0x10; // sets the flash map to section one
 ```
@@ -25,7 +25,7 @@ There's a problem on the low page though; namely, the address is given relative 
 But the compiler still thinks it's address is 0x1000.
 
 There's a simple if rather ugly construction to fix it with minimal overhead though:
-```c
+```c++
 uint16_t  PROGMEM_MAPPED   bigarray1[] = { /*insert your gargantuan initializer here, Iwas testing this to make sure I understood it with a few 4096 element arrays of uint16_t's.*/ };
 uint16_t  PROGMEM_SECTION0 bigarray0[] = { /*insert your gargantuan initializer here, Iwas testing this to make sure I understood it with a few 4096 element arrays of uint16_t's.*/ };
 uint16_t* bigarray0_mapped;
@@ -41,7 +41,7 @@ Note also that `pgm_read_x_near()` will work regardless of `FLMAP`.
 
 ## 128k parts
 Finally, on the 128k parts, there are 4 flash sections.
-```
+```text
 PROGMEM_MAPPED   - Can be accessed with default flashmap settings.
 const PROGMEM    - The low half of flash. Stuff you put here will start *BEFORE* your application, but after the vector table and trampolines sections.
 PROGMEM_SECTION0 - The low quarter of the flash. Stuff put here will start *AFTER* your application (if there is room).
@@ -51,7 +51,7 @@ PROGMEM_SECTION3 - Final quarter  - mapped by default.
 ```
 
 You can furthermore change the mapped section like this:
-```
+```c++
 NVMCTRL.CTRLB = (section << 4) | (NCMCRTRL.CTRLB & 0xCF); // sets the flash map to specified section.
 ```
 
@@ -61,9 +61,9 @@ And here's where it gets a little bit weird:
 
 * **PROGMEM_SECTION1** and **PROGMEM_SECTION3** can be accessed directly, like normal variables, provided FLMAP isset to 1 or 3 (3 is default). The above trick of adding 0x8000 to them to get them into the right hlf of the address space isn't needed - they are already there.
 
-* **PROGMEN_SECTION2** and **PROGMEN_SECTION0** can be accessed if the flashmap is pointed in the correct section BUT you do need to use somnething like the trick I showed aobove to offset the addresses by 32768;
+* **PROGMEM_SECTION2** and **PROGMEM_SECTION0** can be accessed if the flashmap is pointed in the correct section BUT you do need to use somnething like the trick I showed aobove to offset the addresses by 32768;
 
-* **PROGMEM_SECTION2** and **PROGMEN_SECTION3** are out of range of normal lpm (pgm_read_byte_near). You need to jump through the hoops described in any guide to progmem on larger AVRs to get a "farptr" THAT, in turn can be passed to pgm_read_byte_far().
+* **PROGMEM_SECTION2** and **PROGMEM_SECTION3** are out of range of normal lpm (pgm_read_byte_near). You need to jump through the hoops described in any guide to progmem on larger AVRs to get a "farptr" THAT, in turn can be passed to pgm_read_byte_far().
 
 
 
