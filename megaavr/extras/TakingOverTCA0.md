@@ -9,7 +9,7 @@ Another issue is that there are Arduino API functions that reach out and poke th
 ## TCBs doing pwm are clocked from TCA0
 TCBs only get prescale of /1 or 2/ - you want lower frequency for PWM. They can be clocked from the prescaled clock of a TCA though - and that's what we do. They all use TCA0. If you have both TCA's on your device, but only need to take over TCA0, you could change any TCB's you're using for PWM to use TCA1 as clock source - or just restart TCA0 at your final clock speed, if you know that will work for whatever the TCB PWM is driving . This is only used for PWM - TCBs use the /1 or /2 clock sources when used for Tone, Servo, and millis timekeeping. There are also the 2 channels of the TCD0 which can be used for PWM.
 
-## Avoid using the TCA you are reconfiguring for millis() timekeeping.
+## Avoid using the TCA you are reconfiguring for millis() timekeeping
 Reconfiguring a timer like this when it is used as the millis timer source will result in the derangement of timekeeping functionality. While this is less freqently an issue on DxCore vs megaTinyCore, since we have ample type B timers and default those for timekeeping, we do still provide the option to use the TCA(s) for timekeeping (maybe you need a large number of TCBs for some unusual use case). If you think this might be an issue in the future, or if you're writing code that will be used by the masses (whose creativity when it comes to using public code under strange conditions never ceases to amaze me), you should trap that with a useful error with something like this:
 
 ```c++

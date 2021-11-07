@@ -1,4 +1,4 @@
-### Minimal Wiring Requirements
+# Minimal Wiring Requirements
 
 These are the bare minimum requirements to bring the chip to life and program it using the Arduino IDE. The 0.1uf capacitors are *not* optional - you must use these or the parts will behave erratically, and may not work at all; these should be placed as close to the chip as possible.
 

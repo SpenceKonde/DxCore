@@ -83,7 +83,7 @@ zcd.stop(); // Stop ZCD
 The attachInterrupt method allows enabling of the ZCD interrupt and the designation of a user-supplied function to call. The interrupt will trigger when a zero-cross is detected as a rising, falling or change state.
 Valid arguments for the second parameters are `RISING`, `FALLING` and `CHANGE`.
 
-#### Usage
+### Usage
 ```c++
 zcd.attachInterrupt(interruptFunction, RISING); // Run interruptFunction when a rising zero-cross is detected
 
@@ -93,18 +93,18 @@ void interruptFunction() {
 ```
 
 
-### detachInterrupt()
+## detachInterrupt()
 Method for disabling ZCD interrupt.
 
-#### Usage
+### Usage
 ```c++
 zcd.detachInterrupt(); // Disable interrupt
 ```
 
-### have_separate_mux()
+## have_separate_mux()
 Static method to test whether the the ZCDROUTEA register which controls the pin swapping for the ZCD outputs, is functional. It relies on testing the part ID and die revision.
 
-#### Usage
+### Usage
 ```c++
 if(ZeroCross::have_separate_mux()) {
   Serial.println("The ZCD portmux works on this part");
