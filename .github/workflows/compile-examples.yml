@@ -170,55 +170,8 @@ jobs:
             pincount: 20
           - device-family: ea
             pincount: 14
-        include:
-          - flash-class: 128
-            bootloader-code:
-            device-family: da
-            available-flash-kB: 128
-          - flash-class: 64
-            bootloader-code:
-            device-family: da
-            available-flash-kB: 64
-          - flash-class: 32
-            bootloader-code:
-            device-family: da
-            available-flash-kB: 32
-          - flash-class: 128
-            bootloader-code:
-            device-family: db
-            available-flash-kB: 128
-          - flash-class: 64
-            bootloader-code:
-            device-family: db
-            available-flash-kB: 64
-          - flash-class: 32
-            bootloader-code:
-            device-family: db
-            available-flash-kB: 32
-          - flash-class: 128
-            bootloader-code:
-            device-family: da
-            available-flash-kB: 128
-          - flash-class: 64
-            bootloader-code: opti
-            device-family: da
-            available-flash-kB: 64
-          - flash-class: 32
-            bootloader-code: opti
-            device-family: da
-            available-flash-kB: 32
-          - flash-class: 128
-            bootloader-code: opti
-            device-family: db
-            available-flash-kB: 128
-          - flash-class: 64
-            bootloader-code: opti
-            device-family: db
-            available-flash-kB: 64
-          - flash-class: 32
-            bootloader-code: opti
-            device-family: db
-            available-flash-kB: 32
+          - device-family: dd
+          - device-family: ea
 
     steps:
       - name: Checkout repository
