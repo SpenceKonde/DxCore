@@ -91,14 +91,15 @@ jobs:
         - megaavr/libraries/ZCD/examples/Interrupt
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
+        - megaavr/extras/ci/test-sketch/all/*
       avr-da-series-sketch-paths: |
-        - megaavr/extras/ci/test-sketch/da
+        - megaavr/extras/ci/test-sketch/da/*
       avr-db-series-sketch-paths: |
         - megaavr/libraries/Opamp/examples/Inverting_amplifier
         - megaavr/libraries/Opamp/examples/Inverting_amplifier_with_follower
         - megaavr/libraries/Opamp/examples/Non_inverting_amplifier
         - megaavr/libraries/Opamp/examples/Voltage_follower
-        - megaavr/extras/ci/test-sketch/da
+        - megaavr/extras/ci/test-sketch/db/*
       #avr-dd-series-sketch-paths: |
       #avr-ea-series-sketch-paths: |
       #optiboot-and-appspm-sketch-paths: |
