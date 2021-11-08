@@ -573,7 +573,7 @@ int main (void) {
        * We have 2 bytes of buffer (RXDATA, and a buffer behind it), plus the shift register. So as
        * long as you can write pages faster than they come in, you don't need to make a buffer in RAM
        * At 115200 baud, we exceed it by nearly a factor of 3. Removing that would save a few bytes
-       *
+       */
       // read a page worth of contents
       bufPtr = buff.bptr;
       do {
