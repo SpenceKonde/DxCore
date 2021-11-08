@@ -154,6 +154,28 @@ jobs:
             pincount: 20
           - device-family: da
             pincount: 14
+          - device-family: db
+            flash-class: 32
+            pincount: 64
+          - device-family: db
+            flash-class: 16
+          - device-family: db
+            flash-class: 8
+          - device-family: db
+            pincount: 20
+          - device-family: db
+            pincount: 14
+          - device-family: db
+            flash-class: 32
+            pincount: 64
+          - device-family: db
+            flash-class: 16
+          - device-family: db
+            flash-class: 8
+          - device-family: db
+            pincount: 20
+          - device-family: db
+            pincount: 14
           - device-family: dd
             flash-class: 128
           - device-family: dd
