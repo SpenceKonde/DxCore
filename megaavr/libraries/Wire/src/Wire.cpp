@@ -250,11 +250,6 @@ bool TwoWire::swap(uint8_t state) {
         // Use pin swap
         PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC) | 0x01;
         return true;
-      } else {
-        // Use default configuration
-        PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC);
-        // return false if we did that because the state they asked for didn't exist
-        return  (state == 0);
       } else
     #else
       {
