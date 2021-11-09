@@ -37,7 +37,7 @@ void setup() {
 
 
 void loop() {
-  openDrainBitBang()
+  openDrainBitbang()
 }
 
 /*-----------------------------------------------------------------------------
@@ -92,6 +92,8 @@ void openDrainBitbang(uint32_t data) {
       openDrainFast(DEMO_PIN2, LOW); ///set up data line - this likely compiles to cbi, sbrc, sbi
       // (certainly that's what you;'d expect the compiler to to do, but sometimes it's not so smart)
     }
+    _NOPNOP(); // wait four clocks so the receiver has a chance to see the same thing as we did; We could even wait longer here
+    _NOPNOP();
     openDrainFast(DEMO_PIN, LOW);
     data >>= 1;  //if we'd immediately released it, it would only be low for a fraction of a microsecond.
     // doing that math in there is liks a quarter microsecond delay.
