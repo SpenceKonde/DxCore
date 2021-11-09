@@ -1,3 +1,4 @@
+//*INDENT-OFF* formatting checker doesn't like all the indentation...
 #include "Event.h"
 
 // Pre-defined objects
@@ -64,50 +65,58 @@ uint8_t Event::get_channel_number() {
  */
 Event& Event::get_channel(uint8_t ch_number) {
   #if defined(EVSYS_CHANNEL0)
-    if (Event0.channel_number == ch_number)
+    if (Event0.channel_number == ch_number) {
       return Event0;
+    }
   #endif
   #if defined(EVSYS_CHANNEL1)
-    if (Event1.channel_number == ch_number)
+    if (Event1.channel_number == ch_number) {
       return Event1;
+    }
   #endif
   #if defined(EVSYS_CHANNEL2)
-    if (Event2.channel_number == ch_number)
+    if (Event2.channel_number == ch_number) {
       return Event2;
+    }
   #endif
   #if defined(EVSYS_CHANNEL3)
-    if (Event3.channel_number == ch_number)
+    if (Event3.channel_number == ch_number) {
       return Event3;
+    }
   #endif
   #if defined(EVSYS_CHANNEL4)
-    if (Event4.channel_number == ch_number)
+    if (Event4.channel_number == ch_number) {
       return Event4;
+    }
   #endif
   #if defined(EVSYS_CHANNEL5)
-    if (Event5.channel_number == ch_number)
+    if (Event5.channel_number == ch_number) {
       return Event5;
+    }
   #endif
   #if defined(EVSYS_CHANNEL6)
-    if (Event6.channel_number == ch_number)
+    if (Event6.channel_number == ch_number) {
       return Event6;
+    }
   #endif
   #if defined(EVSYS_CHANNEL7)
-    if (Event7.channel_number == ch_number)
+    if (Event7.channel_number == ch_number) {
       return Event7;
+    }
   #endif
   #if defined(EVSYS_CHANNEL8)
-    if (Event8.channel_number == ch_number)
+    if (Event8.channel_number == ch_number) {
       return Event8;
+    }
   #endif
   #if defined(EVSYS_CHANNEL9)
-    if (Event9.channel_number == ch_number)
+    if (Event9.channel_number == ch_number) {
       return Event9;
+    }
   #endif
-
-  #if defined(EVSYS_CHANNEL0)
-    else
-      return Event_empty;
-  #endif
+  else{
+    return Event_empty;
+  }
 }
 
 /**
@@ -118,50 +127,58 @@ Event& Event::get_channel(uint8_t ch_number) {
  */
 Event& Event::get_generator_channel(uint8_t generator) {
   #if defined(EVSYS_CHANNEL0)
-    if (Event0.generator_type == generator)
+    if (Event0.generator_type == generator) {
       return Event0;
+    }
   #endif
   #if defined(EVSYS_CHANNEL1)
-    if (Event1.generator_type == generator)
+    if (Event1.generator_type == generator) {
       return Event1;
+    }
   #endif
   #if defined(EVSYS_CHANNEL2)
-    if (Event2.generator_type == generator)
+    if (Event2.generator_type == generator) {
       return Event2;
+    }
   #endif
   #if defined(EVSYS_CHANNEL3)
-    if (Event3.generator_type == generator)
+    if (Event3.generator_type == generator) {
       return Event3;
+    }
   #endif
   #if defined(EVSYS_CHANNEL4)
-    if (Event4.generator_type == generator)
+    if (Event4.generator_type == generator) {
       return Event4;
+    }
   #endif
   #if defined(EVSYS_CHANNEL5)
-    if (Event5.generator_type == generator)
+    if (Event5.generator_type == generator) {
       return Event5;
+    }
   #endif
   #if defined(EVSYS_CHANNEL6)
-    if (Event6.generator_type == generator)
+    if (Event6.generator_type == generator) {
       return Event6;
+    }
   #endif
   #if defined(EVSYS_CHANNEL7)
-    if (Event7.generator_type == generator)
+    if (Event7.generator_type == generator) {
       return Event7;
+    }
   #endif
   #if defined(EVSYS_CHANNEL8)
-    if (Event8.generator_type == generator)
+    if (Event8.generator_type == generator) {
       return Event8;
+    }
   #endif
   #if defined(EVSYS_CHANNEL9)
-    if (Event9.generator_type == generator)
+    if (Event9.generator_type == generator) {
       return Event9;
+    }
   #endif
-
-  #if defined(EVSYS_CHANNEL0)
-    else
-      return Event_empty;
-  #endif
+  else{
+    return Event_empty;
+  }
 }
 
 
@@ -298,9 +315,11 @@ Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
         #if !defined(MEGATINYCORE)
           uint8_t port = ch & 0xFE + (gen & 0x08 ? 1 : 0);
           uint8_t port_pin = gen & 0x07;
-        #else MEGATINYCORE_SERIES == 2 //2-series has PA/PB, PB/PC, PC/PA - it wraps around
+        #elif (MEGATINYCORE_SERIES == 2) //2-series has PA/PB, PB/PC, PC/PA - it wraps around
           uint8_t port = ch >> 1 + (gen & 0x08 ? 1 : 0);
-          if (port == 3) port = 0;
+          if (port == 3) {
+            port = 0;
+          }
           uint8_t port_pin = gen & 0x07;
         #endif
         return Event::assign_generator_pin(port,port_pin);
@@ -476,50 +495,58 @@ Event& Event::get_user_channel(user::user_t event_user) {
   int8_t ch_number = get_user_channel_number(event_user);
 
   #if defined(EVSYS_CHANNEL0)
-    if (Event0.channel_number == ch_number)
+    if (Event0.channel_number == ch_number) {
       return Event0;
+    }
   #endif
   #if defined(EVSYS_CHANNEL1)
-    if (Event1.channel_number == ch_number)
+    if (Event1.channel_number == ch_number) {
       return Event1;
+    }
   #endif
   #if defined(EVSYS_CHANNEL2)
-    if (Event2.channel_number == ch_number)
+    if (Event2.channel_number == ch_number) {
       return Event2;
+    }
   #endif
   #if defined(EVSYS_CHANNEL3)
-    if (Event3.channel_number == ch_number)
+    if (Event3.channel_number == ch_number) {
       return Event3;
+    }
   #endif
   #if defined(EVSYS_CHANNEL4)
-    if (Event4.channel_number == ch_number)
+    if (Event4.channel_number == ch_number) {
       return Event4;
+    }
   #endif
   #if defined(EVSYS_CHANNEL5)
-    if (Event5.channel_number == ch_number)
+    if (Event5.channel_number == ch_number) {
       return Event5;
+    }
   #endif
   #if defined(EVSYS_CHANNEL6)
-    if (Event6.channel_number == ch_number)
+    if (Event6.channel_number == ch_number) {
       return Event6;
+    }
   #endif
   #if defined(EVSYS_CHANNEL7)
-    if (Event7.channel_number == ch_number)
+    if (Event7.channel_number == ch_number) {
       return Event7;
+    }
   #endif
   #if defined(EVSYS_CHANNEL8)
-    if (Event8.channel_number == ch_number)
+    if (Event8.channel_number == ch_number) {
       return Event8;
+    }
   #endif
   #if defined(EVSYS_CHANNEL9)
-    if (Event9.channel_number == ch_number)
+    if (Event9.channel_number == ch_number) {
       return Event9;
+    }
   #endif
-
-  #if defined(EVSYS_CHANNEL0)
-    else
-      return Event_empty;
-  #endif
+  else {
+    return Event_empty;
+  }
 }
 
 
@@ -565,23 +592,27 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
   // TODO: support tinyAVR parts
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
     if (port == PA) {
-      if (port_pin == 2)
+      if (port_pin == 2){
         event_user = user::evouta_pin_pa2;
-      else if (port_pin == 7)
+      } else if (port_pin == 7){
         event_user = user::evouta_pin_pa7;
+      }
     }
     #if defined(__AVR_ATmegax09__)
       else if (port == PB) {
-        if (port_pin == 2)
+        if (port_pin == 2){
           event_user = user::evoutb_pin_pb2;
+        }
       }
     #endif
     else if (port == PC) {
-      if (port_pin == 2)
+      if (port_pin == 2){
         event_user = user::evoutc_pin_pc2;
+      }
       #if defined(__AVR_ATmegax09__)
-        else if (port_pin == 7)
+        else if (port_pin == 7){
           event_user = user::evoutc_pin_pc7;
+        }
       #endif
     }
     else if (port == PD) {
@@ -637,41 +668,42 @@ void Event::clear_user(user::user_t event_user) {
  */
 void Event::soft_event() {
   // Write to the bit that represent the channel in the strobe register
+  // TODO: Pull in support for tinyAVR 0/1-series
   #if defined(EVSYS_STROBE)
-  // megaAVR 0-series
-  EVSYS.STROBE = (1 << channel_number);
+    // megaAVR 0-series
+    EVSYS.STROBE = (1 << channel_number);
   #elif defined (EVSYS_ASYNCCH0)
-  // tinyAVR 0/1-series
-  if (channel_number < 2) {
-    // channel_number is either 0 or 1, and we want to strobe the corresponding channel, so we want to write either 1 << 0 or 1 <<1.
-    // but that's the same as 0 + 1 or 1 + 1 for this very limited case, and it's either equal in size if the compiler is smart
-    // or potentially much worse if it's not. I'm seeing 3 instructions from 1 << channel number if it's smart, but potentially a lot
-    // more if it's stupid...
-    EVSYS.SYNCSTROBE = (channel_number + 1);
-  } else {
-    EVSYS.SYNCSTROBE = (1 << (channel_number - 2));
-  }
+    // tinyAVR 0/1-series
+    if (channel_number < 2) {
+      // channel_number is either 0 or 1, and we want to strobe the corresponding channel, so we want to write either 1 << 0 or 1 <<1.
+      // but that's the same as 0 + 1 or 1 + 1 for this very limited case, and it's either equal in size if the compiler is smart
+      // or potentially much worse if it's not. I'm seeing 3 instructions from 1 << channel number if it's smart, but potentially a lot
+      // more if it's stupid...
+      EVSYS.SYNCSTROBE = (channel_number + 1);
+    } else {
+      EVSYS.ASYNCSTROBE = (1 << (channel_number - 2));
+    }
   #else
-  // This is a civilized part which uses the 2020 version of EVSYS
-  // we expect there to be an EVSYS.SWEVENTA channel plus an
-  // EVSYS.SWEVENTB it it has more than 8 event channels.
-  #if defined(EVSYS_SWEVENTB)
-  if (channel_number < 8) {
-    EVSYS.SWEVENTA = (1 << channel_number);
-  } else {
-    // for the special case of only 10 channels, this is smaller:
-    // channel number will be 8 or 9, so this will be 1 or 2
-    // whereas the compiler would need to prepare for anything in the
-    // otherwise.  No parts with more than 10 event channels exist or
-    // have been announced. Whereas for the tinies, I did this for
-    // size, here I do it more for speed, since these parts have
-    // enough flash that the penalty is barely measurable.
-    EVSYS.SWEVENTB = channel_number - 7;
-    // EVSYS.SWEVENTB = (1 << (channel_number - 8));
-  }
-  #else
-  EVSYS.SWEVENTA = (1 << channel_number);
-  #endif
+    // This is a civilized part which uses the 2020 version of EVSYS
+    // we expect there to be an EVSYS.SWEVENTA channel plus an
+    // EVSYS.SWEVENTB it it has more than 8 event channels.
+    #if defined(EVSYS_SWEVENTB)
+      if (channel_number < 8) {
+        EVSYS.SWEVENTA = (1 << channel_number);
+      } else {
+        // for the special case of only 10 channels, this is smaller:
+        // channel number will be 8 or 9, so this will be 1 or 2
+        // whereas the compiler would need to prepare for anything in the
+        // otherwise.  No parts with more than 10 event channels exist or
+        // have been announced. Whereas for the tinies, I did this for
+        // size, here I do it more for speed, since these parts have
+        // enough flash that the penalty is barely measurable.
+        EVSYS.SWEVENTB = channel_number - 7;
+      // EVSYS.SWEVENTB = (1 << (channel_number - 8));
+      }
+    #else
+      EVSYS.SWEVENTA = (1 << channel_number);
+    #endif
   #endif
 }
 
