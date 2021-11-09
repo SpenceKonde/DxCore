@@ -56,33 +56,46 @@ struct EERef {
 
   // Assignment
   EERef &operator=(uint8_t in)       {
+  EERef &operator=(uint8_t in)       {
     #ifdef MEGATINYCORE
-    return eeprom_write_byte((uint8_t *)(uint16_t) (index & EEPROM_INDEX_MASK), in), *this;
+    // I see no reason why eeprom_write_byte() won't corrupt EEPROM if an ISR tries to write at the wrong instant. The window is 1 clock, but not 0
+    uint16_t adr = (uint16_t)MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK);
+    __asm__ __volatile__(
+      "ldi r30, 0x00"     "\n\t" // point the Z register at NVMCTRL.
+      "ldi r31, 0x10"     "\n\t"
+      "in r0, 0x3f"       "\n\t" // read the SREG into r0 to narrow the window between sbrc and cli.
+      "ldd r18, Z+2"      "\n\t" // read NVMCTRL.STATUS into r18
+      "andi r18, 3"       "\n\t" // if NVMCTRL is busy....
+      "brne .-6"          "\n\t" // repeat until it's not.
+      "cli"               "\n\t" // disable interrupts. 3 clock window during which an interrupt couldstart write since we checked
+                                 // but this just means millis will lose time - nvmctrl halts CPU to finish last write
+      "st X, %0"          "\n\t" // write the value we were passed
+      "ldi %0, 0x9D"      "\n\t" // CCP signature loaded in it's place
+      "out 0x34, %0"      "\n\t" // protection enabled
+      "ldi %0, 0x03"      "\n\t" // command loaded: page erase-write.
+      "st Z, %0"          "\n\t" // write the page erase-write command to nvmctrl.ctrla
+      "out 0x3f, r0"      "\n"   // restore SREG
+      :"+d" (in)          // take the value we are writing in any upper register as read/write,
+      : "x" (adr)         // and the address (not the index) in X
+      : "r30", "r31", "r18");      // clobber Z and r18. We needed an upper register for the temporary value to andi it. I wonder if this will fix the eeprom bugs too?
+    return *this;
     #else
     uint8_t oldSREG = SREG;
     while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
-    /* Dx-series parts don't have working eeprom_write_byte()
-     * check at start - not end. Makes writing single bytes faster
-     * uint8_t nvmctrla=NVMCTRL.CTRLA;
-     * if (nvmctrla != NVMCTRL_CMD_EEERWR_gc) {
-     * Don't bother checking, the EEPROM write time is measured in milliseconds
-     * testing it first would take 4 words of flash in exchange for what?
-     * saving 6 clock cycles (but the test overhead is 4, so net 2) when we clearly
-     * don't care much about execution time because we may have just busywaited for 11ms
-     * Note that we only have interrupts disabled for the dozen or so clock cycles
-     * during which we *start* the write, not for the while loop, and we save SREG
-     * before the while loop. That way there is only a 1 clock window where an
-     * interrupt that starts a write will cause this write to halt the CPU
-     * which would cause millis() to lose time.
-     * Note that writing more than 1 byte in an ISR will *always* cause millis to lose time.
-     */
+    // check at start - not end. Makes writing single bytes fasterms
+    // Note that we only have interrupts disabled for the dozen or so clock cycles
+    // during which we *start* the write, not for the while loop, and we save SREG
+    // before the while loop. That way there is only a 1 clock window where an
+    // interrupt that starts a write will cause this write to halt the CPU
+    // which would cause millis() to lose time.
+    // Note that writing more than 1 byte in an ISR will **always** cause millis to lose time.
     cli();
 
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
     *(uint8_t *)(MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK)) = in;
 
-    SREG = oldSREG; // restore SREG and interrupts
+    SREG = oldSREG; //restore SREG and interrupts
     return *this;
     #endif
   }
