@@ -37,7 +37,7 @@ void setup() {
 
 
 void loop() {
-  openDrainBitbang()
+  openDrainBitbang(0x0DF0AD8B); //or, with human endianness, 0x8BADF00D
 }
 
 /*-----------------------------------------------------------------------------
