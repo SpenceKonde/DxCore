@@ -56,7 +56,6 @@ struct EERef {
 
   // Assignment
   EERef &operator=(uint8_t in)       {
-  EERef &operator=(uint8_t in)       {
     #ifdef MEGATINYCORE
     // I see no reason why eeprom_write_byte() won't corrupt EEPROM if an ISR tries to write at the wrong instant. The window is 1 clock, but not 0
     uint16_t adr = (uint16_t)MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK);

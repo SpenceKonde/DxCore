@@ -194,7 +194,7 @@ void AnalogComparator::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
 
 
   // Set interrupt trigger and enable interrupt
-  #ifdef !defined(DXCORE)
+  #if !defined(DXCORE)
   AC.CTRLA = (AC.CTRLA & ~AC_INTMODE_gm) | intmode ;
   AC.INTCTRL = AC_CMP_bm
   #else
