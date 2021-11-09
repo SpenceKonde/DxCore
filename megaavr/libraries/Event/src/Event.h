@@ -24,9 +24,9 @@ namespace gen {
     usart0_xck    = 0x60,
     usart1_xck    = 0x61,
     usart2_xck    = 0x62,
-#   if defined(USART3)
+#if defined(USART3)
     usart3_xck    = 0x63,
-#   endif
+#endif
     spi0_sck      = 0x68,
     tca0_ovf_lunf = 0x80,
     tca0_hunf     = 0x81,
@@ -39,14 +39,14 @@ namespace gen {
     tcb1          = 0xA2,
     tcb2_capt     = 0xA4,
     tcb2          = 0xA4,
-#   if defined(TCB3)
+#if defined(TCB3)
     tcb3_capt     = 0xA6,
     tcb3          = 0xA6,
-#   endif
-#   if defined(TCB4)
+#endif
+#if defined(TCB4)
     tcb4_capt      = 0xA8,
     tcb4           = 0xA8,
-#   endif
+#endif
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
     ccl4_out      = 0x14,
     ccl5_out      = 0x15,
@@ -54,32 +54,32 @@ namespace gen {
     ac2_out       = 0x22,
     zcd0_out      = 0x30,
     zcd1_out      = 0x31,
-#   if defined(ZCD2)
+#if defined(ZCD2)
     zcd2_out      = 0x32,
-#   endif
-#   if defined(USART4)
+#endif
+#if defined(USART4)
     usart4_xck    = 0x64,
-#   endif
-#   if defined(USART5)
+#endif
+#if defined(USART5)
     usart5_xck    = 0x65,
-#   endif
+#endif
     spi1_sck      = 0x69,
-#   if defined(TCA1)
+#if defined(TCA1)
     tca1_ovf_lunf = 0x88,
     tca1_hunf     = 0x89,
     tca1_cmp0     = 0x8C,
     tca1_cmp1     = 0x8D,
     tca1_cmp2     = 0x8E,
-#   endif
+#endif
     tcb0_ovf      = 0xA1,
     tcb1_ovf      = 0xA3,
     tcb2_ovf      = 0xA5,
-#   if defined(TCB3)
+#if defined(TCB3)
     tcb3_ovf      = 0xA7,
-#   endif
-#   if defined(TCB4)
+#endif
+#if defined(TCB4)
     tcb4_ovf      = 0xA9,
-#   endif
+#endif
     tcd0_cmpbclr  = 0xB0,
     tcd0_cmpaset  = 0xB1,
     tcd0_cmpbset  = 0xB2,
@@ -91,9 +91,9 @@ namespace gen {
 #if defined(__AVR_DB__)
     opamp0_ready  = 0x34,
     opamp1_ready  = 0x35,
-#   if defined (OPAMP2)
+#if defined (OPAMP2)
     opamp2_ready  = 0x36,
-#   endif
+#endif
 #endif // defined(__AVR_DB__)
   };
 };
@@ -116,18 +116,18 @@ namespace gen0 {
     pin_pa5     = 0x45,
     pin_pa6     = 0x46,
     pin_pa7     = 0x47,
-#   if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pb0     = 0x48,
     pin_pb1     = 0x49,
     pin_pb2     = 0x4A,
     pin_pb3     = 0x4B,
     pin_pb4     = 0x4C,
     pin_pb5     = 0x4F,
-#   endif
-#   if defined(Dx_64_PINS)
+#endif
+#if defined(Dx_64_PINS)
     pin_pb6     = 0x4E,
     pin_pb7     = 0x4F,
-#   endif
+#endif
   };
 };
 #endif
@@ -150,18 +150,18 @@ namespace gen1 {
     pin_pa5     = 0x45,
     pin_pa6     = 0x46,
     pin_pa7     = 0x47,
-#   if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pb0     = 0x48,
     pin_pb1     = 0x49,
     pin_pb2     = 0x4A,
     pin_pb3     = 0x4B,
     pin_pb4     = 0x4C,
     pin_pb5     = 0x4F,
-#   endif
-#   if defined(Dx_64_PINS)
+#endif
+#if defined(Dx_64_PINS)
     pin_pb6     = 0x4E,
     pin_pb7     = 0x4F,
-#   endif
+#endif
   };
 };
 #endif
@@ -180,12 +180,12 @@ namespace gen2 {
     pin_pc1     = 0x41,
     pin_pc2     = 0x42,
     pin_pc3     = 0x43,
-#   if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pc4     = 0x44,
     pin_pc5     = 0x45,
     pin_pc6     = 0x46,
     pin_pc7     = 0x47,
-#   endif
+#endif
     pin_pd0     = 0x48,
     pin_pd1     = 0x49,
     pin_pd2     = 0x4A,
@@ -212,12 +212,12 @@ namespace gen3 {
     pin_pc1     = 0x41,
     pin_pc2     = 0x42,
     pin_pc3     = 0x43,
-#   if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pc4     = 0x44,
     pin_pc5     = 0x45,
     pin_pc6     = 0x46,
     pin_pc7     = 0x47,
-#   endif
+#endif
     pin_pd0     = 0x48,
     pin_pd1     = 0x49,
     pin_pd2     = 0x4A,
@@ -240,26 +240,26 @@ namespace gen4 {
     rtc_div4096 = 0x09,
     rtc_div2048 = 0x0A,
     rtc_div1024 = 0x0B,
-#   if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pe0     = 0x40,
     pin_pe1     = 0x41,
     pin_pe2     = 0x42,
     pin_pe3     = 0x43,
-#   endif
-#   if defined(Dx_64_PINS)
+#endif
+#if defined(Dx_64_PINS)
     pin_pe4     = 0x44,
     pin_pe5     = 0x45,
     pin_pe6     = 0x46,
     pin_pe7     = 0x47,
-#   endif
+#endif
     pin_pf0     = 0x48,
     pin_pf1     = 0x49,
-#   if !defined(Dx_28_PINS)
+#if !defined(Dx_28_PINS)
     pin_pf2     = 0x4A,
     pin_pf3     = 0x4B,
     pin_pf4     = 0x4C,
     pin_pf5     = 0x4D,
-#   endif
+#endif
     pin_pf6     = 0x4E,
   };
 };
@@ -275,26 +275,26 @@ namespace gen5 {
     rtc_div256  = 0x09,
     rtc_div128  = 0x0A,
     rtc_div64   = 0x0B,
-#   if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pe0     = 0x40,
     pin_pe1     = 0x41,
     pin_pe2     = 0x42,
     pin_pe3     = 0x43,
-#   endif
-#   if defined(Dx_64_PINS)
+#endif
+#if defined(Dx_64_PINS)
     pin_pe4     = 0x44,
     pin_pe5     = 0x45,
     pin_pe6     = 0x46,
     pin_pe7     = 0x47,
-#   endif
+#endif
     pin_pf0     = 0x48,
     pin_pf1     = 0x49,
-#   if !defined(Dx_28_PINS)
+#if !defined(Dx_28_PINS)
     pin_pf2     = 0x4A,
     pin_pf3     = 0x4B,
     pin_pf4     = 0x4C,
     pin_pf5     = 0x4D,
-#   endif
+#endif
     pin_pf6     = 0x4E,
   };
 };
@@ -310,7 +310,7 @@ namespace gen6 {
     rtc_div4096 = 0x09,
     rtc_div2048 = 0x0A,
     rtc_div1024 = 0x0B,
-#   if defined(Dx_64_PINS)
+#if defined(Dx_64_PINS)
     pin_pg0     = 0x40,
     pin_pg1     = 0x41,
     pin_pg2     = 0x42,
@@ -319,7 +319,7 @@ namespace gen6 {
     pin_pg5     = 0x45,
     pin_pg6     = 0x46,
     pin_pg7     = 0x47,
-#   endif
+#endif
   };
 };
 #endif
@@ -334,7 +334,7 @@ namespace gen7 {
     rtc_div256 = 0x09,
     rtc_div128 = 0x0A,
     rtc_div64  = 0x0B,
-#   if defined(Dx_64_PINS)
+#if defined(Dx_64_PINS)
     pin_pg0     = 0x40,
     pin_pg1     = 0x41,
     pin_pg2     = 0x42,
@@ -343,7 +343,7 @@ namespace gen7 {
     pin_pg5     = 0x45,
     pin_pg6     = 0x46,
     pin_pg7     = 0x47,
-#   endif
+#endif
   };
 };
 #endif
@@ -429,41 +429,41 @@ namespace user {
       ccl2_event_b   = 0x05,
       ccl3_event_a   = 0x06,
       ccl3_event_b   = 0x07,
-#     if defined(LUT4)
+#if defined(LUT4)
       ccl4_event_a   = 0x08,
       ccl4_event_b   = 0x09,
       ccl5_event_a   = 0x0A,
       ccl5_event_b   = 0x0B,
-#     endif
+#endif
       adc0_start     = 0x0C,
       ptc_start      = 0x0D,
       evouta_pin_pa2 = 0x0E,
-#     if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
+#if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
       evoutb_pin_pb2 = 0x0F,
-#     endif
+#endif
       evoutc_pin_pc2 = 0x10,
       evoutd_pin_pd2 = 0x11,
-#     if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
+#if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
       evoute_pin_pe2 = 0x12,
-#     endif
-#     if (!defined(Dx_28_PINS))
+#endif
+#if (!defined(Dx_28_PINS))
       evoutf_pin_pf2 = 0x13,
-#     endif
-#     if defined (Dx_64_PINS)
+#endif
+#if defined (Dx_64_PINS)
       evoutg_pin_pg2 = 0x14,
-#     endif
+#endif
       usart0_irda    = 0x15,
       usart1_irda    = 0x16,
       usart2_irda    = 0x17,
-#     if defined(USART5)
+#if defined(USART5)
       usart3_irda    = 0x18,
-#     endif
-#     if defined(USART4)
+#endif
+#if defined(USART4)
       usart4_irda    = 0x19,
-#     endif
-#     if defined(USART5)
+#endif
+#if defined(USART5)
       usart5_irda    = 0x1A,
-#     endif
+#endif
       tca0_cnt_a     = 0x1B,
       tca0_cnt       = 0x1B,
       tca0_cnt_b     = 0x1C,
@@ -478,34 +478,34 @@ namespace user {
       tcb2_capt      = 0x23,
       tcb2           = 0x23,
       tcb2_cnt       = 0x24,
-#     if defined(TCB3)
+#if defined(TCB3)
       tcb3_capt      = 0x25,
       tcb4           = 0x25,
       tcb3_cnt       = 0x26,
-#     endif
-#     if defined(TCB4)
+#endif
+#if defined(TCB4)
       tcb4_capt      = 0x27,
       tcb4           = 0x27,
       tcb4_cnt       = 0x28,
-#     endif
+#endif
       tcd0_in_a      = 0x29,
       tcd0_in_b      = 0x2A,
       // "Unofficial" user generators. Uses EVOUT, but swaps the output pin using PORTMUX
       evouta_pin_pa7 = 0x8E,
-#     if (defined(Dx_64_PINS))
+#if (defined(Dx_64_PINS))
       evoutb_pin_pb7 = 0x8F,
-#     endif
-#     if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
+#endif
+#if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
       evoutc_pin_pc7 = 0x90,
-#     endif
+#endif
       evoutd_pin_pd7 = 0x91,
-#     if (defined(Dx_64_PINS))
+#if (defined(Dx_64_PINS))
       evoutb_pin_pe7 = 0x92,
-#     endif
+#endif
       // evoutf_pin_pf7 = 0x93, never available on DB
-#     if (defined(Dx_64_PINS))
+#if (defined(Dx_64_PINS))
       evoutb_pin_pg7 = 0x94,
-#     endif
+#endif
 #endif // defined(__AVR_DA__)
 #if defined(__AVR_DB__)
     ccl0_event_a   = 0x00,
