@@ -332,9 +332,6 @@ avrda.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrda.menu.millis.tca0=TCA0
 avrda.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrda.menu.millis.tcd0=TCD0
-#avrda.menu.millis.rtc=RTC (no micros)
-#avrda.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal, no micros
-#avrda.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrda.menu.millis.tcb0.build.millistimer=B0
 avrda.menu.millis.tcb1.build.millistimer=B1
 avrda.menu.millis.tcb2.build.millistimer=B2
@@ -343,9 +340,6 @@ avrda.menu.millis.tcb4.build.millistimer=B4
 avrda.menu.millis.tca0.build.millistimer=A0
 avrda.menu.millis.tca1.build.millistimer=A1
 #avrda.menu.millis.tcd0.build.millistimer=D0
-#avrda.menu.millis.rtc.build.millistimer=RTC
-#avrda.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-#avrda.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 avrda.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -721,9 +715,6 @@ avrdb.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrdb.menu.millis.tca0=TCA0
 avrdb.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrdb.menu.millis.tcd0=TCD0
-#avrdb.menu.millis.rtc=RTC (no micros)
-#avrdb.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
-#avrdb.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrdb.menu.millis.tcb0.build.millistimer=B0
 avrdb.menu.millis.tcb1.build.millistimer=B1
 avrdb.menu.millis.tcb2.build.millistimer=B2
@@ -732,9 +723,6 @@ avrdb.menu.millis.tcb4.build.millistimer=B4
 avrdb.menu.millis.tca0.build.millistimer=A0
 avrdb.menu.millis.tca1.build.millistimer=A1
 #avrdb.menu.millis.tcd0.build.millistimer=D0
-#avrdb.menu.millis.rtc.build.millistimer=RTC
-#avrdb.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-#avrdb.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 avrdb.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -1119,29 +1107,26 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=11
 #avrdd.menu.resetupdipins.input=Input & UPDI (no challenges)
 #avrdd.menu.resetupdipins.input.bootloader.resetpinbits=10
-#avrdd.menu.resetupdipins.reset=Reset & GPIO (HV pulse RST for UPDI)
+#avrdd.menu.resetupdipins.reset=Reset & GPIO (DD-compatible HV UPDI required)
 #avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=01
-#avrdd.menu.resetupdipins.input=Input & GPIO (HV pulse RST for UPDI)
+#avrdd.menu.resetupdipins.input=Input & GPIO (DD-compatible HV UPDI required)
 #avrdd.menu.resetupdipins.input.bootloader.resetpinbits=00
 
 #----------------------------------------#
 # millis/micros timing source            #
 #________________________________________#
-#avrdd.menu.millis.tcbhighest=TCB2 on 28/32pin else TCB1 (recommended)
+#avrdd.menu.millis.tcbhighest=Default (recommended)
 #avrdd.menu.millis.disabled=Disabled (delay() only)
 #avrdd.menu.millis.tcb0=TCB0
-#avrdd.menu.millis.tcb1=TCB1 (same as first option on 14/20 pins)
-##avrdd.menu.millis.rtc=RTC (no micros)
-##avrdd.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
-##avrdd.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
-#avrdd.menu.millis.tcb0.build.millistimer={build.highestcb}
-#avrdd.menu.millis.tcb1.build.millistimer=B0
-#avrdd.menu.millis.tcb2.build.millistimer=B1
+#avrdd.menu.millis.tcb1=TCB1 (default for 14/20 pins)
+#avrdd.menu.millis.tcb2=TCB2 (default for 28/32 pins)
+#avrdd.menu.millis.tca0=TCA0
+#avrdd.menu.millis.tcbhighest.build.millistimer={build.highestcb}
+#avrdd.menu.millis.tcb0.build.millistimer=B0
+#avrdd.menu.millis.tcb1.build.millistimer=B1
+#avrdd.menu.millis.tcb2.build.millistimer=B2
 #avrdd.menu.millis.tca0.build.millistimer=A0
 ##avrdd.menu.millis.tcd0.build.millistimer=D0
-##avrdd.menu.millis.rtc.build.millistimer=RTC
-##avrdd.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-##avrdd.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 #avrdd.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -1843,9 +1828,6 @@ avrdaopti.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrdaopti.menu.millis.tca0=TCA0
 avrdaopti.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrdaopti.menu.millis.tcd0=TCD0
-#avrdaopti.menu.millis.rtc=RTC (no micros)
-#avrdaopti.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
-#avrdaopti.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrdaopti.menu.millis.tcb0.build.millistimer=B0
 avrdaopti.menu.millis.tcb1.build.millistimer=B1
 avrdaopti.menu.millis.tcb2.build.millistimer=B2
@@ -1854,9 +1836,6 @@ avrdaopti.menu.millis.tcb4.build.millistimer=B4
 avrdaopti.menu.millis.tca0.build.millistimer=A0
 avrdaopti.menu.millis.tca1.build.millistimer=A1
 #avrdaopti.menu.millis.tcd0.build.millistimer=D0
-#avrdaopti.menu.millis.rtc.build.millistimer=RTC
-#avrdaopti.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-#avrdaopti.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 avrdaopti.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -2267,9 +2246,6 @@ avrdbopti.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrdbopti.menu.millis.tca0=TCA0
 avrdbopti.menu.millis.tca1=TCA1 (48/64-pin parts only)
 #avrdbopti.menu.millis.tcd0=TCD0
-#avrdbopti.menu.millis.rtc=RTC (no micros)
-#avrdbopti.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
-#avrdbopti.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 avrdbopti.menu.millis.tcb0.build.millistimer=B0
 avrdbopti.menu.millis.tcb1.build.millistimer=B1
 avrdbopti.menu.millis.tcb2.build.millistimer=B2
@@ -2278,9 +2254,6 @@ avrdbopti.menu.millis.tcb4.build.millistimer=B4
 avrdbopti.menu.millis.tca0.build.millistimer=A0
 avrdbopti.menu.millis.tca1.build.millistimer=A1
 #avrdbopti.menu.millis.tcd0.build.millistimer=D0
-#avrdbopti.menu.millis.rtc.build.millistimer=RTC
-#avrdbopti.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-#avrdbopti.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 avrdbopti.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -2706,17 +2679,11 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.millis.disabled=Disabled (delay() only)
 #avrddopti.menu.millis.tcb0=TCB0
 #avrddopti.menu.millis.tcb1=TCB1 (same as first option on 14/20 pins)
-##avrddopti.menu.millis.rtc=RTC (no micros)
-##avrddopti.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal no micros
-##avrddopti.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
 #avrddopti.menu.millis.tcb0.build.millistimer={build.highestcb}
 #avrddopti.menu.millis.tcb1.build.millistimer=B0
 #avrddopti.menu.millis.tcb2.build.millistimer=B1
 #avrddopti.menu.millis.tca0.build.millistimer=A0
 ##avrddopti.menu.millis.tcd0.build.millistimer=D0
-##avrddopti.menu.millis.rtc.build.millistimer=RTC
-##avrddopti.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-##avrddopti.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
 #avrddopti.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
