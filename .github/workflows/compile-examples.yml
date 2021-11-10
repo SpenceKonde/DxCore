@@ -77,7 +77,6 @@ jobs:
         - megaavr/libraries/Wire/examples/SFRRanger_reader
         - megaavr/libraries/Wire/examples/slave_receiver
         - megaavr/libraries/Wire/examples/slave_sender
-        - megaavr/libraries/ZCD/examples/Frequency_counter
         - megaavr/libraries/ZCD/examples/Interrupt
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
@@ -99,6 +98,8 @@ jobs:
         - megaavr/libraries/DxCore/examples/TCA0Demo2
         - megaavr/libraries/DxCore/examples/TCA0Demo3
         - megaavr/libraries/DxCore/examples/TCA0Demo4
+      not-disabled-millis-sketch-paths: |
+        - megaavr/libraries/ZCD/examples/Frequency_counter
       #internal-osc-sketch-paths: |
 
     strategy:

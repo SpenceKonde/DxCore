@@ -154,8 +154,8 @@ void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength) {
     whiteLength = strip.numPixels() - 1;
   }
 
-  int head = whiteLength - 1;
-  int tail = 0;
+  uint16_t head = whiteLength - 1;
+  uint16_t tail = 0;
 
   int loops = 3;
   int loopNum = 0;
