@@ -227,71 +227,83 @@
 //#defines to identify part families
 #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
   #define DA_64_PINS
+  #define HAS_64_PINS
   #define DX_64_PINS
   #define Dx_64_PINS
   #define CORE_PART_ID_LOW ID_64_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DA48__) || defined(__AVR_AVR64DA48__) || defined(__AVR_AVR32DA48__)
   #define DA_48_PINS
+  #define HAS_48_PINS
   #define DX_48_PINS
   #define Dx_48_PINS
   #define CORE_PART_ID_LOW ID_48_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DA32__) || defined(__AVR_AVR64DA32__) || defined(__AVR_AVR32DA32__)
   #define DA_32_PINS
+  #define HAS_32_PINS
   #define DX_32_PINS
   #define Dx_32_PINS
   #define CORE_PART_ID_LOW ID_32_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DA28__) || defined(__AVR_AVR64DA28__) || defined(__AVR_AVR32DA28__)
   #define DA_28_PINS
+  #define HAS_28_PINS
   #define DX_28_PINS
   #define Dx_28_PINS
   #define CORE_PART_ID_LOW ID_28_PINS
   #define __AVR_DA__
 #elif defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)
   #define DB_64_PINS
+  #define HAS_64_PINS
   #define DX_64_PINS
   #define Dx_64_PINS
   #define CORE_PART_ID_LOW (ID_64_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB48__) || defined(__AVR_AVR64DB48__) || defined(__AVR_AVR32DB48__)
   #define DB_48_PINS
+  #define HAS_48_PINS
   #define DX_48_PINS
   #define Dx_48_PINS
   #define CORE_PART_ID_LOW (ID_48_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB32__) || defined(__AVR_AVR64DB32__) || defined(__AVR_AVR32DB32__)
   #define DB_32_PINS
+  #define HAS_32_PINS
   #define DX_32_PINS
   #define Dx_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR128DB28__) || defined(__AVR_AVR64DB28__) || defined(__AVR_AVR32DB28__)
   #define DB_28_PINS
+  #define HAS_28_PINS
   #define DX_28_PINS
   #define Dx_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DB)
   #define __AVR_DB__
 #elif defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
   #define DD_32_PINS
+  #define HAS_32_PINS
   #define DX_32_PINS
   #define Dx_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DD)
   #define __AVR_DD__
 #elif defined(__AVR_AVR64DD28__)  || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
   #define DD_28_PINS
+  #define HAS_28_PINS
   #define DX_28_PINS
   #define Dx_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DD)
   #define __AVR_DD__
 #elif defined(__AVR_AVR64DD20__)  || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
   #define DD_20_PINS
+  #define HAS_20_PINS
   #define DX_20_PINS
   #define CORE_PART_ID_LOW (ID_20_PINS | ID_AVR_DD)
   #define __AVR_DD__
 #elif defined(__AVR_AVR64DD14__)  || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
   #define DD_14_PINS
+  #define HAS_14_PINS
   #define DX_14_PINS
   #define CORE_PART_ID_LOW (ID_14_PINS | ID_AVR_DD)
   #define __AVR_DD__
@@ -319,18 +331,21 @@
   #define __AVR_DU__
 #elif defined(__AVR_AVR8EA48__)   || defined(__AVR_AVR16EA48__) || defined(__AVR_AVR64EA48__) || defined(__AVR_AVR32EA48__)
   #define EA_48_PINS
+  #define HAS_48_PINS
   #define EX_48_PINS
   #define Ex_48_PINS
   #define CORE_PART_ID_LOW (ID_48_PINS)
   #define __AVR_EA__
 #elif defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR16EA32__) || defined(__AVR_AVR64EA32__) || defined(__AVR_AVR32EA32__)
   #define EA_32_PINS
+  #define HAS_32_PINS
   #define EX_32_PINS
   #define Ex_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS)
   #define __AVR_EA__
 #elif defined(__AVR_AVR8EA28__)   || defined(__AVR_AVR16EA28__) || defined(__AVR_AVR64EA28__) || defined(__AVR_AVR32EA28__)
   #define EA_28_PINS
+  #define HAS_28_PINS
   #define EX_28_PINS
   #define Ex_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS)

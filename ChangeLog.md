@@ -17,7 +17,7 @@ __ Expanded Event library from collaboration with @MCUDude
 * Implement expanded markdown format checking.
 * Remove teaser added in 1.3.7 as the document did not meet editorial standards and was not worth retyping. My hope remains for automatically making the .map files human (or machine - either would be an improvement) readable, and cleaning up the bogus offsets relative to the nearest constant when avr-objdump can't find the logical one to use in the .lst files. This is a low priority, alongside the instruction usage count tool I want to make which will probably be done at the same time.
 * Harmonize EEPROM.h with megaTinyCore, update documentation.
-* Correct Comparator.h and add stop(restore) option from megaTinyCore; one of the files had been updated, but the other had not, and this caused compilation to fail.
+* Major cleanup of Comparator library to ensure support for future parts and harmonize codebase across all supported parts.
 
 
 ## Released Versions
