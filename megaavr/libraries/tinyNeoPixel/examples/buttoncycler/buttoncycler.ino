@@ -8,7 +8,7 @@
 // pull the pin to ground momentarily.  On a high -> low
 // transition the button press logic will execute.
 
-#define PIXEL_PIN    3    // Digital IO pin connected to the NeoPixels
+#define PIXEL_PIN    13    // Digital IO pin connected to the NeoPixels
 
 #define PIXEL_COUNT 16
 
@@ -19,7 +19,7 @@
 //   NEO_RGB     Pixels are wired for RGB bitstream
 //   NEO_GRB     Pixels are wired for GRB bitstream, correct for neopixel stick
 
-tinyNeoPixel pixels = tinyNeoPixel(NUMPIXELS, PIN, NEO_GRB);
+tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB);
 
 bool oldState = HIGH;
 int showType = 0;

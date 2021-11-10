@@ -68,7 +68,7 @@ struct EERef {
       "andi r18, 3"       "\n\t" // if NVMCTRL is busy....
       "brne .-6"          "\n\t" // repeat until it's not.
       "cli"               "\n\t" // disable interrupts. 3 clock window during which an interrupt couldstart write since we checked
-                                 // but this just means millis will lose time - nvmctrl halts CPU to finish last write
+      //                            but this just means millis will lose time - nvmctrl halts CPU to finish last write
       "st X, %0"          "\n\t" // write the value we were passed
       "ldi %0, 0x9D"      "\n\t" // CCP signature loaded in it's place
       "out 0x34, %0"      "\n\t" // protection enabled
