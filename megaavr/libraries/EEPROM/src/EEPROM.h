@@ -75,8 +75,8 @@ struct EERef {
       "ldi %0, 0x03"      "\n\t" // command loaded: page erase-write.
       "st Z, %0"          "\n\t" // write the page erase-write command to nvmctrl.ctrla
       "out 0x3f, r0"      "\n"   // restore SREG
-      :"+d" (in)          // take the value we are writing in any upper register as read/write,
-      : "x" (adr)         // and the address (not the index) in X
+      :"+d"(in)           // take the value we are writing in any upper register as read/write,
+      : "x"(adr)          // and the address (not the index) in X
       : "r30", "r31", "r18");      // clobber Z and r18. We needed an upper register for the temporary value to andi it. I wonder if this will fix the eeprom bugs too?
     return *this;
     #else
