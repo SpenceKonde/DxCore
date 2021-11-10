@@ -37,7 +37,7 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
 There are several things that may be surprising about this peripheral and the wrapper this class provides.
 
 ### Regarding input pins
-In accordance with the recomendations of Microchip from the datasheet, we disable the digital input for all pins used by the analog comparator through the PINnCTRL register; this is done when `init()` is called. digitalRead() will always return `LOW` on these pins. When the `stop()` method is called, these pins will remain off until manually reconfigured, unless told to restore them via `stop(true)`. You can call `stop(true)` even if the comparator is not currently enabled, but has been initialized. This may be useful if you have been using it with one set of pins.
+In accordance with the recommendations of Microchip from the datasheet, we disable the digital input for all pins used by the analog comparator through the PINnCTRL register; this is done when `init()` is called. digitalRead() will always return `LOW` on these pins. When the `stop()` method is called, these pins will remain off until manually reconfigured, unless told to restore them via `stop(true)`. You can call `stop(true)` even if the comparator is not currently enabled, but has been initialized. This may be useful if you have been using it with one set of pins.
 
 When the PINnCTRL register is modified by the class at any point, any other configuration (input level on DB/DD, inversion, and internal pullup) will be returned to the default values. You likely don't want any of those options while using the analog comparator anyway. The pullup will throw off the reading (and is not of a tightly controlled strength, so you can't use it as part of a resistor divider), and as these pins will have analog voltages likely between the input high and low thresholds applied to them, leaving the digital input enabled will increase power consumption.
 
@@ -271,11 +271,11 @@ This method stops the analog comparator. You may optionally pass a boolean value
 
 #### Usage
 ```c++
-Comparator.stop(); // Stop comparator. Will not reenable digital input, and digitalRead() of the input pins will return 0 regardless of the voltage on the pin
+Comparator.stop(); // Stop comparator. Will not re-enable digital input, and digitalRead() of the input pins will return 0 regardless of the voltage on the pin
 ```
 
 ```c++
-Comparator.stop(true); // Stop comparator. Digital input on the pins that this comparator was using will be reenabled.
+Comparator.stop(true); // Stop comparator. Digital input on the pins that this comparator was using will be re-enabled.
 ```
 
 ### read()
