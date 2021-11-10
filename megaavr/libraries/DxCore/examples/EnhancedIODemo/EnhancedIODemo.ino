@@ -83,7 +83,7 @@ void openDrainBitbang(uint32_t data) {
   // I2C does.
   // When it's not waiting for the pins to rise back to HIGH, the code runs
   for (uint8_t i = 0; i < 32; i++) {
-    while (digitalReadFast(DEMO_PIN) != HIGH || digitalReadFast(DEMO_PIN2 != HIGH));
+    while (digitalReadFast(DEMO_PIN) != HIGH || digitalReadFast(DEMO_PIN2) != HIGH);
     //Wait for them to be pulled high - probably won't loop, but maybe high capacitance on
     //the lines or weak pullups, or other device holding low (like I2C clock stretching)
     _NOPNOP(); // wait four clocks so the receiver has a chance to see the same thing as we did; We could even wait longer here
