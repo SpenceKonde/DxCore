@@ -98,6 +98,11 @@ jobs:
       #avr-ea-series-sketch-paths: |
       optiboot-and-appspm-sketch-paths: |
         - megaavr/libraries/Flash/examples/FlashDemo
+      not-on-tca0-millis-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
       #internal-osc-sketch-paths: |
 
     strategy:
@@ -209,6 +214,7 @@ jobs:
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
+            ${{ env.not-on-tca0-millis-sketch-paths}}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
             - source-url: http://drazzy.com/package_drazzy.com_index.json
@@ -257,6 +263,7 @@ jobs:
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
             ${{ env.optiboot-and-appspm-sketch-paths }}
+            ${{ env.not-on-tca0-millis-sketch-paths}}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
             - source-url: http://drazzy.com/package_drazzy.com_index.json
@@ -281,6 +288,7 @@ jobs:
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
             ${{ env.optiboot-and-appspm-sketch-paths }}
+            ${{ env.not-on-tca0-millis-sketch-paths}}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
             - source-url: http://drazzy.com/package_drazzy.com_index.json
