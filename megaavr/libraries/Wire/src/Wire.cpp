@@ -182,6 +182,9 @@ bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
       return (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL);
     }
   #endif
+    /* This is unreachable - Every code path above ends in an else block containing a return */
+  badCall("There is a critical bug in Wire.cpp (pins). Please report this to the maintainer immediately.");
+  return false;
 }
 
 bool TwoWire::swap(uint8_t state) {
@@ -228,6 +231,11 @@ bool TwoWire::swap(uint8_t state) {
         if (state == 1) { badArg("This part does not support alternate TWI pinset 1. Refer to the datasheet or library documentation included with the core to find valid values"); }
       }
     #endif
+    #if !defined(PIN_WIRE_SDA)
+      if (__builtin_constant_p(state)) {
+        if (state == 0) { badArg("This part does not support the 'default' pinset - it doesn't have the default pins! These parts only have pinsets 2 and 3."); }
+      }
+    #endif
     if (__builtin_constant_p(state)) {
       if (state > 3) { badArg("No parts supported by any version of this core have pinsets higher than pin set 3, thus the requested pinset is invalid."); }
     }
@@ -250,9 +258,14 @@ bool TwoWire::swap(uint8_t state) {
         // Use pin swap
         PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC) | 0x01;
         return true;
-      } else
+      } else {
+        // Use default configuration
+        PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC);
+        // return false if we did that because the state they asked for didn't exist
+        //return  (state == 0);
+      }
     #else
-      {
+      { /* it must be a low pincount DD-series with only alternate pin mappings because of not having PA2/PA3 */
         // Assume default configuration
         PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC | 0x02);
         return false;
@@ -270,6 +283,8 @@ bool TwoWire::swap(uint8_t state) {
       return !state;
     }
   #endif
+  /* This is unreachable - Every code path above ends in an else block containing a return */
+  badCall("There is a critical bug in Wire.cpp (swap). Please report this to the maintainer immediately.");
   return false;
 }
 
