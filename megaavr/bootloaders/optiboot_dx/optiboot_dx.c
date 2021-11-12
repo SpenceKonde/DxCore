@@ -209,7 +209,7 @@ typedef union {
  * This contains most of the rather ugly defines that implement our
  * ability to use UART=n and LED=D3, and some avr family bit name differences.
  */
-#include "pin_defs_x.h"
+#include "pin_defs_dx.h"
 
 /*
  * stk500.h contains the constant definitions for the stk500v1 comm protocol

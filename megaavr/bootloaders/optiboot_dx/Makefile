@@ -12,7 +12,7 @@ HELPTEXT = "\n"
 #----------------------------------------------------------------------
 #
 # program name should not be changed...
-PROGRAM    = optiboot_x
+PROGRAM    = optiboot_dx
 MF:= $(MAKEFILE_LIST)
 
 # export symbols to recursive makes (for ISP)
@@ -27,6 +27,24 @@ LDSECTIONS  = -Wl,-section-start=.text=0 \
 	      -Wl,--section-start=.version=0x1fe
 
 BAUD_RATE=115200
+
+# DxCore Notice: I am not an expert on makefiles and toolchains.
+# I build on Windows, using a portable arduino 1.0.6 package,
+# where everything except hardware/bootloaders and hardware/tools
+# have been removed, and the toolchain has been updated to the
+# latest version (see the board manager json file). I know
+# nothing about building under any other conditions, and I would
+# not know how to create a Makefile from scratch.
+# I know how to write embedded C. I don't know shit about
+# makefiles and build environments. This is all Stack Overflow
+# and staring at files I don't understand unti I find an "Oh
+# this like looks like it's related to the thing I need to change"
+# I realize this may not be terribly useful to those trying to
+# build it. If anyone who does know wants to help out with a PR
+# that would be great - as long as it still builds from an
+# arduino 1.0.6 directory structure with the new toolchain
+# copied over the old one... because otherwise I couldn't
+# build these.
 
 # If we have a PACKS directory specified, we should use it...
 ifeq ($(ENV), arduino)
@@ -123,23 +141,24 @@ endif
 # Makes for chip-level platforms should usually explicitly define their
 # options like: "make atmega4809 UARTTX=A4 LED=D0"
 #---------------------------------------------------------------------------
-#
-# Mega0, tiny0, tiny1 don't really have any chip-specific requirements.
+# In order to build DxCore releases, there are recipes defined below for every
+#  bootloader binary we ship with.
 #
 # Note about fuses:
-#  The fuses are defined in the source code.  There are 9!
-#  Be sure to use a programmer that will program the fuses from the object file.
+#  The fuses are defined in the source code. They may or may not match what is used
+#  in practice. DxCore users are advised to not attempt to do the automatic build
+#  and upload - I (Spence) have never tested it and have not the faintest idea
+#  how to do it!
 #
 #---------------------------------------------------------------------------
 #
 
 HELPTEXT += "\n-------------\n\n"
 
-
 optiboot_%.hex: optiboot_%.elf
 	$(OBJCOPY) -j .text -j .data -j .version -j .spmtarg --set-section-flags .version=alloc,load --set-section-flags .spmtarg=alloc,load -O ihex $< $@
 
-optiboot_%.elf:	optiboot_x.c FORCE
+optiboot_%.elf:	optiboot_dx.c FORCE
 	$(CC) $(CFLAGS) $(CPU_OPTIONS) $(LED_OPTIONS) $(UART_OPTIONS) $(POR_CMD) $(COMMON_OPTIONS) $(LDFLAGS) $(PACK_OPT) -mmcu=$(TARGET) -o $@ $<
 	$(SIZE) $@
 	$(LISTING) $@ > optiboot_$*.lst
@@ -617,6 +636,8 @@ HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. 8
 #
 
 FORCE:
+
+# The build+upload functionality has not been tested and almost certainly doesn't work.
 
 isp: $(TARGET) FORCE
 	"$(MAKE)" -f Makefile.isp isp TARGET=$(TARGET)

@@ -571,83 +571,132 @@
     #define MYUART_PMUX_VAL (PORTMUX_USART5_ALT1_gc)
     #define MYPMUX_REG PORTMUX.USARTROUTEB
   #endif
-#endif  // ATmega4809
-/*
-  As soon as Microchip tells us what the PORTMUX will look like on the DD's, we can use these with a partial copy of above and expect it to work.
-  defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR64DD28__)  || \
-  defined(__AVR_AVR64DD20__)  || defined(__AVR_AVR64DD14__)  || \
-  defined(__AVR_AVR32DD32__)  || defined(__AVR_AVR32DD28__)  || \
-  defined(__AVR_AVR32DD20__)  || defined(__AVR_AVR32DD14__)  || \
-  defined(__AVR_AVR16DD32__)  || defined(__AVR_AVR16DD28__)  || \
-  defined(__AVR_AVR16DD20__)  || defined(__AVR_AVR16DD14__)
-*/
-
-
-/*
- * 8pin Tiny0 and Tiny1
+#endif
+/* AVR DD-series has only 2 USARTs, but they've got more mux options
+ * to compensate for the small number of pins. More surprisingly, the
+ * expanded mux options appear to be getting carried over to more
+ * pin-rich devices; they are featured on the AVR-EA product brief too.
+ * However, that's all - they didn't expand the portmux for anything
+ * that didn't get the treatment on the DD. They do the same thing
+ * with the SPI and I2C ports too. And AC0. In fact, the only pin
+ * option that was only feaured on the DD was the ability to move
+ * the watch crystal to PA0/PA1 (same as HF XTAL) for parts that
+ * don't have PF0, PF1.
+ * They had to reshape the PORTMUX registers, but it turns out
+ * that it doesn't matter. The fact that the USART1 portmux bits
+ * are 1 further to the left to make room for their large neighbor
+ * doesn't matter, other than that we need another damned set of
+ * binaries.
+ * DA+DB share files and have 66 binaries for 22 parts
+ * If DD can take same binaries for 32 and 16 (I think it can)
+ * the that means 2 (flash sizes) * 8 (usart options) *2 (for the
+ * 1 sec vs 8 sec timing), for 32 new builds to add 12 parts. But
+ * if not, it'll be 48 builds.
+ * This brings the total to 98 or 114 binaries for 34 parts.
+ * megaTinyCore needs just 22 binaries for all 37 parts!
+ * 0/1-series account for 9, 2-series needs another 9
+ * and the remaining 4 are just for microchip boards and all they
+ * do is move the LED to match the official demo boards.
+ * So tinyAVR has a ratio of 18:37 = 0.48, vs our 98:34 = 2.88
+ * It could be worse though...
+ * ATTinyCore needs 169 hex files for the 14 parts that we
+ * provide a bootloader for a horrifying 169:14 = 12.07 ratio!
+ * The fact that the clock is set at runtime on modern parts is
+ * a huge build saver - ATTinyCore has up to 10 bootloaders for
+ * a part with a single serial port (not even - it's a software
+ * UART), in order to support 3 internal speeds... and 7 crystals
+ * including such common and popular frequencies as 14.4756 MHz
+ * and 11.0592 MHz. Thank God, or more properly, whoever designed
+ * that at Microchip, for the fractional baud rate generator!
  */
-/* *INDENT-OFF* */
-#if defined(__AVR_ATtiny402__) || defined(__AVR_ATtiny202__) || \
-    defined(__AVR_ATtiny412__) || defined(__AVR_ATtiny212__)
-/* *INDENT-ON* */
-#define MYPMUX_REG PORTMUX.CTRLB
-#if (UARTTX == A6)
-  #define UART_NAME "A6"
-  #ifndef USART0
-    #error Pin on USART0, but no USART0 exists
-  #endif
-  #define MYUART USART0
-  #define MYUART_TXPORT VPORTA
-  #define MYUART_TXPIN (1<<PORT6)
-  #define MYUART_PMUX_VAL 0
-#elif (UARTTX == A1)
-  #define UART_NAME "A1"
-  #ifndef USART0
-    #error Pin on USART0, but no USART0 exists
-  #endif
-  #define MYUART USART0
-  #define MYUART_TXPORT VPORTA
-  #define MYUART_TXPIN (1<<PORT1)
-  #define MYUART_PMUX_VAL (USART_ALTPMUX)
-#endif
-#endif // Tiny402/etc
+#if \
+  defined(__AVR_AVR64DD32__) || defined(__AVR_AVR64DD28__) || \
+  defined(__AVR_AVR64DD20__) || defined(__AVR_AVR64DD14__) || \
+  defined(__AVR_AVR32DD32__) || defined(__AVR_AVR32DD28__) || \
+  defined(__AVR_AVR32DD20__) || defined(__AVR_AVR32DD14__) || \
+  defined(__AVR_AVR16DD32__) || defined(__AVR_AVR16DD28__) || \
+  defined(__AVR_AVR16DD20__) || defined(__AVR_AVR16DD14__)
+  #if (UARTTX == A0)
+    #define UART_NAME "A0"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1<<PORT0)
+    #define MYUART_PMUX_VAL (PORTMUX_USART0_DEFAULT_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #elif (UARTTX == A4)
+    #define UART_NAME "A4"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1<<PORT4)
+    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT1_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #elif (UARTTX == A2)
+    #define UART_NAME "A2"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1<<PORT2)
+    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT2_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #elif (UARTTX == D4)
+    #define UART_NAME "D4"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTD
+    #define MYUART_TXPIN (1<<PORT4)
+    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT3_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #elif (UARTTX == C1)
+    #define UART_NAME "C1"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTC
+    #define MYUART_TXPIN (1<<PORT1)
+    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT4_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
 
-/*
- *       14, 20, and 24 pin  Tiny0, Tiny1
- *   The 14, 20, and 24pin packages all conveniently have the UART on the
- *   same port pins, and the same pinmux structure!
- */
-/* *INDENT-OFF* */
-#if defined(__AVR_ATtiny1614__) || defined(__AVR_ATtiny1604__) || \
-    defined(__AVR_ATtiny814__)  || defined(__AVR_ATtiny804__)  || \
-    defined(__AVR_ATtiny1606__) || defined(__AVR_ATtiny806__)  || \
-    defined(__AVR_ATtiny406__)  || defined(__AVR_ATtiny3216__) || \
-    defined(__AVR_ATtiny816__)  || defined(__AVR_ATtiny416__)  || \
-    defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__) || \
-    defined(__AVR_ATtiny1607__) || defined(__AVR_ATtiny817__)
-#define MYPMUX_REG PORTMUX.CTRLB
-/* *INDENT-ON* */
-#if (UARTTX == B2)
-  #define UART_NAME "B2"
-  #ifndef USART0
-    #error Pin on USART0, but no USART0 exists
-  #endif
-  #define MYUART USART0
-  #define MYUART_TXPORT VPORTB
-  #define MYUART_TXPIN (1<<PORT2)
-  #define MYUART_PMUX_VAL 0
-#elif (UARTTX == A1)
-  #define UART_NAME "A1"
-  #ifndef USART0
-    #error Pin on USART0, but no USART0 exists
-  #endif
-  #define MYUART USART0
-  #define MYUART_TXPORT VPORTA
-  #define MYUART_TXPIN (1<<PORT1)
-  #define MYUART_PMUX_VAL (USART_ALTPMUX)
-#endif
-#endif
-
+  #elif (UARTTX == C0)
+    #define UART_NAME "C0"
+    #ifndef USART1
+      #error Pin on USART1, but no USART1 exists
+    #endif
+    #define MYUART USART1
+    #define MYUART_TXPORT VPORTC
+    #define MYUART_TXPIN (1<<PORT0)
+    #define MYUART_PMUX_VAL (PORTMUX_USART1_DEFAULT_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #elif (UARTTX == C4)
+    #define UART_NAME "C4"
+    #ifndef USART1
+      #error Pin on USART1, but no USART1 exists
+    #endif
+    #define MYUART USART1
+    #define MYUART_TXPORT VPORTC
+    #define MYUART_TXPIN (1<<PORT4)
+    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT1_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #elif (UARTTX == C4)
+    #define UART_NAME "D6"
+    #ifndef USART1
+      #error Pin on USART1, but no USART1 exists
+    #endif
+    #define MYUART USART1
+    #define MYUART_TXPORT VPORTD
+    #define MYUART_TXPIN (1<<PORT6)
+    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT1_gc)
+    #define MYPMUX_REG PORTMUX.USARTROUTEA
 #ifndef MYUART
   #warning No UARTTX pin specified.
 #endif
