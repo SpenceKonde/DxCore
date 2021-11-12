@@ -182,7 +182,7 @@ bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
       return (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL);
     }
   #endif
-    /* This is unreachable - Every code path above ends in an else block containing a return */
+  /* This is unreachable - Every code path above ends in an else block containing a return but it's ugly code that is easy to write bugs into */
   badCall("There is a critical bug in Wire.cpp (pins). Please report this to the maintainer immediately.");
   return false;
 }
@@ -262,7 +262,7 @@ bool TwoWire::swap(uint8_t state) {
         // Use default configuration
         PORTMUX.TWIROUTEA = (PORTMUX.TWIROUTEA & 0xFC);
         // return false if we did that because the state they asked for didn't exist
-        //return  (state == 0);
+        return  (state == 0);
       }
     #else
       { /* it must be a low pincount DD-series with only alternate pin mappings because of not having PA2/PA3 */
@@ -283,7 +283,7 @@ bool TwoWire::swap(uint8_t state) {
       return !state;
     }
   #endif
-  /* This is unreachable - Every code path above ends in an else block containing a return */
+  /* This is unreachable - Every code path above ends in an else block containing a return but it's ugly code that is easy to write bugs into */
   badCall("There is a critical bug in Wire.cpp (swap). Please report this to the maintainer immediately.");
   return false;
 }
