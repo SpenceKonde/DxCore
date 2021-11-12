@@ -13,7 +13,7 @@ __ Completely new Wire.h library with exciting features - Thanks to @MX682X!
 * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
 __ Looks like we we're getting those serial changes - also thanks to @MX682X!
 __ Expanded Event library from collaboration with @MCUDude
-__ USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault!
+__ USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
 
 ## Released Versions
 
@@ -26,6 +26,7 @@ __ USERSIG library for Dx-series parts. Has a few extra complications, but that'
 * Remove teaser added in 1.3.7 as the document did not meet editorial standards and was not worth retyping. My hope remains for automatically making the .map files human (or machine - either would be an improvement) readable, and cleaning up the bogus offsets relative to the nearest constant when avr-objdump can't find the logical one to use in the .lst files. This is a low priority, alongside the instruction usage count tool I want to make which will probably be done at the same time.
 * Harmonize EEPROM.h with megaTinyCore, update documentation.
 * Major cleanup of Comparator library to ensure support for future parts and harmonize codebase across all supported parts. Oh, and it compiles now too.
+* tinyNeoPixel now correctly tests for millis availability before trying to use micros(). Previously, the macro being checked was spelled without the underscore that the actual one has, and was an older deprecated name that should not be relied upon.
 
 
 ## 1.3.9
