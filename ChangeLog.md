@@ -22,6 +22,10 @@ __ Expanded Event library from collaboration with @MCUDude
 
 ## Released Versions
 
+## 1.3.10
+* Fix Wire.swap() correctly.
+* Correct burn bootloader when BOD is enabled.
+
 ## 1.3.9
 * Doc improvements continue. Added reference for functions provided by the core, expanded documentation of constants, and fixed some poorly written documentation and comments.
 * Correct critical bug with burn bootloader on non-optiboot DB-series parts - the MVIO menu hadn't been restored there.

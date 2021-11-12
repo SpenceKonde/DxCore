@@ -73,6 +73,8 @@ jobs:
         - megaavr/libraries/Wire/examples/digital_potentiometer
         - megaavr/libraries/Wire/examples/master_reader
         - megaavr/libraries/Wire/examples/master_writer
+        - megaavr/libraries/Wire/examples/pinswap_via_pins
+        - megaavr/libraries/Wire/examples/pinswap_via_swap
         - megaavr/libraries/Wire/examples/SFRRanger_reader
         - megaavr/libraries/Wire/examples/slave_receiver
         - megaavr/libraries/Wire/examples/slave_sender
