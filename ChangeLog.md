@@ -13,7 +13,9 @@ __ Completely new Wire.h library with exciting features - Thanks to @MX682X!
 * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
 __ Looks like we we're getting those serial changes - also thanks to @MX682X!
 __ Expanded Event library from collaboration with @MCUDude
-__ USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
+* USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
+* Correct verification bug in SerialUPDI where it would fail on a last page of the minimum size (thanks @dbuchwald!). The 1-word read takes a different codepath because it doesn't need the REP.
+* Improve bootloader source comments re:building (albeit without providing hard information; more of a plea of ignorance and admission of just how crude my build process is), pindefs for DD-series (and EA-series is a linear combination of DA/DB and DD - though it is said to be back to paged writes, so it might be made from optiboot_x rather than optiboot_dx), rename pindefs_x to pindefs_dx and remove 2 references to optiboot_x that should have been dx.
 
 ## Released Versions
 
@@ -27,7 +29,7 @@ __ USERSIG library for Dx-series parts. Has a few extra complications, but that'
 * Harmonize EEPROM.h with megaTinyCore, update documentation.
 * Major cleanup of Comparator library to ensure support for future parts and harmonize codebase across all supported parts. Oh, and it compiles now too.
 * tinyNeoPixel now correctly tests for millis availability before trying to use micros(). Previously, the macro being checked was spelled without the underscore that the actual one has, and was an older deprecated name that should not be relied upon.
-
+* Correct source code for Optiboot bootloader - when I had added notes about how to improve the write performance, I missed the closing mark, commenting out the write routine. This was not used to generate any binaries.
 
 ## 1.3.9
 * Doc improvements continue. Added reference for functions provided by the core, expanded documentation of constants, and fixed some poorly written documentation and comments.

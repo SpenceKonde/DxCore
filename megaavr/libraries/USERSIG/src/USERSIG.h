@@ -38,6 +38,15 @@
 #include <avr/io.h>
 
 
+/* These are INTERNAL functions, not for public consumption */
+/* Forward declarations */
+int8_t __USigload();
+int8_t __USigflush(uint8_t justerase);
+uint8_t __USigread(uint8_t idx);
+uint8_t __USigreadraw(uint8_t idx);
+int8_t __USigwrite(uint8_t idx, uint8_t data);
+int8_t __USigwriteraw(uint8_t idx, uint8_t data);
+int8_t __USigflush(uint8_t justerase);
 
 /* USRef class.
  *
@@ -53,7 +62,7 @@ struct USRef {
 
   // Access/read members.
   uint8_t operator*() const          {
-    return USERSIG.read(index);
+    return __USigread(index);
   }
   operator uint8_t() const           {
     return **this;
@@ -64,7 +73,7 @@ struct USRef {
     return *this = *ref;
   }
   USRef &operator=(uint8_t in)       {
-    return USERSIG.write(index);
+    return __USigwrite(index, in), *this;
   }
 
   USRef &operator +=(uint8_t in)     {
@@ -185,13 +194,6 @@ struct USPtr {
 static uint8_t __USigBuffer[USER_SIGNATURES_SIZE];
 static uint8_t __USigLoaded = 0;
 
-int8_t __USigload();
-int8_t __USigflush(uint8_t justerase);
-uint8_t __USigread(uint8_t idx);
-uint8_t __USigreadraw(uint8_t idx);
-int8_t __USigwrite(uint8_t idx, uint8_t data);
-int8_t __USigflush(uint8_t justerase);
-
 int8_t __USigload() {
   if (CPUINT.STATUS != 0) {
     return -16;
@@ -200,13 +202,14 @@ int8_t __USigload() {
     __USigBuffer[i] = *((volatile uint8_t*) USER_SIGNATURES_START + i);
   }
   __USigLoaded = 1;
+  return 0;
 }
 uint8_t __USigread(uint8_t idx) {
-  idx &= (USER_SIGNATURES_SIZE -1)
+  idx &= (USER_SIGNATURES_SIZE -1);
   if (__USigLoaded == 0) {
     return *((volatile uint8_t*) USER_SIGNATURES_START + idx);
   }
-  return __USigBuffer[idx]
+  return __USigBuffer[idx];
 }
 
 uint8_t __USigreadraw(uint8_t idx) {
@@ -217,9 +220,9 @@ int8_t __USigwrite(uint8_t idx, uint8_t data) {
   if (CPUINT.STATUS != 0) {
     return -16;
   }
-  idx &= (USER_SIGNATURES_SIZE -1)
+  idx &= (USER_SIGNATURES_SIZE -1);
   if (!__USigLoaded) {
-    if (__USigreadraw(idx) & data != data) {
+    if ((__USigreadraw(idx) & data) != data) {
       __USigload();
     } else {
       return __USigwriteraw(idx, data);
@@ -242,9 +245,9 @@ int8_t __USigwriteraw(uint8_t idx, uint8_t data) {
   uint8_t oldSREG = SREG;
   while (NVMCTRL.STATUS & 3);
   cli();
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_NOOP_gc);
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_FLWR_gc);
-  ((volatile uint8_t*) USER_SIGNATURES_START + idx) = data
+  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
+  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
+  *((volatile uint8_t*) USER_SIGNATURES_START + idx) = data;
   SREG = oldSREG;
   return 1;
 }
@@ -262,32 +265,32 @@ int8_t __USigflush(uint8_t justerase) {
       return 0;                                        // No pending writes.
     }
     for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {  //
-      if (*ptr++ = __USigBuffer[i]) {                  // Loop over the USERROW and tally up
+      if (*ptr++ == __USigBuffer[i]) {                  // Loop over the USERROW and tally up
         retval++;                                      // bytes that are different.
       }
     }
     if (retval == 0) {
       __USigLoaded = 0;                                // Mark USERROW as not being loaded
-      memset(__USigLoaded, 0xFF, USER_SIGNATURES_SIZE);// Clear it
+      memset(__USigBuffer, 0xFF, USER_SIGNATURES_SIZE);// Clear it
       return 0;                                        // No diff
     }
     ptr = (volatile uint8_t*) USER_SIGNATURES_START;   // Reset ptr to start
   }
   while (NVMCTRL.STATUS & 3);
   cli();
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_NOOP_gc);    // Must reset to NOOP first
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_FLPER_gc);   // Flash Page ERase
+  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Must reset to NOOP first
+  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLPER_gc);// Flash Page ERase
   while (NVMCTRL.STATUS & 3);                          // Wait for write
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_NOOP_gc);    // Reset to NOOP - do this even if not writing
+  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Reset to NOOP - do this even if not writing
   *ptr = 0;                                            // erase the USERROW by writing with FLPER
   if (!justerase) {
-    _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_FLWR_gc);  // Flash WRite
+    _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);  // Flash WRite
     for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {  // loop over the USERROW
       *ptr++ = __USigBuffer[i];                        // write each byte in turn
     }
   }
   __USigLoaded = 0;                                    // Finally, we mark the buffer as unused
-  memset(__USigLoaded, 0xFF, USER_SIGNATURES_SIZE);    // And clear it.
+  memset(__USigBuffer, 0xFF, USER_SIGNATURES_SIZE);    // And clear it.
   SREG = oldSREG;                                      // reenable interrupts.
   return retval;
 }
@@ -305,13 +308,16 @@ struct USERSIGClass {
   int8_t write(int idx, uint8_t val) {
     return __USigwrite(idx, val);
   }
-  int8_t flush(0) {
-    return __USigflush();
+  int8_t flush() {
+    return __USigflush(0);
+  }
+  int8_t erase() {
+    return __USigflush(1);
   }
   int8_t pending() {
     return __USigLoaded;
   }
-  void update(int idx, uint8_t val)  {
+  int8_t update(int idx, uint8_t val)  {
     return __USigwrite(idx, val);
   }
 
@@ -332,7 +338,7 @@ struct USERSIGClass {
   // Functionality to 'get' and 'put' objects to and from USERROW.
   template< typename T > T &get(int idx, T &t) {
     uint8_t *ptr = (uint8_t *) &t;
-    for (int count = sizeof(T) ; count ; --count, ++e) {
+    for (int count = sizeof(T) ; count ; --count) {
       *ptr++ = __USigread(idx++);
     }
     return t;
@@ -340,10 +346,10 @@ struct USERSIGClass {
 
   template< typename T > const T &put(int idx, const T &t) {
     const uint8_t *ptr = (const uint8_t *) &t;
-    for (int count = sizeof(T) ; count ; --count, ++e) {
+    for (int count = sizeof(T) ; count ; --count) {
       __USigwrite(idx++, *ptr++);   // Write the new byte with __USigwrite()
       if (sizeof(T) > 4) {          // if we are writing something that's not a primitive
-        __USigcommit();             // we will automatically commit
+        __USigflush(0);             // we will automatically commit
       }
     }
     return t;
