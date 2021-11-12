@@ -106,7 +106,7 @@ avrda.build.printf=
 #________________________________________#
 avrda.bootloader.tool=avrdude
 avrda.bootloader.WDTCFG=0x00
-avrda.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+avrda.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
 avrda.bootloader.BOOTSIZE=0x01
@@ -442,7 +442,7 @@ avrdb.build.printf=
 #________________________________________#
 avrdb.bootloader.tool=avrdude
 avrdb.bootloader.WDTCFG=0x00
-avrdb.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+avrdb.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 #avrdb.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
@@ -836,7 +836,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #________________________________________#
 #avrdd.bootloader.tool=avrdude
 #avrdd.bootloader.WDTCFG=0x00
-#avrdd.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+#avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 #avrdd.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 #avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 #avrdd.bootloader.CODESIZE=0x00
@@ -1229,7 +1229,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #________________________________________#
 #avrea.bootloader.tool=avrdude
 #avrea.bootloader.WDTCFG=0x00
-#avrea.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+#avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 #avrea.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 #avrea.bootloader.CODESIZE=0x00
 #avrea.bootloader.BOOTSIZE=0x01
@@ -1590,7 +1590,7 @@ avrdaopti.build.printf=
 #________________________________________#
 avrdaopti.bootloader.tool=avrdude
 avrdaopti.bootloader.WDTCFG=0x00
-avrdaopti.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+avrdaopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
 avrdaopti.bootloader.BOOTSIZE=0x01
@@ -1964,7 +1964,7 @@ avrdbopti.build.printf=
 #________________________________________#
 avrdbopti.bootloader.tool=avrdude
 avrdbopti.bootloader.WDTCFG=0x00
-avrdbopti.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+avrdbopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 #avrdbopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
@@ -2390,7 +2390,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #________________________________________#
 #avrddopti.bootloader.tool=avrdude
 #avrddopti.bootloader.WDTCFG=0x00
-#avrddopti.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+#avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 #avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
 #avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 ##avrddopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
@@ -2783,7 +2783,7 @@ azduinoboard.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/he
 #________________________________________#
 azduinoboard.bootloader.tool=avrdude
 azduinoboard.bootloader.WDTCFG=0x00
-azduinoboard.bootloader.BODCFG={bootloader.bodlevbits}{bootloader.bodmodebits}
+azduinoboard.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 azduinoboard.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 azduinoboard.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 azduinoboard.bootloader.CODESIZE=0x00
