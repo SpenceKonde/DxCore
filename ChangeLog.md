@@ -13,18 +13,20 @@ __ Completely new Wire.h library with exciting features - Thanks to @MX682X!
 * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
 __ Looks like we we're getting those serial changes - also thanks to @MX682X!
 __ Expanded Event library from collaboration with @MCUDude
-* Implement CI automated testing! Finally!
-* Implement expanded markdown format checking.
-* Remove teaser added in 1.3.7 as the document did not meet editorial standards and was not worth retyping. My hope remains for automatically making the .map files human (or machine - either would be an improvement) readable, and cleaning up the bogus offsets relative to the nearest constant when avr-objdump can't find the logical one to use in the .lst files. This is a low priority, alongside the instruction usage count tool I want to make which will probably be done at the same time.
-* Harmonize EEPROM.h with megaTinyCore, update documentation.
-* Major cleanup of Comparator library to ensure support for future parts and harmonize codebase across all supported parts.
-
+__ USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault!
 
 ## Released Versions
 
 ## 1.3.10
-* Fix Wire.swap() correctly.
-* Correct burn bootloader when BOD is enabled.
+* Fix Wire.swap() correctly. (#184)
+* Correct burn bootloader when BOD is enabled. (#185)
+* Correct a an error in SerialUPDI definitions for AVR64DD28 devices (which are not yet available)
+* Implement CI automated testing! Finally!
+* Implement expanded markdown format checking.
+* Remove teaser added in 1.3.7 as the document did not meet editorial standards and was not worth retyping. My hope remains for automatically making the .map files human (or machine - either would be an improvement) readable, and cleaning up the bogus offsets relative to the nearest constant when avr-objdump can't find the logical one to use in the .lst files. This is a low priority, alongside the instruction usage count tool I want to make which will probably be done at the same time.
+* Harmonize EEPROM.h with megaTinyCore, update documentation.
+* Major cleanup of Comparator library to ensure support for future parts and harmonize codebase across all supported parts. Oh, and it compiles now too.
+
 
 ## 1.3.9
 * Doc improvements continue. Added reference for functions provided by the core, expanded documentation of constants, and fixed some poorly written documentation and comments.
