@@ -291,7 +291,7 @@ int8_t __USigflush(uint8_t justerase) {
   }
   __USigLoaded = 0;                                    // Finally, we mark the buffer as unused
   memset(__USigBuffer, 0xFF, USER_SIGNATURES_SIZE);    // And clear it.
-  SREG = oldSREG;                                      // reenable interrupts.
+  SREG = oldSREG;                                      // re-enable interrupts.
   return retval;
 }
 
