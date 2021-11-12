@@ -442,6 +442,7 @@
  */
 #define USART_ALTPMUX 1
 
+// *INDENT-OFF* - astyle doesn't complain about the last one, but doesn't like this one.
 #if \
   defined(__AVR_ATmega4809__) || defined(__AVR_ATmega4808__) || \
   defined(__AVR_ATmega3209__) || defined(__AVR_ATmega3208__) || \
@@ -572,6 +573,7 @@
     #define MYPMUX_REG PORTMUX.USARTROUTEB
   #endif
 #endif
+
 /* AVR DD-series has only 2 USARTs, but they've got more mux options
  * to compensate for the small number of pins. More surprisingly, the
  * expanded mux options appear to be getting carried over to more

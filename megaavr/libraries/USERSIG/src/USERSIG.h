@@ -199,15 +199,15 @@ int8_t __USigload() {
     return -16;
   }
   for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {
-    __USigBuffer[i] = *((volatile uint8_t*) USER_SIGNATURES_START + i);
+    __USigBuffer[i] = *((volatile uint8_t *) USER_SIGNATURES_START + i);
   }
   __USigLoaded = 1;
   return 0;
 }
 uint8_t __USigread(uint8_t idx) {
-  idx &= (USER_SIGNATURES_SIZE -1);
+  idx &= (USER_SIGNATURES_SIZE - 1);
   if (__USigLoaded == 0) {
-    return *((volatile uint8_t*) USER_SIGNATURES_START + idx);
+    return *((volatile uint8_t *) USER_SIGNATURES_START + idx);
   }
   return __USigBuffer[idx];
 }
@@ -220,7 +220,7 @@ int8_t __USigwrite(uint8_t idx, uint8_t data) {
   if (CPUINT.STATUS != 0) {
     return -16;
   }
-  idx &= (USER_SIGNATURES_SIZE -1);
+  idx &= (USER_SIGNATURES_SIZE - 1);
   if (!__USigLoaded) {
     if ((__USigreadraw(idx) & data) != data) {
       __USigload();
@@ -247,16 +247,16 @@ int8_t __USigwriteraw(uint8_t idx, uint8_t data) {
   cli();
   _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
   _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
-  *((volatile uint8_t*) USER_SIGNATURES_START + idx) = data;
+  *((volatile uint8_t* ) USER_SIGNATURES_START + idx) = data;
   SREG = oldSREG;
   return 1;
 }
 
 int8_t __USigflush(uint8_t justerase) {
   uint8_t oldSREG = SREG;
-  volatile uint8_t* ptr;
+  volatile uint8_t *ptr;
   uint8_t retval = 0;
-  ptr = (volatile uint8_t*) USER_SIGNATURES_START;
+  ptr = (volatile uint8_t *) USER_SIGNATURES_START;
   if (CPUINT.STATUS != 0) {
     return -16;
   }
@@ -274,7 +274,7 @@ int8_t __USigflush(uint8_t justerase) {
       memset(__USigBuffer, 0xFF, USER_SIGNATURES_SIZE);// Clear it
       return 0;                                        // No diff
     }
-    ptr = (volatile uint8_t*) USER_SIGNATURES_START;   // Reset ptr to start
+    ptr = (volatile uint8_t *) USER_SIGNATURES_START;   // Reset ptr to start
   }
   while (NVMCTRL.STATUS & 3);
   cli();
