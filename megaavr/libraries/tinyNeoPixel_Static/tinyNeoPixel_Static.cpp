@@ -489,40 +489,38 @@ void tinyNeoPixel::show(void) {
 
 
     asm volatile(
-     "head24:"                   "\n\t" // Clk  Pseudocode    (T =  0)
+     "head24:"                   "\n\t" // Clk  Pseudocode    (T =  -1)
+      "rjmp .+0"                 "\n\t" // 2    nop nop       (T =  0)
       "st   %a[port],  %[hi]"    "\n\t" // 1    PORT = hi     (T =  1)
       "sbrc %[byte],  7"         "\n\t" // 1-2  if (b & 128)
       "mov  %[next], %[hi]"      "\n\t" // 0-1   next = hi    (T =  3)
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T =  4)
       "dec  %[bit]"              "\n\t" // 1    bit--         (T =  5)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T =  7)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T =  9)
-      "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T = 10)
+      "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T =  8)
+      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 10)
       "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T = 11)
       "rcall smallerdelay24"     "\n\t" // 2+4=6              (T = 17)
-      "breq nextbyte24"          "\n\t" // 1-2  if (bit == 0) (from dec above) (T = 18 if false)
-      "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 19)
-      "rcall seconddelay24"      "\n\t" // 2+4+3=9            (T = 28)
-      "rjmp head24"              "\n\t" // 2    -> head20 (next bit out)
+      "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 18)
+      "breq nextbyte24"          "\n\t" // 1-2  if (bit == 0) (from dec above) (T = 19 if false)
+      "rcall seconddelay24"      "\n\t" // 2+2+4=8            (T = 27)
+      "rjmp head24"              "\n\t" // 2    -> head20 (next bit out) 29
      "seconddelay24:"            "\n\t" // called for a 9 cycle delay
-      "nop"                      "\n\t" // 1
       "rjmp .+0"                 "\n\t" // 2
      "smallerdelay24:"           "\n\t" // called for a 6 cycle delay
       "ret"                      "\n\t" // 4
-     "nextbyte24:"               "\n\t" // last bit of a byte (T = 19)
-      "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 20)
-      "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 21)
-      "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 23)
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 25)
-      "nop"                      "\n\t" // 1    nop           (R = 26)
+     "nextbyte24:"               "\n\t" // last bit of a byte (T = 21)
+      "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 22)
+      "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 24)
+      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 26)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 28)
       "brne head24"              "\n"   // 2    if (i != 0) -> (next byte)  ()
-    : [port]  "+e" (port),
+    : [ptr]   "+e" (ptr),   /* euhm, this has to be declared read/write! */
       [byte]  "+r" (b),
-      [bit]   "+r" (bit),
+      [bit]   "+d" (bit),   /* euhm, no this can't be "any register" if you're gonna LDI to it. */
       [next]  "+r" (next),
       [count] "+w" (i)
-    : [ptr]    "e" (ptr),
+    : [port]   "e" (port),  /* We're overwriting the SFR it's pointed at, not to the address of that register. */
       [hi]     "r" (hi),
       [lo]     "r" (lo));
 
