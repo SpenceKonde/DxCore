@@ -861,7 +861,7 @@ void tinyNeoPixel::show(void) {
     endTime = micros();
     // Save EOD time for latch on next call
   #else
-    #warning "micros is not available based on timer settings. You must ensure at least 50us between calls to show() or the pixels will never latch"
+    #warning "micros is not available based on timer settings. You must ensure at least 6 us, 50 us or 250us, depending on which of the identical looking LEDs you have."
   #endif
 }
 
