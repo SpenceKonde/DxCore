@@ -71,13 +71,16 @@ jobs:
         - megaavr/libraries/tinyNeoPixel_Static/examples/simple
         - megaavr/libraries/tinyNeoPixel_Static/examples/strandtest
         - megaavr/libraries/Wire/examples/digital_potentiometer
-        - megaavr/libraries/Wire/examples/master_reader
-        - megaavr/libraries/Wire/examples/master_writer
+        - megaavr/libraries/Wire/examples/master_read
+        - megaavr/libraries/Wire/examples/master_write
         - megaavr/libraries/Wire/examples/pinswap_via_pins
         - megaavr/libraries/Wire/examples/pinswap_via_swap
         - megaavr/libraries/Wire/examples/SFRRanger_reader
-        - megaavr/libraries/Wire/examples/slave_receiver
-        - megaavr/libraries/Wire/examples/slave_sender
+        - megaavr/libraries/Wire/examples/slave_read
+        - megaavr/libraries/Wire/examples/slave_write
+        - megaavr/libraries/Wire/examples/slave_secondary_address
+        - megaavr/libraries/Wire/examples/slave_address_mask
+        - megaavr/libraries/Wire/examples/master_multi_address_write
         - megaavr/libraries/ZCD/examples/Interrupt
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
@@ -85,6 +88,7 @@ jobs:
       avr-da-series-sketch-paths: |
         - megaavr/extras/ci/test-sketch/da/dummysketch
       avr-db-series-sketch-paths: |
+        - megaavr/libraries/Wire/examples/two_master_write
         - megaavr/libraries/Opamp/examples/Inverting_amplifier
         - megaavr/libraries/Opamp/examples/Inverting_amplifier_with_follower
         - megaavr/libraries/Opamp/examples/Non_inverting_amplifier
