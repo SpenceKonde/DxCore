@@ -2,11 +2,11 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     ###      ###   #
-#  ##     ##  ## ##    ##     #   # #   # #       ###        #    #   #  #
-#  ##     ##   ###     ##     #   # ####  ###      ##      ##      ####  #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##    #   #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##   #    #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##     #  #     ###   #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #  #    #  ##  #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####    # # #  #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ## ##  #  #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ##    # ##  ###   #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -79,7 +79,7 @@ menu.appspm=Flash Writing
 menu.mvio=MultiVoltage I/O (MVIO)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
-#menu.wiremode=Wire (Wire.h/I2C) Library options
+menu.wiremode=Wire (Wire.h/I2C) Library mode
 
 
 
@@ -98,7 +98,7 @@ avrda.upload.tool=avrdude
 avrda.build.board=avrda
 avrda.build.core=dxcore
 avrda.build.text_section_start=.text=0x0
-avrda.build.extra_flags={bootloader.appspm}
+avrda.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} {bootloader.appspm}
 avrda.build.export_merged_output=false
 avrda.build.printf=
 #----------------------------------------#
@@ -418,6 +418,21 @@ avrda.menu.appspm.112plus=Above 112k (AVR128 only)
 avrda.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 
+# TWI OPTIONS
+avrda.menu.wire.mors1=1x Wire, Master or Slave (least Flash & RAM)
+avrda.menu.wire.mors1.build.wire.mode=MORS
+avrda.menu.wire.mors1.build.wire.count=WIRE0
+avrda.menu.wire.mands1=1x Wire, Master and Slave
+avrda.menu.wire.mands1.build.wire.mode=MANDS
+avrda.menu.wire.mors1.build.wire.count=WIRE0
+avrda.menu.wire.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+avrda.menu.wire.mors2.build.wire.mode=MORS
+avrda.menu.wire.mors2.build.wire.count=WIRE1
+avrda.menu.wire.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+avrda.menu.wire.mands2.build.wire.mode=MANDS
+avrda.menu.wire.mands2.build.wire.count=WIRE1
+
+
 ##########################################################################
 #                                                                        #
 ###                 ###  #     # ####      ####  ####                  ###
@@ -433,7 +448,7 @@ avrdb.upload.tool=avrdude
 avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.text_section_start=.text=0x0
-avrdb.build.extra_flags={bootloader.appspm}
+avrdb.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} {bootloader.appspm}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 avrdb.build.printf=
@@ -778,6 +793,20 @@ avrdb.menu.startuptime.16.bootloader.sutbits=101
 avrdb.menu.startuptime.32.bootloader.sutbits=110
 avrdb.menu.startuptime.64.bootloader.sutbits=111
 
+
+avrdb.menu.wire.mors1=1x Wire, Master or Slave (least Flash & RAM)
+avrdb.menu.wire.mors1.build.wire.mode=MORS
+avrdb.menu.wire.mors1.build.wire.count=WIRE0
+avrdb.menu.wire.mands1=1x Wire, Master and Slave
+avrdb.menu.wire.mands1.build.wire.mode=MANDS
+avrdb.menu.wire.mors1.build.wire.count=WIRE0
+avrdb.menu.wire.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+avrdb.menu.wire.mors2.build.wire.mode=MORS
+avrdb.menu.wire.mors2.build.wire.count=WIRE1
+avrdb.menu.wire.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+avrdb.menu.wire.mands2.build.wire.mode=MANDS
+avrdb.menu.wire.mands2.build.wire.count=WIRE1
+
 #----------------------------------------#
 # SPM (writing flash from app)           #
 #________________________________________#
@@ -828,7 +857,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.build.board=avrda
 #avrdd.build.core=dxcore
 #avrdd.build.text_section_start=.text=0x0
-#avrdd.build.extra_flags={bootloader.appspm}
+#avrdd.build.extra_flags= -DTWI_{build.wire.mode} {bootloader.appspm}
 #avrdd.build.export_merged_output=false
 #avrdd.build.printf=
 #----------------------------------------#
@@ -1168,6 +1197,16 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.startuptime.32.bootloader.sutbits=110
 #avrdd.menu.startuptime.64.bootloader.sutbits=111
 
+
+
+
+#avrdd.menu.wire.mors1=1x Wire, Master or Slave
+#avrdd.menu.wire.mors1.build.wire.mode=MORS
+#avrdd.menu.wire.mors1.build.wire.count=WIRE0
+#avrdd.menu.wire.mands1=1x Wire, Master and Slave
+#avrdd.menu.wire.mands1.build.wire.mode=MANDS
+#avrdd.menu.wire.mors1.build.wire.count=WIRE0
+
 #----------------------------------------#
 # SPM (writing flash from app)           #
 # will initially be disabled until       #
@@ -1221,7 +1260,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.build.board=avrda
 #avrea.build.core=dxcore
 #avrea.build.text_section_start=.text=0x0
-#avrea.build.extra_flags=
+#avrea.build.extra_flags= -DTWI_{build.wire.mode}
 #avrea.build.export_merged_output=false
 #avrea.build.printf=
 #----------------------------------------#
@@ -1563,6 +1602,15 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.startuptime.32.bootloader.SYSCFG1=0x06
 #avrea.menu.startuptime.64.bootloader.SYSCFG1=0x07
 
+
+
+#avrea.menu.wire.mors1=1x Wire, Master or Slave
+#avrea.menu.wire.mors1.build.wire.mode=MORS
+#avrea.menu.wire.mors1.build.wire.count=WIRE0
+#avrea.menu.wire.mands1=1x Wire, Master and Slave
+#avrea.menu.wire.mands1.build.wire.mode=MANDS
+#avrea.menu.wire.mors1.build.wire.count=WIRE0
+
 #-------------------------------------#
 # SPM from app incompatible with Dx   #
 # version of flash write in major way #
@@ -1582,7 +1630,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 avrdaopti.build.board=avrda
 avrdaopti.build.core=dxcore
 avrdaopti.build.text_section_start=.text=0x200
-avrdaopti.build.extra_flags=-DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdaopti.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdaopti.build.export_merged_output=false
 avrdaopti.build.printf=
 #----------------------------------------#
@@ -1879,6 +1927,20 @@ avrdaopti.menu.startuptime.16.bootloader.SYSCFG1=0x05
 avrdaopti.menu.startuptime.32.bootloader.SYSCFG1=0x06
 avrdaopti.menu.startuptime.64.bootloader.SYSCFG1=0x07
 
+
+avrdaopti.menu.wire.mors1=1x Wire, Master or Slave (least Flash & RAM)
+avrdaopti.menu.wire.mors1.build.wire.mode=MORS
+avrdaopti.menu.wire.mors1.build.wire.count=WIRE0
+avrdaopti.menu.wire.mands1=1x Wire, Master and Slave
+avrdaopti.menu.wire.mands1.build.wire.mode=MANDS
+avrdaopti.menu.wire.mors1.build.wire.count=WIRE0
+avrdaopti.menu.wire.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+avrdaopti.menu.wire.mors2.build.wire.mode=MORS
+avrdaopti.menu.wire.mors2.build.wire.count=WIRE1
+avrdaopti.menu.wire.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+avrdaopti.menu.wire.mands2.build.wire.mode=MANDS
+avrdaopti.menu.wire.mands2.build.wire.count=WIRE1
+
 #----------------------------------------#
 # Optiboot upload timeout                #
 #________________________________________#
@@ -1956,7 +2018,7 @@ avrdbopti.build.board=avrda
 avrdbopti.build.board=avrdb
 avrdbopti.build.core=dxcore
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags=-DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdbopti.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.printf=
 #----------------------------------------#
@@ -2305,6 +2367,21 @@ avrdbopti.menu.startuptime.16.bootloader.sutbits=101
 avrdbopti.menu.startuptime.32.bootloader.sutbits=110
 avrdbopti.menu.startuptime.64.bootloader.sutbits=111
 
+
+avrdbopti.menu.wire.mors1=1x Wire, Master or Slave (least Flash & RAM)
+avrdbopti.menu.wire.mors1.build.wire.mode=MORS
+avrdbopti.menu.wire.mors1.build.wire.count=WIRE0
+avrdbopti.menu.wire.mands1=1x Wire, Master and Slave
+avrdbopti.menu.wire.mands1.build.wire.mode=MANDS
+avrdbopti.menu.wire.mors1.build.wire.count=WIRE0
+avrdbopti.menu.wire.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+avrdbopti.menu.wire.mors2.build.wire.mode=MORS
+avrdbopti.menu.wire.mors2.build.wire.count=WIRE1
+avrdbopti.menu.wire.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+avrdbopti.menu.wire.mands2.build.wire.mode=MANDS
+avrdbopti.menu.wire.mands2.build.wire.count=WIRE1
+
+
 #----------------------------------------#
 # Optiboot upload timeout                #
 #________________________________________#
@@ -2381,7 +2458,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.build.board=avrdd
 #avrddopti.build.core=dxcore
 #avrddopti.build.text_section_start=.text=0x200
-#avrddopti.build.extra_flags=-DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+#avrddopti.build.extra_flags= -DTWI_{build.wire.mode} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 #avrddopti.build.export_merged_output=false
 #avrddopri.build.highestcb=B2
 #avrddopti.build.printf=
@@ -2725,6 +2802,14 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.startuptime.32.bootloader.sutbits=110
 #avrddopti.menu.startuptime.64.bootloader.sutbits=111
 
+
+#avrddopti.menu.wire.mors1=1x Wire, Master or Slave
+#avrddopti.menu.wire.mors1.build.wire.mode=MORS
+#avrddopti.menu.wire.mors1.build.wire.count=WIRE0
+#avrddopti.menu.wire.mands1=1x Wire, Master and Slave
+#avrddopti.menu.wire.mands1.build.wire.mode=MANDS
+#avrddopti.menu.wire.mors1.build.wire.count=WIRE0
+
 #----------------------------------------#
 # Optiboot upload timeout                #
 #________________________________________#
@@ -2773,7 +2858,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 azduinoboard.build.board=avrdb
 azduinoboard.build.core=dxcore
 azduinoboard.build.text_section_start=.text=0x200
-azduinoboard.build.extra_flags=
+azduinoboard.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count}
 azduinoboard.build.export_merged_output=true
 azduinoboard.build.printf=
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex:i
@@ -2993,6 +3078,21 @@ azduinoboard.menu.startuptime.8.bootloader.sutbits=100
 azduinoboard.menu.startuptime.16.bootloader.sutbits=101
 azduinoboard.menu.startuptime.32.bootloader.sutbits=110
 azduinoboard.menu.startuptime.64.bootloader.sutbits=111
+
+
+
+azduinoboard.menu.wire.mors1=1x Wire, Master or Slave (least Flash & RAM)
+azduinoboard.menu.wire.mors1.build.wire.mode=MORS
+azduinoboard.menu.wire.mors1.build.wire.count=WIRE0
+azduinoboard.menu.wire.mands1=1x Wire, Master and Slave
+azduinoboard.menu.wire.mands1.build.wire.mode=MANDS
+azduinoboard.menu.wire.mors1.build.wire.count=WIRE0
+azduinoboard.menu.wire.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+azduinoboard.menu.wire.mors2.build.wire.mode=MORS
+azduinoboard.menu.wire.mors2.build.wire.count=WIRE1
+azduinoboard.menu.wire.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+azduinoboard.menu.wire.mands2.build.wire.mode=MANDS
+azduinoboard.menu.wire.mands2.build.wire.count=WIRE1
 
 #----------------------------------------#
 # Optiboot upload timeout                #

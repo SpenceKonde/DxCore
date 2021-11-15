@@ -7,7 +7,7 @@
 #include <Wire.h>
 
 void setup() {
-  Wire.pins(PIN_PC2, PIN_PC3); // Choose the PC2/PC3 pinset for the TWI interface
+  Wire.pins(GPIOR0, GPIOR1); // Choose the PC2/PC3 pinset for the TWI interface
   Wire.begin();        // join i2c bus (address optional for master)
   Serial.begin(9600);  // start serial for output
 }
