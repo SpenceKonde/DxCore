@@ -16,6 +16,7 @@ __ Expanded Event library from collaboration with @MCUDude
 * USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
 * Correct verification bug in SerialUPDI where it would fail on a last page of the minimum size (thanks @dbuchwald!). The 1-word read takes a different codepath because it doesn't need the REP.
 * Improve bootloader source comments re:building (albeit without providing hard information; more of a plea of ignorance and admission of just how crude my build process is), pindefs for DD-series (and EA-series is a linear combination of DA/DB and DD - though it is said to be back to paged writes, so it might be made from optiboot_x rather than optiboot_dx), rename pindefs_x to pindefs_dx and remove 2 references to optiboot_x that should have been dx.
+* Correctly comment out leftover debugging prints that would be called when using `tone()` (megaTinyCore #550).
 
 ## Released Versions
 
