@@ -31,20 +31,20 @@ void yield(void);
 
 
 #define min(a,b) \
-  ({typeof (a) _a = (a); \
-    typeof (b) _b = (b); \
+  ({__typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
     _a < _b ? _a : _b; })
 
 #define max(a,b) \
-  ({typeof (a) _a = (a); \
-    typeof (b) _b = (b); \
+  ({__typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
     _a > _b ? _a : _b; })
 
 #ifndef constrain
 #define constrain(x,low,high)   ({  \
-  typeof (x)    _x = (x);           \
-  typeof (low)  _l = (low);         \
-  typeof (high) _h = (high);        \
+  __typeof__ (x)    _x = (x);           \
+  __typeof__ (low)  _l = (low);         \
+  __typeof__ (high) _h = (high);        \
   _x < _l ? _l : _x > _h ? _h :_x ;})
 #endif
 
@@ -57,11 +57,11 @@ void yield(void);
 #endif
 
 #ifndef sq
-#define sq(x)        ({ typeof (x) _x = (x); _x * _x; })
+#define sq(x)        ({ __typeof__ (x) _x = (x); _x * _x; })
 #endif
 
 #ifndef round
-#define round(x)     ({ typeof (x) _x = (x);  _x >= 0 ? (long)x + 0.5 : (long)x - 0.5;})
+#define round(x)     ({ __typeof__ (x) _x = (x);  _x >= 0 ? (long)x + 0.5 : (long)x - 0.5;})
 #endif
 
 typedef void (*voidFuncPtr)(void);
