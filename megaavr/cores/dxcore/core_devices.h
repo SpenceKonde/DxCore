@@ -51,7 +51,7 @@
   /* Man they just *HAD* to change the names of these values that get assigned to the same register and do the same thing didn't they?
    * Worse still we can't even verify that they are present... just blindly definr and pray. Enums can't be seen by macros   */
     #define RTC_CLKSEL_INT32K_gc  RTC_CLKSEL_OSC32K_gc
-    #define RTC_CLKSEL_OSC1K_gc   RTC_CLKSEL_INT1K_gc
+    #define RTC_CLKSEL_INT1K_gc   RTC_CLKSEL_OSC1K_gc
     #define RTC_CLKSEL_TOSC32K_gc RTC_CLKSEL_XTAL32K_gc
   #endif
   /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
