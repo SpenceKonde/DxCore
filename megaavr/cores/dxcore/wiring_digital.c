@@ -117,22 +117,22 @@ void _pinConfigure(uint8_t pin, uint16_t pinconfig) {
   uint8_t bit_pos = digitalPinToBitPosition(pin);
   uint8_t setting = pinconfig & 0x03; //grab direction bits
   if (setting) {
-    *(portbase + setting) = bit_mask;
+    *(portbase + setting) = bit_mask; // DIR
   }
   pinconfig >>= 2;
   setting = pinconfig & 0x03; // as above, only for output
   if (setting) {
-    *(portbase + 4 + setting) = bit_mask;
+    *(portbase + 4 + setting) = bit_mask;  // OUT
   }
-  if (!(pinconfig & 0x03FFC)) return;
+  if (!(pinconfig & 0x03FFC)) return; // RETURN if we're done before we start this mess.
   pinconfig >>= 2;
   uint8_t oldSREG = SREG;
   cli();
   uint8_t pinncfg = *(portbase + 0x10 + bit_pos);
   if (pinconfig & 0x08 ) {
-    pinncfg = (pinncfg & 0xF8 ) | (pinconfig & 0x07);
+    pinncfg = (pinncfg & 0xF8 ) | (pinconfig & 0x07); // INPUT SENSE CONFIG
   }
-  uint8_t temp = pinconfig & 0x30;
+  uint8_t temp = pinconfig & 0x30; // PULLUP
   if (temp) {
     if (temp == 0x30) {
       pinncfg ^= 0x08;    // toggle pullup - of dubious utility
@@ -170,7 +170,7 @@ void _pinConfigure(uint8_t pin, uint16_t pinconfig) {
     }
   }
   #endif
-  temp = pinconfig & 0x0C;
+  temp = pinconfig & 0x0C; //INVERT PIN
   if (temp) {
     if (temp == 0x0C) {
       pinncfg ^= 0x80;    // toggle invert - of dubious utility, but I'll accept it.
