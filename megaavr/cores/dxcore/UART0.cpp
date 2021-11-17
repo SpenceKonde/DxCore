@@ -20,6 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified November 2021 by Spence Konde
 */
 
 #include "Arduino.h"
@@ -34,34 +35,32 @@
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
-#if defined(HAVE_HWSERIAL0)
-
-#if defined(HWSERIAL0_RXC_VECTOR)
-ISR(HWSERIAL0_RXC_VECTOR)
-{
-  Serial0._rx_complete_irq();
-}
-#else
-#error "Don't know what the Data Received interrupt vector is called for Serial"
-#endif
-
-#if defined(HWSERIAL0_DRE_VECTOR)
-ISR(HWSERIAL0_DRE_VECTOR)
-{
-  Serial0._tx_data_empty_irq();
-}
-#else
-#error "Don't know what the Data Received interrupt vector is called for Serial"
-#endif
-
 #if defined(HWSERIAL0)
-  UartClass Serial0(HWSERIAL0, HWSERIAL0_DRE_VECTOR_NUM, PIN_HWSERIAL0_RX, PIN_HWSERIAL0_TX, HWSERIAL0_MUX, PIN_HWSERIAL0_RX_PINSWAP_1, PIN_HWSERIAL0_TX_PINSWAP_1, HWSERIAL0_MUX_PINSWAP_1);
-#endif
 
-// Function that can be weakly referenced by serialEventRun to prevent
-// pulling in this file if it's not otherwise used.
-bool Serial0_available() {
-  return Serial0.available();
-}
+  #if defined(HWSERIAL0_RXC_VECTOR)
+  ISR(HWSERIAL0_RXC_VECTOR) {
+    UartClass::_rx_complete_irq(Serial0);
+  }
+  #else
+    #error "Don't know what the Data Received interrupt vector is called for Serial0"
+  #endif
 
-#endif // HAVE_HWSERIAL0
+  #if defined(HWSERIAL0_DRE_VECTOR)
+  ISR(HWSERIAL0_DRE_VECTOR) {
+    UartClass::_tx_data_empty_irq(Serial0);
+  }
+  #else
+    #error "Don't know what the Data Register Empty interrupt vector is called for Serial0"
+  #endif
+
+  #if defined(HWSERIAL0)
+    UartClass Serial0(HWSERIAL0, (uint8_t*)_usart0_pins, HWSERIAL0_MUX_COUNT, 0);
+  #endif
+
+  // Function that can be weakly referenced by serialEventRun to prevent
+  // pulling in this file if it's not otherwise used.
+  bool Serial0_available() {
+    return Serial0.available();
+  }
+
+#endif  // HWSERIAL0

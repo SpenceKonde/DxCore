@@ -104,15 +104,15 @@ EA-series parts.
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // Only default port option works!
 
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4))
 #elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #elif defined(MILLIS_USE_TIMERB3)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #endif
 
 
@@ -177,16 +177,9 @@ EA-series parts.
 #define PIN_WIRE1_SDA_PINSWAP_2 PIN_PB2
 #define PIN_WIRE1_SCL_PINSWAP_2 PIN_PB3
 
-#define HWSERIAL_MUX_REG_COUNT          2
-#define HWSERIAL_MUX_REGISTER_BASE      &PORTMUX.USARTROUTEA
+
 // USART 0
-#define HWSERIAL0                       &USART0
-#define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
-#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
-#define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
 #define HWSERIAL0_MUX_COUNT             2
-#define HWSERIAL0_MUX_REGISTER          &PORTMUX.USARTROUTEA
-#define HWSERIAL0_MUX_OFFSET            0
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
@@ -200,13 +193,7 @@ EA-series parts.
 #define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
-#define HWSERIAL1                       &USART1
-#define HWSERIAL1_DRE_VECTOR            USART1_DRE_vect
-#define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
-#define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
 #define HWSERIAL1_MUX_COUNT             2
-#define HWSERIAL1_MUX_REGISTER          &PORTMUX.USARTROUTEA
-#define HWSERIAL1_MUX_OFFSET            0
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
@@ -220,13 +207,7 @@ EA-series parts.
 #define PIN_HWSERIAL1_XDIR_PINSWAP_1    PIN_PC7
 
 // USART 2
-#define HWSERIAL2                       &USART2
-#define HWSERIAL2_DRE_VECTOR            USART2_DRE_vect
-#define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
-#define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
 #define HWSERIAL2_MUX_COUNT             2
-#define HWSERIAL2_MUX_REGISTER          &PORTMUX.USARTROUTEA
-#define HWSERIAL2_MUX_OFFSET            0
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
@@ -240,13 +221,7 @@ EA-series parts.
 #define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 
 // USART 3
-#define HWSERIAL3                       &USART3
-#define HWSERIAL3_DRE_VECTOR            USART3_DRE_vect
-#define HWSERIAL3_DRE_VECTOR_NUM        USART3_DRE_vect_num
-#define HWSERIAL3_RXC_VECTOR            USART3_RXC_vect
 #define HWSERIAL3_MUX_COUNT             2
-#define HWSERIAL3_MUX_REGISTER          &PORTMUX.USARTROUTEA
-#define HWSERIAL3_MUX_OFFSET            0
 #define HWSERIAL3_MUX                   PORTMUX_USART3_DEFAULT_gc
 #define HWSERIAL3_MUX_PINSWAP_1         PORTMUX_USART3_ALT1_gc
 #define HWSERIAL3_MUX_PINSWAP_NONE      PORTMUX_USART3_NONE_gc
@@ -260,13 +235,7 @@ EA-series parts.
 #define PIN_HWSERIAL3_XDIR_PINSWAP_1    NOT_A_PIN
 
 // USART 4
-#define HWSERIAL4                       &USART4
-#define HWSERIAL4_DRE_VECTOR            USART4_DRE_vect
-#define HWSERIAL4_DRE_VECTOR_NUM        USART4_DRE_vect_num
-#define HWSERIAL4_RXC_VECTOR            USART4_RXC_vect
 #define HWSERIAL4_MUX_COUNT             2
-#define HWSERIAL4_MUX_REGISTER          &PORTMUX.USARTROUTEB
-#define HWSERIAL4_MUX_OFFSET            1
 #define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
 #define HWSERIAL4_MUX_PINSWAP_1         NOT_A_MUX  /* destined for removal */
 #define HWSERIAL4_MUX_PINSWAP_NONE      PORTMUX_USART4_NONE_gc

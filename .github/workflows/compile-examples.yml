@@ -84,7 +84,12 @@ jobs:
         - megaavr/libraries/ZCD/examples/Interrupt
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
-        - megaavr/extras/ci/test-sketch/all/dummysketch
+        - megaavr/extras/ci/test-sketch/all/math_macros
+        - megaavr/extras/ci/test-sketch/all/test_analog
+        - megaavr/extras/ci/test-sketch/all/test_digital
+        - megaavr/extras/ci/test-sketch/all/test_tone
+        - megaavr/extras/ci/test-sketch/all/test_PWM
+        - megaavr/extras/ci/test-sketch/all/test_timekeeping
       avr-da-series-sketch-paths: |
         - megaavr/extras/ci/test-sketch/da/dummysketch
       avr-db-series-sketch-paths: |
