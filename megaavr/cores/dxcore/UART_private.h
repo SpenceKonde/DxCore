@@ -23,55 +23,13 @@
 
 #include "wiring_private.h"
 
-// this next line disables the entire UART.cpp,
-// this is so I can support Attiny series and any other chip without a uart
-#if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3)
+#if defined(USART0) || defined(USART1) || defined(USART2) || defined(USART3) || defined(USART4) || defined(USART5)
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-UartClass::UartClass(
-  volatile USART_t *hwserial_module,
-  volatile uint8_t hwserial_dre_interrupt_vect_num,
-  volatile uint8_t hwserial_rx_pin,
-  volatile uint8_t hwserial_tx_pin,
-  volatile uint8_t uart_mux,
-  volatile uint8_t hwserial_rx_pin_swap,
-  volatile uint8_t hwserial_tx_pin_swap,
-  volatile uint8_t uart_mux_swap) :
-    _hwserial_module(hwserial_module),
-    _hwserial_dre_interrupt_vect_num(hwserial_dre_interrupt_vect_num),
-    _hw_set { { hwserial_rx_pin, hwserial_tx_pin, uart_mux },
-            { hwserial_rx_pin_swap, hwserial_tx_pin_swap, uart_mux_swap } },
-    _pin_set(0),
-    _written(false),
-    _rx_buffer_head(0), _rx_buffer_tail(0),
-    _tx_buffer_head(0), _tx_buffer_tail(0)
-{
+// no need to set the other variables to zero, init script already does that. Saves some flash
+UartClass::UartClass(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_defualt) :
+    _hwserial_module(hwserial_module), _usart_pins(usart_pins), _mux_count(mux_count), _pin_set(mux_defualt) {
 }
-
-// Actual interrupt handlers //////////////////////////////////////////////////////////////
-
-void UartClass::_rx_complete_irq(void)
-{
-  //if (bit_is_clear(*_rxdatah, USART_PERR_bp)) {
-  if (!(((*_hwserial_module).RXDATAH) & USART_PERR_bm)) {
-    // No Parity error, read byte and store it in the buffer if there is
-    // room
-    unsigned char c = (*_hwserial_module).RXDATAL;
-    rx_buffer_index_t i = (unsigned int)(_rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
-
-    // if we should be storing the received character into the location
-    // just before the tail (meaning that the head would advance to the
-    // current location of the tail), we're about to overflow the buffer
-    // and so we don't write the character or advance the head.
-    if (i != _rx_buffer_tail) {
-      _rx_buffer[_rx_buffer_head] = c;
-      _rx_buffer_head = i;
-    }
-  } else {
-    // Parity error, read byte but discard it
-    (*_hwserial_module).RXDATAL;
-  }
-}
-
-#endif // whole file
+/* Interrupt handlers in UART.cpp */
+#endif  // whole file

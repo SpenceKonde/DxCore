@@ -23,6 +23,7 @@
 #define Arduino_h
 
 #include "api/ArduinoAPI.h"
+#include "UART_constants.h"
 #include "core_devices.h"
 #include "device_timer_pins.h"
 /* Gives names to all the timer pins - relies on core_devices.h being included first.*/
@@ -147,9 +148,9 @@ void stop_millis();                       // stop the timer being used for milli
 void restart_millis();                    // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
 void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the specified number of milliseconds. DO NOT CALL with a number lower than the current millis count if you have any timeouts ongoing.
                                           // they may expire instantly.
-void nudge_millis(uint16_t nudgemillis);  // Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
-                                          // way to advance the timer without needing to read the current millis yourself, and without a few other risks. (added becauise *I* needed it, but simple enough).
-                                          // The intended use case is when you know you're disabling millis for a long time, and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
+//void nudge_millis(uint16_t nudgemillis);// Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
+// Not yet implemented, debating if       // way to advance the timer without needing to read the current millis yourself, and without a few other risks. (added becauise *I* needed it, but simple enough).
+// this is the right thing to implement   // The intended use case is when you know you're disabling millis for a long time, and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
                                           // forward by a given amount; I added this when in a pinch because *I* needed that functionality.
 
 // Allows for user to mark a timer "do not touch" for purposes of analogWrite and the like, so you can take over a timer and reconfigure it, and not worry about digitalWrite() flipping a CMPEN bit.
@@ -326,6 +327,7 @@ extern const uint8_t digital_pin_to_timer[];
 // Same numeric value, but used for improved code readability
 #define NOT_AN_INTERRUPT  (255)
 #define NOT_A_MUX         (255)
+#define MUX_NONE          (128)
 // invalid portmux options
 // When cast to int8_t these are -1, but it is critical to define them as 255, not -1 because we check if they're less than the number of something
 
@@ -338,46 +340,93 @@ extern const uint8_t digital_pin_to_timer[];
 #define PG 6
 #define NUM_TOTAL_PORTS 7
 
-// These are used as the second argument to pinConfigure(pin,configuration)
+// These are used as the second argument to pinConfigure(pin, configuration)
 // You can bitwise OR as many of these as you want, or just do one. Very
 // flexible function; not the world's fastest though. Directives are handled
-// in the order they show up on this list.
-#define PIN_DIRSET           0x0001
-#define PIN_DIRCLR           0x0002
-#define PIN_DIRTGL           0x0003
-#define PIN_DIR_OUTPUT       0x0001 // Alias
-#define PIN_DIR_OUT          0x0001 // Alias
-#define PIN_DIR_INPUT        0x0002 // Alias
-#define PIN_DIR_IN           0x0002 // Alias
-#define PIN_DIR_TOGGLE       0x0003 // Alias
-#define PIN_DIR_TGL          0x0003 // Alias
-#define PIN_OUTSET           0x0004
-#define PIN_OUTCLR           0x0008
-#define PIN_OUTTGL           0x000C
-#define PIN_OUT_HIGH         0x0004 // Alias
-#define PIN_OUT_LOW          0x0008 // Alias
-#define PIN_OUT_TOGGLE       0x000C // Alias
-#define PIN_OUT_TGL          0x000C // Alias
-#define PIN_INPUT_ENABLE     0x0080
-#define PIN_INT_CHANGE       0x0090
-#define PIN_INT_RISE         0x00A0
-#define PIN_INT_FALL         0x00B0
-#define PIN_INPUT_DISABLE    0x00C0
-#define PIN_INT_LEVEL        0x00D0
-#define PIN_PULLUP_ON        0x0100
-#define PIN_PULLUP_OFF       0x0200
-#define PIN_PULLUP_TOGGLE    0x0300 // I suppose I can see uses for this
-#define PIN_PULLUP           0x0100 // Alias
-#define PIN_NOPULLUP         0x0200 // Alias
-#define PIN_PULLUP_TGL       0x0300 // I suppose I can see uses for this
-#define PIN_INVERT_ON        0x4000
-#define PIN_INVERT_OFF       0x8000
-#define PIN_INVERT_TGL       0xC000 // One of the less useful ones...
-#define PIN_INVERT_TOGGLE    0xC000 // One of the less useful ones...
-#define PIN_INLVL_TTL        0x1000 // MVIO parts only
-#define PIN_INLVL_SCHMITT    0x2000 // MVIO parts only
-#define PIN_INLVL_ON         0x1000 // MVIO parts only
-#define PIN_INLVL_OFF        0x2000 // MVIO parts only
+// in the order they show up on this list, by pin function:
+// PIN_DIR      Direction
+// PIN_OUT      Output value
+// PIN_ISC      Enable and interrupt mode. If interrupts are turned on w/out the ISR, it will trigger dirty reset.
+// PIN_PULLUP   Pullups
+// PIN_INLVL    Input levels (MVIO parts only - everything else is schmitt trigger only, except on I2C pins acting as I2C with SMBus levels enabled. )
+// PIN_INVERT   Invert pin
+//
+// Systematically named constants can be made by combining those names with the postfixes here
+// except for PIN_ISC which is not a non-binary option. Valid values are listed below.
+// _SET, _CLR, and _TGL can be used as a postfix on all binary options.
+// _TOGGLE and _TGL are interchangable as well.
+// Additional names are defined where they might be easier to remember.
+// It's not an accident that the PORT options have PIN_(name of register in PORTx)
+// as an alias.
+// Microchip can add one more binary option >.>
+
+/* normal PORT binary options */
+#define PIN_DIR_SET          0x0001 // OUTPUT
+#define PIN_DIRSET           0x0001 // alias
+#define PIN_DIR_OUTPUT       0x0001 // alias
+#define PIN_DIR_OUT          0x0001 // alias
+#define PIN_DIR_CLR          0x0002 // INPUT
+#define PIN_DIRCLR           0x0002 // alias
+#define PIN_DIR_INPUT        0x0002 // alias
+#define PIN_DIR_IN           0x0002 // alias
+#define PIN_DIR_TGL          0x0003 // TOGGLE INPUT/OUTPUT
+#define PIN_DIRTGL           0x0003 // alias
+#define PIN_DIR_TOGGLE       0x0003 // alias
+#define PIN_OUT_SET          0x0004 // HIGH
+#define PIN_OUTSET           0x0004 // alias
+#define PIN_OUT_HIGH         0x0004 // alias
+#define PIN_OUT_CLR          0x0008 // LOW
+#define PIN_OUTCLR           0x0008 // alias
+#define PIN_OUT_LOW          0x0008 // alias
+#define PIN_OUT_TGL          0x000C // CHANGE/TOGGLE
+#define PIN_OUTTGL           0x000C // alias
+#define PIN_OUT_TOGGLE       0x000C // alias
+// reserved                  0x0010 // reserved - couldn't be combined with the ISC options
+// reserved                  0x0020 // reserved - couldn't be combined with the ISC options
+// reserved                  0x0030 // reserved - couldn't be combined with the ISC options
+// reserved                  0x0040 // reserved - couldn't be combined with the ISC options
+// reserved                  0x0050 // reserved - couldn't be combined with the ISC options
+// reserved                  0x0060 // reserved - couldn't be combined with the ISC options
+// reserved                  0x0070 // reserved - couldn't be combined with the ISC options
+/* Interrupt and input enable nybble is: 0b1nnn to set to option n, or 0b0xxx to not, and ignore those bits. */
+#define PIN_ISC_ENABLE       0x0080 // No interrupts and enabled.
+#define PIN_INPUT_ENABLE     0x0080 // alias
+#define PIN_ISC_CHANGE       0x0090 // CHANGE
+#define PIN_INT_CHANGE       0x0090 // alias
+#define PIN_ISC_RISE         0x00A0 // RISING
+#define PIN_INT_RISE         0x00A0 // alias
+#define PIN_ISC_FALL         0x00B0 // FALLING
+#define PIN_INT_FALL         0x00B0 // alias
+#define PIN_ISC_DISABLE      0x00C0 // DISABLED
+#define PIN_INPUT_DISABLE    0x00C0 // alias
+#define PIN_ISC_LEVEL        0x00D0 // LEVEL
+#define PIN_INT_LEVEL        0x00D0 // alias
+/* PINnCONFIG binary options */
+#define PIN_PULLUP_ON        0x0100 // PULLUP ON
+#define PIN_PULLUP           0x0100 // alias
+#define PIN_PULLUP_SET       0x0100 // alias
+#define PIN_PULLUP_OFF       0x0200 // PULLUP OFF
+#define PIN_PULLUP_CLR       0x0200 // alias
+#define PIN_NOPULLUP         0x0200 // alias
+#define PIN_PULLUP_TGL       0x0300 // PULLUP TOGGLE
+#define PIN_PULLUP_TOGGLE    0x0300 // alias
+// reserved                  0x0400 // reserved
+// reserved                  0x0800 // reserved
+// reserved                  0x0C00 // reserved
+#define PIN_INLVL_TTL        0x1000 // TTL INPUT LEVELS - MVIO parts only
+#define PIN_INLVL_ON         0x1000 // alias MVIO parts only
+#define PIN_INLVL_SET        0x1000 // alias MVIO parts only
+#define PIN_INLVL_SCHMITT    0x2000 // SCHMITT INPUT LEVELS - MVIO parts only
+#define PIN_INLVL_OFF        0x2000 // alias MVIO parts only
+#define PIN_INLVL_CLR        0x2000 // alias MVIO parts only
+// reserved                  0x3000 // INLVL TOGGLE - not supported. If you tell me a reasonable use case
+// I'll do it.each possible value is handled separately, slowing it down, and I don't think this would get used.
+#define PIN_INVERT_ON        0x4000 // PIN INVERT ON
+#define PIN_INVERT_SET       0x4000 // alias
+#define PIN_INVERT_OFF       0x8000 // PIN INVERT OFF
+#define PIN_INVERT_CLR       0x8000 // alias
+#define PIN_INVERT_TGL       0xC000 // PIN_INVERT_TOGGLE
+#define PIN_INVERT_TOGGLE    0xC000 // alias
 
 #define digitalPinToPort(pin)               ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_port[pin]         : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)

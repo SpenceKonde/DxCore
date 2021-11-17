@@ -8,7 +8,6 @@
 #ifndef Core_Devices_h
 #define Core_Devices_h
 #include <avr/io.h>
-
 /*
  * Access to flash-mapped program memory!
  * 104 is a 128k part like AVR128DA

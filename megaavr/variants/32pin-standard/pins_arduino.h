@@ -88,13 +88,13 @@ This file may or may not be different for the
 // PWM pins
 
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0))
 #elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
 #endif
 
 // Timer pin mapping
@@ -146,12 +146,7 @@ This file may or may not be different for the
 #define PIN_WIRE1_SCL           PIN_PF3
 
 // USART 0
-#define HWSERIAL0                       &USART0
-#define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
-#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
-#define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
 #define HWSERIAL0_MUX_COUNT             2
-#define HWSERIAL0_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
@@ -165,12 +160,7 @@ This file may or may not be different for the
 #define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
-#define HWSERIAL1                       &USART1
-#define HWSERIAL1_DRE_VECTOR            USART1_DRE_vect
-#define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
-#define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
 #define HWSERIAL1_MUX_COUNT             2
-#define HWSERIAL1_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_1         NOT_A_MUX /* destined for removal */
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
@@ -184,12 +174,7 @@ This file may or may not be different for the
 #define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN /* destined for removal */
 
 // USART 2
-#define HWSERIAL2                       &USART2
-#define HWSERIAL2_DRE_VECTOR            USART2_DRE_vect
-#define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
-#define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
 #define HWSERIAL2_MUX_COUNT             2
-#define HWSERIAL2_MUX_REGISTER          &PORTMUX.USARTROUTEA
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
@@ -264,155 +249,156 @@ static const uint8_t A21 = PIN_A21;
       #     ### #   #     #   # #   # #   # #   #   #    #*/
 
 #ifdef ARDUINO_MAIN
-  /* this guards against multiple definition errors, since this file gets included by everything,
-     but only in one case should these tables be generated */
+/* this guards against multiple definition errors, since this file gets included by everything,
+   but only in one case should these tables be generated */
   const uint8_t digital_pin_to_port[] = {
-    PA, //  0 PA0/XTAL0/CLKIN
-    PA, //  1 PA1/XTAL1
-    PA, //  2 PA2/SDA
-    PA, //  3 PA3/SCL
-    PA, //  4 PA4/MOSI
-    PA, //  5 PA5/MISO
-    PA, //  6 PA6/SCK
-    PA, //  7 PA7/SS/CLKOUT/LED_BUILTIN
-    PC, //  8 PC0/USART1_Tx
-    PC, //  9 PC1/USART1_Rx
-    PC, // 10 PC2
-    PC, // 11 PC3
-    PD, // 12 PD0/AIN0 - bit position and bit mask aren't defined if the pin doesn't exist, but we sometimes need to get port since it is the zero-pin.
-    PD, // 13 PD1/AIN1
-    PD, // 14 PD2/AIN2
-    PD, // 15 PD3/AIN3
-    PD, // 16 PD4/AIN4
-    PD, // 17 PD5/AIN5
-    PD, // 18 PD6/AIN6
-    PD, // 19 PD7/AIN7/AREF
-    PF, // 20 PF0/AIN16/USART2_Tx/TOSC1
-    PF, // 21 PF1/AIN17/USART2_Rx/TOSC2
-    PF, // 22 PF2/AIN18
-    PF, // 23 PF3/AIN19
-    PF, // 24 PF4/AIN20/TCB0 PWM
-    PF, // 25 PF5/AIN21/TCB1 PWM
-    PF, // 26 PF6 RESET
- // PF  // 27 PF7 UPDI
-  };
+  PA, //  0 PA0/XTAL0/CLKIN
+  PA, //  1 PA1/XTAL1
+  PA, //  2 PA2/SDA
+  PA, //  3 PA3/SCL
+  PA, //  4 PA4/MOSI
+  PA, //  5 PA5/MISO
+  PA, //  6 PA6/SCK
+  PA, //  7 PA7/SS/CLKOUT/LED_BUILTIN
+  PC, //  8 PC0/USART1_Tx
+  PC, //  9 PC1/USART1_Rx
+  PC, // 10 PC2
+  PC, // 11 PC3
+  PD, // 12 PD0/AIN0 - bit position and bit mask aren't defined if the pin doesn't exist, but we sometimes need to get port since it is the zero-pin.
+  PD, // 13 PD1/AIN1
+  PD, // 14 PD2/AIN2
+  PD, // 15 PD3/AIN3
+  PD, // 16 PD4/AIN4
+  PD, // 17 PD5/AIN5
+  PD, // 18 PD6/AIN6
+  PD, // 19 PD7/AIN7/AREF
+  PF, // 20 PF0/AIN16/USART2_Tx/TOSC1
+  PF, // 21 PF1/AIN17/USART2_Rx/TOSC2
+  PF, // 22 PF2/AIN18
+  PF, // 23 PF3/AIN19
+  PF, // 24 PF4/AIN20/TCB0 PWM
+  PF, // 25 PF5/AIN21/TCB1 PWM
+  PF, // 26 PF6 RESET
+  // PF  // 27 PF7 UPDI
+};
 
-  /* Use this for accessing PINnCTRL register */
-  const uint8_t digital_pin_to_bit_position[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bp,            // PA0
-    #else
-      NOT_A_PIN,
-    #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
-    #else
-      // PA1 used for external crystal.
-      PIN1_bp,
-    #endif
-    PIN2_bp, //  2 PA2/SDA
-    PIN3_bp, //  3 PA3/SCL
-    PIN4_bp, //  4 PA4/MOSI
-    PIN5_bp, //  5 PA5/MISO
-    PIN6_bp, //  6 PA6/SCK
-    PIN7_bp, //  7 PA7/SS/CLKOUT
-    PIN0_bp, //  8 PC0/USART1_Tx
-    PIN1_bp, //  9 PC1/USART1_Rx
-    PIN2_bp, // 10 PC2
-    PIN3_bp, // 11 PC3
-    #ifndef MVIO
-      PIN0_bp, // 12 PD0/AIN0
-    #else
-      NOT_A_PIN,
-    #endif
-    PIN1_bp, // 13 PD1/AIN1
-    PIN2_bp, // 14 PD2/AIN2
-    PIN3_bp, // 15 PD3/AIN3
-    PIN4_bp, // 16 PD4/AIN4
-    PIN5_bp, // 17 PD5/AIN5
-    PIN6_bp, // 18 PD6/AIN6
-    PIN7_bp, // 19 PD7/AIN7/AREF
-    PIN0_bp, // 20 PF0/USART2_Tx/TOSC1
-    PIN1_bp, // 21 PF1/USART2_Rx/TOSC2
-    PIN2_bp, // 22 PF2/AIN12
-    PIN3_bp, // 23 PF3/AIN13
-    PIN4_bp, // 24 PF4/AIN14/TCB0 PWM
-    PIN5_bp, // 25 PF5/AIN15/TCB1 PWM
-    PIN6_bp, // 26 PF6 RESET
-  //PIN6_bm  // 27 PF7 UPDI
-  };
-  const uint8_t digital_pin_to_bit_mask[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bm,            // PA0
-    #else
-      NOT_A_PIN,
-    #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
-    #else
-      PIN1_bm,
-    #endif
-    PIN2_bm, //  2 PA2/SDA
-    PIN3_bm, //  3 PA3/SCL
-    PIN4_bm, //  4 PA4/MOSI
-    PIN5_bm, //  5 PA5/MISO
-    PIN6_bm, //  6 PA6/SCK
-    PIN7_bm, //  7 PA7/SS/CLKOUT
-    PIN0_bm, //  8 PC0/USART1_Tx
-    PIN1_bm, //  9 PC1/USART1_Rx
-    PIN2_bm, // 10 PC2
-    PIN3_bm, // 11 PC3
-    #ifndef MVIO
-      PIN0_bm, // 12 PD0/AIN0
-    #else
-      NOT_A_PIN,
-    #endif
-    PIN1_bm, // 13 PD1/AIN1
-    PIN2_bm, // 14 PD2/AIN2
-    PIN3_bm, // 15 PD3/AIN3
-    PIN4_bm, // 16 PD4/AIN4
-    PIN5_bm, // 17 PD5/AIN5
-    PIN6_bm, // 18 PD6/AIN6
-    PIN7_bm, // 19 PD7/AIN7/AREF
-    PIN0_bm, // 20 PF0/USART2_Tx/TOSC1
-    PIN1_bm, // 21 PF1/USART2_Rx/TOSC2
-    PIN2_bm, // 22 PF2/AIN12
-    PIN3_bm, // 23 PF3/AIN13
-    PIN4_bm, // 24 PF4/AIN14/TCB0 PWM
-    PIN5_bm, // 25 PF5/AIN15/TCB1 PWM
-    PIN6_bm, // 26 PF6 RESET
-  //PIN6_bm  // 27 PF7 UPDI
-  };
+/* Use this for accessing PINnCTRL register */
+// *INDENT-OFF* - astyle wants these to be made worse
+const uint8_t digital_pin_to_bit_position[] = {
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bp,            // PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
+    NOT_A_PIN,  //   1 PA1
+  #else
+    // PA1 used for external crystal.
+    PIN1_bp,
+  #endif
+  PIN2_bp, //  2 PA2/SDA
+  PIN3_bp, //  3 PA3/SCL
+  PIN4_bp, //  4 PA4/MOSI
+  PIN5_bp, //  5 PA5/MISO
+  PIN6_bp, //  6 PA6/SCK
+  PIN7_bp, //  7 PA7/SS/CLKOUT
+  PIN0_bp, //  8 PC0/USART1_Tx
+  PIN1_bp, //  9 PC1/USART1_Rx
+  PIN2_bp, // 10 PC2
+  PIN3_bp, // 11 PC3
+  #ifndef MVIO
+    PIN0_bp, // 12 PD0/AIN0
+  #else
+    NOT_A_PIN,
+  #endif
+  PIN1_bp, // 13 PD1/AIN1
+  PIN2_bp, // 14 PD2/AIN2
+  PIN3_bp, // 15 PD3/AIN3
+  PIN4_bp, // 16 PD4/AIN4
+  PIN5_bp, // 17 PD5/AIN5
+  PIN6_bp, // 18 PD6/AIN6
+  PIN7_bp, // 19 PD7/AIN7/AREF
+  PIN0_bp, // 20 PF0/USART2_Tx/TOSC1
+  PIN1_bp, // 21 PF1/USART2_Rx/TOSC2
+  PIN2_bp, // 22 PF2/AIN12
+  PIN3_bp, // 23 PF3/AIN13
+  PIN4_bp, // 24 PF4/AIN14/TCB0 PWM
+  PIN5_bp, // 25 PF5/AIN15/TCB1 PWM
+  PIN6_bp, // 26 PF6 RESET
+//PIN6_bm  // 27 PF7 UPDI
+};
+const uint8_t digital_pin_to_bit_mask[] = {
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bm,            // PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
+    NOT_A_PIN,  //   1 PA1
+  #else
+    PIN1_bm,
+  #endif
+  PIN2_bm, //  2 PA2/SDA
+  PIN3_bm, //  3 PA3/SCL
+  PIN4_bm, //  4 PA4/MOSI
+  PIN5_bm, //  5 PA5/MISO
+  PIN6_bm, //  6 PA6/SCK
+  PIN7_bm, //  7 PA7/SS/CLKOUT
+  PIN0_bm, //  8 PC0/USART1_Tx
+  PIN1_bm, //  9 PC1/USART1_Rx
+  PIN2_bm, // 10 PC2
+  PIN3_bm, // 11 PC3
+  #ifndef MVIO
+    PIN0_bm, // 12 PD0/AIN0
+  #else
+    NOT_A_PIN,
+  #endif
+  PIN1_bm, // 13 PD1/AIN1
+  PIN2_bm, // 14 PD2/AIN2
+  PIN3_bm, // 15 PD3/AIN3
+  PIN4_bm, // 16 PD4/AIN4
+  PIN5_bm, // 17 PD5/AIN5
+  PIN6_bm, // 18 PD6/AIN6
+  PIN7_bm, // 19 PD7/AIN7/AREF
+  PIN0_bm, // 20 PF0/USART2_Tx/TOSC1
+  PIN1_bm, // 21 PF1/USART2_Rx/TOSC2
+  PIN2_bm, // 22 PF2/AIN12
+  PIN3_bm, // 23 PF3/AIN13
+  PIN4_bm, // 24 PF4/AIN14/TCB0 PWM
+  PIN5_bm, // 25 PF5/AIN15/TCB1 PWM
+  PIN6_bm, // 26 PF6 RESET
+//PIN6_bm  // 27 PF7 UPDI
+};
 
-  const uint8_t digital_pin_to_timer[] = {
-    NOT_ON_TIMER, //  0 PA0/XTAL1/CLKIN
-    NOT_ON_TIMER, //  1 PA1/XTAL2
-    TIMERB0,      //  2 PA2/SDA
-    TIMERB1,      //  3 PA3/SCL
-    TIMERD0,      //  4 PA4/MOSI      WOA
-    TIMERD0,      //  5 PA5/MISO      WOB
-    TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
-    TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-    TIMERB2,      //  8 PC0
-    NOT_ON_TIMER, //  9 PC1
-    NOT_ON_TIMER, // 10 PC2
-    NOT_ON_TIMER, // 11 PC3
-    NOT_ON_TIMER, // 12 PD0/AIN0
-    NOT_ON_TIMER,
-    NOT_ON_TIMER, // 13 PD1/AIN1
-    NOT_ON_TIMER, // 14 PD2/AIN2
-    NOT_ON_TIMER, // 15 PD3/AIN3
-    NOT_ON_TIMER, // 16 PD4/AIN4
-    NOT_ON_TIMER, // 17 PD5/AIN5
-    DACOUT,       // 18 PD6/AIN6/DAC
-    NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-    NOT_ON_TIMER, // 20 PF0/AIN16TOSC1
-    NOT_ON_TIMER, // 21 PF1/AIN17TOSC2
-    NOT_ON_TIMER, // 22 PF2/AIN18
-    NOT_ON_TIMER, // 23 PF3/AIN19
-    NOT_ON_TIMER, // 24 PF4/AIN20
-    NOT_ON_TIMER, // 25 PF5/AIN21
-    NOT_ON_TIMER, // 26 PF6 RESET
+const uint8_t digital_pin_to_timer[] = {
+  NOT_ON_TIMER, //  0 PA0/XTAL1/CLKIN
+  NOT_ON_TIMER, //  1 PA1/XTAL2
+  TIMERB0,      //  2 PA2/SDA
+  TIMERB1,      //  3 PA3/SCL
+  TIMERD0,      //  4 PA4/MOSI      WOA
+  TIMERD0,      //  5 PA5/MISO      WOB
+  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
+  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
+  TIMERB2,      //  8 PC0
+  NOT_ON_TIMER, //  9 PC1
+  NOT_ON_TIMER, // 10 PC2
+  NOT_ON_TIMER, // 11 PC3
+  NOT_ON_TIMER, // 12 PD0/AIN0
+  NOT_ON_TIMER,
+  NOT_ON_TIMER, // 13 PD1/AIN1
+  NOT_ON_TIMER, // 14 PD2/AIN2
+  NOT_ON_TIMER, // 15 PD3/AIN3
+  NOT_ON_TIMER, // 16 PD4/AIN4
+  NOT_ON_TIMER, // 17 PD5/AIN5
+  DACOUT,       // 18 PD6/AIN6/DAC
+  NOT_ON_TIMER, // 19 PD7/AIN7/AREF
+  NOT_ON_TIMER, // 20 PF0/AIN16TOSC1
+  NOT_ON_TIMER, // 21 PF1/AIN17TOSC2
+  NOT_ON_TIMER, // 22 PF2/AIN18
+  NOT_ON_TIMER, // 23 PF3/AIN19
+  NOT_ON_TIMER, // 24 PF4/AIN20
+  NOT_ON_TIMER, // 25 PF5/AIN21
+  NOT_ON_TIMER, // 26 PF6 RESET
   //NOT_ON_TIMER  // 27 PF7 UPDI
   };
 #endif
