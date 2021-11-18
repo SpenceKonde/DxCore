@@ -136,21 +136,21 @@
 
   }
 
-  void __attribute__((naked)) __attribute__((noreturn)) isrBody() {
+  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) isrBody() {
     asm volatile (
-      "pop   r1"         "\n\t" /* flush that return pointer from rcall down the loo */
-      "pop   r1"         "\n\t" /* We now have just the old r1 and r16 on the stack before the final return address.*/
-      "push  r0"         "\n\t" /* so we continue with the prologue starting with r0 being pushed. */
-      "in    r0, 0x3f"   "\n\t" /* So just finish the prologue */
-      "push  r0"         "\n\t"    // We gotts save the SREG, And RAMPZ.
-      "eor   r1, r1"     "\n\t"  // the C code we call is going to want this to be zero....
-      "in    r0, 0x3b"   "\n\t"
-      "push  r0"         "\n\t"
-      "push  r15"        "\n\t" // push r15 (we use it)
-      "push  r17"        "\n\t"  // and all the upper registers not already zero
-      "push  r18"        "\n\t"
-      "push  r19"        "\n\t" //skip 16, already did it
-      "push  r20"        "\n\t" // all other upper registers get pushed.
+     "AttachedISR:"      "\n\t" // as the scene opens, we have r16 on the stack already, portnumber x 2 in the r16
+      "push  r0"         "\n\t" // so we start with a normal prologue
+      "in    r0, 0x3f"   "\n\t" // The SREG
+      "push  r0"         "\n\t" // on the stack
+      "in    r0, 0x3b"   "\n\t" // RAMPZ
+      "push  r0"         "\n\t" // on the stack.
+      "push  r1"         "\n\t" // We don't need r1 but the C code we call
+      "eor   r1, r1"     "\n\t" // is going to want this to be zero....
+      "push  r15"        "\n\t" // push r15 (we use it - it's call-saved)
+      "push  r17"        "\n\t" // and now we push all call used registers
+      "push  r18"        "\n\t" // except r16 which was pused over in WInterrupts_Px
+      "push  r19"        "\n\t"
+      "push  r20"        "\n\t"
       "push  r21"        "\n\t"
       "push  r22"        "\n\t"
       "push  r23"        "\n\t"
@@ -158,41 +158,41 @@
       "push  r25"        "\n\t"
       "push  r26"        "\n\t"
       "push  r27"        "\n\t"
-      "push  r28"        "\n\t"
-      "push  r29"        "\n\t"
+      "push  r28"        "\n\t" // Not call used, but we use it.
+      "push  r29"        "\n\t" // same thing.
       "push  r30"        "\n\t"
       "push  r31"        "\n\t"
       ::);
     asm volatile (  //This gets us the address of intFunc in Y pointer reg.
-      "add   r26,   r16"  "\n\t" // get the address of the functions for this port
-      "adc   r27,    r1"  "\n\t" // by adding the other offcet we had the compiler feed us and turn into a pair of ldi's
-      "ld    r28,     X+" "\n\t" // load the pointer to this port's function array to Y
-      "ld    r29,     X"  "\n\t" // pointer reg.
-      "add   r16,   r16"  "\n\t" // now this is the address of the start of the VPORT
+      "add   r26,   r16"  "\n\t" // get the address of the functions for this port (r 16 is 2x the port number)
+      "adc   r27,    r1"  "\n\t" // by adding that offset to the address we had the compiler generate the ldi's for
+      "ld    r28,     X+" "\n\t" // load the pointer to this port's function array...
+      "ld    r29,     X"  "\n\t" // ... to the Y pointer reg.
+      "add   r16,   r16"  "\n\t" // double r16, so it is 4x port number - that's the address of the start of the VPORT
       "subi  r16,   253"  "\n\t" // Now this is the address of the VPORTx.INTFLAGS
       "mov   r26,   r16"  "\n\t" // r16 to x reg low byte
       "ldi   r27,     0"  "\n\t" // clear x high byte
       "ld    r15,     X"  "\n\t" // Load flags to r15"
       "sbiw  r26,     0"  "\n\t" // this will set flag if it's zero.
-      "breq  end"         "\n\t" // port not enabled, null pointer, just clear flags end hit the exit ramp.
-      "mov   r17,   r15"  "\n\t" //copy that flags to r17;
-    "loopstart:"          "\n\t"
+      "breq  AIntend"     "\n\t" // port not enabled, null pointer, just clear flags end hit the exit ramp.
+      "mov   r17,   r15"  "\n\t" // copy that flags to r17;
+    "AIntloopst:"         "\n\t"
       "lsr   r17"         "\n\t" // shift it right one place, now the LSB is in carry.
       "brcs  .+6"         "\n\t" // means we have something to do this time.
-      "breq  end"         "\n\t" // This means carry wasn't set and r17 is 0. - we're done.
+      "breq  AIntend"     "\n\t" // This means carry wasn't set and r17 is 0. - we're done.
       "adiw  r28,    2"   "\n\t" // otherwise it's not a the int we care about, increment Y by 2, so it will point to the next element.
-      "rjmp  loopstart"   "\n\t" // restart the loop in that case.
+      "rjmp AIntloopst"   "\n\t" // restart the loop in that case.
       "ld    r30,    Y+"  "\n\t" // load the function pointer;
       "ld    r31,    Y+"  "\n\t" // load the function pointer;
       "sbiw  r30,    0"   "\n\t" // zero-check it.
-      "breq  loopstart"   "\n\t" // restart loop if it is,, don't call the null pointer
-      "icall"             "\n\t" // call their fuinction which is allowed to shit all over upper registers other that 28, 29, 16, and 17.
-      "rjmp  loopstart"   "\n\t" // Restart loop after.
-    "end:"                "\n\t" // sooner   or later r17 will be 0 and we'll branch here.
+      "breq AIntloopst"   "\n\t" // restart loop if it is, don't call the null pointer
+      "icall"             "\n\t" // call their function, which is allowed to shit on any upper registers other than 28, 29, 16, and 17.
+      "rjmp AIntloopst"   "\n\t" // Restart loop after.
+    "AIntend:"            "\n\t" // sooner or later r17 will be 0 and we'll branch here.
       "mov   r16,  r26"   "\n\t" // So when we do this, we end up with VPORTA.FLAGS address in r16
-      "ldi   r27,    0"   "\n\t" //  high byte is 0 (we  movw r16 and r17 together because we do NOT know that r17 is 0 if the port intfunc pointer was null)
-      "st      X,  r15"   "\n\t" // store that to clerar the flags....
-      "pop   r31"         "\n\t"
+      "ldi   r27,    0"   "\n\t" // high byte is 0, cause we're targeting the VPORT
+      "st      X,  r15"   "\n\t" // store to clear the flags....
+      "pop   r31"         "\n\t" // clean up a million registers
       "pop   r30"         "\n\t"
       "pop   r29"         "\n\t"
       "pop   r28"         "\n\t"
@@ -206,15 +206,15 @@
       "pop   r20"         "\n\t"
       "pop   r19"         "\n\t"
       "pop   r18"         "\n\t"
-      "pop   r17"         "\n\t" // skip 16 again - it's way down at the end
+      "pop   r17"         "\n\t" // skip 16 again - it's way down at the end, because it was pushed elsewhere.
       "pop   r15"         "\n\t"
+      "pop   r1"          "\n\t"
       "pop   r0"          "\n\t"
       "out   0x3b,  r0"   "\n\t"
       "pop   r0"          "\n\t"
       "out   0x3f,  r0"   "\n\t" // between these is where there had been stuff added to the stack that we flushed.
       "pop   r0"          "\n\t"
-      "pop   r16"         "\n\t" // this was the second reg we pushed, so we had a place to store the port
-      "pop   r1"          "\n\t"
+      "pop   r16"         "\n\t" // this was the reg we pushed back in the port-specific file.
       "reti"              "\n"  // now we should have the pointer to the return address fopr the ISR on top of the stack, so reti're
       :: "x" ((uint16_t)(&intFunc))
       );
@@ -237,39 +237,30 @@
   }
 /* If not enabling attach on all ports always, instead the identical ISR definitions are in the WInterruptsA/B/C/D/E/F/G.c files.
  * Okay, so what the f-- is going on here?
- * To avoid each interrupt ve3ctor having it's own lengthy prologue and epilog separaely, which is needed in order for a function call to be made in an ISR
- * we do a minimum amount if work here to ensure that isrBody() can do everything it needs to. First, it needs one scratch register to pop the return address of
- * the port=-specific ISR into, getting it off the stack. That's what we use r1 for. Next, it needs to know what port it will use. We do that with r16 since it's
- * call-saved and and we need to know this both before and after we call the first user-attached callback, So we push rhe old r16 valuw, and load a value equal to
- * twice the port in (we need to know both this, and 4x the port. halcing it for one purpose and not the other is the same as doubling it or one and not the other
- * so there's no advantage of one ofthose over the other, but both are clearly be3tter than just passing the port number alone, and having to double it one more
- * time. (saves 1b). We don't need r0 to shred other return address, so that can also wait for the main routine.
- * So with that ready, we call isrBody() and tell the compiler that code will never get any further in this ISR, so it doesn't need to handle the potential forthe
- * isrBody to return normally though that doesn't change the binary it builds, since it's already a naked ISR.
+ * To avoid each interrupt vector having it's own lengthy prologue and epilog separaely, which is needed in order for a function call to be made in an ISR
+ * All we do is push an upper register onto the stack so can load a value twice the PORT number there, and jump to actual function that does the work here.
  *
- * The isrBody() has two consecutive blocks of inline assembly, First, we finish the prologue - we trash the top two vanlues from the stack
- * which are the return address (ie, the point in the port-specific ISR. Then we start pushing all the call-used registers except r1 and r16 which were already pushed
- * we also need to push one additional call-saved reg, r15 because we need to store the flags we read.
+ * The isrBody() has two consecutive blocks of inline assembly, First, do what is basically a standard prologue, for something that calls a function. We finish the prologue but we need to
+ * push the Y pointer and r15 (call saved) for this routine. Then we pop out of that assembly block just to grab the pointer to IntFunc array, which we need in a pointer reg.
  *
- * The second one is separate only so we can grab the address of the intFunc array in memory which is a pair of bytes that get loaded at that point with ldi.
- * we couldn't have ldi'ed them sooner because we didn't have anywhere to load them to. To that we add the pre-doubled port number. (ever wonder why gcc needs
- * that known zero? carrying when adding a smaller datatype to a large one is one of those reasons, since there is no adci (or addi) - you can only subtract immediates
- * They didn't have enough space in the instructionset for any more _____ imediate's - each one takes 12 bits to specify (4 to specify register, 8 for value - leaving
- * only 4 bits - so each one takes 1/16th of possible opcodes.  A tiny minority of instructions take the vast majority of possible opcodes like this.
+ * Assembly is split up only so we can grab that address through that in a constraint.
+ * We couldn't have done that any sooner, we had nowhere to put it. To that we add the pre-doubled port number - pointers are 2 bytes so we need that
+ * doubling.
  *
- * We can then load the pointer to this port's intfunctions to the call-saved Y register.
- * With X no longer needed, we dcouble the port again, and add 3 with subi to get address of VPORT. copy to r26, and load the 0 high byte to r27 and read the flags into r15
- * sutract 0 from that function pointer to check that it's not 0. if it is there's a null pointer andthere's nothing we can call.
- * assuming it's not, we copy flags to r17 and then start the loop - we rightshift; then check first for the carry bit. If it'/s set. we skip the next few isns and check if we
- * have a function to call, because that int was tripped. If not, then we check if the zero flag is set, If THAT is then flags is 0 and we've handled them all, and we
- * jump to end. and if it's not, we manually increment the Y pointer by 2 and return to start of loop.
+ * We can then load the pointer to this port's int functions to the call-saved Y register.
+ * Sutract 0 from that pointer to check that it's not 0. A null pointer is of no use. Assuming that there's a pointer, we continue.
+ * Next we need the INTFLAGs. We will get them from the VPORT, not the PORT. This is much easier.  We double r16 for address of VPORT and add 3 with subi to
+ * get INTFLAGs, copy to r26, and load the 0 high byte to r27, read the flags into r15.
  *
- * For each of the ones that we do have a flag for, we load that pointer into Z with postincrement, subtract 0 from it and look at zero flag tomake sure it'snot null.
- * assuming it's not, we fire icall to call theuser function. Either way we then repeat the loop until out of flags.
+ * Copy flags to r17 and then start the loop. We will check the intflags one at a time. We rightshift once, and check if carry is set, indicating we pushed a 1 out, if so we jump over
+ * three instructions handling the case if we it was a 0: We check  then check first for the carry bit. If not, then we check if the zero flag is set, If THAT is then what's left of flags
+ * is and we've handled them all, and we jump to end. and if it's not, we increment the Y pointer by 2 and return to start of the loop
+ *
+ * For each of the ones that we do have a flag for, we load that pointer into Z with postincrement, subtract 0 from it and look at zero flag to make sure it's not null.
+ * assuming it's not, we fire icall to call the user function. Either way we then repeat the loop until out of flags.
  * which at latest will happen when we're also at end of the ports intfunc array....
  * Then, with the initial flags still in 15 and the the VPORT adderess in r16 copy that once more to a pointer register, 0 the high byte, and store the flags value we read to clear it.
- * then it's just a matter of making sure we pop everything we pushed onto the stack in the reverse order, including r16 and r1 in before isrBody() and reti to exit the interrupt..
- *  *PHEW*
+ * then it's just a matter of making sure we pop everything we pushed onto the stack in the reverse order, including r16 followed by the reti to exit the interrupt..
 */
 
   #if defined(CORE_ATTACH_ALL)

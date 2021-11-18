@@ -11,14 +11,12 @@
     void attachPortCEnable() {
       intFunc[2]=intFunc_C;
     }
-    ISR(PORTC_PORT_vect, ISR_NAKED){
+    ISR(PORTC_PORT_vect, ISR_NAKED) {
       asm volatile(
-        "push r1"       "\n\t"
-        "push r16"      "\n\t"
-        "ldi r16, 4"    "\n\t"
-        ::);
-      isrBody();
-      __builtin_unreachable();
+        "push r16"        "\n\t"
+        "ldi r16, 4"      "\n\t"
+        "jmp AttachedISR" "\n\t"
+      ::);
     }
   #endif
 #endif

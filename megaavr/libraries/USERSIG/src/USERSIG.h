@@ -213,7 +213,7 @@ uint8_t __USigread(uint8_t idx) {
 }
 
 uint8_t __USigreadraw(uint8_t idx) {
-  return *((volatile uint8_t*) USER_SIGNATURES_START + idx);
+  return *((volatile uint8_t *) USER_SIGNATURES_START + idx);
 }
 
 int8_t __USigwrite(uint8_t idx, uint8_t data) {
@@ -247,7 +247,7 @@ int8_t __USigwriteraw(uint8_t idx, uint8_t data) {
   cli();
   _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
   _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
-  *((volatile uint8_t* ) USER_SIGNATURES_START + idx) = data;
+  *((volatile uint8_t *) USER_SIGNATURES_START + idx) = data;
   SREG = oldSREG;
   return 1;
 }
