@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting arduino cores.
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.
 
  ###  #     # ####      ####   ###      # ####  ####        #   #  #
 #   # #     # #   #     #   # #   #    #  #   # #   #      #    #  #          #
@@ -6,22 +6,28 @@
 #   #   # #   #  #      #   # #   #  #    #   # #   #     #   #    #     #  # #  #  #
 #   #    #    #   #     ####  #   # #     ####  ####       ###     #     ###  #  #  #
 =====================================================     ----------     #
-Variant Definition file for generic DA/DB parts                          #
-with 64 pins. There are only 4:
+Variant Definition file for generic DA/DB parts with 64 pins             #
+
+Part Numbers:
 AVR128DA64, AVR128DB64, AVR64DA64 and AVR64DB64
-No 32k versions, and only part of DA and DB-series
-*/
-/* Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
+See VariantTemplate.h in extras folder an extensively annotated copy.
+
+Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
-
 #include <avr/pgmspace.h>
 #include "timers.h"
 
-/* Used for alternate pin mappings and special variants for specific boards. */
 #define DEFAULT_64PIN_PINOUT
 
-// Arduino pin macros
+ /*##  ### #   #  ###
+ #   #  #  ##  # #
+ ####   #  # # #  ###
+ #      #  #  ##     #
+ #     ### #   #  #*/
+
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -79,23 +85,42 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_PF6 (54) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
 /*      PIN_PF7 (55) UPDI pin not available for alternative functions */
 
-#define NUM_DIGITAL_PINS                  (55)
-#define PINS_COUNT                        (NUM_DIGITAL_PINS)
-#define NUM_ANALOG_INPUTS                 (22)
-#define NUM_RESERVED_PINS                  (0)    /* Pins that aren't counted in NUM_DIGITAL PINS because they are used by the hardware implementation on the board. 0 for bare-chip/generic*/
-#define NUM_INTERNALLY_USED_PINS           (0)    /* As above, but including things that don't have numbers for other reasons. Always 0 */
-#define NUM_I2C_PINS                       (2)
-#define NUM_SPI_PINS                       (3)
-#define NUM_TOTAL_FREE_PINS               (NUM_DIGITAL_PINS) /* Is this even used by ANYTHING?! */
-#define NUM_TOTAL_PINS                    (NUM_DIGITAL_PINS)
+        /*##   ##   ###  ###  ###  ###
+        #   # #  # #      #  #    #
+        ####  ####  ###   #  #     ###
+        #   # #  #     #  #  #        #
+        ####  #  # ####  ###  ###  #*/
 
-#ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS           (56)  //needs one extra - see WInterrupts; the low 3 bits are the bit-within-port, rest is port number.
-#endif
+#define NUM_DIGITAL_PINS                  (55)
+#define NUM_ANALOG_INPUTS                 (22)
+// #define NUM_RESERVED_PINS            0     // These may at your option be defined,
+// #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
+// Autocalculated are :
+// NUM_DIGITAL_PINS = PINS_COUNT - NUM_RESERVED_PINS
+// TOTAL_FREE_OPINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
+// Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
+// for some reason need to change this, define them here. Only ones not defined here get automatically set.
+
+
+// Here we can override the default pin for the LED with a command line option or something opassed through boards.txt or platform.txt.
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                     PIN_PA7
 #endif
+
+/* Until the legacy attach interrupt has been completelty obsoleted */
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS           (56)
+#endif
+
+
+       /*   #  ###   ### ####   ###   ###
+        ## ## #   # #    #   # #   # #
+        # # # ##### #    ####  #   #  ###
+        #   # #   # #    # #   #   #     #
+        #   # #   #  ### #  #   ###   ##*/
+// If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
+// you must ensure that these will do what they say they will do.
 
 #define digitalPinToAnalogInput(p)        ((((p) >= PIN_PC7) && ((p) < PIN_PF6)) ? ((p) - PIN_PD0) : NOT_A_PIN)
 #define analogChannelToDigitalPin(p)      ((p) < 22 ? ((p) + PIN_PD0) : NOT_A_PIN)
@@ -138,11 +163,11 @@ No 32k versions, and only part of DA and DB-series
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5 && (p) != PIN_PB6 && (p) != PIN_PB6))
 
 
-/*          ####   ###  ####  ##### #   # #   # #   #
-            #   # #   # #   #   #   ## ## #   #  # #
-            ####  #   # ####    #   # # # #   #   #
-            #     #   # #  #    #   #   # #   #  # #
-            #      ###  #   #   #   #   #  ###  #   */
+        /*##   ###  ####  ##### #   # #   # #   #
+        #   # #   # #   #   #   ## ## #   #  # #
+        ####  #   # ####    #   # # # #   #   #
+        #     #   # #  #    #   #   # #   #  # #
+        #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT   1 /* 2 SPI peripherals but SPI.h only uses one at a time, see that readme for details.*/
 #define NUM_HWSERIAL_PORTS     6
@@ -151,6 +176,7 @@ No 32k versions, and only part of DA and DB-series
 #define SPI_MUX                (PORTMUX_SPI0_DEFAULT_gc)
 #define SPI_MUX_PINSWAP_1      (PORTMUX_SPI0_ALT1_gc)
 #define SPI_MUX_PINSWAP_2      (PORTMUX_SPI0_ALT2_gc)
+#define SPI_MUX_PINSWAP_NONE   (PORTMUX_SPI0_NONE_gc)
 #define PIN_SPI_MOSI           PIN_PA4
 #define PIN_SPI_MISO           PIN_PA5
 #define PIN_SPI_SCK            PIN_PA6
@@ -168,6 +194,7 @@ No 32k versions, and only part of DA and DB-series
 #define SPI1_MUX                (PORTMUX_SPI1_DEFAULT_gc)
 #define SPI1_MUX_PINSWAP_1      (PORTMUX_SPI1_ALT1_gc)
 #define SPI1_MUX_PINSWAP_2      (PORTMUX_SPI1_ALT2_gc)
+#define SPI1_MUX_PINSWAP_NONE   (PORTMUX_SPI1_NONE_gc)
 #define PIN_SPI1_MOSI           PIN_PC0
 #define PIN_SPI1_MISO           PIN_PC1
 #define PIN_SPI1_SCK            PIN_PC2
@@ -197,10 +224,9 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_WIRE1_SCL_PINSWAP_2 PIN_PB3
 
 // USART 0
-#define HWSERIAL0_MUX_COUNT             2                     /* stays - can be deduced, but only in ugly ways */
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc  /* Nope, redundant */
-#define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc     /* Nope, redundant - also horribly verbose and ugly*/
-#define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc     /* Wasn't there before anyway */
+#define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
+#define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
 #define PIN_HWSERIAL0_TX                PIN_PA0               /* All the pins stay */
 #define PIN_HWSERIAL0_RX                PIN_PA1
 #define PIN_HWSERIAL0_XCK               PIN_PA2
@@ -211,7 +237,6 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
-#define HWSERIAL1_MUX_COUNT             2
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
@@ -225,7 +250,6 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_HWSERIAL1_XDIR_PINSWAP_1    PIN_PC7
 
 // USART 2
-#define HWSERIAL2_MUX_COUNT             2
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
@@ -239,7 +263,6 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 
 // USART 3
-#define HWSERIAL3_MUX_COUNT             2
 #define HWSERIAL3_MUX                   PORTMUX_USART3_DEFAULT_gc
 #define HWSERIAL3_MUX_PINSWAP_1         PORTMUX_USART3_ALT1_gc
 #define HWSERIAL3_MUX_PINSWAP_NONE      PORTMUX_USART3_NONE_gc
@@ -253,7 +276,6 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_HWSERIAL3_XDIR_PINSWAP_1    PIN_PB7
 
 // USART 4
-#define HWSERIAL4_MUX_COUNT             2
 #define HWSERIAL4_MUX                   PORTMUX_USART4_DEFAULT_gc
 #define HWSERIAL4_MUX_PINSWAP_1         PORTMUX_USART4_ALT1_gc
 #define HWSERIAL4_MUX_PINSWAP_NONE      PORTMUX_USART4_NONE_gc
@@ -267,7 +289,6 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_HWSERIAL4_XDIR_PINSWAP_1    PIN_PE7
 
 // USART 5
-#define HWSERIAL5_MUX_COUNT             2
 #define HWSERIAL5_MUX                   PORTMUX_USART5_DEFAULT_gc
 #define HWSERIAL5_MUX_PINSWAP_1         PORTMUX_USART5_ALT1_gc
 #define HWSERIAL5_MUX_PINSWAP_NONE      PORTMUX_USART5_NONE_gc
@@ -280,23 +301,12 @@ No 32k versions, and only part of DA and DB-series
 #define PIN_HWSERIAL5_XCK_PINSWAP_1     PIN_PG6
 #define PIN_HWSERIAL5_XDIR_PINSWAP_1    PIN_PG7
 
-/*     ###  #   #  ###  #     ###   ###      ####  ### #   #  ###
-      #   # ##  # #   # #    #   # #         #   #  #  ##  # #
-      ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
-      #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
-      #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
-/* Definitions:
- PIN_An is to be the digital pin that An refers to.
- An is a representation of an analog input channel or a so-called "analog pin"
- This artificial classification as analog or dgital pins continues to cause
- confusion and imprecise language throughout the community. We did not drink
- that kool-aid. analogRead is capable of understanding pin numbers with the
- same representation as digital I/O functions do.
- AINn is NOT for external use, is the channel number with the high bit set, which
- flags it as something that functions can pass around like a pin while knowinng
- that it's actually a channel and that analogChannelToDigitalPin() is needed
- to get the digital pin back. Users should generally not use them.
- AINn = ADC_CH(n) = 0x80 | n = digitalPinToAnalogChanneel(An)                  */
+        /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
+        #   # ##  # #   # #    #   # #         #   #  #  ##  # #
+        ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
+        #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
+        #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
+
 #define PIN_A0   PIN_PD0
 #define PIN_A1   PIN_PD1
 #define PIN_A2   PIN_PD2
@@ -341,7 +351,6 @@ static const uint8_t A18 = PIN_A18;
 static const uint8_t A19 = PIN_A19;
 static const uint8_t A20 = PIN_A20;
 static const uint8_t A21 = PIN_A21;
-/* AINn = (0x80 | n) - often miles away from pin numbers - Internal use only. User code should not utilize these though third party libraries may. Such libraries should hide these from the user where possible */
 #define  AIN0  ADC_CH(0)
 #define  AIN1  ADC_CH(1)
 #define  AIN2  ADC_CH(2)
@@ -366,11 +375,11 @@ static const uint8_t A21 = PIN_A21;
 #define AIN21 ADC_CH(21)
 
 
-/*    ####  ### #   #      ###  ####  ####   ###  #   #  ###
-      #   #  #  ##  #     #   # #   # #   # #   #  # #  #
-      ####   #  # # #     ##### ####  ####  #####   #    ###
-      #      #  #  ##     #   # #  #  #  #  #   #   #       #
-      #     ### #   #     #   # #   # #   # #   #   #    #*/
+        /*##  ### #   #      ###  ####  ####   ###  #   #  ###
+        #   #  #  ##  #     #   # #   # #   # #   #  # #  #
+        ####   #  # # #     ##### ####  ####  #####   #    ###
+        #      #  #  ##     #   # #  #  #  #  #   #   #       #
+        #     ### #   #     #   # #   # #   # #   #   #    #*/
 
 #ifdef ARDUINO_MAIN
 /* this guards against multiple definition errors, since this file gets included by everything,
@@ -435,19 +444,17 @@ const uint8_t digital_pin_to_port[] = {
 };
 
 /* Use this for accessing PINnCTRL register */
-// *INDENT-OFF* - astyle wants these to be made worse
-const uint8_t digital_pin_to_bit_position[] = {
+const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-    PIN0_bp,            // PA0
+    PIN0_bp,//   0 PA0
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-    NOT_A_PIN,  //   1 PA1
-  #else
-    // PA1 used for external crystal.
-    PIN1_bp,
-  #endif
+  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+    NOT_A_PIN,
+  #else // PA1 used for external crystal.
+    PIN1_bp,//   1 PA1
+  #endif    // *INDENT-ON*
   PIN2_bp,  //   2 PA2
   PIN3_bp,  //   3 PA3
   PIN4_bp,  //   4 PA4
@@ -504,18 +511,17 @@ const uint8_t digital_pin_to_bit_position[] = {
   //PIN7_bp,//  55 PF7 (UPDI)
 };
 
-const uint8_t digital_pin_to_bit_mask[] = {
+const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-    PIN0_bm,            // PA0
+    PIN0_bm,//   0 PA0
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-    NOT_A_PIN,  //   1 PA1
-  #else
-    // PA1 used for external crystal.
-    PIN1_bm,
-  #endif
+  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+    NOT_A_PIN,
+  #else // PA1 used for external crystal.
+    PIN1_bm,//   1 PA1
+  #endif    // *INDENT-ON*
   PIN2_bm,  //   2 PA2
   PIN3_bm,  //   3 PA3
   PIN4_bm,  //   4 PA4
