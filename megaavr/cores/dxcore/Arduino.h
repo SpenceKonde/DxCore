@@ -459,8 +459,35 @@ extern const uint8_t digital_pin_to_timer[];
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int16_t analogClockSpeed(int16_t frequency = 0,  uint8_t options = 0);
 #endif
-
 #include "pins_arduino.h"
+// Take this trash out of variants!
+#if !defined(NUM_DIGITAL_PINS)
+  #define NUM_DIGITAL_PINS              (PINS_COUNT)
+#endif
+#if !defined(NUM_RESERVED_PINS)
+  #define NUM_RESERVED_PINS             (0)
+#endif
+#if !defined(NUM_DIGITAL_PINS)
+  #define NUM_DIGITAL_PINS              (PINS_COUNT - NUM_RESERVED_PINS)
+#endif
+#if !defined(NUM_INTERNALLY_USED_PINS)
+  #define NUM_INTERNALLY_USED_PINS      (0)
+#endif
+#if !defined(NUM_I2C_PINS)
+  #define NUM_I2C_PINS                  (2)
+#endif
+#if !defined(NUM_SPI_PINS)
+  #define NUM_SPI_PINS                  (3)
+#endif
+#if !defined(NUM_TOTAL_FREE_PINS)
+  #define NUM_TOTAL_FREE_PINS           (NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
+#endif
+#if !defined(NUM_TOTAL_PINS)
+  #define NUM_TOTAL_PINS                (NUM_DIGITAL_PINS)
+#endif
+
+
+
 #include "pinswap.h"
 
 

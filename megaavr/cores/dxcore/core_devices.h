@@ -202,6 +202,13 @@
 #define ID_AVR64DD      0x60
 #define ID_AVR32DD      0x50
 #define ID_AVR16DD      0x40
+#define ID_AVR64DU      0x68
+#define ID_AVR32DU      0x58
+#define ID_AVR16DU      0x48
+#define ID_AVR64EA      0xF8
+#define ID_AVR32EA      0xE8
+#define ID_AVR16EA      0xD8
+#define ID_AVR8EA       0xB8
 #define ID_14_PINS      0x01
 #define ID_20_PINS      0x02
 #define ID_24_PINS      0x03
@@ -359,7 +366,6 @@
   #define _AVR_FAMILY "DB"
 #elif defined(__AVR_DD__)
   #define _AVR_FAMILY "DD"
-  #error "These are not available yet, and support for them is not ready, when datasheet or silicon is available, support will be completed."
 #elif defined(__AVR_DU__)
   #define _AVR_FAMILY "DU"
   #error "These are not available yet. There isn't even a non-retracted product brief!"
@@ -399,11 +405,13 @@
 #endif
 
 
-#if   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#if     (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
-#elif (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
+#elif   (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
-#elif (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif   (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"
