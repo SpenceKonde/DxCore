@@ -1,19 +1,35 @@
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.
+
+ ###  #     # ####      ####  ####       ##   ###
+#   # #     # #   #     #   # #   #     #  # #   #          #
+#####  #   #  ####      #   # #   #       #   ###  ### ###     ###
+#   #   # #   #  #      #   # #   #      #   #   #     #  # #  #  #
+#   #    #    #   #     ####  ####      ####  ###      ###  #  #  #
+===================================     ----------     #
+Variant Definition file for generic DD parts           #
+with 32 pins.
+
+Part Numbers:
+AVR64DA28 AVR32DA28 AVR16DD28
+
+See VariantTemplate.h in extras folder an extensively annotated copy.
+
+Include guard and include basic libraries. We are normally including this inside Arduino.h
+*/
+
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
-
 #include <avr/pgmspace.h>
 #include "timers.h"
-/*
-       ##  #     # ####      ###  ###   ##   ###
-      #  # #     # #   #     #  # #  # #  # #   #
-      ####  #   #  ####      #  # #  #   #   ###
-      #  #   # #   # #       #  # #  #  #   #   #
-      #  #    #    #  #      ###  ###  ####  ###
-*/
 
 #define DD_28PIN_PINOUT
 
-// Arduino pin macros
+ /*##  ### #   #  ###
+ #   #  #  ##  # #
+ ####   #  # # #  ###
+ #      #  #  ##     #
+ #     ### #   #  #*/
+
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -90,77 +106,61 @@
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
 
-/*          ####   ###  ####  ##### #   # #   # #   #
-            #   # #   # #   #   #   ## ## #   #  # #
-            ####  #   # ####    #   # # # #   #   #
-            #     #   # # #     #   #   # #   #  # #
-            #      ###  #  #    #   #   #  ###  #   #                         */
-
-#define SPI_INTERFACES_COUNT   1
-
+        /*##   ###  ####  ##### #   # #   # #   #
+        #   # #   # #   #   #   ## ## #   #  # #
+        ####  #   # ####    #   # # # #   #   #
+        #     #   # #  #    #   #   # #   #  # #
+        #      ###  #   #   #   #   #  ###  #   */
 
 // In contrast to DA/DB with no pinswap options available, the DD has them in spades!
 // defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid.
 
+#define SPI_INTERFACES_COUNT   1
+
 // SPI 0
-#define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
-//#define SPI_MUX_PINSWAP_1    PORTMUX_SPI0_ALT1_gc
-//#define SPI_MUX_PINSWAP_2    PORTMUX_SPI0_ALT2_gc
-#define SPI_MUX_PINSWAP_3      PORTMUX_SPI0_ALT3_gc
-#define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
-#define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
-#define SPI_MUX_PINSWAP_6      PORTMUX_SPI0_ALT6_gc
-#define SPI_MUX_PINSWAP_NONE   PORTMUX_SPI0_NONE_gc
-#define PIN_SPI_MOSI           PIN_PA4
-#define PIN_SPI_MISO           PIN_PA5
-#define PIN_SPI_SCK            PIN_PA6
-#define PIN_SPI_SS             PIN_PA7
-#define PIN_SPI_MOSI_PINSWAP_1 NOT_A_PIN
-#define PIN_SPI_MISO_PINSWAP_1 NOT_A_PIN
-#define PIN_SPI_SCK_PINSWAP_1  NOT_A_PIN
-#define PIN_SPI_SS_PINSWAP_1   NOT_A_PIN
-#define PIN_SPI_MOSI_PINSWAP_2 NOT_A_PIN
-#define PIN_SPI_MISO_PINSWAP_2 NOT_A_PIN
-#define PIN_SPI_SCK_PINSWAP_2  NOT_A_PIN
-#define PIN_SPI_SS_PINSWAP_2   NOT_A_PIN
-#define PIN_SPI_MOSI_PINSWAP_3 PIN_PA0
-#define PIN_SPI_MISO_PINSWAP_3 PIN_PA1
-#define PIN_SPI_SCK_PINSWAP_3  PIN_PC0
-#define PIN_SPI_SS_PINSWAP_3   PIN_PC1
-#define PIN_SPI_MOSI_PINSWAP_4 PIN_PD4
-#define PIN_SPI_MISO_PINSWAP_4 PIN_PD5
-#define PIN_SPI_SCK_PINSWAP_4  PIN_PD6
-#define PIN_SPI_SS_PINSWAP_4   PIN_PD7
-#define PIN_SPI_MOSI_PINSWAP_5 PIN_PC0
-#define PIN_SPI_MISO_PINSWAP_5 PIN_PC1
-#define PIN_SPI_SCK_PINSWAP_5  PIN_PC2
-#define PIN_SPI_SS_PINSWAP_5   PIN_PC3
-#define PIN_SPI_MOSI_PINSWAP_6 PIN_PC1
-#define PIN_SPI_MISO_PINSWAP_6 PIN_PC2
-#define PIN_SPI_SCK_PINSWAP_6  PIN_PC3
-#define PIN_SPI_SS_PINSWAP_6   NOT_A_PIN
+#define SPI_MUX                         PORTMUX_SPI0_DEFAULT_g
+#define SPI_MUX_PINSWAP_3               PORTMUX_SPI0_ALT3_gc
+#define SPI_MUX_PINSWAP_4               PORTMUX_SPI0_ALT4_gc
+#define SPI_MUX_PINSWAP_5               PORTMUX_SPI0_ALT5_gc
+#define SPI_MUX_PINSWAP_6               PORTMUX_SPI0_ALT6_gc
+#define SPI_MUX_PINSWAP_NONE            PORTMUX_SPI0_NONE_gc
+#define PIN_SPI_MOSI                    PIN_PA4
+#define PIN_SPI_MISO                    PIN_PA5
+#define PIN_SPI_SCK                     PIN_PA6
+#define PIN_SPI_SS                      PIN_PA7
+#define PIN_SPI_MOSI_PINSWAP_3          PIN_PA0
+#define PIN_SPI_MISO_PINSWAP_3          PIN_PA1
+#define PIN_SPI_SCK_PINSWAP_3           PIN_PC0
+#define PIN_SPI_SS_PINSWAP_3            PIN_PC1
+#define PIN_SPI_MOSI_PINSWAP_4          PIN_PD4
+#define PIN_SPI_MISO_PINSWAP_4          PIN_PD5
+#define PIN_SPI_SCK_PINSWAP_4           PIN_PD6
+#define PIN_SPI_SS_PINSWAP_4            PIN_PD7
+#define PIN_SPI_MOSI_PINSWAP_5          PIN_PC0
+#define PIN_SPI_MISO_PINSWAP_5          PIN_PC1
+#define PIN_SPI_SCK_PINSWAP_5           PIN_PC2
+#define PIN_SPI_SS_PINSWAP_5            PIN_PC3
+#define PIN_SPI_MOSI_PINSWAP_6          PIN_PC1
+#define PIN_SPI_MISO_PINSWAP_6          PIN_PC2
+#define PIN_SPI_SCK_PINSWAP_6           PIN_PC3
+#define PIN_SPI_SS_PINSWAP_6            NOT_A_PIN
 
 
 // TWI 0
-#define PIN_WIRE_SDA           PIN_PA2
-#define PIN_WIRE_SCL           PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_1 PIN_PA2
-#define PIN_WIRE_SCL_PINSWAP_1 PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
-#define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
-#define PIN_WIRE_SDA_PINSWAP_3 PIN_PA0
-#define PIN_WIRE_SCL_PINSWAP_3 PIN_PA1
+#define PIN_WIRE_SDA                    PIN_PA2
+#define PIN_WIRE_SCL                    PIN_PA3
+#define PIN_WIRE_SDA_PINSWAP_1          PIN_PA2
+#define PIN_WIRE_SCL_PINSWAP_1          PIN_PA3
+#define PIN_WIRE_SDA_PINSWAP_2          PIN_PC2
+#define PIN_WIRE_SCL_PINSWAP_2          PIN_PC3
+#define PIN_WIRE_SDA_PINSWAP_3          PIN_PA0
+#define PIN_WIRE_SCL_PINSWAP_3          PIN_PA1
 
 #define NUM_HWSERIAL_PORTS              2
 
 // USART 0
-#define HWSERIAL0                       &USART0
-#define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
-#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
-#define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
-#define HWSERIAL0_MUX_COUNT             5 /* all are viable here */
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc
@@ -190,23 +190,13 @@
 
 
 // USART1
-#define HWSERIAL1                       &USART1
-#define HWSERIAL1_DRE_VECTOR            USART1_DRE_vect
-#define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
-#define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
-#define HWSERIAL1_MUX_COUNT             2 /* default and ALT2 */
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define HWSERIAL1_MUX_PINSWAP_2         PORTMUX_USART1_ALT2_gc
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL1_RX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL1_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN
 #define PIN_HWSERIAL1_TX_PINSWAP_2      PIN_PD6
 #define PIN_HWSERIAL1_RX_PINSWAP_2      PIN_PD7
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     NOT_A_PIN
@@ -228,10 +218,6 @@
 #define PIN_A7   PIN_PD7
 #define PIN_A16  PIN_PF0
 #define PIN_A17  PIN_PF1
-//#define PIN_A18  PIN_PF2
-//#define PIN_A19  PIN_PF3
-//#define PIN_A20  PIN_PF4
-//#define PIN_A21  PIN_PF5
 #define PIN_A22  PIN_PA2
 #define PIN_A23  PIN_PA3
 #define PIN_A24  PIN_PA4
@@ -253,10 +239,6 @@ static const uint8_t A6  = PIN_A6;
 static const uint8_t A7  = PIN_A7;
 static const uint8_t A16 = PIN_A16;
 static const uint8_t A17 = PIN_A17;
-//static const uint8_t A18 = PIN_A18;
-//static const uint8_t A19 = PIN_A19;
-//static const uint8_t A20 = PIN_A20;
-//static const uint8_t A21 = PIN_A21;
 static const uint8_t A22 = PIN_A22;
 static const uint8_t A23 = PIN_A23;
 static const uint8_t A24 = PIN_A24;
@@ -268,14 +250,7 @@ static const uint8_t A29 = PIN_A29;
 static const uint8_t A30 = PIN_A30;
 static const uint8_t A31 = PIN_A31;
 
-
-/* AINn = (0x80 | n)
- * can be turned into digital pins with analogInputToDigitalPin(), but do not
- * directly work in digital I/O (this can be changed, but I'd rather not have
- * to, as it slows down every non-compiletime-known call to digital I/O. Just
- * because these parts can be clocked higher doesn't mean we should bog them
- * down until they run slower. */
-#define AIN0  ADC_CH(0)
+#define AIN0  NOT_A_PIN
 #define AIN1  ADC_CH(1)
 #define AIN2  ADC_CH(2)
 #define AIN3  ADC_CH(3)
@@ -285,10 +260,6 @@ static const uint8_t A31 = PIN_A31;
 #define AIN7  ADC_CH(7)
 #define AIN16 ADC_CH(16)
 #define AIN17 ADC_CH(17)
-//#define AIN18 ADC_CH(18)
-//#define AIN19 ADC_CH(19)
-//#define AIN20 ADC_CH(20)
-//#define AIN21 ADC_CH(21)
 #define AIN22 ADC_CH(22)
 #define AIN23 ADC_CH(23)
 #define AIN24 ADC_CH(24)
@@ -322,7 +293,7 @@ const uint8_t digital_pin_to_port[] = {
   PC,         //  9 PC1/USART1_Rx/TCA0 PWM
   PC,         // 10 PC2/TCA0 PWM
   PC,         // 11 PC3/TCA0 PWM
-  NOT_A_PORT, // VDDIO2
+  PD,         // VDDIO2 - offset and position umdefined, but it is defined as being on port D because it is the zero pin. Gap pins in general should still be here.
   PD,         // 13 PD1/AIN1
   PD,         // 14 PD2/AIN2
   PD,         // 15 PD3/AIN3/LED_BUILTIN
@@ -332,13 +303,27 @@ const uint8_t digital_pin_to_port[] = {
   PD,         // 19 PD7/AIN7/AREF
   PF,         // 20 PF0/AIN16/USART2_Tx/TOSC1
   PF,         // 21 PF1/AIN17/USART2_Rx/TOSC2
-  PF          // 22 PF6 RESET
+  PF,         // 26 PF2
+  PF,         // 27 PF3
+  PF,         // 26 PF4
+  PF,         // 27 PF5
+  PF,         // 26 PF6 RESET
+  PF          // 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = {
-  PIN0_bp,   //  0 PIN_bp0/USART0_Tx/CLKIN
-  PIN1_bp,   //  1 PA1/USART0_Rx
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bp,            // PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
+    NOT_A_PIN,  //   1 PA1
+  #else
+    // PA1 used for external crystal.
+    PIN1_bp,
+  #endif
   PIN2_bp,   //  2 PA2/SDA
   PIN3_bp,   //  3 PA3/SCL
   PIN4_bp,   //  4 PA4/MOSI
@@ -359,13 +344,27 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN7_bp,   // 19 PD7/AIN7/AREF
   PIN0_bp,   // 20 PF0/USART2_Tx/TOSC1
   PIN1_bp,   // 21 PF1/USART2_Rx/TOSC2
-  PIN6_bp    // 22 PF6 RESET
+  PIN2_bp,   // 22
+  PIN3_bp,   // 23
+  PIN4_bp,   // 24
+  PIN5_bp,   // 25
+  PIN6_bp,   // 26 PF6 RESET
+  PIN7_bp    // 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_mask[] = {
-  PIN0_bm,   //  0 PA0/USART0_Tx/CLKIN
-  PIN1_bm,   //  1 PA1/USART0_Rx
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bm,            // PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
+    NOT_A_PIN,  //   1 PA1
+  #else
+    // PA1 used for external crystal.
+    PIN1_bm,
+  #endif
   PIN2_bm,   //  2 PA2/SDA
   PIN3_bm,   //  3 PA3/SCL
   PIN4_bm,   //  4 PA4/MOSI
@@ -386,7 +385,12 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN7_bm,   // 19 PD7/AIN7/AREF
   PIN0_bm,   // 20 PF0/USART2_Tx/TOSC1
   PIN1_bm,   // 21 PF1/USART2_Rx/TOSC2
-  PIN6_bm    // 22 PF6 RESET
+  PIN2_bm,   // 22
+  PIN3_bm,   // 23
+  PIN4_bm,   // 24
+  PIN5_bm,   // 25
+  PIN6_bm,   // 26 PF6 RESET
+  PIN7_bm    // 27 PF7 UPDI
 };
 
 const uint8_t digital_pin_to_timer[] = {
@@ -412,7 +416,12 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
   NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER  // 22 PF6 RESET
+  NOT_ON_TIMER, // 22
+  NOT_ON_TIMER, // 23
+  NOT_ON_TIMER, // 24
+  NOT_ON_TIMER, // 25
+  NOT_ON_TIMER, // 26 PF6 RESET
+  NOT_ON_TIMER, // 27 PF7 UPDI
 };
 
 #endif

@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting arduino cores.
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.
 
  ###  #     # ####      ####   ###      # ####  ####       ##   ###
 #   # #     # #   #     #   # #   #    #  #   # #   #     #  # #   #          #
@@ -6,24 +6,30 @@
 #   #   # #   #  #      #   # #   #  #    #   # #   #      #   #   #     #  # #  #  #
 #   #    #    #   #     ####  #   # #     ####  ####      ####  ###      ###  #  #  #
 =====================================================     ----------     #
-Variant Definition file for generic DA/DB parts                          #
-with 28 pins. AVR__DA28 and AVR__DB28, where the
-blank is the flash space in kb. 128, 64, or 32.
-This file may or may not be different for the
-28-pin DD and other future parts. Much will depend
-on how I handle the pinmapping/portmux stuff
-*/
+Variant Definition file for generic DA/DB parts with 28 pins.            #
 
-/* Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
+Part Numbers:
+AVR128DA28 AVR64DA28 AVR32DA28
+AVR128DB28 AVR64DB28 AVR32DB28
+
+See VariantTemplate.h in extras folder an extensively annotated copy.
+
+Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
-
 #include <avr/pgmspace.h>
 #include "timers.h"
 
 #define DEFAULT_28PIN_PINOUT
 
-// Arduino pin macros
+ /*##  ### #   #  ###
+ #   #  #  ##  # #
+ ####   #  # # #  ###
+ #      #  #  ##     #
+ #     ### #   #  #*/
+
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -49,6 +55,13 @@ on how I handle the pinmapping/portmux stuff
 #define PIN_PF6 (22) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
 /*      PIN_PF7 (23) UPDI pin not available for alternative functions on DA/DB */
 
+        /*##   ##   ###  ###  ###  ###
+        #   # #  # #      #  #    #
+        ####  ####  ###   #  #     ###
+        #   # #  #     #  #  #        #
+        ####  #  # ####  ###  ###  #*/
+
+
 #define PINS_COUNT                     23
 #define NUM_DIGITAL_PINS               PINS_COUNT
 #define NUM_ANALOG_INPUTS              10
@@ -66,6 +79,14 @@ on how I handle the pinmapping/portmux stuff
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS        47
 #endif
+
+       /*   #  ###   ### ####   ###   ###
+        ## ## #   # #    #   # #   # #
+        # # # ##### #    ####  #   #  ###
+        #   # #   # #    # #   #   #     #
+        #   # #   #  ### #  #   ###   ##*/
+// If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
+// you must ensure that these will do what they say they will do.
 
 #define digitalPinToAnalogInput(p)     (((p) >= PIN_PC3 && (p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)        ((p) < 8 ? ((p) + PIN_PD0) : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN)))
@@ -98,13 +119,14 @@ on how I handle the pinmapping/portmux stuff
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
 
-/*          ####   ###  ####  ##### #   # #   # #   #
-            #   # #   # #   #   #   ## ## #   #  # #
-            ####  #   # ####    #   # # # #   #   #
-            #     #   # #  #    #   #   # #   #  # #
-            #      ###  #   #   #   #   #  ###  #   */
+
+        /*##   ###  ####  ##### #   # #   # #   #
+        #   # #   # #   #   #   ## ## #   #  # #
+        ####  #   # ####    #   # # # #   #   #
+        #     #   # #  #    #   #   # #   #  # #
+        #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT   1 /* 2 SPI peripherals but SPI.h only uses one at a time, see that readme for details.*/
 #define NUM_HWSERIAL_PORTS     3
@@ -132,7 +154,6 @@ on how I handle the pinmapping/portmux stuff
 // TWI 1 not available - no supported pins present!
 
 // USART 0
-#define HWSERIAL0_MUX_COUNT             2
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
@@ -146,39 +167,27 @@ on how I handle the pinmapping/portmux stuff
 #define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
-#define HWSERIAL1_MUX_COUNT             2
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_1         NOT_A_MUX   /* destined for removal */
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
-#define PIN_HWSERIAL1_RX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
-#define PIN_HWSERIAL1_XCK_PINSWAP_1     NOT_A_PIN  /* destined for removal */
-#define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN  /* destined for removal */
 
 // USART 2
-#define HWSERIAL2_MUX_COUNT             2
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
-#define HWSERIAL2_MUX_PINSWAP_1         NOT_A_MUX  /* destined for removal */
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
 #define PIN_HWSERIAL2_TX                PIN_PF0
 #define PIN_HWSERIAL2_RX                PIN_PF1
 #define PIN_HWSERIAL2_XCK               NOT_A_PIN
 #define PIN_HWSERIAL2_XDIR              NOT_A_PIN
-#define PIN_HWSERIAL2_TX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
-#define PIN_HWSERIAL2_RX_PINSWAP_1      NOT_A_PIN  /* destined for removal */
-#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN  /* destined for removal */
-#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN  /* destined for removal */
 
-/*     ###  #   #  ###  #     ###   ###      ####  ### #   #  ###
-      #   # ##  # #   # #    #   # #         #   #  #  ##  # #
-      ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
-      #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
-      #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
-/* No PD0 on 32/28 pin parts */
+        /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
+        #   # ##  # #   # #    #   # #         #   #  #  ##  # #
+        ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
+        #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
+        #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
+
 #ifndef MVIO
   // 32-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
   #define PIN_A0   PIN_PD0
@@ -218,12 +227,11 @@ static const uint8_t A17 = PIN_A17;
 #define  AIN16 ADC_CH(16)
 #define  AIN17 ADC_CH(17)
 
-
-/*    ####  ### #   #      ###  ####  ####   ###  #   #  ###
-      #   #  #  ##  #     #   # #   # #   # #   #  # #  #
-      ####   #  # # #     ##### ####  ####  #####   #    ###
-      #      #  #  ##     #   # #  #  #  #  #   #   #       #
-      #     ### #   #     #   # #   # #   # #   #   #    #*/
+        /*##  ### #   #      ###  ####  ####   ###  #   #  ###
+        #   #  #  ##  #     #   # #   # #   # #   #  # #  #
+        ####   #  # # #     ##### ####  ####  #####   #    ###
+        #      #  #  ##     #   # #  #  #  #  #   #   #       #
+        #     ### #   #     #   # #   # #   # #   #   #    #*/
 
 #ifdef ARDUINO_MAIN
 /* this guards against multiple definition errors, since this file gets included by everything,
@@ -258,48 +266,45 @@ const uint8_t digital_pin_to_port[] = {
   };
 
   /* Use this for accessing PINnCTRL register */
-  // *INDENT-OFF* - astyle wants these to be made worse
-  const uint8_t digital_pin_to_bit_position[] = {
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-      PIN0_bp,            // PA0
-    #else
-      NOT_A_PIN,
-    #endif
-    #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-      NOT_A_PIN,  //   1 PA1
-    #else
-      // PA1 used for external crystal.
-      PIN1_bp,
-    #endif
-    PIN2_bp, //  2 PA2/SDA
-    PIN3_bp, //  3 PA3/SCL
-    PIN4_bp, //  4 PA4/MOSI
-    PIN5_bp, //  5 PA5/MISO
-    PIN6_bp, //  6 PA6/SCK
-    PIN7_bp, //  7 PA7/SS/CLKOUT
-    PIN0_bp, //  8 PC0/USART1_Tx
-    PIN1_bp, //  9 PC1/USART1_Rx
-    PIN2_bp, // 10 PC2
-    PIN3_bp, // 11 PC3
-    #ifndef MVIO
-      PIN0_bp, // 12 PD0/AIN0
-    #else
-      NOT_A_PIN,
-    #endif
-    PIN1_bp, // 13 PD1/AIN1
-    PIN2_bp, // 14 PD2/AIN2
-    PIN3_bp, // 15 PD3/AIN3/LED_BUILTIN
-    PIN4_bp, // 16 PD4/AIN4
-    PIN5_bp, // 17 PD5/AIN5
-    PIN6_bp, // 18 PD6/AIN6
-    PIN7_bp, // 19 PD7/AIN7/AREF
-    PIN0_bp, // 20 PF0/USART2_Tx/TOSC1
-    PIN1_bp, // 21 PF1/USART2_Rx/TOSC2
-    PIN6_bp  // 22 PF6 RESET
- // PIN7_bp  // 23 PF7 UPDI
+const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bp,//   0 PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+    NOT_A_PIN,
+  #else // PA1 used for external crystal.
+    PIN1_bp,//   1 PA1
+  #endif
+  PIN2_bp, //  2 PA2/SDA
+  PIN3_bp, //  3 PA3/SCL
+  PIN4_bp, //  4 PA4/MOSI
+  PIN5_bp, //  5 PA5/MISO
+  PIN6_bp, //  6 PA6/SCK
+  PIN7_bp, //  7 PA7/SS/CLKOUT
+  PIN0_bp, //  8 PC0/USART1_Tx
+  PIN1_bp, //  9 PC1/USART1_Rx
+  PIN2_bp, // 10 PC2
+  PIN3_bp, // 11 PC3
+  #ifndef MVIO
+    PIN0_bp, // 12 PD0/AIN0
+  #else
+    NOT_A_PIN,
+  #endif
+  PIN1_bp, // 13 PD1/AIN1
+  PIN2_bp, // 14 PD2/AIN2
+  PIN3_bp, // 15 PD3/AIN3/LED_BUILTIN
+  PIN4_bp, // 16 PD4/AIN4
+  PIN5_bp, // 17 PD5/AIN5
+  PIN6_bp, // 18 PD6/AIN6
+  PIN7_bp, // 19 PD7/AIN7/AREF
+  PIN0_bp, // 20 PF0/USART2_Tx/TOSC1
+  PIN1_bp, // 21 PF1/USART2_Rx/TOSC2
+  PIN6_bp  // 22 PF6 RESET
+// PIN7_bp  // 23 PF7 UPDI
 };
 
-/* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_mask[] = {
   #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
     PIN0_bm,            // PA0
@@ -309,7 +314,6 @@ const uint8_t digital_pin_to_bit_mask[] = {
   #if CLOCK_SOURCE == 1 // PA1 also used for crystal
     NOT_A_PIN,  //   1 PA1
   #else
-    // PA1 used for external crystal.
     PIN1_bm,
   #endif
   PIN2_bm, //  2 PA2/SDA
@@ -337,8 +341,8 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN0_bm, // 20 PF0/USART2_Tx/TOSC1
   PIN1_bm, // 21 PF1/USART2_Rx/TOSC2
   PIN6_bm, // 22 PF6 RESET
-// PIN7_bm  // 23 PF7 UPDI
-};
+//PIN7_bm  // 23 PF7 UPDI
+};         // *INDENT-ON*
 
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN

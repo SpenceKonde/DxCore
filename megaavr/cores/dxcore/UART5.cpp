@@ -27,6 +27,8 @@
 #include "UART.h"
 #include "UART_private.h"
 
+#if defined(USART5)
+
 // Each UartClass is defined in its own file, sine the linker pulls
 // in the entire file when any element inside is used. --gc-sections can
 // additionally cause unused symbols to be dropped, but ISRs have the
@@ -35,32 +37,25 @@
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
-#if defined(HWSERIAL5)
-
-  #if defined(HWSERIAL5_RXC_VECTOR)
-  ISR(HWSERIAL5_RXC_VECTOR) {
-    UartClass::_rx_complete_irq(Serial5);
+ISR(USART5_RXC_vect) {
+  UartClass::_rx_complete_irq(Serial5);
+}
+ISR(USART5_TXC_vect) { //only called for half duplex mode, so we don't get all of the characters we sent.
+  uint8_t ctrla;
+  while (USART5.STATUS & USART_RXCIF_bm) {
+    // dump these these, using local var as trashcan.
+    // Used only in half duplex - this int means switching from send to receive.
+    ctrla = USART5.RXDATAL;
   }
-  #else
-    #error "Don't know what the Data Received interrupt vector is called for Serial5"
-  #endif
+  ctrla = USART5.CTRLA;
+  ctrla |= USART_RXCIE_bm; // turn on receive complete
+  ctrla &= ~USART_TXCIE_bm; // turn off transmit complete
+  USART5.CTRLA = ctrla;
+}
+ISR(USART5_DRE_vect) {
+  UartClass::_tx_data_empty_irq(Serial5);
+}
 
-  #if defined(HWSERIAL5_DRE_VECTOR)
-  ISR(HWSERIAL5_DRE_VECTOR) {
-    UartClass::_tx_data_empty_irq(Serial5);
-  }
-  #else
-    #error "Don't know what the Data Register Empty interrupt vector is called for Serial5"
-  #endif
-
-  #if defined(HWSERIAL5)
-    UartClass Serial5(HWSERIAL5, (uint8_t*)_usart5_pins, HWSERIAL5_MUX_COUNT, 0);
-  #endif
-
-  // Function that can be weakly referenced by serialEventRun to prevent
-  // pulling in this file if it's not otherwise used.
-  bool Serial5_available() {
-    return Serial5.available();
-  }
+UartClass Serial5(HWSERIAL5, (uint8_t*)_usart5_pins, MUXCOUNT_USART5, MUX_DEFAULT_USART5);
 
 #endif  // HWSERIAL5

@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting arduino cores.
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.
 
  ###  #     # ####      ####   ###      # ####  ####      ###   ##
 #   # #     # #   #     #   # #   #    #  #   # #   #        # #  #           #
@@ -6,24 +6,30 @@
 #   #   # #   #  #      #   # #   #  #    #   # #   #        #  #        #  # #  #  #
 #   #    #    #   #     ####  #   # #     ####  ####      ###  ####      ###  #  #  #
 =====================================================     ----------     #
-Variant Definition file for generic DA/DB parts                          #
-with 32 pins. AVR__DA32 and AVR__DB32, where the
-blank is the flash space in kb. 128, 64, or 32.
-This file may or may not be different for the
-32-pin DD and other future parts.
-*/
+Variant Definition file for generic DA/DB parts with 32 pins.            #
 
-/* Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
+Part Numbers:
+AVR128DA32 AVR64DA32 AVR32DA32
+AVR128DB32 AVR64DB32 AVR32DB32
+
+See VariantTemplate.h in extras folder an extensively annotated copy
+
+Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
-
 #include <avr/pgmspace.h>
 #include "timers.h"
 
-/* Used for alternate pin mappings and special variants for specific boards. */
 #define DEFAULT_32PIN_PINOUT
 
-// Arduino pin macros
+ /*##  ### #   #  ###
+ #   #  #  ##  # #
+ ####   #  # # #  ###
+ #      #  #  ##     #
+ #     ### #   #  #*/
+
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -61,6 +67,13 @@ This file may or may not be different for the
 #define PIN_PF6 (26) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
 /*      PIN_PF7 (27) UPDI pin not available for alternative functions */
 
+        /*##   ##   ###  ###  ###  ###
+        #   # #  # #      #  #    #
+        ####  ####  ###   #  #     ###
+        #   # #  #     #  #  #        #
+        ####  #  # ####  ###  ###  #*/
+
+
 #define PINS_COUNT                     27
 #define NUM_DIGITAL_PINS               PINS_COUNT
 #define NUM_ANALOG_INPUTS              12
@@ -74,10 +87,18 @@ This file may or may not be different for the
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
-
+/* Until the legacy attach interrupt has been completelty obsoleted */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS        47
 #endif
+
+       /*   #  ###   ### ####   ###   ###
+        ## ## #   # #    #   # #   # #
+        # # # ##### #    ####  #   #  ###
+        #   # #   # #    # #   #   #     #
+        #   # #   #  ### #  #   ###   ##*/
+// If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
+// you must ensure that these will do what they say they will do.
 
 #define digitalPinToAnalogInput(p)        (((p) > PIN_PC3 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)      ((p) < 8 ? ((p) + PIN_PD0) : (((p) > 15 && (p) < 22) ? ((p) - 16 + PIN_PF0) : NOT_A_PIN))
@@ -110,43 +131,45 @@ This file may or may not be different for the
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
 
-/*          ####   ###  ####  ##### #   # #   # #   #
-            #   # #   # #   #   #   ## ## #   #  # #
-            ####  #   # ####    #   # # # #   #   #
-            #     #   # #  #    #   #   # #   #  # #
-            #      ###  #   #   #   #   #  ###  #   */
+
+        /*##   ###  ####  ##### #   # #   # #   #
+        #   # #   # #   #   #   ## ## #   #  # #
+        ####  #   # ####    #   # # # #   #   #
+        #     #   # #  #    #   #   # #   #  # #
+        #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT   1 /* see SPI library README */
 #define NUM_HWSERIAL_PORTS     3
 
 // SPI 0
-#define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
-#define PIN_SPI_MISO           PIN_PA5
-#define PIN_SPI_SCK            PIN_PA6
-#define PIN_SPI_MOSI           PIN_PA4
-#define PIN_SPI_SS             PIN_PA7
+#define SPI_MUX                         PORTMUX_SPI0_DEFAULT_gc
+#define PIN_SPI_MOSI                    PIN_PA4
+#define PIN_SPI_MISO                    PIN_PA5
+#define PIN_SPI_SCK                     PIN_PA6
+#define PIN_SPI_SS                      PIN_PA7
 
 // SPI 1
-#define SPI1_MUX                PORTMUX_SPI1_DEFAULT_gc
-#define PIN_SPI1_MISO           PIN_PC0
-#define PIN_SPI1_SCK            PIN_PC1
-#define PIN_SPI1_MOSI           PIN_PC2
-#define PIN_SPI1_SS             PIN_PC3
+#define SPI1_MUX                        PORTMUX_SPI1_DEFAULT_gc
+#define PIN_SPI1_MISO                   PIN_PC0
+#define PIN_SPI1_SCK                    PIN_PC1
+#define PIN_SPI1_MOSI                   PIN_PC2
+#define PIN_SPI1_SS                     PIN_PC3
 
 // TWI 0
-#define PIN_WIRE_SDA           PIN_PA2
-#define PIN_WIRE_SCL           PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
-#define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
+#define PIN_WIRE_SDA                    PIN_PA2
+#define PIN_WIRE_SCL                    PIN_PA3
+#define PIN_WIRE_SDA_PINSWAP_1          PIN_PA2
+#define PIN_WIRE_SCL_PINSWAP_1          PIN_PA3
+#define PIN_WIRE_SDA_PINSWAP_2          PIN_PC2
+#define PIN_WIRE_SCL_PINSWAP_2          PIN_PC3
 
 // TWI 1
-#define PIN_WIRE1_SDA           PIN_PF2
-#define PIN_WIRE1_SCL           PIN_PF3
+#define PIN_WIRE1_SDA                   PIN_PF2
+#define PIN_WIRE1_SCL                   PIN_PF3
 
 // USART 0
-#define HWSERIAL0_MUX_COUNT             2
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
@@ -160,21 +183,14 @@ This file may or may not be different for the
 #define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
 
 // USART1
-#define HWSERIAL1_MUX_COUNT             2
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_1         NOT_A_MUX /* destined for removal */
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_1      NOT_A_PIN /* destined for removal */
-#define PIN_HWSERIAL1_RX_PINSWAP_1      NOT_A_PIN /* destined for removal */
-#define PIN_HWSERIAL1_XCK_PINSWAP_1     NOT_A_PIN /* destined for removal */
-#define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN /* destined for removal */
 
 // USART 2
-#define HWSERIAL2_MUX_COUNT             2
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
@@ -187,11 +203,11 @@ This file may or may not be different for the
 #define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
 #define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 
-/*     ###  #   #  ###  #     ###   ###      ####  ### #   #  ###
-      #   # ##  # #   # #    #   # #         #   #  #  ##  # #
-      ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
-      #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
-      #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
+        /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
+        #   # ##  # #   # #    #   # #         #   #  #  ##  # #
+        ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
+        #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
+        #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
 #ifndef MVIO // 32-pin parts with MVIO don't have an A0 or a PD0, as that physical pin is used for VDDIO2
   #define PIN_A0   PIN_PD0
@@ -200,19 +216,19 @@ This file may or may not be different for the
   #define PIN_A0   NOT_A_PIN
   static const uint8_t A0  = NOT_A_PIN;
 #endif
-#define PIN_A1   PIN_PD1
-#define PIN_A2   PIN_PD2
-#define PIN_A3   PIN_PD3
-#define PIN_A4   PIN_PD4
-#define PIN_A5   PIN_PD5
-#define PIN_A6   PIN_PD6
-#define PIN_A7   PIN_PD7
-#define PIN_A16  PIN_PF0
-#define PIN_A17  PIN_PF1
-#define PIN_A18  PIN_PF2
-#define PIN_A19  PIN_PF3
-#define PIN_A20  PIN_PF4
-#define PIN_A21  PIN_PF5
+#define PIN_A1             PIN_PD1
+#define PIN_A2             PIN_PD2
+#define PIN_A3             PIN_PD3
+#define PIN_A4             PIN_PD4
+#define PIN_A5             PIN_PD5
+#define PIN_A6             PIN_PD6
+#define PIN_A7             PIN_PD7
+#define PIN_A16            PIN_PF0
+#define PIN_A17            PIN_PF1
+#define PIN_A18            PIN_PF2
+#define PIN_A19            PIN_PF3
+#define PIN_A20            PIN_PF4
+#define PIN_A21            PIN_PF5
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
@@ -226,15 +242,14 @@ static const uint8_t A18 = PIN_A18;
 static const uint8_t A19 = PIN_A19;
 static const uint8_t A20 = PIN_A20;
 static const uint8_t A21 = PIN_A21;
-/* Internal and library use only - see 64-pin standard version for details.*/
-#define  AIN0  ADC_CH(0)
-#define  AIN1  ADC_CH(1)
-#define  AIN2  ADC_CH(2)
-#define  AIN3  ADC_CH(3)
-#define  AIN4  ADC_CH(4)
-#define  AIN5  ADC_CH(5)
-#define  AIN6  ADC_CH(6)
-#define  AIN7  ADC_CH(7)
+#define AIN0  ADC_CH(0)
+#define AIN1  ADC_CH(1)
+#define AIN2  ADC_CH(2)
+#define AIN3  ADC_CH(3)
+#define AIN4  ADC_CH(4)
+#define AIN5  ADC_CH(5)
+#define AIN6  ADC_CH(6)
+#define AIN7  ADC_CH(7)
 #define AIN16 ADC_CH(16)
 #define AIN17 ADC_CH(17)
 #define AIN18 ADC_CH(18)
@@ -242,16 +257,16 @@ static const uint8_t A21 = PIN_A21;
 #define AIN20 ADC_CH(20)
 #define AIN21 ADC_CH(21)
 
-/*    ####  ### #   #      ###  ####  ####   ###  #   #  ###
-      #   #  #  ##  #     #   # #   # #   # #   #  # #  #
-      ####   #  # # #     ##### ####  ####  #####   #    ###
-      #      #  #  ##     #   # #  #  #  #  #   #   #       #
-      #     ### #   #     #   # #   # #   # #   #   #    #*/
+        /*##  ### #   #      ###  ####  ####   ###  #   #  ###
+        #   #  #  ##  #     #   # #   # #   # #   #  # #  #
+        ####   #  # # #     ##### ####  ####  #####   #    ###
+        #      #  #  ##     #   # #  #  #  #  #   #   #       #
+        #     ### #   #     #   # #   # #   # #   #   #    #*/
 
 #ifdef ARDUINO_MAIN
 /* this guards against multiple definition errors, since this file gets included by everything,
    but only in one case should these tables be generated */
-  const uint8_t digital_pin_to_port[] = {
+const uint8_t digital_pin_to_port[] = {
   PA, //  0 PA0/XTAL0/CLKIN
   PA, //  1 PA1/XTAL1
   PA, //  2 PA2/SDA
@@ -279,22 +294,20 @@ static const uint8_t A21 = PIN_A21;
   PF, // 24 PF4/AIN20/TCB0 PWM
   PF, // 25 PF5/AIN21/TCB1 PWM
   PF, // 26 PF6 RESET
-  // PF  // 27 PF7 UPDI
+  //PF// 27 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
-// *INDENT-OFF* - astyle wants these to be made worse
-const uint8_t digital_pin_to_bit_position[] = {
+const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
-    PIN0_bp,            // PA0
+    PIN0_bp,//   0 PA0
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-    NOT_A_PIN,  //   1 PA1
-  #else
-    // PA1 used for external crystal.
-    PIN1_bp,
+  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+    NOT_A_PIN,
+  #else // PA1 used for external crystal.
+    PIN1_bp,//   1 PA1
   #endif
   PIN2_bp, //  2 PA2/SDA
   PIN3_bp, //  3 PA3/SCL
@@ -325,8 +338,9 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN4_bp, // 24 PF4/AIN14/TCB0 PWM
   PIN5_bp, // 25 PF5/AIN15/TCB1 PWM
   PIN6_bp, // 26 PF6 RESET
-//PIN6_bm  // 27 PF7 UPDI
+  //PIN6_bm// 27 PF7 UPDI
 };
+
 const uint8_t digital_pin_to_bit_mask[] = {
   #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
     PIN0_bm,            // PA0
@@ -367,8 +381,8 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN4_bm, // 24 PF4/AIN14/TCB0 PWM
   PIN5_bm, // 25 PF5/AIN15/TCB1 PWM
   PIN6_bm, // 26 PF6 RESET
-//PIN6_bm  // 27 PF7 UPDI
-};
+  //PIN6_bm// 27 PF7 UPDI
+};         // *INDENT-ON*
 
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  0 PA0/XTAL1/CLKIN
@@ -399,7 +413,7 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 24 PF4/AIN20
   NOT_ON_TIMER, // 25 PF5/AIN21
   NOT_ON_TIMER, // 26 PF6 RESET
-  //NOT_ON_TIMER  // 27 PF7 UPDI
+  //NOT_ON_TIMER// 27 PF7 UPDI
   };
 #endif
 #endif

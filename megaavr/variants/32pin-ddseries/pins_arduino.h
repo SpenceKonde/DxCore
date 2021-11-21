@@ -1,19 +1,32 @@
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting arduino cores.
+
+ ###  #     # ####      ####  ####      ###   ##
+#   # #     # #   #     #   # #   #        # #  #           #
+#####  #   #  ####      #   # #   #      ##    #   ### ###     ###
+#   #   # #   #  #      #   # #   #        #  #        #  # #  #  #
+#   #    #    #   #     ####  ####      ###  ####      ###  #  #  #
+===================================     ----------     #
+Variant Definition file for generic DD parts           #
+with 32 pins.
+
+Part Numbers
+AVR64Dd32 AVR32DD32 AVR16DD32
+
+Include guard and include basic libraries. We are normally including this inside Arduino.h */
+
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
-
 #include <avr/pgmspace.h>
 #include "timers.h"
-/*
-       ##  #     # ####      ###  ###  ###   ##
-      #  # #     # #   #     #  # #  #    # #  #
-      ####  #   #  ####      #  # #  #  ##    #
-      #  #   # #   # #       #  # #  #    #  #
-      #  #    #    #  #      ###  ###  ###  ####
-*/
 
 #define DD_32PIN_PINOUT
 
-// Arduino pin macros
+ /*##  ### #   #  ###
+ #   #  #  ##  # #
+ ####   #  # # #  ###
+ #      #  #  ##     #
+ #     ### #   #  #*/
+
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -26,10 +39,7 @@
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12)
-/* On DD, this isn't a pin - there, everything else NOT_A_PIN's pin 12
- * but we can add 3 to it to get PIN_PD3, for example.
- * Which is important, since it's pin0 on the port. */
+#define PIN_PD0 (12) // NOT_A_PIN
 #define PIN_PD1 (13)
 #define PIN_PD2 (14)
 #define PIN_PD3 (15)
@@ -43,23 +53,38 @@
 #define PIN_PF3 (23)
 #define PIN_PF4 (24)
 #define PIN_PF5 (25)
-#define PIN_PF6 (26)
-#define PIN_PF7 (27)
+#define PIN_PF6 (26) // RESET
+#define PIN_PF7 (27) // UPDI
 
-#define PINS_COUNT                     28
-#define NUM_DIGITAL_PINS               PINS_COUNT
+        /*##   ##   ###  ###  ###  ###
+        #   # #  # #      #  #    #
+        ####  ####  ###   #  #     ###
+        #   # #  #     #  #  #        #
+        ####  #  # ####  ###  ###  #*/
+
+#define PINS_COUNT                     27
 #define NUM_ANALOG_INPUTS              23
-#define NUM_RESERVED_PINS              0
-#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_I2C_PINS                   2
-#define NUM_SPI_PINS                   3
-#define NUM_TOTAL_FREE_PINS            PINS_COUNT
-#define NUM_TOTAL_PINS                 PINS_COUNT
-//#define ANALOG_INPUT_OFFSET          12 //See comments in 64-pin variant.
-#if !defined(LED_BUILTIN)
+// #define NUM_RESERVED_PINS            0     // These may at your option be defined,
+// #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
+// Autocalculated are :
+// NUM_DIGITAL_PINS = PINS_COUNT - NUM_RESERVED_PINS
+// TOTAL_FREE_OPINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
+// Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
+// for some reason need to change this, define them here. Only ones not defined here get automatically set.
   #define LED_BUILTIN                  PIN_PA7
 #endif
-#define EXTERNAL_NUM_INTERRUPTS        47
+/* Until the legacy attach interrupt has been completelty obsoleted - this is such a waste here! */
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS        48
+#endif
+
+       /*   #  ###   ### ####   ###   ###
+        ## ## #   # #    #   # #   # #
+        # # # ##### #    ####  #   #  ###
+        #   # #   # #    # #   #   #     #
+        #   # #   #  ### #  #   ###   ##*/
+// If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
+// you must ensure that these will do what they say they will do.
 
 #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):((p) > PIN_PA1 ? (p) + 20 : NOT_A_PIN)) /* Seriously?! */
 #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
@@ -96,20 +121,15 @@
 #define USE_TIMERD0_PWM
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
 
-
-
-/*
-      ####   ###  ####  ##### #   # #   # #   #
-      #   # #   # #   #   #   ## ## #   #  # #
-      ####  #   # ####    #   # # # #   #   #
-      #     #   # # #     #   #   # #   #  # #
-      #      ###  #  #    #   #   #  ###  #   #
-*/
+        /*##   ###  ####  ##### #   # #   # #   #
+        #   # #   # #   #   #   ## ## #   #  # #
+        ####  #   # ####    #   # # # #   #   #
+        #     #   # #  #    #   #   # #   #  # #
+        #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT   1
-
 
 // In contrast to DA/DB with no pinswap options available, the DD has them in spades!
 // defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid
@@ -117,8 +137,6 @@
 
 // SPI 0
 #define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
-//#define SPI_MUX_PINSWAP_1    PORTMUX_SPI0_ALT1_gc
-//#define SPI_MUX_PINSWAP_2    PORTMUX_SPI0_ALT2_gc
 #define SPI_MUX_PINSWAP_3      PORTMUX_SPI0_ALT3_gc
 #define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
 #define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
@@ -128,14 +146,6 @@
 #define PIN_SPI_MISO           PIN_PA5
 #define PIN_SPI_SCK            PIN_PA6
 #define PIN_SPI_SS             PIN_PA7
-#define PIN_SPI_MOSI_PINSWAP_1 NOT_A_PIN
-#define PIN_SPI_MISO_PINSWAP_1 NOT_A_PIN
-#define PIN_SPI_SCK_PINSWAP_1  NOT_A_PIN
-#define PIN_SPI_SS_PINSWAP_1   NOT_A_PIN
-#define PIN_SPI_MOSI_PINSWAP_2 NOT_A_PIN
-#define PIN_SPI_MISO_PINSWAP_2 NOT_A_PIN
-#define PIN_SPI_SCK_PINSWAP_2  NOT_A_PIN
-#define PIN_SPI_SS_PINSWAP_2   NOT_A_PIN
 #define PIN_SPI_MOSI_PINSWAP_3 PIN_PA0
 #define PIN_SPI_MISO_PINSWAP_3 PIN_PA1
 #define PIN_SPI_SCK_PINSWAP_3  PIN_PC0
@@ -167,11 +177,6 @@
 #define NUM_HWSERIAL_PORTS              2
 
 // USART 0
-#define HWSERIAL0                       &USART0
-#define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
-#define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num
-#define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
-#define HWSERIAL0_MUX_COUNT             5 /* all are viable here */
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
 #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
 #define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc
@@ -200,11 +205,6 @@
 #define PIN_HWSERIAL0_XDIR_PINSWAP_4    NOT_A_PIN
 
 // USART1
-#define HWSERIAL1                       &USART1
-#define HWSERIAL1_DRE_VECTOR            USART1_DRE_vect
-#define HWSERIAL1_DRE_VECTOR_NUM        USART1_DRE_vect_num
-#define HWSERIAL1_RXC_VECTOR            USART1_RXC_vect
-#define HWSERIAL1_MUX_COUNT             3 /* default and ALT2 are only viable ones... */
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define HWSERIAL1_MUX_PINSWAP_2         PORTMUX_USART1_ALT2_gc
@@ -222,15 +222,12 @@
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     NOT_A_PIN
 #define PIN_HWSERIAL1_XDIR_PINSWAP_2    NOT_A_PIN
 
-/*
-       ##  #   #  ##  #     ###   ###      ####  ### #   #  ###
-      #  # ##  # #  # #    #   # #         #   #  #  ##  # #
-      #### # # # #### #    #   # #  ##     ####   #  # # #  ###
-      #  # #  ## #  # #    #   # #   #     #      #  #  ##     #
-      #  # #   # #  # ####  ###   ###      #     ### #   #  ###
-*/
+        /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
+        #   # ##  # #   # #    #   # #         #   #  #  ##  # #
+        ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
+        #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
+        #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
-#define PIN_A0   NOT_A_PIN
 #define PIN_A1   PIN_PD1
 #define PIN_A2   PIN_PD2
 #define PIN_A3   PIN_PD3
@@ -254,8 +251,6 @@
 #define PIN_A29  PIN_PC3
 #define PIN_A30  PIN_PC4
 #define PIN_A31  PIN_PC5
-
-static const uint8_t A0  = NOT_A_PIN;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
@@ -279,15 +274,6 @@ static const uint8_t A28 = PIN_A28;
 static const uint8_t A29 = PIN_A29;
 static const uint8_t A30 = PIN_A30;
 static const uint8_t A31 = PIN_A31;
-
-
-/* AINn = (0x80 | n)
- * can be turned into digital pins with analogInputToDigitalPin(), but do not
- * directly work in digital I/O (this can be changed, but I'd rather not have
- * to, as it slows down every non-compiletime-known call to digital I/O. Just
- * because these parts can be clocked higher doesn't mean we should bog them
- * down until they run slower. */
-#define AIN0  NOT_A_PIN
 #define AIN1  ADC_CH(1)
 #define AIN2  ADC_CH(2)
 #define AIN3  ADC_CH(3)
@@ -312,13 +298,13 @@ static const uint8_t A31 = PIN_A31;
 #define AIN30 ADC_CH(30)
 #define AIN31 ADC_CH(30)
 
-/*
-            ####  ### #   #      ##  ####  ####   ##  #   #  ###
-            #   #  #  ##  #     #  # #   # #   # #  #  # #  #
-            ####   #  # # #     #### ####  ####  ####   #    ###
-            #      #  #  ##     #  # # #   # #   #  #   #       #
-            #     ### #   #     #  # #  #  #  #  #  #   #    ###
-*/
+
+        /*##  ### #   #      ###  ####  ####   ###  #   #  ###
+        #   #  #  ##  #     #   # #   # #   # #   #  # #  #
+        ####   #  # # #     ##### ####  ####  #####   #    ###
+        #      #  #  ##     #   # #  #  #  #  #   #   #       #
+        #     ### #   #     #   # #   # #   # #   #   #    #*/
+
 #ifdef ARDUINO_MAIN
 
 const uint8_t digital_pin_to_port[] = {
@@ -334,7 +320,7 @@ const uint8_t digital_pin_to_port[] = {
   PC,         //  9 PC1/USART1_Rx/TCA0 PWM
   PC,         // 10 PC2/TCA0 PWM
   PC,         // 11 PC3/TCA0 PWM
-  NOT_A_PORT, // VDDIO2
+  PD,         // VDDIO2
   PD,         // 13 PD1/AIN1
   PD,         // 14 PD2/AIN2
   PD,         // 15 PD3/AIN3/LED_BUILTIN
@@ -353,9 +339,17 @@ const uint8_t digital_pin_to_port[] = {
 };
 
 /* Use this for accessing PINnCTRL register */
-const uint8_t digital_pin_to_bit_position[] = {
-  PIN0_bp,   //  0 PIN_bp0/USART0_Tx/CLKIN
-  PIN1_bp,   //  1 PA1/USART0_Rx
+const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bp,//   0 PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+    NOT_A_PIN,
+  #else // PA1 used for external crystal.
+    PIN1_bp,//   1 PA1
+  #endif    // *INDENT-ON*
   PIN2_bp,   //  2 PA2/SDA
   PIN3_bp,   //  3 PA3/SCL
   PIN4_bp,   //  4 PA4/MOSI
@@ -384,10 +378,17 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN7_bp    // 27 PD7 UPDI
 };
 
-/* Use this for accessing PINnCTRL register */
-const uint8_t digital_pin_to_bit_mask[] = {
-  PIN0_bm,   //  0 PA0/USART0_Tx/CLKIN
-  PIN1_bm,   //  1 PA1/USART0_Rx
+const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
+  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+    PIN0_bm,//   0 PA0
+  #else
+    NOT_A_PIN,
+  #endif
+  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+    NOT_A_PIN,
+  #else // PA1 used for external crystal.
+    PIN1_bm,//   1 PA1
+  #endif    // *INDENT-ON*
   PIN2_bm,   //  2 PA2/SDA
   PIN3_bm,   //  3 PA3/SCL
   PIN4_bm,   //  4 PA4/MOSI
@@ -413,7 +414,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN4_bm,   // 24 PF4
   PIN5_bm,   // 25 PF5
   PIN6_bm,   // 26 PF6 RESET
-  PIN7_bm    // 27 PC2
+  PIN7_bm    // 27 PF7 UPDI
 };
 
 const uint8_t digital_pin_to_timer[] = {

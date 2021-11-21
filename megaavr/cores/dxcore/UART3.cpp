@@ -27,6 +27,8 @@
 #include "UART.h"
 #include "UART_private.h"
 
+#if defined(USART3)
+
 // Each UartClass is defined in its own file, sine the linker pulls
 // in the entire file when any element inside is used. --gc-sections can
 // additionally cause unused symbols to be dropped, but ISRs have the
@@ -35,32 +37,27 @@
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
-#if defined(HWSERIAL3)
 
-  #if defined(HWSERIAL3_RXC_VECTOR)
-  ISR(HWSERIAL3_RXC_VECTOR) {
-    UartClass::_rx_complete_irq(Serial3);
+ISR(USART3_RXC_vect) {
+  UartClass::_rx_complete_irq(Serial3);
+}
+ISR(USART3_TXC_vect) { //only called for half duplex mode, so we don't get all of the characters we sent.
+  uint8_t ctrla;
+  while (USART3.STATUS & USART_RXCIF_bm) {
+    // dump these these, using local var as trashcan.
+    // Used only in half duplex - this int means switching from send to receive.
+    ctrla = USART3.RXDATAL;
   }
-  #else
-    #error "Don't know what the Data Received interrupt vector is called for Serial3"
-  #endif
+  ctrla = USART3.CTRLA;
+  ctrla |= USART_RXCIE_bm; // turn on receive complete
+  ctrla &= ~USART_TXCIE_bm; // turn off transmit complete
+  USART3.CTRLA = ctrla;
+}
+ISR(USART3_DRE_vect) {
+  UartClass::_tx_data_empty_irq(Serial3);
+}
 
-  #if defined(HWSERIAL3_DRE_VECTOR)
-  ISR(HWSERIAL3_DRE_VECTOR) {
-    UartClass::_tx_data_empty_irq(Serial3);
-  }
-  #else
-    #error "Don't know what the Data Register Empty interrupt vector is called for Serial3"
-  #endif
+UartClass Serial3(HWSERIAL3, (uint8_t*)_usart3_pins, MUXCOUNT_USART3, MUX_DEFAULT_USART3);
 
-  #if defined(HWSERIAL3)
-    UartClass Serial3(HWSERIAL3, (uint8_t*)_usart3_pins, HWSERIAL3_MUX_COUNT, 0);
-  #endif
-
-  // Function that can be weakly referenced by serialEventRun to prevent
-  // pulling in this file if it's not otherwise used.
-  bool Serial3_available() {
-    return Serial3.available();
-  }
 
 #endif  // HWSERIAL3

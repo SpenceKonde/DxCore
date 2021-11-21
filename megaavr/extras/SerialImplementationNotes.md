@@ -9,21 +9,113 @@ We removed a bunch of constants that didn't vary from the variant files. For bac
  * HWSERIAL1_RXC_VECTOR
  * HWSERIAL1_MUX_COUNT
 We know what the names of the vectors are gonna be. So why #define them?
-The vector nubers were only used for the buggy ISR elevating routine that caused race condition hangs!
+The vector numbers were only used for the buggy ISR elevating routine that caused race condition hangs!
 
-The USARTn files that used them were drastically refactored. Gone are the tests for #defined constands from variants and tests against them to figure out things we bloody well knew already.
+Invalid mux options are not required to be mentioned nor bogus pins #defined for them in the variants.
+We will start from the highest numbered mux. If it's defined, we check the next lowest until we get to 0. Whenever we don't see one defined, we #define a placeholder row in the table (don't worry, only 3 bytes each, we've saved more flash than that so far). I was also noted that every pin numbering puts TX and RX of every pin next to eachother in the same order. So we rely on that explicitly now.
 
-In is a small additional ISR for TXC, used only for the case of loopback mode We don't call a function because the interrupt overhead for a function call is several times longer than the interrupt itself, and it doesn't need to reference the class in any way. It just holds the RXDATA register upside down and shakes it until characters stop coming out and turns on the RX interrupt.
+Valid mux options must define the mux mux code itself, plus the pins associated with it.
+### Before
+```
+// USART 2
+#define HWSERIAL2                       &USART2
+#define HWSERIAL2_DRE_VECTOR            USART2_DRE_vect
+#define HWSERIAL2_DRE_VECTOR_NUM        USART2_DRE_vect_num
+#define HWSERIAL2_RXC_VECTOR            USART2_RXC_vect
+#define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
+#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
+#define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
+#define PIN_HWSERIAL2_TX                PIN_PF0
+#define PIN_HWSERIAL2_RX                PIN_PF1
+#define PIN_HWSERIAL2_XCK               PIN_PF2
+#define PIN_HWSERIAL2_XDIR              PIN_PF3
+#define PIN_HWSERIAL2_TX_PINSWAP_1      PIN_PF4
+#define PIN_HWSERIAL2_RX_PINSWAP_1      PIN_PF5
+#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
+#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
+```
+### After
+```
+// USART 2
+#define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
+#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
+#define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
+#define PIN_HWSERIAL2_TX                PIN_PF0
+#define PIN_HWSERIAL2_RX                PIN_PF1
+#define PIN_HWSERIAL2_XCK               PIN_PF2
+#define PIN_HWSERIAL2_XDIR              PIN_PF3
+#define PIN_HWSERIAL2_TX_PINSWAP_1      PIN_PF4
+#define PIN_HWSERIAL2_RX_PINSWAP_1      PIN_PF5
+#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
+#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
+```
+A tangle of convoluted #ifdefs serving little purpose was cut down and renoved from the 6-port-specific files. The code is simpler, and appears to not have broken anything dramatic so far - and now we will be able to make the DD's work.
+
+Before gwe get into the minutae and pick apart some of the remaining issues... one more thing....
+
+As many of you may be aware, the hardware USARTs are capable of functioning in some other modes, and some of the most intriguing to many uses have long been the OneWire (half duplex) mode, typically used in combination withthe Open Drain mode. This mode can now be enabled automatically by calling Serial.begin(baud, SERIAL_8N1 | SERIAL_HALF_DUPLEX). because loopback would have you receiving your outgoing characters, we turn off the RX interrupt before sending anything, and, in the TXComplete interrupt, empty the incoming data registers to get rid of the data that we just sent and then reenable it. It seemed to work. We also added support for the RS485 option - include SERIAL_RS485 with or without those other arguments, and it will ensure that XDIR is output, and drive it high 1 bit before the start of a signal and keep it that way until 1 bit after the end of the signal. This is meant for controlling a line driver chip. And if your line driver happens to be active low, never fear, just invert the pin using pinConfigure or manually writing the PINnCTRL register for it!
+
+The constants you pass to options are in the new USART_constants file.
+
+Single bitfields  - not all have currently been supported
+```text
+SERIAL_PARITY_EVEN
+SERIAL_PARITY_ODD
+SERIAL_PARITY_NONE
+SERIAL_STOP_BIT_1
+SERIAL_STOP_BIT_2
+SERIAL_DATA_5
+SERIAL_DATA_6
+SERIAL_DATA_7
+SERIAL_DATA_8
+SERIAL_MODE_ASYNC
+```
+
+These options combine a few of the above options together in order to specify a combination of data size, stop bit, and parity, like the cosntants that have been traditionally used.
+You should always pass at least one of these as options (if you forget to, that looks the same as requesting 5N1 - except that these include a flag in the high byte of the options as well; the low byte is 0 but the flag is set, we know you asked for 5N1. IF it's not, you didn't specify any character size, and you probably wantted 8, not 5. )
+```text
+SERIAL_5N1
+SERIAL_6N1
+SERIAL_7N1
+SERIAL_8N1
+SERIAL_5N2
+SERIAL_6N2
+SERIAL_7N2
+SERIAL_8N2
+SERIAL_5E1
+SERIAL_6E1
+SERIAL_7E1
+SERIAL_8E1
+SERIAL_5E2
+SERIAL_6E2
+SERIAL_7E2
+SERIAL_8E2
+SERIAL_5O1
+SERIAL_6O1
+SERIAL_7O1
+SERIAL_8O1
+SERIAL_5O2
+SERIAL_6O2
+SERIAL_7O2
+SERIAL_8O2
+```
+
+You can bitwise or them with these
+```text
+SERIAL_RS485
+SERIAL_OPENDRAIN
+SERIAL_LOOPBACK
+SERIAL_TX_ONLY
+SERIAL_RX_ONLY
+SERIAL_EVENT_RX
+SERIAL_HALF_DUPLEX (shorthand for open drain loopback)
+```
 
 
-### You do still need to include mux options for valid muxes
-But not for invalid muxes. Invalid muxes are get put into the MUX table as NOT_A_MUX.
+I'm hoping for enlightenment regarding the Event Input mode tomorrow, and then the serial stuff will sorted out.
 
-Any mux is considered invalid unless the mux value, and all 4 pins are defined, and
 
-## Loopback Mode
-An attemp has been made to support half-duplex mode. Basically what we do is, assuming both TX and RX are enabled, is to turn off the RXC (receive complete) interrupt) when you send something.
-When we write to the port, we disable the RXC interrupt and enable the TXC interrupt. That will block receiving all outgoing charaacters. The TXC interrupt, the only one implemented in the instance-specific ones, is short and simple, It turns off it's own interrupt, reads from RXDATAL until the RXC flag is gone, and then turns RXC int ON and itself OFF
+
 
 
 ## Serial performance (or lack therof) and bloat
@@ -37,6 +129,9 @@ also, since the compiler has to push/pop r28/r29 it ends up as big as the C vers
 Is probably faster though, since every Y+x here is replaced by ADIW X, x; ST/LD X, y; SBIW X, x in C.
 the assembly basically cuts 4 cycles on every memory access...
 It would be better to implement the assembler interrupt routines in a separate .S file*
+
+Comment on the problem itself: I remember reading mention of how the compiler treated the three pointer registers the same until the very end.... except of course, they're not the same, Y and Z can do displacement, X cannot (AVR didn't have enough opcodes ldd/std Z and ldd/std Y each take up 1/16th of possible opcodes (if you're wondering, the "_________ immediate" instructions that work on r16-r31 only each also take up 1/16th of the flash and there are like 6 of them or something; as do rjmp and rcall (in/out together do. That's the price you pay for having an instruction set simple enough that you can memorize it without too much difficulty). Z gets used first generally, and Y uusually has a pointer to the stack frame
+
 ```c++
   asm volatile (
     "MOVW R30, %0   \n\t"   // make sure the uartClass is actually in Z
@@ -80,8 +175,8 @@ _tx_data_empty_irq():
  4a6: 2c 93         st  X, r18             // I remember reading that the way the X register is understood by the compiler
  4a8: 14 97         sbiw  r26, 0x04 ; 4    // and uses all three pointer registers like thy could displace, and the
  4aa: 12 96         adiw  r26, 0x02 ; 2    // virtual ldd/std instructions then get transmuted into this crap.
- 4ac: 8c 93         st  X, r24
- 4ae: 12 97         sbiw  r26, 0x02 ; 2
+ 4ac: 8c 93         st  X, r24             // I understand, compilers are hard, but like... ytou'd think that they could
+ 4ae: 12 97         sbiw  r26, 0x02 ; 2    // combine the slow word add/sub instructions from two adjacent STD X virtual instructions wouldn't you?
  4b0: 9f 5f         subi  r25, 0xFF ; 255
  4b2: 9f 73         andi  r25, 0x3F ; 63
  4b4: 85 89         ldd r24, Z+21 ; 0x15

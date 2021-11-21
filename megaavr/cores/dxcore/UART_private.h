@@ -19,17 +19,18 @@
   Modified 23 November 2006 by David A. Mellis
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
+  Modified late 2021 by Spence Konde and MX682X.
 */
 
 #include "wiring_private.h"
 
 #if defined(USART0) || defined(USART1) || defined(USART2) || defined(USART3) || defined(USART4) || defined(USART5)
 
-// Constructors ////////////////////////////////////////////////////////////////
+// Constructors
 
 // no need to set the other variables to zero, init script already does that. Saves some flash
 UartClass::UartClass(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_defualt) :
     _hwserial_module(hwserial_module), _usart_pins(usart_pins), _mux_count(mux_count), _pin_set(mux_defualt) {
 }
-/* Interrupt handlers in UART.cpp */
+
 #endif  // whole file
