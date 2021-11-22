@@ -42,8 +42,6 @@ extern "C" {    // compiler was complaining when I put twi.h into the upper C in
 }
 
 
-// Initialize Class Variables // /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
-// Constructors   // /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
 /**
  *@brief      TwoWire creates a Wire object
  *
@@ -57,7 +55,6 @@ TwoWire::TwoWire(TWI_t *twi_module) {
   // vars.user_onReceive = NULL;  // This avoids weird jumps should something unexpected happen
 }
 
-// Public Methods // /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// ///
 /**
  *@brief      pins changes the PINMUX to correspond to the desired pins
  *
@@ -142,7 +139,7 @@ void TwoWire::usePullups(void) {
  */
 bool TwoWire::swapModule(TWI_t *twi_module) {
   #if defined(TWI1)
-    #if defined(USING_TWI1)
+    #if defined(TWI_USING_WIRE1)
       badCall("swapModule() can only be used if Wire1 is not used");
     #else
       if (vars._module->MCTRLA == 0) {    // client and host initialisations enable MCTRLA, so just check for that
@@ -631,7 +628,7 @@ void TwoWire::enableDualMode(bool fmp_enable) {
 void TwoWire::onSlaveIRQ(TWI_t *module) {          // This function is static and is, thus, the only one for both
                                                     // Wire interfaces. Here is decoded which interrupt was fired.
   #if defined(TWI1)                                 // Two TWIs available
-    #if defined(USING_WIRE1)                        // User wants to use Wire and Wire1. Need to check the interface
+    #if defined(TWI_USING_WIRE1)                        // User wants to use Wire and Wire1. Need to check the interface
       if (module == &TWI0) {
         TWI_HandleSlaveIRQ(&(Wire.vars));
       } else if (module == &TWI1) {
@@ -731,7 +728,7 @@ ISR(TWI0_TWIS_vect) {
 #endif
 
 #if defined(TWI1)
-  #if defined(USING_WIRE1)
+  #if defined(TWI_USING_WIRE1)
     TwoWire Wire1(&TWI1);
   #endif
 #endif

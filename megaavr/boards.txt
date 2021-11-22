@@ -98,7 +98,8 @@ avrda.upload.tool=avrdude
 avrda.build.board=avrda
 avrda.build.core=dxcore
 avrda.build.text_section_start=.text=0x0
-avrda.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} {bootloader.appspm}
+avrda.build.extra_flags= -DTWI_{build.wire.mode} {build.wire.count} {bootloader.appspm}
+avrda.build.wire.count=
 avrda.build.export_merged_output=false
 avrda.build.printf=
 #----------------------------------------#
@@ -119,6 +120,7 @@ avrda.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrda.build.mcupostfix=
 avrda.build.printfabr=
+avrda.build.wireabr=
 avrda.build.appspmabr=.spm{bootloader.CODESIZE}
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -382,7 +384,10 @@ avrda.menu.startuptime.8.bootloader.SYSCFG1=0x04
 avrda.menu.startuptime.16.bootloader.SYSCFG1=0x05
 avrda.menu.startuptime.32.bootloader.SYSCFG1=0x06
 avrda.menu.startuptime.64.bootloader.SYSCFG1=0x07
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 #----------------------------------------#
 # SPM (writing flash from app)           #
 #________________________________________#
@@ -421,16 +426,17 @@ avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 # TWI OPTIONS
 avrda.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrda.menu.wiremode.mors1.build.wire.mode=MORS
-avrda.menu.wiremode.mors1.build.wire.count=WIRE0
 avrda.menu.wiremode.mands1=1x Wire, Master and Slave
 avrda.menu.wiremode.mands1.build.wire.mode=MANDS
-avrda.menu.wiremode.mors1.build.wire.count=WIRE0
+avrda.menu.wiremode.mands1.build.wireabr=wA
 avrda.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrda.menu.wiremode.mors2.build.wire.mode=MORS
-avrda.menu.wiremode.mors2.build.wire.count=WIRE1
+avrda.menu.wiremode.mors2.build.wireabr=wO2
+avrda.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrda.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrda.menu.wiremode.mands2.build.wire.mode=MANDS
-avrda.menu.wiremode.mands2.build.wire.count=WIRE1
+avrda.menu.wiremode.mands2.build.wireabr=wA2
+avrda.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 
 ##########################################################################
@@ -448,8 +454,9 @@ avrdb.upload.tool=avrdude
 avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.text_section_start=.text=0x0
-avrdb.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} {bootloader.appspm}
+avrdb.build.extra_flags= -DTWI_{build.wire.mode} {build.wire.count} {bootloader.appspm}
 avrdb.build.export_merged_output=false
+avrdb.build.wire.count=
 avrdb.build.mcupostfix=
 avrdb.build.printf=
 #----------------------------------------#
@@ -472,6 +479,7 @@ avrdb.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrdb.build.mcupostfix=
 avrdb.build.printfabr=
+avrdb.build.wireabr=
 avrdb.build.appspmabr=.spm{bootloader.CODESIZE}
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -793,19 +801,23 @@ avrdb.menu.startuptime.16.bootloader.sutbits=101
 avrdb.menu.startuptime.32.bootloader.sutbits=110
 avrdb.menu.startuptime.64.bootloader.sutbits=111
 
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 avrdb.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdb.menu.wiremode.mors1.build.wire.mode=MORS
-avrdb.menu.wiremode.mors1.build.wire.count=WIRE0
 avrdb.menu.wiremode.mands1=1x Wire, Master and Slave
 avrdb.menu.wiremode.mands1.build.wire.mode=MANDS
-avrdb.menu.wiremode.mors1.build.wire.count=WIRE0
+avrdb.menu.wiremode.mands1.build.wireabr=wA
 avrdb.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdb.menu.wiremode.mors2.build.wire.mode=MORS
-avrdb.menu.wiremode.mors2.build.wire.count=WIRE1
+avrdb.menu.wiremode.mors2.build.wireabr=wO2
+avrdb.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrdb.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdb.menu.wiremode.mands2.build.wire.mode=MANDS
-avrdb.menu.wiremode.mands2.build.wire.count=WIRE1
+avrdb.menu.wiremode.mands2.build.wireabr=wA2
+avrdb.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 #----------------------------------------#
 # SPM (writing flash from app)           #
@@ -879,6 +891,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #________________________________________#
 #avrdd.build.mcupostfix=
 #avrdd.build.printfabr=
+#avrdd.build.wireabr=
 #avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -1197,15 +1210,15 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.startuptime.32.bootloader.sutbits=110
 #avrdd.menu.startuptime.64.bootloader.sutbits=111
 
-
-
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 #avrdd.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrdd.menu.wiremode.mors1.build.wire.mode=MORS
-#avrdd.menu.wiremode.mors1.build.wire.count=WIRE0
 #avrdd.menu.wiremode.mands1=1x Wire, Master and Slave
 #avrdd.menu.wiremode.mands1.build.wire.mode=MANDS
-#avrdd.menu.wiremode.mors1.build.wire.count=WIRE0
+#avrdd.menu.wiremode.mands1.build.wireabr=wA
 
 #----------------------------------------#
 # SPM (writing flash from app)           #
@@ -1281,6 +1294,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #________________________________________#
 #avrea.build.mcupostfix=
 #avrea.build.printfabr=
+#avrea.build.wireabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 # AVR-EA submenu options                     #
@@ -1602,14 +1616,16 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.startuptime.32.bootloader.SYSCFG1=0x06
 #avrea.menu.startuptime.64.bootloader.SYSCFG1=0x07
 
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 
 #avrea.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrea.menu.wiremode.mors1.build.wire.mode=MORS
-#avrea.menu.wiremode.mors1.build.wire.count=WIRE0
 #avrea.menu.wiremode.mands1=1x Wire, Master and Slave
 #avrea.menu.wiremode.mands1.build.wire.mode=MANDS
-#avrea.menu.wiremode.mors1.build.wire.count=WIRE0
+#avrea.menu.wiremode.mands1.build.wireabr=wA
 
 #-------------------------------------#
 # SPM from app incompatible with Dx   #
@@ -1630,20 +1646,22 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 avrdaopti.build.board=avrda
 avrdaopti.build.core=dxcore
 avrdaopti.build.text_section_start=.text=0x200
-avrdaopti.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
-avrdaopti.build.export_merged_output=false
+avrdaopti.build.extra_flags= -DTWI_{build.wire.mode} {build.wire.count} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdaopti.build.export_merged_output=true
+avrdaopti.build.wire.count=
 avrdaopti.build.printf=
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdaopti.bootloader.tool=avrdude
+avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
 avrdaopti.bootloader.WDTCFG=0x00
 avrdaopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
 avrdaopti.bootloader.BOOTSIZE=0x01
-avrdaopti.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
-avrdaopti.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex -a write
+avrdaopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
+avrdaopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -1658,6 +1676,7 @@ avrdaopti.upload.speed=115200
 #________________________________________#
 avrdaopti.build.mcupostfix=opti
 avrdaopti.build.printfabr=
+avrdaopti.build.wireabr=
 avrdaopti.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -1669,67 +1688,67 @@ avrdaopti.build.appspmabr=
 avrdaopti.menu.chip.avr128da28=AVR128DA28
 avrdaopti.menu.chip.avr128da28.build.mcu=avr128da28
 avrdaopti.menu.chip.avr128da28.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da28.bootloader.file=optiboot_dx128
+avrdaopti.menu.chip.avr128da28.bootloader.class=optiboot_dx128
 avrdaopti.menu.chip.avr128da28.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da28.build.variant=28pin-standard
 avrdaopti.menu.chip.avr128da32=AVR128DA32
 avrdaopti.menu.chip.avr128da32.build.mcu=avr128da32
 avrdaopti.menu.chip.avr128da32.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da32.bootloader.file=optiboot_dx128
+avrdaopti.menu.chip.avr128da32.bootloader.class=optiboot_dx128
 avrdaopti.menu.chip.avr128da32.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da32.build.variant=32pin-standard
 avrdaopti.menu.chip.avr128da48=AVR128DA48
 avrdaopti.menu.chip.avr128da48.build.mcu=avr128da48
 avrdaopti.menu.chip.avr128da48.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da48.bootloader.file=optiboot_dx128
+avrdaopti.menu.chip.avr128da48.bootloader.class=optiboot_dx128
 avrdaopti.menu.chip.avr128da48.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da48.build.variant=48pin-standard
 avrdaopti.menu.chip.avr128da64=AVR128DA64
 avrdaopti.menu.chip.avr128da64.build.mcu=avr128da64
 avrdaopti.menu.chip.avr128da64.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da64.bootloader.file=optiboot_dx128
+avrdaopti.menu.chip.avr128da64.bootloader.class=optiboot_dx128
 avrdaopti.menu.chip.avr128da64.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da64.build.variant=64pin-standard
 avrdaopti.menu.chip.avr64da28=AVR64DA28
 avrdaopti.menu.chip.avr64da28.build.mcu=avr64da28
 avrdaopti.menu.chip.avr64da28.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da28.bootloader.file=optiboot_dx64
+avrdaopti.menu.chip.avr64da28.bootloader.class=optiboot_dx64
 avrdaopti.menu.chip.avr64da28.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da28.build.variant=28pin-standard
 avrdaopti.menu.chip.avr64da32=AVR64DA32
 avrdaopti.menu.chip.avr64da32.build.mcu=avr64da32
 avrdaopti.menu.chip.avr64da32.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da32.bootloader.file=optiboot_dx64
+avrdaopti.menu.chip.avr64da32.bootloader.class=optiboot_dx64
 avrdaopti.menu.chip.avr64da32.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da32.build.variant=32pin-standard
 avrdaopti.menu.chip.avr64da48=AVR64DA48
 avrdaopti.menu.chip.avr64da48.build.mcu=avr64da48
 avrdaopti.menu.chip.avr64da48.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da48.bootloader.file=optiboot_dx64
+avrdaopti.menu.chip.avr64da48.bootloader.class=optiboot_dx64
 avrdaopti.menu.chip.avr64da48.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da48.build.variant=48pin-standard
 avrdaopti.menu.chip.avr64da64=AVR64DA64
 avrdaopti.menu.chip.avr64da64.build.mcu=avr64da64
 avrdaopti.menu.chip.avr64da64.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da64.bootloader.file=optiboot_dx64
+avrdaopti.menu.chip.avr64da64.bootloader.class=optiboot_dx64
 avrdaopti.menu.chip.avr64da64.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da64.build.variant=64pin-standard
 avrdaopti.menu.chip.avr32da28=AVR32DA28
 avrdaopti.menu.chip.avr32da28.build.mcu=avr32da28
 avrdaopti.menu.chip.avr32da28.upload.maximum_size=32256
-avrdaopti.menu.chip.avr32da28.bootloader.file=optiboot_dx32
+avrdaopti.menu.chip.avr32da28.bootloader.class=optiboot_dx32
 avrdaopti.menu.chip.avr32da28.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da28.build.variant=28pin-standard
 avrdaopti.menu.chip.avr32da32=AVR32DA32
 avrdaopti.menu.chip.avr32da32.build.mcu=avr32da32
 avrdaopti.menu.chip.avr32da32.upload.maximum_size=32256
-avrdaopti.menu.chip.avr32da32.bootloader.file=optiboot_dx32
+avrdaopti.menu.chip.avr32da32.bootloader.class=optiboot_dx32
 avrdaopti.menu.chip.avr32da32.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da32.build.variant=32pin-standard
 avrdaopti.menu.chip.avr32da48=AVR32DA48
 avrdaopti.menu.chip.avr32da48.build.mcu=avr32da48
 avrdaopti.menu.chip.avr32da48.upload.maximum_size=32256
-avrdaopti.menu.chip.avr32da48.bootloader.file=optiboot_dx32
+avrdaopti.menu.chip.avr32da48.bootloader.class=optiboot_dx32
 avrdaopti.menu.chip.avr32da48.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da48.build.variant=48pin-standard
 
@@ -1927,19 +1946,23 @@ avrdaopti.menu.startuptime.16.bootloader.SYSCFG1=0x05
 avrdaopti.menu.startuptime.32.bootloader.SYSCFG1=0x06
 avrdaopti.menu.startuptime.64.bootloader.SYSCFG1=0x07
 
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 avrdaopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdaopti.menu.wiremode.mors1.build.wire.mode=MORS
-avrdaopti.menu.wiremode.mors1.build.wire.count=WIRE0
 avrdaopti.menu.wiremode.mands1=1x Wire, Master and Slave
 avrdaopti.menu.wiremode.mands1.build.wire.mode=MANDS
-avrdaopti.menu.wiremode.mors1.build.wire.count=WIRE0
+avrdaopti.menu.wiremode.mands1.build.wireabr=wA
 avrdaopti.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdaopti.menu.wiremode.mors2.build.wire.mode=MORS
-avrdaopti.menu.wiremode.mors2.build.wire.count=WIRE1
+avrdaopti.menu.wiremode.mors2.build.wireabr=wO2
+avrdaopti.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrdaopti.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdaopti.menu.wiremode.mands2.build.wire.mode=MANDS
-avrdaopti.menu.wiremode.mands2.build.wire.count=WIRE1
+avrdaopti.menu.wiremode.mands2.build.wireabr=wA2
+avrdaopti.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 #----------------------------------------#
 # Optiboot upload timeout                #
@@ -2018,13 +2041,15 @@ avrdbopti.build.board=avrda
 avrdbopti.build.board=avrdb
 avrdbopti.build.core=dxcore
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdbopti.build.extra_flags= -DTWI_{build.wire.mode} {build.wire.count} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdbopti.build.export_merged_output=true
+avrdbopti.build.wire.count=
 avrdbopti.build.printf=
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdbopti.bootloader.tool=avrdude
+avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
 avrdbopti.bootloader.WDTCFG=0x00
 avrdbopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
@@ -2032,8 +2057,8 @@ avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 #avrdbopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
-avrdbopti.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
-avrdbopti.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex -a write
+avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
+avrdbopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -2048,6 +2073,7 @@ avrdbopti.upload.speed=115200
 #________________________________________#
 avrdbopti.build.mcupostfix=opti
 avrdbopti.build.printfabr=
+avrdbopti.build.wireabr=
 avrdbopti.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -2057,67 +2083,67 @@ avrdbopti.build.appspmabr=
 #________________________________________#
 avrdbopti.menu.chip.avr128db28=AVR128DB28
 avrdbopti.menu.chip.avr128db28.build.mcu=avr128db28
-avrdbopti.menu.chip.avr128db28.bootloader.file=optiboot_dx128
+avrdbopti.menu.chip.avr128db28.bootloader.class=optiboot_dx128
 avrdbopti.menu.chip.avr128db28.upload.maximum_size=130560
 avrdbopti.menu.chip.avr128db28.upload.maximum_data_size=16384
 avrdbopti.menu.chip.avr128db28.build.variant=28pin-standard
 avrdbopti.menu.chip.avr128db32=AVR128DB32
 avrdbopti.menu.chip.avr128db32.build.mcu=avr128db32
-avrdbopti.menu.chip.avr128db32.bootloader.file=optiboot_dx128
+avrdbopti.menu.chip.avr128db32.bootloader.class=optiboot_dx128
 avrdbopti.menu.chip.avr128db32.upload.maximum_size=130560
 avrdbopti.menu.chip.avr128db32.upload.maximum_data_size=16384
 avrdbopti.menu.chip.avr128db32.build.variant=32pin-standard
 avrdbopti.menu.chip.avr128db48=AVR128DB48
 avrdbopti.menu.chip.avr128db48.build.mcu=avr128db48
-avrdbopti.menu.chip.avr128db48.bootloader.file=optiboot_dx128
+avrdbopti.menu.chip.avr128db48.bootloader.class=optiboot_dx128
 avrdbopti.menu.chip.avr128db48.upload.maximum_size=130560
 avrdbopti.menu.chip.avr128db48.upload.maximum_data_size=16384
 avrdbopti.menu.chip.avr128db48.build.variant=48pin-standard
 avrdbopti.menu.chip.avr128db64=AVR128DB64
 avrdbopti.menu.chip.avr128db64.build.mcu=avr128db64
-avrdbopti.menu.chip.avr128db64.bootloader.file=optiboot_dx128
+avrdbopti.menu.chip.avr128db64.bootloader.class=optiboot_dx128
 avrdbopti.menu.chip.avr128db64.upload.maximum_size=130560
 avrdbopti.menu.chip.avr128db64.upload.maximum_data_size=16384
 avrdbopti.menu.chip.avr128db64.build.variant=64pin-standard
 avrdbopti.menu.chip.avr64db28=AVR64DB28
 avrdbopti.menu.chip.avr64db28.build.mcu=avr64db28
-avrdbopti.menu.chip.avr64db28.bootloader.file=optiboot_dx64
+avrdbopti.menu.chip.avr64db28.bootloader.class=optiboot_dx64
 avrdbopti.menu.chip.avr64db28.upload.maximum_size=65024
 avrdbopti.menu.chip.avr64db28.upload.maximum_data_size=8192
 avrdbopti.menu.chip.avr64db28.build.variant=28pin-standard
 avrdbopti.menu.chip.avr64db32=AVR64DB32
 avrdbopti.menu.chip.avr64db32.build.mcu=avr64db32
-avrdbopti.menu.chip.avr64db32.bootloader.file=optiboot_dx64
+avrdbopti.menu.chip.avr64db32.bootloader.class=optiboot_dx64
 avrdbopti.menu.chip.avr64db32.upload.maximum_size=65024
 avrdbopti.menu.chip.avr64db32.upload.maximum_data_size=8192
 avrdbopti.menu.chip.avr64db32.build.variant=32pin-standard
 avrdbopti.menu.chip.avr64db48=AVR64DB48
 avrdbopti.menu.chip.avr64db48.build.mcu=avr64db48
-avrdbopti.menu.chip.avr64db48.bootloader.file=optiboot_dx64
+avrdbopti.menu.chip.avr64db48.bootloader.class=optiboot_dx64
 avrdbopti.menu.chip.avr64db48.upload.maximum_size=65024
 avrdbopti.menu.chip.avr64db48.upload.maximum_data_size=8192
 avrdbopti.menu.chip.avr64db48.build.variant=48pin-standard
 avrdbopti.menu.chip.avr64db64=AVR64DB64
 avrdbopti.menu.chip.avr64db64.build.mcu=avr64db64
-avrdbopti.menu.chip.avr64db64.bootloader.file=optiboot_dx64
+avrdbopti.menu.chip.avr64db64.bootloader.class=optiboot_dx64
 avrdbopti.menu.chip.avr64db64.upload.maximum_size=65024
 avrdbopti.menu.chip.avr64db64.upload.maximum_data_size=8192
 avrdbopti.menu.chip.avr64db64.build.variant=64pin-standard
 avrdbopti.menu.chip.avr32db28=AVR32DB28
 avrdbopti.menu.chip.avr32db28.build.mcu=avr32db28
-avrdbopti.menu.chip.avr32db28.bootloader.file=optiboot_dx32
+avrdbopti.menu.chip.avr32db28.bootloader.class=optiboot_dx32
 avrdbopti.menu.chip.avr32db28.upload.maximum_size=32256
 avrdbopti.menu.chip.avr32db28.upload.maximum_data_size=4096
 avrdbopti.menu.chip.avr32db28.build.variant=28pin-standard
 avrdbopti.menu.chip.avr32db32=AVR32DB32
 avrdbopti.menu.chip.avr32db32.build.mcu=avr32db32
-avrdbopti.menu.chip.avr32db32.bootloader.file=optiboot_dx32
+avrdbopti.menu.chip.avr32db32.bootloader.class=optiboot_dx32
 avrdbopti.menu.chip.avr32db32.upload.maximum_size=32256
 avrdbopti.menu.chip.avr32db32.upload.maximum_data_size=4096
 avrdbopti.menu.chip.avr32db32.build.variant=32pin-standard
 avrdbopti.menu.chip.avr32db48=AVR32DB48
 avrdbopti.menu.chip.avr32db48.build.mcu=avr32db48
-avrdbopti.menu.chip.avr32db48.bootloader.file=optiboot_dx32
+avrdbopti.menu.chip.avr32db48.bootloader.class=optiboot_dx32
 avrdbopti.menu.chip.avr32db48.upload.maximum_size=32256
 avrdbopti.menu.chip.avr32db48.upload.maximum_data_size=4096
 avrdbopti.menu.chip.avr32db48.build.variant=48pin-standard
@@ -2366,20 +2392,24 @@ avrdbopti.menu.startuptime.8.bootloader.sutbits=100
 avrdbopti.menu.startuptime.16.bootloader.sutbits=101
 avrdbopti.menu.startuptime.32.bootloader.sutbits=110
 avrdbopti.menu.startuptime.64.bootloader.sutbits=111
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 
 avrdbopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdbopti.menu.wiremode.mors1.build.wire.mode=MORS
-avrdbopti.menu.wiremode.mors1.build.wire.count=WIRE0
 avrdbopti.menu.wiremode.mands1=1x Wire, Master and Slave
 avrdbopti.menu.wiremode.mands1.build.wire.mode=MANDS
-avrdbopti.menu.wiremode.mors1.build.wire.count=WIRE0
+avrdbopti.menu.wiremode.mands1.build.wireabr=wA
 avrdbopti.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdbopti.menu.wiremode.mors2.build.wire.mode=MORS
-avrdbopti.menu.wiremode.mors2.build.wire.count=WIRE1
+avrdbopti.menu.wiremode.mors2.build.wireabr=wO2
+avrdbopti.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrdbopti.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdbopti.menu.wiremode.mands2.build.wire.mode=MANDS
-avrdbopti.menu.wiremode.mands2.build.wire.count=WIRE1
+avrdbopti.menu.wiremode.mands2.build.wireabr=wA2
+avrdbopti.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 
 #----------------------------------------#
@@ -2460,12 +2490,14 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.build.text_section_start=.text=0x200
 #avrddopti.build.extra_flags= -DTWI_{build.wire.mode} -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 #avrddopti.build.export_merged_output=false
+#avrddopti.build.wire.count=
 #avrddopri.build.highestcb=B2
 #avrddopti.build.printf=
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
 #avrddopti.bootloader.tool=avrdude
+#avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
 #avrddopti.bootloader.WDTCFG=0x00
 #avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 #avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
@@ -2473,8 +2505,8 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 ##avrddopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 #avrddopti.bootloader.CODESIZE=0x00
 #avrddopti.bootloader.BOOTSIZE=0x01
-#avrddopti.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex:i
-#avrddopti.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}{bootloader.port}{bootloader.timeout}.hex -a write
+#avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
+#avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -2483,6 +2515,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #________________________________________#
 #avrddopti.build.mcupostfix=opti
 #avrddopti.build.printfabr=
+#avrddopti.build.wireabr=
 #avrddopti.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -2494,79 +2527,79 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #________________________________________#
 #avrddopti.menu.chip.avr64dd14=AVR64DD14
 #avrddopti.menu.chip.avr64dd14.build.mcu=avr64dd14
-#avrddopti.menu.chip.avr64dd14.bootloader.file=optiboot_dd64
+#avrddopti.menu.chip.avr64dd14.bootloader.class=optiboot_dd64
 #avrddopti.menu.chip.avr64dd14.upload.maximum_size=65024
 #avrddopti.menu.chip.avr64dd14.upload.maximum_data_size=8192
 #avrddopti.menu.chip.avr64dd14.build.highestcb=B1
 #avrddopti.menu.chip.avr64dd14.build.variant=14pin-ddseries
 #avrddopti.menu.chip.avr64dd20=AVR64DD20
 #avrddopti.menu.chip.avr64dd20.build.mcu=avr64dd20
-#avrddopti.menu.chip.avr64dd20.bootloader.file=optiboot_dd64
+#avrddopti.menu.chip.avr64dd20.bootloader.class=optiboot_dd64
 #avrddopti.menu.chip.avr64dd20.upload.maximum_size=65024
 #avrddopti.menu.chip.avr64dd20.upload.maximum_data_size=8192
 #avrddopti.menu.chip.avr64dd20.build.highestcb=B1
 #avrddopti.menu.chip.avr64dd20.build.variant=20pin-ddseries
 #avrddopti.menu.chip.avr64dd28=AVR64DD28
 #avrddopti.menu.chip.avr64dd28.build.mcu=avr64dd28
-#avrddopti.menu.chip.avr64dd28.bootloader.file=optiboot_dd64
+#avrddopti.menu.chip.avr64dd28.bootloader.class=optiboot_dd64
 #avrddopti.menu.chip.avr64dd28.upload.maximum_size=65024
 #avrddopti.menu.chip.avr64dd28.upload.maximum_data_size=8192
 #avrddopti.menu.chip.avr64dd28.build.variant=28pin-ddseries
 #avrddopti.menu.chip.avr64dd32=AVR64DD32
 #avrddopti.menu.chip.avr64dd32.build.mcu=avr64dd32
-#avrddopti.menu.chip.avr64dd32.bootloader.file=optiboot_dd64
+#avrddopti.menu.chip.avr64dd32.bootloader.class=optiboot_dd64
 #avrddopti.menu.chip.avr64dd32.upload.maximum_size=65024
 #avrddopti.menu.chip.avr64dd32.upload.maximum_data_size=8192
 #avrddopti.menu.chip.avr64dd32.build.variant=32in-ddseries
 #avrddopti.menu.chip.avr32dd14=AVR32DD14
 #avrddopti.menu.chip.avr32dd14.build.mcu=avr32dd14
-#avrddopti.menu.chip.avr32dd14.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr32dd14.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr32dd14.upload.maximum_size=32256
 #avrddopti.menu.chip.avr32dd14.upload.maximum_data_size=4096
 #avrddopti.menu.chip.avr32dd14.build.highestcb=B1
 #avrddopti.menu.chip.avr32dd14.build.variant=14pin-ddseries
 #avrddopti.menu.chip.avr32dd20=AVR32DD20
 #avrddopti.menu.chip.avr32dd20.build.mcu=avr32dd20
-#avrddopti.menu.chip.avr32dd20.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr32dd20.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr32dd20.upload.maximum_size=32256
 #avrddopti.menu.chip.avr32dd20.upload.maximum_data_size=4096
 #avrddopti.menu.chip.avr32dd20.build.highestcb=B1
 #avrddopti.menu.chip.avr32dd20.build.variant=20pin-ddseries
 #avrddopti.menu.chip.avr32dd28=AVR32DD28
 #avrddopti.menu.chip.avr32dd28.build.mcu=avr32dd28
-#avrddopti.menu.chip.avr32dd28.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr32dd28.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr32dd28.upload.maximum_size=32256
 #avrddopti.menu.chip.avr32dd28.upload.maximum_data_size=4096
 #avrddopti.menu.chip.avr32dd28.build.variant=28pin-ddseries
 #avrddopti.menu.chip.avr32dd32=AVR32DD32
 #avrddopti.menu.chip.avr32dd32.build.mcu=avr32dd32
-#avrddopti.menu.chip.avr32dd32.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr32dd32.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr32dd32.upload.maximum_size=32256
 #avrddopti.menu.chip.avr32dd32.upload.maximum_data_size=4096
 #avrddopti.menu.chip.avr32dd32.build.variant=32in-ddseries
 #avrddopti.menu.chip.avr16dd14=AVR16DD14
 #avrddopti.menu.chip.avr16dd14.build.mcu=avr16dd14
-#avrddopti.menu.chip.avr16dd14.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr16dd14.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr16dd14.upload.maximum_size=15872
 #avrddopti.menu.chip.avr16dd14.upload.maximum_data_size=2048
 #avrddopti.menu.chip.avr16dd14.build.highestcb=B1
 #avrddopti.menu.chip.avr16dd14.build.variant=14pin-ddseries
 #avrddopti.menu.chip.avr16dd20=AVR16DD20
 #avrddopti.menu.chip.avr16dd20.build.mcu=avr16dd20
-#avrddopti.menu.chip.avr16dd20.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr16dd20.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr16dd20.upload.maximum_size=15872
 #avrddopti.menu.chip.avr16dd20.upload.maximum_data_size=2048
 #avrddopti.menu.chip.avr16dd20.build.highestcb=B1
 #avrddopti.menu.chip.avr16dd20.build.variant=20pin-ddseries
 #avrddopti.menu.chip.avr16dd28=AVR16DD28
 #avrddopti.menu.chip.avr16dd28.build.mcu=avr16dd28
-#avrddopti.menu.chip.avr16dd28.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr16dd28.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr16dd28.upload.maximum_size=15872
 #avrddopti.menu.chip.avr16dd28.upload.maximum_data_size=2048
 #avrddopti.menu.chip.avr16dd28.build.variant=28pin-ddseries
 #avrddopti.menu.chip.avr16dd32=AVR16DD32
 #avrddopti.menu.chip.avr16dd32.build.mcu=avr16dd32
-#avrddopti.menu.chip.avr16dd32.bootloader.file=optiboot_dx32_16
+#avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_dx32_16
 #avrddopti.menu.chip.avr16dd32.upload.maximum_size=15872
 #avrddopti.menu.chip.avr16dd32.upload.maximum_data_size=2048
 #avrddopti.menu.chip.avr16dd32.build.variant=32in-ddseries
@@ -2802,13 +2835,15 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.startuptime.32.bootloader.sutbits=110
 #avrddopti.menu.startuptime.64.bootloader.sutbits=111
 
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 #avrddopti.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrddopti.menu.wiremode.mors1.build.wire.mode=MORS
-#avrddopti.menu.wiremode.mors1.build.wire.count=WIRE0
 #avrddopti.menu.wiremode.mands1=1x Wire, Master and Slave
 #avrddopti.menu.wiremode.mands1.build.wire.mode=MANDS
-#avrddopti.menu.wiremode.mors1.build.wire.count=WIRE0
+#avrddopti.menu.wiremode.mands1.build.wireabr=wA
 
 #----------------------------------------#
 # Optiboot upload timeout                #
@@ -2858,14 +2893,16 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 azduinoboard.build.board=avrdb
 azduinoboard.build.core=dxcore
 azduinoboard.build.text_section_start=.text=0x200
-azduinoboard.build.extra_flags= -DTWI_{build.wire.mode} -DUSING_{build.wire.count}
+azduinoboard.build.extra_flags= -DTWI_{build.wire.mode} {build.wire.count}
 azduinoboard.build.export_merged_output=true
+azduinoboard.build.wire.count=
 azduinoboard.build.printf=
-azduinoboard.bootloader.avrdudestring=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex:i
-azduinoboard.bootloader.pymcuprogstring=-f{runtime.platform.path}/bootloaders/hex/{bootloader.file}_ser0_alt.hex -a write
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
+azduinoboard.bootloader.file=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt.hex
+azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
+azduinoboard.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 azduinoboard.bootloader.tool=avrdude
 azduinoboard.bootloader.WDTCFG=0x00
 azduinoboard.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
@@ -2887,6 +2924,7 @@ azduinoboard.upload.speed=115200
 #________________________________________#
 azduinoboard.build.mcupostfix=opti
 azduinoboard.build.printfabr=
+azduinoboard.build.wireabr=
 azduinoboard.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -2896,25 +2934,25 @@ azduinoboard.build.appspmabr=
 #________________________________________#
 azduinoboard.menu.board.NanoDB_A=Azduino Nano DB (Rev. A))
 azduinoboard.menu.board.NanoDB_A.build.mcu=avr128db32
-azduinoboard.menu.board.NanoDB_A.bootloader.file=optiboot_dx128
+azduinoboard.menu.board.NanoDB_A.bootloader.class=optiboot_dx128
 azduinoboard.menu.board.NanoDB_A.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDB_A.upload.maximum_data_size=16384
 azduinoboard.menu.board.NanoDB_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDB_A.bootloader.portswap=1
-azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DSERIAL_PORT_BOOT=Serial0 -DSERIAL_PORT_BOOT_PORTMUX=1 -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT
+azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT
 azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 #azduinoboard.menu.board.NanoDB_B=Azduino Nano DB (Rev. B or A w/resistor mod)
 #azduinoboard.menu.board.NanoDB_B.build.mcu=avr128db32
-#azduinoboard.menu.board.NanoDB_B.bootloader.file=optiboot_dx128
+#azduinoboard.menu.board.NanoDB_B.bootloader.class=optiboot_dx128
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_size=130560
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_data_size=16384
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
-azduinoboard.menu.board.NanoDBPlus.build.extra_flags=-DSERIAL_PORT_BOOT=Serial0 -DSERIAL_PORT_BOOT_PORTMUX=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT
+azduinoboard.menu.board.NanoDBPlus.build.extra_flags= -DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT
 azduinoboard.menu.board.NanoDBPlus.build.variant=32pin-standard
 azduinoboard.menu.board.NanoDBPlus=Azduino Nano DB++, Light Controller 2.1+
 azduinoboard.menu.board.NanoDBPlus.build.mcu=avr128db48
-azduinoboard.menu.board.NanoDBPlus.bootloader.file=optiboot_dx128
+azduinoboard.menu.board.NanoDBPlus.bootloader.class=optiboot_dx128
 azduinoboard.menu.board.NanoDBPlus.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDBPlus.upload.maximum_data_size=16384
 azduinoboard.menu.board.NanoDBPlus.build.variant=48pin-standard
@@ -3079,25 +3117,20 @@ azduinoboard.menu.startuptime.16.bootloader.sutbits=101
 azduinoboard.menu.startuptime.32.bootloader.sutbits=110
 azduinoboard.menu.startuptime.64.bootloader.sutbits=111
 
-
-
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
 azduinoboard.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 azduinoboard.menu.wiremode.mors1.build.wire.mode=MORS
-azduinoboard.menu.wiremode.mors1.build.wire.count=WIRE0
 azduinoboard.menu.wiremode.mands1=1x Wire, Master and Slave
 azduinoboard.menu.wiremode.mands1.build.wire.mode=MANDS
-azduinoboard.menu.wiremode.mors1.build.wire.count=WIRE0
+azduinoboard.menu.wiremode.mands1.build.wireabr=wA
 azduinoboard.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 azduinoboard.menu.wiremode.mors2.build.wire.mode=MORS
-azduinoboard.menu.wiremode.mors2.build.wire.count=WIRE1
+azduinoboard.menu.wiremode.mors2.build.wireabr=wO2
+azduinoboard.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 azduinoboard.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 azduinoboard.menu.wiremode.mands2.build.wire.mode=MANDS
-azduinoboard.menu.wiremode.mands2.build.wire.count=WIRE1
-
-#----------------------------------------#
-# Optiboot upload timeout                #
-#________________________________________#
-azduinoboard.bootloader.timeout=
-azduinoboard.bootloader.port=_ser0_alt
-azduinoboard.bootloader.portname=Serial
-azduinoboard.bootloader.portswap=1
+azduinoboard.menu.wiremode.mands2.build.wireabr=wA2
+azduinoboard.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1

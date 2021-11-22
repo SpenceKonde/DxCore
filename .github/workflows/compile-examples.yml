@@ -93,7 +93,6 @@ jobs:
       avr-da-series-sketch-paths: |
         - megaavr/extras/ci/test-sketch/da/dummysketch
       avr-db-series-sketch-paths: |
-        - megaavr/libraries/Wire/examples/two_master_write
         - megaavr/libraries/Opamp/examples/Inverting_amplifier
         - megaavr/libraries/Opamp/examples/Inverting_amplifier_with_follower
         - megaavr/libraries/Opamp/examples/Non_inverting_amplifier
@@ -112,7 +111,8 @@ jobs:
         - megaavr/libraries/ZCD/examples/Frequency_counter
         - megaavr/libraries/tinyNeoPixel/examples/RGBWstrandtest
       #internal-osc-sketch-paths: |
-
+      both-twi-enabled-sketch-paths: |
+        - megaavr/libraries/Wire/examples/two_master_write
     strategy:
       fail-fast: false
 

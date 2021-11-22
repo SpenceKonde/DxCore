@@ -153,7 +153,7 @@ class TwoWire: public Stream {
 #endif
 
 #if defined (TWI1)
-  #if defined (USING_WIRE1)
+  #if defined (TWI_USING_WIRE1)
     extern TwoWire Wire1;
   #endif
 #endif
