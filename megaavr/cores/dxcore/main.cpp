@@ -189,8 +189,8 @@ int main() {
       }
     #endif
   #endif
-  // Finally, none of thwse three things need to be done if running optiboot!
-  // We want the vectors in the alt location, it checks, clears, and stashes the reswet flags (in GPR0)
+  // Finally, none of these three things need to be done if running optiboot!
+  // We want the vectors in the alt location, it checks, clears, and stashes the reset flags (in GPR0)
   // and it providews the entrypoint we call to write to flash.
 #else
   void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));

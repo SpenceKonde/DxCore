@@ -53,7 +53,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(uint8_t pin)
       {
       #if defined(XTAL_PINS_HARDWIRED)
         if (pin < 2)
-          badArg("Digital Pin is constant PIN_PA0 or PA1, but those are hardwired to ab external crystal and not available for other uses");
+          badArg("Digital Pin is constant PIN_PA0 or PA1, but those are hardwired to an external crystal and not available for other uses");
       #endif
       }
     }
@@ -124,7 +124,7 @@ void _pinConfigure(uint8_t pin, uint16_t pinconfig) {
   if (setting) {
     *(portbase + 4 + setting) = bit_mask;  // OUT
   }
-  if (!(pinconfig & 0x03FFC)) return; // RETURN if we're done before we start this mess.
+  if (!(pinconfig & 0x3FFC)) return; // RETURN if we're done before we start this mess.
   pinconfig >>= 2;
   uint8_t oldSREG = SREG;
   cli();
