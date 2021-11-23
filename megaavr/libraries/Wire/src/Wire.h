@@ -60,7 +60,7 @@ extern "C" {
 
 
 class TwoWire: public Stream {
-   private:
+  private:
     twiData vars;   // We're using a struct to reduce the amount of parameters that have to be passed.
   public:
     explicit TwoWire(TWI_t *twi_module);
