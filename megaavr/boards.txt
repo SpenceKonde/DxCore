@@ -426,16 +426,17 @@ avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 # TWI OPTIONS
 avrda.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrda.menu.wiremode.mors1.build.wire.mode=MORS
+avrda.menu.wiremode.mors1.build.wireabr=.wO
 avrda.menu.wiremode.mands1=1x Wire, Master and Slave
 avrda.menu.wiremode.mands1.build.wire.mode=MANDS
-avrda.menu.wiremode.mands1.build.wireabr=wA
+avrda.menu.wiremode.mands1.build.wireabr=.wA
 avrda.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrda.menu.wiremode.mors2.build.wire.mode=MORS
-avrda.menu.wiremode.mors2.build.wireabr=wO2
+avrda.menu.wiremode.mors2.build.wireabr=.wO2
 avrda.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrda.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrda.menu.wiremode.mands2.build.wire.mode=MANDS
-avrda.menu.wiremode.mands2.build.wireabr=wA2
+avrda.menu.wiremode.mands2.build.wireabr=.wA2
 avrda.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 
@@ -807,16 +808,17 @@ avrdb.menu.startuptime.64.bootloader.sutbits=111
 #_____________________________________#
 avrdb.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdb.menu.wiremode.mors1.build.wire.mode=MORS
+avrdb.menu.wiremode.mors1.build.wireabr=.wO
 avrdb.menu.wiremode.mands1=1x Wire, Master and Slave
 avrdb.menu.wiremode.mands1.build.wire.mode=MANDS
-avrdb.menu.wiremode.mands1.build.wireabr=wA
+avrdb.menu.wiremode.mands1.build.wireabr=.wA
 avrdb.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdb.menu.wiremode.mors2.build.wire.mode=MORS
-avrdb.menu.wiremode.mors2.build.wireabr=wO2
+avrdb.menu.wiremode.mors2.build.wireabr=.wO2
 avrdb.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrdb.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdb.menu.wiremode.mands2.build.wire.mode=MANDS
-avrdb.menu.wiremode.mands2.build.wireabr=wA2
+avrdb.menu.wiremode.mands2.build.wireabr=.wA2
 avrdb.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 #----------------------------------------#
@@ -1216,9 +1218,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #_____________________________________#
 #avrdd.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrdd.menu.wiremode.mors1.build.wire.mode=MORS
+#avrdd.menu.wiremode.mors1.build.wireabr=.wO
 #avrdd.menu.wiremode.mands1=1x Wire, Master and Slave
 #avrdd.menu.wiremode.mands1.build.wire.mode=MANDS
-#avrdd.menu.wiremode.mands1.build.wireabr=wA
+#avrdd.menu.wiremode.mands1.build.wireabr=.wA
 
 #----------------------------------------#
 # SPM (writing flash from app)           #
@@ -1623,9 +1626,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 
 #avrea.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrea.menu.wiremode.mors1.build.wire.mode=MORS
+#avrea.menu.wiremode.mors1.build.wireabr=.wO
 #avrea.menu.wiremode.mands1=1x Wire, Master and Slave
 #avrea.menu.wiremode.mands1.build.wire.mode=MANDS
-#avrea.menu.wiremode.mands1.build.wireabr=wA
+#avrea.menu.wiremode.mands1.build.wireabr=.wA
 
 #-------------------------------------#
 # SPM from app incompatible with Dx   #
@@ -1952,16 +1956,17 @@ avrdaopti.menu.startuptime.64.bootloader.SYSCFG1=0x07
 #_____________________________________#
 avrdaopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdaopti.menu.wiremode.mors1.build.wire.mode=MORS
+avrdaopti.menu.wiremode.mors1.build.wireabr=.wO
 avrdaopti.menu.wiremode.mands1=1x Wire, Master and Slave
 avrdaopti.menu.wiremode.mands1.build.wire.mode=MANDS
-avrdaopti.menu.wiremode.mands1.build.wireabr=wA
+avrdaopti.menu.wiremode.mands1.build.wireabr=.wA
 avrdaopti.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdaopti.menu.wiremode.mors2.build.wire.mode=MORS
-avrdaopti.menu.wiremode.mors2.build.wireabr=wO2
+avrdaopti.menu.wiremode.mors2.build.wireabr=.wO2
 avrdaopti.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrdaopti.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdaopti.menu.wiremode.mands2.build.wire.mode=MANDS
-avrdaopti.menu.wiremode.mands2.build.wireabr=wA2
+avrdaopti.menu.wiremode.mands2.build.wireabr=.wA2
 avrdaopti.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 #----------------------------------------#
@@ -2399,16 +2404,17 @@ avrdbopti.menu.startuptime.64.bootloader.sutbits=111
 
 avrdbopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdbopti.menu.wiremode.mors1.build.wire.mode=MORS
+avrdbopti.menu.wiremode.mors1.build.wireabr=.wO
 avrdbopti.menu.wiremode.mands1=1x Wire, Master and Slave
 avrdbopti.menu.wiremode.mands1.build.wire.mode=MANDS
-avrdbopti.menu.wiremode.mands1.build.wireabr=wA
+avrdbopti.menu.wiremode.mands1.build.wireabr=.wA
 avrdbopti.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdbopti.menu.wiremode.mors2.build.wire.mode=MORS
-avrdbopti.menu.wiremode.mors2.build.wireabr=wO2
+avrdbopti.menu.wiremode.mors2.build.wireabr=.wO2
 avrdbopti.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 avrdbopti.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdbopti.menu.wiremode.mands2.build.wire.mode=MANDS
-avrdbopti.menu.wiremode.mands2.build.wireabr=wA2
+avrdbopti.menu.wiremode.mands2.build.wireabr=.wA2
 avrdbopti.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1
 
 
@@ -2841,9 +2847,10 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #_____________________________________#
 #avrddopti.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrddopti.menu.wiremode.mors1.build.wire.mode=MORS
+#avrddopti.menu.wiremode.mors1.build.wireabr=.wO
 #avrddopti.menu.wiremode.mands1=1x Wire, Master and Slave
 #avrddopti.menu.wiremode.mands1.build.wire.mode=MANDS
-#avrddopti.menu.wiremode.mands1.build.wireabr=wA
+#avrddopti.menu.wiremode.mands1.build.wireabr=.wA
 
 #----------------------------------------#
 # Optiboot upload timeout                #
@@ -2893,7 +2900,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 azduinoboard.build.board=avrdb
 azduinoboard.build.core=dxcore
 azduinoboard.build.text_section_start=.text=0x200
-azduinoboard.build.extra_flags= -DTWI_{build.wire.mode} {build.wire.count}
+azduinoboard.build.extra_flags=
 azduinoboard.build.export_merged_output=true
 azduinoboard.build.wire.count=
 azduinoboard.build.printf=
@@ -2939,7 +2946,7 @@ azduinoboard.menu.board.NanoDB_A.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDB_A.upload.maximum_data_size=16384
 azduinoboard.menu.board.NanoDB_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDB_A.bootloader.portswap=1
-azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT
+azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DTWI_{build.wire.mode} {build.wire.count} -DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT
 azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 #azduinoboard.menu.board.NanoDB_B=Azduino Nano DB (Rev. B or A w/resistor mod)
 #azduinoboard.menu.board.NanoDB_B.build.mcu=avr128db32
@@ -2948,7 +2955,7 @@ azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_data_size=16384
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
-azduinoboard.menu.board.NanoDBPlus.build.extra_flags= -DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT
+azduinoboard.menu.board.NanoDBPlus.build.extra_flags=-DTWI_{build.wire.mode} {build.wire.count} -DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT
 azduinoboard.menu.board.NanoDBPlus.build.variant=32pin-standard
 azduinoboard.menu.board.NanoDBPlus=Azduino Nano DB++, Light Controller 2.1+
 azduinoboard.menu.board.NanoDBPlus.build.mcu=avr128db48
@@ -3123,14 +3130,15 @@ azduinoboard.menu.startuptime.64.bootloader.sutbits=111
 #_____________________________________#
 azduinoboard.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 azduinoboard.menu.wiremode.mors1.build.wire.mode=MORS
+azduinoboard.menu.wiremode.mors1.build.wireabr=.wO
 azduinoboard.menu.wiremode.mands1=1x Wire, Master and Slave
 azduinoboard.menu.wiremode.mands1.build.wire.mode=MANDS
-azduinoboard.menu.wiremode.mands1.build.wireabr=wA
+azduinoboard.menu.wiremode.mands1.build.wireabr=.wA
 azduinoboard.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 azduinoboard.menu.wiremode.mors2.build.wire.mode=MORS
-azduinoboard.menu.wiremode.mors2.build.wireabr=wO2
+azduinoboard.menu.wiremode.mors2.build.wireabr=.wO2
 azduinoboard.menu.wiremode.mors2.build.wire.count=-DTWI_USING_WIRE1
 azduinoboard.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 azduinoboard.menu.wiremode.mands2.build.wire.mode=MANDS
-azduinoboard.menu.wiremode.mands2.build.wireabr=wA2
+azduinoboard.menu.wiremode.mands2.build.wireabr=.wA2
 azduinoboard.menu.wiremode.mands2.build.wire.count=-DTWI_USING_WIRE1

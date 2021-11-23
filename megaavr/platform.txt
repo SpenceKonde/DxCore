@@ -98,11 +98,11 @@ recipe.hooks.objcopy.postobjcopy.2.pattern.linux=bash -c "{compiler.path}{compil
 recipe.hooks.objcopy.postobjcopy.2.pattern.macosx=bash -c "{compiler.path}{compiler.nm.cmd} {compiler.nm.flags}  {build.path}/{build.project_name}.elf > {build.path}/{build.project_name}.map"
 
 ## This is the name that memory maps, assembly listings and hex files will be output as
-build.extraassetname={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}cs{build.clocksource}.m{build.millistimer}{build.printfabr}{build.appspmabr}{build.wireabr}
+build.extraassetname={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}cs{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}
 
 ## Save hex
 recipe.output.tmp_file={build.project_name}.hex
-recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}{build.printfabr}{build.appspmabr}{build.wireabr}.hex
+recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}.hex
 
 ## Save lst
 recipe.hooks.savehex.presavehex.1.pattern.windows=cmd /C copy "{build.path}\{build.project_name}.lst" "{sketch_path}\{build.extraassetname}.lst"
