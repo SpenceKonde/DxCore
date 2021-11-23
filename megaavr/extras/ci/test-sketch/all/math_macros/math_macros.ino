@@ -1,10 +1,10 @@
 /* This sketch verifies that the math macros still compile successfully
- * Many of them are sufficiently rarely used - at least by users who are 
- * confident enough in their code that when they find a bug they don't  
- * assume they were doing it wrong and will report it - a lot of them  
+ * Many of them are sufficiently rarely used - at least by users who are
+ * confident enough in their code that when they find a bug they don't
+ * assume they were doing it wrong and will report it - a lot of them
  * are Arduino-land "easy mode" functions that are mostly used by those
- * who are new to embedded development - but they are supposed to work. 
- * It also provides a way to detect changes in flash usage of these. 
+ * who are new to embedded development - but they are supposed to work.
+ * It also provides a way to detect changes in flash usage of these.
  */
 
 

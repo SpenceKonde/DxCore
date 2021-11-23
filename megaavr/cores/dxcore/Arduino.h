@@ -354,7 +354,7 @@ extern const uint8_t digital_pin_to_timer[];
 // Systematically named constants can be made by combining those names with the postfixes here
 // except for PIN_ISC which is not a non-binary option. Valid values are listed below.
 // _SET, _CLR, and _TGL can be used as a postfix on all binary options.
-// _TOGGLE and _TGL are interchangable as well.
+// _TOGGLE and _TGL are interchangeable as well.
 // Additional names are defined where they might be easier to remember.
 // It's not an accident that the PORT options have PIN_(name of register in PORTx)
 // as an alias.

@@ -105,7 +105,7 @@ void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
     // Buffer empty, so disable "data register empty" interrupt
     ctrla &= ~(USART_DREIE_bm);
     if (uartClass._state & 2) {
-      ctrla |= USART_TXCIE_bm; //in half duplex, turn on TXC interrupt, which will reenable RX int.
+      ctrla |= USART_TXCIE_bm; //in half duplex, turn on TXC interrupt, which will re-enable RX int.
     }
     usartModule->CTRLA = ctrla;
   } else if (uartClass._state & 2) {
@@ -232,7 +232,7 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
   (*MyUSART).CTRLB          = ctrlb;
   if ((ctrla & USART_LBME_bm) && ((ctrlb & 0xC0) == 0xC0)) { //if it's half duplex requires special treatment if
     _state       = 2;                        // since that changes some behavior (RXC disabled while sending)
-    setpinmask  |= 0x10;                    // this tells _set_pins not to disturb the configuation on the RX pin.
+    setpinmask  |= 0x10;                    // this tells _set_pins not to disturb the configuration on the RX pin.
   }
   if (ctrla & USART_RS485_bm) {             // RS485 mode recorded here too... because we may need to
     setpinmask  |= 0x01;                    // set pin output if we need to do that. Datasheet isn't clear
@@ -378,7 +378,7 @@ uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint
   if (tx_pin == NOT_A_PIN && rx_pin == NOT_A_PIN) {
     return  128;            // get MUX_NONE
   } else {
-    rx_pin -=tx_pin;        // Test if thes *could* match eachother.
+    rx_pin -=tx_pin;        // Test if these *could* match each other.
     if(rx_pin == 1) {       // thus far no parts where the pins are not adjacent! */
       mux_table_ptr++;                                              // prepare to read the information with one byte offset
       for (uint8_t i = 0; i < mux_count; i++) {                     // until we hit the end of this USART's mux...

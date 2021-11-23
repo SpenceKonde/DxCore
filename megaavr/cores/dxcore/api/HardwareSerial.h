@@ -31,7 +31,7 @@
 //
 // We do not have flash to flush to waste, this code will be run with parts that have only 4k of flash
 // so using an integer to hold settings, and then rearranging them at runtime, when they are ALL LOCATED
-// NEXT TO EACHOTHER ON THE SAME BYTE is madness....
+// NEXT TO EACH OTHER ON THE SAME BYTE is madness....
 
 class HardwareSerial : public Stream
 {

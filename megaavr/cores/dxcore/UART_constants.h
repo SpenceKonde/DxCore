@@ -15,7 +15,7 @@
   // The point of this that it will be OR'ed with the unused bit of the CHsize field of any set of validly composed options.
   // So if we see that, we know whatever they passed *wasn't* missing the low byte;
   // Getting a an OPTIONS argument with just the first two bytes could be a bungled
-  // attempt to specify first options as modfiers to the default. But we would have no way
+  // attempt to specify first options as modifiers to the default. But we would have no way
   // to know whether they wanted no parity async 1 stop and 5 bit char size,
   // or had simply failed to remember the SERIAL_8N1
 
@@ -96,7 +96,7 @@
   #define SERIAL_8O2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
 
 
-/* Modifier Definitions  - these can be OR'ed with the othe definition to turn on features like one-wire half duplex and more */
+/* Modifier Definitions  - these can be OR'ed with the other definition to turn on features like one-wire half duplex and more */
 
   #define SERIAL_RS485          (((uint16_t) USART_RS485_bm) << 8) // 0x01
   //#define SERIAL_RS485_REVERSE(((uint16_t) USART_RS485_bm) << 8) // tinyAVR 0/1
@@ -156,7 +156,7 @@
  *   if it needs to in order to generate the required baud rate only.
  *   GENAUTO - generic auto-baud mode
  *   LINAUTO - LIN constrained auto-baud mode
- * Autobaud mode requires a "break" to be sent follwed by a sync (0x55).
+ * Autobaud mode requires a "break" to be sent followed by a sync (0x55).
  *   LIN mode has more constraints in accordance with that stadatd, while
  *   generic mode has clearly just disabled the checks and added a WFB or
  *   "wait for break" option so you can use autobaud without having to
@@ -179,7 +179,7 @@
  *
  *
  * Plus there's there's the IRCOM - it is able to take an event input, and
- * you can turn off the pulse coding that nobody's going to ue in Arduino-land
+ * you can turn off the pulse coding that nobody's going to use in Arduino-land
  * IRDA has been dead for years - we don't support using that, but we want event input.
  *
  * Additionally there are reasons to want to control to some bits from CTRLA + CTRLB too...
@@ -189,7 +189,7 @@
  *   Do we have to do something that applies the 115200 baud maximum to get it?
  *
  * We want a way to request that only TX, or only RX be enabled, but default should be both.
- * And we want to control Open Drain, RS485 and LoopBack options independently of eachother
+ * And we want to control Open Drain, RS485 and LoopBack options independently of each other
  *
  * In summary:
  *
@@ -205,7 +205,7 @@
  * RS485 option
  * All the ones CTRLA default 0, and so we can AND with 0x09 (or 0x0B on tinyAVR) and OR with other CTRLA settings.
  * And we want the two inverted CTRLB ones in their final locations so we can AND with 0xC0 and XOR the settings
- * we're going to write to CTRLB. The other CTRLB one and the interal need to be done individually, so it doesn't matter
+ * we're going to write to CTRLB. The other CTRLB one and the internal need to be done individually, so it doesn't matter
  * that needs to set other options too.
  */
 

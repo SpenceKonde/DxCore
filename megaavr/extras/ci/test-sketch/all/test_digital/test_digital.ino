@@ -36,8 +36,8 @@ void setup() {
 
 void compile_test_digital() {
     /* Digital pins */
-    /* All parts have PA0, PA1 (these are crystal pins), 
-     * PC1, PC2, PC3, PD4, PD5, PD6, PD7, PF6 (reset) 
+    /* All parts have PA0, PA1 (these are crystal pins),
+     * PC1, PC2, PC3, PD4, PD5, PD6, PD7, PF6 (reset)
      * Of those only PDn are analog inputs on all*/
   // fast digital I/O - constant pins
   digitalWriteFast(PIN_PC1, HIGH);
@@ -100,7 +100,7 @@ void compile_test_digital_advanced() {
   pinConfigure(NOT_A_CONST_BYTE, (PIN_ISC_RISE     | PIN_INVERT_SET  | PIN_INVERT_TGL  | PIN_DIR_CLR));
   pinConfigure(NOT_A_CONST_BYTE, (PIN_ISC_FALL     | PIN_PULLUP_SET  | PIN_OUT_TGL     | PIN_DIR_TGL));
   pinConfigure(NOT_A_CONST_BYTE, (PIN_ISC_DISABLE  | PIN_INVERT_CLR  | PIN_INLVL_SET   | PIN_OUT_SET));
-  // Shifty I/O 
+  // Shifty I/O
   shiftOut(PIN_PD4, PIN_PD5, MSBFIRST, 0x12);
   shiftOut(NOT_A_CONST_BYTE, PIN_PD6, LSBFIRST, 0x34);
   shiftOut(PIN_PD7, NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, 0x56);
@@ -127,4 +127,4 @@ void compile_test_digital_advanced() {
   retval_shiftIn = shiftIn(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, NOT_A_CONST_BYTE);
   discard(retval_shiftIn);
 
-}; 
+};

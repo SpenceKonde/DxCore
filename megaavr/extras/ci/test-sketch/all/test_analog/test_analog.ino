@@ -35,8 +35,8 @@ void setup() {
 
 void compile_test_analog() {
   /* Analog Functions */
-  /* All parts have PA0, PA1 (these are crystal pins), 
-   * PC1, PC2, PC3, PD4, PD5, PD6, PD7, PF6 (reset) 
+  /* All parts have PA0, PA1 (these are crystal pins),
+   * PC1, PC2, PC3, PD4, PD5, PD6, PD7, PF6 (reset)
    * Of those only PDn are analog inputs on all
    * also known as PIN_A4, PIN_A5, PIN_A6, PIN_A7*/
   /* Verify that references constant and non-constant compile */
