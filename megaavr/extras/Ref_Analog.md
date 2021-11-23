@@ -107,26 +107,39 @@ The Ex-series is expected to have prescalers similar to the tinyAVR 2-series: Ev
 In either case you don't need to know the range of prescalers, just ask for a frequency and we'll get as close as possible without exceeding it, and tell you what was picked
 
 ```c++
+// ******* for both *******
 Serial.println(analogClockSpeed());     // prints something between 1000 and 1500 depending on F_CPU
 analogClockSpeed(300);                  // set to 300 kHz
 Serial.println(analogClockSpeed());     // prints a number near 300 - the closest to 300 that was possible without going over.
-// For Dx-series
-Serial.println(analogClockSpeed(3000)); // sets prescaler such that frequency of ADC clock is as close to but not more than 2000 (kHz) which is
-                                        // the maximum supported according to the datasheet. Any number of 2000 or higher will get same results.
-Serial.println(analogClockSpeed(20));   // A ridiculously slow ADC clock request. Datasheet says minimum is 125. Maximum prescaler is 256, so this would
-                                        // set the ADC clock to that for the lowest ADC clock possible with this clock speed and return that (93 kHz (93.75 truncated to int)).
 
-// For Ex-series
-Serial.println(analogClockSpeed(20000));   // Above manufacurer max spec, so seeks out a value that is no larger than that spec 3000 if internal reference selected or 6000 otherwise.
-Serial.println(analogClockSpeed(20000,1)); // Above manufacturer's spec. but we instruct it to ignore the spec and live dangerously.
-// The requested speed, far in excess of the maximum obtainable (which is several times the maximum supported) speed, with limits bypassed,
-// will lead it to choose the fastest possible ADC clock, which is only prescaled by a factor of 2, and return that value, likely 8000 or 10000
-// unless you also like exceeding manufacturer system clock limiits and are just overclocking everything.
-// Either way
-int returned_default = analogClockSpeed(-1); // reset to default value, around 1000 - 1500 kHz.
+// ****** For Dx-series *******
+Serial.println(analogClockSpeed(3000)); // sets prescaler such that frequency of ADC clock is as
+// close to but not more than 2000 (kHz) which is the maximum supported according to the datasheet.
+// Any number of 2000 or higher will get same results.
+Serial.println(analogClockSpeed(20));   // A ridiculously slow ADC clock request.
+// Datasheet says minimum is 125, maximum prescale(256) would give 93.75 kHz - but that's not
+// within spec, and no second argument was passed; we will instead set to 128 prescaler
+// for clock speed of 187.5 kHz and will return 187,
+Serial.println(analogClockSpeed(20, 1)); // As above, but with the override of spec-check
+// enabled, so it will set it as close to 20 as it can (93.75) and return 93.
+
+// ****** For Ex-series *******
+Serial.println(analogClockSpeed(20000));   // Above manufacurer max spec, so seeks out a value that
+// is no larger than that spec; 3000 if internal reference selected or 6000 otherwise.
+Serial.println(analogClockSpeed(20000,1)); // Above manufacturer's spec. but we instruct
+// it to ignore the spec and live dangerously. The requested speed, far in excess of the
+// maximum obtainable (which is several times the maximum supported) speed, with limits bypassed,
+// will lead it to choose the fastest possible ADC clock, which is only prescaled by a factor of 2,
+// and return that value, likely 8000 or 10000 unless for 16 or 20 MHz. (higher if you're overclocking
+// the chip in general too). Expect inaccurate results of other bad behavior.
+
+// ******* For both *******
+int returned_default = analogClockSpeed(-1); // reset to default value, around 1000 - 1500 kHz for Dx and around 2500 for Ex.
+
 Serial.println(returned_default);  // will print the same as the first line, assuming you hadn't changed it prior to these lines.
 ```
 If anyone undertakes a study to determine the impact of different ADC clock frequency on accuracy, take care to adjust the sampling time to hold that constant. I would love to hear of any results; I imagine that lower clock speeds should be more accurate, but within the supported frequency range, I don't know whether these differences are worth caring about.
+I've been told that application notes with some guidance on how to best configure the ADC for different jobs is coming. Microchip is aware that the new ADC has a bewildering number of knobs compared to classic AVRs, where there was typically only 1 degree of freedom, the reference, which is simple to pick and undeerstand, since only one prescaler setting was in spec.
 
 ### getAnalogReadResolution()
 Returns either 10 or 12, the current resolution set for analogRead.
