@@ -37,7 +37,6 @@ __ Expanded Event library from collaboration with @MCUDude
 * Correct a an error in SerialUPDI definitions for AVR64DD28 devices (which are not yet available)
 * Implement CI automated testing! Finally!
 * Implement expanded markdown format checking.
-* Remove teaser added in 1.3.7 as the document did not meet editorial standards and was not worth retyping. My hope remains for automatically making the .map files human (or machine - either would be an improvement) readable, and cleaning up the bogus offsets relative to the nearest constant when avr-objdump can't find the logical one to use in the .lst files. This is a low priority, alongside the instruction usage count tool I want to make which will probably be done at the same time.
 * Harmonize EEPROM.h with megaTinyCore, update documentation.
 * Major cleanup of Comparator library to ensure support for future parts and harmonize codebase across all supported parts. Oh, and it compiles now too.
 * tinyNeoPixel now correctly tests for millis availability before trying to use micros(). Previously, the macro being checked was spelled without the underscore that the actual one has, and was an older deprecated name that should not be relied upon.
