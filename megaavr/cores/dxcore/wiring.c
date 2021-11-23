@@ -610,9 +610,17 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
   }
 
 #else //delay implementation when we do not
-  void delay(unsigned long ms)
-  {
-    _delay_ms(ms);
+  void _delay_nonconst(unsigned long ms) {
+    while (ms > 0) {
+      _delay_ms(1);
+    }
+  }
+  inline __attribute__((always_inline)) void delay(unsigned long ms) {
+    if(__builtin_constant_p(ms)) {
+      _delay_ms(ms);
+    } else {
+      _delay_nonconst(ms);
+    }
   }
 #endif
 
