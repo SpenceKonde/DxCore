@@ -213,31 +213,31 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
   if (ctrlb & USART_RXEN_bm) {              // if RX is to be enabled
     ctrla  |= USART_RXCIE_bm;               // we will want to enable the ISR.
   }
-  uint8_t setpinmask = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
-  if ((ctrla & USART_LBME_bm) && ((ctrlb & 0xC0) == 0xC0)) { //if it's half duplex requires special treatment if
-    _state      |= 2;                       // since that changes some behavior (RXC disabled while sending)
-    setpinmask  |= 0x10;                    // this tells _set_pins not to disturb the configuation on the RX pin.
-  }
-  if (ctrla & USART_RS485_bm) {           // RS485 mode recorded here too... because we may need to
-    setpinmask  |= 0x01;                   // set pin output if we need to do that. Datasheet isn't clear
-  }
   uint8_t oldSREG = SREG;
   cli();
-  (*_hwserial_module).CTRLB       = 0;
-  (*_hwserial_module).BAUD        = baud_setting;
+  volatile USART_t* MyUSART = _hwserial_module;
+  (*MyUSART).CTRLA          = ctrla;
+  (*MyUSART).CTRLB          = 0;
+  (*MyUSART).CTRLC          = (uint8_t) options;
+  (*MyUSART).BAUD           = baud_setting;
+  uint8_t setpinmask = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
   // Set USART mode of operation
-  (*_hwserial_module).CTRLC       = (uint8_t) options;
-
-  (*_hwserial_module).CTRLA       = ctrla;
   if (options & SERIAL_EVENT_RX) {
-    setpinmask                   &= 0x7F; // Remove the RX pin in this case because we get the input from elsewhere.
-    (*_hwserial_module).EVCTRL    = 1;    // enable event input - not clear from datasheet what's needed to
-    (*_hwserial_module).TXPLCTRL  = 0xFF; // Disable pulse length encoding.
+    setpinmask             &= 0x7F; // Remove the RX pin in this case because we get the input from elsewhere.
+    (*MyUSART).EVCTRL       = 1;    // enable event input - not clear from datasheet what's needed to
+    (*MyUSART).TXPLCTRL     = 0xFF; // Disable pulse length encoding.
   } else {
-    (*_hwserial_module).EVCTRL    = 0;
+    (*MyUSART).EVCTRL       = 0;
+  }
+  (*MyUSART).CTRLB          = ctrlb;
+  if ((ctrla & USART_LBME_bm) && ((ctrlb & 0xC0) == 0xC0)) { //if it's half duplex requires special treatment if
+    _state       = 2;                        // since that changes some behavior (RXC disabled while sending)
+    setpinmask  |= 0x10;                    // this tells _set_pins not to disturb the configuation on the RX pin.
+  }
+  if (ctrla & USART_RS485_bm) {             // RS485 mode recorded here too... because we may need to
+    setpinmask  |= 0x01;                    // set pin output if we need to do that. Datasheet isn't clear
   }
   _set_pins(_usart_pins, _mux_count, _pin_set, setpinmask);
-  (*_hwserial_module).CTRLB = ctrlb;
   SREG=oldSREG;
 }
 
