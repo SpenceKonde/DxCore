@@ -69,11 +69,11 @@ Include guard and include basic libraries. We are normally including this inside
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
-/* Until the legacy attach interrupt has been completelty obsoleted - this is such a waste here! */
+/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
-/* Until the legacy attach interrupt has been completelty obsoleted - this is such a waste here! */
+/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS        48
 #endif

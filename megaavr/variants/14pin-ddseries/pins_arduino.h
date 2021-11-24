@@ -64,7 +64,7 @@ Include guard and include basic libraries. We are normally including this inside
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_D7
 #endif
-/* Until the legacy attach interrupt has been completelty obsoleted - this is such a waste here! */
+/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS        48
 #endif

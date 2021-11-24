@@ -19,7 +19,7 @@ List the part numbers (if applicable) or what board this variant supports.
 #include "timers.h"
 
 #define EXAMPLE_48PIN_PINOUT // if your pin numbering or general mapping has changed
-// define something like this so people can detect and react programatically.
+// define something like this so people can detect and react programmatically.
 
 // NOW FOR PIN NUMBERS
 
@@ -32,7 +32,7 @@ List the part numbers (if applicable) or what board this variant supports.
       Tx -> Rx -> XCK -> XDIR.
  * Thus ALL VARIANTS MUST FOLLOW THE RULES in order to function without further (hard) modification.
  * The numbering shall begin at PA0, with PIN_P0 = 0.
-    * PIN_A0 and PIN_A1 must be included in the numbering, evem if the board has a crystal or clock.
+    * PIN_A0 and PIN_A1 must be included in the numbering, even if the board has a crystal or clock.
  * Subsequent pins in port A are numbered in order.
  * After a port is finished, Look to the next letter of the alphabet.
     Is there a port associated with that letter which has one or more pins on it?
@@ -96,8 +96,8 @@ List the part numbers (if applicable) or what board this variant supports.
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
-/* Until the legacy attach interrupt has been completelty obsoleted, leave this line in
- * EXTERNAL_NUM_INTERRUPTS: Count the number of ports on the part. The last port counts for the nuber of I/O pins in it.
+/* Until the legacy attach interrupt has been completely obsoleted, leave this line in
+ * EXTERNAL_NUM_INTERRUPTS: Count the number of ports on the part. The last port counts for the number of I/O pins in it.
  * All other ports count for 8.. */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS        47
@@ -168,7 +168,7 @@ List the part numbers (if applicable) or what board this variant supports.
 
 /* This section contains an enumeration of the pins that each peripheral can be set to use via portmux.
  * SPI pins must all be listed here, except the SS pin, which we recommend including. The includes SPI.h library, however,
- * does not spport acting as SPI slave, and disables SS, so there is nothing special about that pin.
+ * does not support acting as SPI slave, and disables SS, so there is nothing special about that pin.
  * I2C pins must all be listed here **except** for dual mode ones, those are handled internally automatically when that is enabled.
  * All SPI portmux options available must be defined.
  * I2C portmux options should not be defined.
@@ -226,7 +226,7 @@ List the part numbers (if applicable) or what board this variant supports.
 #define PIN_SPI1_SS_PINSWAP_1   PIN_PC7
 
 
-/* Yes, pinswap1 is the same as defaul. You must still include it or people will not be allowed to swap to it.
+/* Yes, pinswap1 is the same as default. You must still include it or people will not be allowed to swap to it.
  * The slave pins for dual mode are hadled internally to wire. */
 
 // TWI 0

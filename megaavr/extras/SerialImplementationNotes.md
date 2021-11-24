@@ -3,16 +3,16 @@
 ## Constants no longer in variant files
 We removed a bunch of constants that didn't vary from the variant files. For backwards compatibility we generate in UART_swap.h. There's no HWSERIALn_MUX_COUNT - it's named MUXCOUNT_USARTn and calculated in UARTswap.h
 
- * HWSERIAL1
- * HWSERIAL1_DRE_VECTOR
- * HWSERIAL1_DRE_VECTOR_NUM
- * HWSERIAL1_RXC_VECTOR
- * HWSERIAL1_MUX_COUNT
+* HWSERIAL1
+* HWSERIAL1_DRE_VECTOR
+* HWSERIAL1_DRE_VECTOR_NUM
+* HWSERIAL1_RXC_VECTOR
+* HWSERIAL1_MUX_COUNT
 We know what the names of the vectors are gonna be. So why #define them?
 The vector numbers were only used for the buggy ISR elevating routine that caused race condition hangs!
 
 Invalid mux options are not required to be mentioned nor bogus pins #defined for them in the variants.
-We will start from the highest numbered mux. If it's defined, we check the next lowest until we get to 0. Whenever we don't see one defined, we #define a placeholder row in the table (don't worry, only 3 bytes each, we've saved more flash than that so far). I was also noted that every pin numbering puts TX and RX of every pin next to eachother in the same order. So we rely on that explicitly now.
+We will start from the highest numbered mux. If it's defined, we check the next lowest until we get to 0. Whenever we don't see one defined, we #define a placeholder row in the table (don't worry, only 3 bytes each, we've saved more flash than that so far). I was also noted that every pin numbering puts TX and RX of every pin next to each other in the same order. So we rely on that explicitly now.
 
 Valid mux options must define the mux mux code itself, plus the pins associated with it.
 ### Before
@@ -53,7 +53,7 @@ A tangle of convoluted #ifdefs serving little purpose was cut down and renoved f
 
 Before gwe get into the minutae and pick apart some of the remaining issues... one more thing....
 
-As many of you may be aware, the hardware USARTs are capable of functioning in some other modes, and some of the most intriguing to many uses have long been the OneWire (half duplex) mode, typically used in combination withthe Open Drain mode. This mode can now be enabled automatically by calling Serial.begin(baud, SERIAL_8N1 | SERIAL_HALF_DUPLEX). because loopback would have you receiving your outgoing characters, we turn off the RX interrupt before sending anything, and, in the TXComplete interrupt, empty the incoming data registers to get rid of the data that we just sent and then reenable it. It seemed to work. We also added support for the RS485 option - include SERIAL_RS485 with or without those other arguments, and it will ensure that XDIR is output, and drive it high 1 bit before the start of a signal and keep it that way until 1 bit after the end of the signal. This is meant for controlling a line driver chip. And if your line driver happens to be active low, never fear, just invert the pin using pinConfigure or manually writing the PINnCTRL register for it!
+As many of you may be aware, the hardware USARTs are capable of functioning in some other modes, and some of the most intriguing to many uses have long been the OneWire (half duplex) mode, typically used in combination with the Open Drain mode. This mode can now be enabled automatically by calling Serial.begin(baud, SERIAL_8N1 | SERIAL_HALF_DUPLEX). because loopback would have you receiving your outgoing characters, we turn off the RX interrupt before sending anything, and, in the TXComplete interrupt, empty the incoming data registers to get rid of the data that we just sent and then re-enable it. It seemed to work. We also added support for the RS485 option - include SERIAL_RS485 with or without those other arguments, and it will ensure that XDIR is output, and drive it high 1 bit before the start of a signal and keep it that way until 1 bit after the end of the signal. This is meant for controlling a line driver chip. And if your line driver happens to be active low, never fear, just invert the pin using pinConfigure or manually writing the PINnCTRL register for it!
 
 The constants you pass to options are in the new USART_constants file.
 
@@ -119,7 +119,7 @@ I'm hoping for enlightenment regarding the Event Input mode tomorrow, and then t
 
 
 ## Serial performance (or lack therof) and bloat
-These re some thoughts from attemping to reimplement the ISRs in assembly.
+These re some thoughts from attempting to reimplement the ISRs in assembly.
 Both large ISRs have the primary problem, that is, the isr calling a function and generating excessive prologue and epilogue.
 
 These are some unedited musings
@@ -241,13 +241,13 @@ __vector_22():
 ```
 
 Notice that the function doesn't use r19, r20, r21, r22 or r23. Or r0, for that matter. 0x3b is RAMPZ. Sometimes it likes to save and restore that one too. I dunno on what criteria either, since I swear i've seen interrupts not save and restore it *shrug* but it does even on 128k parts
-That doesnt matter - they're call used they get saved and restored.
+That doesn't matter - they're call used they get saved and restored.
 And r1 is always saved, cleared and restored unless the ISR is naked - which *does* make sense, at least.
 To bring joy to people on small-flash parts, there's one of those bloated things for both ISRs on each serial port. Whatyou eant to do is implement it in full assembly with  single routine that handkes all cases reasonably efficientlky,
 
   I think I have a solution though - though it's a little scary how I enter it. It relies on two dubious things which I've done elsewhere, though not extensively.
 They are:
-Jumps and calls from anywhere to anywhere seem to work, regardless of what file the label is in, I thought there were restrictions, but it doesn;t seem like there are. M Flash library is able to call EntryPointSPM by name successfully (I thought I'd have to figure out a way to get it's address, but nope, worked fine... o_o.  to wrrite toall but the first5bit512b of flas yiu need to be executing from the first 512b (BOOTSIZE=1, if there is no biotlkioader involved, ) has to be located in .trampolines because I needed to find a section that would always be in the first 512b because I needed the fake bootloader section to be as small as possible to maximize the flexibility of the no-restrictions flash from app mode. But putting it in init didn't do that if the user had variables declared PROGMEM. I dunno what is supposed to go there, but whatever it is, it's more important to the linker to put those things at low addresses than progmem, but progmem is more importnt to keep at low address than .initn. (That rjmp is there so that if/when execution stumbles onto this, it'll jump over it instead of trying to write r0 and r1 to whatever location in flash the z is pointing at and then return to wherever the top two bytes of the stack point to, probably 0000 leading to a bootloop at startup)
+Jumps and calls from anywhere to anywhere seem to work, regardless of what file the label is in, I thought there were restrictions, but it doesn;t seem like there are. M Flash library is able to call EntryPointSPM by name successfully (I thought I'd have to figure out a way to get it's address, but nope, worked fine... o_o.  to wrrite toall but the first5bit512b of flas yiu need to be executing from the first 512b (BOOTSIZE=1, if there is no biotlkioader involved, ) has to be located in .trampolines because I needed to find a section that would always be in the first 512b because I needed the fake bootloader section to be as small as possible to maximize the flexibility of the no-restrictions flash from app mode. But putting it in init didn't do that if the user had variables declared PROGMEM. I dunno what is supposed to go there, but whatever it is, it's more important to the linker to put those things at low addresses than progmem, but progmem is more important to keep at low address than .initn. (That rjmp is there so that if/when execution stumbles onto this, it'll jump over it instead of trying to write r0 and r1 to whatever location in flash the z is pointing at and then return to wherever the top two bytes of the stack point to, probably 0000 leading to a bootloop at startup)
 
 ```c++
   void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));

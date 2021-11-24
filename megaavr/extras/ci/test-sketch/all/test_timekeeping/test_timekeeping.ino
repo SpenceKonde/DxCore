@@ -1,4 +1,3 @@
-
 volatile uint32_t GARBAGE = 0;
 void discard(uint32_t g) {
   GARBAGE ^= g;
