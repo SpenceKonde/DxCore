@@ -42,6 +42,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Added `__builtin_constant_p()` because it is exceptionally useful. I may add some of the other most useful directives like that.
 * Calling millis or micros when those are disabled will resuylt in more useful error messages.
 * Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
+* Continuing doc enhancements.
 
 
 ## Released Versions
