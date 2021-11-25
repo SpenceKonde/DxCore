@@ -16,7 +16,7 @@ We will start from the highest numbered mux. If it's defined, we check the next 
 
 Valid mux options must define the mux mux code itself, plus the pins associated with it.
 ### Before
-```
+```c++
 // USART 2
 #define HWSERIAL2                       &USART2
 #define HWSERIAL2_DRE_VECTOR            USART2_DRE_vect
@@ -35,7 +35,7 @@ Valid mux options must define the mux mux code itself, plus the pins associated 
 #define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
 ```
 ### After
-```
+```c++
 // USART 2
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
@@ -386,7 +386,7 @@ The code removed is shown here:
 ```
 
 That also meant we could pull ourt those weird available functions, which were to trick the compiler into not including unused serial events
-```
+```c++
   bool Serial3_available() {
     return Serial3.available();
   }
