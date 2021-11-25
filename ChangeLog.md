@@ -3,31 +3,46 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes. This release really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
-### Planned 1.4.0 or later, depending on DD-series release dates.
+### Planned 1.4.0 or later, depending on DD-series release dates
 * DD-series support, assuming they ever come out (All that's left undone here is the variant files, which were delayed by the serial questions, but now that those have been answered, that can proceed.
   * Support for larger number of pinswap options
   * Variant files - 32 and 28-pin will mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
 ### 1.4.0 or earlier, depending on events
 * Completely new Wire.h library with exciting features - Thanks to @MX682X!
+  * See the Wire library readme for more details.
   * Master + Slave on the same TWI - either using the same pins or in dual mode
   * Support for TWI1 assuming your device has it.
-  __ Add missing feature for slave to check how many bytes were read by the master.
-  __ Add missing feature for slave to check whether transaction is in progress.
+  * Enhanced slave functionality:
+    * When set to match multiple addresses, method provided to find which address was used most recently.
+    * After the master has read data from the slave, method provided to find out how many bytes were actually read.
+    * Slave now has a way to test whether there is currently an ongoing transaction.
   * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
 * Serial improvements! Looks like we we're getting those serial changes - also thanks to @MX682X!
   * Support more pinmapping options
-  * Remove some redundant defines from variants. Some redundant defines were removed from variant files.
+  * Remove some redundant defines from variants. Some redundant defines were removed from variant files. The variant files contained entries that duplicated  information present elsewhere; these have been removed.
   * Fix potential bug with specifying parameters that control the number of bits per character.
-  * Add support for loopback, rs485, open drain mode.
-  * Add support for using event input instead of the RX pin.
-__ Expanded Event library from collaboration with @MCUDude
+  * Add support for loopback, rs485, open drain mode!!
+  * Add support for using event input instead of the RX pin (Untested)
+* (TODO:) Expanded Event library from collaboration with @MCUDude
 * USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
 * Correct verification bug in SerialUPDI where it would fail on a last page of the minimum size (thanks @dbuchwald!). The 1-word read takes a different codepath because it doesn't need the REP.
 * Improve bootloader source comments re:building (albeit without providing hard information; more of a plea of ignorance and admission of just how crude my build process is), pindefs for DD-series (and EA-series is a linear combination of DA/DB and DD - though it is said to be back to paged writes, so it might be made from optiboot_x rather than optiboot_dx), rename pindefs_x to pindefs_dx and remove 2 references to optiboot_x that should have been dx.
 * Correctly comment out leftover debugging prints that would be called when using `tone()` (megaTinyCore #550).
 * Fix a bug (well, several actually) in the new attach interrupt that kept it from working on on ports E and F. PORTE would use PORTC's interrupts. And PORTF would either fail to find fnctions to jump to if no PORTC or PORTD interrupts were attached, or else it would use the high byte of PORTC's interrupt table as the high byte abd the low byte of PORTD's table as the high byte, and look there for pointers. If there was anything there, it would assume it could jump to them. Oops. I also worked around something that had an easier solution which didn't need to be like that... eliminating that saves 5 clocks and 4 bytes, plus 2 bytes (number of ports -1).
 * Major cleanup of variants, removing unnecessary garbage defines left and right.
+* Correct issue where the intended useful error message was not shown to users who did not have millis or micros enabled but tried to use it anyway.
+* Add new Wire library method names to keywords.txt.
+* Add new core-wide things to the Dxcore Keywords.txt, including:
+  * Standard and extended Pin-information-gathering macros from Arduino.h
+  * Add the new MUX option for USARTs, TWI and SPI for the DD-series parts.
+  * Add the new Serial modifier options.
+  * Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more.
+  * Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags().
+  * Added `__builtin_constant_p()` because it is exceptionally useful. I may add some of the other most useful directives like that.
+* Calling millis or micros when those are disabled will resuylt in more useful error messages.
+* Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
+
 
 ## Released Versions
 
