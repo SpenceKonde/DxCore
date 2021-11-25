@@ -90,6 +90,8 @@ jobs:
         - megaavr/extras/ci/test-sketch/all/test_tone
         - megaavr/extras/ci/test-sketch/all/test_PWM
         - megaavr/extras/ci/test-sketch/all/test_timekeeping
+        - megaavr/libraries/Wire/examples/register_model
+        - megaavr/libraries/Wire/examples/register_model_master
       avr-da-series-sketch-paths: |
         - megaavr/extras/ci/test-sketch/da/dummysketch
       avr-db-series-sketch-paths: |
@@ -205,6 +207,11 @@ jobs:
           - device-family: ea
             pincount: 14
           - device-family: dd
+            flash-class: 64
+          - device-family: dd
+            flash-class: 32
+          - device-family: dd
+            flash-class: 16
           - device-family: ea
 
     steps:
@@ -216,7 +223,7 @@ jobs:
       - name: Compile examples (24 MHz, nothing weird)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=24${{ matrix.clocksource }}
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=24${{ matrix.clocksource }},wiremode=mands1
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -241,7 +248,7 @@ jobs:
       - name: Compile examples (8 MHz, optiboot, tca0 millis, full printf, and manual attachInterrupt)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands1
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -266,7 +273,7 @@ jobs:
       - name: Compile examples (32 MHz, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=32${{ matrix.clocksource }},millis=tcb1,printf=minimal,attach=oldversion,appspm=full
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=32${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors1,attach=oldversion,appspm=full
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -292,7 +299,7 @@ jobs:
       - name: Compile examples (20 MHz, disable millis, sized appspm)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,appspm=24plus
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,appspm=24plus,wiremode=mors1
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format

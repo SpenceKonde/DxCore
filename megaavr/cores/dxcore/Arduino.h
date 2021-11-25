@@ -459,6 +459,21 @@ extern const uint8_t digital_pin_to_timer[];
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int16_t analogClockSpeed(int16_t frequency = 0,  uint8_t options = 0);
 #endif
+
+#if defined(TWI_MORS_SINGLE)
+  #define TWI_MORS
+#elif defined(TWI_MANDS_SINGLE)
+  #define TWI_MANDS
+#elif defined(TWI_MORS_BOTH)
+  #define TWI_MORS
+  #define TWI_USING_WIRE1
+#elif defined(TWI_MANDS_BOTH)
+  #define TWI_MANDS
+  #define TWI_USING_WIRE1
+#else
+  #error "An option must be selected from all tools submenus. No option was selected for the Wire Mode. "
+#endif
+
 #include "pins_arduino.h"
 // Take this trash out of variants!
 #if !defined(NUM_DIGITAL_PINS)
