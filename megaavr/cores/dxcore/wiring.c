@@ -181,7 +181,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
     // inconsistent value (e.g. in the middle of a write to timer_millis)
     uint8_t oldSREG = SREG;
     cli();
-    #if defined(MILLIS_USE_TIMERRTC) /*
+    #if defined(MILLIS_USE_TIMERRTC)
       m = timer_overflow_count;
       if (RTC.INTFLAGS & RTC_OVF_bm) { //there has just been an overflow that hasn't been accounted for by the interrupt
         m++;
@@ -190,7 +190,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       m = (m << 16);
       m += RTC.CNT;
       //now correct for there being 1000ms to the second instead of 1024
-      m = m - (m >> 5) - (m >> 6); */
+      m = m - (m >> 5) - (m >> 6);
     #else
       m = timer_millis;
       SREG = oldSREG;
@@ -592,8 +592,35 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       #endif //end of timer-specific part of micros calculations
       return microseconds;
     }
-  #endif //end of non-RTC micros code
-#endif //end of non-MILLIS_USE_TIMERNONE code
+  #else  //end of non-RTC micros code
+  /* We do not have a timebase sufficiently accurate to give microsecond timing. In fact, we barely have millisecond timing available
+   * The microsecond delay counts clock cycles, and so it does still work. It is planned that a future library will switch the millis
+   * pause millis before sleeping and turn on the RTC, tracking the passage of time to a much coarser resolution with that, and turn
+   * it back on when waking from sleep, so people can keep time while sleeping without sacrificing micros().
+   * In any event, as of 2.4.3 we now provide the stub below, which we hope is more useful than being told that micros() isn't defined.
+   */
+    unsigned long micros() {
+      badCall("microsecond timekeeping is not supported when the RTC is used as the sole timekeeping timer (though delayMicroseconds() is)");
+      return -1;
+    }
+  #endif
+#else    //end of non-MILLIS_USE_TIMERNONE code
+
+  /* Uses should not call millis() or micros() if the core timekeeping has been disabled. Usually, encountering this error either means
+   * that they disabled millis earlier for some other sketch, and the preferences were saved with that - or that they are using a library
+   * with a dependence on the timekeeping facilities. Sometimes these are meaningful, other times it is only for a feature that isn't
+   * being used, or to catch a particular corner case (see: tinyNeoPixel, very end of show() for an example).
+   * As of 1.4.0 we provide the stubs below, which we hope is more useful than being told that millis or micros isn't defined.
+   */
+  unsigned long micros() {
+    badCall("micros() is not available because it has been disabled through the tools -> millis()/micros() menu");
+    return -1;
+  }
+  unsigned long millis() {
+    badCall("millis() is not available because it has been disabled through the tools -> millis()/micros() menu");
+    return -1;
+  }
+#endif
 
 #if   (!(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC))) //delay implementation when we do have micros()
   void delay(unsigned long ms)
