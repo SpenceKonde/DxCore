@@ -94,10 +94,10 @@ Note that this does not give you serial monitor - you need to connect a serial a
 Until 1.3.6, SerialUPDI was slow, and sometimes fiddly to set up. Those issues have been addressed and software improvements have increased the speed *by a factor of 20-30* for uploading to Dx parts, and we are able to get as close to the maximum rate that the NVM controller can write as one could hope for, with speeds in the area of 24kb/s at 345.6k baud, allowing the whole 128k of flash to be written and validated in 11 seconds at maximum speed, 16 seconds at a less demanding 230400 baud - compared with 31 seconds via optiboot, 42 seconds via jtag2updi, or a minute to a Curiosity Nano via the onboard debugger. Prior to 1.3.6, this upload method was hopelessly slow, and the same upload would have taken 2-20 minutes depending on the serial adapter.
 
 ### With an Arduino using jtag2updi
-One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see [the same document as above](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md); using a Nano running jtag2updi, you should select jtag2updi from the tools->programmer menu. Prior to the release of 1.3.6, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro - there wasn't a good alternative. Now there is, and jtag2updi is slower, less reliable, and costs more than SerialUPDI.
+One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see using a Nano running jtag2updi, you should select jtag2updi from the tools->programmer menu. Prior to the release of 1.3.6, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro - there wasn't a good alternative. Now there is, and jtag2updi is slower, less reliable, and costs more than SerialUPDI. Due to the myriad problems with it, we are no longer providing guidance on it's configuration and use.
 
 ### Using a Curiosity Nano
-Choose the nEDBG programmer option, and things should just work. There are a lot of things I'm not a huge fan of on those boards, and the grindingly slow upload through avrdude is one of them, but programming them really should work without particular issue. Some people have had issues on linux machines, others had no problems.
+Choose the nEDBG programmer option, and things should just work. There are a lot of things I'm not a huge fan of on those boards, and the grindingly slow upload through avrdude is one of them, but programming them really should work without particular issue. Some people have had issues on linux machines, others had no problems. That all said, they upload at a glacial pace compared to SerialUPDI.
 
 ### Troubleshooting uploads - quick tips
 From experience, there are a few quick things to check before you conclude that there's a more serious problem. These only apply to jtag2updi and SerialUODI
@@ -345,7 +345,7 @@ The USARTs (Serial) have some additional features not seen on the official cores
 There are two ways to access constants stored in flash on DxCore. Which ones can read data stored where can be confusing; this document should make this clear.
 #### [Optiboot Bootloader](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)
 An Optiboot-derived bootloader is provided and may be optionally used. How that impacts operations is described here. This covers relevant considerations for deciding whether to use it as well.
-#### [SerialUPDI](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_SerialUPDI.md)
+#### [SerialUPDI](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md)
 Serial UPDI is our recommended tool for UPDI programming.
 #### [Clock Information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md)
 Supported clock sources and considerations for the use thereof.

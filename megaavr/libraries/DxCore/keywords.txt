@@ -27,6 +27,7 @@ DXCORE_NUM	LITERAL1
 __builtin_constant_p	KEYWORD2
 badArg	KEYWORD2
 badCall	KEYWORD2
+init_reset_flags  KEYWORD3
 
 #	DxCore	/	megaTinyCore	Analog	Stuff
 DACReference	KEYWORD2
@@ -39,7 +40,6 @@ getAnalogReadResolution	KEYWORD2
 getAnalogSampleDuration	KEYWORD2
 getAnalogReference	KEYWORD2
 getDACReference	KEYWORD2
-init_reset_flags	KEYWORD3
 
 #	DxCore	/	megaTinyCore	digital	stuff
 openDrain	KEYWORD2
