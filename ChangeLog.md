@@ -9,7 +9,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Variant files - 32 and 28-pin will mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
 ### 1.4.0 or earlier, depending on events
-__ Completely new Wire.h library with exciting features - Thanks to @MX682X!
+* Completely new Wire.h library with exciting features - Thanks to @MX682X!
   * Master + Slave on the same TWI - either using the same pins or in dual mode
   * Support for TWI1 assuming your device has it.
   __ Add missing feature for slave to check how many bytes were read by the master.
