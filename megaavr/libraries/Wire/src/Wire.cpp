@@ -586,6 +586,45 @@ uint8_t TwoWire::getIncomingAddress(void) {
   #endif
 }
 
+/**
+ *@brief      getBytesRead provides a facility for the slave to check how many bytes were read.
+ *
+ *            Useful for implementing a "register model" like most I2C hardware does.
+ *            Calling this will reset the counter, since it is an unusual use case for
+ *              that to not be the next thing you do.
+ *
+ *@return     uint8_t
+ *@retval     Number of bytes read by a master from this device acting as a slave since
+ *              the last time this was called.
+ */
+
+uint8_t TwoWire::getBytesRead() {
+  uint8_t bytes = vars._slaveBytesRead;
+  vars._slaveBytesRead = 0;
+  return bytes;
+}
+
+/**
+ *@brief      slaveTransactionOpen provides a facility for the slave to determine if a there
+ *              is an ongoing transaction when called outside of one of the handlers.
+ *
+ *            Useful to, for example, check that no transaction is in progress before sleeping.
+ *
+ *@return     uint8_t
+ *@retval     0 = No transaction is currently in progress.
+ *            1 = A master is currently writing data to this device, and the onReceive handler
+ *              will be called once this is complete.
+ *            2 = A master is currently reading data from this device. slaveTransactionOpen()
+ *              must be polled if it is necessary to know when this has concluded, as the
+ *              onRequest handler is called at the start of a read only.
+ */
+
+uint8_t TwoWire::slaveTransactionOpen() {
+  uint8_t status = vars._module->SSTATUS;
+  if (!(status & 1)) return 0;  // If low bit cleared, last match was a stop condition -> not in transaction.
+  if (status & 2) return 2;     // Second bit will be 1 if last address match was for read
+  return 1;                     // Otherwise it was a write.
+}
 
 /**
  *@brief      enableDualMode enables the splitting of host and client pins
@@ -617,7 +656,7 @@ void TwoWire::enableDualMode(bool fmp_enable) {
  *            when a new Wire object, like Wire1 is initialized. When I first wrote this function
  *            I was using Wire.vars.module and Wire1.vars.module to figure out which pointer to pass,
  *            but this made the compiler create a Wire1 object in some cases, where Wire1 was never used
- *            by the user. So I rewrote this function with the though that if the module can be different,
+ *            by the user. So I rewrote this function with the thought that if the module can be different,
  *            there is just one Wire object, so the code doesn't have to check if Wire is using TWI0 or TWI1
  *
  *

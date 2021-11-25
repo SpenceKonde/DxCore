@@ -151,7 +151,6 @@ struct twiData {
     uint8_t _rxHead;
     uint8_t _rxTail;
   #endif
-
   #if defined(TWI_MANDS)
     uint8_t _incomingAddress;
     #if defined(TWI_MERGE_BUFFERS)
@@ -183,6 +182,7 @@ struct twiData {
       uint8_t _rxBufferS[BUFFER_LENGTH];
     #endif
   #endif
+  uint8_t _slaveBytesRead;
 };
 
 
