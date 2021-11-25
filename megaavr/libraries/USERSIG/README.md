@@ -52,7 +52,6 @@ void loop(){
 
 The library provides a global variable named `USERSIG`, you use this variable to access the library functions. The methods provided in the USERSIG class are listed below.
 
-You can view all the examples [here](examples/).
 
 ## Library functions
 

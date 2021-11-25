@@ -51,34 +51,23 @@ On DA/DB parts, this was pretty straightforward. Every PORT except the middle on
 ### Serial.begin(uint32_t baud, uint16_t options)
 This starts the serial port. Options should be made by combining the constant referring to the desired baud rate, parity and stop bit length, zero or more of the modifiers below
 
-Basic USART options
+#### Basic USART options
 
-| Constant   | Data Size | Parity | Stop Bits |
-|------------|-----------|--------|-----------|
-| SERIAL_5N1 | 5 bit     |  NONE  |         1 |
-| SERIAL_6N1 | 6 bit     |  NONE  |         1 |
-| SERIAL_7N1 | 7 bit     |  NONE  |         1 |
-| SERIAL_8N1 | 8 bit     |  NONE  |         1 |
-| SERIAL_5N2 | 5 bit     |  NONE  |         2 |
-| SERIAL_6N2 | 6 bit     |  NONE  |         2 |
-| SERIAL_7N2 | 7 bit     |  NONE  |         2 |
-| SERIAL_8N2 | 8 bit     |  NONE  |         2 |
-| SERIAL_5E1 | 5 bit     |  EVEN  |         1 |
-| SERIAL_6E1 | 6 bit     |  EVEN  |         1 |
-| SERIAL_7E1 | 7 bit     |  EVEN  |         1 |
-| SERIAL_8E1 | 8 bit     |  EVEN  |         1 |
-| SERIAL_5E2 | 5 bit     |  EVEN  |         2 |
-| SERIAL_6E2 | 6 bit     |  EVEN  |         2 |
-| SERIAL_7E2 | 7 bit     |  EVEN  |         2 |
-| SERIAL_8E2 | 8 bit     |  EVEN  |         2 |
-| SERIAL_5O1 | 5 bit     |   ODD  |         1 |
-| SERIAL_6O1 | 6 bit     |   ODD  |         1 |
-| SERIAL_7O1 | 7 bit     |   ODD  |         1 |
-| SERIAL_8O1 | 8 bit     |   ODD  |         1 |
-| SERIAL_5O2 | 5 bit     |   ODD  |         2 |
-| SERIAL_6O2 | 6 bit     |   ODD  |         2 |
-| SERIAL_7O2 | 7 bit     |   ODD  |         2 |
-| SERIAL_8O2 | 8 bit     |   ODD  |         2 |
+| Data Size | Parity | 1 stop bit | 1 stop bit |
+|-----------|--------|------------|------------|
+| 5 bit     |  NONE  | SERIAL_5N1 | SERIAL_5N2 |
+| 6 bit     |  NONE  | SERIAL_6N1 | SERIAL_6N2 |
+| 7 bit     |  NONE  | SERIAL_7N1 | SERIAL_7N2 |
+| 8 bit     |  NONE  | SERIAL_8N1 | SERIAL_8N2 |
+| 5 bit     |  EVEN  | SERIAL_5E1 | SERIAL_5E2 |
+| 6 bit     |  EVEN  | SERIAL_6E1 | SERIAL_6E2 |
+| 7 bit     |  EVEN  | SERIAL_7E1 | SERIAL_7E2 |
+| 8 bit     |  EVEN  | SERIAL_8E1 | SERIAL_8E2 |
+| 5 bit     |   ODD  | SERIAL_5O1 | SERIAL_5O2 |
+| 6 bit     |   ODD  | SERIAL_6O1 | SERIAL_6O2 |
+| 7 bit     |   ODD  | SERIAL_7O1 | SERIAL_7O2 |
+| 8 bit     |   ODD  | SERIAL_8O1 | SERIAL_8O2 |
+
 
 #### Modifiers
 * SERIAL_RS485        - Enables RS485 mode.
@@ -95,8 +84,32 @@ Can be combined as in:
 
 If you use the two argument form of Serial.begin() be certain to remember to pass the constant, not just a modifier.
 
-If Loopback is enabled, and neither transmit nor receive is disabled, we will disable the receive interrupt while transmitting so we don't get the data we're sending. and will set up the TXC interrupt to turn receiving back on when the transmission is complete.
-If RS485 mode is enabled, XDIR will be set output, and 1 bit-time before the first start bit, XDIR will be driven high, and 1 bit period after, it is driven low. This can be connected to an external line driver IC for use with RS-485.
+### Loopback Mode
+When Loopback mode is enabled, the RX pin is released, and TX is internally connected to Rx. This is only a functional loopback test port, because another device couldn't drive the line low without fighting for control over the pin with this device. Loopback mode itself isn't very useful. But see below.
+
+### Open Drain Mode
+In Open Drain mode, the TX pin will no longer drive high. The pin must not be set as OUTPUT. If you don't fiddle with it, this will correctly handled for you. With just openDrain mode enabled, a multidrop network becomes very practical.
+
+### RS485 Mode
+In RS485 mode, at initialization, the HWSerial class configures the XDIR pin as an OUTPUT. 1 bit-time prior to sending any data, the XDIR pin will be driven HIGH. If using RS485, this should be connected to the external line driver IC to enable transmit. XDIR will be lowered 1 bit-time after the last bit has been sent. If you require the opposite polarity, simply set PORTx.PINnCTRL |= PORT_INVEN_bm;
+or use `pinConfigure()` [See Digital I/O Reference](Ref_Digital.md)
+
+#### These three options can be combined, and probably should
+* Loopback + Open Drain - This results in a half-duplex single serial interface. This is fairly common, and in fact is often used in.... RS485 configurations.
+* Loopback + Open Drain + RX485: In this mode, it will work perfectly for the case where there is an external line driver IC but it has only a single TX/RX combined wire and a TX_Enable pin (terminology may vary).
+
+#### Half-duplex schemes change the behavior of Serial in important ways
+Normally, RX is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the charachters you transmit. That's fine for just loopbnack - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent will inevitable end up intermixed with actual received data. This is not very helpful.
+SO, whenever the following bits are set:
+
+CTRLA: LBME
+CTRLB: ODME, TXEN, RXEN
+
+In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes, it will disable itself, read RXDATAL until the RXC flag is cleared, and then turn off the TXC interrupt and enable the RXC interrupt again. This prevents you from getting junk charachters mised in with the ones you were sending.
+
+That configuration will result from calling the two argument version of begin()  with SERIAL_OPEN_DRAIN and SERIAL_LOOPBACK, or equivalently, SERIAL_HALF_DUPLEX, and neither SERIAL_TX_ONLY nor SERIAL_RX_ONLY,
+
+### Event RX - documentation pending testing and verification
 
 ## More indepth background
 
@@ -115,8 +128,9 @@ The data rate the total number of bit times per frame: For the most common, 8N1 
 While there's always some dead time between bits, that is usually *very* small, and and isn't really relevant. Dividing the baud rate by the bits per frame, including overhead, is an effectivee any appropriate way to calculate data rate.
 
 
-https://docs.google.com/spreadsheets/d/1uzU_HqWEpK-wQUo4Q7FBZGtHOo_eY4P_BAzmVbKCj6Y/edit?usp=sharing
 ### Extremes of baud rate and clock problems
+
+[AVR Baud Rate Accuracy Chart](https://docs.google.com/spreadsheets/d/1uzU_HqWEpK-wQUo4Q7FBZGtHOo_eY4P_BAzmVbKCj6Y/edit?usp=sharing)
 
 It was mentioned previously that one of most common places to encounter grossly inaccurate baud rates is classic AVRs. This example illustrates just *how bad* one of the most popular baud rate was on classic AVRs, namely 115200 baud. "Well it says the baud rate can be up to 1/8th the system clock, this is less than a quarter if this, no problem" one might think - but nope.  Imagine 4 ATmega328p's - one has a crystal and runs at 16 MHz, and three that all run from 8 MHz - one using a crystal, and the others the internal oscillator, which is 2% fast on one and 2% slow on the other. The 8 MHz w/crystal can talk to the other 8 MHz ones. The crystal-less ones are on the edge when they try to talk to each other due to the variation between them being about the limit - small temperature differences could push it either way, and since the maximum error isn't quite symmetric (it's easier to receive something if you're 4% too fast than if 4% too slow, according to the datasheet), sometimes the temperatures might conspire such that the fast one could receive from the slow one, but not the other way around. The slow crystal-less one can't even talk to a serial adapter, but the other three can, and the fast crystal-less one can also talk to the 16 MHz one.
 
