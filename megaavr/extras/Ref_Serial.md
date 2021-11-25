@@ -99,13 +99,13 @@ or use `pinConfigure()` [See Digital I/O Reference](Ref_Digital.md)
 * Loopback + Open Drain + RX485: In this mode, it will work perfectly for the case where there is an external line driver IC but it has only a single TX/RX combined wire and a TX_Enable pin (terminology may vary).
 
 #### Half-duplex schemes change the behavior of Serial in important ways
-Normally, RX is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the charachters you transmit. That's fine for just loopbnack - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent will inevitable end up intermixed with actual received data. This is not very helpful.
+Normally, RX is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the characters you transmit. That's fine for just loopbnack - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent will inevitable end up intermixed with actual received data. This is not very helpful.
 SO, whenever the following bits are set:
 
 CTRLA: LBME
 CTRLB: ODME, TXEN, RXEN
 
-In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes, it will disable itself, read RXDATAL until the RXC flag is cleared, and then turn off the TXC interrupt and enable the RXC interrupt again. This prevents you from getting junk charachters mised in with the ones you were sending.
+In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes, it will disable itself, read RXDATAL until the RXC flag is cleared, and then turn off the TXC interrupt and enable the RXC interrupt again. This prevents you from getting junk characters mised in with the ones you were sending.
 
 That configuration will result from calling the two argument version of begin()  with SERIAL_OPEN_DRAIN and SERIAL_LOOPBACK, or equivalently, SERIAL_HALF_DUPLEX, and neither SERIAL_TX_ONLY nor SERIAL_RX_ONLY,
 
