@@ -90,8 +90,6 @@ jobs:
         - megaavr/extras/ci/test-sketch/all/test_tone
         - megaavr/extras/ci/test-sketch/all/test_PWM
         - megaavr/extras/ci/test-sketch/all/test_timekeeping
-        - megaavr/libraries/Wire/examples/register_model
-        - megaavr/libraries/Wire/examples/register_model_master
       avr-da-series-sketch-paths: |
         - megaavr/extras/ci/test-sketch/da/dummysketch
       avr-db-series-sketch-paths: |
@@ -112,6 +110,8 @@ jobs:
       not-disabled-millis-sketch-paths: |
         - megaavr/libraries/ZCD/examples/Frequency_counter
         - megaavr/libraries/tinyNeoPixel/examples/RGBWstrandtest
+        - megaavr/libraries/Wire/examples/register_model
+        - megaavr/libraries/Wire/examples/register_model_master
       #internal-osc-sketch-paths: |
       both-twi-enabled-sketch-paths: |
         - megaavr/libraries/Wire/examples/two_master_write

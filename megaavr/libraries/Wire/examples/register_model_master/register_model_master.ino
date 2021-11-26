@@ -41,13 +41,13 @@ void setAddressPointer(uint8_t address) {
 void loop() {
   MySerial.println("going to write to 0, then make a series of reads");
   setAddressPointer(0);
-  Wire.requestFrom(0x69,8);
+  Wire.requestFrom(0x69, 8);
   while (Wire.available()) {
     MySerial.printHex((uint8_t)Wire.read());
     MySerial.print(' ');
   }
   MySerial.println("that was 8 bytes");
-  Wire.requestFrom(0x69,12);
+  Wire.requestFrom(0x69, 12);
   while (Wire.available()) {
     MySerial.printHex((uint8_t)Wire.read());
     MySerial.print(' ');
@@ -55,7 +55,7 @@ void loop() {
   MySerial.println("that was 12 bytes more");
   MySerial.println("Now, let's request a whopping 32, the whole shebang");
 
-  Wire.requestFrom(0x69,32);
+  Wire.requestFrom(0x69, 32);
   while (Wire.available()) {
     MySerial.printHex((uint8_t) Wire.read());
     MySerial.print(' ');
@@ -72,16 +72,16 @@ void loop() {
   Wire.endTransmission();           // Send, slave ISR will fire.
   MySerial.println("Read-em-back:");// now read them back by resetting the pointer
   setAddressPointer(16);            // Set pointer to 16
-  Wire.requestFrom(0x69,5);         // Read 5 bytes.
+  Wire.requestFrom(0x69, 5);         // Read 5 bytes.
   while (Wire.available()) {        // Hopefully we got 5 bytes. without this library versions new features, slave doesn't know how many were read!
     MySerial.printHex((uint8_t)Wire.read());   // Print it out for user.
     MySerial.print(' ');                       // spaces between each byte
   }
-  MySerial.println("Sick! Now finally.... That LED blinks mad slow, I want something more energetic!");
+  MySerial.println("Chane speed at which the LED blinks");
   Wire.beginTransmission(0x69);   // prepare transmission to slave with address 0x69
   Wire.write(0x4);                // Write just the address
   Wire.write(0x80);               // Write a value
   Wire.write(0x01);               // Write a value: ~3/8ths of a second!
   Wire.endTransmission();
-
+  delay(10000);
 }

@@ -198,9 +198,10 @@ Sets the millisecond timer to the specified number of milliseconds. Be careful i
 After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
 
 ### `void nudge_millis(uint16_t ms)`
-Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added in a future release. This allows a clean way to advance the timer without needing to do the work of reading the current value, adding, and passing to `set_millis()`  It is intended for use before  (added becauise *I* needed it, but simple enough).
+This is not yet implemented as we assess whether it is a useful or appropriate addition, and how it fits in with set millis().
+~Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added in a future release. This allows a clean way to advance the timer without needing to do the work of reading the current value, adding, and passing to `set_millis()`  It is intended for use before  (added becauise *I* needed it, but simple enough).
 The intended use case is when you know you're disabling interrupts for a long time (milliseconds), and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
-forward by that much to compensate. That's what *I* wanted it for.
+forward by that much to compensate. That's what *I* wanted it for.~
 
 ### `_switchInternalToF_CPU()`
 Call this if you are running from the internal clock, but it is not at F_CPU - likely when overriding `onClockTimeout()`  `onClockFailure()` is generally useless.

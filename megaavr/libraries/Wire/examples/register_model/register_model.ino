@@ -36,11 +36,13 @@
 volatile uint8_t DeviceRegisters[32] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                                         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
                                         0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-                                        0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F};
-const uint8_t WriteMask[32] =          {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xFF, 0xFF,
+                                        0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F
+                                       };
+const uint8_t WriteMask[32]          = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xFF, 0xFF,
                                         0x33, 0x33, 0x33, 0x33, 0x00, 0x00, 0x00, 0x00,
                                         0x0F, 0x0F, 0xF0, 0xF0, 0x00, 0x00, 0x00, 0x00,
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+                                       };
 volatile uint8_t WirePointer = 0;
 
 void setup() {
@@ -54,14 +56,14 @@ void setup() {
 
 void loop() {
   static uint32_t lastBlinkAt=0;
-  uint16_t delaytime=DeviceRegisters[4]+((uint16_t)DeviceRegisters[5] << 8);
+  uint16_t delaytime = DeviceRegisters[4] + ((uint16_t)DeviceRegisters[5] << 8);
   if (millis() - lastBlinkAt > delaytime) {
     lastBlinkAt = millis();
-    digitalWrite(LED_BUILTIN,CHANGE);
+    digitalWrite(LED_BUILTIN, CHANGE);
   }
 }
 /* Now - the receive handler is pretty straightforward. Since we will account for the bytes read in the request handler, the receive
- * handler calls it, and doesn't keep the returned value, since (per documentation) that will clear the value.
+ * handler calls it, and doesn't keep the returned value. This resets that count of bytes.
  * the line that sets the byte in the array if a write of more than just the address pointer is performed is ugly, but it's a bog
  * standard application of masks. The bits that are 1 in the mask are set to the new value, so AND the new value with that.
  * The bits that are 0 in the mask remain the same, so invert the mask, and AND that with the old value. OR the two together and set.
@@ -76,8 +78,9 @@ void receiveHandler(int numbytes) {
   WirePointer = Wire.read() & 0x1F; // make sure they can't write off the end of the array!
   numbytes--; // we just read a byte, so we should decrement this.
   while (numbytes > 0) { // If numbytes was more than 1, we'll execute the below loop to write to the "registers".
-    DeviceRegisters[WirePointer] = (Wire.read() & WriteMask[WirePointer]) |
-                  (DeviceRegisters[WirePointer] & ~WriteMask[WirePointer]);
+
+    uint8_t unchangedbits = (DeviceRegisters[WirePointer] & ~WriteMask[WirePointer]);
+    DeviceRegisters[WirePointer] = (Wire.read() & WriteMask[WirePointer]) | unchangedbits;
     WirePointer++;          // increment the pointer.
     WirePointer &= 0x1F;    // Wrap aroubd if it's gone over 32;
     numbytes--;             // decrement remaining bytes.
@@ -98,9 +101,9 @@ void requestHandler() {
   // We will start reading from the pointer.
   // But if there was a previous read, and the master then started a
   // second read, we want the pointer to pick up where they left off.
-  uint8_t bytes_read=Wire.getBytesRead();
-  WirePointer += bytes_read;
-  WirePointer &= 0x1F;
+  uint8_t bytes_read = Wire.getBytesRead();
+  WirePointer       += bytes_read;
+  WirePointer       &= 0x1F;
   // You could also do :
   // WirePointer = (WirePointer + Wire.getBytesRead()) & 0x1F;
   // It is no more or less efficient.
