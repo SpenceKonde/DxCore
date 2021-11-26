@@ -43,7 +43,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Calling millis or micros when those are disabled will resuylt in more useful error messages.
 * Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
 * Continuing doc enhancements.
-* Platform.txt organization and commenting. Fix issues where defines were missing from lib-discovery phase.
+* Platform.txt organization and commenting. Fix issues where defines were missing from lib-discovery phase
+* Ensure that upload with programmer is not used on bootloader board definitions.
+* Optboot serial port menu option is ready to be enabled.
 
 
 ## Released Versions

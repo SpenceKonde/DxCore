@@ -69,10 +69,11 @@ menu.clock=Clock Speed
 menu.millis=millis()/micros() timer
 menu.bodvoltage=BOD level if enabled (Bootload burn req'd)
 menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
-menu.eesave=Save EEPROM (Bootload burn req'd)
-menu.resetpin=Reset pin function (Bootload burn req'd)
-menu.resetupdipins=Reset and UPDI are: (Bootload burn req'd)
-menu.startuptime=Startup Time (Bootload burn req'd)
+menu.eesave=Save EEPROM
+menu.eesavedd=Save EEPROM (Bootload burn req'd)
+menu.resetpin=Reset pin function
+menu.resetupdipins=Reset and UPDI pin functions (Bootload burn req'd)
+menu.startuptime=Startup Time
 menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
 menu.timeout=Bootloader Timeout (Bootload burn req'd)
 menu.appspm=Flash Writing
@@ -95,12 +96,14 @@ menu.wiremode=Wire (Wire.h/I2C) Library mode
 # Parameters and defaults for DA parts   #
 #________________________________________#
 avrda.upload.tool=avrdude
+avrda.upload.with_programmer_not_available_for_bootloader_boards=
 avrda.build.board=avrda
 avrda.build.core=dxcore
 avrda.build.text_section_start=.text=0x0
 avrda.build.extra_flags= {bootloader.appspm}
 avrda.build.export_merged_output=false
 avrda.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -112,6 +115,7 @@ avrda.bootloader.CODESIZE=0x00
 avrda.bootloader.BOOTSIZE=0x01
 avrda.bootloader.avrdudestring=
 avrda.bootloader.pymcuprogstring=-aerase
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -383,10 +387,24 @@ avrda.menu.startuptime.8.bootloader.SYSCFG1=0x04
 avrda.menu.startuptime.16.bootloader.SYSCFG1=0x05
 avrda.menu.startuptime.32.bootloader.SYSCFG1=0x06
 avrda.menu.startuptime.64.bootloader.SYSCFG1=0x07
+
 #-------------------------------------#
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
+avrda.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
+avrda.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
+avrda.menu.wiremode.mors1.build.wireabr=.wO
+avrda.menu.wiremode.mands1=1x Wire, Master and Slave
+avrda.menu.wiremode.mands1.build.wire.mode=MANDS_SINGLE
+avrda.menu.wiremode.mands1.build.wireabr=.wA
+avrda.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+avrda.menu.wiremode.mors2.build.wire.mode=MORS_BOTH
+avrda.menu.wiremode.mors2.build.wireabr=.wO2
+avrda.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+avrda.menu.wiremode.mands2.build.wire.mode=MANDS_BOTH
+avrda.menu.wiremode.mands2.build.wireabr=.wA2
+
 #----------------------------------------#
 # SPM (writing flash from app)           #
 #________________________________________#
@@ -422,20 +440,6 @@ avrda.menu.appspm.112plus=Above 112k (AVR128 only)
 avrda.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 
-# TWI OPTIONS
-avrda.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
-avrda.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
-avrda.menu.wiremode.mors1.build.wireabr=.wO
-avrda.menu.wiremode.mands1=1x Wire, Master and Slave
-avrda.menu.wiremode.mands1.build.wire.mode=MANDS_SINGLE
-avrda.menu.wiremode.mands1.build.wireabr=.wA
-avrda.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
-avrda.menu.wiremode.mors2.build.wire.mode=MORS_BOTH
-avrda.menu.wiremode.mors2.build.wireabr=.wO2
-avrda.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
-avrda.menu.wiremode.mands2.build.wire.mode=MANDS_BOTH
-avrda.menu.wiremode.mands2.build.wireabr=.wA2
-
 
 ##########################################################################
 #                                                                        #
@@ -449,6 +453,7 @@ avrda.menu.wiremode.mands2.build.wireabr=.wA2
 # Parameters and defaults for DB parts   #
 #________________________________________#
 avrdb.upload.tool=avrdude
+avrdb.upload.with_programmer_not_available_for_bootloader_boards=
 avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.text_section_start=.text=0x0
@@ -456,6 +461,7 @@ avrdb.build.extra_flags= {bootloader.appspm}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 avrdb.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -469,6 +475,7 @@ avrdb.bootloader.CODESIZE=0x00
 avrdb.bootloader.BOOTSIZE=0x01
 avrdb.bootloader.avrdudestring=
 avrdb.bootloader.pymcuprogstring=-aerase
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -761,7 +768,6 @@ avrdb.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-
 avrdb.menu.attach.allenabled=On all pins, like usual
 avrdb.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrdb.menu.attach.manual=Only enabled ports. Please see documentation.
@@ -772,7 +778,6 @@ avrdb.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
 #----------------------------------------#
 # MVIO menu                              #
 #________________________________________#
-
 avrdb.menu.mvio.enabled=Enabled
 avrdb.menu.mvio.enabled.bootloader.mviobits=01
 avrdb.menu.mvio.disabled=Disabled
@@ -862,12 +867,14 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 # Parameters and defaults for DD parts   #
 #________________________________________#
 #avrdd.upload.tool=avrdude
+#avrdd.upload.with_programmer_not_available_for_bootloader_boards=
 #avrdd.build.board=avrda
 #avrdd.build.core=dxcore
 #avrdd.build.text_section_start=.text=0x0
 #avrdd.build.extra_flags= {bootloader.appspm}
 #avrdd.build.export_merged_output=false
 #avrdd.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -880,6 +887,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.bootloader.BOOTSIZE=0x01
 #avrdd.bootloader.avrdudestring=
 #avrdd.bootloader.pymcuprogstring=-aerase
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -1133,10 +1141,10 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #----------------------------------------#
 # Retain EEPROM (EESAVE)                 #
 #________________________________________#
-#avrdd.menu.eesave.enable=EEPROM retained
-#avrdd.menu.eesave.enable.bootloader.eesavebit=1
-#avrdd.menu.eesave.disable=EEPROM not retained
-#avrdd.menu.eesave.disable.bootloader.eesavebit=0
+#avrdd.menu.eesavedd.enable=EEPROM retained
+#avrdd.menu.eesavedd.enable.bootloader.eesavebit=1
+#avrdd.menu.eesavedd.disable=EEPROM not retained
+#avrdd.menu.eesavedd.disable.bootloader.eesavebit=0
 
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
@@ -1223,13 +1231,13 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 # until size of these "pages" is         #
 # known to be either 512 or 256b.        #
 #________________________________________#
-#avrdd.menu.appspm.no=Disabled (be patient!)
-#avrdd.menu.appspm.no.bootloader.appspm=
-#avrdd.menu.appspm.no.build.appspmabr=
-#avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
+##avrdd.menu.appspm.no=Disabled (be patient!)
+##avrdd.menu.appspm.no.bootloader.appspm=
+##avrdd.menu.appspm.no.build.appspmabr=
+##avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
 ##avrdd.menu.appspm.full=Anywhere
 ##avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
-#avrdd.menu.appspm.full.build.appspmabr=.spmALL
+##avrdd.menu.appspm.full.build.appspmabr=.spmALL
 ##avrdd.menu.appspm.16plus=Above 8k
 ##avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=16
 ##avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
@@ -1267,12 +1275,14 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 # Parameters and defaults for EA parts   #
 #________________________________________#
 #avrea.upload.tool=avrdude
+#avrea.upload.with_programmer_not_available_for_bootloader_boards=
 #avrea.build.board=avrda
 #avrea.build.core=dxcore
 #avrea.build.text_section_start=.text=0x0
 #avrea.build.extra_flags=
 #avrea.build.export_merged_output=false
 #avrea.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -1284,6 +1294,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.bootloader.BOOTSIZE=0x01
 #avrea.bootloader.avrdudestring=
 #avrea.bootloader.pymcuprogstring=-aerase
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -1617,7 +1628,6 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-
 #avrea.menu.wiremode.mors1=1x Wire, Master or Slave
 #avrea.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
 #avrea.menu.wiremode.mors1.build.wireabr=.wO
@@ -1647,6 +1657,7 @@ avrdaopti.build.text_section_start=.text=0x200
 avrdaopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdaopti.build.export_merged_output=true
 avrdaopti.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -1659,6 +1670,7 @@ avrdaopti.bootloader.CODESIZE=0x00
 avrdaopti.bootloader.BOOTSIZE=0x01
 avrdaopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrdaopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -1666,6 +1678,7 @@ avrdaopti.upload.tool=avrdude
 avrdaopti.upload.protocol=arduino
 avrdaopti.upload.extra_params=-D
 avrdaopti.upload.speed=115200
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -2486,6 +2499,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.build.export_merged_output=false
 #avrddopri.build.highestcb=B2
 #avrddopti.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -2849,9 +2863,35 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 
 #----------------------------------------#
 # Optiboot serial port                   #
-# Lots of options here....               #
 #________________________________________#
-
+##avrddopti.menu.bootloaderusart.ser0=USART0 (default pins): TX PA0, RX PA1 (int. clock only)
+##avrddopti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+##avrddopti.menu.bootloaderusart.ser0.bootloader.portname=Serial
+##avrddopti.menu.bootloaderusart.ser0.bootloader.portswap=0
+##avrddopti.menu.bootloaderusart.ser0_alt1=USART0 (alt1): TX PA4, RX PA5 (20+ pin only)
+##avrddopti.menu.bootloaderusart.ser0_alt1.bootloader.port=_ser0_alt1
+##avrddopti.menu.bootloaderusart.ser0_alt1.bootloader.portname=Serial
+##avrddopti.menu.bootloaderusart.ser0_alt1.bootloader.portswap=1
+##avrddopti.menu.bootloaderusart.ser0_alt2=USART0 (alt2): TX PA2, RX PA3 (20+ pin only)
+##avrddopti.menu.bootloaderusart.ser0_alt2.bootloader.port=_ser0_alt2
+##avrddopti.menu.bootloaderusart.ser0_alt2.bootloader.portname=Serial
+##avrddopti.menu.bootloaderusart.ser0_alt2.bootloader.portswap=2
+##avrddopti.menu.bootloaderusart.ser0_alt3=USART0 (alt3): TX PD4, RX PD5
+##avrddopti.menu.bootloaderusart.ser0_alt3.bootloader.port=_ser0_alt3
+##avrddopti.menu.bootloaderusart.ser0_alt3.bootloader.portname=Serial
+##avrddopti.menu.bootloaderusart.ser0_alt3.bootloader.portswap=3
+##avrddopti.menu.bootloaderusart.ser0_alt4=USART0 (alt4): TX PC1, RX PC2
+##avrddopti.menu.bootloaderusart.ser0_alt4.bootloader.port=_ser0_alt4
+##avrddopti.menu.bootloaderusart.ser0_alt4.bootloader.portname=Serial
+##avrddopti.menu.bootloaderusart.ser0_alt4.bootloader.portswap=4
+##avrddopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1 (28/32 pin only)
+##avrddopti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+##avrddopti.menu.bootloaderusart.ser1.bootloader.portname=Serial1
+##avrddopti.menu.bootloaderusart.ser1.bootloader.portswap=0
+##avrddopti.menu.bootloaderusart.ser1_alt2=USART1 (alt2): TX PD6, RX PD7
+##avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.port=_ser1_alt2
+##avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portname=Serial1
+##avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portswap=2
 
 
 ##########################################################################
