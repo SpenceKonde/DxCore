@@ -2053,6 +2053,7 @@ avrdbopti.build.text_section_start=.text=0x200
 avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.printf=
+
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -2067,6 +2068,7 @@ avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrdbopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -2074,6 +2076,7 @@ avrdbopti.upload.tool=avrdude
 avrdbopti.upload.protocol=arduino
 avrdbopti.upload.extra_params=-D
 avrdbopti.upload.speed=115200
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -2400,11 +2403,11 @@ avrdbopti.menu.startuptime.8.bootloader.sutbits=100
 avrdbopti.menu.startuptime.16.bootloader.sutbits=101
 avrdbopti.menu.startuptime.32.bootloader.sutbits=110
 avrdbopti.menu.startuptime.64.bootloader.sutbits=111
+
 #-------------------------------------#
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-
 avrdbopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
 avrdbopti.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
 avrdbopti.menu.wiremode.mors1.build.wireabr=.wO
