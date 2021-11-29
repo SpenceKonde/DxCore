@@ -57,28 +57,15 @@ My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and
 For the upcoming DD-series, the 28 and 32-pin parts are of questionable utility considering the existence of the more capable DA and DB parts with the same number of pins. With AVR Dx parts already priced like the higher-end classic tinyAVR devices, and barely twice the price of the top edge of the tinyAVR 0/1/2-series, there is a pretty narrow range of prices that the DD-series would make sense at as a "poverty model" DB. The 14-pin and 20-pin packages are far more interesting, packing Dx-level capabilities into sizes and pincounts that are normally the province of the less capable tinyAVR product line.
 
 ## Supported Clock Speeds
-All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range! It has not been tested whether the operating voltage impacts overclocking - the core runs at a lower voltage from the internal voltage regulator, so if there is an issue here, it would be seen only at the far low end of the voltage range. Considering the errata on the DB-series, if this is an issue I'd guess that the magic voltage above which it stops mattering is 2.1V.
-**Crystal** is not supported as a clock source on the DA-series, but is or will be supported on everything else.
-* Within Manufacturer Specifications
-  * 24MHz Internal, Ext. Clock or Crystal
-  * 20MHz Internal, Ext. Clock or Crystal
-  * 16MHz Internal, Ext. Clock or Crystal
-  * 12MHz Internal, Ext. Clock or Crystal
-  * 8MHz  Internal, Ext. Clock or Crystal
-  * 4MHz  Internal, Ext. Clock or Crystal
-  * 1MHz  Internal clock
-* Overclocked (No guarantees on functioning)
-  * 25MHz Ext Clock or Crystal
-  * 28MHz Internal, Ext. Clock or Crystal
-  * 30MHz Ext. Clock or Crystal
-  * 32MHz Internal, Ext. Clock or Crystal
-  * 36MHz Ext. Clock or Crystal
-  * 40MHz Ext. Clock or Crystal
-  * 48MHz Ext. Clock or Crystal
+The maximum rated spec is **24 MHz across the entire voltage and temperature range.**
+The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rated.
+All parts can use an external clock, and DB and DD-series parts can also use a crystal.
+**Supported from internal:** 1 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz
+**Supported from external or crystal:** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz
 
-If a watch crystal (but no high frequency one) is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the imoprovement is small except at extreme temperatures.
+If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported; I suspect it is tuning based on the frequency before any PLL used to multiply or divide the clock speed.
 
-See the [**Clock Options reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) - code to support 2, 3, 6, 14, and 44 MHz operation has been written; a board definition that used them would likely work, but these are not useful clock speeds and are not made available in boards.txt, and code to switch the clock source might be required.
+See the [Clock Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) for more information
 
 ## UPDI programming
 The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface) used on the AVR Dx-series, tinyAVR 0/1/2-series, megaAVR 0-series, and which will likely be used for all AVR microcontrollers for the foreseeable future. In addition to purchasing a purpose-made UPDI programmer (such as the ones produced by Microchip), there are two very low-cost approaches to creating a UPDI programmer:
@@ -86,7 +73,7 @@ The UPDI programming interface is a single-wire interface for programming (and d
 ### From a USB-Serial adapter with included SerialUPDI (recommended)
 Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of the pyupdi author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a tool developed and maintained by Microchip which includes the same serial-port upload mechanism (though within that context the SerialUPDI capacity is rather hidden - that tool is more about uploading via the native-USB debuggers sold by Microchip. I had initially hoped to use it for that as well, but it appeared that wrangling the USB/driver angle was going to be a problem - so when the fix for avrdude to support the 24-bit firmware on the Microchip Curiosity boards came out, we lost interest in that. **If installing manually** you must [add the python package](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system python installation is not sufficient, nor is one necessary). No additional actions are required if you install via board manager, which lets us pull that in automatically.
 
-With the release of 2.3.6 and the dramatic improvements in performance of SerialUPDI, **this is now the recommended method to program these parts**
+With the release of 2.3.6 and dramatic improvements in performance of SerialUPDI, **this is now the recommended method to program these parts**
 [Instructions for wiring a serial adapter for SerialUPDI](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md)
 
 Note that this does not give you serial monitor - you need to connect a serial adapter the normal way for that (I suggest using two, along with an external serial terminal application). This technique works with those $1 CH340 serial adapters from ebay, aliexpress, etc. Did you accidentally buy some that didn't have a DTR pin broken out, and so weren't very useful with the Pro Minis you hoped to use them with? Now is your chance to make them useful.
@@ -94,16 +81,16 @@ Note that this does not give you serial monitor - you need to connect a serial a
 Until 1.3.6, SerialUPDI was slow, and sometimes fiddly to set up. Those issues have been addressed and software improvements have increased the speed *by a factor of 20-30* for uploading to Dx parts, and we are able to get as close to the maximum rate that the NVM controller can write as one could hope for, with speeds in the area of 24kb/s at 345.6k baud, allowing the whole 128k of flash to be written and validated in 11 seconds at maximum speed, 16 seconds at a less demanding 230400 baud - compared with 31 seconds via optiboot, 42 seconds via jtag2updi, or a minute to a Curiosity Nano via the onboard debugger. Prior to 1.3.6, this upload method was hopelessly slow, and the same upload would have taken 2-20 minutes depending on the serial adapter.
 
 ### With an Arduino using jtag2updi
-One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see using a Nano running jtag2updi, you should select jtag2updi from the tools->programmer menu. Prior to the release of 1.3.6, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro - there wasn't a good alternative. Now there is, and jtag2updi is slower, less reliable, and costs more than SerialUPDI. Due to the myriad problems with it, we are no longer providing guidance on it's configuration and use.
+One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see using a Nano running jtag2updi, you should select jtag2updi from the tools->programmer menu. Prior to the release of 1.3.6, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro - there wasn't a good alternative. Now there is, and jtag2updi is slower, less reliable, and costs more than SerialUPDI.
 
 ### Using a Curiosity Nano
-Choose the nEDBG programmer option, and things should just work. There are a lot of things I'm not a huge fan of on those boards, and the grindingly slow upload through avrdude is one of them, but programming them really should work without particular issue. Some people have had issues on linux machines, others had no problems. That all said, they upload at a glacial pace compared to SerialUPDI.
+Choose the nEDBG programmer option, and things should just work. There are a lot of things I'm not a huge fan of on those boards, and the grindingly slow upload through avrdude (40 seconds for a full 128k flash) is just one of them, but programming them should work without particular issue. Some people have had issues on linux machines, others had no problems.
 
 ### Troubleshooting uploads - quick tips
 From experience, there are a few quick things to check before you conclude that there's a more serious problem. These only apply to jtag2updi and SerialUODI
 * Check the serial port selected.
-* If you get an error about bootloader.BOOTEND, you were using megaTinyCore, with SerialUPDI, and then came to DxCore and didn't select a programmer. The IDE is still set to use the other core's programmer... which is done *using that core's platform.txt*. When you open the tools menu you'll see a that no programmer name is listed next to "programmer". Select one, amd it should work.
-* One of the most common problems though is still poor connections. It seems like it would be very hard to have wiring problems with just 1 pin and power and ground (usually one knows if those aren't right). I've been having a lot of problems with crap dupont line.
+* If you get an error about bootloader.BOOTEND, you were using megaTinyCore, with SerialUPDI, and then switched to a DxCore part and didn't select a programmer. The IDE is still set to use the other core's programmer... which is done *using that core's platform.txt*. When you open the tools menu you'll see a that no programmer name is listed next to "programmer". Select one, and it should work.
+* One of the most common problems is still poor connections. It seems like it would be very hard to have wiring problems with just 1 pin and power and ground (usually one knows if those aren't right) - but it still happens. I've worn out the crap terminals on several sets of dupont line that wi
 
 ### Optiboot-derived bootloader (optional)
 There is an included Optiboot derived bootloader included with the core. You may use it instead of UPDI programming it it suits your application or preferences better. The bootloader, of course, requires a UPDI programmer to install.
@@ -268,7 +255,7 @@ See [**PROGMEM and mapped flash reference**](https://github.com/SpenceKonde/DxCo
 
 
 ### Writing to Flash from App
-It is possible to write to the flash from the application code using the included Flash.h library. See the documentation for more information. Note that the API is completely different in every way from the Flash.h used on MegaCoreX and megaTinyCore (which use the same flash library). They were developed independently and reflect both the differences between the two NVM controllers and the differing programming ideologies of the author of the libraries. I make no claim that mine is better, though I note that at the time, I didn't belive it would be possible to get that behavior. I was barely able to find the 4 bytes of flash in the bootloader section that this needs!
+It is possible to write to the flash from the application code using the included Flash.h library. See the documentation for more information. Note that the API is completely different in every way from the Flash.h used on MegaCoreX and megaTinyCore (which use the same flash library). They were developed independently and reflect both the differences between the two NVM controllers and the differing programming ideologies of the author of the libraries. I make no claim that mine is better, though I note that at the time, I didn't believe it would be possible to get that behavior. I was barely able to find the 4 bytes of flash in the bootloader section that this needs!
 See the [**Flash Library Documentation**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Flash/README.md)
 
 ### Servo Support
@@ -300,7 +287,7 @@ The table below is the relevant lines from that table - many standard types are 
 Failing to match the format specifiers' length modifiers will result in printing wrong data. (printing a shorter type than what you passed will result in later values being substituted incorrectly. )
 
 #### Selectable printf() implementation
-A tools submenu lets you choose from full `printf()` with all features, the default one that drops float support to save 1k of flash, and the minimal one drops almost everything and for another 450 bytes (will be a big deal on the 16k and 8k parts. Less so on 128k ones.) - note that selecting any non-default option here *will cause it to be included in the binary even if it's never called* - and if it's never called, it normally wouldn't be included. So an empty sketch will take more space with minimal printf selected than whith the default, while a sketch that uses printf will take less space with minimal printf vs default.
+A tools submenu lets you choose from full `printf()` with all features, the default one that drops float support to save 1k of flash, and the minimal one drops almost everything and for another 450 bytes (will be a big deal on the 16k and 8k parts. Less so on 128k ones.) - note that selecting any non-default option here *will cause it to be included in the binary even if it's never called* - and if it's never called, it normally wouldn't be included. So an empty sketch will take more space with minimal printf selected than with the default, while a sketch that uses printf will take less space with minimal printf vs default.
 
 
 ### Assembler Listing generation
@@ -460,7 +447,7 @@ The classic AVR devices all use the venerable `AVRe` (ATtiny) or `AVRe+` (ATmega
 * Not quite the instruction set... but on classic AVRs, the working registers were accessible at loctions 0x00 to 0x1F in the main address space. They no longer are. That means the offset of 0x20 applied to peripheral registers is gone, and the SFR_TO_IO_ADDR macro is gone too (SFR stands for Special Function Register I think)
 
 This really comes down to 2 changes
-* Faster stores - including ST, STD, and PUSH (PUSH and POP are essentially ST SP+ and LD -SP, treating the stack pointer like one of the register pairs And since CALL and RCALL involve pushing something onto the stack, you'd pick up enhancement there for free too. This almsot certainly accounts for the slowdown in LDS. If I had to guess, I would say that LD's take 1 clock to send the address to the memory controller, andget the data in the next clock. Since in LDS, it doesn't have the address until the second clock, there you go.
+* Faster stores - including ST, STD, and PUSH (PUSH and POP are essentially ST SP+ and LD -SP, treating the stack pointer like one of the register pairs And since CALL and RCALL involve pushing something onto the stack, you'd pick up enhancement there for free too. This almost certainly accounts for the slowdown in LDS. If I had to guess, I would say that LD's take 1 clock to send the address to the memory controller, andget the data in the next clock. Since in LDS, it doesn't have the address until the second clock, there you go.
 * CBI/SBI are single clock - unclear if the mechanism is the same as above/
 
 ## License
