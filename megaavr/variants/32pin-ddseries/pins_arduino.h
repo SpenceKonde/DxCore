@@ -207,17 +207,12 @@ Include guard and include basic libraries. We are normally including this inside
 
 // USART1
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_1         PORTMUX_USART1_ALT1_gc
 #define HWSERIAL1_MUX_PINSWAP_2         PORTMUX_USART1_ALT2_gc
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
 #define PIN_HWSERIAL1_TX                PIN_PC0
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL1_RX_PINSWAP_1      NOT_A_PIN
-#define PIN_HWSERIAL1_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL1_XDIR_PINSWAP_1    NOT_A_PIN
 #define PIN_HWSERIAL1_TX_PINSWAP_2      PIN_PD6
 #define PIN_HWSERIAL1_RX_PINSWAP_2      PIN_PD7
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     NOT_A_PIN
