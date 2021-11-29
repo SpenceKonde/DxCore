@@ -529,3 +529,30 @@ inline __attribute__((always_inline)) void openDrainFast(uint8_t pin, uint8_t va
   } else// FLOAT
     vport->DIR &= ~mask;
 }
+
+inline __attribute__((always_inline)) void pinModeFast(uint8_t pin, uint8_t mode) {
+  check_constant_pin(pin);
+  if (!__builtin_constant_p(mode)) {
+    badArg("mode must be constant when used with pinModeFast");
+  } else {
+    if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP) { //} && mode != OUTPUT_PULLUP) {
+      badArg("The mode passed to pinModeFast must be INPUT, OUTPUT, INPUT_PULLUP");// or OUTPUT_PULLUP");
+    }
+  }
+  check_valid_digital_pin(pin);         //generate compile error if a constant that is not a valid pin is used as the pin
+  uint8_t mask = 1 << digital_pin_to_bit_position[pin];
+  uint8_t port = digital_pin_to_port[pin];
+  VPORT_t *vport;
+  vport = (VPORT_t *)(port * 4);
+  volatile uint8_t *pin_ctrl = (volatile uint8_t *) (0x410 + digital_pin_to_port[pin] * 0x20 + digital_pin_to_bit_position[pin]);
+  if (mode==OUTPUT)// || mode==OUTPUT_PULLUP)
+    vport->DIR |= mask;
+  else
+    vport->DIR &= ~mask;
+    // 1 clock to set direction
+  if (mode == INPUT_PULLUP)
+    *pin_ctrl |= PORT_PULLUPEN_bm;
+  else if (mode == INPUT)
+    *pin_ctrl &= ~PORT_PULLUPEN_bm;
+    // and 5 to switch the damned pullup.
+}

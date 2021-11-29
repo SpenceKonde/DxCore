@@ -208,6 +208,7 @@ int8_t  getAnalogReadResolution();
 void           openDrain(uint8_t pinNumber,   uint8_t val);
 int8_t   digitalReadFast(uint8_t pinNumber               );
 void    digitalWriteFast(uint8_t pinNumber,   uint8_t val);
+void         pinModeFast(uint8_t pinNumber,  uint8_t mode);
 void       openDrainFast(uint8_t pinNumber,   uint8_t val);
 void        pinConfigure(uint8_t pinNumber, uint16_t mode);
 void          turnOffPWM(uint8_t pinNumber               );
@@ -216,26 +217,26 @@ void          turnOffPWM(uint8_t pinNumber               );
 #define digitalPinHasPWMNow(p)            (digitalPinToTimerNow(p) != NOT_ON_TIMER)
 
 // avr-libc defines _NOP() since 1.6.2
-// Spence: Better tell avr-gcc that, it seems to disagree
+// Really? Better tell avr-gcc that, it seems to disagree...
 #ifndef _NOP
-  #define _NOP()    do { __asm__ volatile ("nop"); } while (0)
+  #define _NOP()    __asm__ __volatile__ ("nop");
 #endif
 #ifndef _NOP2
-  #define _NOP2()   do { __asm__ volatile ("nop"); } while (0)
+  #define _NOP2()   __asm__ __volatile__ ("rjmp .+0");
 #endif
 #ifndef _NOPNOP
-  #define _NOPNOP() do { __asm__ volatile ("rjmp .+0"); } while (0)
+  #define _NOPNOP() __asm__ __volatile__ ("rjmp .+0");
 #endif
 #ifndef _NOP8
-  #define _NOP8()   do { __asm__ volatile ("rjmp .+2"  "\n\t" \
-                                           "ret"       "\n\t" \
-                                           "rcall .-4" "\n\t"); } while (0)
+  #define _NOP8()   __asm__ __volatile__ ("rjmp .+2"  "\n\t" \
+                                          "ret"       "\n\t" \
+                                          "rcall .-4" "\n\t");
 #endif
 #ifndef _NOP14
-  #define _NOP14()  do { __asm__ volatile ("rjmp .+2"  "\n\t" \
-                                           "ret"       "\n\t" \
-                                           "rcall .-4" "\n\t" \
-                                           "rcall .-6" "\n\t" ); } while (0)
+  #define _NOP14()  __asm__ __volatile__ ("rjmp .+2"  "\n\t" \
+                                          "ret"       "\n\t" \
+                                          "rcall .-4" "\n\t" \
+                                          "rcall .-6" "\n\t" );
 #endif
 uint16_t clockCyclesPerMicrosecond();
 uint32_t clockCyclesToMicroseconds(uint32_t cycles);
@@ -428,14 +429,14 @@ extern const uint8_t digital_pin_to_timer[];
 #define PIN_INVERT_TGL       0xC000 // PIN_INVERT_TOGGLE
 #define PIN_INVERT_TOGGLE    0xC000 // alias
 
-#define digitalPinToPort(pin)               ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_port[pin]         : NOT_A_PIN)
-#define digitalPinToBitPosition(pin)        ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
-#define digitalPinToBitMask(pin)            ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
-#define digitalPinToTimer(pin)              ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_timer[pin]        : NOT_ON_TIMER)
-#define portToPortStruct(port)              (((port)  < NUM_TOTAL_PORTS) ? (((PORT_t *)  &PORTA) +                (port)) : NULL)
-#define digitalPinToPortStruct(pin)         ((pin     < NUM_TOTAL_PINS ) ? (((PORT_t *)  &PORTA) + digitalPinToPort(pin)) : NULL)
-#define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_position[pin] : NOT_A_PIN)
-#define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin]     : NOT_A_PIN)
+#define digitalPinToPort(pin)               ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_port[pin]                           : NOT_A_PIN)
+#define digitalPinToBitPosition(pin)        ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_bit_position[pin]                   : NOT_A_PIN)
+#define digitalPinToBitMask(pin)            ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_bit_mask[pin]                       : NOT_A_PIN)
+#define digitalPinToTimer(pin)              ((pin     < NUM_TOTAL_PINS ) ? digital_pin_to_timer[pin]                          : NOT_ON_TIMER)
+#define portToPortStruct(port)              (((port)  < NUM_TOTAL_PORTS) ? (((PORT_t *)  &PORTA) +                (port))     : NULL)
+#define digitalPinToPortStruct(pin)         ((pin     < NUM_TOTAL_PINS ) ? (((PORT_t *)  &PORTA) + digitalPinToPort(pin))     : NULL)
+#define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_position[pin]  : NOT_A_PIN)
+#define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ? digital_pin_to_bit_mask[pin]      : NOT_A_PIN)
 #define getPINnCTRLregister(port, bit_pos)  (((port != NULL) && (bit_pos < NOT_A_PIN)) ? ((volatile uint8_t *)&(port->PIN0CTRL) + bit_pos) : NULL)
 #define digitalPinToInterrupt(P)            (P)
 
