@@ -1,10 +1,10 @@
 # Wire (TWI/I2C)
-All of these parts have a single I2C/TWI module, and Wire.h provides the usual API.
+All of these parts have a single I2C/TWI module, and Wire.h provides the usual API - and then some.
 
-## NEW in 1.4.0 - totally rewritten Wire library thanks to @MX682X
-Should be 100% API compatible, use less flash, and have a new menu option to enable both master AND slave instead of the usual master OR slave. This uses the same pair of pins (this is termed "multimaster mode" in the 'biz). Enabling increases binary size, and allocates another buffer for data (out of RAM), snd being the less common use case, we choose to default to the more efficient implementation in light the stringent constraints on these parts.
+## NEW in megaTinyCore 2.5.0/DxCore 1.4.0 - totally rewritten Wire library thanks to @MX682X
+Should be 100% backwards compatible, use less flash, and have a new menu option to enable both master AND slave instead of the usual master OR slave. This uses the same pair of pins (this is termed "multimaster mode" in the 'biz). Enabling increases binary size, and allocates another buffer for data (out of RAM), snd being the less common use case, we choose to default to the more efficient implementation in light the stringent constraints on these parts. Parts with "Dual Mode" have the option to use a separate pair of pins for the slave functionality.
 
-## Pin Mappings
+## Pin Mappings (AVR Dx-series)
 | Mapping | TWI0 M/S | TWI0 Dual | TWI1 M/S | TWI1 Dual |
 |---------|----------|-----------|----------|-----------|
 | Default | PA2, PA3 | PC2,  PC3 | PF2, PF3 | PB2,  PB3 |
@@ -13,10 +13,10 @@ Should be 100% API compatible, use less flash, and have a new menu option to ena
 | Alt3*   | PA0, PA1 | PC2,  PC3 |    N/A   |    N/A    |
 
 * Alt3 is only available on AVR DD-series (and possibly EA-series).
-* Alt1 is not available on parts which do not have listed dual pins because it would duplicate Default.
-* But alt2 is, since its's primary pins are different,
+* Alt1 is not available on parts which do not have the dual pins because it would duplicate Default.
+* But Alt2 is, since its's primary pins are different,
 
-Shown as SCL, SDA. There are no alternate TWI pin mapping options for the 0-series or 2-series devices.
+Shown as SCL, SDA.
 
 `Wire.swap(pin_set)` will set the the pin mapping to the specified set of pins.  See API reference below for details.
 
@@ -76,9 +76,20 @@ uint8_t addr = Wire.getIncomingAddress() << 1 ; // Returns incoming address in s
 ```
 
 ## Master/Slave mode
-As of 2.4.3, we support operating as master and slave on the same pins (sometimes called a multi-master configuration). This functionality is optional, controlled by a Tools submenu. Select `Tools -> TWI (I2C/Wire.h) Options -> Master and Slave` from the tools menu to enable it. This uses more flash and more RAM (for the buffers - Wire requires several buffers, which are 32b each except at the extremes of supported flash sizes. All parts, including the tinyAVR line with the exception of the ATtiny402/202 support it when the master and slave functionality is on the same pair of pins. The full-size parts (the megaAVR 0-series like the ATmega4809, and the AVR Dx-series and upcoming Ex-series) *also* have an option to move the slave functionality to another pair of pins for increased flexibility. Thus, on parts without Dual Mode or where it is not in use, the single I2C bus will be connected to the AVR that is acting in both roles, one or more devices that act as master to control it, and one or more devices that controls - in addition to any other devices that are using I2C to communicate with the master(s) or slave(s). In such complicated configuration, the limits on communication imposed by the physics are the closest at hand - more devices = higher bus capacitance = slower rise and fall times and lower maximum data rates. Take particular care with voltage levels to ensure that the pullups are connected to a voltage compatible with all connected I2C devices.
+With the release of the enhanced Wire library we support operating as master and slave on the same pins (sometimes called a multi-master configuration). This functionality is optional, controlled by a Tools submenu. Select `Tools -> TWI (I2C/Wire.h) Options -> Master and Slave` from the tools menu to enable it. This uses more flash and more RAM (for the buffers - Wire requires several buffers, which are 32b each except at the extremes of supported flash sizes. All parts, including the tinyAVR line with the exception of the ATtiny402/202 support it when the master and slave functionality is on the same pair of pins. The full-size parts (the megaAVR 0-series like the ATmega4809, and the AVR Dx-series and upcoming Ex-series) *also* have an option to move the slave functionality to another pair of pins for increased flexibility. Thus, on parts without Dual Mode or where it is not in use, the single I2C bus will be connected to the AVR that is acting in both roles, one or more devices that act as master to control it, and one or more devices that controls - in addition to any other devices that are using I2C to communicate with the master(s) or slave(s). In such complicated configuration, the limits on communication imposed by the physics are the closest at hand - more devices = higher bus capacitance = slower rise and fall times and lower maximum data rates. Take particular care with voltage levels to ensure that the pullups are connected to a voltage compatible with all connected I2C devices.
 
-Thankfully, assuming the hardware is able to handle the job, if you're able to get the hardware working, there is no special code needed, and working sketches can often be made through simple combination of the master code (including `Wire.begin()` with no arguments) and slave code (including `Wire.begin(address)` with one or more arguments, and either `onRequest()` or `onReceive()`), plus - if appropriate and the part supports it - a call `to enableDualMode()`. If either master or slave code needs to call `end()` without disturbing the other, there is an `endSlave()` and `endMaster`, as needed.
+Thankfully, assuming the hardware is able to handle the job, there is no special code needed, and working sketches can often be made through simple combination of the master code (including `Wire.begin()` with no arguments) and slave code (including `Wire.begin(address)` with one or more arguments, and either `onRequest()` or `onReceive()`). If either master or slave code needs to call `end()` without disturbing the other, there is an `endSlave()` and `endMaster`, as needed.
+
+## Initialization order
+There is a right and a wrong order to call the configuration functions. This order should work:
+1. Wire.swapModule(TWI1); (AVR DA/DB for special use cases)
+2. Wire.swap(pinset) or Wire.pins(sclpin, sdapin)  (if needed for desired pins).
+3. Wire.enableDualMode(fmplus_enable); (AVR Dx and megaAVR 0-series only, if needed)
+4. Wire.usePullups() if you must...
+5. Wire.begin() and/or Wire.begin(address, ...)
+6. Wire.setClock(); (effects master mode only)
+
+See the API reference below for more information.
 
 ## API reference
 This is a full listing of methods provided for the TwoWire class (the class is named TwoWire, and Wire is an object of class TwoWire). Where they exist and behave the same way as documented in the Arduino Wire API reference they are simply listed. Where they do not, it is described here.
@@ -147,7 +158,9 @@ These new methods are available exclusively for part with certain specialized ha
 ```c++
 swapModule(TWI_t *twi_module);
 ```
-On parts with more than one TWI module (AVR DA and AVR DB devices with 32 or more pins), this allows you to swap the Wire object over to use TWI1, allowing the TWI1 pins to be used with libraries hardcoded to use something named Wire. This should be called first, `Wire.enableDualMode()` or `Wire.begin()`. It will generate an error if called from anything that does not have multiple TWI modules, including all tinyAVR parts. This is also what you would do if you needed to use the pins of TWI1, without enabling both Wire interfaces.
+This function is only available if the hardware has one module (DA or DB with 32+ pins); this allows you to swap the Wire object over to use TWI1, allowing the TWI1 pins to be used without creating both Wire and Wire1 - either because you need to use a library hardcoded to use Wire, not Wire1, or because you need to use the TWI0 pins. This must be called first, before `Wire.enableDualMode()` or `Wire.begin()`.
+
+This method is available ONLY if both TWI0 and TWI1 are present on the device, but the tools -> Wire mode menu is not set to an option that creates Wire1. The point is to provide a facility to, without the overhead of both Wire modules, use the TWI1 pins instead of the TWI0 pins.
 
 ```c++
 enableDualMode(bool fmp_enable);      // Moves the Slave to dedicated pins
