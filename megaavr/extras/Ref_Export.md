@@ -6,7 +6,7 @@ The exported files will be found in the sketch folder. The file names will look 
 `sketch_name.ino.avr128da28.24cs0.mB2.lst`
 1. The name of the sketch file, including the .ino.
 2. a '.' followed by the processor part number, in all lowercase letters.
-3. a '.' followed by a number, the letters `cs` and a 0, 1, or 2. The first number is the clock speed in MHz, the digit after the cs is the clock source, 0 = internal clock, 1 = crystal, and 2 = external clock.
+3. a '.' followed by a number, the letter `c` and a 0, 1, or 2. The first number is the clock speed in MHz, the digit after the cs is the clock source, 0 = internal clock, 1 = crystal, and 2 = external clock.
 4. a '.' followed by a `m` and then either "NONE" or A, B or D. If not "NONE, this will be followed with a number. This specifies what timer was set as the millis dimer when it was compiled."
 5. a '.' followed by a `w` and indicates the Wire library mode: O = master OR slave, A = master AND slave (Whether or not you are using dualmode). Finally, on parts with two TWI ports, there is an option to add a second Wire object, Wire1. If that is selected, the 2 will be included.
 6. Finally:

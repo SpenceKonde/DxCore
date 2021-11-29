@@ -1,8 +1,9 @@
-# Arduino AVR Core and platform.
-# ------------------------------
-#
-# For more info:
-# https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
+#################################
+# DxCore platform definition    #
+#                               #
+# github.com/SpenceKonde/DxCore #
+#################################
+
 
 ##############################
 # DxCore-related definitions #
@@ -16,14 +17,14 @@ versionnum.released=0
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL -DDXCORE_RELEASED={versionnum.released}
 
-build.optiondefines=-DF_CPU={build.f_cpu} -DCLOCK_SOURCE={build.clocksource} -DTWI_{build.wire.mode} -DMILLIS_USE_TIMER{build.millistimer}
+build.optiondefines=-DF_CPU={build.f_cpu} -DCLOCK_SOURCE={build.clocksource} {build.attachmode} -DTWI_{build.wire.mode} -DMILLIS_USE_TIMER{build.millistimer}
 
 
 #####################
 # Compile Parameter #
 #####################
 
-# Force users to see warnings, since it defalts to them being off if you let the IDE have it's way.
+# Force users to see warnings, since it defaults to them being off if you let the IDE have it's way.
 compiler.warning_flags=-Wall
 compiler.warning_flags.none=-Wall
 compiler.warning_flags.default=-Wall
@@ -72,13 +73,13 @@ build.extra_flags=
 ####################
 
 ## Compile c files
-recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -mmcu={build.mcu} {build.optiondefines} {build.versiondefines} {compiler.c.extra_flags} {build.extra_flags} {build.attachmode} "-I{build.core.path}/api/deprecated" {includes} "{source_file}" -o "{object_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -mmcu={build.mcu} {build.optiondefines} {build.versiondefines} {compiler.c.extra_flags} {build.extra_flags} "-I{build.core.path}/api/deprecated" {includes} "{source_file}" -o "{object_file}"
 
 ## Compile c++ files
-recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -mmcu={build.mcu} {build.optiondefines} {build.versiondefines} {compiler.cpp.extra_flags} {build.extra_flags} {build.attachmode} "-I{build.core.path}/api/deprecated" {includes} "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -mmcu={build.mcu} {build.optiondefines} {build.versiondefines} {compiler.cpp.extra_flags} {build.extra_flags} "-I{build.core.path}/api/deprecated" {includes} "{source_file}" -o "{object_file}"
 
 ## Compile S files
-recipe.S.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.S.flags} -mmcu={build.mcu} {build.optiondefines} {build.versiondefines} {compiler.S.extra_flags} {build.extra_flags} {build.attachmode} "-I{build.core.path}/api/deprecated" {includes} "{source_file}" -o "{object_file}"
+recipe.S.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.S.flags} -mmcu={build.mcu} {build.optiondefines} {build.versiondefines} {compiler.S.extra_flags} {build.extra_flags} "-I{build.core.path}/api/deprecated" {includes} "{source_file}" -o "{object_file}"
 
 ## Preprocessor
 # These two are used during the lib discovery phase and for function prototype generation
@@ -106,20 +107,22 @@ recipe.objcopy.eep.pattern="{compiler.path}{compiler.objcopy.cmd}" {compiler.obj
 recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
 recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.bin.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
 
-###################################
-# Export Compiled Binary and more #
-###################################
-# Export Compiled Binary will also
-# generate an assembly listing and
-# memory map for hand debugging,
-# optimization and analysis.
+####################################
+# Export Compiled Binary and more  #
+####################################
+# Export Compiled Binary will also #
+# generate an assembly listing and #
+# memory map for hand debugging,   #
+# optimization and analysis.       #
+####################################
 
 ## Save hex
+# Needs to be specified separately, because otherwise some parts of it don't resolve for reasons I dont understand.
 recipe.output.tmp_file={build.project_name}.hex
-recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}.cs{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}.v{versionnum.major}{versionnum.minor}{versionnum.patch}.hex
+recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}c{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}.v{versionnum.major}{versionnum.minor}{versionnum.patch}.hex
 
 ## Extra asset name (for .lst and .map output - doesn't fully resolve for .hex)
-build.extraassetname={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}cs{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}.v{versionnum.major}{versionnum.minor}{versionnum.patch}
+build.extraassetname={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}c{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}.v{versionnum.major}{versionnum.minor}{versionnum.patch}
 
 ## Create disassembler listing
 recipe.hooks.objcopy.postobjcopy.1.pattern.windows=cmd /C "{compiler.path}{compiler.objdump.cmd}" {compiler.objdump.flags} "{build.path}/{build.project_name}.elf" > "{build.path}/{build.project_name}.lst"

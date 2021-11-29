@@ -4,11 +4,10 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes. This release really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
 ### Planned 1.4.0 or later, depending on DD-series release dates
-* DD-series support, assuming they ever come out (All that's left undone here is the variant files, which were delayed by the serial questions, but now that those have been answered, that can proceed.
-  * Support for larger number of pinswap options
-  * Variant files - 32 and 28-pin will mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
+* DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
+  * TODO: Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
-### 1.4.0 or earlier, depending on events
+### Planned 1.4.0
 * Completely new Wire.h library with exciting features - Thanks to @MX682X!
   * See the Wire library readme for more details.
   * Master + Slave on the same TWI - either using the same pins or in dual mode
@@ -40,10 +39,13 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more.
   * Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags().
   * Added `__builtin_constant_p()` because it is exceptionally useful. I may add some of the other most useful directives like that.
-* Calling millis or micros when those are disabled will resuylt in more useful error messages.
+* Calling millis or micros when those are disabled will result in more useful error messages.
 * Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
 * Continuing doc enhancements.
+* Fix a recent regression in delayMicroseconds at 8 and 4 MHz when the delay was not a compile-time known constant
 * Platform.txt organization and commenting. Fix issues where defines were missing from lib-discovery phase
+* Eliminate double-entry bookkeeping in boards.txt as relates to speed.
+* Correct names of exported files so they match eachother.
 * Ensure that upload with programmer is not used on bootloader board definitions.
 * Optboot serial port menu option is ready to be enabled.
 
