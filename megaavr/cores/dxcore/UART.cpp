@@ -163,7 +163,7 @@ bool UartClass::pins(uint8_t tx, uint8_t rx) {
 }
 
 bool UartClass::swap(uint8_t newmux) {
-  if (_state < _mux_count) {
+  if (newmux < _mux_count) {
     _pin_set = newmux;
     return true;
   } else if (newmux == MUX_NONE) {  //128 codes for MUX_NONE

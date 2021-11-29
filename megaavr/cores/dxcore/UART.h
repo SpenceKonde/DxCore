@@ -134,9 +134,9 @@ class UartClass : public HardwareSerial {
 
  private:
     void _poll_tx_data_empty(void);
-    static void        _set_pins(uint8_t* pinInfo, uint8_t port_num, uint8_t mux_setting, uint8_t enmask);
-    static void         _mux_set(uint8_t* pinInfo, uint8_t port_num, uint8_t mux_code);
-    static uint8_t _pins_to_swap(uint8_t* pinInfo, uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin);
+    static void        _set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask);
+    static void         _mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code);
+    static uint8_t _pins_to_swap(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin);
 };
 
 #if defined(USART0)

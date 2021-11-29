@@ -273,7 +273,7 @@ You can choose to have a full `printf()` implementation from a tools submenu if 
 
 **Important note** Formatting specifiers have modifiers that they can be paired with for different size variables. You may not be aware of this if your prior experience with printf was on a larger system like a desktop, and it's often not called out loudly. But we live in a land of 16-bit integers, where we sometimes want to print numbers higher than 65535. You must use modifiers in this case.
 
-From [cplusplus.com/reference/cstdio/printf/ ](https://www.cplusplus.com/reference/cstdio/printf/):
+From [cplusplus.com/reference/cstdio/printf/](https://www.cplusplus.com/reference/cstdio/printf/):
 >The length sub-specifier modifies the length of the data type. This is a chart showing the types used to interpret the corresponding arguments with and without length specifier (if a different type is used, the proper type promotion or conversion is performed, if allowed):
 
 The table below is the relevant lines from that table - many standard types are not a thing in Arduino.
