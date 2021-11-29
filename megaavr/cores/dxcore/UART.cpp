@@ -184,8 +184,8 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
 
   uint8_t ctrlc;
   ctrlc = (uint8_t) options;                // Pull out low byte
-    if (ctrlc == 0) {                       // see if they passed anything in low byte. Ether they assuned they'd get the default
-     if ((options & 0x1004) == 0) {         // or they want SERIAL_5N1. But if they used that constant, a ketbit is set - do we see that?
+  if (ctrlc == 0) {                       // see if they passed anything in low byte. Ether they assuned they'd get the default
+    if ((options & 0x1004) == 0) {         // or they want SERIAL_5N1. But if they used that constant, a ketbit is set - do we see that?
       ctrlc = (uint8_t SERIAL_8N1);         // If not give them the default that they exoected;
     }
   }
@@ -220,7 +220,7 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
   (*MyUSART).CTRLB          = 0;
   (*MyUSART).CTRLC          = (uint8_t) options;
   (*MyUSART).BAUD           = baud_setting;
-  uint8_t setpinmask = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
+  uint8_t setpinmask        = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
   // Set USART mode of operation
   if (options & SERIAL_EVENT_RX) {
     setpinmask             &= 0x7F; // Remove the RX pin in this case because we get the input from elsewhere.

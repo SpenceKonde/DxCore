@@ -232,7 +232,7 @@ The ZCD(s) are exposed through the [**ZCD library**](https://github.com/SpenceKo
 * The EA-series does not have a ZCD
 
 #### Timers
-These parts for the most part are swimming in timers - The exception being the 14 and 20 pin DD-series, which are sadly stuck with a tinyAVR-like number of timers to go with its tinyAVR-like pincount. More information can be found it [Timers and PWM](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md) and [TCD0 reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD0s.md)
+These parts for the most part are swimming in timers - The exception being the 14 and 20 pin DD-series, which are sadly stuck with a tinyAVR-like number of timers to go with its tinyAVR-like pincount. More information can be found it [Timers and PWM](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md) and [TCD0 reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD.md)
 * TCA - 16 bit timer, 3x16-bit or 6x8-bit PWM channels and lots of features.
   * 2 on 48/64 pin DA/DB and all EA-series; extra PORTMUX options of 64-pin only.
   * 1 elsewhere

@@ -45,7 +45,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Fix a recent regression in delayMicroseconds at 8 and 4 MHz when the delay was not a compile-time known constant
 * Platform.txt organization and commenting. Fix issues where defines were missing from lib-discovery phase
 * Eliminate double-entry bookkeeping in boards.txt as relates to speed.
-* Correct names of exported files so they match eachother.
+* Correct names of exported files so they match each other.
 * Ensure that upload with programmer is not used on bootloader board definitions.
 * Optboot serial port menu option is ready to be enabled.
 
