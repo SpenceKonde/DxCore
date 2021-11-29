@@ -31,7 +31,10 @@
 void init_timers();
 
 #ifndef F_CPU
-  #error "F_CPU not defined"
+  #error "F_CPU not defined. F_CPU must always be defined as the clock frequency in Hz"
+#endif
+#ifndef CLOCK_SOURCE
+  #error "CLOCK_SOURCE not defined. Must be 0 for internal, 1 for crystal, or 2 for external clock"
 #endif
 
 /* Even when millis is off, we should still have access to the clock cycle counting maqcros.
@@ -74,8 +77,10 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
   #if !defined(MILLIS_USE_TIMERRTC)
     // Note that RTC millis isn't supported on DxCore.
     #if defined(MILLIS_USE_TIMERD0)
-      #ifndef TCD0
+      #if !defined(TCD0)
         #error "Selected millis timer, TCD0, does not exist on this part"
+      #else
+        #error "Selected millis timer, TCD0, is not supported on DxCore"
       #endif
     #elif !defined(MILLIS_USE_TIMERA0) && !defined(MILLIS_USE_TIMERA1)
       static volatile TCB_t* _timer =
@@ -504,8 +509,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
         #elif (F_CPU == 12000000UL)
           ticks = ticks >> 3;
           microseconds = overflows * 1000 + (ticks + (ticks >> 2) + (ticks >> 3) - (ticks >> 5)); // - (ticks >> 7)
-        // Never was an implementation for 6, but it's obvious what the old style implementation would be,
-
+        // Never was an implementation for 3 or 6, but it's obvious what the old style implementation would be,
         #elif (F_CPU == 40000000UL) // overclocked aggressively
           ticks = ticks >> 4;
           microseconds = overflows * 1000 + (ticks - (ticks >> 2) + (ticks >> 4) - (ticks >> 6)); // + (ticks >> 8)
@@ -622,11 +626,12 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
   }
 #endif
 
-#if   (!(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC))) //delay implementation when we do have micros()
+#if (!(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC) || (F_CPU == 7000000L || F_CPU == 14000000)))
+  // delay implementation when we do have micros() - we know it won't work at 7 or 14, and those can be generated
+  //from internal, and switch logic is in even though micros isn't.
   void delay(unsigned long ms)
   {
     uint32_t start = micros();
-
     while (ms > 0) {
       yield();
       while (ms > 0 && (micros() - start) >= 1000) {
@@ -635,7 +640,6 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       }
     }
   }
-
 #else //delay implementation when we do not
   void _delay_nonconst(unsigned long ms) {
     while (ms > 0) {
@@ -680,44 +684,51 @@ inline __attribute__((always_inline)) void delayMicroseconds(unsigned int us) {
  * the 30 MHz case and any longer delays do better with a loop.
  */
 #if   F_CPU >= 48000000L
-  // 16 MHz math, 12-cycle loop, 1us passes through loop twice.
+  // 16 MHz math, 12-cycle loop, 1us burns and passes through loop twice.
   #define DELAYMICROS_TWELVE
 #elif F_CPU >= 44000000L
-  // 16 MHz math, 11-cycle loop, 1us passes through loop twice.
+  // 16 MHz math, 11-cycle loop, 1us burns and passes through loop twice.
   #define DELAYMICROS_ELEVEN
 #elif F_CPU >= 40000000L
-  // 16 MHz math, 10-cycle loop, 1us passes through loop twice.
+  // 20 MHz math, 10-cycle loop, 1us burns and passes through loop twice.
   #define DELAYMICROS_TEN
 #elif F_CPU >= 36000000L
-  // 12 MHz math, 12-cycle loop, 1us passes through loop once.
+  // 12 MHz math, 12-cycle loop, 1us burns and passes through loop once.
   #define DELAYMICROS_TWELVE
 #elif F_CPU >= 32000000L
   // 16 MHz math, 8-cycle loop, 1us passes through loop twice.
   #define DELAYMICROS_EIGHT
 #elif F_CPU >= 30000000L
-  // 12 MHz math, 10-cycle loop, 1us returns immediately.
+  // 12 MHz math, 10-cycle loop, 1us burns and returns.
   #define DELAYMICROS_TEN
 #elif F_CPU >= 28000000L
-  // 16 MHz math, 7-cycle loop, 1us returns immediately.
+  // 16 MHz math, 7-cycle loop, 1us burns and returns.
   #define DELAYMICROS_SEVEN
 #elif F_CPU >= 24000000L
-  // 12 MHz math, 8-cycle loop, 1us returns immediately.
+  // 12 MHz math, 8-cycle loop, 1us burns and returns.
   #define DELAYMICROS_EIGHT
 #elif F_CPU >= 20000000L
-  // 20 MHz math, 10-cycle loop, 1us returns immediately.
+  // 20 MHz math, 10-cycle loop, 1us burns and returns.
   #define DELAYMICROS_TEN
-#elif F_CPU >= 10000000L
-  // 20 MHz math, 10-cycle loop, 1us returns immediately.
+#elif F_CPU >= 16000000L
+  // 16 MHz math, 4-cycle loop, 1us returns immediately.
+#elif F_CPU >= 12000000L
+  // 16 MHz math, 4-cycle loop, 1us returns immediately.
+#elif F_CPU >= 10000000L || (F_CPU >= 5000000L && F_CPU < 8000000L)
+  // 10 MHz: 5-cycle loop, 1us returns immediately
+  // 5 MHz: 5-cycle loop, 1-3 us returns immediately.
   #define DELAYMICROS_FIVE
-#elif F_CPU >=  5000000L
-  // 20 MHz math, 10-cycle loop, 1us returns immediately.
-  #define DELAYMICROS_FIVE
+#else
+  // 8 MHz: 16 MHz math, 4-cycle loop, 1-2 us returns immediately.
+  // 4 MHz: 16 MHz math, 4-cycle loop, 1-4 us returns immediately.
+  // 2 MHz: 16 MHz math, 4-cycle loop, 1-8 us returns immediately.
+  // 1 MHz: 16 MHz math, 4-cycle loop, < 16 us returns immediately, < 25 burns and returns.
+  // Anything not listed uses the fastest one that is and which is slower than F_CPU
 #endif
 
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
  /* Must be noinline because we rely on function-call overhead */
-
-#if F_CPU >= 48000000L
+#if F_CPU == 48000000L
   // make the initial delay 24 cycles
   __asm__ __volatile__ (
     "rjmp .+2" "\n\t"     // 2 cycles - jump over next instruction.
@@ -802,8 +813,6 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // we just burned 28 (30) cycles above, remove 3
   us -= 3; //2 cycles
 
-
-
 #elif F_CPU >= 28000000L
   // for a one-microsecond delay, burn 12 cycles and return
   __asm__ __volatile__ (
@@ -821,7 +830,6 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // we just burned 27 (29) cycles above, remove 4, (7*4=28)
   // us is at least 8 so we can subtract 5
   us -= 4; // = 2 cycles,
-
 
 #elif F_CPU >= 24000000L
   // for a one-microsecond delay, burn 8 cycles and return
@@ -912,7 +920,16 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // just remove 4 loops for overhead
   us -= 4; // = 2 cycles for the time taken up with call overhead and test above
 
-#else // F_CPU == 1000000
+#elif F_CPU >= 2000000L
+  // for a 1 ~ 4 microsecond delay, simply return.  the overhead
+  // of the function call takes 14 (16) cycles, which is 8us
+  if (us <= 8) return; // 3 cycles, (4 when true)
+  // the loop takes 2 microsecond (4 cycles) per iteration,
+  // just remove 4 loops for overhead
+  us >>= 1; //divide by 2.
+  us -= 4; // = 2 cycles for the time taken up with call overhead and test above
+
+#else // F_CPU >= 1000000
   // for the 1 MHz internal clock (default settings for common AVR microcontrollers)
   // the overhead of the function calls is 14 (16) cycles
   if (us <= 16) return; // 3 cycles, (4 when true)
@@ -924,8 +941,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // us is at least 4, divided by 4 gives us 1 (no zero delay bug)
   us >>= 2; // us div 4, = 4 cycles
 #endif
-
-
+/* Implementation of the delay loop of 4, 5, 7, 8, 10, 11, or 12 clocks. */
 #if defined(DELAYMICROS_TWELVE)
   __asm__ __volatile__ (
     "1: sbiw %0, 1" "\n\t"            // 2 cycles
@@ -980,7 +996,6 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // return = 4 cycles
 }
 
-
 void init() {
   // this is called by main() before setup() - configures the on-chip peripherals.
   #if ((defined(DB_28_PINS) || defined(DB_32_pins)) && !defined(NO_PIN_PD0_BUG))
@@ -998,10 +1013,8 @@ void init() {
   #ifndef MILLIS_USE_TIMERNONE
     init_millis();
   #endif
-  // enabling interrupts is done in main.cpp after a final empty funcftion (that the ucer can override) is called.
+  // enabling interrupts is done in main.cpp after a final empty function (that the user can override) is called.
 }
-
-
 
 void stop_millis() { // Disable the interrupt:
   #if defined(MILLIS_USE_TIMERNONE)
@@ -1182,8 +1195,10 @@ void nudge_millis(uint16_t nudgesize) {
     // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
     // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
     // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
-    // to sa about it. I wonder if we should always pick the highest speed instead, and that that would have a higher
-    // chance of success.
+    // to say about it.
+    // It has been found experimentally that often 24 MHz crystals with poor layout or poorly chosen loading capacitors
+    // would work if the core was told they were 25 MHz; the tests below were changed from > to >= to put frequencies at
+    // the top of one of the ranges into the next highest bucket.
     #if     (F_CPU >= 24000000)
       #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
     #elif   (F_CPU >= 16000000)
@@ -1216,14 +1231,12 @@ void  __attribute__((weak)) init_clock() {
      * 24 MHz    0x9
      * 28 MHz    0xA  - undocumented, and makes the math harder
      * 32 MHz    0xB  - undocumented
-     * 20 MHz    0xC  - repeat
-     * 24 MHz    0xD  - repeat
-     * 28 MHz    0xE  - repeat
-     * 32 MHz    0xF  - repeat
+     * 0xC-F repeat 0x8-0xB
      */
     /* Some speeds not otherwise possible can be generated with the internal oscillator by prescaling
      * This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
-     * It was not done for 14, 7, 6, nor any of the other stupid frequencies that can be generated this way.
+     * The logic for switching clock to the other stupid frequencies that can be generated this way
+     * is implemented, but millis, micros, and delayMicroseconds may not be. See the clock reference.
      * There is just no demand for operation at these strange frequencies.
      */
     /* Give us a FREQing break, Microchip! In ATpack version 1.9.103, they renamed another field...
@@ -1261,12 +1274,25 @@ void  __attribute__((weak)) init_clock() {
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2)); /* There's like, no support for this anywhere in the core!  */
     #elif (F_CPU == 2000000)
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2)); /* Not exposed by the tools submenus but will probably work */
+      #warning "2 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
     #elif (F_CPU == 1000000)
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2));
       /* Prescaled clock options */
+    #elif (F_CPU == 14000000)
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+      #warning "14 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
     #elif (F_CPU == 10000000) /* 10 MHz = 20 MHz prescaled by 2 */
       _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
+    #elif (F_CPU == 7000000)
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+      #warning "7 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+    #elif (F_CPU == 6000000)
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+      #warning "6 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
     #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
       _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
       _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));

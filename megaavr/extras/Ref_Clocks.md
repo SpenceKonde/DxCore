@@ -1,41 +1,51 @@
 # Detailed Clock Reference
-This section seeks to cover information about the clocking options on the Dx-series parts at somewhat greater depth than a simple list of supported opotion. The use of an external RTC clock will be covered in a future document, and there is FAR MORE to say about that than meets the eye. All I will say here is that the external clock appears to be limited onlt to frequencies less than 1/4th of CLK_PER. There are some theoretic possibilities there that will make your head spin.
+This section seeks to cover information about the clocking options on the Dx-series parts at somewhat greater depth than a simple list of supported option. Use of external clocks for TCD0 or the RTC clock is not covered here. The chart below lists speeds supported by DxCore, and whether thy can be done via the internal oscillator, and whether they meet manufacturer specs. All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
+
+**Crystal** is not supported as a clock source on the DA-series, but is or will be supported on everything else.
 
 ## Supported Clock Speeds
-All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
+All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range.
+For unsupported speeds, the micros and delay-us columns indicate what internal plumbing has been implemented. micros is implemented for almost all speeds, delayMicroseconds with non-compile-time-known delays for most, even some unsupported ones. delayMicroseconds() is supported and accurate at all speeds when the argument is a compile-time-known constant, as we use the avr-libc implementation.
 
-| Clock Speed | Within Spec |      Internal |  Ext. Crystal |    Ext. Clock | Notes
-|-------------|-------------|---------------|---------------|---------------|---------------
-|       1 MHz |         Yes |           Yes | Not by DxCore | Not by DxCore | 1 MHz is used for low power stuff, but xtal/ext osc uses more power.
-|       2 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported. micros() would work, delayMicroseconds would not.
-|       3 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported. micros() would work. delayMicroseconds would not. micros() comes for free with 6/12/24/48
-|       4 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore | 4 MHz Internal is default. Optiboot always uses this.
-|       6 MHz |         Yes |     Prescaled | Not by DxCore | Not by DxCore | Unsupported. Prescale 12 by 2. micros would work, delayMicroseconds would not.
-|       7 MHz |         Yes |            No | Not by DxCore | Not by DxCore | Unsupported. Prescale 24 by 4. micros would work, delayMicroseconds would not.
-|       8 MHz |         Yes |           Yes |           Yes |           Yes |
-|      12 MHz |         Yes |           Yes |           Yes |           Yes |
-|      14 MHz |       Kinda | Not by DxCore | Not by DxCore | Not by DxCore | Unsupported. Prescale 28 by 2. micros would work, delayMicroseconds would not.
-|      16 MHz |         Yes |           Yes |           Yes |           Yes |
-|      20 MHz |         Yes |           Yes |           Yes |           Yes |
-|      24 MHz |         Yes |           Yes |           Yes |           Yes |
-|      25 MHz |          No |            No |           Yes |           Yes | A lot of people have infinite 25 MHz crystals, apparently.
-|      28 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp. Lousy clock speed for calculations with.
-|      30 MHz |          No | Not by DxCore |           Yes |           Yes | Max. megaTinyCore overclock for 0/1 series via tuned internal
-|      32 MHz |          No |           Yes |           Yes |           Yes | Generally works at room temp.
-|      36 MHz |          No |            No |           Yes |           Yes | Never tested it, oddly enough. Will probably work on nearly all parts in favorable conditions.
-|      40 MHz |          No |            No |    Most chips |    Most chips | Majority of parts, even non-E-spec work w/xtal @ room temp. Some can't. Switching to external CLOCK might help.
-|      44 MHz |          No |            No |  May not work | Not by DxCore | Unsupported because nobody wants it. All plumbing is implemented though, if there was any reason to use it.
-|      48 MHz |          No |            No |  Doesn't work |    Some chips | Some E-spec (extended temp. range) can do it from external clock. A small number might even work from crystal
+| Clock Speed | Within Spec |      Internal |  Ext. Crystal |    Ext. Clock | micros | delay-us | Notes
+|-------------|-------------|---------------|---------------|---------------|--------|----------|-------
+|       1 MHz |         Yes |           Yes | Not by DxCore | Not by DxCore |    Yes |      Yes | 1
+|       2 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |      Yes | 2
+|       3 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |       No | 2
+|       4 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |      Yes | 3
+|       6 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |       No | 2, 4
+|       7 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |     No |       No | 2, 4
+|       8 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
+|      12 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
+|      14 MHz |       Kinda | Not by DxCore | Not by DxCore | Not by DxCore |     No |       No | 2, 4
+|      16 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
+|      20 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
+|      24 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
+|      25 MHz |          No |            No |           Yes |           Yes |    Yes |       No | 5, 6
+|      28 MHz |          No |           Yes |           Yes |           Yes |    Yes |      Yes | 5
+|      30 MHz |          No |            No |           Yes |           Yes |    Yes |      Yes | 5, 7
+|      32 MHz |          No |           Yes |           Yes |           Yes |    Yes |      Yes | 5
+|      36 MHz |          No |            No |    Most chips |    Most chips |    Yes |      Yes | 8
+|      40 MHz |          No |            No |    Most chips |    Most chips |    Yes |      Yes | 8
+|      44 MHz |          No |            No | Not by DxCore | Not by DxCore |    Yes |      Yes | 2, 8
+|      48 MHz |          No |            No |  Rarely works |    Some chips |    Yes |      Yes | 8
 
-Running at 48 MHz is an ambitious overclock and is totally unnecessary - so obviously this is a very exciting chance to do something for that fundamental instintive reason: "Because I can"! And you can to!  So far, I had success at room temperature with external clocks, but not external crystals, and only when using the E-spec (extended temperature range) parts (which makes sense). I am surprised how they will "just work" at 40 from a crystal though, even I-spec parts usually do However, not all parts are capable of this. Out of around a dozen parts, I've so far found 1 that doesn't work at 40. As usual with AVRs, it's the ALU that starts failing first. I have an I-spec that, at 48 external clock will run a program that does a 1 second delay between calling micros (so lots of math is being done, then prints it). Like with over-overclocked tinies, if it's not so high that they crash immediately, they start getting math wrong, which shows up as 0's being printed for micros/millis(). This is unstable, as eventually a return address will get broken, it will return to that, and everything will fail (this may now turn into a reset if you're properly handling reset flags)
+Notes:
+1. 1 MHz is often used for low power applications, and so is supported with the internal oscillator only. It is not supported with other clock sources. Crystal uses more power, and so doesn't make sense, and external clocks seem to be power hogs.
+2. Unsupported because of low demand, not technical obstacle.
+3. 4 MHz from internal is always the clock source at startup. Optiboot always runs at this speed.
+4. This is not natively supported by the internal oscillator but could be generated by prescaling the internal oscillator at 12 or 28 MHz. Other possible frequencies that can be created through prescaling are not shown, only integer number of MHz is included in table.
+5. This is an overclock that is likely to work on all parts as long as it is run at room temperature.
+6. delayMicroseconds uses 24 MHz implementation.
+7. 30 MHz is notable because it is the highest overclocked option available for tinyAVR 0/1-series running from tuned internal oscillator.
+8. This is an aggressive overclock, and cannot be expected to work on all parts. Best results can be had by using E-spec (extended temperature range) parts, and higher speeds will always be achieved with an external clock.
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - (in my tests the PLL worked well beyond the spec in both directions, at least at room temperature, not that you'd want to do that in production) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future. There might be reasons to just run the TCD off the unprescaled clock in order to.... I'm not sure what....
 
 The DA-series does not support use of an external high frequency crystal, only external clock or the internal oscillator can be usedl The internal oscillator is pretty accurate, so internal clock will work fine for UART communication()they're within a fraction of a percent at room temp) with very little voltage dependence (they have an internal regulator to generate the core voltage, which runs at a much lower voltage, and I suspect that's where the internal oscillator is located.
 
 ## Auto-tuning
-
-All parts, including the DA, can - if needed - use an external watch crystal to automatically tune the internal oscillator frequency, a feature called Auto-Tune. Though they specify +/- 3% internal oscillator speed, in practice, I have yet to find one that was off by more than 1 calibration "notch" at room temperature - the accuracy is limited by the granularity of tuning more than anything else. These are just in a different universe than the classic AVRs where a couple percent was normal. I had to use a torch aimped at the chip to swing the temperature enough that autotune had to correct the frequency on the fly (resting the soldering iron on it didn't. The modern AVR internal oscillator is really good. Nonetheless, we provide a wrapper around enabling external 32K crystal and enabling/disabling Auto-Tune in [the DxCore library](../libraries/DxCore/README.md).
+All parts, can - if needed - use an external watch crystal to automatically tune the internal oscillator frequency, a feature called Auto-Tune. Though they specify +/- 3% internal oscillator speed, in practice, I have yet to find one that was off by more than 1 calibration "notch" at room temperature - the accuracy is limited by the granularity of tuning more than anything else. These are just in a different universe than the classic AVRs where a couple percent was normal. I had to use a torch aimed at the chip (obviously (I hope) from a distance) to swing the temperature enough that autotune had to correct the frequency on the fly (resting the soldering iron on top of the chip didn't). The modern AVR internal oscillator is really good. Nonetheless, we provide a wrapper around enabling external 32K crystal and enabling/disabling Auto-Tune in [the DxCore library](../libraries/DxCore/README.md).
 
 ```c
 #include <DxCore.h>
@@ -52,15 +62,27 @@ void setup() {
 
 ```
 
+## Overclocking
+The capacity of these parts to run at speeds in excess of their rated maximum boggles the mind. To my knowledge, the maximum is around 48 MHz with an external clock. It didn't work on an I-spec part, but seems to work with E-spec parts (most of them anyway). E-spec always overclocks better than I-spec. There is no known voltage dependance related to overclocking - the DB-series power consumption errata implies that if there is, it only manifests low voltages, namely below 2.1 volts, when that power consumption errata manifests (likely a result of the regulator getting into a bad state = these parts ahve an internal regulator to generate a core voltage in the neighborhood of 1.8v)
+
+I have some 48 MHz crystals on the way to test with, as well. Generally things on crystals work better than internal clocks (assuming the crystal layout is good), but external clocks are almost universally superior for overclocking.
+
+Running at 48 MHz is an ambitious overclock and is totally unnecessary - so obviously this is a very exciting chance to do something for that fundamental instintive reason: "Because I can"! And you can to!  So far, I had success at room temperature with external clocks, but not external crystals, and only when using the E-spec (extended temperature range) parts (which makes sense). I am surprised how they will "just work" at 40 from a crystal though, even I-spec parts usually do However, not all parts are capable of this. Out of around a dozen parts, I've so far found 1 that doesn't work at 40. As usual with AVRs, it's the ALU that starts failing first. I have an I-spec that, at 48 external clock will run a program that does a 1 second delay between calling micros (so lots of math is being done, then prints it). Like with over-overclocked tinies, if it's not so high that they crash immediately, they start getting math wrong, which shows up as 0's being printed for micros/millis(). This is unstable, as eventually a return address will get broken, it will return to that, and everything will fail (this may now turn into a reset if you're properly handling reset flags)
+
+These can be returned to normal operation by uploading code that doesn't try to use an excessively fast clock - since the heat generated by the CPU core is negligible even at double it's rated clock speed, the damage that a desktop computer CPU might incur when overclocked too hard is not an issue.
+
+
 ## Strange possibilities for divided clocks
-There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? *Me neither*, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore - I'd be lying if I said I missed the struggle to make millis and micros accurate with weirdo clock speeds back on ATTinyCore (which in turn was done to support UART crystals, because some people are very picky about baud rate accuracy. You may laugh at their posts about making sure the clock is perfect for serial - but if you're not careful, on classic AVRs, the granularity of USART baud rates was horrendous near the higher speeds! I have See also the [serial reference](Ref_Serial.md)
+There are a *lot* of strange clock speeds possible through combinations of prescalers and the internal oscillator - ever wanted to run an MCU at 7 MHz? *Me neither*, but you totally can, even without a crystal... These exotic speeds are not currently supported by DxCore. The switching logic to get that clock speed from the internal oscillator is implemented for the integer MHz speeds that can be achieved in that way. Fractional speeds are not implemented at all and total timekeeping failure should be expected. I'd be lying if I said I missed the struggle to make millis and micros accurate with weirdo clock speeds back on ATTinyCore (which in turn was done to support UART crystals, because some people are very picky about baud rate accuracy. You may laugh at their posts about making sure the clock is perfect for serial - but if you're not careful, on classic AVRs, the granularity of USART baud rates was horrendous near the higher speeds!) See also the [serial reference](Ref_Serial.md)
+
+Note though, that the speeds that we have switching logic for, if specified, would have working millis, but micros **and delay** would not, because delay relies on micros if it thinks it has it. A test could be added to the #if for delay to exclude speeds to get it working at that speed
 
 ## Fuses do not control the clock speed
 These parts always start up running at 4 MHz from the internal oscillator. The core confihures that on startupnit_clock() function (weakly defined so you can override it if need be), the clock is set to the desired option. If it's external, we tell it to switch the clock and then poll the status to wait for it to pick up, if we wait around 1ms and still have no clock, we presume the clock non-functional and call `onClockTimeout()` which triggers the blink code. This is weakly defined and can be overridden.
 
-The Optibott bootloaded never changes the clock speed; it always runs at 4 MHz. The bottleneck is not processing speed, it's the serial baud rate and the flash write time (during which the CPU is halted).  This means that even if you set it to use a clock source that doesn't exist, or if an overclock the chip can't hadle is selected, the bootloader will still run normally at startup.
+The Optiboot bootloader never changes the clock speed; it always runs at 4 MHz. The bottleneck is not processing speed, it's the serial baud rate and the flash write time (during which the CPU is halted).  This means that even if you set it to use a clock source that doesn't exist, or if an overclock the chip can't handle is selected, the bootloader will still run normally at startup, and an external reset will still reset the chip so the bootloader runs.
 
-As a result of these factors, you never need to burn bootloader to configure the clock! If you are using an external clock source and timekeeping + serial come out wrong (eg, blink blinks at the wrong speed, Serial outputs wrong-clock gibberish) the clock or crystal used does not match the selected setting. While there are ways we could detect this, I cannot justify the added bulk, time and complexity. Almost all crystals have the frequency printed on them (though it may be hard to read), and the ones that don't - if they're pulls, don't use them, and if you bought them new, check the purchase records - even if you ordered multiple speeds that weren't marked, and then unpacked them into unmarked containters, you can figure out which one you actually used by uploading a sketch that prints something to serial and trying the speeds you bought until one works.
+As a result of these factors, you never need to burn bootloader to configure the clock! If you are using an external clock source and timekeeping + serial come out wrong (eg, blink blinks at the wrong speed, Serial outputs wrong-clock gibberish) the clock or crystal used does not match the selected setting. While there are ways we could detect this, I cannot justify the added bulk, time and complexity. Almost all crystals have the frequency printed on them (though it may be hard to read), and the ones that don't - if they're pulls, don't use them, and if you bought them new, check the purchase records - even if you ordered multiple speeds that weren't marked, and then unpacked them into unmarked containers (tsk tsk), you can figure out which one you actually used by uploading a sketch that prints something to serial and trying the speeds you bought until one works.
 
 ## Rules for PCB layout around crystals
 There are only two places where someone with an AVR is likely to routinely encounter layout sensitive behavior. Crystals and clocks are one of them (the other is decoupling caps, which don't do their job unless they are right next to the pins they are associated with):
@@ -69,31 +91,32 @@ There are only two places where someone with an AVR is likely to routinely encou
 * The crystal should be as close to the chip as possible, as should the caps.
 * Don't route anything right underneath the crystal, and if you must do so, it should not have any fast changing signals or high frequency noise that could confuse the part.
   a. that assumes a two layer board. if your board has more layers and a ground plane underneath it, you don't need to be as careful.
-* Nothing else should be connected to lines between crystal, caps and chips. Thy should be as short as possible with nothing else on them, including traces connected to nothing. On the breakout boards I sell, if not using a crystal, you need to connect a solder bridge jumper to tie the crystal pin to the holes along the edge of the board. If they were connected, it'd never oscillate.
+* Nothing else should be connected to lines between crystal, caps and chips. They should be as short as possible with nothing else on them, including traces connected to nothing. This is why, on the breakout boards I sell, if not using a crystal, you need to connect a solder bridge jumper to tie the crystal pin to the holes along the edge of the board. If they were connected, it'd never oscillate.
 * The total capacitance "seen" by each crystal pin must be as close to the load capacitance as possible. The capacitance comes from more than just the capacitors placed on the board: C<sub>load</sub> = C<sub>pin</sub> + C<sub>stray</sub> + C<sub>cap</sub>.
   * C<sub>cap</sub> is the value of the loading capacitors, individually.
   * C<sub>pin</sub> is the capacitance of the pin. It can be found in the electrical characteristics chapter of the datasheet, "DC Characteristics" -> "I/O pin  Characteristics". For example on the DB-series, it is given as 4 pf.
   * C<sub>stray</sub> is the parasitic capacitance between the trace and the rest of the board. You can neither calculate this it depends on almost every physical parameter of trace, even if you knew thopse parameters, it would be a fiendishly difficult calculation. It is also very difficult to measure. Frequently, it is instead estimated. A value of 2-3pF is generally assumed. Thankfully, capacitance of loading caps does not need to be dead on accurate - small inaccuracies can be tolerated, with a small impact on frequency ("frequency pulling" when done intentionally). Large inaccuracies, however, will keep the crystal from working at all.
   * C<sub>load</sub> is rarely outside the range of 8pF to 22pF, with 18pF being very common, 12pF is also fairly common, while 22 pf is not uncommon on through-hole crystals. 8pF is the lowest plausible load capacitance that should be considered when selecting a crystal; 18pF is my suggestion.
-  * Watch out when buying low cost crystals from China. It's easy to see that they come in the right package size, the frequency you need, and they're cheap as dirt (there's usually a large "China discount" on crystals), then realize the load capacitance wasn't listed, nor was the part number, that you can't find the part number by looking up the the numbers printed on the crystal, and that when asked, the seller in broken english says that they don't know.
+  * Watch out when buying low cost crystals from China. It's easy to see that they come in the right package size, the frequency you need, and they're cheap as dirt (there's usually a large "China discount" on crystals, particularly the small SMD ones, which are markedly more expensive from Western suppliers), then realize the load capacitance wasn't listed, nor was the part number, that you can't find the part number by looking up the the numbers printed on the crystal, and that when asked, the seller in broken english says that they don't know.
 * Breadboards will usually supply too much stray capacitance. If they work at all, it will likely be with no loading caps at all. Breadboard is kryptonite for high frequency.
   * The same goes for prototyping board, though it is not quite as bad. On my upcoming wide DIP protoboard, an easy place to cut the trace (like the normally-connected solderbridge jumpers on other boards) is proivided that, for every pin, you can isolate it's hole and the nearest connected hole from the rest of them, and the copper around the rim of the hole is thinner too'; this helps. You will liekly want smaller caps than usual, too. On boards for specific chips which support a crystal (currently the DA/DB/DD DIY prototyping board), PA0, PA1 and PF0, PF1 that is present, and it is NOT connected by default, on the grounds that it's easier to bridge them then to cute a trace, even one meant to be cut. For other protoboard, you use the highest load capaccitance crystal that is within spec and hope that with no loading caps or small ones. With 18pF caps, you can usually make it work with very small caps.
 * The two traces going to the crystal should be similar in length. They don't need to be exact, but they should not be radically different
 * SMD caps are preferable to through-hole ones for loading capacitors. If you do use through hole ones, put the leads in all the way and trim the excess off the rear of the board.
 * Touching the crystal, caps, or traces may cause it to stop working. This is most common when the loading caps are barely close enough to work.
+* It is easier to get these parts to work with too little loading capacitance than with too much.
 
 
 ### External clocks
-Thankfully, these are simpler: Just keep the high frequencty trace short, and make sure that you provide the decoupling capacitor the datasheet asks for. Most often I see 0.01uF specified. There's usually a pin, pulled up internally, that will disable it when brought low. Make sure you donn't connect that to ground. Be careful about the orientation, too, since they are rectangular, and can be rotated 180 degrees with all the pads lining up. This will swap Vcc and Ground and destroy the oscillator almost instantly.
+Thankfully, these are simpler: Just keep the high frequencty trace short, and make sure that you provide the decoupling capacitor the datasheet asks for. Most often I see 0.01uF specified. There's usually a pin, pulled up internally, that will disable it when brought low. Make sure you donn't connect that to ground. Be careful about the orientation, too, since they are rectangular, and can be rotated 180 degrees with all the pads lining up. This will swap Vcc and Ground. Like most ICs, that will destroy them almost instantly, and present a near-short to the power supply.
 
 So with the added simplicity, one might wonder why they are so uncommon. There are several reasons:
 1. They are power hogs. 10-25 mA is normal, 50mA is not unheardof.
-2. They are picky about voltage. There was a line of oscillators in 5032 package in production until mid 2020 which worked at 1.8-5v. They were discontinued, and there is no other such oscillator available.
+2. They are picky about voltage. There was a line of oscillators in 5032 package in production until mid 2020 which worked at 1.8-5v. They were discontinued, and there is no other such oscillator available as far as I can tell.
   a. The 5v ones specify minimum 4.5v maximum 5.5v.
   b. 1.6-3.6v ones are available, so the lower end of the range is covered. None of the major vendors with parametric search on their catalog indicate that any which are in spec operating between 3.6v and 4.5V, so one cannot run directly from a LiPo battery with one while remaining within spec.
-3. 5v units are not available in packages smaller than 7050 (7mm x 5mm) typically, 5032 is exotic for 5v oscillators, and anything smaller nonexistent.
-4. They are strangely expensive, typically $1 or more from western suppliers. There is hardly any "China discount", either. Like crystals, however, the oscillators advertised on aliexpress don't list essential specs like the voltage or part number, and sellers don't seem to know when asked.
-  a. One gets the impression that external oscillators are a specialty item for precision applications, while crystals are not. They are often designed to higher accuracy and they don't depend on external components that could "pull" the frequency, and so on. In a typical application, if you don't need a precision clock source, there are other ways to get it.
+3. 5v units are rarely available in packages smaller than 7050 (7mm x 5mm), 5032 is exotic for 5v oscillators, and anything smaller nonexistent.
+4. They are strangely expensive, typically $1 or more from western suppliers. Not only that, the "China discount", is not even 2:1, they often don't have specs provided (like crystals as noted above), but here, one of the specs is the operating voltage, which is rather important to know.
+  a. One gets the impression that external oscillators are a specialty item for precision applications, while crystals often are not. They are often designed to higher accuracy and they don't depend on external components that could "pull" the frequency, and so on. In a typical application, if you don't need a precision clock source, there are other ways to get it.
 
 
 ## Clock troubleshooting
