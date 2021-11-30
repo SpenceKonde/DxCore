@@ -54,9 +54,6 @@ int main() {
   setup();
   for (;;) {
     loop();
-    #ifdef ENABLE_SERIAL_EVENT /* this is never true unless core is modified */
-      if (serialEventRun) serialEventRun();
-    #endif
   }
 }
 
@@ -100,10 +97,14 @@ int main() {
    * register on startup, which is rarely done in Arduino land.                                 */
   void __attribute__((weak)) init_reset_flags() ;
   void __attribute__((weak)) init_reset_flags() {
-    if (RSTCTRL.RSTFR == 0){
+    uint8_t flags = RSTCTRL.RSTFR;
+    RSTCTRL.RSTFR=flags
+    if (flags == 0) {
       _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
     }
+    GPIOR0 = flags;
   }
+
 
 
 /* This is the simplest solution that clears the flags. However, it is trivial to extend to     *

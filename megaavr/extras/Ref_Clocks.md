@@ -13,9 +13,11 @@ For unsupported speeds, the micros and delay-us columns indicate what internal p
 |       2 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |      Yes | 2
 |       3 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |       No | 2
 |       4 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |      Yes | 3
+|       5 MHz |         Yes |     Prescaled | Not by DxCore | Not by DxCore |    Yes |      Yes |
 |       6 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |    Yes |       No | 2, 4
 |       7 MHz |         Yes | Not by DxCore | Not by DxCore | Not by DxCore |     No |       No | 2, 4
 |       8 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
+|      10 MHz |         Yes |     Prescaled |           Yes |           Yes |    Yes |      Yes |
 |      12 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |
 |      14 MHz |       Kinda | Not by DxCore | Not by DxCore | Not by DxCore |     No |       No | 2, 4
 |      16 MHz |         Yes |           Yes |           Yes |           Yes |    Yes |      Yes |

@@ -48,6 +48,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct names of exported files so they match each other.
 * Ensure that upload with programmer is not used on bootloader board definitions.
 * Optboot serial port menu option is ready to be enabled.
+* init_reset_flags() will automatically clear reset flags if not overridden, stashing them in GPIOR0 (chosen because has lower overhead than a variable)
 
 
 ## Released Versions
