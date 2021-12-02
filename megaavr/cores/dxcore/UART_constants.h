@@ -1,18 +1,22 @@
-/* This file contains the sort of things that were defined in the Arduino API files
- * I needed to remove them there, but didn't want to put their replacements there,
- * since that would just cause confusion.
- *
- * Written by Spence Konde and MX682X in late 2021.
- *
- * This file is part of DxCore, which is free software (LGPL 2.1)
- * See License.md for more information
- *
+/* UART_constants.h - Hardware serial library constants.
+ * (C) Spence Konde 2021
+ * This library is free software released under LGPL 2.1.
+ * See License.md for more information.
+ * This file is part of DxCore and megaTinyCore
+ * *
  * These are values that get passed to the second argument of Serial.begin in
- * DxCore 1.4.0 and later and some future version of megaTinyCore
+ * DxCore 1.4.0+ and megaTinyCore 2.5.0+.
  */
 
 #ifndef UART_CONSTANTS_H
-  // The point of this that it will be OR'ed with the unused bit of the CHsize field of any set of validly composed options.
+  #define UART_CONSTANTS_H
+  #define SERIAL_CONFIG_VALID  0x1000
+  // This is OR'ed with all valid SERIAL_xxx constants; if this is set, you know they used
+  // one of the defined configuration, and if it's not then they forgot to, and we won't
+  // mistake it 0x00 for SERIAL_5N1; in such cases we'll use SERIAL_8N1. This will be changed
+  // in a future version to instead mask off the CHSIZE bit that's only used for the reserved
+  // and 9-bit options, and define the 5-bit size as a reserved value, so it will be turned into 0
+  // when the bit is masked off, but will look distinct from an omitted SERIAL_xxx.
   // So if we see that, we know whatever they passed *wasn't* missing the low byte;
   // Getting a an OPTIONS argument with just the first two bytes could be a bungled
   // attempt to specify first options as modifiers to the default. But we would have no way
@@ -20,11 +24,7 @@
   // or had simply failed to remember the SERIAL_8N1
 
   // Now, if we get options and the low byte is 0, we presume that they meant as a modifier for the default,
-  // and give them that, not some wacky setting combo.
-
-
-  #define UART_CONSTANTS_H
-  #define SERIAL_CONFIG_VALID  0x1000
+  // and give them that, rather than treating the low byte = 0x00 as SERIAL_5N1 which is almost never used.
 
   #define SERIAL_PARITY_EVEN   (USART_PMODE_EVEN_gc)
   #define SERIAL_PARITY_ODD    (USART_PMODE_ODD_gc)
@@ -39,6 +39,10 @@
   #define SERIAL_DATA_6        (USART_CHSIZE_6BIT_gc)
   #define SERIAL_DATA_7        (USART_CHSIZE_7BIT_gc)
   #define SERIAL_DATA_8        (USART_CHSIZE_8BIT_gc)
+  #define SERIAL_DATA_INVALID1 (badArg("This is a 'reserved' value and does not identify a character size"), 0x04)
+  #define SERIAL_DATA_INVALID2 (badArg("This is a 'reserved' value and does not identify a character size"), 0x05)
+  #define SERIAL_DATA_9L       (badArg("9-bit serial not supported"),0x06)
+  #define SERIAL_DATA_9H       (badArg("9-bit serial not supported"),0x07)
   #define SERIAL_DATA_MASK     (USART_CHSIZE_gm)
 /* 9-bit is a can of worms. Aggressive ones with sharp teeth,
  * hungry for soft fle-- oh, hm, it seems to be a typo, it says "flash"...
@@ -46,7 +50,12 @@
  * It would be a nightmare to support overhead of everything is
  * greatly increased because you have to switch from 8-bit to
  * 16-bit types.
- * Nothing uses 9-bit serial! Including our implementation. */
+ * Nothing uses 9-bit serial! Including our implementation.
+ *
+ * A future update may mask off 0x04 from this bitfield before writing it
+ * so that SERIAL_DATA_5 could be #defined as 0x04. That way, before masking it, we
+ * could test if it was 0, and get rid of the SERIAL_CONFIG_VALID below.
+ */
 
   #define SERIAL_MODE_ASYNC    (USART_CMODE_ASYNCHRONOUS_gc)
   #define SERIAL_MODE_MSPI     (USART_CMODE_MSPI_gc)
@@ -98,16 +107,17 @@
 
 /* Modifier Definitions  - these can be OR'ed with the other definition to turn on features like one-wire half duplex and more */
 
-  #define SERIAL_RS485          (((uint16_t) USART_RS485_bm) << 8) // 0x01
-  //#define SERIAL_RS485_REVERSE(((uint16_t) USART_RS485_bm) << 8) // tinyAVR 0/1
-  #define SERIAL_OPENDRAIN       ((uint16_t) 0x0400)               //
-  #define SERIAL_LOOPBACK       (((uint16_t) USART_LBME_bm)  << 8) // 0x0800
-  #define SERIAL_TX_ONLY        (((uint16_t) USART_RXEN_bm)  << 8) // 0x8000       The TXEN/RXEN bits are swapped - we invert the meaning of this bit.
-  #define SERIAL_RX_ONLY        (((uint16_t) USART_TXEN_bm)  << 8) // 0x4000       so if not specified, you get a serial port with both pins, a pinless one.
-  #define SERIAL_EVENT_RX        ((uint16_t) 0x2000)               //
-  #define SERIAL_HALF_DUPLEX     (SERIAL_LOOPBACK | SERIAL_OPENDRAIN)
-
-
+  #define SERIAL_RS485         (((uint16_t) USART_RS485_bm) << 8) // 0x0100
+  //#define SERIAL_RS485_OTHER (((uint16_t) USART_RS485_bm) << 9) // 0x0200 tinyAVR 0/1?
+  #define SERIAL_OPENDRAIN      ((uint16_t) 0x0400)               // 0x0400
+  #define SERIAL_LOOPBACK      (((uint16_t) USART_LBME_bm)  << 8) // 0x0800
+  #define SERIAL_TX_ONLY       (((uint16_t) USART_RXEN_bm)  << 8) // 0x8000 The TXEN/RXEN bits are swapped - we invert the meaning of this bit.
+  #define SERIAL_RX_ONLY       (((uint16_t) USART_TXEN_bm)  << 8) // 0x4000 so if not specified, you get a serial port with both pins. Do not specify both.
+  #define SERIAL_EVENT_RX       ((uint16_t) 0x2000)               // 0x2000
+  //#define SERIAL_CONFIG_VALID ((uint16_t) 0x1000)               // 0x1000 This bit is set by all of the SERIAL_nPs defines. If it is NOT present
+  #define SERIAL_HALF_DUPLEX     (SERIAL_LOOPBACK | SERIAL_OPENDRAIN)    // We will assume SERIAL_8N1, not SERIAL 5N1, which is what CTRLC = 0 would normally do.
+                                                                         // TODO: Get rid of this, and change SERIAL_5N1 to use 0x04 instead of 0x00 for CHSIZE.
+                                                                         // but need to first make sure that option doesn't do something undocumented and useful.
 
 /* CTRLA is interrupt flags, plus 3 some options relevant to RS485
  *
@@ -147,8 +157,11 @@
  * ODME - enables Open Drain Mode. Tx pin must be INPUT instead of OUTPUT!
  * MPCM - Multi Processor Communication Mode. A weird Atmel-only feature that
  *   turns a UART into a multidrop bus. I doubt it is in widespread use anywhere.
- *   Looks like a the bastard son of UART and I2C that never got enough love or
- *   uptake to prosper - or a backup plan dating to a legal scrap with Phillips
+ *   Looks like the bastard son of UART and I2C that never got enough love or
+ *   uptake to prosper. Likely dates to when Phillips was on the warpath
+ *   regarding I2C intellectual property. (Maybe they were afraid that they would
+ *   be forced to remove the TWI module?) Anyway, the core doesn't support it
+ *   and it looks like a really ugly kludge.
  * RXMODE - Controls the baud rate for both sending and receiving. 4 modes:
  *   Normal
  *   U2X - double-speed USART - much less important now with the fractional
@@ -214,8 +227,6 @@
 
   /* These are not usable on these parts. badCall() gets pulled in if you use them. */
 
-  #define SERIAL_DATA_9L       (badArg("9-bit serial not supported"),0)
-  #define SERIAL_DATA_9H       (badArg("9-bit serial not supported"),0)
   #define SERIAL_PARITY_MARK   (badArg("Mark as 'parity' is not supported, use an extra stop bit"),0)
   #define SERIAL_PARITY_SPACE  (badArg("Space as 'parity' is not supported on AVR"),0)
   #define SERIAL_STOP_BIT_1_5  (badArg("1.5 stop bits is not supported on AVR"),0)

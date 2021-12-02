@@ -354,15 +354,16 @@ void UartClass::_set_pins(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux
   uint8_t mux_group_code = (uint8_t) (mux_row_gc_tx); // this is the mux
   if (mux_setting < mux_count) {  // if false, pinmux none was selected
     uint8_t mux_pin_tx   = (uint8_t) (mux_row_gc_tx >> 8);
-    uint8_t outype = ((enmask & 0x08) ? INPUT_PULLUP : OUTPUT); // If it's ODME, we don't set pins OUTPUT.
+    uint8_t outtype = ((enmask & 0x08) ? INPUT_PULLUP : OUTPUT); // If it's ODME, we don't set pins OUTPUT.
     if (enmask & 0x40) {            // If TXEN, set the TX pin
-      pinMode(mux_pin_tx, outype);  // to above-determined vbalue.
+      pinMode(mux_pin_tx, outtype);  // to above-determined vbalue.
     }
     if (enmask & 0x80) {            // If RXEN, a bit more complicated...
       if (!(enmask & 0x10)) {
         pinMode(mux_pin_tx + 1, INPUT_PULLUP);
-    } else {
-        pinMode(mux_pin_tx + 1, INPUT_PULLUP);
+      } else if (!(enmask & 0x40)) { //RX enabled, TX not enabled, and loopback mode set.
+        //But I guess in this case the it would RX over the TX pin, but couldn't send?
+        pinMode(mux_pin_tx, INPUT_PULLUP);
       }
     }
     if (enmask & 1) {

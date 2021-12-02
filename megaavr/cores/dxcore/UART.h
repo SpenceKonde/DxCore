@@ -93,7 +93,7 @@ class UartClass : public HardwareSerial {
     volatile uint8_t _tx_buffer[SERIAL_TX_BUFFER_SIZE];
 
  public:
-    inline UartClass(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_defualt);
+    inline UartClass(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_default);
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
     void begin(unsigned long baud, uint16_t options);
     void end();

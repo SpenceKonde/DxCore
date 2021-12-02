@@ -14,6 +14,8 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+  Modified Spence Konde 2021 - constants removed.
 */
 
 #pragma once
@@ -23,15 +25,11 @@
 
 // XXX: Those constants should be defined as const int / enums?
 // XXX: shall we use namespaces too?
-
-// Spence: Screw this - I realized these constants weren't working correctly.
-// I had #undef'ed them in UART.h years ago, never bothered testing, and they
-// couldn't have possibly worked, and the SERIAL_xPn constants wouldn't have
-// been seen by the sketch... Nobody noticed or complained.
-//
-// We do not have flash to flush to waste, this code will be run with parts that have only 4k of flash
-// so using an integer to hold settings, and then rearranging them at runtime, when they are ALL LOCATED
-// NEXT TO EACH OTHER ON THE SAME BYTE is madness....
+// Spence: Screw that noise!
+// We do not have flash to waste, this code will be run with parts that have only 4k of flash
+// so using an integer to hold settings, and then REARRANGING THE BITS AT RUNTIME,
+// when they are ALL LOCATED NEXT TO EACH OTHER ON THE SAME BYTE is madness!
+// See UART_constants.h
 
 class HardwareSerial : public Stream
 {
@@ -49,4 +47,4 @@ class HardwareSerial : public Stream
 };
 
 // XXX: Are we keeping the serialEvent API?
-//extern void serialEventRun(void) __attribute__((weak));
+// Spence: Apparently not.

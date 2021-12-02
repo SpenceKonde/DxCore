@@ -1,64 +1,48 @@
-/*
-  UART0.cpp - Hardware serial library for Wiring
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+/* UART0.cpp - Hardware serial library
+ * This library is free software under LGPL 2.1. See License.md
+ * for more information. This file is part of DxCore.
+ *
+ * Copyright (c) 2006 Nicholas Zambetti, Modified by
+ * 11/23/2006 David A. Mellis, 9/20/2010 Mark Sproul,
+ * 8/24/2012 Alarus, 12/3/2013 Matthijs Kooijman
+ * unknown others 2013-2020, 2020-2021 Spence Konde
+ */
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-  Modified 23 November 2006 by David A. Mellis
-  Modified 28 September 2010 by Mark Sproul
-  Modified 14 August 2012 by Alarus
-  Modified 3 December 2013 by Matthijs Kooijman
-  Modified November 2021 by Spence Konde
-*/
-
+/* Each UartClass is defined in its own file, sine the linker pulls
+ * in the entire file when any element inside is used. --gc-sections can
+ * additionally cause unused symbols to be dropped, but ISRs have the
+ * "used" attribute so are never dropped and they keep the
+ * UartClass instance in as well. Putting each instance in its own
+ * file prevents the linker from pulling in any unused instances in the
+ * first place.
+ */
 #include "Arduino.h"
 #include "UART.h"
 #include "UART_private.h"
 
 
 #if defined(USART0)
-
-// Each UartClass is defined in its own file, sine the linker pulls
-// in the entire file when any element inside is used. --gc-sections can
-// additionally cause unused symbols to be dropped, but ISRs have the
-// "used" attribute so are never dropped and they keep the
-// UartClass instance in as well. Putting each instance in its own
-// file prevents the linker from pulling in any unused instances in the
-// first place.
-
-ISR(USART0_RXC_vect) {
-  UartClass::_rx_complete_irq(Serial0);
-}
-
-ISR(USART0_TXC_vect) { //only called for half duplex mode, so we don't get all of the characters we sent.
-  uint8_t ctrla;
-  while (USART0.STATUS & USART_RXCIF_bm) {
-    // dump these these, using local var as trashcan.
-    // Used only in half duplex - this int means switching from send to receive.
-    ctrla = USART0.RXDATAL;
+  ISR(USART0_TXC_vect) {
+    // only enabled in half duplex mode - we disable RX interrupt while sending.
+    // When we are done sending, we reenable the RX interrupt and disable this one.
+    // Note that we do NOT clear TXC flag, which the flush() method relies on.
+    uint8_t ctrla;
+    while (USART0.STATUS & USART_RXCIF_bm) {
+      ctrla = USART0.RXDATAL;   // We sent these, so dump them, using local var as trashcan.
+    }
+    ctrla = USART0.CTRLA;       // Get current CTRLA
+    ctrla |= USART_RXCIE_bm;    // turn on receive complete
+    ctrla &= ~USART_TXCIE_bm;   // turn off transmit complete
+    USART0.CTRLA = ctrla;       // Write it back to CTRLA.
   }
-  ctrla = USART0.CTRLA;
-  ctrla |= USART_RXCIE_bm; // turn on receive complete
-  ctrla &= ~USART_TXCIE_bm; // turn off transmit complete
-  USART0.CTRLA = ctrla;
-}
 
-ISR(USART0_DRE_vect) {
-  UartClass::_tx_data_empty_irq(Serial0);
-}
+  ISR(USART0_RXC_vect) {
+    UartClass::_rx_complete_irq(Serial0);
+  }
 
-UartClass Serial0(HWSERIAL0, (uint8_t*)_usart0_pins, MUXCOUNT_USART0, MUX_DEFAULT_USART0);
+  ISR(USART0_DRE_vect) {
+    UartClass::_tx_data_empty_irq(Serial0);
+  }
 
-#endif  // HWSERIAL0
+  UartClass Serial0(&USART0, (uint8_t*)_usart0_pins, MUXCOUNT_USART0, HWSERIAL0_MUX_DEFAULT);
+#endif

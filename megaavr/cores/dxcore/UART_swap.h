@@ -1,15 +1,18 @@
-/* UART_swap.h - Pin tables and that kind of of thing specifically to support more efficient pin swapping
- * and permit us to access all the options of the DD-series. The UART_constants applies to everything
- * This file has the stuff for specific pinouts.
+/* UART_swap.h - Pin tables and ugly #ifdefs for efficient pinswapping.
+ * and permit us to access all the options of the DD-series.
+ * UART_constants.h has stuff that applies to UART in general.
+ * This file has stuff that processes specific pinouts.
  *
  * Written by Spence Konde and MX682X in late 2021.
  *
  * This file is part of DxCore, which is free software (LGPL 2.1) based on the work
- * of countless members of the Arduino community/
+ * of countless members of the Arduino community.
  * See License.md for more information
  *
  * This is a mixture of stuff that was formerly spread out, and novel code to generate a _usart_pins variable to
- * hold required pin identifiers, mux values, and so on
+ * hold required pin identifiers, mux values, and so on, as well as moving things that we bloody well know
+ * out of variants. It's not like the DRE vector for hardware serial 1 is ever going to be something other than
+ * USART1_DRE_vect or something, so why do we act like it could be?
  */
 
 #ifndef UART_SWAP_H
@@ -271,8 +274,8 @@
     const uint8_t _usart0_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL0_MUX))
         #if (defined(PIN_HWSERIAL0_TX) && defined(PIN_HWSERIAL0_RX) && defined(PIN_HWSERIAL0_XCK) && defined(PIN_HWSERIAL0_XDIR) && ((PIN_HWSERIAL0_TX != NOT_A_PIN && CLOCK_SOURCE == 0) || (PIN_HWSERIAL0_RX != NOT_A_PIN && CLOCK_SOURCE != 1)))
-          #if !defined(MUX_DEFAULT_USART0)
-            #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX)
+          #if !defined(HWSERIAL0_MUX_DEFAULT)
+            #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX)
           #endif
           {HWSERIAL0_MUX, PIN_HWSERIAL0_TX, PIN_HWSERIAL0_XCK},
         #else
@@ -280,8 +283,8 @@
         #endif
         #if defined(HWSERIAL0_MUX_PINSWAP_1)
           #if (defined(PIN_HWSERIAL0_TX_PINSWAP_1) && defined(PIN_HWSERIAL0_RX_PINSWAP_1) && defined(PIN_HWSERIAL0_XCK_PINSWAP_1) && defined(PIN_HWSERIAL0_XDIR_PINSWAP_1) && (PIN_HWSERIAL0_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL0_RX_PINSWAP_1 != NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART0)
-            #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX_PINSWAP_1)
+          #if !defined(HWSERIAL0_MUX_DEFAULT)
+            #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX_PINSWAP_1)
           #endif
             {HWSERIAL0_MUX_PINSWAP_1, PIN_HWSERIAL0_TX_PINSWAP_1, PIN_HWSERIAL0_XCK_PINSWAP_1},
           #else
@@ -289,8 +292,8 @@
           #endif
           #if defined(HWSERIAL0_MUX_PINSWAP_2)
             #if (defined(PIN_HWSERIAL0_TX_PINSWAP_2) && defined(PIN_HWSERIAL0_RX_PINSWAP_2) && defined(PIN_HWSERIAL0_XCK_PINSWAP_2) && defined(PIN_HWSERIAL0_XDIR_PINSWAP_2) && (PIN_HWSERIAL0_TX_PINSWAP_2 != NOT_A_PIN || PIN_HWSERIAL0_RX_PINSWAP_2 != NOT_A_PIN))
-            #if !defined(MUX_DEFAULT_USART0)
-              #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX_PINSWAP_2)
+            #if !defined(HWSERIAL0_MUX_DEFAULT)
+              #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX_PINSWAP_2)
             #endif
               {HWSERIAL0_MUX_PINSWAP_2, PIN_HWSERIAL0_TX_PINSWAP_2, PIN_HWSERIAL0_XCK_PINSWAP_2},
             #else
@@ -298,8 +301,8 @@
             #endif
             #if defined(HWSERIAL0_MUX_PINSWAP_3)
               #if (defined(PIN_HWSERIAL0_TX_PINSWAP_3) && defined(PIN_HWSERIAL0_RX_PINSWAP_3) && defined(PIN_HWSERIAL0_XCK_PINSWAP_3) && defined(PIN_HWSERIAL0_XDIR_PINSWAP_3) && (PIN_HWSERIAL0_TX_PINSWAP_3 != NOT_A_PIN || PIN_HWSERIAL0_RX_PINSWAP_3 != NOT_A_PIN))
-              #if !defined(MUX_DEFAULT_USART0)
-                #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX_PINSWAP_3)
+              #if !defined(HWSERIAL0_MUX_DEFAULT)
+                #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX_PINSWAP_3)
               #endif
                 {HWSERIAL0_MUX_PINSWAP_3, PIN_HWSERIAL0_TX_PINSWAP_3, PIN_HWSERIAL0_XCK_PINSWAP_3},
               #else
@@ -307,8 +310,8 @@
               #endif
               #if defined(HWSERIAL0_MUX_PINSWAP_4)
                 #if (defined(PIN_HWSERIAL0_TX_PINSWAP_4) && defined(PIN_HWSERIAL0_RX_PINSWAP_4) && defined(PIN_HWSERIAL0_XCK_PINSWAP_4) && defined(PIN_HWSERIAL0_XDIR_PINSWAP_4) && (PIN_HWSERIAL0_TX_PINSWAP_4 != NOT_A_PIN || PIN_HWSERIAL0_RX_PINSWAP_4 != NOT_A_PIN))
-                #if !defined(MUX_DEFAULT_USART0)
-                  #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX_PINSWAP_4)
+                #if !defined(HWSERIAL0_MUX_DEFAULT)
+                  #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX_PINSWAP_4)
                 #endif
                   {HWSERIAL0_MUX_PINSWAP_4, PIN_HWSERIAL0_TX_PINSWAP_4, PIN_HWSERIAL0_XCK_PINSWAP_4},
                 #else
@@ -316,8 +319,8 @@
                 #endif
                 #if defined(HWSERIAL0_MUX_PINSWAP_5)
                   #if (defined(PIN_HWSERIAL0_TX_PINSWAP_5) && defined(PIN_HWSERIAL0_RX_PINSWAP_5) && defined(PIN_HWSERIAL0_XCK_PINSWAP_5) && defined(PIN_HWSERIAL0_XDIR_PINSWAP_5) && (PIN_HWSERIAL0_TX_PINSWAP_5 != NOT_A_PIN || PIN_HWSERIAL0_RX_PINSWAP_5 != NOT_A_PIN))
-                  #if !defined(MUX_DEFAULT_USART0)
-                    #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX_PINSWAP_5)
+                  #if !defined(HWSERIAL0_MUX_DEFAULT)
+                    #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX_PINSWAP_5)
                   #endif
                     {HWSERIAL0_MUX_PINSWAP_5, PIN_HWSERIAL0_TX_PINSWAP_5, PIN_HWSERIAL0_XCK_PINSWAP_5},
                   #else
@@ -325,8 +328,8 @@
                   #endif
                   #if defined(HWSERIAL0_MUX_PINSWAP_6)
                     #if (defined(PIN_HWSERIAL0_TX_PINSWAP_6) && defined(PIN_HWSERIAL0_RX_PINSWAP_6) && defined(PIN_HWSERIAL0_XCK_PINSWAP_6) && defined(PIN_HWSERIAL0_XDIR_PINSWAP_6) && (PIN_HWSERIAL0_TX_PINSWAP_6 != NOT_A_PIN || PIN_HWSERIAL0_RX_PINSWAP_6 != NOT_A_PIN))
-                    #if !defined(MUX_DEFAULT_USART0)
-                      #define MUX_DEFAULT_USART0 (HWSERIAL0_MUX_PINSWAP_6)
+                    #if !defined(HWSERIAL0_MUX_DEFAULT)
+                      #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX_PINSWAP_6)
                     #endif
                       {HWSERIAL0_MUX_PINSWAP_6, PIN_HWSERIAL0_TX_PINSWAP_6, PIN_HWSERIAL0_XCK_PINSWAP_6},
                     #else
@@ -360,8 +363,8 @@
     const uint8_t _usart1_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL1_MUX))
         #if (defined(PIN_HWSERIAL1_TX) && defined(PIN_HWSERIAL1_RX) && defined(PIN_HWSERIAL1_XCK) && defined(PIN_HWSERIAL1_XDIR) && (PIN_HWSERIAL1_TX != NOT_A_PIN || PIN_HWSERIAL1_TX != NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART1)
-            #define MUX_DEFAULT_USART1 (HWSERIAL1_MUX)
+          #if !defined(HWSERIAL1_MUX_DEFAULT)
+            #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX)
           #endif
           {HWSERIAL1_MUX, PIN_HWSERIAL1_TX, PIN_HWSERIAL1_XCK},
         #else
@@ -369,8 +372,8 @@
         #endif
         #if defined(HWSERIAL1_MUX_PINSWAP_1)
           #if (defined(PIN_HWSERIAL1_TX_PINSWAP_1) && defined(PIN_HWSERIAL1_RX_PINSWAP_1) && defined(PIN_HWSERIAL1_XCK_PINSWAP_1) && defined(PIN_HWSERIAL1_XDIR_PINSWAP_1) && (PIN_HWSERIAL1_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL1_RX_PINSWAP_1 != NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART1)
-            #define MUX_DEFAULT_USART1 (HWSERIAL1_MUX_PINSWAP_1)
+          #if !defined(HWSERIAL1_MUX_DEFAULT)
+            #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX_PINSWAP_1)
           #endif
             {HWSERIAL1_MUX_PINSWAP_1, PIN_HWSERIAL1_TX_PINSWAP_1, PIN_HWSERIAL1_XCK_PINSWAP_1},
           #else
@@ -378,8 +381,8 @@
           #endif
           #if defined(HWSERIAL1_MUX_PINSWAP2)
             #if (defined(PIN_HWSERIAL1_TX_PINSWAP_2) && defined(PIN_HWSERIAL1_RX_PINSWAP_2) && defined(PIN_HWSERIAL1_XCK_PINSWAP_2) && defined(PIN_HWSERIAL1_XDIR_PINSWAP_2) && (PIN_HWSERIAL1_TX_PINSWAP_2 != NOT_A_PIN || PIN_HWSERIAL1_RX_PINSWAP_2 != NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART1)
-            #define MUX_DEFAULT_USART1 (HWSERIAL1_MUX_PINSWAP_2)
+          #if !defined(HWSERIAL1_MUX_DEFAULT)
+            #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX_PINSWAP_2)
           #endif
               {HWSERIAL1_MUX_PINSWAP_2, PIN_HWSERIAL1_TX_PINSWAP_2, PIN_HWSERIAL1_XCK_PINSWAP_2},
             #else
@@ -402,8 +405,8 @@
     const uint8_t _usart2_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL2_MUX))
         #if (defined(PIN_HWSERIAL2_TX) && defined(PIN_HWSERIAL2_RX) && defined(PIN_HWSERIAL2_XCK) && defined(PIN_HWSERIAL2_XDIR) && (PIN_HWSERIAL2_TX != NOT_A_PIN || PIN_HWSERIAL2_RX!= NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART2)
-            #define MUX_DEFAULT_USART2 (HWSERIAL2_MUX)
+          #if !defined(HWSERIAL2_MUX_DEFAULT)
+            #define HWSERIAL2_MUX_DEFAULT (HWSERIAL2_MUX)
           #endif
           {HWSERIAL2_MUX, PIN_HWSERIAL2_TX, PIN_HWSERIAL2_XCK},
         #else
@@ -411,8 +414,8 @@
         #endif
         #if (defined(HWSERIAL2_MUX_PINSWAP_1))
           #if (defined(PIN_HWSERIAL2_TX_PINSWAP_1) && defined(PIN_HWSERIAL2_RX_PINSWAP_1) && defined(PIN_HWSERIAL2_XCK_PINSWAP_1) && defined(PIN_HWSERIAL2_XDIR_PINSWAP_1) && (PIN_HWSERIAL2_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL2_RX_PINSWAP_1 != NOT_A_PIN))
-            #if !defined(MUX_DEFAULT_USART2)
-              #define MUX_DEFAULT_USART2 (HWSERIAL2_MUX_PINSWAP_1)
+            #if !defined(HWSERIAL2_MUX_DEFAULT)
+              #define HWSERIAL2_MUX_DEFAULT (HWSERIAL2_MUX_PINSWAP_1)
             #endif
             {HWSERIAL2_MUX_PINSWAP_1, PIN_HWSERIAL2_TX_PINSWAP_1, PIN_HWSERIAL2_XCK_PINSWAP_1},
           #else
@@ -431,8 +434,8 @@
     const uint8_t _usart3_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL3_MUX))
         #if (defined(PIN_HWSERIAL3_TX) && defined(PIN_HWSERIAL3_RX) && defined(PIN_HWSERIAL3_XCK) && defined(PIN_HWSERIAL3_XDIR) && (PIN_HWSERIAL3_TX != NOT_A_PIN || PIN_HWSERIAL3_RX!= NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART3)
-            #define MUX_DEFAULT_USART3 (HWSERIAL3_MUX)
+          #if !defined(HWSERIAL3_MUX_DEFAULT)
+            #define HWSERIAL3_MUX_DEFAULT (HWSERIAL3_MUX)
           #endif
           {HWSERIAL3_MUX, PIN_HWSERIAL3_TX, PIN_HWSERIAL3_XCK},
         #else
@@ -440,8 +443,8 @@
         #endif
         #if (defined(HWSERIAL3_MUX_PINSWAP_1))
           #if (defined(PIN_HWSERIAL3_TX_PINSWAP_1) && defined(PIN_HWSERIAL3_RX_PINSWAP_1) && defined(PIN_HWSERIAL3_XCK_PINSWAP_1) && defined(PIN_HWSERIAL3_XDIR_PINSWAP_1) && (PIN_HWSERIAL3_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL3_RX_PINSWAP_1!= NOT_A_PIN))
-            #if !defined(MUX_DEFAULT_USART3)
-              #define MUX_DEFAULT_USART3 (HWSERIAL3_MUX_PINSWAP_1)
+            #if !defined(HWSERIAL3_MUX_DEFAULT)
+              #define HWSERIAL3_MUX_DEFAULT (HWSERIAL3_MUX_PINSWAP_1)
             #endif
             {HWSERIAL3_MUX_PINSWAP_1, PIN_HWSERIAL3_TX_PINSWAP_1, PIN_HWSERIAL3_XCK_PINSWAP_1},
           #else
@@ -460,8 +463,8 @@
     const uint8_t _usart4_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL4_MUX))
         #if (defined(PIN_HWSERIAL4_TX) && defined(PIN_HWSERIAL4_RX) && defined(PIN_HWSERIAL4_XCK) && defined(PIN_HWSERIAL4_XDIR) && (PIN_HWSERIAL4_TX != NOT_A_PIN || PIN_HWSERIAL4_RX!= NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART4)
-            #define MUX_DEFAULT_USART4 (HWSERIAL4_MUX)
+          #if !defined(HWSERIAL4_MUX_DEFAULT)
+            #define HWSERIAL4_MUX_DEFAULT (HWSERIAL4_MUX)
           #endif
           {HWSERIAL4_MUX, PIN_HWSERIAL4_TX, PIN_HWSERIAL4_XCK},
         #else
@@ -469,8 +472,8 @@
         #endif
         #if (defined(HWSERIAL4_MUX_PINSWAP_1))
           #if (defined(PIN_HWSERIAL4_TX_PINSWAP_1) && defined(PIN_HWSERIAL4_RX_PINSWAP_1) && defined(PIN_HWSERIAL4_XCK_PINSWAP_1) && defined(PIN_HWSERIAL4_XDIR_PINSWAP_1) && (PIN_HWSERIAL4_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL4_RX_PINSWAP_1!= NOT_A_PIN))
-            #if !defined(MUX_DEFAULT_USART4)
-              #define MUX_DEFAULT_USART4 (HWSERIAL4_MUX_PINSWAP_1)
+            #if !defined(HWSERIAL4_MUX_DEFAULT)
+              #define HWSERIAL4_MUX_DEFAULT (HWSERIAL4_MUX_PINSWAP_1)
             #endif
             {HWSERIAL4_MUX_PINSWAP_1, PIN_HWSERIAL4_TX_PINSWAP_1, PIN_HWSERIAL4_XCK_PINSWAP_1},
           #else
@@ -489,8 +492,8 @@
     const uint8_t _usart5_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL5_MUX))
         #if (defined(PIN_HWSERIAL5_TX) && defined(PIN_HWSERIAL5_RX) && defined(PIN_HWSERIAL5_XCK) && defined(PIN_HWSERIAL5_XDIR) && (PIN_HWSERIAL5_TX != NOT_A_PIN || PIN_HWSERIAL5_RTX!= NOT_A_PIN))
-          #if !defined(MUX_DEFAULT_USART5)
-            #define MUX_DEFAULT_USART5 (HWSERIAL5_MUX)
+          #if !defined(HWSERIAL5_MUX_DEFAULT)
+            #define HWSERIAL5_MUX_DEFAULT (HWSERIAL5_MUX)
           #endif
           {HWSERIAL5_MUX, PIN_HWSERIAL5_TX, PIN_HWSERIAL5_XCK},
         #else
@@ -498,8 +501,8 @@
         #endif
         #if (defined(HWSERIAL5_MUX_PINSWAP_1))
           #if (defined(PIN_HWSERIAL5_TX_PINSWAP_1) && defined(PIN_HWSERIAL5_RX_PINSWAP_1) && defined(PIN_HWSERIAL5_XCK_PINSWAP_1) && defined(PIN_HWSERIAL5_XDIR_PINSWAP_1) && (PIN_HWSERIAL5_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL5_RX_PINSWAP_1!= NOT_A_PIN))
-            #if !defined(MUX_DEFAULT_USART5)
-              #define MUX_DEFAULT_USART5 (HWSERIAL5_MUX_PINSWAP_1)
+            #if !defined(HWSERIAL5_MUX_DEFAULT)
+              #define HWSERIAL5_MUX_DEFAULT (HWSERIAL5_MUX_PINSWAP_1)
             #endif
             {HWSERIAL5_MUX_PINSWAP_1, PIN_HWSERIAL5_TX_PINSWAP_1, PIN_HWSERIAL5_XCK_PINSWAP_1},
           #else
