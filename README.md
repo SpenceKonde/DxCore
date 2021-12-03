@@ -271,10 +271,13 @@ Serial.printf("Milliseconds since start: %ld\n", millis());
 Note that using this method will pull in just as much bloat as `sprintf()` and is subject to the same limitations as printf - by default, floating point values aren't printed.
 You can choose to have a full `printf()` implementation from a tools submenu if you want to print floating point numbers
 
-**Important note** Formatting specifiers have modifiers that they can be paired with for different size variables. You may not be aware of this if your prior experience with printf was on a larger system like a desktop, and it's often not called out loudly. But we live in a land of 16-bit integers, where we sometimes want to print numbers higher than 65535. You must use modifiers in this case.
+**Gotcha warning** There are a considerable number of ways to screw up with printf. Some of the recent issues that have come up:
+* Formatting specifiers have modifiers that they must be paired with depending on the datatype being printed, for all except one type. See the table of ones that I expect will work below (it was cribbed from [cplusplus.com/reference/cstdio/printf/](https://www.cplusplus.com/reference/cstdio/printf/), and then I chopped off all the rows that aren't applicable, which is most of them). Apparently many people are not fully aware (or at all aware) of how important this is - even when they think they know how to use printf(), and may have done so on previously (on a desktop OS, with 32-bit ints and no reason to use smaller datatypes for simple stuff).
+* There are (as of 1.4.0) warnings enabled for format specifiers that don't match the the arguments, but you should not rely on them. Doublecheck what you pass to printf - printf bugs are a common cause of software bugs in the real world. Be aware that *while you can use F() on the format string, there are no warnings for invalid format strings in that case*; a conservative programmer would first make te app work without F() around the format string, and only swich to F() once the format string was known working.
 
-From [cplusplus.com/reference/cstdio/printf/](https://www.cplusplus.com/reference/cstdio/printf/):
->The length sub-specifier modifies the length of the data type. This is a chart showing the types used to interpret the corresponding arguments with and without length specifier (if a different type is used, the proper type promotion or conversion is performed, if allowed):
+From cplusplus.com:
+>The length sub-specifier modifies the length of the data type. This is a chart showing the types used to interpret the corresponding arguments with and without length specifier ~(if a different type is used, the proper type promotion or conversion is performed, if allowed)~:
+Strikethrough mine 'cause that don't work here (and it's not my fault nor under my control - it's supplied with avrlibc, and I suspect that it's because the overhead of implementing it on an 8-bit AVR is too large) - When incorrect length specifiers are given (including none when one should be used) surprising things happen. It looks to me like all the arguments get smushed together into a group of bytes. Then it reads the format string, and when it gets to a format specifier for an N byte datatype, it grabs N bytes from the argument array, formats them and prints them to whatever you're printing to, proceeding until the end of the format string. Thus, failing to match the format specifiers' length modifiers with the arguments will result in printing wrong data, for that substitution **and all subsequent ones** in that call to printf.
 
 The table below is the relevant lines from that table - many standard types are not a thing in Arduino.
 
@@ -282,13 +285,12 @@ The table below is the relevant lines from that table - many standard types are 
 |--------|-----|---------|-----------------|-----|--------|------|----------|
 | (none) |int16|  uint16 | float           | int |  char* |void* | int*     |
 | hh     |int8 |  uint8  |                 |     |        |      | char*    |
-| l      |int32|  uint32 |                 |wint |wchar_t*|      | int32_t* |
+| l      |int32|  uint32 |                 |     |        |      | int32_t* |
 
 Notice that there is no line for 64 bit types in the table above; these are not supported (support for 64-bit types is pretty spotty, which is not surprising. Variables of that size are hard to work with on an 8-bit microcontroller). This applies to all versions of printf - the capability is not supplied by avrlibc.
 
-Failing to match the format specifiers' length modifiers will result in printing wrong data. (printing a shorter type than what you passed will result in later values being substituted incorrectly.)
 
-There are warnings enabled for format specifiers that don't match the the arguments, but you should not rely on them. Doublecheck what you pass to printf - printf bugs are a common cause of software bugs in the real world. Be aware that while you can use F() on the format string, there are no warnings for invalid format strings; a conservative programmer would first make te app work without F() around the format string, and only swich to F() once the format string was known working. Frankly, most of these parts have so much ram that you may not even need to F() anything. Having 16k of ram is F()ing sweet coming from 1k and 2k parts isn't it?
+
 
 #### Selectable printf() implementation
 A tools submenu lets you choose from full `printf()` with all features, the default one that drops float support to save 1k of flash, and the minimal one drops almost everything and for another 450 bytes (will be a big deal on the 16k and 8k parts. Less so on 128k ones.) - note that selecting any non-default option here *will cause it to be included in the binary even if it's never called* - and if it's never called, it normally wouldn't be included. So an empty sketch will take more space with minimal printf selected than with the default, while a sketch that uses printf will take less space with minimal printf vs default.
@@ -438,6 +440,10 @@ Official AVR boards do not have analogReadResolution. Official ARM-based boards 
 
 ### As of 1.3.3, SerialEvent is removed
 SerialEvent was an ill-conceived mess. I knew that when I added support for it, but I didn't know that the mess had already been deprecated; when I heard that it was, I wasted no time in fully removing it.
+
+
+### Oh, and -Wall (compile warnings) are enabled no matter what you choose in the preferences
+The IDE defaults to "none", and te majority of users go through life unaware that they have this critical source of debugging information turned off. Warnings should be opt-out, not opt-in. Almost every time I see a warning, it's a latent bug that impacts behavior in an unwanted way. It's mighty handy to have the compiler tell you where your bugs are. The core and the libraries included are free of things that generate warnings - if you ever get a warning from a core file or included library which is not a `#warning`, that is a bug and should be reported as a github issue. Warnings are a good thing to keep enabled, running with warnings disabled is just making life harder for yourself; since most people using Arduino are unaware of that setting, the core is improved by ensuring that they are always shown.
 
 ## Instruction Set Enhancements (AVRe/AVRe+ vs AVRxt)
 The classic AVR devices all use the venerable `AVRe` (ATtiny) or `AVRe+` (ATmega) instruction set (`AVRe+` differs from `AVRe` in that it has hardware multiplication and supports devices with more than 64k of flash). Plain `AVR` is very old, and very few devices still in production use it - it didn't support parts with over 8k of flash (no jump/call) nor a bunch of other normal functions. The few production parts that use it (like the tiny15) also had a bunch of other functions dropped. In practice, AVR has meant `AVRe` or `AVRe+` for most of it's life. Modern AVR devices (with the exception of ones with minuscule flash and memory, such as the ATtiny10, which use reduced core `AVRrc` which drops many of the more complicated instructions), use the latest iteration of the AVR instruction set: `AVRxt`. This adds no new instructions (unlike `AVRxm`, the version used by the XMega devices, which added 4 combined read-write instructions for accessing SRAM. (which I think doesn't include peripheral registers, which takes out all the use cases for it that I can think of), but a small number of instructions have improved execution time, (and one has slower execution time). This distinction is unimportant for 99.9% of users - but if you happen to be working with hand-tuned assembly (or are using a library that does so, and are wondering why the timing is messed up), this could be why:
