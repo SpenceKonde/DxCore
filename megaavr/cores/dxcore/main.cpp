@@ -98,7 +98,7 @@ int main() {
   void __attribute__((weak)) init_reset_flags() ;
   void __attribute__((weak)) init_reset_flags() {
     uint8_t flags = RSTCTRL.RSTFR;
-    RSTCTRL.RSTFR=flags
+    RSTCTRL.RSTFR = flags;
     if (flags == 0) {
       _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
     }
