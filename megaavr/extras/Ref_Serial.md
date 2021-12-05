@@ -144,7 +144,7 @@ This mode is very similar to synchronous mode, and even more rarely used - it is
 * Divide the desired baud rate by 8.
 * As the options, specify one of the 4 MSPI options listed above. Refer to the discussion of data modes above, or the table below. If this is specified, it will sample on the second transition and transmit on the first, (like SPI modes 1 and 3, or sync USART), otherwise, it will sample on the leading edge.
 
-Charachter size, stop bits, and parity are not used in MSPI mode
+Character size, stop bits, and parity are not used in MSPI mode
 
 ### Summary of clocking options
 
@@ -160,7 +160,7 @@ Charachter size, stop bits, and parity are not used in MSPI mode
 ## More indepth background
 
 ### Character size
-Baud is bits per second. But those are not just data bits. USART data is sent in "frames". These frames start with a "start bit" and end with 1 or 2 stop bits (rarely, 1.5; we don't support that, but some devices to), may or may not have parity, and while the 8-bit byte is almost ubiquitous now, it hasn't always been, leading the the proliferation of character lengths supported. The hardware supports 5, 6, 7, 8 or 9 bit characters. Since the common datatypes on the AVR are 8 or 16 bits, it is awkward to handle such larger size units of data, and impossible to do so efficiently or gracefully. DxCore and megaTinyCore only support 5-8 bit characters,  9-bit serial is vanishingly rare, and with good reason - the overhead to supporting it on a modern system (with 8-bit bytes) is brutal. Its not entirely clear for what applications it *was* intended for, though some sources suggest "industrial multi-drop systems" using the 9th bit to mark "address" bytes were at one point in time common, but what is clear is tha it's almost unheardof nowadays.
+Baud is bits per second. But those are not just data bits. USART data is sent in "frames". These frames start with a "start bit" and end with 1 or 2 stop bits (rarely, 1.5; we don't support that, but some devices to), may or may not have parity, and while the 8-bit byte is almost ubiquitous now, it hasn't always been, leading the the proliferation of character lengths supported. The hardware supports 5, 6, 7, 8 or 9 bit characters. Since the common datatypes on the AVR are 8 or 16 bits, it is awkward to handle such larger size units of data, and impossible to do so efficiently or gracefully. DxCore and megaTinyCore only support 5-8 bit characters,  9-bit serial is vanishingly rare, and with good reason - the overhead to supporting it on a modern system (with 8-bit bytes) is brutal. Its not entirely clear for what applications it *was* intended for, though some sources suggest "industrial multi-drop systems" using the 9th bit to mark "address" bytes were at one point in time common, but what is clear is that it's almost unheardof nowadays.
 
 The origin of the smaller character sizes though, is clear - they date to the earliest days of teletypes, where all the characters involved were letters anyway, so why would you need more than 32 character codes? Most plain text can be represented with 7-bits , since the standard ASCII character set maps the low 128 characters to (mostly) printable, familiar letters, and that's used almost universally. The upper half is not so universal, and typically consists of regionally specific/language specific glyphs, box-drawing characters, and varies by implementation. Some old applications are still in use that define "binaries" as having 8-bit bytes and "text" as 7-bit.
 
@@ -200,7 +200,7 @@ It was mentioned previously that one of most common places to encounter grossly 
 
 Imagine 4 ATmega328p's - one has a crystal and runs at 16 MHz, and three that all run at 8 MHz - one using a crystal, and the others the internal oscillator, which is 2% fast on one and 2% slow on the other - both easily within spec. The 8 MHz one with the w/crystal can talk to the other 8 MHz ones. The crystal-less ones are on the edge when they try to talk to each other due to the variation between them being about the limit - small temperature differences could push it either way, and since the maximum error isn't quite symmetric (it's easier to receive something if you're 4% too fast than if 4% too slow, according to the datasheet), sometimes the temperatures might conspire such that the fast one could receive from the slow one, but not the other way around (It doesn't quite depend on the "phase of the moon" but if one is near a window, it could depend on whether it's sunny out). The slow crystal-less one can't even talk to a serial adapter, but the other three can, and the fast crystal-less one can also talk to the 16 MHz one, but neither of the other 8 MHz ones can.
 
-Now, imagine you were to reconfigure the serial port on the 16 MHz one, so that it didn't run with U2X enabled. Suddenly, it goes from being 2% fast, to being 3.5% slow - Neither of these is correct, and both of them contribute to problems, but having gotten a net 5.5% slower, it can now talk tothe 8 MHz devices no problem!
+Now, imagine you were to reconfigure the serial port on the 16 MHz one, so that it didn't run with U2X enabled. Suddenly, it goes from being 2% fast, to being 3.5% slow - Neither of these is correct, and both of them contribute to problems, but having gotten a net 5.5% slower, it can now talk to the 8 MHz devices no problem!
 
 Now consider dropping a tinyAVR 1/2-series (ex, 1614) in there, and it's a fraction of a percent fast (they usually are 0-0.5% fast. So how far off are the baud rates here?
 * The tinyAVR's internal oscillator is between 0.0 and 0.5 % fast; it's baud rate calculation error is negligible.
@@ -262,9 +262,9 @@ On classic AVRs, minimum baud rate was when the register was at it's maximum of 
 
 
 #### Synchronous Mode
-Synchronous mode can operate at significantly higher freqencies. Since it does not require the two devices to have matching clocks and baud rates configured, there isn't a list of standard baud rates like for async. modes. The minimum baud rate in synchronous mode as master, and in and MSPI mode, is F_CPU / 2048 - 8 times the minimum asynchronous baud rate - and the maximum is F_CPU / 2  (that is, 8 times the maximum without U2X mode); These speeds are well beyond the range of what one would plausibly want except at extremely low system clock frequencies.
+Synchronous mode can operate at significantly higher frequencies. Since it does not require the two devices to have matching clocks and baud rates configured, there isn't a list of standard baud rates like for async. modes. The minimum baud rate in synchronous mode as master, and in and MSPI mode, is F_CPU / 2048 - 8 times the minimum asynchronous baud rate - and the maximum is F_CPU / 2  (that is, 8 times the maximum without U2X mode); These speeds are well beyond the range of what one would plausibly want except at extremely low system clock frequencies.
 
-The maximum baud rate while opperating as slave in sychronous mode is F_CPU / 4 (2 system clock cycle minimum for each high and low of the clock).
+The maximum baud rate while opperating as slave in synchronous mode is F_CPU / 4 (2 system clock cycle minimum for each high and low of the clock).
 
 ### Common Baud Rates
 

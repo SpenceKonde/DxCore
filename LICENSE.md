@@ -2,7 +2,7 @@
 All files included with the DxCore package are covered by this unless
 otherwise noted. Some included files and libraries are covered by other
 licenses. Any file licensed under terms other than the LGPL 2.1 will have
-prominant notice of such at the top of the file, including the full text
+prominent notice of such at the top of the file, including the full text
 of the boilerplate. Files licensed under the LGPL 2.1 may have that text
 abbreviated for readability. The LGPL 2.1 license text is reproduced below
 verbatim with no modifications beyond markdown formatting.

@@ -214,7 +214,7 @@ Example 2: Override and indicate that it's a recovery from dirty reset by turnin
       //digitalWriteFast(LED_BUITIN2, HIGH);  //
       } else {
         //pinModeFast(LED_BUILTIN2, INPUT);   // What why? Because you have no idea what the state of the hardware is if there's a dirty reset!
-        //It could have been high for some other reason, and since no reset ocurred, it still would be. This way, you know that if both LEDs are on... that was a dirty reset.
+        //It could have been high for some other reason, and since no reset occurred, it still would be. This way, you know that if both LEDs are on... that was a dirty reset.
       }
       while(1);                               // wait for timeout
     }
@@ -225,7 +225,7 @@ Example 2: Override and indicate that it's a recovery from dirty reset by turnin
 So how can this happen?
 
 ### Power supply or clock issues
-Are the decoupling caps in place? Does it coincide with a change in load that might cause the power rail to depart from it's nominal voltage? Is the crystal working correctly? Is everything well soldered? SMD crystals tend to be particularly hard to solder well, sometimes forming intermitent connections that are intermittant. Poorly sized loading crystals can also cause this - if you can trigger it by touching the crystal, it's something like that.
+Are the decoupling caps in place? Does it coincide with a change in load that might cause the power rail to depart from it's nominal voltage? Is the crystal working correctly? Is everything well soldered? SMD crystals tend to be particularly hard to solder well, sometimes forming intermitent connections that are intermittent. Poorly sized loading crystals can also cause this - if you can trigger it by touching the crystal, it's something like that.
 
 ### Interrupt enabled while ISR does not exist
 Amazingly, it's not an error to do `ISR(Something not an interrupt vector) {...}` - it gets a warning for misspelled vector, but not an error (one of the reasons we force warnings on is because of things like THAT are only warnings, not errors). Enabling a interrupt without an ISR and letting it trigger will achieve the same thing: BAD_ISR handler is called. The default implementation is to jump to 0. No flags are cleared nor interrupts disabled. the default `BAD_ISR` implementation just jumps to 0... And since these parts track whether the code is supposed to be in an interrupt (see CPUINT.STATUS LVLnEX bit), you end up outside of an interrupt, with the hardware still thinking your're in one and only elevated priority interrupts can fire, and everything else will be assuming you'e got a badwill be awful and broken. Don't enable an interrupt without the ISR defined, and the misspelled vector warnings virtually always indicate that this is going to happen.
