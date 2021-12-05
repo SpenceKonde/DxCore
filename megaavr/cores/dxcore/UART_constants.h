@@ -3,28 +3,13 @@
  * This library is free software released under LGPL 2.1.
  * See License.md for more information.
  * This file is part of DxCore and megaTinyCore
- * *
+ *
  * These are values that get passed to the second argument of Serial.begin in
  * DxCore 1.4.0+ and megaTinyCore 2.5.0+.
  */
 
 #ifndef UART_CONSTANTS_H
   #define UART_CONSTANTS_H
-  #define SERIAL_CONFIG_VALID  0x1000
-  // This is OR'ed with all valid SERIAL_xxx constants; if this is set, you know they used
-  // one of the defined configuration, and if it's not then they forgot to, and we won't
-  // mistake it 0x00 for SERIAL_5N1; in such cases we'll use SERIAL_8N1. This will be changed
-  // in a future version to instead mask off the CHSIZE bit that's only used for the reserved
-  // and 9-bit options, and define the 5-bit size as a reserved value, so it will be turned into 0
-  // when the bit is masked off, but will look distinct from an omitted SERIAL_xxx.
-  // So if we see that, we know whatever they passed *wasn't* missing the low byte;
-  // Getting a an OPTIONS argument with just the first two bytes could be a bungled
-  // attempt to specify first options as modifiers to the default. But we would have no way
-  // to know whether they wanted no parity async 1 stop and 5 bit char size,
-  // or had simply failed to remember the SERIAL_8N1
-
-  // Now, if we get options and the low byte is 0, we presume that they meant as a modifier for the default,
-  // and give them that, rather than treating the low byte = 0x00 as SERIAL_5N1 which is almost never used.
 
   #define SERIAL_PARITY_EVEN   (USART_PMODE_EVEN_gc)
   #define SERIAL_PARITY_ODD    (USART_PMODE_ODD_gc)
@@ -35,7 +20,9 @@
   #define SERIAL_STOP_BIT_2    (USART_SBMODE_2BIT_gc)
   #define SERIAL_STOP_BIT_MASK (USART_SBMODE_gm)
 
-  #define SERIAL_DATA_5        (USART_CHSIZE_5BIT_gc)
+  #define SERIAL_DATA_5        (USART_CHSIZE_5BIT_gc & 0x04)
+  // Special case - we strip out bit 2 in order to detect use of high-byte modifiers without specifying low byte, which is presumably user error.
+  // and default 8N1 instead of the hardware default of 5N1.
   #define SERIAL_DATA_6        (USART_CHSIZE_6BIT_gc)
   #define SERIAL_DATA_7        (USART_CHSIZE_7BIT_gc)
   #define SERIAL_DATA_8        (USART_CHSIZE_8BIT_gc)
@@ -57,67 +44,70 @@
  * could test if it was 0, and get rid of the SERIAL_CONFIG_VALID below.
  */
 
-  #define SERIAL_MODE_ASYNC    (USART_CMODE_ASYNCHRONOUS_gc)
-  #define SERIAL_MODE_MSPI     (USART_CMODE_MSPI_gc)
-  #define SERIAL_MODE_IRCOM    (USART_CMODE_IRCOM_gc)
-  #define SERIAL_MODE_SYNC     (USART_CMODE_SYNCHRONOUS_gc)
-/* MSPI doesn't Parity, Stop/Start bits or the size field.
- * Sync and IRCOM modes do. */
+  #define SERIAL_MODE_ASYNC     (USART_CMODE_ASYNCHRONOUS_gc)
+  #define SERIAL_MODE_MSPI      (USART_CMODE_MSPI_gc)
+  #define SERIAL_MODE_IRCOM     (USART_CMODE_IRCOM_gc)
+  #define SERIAL_MODE_SYNC      (USART_CMODE_SYNCHRONOUS_gc)
+/* MSPI doesn't use the Parity, have start or stop bits and is always 8 bit characters.
+ * Sync and IRCOM modes are like ASync - but only */
 
+// Used only in MSPI mode.
+  #define SERIAL_MSPI_LSB       (USART_UDORD_bm)
+  #define SERIAL_MSPI_MSB       (0)
+  #define SERIAL_MSPI_PHASE     (USART_UCPHA_bm)
 /* You can combine them yourself with | - but you need 5 things:
-  * A SERIAL_MODE.
-  * A SERIAL_STOP_BIT option (can be omitted for 1 SB)
-  * A SERIAL_PARITY option (can be omitted for none)
-  * A SERIAL_DATA option specifying the size of a character (not optional, hardware default is 5 bits.
-  * SERIAL_CONFIG_VALID, an otherwise unused bit used to signal that this is a complete configuration (the concern
-    is that a user could modifiers not realizing that there wasn't a default if they passed options (see below),
-    and forget to include a SERIAL_xPs constant, and be expecting that it would default to 8-bit bytes. But it doesn't,
-    the bits default to 0b000, ie, USART_CHSIZE_5BIT_gc. So we check for the flag. If all the fields in the SERIAL_xPs
-    half of the options are 0, we check for SERIAL_CONFIG_VALID but. If they used a valid constant, or read this, they
-    will have included that, but if they were a leap before look type, they wouldn't pass that flag, we'd see that they
-    passed modifiers but the thing they were modifying was empty, so rather than use the set of options that happens to
-    have a numeric value of 0, and load the default values.
+  * A SERIAL_MODE
+  * A SERIAL_STOP_BIT option  (can be omitted for 1 SB)
+  * A SERIAL_PARITY option    (can be omitted for none)
+  * A SERIAL_DATA option specifying the size of a character (Cannot be omitted, default is 5bit!)
 */
 
-  #define SERIAL_5N1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_5) | SERIAL_CONFIG_VALID)
-  #define SERIAL_6N1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_6) | SERIAL_CONFIG_VALID)
-  #define SERIAL_7N1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_7) | SERIAL_CONFIG_VALID)
-  #define SERIAL_8N1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
-  #define SERIAL_5N2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_5) | SERIAL_CONFIG_VALID)
-  #define SERIAL_6N2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_6) | SERIAL_CONFIG_VALID)
-  #define SERIAL_7N2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_7) | SERIAL_CONFIG_VALID)
-  #define SERIAL_8N2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
-  #define SERIAL_5E1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_5) | SERIAL_CONFIG_VALID)
-  #define SERIAL_6E1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_6) | SERIAL_CONFIG_VALID)
-  #define SERIAL_7E1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_7) | SERIAL_CONFIG_VALID)
-  #define SERIAL_8E1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
-  #define SERIAL_5E2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_5) | SERIAL_CONFIG_VALID)
-  #define SERIAL_6E2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_6) | SERIAL_CONFIG_VALID)
-  #define SERIAL_7E2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_7) | SERIAL_CONFIG_VALID)
-  #define SERIAL_8E2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
-  #define SERIAL_5O1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_5) | SERIAL_CONFIG_VALID)
-  #define SERIAL_6O1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_6) | SERIAL_CONFIG_VALID)
-  #define SERIAL_7O1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_7) | SERIAL_CONFIG_VALID)
-  #define SERIAL_8O1  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
-  #define SERIAL_5O2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_5) | SERIAL_CONFIG_VALID)
-  #define SERIAL_6O2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_6) | SERIAL_CONFIG_VALID)
-  #define SERIAL_7O2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_7) | SERIAL_CONFIG_VALID)
-  #define SERIAL_8O2  ((uint16_t)(SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_8) | SERIAL_CONFIG_VALID)
+  #define SERIAL_5N1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_5)
+  #define SERIAL_6N1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_6)
+  #define SERIAL_7N1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_7)
+  #define SERIAL_8N1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_NONE | SERIAL_DATA_8)
+  #define SERIAL_5N2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_5)
+  #define SERIAL_6N2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_6)
+  #define SERIAL_7N2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_7)
+  #define SERIAL_8N2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_NONE | SERIAL_DATA_8)
+  #define SERIAL_5E1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_5)
+  #define SERIAL_6E1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_6)
+  #define SERIAL_7E1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_7)
+  #define SERIAL_8E1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_EVEN | SERIAL_DATA_8)
+  #define SERIAL_5E2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_5)
+  #define SERIAL_6E2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_6)
+  #define SERIAL_7E2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_7)
+  #define SERIAL_8E2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 | SERIAL_PARITY_EVEN | SERIAL_DATA_8)
+  #define SERIAL_5O1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_5)
+  #define SERIAL_6O1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_6)
+  #define SERIAL_7O1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_7)
+  #define SERIAL_8O1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 |  SERIAL_PARITY_ODD | SERIAL_DATA_8)
+  #define SERIAL_5O2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_5)
+  #define SERIAL_6O2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_6)
+  #define SERIAL_7O2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_7)
+  #define SERIAL_8O2  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_2 |  SERIAL_PARITY_ODD | SERIAL_DATA_8)
 
+  #define SERIAL_MSPI_MSB_FIRST        (SERIAL_MODE_MSPI |                     SERIAL_MSPI_MSB)
+  #define SERIAL_MSPI_LSB_FIRST        (SERIAL_MODE_MSPI |                     SERIAL_MSPI_LSB)
+  #define SERIAL_MSPI_MSB_FIRST_PHASE  (SERIAL_MODE_MSPI | SERIAL_MSPI_PHASE | SERIAL_MSPI_MSB)
+  #define SERIAL_MSPI_LSB_FIRST_PHASE  (SERIAL_MODE_MSPI | SERIAL_MSPI_PHASE | SERIAL_MSPI_LSB)
 
 /* Modifier Definitions  - these can be OR'ed with the other definition to turn on features like one-wire half duplex and more */
+#if defined(USART_RS4850_bm)
+  #define SERIAL_RS485         (((uint16_t) USART_RS4850_bm) << 8)// 0x0100
+  #define SERIAL_RS485_OTHER   (((uint16_t) USART_RS4851_bm) << 8)// 0x0200 tinyAVR 0/1 - that wacky, other RS485 mode.
+#else
+  #define SERIAL_RS485         (((uint16_t) USART_RS485_bm)  << 8)// 0x0100
+#endif
+  #define SERIAL_OPENDRAIN      ((uint16_t)                0x0400)// 0x0400
+  #define SERIAL_LOOPBACK      (((uint16_t) USART_LBME_bm)   << 8)// 0x0800
+  #define SERIAL_TX_ONLY       (((uint16_t) USART_RXEN_bm)   << 8)// 0x8000 The TXEN/RXEN bits are swapped - we invert the meaning of this bit.
+  #define SERIAL_RX_ONLY       (((uint16_t) USART_TXEN_bm)   << 8)// 0x4000 so if not specified, you get a serial port with both pins. Do not specify both. That will not enable anything.
+//#define SERIAL_MODE_SYNC      Defined Above                     // 0x0040 - works much like a modifier to enable synchronous mode.
+// See the Serial reference for more information as additional steps are required
+  #define SERIAL_HALF_DUPLEX     (SERIAL_LOOPBACK | SERIAL_OPENDRAIN)
+  //
 
-  #define SERIAL_RS485         (((uint16_t) USART_RS485_bm) << 8) // 0x0100
-  //#define SERIAL_RS485_OTHER (((uint16_t) USART_RS485_bm) << 9) // 0x0200 tinyAVR 0/1?
-  #define SERIAL_OPENDRAIN      ((uint16_t) 0x0400)               // 0x0400
-  #define SERIAL_LOOPBACK      (((uint16_t) USART_LBME_bm)  << 8) // 0x0800
-  #define SERIAL_TX_ONLY       (((uint16_t) USART_RXEN_bm)  << 8) // 0x8000 The TXEN/RXEN bits are swapped - we invert the meaning of this bit.
-  #define SERIAL_RX_ONLY       (((uint16_t) USART_TXEN_bm)  << 8) // 0x4000 so if not specified, you get a serial port with both pins. Do not specify both.
-  #define SERIAL_EVENT_RX       ((uint16_t) 0x2000)               // 0x2000
-  //#define SERIAL_CONFIG_VALID ((uint16_t) 0x1000)               // 0x1000 This bit is set by all of the SERIAL_nPs defines. If it is NOT present
-  #define SERIAL_HALF_DUPLEX     (SERIAL_LOOPBACK | SERIAL_OPENDRAIN)    // We will assume SERIAL_8N1, not SERIAL 5N1, which is what CTRLC = 0 would normally do.
-                                                                         // TODO: Get rid of this, and change SERIAL_5N1 to use 0x04 instead of 0x00 for CHSIZE.
-                                                                         // but need to first make sure that option doesn't do something undocumented and useful.
 
 /* CTRLA is interrupt flags, plus 3 some options relevant to RS485
  *
@@ -221,8 +211,6 @@
  * we're going to write to CTRLB. The other CTRLB one and the internal need to be done individually, so it doesn't matter
  * that needs to set other options too.
  */
-
-
 
 
   /* These are not usable on these parts. badCall() gets pulled in if you use them. */
