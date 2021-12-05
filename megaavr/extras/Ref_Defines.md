@@ -6,14 +6,14 @@ You cannot check for options that depend on the fuses at compile-time, because w
 ## Millis timer
 The option used for the millis/micros timekeeping is given by a define of the form `USE_MILLIS_TIMERxx`. Possible options are:
 * `MILLIS_USE_TIMERA0`
-* `MILLIS_USE_TIMERA1` (only on 48/64 pin DA/DB, and all EA)
+* `MILLIS_USE_TIMERA1` (only on 48/64 pin DA/DB, or EA)
 * `MILLIS_USE_TIMERB0`
-* `MILLIS_USE_TIMERB1` (default on 14/20-pin DD for now)
-* `MILLIS_USE_TIMERB2` (Default except on 14/20 pin DD that don't have it)
-* `MILLIS_USE_TIMERB3` (48/64-pin DA/DBV, all EA only)
+* `MILLIS_USE_TIMERB1`
+* `MILLIS_USE_TIMERB2` (except on 14/20 pin DD that don't have it)
+* `MILLIS_USE_TIMERB3` (48/64-pin DA/DB and all EA have this)
 * `MILLIS_USE_TIMERB4` (64-pin parts only)
 * `MILLIS_USE_TIMERD0` (not supported on DA/DB series - there's no shortage of TCBs here). May be supported for DD due to their only having 2 type B timers on the 14/20 pin parts.
-* `DISABLE_MILLIS`
+* `MILLIS_USE_TIMERNONE` (millis disabled)
 
 ### Using to check that correct menu option is selected
 If your sketch requires that the B0 is used as the millis timer, for example:

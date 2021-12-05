@@ -47,18 +47,25 @@
 // is 94 clocks, real-world is usually far less, but I'll only say "less"
 // The functions in question have considerable register pressure).
 //
-// I am not convinced > 256b is safe for the RX buffer....No atomic block
-// is implemented, and I'm concerned that read
+// I am not convinced > 256b is safe for the RX buffer....
 
+#define USE_ASM_TXC 1    // This is the easy one saves 6+44 per USART after the first: 50 with 2, 94 with 3, 182 with 5,  226 with 6
+#define USE_ASM_RXC 1    // saves 56 + 72 per USART after the first: 118 with 2 190 with 3, 334 with 5 and 406 with 6
+#define USE_ASM_DRE 1    // This is the hard one...Depends on BOTH buffers. Saves as much as RXC
+// combined save 118 + 188 per USART
+// 1038 bytes with 6 USARTs (1.58% of total flash on 64Dx64)
+// 850 with 5 (2.5% of total flash on 32Dx48)
+// 474 with 3 (1.44% of total flash on 32Dx32)
+// 286 with 2 (1.72% of total flash on 16DDxx and 3.44% on 8EAxx)
 #if !defined(SERIAL_TX_BUFFER_SIZE)
-  #if ((RAMEND - RAMSTART) < 1023)
-    #define SERIAL_TX_BUFFER_SIZE 16
+  #if ((INTERNAL_SRAM_SIZE) < 2048)
+    #define SERIAL_TX_BUFFER_SIZE 32
   #else
     #define SERIAL_TX_BUFFER_SIZE 64
   #endif
 #endif
 #if !defined(SERIAL_RX_BUFFER_SIZE)
-  #if ((RAMEND - RAMSTART) < 1023)
+  #if ((INTERNAL_SRAM_SIZE) < 1024)
     #define SERIAL_RX_BUFFER_SIZE 16
   #else
     #define SERIAL_RX_BUFFER_SIZE 64
@@ -76,6 +83,10 @@
 #endif
 
 class UartClass : public HardwareSerial {
+/* DANGER DANGER DANGER
+ * CHANGING THE MEMBER VARIABLES BETWEEN HERE AND THE OTHER SCARY COMMENT WILL COMPLETELY BREAK SERIAL
+ * WHEN USE_ASM_DRE or USE_ASM_RXC is used!
+ * DANGER DANGER DANGER */
  protected:
     volatile USART_t * _hwserial_module;  // pointer to the USART module, needed to access the correct registers.
     uint8_t *_usart_pins;   // pointer to the pin set, in PROGMEM
@@ -91,7 +102,9 @@ class UartClass : public HardwareSerial {
     // instruction.
     volatile uint8_t _rx_buffer[SERIAL_RX_BUFFER_SIZE];
     volatile uint8_t _tx_buffer[SERIAL_TX_BUFFER_SIZE];
-
+  /* DANGER DANGER DANGER
+   * ANY CHANGES BETWEEN OTHER SCARY COMMENT AND THIS ONE WILL BREAK SERIAL when USE_ASM_DRE or USE_ASM_RXC is used!
+   * DANGER DANGER DANGER */
  public:
     inline UartClass(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_default);
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
@@ -129,8 +142,14 @@ class UartClass : public HardwareSerial {
     explicit operator bool() {return true;}
 
     // Interrupt handlers - Not intended to be called externally
-    static void _rx_complete_irq(UartClass& uartClass);
-    static void _tx_data_empty_irq(UartClass& uartClass);
+    #if !(defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
+      static void _rx_complete_irq(UartClass& uartClass);
+    #endif
+    #if !(defined(USE_ASM_DRE) && USE_ASM_DRE == 1 && \
+         (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+         (SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
+      static void _tx_data_empty_irq(UartClass& uartClass);
+    #endif
 
  private:
     void _poll_tx_data_empty(void);
