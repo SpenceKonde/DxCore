@@ -82,6 +82,20 @@
   typedef uint8_t rx_buffer_index_t;
 #endif
 
+/* Macros to help the rare few who want sync or MSPI mode */
+#define syncBegin(port, baud, config, syncopts) ({\
+  if ((config & 0xC0) == 0x40)                    \
+    {pinConfigure(port.getPin(2), syncopts);      \
+    port.begin(baud >> 3, config);                \
+  }})
+
+#define mspiBegin(port, baud, config, invert) ({  \
+  if ((config & 0xC0) == 0xC0) {                  \
+    pinConfigure(port.getPin(2), invert);         \
+    port.begin(baud >> 3, config);                \
+  }})
+
+
 class UartClass : public HardwareSerial {
 /* DANGER DANGER DANGER
  * CHANGING THE MEMBER VARIABLES BETWEEN HERE AND THE OTHER SCARY COMMENT WILL COMPLETELY BREAK SERIAL
@@ -112,22 +126,24 @@ class UartClass : public HardwareSerial {
     void end();
     bool pins(uint8_t tx, uint8_t rx);
     bool swap(uint8_t state);
-    void   printHex(const uint8_t b);
-    void   printHex(const uint16_t w, bool swaporder = 0);
-    void   printHex(const uint32_t l, bool swaporder = 0);
-    void   printHex(const int8_t   b)              {printHex((uint8_t)b);}
-    void   printHex(const char     b)              {printHex((uint8_t)b);}
-    void printHexln(const uint8_t  b)              {printHex(   b); println();}
-    void printHexln(const uint16_t w, bool s = 0)  {printHex(w, s); println();}
-    void printHexln(const uint32_t l, bool s = 0)  {printHex(l, s); println();}
-    void printHexln(const int8_t   b)              {printHex((uint8_t)    b); println();}
-    void printHexln(const char     b)              {printHex((uint8_t)    b); println();}
+    void   printHex(const uint8_t  b            );
+    void   printHex(const uint16_t w, bool s = 0);
+    void   printHex(const uint32_t l, bool s = 0);
+    void   printHex(const int16_t  w, bool s = 0)  {printHex((uint16_t)w, s);}
+    void   printHex(const int32_t  l, bool s = 0)  {printHex((uint32_t)l, s);}
+    void   printHex(const int8_t   b)              {printHex((uint8_t) b   );}
+    void   printHex(const char     b)              {printHex((uint8_t) b   );}
+    void printHexln(const uint8_t  b)              {printHex(          b   ); println();}
+    void printHexln(const uint16_t w, bool s = 0)  {printHex(          w, s); println();}
+    void printHexln(const uint32_t l, bool s = 0)  {printHex(          l, s); println();}
+    void printHexln(const int8_t   b)              {printHex((uint8_t) b   ); println();}
+    void printHexln(const char     b)              {printHex((uint8_t) b   ); println();}
     void printHexln(const int16_t w, bool s = 0)   {printHex((uint16_t)w, s); println();}
-    void printHexln(const int32_t l, bool s = 0)   {printHex((uint16_t)l, s); println();}
-    uint8_t *  printHex(uint8_t*  p, uint8_t len, char sep = 0);
-    uint16_t * printHex(uint16_t* p, uint8_t len, char sep = 0, bool swaporder = 0);
-    volatile uint8_t *  printHex(volatile uint8_t*  p, uint8_t len, char sep = 0);
-    volatile uint16_t * printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool swaporder = 0);
+    void printHexln(const int32_t l, bool s = 0)   {printHex((uint32_t)l, s); println();}
+    uint8_t *           printHex(         uint8_t * p, uint8_t len, char sep = 0            );
+    uint16_t *          printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
+    volatile uint8_t *  printHex(volatile uint8_t * p, uint8_t len, char sep = 0            );
+    volatile uint16_t * printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
     virtual int available(void);
     virtual int availableForWrite(void);
     virtual int peek(void);
@@ -140,6 +156,7 @@ class UartClass : public HardwareSerial {
     inline size_t write(int n)           {return write((uint8_t)n);}
     using Print::write;   // pull in write(str) and write(buf, size) from Print
     explicit operator bool() {return true;}
+    uint8_t getPin(uint8_t pin);
 
     // Interrupt handlers - Not intended to be called externally
     #if !(defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
@@ -153,9 +170,11 @@ class UartClass : public HardwareSerial {
 
  private:
     void _poll_tx_data_empty(void);
-    static void        _set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask);
-    static void         _mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code);
-    static uint8_t _pins_to_swap(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin);
+    /* These all concern pin set handling */
+    static void        _set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting,  uint8_t enmask);
+    static void         _mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code                    );
+    static uint8_t _pins_to_swap(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin,       uint8_t rx_pin);
+    static uint8_t       _getPin(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting,  uint8_t pin);
 };
 
 #if defined(USART0)

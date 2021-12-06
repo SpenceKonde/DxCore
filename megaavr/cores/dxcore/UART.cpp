@@ -369,8 +369,8 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
   ctrlc &= ~0x04;                                   // ... as none of the values with it set are supported.
   uint8_t   ctrla =(uint8_t) (options >> 8);        // CTRLA will get the remains of the options high byte.
   uint16_t baud_setting = 0;                        // at this point it should be able to reuse those 2 registers that it received options in!
-  uint8_t         ctrlb = (~ctrla & 0xC0);          // Top two bits (TXEN RXEN), inverted so they match he sense in the registers.
-  if (baud   > F_CPU / 16) {                        // if this baud is too fast for non-U2X
+  uint8_t         ctrlb = (~ctrla & 0xC0);          // Top two bits (TXEN RXEN), inverted so they match he sense in the registers - we could return here, but we don't cae about speed, and it'd be 4 more bytes
+  if (baud > F_CPU / 16) {                          // if this baud is too fast for non-U2X
     ctrlb              |= USART_RXMODE0_bm;         // set the U2X bit in what will become CTRLB
     baud              >>= 1;                        // And lower the baud rate by haldf
   }
@@ -385,7 +385,7 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
     ctrla  |= USART_RXCIE_bm;               // we will want to enable the ISR.
   }
   uint8_t setpinmask = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
-  if ((ctrla & USART_LBME_bm) && (setpinmask == 0xC8)) { //if it's open-drain and loopback, need to set state bit 2.
+  if ((ctrla & USART_LBME_bm) && (setpinmask == 0xC8)) { //if it's open-drain and loopback AND both TX and RX are enabled, need to set state bit 2.
     _state                 |= 2;            // since that changes some behavior (RXC disabled while sending) // Now we should be able to ST _state.
     setpinmask             |= 0x10;         // this tells _set_pins not to disturb the configuration on the RX pin.
   }
@@ -491,6 +491,7 @@ void UartClass::flush() {
   // the hardware finished transmission (TXCIF is set).
 }
 
+// Static
 void UartClass::_mux_set(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_code) {
 #if HWSERIAL_MUX_REG_COUNT > 1  // for big pincount devices that have more then one USART PORTMUX register
   uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 1;
@@ -514,30 +515,47 @@ void UartClass::_mux_set(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_
 #endif
 }
 
-void UartClass::_set_pins(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask) { // enmask 76 are bits, for ernsablr
+// Note that *no attempt is made* to detect and react to incomplete pinsets. It is the resposnability of the user to pick a pinset that contains
+// all the pins they need. Unless you're only receiving, pinset 0, USART1, AVR DD14 or DD20 isn't much use.
+// Likewise, you can't do RS485 on DD/EA USART0 pinset 4.
+// and no RS485 nor any clocked modes with pinset 1 of USART3 on a 48-pin part, or pinset 1 on USART2 anywhere
+// and the unfortunate souls on 28-pin parts can't use it on USART2 at all (though this is hardle the greatest of their woes).
+// enmask: 0b rt_l o__s where r and r are 1 if RX and TX are enabled, l and o are loopback and open drain, and s is RS485 mode.
+// That gives 32 options, though RX485 is independent, so the 16 options can be described as:
+// RX TX LB OD      Result:
+//  0  0  x  x   *  No pins are changed, usart disabled.
+//  0  1  x  0      TX set output, RX not changed.
+//  0  1  x  1      TX set input pulleup, RX not changed.
+//  1  0  1  x   *  TX set input pullup.
+//  1  1  0  0      TX set output, RX set input pullup.
+//  1  1  0  1      TX and RX set input pullup.
+//  1  1  1  0      TX set output, RX not changed. Loopback mode: you can only see what you send since TX is OUTPUT and that's what's connected to RX.
+//  1  1  1  1      TX set input pullup. Half-duplex mode.
+// * indicates that RS485 mode if requested will be enabled, even though it is inappropriate. These configurations are documented unsupported.
+// Static
+void UartClass::_set_pins(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask) {
   uint8_t* mux_row_ptr   = mux_table_ptr + (mux_setting * USART_PINS_WIDTH);
   uint16_t mux_row_gc_tx = pgm_read_word_near(mux_row_ptr); // Clever trick for faster PGM reads of consecutive bytes!
-  uint8_t mux_group_code = (uint8_t) (mux_row_gc_tx); // this is the mux
-  if (mux_setting < mux_count) {  // if false, pinmux none was selected
+  uint8_t mux_group_code = (uint8_t) (mux_row_gc_tx);       // this is the mux
+  if (mux_setting < mux_count) {              // if false, pinmux none was selected, and we skip the pin configuration.
     uint8_t mux_pin_tx   = (uint8_t) (mux_row_gc_tx >> 8);
     if ((enmask & 0x40 && !(enmask & 0x08))) {
-      pinMode(mux_pin_tx, OUTPUT);   //If and only if TX is enabled and open drain isn't should the TX pin be output.
-    } else if (enmask & 0x50) {       // if it is enabled but is in open drain mode, or is disabled, but loopback is enabled
-      // TX should be INPUT_PULLUP.
-      pinMode(mux_pin_tx, INPUT_PULLUP);
+      pinMode(mux_pin_tx, OUTPUT);            // If and only if TX is enabled and open drain isn't should the TX pin be output.
+    } else if (enmask & 0x50) {               // if it is enabled but is in open drain mode, or is disabled, but loopback is enabled
+      pinMode(mux_pin_tx, INPUT_PULLUP);      // TX should be INPUT_PULLUP.
     }
-    if (enmask & 0x80 && !(enmask & 0x10)) {
-      // Likewise if RX is enabled, unless loopback mode is too (in which case we caught it above, it should be pulled up
-      pinMode(mux_pin_tx + 1, INPUT_PULLUP);
+    if (enmask & 0x80 && !(enmask & 0x10)) {  // Likewise if RX is enabled, unless loopback mode is too
+      pinMode(mux_pin_tx + 1, INPUT_PULLUP);  // (in which case we caught it above), it should be pulled up
     }
     if (enmask & 1) {
-      pinMode(mux_pin_tx + 3, OUTPUT); // in RS485 mode we need to make sure that XDIR is an output
+      pinMode(mux_pin_tx + 3, OUTPUT);        // in RS485 mode we need to make sure that XDIR is an output
     }
   }
   _mux_set(mux_table_ptr, mux_count, mux_group_code);
 }
 
 
+// Static
 uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
   if (tx_pin == NOT_A_PIN && rx_pin == NOT_A_PIN) {
     return  128;            // get MUX_NONE
@@ -556,7 +574,38 @@ uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint
     return NOT_A_MUX; // At this point, we have checked all group codes for this peripheral. It ain't there. Return NOT_A_MUX.
   }
 }
-
+// Not static
+uint8_t UartClass::getPin(uint8_t pin) {
+  return _getPin(_usart_pins, pin, _pin_set, _mux_count);
+}
+// Static
+uint8_t UartClass::_getPin(uint8_t * mux_table_ptr, uint8_t muxcount, uint8_t pinset, uint8_t pin) {
+  if (pin >3 || pinset > muxcount) {
+    return NOT_A_PIN;
+  }
+  mux_table_ptr += USART_PINS_WIDTH * pinset;
+  if (pgm_read_byte_near(mux_table_ptr++) == NOT_A_MUX) {
+    return NOT_A_PIN; //somehow an invalid pinset is selected...
+  }
+  if (pin > 1) {
+    mux_table_ptr++;
+  }
+  uint8_t base = pgm_read_byte_near(mux_table_ptr); //TX or XCK
+  if (base == NOT_A_PIN) {
+    return NOT_A_PIN;
+  }
+  #if (defined(__AVR_DD__) && _AVR_PINCOUNT < 28)
+    if ((base == PIN_PC0 && pin == 0) || (base == PIN_PC3 && pin == 3)) {
+      return NOT_A_PIN;/* these are the only cases where RX exists without TX, or XDIR exists without XCK */
+    } /* and the only case where only one of the first two pins exists.
+       * There are many examples where TX/RX exist by XCK doesn't, but these are already handled.
+       */
+  #endif
+  if (pin & 1) {
+    base++;
+  }
+  return base; // RX = TX + 1. XDIR = XCK + 1 for all Dx and Ex parts!
+}
 
 
 size_t UartClass::write(uint8_t c) {
@@ -568,16 +617,16 @@ size_t UartClass::write(uint8_t c) {
   // 500kbit/s) bit rates, where interrupt overhead becomes a slowdown.
   if ((_tx_buffer_head == _tx_buffer_tail) && ((*_hwserial_module).STATUS & USART_DREIF_bm)) {
     if (_state & 2) { //in half duplex mode, we turn off RXC interrupt
-      uint8_t ctrla = (*_hwserial_module).CTRLA;
-      ctrla &= ~USART_RXCIE_bm;
-      ctrla |= USART_TXCIE_bm;
-      (*_hwserial_module).STATUS = USART_TXCIF_bm;
-      (*_hwserial_module).CTRLA = ctrla;
+      uint8_t ctrla               = (*_hwserial_module).CTRLA;
+      ctrla                      &= ~USART_RXCIE_bm;
+      ctrla                      |= USART_TXCIE_bm;
+      (*_hwserial_module).STATUS  = USART_TXCIF_bm;
+      (*_hwserial_module).CTRLA   = ctrla;
     } else {
-      (*_hwserial_module).STATUS = USART_TXCIF_bm;
+      (*_hwserial_module).STATUS  = USART_TXCIF_bm;
     }
     // MUST clear TXCIF **before** writing new char, otherwise ill-timed interrupt can cause it to erase the flag after the new charchter has been sent!
-    (*_hwserial_module).TXDATAL = c;
+    (*_hwserial_module).TXDATAL   = c;
 
 
 /*   * I cannot figure out *HOW* the DRE could be enabled at this point (buffer empty and DRE flag up)
@@ -603,16 +652,15 @@ size_t UartClass::write(uint8_t c) {
   while (i == _tx_buffer_tail) {
     _poll_tx_data_empty();
   }
-  _tx_buffer[_tx_buffer_head] = c;
-  _tx_buffer_head = i;
+  _tx_buffer[_tx_buffer_head]  = c;
+  _tx_buffer_head              = i;
   if (_state & 2) { //in half duplex mode, we turn off RXC interrupt
-    uint8_t ctrla = (*_hwserial_module).CTRLA;
-    ctrla &= ~USART_RXCIE_bm;
-    ctrla |= USART_TXCIE_bm | USART_DREIE_bm;
+    uint8_t ctrla              = (*_hwserial_module).CTRLA;
+    ctrla                     &= ~USART_RXCIE_bm;
+    ctrla                     |= USART_TXCIE_bm | USART_DREIE_bm;
     (*_hwserial_module).STATUS = USART_TXCIF_bm;
-    (*_hwserial_module).CTRLA = ctrla;
-  } else {
-    // Enable "data register empty interrupt"
+    (*_hwserial_module).CTRLA  = ctrla;
+  } else { // Enable "data register empty interrupt"
     (*_hwserial_module).CTRLA |= USART_DREIE_bm;
   }
 

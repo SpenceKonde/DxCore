@@ -20,9 +20,9 @@ UART us "Universal Asynchronous Receiver Transmitter"
 
 USART is "Universal Synchronous/Asynchronous Receiver Transmitter"
 
-A UART can only communicate in asynchronous mode (with TX and RX) a USART adds a third pin, XCK, that can be configured as a clock.
+A UART can only communicate in asynchronous mode (with TX and RX), while a USART optionally adds a third pin, XCK, that can be configured as a clock. The serial ports on AVR devices have always been USARTs (a very small number of ancient classic AVRs have UARTs instead)
 
-The synchronous mode isn't as flexible as you might think, largely because of the whole start/stop bit thing. Another reason is is less frequently used is the availability of adapter hardware for desktop compters, or rather the lack thereof. It is, if anything, even harder to find support for than a SPI.
+The synchronous mode isn't as flexible as you might think, largely because of the whole start/stop bit thing. Another reason it is less frequently used is the availability of adapter hardware for desktop compters, or rather the lack thereof. It is, if anything, even harder to find support for than SPI.
 
 Note that, unlike the `MSPI` mode, Synchronous Mode does support operation as either slave or master; the MSPI mode, which drops the start and stop bits, and works largely like a proper SPI interface is master only.
 
@@ -48,7 +48,79 @@ It implements the standard Serial API, plus a small number of additional options
 
 These two methods both change the pins connected to the device. Swap takes a number - that's 0 for the "default" 1 for "ALT1" and so on. It is more efficient and is the preferred method. Serial.pins does exactly what you would think - sets the TX and RX pins of that port to the TX and RX pins given by the arguments. Assuming of course, that the pins are valid mux options. Either way, both of these functions return a boolean, true for a successful change of the pins, and this always must be called before Serial.begin() (or after Serial.end() but before reopening it with Serial.begin() again). If the swap or pins given are invalid, it will return false, and reset the pins to the default value. If the compiler can determine at compile time that it will never work (generally, constant arguments that aren't valid, like calling `Serial.swap(21)` instead of `Serial.swap(2)`) we will refuse to compile and throw a `badArg()` error.
 
-On DA/DB parts, this was pretty straightforward. Every PORT except the middle one (PORTD) got a USART (PORTD is the "analog-focused" port), and in ascending number, the USARTs are associated with PORTA, PORTC, PORTF, PORTB, PORTE, PORTG - very systematic. Default on pins 0-3 TX to XDIR, alternate option on 4-7, TX to XDIR. That is, in fact, identical to the megaAVR 0-series. The DD has made things a lot more complicated/exciting with regards to pin mapping, but nothing benefited more than USART, which now has up to 5 mapping options.
+The pinsets are shown on the pinout charts and/or part specific reference pages. In brief:
+* On DA/DB parts, every PORT except the middle one (PORTD) got a USART. and in ascending number, the USARTs are associated with PORTA, PORTC, PORTF, PORTB, PORTE, PORTG. Parts that don't have the port  Default on pins 0-3 TX to XDIR, alternate option on 4-7. That is identical to the megaAVR 0-series.
+* The DD has made things a lot more complicated/exciting with regards to pin mapping for many peripherals, but nothing benefited more than USART0. The options are:
+  * USART0: PA0-PA3, PA4-PA7, PA2-PA3 (no XCK/XDIR), PD4-7, PC1-PC3 (no XDIR). (note that PA2-PA7 are not available on 14-pin parts, so valid swap options are 0, 3, 4, with only 4 having all pins)
+  * USART1: PC0-PC3 (note that 14/20 pin parts have no PC0), PC4-PC7 (not available because pins not present.), PD6-PD7 (no XCK/XDIR).
+* The EA-series has the same options as the DDs, plus USART2 and maybe USART3 on 48-pin parts. The product brief is all we have to go on, and it's not self-consistent on the matter of how many USARTs these will have. It looks like they just copy-pasted pieces of the DD and DB's table together, .
+* On tinyAVR parts with more than 8 pins, the two mapping options for Serial are PB2, PB3, PB1, PB0 and PA1, PA2, PA3, PA4 for TX, RX, XCK, XDIR.
+* On 8-pin parts, they are PA6, PA7, PA3, PA0 (yes, that means no XDIR for the 8-pin parts without setting UPDI as GPIO), and PA1, PA2 (no XCK or XDIR with alt mapping)
+* On 2-series parts, the second USART shares the default mux position with the first USART's alternate option. The options are PA1, PA2, PA3, PA4 or PC0, PC1, PC3, PC3. Note that this means that the there is no alternate option for 14-pin 2-series parts.
+
+### Serial.getPin(pin_name)
+Returns the pin corresponding to that function with the current mux option.
+```c
+PIN_SERIAL_TX
+PIN_SERIAL_RX
+PIN_SERIAL_XCK
+PIN_SERIAL_XDIR
+```
+**Warning** - on DD-series parts, this may return an inaccurate values in two specific cases. For the case of USART0 mapping 4, XDIR (that pin does not exist, but we return the the non-existent pin instead), and for USART1, mapping 0, TX on 14/20 pin parts (that pin doesn't exist, but we return it anyway).
+
+This function is meant for use by libraries to allow them to figure out which pin is in use without duplicating the logic we have already implemented.
+
+### Serial.printHex() and Serial.printHexln()
+Serial.printHex() is a cut-down method to print hexadecimal numbers with less bloat than Serial.print(number,HEX). It's designed to print numbers in the way that programmers would want them printed - the number of leading zeros will match the data type, ie if you print an unsigned long, with 1 in the low byte and 0's in the other three, it will print 00000001, not 1. As you would expect, printHexln() does the same thing and adds a newline.
+
+There are two additional features aimed at the same goal sort of use case:
+1. For 16 and 32-bit datatypes, you can pass a boolean as the second argument. If it is true, the endianness will be reversed.
+
+2. You can also pass a pointer to either a uint8_t or a uint16_t. In this case the arguments are:
+```c
+uint8_t *  printHex(uint8_t * p, uint8_t len, char sep = 0);
+uint16_t * printHex(uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
+```
+
+It will print n elements starting from the address the pointer is pointed at, if `sep` is non-zero, that character will be placed between each byte or word. If s is true, the endianness will be swapped as well. There is a slightly different implementation for volatile pointers, and know that the compiler won't try to "help" you by skipping the reads.
+
+All cases where a pointer is used return a pointer to the next element. These automatically put a newline at the end.
+The point of it was doing things like this when debugging issues with a peripheral:
+```c
+  // dump every register associated with the CCL
+  volatile uint8_t * cclconfig= (volatile uint8_t*)&CCL;
+  cclconfig = Serial.printHex(cclconfig, 0x08, ':');  // per datasheet register summary, first 8 are either reservedbytes or effect all LUTs
+  cclconfig = Serial.printHex(cclconfig, 0x4, ':');   // LUT0 each LUT has it's own 4 bytes.
+  cclconfig = Serial.printHex(cclconfig, 0x4, ':');   // LUT1
+  cclconfig = Serial.printHex(cclconfig, 0x4, ':');   // LUT2
+  cclconfig = Serial.printHex(cclconfig, 0x4, ':');   // LUT3
+/* Output (would be more interesting if I actually was using the CCL at the time, instead of demonstrating serial functions:
+00:00:00:00:00:00:00:00
+00:00:00:00
+00:00:00:00
+00:00:00:00
+00:00:00:00
+*/
+```
+Many peripherals have a couple of 16-bit registers; this works very nicely. Say I'm trying to debug a problem involving the synchronous mode serial (because recently I was), it's got a baud register in the middle that I'd like to have formatted nicely. A union of a word and a byte pointer is just the thing here
+
+```c
+  union {
+    volatile uint16_t *  intp;
+    volatile uint8_t *  bytep;
+  } data;
+  syncBegin(Serial1,1000000,(SERIAL_8N1 | SERIAL_MODE_SYNC), SYNCBEGIN_NORMAL_MASTER);
+  data.bytep = (volatile uint8_t*)&USART1;
+  data.bytep += 4; // skip the two buffers
+  data.bytep = Serial.printHex(data.bytep, 4, ':'); // prints STATUS, CTRLA, CTRLB, CTRLC
+  data.intp = Serial.printHex(data.intp, 1, ':'); //next up is the BAUD register, a 16-bit one
+  data.bytep = Serial.printHex(data.bytep, 6, ':'); //and then there are 6 more byte registers....
+/* Output:
+  20:80:C0:43
+  0280
+  00:00:00:00:00:00
+*/
+```
 
 ### Serial.begin(uint32_t baud, uint16_t options)
 This starts the serial port. Options should be made by combining the constant referring to the desired baud rate, parity and stop bit length, zero or more of the modifiers below
@@ -97,22 +169,24 @@ If you use the two argument form of Serial.begin() be certain to remember to pas
 When Loopback mode is enabled, the RX pin is released, and TX is internally connected to Rx. This is only a functional loopback test port, because another device couldn't drive the line low without fighting for control over the pin with this device. Loopback mode itself isn't very useful. But see below.
 
 ### Open Drain Mode
-In Open Drain mode, the TX pin will no longer drive high. The pin must not be set as OUTPUT. If you don't fiddle with it, this will correctly handled for you. With just openDrain mode enabled, a multidrop network becomes very practical.
+In Open Drain mode, the TX pin will no longer drive high. The pin must not be set as OUTPUT. If you don't fiddle with it, this will correctly handled for you. This is also not terribly useful on it's own - though it would be useful communicating with a lower voltage device, with TX pulled up to the other device's Vcc.
 
 ### RS485 Mode
 In RS485 mode, at initialization, the HWSerial class configures the XDIR pin as an OUTPUT. 1 bit-time prior to sending any data, the XDIR pin will be driven HIGH. If using RS485, this should be connected to the external line driver IC to enable transmit. XDIR will be lowered 1 bit-time after the last bit has been sent. If you require the opposite polarity, simply set PORTx.PINnCTRL |= PORT_INVEN_bm;
 or use `pinConfigure()` [See Digital I/O Reference](Ref_Digital.md)
 
-#### These three options can be combined, and probably should
-* Loopback + Open Drain - This results in a half-duplex single serial interface. This is fairly common, and in fact is often used in.... RS485 configurations.
+RS485 mode in combination with RX_ONLY will simply set the pin to an output, but never use it, because the TX module isnt enabled.
+
+#### These options were meant to be combined
+* Loopback + Open Drain - These two not-particularly-useful options, when combined, become very useful - this gives you a half-duplex single serial interface. This is fairly common (UPDI is actually implemented this way), but it's almost ubiquitous in RS485.
 * Loopback + Open Drain + RX485: In this mode, it will work perfectly for the case where there is an external line driver IC but it has only a single TX/RX combined wire and a TX_Enable pin (terminology may vary).
 
 #### Half-duplex schemes change the behavior of Serial in important ways
-Normally, RX is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the characters you transmit. That's fine for just loopback - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent would end up intermixed with actual received data. This is not very helpful (and checking the receive buffer to verify successful transmit looked awkward - that would be ideal, of course. I reckon it would still require a so)
+Normally, RX functionality is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the characters you transmit. That's fine for just loopback - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent would end up intermixed with actual received data. This is not very helpful (and checking the receive buffer to verify successful transmit looked awkward, since you'd have to keep a record of what you sent to compare it to. - that would be ideal, of course, but I didn't think it was worth the development time or flash it would take)
 SO, whenever the following bits are set:
 
 CTRLA: LBME
-CTRLB: ODME, TXEN, RXEN
+CTRLB: ODME and TXEN and RXEN
 
 In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes, it will disable itself after  reading RXDATAL until the RXC flag is cleared (to flush out the characters you sent), and enable the RXC interrupt again.
 
@@ -133,9 +207,26 @@ To use the synchronous mode, you must do four things:
 * If operating as master, **divide the desired baud rate by 8**; do this with the rightshift operator (`>> 3`) to avoid a slow division operation. The desired baud rate must be at most half of the system clock. If operating as slave, it doesn't matter what you pass as baud rate (but the maximum applies to whatever clock the master is generating).
 * Add the `SERIAL_MODE_SYNC` constant to the second argument to Serial.begin() by ORing it with the rest of the value, ex: `Serial.begin(100000 >> 3, (SERIAL_MODE_SYNC | SERIAL_8N1));` should start USART0 in sync mode with a baud rate of 100kbaud.
 
+There is a macro which *should* work for this (done as a macro so it doesn't add anything to the class if not used). This should be treated as experimental (the API may change)
+```c
+syncBegin(port, baud, config, syncoptions);
+/*example*/
+syncBegin(Serial1, 1000000, (SERIAL_MODE_SYNC | SERIAL_8N1), SYNCBEGIN_INVERT_MASTER)
+/*
+This will divide the baud rate by 8 for you, call Serial.begin(), and call pinConfigure() with appropriate options to configure the pin as output or input and invert or no-invert if needed.
+constants are:
+SYNCBEGIN_INVERT_MASTER
+SYNCBEGIN_NORMAL_MASTER
+SYNCBEGIN_INVERT_SLAVE
+SYNCBEGIN_NORMAL_SLAVE
+*/
+```
+
 That *should* be all that is needed to use Synchronous mode. Note however that this mode has not been tested. There is one potential issue - they specify that the low 6 bits of the baud register are not used and should be written as zero. Serial won't do that. It is not clear whether those bits, if non-zero, will cause problems or not. If you have problems operating as sync master (probably taking the form of clock generation problems), I would suggest trying `USARTn.BAUD &= 0xFFC0;` after Serial.begin. If it was broken, and that fixed it, or if you have experience with this mode, please let me know so that I can update this document.
 
-If operating as sync. slave, and the master does not provide a clock signal, you will eventually fill the TX buffer. At this point the next character you attempt to write will hang. Check Serial.availableForWrite() before writing to it to ensure that there is room to first if you think this could be an issue. Nothing prevents you from combining incongruous options like Open Drain, Loopback, or RS485 mode with SYNC mode; you will get whatever behavior Microchip saw fit to provide when that combination of bits is set - though Open Drain would only apply to the TX pin (it requires setting TX as input) - it might work as slave (does that mean a 2 wire clock + bidirectional data mode is possible? Probably, if you for some reason wanted that - though I haven't even tested sync mode without any wacky options).
+In Syncronous USART mode, the master will *continually* generate a clock signal, permitting the slave to communicate at any time. (unless you call serial.end, or set the pin to input; if you do things like that, make sure that you leave the pin in the idle state - that is, that it is either pulled down (with an external resistor) if the pin is not inverted, or pulled up (can use internal pullup) if it is)
+
+If operating as slave, if the master does not provide a clock signal, you will eventually fill the TX buffer. At this point the next character you attempt to write will hang. Check Serial.availableForWrite() before writing to it to ensure that there is room to first if you think this could be an issue. Nothing prevents you from combining incongruous options like Open Drain, Loopback, or RS485 mode with SYNC mode; you will get whatever behavior Microchip saw fit to provide when that combination of bits is set - though Open Drain would only apply to the TX pin (it requires setting TX as input) - it might work as slave (does that mean a 2 wire clock + bidirectional data mode is possible? Probably, if you for some reason wanted that - though I haven't even tested sync mode without any wacky options).
 
 #### Master SPI (MSPI) mode
 This mode is very similar to synchronous mode, and even more rarely used - it is most notable in that it lets you configure the clock speed of SPI far more precisely and at much lower speeds than the normal SPI peripheral. The steps to use it are much the same as for synchronous mode:
@@ -145,6 +236,18 @@ This mode is very similar to synchronous mode, and even more rarely used - it is
 * As the options, specify one of the 4 MSPI options listed above. Refer to the discussion of data modes above, or the table below. If this is specified, it will sample on the second transition and transmit on the first, (like SPI modes 1 and 3, or sync USART), otherwise, it will sample on the leading edge.
 
 Character size, stop bits, and parity are not used in MSPI mode
+
+There is a macro which *should* work for this (done as a macro so it doesn't add anything to the class if not used). It should return 0 on success. This should be treated as experimental (the API may change)
+```c
+syncBegin(port, baud, config, mspioptions);
+/*example*/
+syncBegin(Serial1, 1000000, (SERIAL_MODE_MSPI | SERIAL_MSPI_LSB_FIRST), MSPIBEGIN_NORMAL)
+/*
+This will divide the baud rate by 8 for you, call Serial.begin(), and call pinConfigure() with appropriate options to configure the pin as output and invert or not-invert if needed.
+MSPI options is simply:
+MSPIBEGIN_INVERT or MSPIBEGIN_NORMAL
+*/
+```
 
 ### Summary of clocking options
 
