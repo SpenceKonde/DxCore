@@ -239,7 +239,7 @@ void Event::set_generator(uint8_t pin_number) {
 Event& Event::assign_generator_pin(uint8_t pin_number) {
   uint8_t port = digitalPinToPort(pin_number);
   uint8_t port_pin = digitalPinToBitPosition(pin_number);
-  return Event::assign_generator_pin(port, port_pin)
+  return Event::assign_generator_pin(port, port_pin);
 }
 
 Event& Event::assign_generator_pin(uint8_t port, uint8_t port_pin) {
@@ -374,7 +374,7 @@ Event& Event::assign_generator_pin(uint8_t port, uint8_t port_pin) {
   #endif // end of tiny 0/1 assign_generator_pin()
 }
 
-Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
+Event& Event::assign_generator(gen::generator_t gen, uint8_t ch) {
   if (ch != 255) { // this means it can only be the divided rtc, pins, or disable,
     if (gen == 0) {
       // What the hell are they doing asking for disabled with a specific channel's constant?!
@@ -448,10 +448,10 @@ Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
         // But in assign_generator_pin(uint8_t) we have to convert to port and bit anyway
         // so I split that up, calculate the port and bit position here, and call that.
         #if !defined(MEGATINYCORE)
-          uint8_t port = ch & 0xFE + (gen & 0x08 ? 1 : 0);
+          uint8_t port = (ch & 0xFE) + ((gen & 0x08) ? 1 : 0);
           uint8_t port_pin = gen & 0x07;
         #else  // it's 2-series2-series has PA/PB, PB/PC, PC/PA - it wraps around
-          uint8_t port = ch >> 1 + (gen & 0x08 ? 1 : 0);
+          uint8_t port = (ch >> 1) + ((gen & 0x08) ? 1 : 0);
           if (port == 3) {
             port = 0;
           }
@@ -528,7 +528,7 @@ Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
       }
     #endif // non-tiny0/1-section of channel-specific generators.
   } else { // otherwise it could be on any channel, so check if it's already live on a channel first
-    Event& chan=Event::get_event_channel(gen);
+    Event& chan=Event::get_generator_channel(gen);
     if (chan.get_channel_number() != 255) { // is this right?
       return chan;
     } else {
@@ -761,6 +761,7 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
         #elif defined(PIN_PB2) //14-pin parts - same logic here, if it's port pin 2, and we have PIN_PB2, it's not PA2, and we don't have PC2, it's gotta be PB2.
           else
             event_user = user::evoutb_pin_pb2;
+        #endif
       }
       #if (MEGATINYCORE_SERIES == 2)
         else if (port_pin == 7) {
@@ -837,7 +838,7 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
       if (port_pin == 2)
         event_user = user::evoutg_pin_pg2;
       else if (port_pin == 7)
-        event_user = user::evoutg_pin_pg7
+        event_user = user::evoutg_pin_pg7;
     #endif
     set_user((user::user_t)event_user);
   }

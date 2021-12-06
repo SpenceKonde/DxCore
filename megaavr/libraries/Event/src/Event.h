@@ -313,12 +313,6 @@ namespace gen5 {
     rtc_div256  = 0x09,
     rtc_div128  = 0x0A,
     rtc_div64   = 0x0B,
-#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
-    pin_pe0     = 0x40,
-    pin_pe1     = 0x41,
-    pin_pe2     = 0x42,
-    pin_pe3     = 0x43,
-#endif
 #if defined(__AVR_ATmegax09__) || defined(PIN_PE0)
     pin_pe0     = 0x40,
     pin_pe1     = 0x41,
@@ -1171,40 +1165,37 @@ class Event {
     static Event& assign_generator_pin(uint8_t port,uint8_t port_pin);
     static Event& assign_generator(gen::generator_t event_generator, uint8_t ch = 255);
     #if defined(MEGATINYCORE) && MEGATINYCORE_SERIES < 2
-      static Event& assign_generator(gens::generator_t generator) { set_generator((gen::generator_t)generator, 254); }
+      static Event& assign_generator(gens::generator_t generator) {return  assign_generator((gen::generator_t)generator, 254); }
     #endif
     #if defined(EVSYS_CHANNEL0)
-      static Event& assign_generator(gen0::generator_t generator) { set_generator((gen::generator_t)generator, 0); }
-    #endif
-    #if defined(EVSYS_CHANNEL0)
-      static Event& assign_generator(gen0::generator_t generator) { set_generator((gen::generator_t)generator, 0); }
+      static Event& assign_generator(gen0::generator_t generator) {return  assign_generator((gen::generator_t)generator, 0); }
     #endif
     #if defined(EVSYS_CHANNEL1)
-      static Event& assign_generator(gen1::generator_t generator) { set_generator((gen::generator_t)generator, 1); }
+      static Event& assign_generator(gen1::generator_t generator) {return  assign_generator((gen::generator_t)generator, 1); }
     #endif
     #if defined(EVSYS_CHANNEL2)
-      static Event& assign_generator(gen2::generator_t generator) { set_generator((gen::generator_t)generator, 2); }
+      static Event& assign_generator(gen2::generator_t generator) {return  assign_generator((gen::generator_t)generator, 2); }
     #endif
     #if defined(EVSYS_CHANNEL3)
-      static Event& assign_generator(gen3::generator_t generator) { set_generator((gen::generator_t)generator, 3); }
+      static Event& assign_generator(gen3::generator_t generator) {return  assign_generator((gen::generator_t)generator, 3); }
     #endif
     #if defined(EVSYS_CHANNEL4)
-      static Event& assign_generator(gen4::generator_t generator) { set_generator((gen::generator_t)generator, 4); }
+      static Event& assign_generator(gen4::generator_t generator) {return  assign_generator((gen::generator_t)generator, 4); }
     #endif
     #if defined(EVSYS_CHANNEL5)
-      static Event& assign_generator(gen5::generator_t generator) { set_generator((gen::generator_t)generator, 5); }
+      static Event& assign_generator(gen5::generator_t generator) {return  assign_generator((gen::generator_t)generator, 5); }
     #endif
     #if defined(EVSYS_CHANNEL6)
-      static Event& assign_generator(gen6::generator_t generator) { set_generator((gen::generator_t)generator, 6); }
+      static Event& assign_generator(gen6::generator_t generator) {return  assign_generator((gen::generator_t)generator, 6); }
     #endif
     #if defined(EVSYS_CHANNEL7)
-      static Event& assign_generator(gen7::generator_t generator) { set_generator((gen::generator_t)generator, 7); }
+      static Event& assign_generator(gen7::generator_t generator) {return  assign_generator((gen::generator_t)generator, 7); }
     #endif
     #if defined(EVSYS_CHANNEL8)
-      static Event& assign_generator(gen8::generator_t generator) { set_generator((gen::generator_t)generator, 8); }
+      static Event& assign_generator(gen8::generator_t generator) {return  assign_generator((gen::generator_t)generator, 8); }
     #endif
     #if defined(EVSYS_CHANNEL9)
-      static Event& assign_generator(gen9::generator_t generator) { set_generator((gen::generator_t)generator, 9); }
+      static Event& assign_generator(gen9::generator_t generator) {return  assign_generator((gen::generator_t)generator, 9); }
     #endif
 
 
