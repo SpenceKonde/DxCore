@@ -1214,35 +1214,115 @@ class Event {
     volatile uint8_t &channel_address; // Reference to the event channel address
     uint8_t generator_type;            // Generator type the event channel is using
 };
+#if defined(MEGATINYCORE) && MEGATINYCORE_SERIES !=2
+  #if defined(EVSYS_SYNCCH0)
+    extern Event Event0;
+    #define EventSync0     Event0
+    #define EVSYS_CHANNEL0 EVSYS_SYNCCH0
+  #endif
+  #if defined(EVSYS_SYNCCH1)
+    extern Event Event1;
+    #define EventSync1     Event1
+    #define EVSYS_CHANNEL1 EVSYS_SYNCCH1
+  #endif
+  #if defined(EVSYS_ASYNCCH0)
+    extern Event Event2;
+    #define EventAsync0    Event2
+    #define EVSYS_CHANNEL2 EVSYS_ASYNCCH0
+  #endif
+  #if defined(EVSYS_ASYNCCH1)
+    extern Event Event3;
+    #define EventAsync1    Event3
+    #define EVSYS_CHANNEL3 EVSYS_ASYNCCH1
+  #endif
+  #if defined(EVSYS_ASYNCCH2)
+    extern Event Event4;
+    #define EventAsync2    Event4
+    #define EVSYS_CHANNEL4 EVSYS_ASYNCCH2
+  #endif
+  #if defined(EVSYS_ASYNCCH3)
+    extern Event Event5;
+    #define EventAsync3    Event5
+    #define EVSYS_CHANNEL5 EVSYS_ASYNCCH3
+  #endif
+  #if defined(EVSYS_SYNCUSER0)
+    #define EVSYS_USERTCA0CNTA EVSYS_SYNCUSER0
+  #endif
+  #if defined(EVSYS_SYNCUSER1)
+    #define EVSYS_USERUSART0IRDA EVSYS_SYNCUSER1
+  #endif
+  #if defined(EVSYS_ASYNCUSER0)
+    #define EVSYS_USERTCB0CAPT EVSYS_ASYNCUSER0
+  #endif
+  #if defined(EVSYS_ASYNCUSER1)
+    #define EVSYS_USERADC0START EVSYS_ASYNCUSER1
+  #endif
+  #if defined(EVSYS_ASYNCUSER2)
+    #define EVSYS_USERCCLLUT0A EVSYS_ASYNCUSER2
+  #endif
+  #if defined(EVSYS_ASYNCUSER3)
+    #define EVSYS_USERCCLLUT1A EVSYS_ASYNCUSER3
+  #endif
+  #if defined(EVSYS_ASYNCUSER4)
+    #define EVSYS_USERCCLLUT0B EVSYS_ASYNCUSER4
+  #endif
+  #if defined(EVSYS_ASYNCUSER5)
+    #define EVSYS_USERCCLLUT1B EVSYS_ASYNCUSER5
+  #endif
+  #if defined(EVSYS_ASYNCUSER6)
+    #define EVSYS_USERTCD0INPUTA EVSYS_ASYNCUSER6
+  #endif
+  #if defined(EVSYS_ASYNCUSER7)
+    #define EVSYS_USERTCD0INPUTB EVSYS_ASYNCUSER7
+  #endif
+  #if defined(EVSYS_ASYNCUSER8)
+    #define EVSYS_USEREVSYSEVOUTA EVSYS_ASYNCUSER8
+  #endif
+  #if defined(EVSYS_ASYNCUSER9)
+    #define EVSYS_USEREVSYSEVOUTB EVSYS_ASYNCUSER9
+  #endif
+  #if defined(EVSYS_ASYNCUSER10)
+    #define EVSYS_USEREVSYSEVOUTC EVSYS_ASYNCUSER10
+  #endif
+  #if defined(EVSYS_ASYNCUSER11)
+    #define EVSYS_USERTCB1CAPT EVSYS_ASYNCUSER11
+  #endif
+  #if defined(EVSYS_ASYNCUSER12)
+    #define EVSYS_USERADC1START EVSYS_ASYNCUSER12
+  #endif
 
-#if defined(EVSYS_CHANNEL0)
-  extern Event Event0;
+
+#else
+  #if defined(EVSYS_CHANNEL0)
+    extern Event Event0;
+  #endif
+  #if defined(EVSYS_CHANNEL1)
+    extern Event Event1;
+  #endif
+  #if defined(EVSYS_CHANNEL2)
+    extern Event Event2;
+  #endif
+  #if defined(EVSYS_CHANNEL3)
+    extern Event Event3;
+  #endif
+  #if defined(EVSYS_CHANNEL4)
+    extern Event Event4;
+  #endif
+  #if defined(EVSYS_CHANNEL5)
+    extern Event Event5;
+  #endif
+  #if defined(EVSYS_CHANNEL6)
+    extern Event Event6;
+  #endif
+  #if defined(EVSYS_CHANNEL7)
+    extern Event Event7;
+  #endif
+  #if defined(EVSYS_CHANNEL8)
+    extern Event Event8;
+  #endif
+  #if defined(EVSYS_CHANNEL9)
+    extern Event Event9;
+  #endif
 #endif
-#if defined(EVSYS_CHANNEL1)
-  extern Event Event1;
-#endif
-#if defined(EVSYS_CHANNEL2)
-  extern Event Event2;
-#endif
-#if defined(EVSYS_CHANNEL3)
-  extern Event Event3;
-#endif
-#if defined(EVSYS_CHANNEL4)
-  extern Event Event4;
-#endif
-#if defined(EVSYS_CHANNEL5)
-  extern Event Event5;
-#endif
-#if defined(EVSYS_CHANNEL6)
-  extern Event Event6;
-#endif
-#if defined(EVSYS_CHANNEL7)
-  extern Event Event7;
-#endif
-#if defined(EVSYS_CHANNEL8)
-  extern Event Event8;
-#endif
-#if defined(EVSYS_CHANNEL9)
-  extern Event Event9;
-#endif
+
 #endif // EVENT_H
