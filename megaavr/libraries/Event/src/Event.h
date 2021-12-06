@@ -8,6 +8,9 @@
 // Readable code always takes priority over formatting dogma. -Spence
 
 // Features present on all generator channels
+
+#ifndef MEGATINYCORE
+
 namespace gen {
   enum generator_t : uint8_t {
     disable       = 0x00,
@@ -20,6 +23,12 @@ namespace gen {
     ccl2_out      = 0x12,
     ccl3_out      = 0x13,
     ac0_out       = 0x20,
+#if defined(AC1)
+    ac1_out       = 0x21,
+#endif
+#if defined(AC2)
+    ac2_out       = 0x22,
+#endif
     adc0_ready    = 0x24,
     usart0_xck    = 0x60,
     usart1_xck    = 0x61,
@@ -50,8 +59,6 @@ namespace gen {
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
     ccl4_out      = 0x14,
     ccl5_out      = 0x15,
-    ac1_out       = 0x21,
-    ac2_out       = 0x22,
     zcd0_out      = 0x30,
     zcd1_out      = 0x31,
 #if defined(ZCD2)
@@ -71,22 +78,33 @@ namespace gen {
     tca1_cmp1     = 0x8D,
     tca1_cmp2     = 0x8E,
 #endif
+#endif // defined(__AVR_DA__) || defined(__AVR_DB__)
+#if defined(DXCORE)
+// These are present on every  modern part released since the 0/1-series and will probably continue to be
+// so check
     tcb0_ovf      = 0xA1,
     tcb1_ovf      = 0xA3,
+#if defined(TCB2)
     tcb2_ovf      = 0xA5,
+#endif
 #if defined(TCB3)
     tcb3_ovf      = 0xA7,
 #endif
 #if defined(TCB4)
     tcb4_ovf      = 0xA9,
 #endif
+#endif
+#if defined(TCD0)
     tcd0_cmpbclr  = 0xB0,
     tcd0_cmpaset  = 0xB1,
     tcd0_cmpbset  = 0xB2,
     tcd0_progev   = 0xB3,
-#endif // defined(__AVR_DA__) || defined(__AVR_DB__)
+#endif
 #if defined(MVIO)
     mvio_ok       = 0x05,
+#endif
+#if defined(ZCD3)
+    zcd3_out      = 0x30, //The ZCD is numbered differently, I think just because it's on different pins. Still has the same event channel
 #endif
 #if defined(__AVR_DB__)
     opamp0_ready  = 0x34,
@@ -110,13 +128,15 @@ namespace gen0 {
     rtc_div1024 = 0x0B,
     pin_pa0     = 0x40,
     pin_pa1     = 0x41,
+#if !defined(DXCORE) || defined(PIN_PA2)
     pin_pa2     = 0x42,
     pin_pa3     = 0x43,
     pin_pa4     = 0x44,
     pin_pa5     = 0x45,
     pin_pa6     = 0x46,
     pin_pa7     = 0x47,
-#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#endif
+#if defined(__AVR_ATmegax09__) || defined(PIN_PB0)
     pin_pb0     = 0x48,
     pin_pb1     = 0x49,
     pin_pb2     = 0x4A,
@@ -124,7 +144,7 @@ namespace gen0 {
     pin_pb4     = 0x4C,
     pin_pb5     = 0x4F,
 #endif
-#if defined(Dx_64_PINS)
+#if defined(PIN_PB6)
     pin_pb6     = 0x4E,
     pin_pb7     = 0x4F,
 #endif
@@ -144,13 +164,15 @@ namespace gen1 {
     rtc_div64   = 0x0B,
     pin_pa0     = 0x40,
     pin_pa1     = 0x41,
+#if !defined(DXCORE) || defined(PIN_PA2)
     pin_pa2     = 0x42,
     pin_pa3     = 0x43,
     pin_pa4     = 0x44,
     pin_pa5     = 0x45,
     pin_pa6     = 0x46,
     pin_pa7     = 0x47,
-#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#endif
+#if defined(__AVR_ATmegax09__) || defined(PIN_PB0)
     pin_pb0     = 0x48,
     pin_pb1     = 0x49,
     pin_pb2     = 0x4A,
@@ -158,7 +180,7 @@ namespace gen1 {
     pin_pb4     = 0x4C,
     pin_pb5     = 0x4F,
 #endif
-#if defined(Dx_64_PINS)
+#if defined(PIN_PB6)
     pin_pb6     = 0x4E,
     pin_pb7     = 0x4F,
 #endif
@@ -176,7 +198,10 @@ namespace gen2 {
     rtc_div4096 = 0x09,
     rtc_div2048 = 0x0A,
     rtc_div1024 = 0x0B,
+#if !defined(DD_14_PINS)  // can't just check PIN_PC0 - the 0-pin of any port with any pins present is always defined by DxCore.
+                          // I considered both ways, but there are to many reasons we need to have the 0-pin defined.
     pin_pc0     = 0x40,
+#endif
     pin_pc1     = 0x41,
     pin_pc2     = 0x42,
     pin_pc3     = 0x43,
@@ -186,10 +211,14 @@ namespace gen2 {
     pin_pc6     = 0x46,
     pin_pc7     = 0x47,
 #endif
+#if !defined(DXCORE) || defined(PIN_PD1) //See above for note on PIN_PD0 and why we can't test that, this even impacts DBs.
+#if !defined(MVIO) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pd0     = 0x48,
+#endif
     pin_pd1     = 0x49,
     pin_pd2     = 0x4A,
     pin_pd3     = 0x4B,
+#endif
     pin_pd4     = 0x4C,
     pin_pd5     = 0x4F,
     pin_pd6     = 0x4E,
@@ -208,20 +237,26 @@ namespace gen3 {
     rtc_div256  = 0x09,
     rtc_div128  = 0x0A,
     rtc_div64   = 0x0B,
+#if !defined(DD_14_PINS)
     pin_pc0     = 0x40,
+#endif
     pin_pc1     = 0x41,
     pin_pc2     = 0x42,
     pin_pc3     = 0x43,
-#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(PIN_PC4)
     pin_pc4     = 0x44,
     pin_pc5     = 0x45,
     pin_pc6     = 0x46,
     pin_pc7     = 0x47,
 #endif
+#if !defined(DXCORE) || defined(PIN_PD1) //See above for note on PIN_PD0 and why we can't test that, this even impacts DBs.
+#if !defined(MVIO) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
     pin_pd0     = 0x48,
+#endif
     pin_pd1     = 0x49,
     pin_pd2     = 0x4A,
     pin_pd3     = 0x4B,
+#endif
     pin_pd4     = 0x4C,
     pin_pd5     = 0x4F,
     pin_pd6     = 0x4E,
@@ -240,13 +275,13 @@ namespace gen4 {
     rtc_div4096 = 0x09,
     rtc_div2048 = 0x0A,
     rtc_div1024 = 0x0B,
-#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(PIN_PE0)
     pin_pe0     = 0x40,
     pin_pe1     = 0x41,
     pin_pe2     = 0x42,
     pin_pe3     = 0x43,
 #endif
-#if defined(Dx_64_PINS)
+#if defined(PIN_PE4)
     pin_pe4     = 0x44,
     pin_pe5     = 0x45,
     pin_pe6     = 0x46,
@@ -254,13 +289,16 @@ namespace gen4 {
 #endif
     pin_pf0     = 0x48,
     pin_pf1     = 0x49,
-#if !defined(Dx_28_PINS)
+#if defined(PIN_PF2)
     pin_pf2     = 0x4A,
     pin_pf3     = 0x4B,
     pin_pf4     = 0x4C,
     pin_pf5     = 0x4D,
 #endif
     pin_pf6     = 0x4E,
+#if defined(PIN_PF7)
+    pin_pf7     = 0x4F
+#endif
   };
 };
 #endif
@@ -281,7 +319,13 @@ namespace gen5 {
     pin_pe2     = 0x42,
     pin_pe3     = 0x43,
 #endif
-#if defined(Dx_64_PINS)
+#if defined(__AVR_ATmegax09__) || defined(PIN_PE0)
+    pin_pe0     = 0x40,
+    pin_pe1     = 0x41,
+    pin_pe2     = 0x42,
+    pin_pe3     = 0x43,
+#endif
+#if defined(PIN_PE4)
     pin_pe4     = 0x44,
     pin_pe5     = 0x45,
     pin_pe6     = 0x46,
@@ -289,13 +333,16 @@ namespace gen5 {
 #endif
     pin_pf0     = 0x48,
     pin_pf1     = 0x49,
-#if !defined(Dx_28_PINS)
+#if defined(PIN_PF2)
     pin_pf2     = 0x4A,
     pin_pf3     = 0x4B,
     pin_pf4     = 0x4C,
     pin_pf5     = 0x4D,
 #endif
     pin_pf6     = 0x4E,
+#if defined(PIN_PF7)
+    pin_pf7     = 0x4F
+#endif
   };
 };
 #endif
@@ -398,7 +445,7 @@ namespace user {
     evoutd_pin_pd2 = 0x0C,
 #if defined(__AVR_ATmegax09__)
     evoute_pin_pe2 = 0x0D,
-  #endif
+#endif
     evoutf_pin_pf2 = 0x0E,
     usart0_irda    = 0x0F,
     usart1_irda    = 0x10,
@@ -420,6 +467,7 @@ namespace user {
 #endif
     evoutd_pin_pd7 = 0x8C,
 #endif // defined(__AVR_ATmegax08__) || defined(__AVR_ATmegax09__)
+
 #if defined(__AVR_DA__)
       ccl0_event_a   = 0x00,
       ccl0_event_b   = 0x01,
@@ -438,18 +486,18 @@ namespace user {
       adc0_start     = 0x0C,
       ptc_start      = 0x0D,
       evouta_pin_pa2 = 0x0E,
-#if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
+#if defined(PIN_PB2)
       evoutb_pin_pb2 = 0x0F,
 #endif
       evoutc_pin_pc2 = 0x10,
       evoutd_pin_pd2 = 0x11,
-#if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
+#if defined(PIN_PE2)
       evoute_pin_pe2 = 0x12,
 #endif
-#if (!defined(Dx_28_PINS))
+#if defined(PIN_PF2)
       evoutf_pin_pf2 = 0x13,
 #endif
-#if defined (Dx_64_PINS)
+#if defined(PIN_PG2)
       evoutg_pin_pg2 = 0x14,
 #endif
       usart0_irda    = 0x15,
@@ -492,19 +540,19 @@ namespace user {
       tcd0_in_b      = 0x2A,
       // "Unofficial" user generators. Uses EVOUT, but swaps the output pin using PORTMUX
       evouta_pin_pa7 = 0x8E,
-#if (defined(Dx_64_PINS))
+#if defined(PIN_PB7)
       evoutb_pin_pb7 = 0x8F,
 #endif
-#if (defined(Dx_48_PINS)||defined(Dx_64_PINS))
+#if defined(PIN_PC7)
       evoutc_pin_pc7 = 0x90,
 #endif
       evoutd_pin_pd7 = 0x91,
-#if (defined(Dx_64_PINS))
-      evoutb_pin_pe7 = 0x92,
+#if defined(PIN_PE7)
+      evoute_pin_pe7 = 0x92,
 #endif
-      // evoutf_pin_pf7 = 0x93, never available on DB
-#if (defined(Dx_64_PINS))
-      evoutb_pin_pg7 = 0x94,
+      // evoutf_pin_pf7 = 0x93, never available on DA/DB
+#if defined(PIN_PG7)
+      evoutg_pin_pg7 = 0x94,
 #endif
 #endif // defined(__AVR_DA__)
 #if defined(__AVR_DB__)
@@ -524,18 +572,18 @@ namespace user {
 #endif
     adc0_start     = 0x0C,
     evouta_pin_pa2 = 0x0D,
-#if defined(Dx_64_PINS) || defined(Dx_48_PINS)
+#if defined(PIN_PB2)
     evoutb_pin_pb2 = 0x0E,
 #endif
     evoutc_pin_pc2 = 0x0F,
     evoutd_pin_pd2 = 0x10,
-#if defined(Dx_64_PINS) || defined(Dx_48_PINS)
+#if defined(PIN_PE2)
     evoute_pin_pe2 = 0x11,
 #endif
-#if !defined(Dx_28_PINS)
+#if defined(PIN_PF2)
     evoutf_pin_pf2 = 0x12,
 #endif
-#if defined(Dx_64_PINS)
+#if defined(PIN_PG2)
     evoutg_pin_pg2 = 0x13,
   #endif
     usart0_irda    = 0x14,
@@ -586,22 +634,495 @@ namespace user {
 #endif
     // "Unofficial" user generators. Uses EVOUT, but swaps the output pin using PORTMUX
     evouta_pin_pa7 = 0x8D,
-#if defined(Dx_64_PINS)
+#if defined(PIN_PB7)
     evoutb_pin_pb7 = 0x8E,
 #endif
-#if defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(PIN_PC7)
     evoutc_pin_pc7 = 0x8F,
 #endif
     evoutd_pin_pd7 = 0x90,
-#if defined(Dx_64_PINS)
-    evoutb_pin_pe7 = 0x91,
+#if defined(PIN_PE7)
+    evoute_pin_pe7 = 0x91,
 #endif
-#if defined(Dx_64_PINS)
-    evoutb_pin_pg7 = 0x93,
+#if defined(PIN_PG7)
+    evoutg_pin_pg7 = 0x93,
 #endif
 #endif // defined(__AVR_DB__)
+
+#if defined(__AVR_DD__)
+    ccl0_event_a   = 0x00,
+    ccl0_event_b   = 0x01,
+    ccl1_event_a   = 0x02,
+    ccl1_event_b   = 0x03,
+    ccl2_event_a   = 0x04,
+    ccl2_event_b   = 0x05,
+    ccl3_event_a   = 0x06,
+    ccl3_event_b   = 0x07,
+    adc0_start     = 0x0C,
+#if defined(PIN_PA2) // not on 14-pin ones.
+    evouta_pin_pa2 = 0x0D,
+#endif
+    evoutc_pin_pc2 = 0x0F,
+#if defined(PIN_PD2) // only on 28 or 32 pin ones.
+    evoutd_pin_pd2 = 0x10,
+#endif
+#if defined(PIN_PF2) // only on 32-pin ones.
+    evoutf_pin_pf2 = 0x12,
+#endif
+    usart0_irda    = 0x14,
+    usart1_irda    = 0x15,
+    tca0_cnt_a     = 0x1A,
+    tca0_cnt_b     = 0x1B,
+    tcb0_capt      = 0x1E,
+    tcb0_cnt       = 0x1F,
+    tcb1_capt      = 0x20,
+    tcb1_cnt       = 0x21,
+    tcb2_capt      = 0x22,
+    tcb2_cnt       = 0x23,
+    tcd0_in_a      = 0x28,
+    tcd0_in_b      = 0x29,
+#if defined(PIN_PA7) // not on 14-pin ones.
+    evouta_pin_pa7 = 0x8D,
+#endif
+#if defined(PIN_PC7)
+    evoutc_pin_pc7 = 0x8F,
+#endif
+    evoutd_pin_pd7 = 0x90,
+#endif
   };
 };
+// END NON-TINY ENUMS //
+#elif MEGATINYCORE_SERIES == 2
+
+  namespace gen {
+    enum generator_t : uint8_t {
+      disable         = 0x00,
+      updi_synch      = 0x1,
+      rtc_ovf         = 0x6,
+      rtc_cmp         = 0x7,
+      ccl0_out        = 0x10,
+      ccl1_out        = 0x11,
+      ccl2_out        = 0x12,
+      ccl3_out        = 0x13,
+      ac0_out         = 0x20,
+      adc0_ready      = 0x24,
+      adc0_sample     = 0x25,
+      adc0_window     = 0x26,
+      usart0_xck      = 0x60,
+      usart1_xck      = 0x61,
+      spi0_sck        = 0x68,
+      tca0_ovf_lunf   = 0x80,
+      tca0_hunf       = 0x81,
+      tca0_cmp0       = 0x84,
+      tca0_cmp1       = 0x85,
+      tca0_cmp2       = 0x86,
+      tcb0_capt       = 0xA0,
+      tcb0_ovf        = 0xA1,
+      tcb1_capt       = 0xA2,
+      tcb1_ovf        = 0xA3,
+    };
+  };
+
+  namespace gen0 {
+    enum generator_t : uint8_t {
+      disable     = 0x00,
+      rtc_div8192 = 0x08,
+      rtc_div4096 = 0x09,
+      rtc_div2048 = 0x0A,
+      rtc_div1024 = 0x0B,
+      pin_pa0     = 0x40,
+      pin_pa1     = 0x41,
+      pin_pa2     = 0x42,
+      pin_pa3     = 0x43,
+      pin_pa4     = 0x44,
+      pin_pa5     = 0x45,
+      pin_pa6     = 0x46,
+      pin_pa7     = 0x47,
+      pin_pb0     = 0x40,
+      pin_pb1     = 0x41,
+      pin_pb2     = 0x42,
+      pin_pb3     = 0x43,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pb4     = 0x44,
+      pin_pb5     = 0x45,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pb6     = 0x46,
+      pin_pb7     = 0x47,
+#endif
+    };
+  };
+
+  namespace gen1 {
+    enum generator_t : uint8_t {
+      disable     = 0x00,
+      rtc_div512  = 0x08,
+      rtc_div256  = 0x09,
+      rtc_div128  = 0x0A,
+      rtc_div64   = 0x0B,
+      pin_pa0     = 0x40,
+      pin_pa1     = 0x41,
+      pin_pa2     = 0x42,
+      pin_pa3     = 0x43,
+      pin_pa4     = 0x44,
+      pin_pa5     = 0x45,
+      pin_pa6     = 0x46,
+      pin_pa7     = 0x47,
+      pin_pb0     = 0x40,
+      pin_pb1     = 0x41,
+      pin_pb2     = 0x42,
+      pin_pb3     = 0x43,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pb4     = 0x44,
+      pin_pb5     = 0x45,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pb6     = 0x46,
+      pin_pb7     = 0x47,
+#endif
+    };
+  };
+
+  namespace gen2 {
+    enum generator_t : uint8_t {
+      disable     = 0x00,
+      rtc_div8192 = 0x08,
+      rtc_div4096 = 0x09,
+      rtc_div2048 = 0x0A,
+      rtc_div1024 = 0x0B,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pc0     = 0x40,
+      pin_pc1     = 0x41,
+      pin_pc2     = 0x42,
+      pin_pc3     = 0x43,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pc4     = 0x44,
+      pin_pc5     = 0x45,
+#endif
+      pin_pa0     = 0x40,
+      pin_pa1     = 0x41,
+      pin_pa2     = 0x42,
+      pin_pa3     = 0x43,
+      pin_pa4     = 0x44,
+      pin_pa5     = 0x45,
+      pin_pa6     = 0x46,
+      pin_pa7     = 0x47,
+    };
+  };
+
+  namespace gen3 {
+    enum generator_t : uint8_t {
+      disable     = 0x00,
+      rtc_div512  = 0x08,
+      rtc_div256  = 0x09,
+      rtc_div128  = 0x0A,
+      rtc_div64   = 0x0B,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pc0     = 0x40,
+      pin_pc1     = 0x41,
+      pin_pc2     = 0x42,
+      pin_pc3     = 0x43,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pc4     = 0x44,
+      pin_pc5     = 0x45,
+#endif
+      pin_pa0     = 0x40,
+      pin_pa1     = 0x41,
+      pin_pa2     = 0x42,
+      pin_pa3     = 0x43,
+      pin_pa4     = 0x44,
+      pin_pa5     = 0x45,
+      pin_pa6     = 0x46,
+      pin_pa7     = 0x47,
+    };
+  };
+
+  namespace gen4 {
+    enum generator_t : uint8_t {
+      disable     = 0x00,
+      rtc_div8192 = 0x08,
+      rtc_div4096 = 0x09,
+      rtc_div2048 = 0x0A,
+      rtc_div1024 = 0x0B,
+      pin_pb0     = 0x40,
+      pin_pb1     = 0x41,
+      pin_pb2     = 0x42,
+      pin_pb3     = 0x43,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pb4     = 0x44,
+      pin_pb5     = 0x45,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pb6     = 0x46,
+      pin_pb7     = 0x47,
+#endif
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pc0     = 0x40,
+      pin_pc1     = 0x41,
+      pin_pc2     = 0x42,
+      pin_pc3     = 0x43,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pc4     = 0x44,
+      pin_pc5     = 0x45,
+#endif
+    };
+  };
+
+  namespace gen5 {
+    enum generator_t : uint8_t {
+      disable     = 0x00,
+      rtc_div512  = 0x08,
+      rtc_div256  = 0x09,
+      rtc_div128  = 0x0A,
+      rtc_div64   = 0x0B,
+      pin_pb0     = 0x40,
+      pin_pb1     = 0x41,
+      pin_pb2     = 0x42,
+      pin_pb3     = 0x43,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pb4     = 0x44,
+      pin_pb5     = 0x45,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pb6     = 0x46,
+      pin_pb7     = 0x47,
+#endif
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pc0     = 0x40,
+      pin_pc1     = 0x41,
+      pin_pc2     = 0x42,
+      pin_pc3     = 0x43,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pc4     = 0x44,
+      pin_pc5     = 0x45,
+#endif
+    };
+  };
+
+
+  namespace user {
+    enum user_t : uint8_t {
+      ccl0_event_a            = 0x00,
+      ccl0_event_b            = 0x01,
+      ccl1_event_a            = 0x02,
+      ccl1_event_b            = 0x03,
+      ccl2_event_a            = 0x04,
+      ccl2_event_b            = 0x05,
+      ccl3_event_a            = 0x06,
+      ccl3_event_b            = 0x07,
+      adc0_start              = 0x08,
+      evouta_pin_pa2          = 0x09,
+      evouta_pin_pa7          = 0x89,
+      evoutb_pin_pb2          = 0x0A,
+#if defined(PIN_PB7)
+      evoutb_pin_pb7          = 0x8A,
+#endif
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      evoutc_pin_pc2          = 0x0B,
+#endif
+      usart0_irda             = 0x0C,
+      usart1_irda             = 0x0D,
+      tca0_cnt_a              = 0x0E,
+      tca0_cnt_b              = 0x0F,
+      tcb0_capt               = 0x11,
+      tcb0_cnt                = 0x12,
+      tcb1_capt               = 0x13,
+      tcb1_cnt                = 0x14,
+    };
+  };
+
+#else  // 0/1-series
+
+  namespace gen0 {
+    enum generator_t : uint8_t {
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+      pin_pc0      = 0x07,
+      pin_pc1      = 0x08,
+      pin_pc2      = 0x09,
+      pin_pc3      = 0x0A,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+      pin_pc4      = 0x0B,
+      pin_pc5      = 0x0C,
+#endif
+      pin_pa0      = 0x0D,
+      pin_pa1      = 0x0E,
+      pin_pa2      = 0x0F,
+      pin_pa3      = 0x10,
+      pin_pa4      = 0x11,
+      pin_pa5      = 0x12,
+      pin_pa6      = 0x13,
+      pin_pa7      = 0x14,
+#if (PROGMEM_SIZE > 8192 && MEGATINYCORE_SERIES == 1)
+      tcb1_capt    = 0x15,
+#endif
+    };
+  };
+  namespace gen2 {
+    enum generator_t : uint8_t {
+      pin_pa0      = 0x0A,
+      pin_pa1      = 0x0B,
+      pin_pa2      = 0x0C,
+      pin_pa3      = 0x0D,
+      pin_pa4      = 0x0E,
+      pin_pa5      = 0x0F,
+      pin_pa6      = 0x10,
+      pin_pa7      = 0x11,
+      updi         = 0x12,
+#if (PROGMEM_SIZE > 8192 && MEGATINYCORE_SERIES == 1)
+      ac1_out      = 0x13,
+      ac2_out      = 0x14,
+#endif
+    };
+  };
+
+#if !defined(__AVR_ATtinyxy2__)
+    /* Only on parts with > 8 pins does this have any unique options */
+    namespace gen3 {
+      enum generator_t : uint8_t {
+        pin_pb0      = 0x0A,
+        pin_pb1      = 0x0B,
+        pin_pb2      = 0x0C,
+        pin_pb3      = 0x0D,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+        pin_pb4      = 0x0E,
+        pin_pb5      = 0x0F,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+        pin_pb6      = 0x10,
+        pin_pb7      = 0x11,
+#endif
+#if (PROGMEM_SIZE > 8192 && MEGATINYCORE_SERIES == 1)
+        ac1_out      = 0x12,
+        ac2_out      = 0x13,
+#endif
+      };
+    };
+#endif
+
+#if MEGATINYCORE_SERIES == 1
+    /* Only 1-series parts have third and fourth async sync channel.
+       and only parts with 20/24 pins, or the 1614 have any items on this list available */
+#if !(defined(__AVR_ATtinyxy2__) || (defined(__AVR_ATtinyxy4__) && PROGMEM_SIZE <= 8192))
+    namespace gen4 {
+      enum generator_t : uint8_t {
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+        pin_pc0      = 0x0A,
+        pin_pc1      = 0x0B,
+        pin_pc2      = 0x0C,
+        pin_pc3      = 0x0D,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+        pin_pc4      = 0x0E,
+        pin_pc5      = 0x0F,
+#endif
+#if (PROGMEM_SIZE > 8192) /* Only 16/32k 1-series, but only 1-series is here */
+        ac1_out      = 0x10,
+        ac2_out      = 0x11,
+#endif
+      };
+    };
+#endif
+  namespace gen5 {
+    enum generator_t : uint8_t {
+      rtc_div8192       = 0x0A,
+      rtc_div4096       = 0x0B,
+      rtc_div2048       = 0x0C,
+      rtc_div1024       = 0x0D,
+      rtc_div512        = 0x0E,
+      rtc_div256        = 0x0F,
+      rtc_div128        = 0x10,
+      rtc_div64         = 0x11,
+#if (PROGMEM_SIZE > 8192) /* Only 16/32k 1-series */
+      ac1_out           = 0x12,
+      ac2_out           = 0x13,
+#endif
+    };
+  };
+
+#if !defined(__AVR_ATtinyxy2__)
+    /* Only 1-series parts have second sync channel.
+       Only on parts with > 8 pins does it have any unique options */
+    namespace gen1 {
+      enum generator_t : uint8_t {
+        pin_pb0      = 0x08,
+        pin_pb1      = 0x09,
+        pin_pb2      = 0x0A,
+        pin_pb3      = 0x0B,
+#if (defined(__AVR_ATtinyxy7__) || defined(__AVR_ATtinyxy6__))
+        pin_pb4      = 0x0C,
+        pin_pb5      = 0x0D,
+#endif
+#if defined(__AVR_ATtinyxy7__)
+        pin_pb6      = 0x0E,
+        pin_pb7      = 0x0F,
+#endif
+#if (PROGMEM_SIZE > 8192) /* Only 16/32k 1-series, but only 1-series is here */
+        tcb1_capt    = 0x10,
+#endif
+      };
+    };
+#endif
+#endif // end of  1-series only part.
+
+  namespace gens {
+    enum generator_t : uint8_t {
+      disable           = 0x00,
+      off               = 0x00,
+      tcb0_capt         = 0x01,
+      tca0_ovf_lunf     = 0x02,
+      tca0_hunf         = 0x03,
+      tca0_cmp0         = 0x04,
+      tca0_cmp1         = 0x05,
+      tca0_cmp2         = 0x06,
+    };
+  };
+
+  namespace gen {
+    enum generator_t : uint8_t {
+      disable           = 0x00,
+      off               = 0x00,
+      ccl_lut0          = 0x01,
+      ccl_lut1          = 0x02,
+      ac0_out           = 0x03,
+#if MEGATINYCORE_SERIES == 1
+      tcd0_cmpbclr      = 0x04,
+      tcd0_cmpaset      = 0x05,
+      tcd0_cmpbset      = 0x06,
+      tcd0_progev       = 0x07,
+#endif
+      rtc_ovf           = 0x08,
+      rtc_cmp           = 0x09,
+    };
+  };
+
+
+
+  namespace user {
+    enum user_t : uint8_t {
+      tcb0_capt               = 0x00,
+      adc0_start              = 0x01,
+      ccl0_event_a            = 0x02,
+      ccl1_event_a            = 0x03,
+      ccl0_event_b            = 0x04,
+      ccl1_event_b            = 0x05,
+      tcd0_in_a               = 0x06,
+      tcd0_in_b               = 0x07,
+      evouta_pin_pa2          = 0x08,
+      evoutb_pin_pb2          = 0x09,
+      evoutc_pin_pc2          = 0x0A,
+      tcb1_capt               = 0x0B,
+      adc1_start              = 0x0c,
+      tca0_cnt_a              = 0x10,
+      usart0_irda             = 0x11,
+    };
+  };
+#endif
+
 
 
 class Event {
@@ -649,7 +1170,12 @@ class Event {
     static Event& assign_generator_pin(uint8_t pin_number);
     static Event& assign_generator_pin(uint8_t port,uint8_t port_pin);
     static Event& assign_generator(gen::generator_t event_generator, uint8_t ch = 255);
-
+    #if defined(MEGATINYCORE) && MEGATINYCORE_SERIES < 2
+      static Event& assign_generator(gens::generator_t generator) { set_generator((gen::generator_t)generator, 254); }
+    #endif
+    #if defined(EVSYS_CHANNEL0)
+      static Event& assign_generator(gen0::generator_t generator) { set_generator((gen::generator_t)generator, 0); }
+    #endif
     #if defined(EVSYS_CHANNEL0)
       static Event& assign_generator(gen0::generator_t generator) { set_generator((gen::generator_t)generator, 0); }
     #endif

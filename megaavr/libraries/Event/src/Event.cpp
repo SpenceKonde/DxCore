@@ -291,22 +291,157 @@ Event& Event::assign_generator_pin(uint8_t port, uint8_t port_pin) {
     }
     return Event_empty;
   #elif MEGATINYCORE_SERIES == 2
-    // TODO: Much like above, except it's PA/PB, PB/PC, PC/PA
+    if (port != PC) {
+      uint8_t gen = port_pin | (port == PB ? 0x40 : 0x48);
+      if (Event0.generator_type == gen::disable || Event0.generator_type == gen) {
+        Event0.generator_type = gen;
+        return Event0;
+      }
+      else if (Event1.generator_type == gen::disable || Event1.generator_type == gen) {
+        Event1.generator_type = gen;
+        return Event1;
+      }
+    }
+    if (port != PB) {
+      uint8_t gen = port_pin | (port == PA ? 0x40 : 0x48);
+      if (Event2.generator_type == gen::disable || Event2.generator_type == gen) {
+        Event2.generator_type = gen;
+        return Event2;
+      }
+      else if (Event3.generator_type == gen::disable || Event3.generator_type == gen) {
+        Event3.generator_type = gen;
+        return Event3;
+      }
+    }
+    if (port != PA) {
+      uint8_t gen = port_pin | (port == PC ? 0x40 : 0x48);
+      if (Event4.generator_type == gen::disable || Event4.generator_type == gen) {
+        Event4.generator_type = gen;
+        return Event4;
+      }
+      else if (Event5.generator_type == gen::disable || Event5.generator_type == gen) {
+        Event5.generator_type = gen;
+        return Event5;
+      }
+    }
+    return Event_empty;
   #else // Oh no, it's a 0/1-series!
-    // TODO: PA at one set of offsets, PB at another, then async channels have PA, PB or PC at yet a third offset
-    // and 0-series skips odd numbered channels and hence can't do events from PB at all.
-  #endif
+    uint8_t gen = port_pin + 0x0A;
+    #if !defined(__AVR_ATtinyxy2__)
+      if (port == PA) {
+    #endif
+      if (Event2.generator_type == gen::disable || Event2.generator_type == gen) {
+        Event2.generator_type = gen;
+        return Event2;
+      }
+      gen += 3;
+      if (Event0.generator_type == gen::disable || Event0.generator_type == gen) {
+        Event0.generator_type = gen;
+        return Event0;
+      }
+    #if !defined(__AVR_ATtinyxy2__)
+      }
+    #endif
+    if (port == PB) {
+      if (Event3.generator_type == gen::disable || Event3.generator_type == gen) {
+        Event3.generator_type = gen;
+        return Event3;
+      }
+      #if MEGATINYCORE_SERIES == 1 // No Event1 on 0-series
+        gen -= 2;
+        if (Event1.generator_type == gen::disable || Event1.generator_type == gen) {
+          Event1.generator_type = gen;
+          return Event1;
+        }
+      #endif
+    }
+    #if defined (PIN_PC0) // can't test if PORTx is defined - all are defined everywhere)
+      if (port == PC) {
+        #if MEGATINYCORE_SERIES == 1 //no event 4 on 0-series
+          if (Event4.generator_type == gen::disable || Event4.generator_type == gen) {
+            Event4.generator_type = gen;
+            return Event4;
+          }
+        #endif
+        gen -= 3;
+        if (Event0.generator_type == gen::disable || Event0.generator_type == gen) {
+          Event0.generator_type = gen;
+          return Event0;
+        }
+      }
+    #endif //PC-bearing parts end here
+    return Event_empty
+  #endif // end of tiny 0/1 assign_generator_pin()
 }
 
 Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
-  #if !defined(MEGATINYCORE) || MEGATINYCORE_SERIES == 2
-    if (ch != 255) { // this means it can only be the divided, pins, or disable,
-      if (gen == 0) {
-        // What the hell are they doing asking for disabled with a specific channel's constant?!
-        // They're doing it wrong, whatever it is. If you want a disabled channel, specify gen::disable not genN::disable
-        // I vote to just always return a failure because the request is nonsensical.
+  if (ch != 255) { // this means it can only be the divided rtc, pins, or disable,
+    if (gen == 0) {
+      // What the hell are they doing asking for disabled with a specific channel's constant?!
+      // They're doing it wrong, whatever it is. If you want a disabled channel, specify gen::disable not genN::disable
+      // I vote to just always return a failure because the request is nonsensical.
+      return Event_empty;
+    }
+    #if defined(MEGATINYCORE) && MEGATINYCORE_SERIES !=2
+      if (ch == 254) { // sync channel
+        if ((Event1.generator_type == gen::disable && Event0.generator_type != gen) || Event1.generator_type == gen) {
+          Event1.generator_type = gen;
+          return Event1;
+        }
+        #if (MEGATINYCORE_SERIES == 1)
+          else if (Event0.generator_type == gen::disable || Event0.generator_type == gen5){
+            Event0.generator_type = gen;
+            return Event0;
+          }
+        #endif
         return Event_empty;
       }
+      #if (MEGATINYCORE_SERIES == 1 && FLASH_SIZE > 8192)
+        if (ch < 2) {
+          if (gen - ch ? 5 : 0) { // 0x15 or 0x10 specified for sync0 or sync1 respectively...
+            if ((Event1.generator_type == gen::disable && Event0.generator_type != 0x15) || Event1.generator_type == 0x10) {
+              Event1.generator_type = gen1::tcb1_capt;
+              return Event1;
+            } else if (Event0.generator_type == gen::disable || Event0.generator_type == 0x15){
+              Event0.generator_type = gen0::tcb1_capt;
+              return Event0;
+            }
+            return Event_empty;
+          }
+        }
+      #endif
+      #if MEGATINYCORE_SERIES == 1
+        if (ch == 5) { //can only be RTC - easy.
+          if (Event5.generator_type == gen::disable || Event5.generator_type == gen) {
+            Event5.generator_type = gen;
+            return Event5;
+          }
+          return Event_empty;
+        }
+      #endif
+      uint8_t port_pin = NOT_A_PIN;
+      uint8_t port;
+      if (ch > 1) {
+        uint8_t port_pin = gen - 0x0A;
+        uint8_t port = ch - 2;
+      }
+      #if MEGATINYCORE_SERIES == 1
+        else if (ch == 1) {
+          uint8_t port_pin = gen - 0x08;
+          uint8_t port = PB;
+          return Event::assign_generator_pin(port, port_pin);
+        }
+      #endif
+      else { // ch == 0
+        if (gen > 0x0C) {
+          port_pin = gen - 0x0D;
+          port = PA;
+        } else {
+          port_pin = gen - 7;
+        }
+      }
+      return Event::assign_generator_pin(port, port_pin);
+    #else // not a tiny 0/1
       if (gen > 0x10) {
         // pin generator - couldn't the asshole have called assign_generator_pin()?
         // There is no standard way to get digital pin number from port and bit.
@@ -315,14 +450,14 @@ Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
         #if !defined(MEGATINYCORE)
           uint8_t port = ch & 0xFE + (gen & 0x08 ? 1 : 0);
           uint8_t port_pin = gen & 0x07;
-        #elif (MEGATINYCORE_SERIES == 2) //2-series has PA/PB, PB/PC, PC/PA - it wraps around
+        #else  // it's 2-series2-series has PA/PB, PB/PC, PC/PA - it wraps around
           uint8_t port = ch >> 1 + (gen & 0x08 ? 1 : 0);
           if (port == 3) {
             port = 0;
           }
           uint8_t port_pin = gen & 0x07;
         #endif
-        return Event::assign_generator_pin(port,port_pin);
+        return Event::assign_generator_pin(port, port_pin);
       } else {
         // This could only be an RTC channel
         if (ch & 1) {
@@ -388,14 +523,16 @@ Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
               return Event0;
             } else
           #endif
-            return Event_empty;
+          return Event_empty;
         }
       }
-    } else { // otherwise it could be on any channel, so check if it's already live on a channel first
-      Event& chan=Event::get_event_channel(gen);
-      if (chan.get_channel_number() != 255) { // is this right?
-        return chan;
-      } else {
+    #endif // non-tiny0/1-section of channel-specific generators.
+  } else { // otherwise it could be on any channel, so check if it's already live on a channel first
+    Event& chan=Event::get_event_channel(gen);
+    if (chan.get_channel_number() != 255) { // is this right?
+      return chan;
+    } else {
+      #if (!defined(MEGATINYCORE) || MEGATINYCORE_SERIES == 2)
         #if defined(EVSYS_CHANNEL9)
           if (Event9.generator_type == gen::disable) {
             Event9.generator_type = gen;
@@ -456,15 +593,36 @@ Event& Event::assign_generator(gen::generator_t gen, uint8_t ch = 255) {
             return Event0;
           } else
         #endif
-          return chan; // if we're on this branch, we know chan is Event_empty.
-      }
+      #else
+        // 0/1-series tiny, so there are only 4 channels left that it could be!
+        #if defined(EVSYS_CHANNEL5)
+          if (Event5.generator_type == gen::disable) {
+            Event5.generator_type = gen;
+            return Event5;
+          } else
+        #endif
+        #if defined(EVSYS_CHANNEL4)
+          if (Event4.generator_type == gen::disable) {
+            Event4.generator_type = gen;
+            return Event4;
+          } else
+        #endif
+        #if defined(EVSYS_CHANNEL3)
+          if (Event3.generator_type == gen::disable) {
+            Event3.generator_type = gen;
+            return Event3;
+          } else
+        #endif
+        #if defined(EVSYS_CHANNEL2)
+          if (Event2.generator_type == gen::disable) {
+            Event2.generator_type = gen;
+            return Event2;
+          } else
+        #endif
+      #endif
+      return chan; // if we're on this branch, we know chan is Event_empty.
     }
-  #else
-    // It's a 0/1-series tinyAVR. The event system is a raging shitshow here, and everything has to be different. At least there are only 6 channels.
-    // or if the poor user is torturing themselves and using a 0-series, 3
-    // At least the RTC part is relatively less painful for these parts - 0-series doesn't have the option, and 1-series only has one option.
-    // Actually, the parts are so severely constrained a lot of these things simplify dramatically, but it's still a completely separate implementation
-  #endif
+  }
 }
 
 
@@ -588,49 +746,99 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
   uint8_t port_pin = digitalPinToBitPosition(pin_number);
 
   int8_t event_user = -1;
-  // TODO: support DA/DB/DD series
-  // TODO: support tinyAVR parts
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
-    if (port == PA) {
-      if (port_pin == 2){
-        event_user = user::evouta_pin_pa2;
-      } else if (port_pin == 7){
-        event_user = user::evouta_pin_pa7;
+    #if defined(MEGATINYCORE)
+      if (port_pin == 2) {
+        #if defined(PIN_PB2)
+          if (port == PA)
+        #endif // if there's no PB2, but this is pin 2 in the port, it's an 8-pin 0/1-series, and this is PA2.
+          event_user = user::evouta_pin_pa2;
+        #if defined(PIN_PC2) // no tinyAVR  has PC2 that doesn't have PB2
+          else if (port == PB)
+            event_user = user::evoutb_pin_pb2;
+          else //we know this must be PC2 because if it was port pin 2, (not NOT_A_PIN), and it's not PA2 or PB2
+            event_user = user::evoutc_pin_pc2;
+        #elif defined(PIN_PB2) //14-pin parts - same logic here, if it's port pin 2, and we have PIN_PB2, it's not PA2, and we don't have PC2, it's gotta be PB2.
+          else
+            event_user = user::evoutb_pin_pb2;
       }
-    }
-    #if defined(__AVR_ATmegax09__)
+      #if (MEGATINYCORE_SERIES == 2)
+        else if (port_pin == 7) {
+          #if defined(PIN_PB7)
+            if (port == PA)
+              event_user = user::evouta_pin_pa7;
+            else //we know this must be PB2 because if it was port pin 7, but not PA7, this is the only other Px7 on tinyAVR.
+              event_user = user::evoutb_pin_pb7;
+          #else // if there's no PB7 (20 or 14-pin part), yet this is a port pin 7, it can only be PA7, that's the only pin 7 on the part!
+            event_user = user::evouta_pin_pa7;
+          #endif
+        }
+      #endif
+    return event_user;
+    #endif
+    // DONE WITH the tinyAVRs!
+    #if !defined(DXCORE) || defined(PIN_PA2) //14-pin DD doesn't have PA2 or PA7 - Everything else does though.
+      if (port == PA) {
+        if (port_pin == 2)
+          event_user = user::evouta_pin_pa2;
+        else if (port_pin == 7)
+          event_user = user::evouta_pin_pa7;
+      }
+    #endif
+    #if defined(__AVR_ATmegax09__) || defined(PIN_PB2)
       else if (port == PB) {
         if (port_pin == 2){
           event_user = user::evoutb_pin_pb2;
         }
+        #if defined(PIN_PB7)
+          if (port_pin == 7){
+            event_user = user::evoutb_pin_pb7;
+          }
+        #endif
       }
     #endif
-    else if (port == PC) {
-      if (port_pin == 2){
-        event_user = user::evoutc_pin_pc2;
-      }
-      #if defined(__AVR_ATmegax09__)
-        else if (port_pin == 7){
-          event_user = user::evoutc_pin_pc7;
+    #if !defined(DXCORE) || defined PIN_PC2 // DU-series sacrificed PORTC at the altar of native USB (along with their TCD+PLL and assorted other treasures)
+      else if (port == PC) {
+        if (port_pin == 2){
+          event_user = user::evoutc_pin_pc2;
         }
-      #endif
-    }
+        #if defined(__AVR_ATmegax09__) || defined(PIN_PC7)
+          else if (port_pin == 7){
+            event_user = user::evoutc_pin_pc7;
+          }
+        #endif
+      }
+    #endif
     else if (port == PD) {
-      if (port_pin == 2)
-        event_user = user::evoutd_pin_pd2;
-      else if (port_pin == 7)
+      #if !defined(DXCORE) || defined(PIN_PD2) // 14 and 20 pin DD has no PD0-3, all megaAVR 0s do
+        if (port_pin == 2)
+          event_user = user::evoutd_pin_pd2;
+        else
+      #endif
+      if (port_pin == 7)
         event_user = user::evoutd_pin_pd7;
     }
-    #if defined(__AVR_ATmegax09__)
+    #if defined(__AVR_ATmegax09__) || defined(PIN_PE2)
       else if (port == PE) {
         if (port_pin == 2)
           event_user = user::evoute_pin_pe2;
+        #if defined(PIN_PE7)
+          else if (port_pin == 7){
+            event_user = user::evoutc_pin_pc7;
+          }
+        #endif
       }
     #endif
     else if (port == PF) {
       if (port_pin == 2)
         event_user = user::evoutf_pin_pf2;
     }
+    #if defined(PIN_PG2)
+      if (port_pin == 2)
+        event_user = user::evoutg_pin_pg2;
+      else if (port_pin == 7)
+        event_user = user::evoutg_pin_pg7
+    #endif
     set_user((user::user_t)event_user);
   }
   return event_user;
@@ -649,7 +857,7 @@ void Event::clear_user(user::user_t event_user) {
   // Disconnect from event generator
   *user_register = 0x00;
 
-  // Clear PORTMUX pin swap for EVOUT if selected as channel generator
+  // Clear PORTMUX pin swap for EVOUT if selected as channel user
   if (event_user & 0x80)  {
     #if defined(__AVR_ATmegax08__) || defined(__AVR_ATmegax09__)
       PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x09));
@@ -668,7 +876,6 @@ void Event::clear_user(user::user_t event_user) {
  */
 void Event::soft_event() {
   // Write to the bit that represent the channel in the strobe register
-  // TODO: Pull in support for tinyAVR 0/1-series
   #if defined(EVSYS_STROBE)
     // megaAVR 0-series
     EVSYS.STROBE = (1 << channel_number);

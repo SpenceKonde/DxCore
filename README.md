@@ -290,8 +290,6 @@ The table below is the relevant lines from that table - many standard types are 
 Notice that there is no line for 64 bit types in the table above; these are not supported (support for 64-bit types is pretty spotty, which is not surprising. Variables of that size are hard to work with on an 8-bit microcontroller). This applies to all versions of printf - the capability is not supplied by avrlibc.
 
 
-
-
 #### Selectable printf() implementation
 A tools submenu lets you choose from full `printf()` with all features, the default one that drops float support to save 1k of flash, and the minimal one drops almost everything and for another 450 bytes (will be a big deal on the 16k and 8k parts. Less so on 128k ones.) - note that selecting any non-default option here *will cause it to be included in the binary even if it's never called* - and if it's never called, it normally wouldn't be included. So an empty sketch will take more space with minimal printf selected than with the default, while a sketch that uses printf will take less space with minimal printf vs default.
 
