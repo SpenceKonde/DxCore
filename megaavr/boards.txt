@@ -124,6 +124,7 @@ avrda.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrda.build.mcupostfix=
 avrda.build.printfabr=
+avrda.build.attachabr=
 avrda.build.wireabr=
 avrda.build.appspmabr=.spm{bootloader.CODESIZE}
 
@@ -346,6 +347,8 @@ avrda.menu.attach.manual=Only enabled ports. Please see documentation
 avrda.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
 avrda.menu.attach.oldversion=Old version, (may fix bugs)
 avrda.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrda.menu.attach.manual.build.attachabr=.aMan
+avrda.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # Startup time options                   #
@@ -463,6 +466,7 @@ avrdb.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrdb.build.mcupostfix=
 avrdb.build.printfabr=
+avrdb.build.attachabr=
 avrdb.build.wireabr=
 avrdb.build.appspmabr=.spm{bootloader.CODESIZE}
 
@@ -711,7 +715,6 @@ avrdb.menu.printf.minimal=Minimal, 1.1k flash used
 avrdb.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrdb.menu.printf.minimal.build.printfabr=.pfM
 
-
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
@@ -721,6 +724,8 @@ avrdb.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdb.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
 avrdb.menu.attach.oldversion=Old version, new one is worse!
 avrdb.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrdb.menu.attach.manual.build.attachabr=.aMan
+avrdb.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # MVIO menu                              #
@@ -843,6 +848,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #________________________________________#
 #avrdd.build.mcupostfix=
 #avrdd.build.printfabr=
+#avrdd.build.attachabr=
 #avrdd.build.wireabr=
 #avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
 
@@ -1101,6 +1107,19 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 #avrdd.menu.printf.minimal.build.printfabr=.pfM
 
+
+#----------------------------------------#
+# attachInterrupt Mode                   #
+#________________________________________#
+#avrdd.menu.attach.allenabled=On all pins, like usual
+#avrdd.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+#avrdd.menu.attach.manual=Only enabled ports. Please see documentation.
+#avrdd.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+#avrdd.menu.attach.oldversion=Old version, new one is worse!
+#avrdd.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+#avrdd.menu.attach.manual.build.attachabr=.aMan
+#avrdd.menu.attach.oldversion.build.attachabr=.aOld
+
 #----------------------------------------#
 # MVIO menu                              #
 #________________________________________#
@@ -1218,6 +1237,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #________________________________________#
 #avrea.build.mcupostfix=
 #avrea.build.printfabr=
+#avrea.build.attachabr=
 #avrea.build.wireabr=
 ##Not supported but still need empty string here.
 #avrdd.build.appspmabr=
@@ -1486,6 +1506,19 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 #avrea.menu.printf.minimal.build.printfabr=.pfM
 
+
+#----------------------------------------#
+# attachInterrupt Mode                   #
+#________________________________________#
+#avrea.menu.attach.allenabled=On all pins, like usual
+#avrea.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+#avrea.menu.attach.manual=Only enabled ports. Please see documentation.
+#avrea.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+#avrea.menu.attach.oldversion=Old version, new one is worse!
+#avrea.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+#avrea.menu.attach.manual.build.attachabr=.aMan
+#avrea.menu.attach.oldversion.build.attachabr=.aOld
+
 #----------------------------------------#
 # Startup time options                   #
 #________________________________________#
@@ -1572,6 +1605,7 @@ avrdaopti.upload.speed=115200
 #________________________________________#
 avrdaopti.build.mcupostfix=opti
 avrdaopti.build.printfabr=
+avrdaopti.build.attachabr=
 avrdaopti.build.wireabr=
 avrdaopti.build.appspmabr=
 
@@ -1799,6 +1833,8 @@ avrdaopti.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdaopti.menu.attach.manual.build.attachmode=
 avrdaopti.menu.attach.oldversion=Old version, (may fix bugs)
 avrdaopti.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrdaopti.menu.attach.manual.build.attachabr=.aMan
+avrdaopti.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # Startup time options                   #
@@ -1948,6 +1984,7 @@ avrdbopti.upload.speed=115200
 #________________________________________#
 avrdbopti.build.mcupostfix=opti
 avrdbopti.build.printfabr=
+avrdbopti.build.attachabr=
 avrdbopti.build.wireabr=
 avrdbopti.build.appspmabr=
 
@@ -2206,6 +2243,8 @@ avrdbopti.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdbopti.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
 avrdbopti.menu.attach.oldversion=Old version, (may fix bugs)
 avrdbopti.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrdbopti.menu.attach.manual.build.attachabr=.aMan
+avrdbopti.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # MVIO menu                              #
@@ -2357,6 +2396,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #________________________________________#
 #avrddopti.build.mcupostfix=opti
 #avrddopti.build.printfabr=
+#avrddopti.build.attachabr=
 #avrddopti.build.wireabr=
 #avrddopti.build.appspmabr=
 
@@ -2616,6 +2656,19 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 #avrddopti.menu.printf.minimal.build.printfabr=.pfM
 
+
+#----------------------------------------#
+# attachInterrupt Mode                   #
+#________________________________________#
+#avrddopti.menu.attach.allenabled=On all pins, like usual
+#avrddopti.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+#avrddopti.menu.attach.manual=Only enabled ports. Please see documentation.
+#avrddopti.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+#avrddopti.menu.attach.oldversion=Old version, new one is worse!
+#avrddopti.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+#avrddopti.menu.attach.manual.build.attachabr=.aMan
+#avrddopti.menu.attach.oldversion.build.attachabr=.aOld
+
 #----------------------------------------#
 # MVIO                                   #
 #________________________________________#
@@ -2760,6 +2813,7 @@ azduinoboard.upload.speed=115200
 #________________________________________#
 azduinoboard.build.mcupostfix=opti
 azduinoboard.build.printfabr=
+azduinoboard.build.attachabr=
 azduinoboard.build.wireabr=
 azduinoboard.build.appspmabr=
 
@@ -2912,6 +2966,8 @@ azduinoboard.menu.attach.manual=Only enabled ports. Please see documentation.
 azduinoboard.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
 azduinoboard.menu.attach.oldversion=Old version, (may fix bugs)
 azduinoboard.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+azduinoboard.menu.attach.manual.build.attachabr=.aMan
+azduinoboard.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # MVIO menu                              #

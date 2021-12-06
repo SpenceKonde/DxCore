@@ -12,6 +12,7 @@ The exported files will be found in the sketch folder. The file names will look 
 6. Finally:
 * If the different printf implementation is chosen from the tools menu, .pfF or .pfM will be next, these are for the full and minimal implementations, and use different amounts of flash. Will matter more when these get ported back to the tinies.
 * If you have enabled writing to the flash from the application (for use with Flash.h) .spmALL or .spm(number) corresponding to the addresses above which the application code can write. Not included on Optiboot boards, where writes to the flash are all done through optiboot and Flash.h calls optiboot's write entry point.
+* If you have chosen a non default option for attachInterrupt, `.aOld` or `.aMan` will indicate that.
 7. Ends with a '.' followed by a`.v` followed by the current version of the core with no separators, then the file extension.
 
 ## The memory map
