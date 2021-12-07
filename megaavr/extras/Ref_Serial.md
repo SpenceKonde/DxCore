@@ -175,7 +175,7 @@ In Open Drain mode, the TX pin will no longer drive high. The pin must not be se
 In RS485 mode, at initialization, the HWSerial class configures the XDIR pin as an OUTPUT. 1 bit-time prior to sending any data, the XDIR pin will be driven HIGH. If using RS485, this should be connected to the external line driver IC to enable transmit. XDIR will be lowered 1 bit-time after the last bit has been sent. If you require the opposite polarity, simply set PORTx.PINnCTRL |= PORT_INVEN_bm;
 or use `pinConfigure()` [See Digital I/O Reference](Ref_Digital.md)
 
-RS485 mode in combination with RX_ONLY will simply set the pin to an output, but never use it, because the TX module isnt enabled.
+RS485 mode in combination with RX_ONLY will simply set the pin to an output, but never use it, because the TX module isn't enabled.
 
 #### These options were meant to be combined
 * Loopback + Open Drain - These two not-particularly-useful options, when combined, become very useful - this gives you a half-duplex single serial interface. This is fairly common (UPDI is actually implemented this way), but it's almost ubiquitous in RS485.
@@ -224,7 +224,7 @@ SYNCBEGIN_NORMAL_SLAVE
 
 That *should* be all that is needed to use Synchronous mode. Note however that this mode has not been tested. There is one potential issue - they specify that the low 6 bits of the baud register are not used and should be written as zero. Serial won't do that. It is not clear whether those bits, if non-zero, will cause problems or not. If you have problems operating as sync master (probably taking the form of clock generation problems), I would suggest trying `USARTn.BAUD &= 0xFFC0;` after Serial.begin. If it was broken, and that fixed it, or if you have experience with this mode, please let me know so that I can update this document.
 
-In Syncronous USART mode, the master will *continually* generate a clock signal, permitting the slave to communicate at any time. (unless you call serial.end, or set the pin to input; if you do things like that, make sure that you leave the pin in the idle state - that is, that it is either pulled down (with an external resistor) if the pin is not inverted, or pulled up (can use internal pullup) if it is)
+In Synchronous USART mode, the master will *continually* generate a clock signal, permitting the slave to communicate at any time. (unless you call serial.end, or set the pin to input; if you do things like that, make sure that you leave the pin in the idle state - that is, that it is either pulled down (with an external resistor) if the pin is not inverted, or pulled up (can use internal pullup) if it is)
 
 If operating as slave, if the master does not provide a clock signal, you will eventually fill the TX buffer. At this point the next character you attempt to write will hang. Check Serial.availableForWrite() before writing to it to ensure that there is room to first if you think this could be an issue. Nothing prevents you from combining incongruous options like Open Drain, Loopback, or RS485 mode with SYNC mode; you will get whatever behavior Microchip saw fit to provide when that combination of bits is set - though Open Drain would only apply to the TX pin (it requires setting TX as input) - it might work as slave (does that mean a 2 wire clock + bidirectional data mode is possible? Probably, if you for some reason wanted that - though I haven't even tested sync mode without any wacky options).
 

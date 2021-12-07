@@ -19,7 +19,7 @@ There are two types of events - a "pulse" interrupt, which lasts for the duratio
 >will also be synchronous.
 >The synchronous subchannel is identical to the event output from the generator, if the event generator generates a signal synchronous to the peripheral clock. If the event generator generates a signal asynchronous to the peripheral clock, this signal is first synchronized before being routed onto the synchronous subchannel. Depending on when the event occurs, synchronization will delay the it by two to three clock cycles. The Event System automatically perform this synchronization if an asynchronous generator is selected for an event channel.
 
-The fact that it is asynchronous usually doesn't matter - it's either "faster than anything else" (if the user is async), or "2-3 clock cycles behind", but it is one of the things one should keep in mind when using these features, because every so often it does.
+The fact that it is asynchronous usually doesn't matter - it's either "faster than anything else" (if the user is async), or "2-3 clock cycles behind", but it is one of the things one should keep in mind when using these features, because every so often it does. As I understand it, an event coming from the TCD domain could be *faster* that a the main clock. I am not sure *which* TCD clock this means (is it the clock going in? clock after the sync prescaler? Or the clock after the count prescaler? Can the system actually miss events, or is there some mechanism to prevent this? )
 
 
 ### Generator table
@@ -202,7 +202,7 @@ uint8_t what_channel(Event& event_chan) {
 }
 ```
 ### get_channel()
-Static method. This returns the event object of that number. This is useful when you are programatically choosing channels at runtime; It's very hard to get from the integer 3, for example, to the Event3 token you'd need to use to refer to it without this method, all you can do is have a big long if/elseif or switch/case structure to find the one you want. If the channel is not valid, you are instead given `Event_empty`
+Static method. This returns the event object of that number. This is useful when you are programmatically choosing channels at runtime; It's very hard to get from the integer 3, for example, to the Event3 token you'd need to use to refer to it without this method, all you can do is have a big long if/elseif or switch/case structure to find the one you want. If the channel is not valid, you are instead given `Event_empty`
 
 #### Usage
 ```c++
@@ -291,7 +291,7 @@ Event0.set_user(user::ccl0_event_a); // Also set CCL0 Event 0/Event A in event u
 ```
 
 ### set_user_pin()
-This is the analog of set_user above - the difference being that it takes a pin number as an argument. This must be a pin that supports event output - the number of the pin within the port must be 2 or 7, and you cannot use both pin2 and pin 7 of the same port at the same time (if you're totally out of event out pins, but not CCL blocs, you can set up a CCL to use a )
+This is the analog of set_user above - the difference being that it takes a pin number as an argument. This must be a pin that supports event output - the number of the pin within the port must be 2 or 7, and you cannot use both pin2 and pin 7 of the same port at the same time (if you're totally out of event out pins, but not CCL blocks, you can set up a CCL to use a )
 
 
 ### clear_user()
@@ -343,7 +343,7 @@ Event0.stop(); // Stops the Event0 generator channel
 ### **gen_from_peripheral()** and **user_from_peripheral()**
 These two static methods allow you to pass a pointer to a peripheral module, and get back the generator or user associated with it. In this context the "Peripheral Modules" are the structs containing the registers, defined in the io headers; for example `TCB0` or `USART1` or `CCL`.
 
-This is most useful if you are writing portable (library) code that uses the Event library to interact with the event system. Say you made a library that lets users make one-shot pulses with timerB. You're not particularly interesting in getting your hands too dirty with the event system expecially considering just how filthy the event system is on the 0/1-series. So you use the Event library to handle that part. You would of course need to know which timer to use - the natural way would be to ask the user to pass a reference or pointer. But then what? The fact that you've got the pointer to something which, as it happens, is TCB0 (which itself is annoying to determine from an unknown pointer)... though even KNOWING THAT, you're not able to use it with the event library, since it needs user::tcb0 (or user::tcb0_capt). As of the version distributed with megaTinyCore 2.5.0 and DxCore 1.4.0, there's a method for that. As the names imply, one gives generators, the other gives users. They take 2 arguments, the first being a pointer to a peripheral struct. The second, defaulting to 0, is the "type" of generator or user. Some peripherals have more than one event input or output. These are ordered in the same order as they are in the tables here and in the datasheet listings.
+This is most useful if you are writing portable (library) code that uses the Event library to interact with the event system. Say you made a library that lets users make one-shot pulses with timerB. You're not particularly interesting in getting your hands too dirty with the event system especially considering just how filthy the event system is on the 0/1-series. So you use the Event library to handle that part. You would of course need to know which timer to use - the natural way would be to ask the user to pass a reference or pointer. But then what? The fact that you've got the pointer to something which, as it happens, is TCB0 (which itself is annoying to determine from an unknown pointer)... though even KNOWING THAT, you're not able to use it with the event library, since it needs user::tcb0 (or user::tcb0_capt). As of the version distributed with megaTinyCore 2.5.0 and DxCore 1.4.0, there's a method for that. As the names imply, one gives generators, the other gives users. They take 2 arguments, the first being a pointer to a peripheral struct. The second, defaulting to 0, is the "type" of generator or user. Some peripherals have more than one event input or output. These are ordered in the same order as they are in the tables here and in the datasheet listings.
 
 #### Usage
 ```c
