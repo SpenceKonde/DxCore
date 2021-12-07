@@ -357,6 +357,9 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
         #elif (F_CPU == 30000000UL) // Easy overclock
           ticks = ticks >> 4;
           microseconds = overflows * 1000 + (ticks + (ticks >> 3) - (ticks >> 4) + (ticks >> 7) - (ticks >> 8)); // 5 terms is the optimal. Good but not as close as we get for most.
+        #elif (F_CPU == 27000000UL) // You'd think this one would be a flaming bitch right?
+          ticks = ticks >> 4;
+          microseconds = overflows * 1000 + (ticks + (ticks >> 2) - (ticks >> 4) - (ticks >> 9)); // +0.1 average error with only 4 terms, minimal scatter... that's just not supposed to happen!
         #elif (F_CPU == 25000000UL) // Barely overclocked.
           ticks = ticks >> 4;
           microseconds = overflows * 1000 + (ticks + /* (ticks >> 1) -*/ (ticks >> 2) + /* (ticks >> 4) -*/ (ticks >> 5)); // DEAD ON with 5 terms
@@ -542,10 +545,11 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
                F_CPU == 40000000UL || F_CPU == 30000000UL || F_CPU == 20000000UL || F_CPU == 10000000UL || /* multiples of 10           */ \
                F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || /* powers of 2               */ \
                F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 25000000UL || F_CPU ==  5000000UL || /* powers of 2 cont, 25, 5   */ \
-               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU ==  3000000UL)&& /* oddball frequencies       */ \
-              ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) ||     /* warn fools who messed with the */ \
-               (TIME_TRACKING_TIMER_DIVIDER == 1 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 1000000)))/* timers.h file too*/
-          /* and expected that the core would sort out how to make the timer work correctly without them implementing it. No such luck  */
+               F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU ==  3000000UL || /* oddball frequencies       */ \
+               F_CPU == 27000000UL)&& /* warn fools who messed with the timers.h file too and expected that the core would sort out how */ \
+              ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) || /*how to make the timer work correctly*/ \
+               (TIME_TRACKING_TIMER_DIVIDER == 1 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 1000000)))
+                                                   /*  how to make the timer work correctly without them implementing it. No such luck  */
           #warning "Millis timer (TCBn) at this frequency and/or configuration unsupported, micros() will return totally bogus values."
         #endif
       #else //TCA - makes ab arrempt
@@ -568,6 +572,9 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
         #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
               + (ticks * 2) + (((uint8_t) ticks >> (uint8_t) 2) + ((uint8_t) ticks >> (uint8_t) 5));
+        #elif (F_CPU == 27000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
+          microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+              + (ticks * 2) + (((uint8_t) ticks >> (uint8_t) 1) - ((uint8_t) ticks >> (uint8_t) 3));
         #elif (F_CPU == 25000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
               + (ticks * 2) + (((uint8_t) ticks >> (uint8_t) 1) + ((uint8_t) ticks >> (uint8_t) 4));
@@ -704,6 +711,9 @@ inline __attribute__((always_inline)) void delayMicroseconds(unsigned int us) {
 #elif F_CPU >= 28000000L
   // 16 MHz math, 7-cycle loop, 1us burns and returns.
   #define DELAYMICROS_SEVEN
+#elif F_CPU >= 27000000L
+  // 12 MHz math, 9 cycle loop, 1us burns and returns
+  #define DELAYMICROS_NINE
 #elif F_CPU >= 24000000L
   // 12 MHz math, 8-cycle loop, 1us burns and returns.
   #define DELAYMICROS_EIGHT
@@ -830,6 +840,23 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // we just burned 27 (29) cycles above, remove 4, (7*4=28)
   // us is at least 8 so we can subtract 5
   us -= 4; // = 2 cycles,
+
+#elif F_CPU >= 27000000L
+  // for a one-microsecond delay, burn 11 cycles and return
+  __asm__ __volatile__ (  // wait 8 cycles with 3 words
+    "rjmp .+2" "\n\t"     // 2 cycles - jump over next instruction.
+    "ret" "\n\t"          // 4 cycles - rjmped over initially....
+    "rcall .-4" "\n\t"    // 2 cycles - ... but then called here);
+    "rjmp .+0" "\n\t"     // 2 cycles
+    "nop");               // 1 more  == 11 total
+  if (us <= 1) return;    //  = 3 cycles, (4 when true)
+
+  // the loop takes 1/3 of a microsecond (8 cycles) per iteration
+  // so execute it three times for each microsecond of delay requested.
+  us = (us << 1) + us; // x3 us, = 5 cycles
+  // we just burned 27 (24) cycles above, remove 3
+  us -= 3; //2 cycles
+
 
 #elif F_CPU >= 24000000L
   // for a one-microsecond delay, burn 8 cycles and return
@@ -965,6 +992,14 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
     "rjmp .+0"      "\n\t"            // 2 cycles
     "rjmp .+0"      "\n\t"            // 2 cycles
     "rjmp .+0"      "\n\t"            // 2 cycles
+    "brne 1b" : "=w" (us) : "0" (us)  // 2 cycles
+  );
+#elif defined(DELAYMICROS_NINE)
+  __asm__ __volatile__ (
+    "1: sbiw %0, 1" "\n\t"            // 2 cycles
+    "rjmp .+0"      "\n\t"            // 2 cycles
+    "rjmp .+0"      "\n\t"            // 2 cycles
+    "nop"           "\n\t"
     "brne 1b" : "=w" (us) : "0" (us)  // 2 cycles
   );
 #elif defined(DELAYMICROS_EIGHT)
