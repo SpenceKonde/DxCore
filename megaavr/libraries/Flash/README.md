@@ -208,7 +208,7 @@ Flash.writeWords(uint32_t address, uint16_t* data, uint16_t length)
 Flash.writeBytes(uint32_t address, uint8_t* data, uint16_t length)
 ```
 
-This will write the supplied data to flash, starting from `address`.  Length is the number of words being written (the number of elements of the uint16 array) If you need to write other datatypes, cast the pointer you're passing to a ( uint116_t * ) and be sure that you recalculate the length.
+This will write the supplied data to flash, starting from `address`.  Length is the number of words being written (the number of elements of the uint16 array) If you need to write other datatypes, cast the pointer you're passing to a `uint16_t *` and be sure that you recalculate the length.
 
 When writing an array of words with `Flash.writeWord`, the address must be even, (as we write one word at a time), but there is no alignment requirement beyond that - writes can even cross the 64K boundary. No erase operation is performed by `Flash.writeWords()`, and the array passed must have at least `length` elements. `Flash.writeBytes` has no alignment requirement.
 
@@ -242,7 +242,7 @@ Flash.mappedPointer(uint32_t address)
 Flash.flashAddress(uint8_t* ptr)
 ```
 **Always check that pointers and addresses aren't `NULL`/zero***
-Flash.mappedPointer(), when passed an address in program memory that lies within the section currently mapped to memory, will return a `uint8_t*` pointing to it. Otherwise, it will return a NULL pointer.
+Flash.mappedPointer(), when passed an address in program memory that lies within the section currently mapped to memory, will return a `uint8_t *` pointing to it. Otherwise, it will return a NULL pointer.
 Flash.flashAddress() will go the opposite direction - passed a pointer to a location in mapped flash, it will return the address in flash that it's pointing to, considering current FLMAP.
 
 
@@ -250,14 +250,14 @@ Flash.flashAddress() will go the opposite direction - passed a pointer to a loca
 In the event that an attempted flash write to a board with a compatible bootloader fails, the applicable function will return `FLASHWRITE_FAIL_x` which has a numeric value between `0x80` and `0x87`. The three low bits are the values of the `ERROR` bitfields within `NVMCTRL.STATUS` (right-shifted 4 places, of course) at the conclusion of the failed write attempt; per the datasheet, these represent:
 
 ```c++
-0x80 - FLASHWRITE_FAIL - this is never returned as an error code.
-0x81 - FLASHWRITE_FAIL_INVALID - Invalid Command
-0x82 - FLASHWRITE_FAIL_PROTECT - Write Protect
-0x83 - FLASHWRITE_FAIL_COLLISION - Command Collision
-0x84 - FLASHWRITE_FAIL_ONGOING - Ongoing Programming (Not in datasheet, but mentioned in io headers)
-0x85 - FLASHWRITE_FAIL_5 - NVMCTRL.STATUS returned an unknown error, please report!
-0x86 - FLASHWRITE_FAIL_6 - NVMCTRL.STATUS returned an unknown error, please report!
-0x87 - FLASHWRITE_FAIL_7 - NVMCTRL.STATUS returned an unknown error, please report!
+0x80 // FLASHWRITE_FAIL - this is never returned as an error code.
+0x81 // FLASHWRITE_FAIL_INVALID - Invalid Command
+0x82 // FLASHWRITE_FAIL_PROTECT - Write Protect
+0x83 // FLASHWRITE_FAIL_COLLISION - Command Collision
+0x84 // FLASHWRITE_FAIL_ONGOING - Ongoing Programming (Not in datasheet, but mentioned in io headers)
+0x85 // FLASHWRITE_FAIL_5 - NVMCTRL.STATUS returned an unknown error, please report!
+0x86 // FLASHWRITE_FAIL_6 - NVMCTRL.STATUS returned an unknown error, please report!
+0x87 // FLASHWRITE_FAIL_7 - NVMCTRL.STATUS returned an unknown error, please report!
 
 Appropriate use might look like:
 if (code_returned & FLASHWRITE_FAIL) {

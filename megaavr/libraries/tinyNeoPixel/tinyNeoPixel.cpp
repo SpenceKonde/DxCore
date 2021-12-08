@@ -115,7 +115,7 @@ void tinyNeoPixel::updateType(neoPixelType t) {
 // *INDENT-OFF*   astyle don't like assembly
 void tinyNeoPixel::show(void) {
 
-  if ((!pixels) || pin >= NUM_DIGITAL_PINS )  {
+  if ((!pixels) || pin >= NUM_DIGITAL_PINS)  {
     return;
   }
 
@@ -881,8 +881,8 @@ void tinyNeoPixel::setPin(uint8_t p) {
 
 // Set pixel color from separate R,G,B components:
 void tinyNeoPixel::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
-  if(n < numLEDs) {
-    if(brightness) { // See notes in setBrightness()
+  if (n < numLEDs) {
+    if (brightness) { // See notes in setBrightness()
       r = (r * brightness) >> 8;
       g = (g * brightness) >> 8;
       b = (b * brightness) >> 8;
@@ -901,8 +901,8 @@ void tinyNeoPixel::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void tinyNeoPixel::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b, uint8_t w) {
-  if(n < numLEDs) {
-    if(brightness) { // See notes in setBrightness()
+  if (n < numLEDs) {
+    if (brightness) { // See notes in setBrightness()
       r = (r * brightness) >> 8;
       g = (g * brightness) >> 8;
       b = (b * brightness) >> 8;
@@ -928,7 +928,7 @@ void tinyNeoPixel::setPixelColor(uint16_t n, uint32_t c) {
       r = (uint8_t)(c >> 16),
       g = (uint8_t)(c >>  8),
       b = (uint8_t)c;
-    if(brightness) { // See notes in setBrightness()
+    if (brightness) { // See notes in setBrightness()
       r = (r * brightness) >> 8;
       g = (g * brightness) >> 8;
       b = (b * brightness) >> 8;
@@ -960,18 +960,18 @@ void tinyNeoPixel::setPixelColor(uint16_t n, uint32_t c) {
 void tinyNeoPixel::fill(uint32_t c, uint16_t first, uint16_t count) {
   uint16_t i, end;
 
-  if(first >= numLEDs) {
+  if (first >= numLEDs) {
     return; // If first LED is past end of strip, nothing to do
   }
 
   // Calculate the index ONE AFTER the last pixel to fill
-  if(count == 0) {
+  if (count == 0) {
     // Fill to end of strip
     end = numLEDs;
   } else {
     // Ensure that the loop won't go past the last pixel
     end = first + count;
-    if(end > numLEDs) end = numLEDs;
+    if (end > numLEDs) end = numLEDs;
   }
 
   for(i = first; i < end; i++) {
@@ -1038,27 +1038,27 @@ uint32_t tinyNeoPixel::ColorHSV(uint16_t hue, uint8_t sat, uint8_t val) {
   // the constants below are not the multiples of 256 you might expect.
 
   // Convert hue to R,G,B (nested ifs faster than divide+mod+switch):
-  if(hue < 510) {         // Red to Green-1
+  if (hue < 510) {         // Red to Green-1
     b = 0;
-    if(hue < 255) {       //   Red to Yellow-1
+    if (hue < 255) {       //   Red to Yellow-1
       r = 255;
       g = hue;            //     g = 0 to 254
     } else {              //   Yellow to Green-1
       r = 510 - hue;      //     r = 255 to 1
       g = 255;
     }
-  } else if(hue < 1020) { // Green to Blue-1
+  } else if (hue < 1020) { // Green to Blue-1
     r = 0;
-    if(hue <  765) {      //   Green to Cyan-1
+    if (hue <  765) {      //   Green to Cyan-1
       g = 255;
       b = hue - 510;      //     b = 0 to 254
     } else {              //   Cyan to Blue-1
       g = 1020 - hue;     //     g = 255 to 1
       b = 255;
     }
-  } else if(hue < 1530) { // Blue to Red-1
+  } else if (hue < 1530) { // Blue to Red-1
     g = 0;
-    if(hue < 1275) {      //   Blue to Magenta-1
+    if (hue < 1275) {      //   Blue to Magenta-1
       r = hue - 1020;     //     r = 0 to 254
       b = 255;
     } else {              //   Magenta to Red-1
@@ -1098,7 +1098,7 @@ uint32_t tinyNeoPixel::getPixelColor(uint16_t n) const {
       // pronounced at low brightness levels.
       return (((uint32_t)(p[rOffset] << 8) / brightness) << 16) |
              (((uint32_t)(p[gOffset] << 8) / brightness) <<  8) |
-             ( (uint32_t)(p[bOffset] << 8) / brightness       );
+             ((uint32_t)(p[bOffset] << 8) / brightness       );
     } else {
       // No brightness adjustment has been made -- return 'raw' color
       return ((uint32_t)p[rOffset] << 16) |
@@ -1111,7 +1111,7 @@ uint32_t tinyNeoPixel::getPixelColor(uint16_t n) const {
       return (((uint32_t)(p[wOffset] << 8) / brightness) << 24) |
              (((uint32_t)(p[rOffset] << 8) / brightness) << 16) |
              (((uint32_t)(p[gOffset] << 8) / brightness) <<  8) |
-             ( (uint32_t)(p[bOffset] << 8) / brightness       );
+             ((uint32_t)(p[bOffset] << 8) / brightness       );
     } else { // Return raw color
       return ((uint32_t)p[wOffset] << 24) |
              ((uint32_t)p[rOffset] << 16) |
@@ -1173,7 +1173,7 @@ void tinyNeoPixel::setBrightness(uint8_t b) {
   }
 }
 
-//Return the brightness value
+// Return the brightness value
 uint8_t tinyNeoPixel::getBrightness(void) const {
   return brightness - 1;
 }
@@ -1194,6 +1194,6 @@ uint32_t tinyNeoPixel::gamma32(uint32_t x) {
   // someone's storing information in the unused most significant byte
   // of an RGB value, but this seems exceedingly rare and if it's
   // encountered in reality they can mask values going in or coming out.
-  for(uint8_t i=0; i<4; i++) y[i] = gamma8(y[i]);
+  for(uint8_t i = 0; i<4; i++) y[i] = gamma8(y[i]);
   return x; // Packed 32-bit return
 }

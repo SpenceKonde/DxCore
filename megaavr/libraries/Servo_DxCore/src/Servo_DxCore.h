@@ -80,7 +80,7 @@
 #endif
 #if defined(ARDUINO_ARCH_MEGAAVR)
   #include "megaavr/ServoTimers.h"
-  #if (F_CPU==1000000)
+  #if (F_CPU == 1000000)
     #warning "Running at 1MHz results in unstable servo signal."
   #endif
 #else
@@ -100,7 +100,7 @@
 
 
 typedef struct  {       // port & bitmask used instead of pin number to realize dramatic performance boost
-  uint8_t isActive ;    // true if this channel is enabled, pin not pulsed if false
+  uint8_t isActive;    // true if this channel is enabled, pin not pulsed if false
   uint8_t port;         // port number (A=0, B=1, and so on)
   uint8_t bitmask;      // output pin bitmask
 } ServoPin_t   ;

@@ -52,12 +52,12 @@ void ZeroCross::init() {
     output_port.DIRSET = pin_number;
   } else if (output == out::disable) {
     ZCD.CTRLA &= ~out::enable & ~out::invert;
-    //output_port.DIRCLR = pin_number;
+    // output_port.DIRCLR = pin_number;
   }
 }
 
 bool ZeroCross::have_separate_mux() {
-  #if defined(__AVR_DB__) && PROGMEM_SIZE==0x20000
+  #if defined(__AVR_DB__) && PROGMEM_SIZE == 0x20000
   // Fixed in Silicon Rev. A5 of AVR128DB only
   return (SYSCFG.REVID >= 0x14);
   #else

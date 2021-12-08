@@ -72,7 +72,7 @@ Wire.begin(uint8_t address, bool receive_broadcast, uint8_t second_address)
 
 If the slave is configured to accept more than one address, it will often be critical to know which one it is responding to. Use `getIncomingAddress()` to see which address triggered it; This value is the internal representation (ie, it is leftshifted 1 place, and the low bit (indicating read/write) should be ignored)
 ```c
-uint8_t addr = Wire.getIncomingAddress() << 1 ; // Returns incoming address in slave mode, currently as 8-bit address (leftshifted one plqace). This may bne changed to 7-bit before the release.
+uint8_t addr = Wire.getIncomingAddress() << 1; // Returns incoming address in slave mode, currently as 8-bit address (leftshifted one plqace). This may bne changed to 7-bit before the release.
 ```
 
 ## Master/Slave mode

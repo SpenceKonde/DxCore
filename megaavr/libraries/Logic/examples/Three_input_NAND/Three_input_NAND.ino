@@ -37,7 +37,7 @@ void setup() {
   Logic0.input0 = in::input_pullup;     // Set PA0 as input with pullup
   Logic0.input1 = in::input_pullup;     // Set PA1 as input with pullup
   Logic0.input2 = in::input_pullup;     // Set PA2 as input with pullup
-  //Logic0.output_swap = out::pin_swap; // Uncomment this line to route the output to alternate location, if available.
+  // Logic0.output_swap = out::pin_swap; // Uncomment this line to route the output to alternate location, if available.
   Logic0.output = out::enable;          // Enable logic block 0 output pin (PA3 (ATmega) or PA5 (ATtiny))
   Logic0.filter = filter::disable;      // No output filter enabled
   Logic0.truth = 0x7F;                  // Set truth table

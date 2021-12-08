@@ -97,7 +97,7 @@
     volatile voidFuncPtr * intFunc[] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
   #endif
 
-  //static void _attachInterruopt(uint8_t pin, void (*userFunc)(void), uint8_t mode);
+  // static void _attachInterruopt(uint8_t pin, void (*userFunc)(void), uint8_t mode);
 
   volatile uint8_t* portbase = (volatile uint8_t*)((uint16_t)0x400);
 
@@ -163,7 +163,7 @@
       "push  r30"        "\n\t"
       "push  r31"        "\n\t"
       ::);
-    asm volatile (  //This gets us the address of intFunc in Y pointer reg.
+    asm volatile (  // This gets us the address of intFunc in Y pointer reg.
       "add   r26,   r16"  "\n\t" // get the address of the functions for this port (r 16 is 2x the port number)
       "adc   r27,    r1"  "\n\t" // by adding that offset to the address we had the compiler generate the ldi's for
       "ld    r28,     X+" "\n\t" // load the pointer to this port's function array...

@@ -73,7 +73,7 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(uint8_t pin) {
   #else
     if (!(pin == ADC_DAC0 || pin == ADC_GROUND || pin == ADC_TEMPERATURE || pin == ADC_DACREF0 || pin == ADC_DACREF1 || pin == ADC_DACREF2))
   #endif
-    { //if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
+    { // if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
       if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
         pin &= 0x7f;
         if (pin > ADC_MAXIMUM_PIN_CHANNEL)
@@ -91,7 +91,7 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(uint8_t pin) {
 inline __attribute__((always_inline)) void check_valid_analog_pin_neg(pin_size_t pin) {
   if(__builtin_constant_p(pin)) {
     if (!(pin == ADC_DAC0 || pin == ADC_GROUND)) {
-      //if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
+      // if it is one of those constants, we know it is valid. Otherwise, make sure it's a valid channel.
       if (pin > 0x80) { // high bit is set, indicating a channel number, not a pin, but not one of the special inputs?
         pin &= 0x7f;
           if (pin > ADC_MAXIMUM_PIN_CHANNEL) {
@@ -198,10 +198,10 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
   /*******************************
    *  Phase 1: Input Processing  |
    ******************************/
-  //if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
+  // if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
   // 5/16 - uhhhhl if it's disabled, we should re-enable it, take the reading, and our cleanup will turn it off again...
   uint8_t sampnum;
-  if (res & 0x80) { //raw accumulation
+  if (res & 0x80) { // raw accumulation
     sampnum=res & 0x7F;
     if (sampnum > 7) return ADC_ENH_ERROR_RES_TOO_HIGH;
   } else {
@@ -285,7 +285,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
     } else if (res == 8) {
       result >>= 2;
     } else { //((res == ADC_NATIVE_RESOLUTION - 1) || (res == ADC_NATIVE_RESOLUTION_LOW - 1))
-      //9 or 11 bit res, because people are weird and might do this
+      // 9 or 11 bit res, because people are weird and might do this
       result >>= 1;
     }
   } // end of resolutions that require postprocessing.
@@ -432,20 +432,20 @@ void analogWrite(uint8_t pin, int val)
   }
 
   TCB_t *timer_B;
-  //TCA_t *timer_A;
+  // TCA_t *timer_A;
 /*   Find out Port and Pin to correctly handle port mux, and timer.
  *switch (digital_pin_timer) {
  *  case TIMERA0:
  */
 
 
-  if (bit_mask < 0x40 ) { //if could be on a TCA
+  if (bit_mask < 0x40 ) { // if could be on a TCA
     uint8_t portnum  = digitalPinToPort(pin);
     uint8_t tcaroute = PORTMUX.TCAROUTEA;
 
     if ((portnum == (tcaroute & (0x07))) && (PeripheralControl & TIMERA0)) {
       uint8_t offset = 0;
-      if (bit_mask > 0x04) { //separate high from low timers
+      if (bit_mask > 0x04) { // separate high from low timers
         bit_mask <<= 1;
         offset = 1;
       }
@@ -455,7 +455,7 @@ void analogWrite(uint8_t pin, int val)
       timer_cmp_out     = ((uint8_t*) (&TCA0.SPLIT.LCMP0)) + offset;
       (*timer_cmp_out)  = (val);
       TCA0.SPLIT.CTRLB |= bit_mask;
-      return; //either way, we're done here, we set a pwm channel!
+      return; // either way, we're done here, we set a pwm channel!
     }
 
 
@@ -467,7 +467,7 @@ void analogWrite(uint8_t pin, int val)
     if (((portnum == 6 && tcaroute == 0x18) || (portnum == 1 && tcaroute ==0)) && (PeripheralControl & TIMERA1)) {
       /* We are on TCA1 - Set pwm and return */
       uint8_t offset = 0;
-      if (bit_mask > 0x04) { //separate high from low timers
+      if (bit_mask > 0x04) { // separate high from low timers
         bit_mask <<= 1;
         offset = 1;
       }
@@ -490,7 +490,7 @@ void analogWrite(uint8_t pin, int val)
     case TIMERB4:
 
       /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
-      //assert (((TIMERB0 - TIMERB3) == 2));
+      // assert (((TIMERB0 - TIMERB3) == 2));
       timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
       // make sure the timer is in PWM mode
       if (((timer_B->CTRLB) & TCB_CNTMODE_gm) == TCB_CNTMODE_PWM8_gc ) {
@@ -519,12 +519,12 @@ void analogWrite(uint8_t pin, int val)
   #if defined(DAC0)
     case DACOUT:
       #ifdef DAC0_DATAH
-        //DAC0.DATAL = 0xC0;
+        // DAC0.DATAL = 0xC0;
         DAC0.DATAH = val;
       #else
         DAC0.DATA = val;
       #endif
-      DAC0.CTRLA=0x41; //OUTEN=1, ENABLE=1
+      DAC0.CTRLA=0x41; // OUTEN=1, ENABLE=1
       break;
   #endif
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
@@ -555,7 +555,7 @@ void analogWrite(uint8_t pin, int val)
       #if defined(__AVR_DA__) || defined(__AVR_DB__)
         // Dx-series
         #ifndef ERRATA_TCD_PORTMUX
-          //hopefully that gets rendereed as swap, not 4 leftshifts
+          // hopefully that gets rendereed as swap, not 4 leftshifts
           if (bit_mask < 0x10) bit_mask = bit_mask << 4;
         #endif
       #else
@@ -639,7 +639,7 @@ void analogWrite(uint8_t pin, int val)
         TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);
         while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
         _PROTECTED_WRITE(TCD0.FAULTCTRL, (bit_mask | TCD0.FAULTCTRL));
-        //while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
+        // while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
         TCD0.CTRLA = temp2; // re-enable it if it was enabled
       } else {
         TCD0.CTRLE = TCD_SYNCEOC_bm; // it was already on - just set new value and set sync flag.

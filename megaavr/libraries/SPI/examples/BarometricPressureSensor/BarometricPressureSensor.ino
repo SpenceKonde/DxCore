@@ -25,10 +25,10 @@
 // the sensor communicates using SPI, so include the library:
 #include <SPI.h>
 
-//Sensor's memory register addresses:
-const int PRESSURE = 0x1F;      //3 most significant bits of pressure
-const int PRESSURE_LSB = 0x20;  //16 least significant bits of pressure
-const int TEMPERATURE = 0x21;   //16 bit temperature reading
+// Sensor's memory register addresses:
+const int PRESSURE = 0x1F;      // 3 most significant bits of pressure
+const int PRESSURE_LSB = 0x20;  // 16 least significant bits of pressure
+const int TEMPERATURE = 0x21;   // 16 bit temperature reading
 const byte READ = 0b11111100;     // SCP1000's read command
 const byte WRITE = 0b00000010;   // SCP1000's write command
 
@@ -47,7 +47,7 @@ void setup() {
   pinMode(dataReadyPin, INPUT);
   pinMode(chipSelectPin, OUTPUT);
 
-  //Configure SCP1000 for low noise configuration:
+  // Configure SCP1000 for low noise configuration:
   writeRegister(0x02, 0x2D);
   writeRegister(0x01, 0x03);
   writeRegister(0x03, 0x02);
@@ -56,12 +56,12 @@ void setup() {
 }
 
 void loop() {
-  //Select High Resolution Mode
+  // Select High Resolution Mode
   writeRegister(0x03, 0x0A);
 
   // don't do anything until the data ready pin is high:
   if (digitalRead(dataReadyPin) == HIGH) {
-    //Read the temperature data
+    // Read the temperature data
     int tempData = readRegister(0x21, 2);
 
     // convert the temperature to celsius and display it:
@@ -70,13 +70,13 @@ void loop() {
     Serial.print(realTemp);
 
 
-    //Read the pressure data highest 3 bits:
+    // Read the pressure data highest 3 bits:
     byte  pressure_data_high = readRegister(0x1F, 1);
-    pressure_data_high &= 0b00000111; //you only needs bits 2 to 0
+    pressure_data_high &= 0b00000111; // you only needs bits 2 to 0
 
-    //Read the pressure data lower 16 bits:
+    // Read the pressure data lower 16 bits:
     unsigned int pressure_data_low = readRegister(0x20, 2);
-    //combine the two parts into one 19-bit number:
+    // combine the two parts into one 19-bit number:
     //
     // 1/22/21: Fix bug dating back to the dark ages in example
     // pressure_data_high is a 16-bit datatype, if you leftshift 16 bits
@@ -93,7 +93,7 @@ void loop() {
   }
 }
 
-//Read from or write to register from the SCP1000:
+// Read from or write to register from the SCP1000:
 unsigned int readRegister(byte thisRegister, int bytesToRead) {
   byte inByte = 0;           // incoming byte from the SPI
   unsigned int result = 0;   // result to return
@@ -130,7 +130,7 @@ unsigned int readRegister(byte thisRegister, int bytesToRead) {
 }
 
 
-//Sends a write command to SCP1000
+// Sends a write command to SCP1000
 
 void writeRegister(byte thisRegister, byte thisValue) {
 
@@ -143,8 +143,8 @@ void writeRegister(byte thisRegister, byte thisValue) {
   // take the chip select low to select the device:
   digitalWrite(chipSelectPin, LOW);
 
-  SPI.transfer(dataToSend); //Send register location
-  SPI.transfer(thisValue);  //Send value to record into register
+  SPI.transfer(dataToSend); // Send register location
+  SPI.transfer(thisValue);  // Send value to record into register
 
   // take the chip select high to de-select:
   digitalWrite(chipSelectPin, HIGH);

@@ -97,7 +97,7 @@ IPAddress& IPAddress::operator=(uint32_t address)
     return *this;
 }
 
-bool IPAddress::operator==(const uint8_t* addr) const
+bool IPAddress::operator == (const uint8_t* addr) const
 {
     return memcmp(addr, _address.bytes, sizeof(_address.bytes)) == 0;
 }

@@ -485,7 +485,7 @@ void AnalogComparator::init() {
         IN2_P = PORT_ISC_INPUT_DISABLE_gc;
       }
     #elif defined(ANALOG_COMP_PINS_TINY_TWO_14)
-      else if   (input_p == in_p::in2){
+      else if   (input_p == in_p::in2) {
         IN2_P = PORT_ISC_INPUT_DISABLE_gc;
       }
     #elif defined(ANALOG_COMP_PINS_TINY_GOLDEN)
@@ -516,7 +516,7 @@ void AnalogComparator::init() {
       }
     #endif
     #if defined(ANALOG_COMP_PINS_TINY_TWO_14) || defined(ANALOG_COMP_PINS_TINY_TWO)
-      else if   (input_n == in_n::in2){
+      else if   (input_n == in_n::in2) {
         IN2_N = PORT_ISC_INPUT_DISABLE_gc;
       }
     #endif
@@ -608,7 +608,7 @@ void AnalogComparator::stop(bool restorepins) {
           IN2_P = 0;
         }
       #elif defined(ANALOG_COMP_PINS_TINY_TWO_14)
-        else if   (input_p == in_p::in2){
+        else if   (input_p == in_p::in2) {
           IN2_P = 0;
         }
       #elif defined(ANALOG_COMP_PINS_TINY_GOLDEN)

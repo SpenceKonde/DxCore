@@ -106,7 +106,7 @@ Static method to test whether the the ZCDROUTEA register which controls the pin 
 
 ### Usage
 ```c++
-if(ZeroCross::have_separate_mux()) {
+if (ZeroCross::have_separate_mux()) {
   Serial.println("The ZCD portmux works on this part");
 } else {
   Serial.println("All ZCDs are controlled by the ZCD0 bit...")

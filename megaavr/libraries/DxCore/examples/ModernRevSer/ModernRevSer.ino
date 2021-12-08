@@ -30,7 +30,7 @@ void setup() {
   Serial.println();
   delay(1000);
   Serial.print("REVID: ");
-  #ifdef SIGROW_SERNUM15 //AVR Dx-series= - different format
+  #ifdef SIGROW_SERNUM15 // AVR Dx-series= - different format
   char major = 0x40 + (SYSCFG.REVID >> 4);
   Serial.print(major);
   Serial.println(SYSCFG.REVID & 0x0F);

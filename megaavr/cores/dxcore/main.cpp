@@ -47,10 +47,10 @@ int main()  __attribute__((weak));
  * will be needed in any event at the core level if VUSB-based "stuff" arrives, but really I'm  *
  * just waiting for the DU-series now                                                           */
 int main() {
-  onBeforeInit(); //Emnpty callback called before init but after the .init stuff. First normal code executed
-  init(); //Interrupts are turned on just prior to init() returning.
+  onBeforeInit(); // Emnpty callback called before init but after the .init stuff. First normal code executed
+  init(); // Interrupts are turned on just prior to init() returning.
   initVariant();
-  if (!onAfterInit()) sei();  //enable interrupts.
+  if (!onAfterInit()) sei();  // enable interrupts.
   setup();
   for (;;) {
     loop();
@@ -171,7 +171,7 @@ int main() {
       _PROTECTED_WRITE(CPUINT_CTRLA,CPUINT_IVSEL_bm);
       onPreMain();
     }
-    #if (SPM_FROM_APP==-1)
+    #if (SPM_FROM_APP == -1)
       /* Declared as being located in .init3 so it gets put way at the start of the binary. This guarantees that
        * it will be in the first page of flash. Must be marked ((used)) or LinkTime Optimization (LTO) will see
        * that nothing actually calls it and optimize it away. The trick of course is that it can be called if

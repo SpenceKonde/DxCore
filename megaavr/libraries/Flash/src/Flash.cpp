@@ -2,7 +2,7 @@
 #include <avr/pgmspace.h>
 #include "Flash.h"
 //*INDENT-OFF* astyle trashes the careful formatting here.
-//astyle should never be allowed to stomp on inline assembly
+// astyle should never be allowed to stomp on inline assembly
 
 /* Ugly ugly
  * SPMCOMMAND will be #defomed as the assembly command that we call
@@ -35,7 +35,7 @@
  * to write to EEPROM (or USERROW).
  */
 void do_nvmctrl(uint8_t command) {
-  while (NVMCTRL.STATUS & 0x03); //wait if busy, though this is unlikely
+  while (NVMCTRL.STATUS & 0x03); // wait if busy, though this is unlikely
   _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NONE_gc);
   _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, command);
   return;
@@ -59,7 +59,7 @@ uint8_t FlashClass::checkWritable() {
           }
         }
         return FLASHWRITE_NOENTRY;
-      #else //SPM_FROM_APP isn't -1, so it's the expected value of the CODESIZE fuse0
+      #else // SPM_FROM_APP isn't -1, so it's the expected value of the CODESIZE fuse0
         if (FUSE.CODESIZE != SPM_FROM_APP) {
           return FLASHWRITE_CFGMISMATCH;
         }
@@ -130,7 +130,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
     return FLASHWRITE_NOBOOT;
   }
   uint8_t command;
-  uint16_t minaddress = 0x200; //512 (bootloader section).
+  uint16_t minaddress = 0x200; // 512 (bootloader section).
   switch (size) {
     case 1:
       command = NVMCTRL_CMD_FLPER_gc;
@@ -179,7 +179,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
    */
   __asm__ __volatile__(SPMCOMMAND : "+z" (zaddress));
   #if (PROGMEM_SIZE > 0x10000)
-    RAMPZ = 0; //just begging for trouble not resetting that.
+    RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
   uint8_t status = NVMCTRL.STATUS & 0x70;
   if (status != 0) {
@@ -231,7 +231,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
             : [dat]      "r"   (data)
           );
   #if (PROGMEM_SIZE > 0x10000)
-    RAMPZ = 0; //just begging for trouble not resetting that.
+    RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
   uint8_t status = NVMCTRL.STATUS & 0x70;
   if (status != 0) {
@@ -280,7 +280,7 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   // No, it most definitely is not ignored! It will definitely do unaligned writes
   // unless they cross the page boundary, in which case the byte that would
   // be in the last byte of the prior page ends up on the second byte if the new page...
-  uint16_t zaddress=address & 0xFFFE; //truncate and force low bit to 0...
+  uint16_t zaddress=address & 0xFFFE; // truncate and force low bit to 0...
   do_nvmctrl(NVMCTRL_CMD_FLWR_gc);
   __asm__ __volatile__(
             "mov  r0,%A[dat]"                     "\n\t"
@@ -291,7 +291,7 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
             : [dat]      "r"   (dataword)
           );
   #if (PROGMEM_SIZE > 0x10000)
-    RAMPZ = 0; //just begging for trouble not resetting that.
+    RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
   uint8_t status = NVMCTRL.STATUS & 0x70;
   if (status != 0) {
@@ -328,7 +328,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
   // the application is not capable of writing meaningful data at this time
   // much less ensuring that the destination flash is appropriate and has
   // been erased.
-  if (address + (2 * length) > PROGMEM_SIZE  || length >= RAMSIZE ) {
+  if (address + (2 * length) > PROGMEM_SIZE  || length >= RAMSIZE) {
     return FLASHWRITE_TOOBIG;
   }
   #if (PROGMEM_SIZE > 0x10000)
@@ -362,7 +362,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
               [len]     "+w"  (declength)
           );
   #if (PROGMEM_SIZE > 0x10000)
-    RAMPZ = 0; //just begging for trouble not resetting that.
+    RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
   uint8_t status = NVMCTRL.STATUS & 0x70;
   if (status != 0) {
@@ -426,7 +426,7 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
     uint8_t section=address >> 15;
     // this will be 0~3 - corresponding to the number of the flash section
     // we return a pointer if it's in the mapped flash, otherwise,
-    if ( section == ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4)) {
+    if (section == ((NVMCTRL.CTRLB & NVMCTRL_FLMAP_gm) >> 4)) {
       return (uint8_t *) (0x8000 | ((uint16_t) address));
     } else {
       return (uint8_t*) NULL;
@@ -439,7 +439,7 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
 
 uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
   if (((uint16_t)mappedPtr) < 0x8000) {
-    return 0; //is not a pointer to mapped flash!
+    return 0; // is not a pointer to mapped flash!
   }
   uint32_t address= (uint16_t) mappedPtr;
   #if PROGMEM_SIZE == 0x10000

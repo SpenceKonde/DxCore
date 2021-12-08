@@ -181,7 +181,7 @@ My tentative ruling is that:
      * being invalid to work with is NOT safe to assume on embedded
      * systems. */
 
-    //Serial.println(frequency);
+    // Serial.println(frequency);
     long toggle_count;
     // Calculate the toggle count
     if (duration > 0) {    // Duration defined
@@ -201,7 +201,7 @@ My tentative ruling is that:
     }
 
     // Calculate compare value
-    int8_t divisionfactor = 0; //no prescale, toggles at twice the frequency
+    int8_t divisionfactor = 0; // no prescale, toggles at twice the frequency
 
     // Timer settings -- will be type B timer or bust....
     uint32_t compare_val = ((F_CPU / frequency) >> 1);
@@ -229,8 +229,8 @@ My tentative ruling is that:
       // "tone", and they should be generating it through other means.
       compare_val = 0xFFFF; // do the best we can
     }
-    //Serial.println(compare_val);
-    //Serial.println(divisionfactor);
+    // Serial.println(compare_val);
+    // Serial.println(divisionfactor);
     // Anyway - so we know that the new pin is valid....
     if (_pin != pin) {  // ...let's see if we're using it already.
       if (_pin != NOT_A_PIN) { // If not - were we using one before?
@@ -312,10 +312,10 @@ My tentative ruling is that:
   ISR(TCB1_INT_vect)
   #endif
   {
-    if (!(--timer_cycle_per_tgl_count)) { //Are we ready to toggle? pre-decrement, then see if we're at 0 yet.
+    if (!(--timer_cycle_per_tgl_count)) { // Are we ready to toggle? pre-decrement, then see if we're at 0 yet.
       timer_cycle_per_tgl_count   = timer_cycle_per_tgl;  // reset countdown
       *timer_outtgl_reg           = timer_bit_mask;       // toggle the pin
-      if (timer_toggle_count > 0) {  //if duration was specified, decrement toggle count.
+      if (timer_toggle_count > 0) {  // if duration was specified, decrement toggle count.
           timer_toggle_count--;
       } else if (timer_toggle_count == 0) {       // If toggle count = 0 we are done.
         disableTimer();

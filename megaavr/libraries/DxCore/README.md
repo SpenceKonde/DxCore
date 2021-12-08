@@ -35,7 +35,7 @@ MVIO_OKAY            0
 MVIO_UNSUPPORTED    -1
 ```
 
-These numeric values mean that `if(getMVIOStatus()){...}` will run the conditional statements if MVIO is not enabled and working. Similarly, `if(getMVIOStatus()>=0){...}` will run the conditional if MVIO is supported and enabled, whether or not there is an appropriate VDDIO2 voltage supplied.
+These numeric values mean that `if(getMVIOStatus()) {...}` will run the conditional statements if MVIO is not enabled and working. Similarly, `if(getMVIOStatus()>=0) {...}` will run the conditional if MVIO is supported and enabled, whether or not there is an appropriate VDDIO2 voltage supplied.
 
 ```c++
 void checkMVIO() {
@@ -79,9 +79,9 @@ typedef enum X32K_TYPE {
 } X32K_TYPE_t;
 
 typedef enum X32K_ENABLE {
-    X32K_DISABLED = ( 0x00),
-    X32K_ENABLED  = ( 0x01),
-    X32K_ALWAYSON = ( 0x81),
+    X32K_DISABLED = (0x00),
+    X32K_ENABLED  = (0x01),
+    X32K_ALWAYSON = (0x81),
 } X32K_ENABLE_t;
 ```
 
@@ -116,7 +116,7 @@ void doStuffWithOSC() {
   Serial.print("Current external 32K osc: ");
   Serial.printHexln(CLKCTRL.XOSC32KCTRLA);
   Serial.println("We can't tell if it's on until we try to use it unless using a Rev. A5 or later AVR128DB - so we won't mess with that mess!")
-  if(enableAutoTune()){
+  if(enableAutoTune()) {
     // if enableAutoTune() is non-zero, that's a failure... enabling external oscillator FAILED - unsurprising, since hardly anyone uses a 32 kHz CLOCK, which is what we tried...
     Serial.println("failed to enable autotune w/external 32kHz osc set to CLOCK");
     if (disableAutoTune()) {
@@ -130,8 +130,8 @@ void doStuffWithOSC() {
   // Let's try something that will, if a crystal is present: enable external crystal, with the safest settings
   configXOSC32K(X32K_HIGHPWR_START2S,X32K_ENABLED);
 
-  if(enableAutoTune()){
-    //if this is true... enabling external oscillator FAILED - with safe settings this time
+  if(enableAutoTune()) {
+    // if this is true... enabling external oscillator FAILED - with safe settings this time
     Serial.println("Also failed safe settings too - settings were: ");
     Serial.printHexln(CLKCTRL.XOSC32KCTRLA);
     disableXOSC32K();
@@ -148,6 +148,6 @@ void doStuffWithOSC() {
   disableXOSC32K();
   Serial.println("Disabling the external oscillator - we give up!");
 
-  //Done!
+  // Done!
 }
 ```

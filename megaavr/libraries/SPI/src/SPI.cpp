@@ -346,7 +346,7 @@ void SPIClass::begin() {
     #elif defined(PORTMUX_TWISPIROUTEA)
       // megaAVR 0-series
       PORTMUX.TWISPIROUTEA = _uc_mux | (PORTMUX.TWISPIROUTEA & ~PORTMUX_SPI0_gm);
-    #else //defined(PORTMUX_CTRLB)
+    #else // defined(PORTMUX_CTRLB)
       PORTMUX.CTRLB = uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
     #endif
 
@@ -542,7 +542,7 @@ void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
 void SPIClass::beginTransaction(SPISettings settings) {
   if (interruptMode != SPI_IMODE_NONE) {
     old_sreg=SREG;
-    cli(); //NoInterrupts();
+    cli(); // NoInterrupts();
   }
   in_transaction = 1;
   config(settings);
@@ -567,12 +567,12 @@ void SPIClass::setBitOrder(uint8_t order) {
 }
 
 void SPIClass::setDataMode(uint8_t mode) {
-  SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | mode );
+  SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | mode);
 }
 
 void SPIClass::setClockDivider(uint8_t div) {
   SPI_MODULE.CTRLA = ((SPI_MODULE.CTRLA &
-                  ((~SPI_PRESC_gm) | (~SPI_CLK2X_bm) ))  // mask out values
+                  ((~SPI_PRESC_gm) | (~SPI_CLK2X_bm)))  // mask out values
                   | div);                           // write value
 }
 

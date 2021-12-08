@@ -37,7 +37,7 @@ void setup() {
 
 
 void loop() {
-  openDrainBitbang(0x0DF0AD8B); //or, with human endianness, 0x8BADF00D
+  openDrainBitbang(0x0DF0AD8B); // or, with human endianness, 0x8BADF00D
 }
 
 /*-----------------------------------------------------------------------------
@@ -84,8 +84,8 @@ void openDrainBitbang(uint32_t data) {
   // When it's not waiting for the pins to rise back to HIGH, the code runs
   for (uint8_t i = 0; i < 32; i++) {
     while (digitalReadFast(DEMO_PIN) != HIGH || digitalReadFast(DEMO_PIN2) != HIGH);
-    //Wait for them to be pulled high - probably won't loop, but maybe high capacitance on
-    //the lines or weak pullups, or other device holding low (like I2C clock stretching)
+    // Wait for them to be pulled high - probably won't loop, but maybe high capacitance on
+    // the lines or weak pullups, or other device holding low (like I2C clock stretching)
     _NOPNOP(); // wait four clocks so the receiver has a chance to see the same thing as we did; We could even wait longer here
     _NOPNOP();
     if (((uint8_t)data) & 0x01) {
@@ -95,11 +95,11 @@ void openDrainBitbang(uint32_t data) {
     _NOPNOP(); // wait four clocks so the receiver has a chance to see the same thing as we did; We could even wait longer here
     _NOPNOP();
     openDrainFast(DEMO_PIN, LOW);
-    data >>= 1;  //if we'd immediately released it, it would only be low for a fraction of a microsecond.
+    data >>= 1;  // if we'd immediately released it, it would only be low for a fraction of a microsecond.
     // doing that math in there is liks a quarter microsecond delay.
     openDrainFast(DEMO_PIN, FLOATING);
     openDrainFast(DEMO_PIN2, FLOATING);
-    //release pins.
+    // release pins.
   }
 
 }

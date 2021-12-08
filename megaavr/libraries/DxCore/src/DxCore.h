@@ -70,7 +70,7 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
 #endif
 
 int16_t getMVIOVoltage();
-//returns ADC or MVIO error code, or voltage in millivolts;
+// returns ADC or MVIO error code, or voltage in millivolts;
 
 #if defined(AZDUINO_DB_MULTIREG)
   int8_t setMVIOVoltageReg(uint8_t setting);

@@ -40,11 +40,11 @@ The USERSIG library is included with megaTinyCore. To add its functionality to y
 ```Arduino
 #include <USERSIG.h>
 
-void setup(){
+void setup() {
 
 }
 
-void loop(){
+void loop() {
 
 }
 
@@ -55,14 +55,14 @@ The library provides a global variable named `USERSIG`, you use this variable to
 
 ## Library functions
 
-### `USERSIG.read( address )`
+### `USERSIG.read(address)`
 
 This function allows you to read a single byte of data from the USERROW (if there are no pending writes) or the temporary buffer (if there are).
 Its only parameter is an `int` which should be set to the address you wish to read (for the current parts this could have fit in a byte, but there was an announced part that had a much larger USERROW until they pulled down the product brief a few hours later, and that will need a larger address).
 
 The function returns an `uint8_t` (byte) containing the value read.
 
-### `USERSIG.write( address, value )`
+### `USERSIG.write(address, value)`
 
 The `write()` method allows you to write a single byte of data to the USERROW.
 Two parameters are needed. The first is an `int` containing the address that is to be written, and the second is the data to be written, a `byte`.
@@ -91,7 +91,7 @@ Calling this from within an interrupt will write nothing to the USERROW or the b
 
 If the new value is the same as the old value, and we would otherwise have written it to the USERROW, we skip the writing step and return a 1.
 
-### `USERSIG.update( address, value )`
+### `USERSIG.update(address, value)`
 
 This is identical to the `write()` method, and exists only for compatibility. We will *never* write to the userrow when the value is the same as what's already there.
 
@@ -121,14 +121,14 @@ This will simply return a 1 if there are one or more writes pending (we don't ke
 ### `USERSIG.erase()`
 This will erase the USERROW without rewriting anything and clear the buffer.
 
-### `USERSIG.get( address, object )`
+### `USERSIG.get(address, object)`
 
 This function will retrieve any object from the USERROW (if there are no pending writes) or the temporary buffer (if there are).
 Two parameters are needed to call this function. The first is an `int` containing the address that is to be written, and the second is the object you would like to read.
 
 This function returns a reference to the `object` passed in. It does not need to be used and is only returned for conveience.
 
-### `USERSIG.put( address, object )`
+### `USERSIG.put(address, object)`
 This function will write any object to the USERROW.
 Two parameters are needed to call this function. The first is an `int` containing the address that is to be written, and the second is the object you would like to write.
 
@@ -174,11 +174,11 @@ Its purpose is to mimic a typical byte of RAM, however its storage is the USERSI
 This class has an overhead of two bytes, similar to storing a pointer to a USERSIG cell.
 
 ```C++
-USRef ref = USERSIG[ 10 ]; //Create a reference to 11th cell.
+USRef ref = USERSIG[10]; // Create a reference to 11th cell.
 
-ref = 4; //write to USERSIG cell.
+ref = 4; // write to USERSIG cell.
 
-unsigned char val = ref; //Read referenced cell.
+unsigned char val = ref; // Read referenced cell.
 ```
 
 ### `USPtr` class
@@ -188,13 +188,13 @@ Just like a normal pointer type, this type can be dereferenced and repositioned 
 increment/decrement operators.
 
 ```C++
-USPtr ptr = 10; //Create a pointer to 11th cell.
+USPtr ptr = 10; // Create a pointer to 11th cell.
 
-*ptr = 4; //dereference and write to USERSIG cell.
+*ptr = 4; // dereference and write to USERSIG cell.
 
-unsigned char val = *ptr; //dereference and read.
+unsigned char val = *ptr; // dereference and read.
 
-ptr++; //Move to next USERSIG cell.
+ptr++; // Move to next USERSIG cell.
 ```
 
 #### `USERSIG.begin()`

@@ -259,7 +259,7 @@
       // Buffer empty, so disable "data register empty" interrupt
       usartModule->CTRLA &= (~USART_DREIE_bm);
       return;
-    } //moved to poll function to make ISR smaller and faster
+    } // moved to poll function to make ISR smaller and faster
   */
 
     // There must be more data in the output
@@ -316,7 +316,7 @@ void UartClass::_poll_tx_data_empty(void) {
       #else
         void * thisSerial = this;
         __asm__ __volatile__(
-                "clt"              "\n\t" //Clear the T flag to signal to the ISR that we got there from here.
+                "clt"              "\n\t" // Clear the T flag to signal to the ISR that we got there from here.
                 "rjmp _poll_dre"   "\n\t"
                 "_poll_dre_done:"    "\n"
                 ::"z"((uint16_t)thisSerial)
@@ -346,7 +346,7 @@ bool UartClass::swap(uint8_t newmux) {
   if (newmux < _mux_count) {
     _pin_set = newmux;
     return true;
-  } else if (newmux == MUX_NONE) {  //128 codes for MUX_NONE
+  } else if (newmux == MUX_NONE) {  // 128 codes for MUX_NONE
     _pin_set = _mux_count;
     return true;
   } else {
@@ -385,7 +385,7 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
     ctrla  |= USART_RXCIE_bm;               // we will want to enable the ISR.
   }
   uint8_t setpinmask = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
-  if ((ctrla & USART_LBME_bm) && (setpinmask == 0xC8)) { //if it's open-drain and loopback AND both TX and RX are enabled, need to set state bit 2.
+  if ((ctrla & USART_LBME_bm) && (setpinmask == 0xC8)) { // if it's open-drain and loopback AND both TX and RX are enabled, need to set state bit 2.
     _state                 |= 2;            // since that changes some behavior (RXC disabled while sending) // Now we should be able to ST _state.
     setpinmask             |= 0x10;         // this tells _set_pins not to disturb the configuration on the RX pin.
   }
@@ -498,9 +498,9 @@ void UartClass::_mux_set(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_
   uint16_t mux_options_off_gm = pgm_read_word_near(mux_info_ptr);  /* pointer offset to the second columun
   at the end bottom row of the table, with info about the mux options, rather than a specefic option
   Low byte is the offset from USARTROUTEA, second byte is the group mask. */
-  volatile uint8_t* portmux  = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)mux_options_off_gm); //offset
+  volatile uint8_t* portmux  = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)mux_options_off_gm); // offset
   uint8_t temp   = *portmux;
-  temp          &= ~((uint8_t) (mux_options_off_gm >> 8)); //Group Mask
+  temp          &= ~((uint8_t) (mux_options_off_gm >> 8)); // Group Mask
   temp          |= mux_code;
   *portmux       = temp;
 #else
@@ -565,10 +565,10 @@ uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint
       mux_table_ptr++;                                              // prepare to read the information with one byte offset
       for (uint8_t i = 0; i < mux_count; i++) {                     // until we hit the end of this USART's mux...
         uint8_t mux_tx_pin = pgm_read_byte_near(mux_table_ptr);     // read tx pin, which we are now pointing at.
-        if (tx_pin == mux_tx_pin) { //if it's the tx pin, and we know that the rx pin matches it.
+        if (tx_pin == mux_tx_pin) { // if it's the tx pin, and we know that the rx pin matches it.
           return i;                 // return the swap number. The first line checked that the rx pin's must match this, since rx pins on all parts thus far are tx + 1.
         }
-        mux_table_ptr += USART_PINS_WIDTH; //otherwise try the next mux option
+        mux_table_ptr += USART_PINS_WIDTH; // otherwise try the next mux option
       }
     }
     return NOT_A_MUX; // At this point, we have checked all group codes for this peripheral. It ain't there. Return NOT_A_MUX.
@@ -585,12 +585,12 @@ uint8_t UartClass::_getPin(uint8_t * mux_table_ptr, uint8_t muxcount, uint8_t pi
   }
   mux_table_ptr += USART_PINS_WIDTH * pinset;
   if (pgm_read_byte_near(mux_table_ptr++) == NOT_A_MUX) {
-    return NOT_A_PIN; //somehow an invalid pinset is selected...
+    return NOT_A_PIN; // somehow an invalid pinset is selected...
   }
   if (pin > 1) {
     mux_table_ptr++;
   }
-  uint8_t base = pgm_read_byte_near(mux_table_ptr); //TX or XCK
+  uint8_t base = pgm_read_byte_near(mux_table_ptr); // TX or XCK
   if (base == NOT_A_PIN) {
     return NOT_A_PIN;
   }
@@ -616,7 +616,7 @@ size_t UartClass::write(uint8_t c) {
   // significantly improve the effective data rate at high (>
   // 500kbit/s) bit rates, where interrupt overhead becomes a slowdown.
   if ((_tx_buffer_head == _tx_buffer_tail) && ((*_hwserial_module).STATUS & USART_DREIF_bm)) {
-    if (_state & 2) { //in half duplex mode, we turn off RXC interrupt
+    if (_state & 2) { // in half duplex mode, we turn off RXC interrupt
       uint8_t ctrla               = (*_hwserial_module).CTRLA;
       ctrla                      &= ~USART_RXCIE_bm;
       ctrla                      |= USART_TXCIE_bm;
@@ -654,7 +654,7 @@ size_t UartClass::write(uint8_t c) {
   }
   _tx_buffer[_tx_buffer_head]  = c;
   _tx_buffer_head              = i;
-  if (_state & 2) { //in half duplex mode, we turn off RXC interrupt
+  if (_state & 2) { // in half duplex mode, we turn off RXC interrupt
     uint8_t ctrla              = (*_hwserial_module).CTRLA;
     ctrla                     &= ~USART_RXCIE_bm;
     ctrla                     |= USART_TXCIE_bm | USART_DREIE_bm;

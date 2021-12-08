@@ -44,7 +44,7 @@
   #else
     #define USE_TIMERB3
   #endif
-  //14 and 20-pin AVR DD-series parts do not have a third type B timer!
+  // 14 and 20-pin AVR DD-series parts do not have a third type B timer!
 #elif defined(SERVO_USE_TIMERB2)
   #if !defined(TCB2)
     #error "SERVO_USE_TIMERB2 is defined, but there is no TCB2 on selected part."

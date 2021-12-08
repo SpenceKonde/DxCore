@@ -51,8 +51,8 @@ public:
     // Overloaded cast operator to allow IPAddress objects to be used where a pointer
     // to a four-byte uint8_t array is expected
     operator uint32_t() const { return _address.dword; };
-    bool operator==(const IPAddress& addr) const { return _address.dword == addr._address.dword; };
-    bool operator==(const uint8_t* addr) const;
+    bool operator == (const IPAddress& addr) const { return _address.dword == addr._address.dword; };
+    bool operator == (const uint8_t* addr) const;
 
     // Overloaded index operator to allow getting and setting individual octets of the address
     uint8_t operator[](int index) const { return _address.bytes[index]; };

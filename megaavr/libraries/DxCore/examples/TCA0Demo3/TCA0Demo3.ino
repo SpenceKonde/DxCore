@@ -31,18 +31,18 @@ void setup() {
   takeOverTCA0();
 
   PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTA_gc;
-  TCA0.SINGLE.CTRLB = (TCA_SINGLE_CMP2EN_bm | TCA_SINGLE_WGMODE_SINGLESLOPE_gc); //Single slope PWM mode, PWM on WO2
+  TCA0.SINGLE.CTRLB = (TCA_SINGLE_CMP2EN_bm | TCA_SINGLE_WGMODE_SINGLESLOPE_gc); // Single slope PWM mode, PWM on WO2
   TCA0.SINGLE.PER = 0x00FF; // Count all the way up to 0x00FF (255) - 8-bit PWM
   // At 20MHz, this gives ~78.125kHz PWM
   TCA0.SINGLE.CMP2 = 0;
-  TCA0.SINGLE.CTRLA = TCA_SINGLE_ENABLE_bm; //enable the timer with no prescaler
+  TCA0.SINGLE.CTRLA = TCA_SINGLE_ENABLE_bm; // enable the timer with no prescaler
 }
 
-void loop() { //Lets generate some output just to prove it works
+void loop() { // Lets generate some output just to prove it works
   static byte pass = 0;
   static unsigned int duty = 255;
-  TCA0.SINGLE.CMP2 = duty-- ; //step down the duty cycle each iteration through loop;
-  delay(100);  //so we can see the duty cycle changing over time on the scope/with an LED
+  TCA0.SINGLE.CMP2 = duty--; // step down the duty cycle each iteration through loop;
+  delay(100);  // so we can see the duty cycle changing over time on the scope/with an LED
   if (!duty) {
     if (pass == 0) {
       // After the first pass, lets go up to 100kHz
@@ -50,7 +50,7 @@ void loop() { //Lets generate some output just to prove it works
       duty = 199;
       TCA0.SINGLE.PER = 199;
     } else if (pass == 1) {
-      //and now the requested 62 kHz (actually 62.11kHz)
+      // and now the requested 62 kHz (actually 62.11kHz)
       pass = 2;
       duty = 322;
       TCA0.SINGLE.PER = 322;

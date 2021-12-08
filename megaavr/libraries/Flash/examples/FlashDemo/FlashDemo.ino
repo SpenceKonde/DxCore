@@ -47,7 +47,7 @@ void Demo() {
   Serial.println(Flash.writeWord(BASE_ADDRESS, 0xCFF3));
   Serial.print(F("the number 1056 at base + 4: "));
   Serial.println(Flash.writeWord(BASE_ADDRESS + 4, 1056));
-  //1056 is easy to see in hex, binary too: 0x0420, or 00000100 00100000
+  // 1056 is easy to see in hex, binary too: 0x0420, or 00000100 00100000
   Serial.print(F("Word 0x8001 at base +7: "));
   Serial.println(Flash.writeWord(BASE_ADDRESS + 7, 0x8001));
   Serial.println(F(" Failed - words writes must be aligned"));
@@ -90,9 +90,9 @@ void readHalfPage(uint32_t StartAddress) {
   Serial.print(StartAddress, HEX);
   Serial.println(F(":"));
   for (unsigned long i = StartAddress; i < (StartAddress + 0x100); i++) {
-    Serial.printHex(Flash.readByte(i)); //DxCore helper function - does the leading 0.
+    Serial.printHex(Flash.readByte(i)); // DxCore helper function - does the leading 0.
     if ((i & 31) != 31) {
-      //Print 32 bytes per line, space between them, (31 spaces, fence post)
+      // Print 32 bytes per line, space between them, (31 spaces, fence post)
       Serial.print(' ');
     } else {
       // Last one of a line gets a newline printed after it instead.

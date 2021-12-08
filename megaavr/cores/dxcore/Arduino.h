@@ -148,7 +148,7 @@ void stop_millis();                       // stop the timer being used for milli
 void restart_millis();                    // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
 void set_millis(uint32_t newmillis);      // Sets the millisecond timer to the specified number of milliseconds. DO NOT CALL with a number lower than the current millis count if you have any timeouts ongoing.
                                           // they may expire instantly.
-//void nudge_millis(uint16_t nudgemillis);// Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
+// void nudge_millis(uint16_t nudgemillis);// Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
 // Not yet implemented, debating if       // way to advance the timer without needing to read the current millis yourself, and without a few other risks. (added becauise *I* needed it, but simple enough).
 // this is the right thing to implement   // The intended use case is when you know you're disabling millis for a long time, and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
                                           // forward by a given amount; I added this when in a pinch because *I* needed that functionality.
@@ -161,7 +161,7 @@ void takeOverTCA1();                      // Can be used to tell core not to use
 void takeOverTCD0();                      // Can be used to tell core not to use TCD0 for any API calls - user has taken it over.
 void resumeTCA0();                        // Restores core-mediated functionality that uses TCA0 and restores default TCA0 configuration.
 void resumeTCA1();                        // Restores core-mediated functionality that uses TCA1 and restores default TCA1 configuration.
-//bool digitalPinHasPWM(uint8_t p);       // Macro. Returns true if the pin can currently output PWM using analogWrite(), regardless of which timer is used and considering current PORTMUX setting
+// bool digitalPinHasPWM(uint8_t p);       // Macro. Returns true if the pin can currently output PWM using analogWrite(), regardless of which timer is used and considering current PORTMUX setting
 uint8_t digitalPinToTimerNow(uint8_t p);  // Returns the timer that is associated with the pin now (considering PORTMUX)
 
 // These are in here so that - should it be necessary - library functions or user code could override these.
@@ -514,7 +514,7 @@ extern const uint8_t digital_pin_to_timer[];
 // having to find/replace Serial with Serial2 or whatever on their existing code if that's where
 // the monitor is. It requires that the board be defined by a variant file
 #ifndef Serial
-  #define Serial Serial0 //Error here? Check for missing ; previous line in sketch.
+  #define Serial Serial0 // Error here? Check for missing ; previous line in sketch.
 #endif
 
 /* Moved from pins_arduino.h to reduce code duplication - also made better decisions */

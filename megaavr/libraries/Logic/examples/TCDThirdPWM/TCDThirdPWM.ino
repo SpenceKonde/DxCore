@@ -45,10 +45,10 @@ void initThirdPWM() {
 
 
 
-  TCD0.DLYVAL = 0x80; //50% duty cycle
+  TCD0.DLYVAL = 0x80; // 50% duty cycle
   while (!(TCD0.STATUS & 0x01));
   TCD0.CTRLA |= 1;
-  //event channel 0
+  // event channel 0
   Event0.set_generator(gen::tcd0_cmpbclr);
   Event0.set_user(user::ccl0_event_a);
   Event0.start();
@@ -58,13 +58,13 @@ void initThirdPWM() {
   Logic0.enable = true;
   Logic0.output = out::enable;
   Logic0.input0 = in::event_a;
-  //Logic0.input0 = in::masked;
+  // Logic0.input0 = in::masked;
   Logic0.input1 = in::event_b;
   Logic0.input2 = in::feedback;
   Logic0.truth = (0xB2);
   // low nybble is when input 2 is low. Value 2, 0b0010, means the output pin is driven low
   // and only switches if input 0 goes high, and then we will output high until,
-  //er the high nybble, 0xB, 9b1011: it when input 1 goes high, it turns off again
+  // er the high nybble, 0xB, 9b1011: it when input 1 goes high, it turns off again
   // . when input 0 goes high,
   // Hence it's high between TCD0_CMPBCLR and TCD_PROGEV (delayed eventt, triggered  from CMPBCLR)
   Logic0.init();
@@ -80,7 +80,7 @@ void PA3DutyCycle(uint8_t duty) {
   // }
   // duty = (duty << 1)+ 1;
   TCD0.DLYVAL = duty;
-  while (!(TCD0.STATUS & TCD_CMDRDY_bm)); //wait for any sync weirdness, because TCD is wacky
-  //then tell it to sync at end of cycle (better than sync, though i'm not sure how it interacts here)
+  while (!(TCD0.STATUS & TCD_CMDRDY_bm)); // wait for any sync weirdness, because TCD is wacky
+  // then tell it to sync at end of cycle (better than sync, though i'm not sure how it interacts here)
   TCD0.CTRLE = TCD_SYNCEOC_bm;
 }

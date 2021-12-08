@@ -165,14 +165,14 @@ Opamp0.ladder_top = top::vdd; // Connect the resistor ladder top to the supply v
 Property to set the resistor ladder values. R2 connects to the top and to the middle and R1 connects to the middle and to the bottom. Previous versions of this document claimed specific resistances of 64k total. I can find no reference to this number in the documentation, though that ballpark sounds appropriate. In any event, there are 16 internal resistive elements as is clear from the comments below, which means that, potentially 15 ratios of resistance are possible. However, only 8 (presumably those judged to be most useful by the designers) are exposed by the hardware.
 Accepted values:
 ``` c++
-wiper::wiper0; // R1:R2 = 15:1   (15:1 )
-wiper::wiper1; // R1:R2 =  7:1   (14:2 )
-wiper::wiper2; // R1:R2 =  3:1   (12:4 )
-wiper::wiper3; // R1:R2 =  1:1   ( 8:8 )
-wiper::wiper4; // R1:R2 =  3:5   ( 6:10)
-wiper::wiper5; // R1:R2 =  1:3   ( 4:12)
-wiper::wiper6; // R1:R2 =  1:7   ( 2:14)
-wiper::wiper7; // R1:R2 =  1:15  ( 1:15)
+wiper::wiper0; // R1:R2 = 15:1   (15:1)
+wiper::wiper1; // R1:R2 =  7:1   (14:2)
+wiper::wiper2; // R1:R2 =  3:1   (12:4)
+wiper::wiper3; // R1:R2 =  1:1   (8:8)
+wiper::wiper4; // R1:R2 =  3:5   (6:10)
+wiper::wiper5; // R1:R2 =  1:3   (4:12)
+wiper::wiper6; // R1:R2 =  1:7   (2:14)
+wiper::wiper7; // R1:R2 =  1:15  (1:15)
 ```
 
 ##### Usage

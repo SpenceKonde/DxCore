@@ -110,26 +110,26 @@
 #endif
 
 #ifndef SPI_MODE0
-  #define SPI_MODE0           ( SPI_MODE_0_gc )
+  #define SPI_MODE0           (SPI_MODE_0_gc)
 #endif
 #ifndef SPI_MODE1
-  #define SPI_MODE1           ( SPI_MODE_1_gc )
+  #define SPI_MODE1           (SPI_MODE_1_gc)
 #endif
 #ifndef SPI_MODE2
-  #define SPI_MODE2           ( SPI_MODE_2_gc )
+  #define SPI_MODE2           (SPI_MODE_2_gc)
 #endif
 #ifndef SPI_MODE3
-  #define SPI_MODE3           ( SPI_MODE_3_gc )
+  #define SPI_MODE3           (SPI_MODE_3_gc)
 #endif
 
 #ifndef SPI_MODE_MASK
-  #define SPI_MODE_MASK       ( SPI_MODE_gm   )
+  #define SPI_MODE_MASK       (SPI_MODE_gm   )
 #endif
 #ifndef SPI_CLOCK_MASK
-  #define SPI_CLOCK_MASK      ( SPI_PRESC_gm  )
+  #define SPI_CLOCK_MASK      (SPI_PRESC_gm  )
 #endif
 #ifndef SPI_2XCLOCK_MASK
-  #define SPI_2XCLOCK_MASK    ( SPI_CLK2X_bm  )
+  #define SPI_2XCLOCK_MASK    (SPI_CLK2X_bm  )
 #endif
 
 #ifndef SPI_INTERRUPT_DISABLE
@@ -308,25 +308,25 @@ class SPIClass {
 #endif
 
 #ifndef SPI_CLOCK_DIV2
-  #define SPI_CLOCK_DIV2      ( SPI_PRESC_DIV4_gc     | SPI_CLK2X_bm  )
+  #define SPI_CLOCK_DIV2      (SPI_PRESC_DIV4_gc     | SPI_CLK2X_bm  )
 #endif
 #ifndef SPI_CLOCK_DIV4
-  #define SPI_CLOCK_DIV4      ( SPI_PRESC_DIV4_gc                     )
+  #define SPI_CLOCK_DIV4      (SPI_PRESC_DIV4_gc                     )
 #endif
 #ifndef SPI_CLOCK_DIV8
-  #define SPI_CLOCK_DIV8      ( SPI_PRESC_DIV16_gc    | SPI_CLK2X_bm  )
+  #define SPI_CLOCK_DIV8      (SPI_PRESC_DIV16_gc    | SPI_CLK2X_bm  )
 #endif
 #ifndef SPI_CLOCK_DIV16
-  #define SPI_CLOCK_DIV16     ( SPI_PRESC_DIV16_gc                    )
+  #define SPI_CLOCK_DIV16     (SPI_PRESC_DIV16_gc                    )
 #endif
 #ifndef SPI_CLOCK_DIV32
-  #define SPI_CLOCK_DIV32     ( SPI_PRESC_DIV64_gc    | SPI_CLK2X_bm  )
+  #define SPI_CLOCK_DIV32     (SPI_PRESC_DIV64_gc    | SPI_CLK2X_bm  )
 #endif
 #ifndef SPI_CLOCK_DIV64
-  #define SPI_CLOCK_DIV64     ( SPI_PRESC_DIV64_gc                    )
+  #define SPI_CLOCK_DIV64     (SPI_PRESC_DIV64_gc                    )
 #endif
 #ifndef SPI_CLOCK_DIV128
-  #define SPI_CLOCK_DIV128    ( SPI_PRESC_DIV128_gc                   )
+  #define SPI_CLOCK_DIV128    (SPI_PRESC_DIV128_gc                   )
 #endif
 
 #endif

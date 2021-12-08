@@ -70,7 +70,7 @@
     #define PIN_TCD0_WOA_ALT2       PIN_PF0
     #define PIN_TCD0_WOB_ALT2       PIN_PF1
   #else
-    //no lower port D PC0 for sub 28-pin
+    // no lower port D PC0 for sub 28-pin
     #define PIN_TCA0_WO0_ALT2       NOT_A_PIN
 
     #define PIN_TCA0_WO0_ALT3       NOT_A_PIN
@@ -195,7 +195,7 @@
       #define PIN_TCA1_WO1_ALT2     NOT_A_PIN
       #define PIN_TCA1_WO2_ALT2     NOT_A_PIN
 
-      //No port G
+      // No port G
       #define PIN_TCA0_WO0_ALT6     NOT_A_PIN
       #define PIN_TCA0_WO1_ALT6     NOT_A_PIN
       #define PIN_TCA0_WO2_ALT6     NOT_A_PIN

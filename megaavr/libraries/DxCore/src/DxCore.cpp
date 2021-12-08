@@ -4,10 +4,10 @@
 // *INDENT-OFF*
 void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable) {
   uint8_t newval = settings | enable;
-  //if any of the bits are "enable protected" we need to turn off the external crystal/clock.
+  // if any of the bits are "enable protected" we need to turn off the external crystal/clock.
   if ((CLKCTRL.XOSC32KCTRLA ^ newval) & (CLKCTRL_SEL_bm | CLKCTRL_CSUT_gm)) {
-    _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, CLKCTRL.XOSC32KCTRLA & 0xFE); //disable external crystal
-    while (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm); //unclear if this is immediately cleared or not...
+    _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, CLKCTRL.XOSC32KCTRLA & 0xFE); // disable external crystal
+    while (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm); // unclear if this is immediately cleared or not...
   }
   _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, newval);
 }
@@ -22,7 +22,7 @@ uint8_t enableAutoTune() {
   }
   _PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA, CLKCTRL.OSCHFCTRLA | 0x01);
   uint8_t csut = (CLKCTRL.XOSC32KCTRLA & CLKCTRL_CSUT_gm) >> 4;
-  uint32_t verifytime = 500 + (csut == 3 ? 2000 : 500 * csut);
+  uint32_t verifytime = 500 + ((csut == 3) ? 2000 : (500 * csut));
   uint32_t startedAt = millis();
   while ((millis() - startedAt < verifytime) && (!(CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm)));
   if (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm) {
@@ -48,7 +48,7 @@ int8_t disableAutoTune() {
 
 bool setTCA0MuxByPort(uint8_t port) {
   if (port < 7) {
-    TCA0.SPLIT.CTRLB = 0; //disconnect
+    TCA0.SPLIT.CTRLB = 0; // disconnect
     uint8_t base_pin = portToPinZero(port);
     uint8_t max_pin = min((base_pin + 6 > NUM_DIGITAL_PINS ? NUM_DIGITAL_PINS : base_pin + 6), portToPinZero(port + 1)) - 1;
     for (byte i = base_pin; i < (min(max_pin, base_pin + 6); i++)) {
@@ -76,13 +76,13 @@ bool setTCA0MuxByPin(uint8_t pin) {
       // not one of the 4 working mapping options that we have on DB64. TCA1 mapping
       // for this port doesn't exist, port is invalid, or not a port if not caught by above #if
     #else
-      //if not a DB, the PORTG mapping option doesn't work per errata...
+      // if not a DB, the PORTG mapping option doesn't work per errata...
       if (port != 1 && (!(port == 2  && takeover_only_ports_ok))) {
         return false;
       }
     #endif
     // AND with group mask cuts off the unwanted low bit leaving us with the 2 high bits which is what we care about
-    TCA1.SPLIT.CTRLB = 0; //disconnect all PWM channels
+    TCA1.SPLIT.CTRLB = 0; // disconnect all PWM channels
     uint8_t base_pin = portToPinZero(port);
     uint8_t max_pin = min((base_pin + 6 > NUM_DIGITAL_PINS ? NUM_DIGITAL_PINS : base_pin + 6), portToPinZero(port + 1)) - 1;
     for (byte i = base_pin; i < max_pin; i++) {
@@ -116,7 +116,7 @@ bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
     if ((!(port < 2 || port > 4)) || (port >6))
       return false;
     if (port > 4)
-      port -= 3; //0, 1 left as is, 2, 3, 4 got return'ed out of. 5, 6 get turned into 2 and 3.
+      port -= 3; // 0, 1 left as is, 2, 3, 4 got return'ed out of. 5, 6 get turned into 2 and 3.
     PORTMUX.TCDROUTEA = port;
     return true;
   */
@@ -134,45 +134,57 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
   }
   return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
 }               // chips that one might want to call this for don't exist, let's not bother :-)
-              // chips that one might want to call this for don't exist, let's not bother :-)
-
 
 
 #if defined(AZDUINO_DB_MULTIREG)
+/* The Maxim regulator has 2 pins each of which can float, or be driven high or low to set the voltage, then you bounce enable to latch the new voltage.
+   REG_OFF    0xFF
+   REG_1V2    0b0100 0100
+   REG_1V5    0b1000 1000
+   REG_1V8    0b0100 0000
+   REG_2V5    0b0000 0000
+   REG_3V0    0b1100 0000
+   REG_3V1    0b1100 0100
+   REG_3V3    0b1000 0000
+   REG_4V0    0b1100 1000
+   REG_5V0    0b1100 1100
+*/
+
+
+
 int8_t setMVIOVoltageReg(uint8_t setting) {
   if (setting == REGOFF) {
     VPORTE.OUT &= ~(1<<6);
     return 0;
-  } else {
-    if (setting & 0x33)
+  } else if (setting & 0x33) {
       return -1; /* error - invalid setting */
   } else if ((setting - (setting << 4)) < 0) {
     return -1;
-    else{
-      VPORTE.OUT     &= ~(1 << 6);     //cbi
-      VPORTE.DIR     |=  (1 << 6);     //sbi
-      if (setting     &  (1 << 7)) {   //andi breq
-        VPORTG.DIR   |=  (1 << 7);     //sbi
-        if (setting   &  (1 << 3)) {   //sbrc
-          VPORTG.OUT |=  (1 << 7);     //sbi
-        } else {                       //sbrs
-          VPORTG.OUT &= ~(1 << 7);     //cbi
-        }                              //rjmp
+  } else{
+      VPORTE.OUT     &= ~(1 << 6);     // cbi
+      VPORTE.DIR     |=  (1 << 6);     // sbi
+      if (setting     &  (1 << 7)) {   // andi breq
+        VPORTG.DIR   |=  (1 << 7);     // sbi
+        if (setting   &  (1 << 3)) {   // sbrc
+          VPORTG.OUT |=  (1 << 7);     // sbi
+        } else {                       // sbrs
+          VPORTG.OUT &= ~(1 << 7);     // cbi
+        }                              // rjmp
       } else {
-        VPORTG.DIR   &= ~(1 << 7);     //cbi
+        VPORTG.DIR   &= ~(1 << 7);     // cbi
       }
-      if (setting     &  (1 << 6)) {  //sbrs rjmp
-        VPORTG.DIR   |=  (1 << 6);    //sbi
-        if (setting   &  (1 << 2)) {  //sbrc
-          VPORTG.OUT |=  (1 << 6);    //sbi
-        } else {                      //sbrs
-          VPORTG.OUT &= ~(1 << 6);    //cbi
-        }                             //rjmp
+      if (setting     &  (1 << 6)) {  // sbrs rjmp
+        VPORTG.DIR   |=  (1 << 6);    // sbi
+        if (setting   &  (1 << 2)) {  // sbrc
+          VPORTG.OUT |=  (1 << 6);    // sbi
+        } else {                      // sbrs
+          VPORTG.OUT &= ~(1 << 6);    // cbi
+        }                             // rjmp
       } else {
-        VPORTG.DIR   &= ~(1 << 6);    //cbi
+        VPORTG.DIR   &= ~(1 << 6);    // cbi
       }
-      VPORTE.OUT     |=  (1 << 6);    //sbi
-      return 1;                       //ldi ret
+      VPORTE.OUT     |=  (1 << 6);    // sbi
+      return 1;                       // ldi ret
     }
   }
 }
@@ -180,19 +192,19 @@ int8_t setMVIOVoltageReg(uint8_t setting) {
 
 int16_t getMVIOVoltage() {
   if (getMVIOStatus() == MVIO_OKAY) {
-    uint8_t tempRef=VREF.ADC0REF; //save reference
-    analogReference(INTERNAL1V024);  //known reference
-    analogRead(ADC_VDDIO2DIV10); //exercise the ADC with this reference
+    uint8_t tempRef = VREF.ADC0REF; // save reference
+    analogReference(INTERNAL1V024);  // known reference
+    analogRead(ADC_VDDIO2DIV10); // exercise the ADC with this reference
     int32_t tempval = analogReadEnh(ADC_VDDIO2DIV10,13); // 0-8191,  8191 = 10240mv (obv not possible im practice);  So we want a multipication by 1.25 if not an error.
-    VREF.ADC0REF=tempRef; //restore reference
-    if (tempval < 0 ) {
-      tempval += 2099990000; //make error numbers from enhanced reads fit in int16.
+    VREF.ADC0REF = tempRef; // restore reference
+    if (tempval < 0) {
+      tempval += 2099990000; // make error numbers from enhanced reads fit in int16.
       // errors will be numbered -10000, -10001, etc
       return tempval;
     } else {
       // temp val should thus be 0-4095 unless analogReadEnh is broken.
       // multiply by by 1.25 the fast way.
-      uint16_t retval=tempval; //truncate leading 0's.
+      uint16_t retval=tempval; // truncate leading 0's.
       return retval + (retval >> 2);
     }
   } else {

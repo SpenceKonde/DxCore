@@ -46,7 +46,7 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 // Only care about alt 2 and 3, as they have different pins. 1 is a nothing right now.
 #ifdef PIN_WIRE_SCL_PINSWAP_2
-  #ifdef SCL_ALT3 //all three
+  #ifdef SCL_ALT3 // all three
     #define SDA_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 2 ? SDA_ALT2 : (PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 3 ? SDA_ALT3 : PIN_WIRE_SDA))
     #define SCL_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 2 ? SCL_ALT2 : (PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 3 ? SCL_ALT3 : PIN_WIRE_SCL))
   #else // 2, no 3
@@ -386,7 +386,7 @@ static const uint8_t SCK1  =  NOT_A_PIN;
       #define MISO1_NOW  ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI1_gm) == SPI1_MUX_PINSWAP_1 ? MISO1_ALT1  : PIN_SPI1_MISO))
       #define SCK1_NOW   ((uint8_t) ((PORTMUX.SPIROUTEA & PORTMUX_SPI1_gm) == SPI1_MUX_PINSWAP_1 ? SCK1_ALT1   : PIN_SPI1_SCK))
     #endif
-  #else  //Only one position!
+  #else  // Only one position!
     #define SS1_NOW    PIN_SPI1_SS
     #define MOSI1_NOW  PIN_SPI1_MOSI
     #define MISO1_NOW  PIN_SPI1_MISO
@@ -394,4 +394,4 @@ static const uint8_t SCK1  =  NOT_A_PIN;
   #endif
 #endif
 
-#endif //PINSWAP_H
+#endif // PINSWAP_H

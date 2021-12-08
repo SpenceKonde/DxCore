@@ -95,7 +95,7 @@ struct EERef {
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_EEERWR_gc);
     *(uint8_t *)(MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK)) = in;
 
-    SREG = oldSREG; //restore SREG and interrupts
+    SREG = oldSREG; // restore SREG and interrupts
     return *this;
     #endif
   }
@@ -239,7 +239,7 @@ struct EEPROMClass {
   template< typename T > T &get(int idx, T &t) {
     EEPtr e = idx;
     uint8_t *ptr = (uint8_t *) &t;
-    for (int count = sizeof(T) ; count ; --count, ++e) {
+    for (int count = sizeof(T); count; --count, ++e) {
       *ptr++ = *e;
     }
     return t;
@@ -248,7 +248,7 @@ struct EEPROMClass {
   template< typename T > const T &put(int idx, const T &t) {
     EEPtr e = idx;
     const uint8_t *ptr = (const uint8_t *) &t;
-    for (int count = sizeof(T) ; count ; --count, ++e) {
+    for (int count = sizeof(T); count; --count, ++e) {
       (*e).update(*ptr++);
     }
     return t;
