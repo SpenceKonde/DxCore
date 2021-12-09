@@ -139,6 +139,9 @@ void TWI_SlaveInit(struct twiData *_data, uint8_t address, uint8_t receive_broad
  *@return             void
  */
 void TWI_Flush(struct twiData *_data) {
+  #ifdef __AVR_DA__
+    badCall("The AVR DA-series parts are impacted by an errata causes TWI flush to leave the TWI peripheral in a non-functioning state.")
+  #endif
   _data->_module->MCTRLB |= TWI_FLUSH_bm;
 }
 
