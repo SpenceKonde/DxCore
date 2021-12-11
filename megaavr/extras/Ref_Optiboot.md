@@ -16,6 +16,24 @@ Should you use a bootloader?
 5. If the board is designed with the expectation that it will be used Optioboot, you'll be happoer using that most likely. My upcoming Nano-inspired Azduino Nano DB, with an AVR128DB32 and serial adapter on board is designed for use with optiboot. These are being put through some final tets before I list them; I'm hoping they will be an accessible way for more people to startt playing with these parts. (there will also be larger boards based on the 64-pin version, dont worry).
 6.
 
+## Upload using Programmer is not supported
+Optiboot boards will not work if a sketch is uploaded via UPDI. Only two schemes are supported by this core for getting a compiled binary onto the chip:
+* Use UPDI to upload the sketch (this is the non-optiboot configuration). You must have a board definition without (Optiboot) in the name selected.
+* Use UPDI for bootloading only. Upload sketches with serial only. You must have a board definition with (Optiboot) in the name selected.
+
+I am hoping to find a way to output an error more gracefully, but in 2.5.0, the solution results in the top of the error being something like this (of course, this line isn't shown for a Dx-series part, but I think the idea is clear):
+
+In white text:
+```text
+ERROR: Upload using programmer is not supported on optiboot boards""C:\arduino-1.8.13\hardware\tools\avr/bin/avrdude -CC:\Users\Spence\Documents\Arduino\hardware\megaTinyCore\megaavr/avrdude.conf -v -pattiny3216 -cjtag2updi -PCOM11 -Ufuse2:w:0x02:m -Ufuse6:w:0x04:m -Ufuse8:w:0x02:m -Uflash:w:C:\Users\Spence\AppData\Local\Temp\arduino_build_10043/sketch_dec10a.ino.hex:i
+```
+In orange "error text":
+
+```text
+java.io.IOException: Cannot run program "ERROR: Upload using programmer is not supported on optiboot boards\"\"C:\arduino-1.8.13\hardware\tools\avr/bin/avrdude": CreateProcess error=2, The system cannot find the file specified
+```
+I hope this is clear enough.
+
 ## Upload speed
 It's actually not bad...
 

@@ -33,12 +33,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct issue where the intended useful error message was not shown to users who did not have millis or micros enabled but tried to use it anyway.
 * Add new Wire library method names to keywords.txt.
 * Add new core-wide things to the Dxcore Keywords.txt, including:
-  * Standard and extended Pin-information-gathering macros from Arduino.h
-  * Add the new MUX option for USARTs, TWI and SPI for the DD-series parts.
-  * Add the new Serial modifier options.
-  * Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more.
-  * Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags().
-  * Added `__builtin_constant_p()` because it is exceptionally useful. I may add some of the other most useful directives like that.
+   Standard and extended Pin-information-gathering macros from Arduino.h, Add the new MUX option for USARTs, TWI and SPI for the DD-series parts, Add the new Serial modifier options, Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more. Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags(), Added `__builtin_constant_p()` because it is exceptionally useful. I may add some of the other most useful directives like that.
 * Calling millis or micros when those are disabled will result in more useful error messages.
 * Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
 * Continuing doc enhancements.
@@ -47,9 +42,10 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Eliminate double-entry bookkeeping in boards.txt as relates to speed.
 * Correct names of exported files so they match each other.
 * Ensure that upload with programmer is not used on bootloader board definitions.
-* Optboot serial port menu option is ready to be enabled.
+* Optboot serial port menu option for the DD-series parts is now ready to be enabled.
 * init_reset_flags() will automatically clear reset flags if not overridden, stashing them in GPIOR0 (chosen because has lower overhead than a variable)
 * Add 27 MHz external clock/crystal... Math is amazingly simple, one of the cleanest so far!
+* Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn;t make those for us here. (only over on attinycore, where they're not usable and we must go out of our way to delete the damned things)
 
 
 ## Released Versions
@@ -57,7 +53,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ## 1.3.10
 * Fix Wire.swap() correctly. (#184)
 * Correct burn bootloader when BOD is enabled. (#185)
-* Correct a an error in SerialUPDI definitions for AVR64DD28 devices (which are not yet available)
+* Correct an error in SerialUPDI definitions for AVR64DD28 devices (which are not yet available)
 * Implement CI automated testing! Finally!
 * Implement expanded markdown format checking.
 * Harmonize EEPROM.h with megaTinyCore, update documentation.
