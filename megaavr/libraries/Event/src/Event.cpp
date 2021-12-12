@@ -175,8 +175,8 @@ Event& Event::get_generator_channel(gen::generator_t generator)
   #if defined(EVSYS_CHANNEL9)
     if (Event9.generator_type == generator) {
       return Event9;
+    }
   #endif
-
   #if defined(EVSYS_CHANNEL0)
     else
       return Event_empty;
@@ -285,7 +285,7 @@ void Event::set_generator(uint8_t pin_number) {
   }
 }
 
-    #elif
+
 
 /**
  * @brief Static member function that sets a port pin as event
@@ -906,7 +906,7 @@ void Event::_long_soft_event(uint8_t channel, uint8_t length) {
  */
 
 gen::generator_t Event::gen_from_peripheral(TCB_t& timer, uint8_t event_type) {
-  uint8_t gentype = -1
+  uint8_t gentype = -1;
   #if !(defined(DXCORE) || defined(TINY_2_SERIES))
     if (event_type != 1) {
       return (gen::generator_t) -1;
@@ -914,7 +914,7 @@ gen::generator_t Event::gen_from_peripheral(TCB_t& timer, uint8_t event_type) {
       gentype = 0;
     }
   #else
-    if (user_type < 2) {
+    if (event_type < 2) {
       gentype = event_type;
     }
   #endif
@@ -948,7 +948,7 @@ gen::generator_t Event::gen_from_peripheral(TCB_t& timer, uint8_t event_type) {
 }
 
 user::user_t Event::user_from_peripheral(TCB_t& timer, uint8_t user_type) {
-  uint8_t user = -1
+  uint8_t user = -1;
   #if !(defined(DXCORE) || defined(TINY_2_SERIES)) // Dx-series and 2-serieshave separate event counter..
     if (event_type != 1) {
       return (user::user_t) -1;
@@ -957,7 +957,7 @@ user::user_t Event::user_from_peripheral(TCB_t& timer, uint8_t user_type) {
     }
   #else
     if (user_type < 2) {
-      user = event_type;
+      user = user_type;
     }
   #endif
   if (&timer == &TCB0) {
@@ -984,9 +984,9 @@ user::user_t Event::user_from_peripheral(TCB_t& timer, uint8_t user_type) {
   } else
   #endif
   {
-    gentype = -1;
+    user = -1;
   }
-  return (user::user_t) gentype;
+  return (user::user_t) user;
 }
 
 
@@ -996,7 +996,7 @@ gen::generator_t Event::gen_from_peripheral(AC_t& comp)
     badCall("gen_from_peripheral for ACn on the tinyAVR 1-series w/3 is not supported because it depends on the channel number");
   #endif
   #if defined(AC0)
-    if (&comp == &AC)
+    if (&comp == &AC0)
       return gen::ac0_out;
     else
     #if defined(AC1)
@@ -1005,10 +1005,11 @@ gen::generator_t Event::gen_from_peripheral(AC_t& comp)
       else
       #endif
     #if defined(AC2)
-    else if(&comp == &AC2)
+    if(&comp == &AC2)
       return gen::ac2_out;
     #endif
   #endif
+  return (gen::generator_t) -1;
 }
 
 gen::generator_t Event::gen_from_peripheral(CCL_t& logic, uint8_t logicblock) {
@@ -1034,17 +1035,17 @@ user::user_t Event::user_from_peripheral(CCL_t& logic, uint8_t user_type) {
   if (&logic == &CCL) {
     #if !defined(TINY_0_OR_1_SERIES)
       #if defined(CCL_TRUTH4)
-        if (event_type < 13) {
-          retval = event_type;
+        if (user_type < 13) {
+          retval = user_type;
         }
       #else
-        if (event_type < 9) {
-          retval = event_type;
+        if (user_type < 9) {
+          retval = user_type;
         }
       #endif
     #else
-      if (event_type < 5) {
-        retval = event_type + 2;
+      if (user_type < 5) {
+        retval = user_type + 2;
       }
     #endif
   }
@@ -1053,7 +1054,7 @@ user::user_t Event::user_from_peripheral(CCL_t& logic, uint8_t user_type) {
 
 
 gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_type) {
-  uint8_t retval = -1
+  uint8_t retval = -1;
   if (event_type < 5) {
     #if defined(TINY_0_OR_1_SERIES)
       retval = event_type +2;
@@ -1072,7 +1073,7 @@ gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_type) {
 }
 
 user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type) {
-  uint8_t user = -1
+  uint8_t user = -1;
   #if !(defined(DXCORE) || defined(TINY_2_SERIES))
     if (user_type != 1) {
       return (user::user_t) -1;
@@ -1085,16 +1086,16 @@ user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type) {
   #endif
     #if defined(TCA1)
     if (&timer == &TCA1) {
-      retval += 2;
+      user += 2;
     } else
     #endif
     if (&timer != &TCA0) {
       return (user::user_t) -1;
     }
   #if defined(__AVR_DA__)
-    user += 0x1B
+    user += 0x1B;
   #elif defined(__AVR_DB__) || defined(__AVR_DD__)
-    user += 0x1A
+    user += 0x1A;
   #elif defined (MEGACOREX)
     user += 0x13;
   #elif defined (TINY_2_SERIES)
@@ -1105,7 +1106,7 @@ user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type) {
   return (user::user_t) user;
 }
 
-user::user_t Event::user_from_peripheral(&USART_t usart) {
+user::user_t Event::user_from_peripheral(USART_t& usart) {
     if (&usart == &USART0) {
       return user::usart0_irda;
     }
@@ -1113,6 +1114,7 @@ user::user_t Event::user_from_peripheral(&USART_t usart) {
     else if (&usart == &USART1) {
       return user::usart1_irda;
     }
+  #endif
   #if defined(USART2)
     else if (&usart == &USART2) {
       return user::usart2_irda;
@@ -1127,13 +1129,13 @@ user::user_t Event::user_from_peripheral(&USART_t usart) {
     else if (&usart == &USART4) {
       return user::usart4_irda;
     }
+  #endif
   #if defined(USART5)
     else if (&usart == &USART5) {
       return user::usart5_irda;
     }
   #endif
-  #endif
-
+  return (user::user_t) -1;
 }
 
 

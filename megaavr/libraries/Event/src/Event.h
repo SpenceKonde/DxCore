@@ -5,15 +5,17 @@
 
 #if (defined(MEGATINYCORE) && MEGATINYCORE_SERIES != 2)
     #define TINY_0_OR_1_SERIES
-    #if MEGATINYCORE_SERIES == 1 && FLASH_SIZE > 8192
-        // The elite tinyAVR 1-series parts with 16k or more of flash were blessed with peripherals
-        // well beyond what lesser 1-series parts got (3 AC's, a second ADC, and some other stuff
-        // Microchip didn't do a good job of advertising this differece)
-        #define TINY_1_16K_PLUS
-    #endif
+#endif
 
-#elif (defined(MEGATINYCORE) && MEGATINYCORE_SERIES == 2)
-    #define TINY_2_SERIES
+#if MEGATINYCORE_SERIES == 1 && FLASH_SIZE > 8192
+  // The elite tinyAVR 1-series parts with 16k or more of flash were blessed with peripherals
+  // well beyond what lesser 1-series parts got (3 AC's, a second ADC, and some other stuff
+  // Microchip didn't do a good job of advertising this differece)
+  #define TINY_1_16K_PLUS
+#endif
+
+#if (defined(MEGATINYCORE) && MEGATINYCORE_SERIES == 2)
+  #define TINY_2_SERIES
 #endif
 
 // *INDENT-OFF* astyle hates how we formatted this.
@@ -22,7 +24,7 @@
 
 // Features present on all generator channels
 
-#ifndef MEGATINYCORE
+#if !defined(MEGATINYCORE)
 
 namespace gen {
   enum generator_t : uint8_t {
@@ -72,8 +74,6 @@ namespace gen {
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
     ccl4_out      = 0x14,
     ccl5_out      = 0x15,
-    ac1_out       = 0x21,
-    ac2_out       = 0x22,
     zcd0_out      = 0x30,
     zcd1_out      = 0x31,
 #if defined(ZCD2)
@@ -95,8 +95,6 @@ namespace gen {
 #endif
 #endif // defined(__AVR_DA__) || defined(__AVR_DB__)
 #if defined(DXCORE)
-// These are present on every  modern part released since the 0/1-series and will probably continue to be
-// so check
     tcb0_ovf      = 0xA1,
     tcb1_ovf      = 0xA3,
 #if defined(TCB2)
@@ -143,7 +141,7 @@ namespace gen0 {
     rtc_div1024 = 0x0B,
     pin_pa0     = 0x40,
     pin_pa1     = 0x41,
-#if !defined(DXCORE) || defined(PIN_PA2)
+#if defined(PIN_PA2)
     pin_pa2     = 0x42,
     pin_pa3     = 0x43,
     pin_pa4     = 0x44,
@@ -151,7 +149,7 @@ namespace gen0 {
     pin_pa6     = 0x46,
     pin_pa7     = 0x47,
 #endif
-#if defined(__AVR_ATmegax09__) || defined(PIN_PB0)
+#if defined(PIN_PB0)
     pin_pb0     = 0x48,
     pin_pb1     = 0x49,
     pin_pb2     = 0x4A,
@@ -179,7 +177,7 @@ namespace gen1 {
     rtc_div64   = 0x0B,
     pin_pa0     = 0x40,
     pin_pa1     = 0x41,
-#if !defined(DXCORE) || defined(PIN_PA2)
+#if defined(PIN_PA2)
     pin_pa2     = 0x42,
     pin_pa3     = 0x43,
     pin_pa4     = 0x44,
@@ -187,7 +185,7 @@ namespace gen1 {
     pin_pa6     = 0x46,
     pin_pa7     = 0x47,
 #endif
-#if defined(__AVR_ATmegax09__) || defined(PIN_PB0)
+#if defined(PIN_PB0)
     pin_pb0     = 0x48,
     pin_pb1     = 0x49,
     pin_pb2     = 0x4A,
@@ -213,23 +211,22 @@ namespace gen2 {
     rtc_div4096 = 0x09,
     rtc_div2048 = 0x0A,
     rtc_div1024 = 0x0B,
-#if !defined(DD_14_PINS)  // can't just check PIN_PC0 - the 0-pin of any port with any pins present is always defined by DxCore.
-                          // I considered both ways, but there are to many reasons we need to have the 0-pin defined.
+#if defined(PIN_PC0) && !defined(FAKE_PIN_PC0)
     pin_pc0     = 0x40,
 #endif
     pin_pc1     = 0x41,
     pin_pc2     = 0x42,
     pin_pc3     = 0x43,
-#if defined(__AVR_ATmegax09__) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(PIN_PC4)
     pin_pc4     = 0x44,
     pin_pc5     = 0x45,
     pin_pc6     = 0x46,
     pin_pc7     = 0x47,
 #endif
-#if !defined(DXCORE) || defined(PIN_PD1) // See above for note on PIN_PD0 and why we can't test that, this even impacts DBs.
-#if !defined(MVIO) || defined(Dx_48_PINS) || defined(Dx_64_PINS)
+#if defined(PIN_PD0) && !defined(FAKE_PIN_PD0)
     pin_pd0     = 0x48,
 #endif
+#if defined(PIN_PD1)
     pin_pd1     = 0x49,
     pin_pd2     = 0x4A,
     pin_pd3     = 0x4B,
@@ -264,10 +261,10 @@ namespace gen3 {
     pin_pc6     = 0x46,
     pin_pc7     = 0x47,
 #endif
-#if !defined(DXCORE) || defined(PIN_PD1) // See above for note on PIN_PD0 and why we can't test that, this even impacts DBs.
-#if !defined(MVIO)
+#if defined(PIN_PD0) && !defined(FAKE_PIN_PD0) //many parts are missing this, but PIN_PD0 is used too many places internally to leave out of those parts.
     pin_pd0     = 0x48,
 #endif
+#if defined(PIN_PD1)
     pin_pd1     = 0x49,
     pin_pd2     = 0x4A,
     pin_pd3     = 0x4B,
@@ -328,7 +325,7 @@ namespace gen5 {
     rtc_div256  = 0x09,
     rtc_div128  = 0x0A,
     rtc_div64   = 0x0B,
-#if defined(__AVR_ATmegax09__) || defined(PIN_PE0)
+#if defined(PIN_PE0)
     pin_pe0     = 0x40,
     pin_pe1     = 0x41,
     pin_pe2     = 0x42,
@@ -517,7 +514,7 @@ namespace user {
       usart0_irda    = 0x15,
       usart1_irda    = 0x16,
       usart2_irda    = 0x17,
-#if defined(USART5)
+#if defined(USART3)
       usart3_irda    = 0x18,
 #endif
 #if defined(USART4)
@@ -553,7 +550,7 @@ namespace user {
 #endif
       tcd0_in_a      = 0x29,
       tcd0_in_b      = 0x2A,
-      // "Unofficial" user generators. Uses EVOUT, but swaps the output pin using PORTMUX
+      // "Unofficial" generator - high bit is a signal to also switch portmux.
       evouta_pin_pa7 = 0x8E,
 #if defined(PIN_PB7)
       evoutb_pin_pb7 = 0x8F,
@@ -579,7 +576,7 @@ namespace user {
     ccl2_event_b   = 0x05,
     ccl3_event_a   = 0x06,
     ccl3_event_b   = 0x07,
-#if defined(LUT4)
+#if defined(CCL_TRUTH4)
     ccl4_event_a   = 0x08,
     ccl4_event_b   = 0x09,
     ccl5_event_a   = 0x0A,
@@ -697,9 +694,11 @@ namespace user {
     tcb1           = 0x20,
     tcb1_capt      = 0x20,
     tcb1_cnt       = 0x21,
+#if defined(TCB2)
     tcb2           = 0x22,
     tcb2_capt      = 0x22,
     tcb2_cnt       = 0x23,
+#endif
     tcd0_in_a      = 0x28,
     tcd0_in_b      = 0x29,
 #if defined(PIN_PA7) // not on 14-pin ones.
@@ -1073,9 +1072,7 @@ namespace user {
     };
   };
 
-#if !defined(__AVR_ATtinyxy2__)
-    /* Only 1-series parts have second sync channel.
-       Only on parts with > 8 pins does it have any unique options */
+#if defined(PIN_PB0)
     namespace gen1 {
       enum generator_t : uint8_t {
         pin_pb0      = 0x08,
@@ -1228,14 +1225,14 @@ class Event {
     void start(bool state = true);
     void stop();
     /* event_types: They start from 0x00 for inputs. Outputs start at 0x40 */
-    static gen::generator_t gen_from_peripheral(TCB_t   * timer, uint8_t event_type = 0);
-    static user::user_t    user_from_peripheral(TCB_t   * timer, uint8_t user_type  = 0);
-    static user::user_t    user_from_peripheral(USART_t * usart, uint8_t user_type  = 0);
-    static gen::generator_t gen_from_peripheral(TCA_t   * timer, uint8_t event_type = 0);
-    static user::user_t    user_from_peripheral(TCA_t   * timer, uint8_t user_type  = 0);
-    static gen::generator_t gen_from_peripheral(CCL_t   * logic, uint8_t event_type = 0);
-    static user::user_t    user_from_peripheral(CCL_t   * logic, uint8_t user_type  = 0);
-    static gen::generator_t gen_from_peripheral(AC_t    *  comp, uint8_t event_type = 0);
+    static gen::generator_t gen_from_peripheral(TCB_t& timer, uint8_t event_type = 0);
+    static user::user_t    user_from_peripheral(TCB_t& timer, uint8_t user_type  = 0);
+    static user::user_t    user_from_peripheral(USART_t& usart);
+    static gen::generator_t gen_from_peripheral(TCA_t& timer, uint8_t event_type = 0);
+    static user::user_t    user_from_peripheral(TCA_t& timer, uint8_t user_type  = 0);
+    static gen::generator_t gen_from_peripheral(CCL_t& logic, uint8_t event_type = 0);
+    static user::user_t    user_from_peripheral(CCL_t& logic, uint8_t user_type  = 0);
+    static gen::generator_t gen_from_peripheral(AC_t&  comp);
 
   private:
     const uint8_t channel_number;      // Holds the event generator channel number
@@ -1272,52 +1269,52 @@ class Event {
   #if defined(EVSYS_ASYNCCH3)
     extern Event Event5;
     #define EventAsync3    Event5
-    #define EVSYS_CHANNEL5 EVSYS_ASYNCCH3
+    #define EVSYS_CHANNEL5              EVSYS_ASYNCCH3
   #endif
   #if defined(EVSYS_SYNCUSER0)
-    #define EVSYS_USERTCA0CNTA EVSYS_SYNCUSER0
+    #define EVSYS_USERTCA0CNTA          EVSYS_SYNCUSER0
   #endif
   #if defined(EVSYS_SYNCUSER1)
-    #define EVSYS_USERUSART0IRDA EVSYS_SYNCUSER1
+    #define EVSYS_USERUSART0IRDA        EVSYS_SYNCUSER1
   #endif
   #if defined(EVSYS_ASYNCUSER0)
-    #define EVSYS_USERTCB0CAPT EVSYS_ASYNCUSER0
+    #define EVSYS_USERTCB0CAPT          EVSYS_ASYNCUSER0
   #endif
   #if defined(EVSYS_ASYNCUSER1)
-    #define EVSYS_USERADC0START EVSYS_ASYNCUSER1
+    #define EVSYS_USERADC0START         EVSYS_ASYNCUSER1
   #endif
   #if defined(EVSYS_ASYNCUSER2)
-    #define EVSYS_USERCCLLUT0A EVSYS_ASYNCUSER2
+    #define EVSYS_USERCCLLUT0A          VSYS_ASYNCUSER2
   #endif
   #if defined(EVSYS_ASYNCUSER3)
-    #define EVSYS_USERCCLLUT1A EVSYS_ASYNCUSER3
+    #define EVSYS_USERCCLLUT1A          EVSYS_ASYNCUSER3
   #endif
   #if defined(EVSYS_ASYNCUSER4)
-    #define EVSYS_USERCCLLUT0B EVSYS_ASYNCUSER4
+    #define EVSYS_USERCCLLUT0B          EVSYS_ASYNCUSER4
   #endif
   #if defined(EVSYS_ASYNCUSER5)
-    #define EVSYS_USERCCLLUT1B EVSYS_ASYNCUSER5
+    #define EVSYS_USERCCLLUT1B          EVSYS_ASYNCUSER5
   #endif
   #if defined(EVSYS_ASYNCUSER6)
-    #define EVSYS_USERTCD0INPUTA EVSYS_ASYNCUSER6
+    #define EVSYS_USERTCD0INPUTA        EVSYS_ASYNCUSER6
   #endif
   #if defined(EVSYS_ASYNCUSER7)
-    #define EVSYS_USERTCD0INPUTB EVSYS_ASYNCUSER7
+    #define EVSYS_USERTCD0INPUTB        EVSYS_ASYNCUSER7
   #endif
   #if defined(EVSYS_ASYNCUSER8)
-    #define EVSYS_USEREVSYSEVOUTA EVSYS_ASYNCUSER8
+    #define EVSYS_USEREVSYSEVOUTA       EVSYS_ASYNCUSER8
   #endif
   #if defined(EVSYS_ASYNCUSER9)
-    #define EVSYS_USEREVSYSEVOUTB EVSYS_ASYNCUSER9
+    #define EVSYS_USEREVSYSEVOUTB       EVSYS_ASYNCUSER9
   #endif
   #if defined(EVSYS_ASYNCUSER10)
-    #define EVSYS_USEREVSYSEVOUTC EVSYS_ASYNCUSER10
+    #define EVSYS_USEREVSYSEVOUTC       EVSYS_ASYNCUSER10
   #endif
   #if defined(EVSYS_ASYNCUSER11)
-    #define EVSYS_USERTCB1CAPT EVSYS_ASYNCUSER11
+    #define EVSYS_USERTCB1CAPT          EVSYS_ASYNCUSER11
   #endif
   #if defined(EVSYS_ASYNCUSER12)
-    #define EVSYS_USERADC1START EVSYS_ASYNCUSER12
+    #define EVSYS_USERADC1START         EVSYS_ASYNCUSER12
   #endif
 
 
