@@ -31,6 +31,9 @@ Include guard and include basic libraries. We are normally including this inside
  #      #  #  ##     #
  #     ### #   #  #*/
 
+/* Like the 32-pin parts, the 28-pin DD's have a layout and
+ * numbering scheme identical to the DA/DBm just with more analog pins. */
+
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -43,7 +46,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12)
+#define PIN_PD0 (12)   // and a full port for the PD
 /* On DD, this isn't a pin - there, everything else NOT_A_PIN's pin 12
  * but we can add 3 to it to get PIN_PD3, for example.
  * Which is important, since it's pin0 on the port. */
@@ -54,27 +57,36 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PD5 (17)
 #define PIN_PD6 (18)
 #define PIN_PD7 (19)
-#define PIN_PF0 (20)
+#define PIN_PF0 (20)  // And finally a full port for PF, which will have a hole in it. on 28 but not 32 pin parts.
 #define PIN_PF1 (21)
-#define PIN_PF6 (22)
-#define PIN_PF7 (23)
+//  no  PIN_PF2 (22)
+//  no  PIN_PF3 (23)
+//  no  PIN_PF4 (24)
+//  no  PIN_PF5 (25)
+#define PIN_PF6 (26) // RESET
+#define PIN_PF7 (27) // UPDI
 
-#define PINS_COUNT                     24
-#define NUM_DIGITAL_PINS               PINS_COUNT
-#define NUM_ANALOG_INPUTS              19
-#define NUM_RESERVED_PINS              0
-#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_I2C_PINS                   2
-#define NUM_SPI_PINS                   3
-#define NUM_TOTAL_FREE_PINS            PINS_COUNT
-#define NUM_TOTAL_PINS                 PINS_COUNT
-//#define ANALOG_INPUT_OFFSET          12 //See comments in 64-pin variant.
+#define FAKE_PIN_PD0
+
+#define PINS_COUNT                     23
+#define NUM_ANALOG_INPUTS              20
+
+// #define NUM_RESERVED_PINS            0     // These may at your option be defined,
+// #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
+// Autocalculated are :
+// NUM_DIGITAL_PINS and NUM_TOTAL_PINS = highest number of any valid pin. NOT the number of pins!
+// TOTAL_FREE_OPINS = PINS_COUNT - NUM_INTERNALLY_USED_PINS
+// Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
+// for some reason need to change this, define them here. Only ones not defined here get automatically set.
+
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
 #endif
-#define EXTERNAL_NUM_INTERRUPTS        47
+#ifdef CORE_ATTACH_OLD
+  #define EXTERNAL_NUM_INTERRUPTS        47
+#endif
 
-#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):((p) > PIN_PA1 ? (p) + 20 : NOT_A_PIN)) /* Seriously?! */
+#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF2 ? ((p) - 4) : NOT_A_PIN)):((p) > PIN_PA1 ? (p) + 20 : NOT_A_PIN)) /* Seriously?! */
 #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
@@ -99,7 +111,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB0_PINS 0x00                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here)
 #define TCB1_PINS 0x00                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default), not PB4 (Doesn't exist here)
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc
+#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA4-7
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
 #define PIN_TCD0_WOA_INIT PIN_PA4
@@ -217,18 +229,30 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A5   PIN_PD5
 #define PIN_A6   PIN_PD6
 #define PIN_A7   PIN_PD7
+#define PIN_A8   NOT_A_PIN
+#define PIN_A9   NOT_A_PIN
+#define PIN_A10  NOT_A_PIN
+#define PIN_A11  NOT_A_PIN
+#define PIN_A12  NOT_A_PIN
+#define PIN_A13  NOT_A_PIN
+#define PIN_A14  NOT_A_PIN
+#define PIN_A15  NOT_A_PIN
 #define PIN_A16  PIN_PF0
 #define PIN_A17  PIN_PF1
+#define PIN_A18  NOT_A_PIN
+#define PIN_A19  NOT_A_PIN
+#define PIN_A20  NOT_A_PIN
+#define PIN_A21  NOT_A_PIN
 #define PIN_A22  PIN_PA2
 #define PIN_A23  PIN_PA3
 #define PIN_A24  PIN_PA4
 #define PIN_A25  PIN_PA5
 #define PIN_A26  PIN_PA6
 #define PIN_A27  PIN_PA7
-#define PIN_A28  PIN_PC2
-#define PIN_A29  PIN_PC3
-#define PIN_A30  PIN_PC4
-#define PIN_A31  PIN_PC5
+#define PIN_A28  PIN_PC0
+#define PIN_A29  PIN_PC1
+#define PIN_A30  PIN_PC2
+#define PIN_A31  PIN_PC3
 
 static const uint8_t A0  = NOT_A_PIN;
 static const uint8_t A1  = PIN_A1;
@@ -238,8 +262,20 @@ static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6;
 static const uint8_t A7  = PIN_A7;
+static const uint8_t A8  = NOT_A_PIN;
+static const uint8_t A9  = NOT_A_PIN;
+static const uint8_t A10 = NOT_A_PIN;
+static const uint8_t A11 = NOT_A_PIN;
+static const uint8_t A12 = NOT_A_PIN;
+static const uint8_t A13 = NOT_A_PIN;
+static const uint8_t A14 = NOT_A_PIN;
+static const uint8_t A15 = NOT_A_PIN;
 static const uint8_t A16 = PIN_A16;
 static const uint8_t A17 = PIN_A17;
+static const uint8_t A18 = NOT_A_PIN;
+static const uint8_t A19 = NOT_A_PIN;
+static const uint8_t A20 = NOT_A_PIN;
+static const uint8_t A21 = NOT_A_PIN;
 static const uint8_t A22 = PIN_A22;
 static const uint8_t A23 = PIN_A23;
 static const uint8_t A24 = PIN_A24;
@@ -259,8 +295,20 @@ static const uint8_t A31 = PIN_A31;
 #define AIN5  ADC_CH(5)
 #define AIN6  ADC_CH(6)
 #define AIN7  ADC_CH(7)
+#define AIN8  NOT_A_PIN
+#define AIN9  NOT_A_PIN
+#define AIN10 NOT_A_PIN
+#define AIN11 NOT_A_PIN
+#define AIN12 NOT_A_PIN
+#define AIN13 NOT_A_PIN
+#define AIN14 NOT_A_PIN
+#define AIN15 NOT_A_PIN
 #define AIN16 ADC_CH(16)
 #define AIN17 ADC_CH(17)
+#define AIN18 NOT_A_PIN
+#define AIN19 NOT_A_PIN
+#define AIN20 NOT_A_PIN
+#define AIN21 NOT_A_PIN
 #define AIN22 ADC_CH(22)
 #define AIN23 ADC_CH(23)
 #define AIN24 ADC_CH(24)
@@ -270,7 +318,7 @@ static const uint8_t A31 = PIN_A31;
 #define AIN28 ADC_CH(28)
 #define AIN29 ADC_CH(29)
 #define AIN30 ADC_CH(30)
-#define AIN31 ADC_CH(30)
+#define AIN31 ADC_CH(31)
 
 /*
             ####  ### #   #      ##  ####  ####   ##  #   #  ###
@@ -304,10 +352,10 @@ const uint8_t digital_pin_to_port[] = {
   PD,         // 19 PD7/AIN7/AREF
   PF,         // 20 PF0/AIN16/USART2_Tx/TOSC1
   PF,         // 21 PF1/AIN17/USART2_Rx/TOSC2
-  PF,         // 26 PF2
-  PF,         // 27 PF3
-  PF,         // 26 PF4
-  PF,         // 27 PF5
+  NOT_A_PORT, // 22 PF2
+  NOT_A_PORT, // 23 PF3
+  NOT_A_PORT, // 24 PF4
+  NOT_A_PORT, // 25 PF5
   PF,         // 26 PF6 RESET
   PF          // 27 PF7 UPDI
 };
@@ -345,10 +393,10 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN7_bp,   // 19 PD7/AIN7/AREF
   PIN0_bp,   // 20 PF0/USART2_Tx/TOSC1
   PIN1_bp,   // 21 PF1/USART2_Rx/TOSC2
-  PIN2_bp,   // 22
-  PIN3_bp,   // 23
-  PIN4_bp,   // 24
-  PIN5_bp,   // 25
+  NOT_A_PIN, // 22
+  NOT_A_PIN, // 23
+  NOT_A_PIN, // 24
+  NOT_A_PIN, // 25
   PIN6_bp,   // 26 PF6 RESET
   PIN7_bp    // 27 PF7 UPDI
 };
@@ -376,7 +424,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN1_bm,   //  9 PC1/USART1_Rx
   PIN2_bm,   // 10 PC2
   PIN3_bm,   // 11 PC3
-  NOT_A_PIN, // VDDIO2
+  NOT_A_PIN, // 12 PD0 NON_PIN
   PIN1_bm,   // 13 PD1/AIN1
   PIN2_bm,   // 14 PD2/AIN2
   PIN3_bm,   // 15 PD3/AIN3/LED_BUILTIN
@@ -386,10 +434,10 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN7_bm,   // 19 PD7/AIN7/AREF
   PIN0_bm,   // 20 PF0/USART2_Tx/TOSC1
   PIN1_bm,   // 21 PF1/USART2_Rx/TOSC2
-  PIN2_bm,   // 22
-  PIN3_bm,   // 23
-  PIN4_bm,   // 24
-  PIN5_bm,   // 25
+  NOT_A_PIN, // 22 NON_PIN
+  NOT_A_PIN, // 23 NON_PIN
+  NOT_A_PIN, // 24 NON_PIN
+  NOT_A_PIN, // 25 NON_PIN
   PIN6_bm,   // 26 PF6 RESET
   PIN7_bm    // 27 PF7 UPDI
 };
@@ -407,20 +455,20 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, // VDDIO2
-  NOT_ON_TIMER, // 13 PD1/AIN1
-  NOT_ON_TIMER, // 14 PD2/AIN2
-  NOT_ON_TIMER, // 15 PD3/AIN3/LED_BUILTIN
-  NOT_ON_TIMER, // 16 PD4/AIN4
-  NOT_ON_TIMER, // 17 PD5/AIN5
+  NOT_ON_TIMER, //    PD0
+  NOT_ON_TIMER, // 13 PD1/AIN1 // Default TCA0 WO1
+  NOT_ON_TIMER, // 14 PD2/AIN2 // Default TCA0 WO2
+  NOT_ON_TIMER, // 15 PD3/AIN3 // Default TCA0 WO3
+  NOT_ON_TIMER, // 16 PD4/AIN4 // Default TCA0 WO4
+  NOT_ON_TIMER, // 17 PD5/AIN5 // Default TCA0 WO5
   DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
   NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 22
-  NOT_ON_TIMER, // 23
-  NOT_ON_TIMER, // 24
-  NOT_ON_TIMER, // 25
+  NOT_ON_TIMER, // 22 NON_PIN
+  NOT_ON_TIMER, // 23 NON_PIN
+  NOT_ON_TIMER, // 24 NON_PIN
+  NOT_ON_TIMER, // 25 NON_PIN
   NOT_ON_TIMER, // 26 PF6 RESET
   NOT_ON_TIMER, // 27 PF7 UPDI
 };

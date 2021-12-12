@@ -48,10 +48,8 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PD5 (17)
 #define PIN_PD6 (18)
 #define PIN_PD7 (19)
-#define PIN_PF0 (20)
-#define PIN_PF1 (21)
-#define PIN_PF6 (22) // RESET
-#define PIN_PF7 (23) // UPDI
+#define PIN_PF6 (20) // RESET
+#define PIN_PF7 (21) // UPDI
 
         /*##   ##   ###  ###  ###  ###
         #   # #  # #      #  #    #
@@ -59,8 +57,11 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     24
-#define NUM_ANALOG_INPUTS              19
+#define FAKE_PIN_PC0
+#define FAKE_PIN_PD0
+
+#define PINS_COUNT                     17
+#define NUM_ANALOG_INPUTS              15
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -101,7 +102,7 @@ Include guard and include basic libraries. We are normally including this inside
 #elif defined(MILLIS_USE_TIMERB2)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
 #endif
 
 // Timer pin mapping
@@ -214,10 +215,28 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
+#define PIN_A0   NOT_A_PIN /* Doesn't exist on DD-series */
+#define PIN_A1   NOT_A_PIN
+#define PIN_A2   NOT_A_PIN
+#define PIN_A3   NOT_A_PIN
 #define PIN_A4   PIN_PD4
 #define PIN_A5   PIN_PD5
 #define PIN_A6   PIN_PD6
 #define PIN_A7   PIN_PD7
+#define PIN_A8   NOT_A_PIN
+#define PIN_A9   NOT_A_PIN
+#define PIN_A10  NOT_A_PIN
+#define PIN_A11  NOT_A_PIN
+#define PIN_A12  NOT_A_PIN
+#define PIN_A13  NOT_A_PIN
+#define PIN_A14  NOT_A_PIN
+#define PIN_A15  NOT_A_PIN
+#define PIN_A16  NOT_A_PIN
+#define PIN_A17  NOT_A_PIN
+#define PIN_A18  NOT_A_PIN
+#define PIN_A19  NOT_A_PIN
+#define PIN_A20  NOT_A_PIN
+#define PIN_A21  NOT_A_PIN
 #define PIN_A22  PIN_PA2
 #define PIN_A23  PIN_PA3
 #define PIN_A24  PIN_PA4
@@ -227,29 +246,69 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A29  PIN_PC1
 #define PIN_A30  PIN_PC2
 #define PIN_A31  PIN_PC3
+
+static const uint8_t A0  = NOT_A_PIN;
+static const uint8_t A1  = NOT_A_PIN;
+static const uint8_t A2  = NOT_A_PIN;
+static const uint8_t A3  = NOT_A_PIN;
 static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6;
 static const uint8_t A7  = PIN_A7;
+static const uint8_t A8  = NOT_A_PIN;
+static const uint8_t A9  = NOT_A_PIN;
+static const uint8_t A10 = NOT_A_PIN;
+static const uint8_t A11 = NOT_A_PIN;
+static const uint8_t A12 = NOT_A_PIN;
+static const uint8_t A13 = NOT_A_PIN;
+static const uint8_t A14 = NOT_A_PIN;
+static const uint8_t A15 = NOT_A_PIN;
+static const uint8_t A16 = NOT_A_PIN;
+static const uint8_t A17 = NOT_A_PIN;
+static const uint8_t A18 = NOT_A_PIN;
+static const uint8_t A19 = NOT_A_PIN;
+static const uint8_t A20 = NOT_A_PIN;
+static const uint8_t A21 = NOT_A_PIN;
 static const uint8_t A22 = PIN_A22;
 static const uint8_t A23 = PIN_A23;
 static const uint8_t A24 = PIN_A24;
 static const uint8_t A25 = PIN_A25;
 static const uint8_t A26 = PIN_A26;
 static const uint8_t A27 = PIN_A27;
+static const uint8_t A28 = PIN_A28;
 static const uint8_t A29 = PIN_A29;
 static const uint8_t A30 = PIN_A30;
 static const uint8_t A31 = PIN_A31;
+
+#define AIN0  NOT_A_PIN
+#define AIN1  NOT_A_PIN
+#define AIN2  NOT_A_PIN
+#define AIN3  NOT_A_PIN
 #define AIN4  ADC_CH(4)
 #define AIN5  ADC_CH(5)
 #define AIN6  ADC_CH(6)
 #define AIN7  ADC_CH(7)
+#define AIN8  NOT_A_PIN
+#define AIN9  NOT_A_PIN
+#define AIN10 NOT_A_PIN
+#define AIN11 NOT_A_PIN
+#define AIN12 NOT_A_PIN
+#define AIN13 NOT_A_PIN
+#define AIN14 NOT_A_PIN
+#define AIN15 NOT_A_PIN
+#define AIN16 NOT_A_PIN
+#define AIN17 NOT_A_PIN
+#define AIN18 NOT_A_PIN
+#define AIN19 NOT_A_PIN
+#define AIN20 NOT_A_PIN
+#define AIN21 NOT_A_PIN
 #define AIN22 ADC_CH(22)
 #define AIN23 ADC_CH(23)
 #define AIN24 ADC_CH(24)
 #define AIN25 ADC_CH(25)
 #define AIN26 ADC_CH(26)
 #define AIN27 ADC_CH(27)
+#define AIN28 ADC_CH(28)
 #define AIN29 ADC_CH(29)
 #define AIN30 ADC_CH(30)
 #define AIN31 ADC_CH(31)
@@ -277,19 +336,13 @@ const uint8_t digital_pin_to_port[] = {
   PC,         // 10 PC2/TCA0 PWM
   PC,         // 11 PC3/TCA0 PWM
   PD,         // VDDIO2 - offset and position umdefined, but it is defined as being on port D because it is the zero pin. Gap pins in general should still be here.
-  PD,         // 13 PD1/AIN1
-  PD,         // 14 PD2/AIN2
-  PD,         // 15 PD3/AIN3/LED_BUILTIN
+  NOT_A_PORT, // 13 PD1/AIN1
+  NOT_A_PORT, // 14 PD2/AIN2
+  NOT_A_PORT, // 15 PD3/AIN3/LED_BUILTIN
   PD,         // 16 PD4/AIN4
   PD,         // 17 PD5/AIN5
   PD,         // 18 PD6/AIN6
   PD,         // 19 PD7/AIN7/AREF
-  PF,         // 20 PF0/AIN16/USART2_Tx/TOSC1
-  PF,         // 21 PF1/AIN17/USART2_Rx/TOSC2
-  PF,         // 26 PF2
-  PF,         // 27 PF3
-  PF,         // 26 PF4
-  PF,         // 27 PF5
   PF,         // 26 PF6 RESET
   PF          // 27 PF7 UPDI
 };
@@ -312,24 +365,18 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   PIN5_bp,   //  5 PA5/MISO
   PIN6_bp,   //  6 PA6/SCK
   PIN7_bp,   //  7 PA7/SS/CLKOUT
-  PIN0_bp,   //  8 PC0/USART1_Tx
+  NOT_A_PIN, //  8 VDDIO2
   PIN1_bp,   //  9 PC1/USART1_Rx
   PIN2_bp,   // 10 PC2
   PIN3_bp,   // 11 PC3
-  NOT_A_PIN, // VDDIO2
-  PIN1_bp,   // 13 PD1/AIN1
-  PIN2_bp,   // 14 PD2/AIN2
-  PIN3_bp,   // 15 PD3/AIN3/LED_BUILTIN
+  NOT_A_PIN, // 12 VDDIO2
+  NOT_A_PIN, // 13 PD1/AIN1
+  NOT_A_PIN, // 14 PD2/AIN2
+  NOT_A_PIN, // 15 PD3/AIN3/LED_BUILTIN
   PIN4_bp,   // 16 PD4/AIN4
   PIN5_bp,   // 17 PD5/AIN5
   PIN6_bp,   // 18 PD6/AIN6
   PIN7_bp,   // 19 PD7/AIN7/AREF
-  PIN0_bp,   // 20 PF0/USART2_Tx/TOSC1
-  PIN1_bp,   // 21 PF1/USART2_Rx/TOSC2
-  PIN2_bp,   // 22
-  PIN3_bp,   // 23
-  PIN4_bp,   // 24
-  PIN5_bp,   // 25
   PIN6_bp,   // 26 PF6 RESET
   PIN7_bp    // 27 PF7 UPDI
 };
@@ -351,24 +398,18 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN5_bm,   //  5 PA5/MISO
   PIN6_bm,   //  6 PA6/SCK
   PIN7_bm,   //  7 PA7/SS/CLKOUT
-  PIN0_bm,   //  8 PC0/USART1_Tx
+  NOT_A_PIN, //  8 PC0 NOT_A_PIN
   PIN1_bm,   //  9 PC1/USART1_Rx
   PIN2_bm,   // 10 PC2
   PIN3_bm,   // 11 PC3
-  NOT_A_PIN, // VDDIO2
-  PIN1_bm,   // 13 PD1/AIN1
-  PIN2_bm,   // 14 PD2/AIN2
-  PIN3_bm,   // 15 PD3/AIN3/LED_BUILTIN
+  NOT_A_PIN, // 12 PD0 NOT_A_PIN VDDIO2
+  NOT_A_PIN, // 13 PD0 NOT_A_PIN
+  NOT_A_PIN, // 14 PD0 NOT_A_PIN
+  NOT_A_PIN, // 15 PD0 NOT_A_PIN
   PIN4_bm,   // 16 PD4/AIN4
   PIN5_bm,   // 17 PD5/AIN5
   PIN6_bm,   // 18 PD6/AIN6
   PIN7_bm,   // 19 PD7/AIN7/AREF
-  PIN0_bm,   // 20 PF0/USART2_Tx/TOSC1
-  PIN1_bm,   // 21 PF1/USART2_Rx/TOSC2
-  PIN2_bm,   // 22
-  PIN3_bm,   // 23
-  PIN4_bm,   // 24
-  PIN5_bm,   // 25
   PIN6_bm,   // 26 PF6 RESET
   PIN7_bm    // 27 PF7 UPDI
 };
@@ -382,24 +423,18 @@ const uint8_t digital_pin_to_timer[] = {
   TIMERD0,      //  5 PA5/MISO      WOB
   TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
   TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  TIMERB2,      //  8 PC0/USART1_Tx
+  NOT_ON_TIMER, //  8 PC0 NOT_A_PIN
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, // VDDIO2
-  NOT_ON_TIMER, // 13 PD1/AIN1
-  NOT_ON_TIMER, // 14 PD2/AIN2
-  NOT_ON_TIMER, // 15 PD3/AIN3/LED_BUILTIN
+  NOT_ON_TIMER, // 12 PD0 NOT_A_PIN VDDIO2
+  NOT_ON_TIMER, // 13 PD1 NOT_A_PIN
+  NOT_ON_TIMER, // 14 PD2 NOT_A_PIN
+  NOT_ON_TIMER, // 15 PD3 NOT_A_PIN
   NOT_ON_TIMER, // 16 PD4/AIN4
   NOT_ON_TIMER, // 17 PD5/AIN5
   DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
-  NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 22
-  NOT_ON_TIMER, // 23
-  NOT_ON_TIMER, // 24
-  NOT_ON_TIMER, // 25
   NOT_ON_TIMER, // 26 PF6 RESET
   NOT_ON_TIMER, // 27 PF7 UPDI
 };

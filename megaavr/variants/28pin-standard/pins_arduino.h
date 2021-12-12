@@ -56,6 +56,10 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF6 (22) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
 /*      PIN_PF7 (23) UPDI pin not available for alternative functions on DA/DB */
 
+#if defined(MVIO)
+  #define FAKE_PIN_PD0
+#endif
+
         /*##   ##   ###  ###  ###  ###
         #   # #  # #      #  #    #
         ####  ####  ###   #  #     ###
