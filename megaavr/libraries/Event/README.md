@@ -82,8 +82,6 @@ Below is a table with all possible generators for each channel. Many generators 
 | `gen::opamp2_ready`      |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
 | `gen::zcd3_out`          |                         |                         |                         |                         |                         |                         |                         |                         |                         |                         |
 
-
-
 ### Event User table
 Below is a table with all of the event users for the AVR Dx-series parts.
 #### Notes
@@ -91,6 +89,7 @@ Below is a table with all of the event users for the AVR Dx-series parts.
 * Many of these refer to specific pins or peripherals - on smaller pin-count devices, some of these event users are not available; Attempting to set a user that doesn't exist will result in a compile error.
 * There is no PF7 on either the DA or DB-series parts. There will be on the DD-series parts.
 * The DB and DD-series parts do not have a Peripheral Touch Controller (PTC). Just as well we can't use it because they keep all the libraries proprietary and it was never usable.
+* For backwards compatibilirty gen::tcbN is an alias ofd gen:tcbN_capt. The new name is preferred.
 
 
 | Event users             |                                    |
@@ -129,19 +128,19 @@ Below is a table with all of the event users for the AVR Dx-series parts.
 | `user::usart3_irda`     |                                    |
 | `user::usart4_irda`     |                                    |
 | `user::usart5_irda`     |                                    |
-| `user::tca0_cnt_a`      |                                    |
+| `user::tca0_cnt_a`      | alias: tca0 (deprecated)           |
 | `user::tca0_cnt_b`      |                                    |
 | `user::tca1_cnt_a`      |                                    |
 | `user::tca1_cnt_b`      |                                    |
-| `user::tcb0_capt`       |                                    |
+| `user::tcb0_capt`       | alias: tcb0 (deprecated)           |
 | `user::tcb0_cnt`        |                                    |
-| `user::tcb1_capt`       |                                    |
+| `user::tcb1_capt`       | alias: tcb1 (deprecated)           |
 | `user::tcb1_cnt`        |                                    |
-| `user::tcb2_capt`       |                                    |
+| `user::tcb2_capt`       | alias: tcb2 (deprecated)           |
 | `user::tcb2_cnt`        |                                    |
-| `user::tcb3_capt`       |                                    |
+| `user::tcb3_capt`       | alias: tcb3 (deprecated)           |
 | `user::tcb3_cnt`        |                                    |
-| `user::tcb4_capt`       |                                    |
+| `user::tcb4_capt`       | alias: tcb4 (deprecated)           |
 | `user::tcb4_cnt`        |                                    |
 | `user::tcd0_in_a`       |                                    |
 | `user::tcd0_in_b`       |                                    |
@@ -157,6 +156,10 @@ Below is a table with all of the event users for the AVR Dx-series parts.
 | `user::opamp2_disable`  | **AVR DB only**                    |
 | `user::opamp2_dump`     | **AVR DB only**                    |
 | `user::opamp2_drive`    | **AVR DB only**                    |
+
+The DX-series and tinyAVR 2-series type B timers got a second event generator (tcbN_ovf) and user (tcbN_cnt), while the type A timers got a second event user, tcaN_cnt_b.
+
+This broke existing code, because this changed the name of the other generator to distinguish the two, so what had been called "tcb0" was now "tcb0_capt" - We provide aliases for these older names in order to facilitate code portability, just like for generators.
 
 ### Generator table summary in words:
 * `genN::rtc_div8192`, `genN::rtc_div4096`, `genN::rtc_div2048` and `genN::rtc_div1024` are only available on odd numbered channels
@@ -346,7 +349,7 @@ Event0.stop(); // Stops the Event0 generator channel
 ```
 
 ### **gen_from_peripheral()** and **user_from_peripheral()**
-These two static methods allow you to pass a pointer to a peripheral module, and get back the generator or user associated with it. In this context the "Peripheral Modules" are the structs containing the registers, defined in the io headers; for example `TCB0` or `USART1` or `CCL`.
+These two static methods allow you to pass a reference to a peripheral module, and get back the generator or user associated with it. In this context the "Peripheral Modules" are the structs containing the registers, defined in the io headers; for example `TCB0` or `USART1` or `CCL`.
 
 This is most useful if you are writing portable (library) code that uses the Event library to interact with the event system. Say you made a library that lets users make one-shot pulses with timerB. You're not particularly interesting in getting your hands too dirty with the event system especially considering just how filthy the event system is on the 0/1-series. So you use the Event library to handle that part. You would of course need to know which timer to use - the natural way would be to ask the user to pass a reference or pointer. But then what? The fact that you've got the pointer to something which, as it happens, is TCB0 (which itself is annoying to determine from an unknown pointer)... though even KNOWING THAT, you're not able to use it with the event library, since it needs user::tcb0 (or user::tcb0_capt). As of the version distributed with megaTinyCore 2.5.0 and DxCore 1.4.0, there's a method for that. As the names imply, one gives generators, the other gives users. They take 2 arguments, the first being a pointer to a peripheral struct. The second, defaulting to 0, is the "type" of generator or user. Some peripherals have more than one event input or output. These are ordered in the same order as they are in the tables here and in the datasheet listings.
 
@@ -367,14 +370,15 @@ Shown below, generators/user per instance  (second argument should be less than 
 | Peripheral |   tiny0  |   tiny1  |   tiny2  |   mega0  |  DA/DB/DB   |
 |------------|----------|----------|----------|----------|-------------|
 | TCAn       | 5 / 1 x1 | 5/1 x1   | 5 / 2 x1 | 5 / 1 x1 |  5 / 2 x1-2 |
-| TCBn       | 1 / 1 x1 | 1/1 x1-2 | 2 / 2 x2 | 1/1 x3-4 |  2 / 2 x2-5 |
+| TCBn       |    ***   |    ***   | 2 / 2 x2 | 1/1 x3-4 |  2 / 2 x2-5 |
 | CCL **     | 2 / 4    | 2 / 4    | 4 / 8    | 4 / 8    |4-6 / 8-12   |
 | ACn        | 1 / 0 x1 | */0 x1-3 | 1 / 0 x1 | 1 / 0 x1 |  1 / 0 x1-3 |
 | USARTn     | 0 / 1 x1 | 0/1 x1   | ! / 1 x2 | !/1 x3-4 |  ! / 1 x2-6 |
 
 `*` - the tiny1 parts with 1 AC work normally. This is unfortuately not supported for tiny1 parts with the triple-AC configuration:
 `**` - There is only one CCL peripheral, with multiple logic blocks. Each logic block has 1 event generator and 2 event users. If using the logic library, get the Logic instance number. The output generator is that number. The input is twice that number, and twice that number + 1.
-`!` - These parts do have an option, but we didn't bother to implement it because it isn't particularly useful. But the Event RX mode combined with the TX input to the CCL permit arbitrary remapping of RX and very flexible remapping of TX!
+`***` - This peripheral is not supported becausse the generator numbers are channel dependent.
+`!` - These parts do have an option, but we didn't bother to implement it because it isn't particularly useful. But the Event RX mode combined with the TX input to the CCL permit arbitrary remapping of RX and very flexible remapping of TX.
 
 And what they are:
 
