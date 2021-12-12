@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #if (defined(MEGATINYCORE) && MEGATINYCORE_SERIES != 2)
-    #define TINY_0_OR_1_SERIES
+  #define TINY_0_OR_1_SERIES
 #endif
 
 #if MEGATINYCORE_SERIES == 1 && FLASH_SIZE > 8192

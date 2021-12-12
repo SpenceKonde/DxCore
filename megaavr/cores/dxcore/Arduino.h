@@ -305,7 +305,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define DACOUT        0x80
 
 /* Check order for future ones would probably be to check 0x40 (that means TCD) 0x20 (that means a TCB)
- * on alt pins if 0x10 set too. 0x10without the 0x20 means it's TCA0, no defines for mappings becasuse of the simplicity of full size parts.
+ * on alt pins if 0x10 set too. 0x10without the 0x20 means it's TCA0, no defines for mappings because of the simplicity of full size parts.
  * 0x08 means it's a TCA1, and the weird pin options might get the constants below assigned if we ever supported those.
  */
 /*
@@ -322,7 +322,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERB4_ALT   0x34 // TCB4 with alternate pin mapping.
 */
 
-#define TIMERD0       0x40 // 0b01MC 0mmm - the 3 lowest bits refer tothe PORTMUX.
+#define TIMERD0       0x40 // 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
 //                            bit C specifies whether it's channel A (0) or B (1). If M is 1 it is WOC outputting chan A or WOB outputting D.
 //                            WOD outputting A or WOC outputting B is not supported by the core. WOB outputting A or WOA outputting B is not supported by the hardware.
 /* These are not yet implemented but may be in the future.
