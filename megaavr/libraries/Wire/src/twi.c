@@ -139,7 +139,7 @@ void TWI_SlaveInit(struct twiData *_data, uint8_t address, uint8_t receive_broad
  *@return             void
  */
 void TWI_Flush(struct twiData *_data) {
-  #ifdef __AVR_DA__
+  #if defined(ERRATA_TWI_FLUSH)
     // badCall("The AVR DA-series parts are impacted by an errata that leaves the TWI peripheral in a non-functioning state when using flush.");
     // restarting TWI hardware by hand. Extra size shouldn't matter on DA series
     uint8_t temp_MCTRLA      = _data->_module->MCTRLA;
@@ -149,8 +149,9 @@ void TWI_Flush(struct twiData *_data) {
     _data->_module->MCTRLA  = temp_MCTRLA;
     _data->_module->MSTATUS = 0x01;  // force TWI state machine into idle state
     _data->_module->SCTRLA  = temp_SCTRLA;
-  #endif
+  #else
   _data->_module->MCTRLB |= TWI_FLUSH_bm;
+  #endif
 }
 
 
