@@ -80,8 +80,8 @@ Returns the pin number corresponding to an analog channel identifier. This is si
 If `p < NUM_DIGITAL_PINS`, p is a digital pin, and is returned as is. If it is equal to `ADC_CH(n)` where n is a valid analog channel it is converted to the digital pin, and if anything else, it returns NOT_A_PIN.
 
 ### `uint8_t portToPinZero(port)`
-Returns `PIN_Px0` - eg `portToPinZero(PA)` is PIN_PA0. This is meant for finding where a port starts on parts with intermediate pincounts with only 4 or 6 pins in some channels.
-This provides no guarantee that the pin is available or usable. For example, a 28-pin DB or DD-series' usable pins goes from 11 (PC3) to 13 (PD1)
+Returns `PIN_Px0` - eg `portToPinZero(PA)` is PIN_PA0. This will not work if there is no "hole" provided in the pin numbering.
+For example, AVR64DD14, the pins are PA0, PA1, PC1, PC2, PC3, PD4, PD5, PD6, PD7, PF6, PF7, with numbers 0, 1, 2, 3, 4, ~5 (PD0), 6, 7, 8~ 9, 10, 11, 12, 13, 14.  portToPinZero will work for PA and PD, but not PC or PF; this function is used internally in ways that don't matter for this case, and because it would otherwise involve the same pin number meaning different things, or much larger arrays (hence wasted space)
 
 ### `volatile uint8_t* digitalPinHasPWMTCB(p)`
 

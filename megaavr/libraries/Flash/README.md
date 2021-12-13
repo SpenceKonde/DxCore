@@ -29,13 +29,13 @@ All error codes returned by the functions provided assume that the device you ar
 All of these functions return a status code; 0 is a success. The high byte indicates the broad category of problem (such as a bad argument to the function call, or an error reported by NVM controller), while the low byte identifies the specific error condition. All of the errors are described below.
 
 ### Don't trash your app
-The application code (your sketch) is uploaded starting from `0x00200` (the end of the bootloaded) and extends towards higher addresses. If you have placed constants in memory-mapped flash using the `MAPPED_PROGMEM` declaration, they will be placed starting at `0x18000` (128k parts) or `0x08000` (64k parts), likewise extending upwards. Thus, to avoid bumping into your sketch code, start from the high end of the address space and work downwards - unless you have a ton of `MAPPED_PROGMEM` that you need to avoid, but your sketch is still small - in that case you could use the section of flash before the mapped section (`0x10000~0x18000` on 128k parts).
+The application code (your sketch) is uploaded starting from `0x00200` (the end of the bootloaded) and extends towards higher addresses. If you have placed constants in memory-mapped flash using the `PROGMEM_MAPPED` declaration, they will be placed starting at `0x18000` (128k parts) or `0x08000` (64k parts), likewise extending upwards. Thus, to avoid bumping into your sketch code, start from the high end of the address space and work downwards - unless you have a ton of `PROGMEM_MAPPED` that you need to avoid, but your sketch is still small - in that case you could use the section of flash before the mapped section (`0x10000~0x18000` on 128k parts).
 
 ### Don't write NVM from an ISR
 Surprisingly, this code doesn't need interrupts disabled - *unless those interrupts also write to EEPROM or Flash*. If you are writing to the NVM from ISRs, you are doing something wrong!
 Considering widely known best practices for Arduino, I would argue that if you were trying to wrtite to the EEPROM or Flash from within an ISR, you deserve what you get! Remember how "ISRs should run fast"? Writing a word of flash takes 70us according to the datasheet. At 24 MHz, that's 1680 clock cycles. Per byte or word written. That is not fast. Writing EEPROM, however, is FAR slower still... it is spec'ed at **11ms per ERASE-WRITE byte** (`NVMCTRL.CTRLA` = `NVMCTRL_CMD_EEERWR_gc`) -  pointing out that that's around a quarter million system clocks (at 24 MHz) probably doesn't contribute much to the discussion; if "11ms" didn't dissuade you, "a quarter million clocks" probably won't either...
 
-### An added benefit of the `MAPPED_PROGMEM` section
+### An added benefit of the `PROGMEM_MAPPED` section
 Since it's memory mapped... you can cast to a pointer and use it like a normal constant variable!
 ```c++
 Flash.writeWord(myAddress,1234);
@@ -71,7 +71,7 @@ if (targetAddress < 0x8000) {
   } else if (PROGMEM_SIZE == 0x20000) {
     targetAddress+=0x10000; // gotta add 0x10000 to it to get right address on 128k parts...
   }
-  // Now - if we have any other variables in MAPPED_PROGMEM... we have a problem now. We can't
+  // Now - if we have any other variables in PROGMEM_MAPPED... we have a problem now. We can't
   // erase just our variable without trashing the whole 512b page (we don't know where any other
   // variables are, either - though the linker fills from the lowest address upwards; it's likely
   // that if you have any other variabnle s in MAPPED PROGMEM, they're on the chopping block.
@@ -86,13 +86,13 @@ if (targetAddress < 0x8000) {
 ### Reading Values
 As noted above, data stored in the memory mapped section of flash can be read directly, just like that.
 
-For addresses from 0x0000 through 0xFFFF, you can use the `pgm_read_*_near()` macros from `avr/pgmspace.h` to access it - anything beyond that requires  `pgm_read_*_far()`. Particularly relevant for the area from 0x10000 where the `pgm_read_*_near()` macros stop, to to 0x18000 where the mapped progmem starts by default). One could change the FLMAP bits of NVMCTRL.CTRLB, but the interaction of variables declared `MAPPED_PROGMEM` and the optimizer has no guarantee of correctness.
+For addresses from 0x0000 through 0xFFFF, you can use the `pgm_read_*_near()` macros from `avr/pgmspace.h` to access it - anything beyond that requires  `pgm_read_*_far()`. Particularly relevant for the area from 0x10000 where the `pgm_read_*_near()` macros stop, to to 0x18000 where the mapped progmem starts by default). One could change the FLMAP bits of NVMCTRL.CTRLB, but the interaction of variables declared `PROGMEM_MAPPED` and the optimizer has no guarantee of correctness.
 
 ### Last warnings
-* If you're going to be fiddling with `MAPPED_PROGMEM` variables, don't declare them `const` - unlike normal `PROGMEM` declarations, the compiler lets you do that.
-* There is definitely the potential for the compiler to make heinous "optimizations" that result in values being assumed constnt or cached if you're modifying variables declared `MAPPED_PROGMEM`. This could be not reading it while it's been changed back in flash - or assuming it would never change at all, and throwing out code to test for or handle different values. So - be careful here, test stuff, etc. I have NOT done much testing!
+* If you're going to be fiddling with `PROGMEM_MAPPED` variables, don't declare them `const` - unlike normal `PROGMEM` declarations, the compiler lets you do that.
+* There is definitely the potential for the compiler to make heinous "optimizations" that result in values being assumed constnt or cached if you're modifying variables declared `PROGMEM_MAPPED`. This could be not reading it while it's been changed back in flash - or assuming it would never change at all, and throwing out code to test for or handle different values. So - be careful here, test stuff, etc. I have NOT done much testing!
   * Worst case, declaring them `volatile` would keep the compiler from opitizing in a way that break stuff.
-* Optiboot is lazy! **When a new sketch is uploaded through Optiboot, it only erases what the new sketch requires for code + `PROGMEM`/`MAPPED_PROGMEM` variables!** There are pieces of your old code and data sitting after you upload something new. Be prepared to - if your code requires that bytes not written yet be 0xFF - you'll need to be sure that your sketch does erase it after first upload.
+* Optiboot is lazy! **When a new sketch is uploaded through Optiboot, it only erases what the new sketch requires for code + `PROGMEM`/`PROGMEM_MAPPED` variables!** There are pieces of your old code and data sitting after you upload something new. Be prepared to - if your code requires that bytes not written yet be 0xFF - you'll need to be sure that your sketch does erase it after first upload.
 
 ## API
 
@@ -279,7 +279,7 @@ If you receive any of these, and it is not apparent why it is not working, pleas
 * Library does not verify that flash was written correctly, or that it targeted flash that had been erased.
 * Library leaves NVMCTRL.CTRLA set; In supported configurations, this should be safe except for the case of user code that has to issue other `NVMCTRL` commands - and doesn't defensively set to `NOOP` first. That's probably a bad course of action, as it places faith in other code behaving the way you would - especially since, as it happens, other code in the wild *doesn't* behave that way I don't think the fact that it `NVMCTRL.CTRLA` is left on a command is in and of itself a risk, since only the one SPM instruction on that one page of flash can execute it; You could only get there via JMP/RJMP/CALL/RCALL - which are targeted at compile time (ie, they are your entry point, or the libraries entry point, and set the command register anyway)... or they would get there from some "wild pointer" that ends up pointing an IJMP or ICALL there - but in that case, the pointer that directs those is the Z pointer, which also targets SPM - so the Z-pointer would be pointing to the first page of flash... which cannot write to itself!
 * Library provides no facility to "update" a page of memory. This would probably be useful.
-* Library lacks convenience functions and defines for taking full advantage of MAPPED_PROGMEM and the like...
+* Library lacks convenience functions and defines for taking full advantage of PROGMEM_MAPPED and the like...
 * No provision for wear leveling (I would suggest this be a build on top of a library like this, once the API stabilitzes.
 
 

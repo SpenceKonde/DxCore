@@ -33,12 +33,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct issue where the intended useful error message was not shown to users who did not have millis or micros enabled but tried to use it anyway.
 * Add new Wire library method names to keywords.txt.
 * Add new core-wide things to the Dxcore Keywords.txt, including:
-  * Standard and extended Pin-information-gathering macros from Arduino.h
-  * Add the new MUX option for USARTs, TWI and SPI for the DD-series parts.
-  * Add the new Serial modifier options.
-  * Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more.
-  * Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags().
-  * Added `__builtin_constant_p()` because it is exceptionally useful. I may add some of the other most useful directives like that.
+   Standard and extended Pin-information-gathering macros from Arduino.h, Add the new MUX option for USARTs, TWI and SPI for the DD-series parts, Add the new Serial modifier options, Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more. Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags, `_NOP, _NOPNOP, _NOP2, _NOP8, _NOP14`, the channels and references for the ADC, ,   Added `__builtin_constant_p()` because it is exceptionally useful.
 * Calling millis or micros when those are disabled will result in more useful error messages.
 * Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
 * Continuing doc enhancements.
@@ -47,17 +42,19 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Eliminate double-entry bookkeeping in boards.txt as relates to speed.
 * Correct names of exported files so they match each other.
 * Ensure that upload with programmer is not used on bootloader board definitions.
-* Optboot serial port menu option is ready to be enabled.
+* Optboot serial port menu option for the DD-series parts is now ready to be enabled.
 * init_reset_flags() will automatically clear reset flags if not overridden, stashing them in GPIOR0 (chosen because has lower overhead than a variable)
 * Add 27 MHz external clock/crystal... Math is amazingly simple, one of the cleanest so far!
-
+* Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
+* Include recent version of the io headers for practical reference, and the original versions for historical reference (mostly so you can view them in your web browser).
+* Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
 
 ## Released Versions
 
 ## 1.3.10
 * Fix Wire.swap() correctly. (#184)
 * Correct burn bootloader when BOD is enabled. (#185)
-* Correct a an error in SerialUPDI definitions for AVR64DD28 devices (which are not yet available)
+* Correct an error in SerialUPDI definitions for AVR64DD28 devices (which are not yet available)
 * Implement CI automated testing! Finally!
 * Implement expanded markdown format checking.
 * Harmonize EEPROM.h with megaTinyCore, update documentation.
@@ -76,7 +73,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct critical bug in 28-pin variant file that broke writes to pins 0 and 1 within every port!
 * Markdown linting.
 * Minor things
-  * Added a few variants of `_NOP()` for longer delays in minimum number of words. 2 clocks in 1, 8 clocks in 3, 14 clocks in 4 (simplest loop is 3 * n + 1 in 3 words, or pad with nop/rjmp .+0 for any number of clocks up to 770 in 3-4 words; in an ISR that loop may add 1 clock to the start of the ISR and 2 clocks to the end, as well as 2 words to the size of the binary (though it won't if there's an, everything else below 770 in 6 words)
+  * Added a few variants of `_NOP()` for longer delays in minimum number of words. 2 clocks in 1, 8 clocks in 3, 14 clocks in 4 (simplest loop is 3 * n + 1 in 3 words, or pad with nop/rjmp .+0 for any number of clocks up to 770 in 3-4 words; in an ISR that loop may add 1 clock to the start of the ISR and 2 clocks to the end, as well as 2 words to the size of the binary (though it won't if there's any other register available, everything else below 770 in 6 words). For reference, the minimum size delays of the specified number of CPU cycles which don't use a loop are: 1, 1, 2, 2, 3, 3, 4, 3, 4, 4, 5, 5, 6, 4. With a loop,  -, -, 3, 4, 4, 3, 4, 4, 3, 4, 4, 3, 4, 4. The penalty of a loop is that it does need a working register (and an upper one at that in order to LDI the number of iterations), and it also changes the SREG, so in certain contexts, doing it with a loop can take longer than expected, by a small number of clock cycles. There is also a conceptual simplicity to the non-loop versions. Note that with 1 word of preparation (or some *really* desperate measures) you can do 6-clock 1-word delays.
   * analogClockSpeed used 300 kHz as the minimum instead of 125 kHz.
   * `PIN_TCA0_WO0_DEFAULT` and `PIN_TCA0_WO1_DEFAULT` were defined when those pins were not available because they were used for the main clock source.
   * Handle a compatibility issue with the TCA event action.

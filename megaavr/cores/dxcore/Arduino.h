@@ -288,18 +288,77 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  * DxCore, but it can on megaTinyCore, and might one day be possible on DxCore
  * though I'm not sure I want to implement it that way).
  *****************************************************************************/
+/* More may be implemented here in the future */
 
 #define NOT_ON_TIMER  0x00
-#define TIMERA0       0x10
+#define TIMERA0       0x10 // A "simple" type A timer mapping doesn't get constants for the WO channels, only the rare few funky ones do.
 #define TIMERA1       0x08 // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
-#define TIMERB0       0x20
-#define TIMERB1       0x21
-#define TIMERB2       0x22
-#define TIMERB3       0x23
-#define TIMERB4       0x24
-#define TIMERD0       0x40 /* in PWM context will show up as (TIMERD0 | 0-7), ex 0x40, 0x42 etc - that part is the mux value (not the channel). nothing that is not TCD0 will have bit 6 set. */
+#define TIMERB0       0x20 // TCB0
+#define TIMERB1       0x21 // TCB1
+#define TIMERB2       0x22 // TCB2
+#define TIMERB3       0x23 // TCB3
+#define TIMERB4       0x24 // TCB4
+
 #define TIMERRTC      0x90
+#define TIMERRTC_XTAL 0x91
+#define TIMERRTC_CLK  0x92
 #define DACOUT        0x80
+
+/* Check order for future ones would probably be to check 0x40 (that means TCD) 0x20 (that means a TCB)
+ * on alt pins if 0x10 set too. 0x10without the 0x20 means it's TCA0, no defines for mappings because of the simplicity of full size parts.
+ * 0x08 means it's a TCA1, and the weird pin options might get the constants below assigned if we ever supported those.
+ */
+/*
+#define TIMERA1_1WO0  0x09 // Mapping1, WO0 - mappings 0 and 3 are handled directly because they don't need any sort of LUT.
+#define TIMERA1_1WO1  0x0A // Mapping1, WO1
+#define TIMERA1_1WO2  0x0B // Mapping1, WO2
+#define TIMERA1_2WO1  0x0D // Mapping2, WO0
+#define TIMERA1_2WO2  0x0E // Mapping2, WO1
+#define TIMERA1_2WO3  0x0F // Mapping2, WO2
+#define TIMERB0_ALT   0x30 // TCB0 with alternate pin mapping.
+#define TIMERB1_ALT   0x31 // TCB1 with alternate pin mapping.
+#define TIMERB2_ALT   0x32 // TCB2 with alternate pin mapping.
+#define TIMERB3_ALT   0x33 // TCB3 with alternate pin mapping.
+#define TIMERB4_ALT   0x34 // TCB4 with alternate pin mapping.
+*/
+
+#define TIMERD0       0x40 // 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
+//                            bit C specifies whether it's channel A (0) or B (1). If M is 1 it is WOC outputting chan A or WOB outputting D.
+//                            WOD outputting A or WOC outputting B is not supported by the core. WOB outputting A or WOA outputting B is not supported by the hardware.
+/* These are not yet implemented but may be in the future.
+#define TIMERD0_0WOA  0x40
+#define TIMERD0_0WOB  0x50
+#define TIMERD0_0WOC  0x60
+#define TIMERD0_0WOD  0x70
+#define TIMERD0_1WOA  0x41
+#define TIMERD0_1WOB  0x51
+#define TIMERD0_1WOC  0x61
+#define TIMERD0_1WOD  0x71
+#define TIMERD0_2WOA  0x42
+#define TIMERD0_2WOB  0x52
+#define TIMERD0_2WOC  0x62
+#define TIMERD0_2WOD  0x72
+#define TIMERD0_3WOA  0x43
+#define TIMERD0_3WOB  0x53
+#define TIMERD0_3WOC  0x63
+#define TIMERD0_3WOD  0x73
+#define TIMERD0_4WOA  0x44
+#define TIMERD0_4WOB  0x54
+#define TIMERD0_4WOC  0x64
+#define TIMERD0_4WOD  0x74
+#define TIMERD0_5WOA  0x45
+#define TIMERD0_5WOB  0x55
+#define TIMERD0_5WOC  0x65
+#define TIMERD0_5WOD  0x75
+#define TIMERD0_6WOA  0x46
+#define TIMERD0_6WOB  0x56
+#define TIMERD0_6WOC  0x66
+#define TIMERD0_6WOD  0x76
+#define TIMERD0_7WOA  0x47
+#define TIMERD0_7WOB  0x57
+#define TIMERD0_8WOC  0x67
+#define TIMERD0_8WOD  0x77
+*/
 
 // These are lookup tables to find pin parameters from Arduino pin numbers
 // They are defined in the variant's pins_arduino.h
@@ -478,13 +537,23 @@ extern const uint8_t digital_pin_to_timer[];
 #include "pins_arduino.h"
 // Take this trash out of variants!
 #if !defined(NUM_DIGITAL_PINS)
-  #define NUM_DIGITAL_PINS              (PINS_COUNT)
+/* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
+ * that is, it's the first non-pin integer above which there are no pins.
+ * Tests like if (pin >= NUM_DIGITAL_PIN) return; are ubiquitous.
+ * So we need to make our NUM_DIGITAL_PINS work like that.
+ */
+  #if defined(PIN_PG7) // if there's a PORTG, that's the last pin. Add 1  to get the first non-pin
+    #define NUM_DIGITAL_PINS            (PIN_PG7 + 1)
+  #elif defined(PIN_PF7)  // if the UPDI pin, PF7 is defined and there's no PORTG that's the highest.
+    #define NUM_DIGITAL_PINS            (PIN_PF7 + 1)
+  #elif defined(PIN_PF6)  // otherwise it should be the reset pin, PG6.
+    #define NUM_DIGITAL_PINS            (PIN_PF6 + 1)
+  #else
+    #error "The variant file is incorrect, as it indicates no PG7, PF7 or PF6. All supported and announced parts have one"
+  #endif
 #endif
 #if !defined(NUM_RESERVED_PINS)
   #define NUM_RESERVED_PINS             (0)
-#endif
-#if !defined(NUM_DIGITAL_PINS)
-  #define NUM_DIGITAL_PINS              (PINS_COUNT - NUM_RESERVED_PINS)
 #endif
 #if !defined(NUM_INTERNALLY_USED_PINS)
   #define NUM_INTERNALLY_USED_PINS      (0)
@@ -496,10 +565,10 @@ extern const uint8_t digital_pin_to_timer[];
   #define NUM_SPI_PINS                  (3)
 #endif
 #if !defined(NUM_TOTAL_FREE_PINS)
-  #define NUM_TOTAL_FREE_PINS           (NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
+  #define NUM_TOTAL_FREE_PINS           (PINS_COUNT - NUM_INTERNALLY_USED_PINS
 #endif
 #if !defined(NUM_TOTAL_PINS)
-  #define NUM_TOTAL_PINS                (NUM_DIGITAL_PINS)
+  #define NUM_TOTAL_PINS                (NUM_DIGITAL_PINS) /* Used the same way as NUM_DIGITAL_PINS. so it doesn't mean what it's named  - I didn't make the convention*/
 #endif
 
 

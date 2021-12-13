@@ -48,7 +48,7 @@ void colorWipe(uint32_t c, uint8_t wait) {
 void pulseWhite(uint8_t wait) {
   for (int j = 0; j < 256; j++) {
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, strip.Color(0, 0, 0, gamma8(j)));
+      strip.setPixelColor(i, strip.Color(0, 0, 0, tinyNeoPixel::gamma8(j)));
     }
     delay(wait);
     strip.show();
@@ -56,7 +56,7 @@ void pulseWhite(uint8_t wait) {
 
   for (int j = 255; j >= 0; j--) {
     for (uint16_t i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, strip.Color(0, 0, 0, gamma8(j)));
+      strip.setPixelColor(i, strip.Color(0, 0, 0, tinyNeoPixel::gamma8(j)));
     }
     delay(wait);
     strip.show();
@@ -110,7 +110,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
     for (int j = 0; j < 256; j++) {
 
       for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(0, 0, 0, gamma8(j)));
+        strip.setPixelColor(i, strip.Color(0, 0, 0, tinyNeoPixel::gamma8(j)));
       }
       strip.show();
     }
@@ -119,7 +119,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
     for (int j = 255; j >= 0; j--) {
 
       for (uint16_t i = 0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, strip.Color(0, 0, 0, gamma8(j)));
+        strip.setPixelColor(i, strip.Color(0, 0, 0, tinyNeoPixel::gamma8(j)));
       }
       strip.show();
     }

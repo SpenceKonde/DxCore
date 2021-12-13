@@ -352,6 +352,8 @@ Supported clock sources and considerations for the use thereof.
 These are provided by the core and can be overridden with code to run in the event of certain conditions, or at certain times in the startup process.
 #### [Constants for part/feature/pin/version identification](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Defines.md)
 The core feature defines are used by megaTinyCore and other cores I maintain as well. This also documents what constant values are defined by the core for version identification, testing for features, and dealing with compatibility problems.
+#### [IO-headers from Microchip](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/ioheaders/README.md)
+These are a copy of the headers packages with the compiler toolchain to support these parts, for user convenience; they are meant for online viewing or manual installations, since a board manager installation will bury them just as deeply as the copies the toolchain uses.
 #### [Assembly Listing and Memory Maps](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Export.md)
 Export compiled binary generates both assembly listings and memory maps, in addition to the hex file. The options selected are encoded in the name of the file to help prevent confusion, and make it easy to compare two configurations when you are surprised by the differences between them.
 #### [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
