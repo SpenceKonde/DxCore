@@ -161,7 +161,7 @@ The DX-series and tinyAVR 2-series type B timers got a second event generator (t
 
 This broke existing code, because this changed the name of the other generator to distinguish the two, so what had been called "tcb0" was now "tcb0_capt" - We provide aliases for these older names in order to facilitate code portability, just like for generators.
 
-### Generator table summary in words:
+### Generator table summary - in words
 * `genN::rtc_div8192`, `genN::rtc_div4096`, `genN::rtc_div2048` and `genN::rtc_div1024` are only available on odd numbered channels
 * `genN::rtc_div512`, `genN::rtc_div256`, `genN::rtc_div128` and `genN::rtc_div64` are only available on even numbered channels
 * Only parts with 48 or 64 pins have `Event8` and `Event9`
@@ -172,17 +172,19 @@ This broke existing code, because this changed the name of the other generator t
 * Channels 8 and 9 do not have any generators that take pins as inputs
 * Only the pin and RTC/PIT div event generators are limited to a subset of channels. All others are available on all channels
 
-| Part Series | Event Channels | Chan/port | Layout  | 1port ch | pinless  |
-|-------------|----------------|-----------|---------|----------|----------|
-| AVR DB/DA   | 8 <48pin or 10 |         2 | Uniform |       2  |       2  |
-| AVR DD      |   Always 6     |         2 | Uniform |    *2-4  |       0  |
-| AVR EA      | Supposedly 6   |  Likely 2 | Unknown |2-4 likely|       0  |
-| megaAVR 0   | 6 <48pin or 8  |         2 | Uniform |  2 or 0  |  0 or 2  |
-| tinyAVR 2   |   Always 6     |         4 |AB-CA-BC |  2 or 0  |       0  |
-| tinyAVR 1   | 2 sync 4 async |         2 |  Wacky  |       4  |1,2 or 4  |
-| tinyAVR 0   | 1 sync 2 async |    1 or 2 |V. Wacky |  1 or 0  |       0  |
+| Part Series | Event Channels | Chan/port | Layout   | 1port ch | pinless  |
+|-------------|----------------|-----------|----------|----------|----------|
+| AVR DB/DA   | 8 <48pin or 10 |         2 |AB-CD-EF-G|       2  |       2  |
+| AVR DD      |   Always 6     |         2 |  A-CD-F  |    *2-4  |       0  |
+| AVR EA      | Supposedly 6   |  Likely 2 | Unknown* |2-4 likely|       0  |
+| megaAVR 0   | 6 < 48pin or 8 |         2 | AB-CD-EF |  2 or 0  |  0 or 2  |
+| tinyAVR 2   |   Always 6     |         4 | AB-CA-BC |  2 or 0  |       0  |
+| tinyAVR 1   | 2 sync 4 async |         2 |   Wacky  |       4  |1,2 or 4  |
+| tinyAVR 0   | 1 sync 2 async |    1 or 2 |V. Wacky  |  1 or 0  |       0  |
 
-The tinyAVR 0/1-series layouts are really weird. See the documentation included with megaTinyCore for the table; 0-series don't have any RTC-PIT options, and 1-series has them all crowded onto one channel; both of them have two kinds of channels, and are generally a lot less flexible.. The tinyAVR 2-series, on the other hand, is almost normal - except they have a better layout - (channels 0/1 get PA, PB, 2/3 get PC, PA and the last 2 get PB, PC. It's unclear how EA will be handled, Taken at face value the EA's product brief implies 6 channels in the standard layout, for 2 channels per port. 14-pin AVR-DD will have only 2 pins in PORTA (and with no portB, those 2 pins have channels 0 and 1 to themselves), and with no port E either, the 14 and 20pin parts will have only the two pins on PORTF, which are not going to be everyone's first choice for I/O (PF6 and PF7 are Reset and UPDI), so channels 4 and 5 are nearly pinless.
+`*` Likely AB-CD-EF
+
+The tinyAVR 0/1-series layouts are really weird. See the documentation included with megaTinyCore for the table; 0-series don't have any RTC-PIT options, and 1-series has them all crowded onto one channel; both of them have two kinds of channels, and are generally a lot less flexible. The tinyAVR 2-series, on the other hand, is almost normal - except they have a better layout - (channels 0/1 get PA, PB, 2/3 get PC, PA and the last 2 get PB, PC. It's unclear how EA will be handled, Taken at face value the EA's product brief implies 6 channels in the standard layout, for 2 channels per port. 14-pin AVR-DD will have only 2 pins in PORTA (and with no portB, those 2 pins have channels 0 and 1 to themselves), and with no port E either, the 14 and 20pin parts will have only the two pins on PORTF, which are not going to be everyone's first choice for I/O (PF6 and PF7 are Reset and UPDI), so channels 4 and 5 are nearly pinless - assuming that what's in the headers pre-release is what they will ship. There is room for improvement, though it's really not bad.
 
 
 ## Okay, so how do I read the state of these event channels?
