@@ -47,6 +47,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Add 27 MHz external clock/crystal... Math is amazingly simple, one of the cleanest so far!
 * Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
 * Include recent version of the io headers for practical reference, and the original versions for historical reference (mostly so you can view them in your web browser).
+* Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
 
 ## Released Versions
 

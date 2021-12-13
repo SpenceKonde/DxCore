@@ -30,7 +30,7 @@
 #else
   // __AVR_ARCH__ == 103, so all of the flash is memory mapped, and the linker
   // will automatically leave const variables in flash.
-  #define MAPPED_PROGMEM
+  #define PROGMEM_MAPPED
 #endif
 
 
