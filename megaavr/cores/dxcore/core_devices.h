@@ -8,6 +8,7 @@
 #ifndef Core_Devices_h
 #define Core_Devices_h
 #include <avr/io.h>
+#include <core_parameters.h>
 /*
  * Access to flash-mapped program memory!
  * 104 is a 128k part like AVR128DA
@@ -180,17 +181,6 @@
  * call, rcall, reti and ret - because it's an extra thing to push onto the
  * stack and pop off the stack as part of those instructions...
  */
-
-// These pieces of version numbers get passed in as command line arguments by platform.txt.
-#define DXCORE_NUM ((DXCORE_MAJOR<<24)+(DXCORE_MINOR<<16)+(DXCORE_PATCH<<8)+DXCORE_RELEASED)
-
-/* Sometimes this define, passed in from command line, has gotten lost entirely.
- * However, without it, things don't know that they are working with DxCore.
- * So we put in a placeholder so defined(DXCORE) is true.
- */
-#ifndef DXCORE
-  #define DXCORE "Unknown 1.3.7+"
-#endif
 
 
 #define ID_AVR128DA     0x20
@@ -511,6 +501,10 @@
   // Almost certainly won't be in the DD.
   #define ERRATA_TCD_PORTMUX          1
   #define ERRATA_ADC_PIN_DISABLE      1
+#endif
+
+#if defined(__AVR_DA__) || defined(__AVR_DB__)
+  #define ERRATA_TWI_FLUSH
 #endif
 
 /* This macro is for when you want to set the internal to whatever F_CPU is, for
