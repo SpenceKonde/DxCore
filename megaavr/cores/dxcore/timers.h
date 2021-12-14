@@ -18,7 +18,7 @@
 #endif
 
 
-#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5))
+#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
   #if (F_CPU == 1000000UL)
     #define TIME_TRACKING_TIMER_DIVIDER   (1)
     #define TIME_TRACKING_TIMER_PERIOD ((F_CPU/1000)-1)
@@ -53,22 +53,49 @@
 
 
 #if   defined(MILLIS_USE_TIMERA0)
+  #ifndef TCA0
+    #error "TCA0, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERA0
 #elif defined(MILLIS_USE_TIMERA1)
+  #ifndef TCA1
+    #error "TCA1, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERA1
 #elif defined(MILLIS_USE_TIMERB0)
+  #ifndef TCB0
+    #error "TCB0, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERB0
 #elif defined(MILLIS_USE_TIMERB1)
+  #ifndef TCB1
+    #error "TCB1, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERB1
 #elif defined(MILLIS_USE_TIMERB2)
+  #ifndef TCB2
+    #error "TCB2, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERB2
 #elif defined(MILLIS_USE_TIMERB3)
+  #ifndef TCB3
+    #error "TCB3, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERB3
 #elif defined(MILLIS_USE_TIMERB4)
+  #ifndef TCB4
+    #error "TCB4, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERB4
 #elif defined(MILLIS_USE_TIMERD0)
+  #ifndef TCD0
+    #error "TCD0, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERD0
 #elif defined(MILLIS_USE_TIMERRTC)
+  #ifndef RTC
+    #error "RTC, selected for millis, does not exist on this part"
+  #endif
   #define MILLIS_TIMER TIMERRTC
 #elif defined(MILLIS_USE_TIMERNONE)
   #define MILLIS_TIMER NOT_ON_TIMER
@@ -107,8 +134,8 @@
  * TCA1 is used for PWM on Dx-series parts that have it.
  */
 
-/* TYPE-A TIMERS */
-#if defined(TCB2)
+/* TYPE-B TIMERS */
+#if defined(TCB2) && !defined(MEGATINYCORE)
   // On tinyAVR, and the low pincount DD's TCB PWM isn't helpful and the timer is too valuable anyway.
   // These use the same values as above for TCA, only they're only 1 channel each.
   #define USE_TCB_PWM
@@ -197,7 +224,7 @@
           #define TIMERD0_TOP_SETTING   (0xFE)
         #endif
         // that gives the target 980 kHz PWM freqwuency....
-      // if it's internal HF osc as systen clock, it's more complicated.....
+      // if it's internal HF osc as system clock, it's more complicated.....
       #elif (F_CPU == 5000000UL || F_CPU == 10000000UL || F_CPU == 6000000UL || F_CPU == 7000000UL || F_CPU == 14000000UL)
         // These speeds are prescaled so we can run from unprescaled clock, and keep the same settings we use at higher clock.
         #define TIMERD0_CLOCK_SETTING (TCD_CNTPRES_DIV32_gc | TCD_SYNCPRES_DIV1_gc | TCD_CLKSEL_OSCHF_gc)

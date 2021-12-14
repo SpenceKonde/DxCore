@@ -166,7 +166,7 @@ List the part numbers (if applicable) or what board this variant supports.
 //    is a compile error.
 // * If TIMERD0_TOP_SETTING is not defined, and TIMERD0_CLOCK_SETTINGS is, runtime autodetect of TCD0 TOP will be used however:
 //   * TCD0 will be initially set to TOP of 254/
-//   * All supported TOP values will be tested for, regardless of sysem clock speed.
+//   * All supported TOP values will be tested for, regardless of system clock speed.
 // * If USE_TIMERD0_PWM is set to 0, no configuration of TCD0 will be performed by the core. A future update that allowed it to
 //    be used for other purposes would change that, of course.
 //
