@@ -2825,7 +2825,7 @@ azduinoboard.build.printf=
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
-azduinoboard.bootloader.file=-Uflash:w:{runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt.hex
+azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt.hex
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 azduinoboard.bootloader.tool=avrdude

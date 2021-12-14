@@ -153,7 +153,26 @@ List the part numbers (if applicable) or what board this variant supports.
 #define PIN_TCA1_WO0_INIT PIN_PB0
 #define PIN_TCD0_WOA_INIT PIN_PA4
 
-#define USE_TIMERD0_PWM
+
+// USE_TIMERD0_PWM  defaults to 1 (on).
+// If it is turned off, analogWrite and turnOffPWM will not work with TCD pins. This may be used to save flash, particularly on
+// small flash parts where the type D timer will be taken over anyway. The savings can in excess of 0.5k
+
+// You may define TIMERD0_CLOCK_SETTINGS and TIMERD_TOP_SETTING to configure these directly.
+// * If TIMERD0_TOP_SETTING is 254 509, 1019, 2039, or 4079
+//   * As long as USE_TIMERD0_PWM is not defined as 0, PWM will be enabled **RUNTIME DETECTION OF TCD TOP WILL BE DISABLED**
+//   * If TIMERD0_CLOCK_SETTINGS is defined, it will be used, otherwise the default for that clock speed will be used.
+// * If TIMERD0_TOP_SETTING is any other value, analogWrite-mediated PWM will not be available. Combining with USE_TIMERD0_PWM
+//    is a compile error.
+// * If TIMERD0_TOP_SETTING is not defined, and TIMERD0_CLOCK_SETTINGS is, runtime autodetect of TCD0 TOP will be used however:
+//   * TCD0 will be initially set to TOP of 254/
+//   * All supported TOP values will be tested for, regardless of sysem clock speed.
+// * If USE_TIMERD0_PWM is set to 0, no configuration of TCD0 will be performed by the core. A future update that allowed it to
+//    be used for other purposes would change that, of course.
+//
+// NO_GLITCH_TIMERD0 leaves pins connected to TCD0 until digitalWrite is called on them.
+// This is desirable to get more responsive TCD pwm and avoid short glitches when switching between 0 or 255 and  other duty
+// cycles. Costs some flash.
 #define NO_GLITCH_TIMERD0
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5))

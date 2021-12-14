@@ -13,7 +13,7 @@ versionnum.major=1
 versionnum.minor=4
 versionnum.patch=0
 versionnum.postfix=
-versionnum.released=0
+versionnum.released=1
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL -DDXCORE_RELEASED={versionnum.released}
 

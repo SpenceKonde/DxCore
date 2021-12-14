@@ -93,37 +93,43 @@ The frequency of PWM output using the settings supplied by the core is shown in 
 
 Note that no attention had been paid to these for DxCore prior to the 1.3.0 release, and serious bugs were not discovered until 1.3.7
 
-|   CLK_PER | Prescale A |   fPWM  | Prescale D  | TOP D |  fPWM (D) |
-|-----------|------------|---------|-------------|-------|-----------|
-| ** 48 MHz |        256 |  735 Hz |             |       |           |
-| ** 44 MHz |        256 |  674 Hz |             |       |           |
-| ** 40 MHz |        256 |  613 Hz |             |       |           |
-| ** 36 MHz |        256 |  551 Hz |             |       |           |
-|  External |            |         | OSCHF@8  32 |   254 |    980 Hz |
-|  * 32 MHz |        256 |  490 Hz |          32 |  1019 |    980 Hz |
-|  * 30 MHz |         64 | 1836 Hz | OSCHF@8  32 |   254 |    980 Hz |
-|  * 28 MHz |         64 | 1716 Hz |          32 |  1019 |    858 Hz |
-|    25 MHz |         64 | 1532 Hz |          32 |  1019 |    766 Hz |
-|    24 MHz |         64 | 1471 Hz |          32 |  1019 |    735 Hz |
-|    20 MHz |         64 | 1225 Hz |          32 |   509 |   1225 Hz |
-|    16 MHz |         64 |  980 Hz |          32 |   509 |    980 Hz |
-|    12 MHz |         64 |  735 Hz |          32 |   509 |    735 Hz |
-|    10 MHz |         64 |  613 Hz | OSCHF@20 32 |   509 |   1225 Hz |
-|     8 MHz |         64 |  490 Hz |          32 |   254 |    980 Hz |
-|     5 MHz |         16 | 1225 Hz | OSCHF@20 32 |   509 |   1225 Hz |
-|     4 MHz |         16 |  980 Hz |          32 |   254 |    490 Hz |
-|     1 MHz |          8 |  490 Hz |           4 |   254 |    980 Hz |
+|   CLK_PER | Prescale A |   fPWM  | Prescale D  | TOP D |  fPWM (D) | Notes                                            |
+|-----------|------------|---------|-------------|-------|-----------|--------------------------------------------------|
+| ** 48 MHz |        256 |  735 Hz |             |       |           |                                                  |
+| ** 44 MHz |        256 |  674 Hz |             |       |           |                                                  |
+| ** 40 MHz |        256 |  613 Hz |             |       |           |                                                  |
+| ** 36 MHz |        256 |  551 Hz |             |       |           |                                                  |
+|  External |            |         | OSCHF@8  32 |   254 |    980 Hz |                                                  |
+|  * 32 MHz |        256 |  490 Hz |          32 |  1019 |    980 Hz |                                                  |
+|  * 30 MHz |         64 | 1836 Hz | OSCHF@8  32 |   254 |    980 Hz | TCD using OSC@8 because running from xtal/ext    |
+|  * 28 MHz |         64 | 1716 Hz |          32 |  1019 |    858 Hz |                                                  |
+|  * 27 MHz |         64 | 1654 Hz | OSCHF@8  32 |   254 |    980 Hz | TCD using OSC@8 because running from xtal/ext    |
+|    25 MHz |         64 | 1532 Hz |          32 |  1019 |    766 Hz |                                                  |
+|    24 MHz |         64 | 1471 Hz |          32 |  1019 |    735 Hz |                                                  |
+|    20 MHz |         64 | 1225 Hz |          32 |   509 |   1225 Hz |                                                  |
+|    16 MHz |         64 |  980 Hz |          32 |   509 |    980 Hz |                                                  |
+|    14 MHz |         64 |  858 Hz | OSCHF@28 32 |  1019 |    858 Hz | Unsupported, timing functionality not guaranteed |
+|    12 MHz |         64 |  735 Hz |          32 |   509 |    735 Hz |                                                  |
+|    10 MHz |         64 |  613 Hz | OSCHF@20 32 |   509 |   1225 Hz |                                                  |
+|     8 MHz |         64 |  490 Hz |          32 |   254 |    980 Hz |                                                  |
+|     7 MHz |         16 | 1716 Hz | OSCHF@28 32 |  1019 |    858 Hz | Unsupported, timing functionality not guaranteed |
+|     6 MHz |         16 | 1471 Hz | OSCHF@12 32 |   509 |    735 Hz | Unsupported, timing functionality not guaranteed |
+|     5 MHz |         16 | 1225 Hz | OSCHF@20 32 |   509 |   1225 Hz |                                                  |
+|     4 MHz |         16 |  980 Hz |          32 |   254 |    490 Hz |                                                  |
+|     3 MHz |          8 | 1471 Hz |           4 |   509 |   1471 Hz | Unsupported, timing functionality not guaranteed |
+|     2 MHz |          8 |  980 Hz |           4 |   509 |    980 Hz | Unsupported, timing functionality not guaranteed |
+|     1 MHz |          8 |  490 Hz |           4 |   254 |    980 Hz |                                                  |
 
 `*` Overclocked (generally works, 28 and 32 can be achieved with internal oscillator)
 
 `**` Way overclocked, may not work (requires external crystal or oscillator).
 
-External clock or crystal will always cause TCD0 to use the internal oscillator by default. Speeds higher than 32 MHz can only use external clock sources, so they always act as described on the External line (unless reconfigured at runtime)
+External clock or crystal will always cause TCD0 to use the internal oscillator by default. Speeds higher than 32 MHz can only use external clock sources, so they always act as described on the External line (unless reconfigured at runtime). Note that this was not imoplemented correctly prior to 1.4.0, and ran at half the intended speed.
 
 `Prescale A` and `fPWM` apply to all pins not on TCD0. TOP is always set to 254 for TCA
 
 `Prescale D`, `TOP D`, and `fPWM (D)` apply to the pins on TCD0.
-Where marked, we clock TCD0 from OSCHF instead of using CLK_PER, prescale by 32. For speeds other than 5 MHz and 10 MHz, we set the internal oscillator to 8 MHz.
+In addition to the case of an external system clock source. Note that this did not work correctly prior to 1.4.0Where marked, we clock TCD0 from OSCHF instead of using CLK_PER, prescale by 32. For speeds other than 5 MHz and 10 MHz, we set the internal oscillator to 8 MHz.
 
 These are the overall Timer D prescaler (in all cases, by default only the count prescaler is used), TOP, and resulting frequency of TCD0 PWM output.
 
@@ -155,12 +161,19 @@ When TCA0 is used as the millis timekeeping source, it is set to run at the syst
 |    24 MHz |  0.68 ms |   2.7 us |   0.72 % |          5 us |
 |    20 MHz |  0.82 ms |   3.2 us |   0.72 % |          7 us |
 |    16 MHz |  1.02 ms |   4.0 us |   0.72 % |          9 us |
+| !  14 MHz |  1.14 ms |   4.6 us |   0.72 % |   aprx  10 us |
 |    12 MHz |  1.36 ms |   5.3 us |   0.72 % |         10 us |
 |    10 MHz |  1.63 ms |   6.4 us |   0.72 % |         14 us |
 |     8 MHz |  2.04 ms |   8.0 us |   0.72 % |         17 us |
+| !   7 MHz |  0.58 ms |   2.3 us |   2.99 % |   aprx  18 us |
+| !   6 MHz |  0.68 ms |   2.7 us |   2.99 % |   aprx  19 us |
 |     5 MHz |  0.82 ms |   3.2 us |   2.99 % |         27 us |
 |     4 MHz |  1.02 ms |   4.0 us |   2.99 % |         33 us |
+| !   3 MHz |  0.68 ms |   2.7 us |   5.98 % |   aprx  45 us |
+| !   2 MHz |  1.02 ms |   4.0 us |   5.98 % |   aprx  60 us |
 |     1 MHz |  2.04 ms |   8.0 us |   5.98 % |        112 us |
+
+`!` - Theoretical, these speeds are not supported and have not been tested
 
 In contrast to the type B timer where prescaler is held constant while the period changes, here period (in ticks) is constant but the prescaler is not. Hence each prescaler option is associated with a fixed % of time spent in the ISR (and yes, for reasons I don't understand, the generated ISR code is slightly faster for /64 prescaling compared to /256, /16, and /8 (which are equal to each other).
 
@@ -176,7 +189,7 @@ When TCB2 (or other type B timer) is used for `millis()` timekeeping, it is set 
 |   CLK_PER | millis() | micros() | % in ISR | micros() time | Terms used             |
 |-----------|----------|----------|----------|---------------|------------------------|
 |    48 MHz |     1 ms |  1.33 us |   0.14 % | *      2.5 us | 9 (0-7, 9)             |
-|    44 MHz |     1 ms |     1 us |   0.15 % |        3-4 us | 5/7 ( ~1,~ 2, 5 ~6,~ 7, ~10~)|
+|    44 MHz |     1 ms |     1 us | ! 0.15 % | !      3-4 us | 5/7 ( ~1,~ 2, 5 ~6,~ 7, ~10~)|
 |    40 MHz |     1 ms |     1 us |   0.17 % | *      3-4 us | 6 (2,4,6,8,10)         |
 |    36 MHz |     1 ms |     1 us |   0.18 % |        3-4 us | 3/5 (3,6, ~9,10~ )     |
 |    32 MHz |     1 ms |     1 us |   0.20 % |          3 us | 1                      |
@@ -187,12 +200,20 @@ When TCB2 (or other type B timer) is used for `millis()` timekeeping, it is set 
 |    24 MHz |     1 ms |  1.33 us |   0.27 % | *        5 us | 9 (0-7, 9)             |
 |    20 MHz |     1 ms |     1 us |   0.33 % | *        6 us | 6 (2,4,6,8,10)         |
 |    16 MHz |     1 ms |     1 us |   0.40 % |          6 us | 1                      |
+| !  14 MHz |     1 ms |  1.14 us | ! 0.47 % | !          us | 5/7 (2,3,5,6 ~8,9~ )   |                      |
 |    12 MHz |     1 ms |  1.33 us |   0.54 % | *       10 us | 9 (0-7, 9)             |
 |    10 MHz |     1 ms |     1 us |   0.65 % | *       10 us | 6 (2,4,6,8,10)         |
 |     8 MHz |     1 ms |     1 us |   0.80 % |         11 us | 1                      |
+| !   7 MHz |     1 ms |  1.14 us | ! 0.94 % | !          us | 5/7 (2,3,5,6 ~8,9~ )   |
+| !   6 MHz |     1 ms |  1.33 us | ! 1.08 % | ! *        us | 9 (0-7, 9)             |
 |     5 MHz |     1 ms |     1 us |   1.30 % | *       23 us | 6 (2,4,6,8,10)         |
 |     4 MHz |     1 ms |     1 us |   1.60 % |         21 us | 1                      |
-|     1 MHz |     1 ms |     1 us |   6.50 % |         78 us | n/a                    |
+| !   3 MHz |     1 ms |  1.33 us | ! 2.16 % | *          us | 9 (0-7, 9)             |
+| !   2 MHz |     1 ms |     1 us | ! 3.25 % |            us | 1                      |
+|     1 MHz |     1 ms |     1 us |   6.50 % |         78 us | 1                      |
+
+`*` - Optimized assembly ersatz division implementation.
+`!` - Theoretical, these speeds are not supported and have not been tested
 
 Resolution is always exactly 1ms for millis with TCB millis, and whereas TCAn `micros()` is limited by the resolution of the timer, here it's instead limited only by the fact that the calculations drop the least significant bits first; this results in a value that may be as low as 750, yet is being mapped to 0-999, for 1.33 us resolution in the worst cases. The timer count and the running tally of overflows could get us microseconds limited only by F_CPU/2
 The percentage of time spent in the ISR varies in inverse proportion to the clock speed - the ISR simply increments a counter and clears its flags. 65 clocks from interrupt bit set to interrupted code resuming.

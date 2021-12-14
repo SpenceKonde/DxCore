@@ -158,7 +158,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCA1_WO0_INIT PIN_PB0
 #define PIN_TCD0_WOA_INIT PIN_PA4
 
-#define USE_TIMERD0_PWM
+//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
 #define NO_GLITCH_TIMERD0
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5 && (p) != PIN_PB6 && (p) != PIN_PB6))
