@@ -34,7 +34,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Add new Wire library method names to keywords.txt.
 * Add new core-wide things to the Dxcore Keywords.txt, including:
    Standard and extended Pin-information-gathering macros from Arduino.h, Add the new MUX option for USARTs, TWI and SPI for the DD-series parts, Add the new Serial modifier options, Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more. Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags, `_NOP, _NOPNOP, _NOP2, _NOP8, _NOP14`, the channels and references for the ADC, ,   Added `__builtin_constant_p()` because it is exceptionally useful.
-* Calling millis or micros when those are disabled will result in more useful error messages.
+* Calling millis or micros when those are disabled will result in more useful error messages. Libraries and user code can test whether millis and micros are available with `#if defined(micros)` and `#if defined(millis)`
 * Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
 * Continuing doc enhancements.
 * Fix a recent regression in delayMicroseconds at 8 and 4 MHz when the delay was not a compile-time known constant
@@ -48,6 +48,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
 * Include recent version of the io headers for practical reference, and the original versions for historical reference (mostly so you can view them in your web browser).
 * Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
+* Updated pinout diagrams and part specific docs (LOOOONGGGGG overdue).
+* Actually made the TCD PWM on external clock sources behave as documented.
 
 ## Released Versions
 

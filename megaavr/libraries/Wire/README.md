@@ -15,12 +15,24 @@ Should be 100% backwards compatible, use less flash, and have a new menu option 
 * Alt3 is only available on AVR DD-series (and possibly EA-series).
 * Alt1 is not available on parts which do not have the dual pins because it would duplicate Default.
 * But Alt2 is, since its's primary pins are different,
-
 Shown as SCL, SDA.
 
-`Wire.swap(pin_set)` will set the the pin mapping to the specified set of pins.  See API reference below for details.
+Availability of pin mappings by pincount for AVR Dx-series
+| Pin Pair | Function | 64 pin | 48 pin | 32 pin | 28 pin | 20 pin | 14 pin |
+|----------|----------|--------|--------|--------|--------|--------|--------|
+| PA0, PA1 | M/S only | n/a    | n/a    | For DD | For DD | Yes    | Yes    |
+| PA2, PA3 | M/S only | Yes    | Yes    | Yes    | Yes    | Yes    | No     |
+| PC2, PC3 | Either   | Yes    | Yes    | Yes    | Yes    | Yes    | Yes    |
+| PC6, PC7 | Dualmode | Yes    | Yes    | No     | No     | No     | No     |
+| PF2, PF3 | M/S only | Yes    | Yes    | Yes    | No     | No     | No     |
+| PB2, PB3 | Either   | Yes    | Yes    | No     | No     | No     | No     |
+| PB6, PB7 | Dualmode | Yes    | No     | No     | No     | No     | No     |
 
-`Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins `SDA` and `SCL`. See API reference below for details.
+Put in wort
+
+`Wire.swap(pin_set)` will set the the pin mapping to the specified set of pin.  See API reference below for details.
+
+`Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins `SDA` and `SCL`. See API reference below for details. Only covered the master/slave pins, not the dual-mode pins. If you want the mode with the pins that can't do dual mode slave (PA2/3, or PF2/3) but with the alternate slave pins, you MUST use Wire.swap().
 
 ## Overview - I2C, what is it?
 I2C (known by many names, see note at end) uses two pins, a clock (SCL) and data (SDA) for communication among two or more compatible devices. This is an open drain bus - external pullup resistors keep the two lines HIGH, and devices communicate by driving the pins low or releasing them. Data is clocked on the rising edge - this is important, as you will see.
