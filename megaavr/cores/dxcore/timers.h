@@ -224,7 +224,7 @@
           #define TIMERD0_TOP_SETTING   (0xFE)
         #endif
         // that gives the target 980 kHz PWM freqwuency....
-      // if it's internal HF osc as system clock, it's more complicated.....
+      // if it's internal HF osc as systen clock, it's more complicated.....
       #elif (F_CPU == 5000000UL || F_CPU == 10000000UL || F_CPU == 6000000UL || F_CPU == 7000000UL || F_CPU == 14000000UL)
         // These speeds are prescaled so we can run from unprescaled clock, and keep the same settings we use at higher clock.
         #define TIMERD0_CLOCK_SETTING (TCD_CNTPRES_DIV32_gc | TCD_SYNCPRES_DIV1_gc | TCD_CLKSEL_OSCHF_gc)
@@ -266,7 +266,7 @@
       #define TCD0_PWM_NO_MUX
     #elif (defined(__AVR_DD__))
       #define TCD0_PWM_WITH_MUX
-      #warning "TCD PWM is currently only available on PA4-7. Support for all working mux options is plannmed in a near future release."
+      #warning "TCD PWM is currently only available on PA4-7. Support for all working mux options is planned in a near future release."
     #endif
     // NO_MUX expects the TCD pins to be listed in the timer table as TIMERD0
     // WITH_MUX expects TIMERD0_nWOx where N is 0-7 and x is A-D

@@ -1761,6 +1761,9 @@ void __attribute__((weak)) init_TCD0() {
   // PWM frequency, or hold it constant and lower the sync prescale, reducing sync delays.
 
   // High frequency OSC to 8 MHz if timers.h says to do so for the TCD9.
+  // This is done when the clock source is NOT the internal oscillator - by setting it to 8 MHz we
+  // get PWM at the target frequency with out having to count to a higher value or use the syny
+  // prescaler.
   #if (defined(TIMERD0_SET_CLOCK) && TIMERD0_SET_CLOCK == 0x08)
     _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2));
   #endif
