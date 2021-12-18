@@ -64,7 +64,9 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 #define INTERNAL1V024     VREF_REFSEL_1V024_gc
 #define INTERNAL2V048     VREF_REFSEL_2V048_gc
 #define INTERNAL4V096     VREF_REFSEL_4V096_gc
+#define INTERNAL4V1       VREF_REFSEL_4V096_gc
 #define INTERNAL2V5       VREF_REFSEL_2V500_gc
+#define INTERNAL2V500     VREF_REFSEL_2V500_gc
 #define DEFAULT           VREF_REFSEL_VDD_gc
 #define VDD               VREF_REFSEL_VDD_gc
 #define EXTERNAL          VREF_REFSEL_VREFA_gc
