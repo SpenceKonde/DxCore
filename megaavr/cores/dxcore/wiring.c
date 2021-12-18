@@ -1742,34 +1742,30 @@ void __attribute__((weak)) init_TCBs() {
  * polling loop on the status register only runs once or clocked from system clock and sync     *
  * prescaler is 1. Similarly, it cannot be enabled right after disabling it - the ENRDY bit must*
  * be set in the status register. We skip checking this here because, as we do many places the  *
- * initiialization functions assume that the chip starts from a reset condition.               */
+ * initiialization functions assume that the chip starts from a reset condition.                */
 
 void __attribute__((weak)) init_TCD0() {
-  TCD0.CMPACLR  = 0x0FFF;
-  // Match with CMPBCLR clears all outputs. For normal PWM this just needs to be higher than
-  // it will count to - so set to maximum (other settings used for non-overlapping PWM and
-  // other advanced functionality)
-  TCD0.CTRLC    = 0x80;                   // WOD outputs PWM B, WOC outputs PWM A
-  // That doesn't need to be that way, but I declare that that's all we support through analogWrite()
-  TCD0.CTRLB    = TCD_WGMODE_ONERAMP_gc;
-  // One ramp or dual slope are the only options that are viable to reproduce classic behavior.
-  // and the latter is incompatible with using it as millis timer, and we want to share as much
-  // code as we can between the TCD0 and non-TCD0 millis. IIRC with dual slope, one value needs
-  // to be inverted and the other does not.
-  TCD0.CMPBCLR  = TIMERD0_TOP_SETTING;
-  // From timers.h - is equal to (255 * 2^n)-1 where n is an integer value. This lets us lower
-  // PWM frequency, or hold it constant and lower the sync prescale, reducing sync delays.
+  #if defined(USE_TIMERD0_PWM) || defined (MILLIS_USE_TIMERD0)
+    TCD0.CMPACLR  = 0x0FFF;
+    // Match with CMPBCLR clears all outputs. For normal PWM this just needs to be higher than
+    // it will count to - so set to maximum (other settings used for non-overlapping PWM and
+    // other advanced functionality)
+    TCD0.CTRLC    = 0x80;                   // WOD outputs PWM B, WOC outputs PWM A
+    // That doesn't need to be that way, but I declare that that's all we support through analogWrite()
+    TCD0.CTRLB    = TIMERD0_WGMODE_SETTING;
+    // One ramp or dual slope are the only options that are viable to reproduce classic behavior without
+    // considerable calculation overhead. We use one-ramp mode
+    TCD0.CMPBCLR  = TIMERD0_TOP_SETTING;
+    // From timers.h - is equal to (255 * 2^n)-1 where n is an integer value. This lets us lower
+    // PWM frequency, or hold it constant and lower the sync prescale, reducing sync delays.
 
-  // High frequency OSC to 8 MHz if timers.h says to do so for the TCD9.
-  // This is done when the clock source is NOT the internal oscillator - by setting it to 8 MHz we
-  // get PWM at the target frequency with out having to count to a higher value or use the syny
-  // prescaler.
-  #if (defined(TIMERD0_SET_CLOCK) && TIMERD0_SET_CLOCK == 0x08)
-    _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2));
-  #endif
+    #if defined(TIMERD0_SET_CLOCK)
+      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (TIMERD0_SET_CLOCK));
+    #endif
 
 
-  TCD0.CTRLA    = TIMERD0_CLOCK_SETTING | TCD_ENABLE_bm;
-  // See timers.h for determination
+    TCD0.CTRLA    = TIMERD0_CLOCK_SETTING | TCD_ENABLE_bm;
+    // See timers.h for determination
+
 }
 #endif

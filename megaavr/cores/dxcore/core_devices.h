@@ -119,7 +119,7 @@
     #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
   #endif
   /* And one version later they did it again... */
-  #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)
+  #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)
     #define CLKCTRL_FREQSEL_gm     CLKCTRL_FRQSEL_gm        /*    Group Mask                  */
     #define CLKCTRL_FREQSEL_gp     CLKCTRL_FRQSEL_gp        /*    Group Position              */
     //                                                      /*    Group Codes                 */
@@ -134,7 +134,7 @@
     #define CLKCTRL_FREQSEL_24M_gc CLKCTRL_FRQSEL_24M_gc    /* 24 MHz system clock            */
     #define CLKCTRL_FREQSEL_28M_gc CLKCTRL_FRQSEL_28M_gc    /* 28 MHz system clock unofficial */
     #define CLKCTRL_FREQSEL_32M_gc CLKCTRL_FRQSEL_32M_gc    /* 32 MHz system clock unofficial */
-  #elif defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm)
+  #elif defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm)
     #define CLKCTRL_FRQSEL_gm     CLKCTRL_FREQSEL_gm        /*    Group Mask                  */
     #define CLKCTRL_FRQSEL_gp     CLKCTRL_FREQSEL_gp        /*    Group Position              */
     //                                                      /*    Group Codes                 */
@@ -356,12 +356,13 @@
   #define _AVR_FAMILY "DB"
 #elif defined(__AVR_DD__)
   #define _AVR_FAMILY "DD"
+  #warning "AVR DD support is totally untested and was implemented without the benefit of a datasheet, which has not been released yet"
 #elif defined(__AVR_DU__)
   #define _AVR_FAMILY "DU"
-  #error "These are not available yet. There isn't even a non-retracted product brief!"
+  #error "The AVR DU-series is not available and so we can't add support for it. There isn't even a non-retracted product brief!"
 #elif defined(__AVR_EA__)
   #define _AVR_FAMILY "EA"
-  #error "These are not available yet, and support for them is not ready, when datasheet or silicon is available, support will be completed."
+  #error "The AVR DU-series is not available and so we can't add support for it. Support will be added pending availability of datasheet"
 #else
   #define _AVR_FAMILY "UNKNOWN"
 #endif
@@ -380,7 +381,7 @@
      #define                  _AVR_PINCOUNT 64
 #endif
 
-#if PROGMEM_SIZE ==   0x20000
+#if   PROGMEM_SIZE == 0x20000
   #define                     _AVR_FLASH 128
 #elif PROGMEM_SIZE == 0x10000
   #define                     _AVR_FLASH  64
@@ -394,15 +395,24 @@
   #define                     _AVR_FLASH   4
 #endif
 
-
-#if     (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
-  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
+#if (defined(__AVR_EA__)) /* 4 sizes of flash instead of 3 like Dx */
+  #if   (PROGMEM_SIZE == 0x10000) // 64k
+    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x30)
+  #elif (PROGMEM_SIZE == 0x8000)  // 32k
+    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x20)
+  #elif (PROGMEM_SIZE == 0x4000)  // 16k
+    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x10)
+  #elif (PROGMEM_SIZE == 0x2000)  // 8k
+    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x00)
+  #endif
 #elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
-  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
+  #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x20) /* 128k DA/DB, 64k DD/DU */
+#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+  #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x20) /*  64k DA/DB, 32k DD/DU */
 #elif   (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
-  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
+  #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x10) /*  32k DA/DB, 16k DD/DU */
 #elif   (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
-  #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
+  #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"
 #endif
