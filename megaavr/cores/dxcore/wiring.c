@@ -1766,6 +1766,6 @@ void __attribute__((weak)) init_TCD0() {
 
     TCD0.CTRLA    = TIMERD0_CLOCK_SETTING | TCD_ENABLE_bm;
     // See timers.h for determination
-
+  #endif
 }
 #endif
