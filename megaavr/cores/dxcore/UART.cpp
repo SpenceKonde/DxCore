@@ -81,7 +81,8 @@
         ::);
     __builtin_unreachable();
   }
-#endif // otherwise is in USARTn
+#endif
+
 #if (defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) /* && defined(USART1)*/ )
   // We only ever use this on the 2-series. 1-series doesn't gain anything with this. The inlining makes the compiler FAR more efficient. RXC isn't compiled stupidly,
   // the problem is that the ABI requires it to be inefficient as hell. But it's a big deal for the smaller size 2-series parts.
@@ -195,7 +196,7 @@
       "subi        r26,     0xE9"     "\n\t"  //
       "sbci        r27,     0xFE"     "\n\t"  // +279
       "ld          r24,        X"     "\n\t"  // grab the character
-#if   SERIAL_RX_BUFFER_SIZE == 128
+#elif SERIAL_RX_BUFFER_SIZE == 128
       "subi        r26,     0x69"     "\n\t"  //                **<---VALUE CHANGES with class structure**
       "sbci        r27,     0xFF"     "\n\t"  // subtracting 0xFF69 is the same as adding 0x97 (+151 - 151 = 87 + 64)
       "ld          r24,        X"     "\n\t"  // grab the character
