@@ -11,6 +11,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Added support for serial buffer sizes of 256.
 * Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
 * Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
+* **CRITICAL BUGFIX** which could cause PCREL relocation truncated to fit errors when serial was in use
 
 ## Released Versions
 ### 1.4.0
