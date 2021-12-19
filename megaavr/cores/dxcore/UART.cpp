@@ -82,7 +82,7 @@
     __builtin_unreachable();
   }
 #endif // otherwise is in USARTn
-#if (defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
+#if (defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) /* && defined(USART1)*/ )
   // We only ever use this on the 2-series. 1-series doesn't gain anything with this. The inlining makes the compiler FAR more efficient. RXC isn't compiled stupidly,
   // the problem is that the ABI requires it to be inefficient as hell. But it's a big deal for the smaller size 2-series parts.
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_rxc(void){
@@ -112,9 +112,10 @@
         "andi       r24,      0x1F"   "\n\t" // Wrap the head around
 #elif SERIAL_RX_BUFFER_SIZE == 16
         "andi       r24,      0x0F"   "\n\t" // Wrap the head around
-#else
+#elif SERIAL_RX_BUFFER_SIZE != 256
   #error "Can't happen - we already checked for unsupported buffer sizes!"
 #endif
+// otherwise it's 256, and wraps around naturally.
         "ldd        r18,    Z + 20"   "\n\t" // load tail index              **<---OFFSET CHANGES with class structure**
         "cp         r18,       r24"   "\n\t" // See if head is at tail. If so, buffer full,
         "breq  _end_rxc"              "\n\t" // can't do anything, just restore state and leave.
@@ -167,8 +168,8 @@
 
 
 #if defined(USE_ASM_DRE) && USE_ASM_DRE == 1 && \
-           (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
-           (SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16)
+           (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+           (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16)
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_dre(void){
     __asm__ __volatile__(
     "_do_dre:"                        "\n\t"
@@ -190,6 +191,10 @@
       "movw        r26,      r30"     "\n\t"  // copy of serial in X
       "add         r26,      r25"     "\n\t"  // Serial + txtail
       "adc         r27,      r18"     "\n\t"  // Carry (X = &Serial tail )
+#if   SERIAL_RX_BUFFER_SIZE == 256
+      "subi        r26,     0xE9"     "\n\t"  //
+      "sbci        r27,     0xFE"     "\n\t"  // +279
+      "ld          r24,        X"     "\n\t"  // grab the character
 #if   SERIAL_RX_BUFFER_SIZE == 128
       "subi        r26,     0x69"     "\n\t"  //                **<---VALUE CHANGES with class structure**
       "sbci        r27,     0xFF"     "\n\t"  // subtracting 0xFF69 is the same as adding 0x97 (+151 - 151 = 87 + 64)
@@ -219,9 +224,10 @@
       "andi        r25,     0x1F"     "\n\t" // Wrap the head around
 #elif SERIAL_TX_BUFFER_SIZE == 16
       "andi        r25,     0x0F"     "\n\t" // Wrap the head around
-#else
+#elif SERIAL_RX_BUFFER_SIZE != 256
   #error "Can't happen - we already checked for unsupported buffer sizes!"
 #endif
+// otherwise it's 256, and wraps around naturally.
       "ldd         r24,   Y +  5"     "\n\t"  // get CTRLA into r24
       "ldd         r18,   Z + 21"     "\n\t"  // txhead into r18 **<---OFFSET CHANGES with class structure**
       "cpse        r18,      r25"     "\n\t"  // if they're the same

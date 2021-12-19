@@ -5,9 +5,15 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes. This release really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
 ### Planned 1.4.0 or later, depending on DD-series release dates
 * DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
-  * TODO: Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
+  * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
-### Planned 1.4.0
+## Planned 1.4.1
+* Added support for serial buffer sizes of 256.
+* Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
+* Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
+
+## Released Versions
+### 1.4.0
 * Completely new Wire.h library with exciting features - Thanks to @MX682X!
   * See the Wire library readme for more details.
   * Master + Slave on the same TWI - either using the same pins or in dual mode
@@ -50,8 +56,6 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
 * Updated pinout diagrams and part specific docs (LOOOONGGGGG overdue).
 * Actually made the TCD PWM on external clock sources behave as documented.
-
-## Released Versions
 
 ## 1.3.10
 * Fix Wire.swap() correctly. (#184)

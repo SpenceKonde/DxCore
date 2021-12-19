@@ -48,39 +48,77 @@
 // The functions in question have considerable register pressure).
 //
 // I am not convinced > 256b is safe for the RX buffer....
+#if !defined(USE_ASM_TXC)
+  #define USE_ASM_TXC 1    // This *appears* to work? It's the easy one. saves 6b for 1 USART, 50 for 2.
+#endif
 
-#define USE_ASM_TXC 1    // This is the easy one saves 6+44 per USART after the first: 50 with 2, 94 with 3, 182 with 5,  226 with 6
-#define USE_ASM_RXC 1    // saves 56 + 72 per USART after the first: 118 with 2 190 with 3, 334 with 5 and 406 with 6
-#define USE_ASM_DRE 1    // This is the hard one...Depends on BOTH buffers. Saves as much as RXC
-// combined save 118 + 188 per USART
-// 1038 bytes with 6 USARTs (1.58% of total flash on 64Dx64)
-// 850 with 5 (2.5% of total flash on 32Dx48)
-// 474 with 3 (1.44% of total flash on 32Dx32)
-// 286 with 2 (1.72% of total flash on 16DDxx and 3.44% on 8EAxx)
-#if !defined(SERIAL_TX_BUFFER_SIZE)
-  #if ((INTERNAL_SRAM_SIZE) < 2048)
+#if !defined(USE_ASM_RXC)
+  #define USE_ASM_RXC 1    // This now works. Saves only 4b for 1 usart but 102 for 2.
+#endif
+
+#if !defined(USE_ASM_DRE)
+  #define USE_ASM_DRE 1      // This is the hard one...Depends on BOTH buffers, and has that other method of calling it. saves 34b for 1 USART 102 for 2
+#endif
+// savings:
+// 44 total for 0/1,
+// 301 for 2-series, which may be nearly 9% of the total flash!
+#if !defined(SERIAL_TX_BUFFER_SIZE)   // could be overridden by boards.txt
+  #if   (INTERNAL_SRAM_SIZE  < 1024)  // 128/256b/512b RAM
+    #define SERIAL_TX_BUFFER_SIZE 16
+  #elif (INTERNAL_SRAM_SIZE < 2048)   // 1k RAM
     #define SERIAL_TX_BUFFER_SIZE 32
   #else
-    #define SERIAL_TX_BUFFER_SIZE 64
+    #define SERIAL_TX_BUFFER_SIZE 64  // 2k/3k RAM
   #endif
 #endif
-#if !defined(SERIAL_RX_BUFFER_SIZE)
-  #if ((INTERNAL_SRAM_SIZE) < 1024)
+#if !defined(SERIAL_RX_BUFFER_SIZE)   // could be overridden by boards.txt
+  #if   (INTERNAL_SRAM_SIZE <  512)  // 128/256b RAM
     #define SERIAL_RX_BUFFER_SIZE 16
+    // current tx buffer position = SerialClass + txtail + 37
+  #elif (INTERNAL_SRAM_SIZE < 1024)  // 512b RAM
+    #define SERIAL_RX_BUFFER_SIZE 32
+    // current tx buffer position = SerialClass + txtail + 53
   #else
-    #define SERIAL_RX_BUFFER_SIZE 64
+    #define SERIAL_RX_BUFFER_SIZE 64  // 1k+ RAM
+    // current tx buffer position = SerialClass + txtail + 85
+    // rx buffer position always = SerialClass + rxhead + 21
   #endif
 #endif
+/* Use INTERNAL_SRAM_SIZE instead of RAMEND - RAMSTART, which is vulnerable to
+ * a fencepost error. */
 #if (SERIAL_TX_BUFFER_SIZE > 256)
   typedef uint16_t tx_buffer_index_t;
 #else
-  typedef uint8_t tx_buffer_index_t;
+  typedef uint8_t  tx_buffer_index_t;
 #endif
-#if  (SERIAL_RX_BUFFER_SIZE > 256)
+#if (SERIAL_RX_BUFFER_SIZE > 256)
   typedef uint16_t rx_buffer_index_t;
 #else
-  typedef uint8_t rx_buffer_index_t;
+  typedef uint8_t  rx_buffer_index_t;
 #endif
+// As noted above, forcing the sizes to be a power of two saves a small
+// amount of flash, and there's no compelling reason to NOT have them be
+// a power of two. If this is a problem, since you're already modifying
+// core, change the lines in UART.cpp where it does & (SERIAL_xX_BUFFERLSIZE-1)
+// and replace them with % SERIAL_xX_BUFFER_SIZE; where xX is TX or RX.
+// There are two of each, and the old ending of the line is even commented
+// out at the end of the line.
+#if (SERIAL_TX_BUFFER_SIZE & (SERIAL_TX_BUFFER_SIZE - 1))
+  #error "ERROR: TX buffer size must be a power of two."
+#endif
+#if (SERIAL_RX_BUFFER_SIZE & (SERIAL_RX_BUFFER_SIZE - 1))
+  #error "ERROR: RX buffer size must be a power of two."
+#endif
+
+#if defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && !(SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16)
+  #error "Assembly RX Complete (RXC) ISR is only supported when RX buffer size are 256, 128, 64, 32 or 16 bytes"
+#endif
+
+#if defined(USE_ASM_DRE) && USE_ASM_RXC == 1 && !((SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+                                                  (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
+  #error "Assembly Data Register Empty (DRE) ISR is only supported when both TX and RX buffer sizes are 256, 128, 64, 32 or 16 bytes"
+#endif
+
 
 /* Macros to help the rare few who want sync or MSPI mode */
 #define syncBegin(port, baud, config, syncopts) ({\
