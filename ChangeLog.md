@@ -7,13 +7,15 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
   * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
-## Planned 1.4.1
+
+## Released Versions
+
+## 1.4.1
 * Added support for serial buffer sizes of 256.
 * Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
 * Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
-* **CRITICAL BUGFIX** which could cause PCREL relocation truncated to fit errors when serial was in use
+* **CRITICAL BUGFIX** which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages
 
-## Released Versions
 ### 1.4.0
 * Completely new Wire.h library with exciting features - Thanks to @MX682X!
   * See the Wire library readme for more details.
