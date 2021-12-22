@@ -270,8 +270,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 0"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
@@ -281,8 +281,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 2"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
@@ -292,8 +292,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 4"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
@@ -303,8 +303,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 6"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
@@ -314,8 +314,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 8"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
@@ -325,8 +325,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 10"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
@@ -336,8 +336,8 @@
         "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 12"    "\n\t"
+        "jmp AttachedISR" "\n\t"
         ::);
-        isrBody();
       __builtin_unreachable();
     }
     #endif
