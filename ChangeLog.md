@@ -10,6 +10,10 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ## Released Versions
 
+## 1.4.2
+* Make software serial suck somewhat less by performing a single bitwise-and to calculate the result of the modulo operator, instead of dividing a 2-byte signed value which we know will never be larger than twice the buffer size (of 64) and hence fits in a single unsigned byte.
+* **CRITICAL BUGFIX** (ANOTHER ONE) which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages
+
 ## 1.4.1
 * Added support for serial buffer sizes of 256.
 * Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
