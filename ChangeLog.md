@@ -10,6 +10,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ## Released Versions
 
+## 1.4.3
+* **CRITICAL BUGFIX**. Prior critical bugfix was unsuccessful because the flashsize test was comparing it to the wrong value. Additionally, the branch before a jmp, with it's offset specified numerically, needs to match the size of the rjmp or jmp instruction;  This corrects that.
+
 ## 1.4.2
 * Make software serial suck somewhat less by performing a single bitwise-and to calculate the result of the modulo operator, instead of dividing a 2-byte signed value which we know will never be larger than twice the buffer size (of 64) and hence fits in a single unsigned byte.
 * **CRITICAL BUGFIX** (ANOTHER ONE) which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages

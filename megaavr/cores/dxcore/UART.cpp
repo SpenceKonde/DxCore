@@ -239,10 +239,11 @@
       "std      Z + 22,      r25"     "\n\t"  // store new tail **<---OFFSET CHANGES with class structure**
       "pop         r29"               "\n\t"  // pop Y
       "pop         r28"               "\n\t"  // finish popping Y
-      "brts        .+2"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
-#if PROGMEM_SIZE > 0x8192
+#if PROGMEM_SIZE > 8192
+      "brts        .+4"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
       "jmp  _poll_dre_done"           "\n\t"  // >8k parts must us jmp, otherwise it will give PCREL error.
 #else
+      "brts        .+2"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
       "rjmp  _poll_dre_done"          "\n\t"  // 8k parts can use RJMP
 #endif
       "pop         r27"               "\n\t"  // and continue with popping registers.
@@ -328,7 +329,7 @@ void UartClass::_poll_tx_data_empty(void) {
         void * thisSerial = this;
         __asm__ __volatile__(
                 "clt"              "\n\t" // Clear the T flag to signal to the ISR that we got there from here.
-#if PROGMEM_SIZE > 0x8192
+#if PROGMEM_SIZE > 8192
                 "jmp _poll_dre"    "\n\t"
 #else
                 "rjmp _poll_dre"    "\n\t"
