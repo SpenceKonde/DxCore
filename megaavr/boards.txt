@@ -96,7 +96,7 @@ menu.wiremode=Wire (Wire.h/I2C) Library mode
 # Parameters and defaults for DA parts   #
 #________________________________________#
 avrda.upload.tool=avrdude
-avrda.upload.with_programmer_not_available_for_bootloader_boards=
+avrda.upload.prog_interlock=
 avrda.build.board=avrda
 avrda.build.core=dxcore
 avrda.build.f_cpu={build.speed}000000L
@@ -438,7 +438,7 @@ avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 # Parameters and defaults for DB parts   #
 #________________________________________#
 avrdb.upload.tool=avrdude
-avrdb.upload.with_programmer_not_available_for_bootloader_boards=
+avrdb.upload.prog_interlock=
 avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.f_cpu={build.speed}000000L
@@ -828,7 +828,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 # Parameters and defaults for DD parts   #
 #________________________________________#
 #avrdd.upload.tool=avrdude
-#avrdd.upload.with_programmer_not_available_for_bootloader_boards=
+#avrdd.upload.prog_interlock=
 #avrdd.build.board=avrdd
 #avrdd.build.core=dxcore
 #avrdd.build.f_cpu={build.speed}000000L
@@ -1224,7 +1224,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 # Parameters and defaults for EA parts   #
 #________________________________________#
 #avrea.upload.tool=avrdude
-#avrea.upload.with_programmer_not_available_for_bootloader_boards=
+#avrea.upload.prog_interlock=
 #avrea.build.board=avrea
 #avrea.build.core=dxcore
 #avrea.build.f_cpu={build.speed}000000L
@@ -1618,6 +1618,7 @@ avrdaopti.upload.tool=avrdude
 avrdaopti.upload.protocol=arduino
 avrdaopti.upload.extra_params=-D
 avrdaopti.upload.speed=115200
+avrdaopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -2000,6 +2001,7 @@ avrdbopti.upload.tool=avrdude
 avrdbopti.upload.protocol=arduino
 avrdbopti.upload.extra_params=-D
 avrdbopti.upload.speed=115200
+avrdbopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -2418,6 +2420,15 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.bootloader.BOOTSIZE=0x01
 #avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 #avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+
+#----------------------------------------#
+# Upload parameters for Optiboot         #
+#________________________________________#
+#avrddopti.upload.tool=avrdude
+#avrddopti.upload.protocol=arduino
+#avrddopti.upload.extra_params=-D
+#avrddopti.upload.speed=115200
+#avrddopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -2842,6 +2853,8 @@ azduinoboard.upload.tool=avrdude
 azduinoboard.upload.protocol=arduino
 azduinoboard.upload.extra_params=-D
 azduinoboard.upload.speed=115200
+azduinoboard.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
+
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
