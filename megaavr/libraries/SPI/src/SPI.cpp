@@ -349,7 +349,6 @@ void SPIClass::begin() {
     #else // defined(PORTMUX_CTRLB)
       PORTMUX.CTRLB = uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
     #endif
-
   #else
     // AVR DA-series or DB-series
     // We have two SPI interfaces to deal with, each with up to two alternate pinswap options

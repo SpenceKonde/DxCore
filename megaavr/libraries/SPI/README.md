@@ -8,12 +8,14 @@ The SPI library implements all of the standard functionality described in the [A
 | SPI0 ALT1     | PE0-PE3     | 48+ pin    | SPI0_SWAP_ALT1    | SPI0_SWAP1 | 0x01  |
 | SPI0 ALT2     | PG4-PG7     | DA/DB 64   | SPI0_SWAP_ALT2    | SPI0_SWAP2 | 0x02  |
 | SPI0 ALT3     | PA0-1,PC0-1 | DD/EA only | SPI0_SWAP_ALT3    | SPI0_SWAP3 | 0x03  |
-| SPI0 ALT4     | PD4-PD7     | DD/EA only | SPI0_SWAP_ALT4    | SPI0_SWAP4 | 0x04  |
-| SPI0 ALT5     | PC0-PC3     | DD/EA only | SPI0_SWAP_ALT5    | SPI0_SWAP5 | 0x05  |
-| SPI0 ALT6     | PC1-PC3,PF7 | DD/EA only | SPI0_SWAP_ALT6    | SPI0_SWAP6 | 0x06  |
-| SPI1 DEFAULT  | PC0-PC3     | DA/DB only | SPI1_SWAP_DEFAULT | SPI1_SWAP0 | 0x10  |
-| SPI1 ALT1     | PC4-PE7     | DA/DB 48/64| SPI1_SWAP_ALT1    | SPI1_SWAP1 | 0x14  |
-| SPI1 ALT2     | PB4-PB7     | DA/DB 64   | SPI1_SWAP_ALT2    | SPI1_SWAP2 | 0x18  |
+| SPI0 ALT4     | PD4-PD7     | DD/EA only | SPI0_SWAP_ALT4    | SPI0_SWAP4 | 0x04* |
+| SPI0 ALT5     | PC0-PC3     | DD/EA only | SPI0_SWAP_ALT5    | SPI0_SWAP5 | 0x05* |
+| SPI0 ALT6     | PC1-PC3,PF7 | DD/EA only | SPI0_SWAP_ALT6    | SPI0_SWAP6 | 0x06* |
+| SPI1 DEFAULT  | PC0-PC3     | DA/DB only | SPI1_SWAP_DEFAULT | SPI1_SWAP0 | 0x80  |
+| SPI1 ALT1     | PC4-PC7     | DA/DB 48/64| SPI1_SWAP_ALT1    | SPI1_SWAP1 | 0x84* |
+| SPI1 ALT2     | PB4-PB7     | DA/DB 64   | SPI1_SWAP_ALT2    | SPI1_SWAP2 | 0x88* |
+
+`*` - parts with SPI1 (at least those currently announced) haven't had more than 3 total pin mapping options represented by just 2 bits. The DD-series and EA-series have more complicated mappings. When they release a part with >3 pin options and >1 SPI interface, this library will need to be adjusted, which is why you should always use the names.
 
 SPI0 ALT6 on DD-series parts is clearly to provide a way to get the important SPI lines onto the MVIO pins
 
