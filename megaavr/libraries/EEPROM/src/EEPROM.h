@@ -165,19 +165,22 @@ struct EERef {
  */
 
 struct EEPtr {
-
+#if EEPROM_SIZE <= 256
   EEPtr(const uint8_t index)
-    : index(index)                {}
-
+    : index(index)                    {}
+#else
+  EEPtr(const uint16_t index)
+    : index(index)                    {}
+#endif
   operator int() const                {
     return index;
   }
-  EEPtr &operator=(int in)          {
+  EEPtr &operator=(int in)            {
     return index = in, *this;
   }
 
   // Iterator functionality.
-  bool operator!=(const EEPtr &ptr) {
+  bool operator!=(const EEPtr &ptr)   {
     return index != ptr.index;
   }
   EERef operator*()                   {
@@ -214,7 +217,7 @@ struct EEPROMClass {
   EERef operator[](const int idx)        {
     return idx & EEPROM_END;
   }
-  uint8_t read(uint8_t idx)              {
+  uint8_t read(const uint16_t idx)              {
     return EERef(idx);
   }
   void write(uint8_t idx, uint8_t val)   {
