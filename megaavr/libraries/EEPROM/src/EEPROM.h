@@ -30,12 +30,27 @@
 
 #define EEPROM_INDEX_MASK (EEPROM_SIZE - 1)
 
+/* Parts with 256b of EEPROM or less are probably short on flash too.
+ * So we should try to do what we can to minimize our usage of it.
+ * To achieve this, we use a uint8_t instead of a uint16_t to store
+ * the index, which results in savings of at least 2 bytes for almost
+ * every occasion that one uses an index value in any way.
+ */
+
+#if EEPROM_SIZE <= 256
+  #define INDEXDATATYPE uint8_t
+#else
+  #define INDEXDATATYPE uint16_t
+#endif
+
+
 /* EERef class.
  *
  * This object references an EEPROM cell.
  * Its purpose is to mimic a typical byte of RAM, however its storage is the EEPROM.
  * This class has an overhead of two bytes, similar to storing a pointer to an EEPROM cell.
  */
+
 
 struct EERef {
 
@@ -165,13 +180,9 @@ struct EERef {
  */
 
 struct EEPtr {
-#if EEPROM_SIZE <= 256
-  EEPtr(const uint8_t index)
+  EEPtr(const INDEXDATATYPE index)
     : index(index)                    {}
-#else
-  EEPtr(const uint16_t index)
-    : index(index)                    {}
-#endif
+
   operator int() const                {
     return index;
   }
@@ -200,8 +211,7 @@ struct EEPtr {
   EEPtr operator-- (int)              {
     return index--;
   }
-
-  uint8_t index; // Index of current EEPROM cell.
+  INDEXDATATYPE index; // Index of current EEPROM cell.
 };
 
 /* EEPROMClass class.
@@ -214,16 +224,16 @@ struct EEPtr {
 struct EEPROMClass {
 
   // Basic user access methods.
-  EERef operator[](const int idx)        {
+  EERef operator[](const INDEXDATATYPE idx)        {
     return idx & EEPROM_END;
   }
-  uint8_t read(const uint16_t idx)              {
+  uint8_t read(const INDEXDATATYPE idx)              {
     return EERef(idx);
   }
-  void write(uint8_t idx, uint8_t val)   {
+  void write(INDEXDATATYPE idx, uint8_t val)   {
     (EERef(idx)) = val;
   }
-  void update(uint8_t idx, uint8_t val)  {
+  void update(INDEXDATATYPE idx, uint8_t val)  {
     EERef(idx).update(val);
   }
 
@@ -239,19 +249,19 @@ struct EEPROMClass {
   }
 
   // Functionality to 'get' and 'put' objects to and from EEPROM.
-  template< typename T > T &get(int idx, T &t) {
+  template< typename T > T &get(INDEXDATATYPE idx, T &t) {
     EEPtr e = idx;
     uint8_t *ptr = (uint8_t *) &t;
-    for (int count = sizeof(T); count; --count, ++e) {
+    for (uint8_t count = sizeof(T); count; --count, ++e) {
       *ptr++ = *e;
     }
     return t;
   }
 
-  template< typename T > const T &put(int idx, const T &t) {
+  template< typename T > const T &put(INDEXDATATYPE idx, const T &t) {
     EEPtr e = idx;
     const uint8_t *ptr = (const uint8_t *) &t;
-    for (int count = sizeof(T); count; --count, ++e) {
+    for (uint8_t count = sizeof(T); count; --count, ++e) {
       (*e).update(*ptr++);
     }
     return t;
