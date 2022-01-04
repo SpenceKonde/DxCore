@@ -54,11 +54,11 @@
 
 struct EERef {
 
-  EERef(const uint8_t index)
+  EERef(const INDEXDATATYPE index)
     : index(index)                 {}
 
   // Access/read members.
-  uint8_t operator*() const            {
+  uint8_t operator * () const            {
     return (*(uint8_t *)((uint16_t)(MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK))));
   }
 
@@ -67,11 +67,11 @@ struct EERef {
   }
 
   // Assignment/write members.
-  EERef &operator=(const EERef &ref) {
+  EERef &operator = (const EERef &ref) {
     return *this = *ref;
   }
 
-  EERef &operator=(uint8_t in)       {
+  EERef &operator = (uint8_t in)       {
     #ifdef MEGATINYCORE
     // I see no reason why eeprom_write_byte() won't corrupt EEPROM if an ISR tries to write at the wrong instant. The window is 1 clock, but not 0
     uint16_t adr = (uint16_t)MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK);
@@ -114,34 +114,34 @@ struct EERef {
     return *this;
     #endif
   }
-  EERef &operator +=(uint8_t in)     {
+  EERef &operator += (uint8_t in)     {
     return *this = **this + in;
   }
-  EERef &operator -=(uint8_t in)     {
+  EERef &operator -= (uint8_t in)     {
     return *this = **this - in;
   }
-  EERef &operator *=(uint8_t in)     {
+  EERef &operator *= (uint8_t in)     {
     return *this = **this * in;
   }
-  EERef &operator /=(uint8_t in)     {
+  EERef &operator /= (uint8_t in)     {
     return *this = **this / in;
   }
-  EERef &operator ^=(uint8_t in)     {
+  EERef &operator ^= (uint8_t in)     {
     return *this = **this ^ in;
   }
-  EERef &operator %=(uint8_t in)     {
+  EERef &operator %= (uint8_t in)     {
     return *this = **this % in;
   }
-  EERef &operator &=(uint8_t in)     {
+  EERef &operator &= (uint8_t in)     {
     return *this = **this & in;
   }
-  EERef &operator |=(uint8_t in)     {
+  EERef &operator |= (uint8_t in)     {
     return *this = **this | in;
   }
-  EERef &operator <<=(uint8_t in)    {
+  EERef &operator <<= (uint8_t in)    {
     return *this = **this << in;
   }
-  EERef &operator >>=(uint8_t in)    {
+  EERef &operator >>= (uint8_t in)    {
     return *this = **this >> in;
   }
 
@@ -150,26 +150,26 @@ struct EERef {
   }
 
   /* Prefix increment/decrement */
-  EERef &operator++()                  {
+  EERef &operator ++ ()                  {
     return *this += 1;
   }
-  EERef &operator--()                  {
+  EERef &operator -- ()                  {
     return *this -= 1;
   }
 
   /* Postfix increment/decrement */
-  uint8_t operator++ (int) {
+  uint8_t operator ++ (int) {
     uint8_t ret = **this;
     return ++(*this), ret;
   }
 
-  uint8_t operator-- (int) {
+  uint8_t operator -- (int) {
     uint8_t ret = **this;
     return --(*this), ret;
   }
 
 
-  uint8_t index; // Index of current EEPROM cell.
+  INDEXDATATYPE index; // Index of current EEPROM cell.
 };
 
 /* EEPtr class.
@@ -186,29 +186,29 @@ struct EEPtr {
   operator int() const                {
     return index;
   }
-  EEPtr &operator=(int in)            {
+  EEPtr &operator = (int in)            {
     return index = in, *this;
   }
 
   // Iterator functionality.
-  bool operator!=(const EEPtr &ptr)   {
+  bool operator != (const EEPtr &ptr)   {
     return index != ptr.index;
   }
-  EERef operator*()                   {
+  EERef operator * ()                   {
     return index;
   }
 
   /* Prefix & Postfix increment/decrement */
-  EEPtr &operator++()                 {
+  EEPtr &operator ++ ()                 {
     return ++index, *this;
   }
-  EEPtr &operator--()                 {
+  EEPtr &operator -- ()                 {
     return --index, *this;
   }
-  EEPtr operator++ (int)              {
+  EEPtr operator ++ (int)              {
     return index++;
   }
-  EEPtr operator-- (int)              {
+  EEPtr operator -- (int)              {
     return index--;
   }
   INDEXDATATYPE index; // Index of current EEPROM cell.
@@ -224,7 +224,7 @@ struct EEPtr {
 struct EEPROMClass {
 
   // Basic user access methods.
-  EERef operator[](const INDEXDATATYPE idx)        {
+  EERef operator [] (const INDEXDATATYPE idx)        {
     return idx & EEPROM_END;
   }
   uint8_t read(const INDEXDATATYPE idx)              {
