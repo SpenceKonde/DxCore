@@ -10,6 +10,12 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ## Released Versions
 
+## 1.4.5
+* **CRITICAL BUGFIX** Now that I am finally unpacked enought to access test boards, fix critical bug correctly.
+* Fix EEPROM regression that left the top half of the EEPROM inaccessible.
+
+## 1.4.4 - Unsuccessfully attempt to fix a critical bug that prevented uploading to non-optiboot boards
+
 ## 1.4.3
 * **CRITICAL BUGFIX**. Prior critical bugfix was unsuccessful because the flashsize test was comparing it to the wrong value. Additionally, the branch before a jmp, with it's offset specified numerically, needs to match the size of the rjmp or jmp instruction;  This corrects that.
 

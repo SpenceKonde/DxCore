@@ -112,7 +112,7 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 // was finally ready may be supported in a future version.
 #define ADC_ENH_ERROR_RES_TOO_LOW              -2100000003
 // analogReadEnh() must not be called with a resolution lower than 8-bits.
-// you can right-shift as well as the library can.
+// you can right-shift as well as the library can, without wasting flash for everyone who doesn't need to.
 #define ADC_ENH_ERROR_RES_TOO_HIGH             -2100000004
 // Only resonlutions that can be generated through accumulator oversample
 // + decimation are supported, maximum is 13, 15, or 17 bits. This will
@@ -177,9 +177,12 @@ void init_TCD0()   __attribute__((weak)); // called by init_timers()
 void init_millis() __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
 
 void onClockFailure() __attribute__((weak)); // called by the clock failure detection ISR. Default action is a blink code with 4 blinks.
-void onClockTimeout() __attribute__((weak)); // called if we try to switch to external cloc, but it doesn't work. Default action is a blink code with 3 blinks.
+void onClockTimeout() __attribute__((weak)); // called if we try to switch to external clock, but it doesn't work. Default action is a blink code with 3 blinks.
 
 #ifndef CORE_ATTACH_OLD
+// The old attachInterrupt did not require any calls to be made to enable a port.
+// It would just grab every port, and take over every port's pin interrupt ISR, so nobody could define one themselves.
+// which wouldn't be so bad... except that attachInterrupt interrupts are slow as hell
   void attachPortAEnable();
   void attachPortBEnable();
   void attachPortCEnable();
@@ -244,14 +247,14 @@ uint16_t clockCyclesPerMicrosecond();
 uint32_t clockCyclesToMicroseconds(uint32_t cycles);
 uint32_t microsecondsToClockCycles(uint32_t microseconds);
 
-// Currently DxCore has no cases where the millis timer isn';t derived from system clock, but that will change
+// Currently DxCore has no cases where the millis timer isn't derived from system clock, but that will change
 /* This becomes important when we support other timers for timekeeping. The Type D timer can be faster, requiring:
  * These talk about the timebase from which millis is derived, not the actual timer counting frequency.
  * That is, it's used to calculqte the values that are we multipliy by the prescaler to get the timekeeping stuff.
  * These can be different from the above only when the millis timer isn't running from CLK_PER.
      For example, if we run it from a TCD clocked from internal HF but we are running on a crystal.
      That's a strange way to use the TCD, but
- * megaTinyCore has these, and we will have wsomething analogou.
+ * megaTinyCore has these, and we will have wsomething analogous.
 
 uint16_t millisClockCyclesPerMicrosecond();
 uint32_t millisClockCyclesToMicroseconds(uint32_t cycles);
@@ -308,7 +311,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 
 /* Check order for future ones would probably be to check 0x40 (that means TCD) 0x20 (that means a TCB)
  * on alt pins if 0x10 set too. 0x10without the 0x20 means it's TCA0, no defines for mappings because of the simplicity of full size parts.
- * 0x08 means it's a TCA1, and the weird pin options might get the constants below assigned if we ever supported those.
+ * 0x08 means it's a TCA1, and the weird pin options might get the constants below assigned if we ever support those.
  */
 /*
 #define TIMERA1_1WO0  0x09 // Mapping1, WO0 - mappings 0 and 3 are handled directly because they don't need any sort of LUT.
@@ -327,7 +330,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERD0       0x40 // 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
 //                            bit C specifies whether it's channel A (0) or B (1). If M is 1 it is WOC outputting chan A or WOB outputting D.
 //                            WOD outputting A or WOC outputting B is not supported by the core. WOB outputting A or WOA outputting B is not supported by the hardware.
-/* These are not yet implemented but may be in the future.
+//                            thus far, we can ignore the 3rd bit of portmux for WOA/WOB, which is good because the timer table camn omly fit one entry per pin.
 #define TIMERD0_0WOA  0x40
 #define TIMERD0_0WOB  0x50
 #define TIMERD0_0WOC  0x60
@@ -344,22 +347,24 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERD0_3WOB  0x53
 #define TIMERD0_3WOC  0x63
 #define TIMERD0_3WOD  0x73
-#define TIMERD0_4WOA  0x44
-#define TIMERD0_4WOB  0x54
+//#define TIMERD0_4WOA  0x44
+//#define TIMERD0_4WOB  0x54
 #define TIMERD0_4WOC  0x64
 #define TIMERD0_4WOD  0x74
-#define TIMERD0_5WOA  0x45
-#define TIMERD0_5WOB  0x55
-#define TIMERD0_5WOC  0x65
-#define TIMERD0_5WOD  0x75
-#define TIMERD0_6WOA  0x46
-#define TIMERD0_6WOB  0x56
-#define TIMERD0_6WOC  0x66
-#define TIMERD0_6WOD  0x76
-#define TIMERD0_7WOA  0x47
-#define TIMERD0_7WOB  0x57
-#define TIMERD0_8WOC  0x67
-#define TIMERD0_8WOD  0x77
+/*
+// For future use
+//#define TIMERD0_5WOA  0x45
+//#define TIMERD0_5WOB  0x55
+//#define TIMERD0_5WOC  0x65
+//#define TIMERD0_5WOD  0x75
+//#define TIMERD0_6WOA  0x46
+//#define TIMERD0_6WOB  0x56
+//#define TIMERD0_6WOC  0x66
+//#define TIMERD0_6WOD  0x76
+//#define TIMERD0_7WOA  0x47
+//#define TIMERD0_7WOB  0x57
+//#define TIMERD0_7WOC  0x67
+//#define TIMERD0_7WOD  0x77
 */
 
 // These are lookup tables to find pin parameters from Arduino pin numbers

@@ -1,30 +1,17 @@
-/*
-  UART.cpp - Hardware serial library for Wiring
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+/* UART.cpp - Hardware serial library, main file.
+ * This library is free software released under LGPL 2.1.
+ * See License.md for more information.
+ * This file is part of megaTinyCore.
+ *
+ * Copyright (c) 2006 Nicholas Zambetti, Modified by
+ * 11/23/2006 David A. Mellis, 9/20/2010 Mark Sproul,
+ * 8/24/2012 Alarus, 12/3/2013 Matthijs Kooijman
+ * Others (unknown) 2013-2017, 2017-2021 Spence Konde
+ * and 2021 MX682X
+ *
+ * See UART.h for more of a record of changes.
+ */
 
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-  Created: 09.11.2017 07:29:09
-  Author: M44307
-  Modified considerably by Spence Konde 2018-2021, with particularly
-  large changes in late 2020 to remove the interrupt priority stuff
-  which could (very rarely) cause Serial to block in adverse
-  conditions.
-  Notable contriubutions from MX682X late 2021 to improve pin swap.
-  Which I originally cribbed from MCUDude's MegaCoreX.
-*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -54,7 +41,7 @@
   #      # # #
  ### ####  #  */
 
-#if defined(USE_ASM_TXC) && USE_ASM_TXC == 1
+#if USE_ASM_TXC == 1
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void){
     __asm__ __volatile__(   // we start with the r30 but not r31 preserved
       "_do_txc:"                  "\n\t"  // the low byte of the address of the USART is in r30.
@@ -83,7 +70,7 @@
   }
 #endif
 
-#if (defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) /* && defined(USART1)*/ )
+#if (USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
   // We only ever use this on the 2-series. 1-series doesn't gain anything with this. The inlining makes the compiler FAR more efficient. RXC isn't compiled stupidly,
   // the problem is that the ABI requires it to be inefficient as hell. But it's a big deal for the smaller size 2-series parts.
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_rxc(void){
@@ -97,7 +84,8 @@
         "push       r28"              "\n\t" //
         "push       r29"              "\n\t" //
         "ldd        r28,    Z + 12"   "\n\t" // Load USART into Y pointer
-        "ldd        r29,    Z + 13"   "\n\t" // We interact with the USART only this once
+//      "ldd        r29,    Z + 13"   "\n\t" // We interact with the USART only this once
+        "ldi        r29,      0x08"   "\n\t" // High byte always 0x08 for USART peripheral: Save-a-clock.
         "ldd        r24,    Y +  1"   "\n\t" // load high byte first
         "ld         r25,         Y"   "\n\t" // then low byte of RXdata
         "sbrc       r24,         1"   "\n\t" // if there's a parity error, then
@@ -105,7 +93,9 @@
         "ldd        r28,    Z + 19"   "\n\t" // load current head index      **<---OFFSET CHANGES with class structure**
         "ldi        r24,         1"   "\n\t" // Clear r24 and initialize it with 1
         "add        r24,       r28"   "\n\t" // add current head index to it
-#if   SERIAL_RX_BUFFER_SIZE == 128
+#if   SERIAL_RX_BUFFER_SIZE == 256
+        // No additional action needed, head wraps naturally.
+#elif SERIAL_RX_BUFFER_SIZE == 128
         "andi       r24,      0x7F"   "\n\t" // Wrap the head around
 #elif SERIAL_RX_BUFFER_SIZE == 64
         "andi       r24,      0x3F"   "\n\t" // Wrap the head around
@@ -113,10 +103,7 @@
         "andi       r24,      0x1F"   "\n\t" // Wrap the head around
 #elif SERIAL_RX_BUFFER_SIZE == 16
         "andi       r24,      0x0F"   "\n\t" // Wrap the head around
-#elif SERIAL_RX_BUFFER_SIZE != 256
-  #error "Can't happen - we already checked for unsupported buffer sizes!"
 #endif
-// otherwise it's 256, and wraps around naturally.
         "ldd        r18,    Z + 20"   "\n\t" // load tail index              **<---OFFSET CHANGES with class structure**
         "cp         r18,       r24"   "\n\t" // See if head is at tail. If so, buffer full,
         "breq  _end_rxc"              "\n\t" // can't do anything, just restore state and leave.
@@ -141,7 +128,7 @@
     __builtin_unreachable();
 
   }
-#elif defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && defined(USART1)
+#elif defined(USE_ASM_RXC) && USE_ASM_RXC == 1
   #warning "USE_ASM_RXC is defined and this has more than one serial port, but the buffer size is not supported, falling back to the classical RXC."
 #else
   void UartClass::_rx_complete_irq(UartClass& uartClass) {
@@ -168,9 +155,8 @@
 #endif
 
 
-#if defined(USE_ASM_DRE) && USE_ASM_DRE == 1 && \
-           (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
-           (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16)
+#if USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+                        (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16)
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_dre(void){
     __asm__ __volatile__(
     "_do_dre:"                        "\n\t"
@@ -187,7 +173,8 @@
       "push        r29"               "\n\t"
       "ldi         r18,        0"     "\n\t"
       "ldd         r28,   Z + 12"     "\n\t"  // usart in Y
-      "ldd         r29,   Z + 13"     "\n\t"  // usart in Y
+//    "ldd         r29,   Z + 13"     "\n\t"  // usart in Y
+      "ldi         r29,     0x08"     "\n\t"  // High byte always 0x08 for USART peripheral: Save-a-clock.
       "ldd         r25,   Z + 22"     "\n\t"  // tx tail in r25 **<---OFFSET CHANGES with class structure**
       "movw        r26,      r30"     "\n\t"  // copy of serial in X
       "add         r26,      r25"     "\n\t"  // Serial + txtail
@@ -217,7 +204,9 @@
       "std       Y + 4,      r18"     "\n\t"  // clear TXC
       "std       Y + 2,      r24"     "\n\t"  // write char
       "subi        r25,     0xFF"     "\n\t"  // txtail +1
-#if   SERIAL_TX_BUFFER_SIZE == 128
+#if   SERIAL_TX_BUFFER_SIZE == 256
+//    // No action needed to wrap the tail around
+#elif SERIAL_TX_BUFFER_SIZE == 128
       "andi        r25,     0x7F"     "\n\t" // Wrap the head around
 #elif SERIAL_TX_BUFFER_SIZE == 64
       "andi        r25,     0x3F"     "\n\t" // Wrap the head around
@@ -225,10 +214,7 @@
       "andi        r25,     0x1F"     "\n\t" // Wrap the head around
 #elif SERIAL_TX_BUFFER_SIZE == 16
       "andi        r25,     0x0F"     "\n\t" // Wrap the head around
-#elif SERIAL_RX_BUFFER_SIZE != 256
-  #error "Can't happen - we already checked for unsupported buffer sizes!"
 #endif
-// otherwise it's 256, and wraps around naturally.
       "ldd         r24,   Y +  5"     "\n\t"  // get CTRLA into r24
       "ldd         r18,   Z + 21"     "\n\t"  // txhead into r18 **<---OFFSET CHANGES with class structure**
       "cpse        r18,      r25"     "\n\t"  // if they're the same
@@ -259,7 +245,7 @@
       ::);
     __builtin_unreachable();
   }
-#elif defined(USE_ASM_DRE) && USE_ASM_DRE == 1
+#elif USE_ASM_DRE == 1
   #warning "USE_ASM_DRE is defined, but the buffer sizes are not supported, falling back to the classical DRE."
 #else
   void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
@@ -321,9 +307,8 @@ void UartClass::_poll_tx_data_empty(void) {
 
         return;
       }
-      #if !(defined(USE_ASM_DRE) && USE_ASM_DRE == 1 && \
-                   (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
-                   (SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
+      #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+                              (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
         _tx_data_empty_irq(*this);
       #else
         void * thisSerial = this;
