@@ -17,8 +17,8 @@
  * Modified late 2021 by Spence Konde and MX682X for DxCore
  * 12/26/21: Correct bug introduced in my ASM macros. -Spence
  * 12/30/21: Clean up tests for conditional compilation
-             tests for defined(USE_ASM_*) removed UART.h tests that.test both defined and the value fot
-             USE_ASM_* macros. We check if they're defined and define them if they're not defined up there
+             tests for defined(USE_ASM_*) removed UART.h tests that test both defined and the value of
+             USE_ASM_* macros. We check if they're defined and define them if they're not defined already
              so whenever UART.h has been loaded, those three macros are defined as either 1, or wharever
              value the user overode them with, likely 0. Also high byte of UART address always 0x08, so replace
              2-clock ldd with 1 clock ldi. - Spence
@@ -55,7 +55,7 @@
  * Note that buffer sizes must be powers of 2 only no matter how you override it.
  * The alternative is doing division to get the modulo every time instead of a single clock bitwise and, which further lowers the
  * maximum RX speed (which, without the ASM implementation, is already lower than what the receiver is capable of).
- * The defaults below are only used if the relevant macro isn't alreadt defined.
+ * The defaults below are only used if the relevant macro isn't already defined.
  * Since the USE_ASM_* = 1 option is apparently working, we do not recommend disabling it, as it will waste flash and hurt performance.
  */
 #if !defined(USE_ASM_TXC)
