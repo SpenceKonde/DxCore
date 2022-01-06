@@ -355,7 +355,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
     #if defined(TWI_TIMEOUT_ENABLE)
       if (++timeout > (F_CPU/1000)) {
         if        (currentSM == TWI_BUSSTATE_OWNER_gc) {
-          TWI_SET_EXT_ERROR(TWI_ERR_TIMEOUT);
+          TWI_SET_ERROR(TWI_ERR_TIMEOUT);
         } else if (currentSM == TWI_BUSSTATE_IDLE_gc) {
           TWI_SET_EXT_ERROR(TWI_ERR_PULLUP);
         } else {
