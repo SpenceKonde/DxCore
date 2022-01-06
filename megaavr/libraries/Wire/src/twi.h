@@ -113,13 +113,13 @@ SOFTWARE.
 #define  TWI_ERR_ACK_ADR       2  // Address was NACKed on Master write
 #define  TWI_ERR_ACK_DAT       3  // Data was NACKed on Master write
 #define  TWI_ERR_UNDEFINED     4  // Software can't tell error source
+#define  TWI_ERR_TIMEOUT       5  // TWI Timed out on data rx/tx
 
 // Errors that are made to help finding errors on TWI lines. Only indications
 #define  TWI_ERR_PULLUP        11 // Likely problem with pull-ups
-#define  TWI_ERR_TIMEOUT       12 // TWI Timed out on data rx/tx
-#define  TWI_ERR_BUS_ARB       13 // Bus error and/or Arbitration lost
-#define  TWI_ERR_BUF_OVERFLOW  14 // Buffer overflow on master read
-#define  TWI_ERR_CLKHLD        15 // Something's holding the clock
+#define  TWI_ERR_BUS_ARB       12 // Bus error and/or Arbitration lost
+#define  TWI_ERR_BUF_OVERFLOW  13 // Buffer overflow on master read
+#define  TWI_ERR_CLKHLD        14 // Something's holding the clock
 
 #if defined(TWI_ERROR_ENABLED)
   #define TWI_ERROR_VAR    twi_error
@@ -141,7 +141,7 @@ SOFTWARE.
   #define TWIR_GET_ERROR        TWIR_ERROR_VAR
   #define TWIR_CHK_ERROR(x)     TWIR_ERROR_VAR == x
   #define TWIR_SET_ERROR(x)     TWIR_ERROR_VAR = x
-  
+
   #define TWI_SET_EXT_ERROR(x)  TWI_ERROR_VAR = x
 #else
   #define TWIR_ERROR_VAR        {}
@@ -149,7 +149,7 @@ SOFTWARE.
   #define TWIR_GET_ERROR        {0}
   #define TWIR_CHK_ERROR(x)     (true)
   #define TWIR_SET_ERROR(x)     {}
-  
+
   #define TWI_SET_EXT_ERROR(x)  {}
 #endif
 
