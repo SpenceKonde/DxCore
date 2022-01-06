@@ -126,7 +126,7 @@
 
 
 
-    if (intFunc[port] != NULL) { // if it is null the port is not enabled for attachInterrupt. I wasn't successful triggering a way for the
+    if (intFunc[port] != NULL) { // if it is null the port is not enabled for attachInterrupt
       intFunc[port][bitpos] = userFunc;
       uint8_t portoffset=((port << 5) & 0xE0) + 0x10 + bitpos;
       // We now have the port, the mode, the bitpos and the pointer
@@ -138,30 +138,30 @@
 
   void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) isrBody() {
     asm volatile (
-     "AttachedISR:"      "\n\t" // as the scene opens, we have r16 on the stack already, portnumber x 2 in the r16
-      "push  r0"         "\n\t" // so we start with a normal prologue
-      "in    r0, 0x3f"   "\n\t" // The SREG
-      "push  r0"         "\n\t" // on the stack
-      "in    r0, 0x3b"   "\n\t" // RAMPZ
-      "push  r0"         "\n\t" // on the stack.
-      "push  r1"         "\n\t" // We don't need r1 but the C code we call
-      "eor   r1, r1"     "\n\t" // is going to want this to be zero....
-      "push  r15"        "\n\t" // push r15 (we use it - it's call-saved)
-      "push  r17"        "\n\t" // and now we push all call used registers
-      "push  r18"        "\n\t" // except r16 which was pused over in WInterrupts_Px
-      "push  r19"        "\n\t"
-      "push  r20"        "\n\t"
-      "push  r21"        "\n\t"
-      "push  r22"        "\n\t"
-      "push  r23"        "\n\t"
-      "push  r24"        "\n\t"
-      "push  r25"        "\n\t"
-      "push  r26"        "\n\t"
-      "push  r27"        "\n\t"
-      "push  r28"        "\n\t" // Not call used, but we use it.
-      "push  r29"        "\n\t" // same thing.
-      "push  r30"        "\n\t"
-      "push  r31"        "\n\t"
+     "AttachedISR:"       "\n\t" // as the scene opens, we have r16 on the stack already, portnumber x 2 in the r16
+      "push  r0"          "\n\t" // so we start with a normal prologue
+      "in    r0, 0x3f"    "\n\t" // The SREG
+      "push  r0"          "\n\t" // on the stack
+      "in    r0, 0x3b"    "\n\t" // RAMPZ
+      "push  r0"          "\n\t" // on the stack.
+      "push  r1"          "\n\t" // We don't need r1 but the C code we call
+      "eor   r1, r1"      "\n\t" // is going to want this to be zero....
+      "push  r15"         "\n\t" // push r15 (we use it - it's call-saved)
+      "push  r17"         "\n\t" // and now we push all call used registers
+      "push  r18"         "\n\t" // except r16 which was pused over in WInterrupts_Px
+      "push  r19"         "\n\t"
+      "push  r20"         "\n\t"
+      "push  r21"         "\n\t"
+      "push  r22"         "\n\t"
+      "push  r23"         "\n\t"
+      "push  r24"         "\n\t"
+      "push  r25"         "\n\t"
+      "push  r26"         "\n\t"
+      "push  r27"         "\n\t"
+      "push  r28"         "\n\t" // Not call used, but we use it.
+      "push  r29"         "\n\t" // Not call used, but we use it.
+      "push  r30"         "\n\t"
+      "push  r31"         "\n\t"
       ::);
     asm volatile (  // This gets us the address of intFunc in Y pointer reg.
       "add   r26,   r16"  "\n\t" // get the address of the functions for this port (r 16 is 2x the port number)
@@ -174,21 +174,21 @@
       "ldi   r27,     0"  "\n\t" // clear x high byte
       "ld    r15,     X"  "\n\t" // Load flags to r15"
       "sbiw  r26,     0"  "\n\t" // this will set flag if it's zero.
-      "breq  AIntend"     "\n\t" // port not enabled, null pointer, just clear flags end hit the exit ramp.
+      "breq  AIntEnd"     "\n\t" // port not enabled, null pointer, just clear flags end hit the exit ramp.
       "mov   r17,   r15"  "\n\t" // copy that flags to r17;
-    "AIntloopst:"         "\n\t"
+    "AIntLoop:"           "\n\t"
       "lsr   r17"         "\n\t" // shift it right one place, now the LSB is in carry.
       "brcs  .+6"         "\n\t" // means we have something to do this time.
-      "breq  AIntend"     "\n\t" // This means carry wasn't set and r17 is 0. - we're done.
+      "breq  AIntEnd"     "\n\t" // This means carry wasn't set and r17 is 0. - we're done.
       "adiw  r28,    2"   "\n\t" // otherwise it's not a the int we care about, increment Y by 2, so it will point to the next element.
-      "rjmp AIntloopst"   "\n\t" // restart the loop in that case.
+      "rjmp AIntloop"     "\n\t" // restart the loop in that case.
       "ld    r30,    Y+"  "\n\t" // load the function pointer;
       "ld    r31,    Y+"  "\n\t" // load the function pointer;
       "sbiw  r30,    0"   "\n\t" // zero-check it.
-      "breq AIntloopst"   "\n\t" // restart loop if it is, don't call the null pointer
+      "breq AIntLoop"     "\n\t" // restart loop if it is, don't call the null pointer
       "icall"             "\n\t" // call their function, which is allowed to shit on any upper registers other than 28, 29, 16, and 17.
-      "rjmp AIntloopst"   "\n\t" // Restart loop after.
-    "AIntend:"            "\n\t" // sooner or later r17 will be 0 and we'll branch here.
+      "rjmp AIntLoop"     "\n\t" // Restart loop after.
+    "AIntEnd:"            "\n\t" // sooner or later r17 will be 0 and we'll branch here.
       "mov   r16,  r26"   "\n\t" // So when we do this, we end up with VPORTA.FLAGS address in r16
       "ldi   r27,    0"   "\n\t" // high byte is 0, cause we're targeting the VPORT
       "st      X,  r15"   "\n\t" // store to clear the flags....
@@ -232,7 +232,7 @@
     uint8_t port=digitalPinToPort(pin);
     uint8_t p = (port << 5) + bitpos;
     *(((volatile uint8_t*) &PORTA_PIN0CTRL) + p) &= 0xF1; // int off....
-    *((volatile uint8_t*) ((uint16_t)((port << 4)+3)))  = (1 << bitpos);// flag clear
+    *((volatile uint8_t*) ((uint16_t)((port << 4) + 3)))  = (1 << bitpos);// flag clear
     intFunc[port][bitpos] = 0; // clear pointer
   }
 /* If not enabling attach on all ports always, instead the identical ISR definitions are in the WInterruptsA/B/C/D/E/F/G.c files.
@@ -267,7 +267,6 @@
     #ifdef PORTA
       ISR(PORTA_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 0"    "\n\t"
         "jmp AttachedISR" "\n\t"
@@ -278,7 +277,6 @@
     #ifdef PORTB
       ISR(PORTB_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 2"    "\n\t"
         "jmp AttachedISR" "\n\t"
@@ -289,7 +287,6 @@
     #ifdef PORTC
       ISR(PORTC_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 4"    "\n\t"
         "jmp AttachedISR" "\n\t"
@@ -300,7 +297,6 @@
     #ifdef PORTD
       ISR(PORTD_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 6"    "\n\t"
         "jmp AttachedISR" "\n\t"
@@ -311,7 +307,6 @@
     #ifdef PORTE
       ISR(PORTE_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 8"    "\n\t"
         "jmp AttachedISR" "\n\t"
@@ -322,7 +317,6 @@
     #ifdef PORTF
       ISR(PORTF_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 10"    "\n\t"
         "jmp AttachedISR" "\n\t"
@@ -333,7 +327,6 @@
     #ifdef PORTG
       ISR(PORTG_PORT_vect, ISR_NAKED){
       asm volatile(
-        "push r1"       "\n\t"
         "push r16"      "\n\t"
         "ldi r16, 12"    "\n\t"
         "jmp AttachedISR" "\n\t"
