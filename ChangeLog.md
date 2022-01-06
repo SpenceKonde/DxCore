@@ -13,6 +13,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ## 1.4.5
 * **CRITICAL BUGFIX** Now that I am finally unpacked enough to access test boards, fix critical bug correctly.
 * Fix EEPROM regression that left the top half of the EEPROM inaccessible.
+* **Critical Bugfix** to correct attachInterrupt, which would corrupt the stack when used in the default mode. (#225)
+* Allow the DxCore names for RTC clock sources to be used. (#223)
+* formatting in core_devices and Arduino.h
 
 ## 1.4.4 - Unsuccessfully attempt to fix a critical bug that prevented uploading to non-optiboot boards
 
