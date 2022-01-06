@@ -85,14 +85,14 @@
    * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
    * xmega line, and decided that wasn't a winning formula */
   #ifndef GPIO0
-    #define GPIO0 (GPR_GPR0)
-    #define GPIO_GPIO0 (GPR_GPR0)
-    #define GPIO1 (GPR_GPR1)
-    #define GPIO_GPIO1 (GPR_GPR1)
-    #define GPIO2 (GPR_GPR2)
-    #define GPIO_GPIO2 (GPR_GPR2)
-    #define GPIO3 (GPR_GPR3)
-    #define GPIO_GPIO3 (GPR_GPR3)
+    #define GPIO0       (GPR_GPR0)
+    #define GPIO_GPIO0  (GPR_GPR0)
+    #define GPIO1       (GPR_GPR1)
+    #define GPIO_GPIO1  (GPR_GPR1)
+    #define GPIO2       (GPR_GPR2)
+    #define GPIO_GPIO2  (GPR_GPR2)
+    #define GPIO3       (GPR_GPR3)
+    #define GPIO_GPIO3  (GPR_GPR3)
   #endif
   /* They are are the 4 registers in the GPR "peripheral", GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
    * Let's not split hairs about whether calling 4 registers that do absolutely nothing other than being
@@ -108,10 +108,10 @@
   #define TCA_SINGLE_CNTEI_bp              TCA_SINGLE_CNTAEI_bp
   #define TCA_SINGLE_EVACT_gm              TCA_SINGLE_EVACTA_gm
   #define TCA_SINGLE_EVACT_gp              TCA_SINGLE_EVACTA_gp
-  #define TCA_SINGLE_EVACT_CNT_POSEDGE_gc (TCA_SINGLE_EVACTA_CNT_POSEDGE_gc)
-  #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc (TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc)
-  #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc (TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc)
-  #define TCA_SINGLE_EVACT_UPDOWN_gc      (TCA_SINGLE_EVACTA_UPDOWN_gc)
+  #define TCA_SINGLE_EVACT_CNT_POSEDGE_gc TCA_SINGLE_EVACTA_CNT_POSEDGE_gc
+  #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc
+  #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
+  #define TCA_SINGLE_EVACT_UPDOWN_gc      TCA_SINGLE_EVACTA_UPDOWN_gc
 
   #if defined (CLKCTRL_SELHF_bm)
     /* They changed the damned name after selling the part for 6 months!
@@ -183,42 +183,42 @@
  */
 
 
-#define ID_AVR128DA     0x20
-#define ID_AVR64DA      0x10
-#define ID_AVR32DA      0x00
-#define ID_AVR128DB     0x28
-#define ID_AVR64DB      0x18
-#define ID_AVR32DB      0x08
-#define ID_AVR64DD      0x60
-#define ID_AVR32DD      0x50
-#define ID_AVR16DD      0x40
-#define ID_AVR64DU      0x68
-#define ID_AVR32DU      0x58
-#define ID_AVR16DU      0x48
-#define ID_AVR64EA      0xF8
-#define ID_AVR32EA      0xE8
-#define ID_AVR16EA      0xD8
-#define ID_AVR8EA       0xB8
-#define ID_14_PINS      0x01
-#define ID_20_PINS      0x02
-#define ID_24_PINS      0x03
-#define ID_28_PINS      0x04
-#define ID_32_PINS      0x05
-#define ID_48_PINS      0x06
-#define ID_64_PINS      0x07
+#define ID_AVR128DA     (0x20)
+#define ID_AVR64DA      (0x10)
+#define ID_AVR32DA      (0x00)
+#define ID_AVR128DB     (0x28)
+#define ID_AVR64DB      (0x18)
+#define ID_AVR32DB      (0x08)
+#define ID_AVR64DD      (0x60)
+#define ID_AVR32DD      (0x50)
+#define ID_AVR16DD      (0x40)
+#define ID_AVR64DU      (0x68)
+#define ID_AVR32DU      (0x58)
+#define ID_AVR16DU      (0x48)
+#define ID_AVR64EA      (0xF8)
+#define ID_AVR32EA      (0xE8)
+#define ID_AVR16EA      (0xD8)
+#define ID_AVR8EA       (0xB8)
+#define ID_14_PINS      (0x01)
+#define ID_20_PINS      (0x02)
+#define ID_24_PINS      (0x03)
+#define ID_28_PINS      (0x04)
+#define ID_32_PINS      (0x05)
+#define ID_48_PINS      (0x06)
+#define ID_64_PINS      (0x07)
 
-#define ID_AVR_DA       0x00
-#define ID_AVR_DB       0x08
-#define ID_AVR_DD       0x40
-#define ID_AVR_DU       0x48
-/*      ID_AVR_??       0x80 */
-/*      ID_AVR_??       0x88 */
-/*      ID_AVR_??       0xC0 */
-#define ID_AVR_EA       0xC8
+#define ID_AVR_DA       (0x00)
+#define ID_AVR_DB       (0x08)
+#define ID_AVR_DD       (0x40)
+#define ID_AVR_DU       (0x48)
+/*      ID_AVR_??       (0x80) */
+/*      ID_AVR_??       (0x88) */
+/*      ID_AVR_??       (0xC0) */
+#define ID_AVR_EA       (0xC8)
 
-#define ID_MASK_SERIES  0xC8
-#define ID_MASK_FLASH   0x30
-#define ID_MASK_PINS    0x07
+#define ID_MASK_SERIES  (0xC8)
+#define ID_MASK_FLASH   (0x30)
+#define ID_MASK_PINS    (0x07)
 
 //#defines to identify part families
 #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
@@ -351,48 +351,48 @@
 #endif
 
 #if   defined(__AVR_DA__)
-  #define _AVR_FAMILY "DA"
+  #define     _AVR_FAMILY       "DA"
 #elif defined(__AVR_DB__)
-  #define _AVR_FAMILY "DB"
+  #define     _AVR_FAMILY       "DB"
 #elif defined(__AVR_DD__)
-  #define _AVR_FAMILY "DD"
-  #warning "AVR DD support is totally untested and was implemented without the benefit of a datasheet, which has not been released yet"
+  #define     _AVR_FAMILY       "DD"
+  #warning "AVR DD support is totally untested and was implemented without the benefit of a datasheet, which has not been released yet, much less hardware."
 #elif defined(__AVR_DU__)
-  #define _AVR_FAMILY "DU"
+  #define     _AVR_FAMILY       "DU"
   #error "The AVR DU-series is not available and so we can't add support for it. There isn't even a non-retracted product brief!"
 #elif defined(__AVR_EA__)
-  #define _AVR_FAMILY "EA"
-  #error "The AVR DU-series is not available and so we can't add support for it. Support will be added pending availability of datasheet"
+  #define     _AVR_FAMILY       "EA"
+  #error "The AVR EA-series is not available and so we can't add support for it. Support will be added pending availability of datasheet"
 #else
-  #define _AVR_FAMILY "UNKNOWN"
+  #define     _AVR_FAMILY       "UNKNOWN"
 #endif
 
 #if   defined(DX_14_PINS)
-     #define                  _AVR_PINCOUNT 14
+     #define                  _AVR_PINCOUNT (14)
 #elif defined(DX_20_PINS)
-     #define                  _AVR_PINCOUNT 20
+     #define                  _AVR_PINCOUNT (20)
 #elif defined(DX_28_PINS)
-     #define                  _AVR_PINCOUNT 28
+     #define                  _AVR_PINCOUNT (28)
 #elif defined(DX_32_PINS)
-     #define                  _AVR_PINCOUNT 32
+     #define                  _AVR_PINCOUNT (32)
 #elif defined(DX_48_PINS)
-     #define                  _AVR_PINCOUNT 48
+     #define                  _AVR_PINCOUNT (48)
 #elif defined(DX_64_PINS)
-     #define                  _AVR_PINCOUNT 64
+     #define                  _AVR_PINCOUNT (64)
 #endif
 
 #if   PROGMEM_SIZE == 0x20000
-  #define                     _AVR_FLASH 128
+  #define                     _AVR_FLASH   (128)
 #elif PROGMEM_SIZE == 0x10000
-  #define                     _AVR_FLASH  64
+  #define                     _AVR_FLASH    (64)
 #elif PROGMEM_SIZE == 0x8000
-  #define                     _AVR_FLASH  32
+  #define                     _AVR_FLASH    (32)
 #elif PROGMEM_SIZE == 0x4000
-  #define                     _AVR_FLASH  16
+  #define                     _AVR_FLASH    (16)
 #elif PROGMEM_SIZE == 0x2000
-  #define                     _AVR_FLASH   8
+  #define                     _AVR_FLASH     (8)
 #elif PROGMEM_SIZE == 0x1000
-  #define                     _AVR_FLASH   4
+  #define                     _AVR_FLASH     (4)
 #endif
 
 #if (defined(__AVR_EA__)) /* 4 sizes of flash instead of 3 like Dx */
@@ -422,52 +422,52 @@
   * useful to users, as well. These are described in more detail in the
   * README. */
 
-#define DEVICE_PORTMUX_TCA              2 /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
-                                             2 = all wave output channels move together */
-#define CORE_HAS_FASTIO                 1 /* DxCore has the digitalReadFast() and digitalWriteFast()              */
-#define CORE_HAS_OPENDRAIN              1 /* DxCore has openDrain() and openDrainFast()                           */
-#define CORE_HAS_PINCONFIG              1 /* pinConfigure is now implemented                                      */
-#define CORE_HAS_TIMER_TAKEOVER         1 /* DxCore has takeOverTCA0(), takeOverTCA1() and takeOverTCD0()         */
-#define CORE_HAS_TIMER_RESUME           1 /* DxCore has   resumeTCA0(),   resumeTCA1(); there is no resumeTCD0()  */
-#define CORE_SUPPORT_LONG_TONES         1 /* tone()s specifying duration are timed by counting the oscillations.  */
-                                          /* This causes problem for long high frequency tones. By rearranging a  */
-                                          /* division operator, we can expand the range by a factor of 100, so    */
-                                          /* that no reasonable tone will trigger it at cost of 100 bytes or so   */
-#define ADC_DIFFERENTIAL                1 /* Basic modern-AVR differential ADC                                    */
-#define CORE_HAS_ANALOG_ENH             1 /* DxCore has analogReadEnh()                                           */
-#define CORE_HAS_ANALOG_DIFF            1 /* DxCore has analogReadDiff()                                          */
-#define ADC_MAX_OVERSAMPLED_RESOLUTION 15 /* DxCore has 15 bit maximum resolution via oversampling and decimation */
-#define ADC_NATIVE_RESOLUTION          12 /*                                                                      */
-#define ADC_NATIVE_RESOLUTION_LOW      10 /*                                                                      */
-#define ADC_MAXIMUM_ACCUMULATE        128 /* Maximum burst accumulation                                           */
-#define ADC_MAXIMUM_SAMPDUR          0xFF /* Maximum SAMPLEN or SAMPDUR                                           */
-#define ADC_RESULT_SIZE                16 /* ADC Result Size (bits)                                               */
+#define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
+                                               2 = all wave output channels move together */
+#define CORE_HAS_FASTIO                 (1) /* DxCore has the digitalReadFast() and digitalWriteFast()              */
+#define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
+#define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
+#define CORE_HAS_TIMER_TAKEOVER         (1) /* DxCore has takeOverTCA0(), takeOverTCA1() and takeOverTCD0()         */
+#define CORE_HAS_TIMER_RESUME           (1) /* DxCore has   resumeTCA0(),   resumeTCA1(); there is no resumeTCD0()  */
+#define CORE_SUPPORT_LONG_TONES         (1) /* tone()s specifying duration are timed by counting the oscillations.  */
+                                            /* This causes problem for long high frequency tones. By rearranging a  */
+                                            /* division operator, we can expand the range by a factor of 100, so    */
+                                            /* that no reasonable tone will trigger it at cost of 100 bytes or so   */
+#define ADC_DIFFERENTIAL                (1) /* Basic modern-AVR differential ADC                                    */
+#define CORE_HAS_ANALOG_ENH             (1) /* DxCore has analogReadEnh()                                           */
+#define CORE_HAS_ANALOG_DIFF            (1) /* DxCore has analogReadDiff()                                          */
+#define ADC_MAX_OVERSAMPLED_RESOLUTION (15) /* DxCore has 15 bit maximum resolution via oversampling and decimation */
+#define ADC_NATIVE_RESOLUTION          (12) /*                                                                      */
+#define ADC_NATIVE_RESOLUTION_LOW      (10) /*                                                                      */
+#define ADC_MAXIMUM_ACCUMULATE        (128) /* Maximum burst accumulation                                           */
+#define ADC_MAXIMUM_SAMPDUR          (0xFF) /* Maximum SAMPLEN or SAMPDUR                                           */
+#define ADC_RESULT_SIZE                (16) /* ADC Result Size (bits)                                               */
 #ifdef __AVR_DD__
-  #define ADC_MAXIMUM_PIN_CHANNEL      31 /* Highest number that might be associated with a pin - there may be    */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* one or more holes where pins that only exist on other parts would be */
+  #define ADC_MAXIMUM_PIN_CHANNEL      (31) /* Highest number that might be associated with a pin - there may be    */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* one or more holes where pins that only exist on other parts would be */
 #else
-  #define ADC_MAXIMUM_PIN_CHANNEL      21 /* The negative input for differential measurements is limited to the   */
-                                          /* first 16 pins on DA and DB parts. It is not clear what will be done  */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     15 /* for the DD and EA-series. The tinyAVR 2-series had 7 pins of PORTA   */
-#endif                                    /* only. but the EA=series will likely have more options.               */
-#if defined(ADC0_PGACTRL)                 /* The product briefs do not mention either way                         */
-  #define ADC_MAXIMUM_GAIN             16 /* The EA series will have a PGA like the 2-series parts.               */
+  #define ADC_MAXIMUM_PIN_CHANNEL      (21) /* The negative input for differential measurements is limited to the   */
+                                            /* first 16 pins on DA and DB parts. It is not clear what will be done  */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* for the DD and EA-series. The tinyAVR 2-series had 7 pins of PORTA   */
+#endif                                      /* only. but the EA=series will likely have more options.               */
+#if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
+  #define ADC_MAXIMUM_GAIN             (16) /* The EA series will have a PGA like the 2-series parts.               */
 #elif defined(OPAMP0)
   #ifndef ADC_MAXIMUM_GAIN
-    #define ADC_MAXIMUM_GAIN           -1  /* DB-series can use their OPAMPs as a PGA                             */
+    #define ADC_MAXIMUM_GAIN           (-1)  /* DB-series can use their OPAMPs as a PGA                             */
   #endif
-  #define PIN_OPAMP0_INP          PIN_PD1
-  #define PIN_OPAMP0_OUT          PIN_PD2
-  #define PIN_OPAMP0_INN          PIN_PD3
+  #define PIN_OPAMP0_INP            PIN_PD1
+  #define PIN_OPAMP0_OUT            PIN_PD2
+  #define PIN_OPAMP0_INN            PIN_PD3
   #ifdef OPAMP1
-    #define PIN_OPAMP1_INP        PIN_PD4
-    #define PIN_OPAMP1_OUT        PIN_PD5
-    #define PIN_OPAMP1_INN        PIN_PD7
+    #define PIN_OPAMP1_INP          PIN_PD4
+    #define PIN_OPAMP1_OUT          PIN_PD5
+    #define PIN_OPAMP1_INN          PIN_PD7
   #endif
   #ifdef OPAMP2
-    #define PIN_OPAMP2_INP        PIN_PE1
-    #define PIN_OPAMP2_OUT        PIN_PE2
-    #define PIN_OPAMP2_INN        PIN_PE3
+    #define PIN_OPAMP2_INP          PIN_PE1
+    #define PIN_OPAMP2_OUT          PIN_PE2
+    #define PIN_OPAMP2_INN          PIN_PE3
   #endif
 #endif
 #ifdef DAC0
@@ -476,9 +476,9 @@
   #endif
 #endif
 #if (defined(__AVR_DB__) || defined(__AVR_DD__))
-  #define PORT_ID_INLVL 1
+  #define PORT_ID_INLVL                 (1)
 #else
-  #define PORT_ID_INLVL 0
+  #define PORT_ID_INLVL                 (0)
 #endif
 /* if (ADC_NATIVE_RESOLUTION + Log4(ADC_MAXIMUM_ACCUMULATE)) > ADC_RESULT_SIZE, long accumulations are truncated.
  * with maximum accumulation of Dx, for example, 12 + 7 = 19, so the internal representation would be a 19-bit number
@@ -492,25 +492,25 @@
 /* Not exhaustive, we'd need another file if I wanted to test for all the bugs. These are just the worst ones */
 /* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
-  #define ERRATA_TCA1_PORTMUX         1 /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
-  #define ERRATA_PORTS_B_E_EVSYS      1 /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
-  #define ERRATA_NVM_ST_BUG           1 /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
+  #define ERRATA_TCA1_PORTMUX           (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
+  #define ERRATA_PORTS_B_E_EVSYS        (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
+  #define ERRATA_NVM_ST_BUG             (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
 #endif
 
 #if defined(__AVR_DA__)
-  #define ERRATA_DAC_DRIFT            1
+  #define ERRATA_DAC_DRIFT              (1)
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // No device has been released that doesn't have this bug!
-  #define ERRATA_TCB_CCMP             1
-  #define ERRATA_CCL_PROTECTION       1
+  #define ERRATA_TCB_CCMP               (1)
+  #define ERRATA_CCL_PROTECTION         (1)
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // Almost certainly won't be in the DD.
-  #define ERRATA_TCD_PORTMUX          1
-  #define ERRATA_ADC_PIN_DISABLE      1
+  #define ERRATA_TCD_PORTMUX            (1)
+  #define ERRATA_ADC_PIN_DISABLE        (1)
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
@@ -525,13 +525,13 @@
  * Setting it to any other speed is not recommended all the timing elsewhere will be totally busted.
  */
 
-#define  _setPrescale2x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm)))
-#define  _setPrescale4x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm)))
-#define  _setPrescale8x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_8X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale2x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, ( CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale4x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, ( CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale8x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, ( CLKCTRL_PDIV_8X_gc | CLKCTRL_PEN_bm)))
 #define _setPrescale16x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_16X_gc | CLKCTRL_PEN_bm)))
 #define _setPrescale32x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_32X_gc | CLKCTRL_PEN_bm)))
 #define _setPrescale64x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_64X_gc | CLKCTRL_PEN_bm)))
-#define  _setPrescale6x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_6X_gc | CLKCTRL_PEN_bm)))
+#define  _setPrescale6x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, ( CLKCTRL_PDIV_6X_gc | CLKCTRL_PEN_bm)))
 #define _setPrescale10x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_10X_gc | CLKCTRL_PEN_bm)))
 #define _setPrescale12x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_12X_gc | CLKCTRL_PEN_bm)))
 #define _setPrescale24x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_24X_gc | CLKCTRL_PEN_bm)))
