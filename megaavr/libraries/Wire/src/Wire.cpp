@@ -755,7 +755,7 @@ void TwoWire::onRequest(void (*function)(void)) {
 }
 
 
-#if defined(TWI_ERROR_ENABLED)
+#if defined(TWI_EXT_ERROR_ENABLED) && defined(TWI_ERROR_ENABLED)
 uint8_t TwoWire::returnError() {
   return vars._errors;
 }

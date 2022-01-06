@@ -103,31 +103,54 @@ SOFTWARE.
 #endif
 
 
-#define TWI_TIMEOUT_ENABLE    // Enabled by default, might be disabled for debugging or other reasons
-// #define TWI_ERROR_ENABLED
+#define TWI_TIMEOUT_ENABLE        // Enabled by default, might be disabled for debugging or other reasons
+#define TWI_ERROR_ENABLED   // Enabled by default, TWI Master Write error functionality
+//#define TWI_EXT_ERROR_ENABLED    // Enables Extended error detection outside of Arduino and on Master Read too
 
-// The error result may not be accurate, it just helps narrowing the problem down
-#define  TWI_NO_ERR            0  // Default
-#define  TWI_ERR_PULLUP        1  // Likely problem with pull-ups
-#define  TWI_ERR_TIMEOUT       2  // TWI Timed out on data rx/tx
-#define  TWI_ERR_BUS_ARB       3  // Bus error and/or Arbitration lost
-#define  TWI_ERR_BUF_OVERFLOW  4  // Buffer overflow on master read
-#define  TWI_ERR_RXACK         5  // Address or data was NACKed
-#define  TWI_ERR_CLKHLD        6  // Something's holding the clock
-#define  TWI_ERR_UNDEFINED     7  // Software can't tell error source
+// Errors from Arduino documentation:
+#define  TWI_ERR_SUCCESS       0  // Default
+#define  TWI_ERR_DATA_TO_LONG  1  // Not used here; data too long to fit in TX buffer
+#define  TWI_ERR_ACK_ADR       2  // Address was NACKed on Master write
+#define  TWI_ERR_ACK_DAT       3  // Data was NACKed on Master write
+#define  TWI_ERR_UNDEFINED     4  // Software can't tell error source
+
+// Errors that are made to help finding errors on TWI lines. Only indications
+#define  TWI_ERR_PULLUP        11 // Likely problem with pull-ups
+#define  TWI_ERR_TIMEOUT       12 // TWI Timed out on data rx/tx
+#define  TWI_ERR_BUS_ARB       13 // Bus error and/or Arbitration lost
+#define  TWI_ERR_BUF_OVERFLOW  14 // Buffer overflow on master read
+#define  TWI_ERR_CLKHLD        15 // Something's holding the clock
 
 #if defined(TWI_ERROR_ENABLED)
-  #define TWI_ERROR_VAR   twi_error
-  #define TWI_INIT_ERROR  uint8_t TWI_ERROR_VAR = TWI_NO_ERR
+  #define TWI_ERROR_VAR    twi_error
+  #define TWI_INIT_ERROR   uint8_t TWI_ERROR_VAR = TWI_ERR_SUCCESS
+  #define TWI_GET_ERROR    TWI_ERROR_VAR
   #define TWI_CHK_ERROR(x) TWI_ERROR_VAR == x
   #define TWI_SET_ERROR(x) TWI_ERROR_VAR = x
-  #define TWI_SAVE_ERROR(x) x = TWI_ERROR_VAR
 #else
   #define TWI_ERROR_VAR     {}
   #define TWI_INIT_ERROR    {}
+  #define TWI_GET_ERROR     {0}
   #define TWI_CHK_ERROR(x)  (true)
   #define TWI_SET_ERROR(x)  {}
-  #define TWI_SAVE_ERROR(x) {}
+#endif
+
+#if defined(TWI_EXT_ERROR_ENABLED) && defined(TWI_ERROR_ENABLED)
+  #define TWIR_ERROR_VAR        twiR_error
+  #define TWIR_INIT_ERROR       uint8_t TWIR_ERROR_VAR = TWIR_ERR_SUCCESS
+  #define TWIR_GET_ERROR        TWIR_ERROR_VAR
+  #define TWIR_CHK_ERROR(x)     TWIR_ERROR_VAR == x
+  #define TWIR_SET_ERROR(x)     TWIR_ERROR_VAR = x
+  
+  #define TWI_SET_EXT_ERROR(x)  TWI_ERROR_VAR = x
+#else
+  #define TWIR_ERROR_VAR        {}
+  #define TWIR_INIT_ERROR       {}
+  #define TWIR_GET_ERROR        {0}
+  #define TWIR_CHK_ERROR(x)     (true)
+  #define TWIR_SET_ERROR(x)     {}
+  
+  #define TWI_SET_EXT_ERROR(x)  {}
 #endif
 
 
@@ -149,7 +172,7 @@ struct twiDataBools {       // using a struct so the compiler can use skip if bi
 struct twiData {
   TWI_t *_module;
   struct twiDataBools _bools;      // the structure to hold the bools for the class
-  #if defined(TWI_ERROR_ENABLED)
+  #if defined(TWI_EXT_ERROR_ENABLED)
     uint8_t _errors;
   #endif
   uint8_t _clientAddress;
