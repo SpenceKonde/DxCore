@@ -340,11 +340,12 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
   uint8_t currentSM;
   uint8_t currentStatus;
   uint8_t dataWritten = 0;
+  uint8_t returnvalue = 0;
   uint16_t timeout = 0;
 
 
   if ((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) {
-    return 0;                                                   // If the bus was not initialized, return
+    return 255;                                                   // If the bus was not initialized, return
   }
 
 
@@ -356,10 +357,13 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
       if (++timeout > (F_CPU/1000)) {
         if        (currentSM == TWI_BUSSTATE_OWNER_gc) {
           TWI_SET_ERROR(TWI_ERR_TIMEOUT);
+          returnvalue = dataWritten ? 3 : 2;
         } else if (currentSM == TWI_BUSSTATE_IDLE_gc) {
           TWI_SET_ERROR(TWI_ERR_PULLUP);
+          returnvalue = 0x11;
         } else {
           TWI_SET_ERROR(TWI_ERR_UNDEFINED);
+          returnvalue = 4;
         }
         break;
       }
@@ -368,6 +372,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
     if   (currentStatus & (TWI_ARBLOST_bm | TWI_BUSERR_bm)) { // Check for Bus error
         module->MSTATUS = (TWI_ARBLOST_bm | TWI_BUSERR_bm);   // reset error flags
         TWI_SET_ERROR(TWI_ERR_BUS_ARB);                       // set error flag
+        returnvalue = (currentStatus & TWI_ARBLOST_bm) ? 0x10 : 0x04;
         break;                                                // leave RX loop
     }
 
@@ -378,7 +383,8 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
       if     (currentStatus & TWI_WIF_bm) {                   // data sent
         if   (currentStatus & TWI_RXACK_bm) {                 // AND the RXACK bit is set
           if (dataWritten != 0) dataWritten--;                // last Byte has failed, so decrement the counter, except if it was Address
-          TWI_SET_ERROR(TWI_ERR_RXACK);                       // set error flag
+          TWI_SET_ERROR(TWI_ERR_RXACK);                       // set error flae
+          returnvalue = dataWritten ? 3 : 2;
           send_stop = 1;
           break;                                              // leave loop
         } else {                                              // otherwise WRITE was ACKed
@@ -402,7 +408,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
   #if defined(TWI_ERROR_ENABLED)
     TWI_SAVE_ERROR(_data->_errors);                           // save error flags
   #endif
-  return dataWritten;                                         // return amount of bytes written
+  return returnvalue;                                         // return amount of bytes written
 }
 
 
