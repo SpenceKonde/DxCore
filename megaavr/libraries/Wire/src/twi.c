@@ -356,6 +356,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
       if (++timeout > (F_CPU/1000)) {
         if        (currentSM == TWI_BUSSTATE_OWNER_gc) {
           TWI_SET_ERROR(TWI_ERR_TIMEOUT);
+          returnvalue = dataWritten ? 3 : 2;
         } else if (currentSM == TWI_BUSSTATE_IDLE_gc) {
           TWI_SET_EXT_ERROR(TWI_ERR_PULLUP);
         } else {
@@ -388,6 +389,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
             timeout = 0;                                          // reset timeout
           } else {                                                // else there is no data to be written
             break;                                                // TX finished, leave loop, error is still TWI_NO_ERR
+
           }
         }
       }
@@ -398,8 +400,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
   if ((send_stop != 0) || (TWI_ERR_SUCCESS != TWI_GET_ERROR)) {
     module->MCTRLB = TWI_MCMD_STOP_gc;                        // Send STOP
   }
-
-  return TWI_GET_ERROR;                                         // return amount of bytes written
+  return TWI_GET_ERROR;
 }
 
 
