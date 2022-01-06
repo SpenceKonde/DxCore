@@ -55,7 +55,7 @@
   #endif
 
   #if ((ID_MASK_PINS & CORE_PART_ID) >= ID_28_PINS)
-    #define PIN_TCA0_WO0_ALT2     PIN_PC0
+    #define PIN_TCA0_WO0_ALT2       PIN_PC0
     #if (((ID_MASK_PINS & CORE_PART_ID) >= ID_48_PINS) || !((ID_AVR_DB | ID_AVR_DD) & CORE_PART_ID))
       // PD0 is present on all 48+ pin, and all 28+ pin parts that don't have MVIO, so not DB or DD.
       #define PIN_TCA0_WO0_ALT3     PIN_PD0
@@ -218,41 +218,41 @@
   #else
 
     // Under 48 pin gets no port B
-    #define PIN_TCA0_WO0_ALT1     NOT_A_PIN
-    #define PIN_TCA0_WO1_ALT1     NOT_A_PIN
-    #define PIN_TCA0_WO2_ALT1     NOT_A_PIN
-    #define PIN_TCA0_WO3_ALT1     NOT_A_PIN
-    #define PIN_TCA0_WO4_ALT1     NOT_A_PIN
-    #define PIN_TCA0_WO5_ALT1     NOT_A_PIN
+    #define PIN_TCA0_WO0_ALT1       NOT_A_PIN
+    #define PIN_TCA0_WO1_ALT1       NOT_A_PIN
+    #define PIN_TCA0_WO2_ALT1       NOT_A_PIN
+    #define PIN_TCA0_WO3_ALT1       NOT_A_PIN
+    #define PIN_TCA0_WO4_ALT1       NOT_A_PIN
+    #define PIN_TCA0_WO5_ALT1       NOT_A_PIN
 
-    #define PIN_TCD0_WOA_ALT1     NOT_A_PIN
-    #define PIN_TCD0_WOB_ALT1     NOT_A_PIN
-    #define PIN_TCD0_WOC_ALT1     NOT_A_PIN
-    #define PIN_TCD0_WOD_ALT1     NOT_A_PIN
+    #define PIN_TCD0_WOA_ALT1       NOT_A_PIN
+    #define PIN_TCD0_WOB_ALT1       NOT_A_PIN
+    #define PIN_TCD0_WOC_ALT1       NOT_A_PIN
+    #define PIN_TCD0_WOD_ALT1       NOT_A_PIN
 
     // under 48 gets half port C
-    #define PIN_TCA0_WO4_ALT2     NOT_A_PIN
-    #define PIN_TCA0_WO5_ALT2     NOT_A_PIN
+    #define PIN_TCA0_WO4_ALT2       NOT_A_PIN
+    #define PIN_TCA0_WO5_ALT2       NOT_A_PIN
 
     // Under 48 pin gets no port E
-    #define PIN_TCA0_WO0_ALT4     NOT_A_PIN
-    #define PIN_TCA0_WO1_ALT4     NOT_A_PIN
-    #define PIN_TCA0_WO2_ALT4     NOT_A_PIN
-    #define PIN_TCA0_WO3_ALT4     NOT_A_PIN
-    #define PIN_TCA0_WO4_ALT4     NOT_A_PIN
-    #define PIN_TCA0_WO5_ALT4     NOT_A_PIN
+    #define PIN_TCA0_WO0_ALT4       NOT_A_PIN
+    #define PIN_TCA0_WO1_ALT4       NOT_A_PIN
+    #define PIN_TCA0_WO2_ALT4       NOT_A_PIN
+    #define PIN_TCA0_WO3_ALT4       NOT_A_PIN
+    #define PIN_TCA0_WO4_ALT4       NOT_A_PIN
+    #define PIN_TCA0_WO5_ALT4       NOT_A_PIN
     // Under 48 pin gets no port G
-    #define PIN_TCA0_WO0_ALT6     NOT_A_PIN
-    #define PIN_TCA0_WO1_ALT6     NOT_A_PIN
-    #define PIN_TCA0_WO2_ALT6     NOT_A_PIN
-    #define PIN_TCA0_WO3_ALT6     NOT_A_PIN
-    #define PIN_TCA0_WO4_ALT6     NOT_A_PIN
-    #define PIN_TCA0_WO5_ALT6     NOT_A_PIN
+    #define PIN_TCA0_WO0_ALT6       NOT_A_PIN
+    #define PIN_TCA0_WO1_ALT6       NOT_A_PIN
+    #define PIN_TCA0_WO2_ALT6       NOT_A_PIN
+    #define PIN_TCA0_WO3_ALT6       NOT_A_PIN
+    #define PIN_TCA0_WO4_ALT6       NOT_A_PIN
+    #define PIN_TCA0_WO5_ALT6       NOT_A_PIN
 
-    #define PIN_TCD0_WOA_ALT3     NOT_A_PIN
-    #define PIN_TCD0_WOB_ALT3     NOT_A_PIN
-    #define PIN_TCD0_WOC_ALT3     NOT_A_PIN
-    #define PIN_TCD0_WOD_ALT3     NOT_A_PIN
+    #define PIN_TCD0_WOA_ALT3       NOT_A_PIN
+    #define PIN_TCD0_WOB_ALT3       NOT_A_PIN
+    #define PIN_TCD0_WOC_ALT3       NOT_A_PIN
+    #define PIN_TCD0_WOD_ALT3       NOT_A_PIN
 
   #endif
 #endif
