@@ -175,13 +175,13 @@
       "ld    r15,     X"  "\n\t" // Load flags to r15"
       "sbiw  r26,     0"  "\n\t" // this will set flag if it's zero.
       "breq  AIntEnd"     "\n\t" // port not enabled, null pointer, just clear flags end hit the exit ramp.
-      "mov   r17,   r15"  "\n\t" // copy that flags to r17;
+      "mov   r17,   r15"  "\n\t" // copy that flags to r17
     "AIntLoop:"           "\n\t"
       "lsr   r17"         "\n\t" // shift it right one place, now the LSB is in carry.
       "brcs  .+6"         "\n\t" // means we have something to do this time.
       "breq  AIntEnd"     "\n\t" // This means carry wasn't set and r17 is 0. - we're done.
       "adiw  r28,    2"   "\n\t" // otherwise it's not a the int we care about, increment Y by 2, so it will point to the next element.
-      "rjmp AIntloop"     "\n\t" // restart the loop in that case.
+      "rjmp AIntLoop"     "\n\t" // restart the loop in that case.
       "ld    r30,    Y+"  "\n\t" // load the function pointer;
       "ld    r31,    Y+"  "\n\t" // load the function pointer;
       "sbiw  r30,    0"   "\n\t" // zero-check it.
