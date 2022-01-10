@@ -344,7 +344,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
 
 
   if ((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) {
-    return TWI_ERR_UNDEFINED;                     // If the bus was not initialized, return
+    return TWI_ERR_UNINIT;                     // If the bus was not initialized, return
   }
 
 
@@ -356,9 +356,8 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
       if (++timeout > (F_CPU/1000)) {
         if        (currentSM == TWI_BUSSTATE_OWNER_gc) {
           TWI_SET_ERROR(TWI_ERR_TIMEOUT);
-          returnvalue = dataWritten ? 3 : 2;
         } else if (currentSM == TWI_BUSSTATE_IDLE_gc) {
-          TWI_SET_EXT_ERROR(TWI_ERR_PULLUP);
+          TWI_SET_ERROR(TWI_ERR_PULLUP);
         } else {
           TWI_SET_ERROR(TWI_ERR_UNDEFINED);
         }
@@ -368,7 +367,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
 
     if   (currentStatus & (TWI_ARBLOST_bm | TWI_BUSERR_bm)) {     // Check for Bus error
         module->MSTATUS = (TWI_ARBLOST_bm | TWI_BUSERR_bm);       // reset error flags
-        TWI_SET_EXT_ERROR(TWI_ERR_BUS_ARB);                           // set error flag
+        TWI_SET_ERROR(TWI_ERR_BUS_ARB);                           // set error flag
         break;                                                    // leave RX loop
     }
 
@@ -440,81 +439,80 @@ uint8_t TWI_MasterRead(struct twiData *_data, uint8_t bytesToRead, bool send_sto
   TWI_t *module = _data->_module;     // Compiler treats the pointer to the TWI module as volatile and
                                       // creates bloat-y code, using a local variable fixes that
 
-  if ((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) {
-    return 0;                         // If the bus was not initialized, return
-  }
-
   TWIR_INIT_ERROR;             // local variable for errors
-  uint8_t currentSM;
-  uint8_t currentStatus;
-  uint8_t command  = 0;
   uint8_t dataRead = 0;
-  uint16_t timeout = 0;
+  if ((module->MSTATUS & TWI_BUSSTATE_gm) != TWI_BUSSTATE_UNKNOWN_gc) {
+    uint8_t currentSM;
+    uint8_t currentStatus;
+    uint8_t command  = 0;
+    uint16_t timeout = 0;
 
-  while (true) {
-    currentStatus = module->MSTATUS;
-    currentSM = currentStatus & TWI_BUSSTATE_gm;  // get the current mode of the state machine
+    while (true) {
+      currentStatus = module->MSTATUS;
+      currentSM = currentStatus & TWI_BUSSTATE_gm;  // get the current mode of the state machine
 
-    #if defined(TWI_TIMEOUT_ENABLE)
-      if (++timeout > (F_CPU/1000)) {
-        if      (currentSM == TWI_BUSSTATE_OWNER_gc) {
-          TWIR_SET_ERROR(TWI_ERR_TIMEOUT);
-        } else if (currentSM == TWI_BUSSTATE_IDLE_gc) {
-          TWIR_SET_ERROR(TWI_ERR_PULLUP);
-        } else {
-          TWIR_SET_ERROR(TWI_ERR_UNDEFINED);
+      #if defined(TWI_TIMEOUT_ENABLE)
+        if (++timeout > (F_CPU/1000)) {
+          if      (currentSM == TWI_BUSSTATE_OWNER_gc) {
+            TWIR_SET_ERROR(TWI_ERR_TIMEOUT);
+          } else if (currentSM == TWI_BUSSTATE_IDLE_gc) {
+            TWIR_SET_ERROR(TWI_ERR_PULLUP);
+          } else {
+            TWIR_SET_ERROR(TWI_ERR_UNDEFINED);
+          }
+          break;
         }
-        break;
+      #endif
+
+      if (currentStatus & (TWI_ARBLOST_bm | TWI_BUSERR_bm)) {   // Check for Bus error
+        module->MSTATUS = (TWI_ARBLOST_bm | TWI_BUSERR_bm);      // reset error flags
+        TWIR_SET_ERROR(TWI_ERR_BUS_ARB);                         // set error flag
+        break;                                                   // leave TX loop
       }
-    #endif
 
-    if (currentStatus & (TWI_ARBLOST_bm | TWI_BUSERR_bm)) {   // Check for Bus error
-      module->MSTATUS = (TWI_ARBLOST_bm | TWI_BUSERR_bm);       // reset error flags
-      TWIR_SET_ERROR(TWI_ERR_BUS_ARB);                           // set error flag
-      break;                                                    // leave TX loop
-    }
-
-    if (command != 0) {
-      if (currentSM == TWI_BUSSTATE_OWNER_gc) {
-        module->MCTRLB = command;
-      } else {
-        break;
-      }
-    }
-
-    if (currentSM == TWI_BUSSTATE_IDLE_gc) {    // Bus has not sent START yet
-        module->MADDR = ADD_READ_BIT(_data->_clientAddress);
-        timeout = 0;
-    } else if (currentSM == TWI_BUSSTATE_OWNER_gc) {  // Address sent, check for WIF/RIF
-      if (currentStatus & TWI_RIF_bm) {                    // data received
-        if (dataRead > (BUFFER_LENGTH-1)) {                   // Buffer overflow with this incoming Byte
-          TWIR_SET_ERROR(TWI_ERR_BUF_OVERFLOW);
-          command = TWI_ACKACT_bm | TWI_MCMD_STOP_gc;         // send STOP + NACK
+      if (command != 0) {
+        if (currentSM == TWI_BUSSTATE_OWNER_gc) {
+          module->MCTRLB = command;
         } else {
-                                                    // Data is fine and we have space, so read out the data register
-          rxBuffer[(*rxHead)] = module->MDATA;        // and save it in the Buffer.
-          (*rxHead) = TWI_advancePosition(*rxHead);               // advance head
-          dataRead++;                                             // Byte was read
-          timeout = 0;                                            // reset timeout
+          break;
+        }
+      }
 
-          if (dataRead < bytesToRead) {                           // expecting more bytes, so
-            module->MCTRLB = TWI_MCMD_RECVTRANS_gc;               // send an ACK so the Slave so it can send the next byte
-          } else {                                                // Otherwise,
-            if (send_stop != 0) {
-              command = TWI_ACKACT_bm | TWI_MCMD_STOP_gc;       // send STOP + NACK
-            } else {
-              break;
+      if (currentSM == TWI_BUSSTATE_IDLE_gc) {    // Bus has not sent START yet
+          module->MADDR = ADD_READ_BIT(_data->_clientAddress);
+          timeout = 0;
+      } else if (currentSM == TWI_BUSSTATE_OWNER_gc) {  // Address sent, check for WIF/RIF
+        if (currentStatus & TWI_RIF_bm) {                    // data received
+          if (dataRead > (BUFFER_LENGTH-1)) {                   // Buffer overflow with this incoming Byte
+            TWIR_SET_ERROR(TWI_ERR_BUF_OVERFLOW);
+            command = TWI_ACKACT_bm | TWI_MCMD_STOP_gc;         // send STOP + NACK
+          } else {
+                                                      // Data is fine and we have space, so read out the data register
+            rxBuffer[(*rxHead)] = module->MDATA;        // and save it in the Buffer.
+            (*rxHead) = TWI_advancePosition(*rxHead);               // advance head
+            dataRead++;                                             // Byte was read
+            timeout = 0;                                            // reset timeout
+
+            if (dataRead < bytesToRead) {                           // expecting more bytes, so
+              module->MCTRLB = TWI_MCMD_RECVTRANS_gc;               // send an ACK so the Slave so it can send the next byte
+            } else {                                                // Otherwise,
+              if (send_stop != 0) {
+                command = TWI_ACKACT_bm | TWI_MCMD_STOP_gc;       // send STOP + NACK
+              } else {
+                break;
+              }
             }
           }
+        } else if (currentStatus & TWI_WIF_bm) {  // Address NACKed
+          TWIR_SET_ERROR(TWI_ERR_RXACK);          // set error flag
+          command = TWI_MCMD_STOP_gc;
         }
-      } else if (currentStatus & TWI_WIF_bm) {  // Address NACKed
-        TWIR_SET_ERROR(TWI_ERR_RXACK);          // set error flag
-        command = TWI_MCMD_STOP_gc;
       }
     }
+  } else {
+    TWIR_SET_ERROR(TWI_ERR_UNINIT);
   }
-
-  #if defined(TWI_EXT_ERROR_ENABLED) && defined(TWI_ERROR_ENABLED)
+  #if defined(TWI_READ_ERROR_ENABLED) && defined(TWI_ERROR_ENABLED)
     _data->_errors = TWIR_GET_ERROR;                           // save error flags
   #endif
   return dataRead;
