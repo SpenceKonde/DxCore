@@ -75,17 +75,17 @@
 /* SPI1 - for DA/DA-series parts */
 
 #if defined(SPI1_MUX)
-  #define SPI1_SWAP_DEFAULT  0x10
+  #define SPI1_SWAP_DEFAULT  0x80
   #define SPI1_SWAP0 SPI1_SWAP_DEFAULT
 #endif
 
 #if defined(SPI1_MUX_PINSWAP_1)
-  #define SPI1_SWAP_ALT1     0x14
+  #define SPI1_SWAP_ALT1     0x84
   #define SPI1_SWAP1 SPI1_SWAP_ALT1
 #endif
 
 #if defined(SPI1_MUX_PINSWAP_2)
-  #define SPI1_SWAP_ALT2     0x18
+  #define SPI1_SWAP_ALT2     0x88
   #define SPI1_SWAP2 SPI1_SWAP_ALT2
 #endif
 
@@ -217,12 +217,12 @@ class SPISettings {
 
       /* Get Clock related values.*/
       uint8_t clockDiv_mult = (clockDiv & 0x1);
-      uint8_t clockDiv_pres = (clockDiv >> 1);
+      uint8_t clockDiv_pres = (clockDiv >>  1);
 
       /* Pack into the SPISettings::ctrlb class     */
       /* Set Prescaler, x2, SPI to Master, and Bit Order. */
 
-      ctrla = (clockDiv_pres  << SPI_PRESC_gp)        |
+      ctrla = (clockDiv_pres << SPI_PRESC_gp)         |
               (clockDiv_mult << SPI_CLK2X_bp)         |
               (SPI_ENABLE_bm)                         |
               (SPI_MASTER_bm)                         |
