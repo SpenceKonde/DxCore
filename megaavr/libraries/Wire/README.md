@@ -28,8 +28,6 @@ Availability of pin mappings by pincount for AVR Dx-series
 | PB2, PB3 | Either   | Yes    | Yes    | No     | No     | No     | No     |
 | PB6, PB7 | Dualmode | Yes    | No     | No     | No     | No     | No     |
 
-Put in wort
-
 `Wire.swap(pin_set)` will set the the pin mapping to the specified set of pin.  See API reference below for details.
 
 `Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins `SDA` and `SCL`. See API reference below for details. Only covered the master/slave pins, not the dual-mode pins. If you want the mode with the pins that can't do dual mode slave (PA2/3, or PF2/3) but with the alternate slave pins, you MUST use Wire.swap().
@@ -84,7 +82,7 @@ Wire.begin(uint8_t address, bool receive_broadcast, uint8_t second_address)
 
 If the slave is configured to accept more than one address, it will often be critical to know which one it is responding to. Use `getIncomingAddress()` to see which address triggered it; This value is the internal representation (ie, it is leftshifted 1 place, and the low bit (indicating read/write) should be ignored)
 ```c
-uint8_t addr = Wire.getIncomingAddress() << 1; // Returns incoming address in slave mode, currently as 8-bit address (leftshifted one plqace). This may bne changed to 7-bit before the release.
+uint8_t addr = Wire.getIncomingAddress() << 1; // Returns incoming address in slave mode, currently as 8-bit address (leftshifted one place).
 ```
 
 ## Master/Slave mode
@@ -231,10 +229,6 @@ flush();
 
 
 ~A `flush()` method exists on all versions of Wire.h; indeed, `Stream` which it subclasses demands that - however very rarely is it actually implemented by anything other than Serial - (where there is a specific and very common reason use case) where one must clear the buffer in a specific way (by waiting for it to empty) before doing things like going to sleep or performing a software reset. Wire has rarely implemented this. In this case, it performs the functionality that the datasheets refer to as a "TWI_FLUSH" - this resets the internal state *of the master* - and at the Wire library level, the buffers are cleared; that command is apparently intended for error handling. The hardware keeps track of activity on the bus (as required by the protocol), but misbehaving devices can confuse the master - they might do something that the specification says a device will will not do, or generate electrical conditions that the master is unable to interpret in a useful way - pins not reaching the logic level thresholds, malformed data and which may in turn leave it confused as to whether the bus is available. It might be necessary to call in an attempt to recover from adverse events, which has historically been a challenge for the Wire library.~
-
-According to the most recently released errata for the DA, the flush function does not work correctly and may leave the TWI hardware in a bad state, which is exactly what it was supposed to fix. As such, this function has been disabled. I have inquired with a contact on the inside as to exactly what sequence of steps should be taken to reset the TWI hardware. We are operating under the assumption that the same bug is present in the DB as well, and they just have not yet updated the errata.
-
-For a slave to wait until transactions are over, poll slaveTransactionOpen().
 
 ```c++
 uint8_t endTransmission(bool sendStop);
