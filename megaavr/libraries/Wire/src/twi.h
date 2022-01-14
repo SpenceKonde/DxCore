@@ -79,17 +79,19 @@ SOFTWARE.
  * 32 byte buffers, many libraries implicitly depend >= 32 byte
  * buffers and will misbehave if the buffer used is smaller.
  * So even where it's painfully large portion of ram, we use
- * that.Similarly, most libraries will not make use of a larger one
+ * that. Similarly, most libraries will not make use of a larger one
  * Thus, we don't enlarge the buffer until we finally get to
  * the modern AVRs with >= 4k of RAM, where it doesn't really
- * matter anymore. At that point, enlarging the buffer to 130b
+ * matter any more. At that point, enlarging the buffer to 130b
  * allows for a 128b page write to the popular 24-series EEPROMs
  * Since the modern AVRs are lighter on EEPROM than classic ones
  * it is more likely that external storage would be needed.
  * SD cards are a poor choice for byte oriented data storage, in
- * addition to being astonishingly unrelible, and byte oriented
+ * addition to being astonishingly unreliable, and byte oriented
  * data storage is more useful for typical applications of AVRs
  * than file-oriented storage.
+ * If 130 bytes are not enough, the maximum supported buffer size
+ * is 256 bytes without modifications to the library.
  */
 #ifndef BUFFER_LENGTH
   #if (RAMSIZE < 256)

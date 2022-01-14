@@ -51,8 +51,6 @@ extern "C" {    // compiler was complaining when I put twi.h into the upper C in
  */
 TwoWire::TwoWire(TWI_t *twi_module) {
   vars._module = twi_module;
-  // vars.user_onRequest = NULL;  // Make sure to initialize this pointers
-  // vars.user_onReceive = NULL;  // This avoids weird jumps should something unexpected happen
 }
 
 /**
@@ -400,7 +398,7 @@ size_t TwoWire::write(uint8_t data) {
  *@retval     amount of bytes copied
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
-  uint8_t i = 0;  //uint8_t since we don't use bigger buffers
+  uint8_t i = 0;  // uint8_t since we don't use bigger buffers
   
   for (; i < (uint8_t)quantity; i++) {    // limit quantity to 255 to avoid lock up
     if (write(*(data + i)) == 0) break;   // break if buffer full
@@ -423,38 +421,19 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity) {
  *@return     int
  *@retval     amount of bytes available to read from the host buffer
  */
- 
-   /**
- *@brief      TWI_Available returns the amount of bytes that are available to read in the host or client buffer
- *
- *            This function is placed in this file because the client interrupt handler needs it too.
- *            This file has no concept of the Wire object.
- *            In MANDS mode, when called from
- *            user_onRequest() or user_onReceive() it will return the number from the client buffer
- *            due to the _toggleStreamFn flag
- *            Will return amount of bytes to be written in the buffer when called in Master-MORS 
- *
- *@param      struct twiData *_data is a pointer to the structure that holds the variables
- *              of a Wire object. Following struct elements are used in this function:
- *                _bools._toggleStreamFn
- *                _rxHead(S)
- *                _rxTail(S)
- *
- *@return     uint8_t
- *@retval     amount of bytes available to read from the host or client buffer
- */
+
 int TwoWire::available(void) {
   int rxHead;
   #if defined(TWI_MANDS)                          // Add following if host and client are split
     if (vars._bools._toggleStreamFn == 0x01) {
-      rxHead  = &(vars._bytesToReadWriteS) - &(vars._bytesReadWrittenS);
+      rxHead  = vars._bytesToReadWriteS - vars._bytesReadWrittenS;
     } else
   #endif
   {
     #if defined(TWI_MERGE_BUFFERS)                // Same Buffers for tx/rx
-      rxHead  = &(vars._bytesToReadWrite) - &(vars._bytesReadWritten);
+      rxHead  = vars._bytesToReadWrite - vars._bytesReadWritten;
     #else                                         // Separate tx/rx Buffers
-      rxHead  = &(vars._bytesToRead) - &(vars._bytesRead);
+      rxHead  = vars._bytesToRead - vars._bytesRead;
     #endif
   }
   
