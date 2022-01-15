@@ -353,7 +353,6 @@ uint8_t TwoWire::endTransmission(bool sendStop) {
  *@retval     1 if successful, 0 if the buffer is full
  */
 size_t TwoWire::write(uint8_t data) {
-
   uint8_t* txHead;
   uint8_t* txBuffer;
 
@@ -399,7 +398,7 @@ size_t TwoWire::write(uint8_t data) {
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
   uint8_t i = 0;  // uint8_t since we don't use bigger buffers
-  
+
   for (; i < (uint8_t)quantity; i++) {    // limit quantity to 255 to avoid lock up
     if (write(*(data + i)) == 0) break;   // break if buffer full
   }
@@ -436,7 +435,6 @@ int TwoWire::available(void) {
       rxHead  = vars._bytesToRead - vars._bytesRead;
     #endif
   }
-  
   return rxHead;
 }
 
@@ -455,7 +453,6 @@ int TwoWire::available(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::read(void) {
-
   uint8_t* rxHead;
   uint8_t* rxTail;
   uint8_t* rxBuffer;
@@ -503,7 +500,6 @@ int TwoWire::read(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::peek(void) {
-
   uint8_t* rxHead;
   uint8_t* rxTail;
   uint8_t* rxBuffer;
@@ -526,7 +522,7 @@ int TwoWire::peek(void) {
       rxBuffer =   vars._rxBuffer;
     #endif
   }
-  
+
   if ((*rxTail) < (*rxHead)) {   // if there are bytes to read
     return rxBuffer[(*rxTail)];
   } else {      // No bytes to read

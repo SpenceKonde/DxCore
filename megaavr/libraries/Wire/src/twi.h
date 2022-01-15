@@ -104,10 +104,10 @@ SOFTWARE.
 #endif
 
 
-#define  TWI_TIMEOUT_ENABLE      // Enabled by default, might be disabled for debugging or other reasons
-#define  TWI_ERROR_ENABLED       // Enabled by default, TWI Master Write error functionality
-//#define TWI_READ_ERROR_ENABLED // Enabled on Master Read too
-//#define DISABLE_NEW_ERRORS     // Disables the new error codes and returns TWI_ERR_UNDEFINED instead.
+#define  TWI_TIMEOUT_ENABLE       // Enabled by default, might be disabled for debugging or other reasons
+#define  TWI_ERROR_ENABLED        // Enabled by default, TWI Master Write error functionality
+//#define TWI_READ_ERROR_ENABLED  // Enabled on Master Read too
+//#define DISABLE_NEW_ERRORS      // Disables the new error codes and returns TWI_ERR_UNDEFINED instead.
 
 // Errors from Arduino documentation:
 #define  TWI_ERR_SUCCESS         0x00  // Default
@@ -154,7 +154,7 @@ SOFTWARE.
   #define TWIR_CHK_ERROR(x)     TWIR_ERROR_VAR == x
   #define TWIR_SET_ERROR(x)     TWIR_ERROR_VAR = x
 
-  //#define TWI_SET_EXT_ERROR(x)  TWI_ERROR_VAR = x
+  // #define TWI_SET_EXT_ERROR(x)  TWI_ERROR_VAR = x
 #else
   #define TWIR_ERROR_VAR        {}
   #define TWIR_INIT_ERROR       {}
@@ -162,7 +162,7 @@ SOFTWARE.
   #define TWIR_CHK_ERROR(x)     (true)
   #define TWIR_SET_ERROR(x)     {}
 
-  //#define TWI_SET_EXT_ERROR(x)  {}
+  // #define TWI_SET_EXT_ERROR(x)  {}
 #endif
 
 
