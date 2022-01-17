@@ -55,10 +55,6 @@ Returns the timer used for PWM - at default core configuration, assuming the pin
 ### `PORT_t* digitalPinToPortStruct(pin)`
 (standard) These get a pointer to the port structure associated with either the given port or the port that the pin is a member of
 
-### `uint8_t analogPinToBitPosition(pin)`
-### `uint8_t analogPinToBitMask(pin)`
-Weird macros to do the same thing as the digital versions based on analog channel. Generally for correctly setting the pin mode when those are used to specify a channel. Don't use analog channel numbers without a really good reason - just use the analog pin numbers (eg, A6, not ADC_CH(6) or the digital pin number, in this case PIN_PD6)
-
 ### `volatile uint8_t * getPINnCTRLregister(port, bit_pos)`
 Returns a pointer to the PINnCTRL register associated with that port and bit position.
 

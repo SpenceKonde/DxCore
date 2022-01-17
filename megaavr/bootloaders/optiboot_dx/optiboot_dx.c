@@ -682,7 +682,10 @@ void verifySpace () {
     while (count--) {
       LED_PORT.IN |= LED;
       // delay based on 4 MHz clock since that's what we have
-      for (delay = ((4E6)/150); delay; delay--) {
+      /* This delay is calculated from 4,000,000 Hz CPU clock and the
+       * desired frequency (15 Hz), and the duration of the loop (10 clocks)
+       */
+      for (delay = ((4000000U)/150); delay; delay--) {
         watchdogReset();
         if (MYUART.STATUS & USART_RXCIF_bm) {
           return;

@@ -2,13 +2,13 @@
 So, accessing the flash from the app is a little bit more complicated here than on other parts, since some parts of the flash is accessed
 
 ## 32k parts
-There only one section and its' always mappoed. This is agood thing, Becaaaause....  as a modern AVR with less than 48k of flash, it's __AVR_ARCH__ 103. All const variables will be automatically left in flash and accessed transparently. No special considerations are needed, and you can ignorethe flmap settings (which do noithing here). The compiler (well linker) does it all for you!
+There only one section and it's always mapped. This is a good thing, Becaaaause....  as a modern AVR with less than 48k of flash, it's `__AVR_ARCH__ == 103`: All const variables will be automatically left in flash and accessed transparently. No special considerations are needed, and you can ignore the flmap settings (which do noithing here). The compiler (well, technically it's the linker that does it) does it all for you!
 
 ## 64k parts
 ```text
-PROGMEM_MAPPED - Can be accessed with defauylt flashmap settings.
-PROGMEM_SECTION0 - The lowhalf of theflash Stuff oput here will start *AFTER* your application.
-PROGMEM_SECTION1 - this ismapped by default, ie, PROGMEM_MAPPED is an alias of this/
+PROGMEM_MAPPED - Can be accessed with default flashmap settings.
+PROGMEM_SECTION0 - The lowhalf of the flash Stuff oput here will start *AFTER* your application.
+PROGMEM_SECTION1 - this is mapped by default, ie, PROGMEM_MAPPED is an alias of this.
 const PROGMEM - This covers ENTIRE flash. Stuff you put here will start *BEFORE* your application, but after the vector table and trampolines sections.
 ```
 Notice `PROGMEM` itself requires const declaration. The others do not (I tried to make them const, I couldn't seem to make it work).
@@ -26,8 +26,8 @@ But the compiler still thinks it's address is 0x1000.
 
 There's a simple if rather ugly construction to fix it with minimal overhead though:
 ```c++
-uint16_t  PROGMEM_MAPPED   bigarray1[] = { /*insert your gargantuan initializer here, Iwas testing this to make sure I understood it with a few 4096 element arrays of uint16_t's.*/ };
-uint16_t  PROGMEM_SECTION0 bigarray0[] = { /*insert your gargantuan initializer here, Iwas testing this to make sure I understood it with a few 4096 element arrays of uint16_t's.*/ };
+uint16_t  PROGMEM_MAPPED   bigarray1[] = { /*insert your gargantuan initializer here, I was testing this to make sure I understood it with a few 4096 element arrays of uint16_t's.*/ };
+uint16_t  PROGMEM_SECTION0 bigarray0[] = { /*insert your gargantuan initializer here, I was testing this to make sure I understood it with a few 4096 element arrays of uint16_t's.*/ };
 uint16_t* bigarray0_mapped;
 
 void setup() {
@@ -42,12 +42,12 @@ Note also that `pgm_read_x_near()` will work regardless of `FLMAP`.
 ## 128k parts
 Finally, on the 128k parts, there are 4 flash sections.
 ```text
-PROGMEM_MAPPED   - Can be accessed with default flashmap settings.
-const PROGMEM    - The low half of flash. Stuff you put here will start *BEFORE* your application, but after the vector table and trampolines sections.
+PROGMEM_MAPPED   - Can be accessed with default flashmap settings. (alias of PROGMEM_SECTION3)
 PROGMEM_SECTION0 - The low quarter of the flash. Stuff put here will start *AFTER* your application (if there is room).
 PROGMEM_SECTION1 - second quarter - not mapped by default, accessible using the pgmspace macros.
 PROGMEM_SECTION2 - Third quarter  - the least convenient.
 PROGMEM_SECTION3 - Final quarter  - mapped by default.
+const PROGMEM    - The low half of flash. Stuff you put here will be located *BEFORE* your application, but after the vector table and trampolines sections.
 ```
 
 You can furthermore change the mapped section like this:
@@ -61,13 +61,16 @@ And here's where it gets a little bit weird:
 
 * **PROGMEM_SECTION1** and **PROGMEM_SECTION3** can be accessed directly, like normal variables, provided FLMAP isset to 1 or 3 (3 is default). The above trick of adding 0x8000 to them to get them into the right hlf of the address space isn't needed - they are already there.
 
-* **PROGMEM_SECTION2** and **PROGMEM_SECTION0** can be accessed if the flashmap is pointed in the correct section BUT you do need to use somnething like the trick I showed aobove to offset the addresses by 32768;
+* **PROGMEM_SECTION2** and **PROGMEM_SECTION0** can be accessed if the flashmap is pointed in the correct section BUT you do need to use somnething like the trick I showed aobove to offset the addresses by 0x8000 (32768);
 
-* **PROGMEM_SECTION2** and **PROGMEM_SECTION3** are out of range of normal lpm (pgm_read_byte_near). You need to jump through the hoops described in any guide to progmem on larger AVRs to get a "farptr" THAT, in turn can be passed to pgm_read_byte_far().
+* **PROGMEM_SECTION2** and **PROGMEM_SECTION3** are out of range of normal lpm (pgm_read_byte_near). You need to jump through the hoops described in any guide to progmem on larger AVRs to get a "farptr", and THAT, in turn can be passed to pgm_read_byte_far().
 
 
 
-None of these things are particularly hard, but reading far progmem with the pgmspace macros is annoying, and has a larger performance penalty. While the actual instructios to read from the two methods don't take a different amount of time - ELPM and LPM are still 3-clock instructions, and LD is 2 plus 1 because it's flash (a fact that is buried in the instruction set manual, which refers us to a part of the datasheet with no mention of it, but "at a minimum 1 extra cycle is requires."), in practice, they are markedly slower because the macros in pgmspace arearen't super efficient, because they're little snippets of assembly which the compiler must treat as a black box, and they usually end up performing worse.
+None of these things are particularly hard, but reading far progmem with the pgmspace macros is annoying, and has a larger performance penalty. While the actual instructios to read from the two methods don't take a different amount of time - ELPM and LPM are still 3-clock instructions, and LD is 2 plus 1 because it's flash (a fact that is buried in the instruction set manual, which refers us to a part of the datasheet with no mention of it, but "at a minimum 1 extra cycle is requires."), in practice, they are markedly slower because the macros in pgmspace don't really get much of any optimization - they're little snippets of assembly which the compiler must treat as a black box, and they usually end up performing worse.
+
+## For forward compatibility, don't use the last 512b of flash
+In the case of an application which does not change the flashmap it is suggested to not make use of the very last page (512b) of flash. In a future update, we have plans for an option to use that final page as a reserved area for things like pin function tables; by knowing the exact address of the table with certainty, significant optimizations are made possible. This will always be optional.
 
 ## Summary
 32k, 16k, and 8k parts work like other 32k modern AVRs and all the flash is automatically memory mapped and accessible.

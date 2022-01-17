@@ -226,8 +226,6 @@ digitalPinHasPWM	KEYWORD2
 digitalPinToTimer	KEYWORD2
 portToPortStruct	KEYWORD2
 digitalPinToPortStruct	KEYWORD2
-analogPinToBitPosition	KEYWORD2
-analogPinToBitMask	KEYWORD2
 getPINnCTRLregister	KEYWORD2
 portOutputRegister	KEYWORD2
 portInputRegister	KEYWORD2
