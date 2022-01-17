@@ -2,17 +2,18 @@
 This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of DxCore. Note that this document is maintained by a human, who is - by nature - imperfect; sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare.
 
 ## Changes not yet in release
-Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes. This release really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
-### Planned 1.4.0 or later, depending on DD-series release dates
+Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.  1.4.0 really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
+
+### Planned 1.4.x or later, depending on DD-series release dates
 * DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
   * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
-## Planned 1.4.6
+## Released Versions
+## 1.4.6
 * Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
 * Update SerialUPDI to 1.2.3 from 1.1.0 (megaTinyCore had 1.2.x before....) DxCore didn't. The two core's versions are now the same and should work well on both; Note that the low speedlimit on this core (due to the write speed being constrained to < 345600 baud) has meant we didn't need nearly as many entries in programmers.txt compared to megaTinyCore. Updated programmers.txt entries for consistency with megaTinyCore.
 * Serial UPDI: Change warning level of spammiest messages. Support "Verbose output during upload" when using Serial UPDI (previously we had all both verbose and normal defined as "" so debug output was ever printed. )
 
-## Released Versions
 ## 1.4.5
 * **CRITICAL BUGFIX** Now that I am finally unpacked enough to access test boards, fix critical bug correctly.
 * Fix EEPROM regression that left the top half of the EEPROM inaccessible.
