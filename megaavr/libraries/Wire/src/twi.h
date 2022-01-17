@@ -82,7 +82,7 @@ SOFTWARE.
  * that. Similarly, most libraries will not make use of a larger one
  * Thus, we don't enlarge the buffer until we finally get to
  * the modern AVRs with >= 4k of RAM, where it doesn't really
- * matter any more. At that point, enlarging the buffer to 130b
+ * matter anymore. At that point, enlarging the buffer to 130b
  * allows for a 128b page write to the popular 24-series EEPROMs
  * Since the modern AVRs are lighter on EEPROM than classic ones
  * it is more likely that external storage would be needed.
