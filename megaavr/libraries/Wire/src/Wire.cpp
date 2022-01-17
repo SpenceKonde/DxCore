@@ -398,8 +398,8 @@ size_t TwoWire::write(uint8_t data) {
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
   uint8_t i = 0;  // uint8_t since we don't use bigger buffers
-
-  for (; i < (uint8_t)quantity; i++) {    // limit quantity to 255 to avoid lock up
+  uint8_t qty = quantity > BUFFER_LENGTH ? BUFFER_LENGTH : quantity; //Don't overfill the buffer.
+  for (; i < qty; i++) {
     if (write(*(data + i)) == 0) break;   // break if buffer full
   }
 
@@ -420,7 +420,6 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity) {
  *@return     int
  *@retval     amount of bytes available to read from the host buffer
  */
-
 int TwoWire::available(void) {
   int rxHead;
   #if defined(TWI_MANDS)                          // Add following if host and client are split
@@ -453,6 +452,7 @@ int TwoWire::available(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::read(void) {
+
   uint8_t* rxHead;
   uint8_t* rxTail;
   uint8_t* rxBuffer;
@@ -500,6 +500,7 @@ int TwoWire::read(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::peek(void) {
+
   uint8_t* rxHead;
   uint8_t* rxTail;
   uint8_t* rxBuffer;
