@@ -32,12 +32,17 @@ def main():
     parser.add_argument("-b", "--baudrate",
                         type=str,
                         default="115200",
-                        help="baudrate, if applicable, (default: 115200).")
+                        help="Serial baud rate, if applicable, (default: 115200). 115200 should work with all configurations and adapters, and 230400 works with all windows. Non-ch340 adapters on linux/mac may need -wd 1. 460800 needs -wd 1 except for CH340 on all platforms. CH340 USB latency is high enough that even 921600 works without -wd.")
 
-    parser.add_argument("--blocksize",
+    parser.add_argument("-wc", "--write_chunk",
                         type=int,
                         default=-1,
-                        help="Max number of bytes /usb packet. -1 (whole page) is recommended. serialupdi only. (default: -1)")
+                        help="Max number of bytes of serial data to write per usb packet. -1 (whole page) is recommended. (Default: -1 (no write chunking)) Intended as workaround for specific serial adapters. (ex: HT42B345, which can't do 345600 can program Dx at 460800 and 32b chunk size), and has a profound negative impact on write performance.")
+
+    parser.add_argument("-rc", "--read_chunk",
+                        type=int,
+                        default=-1,
+                        help="Max number of bytes to request from the device at a time when reading or verifying. Default: -1 (maximum 512b on all existing parts). This is intended as a workaround for specific serial adapters, and it's use greatly degrades read performance.")
 
     parser.add_argument("-d", "--device",
                         type=str,
@@ -47,7 +52,7 @@ def main():
                         nargs='+',
                         type=str,
                         default="",
-                        help="List of offset:value (0x, 0b or decimal).")
+                        help="List of offset:value (0x, 0b or decimal). Formats can be mixed and matched within the same command for different fuses, for example: --fuses 0:0x00 1:0x00 2:0x02 5:0b11111111 6:0x04")
 
     parser.add_argument("--fuses_print",
                         action="store_true",
@@ -58,25 +63,25 @@ def main():
                         default="",
                         help="Hex file to read/write.")
 
+    parser.add_argument("-wd", "--writedelay",
+                        type=float,
+                        default=0,
+                        help="Page write delay [ms] for tinyAVR and megaAVR. Needed at higher baud rates, particularly on non-windows platforms. (Default: 0 - this severely impacts write performance)")
+
     parser.add_argument("-t", "--tool",
                         type=str,
                         default="uart",
-                        help="Tool name, defaults to 'uart' (serialupdi) mode")
+                        help="Options other than 'uart' are not valid - this is SerialUPDI. If using the USB programmers, use avrdude or pymcuprog")
 
     parser.add_argument("-u", "--uart",
                         type=str,
                         default="",
-                        help="Uart port to use if tool is uart.")
-
-    parser.add_argument("-s", "--serialnumber",
-                        type=str,
-                        default="",
-                        help="Tool USB serial (optional, for non-Serial UPDI programmers only).")
+                        help="Serial port to use if tool is uart.")
 
     parser.add_argument("-v", "--verbose",
                         action="count",
                         default=0,
-                        help="Display more info (can be repeated).")
+                        help="Display more info (can be repeated). -v adds INFO messages, while -v -v also shows DEBUG messages.")
 
     # Parse args
     args = parser.parse_args()
@@ -96,7 +101,9 @@ def main():
     if args.action in ("read", "write") and args.filename == "":
         print("Error: no filename provided")
         sys.exit(1)
-
+    if args.tool != None:
+        if args.tool != "uart":
+            print("SerialUPDI no longer pretends to support tools other than UART programming. For programming via the Microchip tooling, please use their version of pymcuprog.")
     fuses_dict = {}
     for fuse_str in args.fuses:
         fuse_offset, fuse_val = fuse_str.split(":")
@@ -113,7 +120,7 @@ def main():
     logging_level = logging.ERROR
     if args.verbose == 1:
         logging_level = logging.INFO
-    elif args.verbose > 1:
+    elif args.verbose >= 2:
         logging_level = logging.DEBUG
 
     try:
@@ -138,9 +145,18 @@ def run_pymcu_action(func, backend, *args, **kwargs):
 
 
 def print_report(args):
-    print("Arduino <---> pymcuprog bridge by Quentin Bolsee and Spence Konde")
-    print("Version 1.1.0 - May 2021")
+    print("SerialUPDI")
+    print("UPDI programming for Arduino using a serial adapter")
+    print("Based on pymcuprog, with significant modifications")
+    print("By Quentin Bolsee and Spence Konde")
+    print("Version 1.2.3 - Jan 2022")
     print("Using serial port {} at {} baud.".format(args.uart, args.baudrate))
+    if (args.write_chunk != -1):
+        print("Writing in chunks not longer than {} bytes (-wc).".format(args.write_chunk))
+    if (args.read_chunk != -1):
+        print("Reading in chunks not longer than {} bytes (-rc).".format(args.read_chunk))
+    if (args.writedelay != 0):
+        print("Delaying next op after each page write command by {}ms (-wd).".format(args.writedelay))
     print("Target: {}".format(args.device))
     if args.fuses != "":
         print("Set fuses: {}".format(args.fuses))
@@ -158,7 +174,7 @@ def pymcuprog_basic(args, fuses_dict):
     # connect to tool
     toolconnection = pymcu._setup_tool_connection(argparse.Namespace(tool=args.tool,
                                                                      uart=args.uart,
-                                                                     serialnumber=args.serialnumber))
+                                                                     ))
     try:
         backend.connect_to_tool(toolconnection)
     except pymcu.PymcuprogToolConnectionError as error:
@@ -237,20 +253,23 @@ def pymcuprog_basic(args, fuses_dict):
                          literal=None,
                          verify=False,
                          filename=args.filename,
-                         blocksize=args.blocksize)
+                         blocksize=None if args.write_chunk <= 0 else args.write_chunk,
+                         pagewrite_delay=args.writedelay)
 
         run_pymcu_action(pymcu._action_verify, backend,
                          memory=pymcu.MemoryNameAliases.ALL,
                          offset=0,
                          literal=None,
-                         filename=args.filename)
+                         filename=args.filename,
+                         max_read_chunk=None if args.read_chunk <= 0 else args.read_chunk)
 
     elif args.action == "read":
         run_pymcu_action(pymcu._action_read, backend,
                          memory=pymcu.MemoryNames.FLASH,
                          offset=0,
                          bytes=0,
-                         filename=args.filename)
+                         filename=args.filename,
+                         max_read_chunk=None if args.read_chunk <= 0 else args.read_chunk)
     elif args.action == "erase":
         run_pymcu_action(pymcu._action_erase, backend,
                          memory=pymcu.MemoryNameAliases.ALL,

@@ -11,9 +11,9 @@
 name=DxCore
 versionnum.major=1
 versionnum.minor=4
-versionnum.patch=3
+versionnum.patch=6
 versionnum.postfix=
-versionnum.released=1
+versionnum.released=0
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL -DDXCORE_RELEASED={versionnum.released}
 
@@ -206,18 +206,18 @@ tools.serialupdi.cmd={runtime.platform.path}/tools/python3/python3
 # Upload is only for uploading through a bootloader, and erase is not used anywhere.
 tools.serialupdi.bootloader.params.noverify=
 tools.serialupdi.bootloader.params.quiet=
-tools.serialupdi.bootloader.params.verbose=
+tools.serialupdi.bootloader.params.verbose=-v
 tools.serialupdi.bootloader.verify=
 tools.serialupdi.erase.params.quiet=
-tools.serialupdi.erase.params.verbose=
+tools.serialupdi.erase.params.verbose=-v
 tools.serialupdi.erase.pattern=
 tools.serialupdi.program.params.noverify=
 tools.serialupdi.program.params.quiet=
-tools.serialupdi.program.params.verbose=
+tools.serialupdi.program.params.verbose=-v
 tools.serialupdi.program.verify=
 tools.serialupdi.upload.params.noverify=
 tools.serialupdi.upload.params.quiet=
-tools.serialupdi.upload.params.verbose=
+tools.serialupdi.upload.params.verbose=-v
 tools.serialupdi.upload.verify=
 tools.serialupdi.upload.pattern=echo "This can't happen, but has to be here or automated tests fail"
 
@@ -225,10 +225,10 @@ tools.serialupdi.upload.pattern=echo "This can't happen, but has to be here or a
 # write fuses 0, 1, 2, 5, 6, 7, 8.
 # 2 is always written 0 (sets clock to use HF osc, not 32kHz ULP).
 # Fuses 3 and 4 are reserved.
-tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 2:0x00 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} {bootloader.pymcuprogstring}
+tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 2:0x00 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} {bootloader.pymcuprogstring} {bootloader.verbose}
 
 ## Program pattern (all uploads through SerialUPDI)
 # Upload/Program will set fuses 5-8. Fuse 0 is not written because the core never configures that, and if a user went and set that themselvesm we shouldn't undo it.
 # Fuse 1 is the BOD configuration , which could "brick" the chip if set for a higher voltage than the power rail.
 # That leaves the two SYSCFG fuses which are safe (SYSCFG0 will not be safe on DD, though!), and the boot and codesize fuses.
-tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write
+tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}

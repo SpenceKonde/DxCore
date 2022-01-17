@@ -7,9 +7,12 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
   * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
+## Planned 1.4.6
+* Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
+* Update SerialUPDI to 1.2.3 from 1.1.0 (megaTinyCore had 1.2.x before....) DxCore didn't. The two core's versions are now the same and should work well on both; Note that the low speedlimit on this core (due to the write speed being constrained to < 345600 baud) has meant we didn't need nearly as many entries in programmers.txt compared to megaTinyCore. Updated programmers.txt entries for consistency with megaTinyCore.
+* Serial UPDI: Change warning level of spammiest messages. Support "Verbose output during upload" when using Serial UPDI (previously we had all both verbose and normal defined as "" so debug output was ever printed. )
 
 ## Released Versions
-
 ## 1.4.5
 * **CRITICAL BUGFIX** Now that I am finally unpacked enough to access test boards, fix critical bug correctly.
 * Fix EEPROM regression that left the top half of the EEPROM inaccessible.
