@@ -243,8 +243,6 @@ static const uint8_t A17 = PIN_A17;
 /* this guards against multiple definition errors, since this file gets included by everything,
    but only in one case should these tables be generated */
 const uint8_t digital_pin_to_port[] = {
-  PA, //  0 PA0/XTAL0/CLKIN
-  PA, //  1 PA1/XTAL1
   PA, //  0 PA0/USART0_Tx/CLKIN
   PA, //  1 PA1/USART0_Rx
   PA, //  2 PA2/SDA
@@ -265,8 +263,8 @@ const uint8_t digital_pin_to_port[] = {
   PD, // 17 PD5/AIN5
   PD, // 18 PD6/AIN6
   PD, // 19 PD7/AIN7/AREF
-  PF, // 20 PF0/AIN16/USART2_Tx/TOSC1
-  PF, // 21 PF1/AIN17/USART2_Rx/TOSC2
+  PF, // 20 PF0/AIN16/USART2_Tx/TOSC1/XTAL0
+  PF, // 21 PF1/AIN17/USART2_Rx/TOSC2/XTAL1
   PF, // 22 PF6 RESET
  // PF  // 23 PF7 UPDI
   };
