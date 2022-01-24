@@ -4,8 +4,8 @@
 
 ## HEY HEY WE GOT AVR64DD PRELIMINARY DATASHEETS
 [Read them they are *yawn* well, pretty much what everyone expected](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DD32-28-Prelim-DataSheet-DS40002315A.pdf)
-**Anyone able to find anything novel in there?** (aside from the fact that the HV override to turn UPDI back into UPDI goes on reset, which was already pretty obvious). 
-Reset is disabled by default (but this poses no challenges to working with the parts), and makes sense on the low pincount ones. I guess at that point, they'd do it for the whole line, rather than give the "small" ones (for which we don't yet have a datasheet) disabled reset as the default and the "large" ones enabled reset. 
+**Anyone able to find anything novel in there?** (aside from the fact that the HV override to turn UPDI back into UPDI goes on reset, which was already pretty obvious).
+Reset is disabled by default (but this poses no challenges to working with the parts), and makes sense on the low pincount ones. I guess at that point, they'd do it for the whole line, rather than give the "small" ones (for which we don't yet have a datasheet) disabled reset as the default and the "large" ones enabled reset.
 I mean, this is pretty much how it was supposed to go down - no surprises in the datasheet, landing pad ready for them in the core, any differences are trivial and nothing to get worked up about, and we all sit here twiddling our thumbs waiting for the 14-pin and 20-pins ones which are what everyone wants. If there were big surprises there, I wouldn't be happy. Even if they were good surprises.
 
 ## What is DxCore
