@@ -57,11 +57,11 @@ bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
 bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
 
 
-#define MVIO_DISABLED     (-128)
-#define MVIO_BAD_FUSE     ( -64)
+#define MVIO_DISABLED     ( -64)
+#define MVIO_BAD_FUSE     ( -32)
 #define MVIO_UNDERVOLTAGE (  -1)
 #define MVIO_OKAY         (   0)
-#define MVIO_UNSUPPORTED  (-127)
+#define MVIO_UNSUPPORTED  (-128)
 #ifdef MVIO
   // File this under "abuse of the ternary operator"
   #define getMVIOStatus() ((FUSE.SYSCFG1 & 0x18) == 0x10 ? MVIO_DISABLED : ((FUSE.SYSCFG1 & 0x18) == 0x08 ? (MVIO.STATUS ? MVIO_OKAY : MVIO_UNDERVOLTAGE) : MVIO_BAD_FUSE))
@@ -69,11 +69,12 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
   #define getMVIOStatus() MVIO_UNSUPPORTED
 #endif
 
-int16_t getMVIOVoltage();
+int8_t getMVIOVoltage();
 // returns ADC or MVIO error code, or voltage in millivolts;
 
-#if defined(AZDUINO_DB_MULTIREG)
-  int8_t setMVIOVoltageReg(uint8_t setting);
+
+#if defined(MVIO) && defined(HAS_64_PINS)
+  int8_t setMAX38903Voltage(uint8_t setting);
   #define REG_OFF 0xFF
   #define REG_1V2 0b01000100
   #define REG_1V5 0b10001000

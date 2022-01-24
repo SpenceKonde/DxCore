@@ -136,8 +136,9 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
 }               // chips that one might want to call this for don't exist, let's not bother :-)
 
 
-#if defined(AZDUINO_DB_MULTIREG)
-/* The Maxim regulator has 2 pins each of which can float, or be driven high or low to set the voltage, then you bounce enable to latch the new voltage.
+#if defined(HAS_64_PINS) && defined(MVIO)
+/* The Maxim regulator has 2 pins each of which can float, or be driven high or low to set the voltage,
+then you bounce enable to latch the new voltage.
    REG_OFF    0xFF
    REG_1V2    0b0100 0100
    REG_1V5    0b1000 1000
@@ -152,7 +153,7 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
 
 
 
-int8_t setMVIOVoltageReg(uint8_t setting) {
+int8_t setMAX38903Voltage(uint8_t setting) {
   if (setting == REGOFF) {
     VPORTE.OUT &= ~(1<<6);
     return 0;
@@ -183,6 +184,7 @@ int8_t setMVIOVoltageReg(uint8_t setting) {
       } else {
         VPORTG.DIR   &= ~(1 << 6);    // cbi
       }
+
       VPORTE.OUT     |=  (1 << 6);    // sbi
       return 1;                       // ldi ret
     }
