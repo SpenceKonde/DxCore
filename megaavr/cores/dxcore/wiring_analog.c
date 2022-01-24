@@ -61,7 +61,7 @@ inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
         badArg("Requested resolution exceeds ADC capabilities. The highest resolution obtainable through oversampling and decimation is 15 bits (Dx-sereis) or 17 bits (Ex-series).");
       }
     } else if ((res & 0x7F) > 0x07) {
-      badArg("Accumulation number invalid. Valid values are 8 - 15, or ADC_ACC_n where n is between 2 and 7.");
+      badArg("Accumulation number invalid. Valid values are 8 - 15, or ADC_ACCn where n is a power of 2 between 2 and 128");
     }
   }
 }

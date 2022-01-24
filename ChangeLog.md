@@ -8,13 +8,20 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
   * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
+### Planned for 1.4.7
+* Respond more gracefully when data that doesn't fit in the buffer is "written".
+* Fix horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138)
+
+
 ## Released Versions
-## 1.4.6
+
+### 1.4.6
 * Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
 * Update SerialUPDI to 1.2.3 from 1.1.0 (megaTinyCore had 1.2.x before....) DxCore didn't. The two core's versions are now the same and should work well on both; Note that the low speedlimit on this core (due to the write speed being constrained to < 345600 baud) has meant we didn't need nearly as many entries in programmers.txt compared to megaTinyCore. Updated programmers.txt entries for consistency with megaTinyCore.
 * Serial UPDI: Change warning level of spammiest messages. Support "Verbose output during upload" when using Serial UPDI (previously we had all both verbose and normal defined as "" so debug output was ever printed. )
+* Not a change we made, just an observation: There is no more stylechecking on code because the tool we used has vanished from the internet and it's URL doesn't even resolve now.
 
-## 1.4.5
+### 1.4.5
 * **CRITICAL BUGFIX** Now that I am finally unpacked enough to access test boards, fix critical bug correctly.
 * Fix EEPROM regression that left the top half of the EEPROM inaccessible.
 * **Critical Bugfix** to correct attachInterrupt, which would corrupt the stack when used in the default mode. (#225)
@@ -22,16 +29,16 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Formatting in core_devices and Arduino.h
 * **Critical Bugfix** to correct return values from Wire.endTransaction() to match the API. (#226)
 
-## 1.4.4 - Unsuccessfully attempt to fix a critical bug that prevented uploading to non-optiboot boards
+### 1.4.4 - Unsuccessfully attempt to fix a critical bug that prevented uploading to non-optiboot boards
 
-## 1.4.3
+### 1.4.3
 * **CRITICAL BUGFIX**. Prior critical bugfix was unsuccessful because the flashsize test was comparing it to the wrong value. Additionally, the branch before a jmp, with it's offset specified numerically, needs to match the size of the rjmp or jmp instruction;  This corrects that.
 
-## 1.4.2
+### 1.4.2
 * Make software serial suck somewhat less by performing a single bitwise-and to calculate the result of the modulo operator, instead of dividing a 2-byte signed value which we know will never be larger than twice the buffer size (of 64) and hence fits in a single unsigned byte.
 * **CRITICAL BUGFIX** (ANOTHER ONE) which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages
 
-## 1.4.1
+### 1.4.1
 * Added support for serial buffer sizes of 256.
 * Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
 * Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
