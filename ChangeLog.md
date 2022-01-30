@@ -8,12 +8,11 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
   * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
 
-### Planned for 1.4.7
-* Respond more gracefully when data that doesn't fit in the buffer is "written".
-* Fix horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138)
-
-
-## Released Versions
+### 1.4.7
+* Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
+* **CRITTICAL BUGFIX** for horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138, #140)
+* Fix missing ADC_ACCn constants, and text of the error message when using invalid values which inaccurately describes the name of the constants (which didn't exist, as noted) (#139)
+* Update the Wire docs to clarify the limitations and assumpotions of setClock and explain why it is not possible to get the speed you requested if the elecrical conditions of the bus are worse than the code assumes.
 
 ### 1.4.6
 * Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
