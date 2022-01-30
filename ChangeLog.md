@@ -12,7 +12,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
 * **CRITTICAL BUGFIX** for horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138, #140)
 * Fix missing ADC_ACCn constants, and text of the error message when using invalid values which inaccurately describes the name of the constants (which didn't exist, as noted) (#139)
-* Update the Wire docs to clarify the limitations and assumpotions of setClock and explain why it is not possible to get the speed you requested if the elecrical conditions of the bus are worse than the code assumes.
+* Update the Wire docs to clarify the limitations and assumptions of setClock and explain why it is not possible to get the speed you requested if the elecrical conditions of the bus are worse than the code assumes.
+* Improve error reporting for SerialUPDI.
 
 ### 1.4.6
 * Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
