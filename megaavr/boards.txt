@@ -2405,48 +2405,48 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #                                        #             #
 # Parameters and defaults for DD parts   #
 #________________________________________#
-avrddopti.build.board=avrdd
-avrddopti.build.core=dxcore
-avrddopti.build.f_cpu={build.speed}000000L
-avrddopti.build.text_section_start=.text=0x200
-avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable>}
-avrddopti.build.export_merged_output=false
-avrddopri.build.highestcb=B2
-avrddopti.build.printf=
+#avrddopti.build.board=avrdd
+#avrddopti.build.core=dxcore
+#avrddopti.build.f_cpu={build.speed}000000L
+#avrddopti.build.text_section_start=.text=0x200
+#avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable>}
+#avrddopti.build.export_merged_output=false
+#avrddopti.build.highestcb=B2
+#avrddopti.build.printf=
 
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
-avrddopti.bootloader.tool=avrdude
-avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
-avrddopti.bootloader.WDTCFG=0x00
-avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
-avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+#avrddopti.bootloader.tool=avrdude
+#avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
+#avrddopti.bootloader.WDTCFG=0x00
+#avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+#avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
+#avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 #avrddopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
-avrddopti.bootloader.CODESIZE=0x00
-avrddopti.bootloader.BOOTSIZE=0x01
-avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
-avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+#avrddopti.bootloader.CODESIZE=0x00
+#avrddopti.bootloader.BOOTSIZE=0x01
+#avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
+#avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
-avrddopti.upload.tool=avrdude
-avrddopti.upload.protocol=arduino
-avrddopti.upload.extra_params=-D
-avrddopti.upload.speed=115200
-avrddopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
+#avrddopti.upload.tool=avrdude
+#avrddopti.upload.protocol=arduino
+#avrddopti.upload.extra_params=-D
+#avrddopti.upload.speed=115200
+#avrddopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
 # are only to do that, nothing else      #
 #________________________________________#
-avrddopti.build.mcupostfix=opti
-avrddopti.build.printfabr=
-avrddopti.build.attachabr=
-avrddopti.build.wireabr=
+#avrddopti.build.mcupostfix=opti
+#avrddopti.build.printfabr=
+#avrddopti.build.attachabr=
+#avrddopti.build.wireabr=
 #avrddopti.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
