@@ -2,6 +2,10 @@
 #define DXCORE_H
 #include <Arduino.h>
 
+#ifdef __cplusplus
+  extern "C"{
+#endif
+
 typedef enum X32K_TYPE {
   X32K_LOWPWR_START31MS   = (CLKCTRL_CSUT_1K_gc  | CLKCTRL_LPMODE_bm),
   X32K_LOWPWR_START500MS  = (CLKCTRL_CSUT_16K_gc | CLKCTRL_LPMODE_bm),
@@ -45,29 +49,8 @@ int8_t disableAutoTune();
 // Returns 255 (-1) if autotune was not enabled.
 // Returns 0 if autotune is successfully disabled.
 
-// passed a port number (eg, digitalPinToPort() from pin, or number 0-6)
-// or pin number, respectively, set the set the specified mux to the mapping that includes that pin after making sure nothing on the pins it's getting moved to is currenttly outputting it's own PWM.
-bool setTCA0MuxByPort(uint8_t port);
-bool setTCA0MuxByPin(uint8_t pin);
-#ifdef TCA1
-  bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
-  bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
-#endif // TCA1
-bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
-bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
 
 
-#define MVIO_DISABLED     ( -64)
-#define MVIO_BAD_FUSE     ( -32)
-#define MVIO_UNDERVOLTAGE (  -1)
-#define MVIO_OKAY         (   0)
-#define MVIO_UNSUPPORTED  (-128)
-#ifdef MVIO
-  // File this under "abuse of the ternary operator"
-  #define getMVIOStatus() ((FUSE.SYSCFG1 & 0x18) == 0x10 ? MVIO_DISABLED : ((FUSE.SYSCFG1 & 0x18) == 0x08 ? (MVIO.STATUS ? MVIO_OKAY : MVIO_UNDERVOLTAGE) : MVIO_BAD_FUSE))
-#else
-  #define getMVIOStatus() MVIO_UNSUPPORTED
-#endif
 
 int8_t getMVIOVoltage();
 // returns ADC or MVIO error code, or voltage in millivolts;
@@ -86,4 +69,33 @@ int8_t getMVIOVoltage();
   #define REG_4V0 0b11001000
   #define REG_5V0 0b11001100
 #endif
+
+#ifdef __cplusplus
+  extern }
+#endif
+
+// passed a port number (eg, digitalPinToPort() from pin, or number 0-6)
+// or pin number, respectively, set the set the specified mux to the mapping that includes that pin after making sure nothing on the pins it's getting moved to is currenttly outputting it's own PWM.
+bool setTCA0MuxByPort(uint8_t port);
+bool setTCA0MuxByPin(uint8_t pin);
+
+#define MVIO_DISABLED       ( 0x40)
+#define MVIO_BAD_FUSE       ( 0x20)
+#define MVIO_UNDERVOLTAGE   ( 0x01)
+#define MVIO_OKAY           ( 0x00)
+#define MVIO_UNSUPPORTED    ( 0x80)
+#define MVIO_MENU_SET_WRONG ( 0x10)
+#define MVIO_IMPOSSIBLE_CFG ( 0x80)
+
+#ifdef __cplusplus
+  #ifdef TCA1
+    bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
+    bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
+  #endif // TCA1
+  bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
+  bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
+
+  uint8_t getMVIOStatus(bool printInfo = 1);
+#endif
+
 #endif

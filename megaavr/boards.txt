@@ -3,9 +3,9 @@
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
 #  ##     ## ##   ##   ##      ###  ####  ####     ##     #  #     ###   #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #  #    #  ##  #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####    # # #  #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ## ##  #  #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #  #    #   #  #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####     ###   #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ## #   #  #
 #  #######   ##   ##    #####  ###  #  #  ####    #### ##    # ##  ###   #
 #________________________________________________________________________#
 #                                                                        #
@@ -43,7 +43,7 @@
 
 avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
-#avrdd.name=AVR DD-series (no bootloader)
+avrdd.name=AVR DD-series (no bootloader)
 #avrea.name=AVR EA-series (no bootloader)
 #microchip.name=Microchip Curiosity Nano
 avrdaopti.name=AVR DA-series (Optiboot)
@@ -78,6 +78,7 @@ menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
 menu.timeout=Bootloader Timeout (Bootload burn req'd)
 menu.appspm=Flash Writing
 menu.mvio=MultiVoltage I/O (MVIO)
+menu.mvioopti=MultiVoltage I/O (MVIO) - (bootloader burn req'd)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
@@ -443,7 +444,7 @@ avrdb.build.board=avrdb
 avrdb.build.core=dxcore
 avrdb.build.f_cpu={build.speed}000000L
 avrdb.build.text_section_start=.text=0x0
-avrdb.build.extra_flags= {bootloader.appspm}
+avrdb.build.extra_flags= {bootloader.appspm} {build.MVIOenable}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 avrdb.build.printf=
@@ -741,8 +742,10 @@ avrdb.menu.attach.oldversion.build.attachabr=.aOld
 #________________________________________#
 avrdb.menu.mvio.enabled=Enabled
 avrdb.menu.mvio.enabled.bootloader.mviobits=01
+avrdb.memu.mvio.enabled.build.MVIOenable=-DMVIO_ENABLED
 avrdb.menu.mvio.disabled=Disabled
 avrdb.menu.mvio.disabled.bootloader.mviobits=10
+avrdb.memu.mvio.disabled.build.MVIOenable=
 
 #----------------------------------------#
 # Startup time options                   #
@@ -827,39 +830,39 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #                                        #
 # Parameters and defaults for DD parts   #
 #________________________________________#
-#avrdd.upload.tool=avrdude
-#avrdd.upload.prog_interlock=
-#avrdd.build.board=avrdd
-#avrdd.build.core=dxcore
-#avrdd.build.f_cpu={build.speed}000000L
-#avrdd.build.text_section_start=.text=0x0
-#avrdd.build.extra_flags= {bootloader.appspm}
-#avrdd.build.export_merged_output=false
-#avrdd.build.printf=
+avrdd.upload.tool=avrdude
+avrdd.upload.prog_interlock=
+avrdd.build.board=avrdd
+avrdd.build.core=dxcore
+avrdd.build.f_cpu={build.speed}000000L
+avrdd.build.text_section_start=.text=0x0
+avrdd.build.extra_flags= {bootloader.appspm} {build.MVIOenable}
+avrdd.build.export_merged_output=false
+avrdd.build.printf=
 
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
-#avrdd.bootloader.tool=avrdude
-#avrdd.bootloader.WDTCFG=0x00
-#avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-#avrdd.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-#avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
-#avrdd.bootloader.CODESIZE=0x00
-#avrdd.bootloader.BOOTSIZE=0x01
-#avrdd.bootloader.avrdudestring=
-#avrdd.bootloader.pymcuprogstring=-aerase
+avrdd.bootloader.tool=avrdude
+avrdd.bootloader.WDTCFG=0x00
+avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avrdd.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+avrdd.bootloader.CODESIZE=0x00
+avrdd.bootloader.BOOTSIZE=0x01
+avrdd.bootloader.avrdudestring=
+avrdd.bootloader.pymcuprogstring=-aerase
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
 # are only to do that, nothing else      #
 #________________________________________#
-#avrdd.build.mcupostfix=
-#avrdd.build.printfabr=
-#avrdd.build.attachabr=
-#avrdd.build.wireabr=
-#avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
+avrdd.build.mcupostfix=
+avrdd.build.printfabr=
+avrdd.build.attachabr=
+avrdd.build.wireabr=
+avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 # AVR-DD submenu options                     #
@@ -880,16 +883,16 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrdd.menu.chip.avr64dd20.upload.maximum_data_size=8192
 #avrdd.menu.chip.avr64dd20.build.highestcb=B1
 #avrdd.menu.chip.avr64dd20.build.variant=20pin-ddseries
-#avrdd.menu.chip.avr64dd28=AVR64DD28
-#avrdd.menu.chip.avr64dd28.build.mcu=avr64dd28
-#avrdd.menu.chip.avr64dd28.upload.maximum_size=65536
-#avrdd.menu.chip.avr64dd28.upload.maximum_data_size=8192
-#avrdd.menu.chip.avr64dd28.build.variant=28pin-ddseries
-#avrdd.menu.chip.avr64dd32=AVR64DD32
-#avrdd.menu.chip.avr64dd32.build.mcu=avr64dd32
-#avrdd.menu.chip.avr64dd32.upload.maximum_size=65536
-#avrdd.menu.chip.avr64dd32.upload.maximum_data_size=8192
-#avrdd.menu.chip.avr64dd32.build.variant=32in-ddseries
+avrdd.menu.chip.avr64dd28=AVR64DD28
+avrdd.menu.chip.avr64dd28.build.mcu=avr64dd28
+avrdd.menu.chip.avr64dd28.upload.maximum_size=65536
+avrdd.menu.chip.avr64dd28.upload.maximum_data_size=8192
+avrdd.menu.chip.avr64dd28.build.variant=28pin-ddseries
+avrdd.menu.chip.avr64dd32=AVR64DD32
+avrdd.menu.chip.avr64dd32.build.mcu=avr64dd32
+avrdd.menu.chip.avr64dd32.upload.maximum_size=65536
+avrdd.menu.chip.avr64dd32.upload.maximum_data_size=8192
+avrdd.menu.chip.avr64dd32.build.variant=32in-ddseries
 ##avrdd.menu.chip.avr32dd14=AVR32DD14
 ##avrdd.menu.chip.avr32dd14.build.mcu=avr32dd14
 ##avrdd.menu.chip.avr32dd14.upload.maximum_size=32768
@@ -938,279 +941,276 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #----------------------------------------#
 # Clock speed and source options         #
 #________________________________________#
-#avrdd.menu.clock.24internal=24 MHz internal
-#avrdd.menu.clock.24internal.build.speed=24
-#avrdd.menu.clock.24internal.build.clocksource=0
-#avrdd.menu.clock.20internal=20 MHz internal
-#avrdd.menu.clock.20internal.build.speed=20
-#avrdd.menu.clock.20internal.build.clocksource=0
-#avrdd.menu.clock.16internal=16 MHz internal
-#avrdd.menu.clock.16internal.build.speed=16
-#avrdd.menu.clock.16internal.build.clocksource=0
-#avrdd.menu.clock.12internal=12 MHz internal
-#avrdd.menu.clock.12internal.build.speed=12
-#avrdd.menu.clock.12internal.build.clocksource=0
-#avrdd.menu.clock.10internal=10 MHz internal
-#avrdd.menu.clock.10internal.build.speed=10
-#avrdd.menu.clock.10internal.build.clocksource=0
-#avrdd.menu.clock.8internal=8 MHz internal
-#avrdd.menu.clock.8internal.build.speed=8
-#avrdd.menu.clock.8internal.build.clocksource=0
-#avrdd.menu.clock.4internal=4 MHz internal
-#avrdd.menu.clock.4internal.build.speed=4
-#avrdd.menu.clock.4internal.build.clocksource=0
-#avrdd.menu.clock.1internal=1 MHz internal
-#avrdd.menu.clock.1internal.build.speed=1
-#avrdd.menu.clock.1internal.build.clocksource=0
-#avrdd.menu.clock.24crystal=24 MHz crystal
-#avrdd.menu.clock.24crystal.build.speed=24
-#avrdd.menu.clock.24crystal.build.clocksource=1
-#avrdd.menu.clock.20crystal=20 MHz crystal
-#avrdd.menu.clock.20crystal.build.speed=20
-#avrdd.menu.clock.20crystal.build.clocksource=1
-#avrdd.menu.clock.16crystal=16 MHz crystal
-#avrdd.menu.clock.16crystal.build.speed=16
-#avrdd.menu.clock.16crystal.build.clocksource=1
-#avrdd.menu.clock.12crystal=12 MHz crystal
-#avrdd.menu.clock.12crystal.build.speed=12
-#avrdd.menu.clock.12crystal.build.clocksource=1
-#avrdd.menu.clock.8crystal=8 MHz crystal
-#avrdd.menu.clock.8crystal.build.speed=8
-#avrdd.menu.clock.8crystal.build.clocksource=1
-#avrdd.menu.clock.24extclock=24 MHz ext. clock
-#avrdd.menu.clock.24extclock.build.speed=24
-#avrdd.menu.clock.24extclock.build.clocksource=2
-#avrdd.menu.clock.20extclock=20 MHz ext. clock
-#avrdd.menu.clock.20extclock.build.speed=20
-#avrdd.menu.clock.20extclock.build.clocksource=2
-#avrdd.menu.clock.16extclock=16 MHz ext. clock
-#avrdd.menu.clock.16extclock.build.speed=16
-#avrdd.menu.clock.16extclock.build.clocksource=2
-#avrdd.menu.clock.12extclock=12 MHz ext. clock
-#avrdd.menu.clock.12extclock.build.speed=12
-#avrdd.menu.clock.12extclock.build.clocksource=2
-#avrdd.menu.clock.8extclock=8 MHz ext. clock
-#avrdd.menu.clock.8extclock.build.speed=8
-#avrdd.menu.clock.8extclock.build.clocksource=2
-#avrdd.menu.clock.28internal=28 MHz internal (overclocked)
-#avrdd.menu.clock.28internal.build.speed=28
-#avrdd.menu.clock.28internal.build.clocksource=0
-#avrdd.menu.clock.32internal=32 MHz internal (overclocked)
-#avrdd.menu.clock.32internal.build.speed=32
-#avrdd.menu.clock.32internal.build.clocksource=0
-#avrdd.menu.clock.25crystal=25 MHz crystal (slightly overclocked)
-#avrdd.menu.clock.25crystal.build.speed=25
-#avrdd.menu.clock.25crystal.build.clocksource=1
-#avrdd.menu.clock.27crystal=27 MHz crystal (overclocked)
-#avrdd.menu.clock.27crystal.build.speed=27
-#avrdd.menu.clock.27crystal.build.clocksource=1
-#avrdd.menu.clock.28crystal=28 MHz crystal (overclocked)
-#avrdd.menu.clock.28crystal.build.speed=28
-#avrdd.menu.clock.28crystal.build.clocksource=1
-#avrdd.menu.clock.30crystal=30 MHz crystal (overclocked)
-#avrdd.menu.clock.30crystal.build.speed=30
-#avrdd.menu.clock.30crystal.build.clocksource=1
-#avrdd.menu.clock.32crystal=32 MHz crystal (overclocked)
-#avrdd.menu.clock.32crystal.build.speed=32
-#avrdd.menu.clock.32crystal.build.clocksource=1
-#avrdd.menu.clock.36crystal=36 MHz crystal (overclocked)
-#avrdd.menu.clock.36crystal.build.speed=36
-#avrdd.menu.clock.36crystal.build.clocksource=1
-#avrdd.menu.clock.40crystal=40 MHz crystal (overclocked)
-#avrdd.menu.clock.40crystal.build.speed=40
-#avrdd.menu.clock.40crystal.build.clocksource=1
-#avrdd.menu.clock.25extclock=25 MHz ext. clock (slightly overclocked)
-#avrdd.menu.clock.25extclock.build.speed=25
-#avrdd.menu.clock.25extclock.build.clocksource=2
-#avrdd.menu.clock.27extclock=27 MHz ext. clock (overclocked)
-#avrdd.menu.clock.27extclock.build.speed=27
-#avrdd.menu.clock.27extclock.build.clocksource=2
-#avrdd.menu.clock.28extclock=28 MHz ext. clock (overclocked)
-#avrdd.menu.clock.28extclock.build.speed=28
-#avrdd.menu.clock.28extclock.build.clocksource=2
-#avrdd.menu.clock.30extclock=30 MHz ext. clock (overclocked)
-#avrdd.menu.clock.30extclock.build.speed=30
-#avrdd.menu.clock.30extclock.build.clocksource=2
-#avrdd.menu.clock.32extclock=32 MHz ext. clock (overclocked)
-#avrdd.menu.clock.32extclock.build.speed=32
-#avrdd.menu.clock.32extclock.build.clocksource=2
-#avrdd.menu.clock.36extclock=36 MHz ext. clock (overclocked)
-#avrdd.menu.clock.36extclock.build.speed=36
-#avrdd.menu.clock.36extclock.build.clocksource=2
-#avrdd.menu.clock.40extclock=40 MHz ext. clock (overclocked)
-#avrdd.menu.clock.40extclock.build.speed=40
-#avrdd.menu.clock.40extclock.build.clocksource=2
-#avrdd.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
-#avrdd.menu.clock.48extclock.build.speed=48
-#avrdd.menu.clock.48extclock.build.clocksource=2
+avrdd.menu.clock.24internal=24 MHz internal
+avrdd.menu.clock.24internal.build.speed=24
+avrdd.menu.clock.24internal.build.clocksource=0
+avrdd.menu.clock.20internal=20 MHz internal
+avrdd.menu.clock.20internal.build.speed=20
+avrdd.menu.clock.20internal.build.clocksource=0
+avrdd.menu.clock.16internal=16 MHz internal
+avrdd.menu.clock.16internal.build.speed=16
+avrdd.menu.clock.16internal.build.clocksource=0
+avrdd.menu.clock.12internal=12 MHz internal
+avrdd.menu.clock.12internal.build.speed=12
+avrdd.menu.clock.12internal.build.clocksource=0
+avrdd.menu.clock.10internal=10 MHz internal
+avrdd.menu.clock.10internal.build.speed=10
+avrdd.menu.clock.10internal.build.clocksource=0
+avrdd.menu.clock.8internal=8 MHz internal
+avrdd.menu.clock.8internal.build.speed=8
+avrdd.menu.clock.8internal.build.clocksource=0
+avrdd.menu.clock.4internal=4 MHz internal
+avrdd.menu.clock.4internal.build.speed=4
+avrdd.menu.clock.4internal.build.clocksource=0
+avrdd.menu.clock.1internal=1 MHz internal
+avrdd.menu.clock.1internal.build.speed=1
+avrdd.menu.clock.1internal.build.clocksource=0
+avrdd.menu.clock.24crystal=24 MHz crystal
+avrdd.menu.clock.24crystal.build.speed=24
+avrdd.menu.clock.24crystal.build.clocksource=1
+avrdd.menu.clock.20crystal=20 MHz crystal
+avrdd.menu.clock.20crystal.build.speed=20
+avrdd.menu.clock.20crystal.build.clocksource=1
+avrdd.menu.clock.16crystal=16 MHz crystal
+avrdd.menu.clock.16crystal.build.speed=16
+avrdd.menu.clock.16crystal.build.clocksource=1
+avrdd.menu.clock.12crystal=12 MHz crystal
+avrdd.menu.clock.12crystal.build.speed=12
+avrdd.menu.clock.12crystal.build.clocksource=1
+avrdd.menu.clock.8crystal=8 MHz crystal
+avrdd.menu.clock.8crystal.build.speed=8
+avrdd.menu.clock.8crystal.build.clocksource=1
+avrdd.menu.clock.24extclock=24 MHz ext. clock
+avrdd.menu.clock.24extclock.build.speed=24
+avrdd.menu.clock.24extclock.build.clocksource=2
+avrdd.menu.clock.20extclock=20 MHz ext. clock
+avrdd.menu.clock.20extclock.build.speed=20
+avrdd.menu.clock.20extclock.build.clocksource=2
+avrdd.menu.clock.16extclock=16 MHz ext. clock
+avrdd.menu.clock.16extclock.build.speed=16
+avrdd.menu.clock.16extclock.build.clocksource=2
+avrdd.menu.clock.12extclock=12 MHz ext. clock
+avrdd.menu.clock.12extclock.build.speed=12
+avrdd.menu.clock.12extclock.build.clocksource=2
+avrdd.menu.clock.8extclock=8 MHz ext. clock
+avrdd.menu.clock.8extclock.build.speed=8
+avrdd.menu.clock.8extclock.build.clocksource=2
+avrdd.menu.clock.28internal=28 MHz internal (overclocked)
+avrdd.menu.clock.28internal.build.speed=28
+avrdd.menu.clock.28internal.build.clocksource=0
+avrdd.menu.clock.32internal=32 MHz internal (overclocked)
+avrdd.menu.clock.32internal.build.speed=32
+avrdd.menu.clock.32internal.build.clocksource=0
+avrdd.menu.clock.25crystal=25 MHz crystal (slightly overclocked)
+avrdd.menu.clock.25crystal.build.speed=25
+avrdd.menu.clock.25crystal.build.clocksource=1
+avrdd.menu.clock.27crystal=27 MHz crystal (overclocked)
+avrdd.menu.clock.27crystal.build.speed=27
+avrdd.menu.clock.27crystal.build.clocksource=1
+avrdd.menu.clock.28crystal=28 MHz crystal (overclocked)
+avrdd.menu.clock.28crystal.build.speed=28
+avrdd.menu.clock.28crystal.build.clocksource=1
+avrdd.menu.clock.30crystal=30 MHz crystal (overclocked)
+avrdd.menu.clock.30crystal.build.speed=30
+avrdd.menu.clock.30crystal.build.clocksource=1
+avrdd.menu.clock.32crystal=32 MHz crystal (overclocked)
+avrdd.menu.clock.32crystal.build.speed=32
+avrdd.menu.clock.32crystal.build.clocksource=1
+avrdd.menu.clock.36crystal=36 MHz crystal (overclocked)
+avrdd.menu.clock.36crystal.build.speed=36
+avrdd.menu.clock.36crystal.build.clocksource=1
+avrdd.menu.clock.40crystal=40 MHz crystal (overclocked)
+avrdd.menu.clock.40crystal.build.speed=40
+avrdd.menu.clock.40crystal.build.clocksource=1
+avrdd.menu.clock.25extclock=25 MHz ext. clock (slightly overclocked)
+avrdd.menu.clock.25extclock.build.speed=25
+avrdd.menu.clock.25extclock.build.clocksource=2
+avrdd.menu.clock.27extclock=27 MHz ext. clock (overclocked)
+avrdd.menu.clock.27extclock.build.speed=27
+avrdd.menu.clock.27extclock.build.clocksource=2
+avrdd.menu.clock.28extclock=28 MHz ext. clock (overclocked)
+avrdd.menu.clock.28extclock.build.speed=28
+avrdd.menu.clock.28extclock.build.clocksource=2
+avrdd.menu.clock.30extclock=30 MHz ext. clock (overclocked)
+avrdd.menu.clock.30extclock.build.speed=30
+avrdd.menu.clock.30extclock.build.clocksource=2
+avrdd.menu.clock.32extclock=32 MHz ext. clock (overclocked)
+avrdd.menu.clock.32extclock.build.speed=32
+avrdd.menu.clock.32extclock.build.clocksource=2
+avrdd.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrdd.menu.clock.36extclock.build.speed=36
+avrdd.menu.clock.36extclock.build.clocksource=2
+avrdd.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrdd.menu.clock.40extclock.build.speed=40
+avrdd.menu.clock.40extclock.build.clocksource=2
+avrdd.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
+avrdd.menu.clock.48extclock.build.speed=48
+avrdd.menu.clock.48extclock.build.clocksource=2
 
 #----------------------------------------#
 # BrownOut detection (BOD) options       #
 #________________________________________#
-#avrdd.menu.bodvoltage.1v9=1.9V
-#avrdd.menu.bodvoltage.1v9.bootloader.bodlevbits=000
-#avrdd.menu.bodvoltage.2v45=2.45V
-#avrdd.menu.bodvoltage.2v45.bootloader.bodlevbits=001
-#avrdd.menu.bodvoltage.2v70=2.70V
-#avrdd.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-#avrdd.menu.bodvoltage.2v85=2.85V
-#avrdd.menu.bodvoltage.2v85.bootloader.bodlevbits=011
-#avrdd.menu.bodmode.disabled=Disabled/Disabled
-#avrdd.menu.bodmode.enabled=Enabled/Enabled
-#avrdd.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
-#avrdd.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
-#avrdd.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
-#avrdd.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
-#avrdd.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
-#avrdd.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
-#avrdd.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
-#avrdd.menu.bodmode.disabled.bootloader.BODCFG=0x00
-#avrdd.menu.bodmode.enabled.bootloader.bodmodebits=00101
-#avrdd.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
-#avrdd.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
-#avrdd.menu.bodmode.samplefast.bootloader.bodmodebits=01010
-#avrdd.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
-#avrdd.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
-#avrdd.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
-#avrdd.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
+avrdd.menu.bodvoltage.1v9=1.9V
+avrdd.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+avrdd.menu.bodvoltage.2v45=2.45V
+avrdd.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+avrdd.menu.bodvoltage.2v70=2.70V
+avrdd.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+avrdd.menu.bodvoltage.2v85=2.85V
+avrdd.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdd.menu.bodmode.disabled=Disabled/Disabled
+avrdd.menu.bodmode.enabled=Enabled/Enabled
+avrdd.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrdd.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrdd.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrdd.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrdd.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrdd.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
+avrdd.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
+avrdd.menu.bodmode.disabled.bootloader.BODCFG=0x00
+avrdd.menu.bodmode.enabled.bootloader.bodmodebits=00101
+avrdd.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
+avrdd.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
+avrdd.menu.bodmode.samplefast.bootloader.bodmodebits=01010
+avrdd.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
+avrdd.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
+avrdd.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
+avrdd.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 
 #----------------------------------------#
 # Retain EEPROM (EESAVE)                 #
 #________________________________________#
-#avrdd.menu.eesavedd.enable=EEPROM retained
-#avrdd.menu.eesavedd.enable.bootloader.eesavebit=1
-#avrdd.menu.eesavedd.disable=EEPROM not retained
-#avrdd.menu.eesavedd.disable.bootloader.eesavebit=0
+avrdd.menu.eesavedd.enable=EEPROM retained
+avrdd.menu.eesavedd.enable.bootloader.eesavebit=1
+avrdd.menu.eesavedd.disable=EEPROM not retained
+avrdd.menu.eesavedd.disable.bootloader.eesavebit=0
 
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
 #________________________________________#
-#avrdd.menu.resetupdipins.reset=Reset & UPDI
-#avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=11
-#avrdd.menu.resetupdipins.input=Input & UPDI (no challenges)
-#avrdd.menu.resetupdipins.input.bootloader.resetpinbits=10
-#avrdd.menu.resetupdipins.reset=Reset & GPIO (DD-compatible HV UPDI required)
-#avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=01
-#avrdd.menu.resetupdipins.input=Input & GPIO (DD-compatible HV UPDI required)
-#avrdd.menu.resetupdipins.input.bootloader.resetpinbits=00
+avrdd.menu.resetupdipins.reset=Reset & UPDI
+avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=11
+avrdd.menu.resetupdipins.input=Input & UPDI (no challenges)
+avrdd.menu.resetupdipins.input.bootloader.resetpinbits=10
+avrdd.menu.resetupdipins.reset=Reset & GPIO (DD-compatible HV UPDI required)
+avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=01
+avrdd.menu.resetupdipins.input=Input & GPIO (DD-compatible HV UPDI required)
+avrdd.menu.resetupdipins.input.bootloader.resetpinbits=00
 
 #----------------------------------------#
 # millis/micros timing source            #
 #________________________________________#
-#avrdd.menu.millis.tcbhighest=Default (recommended)
-#avrdd.menu.millis.disabled=Disabled (delay() only)
-#avrdd.menu.millis.tcb0=TCB0
-#avrdd.menu.millis.tcb1=TCB1 (default for 14/20 pins)
-#avrdd.menu.millis.tcb2=TCB2 (default for 28/32 pins)
-#avrdd.menu.millis.tca0=TCA0
-#avrdd.menu.millis.tcbhighest.build.millistimer={build.highestcb}
-#avrdd.menu.millis.tcb0.build.millistimer=B0
-#avrdd.menu.millis.tcb1.build.millistimer=B1
-#avrdd.menu.millis.tcb2.build.millistimer=B2
-#avrdd.menu.millis.tca0.build.millistimer=A0
-##avrdd.menu.millis.tcd0.build.millistimer=D0
-#avrdd.menu.millis.disabled.build.millistimer=NONE
+avrdd.menu.millis.tcbhighest=Default (recommended)
+avrdd.menu.millis.disabled=Disabled (delay() only)
+avrdd.menu.millis.tcb0=TCB0
+avrdd.menu.millis.tcb1=TCB1 (default for 14/20 pins)
+avrdd.menu.millis.tcb2=TCB2 (default for 28/32 pins)
+avrdd.menu.millis.tca0=TCA0
+avrdd.menu.millis.tcbhighest.build.millistimer={build.highestcb}
+avrdd.menu.millis.tcb0.build.millistimer=B0
+avrdd.menu.millis.tcb1.build.millistimer=B1
+avrdd.menu.millis.tcb2.build.millistimer=B2
+avrdd.menu.millis.tca0.build.millistimer=A0
+#avrdd.menu.millis.tcd0.build.millistimer=D0
+avrdd.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
 # printf() version options               #
 #________________________________________#
-#avrdd.menu.printf.default=Default, 1.5k flash, no floats
-#avrdd.menu.printf.full=Full, 2.6k, prints floats
-#avrdd.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
-#avrdd.menu.printf.full.build.printfabr=.pfF
-#avrdd.menu.printf.minimal=Minimal, 1.1k flash used
-#avrdd.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
-#avrdd.menu.printf.minimal.build.printfabr=.pfM
+avrdd.menu.printf.default=Default, 1.5k flash, no floats
+avrdd.menu.printf.full=Full, 2.6k, prints floats
+avrdd.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
+avrdd.menu.printf.full.build.printfabr=.pfF
+avrdd.menu.printf.minimal=Minimal, 1.1k flash used
+avrdd.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
+avrdd.menu.printf.minimal.build.printfabr=.pfM
 
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-#avrdd.menu.attach.allenabled=On all pins, like usual
-#avrdd.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
-#avrdd.menu.attach.manual=Only enabled ports. Please see documentation.
-#avrdd.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
-#avrdd.menu.attach.oldversion=Old version, new one is worse!
-#avrdd.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
-#avrdd.menu.attach.manual.build.attachabr=.aMan
-#avrdd.menu.attach.oldversion.build.attachabr=.aOld
+avrdd.menu.attach.allenabled=On all pins, like usual
+avrdd.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+avrdd.menu.attach.manual=Only enabled ports. Please see documentation.
+avrdd.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+avrdd.menu.attach.oldversion=Old version, new one is worse!
+avrdd.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrdd.menu.attach.manual.build.attachabr=.aMan
+avrdd.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # MVIO menu                              #
 #________________________________________#
-#avrdd.menu.mvio.enabled=Enabled
-#avrdd.menu.mvio.enabled.bootloader.mviobits=01
-#avrdd.menu.mvio.disabled=Disabled
-#avrdd.menu.mvio.disabled.bootloader.mviobits=10
+avrdd.menu.mvio.enabled=Enabled
+avrdd.menu.mvio.enabled.bootloader.mviobits=01
+avrdd.memu.mvio.enabled.build.MVIOenable=-DMVIO_ENABLED
+avrdd.menu.mvio.disabled=Disabled
+avrdd.menu.mvio.disabled.bootloader.mviobits=10
+avrdd.memu.mvio.disabled.build.MVIOenable=
 
 #----------------------------------------#
 # Startup time options                   #
 #________________________________________#
-#avrdd.menu.startuptime.8=8ms
-#avrdd.menu.startuptime.0=0ms
-#avrdd.menu.startuptime.1=1ms
-#avrdd.menu.startuptime.2=2ms
-#avrdd.menu.startuptime.4=4ms
-#avrdd.menu.startuptime.16=16ms
-#avrdd.menu.startuptime.32=32ms
-#avrdd.menu.startuptime.64=64ms
-#avrdd.menu.startuptime.0.bootloader.sutbits=000
-#avrdd.menu.startuptime.1.bootloader.sutbits=001
-#avrdd.menu.startuptime.2.bootloader.sutbits=010
-#avrdd.menu.startuptime.4.bootloader.sutbits=011
-#avrdd.menu.startuptime.8.bootloader.sutbits=100
-#avrdd.menu.startuptime.16.bootloader.sutbits=101
-#avrdd.menu.startuptime.32.bootloader.sutbits=110
-#avrdd.menu.startuptime.64.bootloader.sutbits=111
+avrdd.menu.startuptime.8=8ms
+avrdd.menu.startuptime.0=0ms
+avrdd.menu.startuptime.1=1ms
+avrdd.menu.startuptime.2=2ms
+avrdd.menu.startuptime.4=4ms
+avrdd.menu.startuptime.16=16ms
+avrdd.menu.startuptime.32=32ms
+avrdd.menu.startuptime.64=64ms
+avrdd.menu.startuptime.0.bootloader.sutbits=000
+avrdd.menu.startuptime.1.bootloader.sutbits=001
+avrdd.menu.startuptime.2.bootloader.sutbits=010
+avrdd.menu.startuptime.4.bootloader.sutbits=011
+avrdd.menu.startuptime.8.bootloader.sutbits=100
+avrdd.menu.startuptime.16.bootloader.sutbits=101
+avrdd.menu.startuptime.32.bootloader.sutbits=110
+avrdd.menu.startuptime.64.bootloader.sutbits=111
 
 #-------------------------------------#
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-#avrdd.menu.wiremode.mors1=1x Wire, Master or Slave
-#avrdd.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
-#avrdd.menu.wiremode.mors1.build.wireabr=.wO
-#avrdd.menu.wiremode.mands1=1x Wire, Master and Slave
-#avrdd.menu.wiremode.mands1.build.wire.mode=MANDS_SINGLE
-#avrdd.menu.wiremode.mands1.build.wireabr=.wA
+avrdd.menu.wiremode.mors1=1x Wire, Master or Slave
+avrdd.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
+avrdd.menu.wiremode.mors1.build.wireabr=.wO
+avrdd.menu.wiremode.mands1=1x Wire, Master and Slave
+avrdd.menu.wiremode.mands1.build.wire.mode=MANDS_SINGLE
+avrdd.menu.wiremode.mands1.build.wireabr=.wA
 
-#----------------------------------------#
-# SPM (writing flash from app)           #
-# will initially be disabled until       #
-# until size of these "pages" is         #
-# known to be either 512 or 256b.        #
-#________________________________________#
-##avrdd.menu.appspm.no=Disabled (be patient!)
-##avrdd.menu.appspm.no.bootloader.appspm=
-##avrdd.menu.appspm.no.build.appspmabr=
-##avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
-##avrdd.menu.appspm.full=Anywhere
-##avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
-##avrdd.menu.appspm.full.build.appspmabr=.spmALL
-##avrdd.menu.appspm.16plus=Above 8k
-##avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=16
-##avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
-##avrdd.menu.appspm.24plus=Above 12k
-##avrdd.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=25
-##avrdd.menu.appspm.24plus.bootloader.CODESIZE=48
-##avrdd.menu.appspm.32plus=Above 16k (AVR64/32 only)
-##avrdd.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=32
-##avrdd.menu.appspm.32plus.bootloader.CODESIZE=64
-##avrdd.menu.appspm.48plus=Above 20k (AVR64/32 only)
-##avrdd.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=40
-##avrdd.menu.appspm.48plus.bootloader.CODESIZE=96
-##avrdd.menu.appspm.56plus=Above 24k (AVR64/32 only)
-##avrdd.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=48
-##avrdd.menu.appspm.56plus.bootloader.CODESIZE=112
-##avrdd.menu.appspm.64plus=Above 32k (AVR64 only)
-##avrdd.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=64
-##avrdd.menu.appspm.64plus.bootloader.CODESIZE=128
-##avrdd.menu.appspm.96plus=Above 48k (AVR64 only)
-##avrdd.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=96
-##avrdd.menu.appspm.96plus.bootloader.CODESIZE=192
-##avrdd.menu.appspm.112plus=Above 56k (AVR64 only)
-##avrdd.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=112
-##avrdd.menu.appspm.112plus.bootloader.CODESIZE=224
+
+avrdd.menu.appspm.no=Disabled
+avrdd.menu.appspm.no.bootloader.appspm=
+avrdd.menu.appspm.no.build.appspmabr=
+avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrdd.menu.appspm.full=Anywhere
+avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
+avrdd.menu.appspm.full.build.appspmabr=.spmALL
+avrdd.menu.appspm.16plus=Above 8k
+avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=16
+avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
+avrdd.menu.appspm.24plus=Above 12k
+avrdd.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=25
+avrdd.menu.appspm.24plus.bootloader.CODESIZE=48
+avrdd.menu.appspm.32plus=Above 16k (AVR64/32 only)
+avrdd.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=32
+avrdd.menu.appspm.32plus.bootloader.CODESIZE=64
+avrdd.menu.appspm.48plus=Above 20k (AVR64/32 only)
+avrdd.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=40
+avrdd.menu.appspm.48plus.bootloader.CODESIZE=96
+avrdd.menu.appspm.56plus=Above 24k (AVR64/32 only)
+avrdd.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=48
+avrdd.menu.appspm.56plus.bootloader.CODESIZE=112
+avrdd.menu.appspm.64plus=Above 32k (AVR64 only)
+avrdd.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=64
+avrdd.menu.appspm.64plus.bootloader.CODESIZE=128
+avrdd.menu.appspm.96plus=Above 48k (AVR64 only)
+avrdd.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=96
+avrdd.menu.appspm.96plus.bootloader.CODESIZE=192
+avrdd.menu.appspm.112plus=Above 56k (AVR64 only)
+avrdd.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=112
+avrdd.menu.appspm.112plus.bootloader.CODESIZE=224
 
 ##########################################################################
 #                                                                        #
@@ -1255,7 +1255,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 #avrea.build.attachabr=
 #avrea.build.wireabr=
 ##Not supported but still need empty string here.
-#avrdd.build.appspmabr=
+avrdd.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 # AVR-EA submenu options                     #
@@ -1975,7 +1975,7 @@ avrdbopti.build.board=avrdb
 avrdbopti.build.core=dxcore
 avrdbopti.build.f_cpu={build.speed}000000L
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
+avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.MVIOenable}
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.printf=
 
@@ -2281,10 +2281,18 @@ avrdbopti.menu.attach.oldversion.build.attachabr=.aOld
 #----------------------------------------#
 # MVIO menu                              #
 #________________________________________#
-avrdbopti.menu.mvio.enabled=Enabled
-avrdbopti.menu.mvio.enabled.bootloader.mviobits=01
-avrdbopti.menu.mvio.disabled=Disabled
-avrdbopti.menu.mvio.disabled.bootloader.mviobits=10
+avrdbopti.menu.mvioopti.enabled=Enabled
+avrdbopti.menu.mvioopti.enabled.bootloader.mviobits=01
+avrdbopti.memu.mvioopti.enabled.build.MVIOenable=-DMVIO_ENABLED
+avrdbopti.menu.mvioopti.disabled=Disabled
+avrdbopti.menu.mvioopti.disabled.bootloader.mviobits=10
+avrdbopti.memu.mvioopti.disabled.build.MVIOenable=
+avrdbopti.menu.mvioopti.reallyenabled=Enabled and "burn bootloader" has for sure done w/this selected.
+avrdbopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
+avrdbopti.memu.mvioopti.reallyenabled.build.MVIOenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+avrdbopti.menu.mvioopti.reallydisabled=Disabled and "burn bootloader" has for sure been done w/this selected.
+avrdbopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
+avrdbopti.memu.mvioopti.reallydisabled.build.MVIOenable=-DASSUME_MVIO_FUSE
 
 #----------------------------------------#
 # Startup time options                   #
@@ -2397,48 +2405,48 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #                                        #             #
 # Parameters and defaults for DD parts   #
 #________________________________________#
-#avrddopti.build.board=avrdd
-#avrddopti.build.core=dxcore
-#avrddopti.build.f_cpu={build.speed}000000L
-#avrddopti.build.text_section_start=.text=0x200
-#avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
-#avrddopti.build.export_merged_output=false
-#avrddopri.build.highestcb=B2
-#avrddopti.build.printf=
+avrddopti.build.board=avrdd
+avrddopti.build.core=dxcore
+avrddopti.build.f_cpu={build.speed}000000L
+avrddopti.build.text_section_start=.text=0x200
+avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable>}
+avrddopti.build.export_merged_output=false
+avrddopri.build.highestcb=B2
+avrddopti.build.printf=
 
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
-#avrddopti.bootloader.tool=avrdude
-#avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
-#avrddopti.bootloader.WDTCFG=0x00
-#avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-#avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
-#avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
-##avrddopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
-#avrddopti.bootloader.CODESIZE=0x00
-#avrddopti.bootloader.BOOTSIZE=0x01
-#avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
-#avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+avrddopti.bootloader.tool=avrdude
+avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
+avrddopti.bootloader.WDTCFG=0x00
+avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
+avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+#avrddopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
+avrddopti.bootloader.CODESIZE=0x00
+avrddopti.bootloader.BOOTSIZE=0x01
+avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
+avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
 
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
-#avrddopti.upload.tool=avrdude
-#avrddopti.upload.protocol=arduino
-#avrddopti.upload.extra_params=-D
-#avrddopti.upload.speed=115200
-#avrddopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
+avrddopti.upload.tool=avrdude
+avrddopti.upload.protocol=arduino
+avrddopti.upload.extra_params=-D
+avrddopti.upload.speed=115200
+avrddopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
 # are only to do that, nothing else      #
 #________________________________________#
-#avrddopti.build.mcupostfix=opti
-#avrddopti.build.printfabr=
-#avrddopti.build.attachabr=
-#avrddopti.build.wireabr=
+avrddopti.build.mcupostfix=opti
+avrddopti.build.printfabr=
+avrddopti.build.attachabr=
+avrddopti.build.wireabr=
 #avrddopti.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
@@ -2689,7 +2697,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #avrddopti.menu.millis.tcb1.build.millistimer=B0
 #avrddopti.menu.millis.tcb2.build.millistimer=B1
 #avrddopti.menu.millis.tca0.build.millistimer=A0
-##avrddopti.menu.millis.tcd0.build.millistimer=D0
+#avrddopti.menu.millis.tcd0.build.millistimer=D0
 #avrddopti.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -2719,10 +2727,20 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 #----------------------------------------#
 # MVIO                                   #
 #________________________________________#
-#avrddopti.menu.mvio.enabled=Enabled
-#avrddopti.menu.mvio.enabled.bootloader.mviobits=01
-#avrddopti.menu.mvio.disabled=Disabled
-#avrddopti.menu.mvio.disabled.bootloader.mviobits=10
+#avrddopti.menu.mvioopti.enabled=Enabled
+#avrddopti.menu.mvioopti.enabled.bootloader.mviobits=01
+#avrddopti.memu.mvioopti.enabled.build.MVIOenable=-DMVIO_ENABLED
+#avrddopti.menu.mvioopti.disabled=Disabled
+#avrddopti.menu.mvioopti.disabled.bootloader.mviobits=10
+#avrddopti.memu.mvioopti.disabled.build.MVIOenable=
+#avrddopti.menu.mvioopti.reallyenabled=Enabled and "burn bootloader" has for sure done w/this selected.
+#avrddopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
+#avrddopti.memu.mvioopti.reallyenabled.build.MVIOenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+#avrddopti.menu.mvioopti.reallydisabled=Disabled and "burn bootloader" has for sure been done w/this selected.
+#avrddopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
+#avrddopti.memu.mvioopti.reallydisabled.build.MVIOenable=-DASSUME_MVIO_FUSE
+
+
 
 #----------------------------------------#
 # Startup time options                   #
@@ -2878,7 +2896,7 @@ azduinoboard.menu.board.NanoDB_A.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDB_A.upload.maximum_data_size=16384
 azduinoboard.menu.board.NanoDB_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDB_A.bootloader.portswap=1
-azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT
+azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.MVIOenable}
 azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 #azduinoboard.menu.board.NanoDB_B=Azduino Nano DB (Rev. B or A w/resistor mod)
 #azduinoboard.menu.board.NanoDB_B.build.mcu=avr128db32
@@ -2887,7 +2905,7 @@ azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_data_size=16384
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
-azduinoboard.menu.board.NanoDBPlus.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT
+azduinoboard.menu.board.NanoDBPlus.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.MVIOenable}
 azduinoboard.menu.board.NanoDBPlus.build.variant=32pin-standard
 azduinoboard.menu.board.NanoDBPlus=Azduino Nano DB++, Light Controller 2.1+
 azduinoboard.menu.board.NanoDBPlus.build.mcu=avr128db48
@@ -3021,10 +3039,18 @@ azduinoboard.menu.attach.oldversion.build.attachabr=.aOld
 #----------------------------------------#
 # MVIO menu                              #
 #________________________________________#
-azduinoboard.menu.mvio.enabled=Enabled
-azduinoboard.menu.mvio.enabled.bootloader.mviobits=01
-azduinoboard.menu.mvio.disabled=Disabled
-azduinoboard.menu.mvio.disabled.bootloader.mviobits=10
+azduinoboard.menu.mvioopti.enabled=Enabled
+azduinoboard.menu.mvioopti.enabled.bootloader.mviobits=01
+azduinoboard.memu.mvioopti.enabled.build.MVIOenable=-DMVIO_ENABLED
+azduinoboard.menu.mvioopti.disabled=Disabled
+azduinoboard.menu.mvioopti.disabled.bootloader.mviobits=10
+azduinoboard.memu.mvioopti.disabled.build.MVIOenable=
+azduinoboard.menu.mvioopti.reallyenabled=Enabled and "burn bootloader" has for sure done w/this selected.
+azduinoboard.menu.mvioopti.reallyenabled.bootloader.mviobits=01
+azduinoboard.memu.mvioopti.reallyenabled.build.MVIOenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+azduinoboard.menu.mvioopti.reallydisabled=Disabled and "burn bootloader" has for sure been done w/this selected.
+azduinoboard.menu.mvioopti.reallydisabled.bootloader.mviobits=10
+azduinoboard.memu.mvioopti.reallydisabled.build.MVIOenable=-DASSUME_MVIO_FUSE
 
 #----------------------------------------#
 # Startup time options                   #

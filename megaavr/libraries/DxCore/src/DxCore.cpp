@@ -215,3 +215,65 @@ int16_t getMVIOVoltage() {
   }
 }
 // *INDENT-ON*
+
+#ifdef MVIO
+  uint8_t getMVIOStatus(bool debugmode) {
+    uint8_t retval = FUSE.SYSCFG1 & 0x18;
+    if (retval == 0x08) {
+      //great, it's enabled.
+      retval = (MVIO.STATUS ? MVIO_OKAY : MVIO_UNDERVOLTAGE)
+      #if !defined(MVIO_ENABLED) && defined(ASSUME_MVIO_FUSE) && defined(USING_OPTIBOOT)
+        retval |= MVIO_MENU_SET_WRONG;
+        if (debugmode) {
+          Serial.print(F("Woah, you've told the tools menu that you're sure you set the fuse to disabled, but it's not!"));
+          Serial.print(F("Either change menu selection to enabled or the other disabled (which allows for mis-set fuses), or burn bootloader if you want it disabled"));
+          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until you do one of those things."));
+        }
+      #elif !defined(MVIO_ENABLED) && !defined(USING_OPTIBOOT)
+        retval |= MVIO_MENU_SET_WRONG | MVIO_IMPOSSIBLE_CFG;
+        if (debugmode) {
+          Serial.print(F("Your tools submenu is set to disable MVIO, and it doesn't look like you're using optiboot, so MVIO should have been disabled"));
+          Serial.print(F("when the sketch was uploaded via UPDI, but it's not. If you are using a third party IDE, it is misconfigured."));
+          Serial.print(F("If you are using Arduino IDE, this is a bug in DxCore that should be reported promptly."));
+          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until your fuses match the menu selection."));
+        }
+      #endif
+    } else if (retval == 0x10) {
+      retval = MVIO_DISABLED;
+      if (MVIO.STATUS != 1 || MVIO.INTFLAGS !=0) {
+        return retval |= MVIO_IMPOSSIBLE_CFG;
+      }
+      #if defined(MVIO_ENABLED) && defined(ASSUME_MVIO_FUSE) && defined(USING_OPTIBOOT)
+        retval |= MVIO_MENU_SET_WRONG;
+        if (debugmode) {
+          Serial.print(F("Woah, you've told the tools menu that you're sure you set the fuse to enabled, but it's not!"));
+          Serial.print(F("Either change menu selection to disabled or the other enabled (which allows for mis-set fuses), or burn bootloader if you want it enabled"));
+          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until you do one of those things."));
+        }
+        #elif defined(MVIO_ENABLED) && !defined(USING_OPTIBOOT)
+        retval |= MVIO_MENU_SET_WRONG | MVIO_IMPOSSIBLE_CFG;
+        if (debugmode) {
+          Serial.print(F("Your tools submenu is set to enable MVIO, and you're not using optiboot, so MVIO should have been enabled"));
+          Serial.print(F("when the sketch was uploaded via UPDI, but it's not. If you are using a third party IDE, it is misconfigured."));
+          Serial.print(F("If you are using Arduino IDE, this is a bug in DxCore that should be reported promptly."));
+          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until your fuses match the menu selection."));
+        }
+      #endif
+    } else {
+      // The fuse was set to neither 0x10 or 0z08. Those are the only valid values according to the datasheet, and the only ones that
+      // DxCore is supposed to set them to.
+      retval = MVIO_BAD_FUSE | MVIO_IMPOSSIBLE_CFG;
+      if (debugmode) {
+        Serial.print(F("The MVIO bits in FUSE.SYSCFG1 are set to an invalid value! This should never happen."));
+        Serial.print(F("If you are using a third party tool or IDE to set the fuses, it is misconfigured."));
+        Serial.print(F("If you are using the Arduino IDE to set the fuses, this is a seruiys bug in DxCore that should be reported promptly."));
+        Serial.print(F("The MVIO pins may malfunction until they are set to a valid value."));
+      }
+    }
+    return retval;
+  }
+#else
+  uint8_t getMVIOStatus(__attribute__((unused))bool debugmode) {
+    return MVIO_UNSUPPORTED;
+  }
+#endif

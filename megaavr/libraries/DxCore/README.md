@@ -24,16 +24,30 @@ Returns `true` if an argument referring to a valid port was passed and a value w
 
 
 ## Multi-Voltage IO
-The AVR DB-series supports a new feature, Multi-Voltage IO (MVIO). When enabled by fuse (this is the default setting. DxCore does not support changing it, either - if it is not in use, VDDIO2 must be tied to VDD, so behavior is the same as if it were enabled - but if it was disabled on hardware wired with the expectation that it would be enabled, my understanding is that this could result in hardware damage). A new macro is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, whether it is enabled, and if so, whether VDDIO2 voltage is high enough that the MVIO pins (PORTC) are available.
+The AVR DB-series supports a new feature, Multi-Voltage IO (MVIO). When enabled by fuse (this is the default setting. DxCore does not support changing it, either - if it is not in use, VDDIO2 must be tied to VDD, so behavior is the same as if it were enabled - but if it was disabled on hardware wired with the expectation that it would be enabled, my understanding is that this could result in hardware damage). A new function is provided, `getMVIOStatus()`, which returns a value depending on whether MVIO is supported, whether it is enabled, and if so, whether VDDIO2 voltage is high enough that the MVIO pins (PORTC) are available.
+
+This was expanded significantly in 1.4.8, because on the AVR-DD series, enabling MVIO disables some pin functionality, and a mismatch could result in analogRead() returning bogus values or the Comparator library giving incorrect results.
 
 This returns one of the following constants:
 ```c++
-MVIO_DISABLED       -128
-MVIO_BAD_FUSE       -64
-MVIO_UNDERVOLTAGE    1
-MVIO_OKAY            0
-MVIO_UNSUPPORTED    -1
+MVIO_DISABLED        0x40 // 64
+MVIO_BAD_FUSE        0x20 // 32
+MVIO_UNDERVOLTAGE    0x01 // 1
+MVIO_OKAY            0x00 // 0
+MVIO_UNSUPPORTED     0x80 // 128
+MVIO_MENU_SET_WRONG  0x10 // 16
+MVIO_IMPOSSIBLE_CFG  0x08 // 8
 ```
+
+
+By default (if no argument is passed to getMVIOStatus() it will be used in "debugging mode" which is written with the assumption that a human is reading the output of Serial, and, in the event of serious misconfigurations, will print out warning text. If it is being used with Serial connected to something else, and/or nobody is watching that serial port, pass any non-zero value, eg `getMVIOStatus(1);` to suppress this output. Output is generated only in a small number of severely broken situations where core behavior in other areas will be impacted:
+1. If you are using Optiboot, and have set the MVIO tools menu to the "Enabled, and "burn bootloader" has for sure done w/this selected." or "Disabled, and "burn bootloader" has for sure done w/this selected.", but the fuse is set to the opposite of what you specified. This causes breakage, because chosing that option tells the core to assume that it is configured that way (instead of checking the fuse - if you choose simply "Enabled" or "Disabled", when we need to know if MVIO is enabled, we check the fuse; it is not unexpected that an Optiboot configuration might not match the menu options, because they are only set on bootload (the bootloader cannot write it's own fuses). This saves save flash and improve performance - but will cause breakage if the assumption you told it to make is not valid.
+2. If you are not using Optiboot (and hence are uploading through UPDI), the SYSCFG1 fuses is set upon every upload. Thus, it should not be possible to end up with code on the chip that was compiled for MVIO being enabled when it wasn't or vise versa. In the event that this is detected, it will print a message and return `MVIO_MENU_SET_WRONG | MVIO_IMPOSSIBLE_CFG`  (numeric value 0x18).
+3. If under any circumstances, the MVIO bits are set to a value that does not correspond to a valid MVIO setting, `MVIO_IMPOSSIBLE_CFG` will be returned and an warning message will be printed.
+
+Except for situation 1, which is most likely user error, these situations can arise only when using a third party IDE that not configured to set the fuses, or is configured to set them incorrectly, or if that IDE does not pass the required define (`MVIO_ENABLED`) along to te compiler to tell it when MVIO is enabled. If cases 2 or 3 ever occur with the Arduino IDE, that is a serious bug that should be reported promptly along with any information on how you were able to make it happen.
+
+Multiple errors can be combined if they apply. `MVIO_MENU_SET_WRONG` is returned alone in case 1 above, while in case 2, it is returned along with `MVIO_IMPOSIBLE_CFG` to indicate that it is not supposed to be possible to get the chip into this confiuration. It is also returned in weird situations that they datasheet says are impossible, for example if the system is set to single supply mode, but `MVIO.STATUS != 1` or `MVIO.INTFLAGS != 0`, directly contrary to the datasheet (MVIO chapter, functional descroption, under Initialization).
 
 These numeric values mean that `if(getMVIOStatus()) {...}` will run the conditional statements if MVIO is not enabled and working. Similarly, `if(getMVIOStatus()>=0) {...}` will run the conditional if MVIO is supported and enabled, whether or not there is an appropriate VDDIO2 voltage supplied.
 

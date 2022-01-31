@@ -86,10 +86,27 @@ Include guard and include basic libraries. We are normally including this inside
   #define EXTERNAL_NUM_INTERRUPTS        47
 #endif
 
-#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF2 ? ((p) - 4) : NOT_A_PIN)):((p) > PIN_PA1 ? (p) + 20 : NOT_A_PIN)) /* Seriously?! */
+#define digitalPinToAnalogInput(p)           ((p) > PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF2 ? ((p) - 4) : NOT_A_PIN)):((p) > PIN_PA1 ? (p) + 20 : NOT_A_PIN)) /* Seriously?! */
+
+#if !defined(USING_BOOTLOADER) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
+  #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
+    #define IS_MVIO_ENABLED()                    (1)
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF2 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && (p) < PIN_PC0) ? (p) + 20 : NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)         ((p) > 27 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+  #else
+    #define IS_MVIO_ENABLED()                    (0)
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF2 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)         ((p) > 31  ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+  #endif
+#else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
+  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
+  #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF2 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PC0)) ? (p) + 20 : NOT_A_PIN))
+  #define analogChannelToDigitalPin(p)         ((p) > (IS_MVIO_ENABLED() ? 27 : 31) ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+#endif
+
 #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
-#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
 #define portToDigitalPinZero(port)        ((port) == 0 ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
 
 
@@ -108,15 +125,16 @@ Include guard and include basic libraries. We are normally including this inside
 
 // Timer pin mapping
 #define TCA0_PINS PORTMUX_TCA0_PORTD_gc     // TCA0 output on PD[0:5]
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here)
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
-#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default), not PB4 (Doesn't exist here)
+#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) as the other options are not present on tese parts.
+#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) as the other options are not present on tese parts.
+#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) as the other options are not present on tese parts.
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA4-7
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
 #define PIN_TCD0_WOA_INIT PIN_PA4
 
-#define USE_TIMERD0_PWM
+
+//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
 #define NO_GLITCH_TIMERD0
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
@@ -221,38 +239,38 @@ Include guard and include basic libraries. We are normally including this inside
       #  # #  ## #  # #    #   # #   #     #      #  #  ##     #
       #  # #   # #  # ####  ###   ###      #     ### #   #  ###               */
 
-#define PIN_A0   NOT_A_PIN /* Doesn't exist on DD-series */
-#define PIN_A1   PIN_PD1
-#define PIN_A2   PIN_PD2
-#define PIN_A3   PIN_PD3
-#define PIN_A4   PIN_PD4
-#define PIN_A5   PIN_PD5
-#define PIN_A6   PIN_PD6
-#define PIN_A7   PIN_PD7
-#define PIN_A8   NOT_A_PIN
-#define PIN_A9   NOT_A_PIN
-#define PIN_A10  NOT_A_PIN
-#define PIN_A11  NOT_A_PIN
-#define PIN_A12  NOT_A_PIN
-#define PIN_A13  NOT_A_PIN
-#define PIN_A14  NOT_A_PIN
-#define PIN_A15  NOT_A_PIN
-#define PIN_A16  PIN_PF0
-#define PIN_A17  PIN_PF1
-#define PIN_A18  NOT_A_PIN
-#define PIN_A19  NOT_A_PIN
-#define PIN_A20  NOT_A_PIN
-#define PIN_A21  NOT_A_PIN
-#define PIN_A22  PIN_PA2
-#define PIN_A23  PIN_PA3
-#define PIN_A24  PIN_PA4
-#define PIN_A25  PIN_PA5
-#define PIN_A26  PIN_PA6
-#define PIN_A27  PIN_PA7
-#define PIN_A28  PIN_PC0
-#define PIN_A29  PIN_PC1
-#define PIN_A30  PIN_PC2
-#define PIN_A31  PIN_PC3
+#define PIN_A0             NOT_A_PIN /* Doesn't exist on DD-series */
+#define PIN_A1             PIN_PD1
+#define PIN_A2             PIN_PD2
+#define PIN_A3             PIN_PD3
+#define PIN_A4             PIN_PD4
+#define PIN_A5             PIN_PD5
+#define PIN_A6             PIN_PD6
+#define PIN_A7             PIN_PD7
+#define PIN_A8             NOT_A_PIN
+#define PIN_A9             NOT_A_PIN
+#define PIN_A10            NOT_A_PIN
+#define PIN_A11            NOT_A_PIN
+#define PIN_A12            NOT_A_PIN
+#define PIN_A13            NOT_A_PIN
+#define PIN_A14            NOT_A_PIN
+#define PIN_A15            NOT_A_PIN
+#define PIN_A16            PIN_PF0
+#define PIN_A17            PIN_PF1
+#define PIN_A18            NOT_A_PIN
+#define PIN_A19            NOT_A_PIN
+#define PIN_A20            NOT_A_PIN
+#define PIN_A21            NOT_A_PIN
+#define PIN_A22            PIN_PA2
+#define PIN_A23            PIN_PA3
+#define PIN_A24            PIN_PA4
+#define PIN_A25            PIN_PA5
+#define PIN_A26            PIN_PA6
+#define PIN_A27            PIN_PA7
+#define PIN_A28            PIN_PC0
+#define PIN_A29            PIN_PC1
+#define PIN_A30            PIN_PC2
+#define PIN_A31            PIN_PC3
 
 static const uint8_t A0  = NOT_A_PIN;
 static const uint8_t A1  = PIN_A1;
@@ -287,38 +305,38 @@ static const uint8_t A29 = PIN_A29;
 static const uint8_t A30 = PIN_A30;
 static const uint8_t A31 = PIN_A31;
 
-#define AIN0  NOT_A_PIN
-#define AIN1  ADC_CH(1)
-#define AIN2  ADC_CH(2)
-#define AIN3  ADC_CH(3)
-#define AIN4  ADC_CH(4)
-#define AIN5  ADC_CH(5)
-#define AIN6  ADC_CH(6)
-#define AIN7  ADC_CH(7)
-#define AIN8  NOT_A_PIN
-#define AIN9  NOT_A_PIN
-#define AIN10 NOT_A_PIN
-#define AIN11 NOT_A_PIN
-#define AIN12 NOT_A_PIN
-#define AIN13 NOT_A_PIN
-#define AIN14 NOT_A_PIN
-#define AIN15 NOT_A_PIN
-#define AIN16 ADC_CH(16)
-#define AIN17 ADC_CH(17)
-#define AIN18 NOT_A_PIN
-#define AIN19 NOT_A_PIN
-#define AIN20 NOT_A_PIN
-#define AIN21 NOT_A_PIN
-#define AIN22 ADC_CH(22)
-#define AIN23 ADC_CH(23)
-#define AIN24 ADC_CH(24)
-#define AIN25 ADC_CH(25)
-#define AIN26 ADC_CH(26)
-#define AIN27 ADC_CH(27)
-#define AIN28 ADC_CH(28)
-#define AIN29 ADC_CH(29)
-#define AIN30 ADC_CH(30)
-#define AIN31 ADC_CH(31)
+#define AIN0               NOT_A_PIN
+#define AIN1               ADC_CH(1)
+#define AIN2               ADC_CH(2)
+#define AIN3               ADC_CH(3)
+#define AIN4               ADC_CH(4)
+#define AIN5               ADC_CH(5)
+#define AIN6               ADC_CH(6)
+#define AIN7               ADC_CH(7)
+#define AIN8               NOT_A_PIN
+#define AIN9               NOT_A_PIN
+#define AIN10              NOT_A_PIN
+#define AIN11              NOT_A_PIN
+#define AIN12              NOT_A_PIN
+#define AIN13              NOT_A_PIN
+#define AIN14              NOT_A_PIN
+#define AIN15              NOT_A_PIN
+#define AIN16              ADC_CH(16)
+#define AIN17              ADC_CH(17)
+#define AIN18              NOT_A_PIN
+#define AIN19              NOT_A_PIN
+#define AIN20              NOT_A_PIN
+#define AIN21              NOT_A_PIN
+#define AIN22              ADC_CH(22)
+#define AIN23              ADC_CH(23)
+#define AIN24              ADC_CH(24)
+#define AIN25              ADC_CH(25)
+#define AIN26              ADC_CH(26)
+#define AIN27              ADC_CH(27)
+#define AIN28              ADC_CH(28)
+#define AIN29              ADC_CH(29)
+#define AIN30              ADC_CH(30)
+#define AIN31              ADC_CH(31)
 
 /*
             ####  ### #   #      ##  ####  ####   ##  #   #  ###
@@ -447,10 +465,10 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  1 PA1/USART0_Rx
   TIMERB0,      //  2 PA2/SDA
   TIMERB1,      //  3 PA3/SCL
-  TIMERD0,      //  4 PA4/MOSI      WOA
-  TIMERD0,      //  5 PA5/MISO      WOB
-  TIMERD0,      //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0,      //  7 PA7/SS/CLKOUT WOD mirrors WOB
+  TIMERD0_0WOA, //  4 PA4/MOSI      WOA
+  TIMERD0_0WOB, //  5 PA5/MISO      WOB
+  TIMERD0_0WOC, //  6 PA6/SCK       WOC mirrors WOA
+  TIMERD0_0WOD, //  7 PA7/SS/CLKOUT WOD mirrors WOB
   TIMERB2,      //  8 PC0/USART1_Tx
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
@@ -459,12 +477,12 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 13 PD1/AIN1 // Default TCA0 WO1
   NOT_ON_TIMER, // 14 PD2/AIN2 // Default TCA0 WO2
   NOT_ON_TIMER, // 15 PD3/AIN3 // Default TCA0 WO3
-  NOT_ON_TIMER, // 16 PD4/AIN4 // Default TCA0 WO4
-  NOT_ON_TIMER, // 17 PD5/AIN5 // Default TCA0 WO5
+  TIMERD0_4WOC, // 16 PD4/AIN4 // Default TCA0 WO4
+  TIMERD0_4WOD, // 17 PD5/AIN5 // Default TCA0 WO5
   DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
-  NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
+  TIMERD0_2WOA, // 20 PF0/USART2_Tx/TOSC1
+  TIMERD0_2WOB, // 21 PF1/USART2_Rx/TOSC2
   NOT_ON_TIMER, // 22 NON_PIN
   NOT_ON_TIMER, // 23 NON_PIN
   NOT_ON_TIMER, // 24 NON_PIN

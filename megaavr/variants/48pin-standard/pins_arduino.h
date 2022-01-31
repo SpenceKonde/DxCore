@@ -262,61 +262,61 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
-#define PIN_A0   PIN_PD0
-#define PIN_A1   PIN_PD1
-#define PIN_A2   PIN_PD2
-#define PIN_A3   PIN_PD3
-#define PIN_A4   PIN_PD4
-#define PIN_A5   PIN_PD5
-#define PIN_A6   PIN_PD6
-#define PIN_A7   PIN_PD7
-#define PIN_A8   PIN_PE0
-#define PIN_A9   PIN_PE1
-#define PIN_A10  PIN_PE2
-#define PIN_A11  PIN_PE3
-#define PIN_A16  PIN_PF0
-#define PIN_A17  PIN_PF1
-#define PIN_A18  PIN_PF2
-#define PIN_A19  PIN_PF3
-#define PIN_A20  PIN_PF4
-#define PIN_A21  PIN_PF5
-static const uint8_t A0  = PIN_A0;
-static const uint8_t A1  = PIN_A1;
-static const uint8_t A2  = PIN_A2;
-static const uint8_t A3  = PIN_A3;
-static const uint8_t A4  = PIN_A4;
-static const uint8_t A5  = PIN_A5;
-static const uint8_t A6  = PIN_A6;
-static const uint8_t A7  = PIN_A7;
-static const uint8_t A8  = PIN_A8;
-static const uint8_t A9  = PIN_A9;
-static const uint8_t A10 = PIN_A10;
-static const uint8_t A11 = PIN_A11;
-static const uint8_t A16 = PIN_A16;
-static const uint8_t A17 = PIN_A17;
-static const uint8_t A18 = PIN_A18;
-static const uint8_t A19 = PIN_A19;
-static const uint8_t A20 = PIN_A20;
-static const uint8_t A21 = PIN_A21;
+#define PIN_A0              PIN_PD0
+#define PIN_A1              PIN_PD1
+#define PIN_A2              PIN_PD2
+#define PIN_A3              PIN_PD3
+#define PIN_A4              PIN_PD4
+#define PIN_A5              PIN_PD5
+#define PIN_A6              PIN_PD6
+#define PIN_A7              PIN_PD7
+#define PIN_A8              PIN_PE0
+#define PIN_A9              PIN_PE1
+#define PIN_A10             PIN_PE2
+#define PIN_A11             PIN_PE3
+#define PIN_A16             PIN_PF0
+#define PIN_A17             PIN_PF1
+#define PIN_A18             PIN_PF2
+#define PIN_A19             PIN_PF3
+#define PIN_A20             PIN_PF4
+#define PIN_A21             PIN_PF5
+static const uint8_t A0  =  PIN_A0;
+static const uint8_t A1  =  PIN_A1;
+static const uint8_t A2  =  PIN_A2;
+static const uint8_t A3  =  PIN_A3;
+static const uint8_t A4  =  PIN_A4;
+static const uint8_t A5  =  PIN_A5;
+static const uint8_t A6  =  PIN_A6;
+static const uint8_t A7  =  PIN_A7;
+static const uint8_t A8  =  PIN_A8;
+static const uint8_t A9  =  PIN_A9;
+static const uint8_t A10 =  PIN_A10;
+static const uint8_t A11 =  PIN_A11;
+static const uint8_t A16 =  PIN_A16;
+static const uint8_t A17 =  PIN_A17;
+static const uint8_t A18 =  PIN_A18;
+static const uint8_t A19 =  PIN_A19;
+static const uint8_t A20 =  PIN_A20;
+static const uint8_t A21 =  PIN_A21;
 /* Internal and library use only - see 64-pin standard version for details.*/
-#define  AIN0  ADC_CH(0)
-#define  AIN1  ADC_CH(1)
-#define  AIN2  ADC_CH(2)
-#define  AIN3  ADC_CH(3)
-#define  AIN4  ADC_CH(4)
-#define  AIN5  ADC_CH(5)
-#define  AIN6  ADC_CH(6)
-#define  AIN7  ADC_CH(7)
-#define  AIN8  ADC_CH(8)
-#define  AIN9  ADC_CH(9)
-#define AIN10 ADC_CH(10)
-#define AIN11 ADC_CH(11)
-#define AIN16 ADC_CH(16)
-#define AIN17 ADC_CH(17)
-#define AIN18 ADC_CH(18)
-#define AIN19 ADC_CH(19)
-#define AIN20 ADC_CH(20)
-#define AIN21 ADC_CH(21)
+#define AIN0               ADC_CH(0)
+#define AIN1               ADC_CH(1)
+#define AIN2               ADC_CH(2)
+#define AIN3               ADC_CH(3)
+#define AIN4               ADC_CH(4)
+#define AIN5               ADC_CH(5)
+#define AIN6               ADC_CH(6)
+#define AIN7               ADC_CH(7)
+#define AIN8               ADC_CH(8)
+#define AIN9               ADC_CH(9)
+#define AIN10              ADC_CH(10)
+#define AIN11              ADC_CH(11)
+#define AIN16              ADC_CH(16)
+#define AIN17              ADC_CH(17)
+#define AIN18              ADC_CH(18)
+#define AIN19              ADC_CH(19)
+#define AIN20              ADC_CH(20)
+#define AIN21              ADC_CH(21)
 
         /*##  ### #   #      ###  ####  ####   ###  #   #  ###
         #   #  #  ##  #     #   # #   # #   # #   #  # #  #
