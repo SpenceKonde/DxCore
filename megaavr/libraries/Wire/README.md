@@ -92,7 +92,7 @@ Thankfully, assuming the hardware is able to handle the job, there is no special
 
 ## Initialization order
 There is a right and a wrong order to call the configuration functions. This order should work:
-1. Wire.swapModule(TWI1); (AVR DA/DB for special use cases)
+1. Wire.swapModule(&TWI1); (AVR DA/DB for special use cases)
 2. Wire.swap(pinset) or Wire.pins(sclpin, sdapin)  (if needed for desired pins).
 3. Wire.enableDualMode(fmplus_enable); (AVR Dx and megaAVR 0-series only, if needed)
 4. Wire.usePullups() if you must...
@@ -164,11 +164,11 @@ usePullups();
 Unlike the official core, we do not automatically turn on the internal pullups, specifically because it can hide problems in simple tests - but not more complicated cases. Combined with the frustrating failure modes of I2C in general (not specific to this library) this can lead to a very challenging debugging experience if/when it does manifest as most I2C devices are added or longer wires are used, possibly dependent on orientation and spatial organization. Thus, we require that you read this paragraph and recognize that it could fail unpredictably before enabling the internal pullups. This is particularly problematic since Arduino users are accustomed to not having to think much about things like wire length and capacitance of wire; this is one of only a few cases where they often become relevant.
 
 #### Additional New Methods not available on all parts
-These new methods are available exclusively for part with certain specialized hardware; Most full-size parts support enableDualMode (but tinyAVR does not), while only the DA and DB-series parts have the second TWI interface that swapModule erequires.
+These new methods are available exclusively for part with certain specialized hardware; Most full-size parts support enableDualMode (but tinyAVR does not), while only the DA and DB-series parts have the second TWI interface that swapModule requires.
 ```c++
 swapModule(TWI_t *twi_module);
 ```
-This function is only available if the hardware has one module (DA or DB with 32+ pins); this allows you to swap the Wire object over to use TWI1, allowing the TWI1 pins to be used without creating both Wire and Wire1 - either because you need to use a library hardcoded to use Wire, not Wire1, or because you need to use the TWI0 pins. This must be called first, before `Wire.enableDualMode()` or `Wire.begin()`.
+This function is only available if the hardware has one module (DA or DB with 32+ pins); this allows you to swap the Wire object over to use TWI1, allowing the TWI1 pins to be used without creating both Wire and Wire1 - either because you need to use a library hardcoded to use Wire, not Wire1, or because you need to use the TWI0 pins. This must be called first, before `Wire.enableDualMode()` or `Wire.begin()`. Accepts `&TWI0` and `&TWI1` as arguments.
 
 This method is available ONLY if both TWI0 and TWI1 are present on the device, but the tools -> Wire mode menu is not set to an option that creates Wire1. The point is to provide a facility to, without the overhead of both Wire modules, use the TWI1 pins instead of the TWI0 pins.
 
