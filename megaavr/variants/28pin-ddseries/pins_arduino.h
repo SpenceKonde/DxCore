@@ -125,9 +125,9 @@ Include guard and include basic libraries. We are normally including this inside
 
 // Timer pin mapping
 #define TCA0_PINS PORTMUX_TCA0_PORTD_gc     // TCA0 output on PD[0:5]
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) as the other options are not present on tese parts.
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) as the other options are not present on tese parts.
-#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) as the other options are not present on tese parts.
+#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) as the other options are not present on these parts.
+#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) as the other options are not present on these parts.
+#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) as the other options are not present on these parts.
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA4-7
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
