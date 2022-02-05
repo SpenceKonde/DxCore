@@ -239,17 +239,70 @@ void TWI_MasterSetBaud(struct twiData *_data, uint32_t frequency) {
       uint8_t restore = _data->_module->MCTRLA;           // Save the old Master state
       _data->_module->MCTRLA    = 0;                      // Disable Master
       _data->_module->MBAUD     = newBaud;                // update Baud register
-      if (frequency >= 600000) {
+      if (frequency >= 400000) {
         _data->_module->CTRLA  |=  TWI_FMPEN_bm;          // Enable FastMode+
       } else {
         _data->_module->CTRLA  &= ~TWI_FMPEN_bm;          // Disable FastMode+
       }
       _data->_module->MCTRLA    = restore;                // restore the old register, thus enabling it again
-      _data->_module->MSTATUS   = TWI_BUSSTATE_IDLE_gc;   // Force the state machine into Idle according to the data sheet
+      if (restore & TWI_ENABLE_bm) {                      // If the TWI was enabled,
+        _data->_module->MSTATUS   = TWI_BUSSTATE_IDLE_gc;   // Force the state machine into IDLE according to the data sheet
+      }
     }
   }
 }
 
+/**
+ *@brief              TWI_MasterCalcBaud calculates the baud for the desired frequency
+ *
+ *@param              uint32_t frequency is the desired frequency
+ *
+ *@return             uint8_t
+ *@retval             the desired baud value
+ */
+#define TWI_BAUD(freq, t_rise) ((F_CPU / freq) / 2) - (5 + (((F_CPU / 1000000) * t_rise) / 2000))
+uint8_t TWI_MasterCalcBaud(uint32_t frequency) {
+  uint16_t t_rise;
+  int16_t baud;
+
+  // The nonlinearity of the frequency coupled with the processor frequency a general offset has been calculated and tested for different frequency bands
+  #if F_CPU > 16000000
+    if (frequency <= 100000) {
+      t_rise = 1000;
+      baud = TWI_BAUD(frequency, t_rise) + 6;  // Offset +6
+    } else if (frequency <= 400000) {
+      t_rise = 300;
+      baud = TWI_BAUD(frequency, t_rise) + 1;  // Offset +1
+    } else if (frequency <= 800000) {
+      t_rise = 120;
+      baud = TWI_BAUD(frequency, t_rise);
+    } else {
+      t_rise = 120;
+      baud = TWI_BAUD(frequency, t_rise) - 1;  // Offset -1
+    }
+  #else
+    if (frequency <= 100000) {
+      t_rise = 1000;
+      baud = TWI_BAUD(frequency, t_rise) + 8;  // Offset +8
+    } else if (frequency <= 400000) {
+      t_rise = 300;
+      baud = TWI_BAUD(frequency, t_rise) + 1;  // Offset +1
+    } else if (frequency <= 800000) {
+      t_rise = 120;
+      baud = TWI_BAUD(frequency, t_rise);
+    } else {
+      t_rise = 120;
+      baud = TWI_BAUD(frequency, t_rise) - 1;  // Offset -1
+    }
+  #endif
+
+  if (baud < 1) {
+    baud = 1;
+  } else if (baud > 255) {
+    baud = 255;
+  }
+  return (uint8_t)baud;
+}
 
 
 /**
@@ -290,8 +343,9 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
   uint16_t timeout = 0;
 
 
-  if ((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) {
-    return TWI_ERR_UNINIT;                     // If the bus was not initialized, return
+  if (((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) ||   // If the bus was not initialized
+      ((module->MCTRLA  & TWI_ENABLE_bm) == false)) {   // Or is disabled,
+    return TWI_ERR_UNINIT;                              // return
   }
 
 
@@ -764,55 +818,3 @@ void NotifyUser_onReceive(struct twiData *_data) {
   }
 }
 
-
-/**
- *@brief              TWI_MasterCalcBaud calculates the baud for the desired frequency
- *
- *@param              uint32_t frequency is the desired frequency
- *
- *@return             uint8_t
- *@retval             the desired baud value
- */
-#define TWI_BAUD(freq, t_rise) ((F_CPU / freq) / 2) - (5 + (((F_CPU / 1000000) * t_rise) / 2000))
-uint8_t TWI_MasterCalcBaud(uint32_t frequency) {
-  uint16_t t_rise;
-  int16_t baud;
-
-  // The nonlinearity of the frequency coupled with the processor frequency a general offset has been calculated and tested for different frequency bands
-  #if F_CPU > 16000000
-    if (frequency <= 100000) {
-      t_rise = 1000;
-      baud = TWI_BAUD(frequency, t_rise) + 6;  // Offset +6
-    } else if (frequency <= 400000) {
-      t_rise = 300;
-      baud = TWI_BAUD(frequency, t_rise) + 1;  // Offset +1
-    } else if (frequency <= 800000) {
-      t_rise = 120;
-      baud = TWI_BAUD(frequency, t_rise);
-    } else {
-      t_rise = 120;
-      baud = TWI_BAUD(frequency, t_rise) - 1;  // Offset -1
-    }
-  #else
-    if (frequency <= 100000) {
-      t_rise = 1000;
-      baud = TWI_BAUD(frequency, t_rise) + 8;  // Offset +8
-    } else if (frequency <= 400000) {
-      t_rise = 300;
-      baud = TWI_BAUD(frequency, t_rise) + 1;  // Offset +1
-    } else if (frequency <= 800000) {
-      t_rise = 120;
-      baud = TWI_BAUD(frequency, t_rise);
-    } else {
-      t_rise = 120;
-      baud = TWI_BAUD(frequency, t_rise) - 1;  // Offset -1
-    }
-  #endif
-
-  if (baud < 1) {
-    baud = 1;
-  } else if (baud > 255) {
-    baud = 255;
-  }
-  return (uint8_t)baud;
-}
