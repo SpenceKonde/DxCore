@@ -441,6 +441,7 @@ avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 avrdb.upload.tool=avrdude
 avrdb.upload.prog_interlock=
 avrdb.build.board=avrdb
+avrdb=build.MVIOenable=-DMVIO_ENABLED
 avrdb.build.core=dxcore
 avrdb.build.f_cpu={build.speed}000000L
 avrdb.build.text_section_start=.text=0x0
@@ -833,6 +834,7 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 avrdd.upload.tool=avrdude
 avrdd.upload.prog_interlock=
 avrdd.build.board=avrdd
+avrdd.build.MVIOenable=-DMVIO_ENABLED
 avrdd.build.core=dxcore
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
@@ -1972,6 +1974,7 @@ avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 # Parameters and defaults for DB parts   #
 #________________________________________#
 avrdbopti.build.board=avrdb
+avrdbopti.build.MVIOenable=-DMVIO_ENABLED
 avrdbopti.build.core=dxcore
 avrdbopti.build.f_cpu={build.speed}000000L
 avrdbopti.build.text_section_start=.text=0x200
@@ -2406,6 +2409,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 # Parameters and defaults for DD parts   #
 #________________________________________#
 #avrddopti.build.board=avrdd
+#avrddopti=build.MVIOenable=-DMVIO_ENABLED
 #avrddopti.build.core=dxcore
 #avrddopti.build.f_cpu={build.speed}000000L
 #avrddopti.build.text_section_start=.text=0x200
@@ -2845,6 +2849,7 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 # is terribad) that uses Optiboot        #
 #________________________________________#
 azduinoboard.build.board=avrdb
+azduinoboard=build.MVIOenable=-DMVIO_ENABLED
 azduinoboard.build.core=dxcore
 azduinoboard.build.f_cpu={build.speed}000000L
 azduinoboard.build.text_section_start=.text=0x200
