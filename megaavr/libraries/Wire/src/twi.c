@@ -798,4 +798,3 @@ void NotifyUser_onReceive(struct twiData *_data) {
     }
   }
 }
-
