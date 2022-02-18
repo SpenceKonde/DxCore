@@ -319,7 +319,7 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
 
   if (((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) || // If the bus was not initialized
       ((module->MCTRLA & TWI_ENABLE_bm) == false)) { // Or is disabled,
-    return TWI_ERR_UNINIT;                     // If the bus was not initialized, return
+    return TWI_ERR_UNINIT;                     // return
   }
 
 
