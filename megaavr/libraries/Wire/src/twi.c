@@ -317,7 +317,8 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
   uint16_t timeout = 0;
 
 
-  if ((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) {
+  if (((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) || // If the bus was not initialized
+      ((module->MCTRLA & TWI_ENABLE_bm) == false)) { // Or is disabled,
     return TWI_ERR_UNINIT;                     // If the bus was not initialized, return
   }
 
