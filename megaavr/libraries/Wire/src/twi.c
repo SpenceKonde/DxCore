@@ -230,7 +230,9 @@ void TWI_MasterSetBaud(struct twiData *_data, uint32_t frequency) {
         _data->_module->CTRLA  &= ~TWI_FMPEN_bm;          // Disable FastMode+
       }
       _data->_module->MCTRLA    = restore;                // restore the old register, thus enabling it again
-      _data->_module->MSTATUS   = TWI_BUSSTATE_IDLE_gc;   // Force the state machine into Idle according to the data sheet
+      if (restore & TWI_ENABLE_bm) {                      // If the TWI was enabled,
+        _data->_module->MSTATUS   = TWI_BUSSTATE_IDLE_gc;   // Force the state machine into IDLE according to the data sheet
+      }
     }
   }
 }
