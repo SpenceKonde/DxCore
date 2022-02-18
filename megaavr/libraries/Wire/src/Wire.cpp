@@ -347,7 +347,7 @@ uint8_t TwoWire::endTransmission(bool sendStop) {
  *@brief      write fills the transmit buffers, master or slave, depending on when it is called
  *
  *            Usually, the function fills the master transmit buffer.
- *            If called inside the specified onReceive or onRequest functions, or after 
+ *            If called inside the specified onReceive or onRequest functions, or after
  *            selectSlaveBuffer, it fills the slave buffer.
  *
  *@param      uint8_t data - byte to put into the buffer
@@ -416,7 +416,7 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity) {
  *@brief      available returns the amount of bytes that are available to read in the host or client buffer
  *
  *            Usually, the function returns the amount of bytes to read in the host buffer.
- *            If called inside the specified onReceive or onRequest functions, or after 
+ *            If called inside the specified onReceive or onRequest functions, or after
  *            selectSlaveBuffer, it returns the amount of bytes ready to read in the client buffer
  *
  *@param      void
@@ -447,7 +447,7 @@ int TwoWire::available(void) {
  *@brief      read returns a byte from the host or client buffer and removes it from there
  *
  *            Usually, the function returns the byte from the host buffer.
- *            If called inside the specified onReceive or onRequest functions, or after 
+ *            If called inside the specified onReceive or onRequest functions, or after
  *            selectSlaveBuffer, it returns the first byte from the slave buffer and removes it
  *            from there.
  *
@@ -496,7 +496,7 @@ int TwoWire::read(void) {
  *@brief      peek returns a byte from the host or client buffer but does not remove it
  *
  *            Usually, the function returns the byte from the host buffer.
- *            If called inside the specified onReceive or onRequest functions, or after 
+ *            If called inside the specified onReceive or onRequest functions, or after
  *            selectSlaveBuffer, it returns the first byte from the slave buffer but does not
  *            remove it like read().
  *
