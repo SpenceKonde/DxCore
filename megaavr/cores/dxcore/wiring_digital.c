@@ -196,7 +196,8 @@ inline __attribute__((always_inline)) void pinMode(uint8_t pin, uint8_t mode) {
       if (pin == HARDWIRE_INPUT_ONLY) {
         if (__builtin_constant_p(mode)) {
           if (mode == OUTPUT) {
-            badArg("This pin cannot be set as an output because of hardware constraints on the board selected and must always be INPUT only");
+            /* If HARDWIRE_INPUT_ONLY is defined, that pin is to be an INPUT only */
+            badArg("This pin cannot be set as an output on the Azduino NanoDB Rev. A. It is hardwired to onboard serial.") // future hardware will correct this defect;
             return;
           }
         } else {
@@ -235,16 +236,15 @@ void _pinMode(uint8_t pin, uint8_t mode) {
     port->DIRCLR = bit_mask;            /* Configure direction as input */
     if (mode == INPUT_PULLUP) {         /* Configure pull-up resistor */
       *pin_ctrl |= PORT_PULLUPEN_bm;    /* Enable pull-up */
-      port->OUTSET = bit_mask;          /* emulate setting of the port output register on classic AVR */
     } else {                            /* mode == INPUT (no pullup) */
       *pin_ctrl &= ~(PORT_PULLUPEN_bm); /* Disable pull-up */
-      port->OUTCLR = bit_mask;          /* emulate clearing of the port output register on classic AVR */
     }
     SREG = status;                      /* Restore state */
   }
 }
 
 /* This turns off PWM, if enabled. It is called automatically on every digitalWrite();
+ * This function can end up executing a heckovalotta code for one simple
  * Note that it only operates on the PWM source with priority - TCA > TCD > TCB/DAC
  * the order of the cases here doesn't matter - which one has priority is determined in
  * digitalPinToTimerNow() in wiring_analog.c. That's why it's recommended to make sure
@@ -308,6 +308,7 @@ void turnOffPWM(uint8_t pin)
       #else
         // on the DA series, it could be any of them
         #ifndef ERRATA_TCD_PORTMUX
+          //                                Px4-Px7
           uint8_t fcset = TCD0.FAULTCTRL & (bit_mask > 0x0F ? bit_mask : bit_mask << 4 ); // hopefully that gets rendereed as swap, not 4 leftshifts
         #else
           uint8_t fcset = TCD0.FAULTCTRL & bit_mask;

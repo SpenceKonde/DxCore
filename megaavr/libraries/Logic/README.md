@@ -8,13 +8,65 @@ More information about CCL can be found in the [Microchip Application Note TB321
 
 
 ## Logic
-Class for interfacing with the built-in logic block (sometimes referred to as `LUT`s, from the "LookUp Table" - though it is curious use of language, that is what Microchip refers to them as). Use the predefined objects `Logic0`, `Logic1`, `Logic2`, `Logic3`, `Logic4` and `Logic5`. The logic blocks are paired, each pair sharing a single sequencer and `feedback` channel. Additionally, each logic block is associated with a specific port, having it's input on pins 0 through 2, and it's output on pin 3 or 6 (note that these pin mappings are dramatically different on tinyAVR parts). In order: `PORTA`, `PORTC`, `PORTD`, `PORTF`, `PORTB`, and `PORTG`. `Logic4` and `Logic5` are only available on 48 and 64 pin AVR Dx-series devices, and tinyAVR 0/1-series parts have only Logic0 and Logic1. All other existing and announced parts have 4 logic blocks. Note that unlike many peripherals, on parts that do not have the relevant pins, the peripheral is still present and available for use - there is plenty that can be done with a logic block without using any of the pin inputs.
+`Logic` is the class the library provides for interfacing with a built-in logic block (sometimes referred to as `LUT`s, from the "LookUp Table" - though it is curious use of language, that is what Microchip refers to them as). Use the predefined objects `Logic0`, `Logic1`, `Logic2`, `Logic3`, `Logic4` and `Logic5`. The logic blocks are paired, each pair sharing a single sequencer and `feedback` channel. Additionally, each logic block is associated with a specific port, having it's input on pins 0 through 2, and it's output on pin 3 or 6 (note that these pin mappings are dramatically different on tinyAVR parts). In order: `PORTA`, `PORTC`, `PORTD`, `PORTF`, `PORTB`, and `PORTG`.
+
+`Logic4` and `Logic5` are only available on 48 and 64 pin AVR Dx-series devices, and tinyAVR 0/1-series parts have only Logic0 and Logic1. All other existing and announced parts have 4 logic blocks. Note that unlike many peripherals, on parts that do not have the relevant pins, the peripheral is still present and available for use - there is plenty that can be done with a logic block without using any of the pin inputs. Refer to the version of this file suppled with megaTinyCore for information on those parts. All information following this is written from a Dx-series context.
+
+### Pin availability and Quick Reference (Dx-series)
+
+Logic Block |  IN0-2  | OUT | ALT OUT | Availability  | Notes:
+------------|---------|-----|---------|---------------|-----------------------------
+Logic0      | PA0-PA2 | PA3 |     PA6 |    All parts  |
+Logic1      | PC3-PC5 | PA7 |     PA6 |    All parts  |
+Logic2      | PD0-PD2 | PD3 |     PD6 |    All parts  |
+Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on most parts for block 3.
+Logic4      | PCB-PB2 | PB3 |     PB6 | 48+ pin DA/DB |
+Logic5      | PC0-PC2 | PC3 |     PG6 | 48+ pin DA/DB | On 48-pin parts, this can and should be used if you need a logic block and require ,either pin input nor, nor an output pin. When it will work, it is often the best choice sinece it saves the more useful ones.
+
+
+Logic Block |  14-pin DD            |  20-pin DD          |  28 pin Dx          |  32-pin Dx  y        |  48-pin Dx          |  64-pin Dx          |
+------------|-----------------------|---------------------|---------------------|---------------------|---------------------|---------------------|
+Logic0 IN   | No IN2,0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal |
+Logic0 OUT  | No outputs.           | YES, Both           | YES, both           | YES, both           | YES, both           | YES, both           |
+Logic1 IN   | No IN0 because no PC0 | No IN0 - no PC0     | YES, all            | YES, all            | YES, all            | YES, all            |
+Logic1 OUT  | No ALT OUT 1          | NO ALT OUT1         | YES, both           | YES, both           | YES, both           | YES, both           |
+Logic2 IN   | No inputs - no PD0-3  | No input - no PD0-3 | IN0 on DA only      | IN0 on DA only      | YES, all            | YES, all            |
+Logic3 IN   | No inputs - No PF0/1  | No inputs - No PF0/1| IN0, IN1 only       | YES, all            | YES, all            | YES, all            |
+Logic3 OUT  | No outputs            | No outputs          | No outputs          | No alt output       | No alt output       | No alt output       |
+Logic4 IN   | N/A                   | N/A                 | N/A                 | N/A                 | YES, all            | YES, all            |
+Logic4 OUT  | N/A                   | N/A                 | N/A                 | N/A                 | No alt output       | YES, Both           |
+Logic5 IN   | N/A                   | N/A                 | N/A                 | N/A                 | NO, no PORTG        | YES, all            |
+Logic5 Out  | N/A                   | N/A                 | N/A                 | N/A                 | NO, no PORTG        | YES, Both           |
+
 
 These objects expose all configuration options as properties ("member variables" in C++ parlance - C++ predates the names "property" and "method") as documented below, as well as methods ("member functions") to set the applicable registers.
 
-### Logic block properties
+## Logic class overview
 
-#### enable
+| Property    | namespace or type           | Function                                    |
+|-------------|-----------------------------|---------------------------------------------|
+| enable      | bool                        | Enable or disable logic block               |
+| input0      | in::                        | Selects input 0                             |
+| input1      | in::                        | Selects input 1                             |
+| input2      | in::                        | Selects input 2                             |
+| output      | out::                       | 'enable'/'disable' output pin               |
+| output_swap | out::                       | 'no_swap/'pin_swap' use alt output pin      |
+| filter      | filter::                    | 'filter'/'sync' or 'disable' filter         |
+| edgedetect  | edgedetect::                | 'enable'/'disable' edge detect mode         |
+| sequencer   | sequencer::                 | selects the sequecer, even #'ed blocks only |
+| clocksource | clocksource::               | select clock source, if not async.          |
+| truth       | uint8_t                     | truth table                                 |
+
+| Methods             | Function
+|---------------------|-----------------------------------------------------------------------------|
+| Logic::start();     | Enables CCL with current configuration.                                     |
+| Logic::stop();      | Disables CCL - must be disabled to change configuration                     |
+| init();             | Write settings for this logic block to registers. CCL must be stopped first |
+| attachInterrupt();  | Attach an interrupt on the CCL, supports RISING/FALLING/CHANGE              |
+| detachInterrupt();  | Detach the currently attached interrupt.                                    |
+
+
+### enable
 Property controlling whether the logic block is enabled. Like all properties, you must call LogicN.init() to apply any changes.
 Accepted values:
 ```c++
@@ -22,16 +74,16 @@ true;  // Enable the current logic block
 false; // Disable the current logic block
 ```
 
-##### Usage
+#### Usage
 ```c++
 Logic0.enable = true; // Enable logic block 0
 ```
 
-##### Default state
+#### Default state
 `Logic0.enable` defaults to `false` if not specified in the user program.
 
 
-#### input0..input2
+### input0..input2
 Variable for setting what mode input 0..2 on a logic block should have.
 
 Accepted values for non-tinyAVR parts:
@@ -72,18 +124,18 @@ Note:
 * Timer/Counter input sources are associated with a WO (Waveform Output) channel - they are logic 1 (true) when the PWM output on that channel is `HIGH` (See the datasheet I/O multiplexed signals chart to associate WO channels with pins)
 * See the version of this file distributed with megaTinyCore for information on the corresponding options on those parts.
 
-##### Usage
+#### Usage
 ```c++
 Logic0.input0 = in::link;         // Connect output from block 1 to input 0 of block 0
 Logic0.input1 = in::input;        // Connect the input 1 from block 0 to its GPIO
 Logic0.input2 = in::input_pullup; // Connect the input 2 from block 0 to its GPIO, with pullup on
 ```
 
-##### Default state
+#### Default state
 `LogicN.inputN` defaults to `in::unused` if not specified in the user program.
 
 
-#### output
+### output
 Property controlling the logic block output pin behavior. Note that the output of the logic block still can be used internally if the output pin is disabled. The pin's direction and output value are overridden, so you do not need to set the pin `OUTPUT` first.
 Accepted values:
 ```c++
@@ -91,16 +143,16 @@ out::disable; // Disable the output GPIO pin. Useful when triggering an interrup
 out::enable;  // Enable the output GPIO pin
 ```
 
-##### Usage
+#### Usage
 ```c++
 Logic0.output = out::disable; // Disable the output GPIO pin.
 ```
 
-##### Default state
+#### Default state
 `LogicN.output` defaults to `out::disable` if not specified in the user program.
 
 
-#### output_swap
+### output_swap
 Property controlling whether to use the alternate output pin. See the pinout diagrams in the [Core this is part of](../../../README.md) for more info.
 Accepted values:
 ```c++
@@ -108,16 +160,16 @@ out::no_swap;  // Use default pin position, pin 3 on the port
 out::pin_swap; // Use alternative position, pin 6 on the port
 ```
 
-##### Usage
+#### Usage
 ```c++
 Logic0.output_swap = out::no_swap; // No pin swap for output of block0
 ```
 
-##### Default state
+#### Default state
 `LogicN.output_swap` defaults to `out::no_swap` if not specified in the user program.
 
 
-#### filter
+### filter
 Property to control whether the output is passed through a filter or synchronizer. Useful when multiple logic blocks are connected internally to prevent race conditions and glitches that could arise due to the asynchronous nature of CCL. Alternately, the delay itself may be desirable, or it can be combined with a configuration which inverts it's own output (and would otherwise oscillate asynchronously), but is clocked by some other source; this will then act to divide that clock speed by 4 (synchronizer) or
 Accepted values:
 ```c++
@@ -128,18 +180,18 @@ filter::sync;         // Syntactic sugar for synchronizer
 filter::filter;       // Connect filter to output; delays output by 4 clock cycles, only passes output that is stable for >2 clock cycles.
 ```
 
-##### Usage
+#### Usage
 ```c++
 Logic0.filter = filter::filter; // Enable filter on output of block 0
 ```
 
 See also [Prescaling Clocks with CCLs](https://github.com/SpenceKonde/AVR-Guidance/blob/master/CCL_EVSYS_hacks/CCL_prescaling.md)
 
-##### Default state
+#### Default state
 `LogicN.filter` defaults to `filter::disable` if not specified in the user program.
 
 
-#### clocksource
+### clocksource
 Property to set the clock source for the logic block; this is used for the synchronizer and filter only (otherwise, the logic blocks are asynchronous - and shockingly fast. You can rig them up so that they oscillate, and with the most direct approaches, it can reach upwards of 100 MHz!). Note that 32kHz-derived and unprescaled clock options are not available on 0-series and 1-series parts; keep this in mind if backwards portability is important. If sequential logic is used, it is clocked from the clock source used by the even-numbered logic block, if it uses a clock.
 Accepted values:
 ```c++
@@ -151,17 +203,17 @@ clocksource::osc1k;        // Clock from the internal 32.768 kHz oscillator pres
 ```
 
 
-##### Usage
+#### Usage
 ```c++
 Logic2.clocksource = clocksource::oschf; // Set block 2 to use unprescaled high frequency internal oscillator.
 ```
 
-##### Default state
+#### Default state
 `LogicN.clocksource` defaults to `clocksource::clk_per` if not specified in the user program.
 
 
 
-#### edgedetect
+### edgedetect
 Property to control use of the edge detector. The edge detector can be used to generate a pulse when detecting a rising edge on its input. To detect a falling edge, the TRUTH table should be programmed to provide inverted output. In order to avoid unpredictable behavior, a valid filter option must be enabled (note: that's what the datasheet says; it's not clear whether you can get the unpredictable behavior, or if the edge detecter won't be connected unless a filter or synchronizer is enabled). Note that this is likely only of use when the output is being used for sequential logic or as the input to another logic block; it looks particularly useful on the odd LUT input to a J-K flip-flop sequential logic unit.
 
 ```c++
@@ -169,7 +221,7 @@ edgedetect::disable;      // No edge detection used
 edgedetect::enable;       // Edge detection used
 ```
 
-#### sequencer
+### sequencer
 Property controlling the "sequencer" for this pair of logic blocks - these are latches or flip-flops which remember a state. There is 1 sequencer per 2 CCLs, each controls one of the two inputs to a flip flop or latch; this option is ignored for the odd-numbered logic blocks. Flip-flops are clocked from the same clock source as the even logic block, latches are asynchronous.
 
 Accepted values:
@@ -181,16 +233,16 @@ sequencer::d_latch;      // Gated D latch sequencer connected. Note that there w
 sequencer::rs_latch;     // RS latch sequencer connected
 ```
 
-##### Usage
+#### Usage
 ```c++
 Logic0.sequencer = sequencer::disable; // Disable sequencer
 ```
 
-##### Default state
+#### Default state
 `LogicN.sequencer` defaults to `sequencer::disable` if not specified in the user program.
 
 
-#### truth
+### truth
 This property contains the 8-bit truth table value.
 Accepted values between 0x00 and 0xFF - this is where the input values are looked up to determine what value to output.
 
@@ -213,12 +265,12 @@ During development, it is often ~helpful~ necessary to draw out a table like:
 Which would translate into a truth value of 0b11010100 or 0xD4.
 
 
-##### Usage
+#### Usage
 ```c++
 Logic0.truth = 0xF0;
 ```
 
-##### Default state
+#### Default state
 `LogicN.truth` defaults to `0x00` if not specified in the user program.
 
 ## Logic Methods
@@ -226,7 +278,7 @@ Logic0.truth = 0xF0;
 ### init()
 Method for initializing a logic block; the settings you have previously configured will be applied and pins configured as requested at this time only.
 
-#### Usage
+### Usage
 ```c++
 Logic0.init(); // Initialize block 0
 Logic1.init(); // Initialize block 1
@@ -236,7 +288,7 @@ Logic1.init(); // Initialize block 1
 ### start()
 Static method for starting the CCL hardware after desired blocks have been initialized using `LogicN.init()`. See the section below on reconfiguring.
 
-#### Usage
+### Usage
 ```c++
 Logic::start(); // Start CCL hardware
 ```
@@ -244,7 +296,7 @@ Logic::start(); // Start CCL hardware
 ### stop()
 Static method for stopping the CCL hardware, for example to reconfigure the logic blocks.
 
-#### Usage
+### Usage
 ```c++
 Logic::stop(); // Stop CCL
 ```
@@ -253,7 +305,7 @@ Logic::stop(); // Stop CCL
 Method for enabling interrupts for a specific block.
 Valid arguments for the third parameters are `RISING`, `FALLING` and `CHANGE`.
 
-#### Usage
+### Usage
 ```c++
 Logic0.attachInterrupt(blinkLED, RISING); // Runthe blinkLED function when the output goes high
 
@@ -268,7 +320,7 @@ void blinkLED()
 Method for disabling interrupts for a specific block.
 This method isn't available on tinyAVR 0/1-series.
 
-#### Usage
+### Usage
 ```c++
 Logic0.detachInterrupt(); // Disable interrupts for block 0
 ```
