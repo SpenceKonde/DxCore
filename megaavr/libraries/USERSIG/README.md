@@ -1,14 +1,16 @@
-# USERSIG Library V2.1.0 - USERROW access for AVR DA, DB, and DD-series parts
+# USERSIG Library V2.1.0 for DxCore
 
 **Written by:** _Spence Konde_
 **Based on EEPROM.h by:** Christopher Andrews
 
 ## What is the USERSIG library
 
-The USERSIG library provides an easy to use interface to interact with the so-called "user row" or "user signature" - this is a section of non-volatile memory like the EEPROM, except that it maintains it's values through a chip-erase... even if EESAVE is not set. This library is named USERSIG because USERROW is the name of a builtin - it included in the io headers (low level files containing register names and the like). That provides no facility for writing or doing other things that you probably want to do with the USERROW memory, though.
+The USERSIG library provides an easy to use interface to interact with the so-called "user row" or "user signature" - on tinyAVR 0/1/2-series and megaAVR 0-series parts, this works just like EEPROM - except that it is not cleared by a chip erase, regardless of whether the EESAVE bit is set in the fuses. This memory section is most often called the "USERROW" since that is what Microchip calls it. This library is named USERSIG (from "User Signature Space", the non-abbreviated official name and the "USER_SIGNATURE_SIZE" macros) because USERROW is the name of a builtin way to access it included in the io headers (low level files containing register names and the like), but which provides no facility for writing or doing other things that you probably want to do with them. (How did it become "User Row" from "User Signature"? Probably the same way that the read-only signature that all AVR parts have came to be called the "SIGROW" - I don't know what that way is, but it's consistent).
+
+Addresses in the USERSIG area are given by by a `byte`, not an `int`, as all released parts have under 256 bytes of memory of this type. The library offsets it as appropriate for your part to get the memory mapped address.
 
 ## Not quite like EEPROM
-Unlike the earlier parts, the Dx-series parts have a major disadvantage in terms of USERROW functions: The erase granularity on tinyAVR and megaAVR is 1 byte, and it works just like EEPROM, as does the library. Unfortunately, here, the USERROW acts more like flash - while you can write it one byte at a time (also possible on with the flash on these parts), you can only erase it one page at a time. The page size, for all Dx parts thus far is 32 bytes (ie, the whole thing). It remains to be seen how
+Unlike the earlier parts, the Dx-series parts have a major disadvantage in terms of USERROW functions: The erase granularity on tinyAVR and megaAVR is 1 byte, and it works just like EEPROM, as does the library. Unfortunately, here, the USERROW acts more like flash - while you can write it one byte at a time (also possible on with the flash on these parts), you can only erase it one page at a time. The page size, for all Dx parts thus far is 32 bytes (ie, the whole thing). It remains to be seen what we will get on the EA-series and rumored DU-series (the DU, if the product brief is to be belived - which is dubious as Microchip took it down just hours after posting it - may be slated to have 512b of USERROW as well as a new type of memory called "BOOTROW" - or it may not even go into production. At this point, there is no public information I am aware of regarding this). The DD-series is works the same as the DA/DB according to the datasheet.
 
 I was told that write endurance is similar to flash, not EEPROM - so around 10,000 cycles minimum. A naive algorithm might check each byte the user asked to write against what was stored in the USERROW, and if writing it without an erase wouldn't result in the requested value, buffer it in RAM, erase and rewrite it. In some circumstances this would be fine, but in others, the writes could be amplified by as much as a factor of 32 (imagine writing a 32-byte fresh set of values, every one different from what was there - 32 erase and write cycles (well, 29 on average, if they're all random numbers, since about 10% the time, one random 8-bit value can be written over another random value without having to erase), because each byte is written without accounting for the fact that all 32 values are being replaced). The 10,000 cycle endurance has just become 312 cycles, which is not acceptable.
 
@@ -19,23 +21,23 @@ There is also a new restriction: You are not allowed to write from an interrupt.
 
 ## USEROW Sizes
 
-| AVR Device                          | USERROW size | Supported |
-|-------------------------------------|--------------|-----------|
-| tinyAVR 0/1/2-series                |          32b |        No |
-| megaAVR 0-series (8k or 16k flash)  |          32b |        No |
-| megaAVR 0-series (32k or 48k flash) |          64b |        No |
-| DA, DB, DD-series (all flash sizes) |          32b |       Yes |
-| EA-series (all flash sizes)         |          64b |   Not yet |
+| AVR Device                          | USERROW size | Supported | Erase granularity and mode |
+|-------------------------------------|--------------|-----------|----------------------------|
+| tinyAVR 0/1/2-series                |          32b |       Yes | Byte, handled automatically|
+| megaAVR 0-series (8k or 16k flash)  |          32b |       Yes | Byte, handled automatically|
+| megaAVR 0-series (32k or 48k flash) |          64b |       Yes | Byte, handled automatically|
+| DA, DB, DD-series (all flash sizes) |          32b | On DxCore | 32b, app must handle erase |
+| EA-series (all flash sizes)         |          64b |   Not yet | TBD                        |
 
-The tinyAVR and megaAVR devices are supported by the version of `USERROW.h` included with megaTinyCore.
+tinyAVR/megAVR parts and the Dx-series parts must use a different version of the library. It presents almost the same API, but not quite. The tinyAVR version is functionally identical to EEPROM.h, differing only in return types and a few stub functions for compatibility with DxCore.
 
 Specifying an address beyond the size of the USEROW will wrap around to the beginning.
 
 ## Write Endurance
-The USERROW write endurance is similar to the flash endurance according a well-placed source. There is no specification given in the datasheet.
+There is no specification given in the datasheet. You should treat the USERROW as if had a limit of 10k write/erase cycle, like flash; that has been confirmed to me in the context of the Dx-series parts by a well-placed source - however, I do not know if the same is true on tinyAVR, or if (like it's erase and write proceedures) it is instead like EEPROM. The datasheets of Dx-series parts consistently refer to it being like flash, while the datasheets of the tinyAVRs compare it to EEPROM - but never is the context of write endurance discussed.
 
 ## How to use it
-The USERSIG library is included with megaTinyCore. To add its functionality to your sketch you'll need to reference the library header file. You do this by adding an include directive to the top of your sketch.
+The USERSIG library is included with DxCore. To add its functionality to your sketch you'll need to reference the library header file. You do this by adding an include directive to the top of your sketch.
 
 ```Arduino
 #include <USERSIG.h>
@@ -160,6 +162,16 @@ This operator returns a reference to the USERSIG cell. When writing this way **T
 ### `USERSIG.length()`
 
 This function returns a `byte` containing the number of bytes in the user signature space (32 on DA, DB, and DD-series parts.
+
+---
+## Compatibility considerations
+On megaTinyCore, the USERSIG library is much simpler - it can be written at byte granularity without the number of erase and write cycles being amplified, so no buffer is kept, no write is ever pending, and everything written is immediately comitted to NVM.
+
+To ensure code compatibility with megaTinyCore 2.5.11 onwards (earlier versions do not have standins for flush(), erase() or pending()) you need only ensure that your code does not malfunction if write() and update() always returnes a 1, pending always returns a 0, and no functions ever return error codes (negative values); this is something it *really should do anyway* - It is a bug in your code if that situation is not handled correctly.
+
+Do not call the internal functions (the ones defined in USERROW.h and preceeded with `__`. They are not documented here). They do not exist for megaTinyCore at all. Further, we reserve the right to make arbitrary changes to those internal functions in any way as we see fit to correct bugs, improve performance and support additional parts. Such changes would be accompanied bythe necessary changes to the exposed interface so that no breakage occurred.
+
+---
 
 ## Advanced features
 

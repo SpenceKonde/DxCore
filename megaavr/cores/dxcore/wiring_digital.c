@@ -325,6 +325,9 @@ void turnOffPWM(uint8_t pin)
         // This is slightly dangerous - if the timer isn't running, it will start the timer. But it will only do any of that if
         // it was currently set to output PWM, so it's very hard to imagine triggering it with just innocent calls to digitalWrite
         // in a constructor - we do not promise core functions will behave if users are reconfiguring peripherals in arbitrary ways.
+        // Starting pwm manually (analogWrite won't start it until init starts the timers) in a constructor and then digitalWriting the same pin,
+        // when the pin uses TCD0 for PWM is not expected to to produce correct behavior. If you modify the configuration except as described in
+        // REF_TCD.md, you must takeOverTCD0() and assume full responsibility for all TCD configuration.
         uint8_t oldSREG = SREG;
         cli();
         TCD0.CTRLA &= ~TCD_ENABLE_bm; // stop the timer
