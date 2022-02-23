@@ -15,32 +15,87 @@
  * USART1_DRE_vect or something, so why do we act like it could be?
  */
 
+/* Hardware serial is the most important of the big three interfaces, and also the trickiest; we need to totally rearchitect how the serial classes handle pins
+ * The objective here is to was to get HardwareSerial out of the business of handling pins so that the info we need lives in progmem
+ * and can be used without shipping a whole bunch of constants into the class, which is a waste of ram and would involve a bloated class constructor several lines long.
+ *
+ * During this effort it became clear that we were defining many things in the variants that didn't vary. We've mostly done away with those.
+ * #define NUM_HWSERIAL_PORTS              2                        <----- This will be filled in if not provided here, but it should be in the variant.
+ * #define HWSERIAL0                       &USART0                  <----- This was unnecessary. Renumbering of USARTs is not supported (though we do have a way to change which one is aliased to Serial)
+ * #define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect          <----- Surely we know that USART0 will always have it's vector named USART0_DRE_vect?
+ * #define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num      <----- Was this only used for the serial interrupt elevation idiocy? (A: Yes)
+ * #define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect          <----- See 2 lines up.
+ * #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc  <--- Mandatory if this mux option is valid, must be omitted or NOT_A_MUX if it is not valid.
+ * #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc     <--- As above.
+ * #define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc     <--- If this option does not exist, omit/
+ * #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc     <--- Mandatory
+ * #define PIN_HWSERIAL0_TX                PIN_PA0    <---- All mux options that exist must have a TX and RX pin specified
+ * #define PIN_HWSERIAL0_RX                PIN_PA1    <---- If only one of the two is available, other should be defined as NOT_A_PIN
+ * #define PIN_HWSERIAL0_XCK               PIN_PA2    <---- Preferably defined even if the pin isn't available (as NOT_A_MUX)
+ * #define PIN_HWSERIAL0_XDIR              PIN_PA3
+ * #define PIN_HWSERIAL0_TX_PINSWAP_1      NOT_A_PIN  <---- If either TX or RX pin is missing, or both RX and TX are NOT_A_PIN
+ * #define PIN_HWSERIAL0_RX_PINSWAP_1      NOT_A_PIN  <---- it's an invalid mux option, and won't be available
+ * #define PIN_HWSERIAL0_XCK_PINSWAP_1     NOT_A_PIN  <---- XCK and XDIR, on the other hand, aren't truly used by the core.
+ * #define PIN_HWSERIAL0_XDIR_PINSWAP_1    NOT_A_PIN  <---- There is intense register pressure when we're doing Serial.begin(); the compiler is already creating bad code here. So
+ * #define PIN_HWSERIAL0_TX_PINSWAP_2      PIN_PA4          wanted to avoid excess logic. On all current an announced pins, IF there is an XCK pin, it's the pin after RX, and
+ * #define PIN_HWSERIAL0_RX_PINSWAP_2      PIN_PA5          if there is a XDIR pin, it's numbered 2 after RX. We don't do anything to avoid setting mode of that pin if we don't have the pin.
+ * #define PIN_HWSERIAL0_XCK_PINSWAP_2     NOT_A_PIN        on the grounds that what the're attempting has no hope of working (they requested essential functionality on a pin that doesn't exist)
+ * #define PIN_HWSERIAL0_XDIR_PINSWAP_2    NOT_A_PIN        hence nothing the core can do is correct, so we might as well be wrong and not waste flash than be wrong and waste flash.
+ *
+ * Thus far, with the exception of USART1, the rest of the serial ports have been entirely excluded from USART0's DD-day mux
+ * party... and all he got to do was pick up crumbs and lick icecubes after USART0 snarfed the cake and drained the punchbowl.
+ * what will be interesting is to see whether this trend continues (which existing data suggests) or whether that mention of
+ * TWI1 wasn't the only error in the EA's multiplexing considerations table
+ */
+
+
+
 #ifndef UART_SWAP_H
 #define UART_SWAP_H
 
 #include "Arduino.h"
 
 #if defined(USART0) || defined(USART1) || defined(USART2) || defined(USART3) || defined(USART4) || defined(USART5)
-  #define HAVE_HWSERIAL
 
-  #if defined(USART5)
-    #define NUM_HWSERIAL_PORTS 6
-  #elif defined(USART4)
-    #define NUM_HWSERIAL_PORTS 5
-  #elif defined(USART3)
-    #define NUM_HWSERIAL_PORTS 4
-  #elif defined(USART2)
-    #define NUM_HWSERIAL_PORTS 3
-  #elif defined(USART1)
-    #define NUM_HWSERIAL_PORTS 2
-  #elif defined(USART0)
-    #define NUM_HWSERIAL_PORTS 1
-    #if !defined(HWSERIAL_MUX_TINY)
-      #error "Only one USART, but this is a core for modern AVRs, and it's NOT a tinyAVR 0/1-series. Something is wrong!"
+  /* Let's see what we can deduce from the headers - no need to crap up the variant files and make more busywork
+   * The answer turns out to be "Everything except the actual pins"*/
+  #if defined(PORTMUX_USARTROUTEA)
+    #define HWSERIAL_MUX_REGISTER_BASE      &PORTMUX.USARTROUTEA
+    #if defined(PORTMUX_USARTROUTEB)
+      #define HWSERIAL_MUX_REG_COUNT 2
     #else
-      #error "No USARTs detected, all supported parts have at least 2, something is wrong!"
+      #define HWSERIAL_MUX_REG_COUNT 1
+    #endif
+  #elif defined(PORTMUX_CTRLB)
+    // This is a MUCH simpler case - swap is trivial on those.
+    #define HWSERIAL_MUX_TINY
+  #else
+    #error "This part is unsupported, or there is a bug in the core or a problem with your toolchain."
+  #endif
+
+  /* Okay, now we know what the mux register is, and whether it's a tiny-like mux or a Dx-like one. */
+  #define HAVE_HWSERIAL
+  #if !defined(NUM_HWSERIAL_PORTS)
+    #if defined(USART5)
+      #define NUM_HWSERIAL_PORTS 6
+    #elif defined(USART4)
+      #define NUM_HWSERIAL_PORTS 5
+    #elif defined(USART3)
+      #define NUM_HWSERIAL_PORTS 4
+    #elif defined(USART2)
+      #define NUM_HWSERIAL_PORTS 3
+    #elif defined(USART1)
+      #define NUM_HWSERIAL_PORTS 2
+    #elif defined(USART0)
+      #define NUM_HWSERIAL_PORTS 1
+      #if !defined(HWSERIAL_MUX_TINY)
+        #error "Only one USART, but this is a core for modern AVRs, and it's NOT a tinyAVR 0/1-series. Something is wrong!"
+      #else
+        #error "No USARTs detected, all supported parts have at least 2, something is wrong!"
+      #endif
     #endif
   #endif
+  /* If NUM_HWSERIAL_PORTS is not defined, we calculate it assuming there are no gaps.
 
   /* Recreate all those old defines so they aren't spread over all the variants when they don't vary! */
   #if defined(USART0)
@@ -87,54 +142,6 @@
   #endif
 
 
-  /* Now for HARDWARE SERIAL which is the most important - also the trickiest; we need to totally rearchitect how the serial classes handle pins
-   * Interestingly, only 0 and 1 have had any additional mappings declared!
-   * The objective here is to GET HardwareSerial out of the business of handling pins so that the info we need lives in progmem
-   * and can be used without shipping a whole bunch of constants into the class, to burn ram and make the constructor several lines long just to list the arguments....
-   * We expect pins_arduino to have the following for each port and mux option :
-   *
-   * #define HWSERIAL0                       &USART0
-   * #define HWSERIAL0_DRE_VECTOR            USART0_DRE_vect
-   * #define HWSERIAL0_DRE_VECTOR_NUM        USART0_DRE_vect_num      <----- Was this only used for the serial interrupt elevation idiocy?
-   * #define HWSERIAL0_RXC_VECTOR            USART0_RXC_vect
-   * #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc  <--- Mandatory
-   * #define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc     <--- Mandatory if there are any mux options after this one
-   * #define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc     <--- If neither this option nor further ones with pins exist, omit all references to it.
-   * #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc     <--- Mandatory
-   * #define PIN_HWSERIAL0_TX                PIN_PA0
-   * #define PIN_HWSERIAL0_RX                PIN_PA1
-   * #define PIN_HWSERIAL0_XCK               PIN_PA2
-   * #define PIN_HWSERIAL0_XDIR              PIN_PA3
-   * #define PIN_HWSERIAL0_TX_PINSWAP_1      NOT_A_PIN  <---- If any one of them is missing, or both RX and TX are NOT_A_PIN
-   * #define PIN_HWSERIAL0_RX_PINSWAP_1      NOT_A_PIN  <---- it's an invalid mux option, and won't be available
-   * #define PIN_HWSERIAL0_XCK_PINSWAP_1     NOT_A_PIN  <---- invalid options may pin macros, but must #define the mux option as noted above.
-   * #define PIN_HWSERIAL0_XDIR_PINSWAP_1    NOT_A_PIN  <----
-   * #define PIN_HWSERIAL0_TX_PINSWAP_2      PIN_PA4    <---- ALL FOUR must be present (even if NOT_A_PIN)
-   * #define PIN_HWSERIAL0_RX_PINSWAP_2      PIN_PA5    <---- And one of TX or RX must be a pin, not NOT_A_PIN.
-   * #define PIN_HWSERIAL0_XCK_PINSWAP_2     NOT_A_PIN  <---- Otherwise it will be treated as invalid.
-   * #define PIN_HWSERIAL0_XDIR_PINSWAP_2    NOT_A_PIN  <----
-   *
-   * Thus far, with the exception of USART1, the rest of the serial ports have been entirely excluded from USART0's DD-day mux
-   * party... and all he got to do was pick up crumbs and lick icecubes after USART0 snarfed the cake and drained the punchbowl.
-   * what will be interesting is to see whether this trend continues (which existing data suggests) or whether that mention of
-   * TWI1 wasn't the only error in the EA's multiplexing considerations table
-   */
-
-  /* Let's see what we can deduce from the headers - no need to crap up the variant files and make more busywork */
-
-  #if defined(PORTMUX_USARTROUTEA)
-    #define HWSERIAL_MUX_REGISTER_BASE      &PORTMUX.USARTROUTEA
-    #if defined(PORTMUX_USARTROUTEB)
-      #define HWSERIAL_MUX_REG_COUNT 2
-    #else
-      #define HWSERIAL_MUX_REG_COUNT 1
-    #endif
-  #elif defined(PORTMUX_CTRLB)
-    // This is a MUCH simpler case - swap is trivial on those.
-    #define HWSERIAL_MUX_TINY
-  #else
-    #error "This part is unsupported, or there is a bug in the core or a problem with your toolchain."
-  #endif
 
 /* before the big mess below runs, we need to keep it from  mixbehaving if the user omits, for example. the mux settings
  * for a few muxes that aren't valid on their, when there's a higher numbered one that is valid.
@@ -247,28 +254,17 @@
 #endif
 
 
-
-
-
-  /*  Group mask, routereg, pinful mux count, mux_none_gc
-   * The #ifdef construction makes it absolutely obvious to someone reading this that it won't
-   * work if there's a missing USART in the middle, eg. if they ever released something with a
-   * USART0 and USART2 but no USART1.                                                       */
-
-
-
   /* This heinous mess does two things:
    * 1. It builds a table containing the pins and portmux settings for all the options defined in pins_arduino.h
    * 2. It counts up the mux options that exist - if they are defined but NOT_A_MUX (indicating gaps in table), then the row of the table is filled with NOT_A_PIN.
    *    This should be done if (and only if) subsequent options do have pins. For example, on DA/DB with 28/32 pins, USART1 has only 1 available mux option with pins
    *    HWSERIAL1_MUX_PINSWAP1 should not be defined, and the table created will have a single row.
    *
-   *    Appended to the portmux option is one more element containing the address of the PINMUX register, the group mask and the PINSWAP_NONE. One byte is not used.
-   *    This was done to reduce the amount of calls to pgm_read_byte.
-   * Spence: It looks like for all current and announced products, we can use a much simpler test to find which register it is, as it's never ambiguous, and only a small number of parts actually have a second one.
-
+   *    The final row of the table contains the value used for "None" (not connected to any pins) option, the offset from PORTMUX.USARTROUTEA of the register that the mux bits are located at, and the group mask.
    */
-  /* The king, USART0 is the most flexible of the hardware serial ports on newer devices, with an extra bit in the PORTMUX allowing up to 7 pinful mux options. */
+
+  /* The king, USART0 is the most flexible of the hardware serial ports on newer devices, with an extra bit in the PORTMUX allowing up to 7 pinful mux options.
+   * And on the DD-series, USART0 grabbed 4 options for a total of 6. */
   #define USART_PINS_WIDTH 3  // basically a sizeof(), but as define, needed for some functions
   #if defined(USART0)
     const uint8_t _usart0_pins[][USART_PINS_WIDTH] PROGMEM = {
@@ -358,7 +354,8 @@
       #endif
     };
   #endif
-  /* all available information indicates that USART1 will on new parts have 2 bits dedicated to it in portmux, hence having at most 3 pinful mux options.*/
+  /* USART1 only has 2 bits to specify mux and this doesn't change on the DD, so it will only get at most 3 pinful mux options. The DD series has default and alt2, but no alt1 because that would go on PC4 and PC5 which are pins it doesn't have.
+   * The DA/DB series only have default and alt1 for all USARTs at most, provided they have pins 4 and 5 on the port.*/
   #if defined(USART1)
     const uint8_t _usart1_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL1_MUX))
@@ -400,7 +397,10 @@
     };
   #endif
 
-  /* No product brief or other available information indicates plans for more mux options for USART2 */
+  /* No current or announced product supports more than 2 options for USART 2, 3, 4 or 5.
+   * It is also unclear what they will do on the first part released with a fourth USART and the expanded USART0 portmux options - One imagines that USART 3 would have nowhere to go USARTROUTEB with the other usarts having to move aside.
+   * We'll wait to cross that bridge until Microchip has at least announced an intent to build it....
+   */
   #if defined(USART2)
     const uint8_t _usart2_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL2_MUX))
