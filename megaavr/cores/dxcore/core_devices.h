@@ -52,7 +52,7 @@
    * Worse still we can't even verify that they are present... just blindly definr and pray. Enums can't be seen by macros   */
     #define RTC_CLKSEL_INT32K_gc  RTC_CLKSEL_OSC32K_gc
     #define RTC_CLKSEL_INT1K_gc   RTC_CLKSEL_OSC1K_gc
-    #define RTC_CLKSEL_TOSC32K_gc RTC_CLKSEL_XTAL32K_gc
+    #define RTC_CLKSEL_TOSC32K_gc RTC_CLKSEL_XOSC32K_gc
   #endif
   /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
    * They now appear to have decided they don't like either of the previous conventions, one just a few years old. Now they are grouping
@@ -132,8 +132,8 @@
     #define CLKCTRL_FREQSEL_16M_gc CLKCTRL_FRQSEL_16M_gc    /* 16 MHz system clock            */
     #define CLKCTRL_FREQSEL_20M_gc CLKCTRL_FRQSEL_20M_gc    /* 20 MHz system clock            */
     #define CLKCTRL_FREQSEL_24M_gc CLKCTRL_FRQSEL_24M_gc    /* 24 MHz system clock            */
-    #define CLKCTRL_FREQSEL_28M_gc CLKCTRL_FRQSEL_28M_gc    /* 28 MHz system clock unofficial */
-    #define CLKCTRL_FREQSEL_32M_gc CLKCTRL_FRQSEL_32M_gc    /* 32 MHz system clock unofficial */
+    #define CLKCTRL_FREQSEL_28M_gc CLKCTRL_FRQSEL_28M_gc    /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
+    #define CLKCTRL_FREQSEL_32M_gc CLKCTRL_FRQSEL_32M_gc    /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
   #elif defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm)
     #define CLKCTRL_FRQSEL_gm     CLKCTRL_FREQSEL_gm        /*    Group Mask                  */
     #define CLKCTRL_FRQSEL_gp     CLKCTRL_FREQSEL_gp        /*    Group Position              */
@@ -147,8 +147,8 @@
     #define CLKCTRL_FRQSEL_16M_gc CLKCTRL_FREQSEL_16M_gc    /* 16 MHz system clock            */
     #define CLKCTRL_FRQSEL_20M_gc CLKCTRL_FREQSEL_20M_gc    /* 20 MHz system clock            */
     #define CLKCTRL_FRQSEL_24M_gc CLKCTRL_FREQSEL_24M_gc    /* 24 MHz system clock            */
-    #define CLKCTRL_FRQSEL_28M_gc CLKCTRL_FREQSEL_28M_gc    /* 28 MHz system clock unofficial */
-    #define CLKCTRL_FRQSEL_32M_gc CLKCTRL_FREQSEL_32M_gc    /* 32 MHz system clock unofficial */
+    #define CLKCTRL_FRQSEL_28M_gc CLKCTRL_FREQSEL_28M_gc    /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
+    #define CLKCTRL_FRQSEL_32M_gc CLKCTRL_FREQSEL_32M_gc    /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
   #endif
 #endif
 

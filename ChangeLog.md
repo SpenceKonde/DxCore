@@ -4,9 +4,15 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.  1.4.0 really snowballed.... It was supposed to be a quick, small release! Since not many people use the board packages without the installer because of the need to manually update the toolchain, the only way I'm going to get eyes onto this thing is to release it.
 
-### Planned 1.4.x or later, depending on DD-series release dates
-* DD-series support, assuming they ever come out (All that's left undone now is the 14-20-pin ones)
-  * TODO: (mostly done) Variant files - 32 and 28-pin mirror the DA/DB. Debating what to do about pin numbering on the 14-20 pin ones; regardless of how I handle it, PIN_Pxn notation will work. It's just the numeric values that aren't decided yet.
+### Work completed, not yet in a release
+
+### 1.4.8
+* **CRITICAL BUGFIX** for attachInterrupt() (still!)
+* Fix timing problems at 1 MHz.
+* Expand documentation relating to upcoming AVR DD-series parts.
+* Correct bug in compatibility defines for CLKSEL macros for external crystal.
+
+## Version History
 
 ### 1.4.7
 * Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
