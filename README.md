@@ -43,7 +43,7 @@ The silicon errata list in the initial versions of these parts - the DA-series i
 See [**our errata summary**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Errata.md) for more information.
 
 ## Supported Parts (click link for pinout diagram and details)
-Note that you must install via board manager or replace your tool chain with the azduino3 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in the AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled - It would be mighty nice if they had updated the silicon errata sheet though!
+Note that you must install via board manager or replace your tool chain with the azduino4 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in some of the earliest-shipped AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled from distributors and replaced with working ones, but if you bought bad ones, you'd have to shake down support to get fixed ones - It would be mighty nice if they had updated the silicon errata sheet though!
 * [AVR128DA28, AVR64DA28, AVR32DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)
 * [AVR128DA32, AVR64DA32, AVR32DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)
 * [AVR128DA48, AVR64DA48, AVR32DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md)
@@ -56,28 +56,32 @@ Note that you must install via board manager or replace your tool chain with the
 * AVR64DD20, AVR32DD20, AVR16DD20 (pending release)
 * AVR64DD28, AVR32DD28, AVR16DD28 (pending release)
 * AVR64DD32, AVR32DD32, AVR16DD32 (pending release)
-**PINOUT CHART NOTE** - the pinout diagrams do not show the TCA0, TCA1, or TCD0 remapping options currently, only the default ones.
+* AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending release)
+* AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending release)
+* AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending release)
 
-My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sinkism just to take up pins. But the 27 I/O pins on the 32-pin parts can get used up faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - and then I thought I would be fine with a 32-pin Dx... But I wound up switching to the 48 and am using about half of the added pins.
+[AVR Dx-series comparison as a giant table](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Dx_Series_Overview.md)
 
-For the upcoming DD-series, the 28 and 32-pin parts are of questionable utility considering the existence of the more capable DA and DB parts with the same number of pins. With AVR Dx parts already priced like the higher-end classic tinyAVR devices, and barely twice the price of the top edge of the tinyAVR 0/1/2-series, there is a pretty narrow range of prices that the DD-series would make sense at as a "poverty model" DB. The 14-pin and 20-pin packages are far more interesting, packing Dx-level capabilities into sizes and pincounts that are normally the province of the less capable tinyAVR product line.
+My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sinkism just to take up pins. But the 27 I/O pins on the 32-pin parts can get used up faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - and then I thought I would be fine with a 32-pin Dx as that had a few more pins... But I wound up switching to the 48 and am using about half of the added pins.
+
+For the upcoming DD-series, the 28 and 32-pin parts are of questionable utility considering the existence of the more capable DA and DB parts with the same number of pins. With AVR Dx parts already priced like the higher-end classic tinyAVR devices, and barely twice the price of the top edge of the tinyAVR 0/1/2-series, there is a pretty narrow range of prices that the DD-series would make sense at as a "poverty model" DB. The 14-pin and 20-pin packages are far more interesting, packing Dx-level capabilities into sizes and pincounts that are normally the province of the less capable tinyAVR product line. Naturally, it looks like the 28 and 32 pin ones (which likely use the same die, as I expect the 14 and 20 pin versions to do - notice that the peripheral counts change in a few cases between the big and small DDs) will be released first, potentially well before the smaller ones.
 
 ## Supported Clock Speeds
 ### For the DA, DB, and DD-series parts
 The maximum rated spec is 24 MHz **across the entire voltage and temperature range.**
-The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating). These parts overclock very well.
+The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating). These parts overclock very well. For compatibility with tinAVR, we also offer 5/10 MHz by dividing
 All parts can use an external clock, and DB and DD-series parts can also use a crystal.
 **Supported from internal:** 1 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz
 **Supported from external or crystal:** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz
 
 If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported; I suspect it is tuning based on the frequency before any PLL used to multiply or divide the clock speed.
 
-The DU will likely be similar to the other Dx parts, with restrictions on what speeds work with USB.
+The DU - assuming it ever exists in the form presented in the briefly available product brief, will likely be similar to the other Dx parts. It is highly likely - though not certain, they've been doing more with multiple clock domains on these recent parts - that only a limited number of speeds will be compatible with USB. Because all indications are that it has made great sacrifices in exchange for the USB, and hence would not be likely to see use in non-USB applications, chances are that we will only offer support for USB-compatible speeds, because if you aren't using USB, the other parts in the Dx-series would be more appropriate and effective.
 
 See the [Clock Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) for more information
 
 ### For the EA-series
-The maximum rated clock speed is 20 MHz. It is not yet known if the clock is tinyAVR-like or Dx-like.
+The maximum rated clock speed is 20 MHz. It is not yet known if the clock is tinyAVR-like or Dx-like. That it has autotune suggests DxLike, but the low maximum speed is a puzzler.  It would be a shame to get the 20 MHz maximum AND the the limited manual tuning of the Dx-series.
 
 ## UPDI programming
 The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface) used on the AVR Dx-series, tinyAVR 0/1/2-series, megaAVR 0-series, and which will likely be used for all AVR microcontrollers for the foreseeable future. In addition to purchasing a purpose-made UPDI programmer (such as the ones produced by Microchip), there are two very low-cost approaches to creating a UPDI programmer:
