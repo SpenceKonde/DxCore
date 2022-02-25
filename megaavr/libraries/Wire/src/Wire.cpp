@@ -193,12 +193,14 @@ void TwoWire::begin(uint8_t address, bool receive_broadcast, uint8_t second_addr
  *
  *            Has only an effect when used after begin(void)
  *
- *@param      uint32_t clock - the desired clock in Hertz
+ *@param      uint32_t clock - the desired clock in hertz
  *
- *@return     void
+ *@return     uint8_t
+ *@retval       0 if no error occurred
+ *@retval       1 if a problem occurred
  */
-void TwoWire::setClock(uint32_t clock) {
-  TWI_MasterSetBaud(&vars, clock);
+uint8_t TwoWire::setClock(uint32_t clock) {
+  return TWI_MasterSetBaud(&vars, clock);
 }
 
 

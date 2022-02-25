@@ -209,12 +209,17 @@ void TWI_DisableSlave(struct twiData *_data) {
  *
  *@param      struct twiData *_data is a pointer to the structure that holds the Wire variables
  *
- *@return     void
+ *@return     uint8_t 1 - something went wrong; 0 - new frequency set.
  */
-void TWI_MasterSetBaud(struct twiData *_data, uint32_t frequency) {
+uint8_t TWI_MasterSetBaud(struct twiData *_data, uint32_t frequency) {
   if (__builtin_constant_p(frequency)) {
-    if ((frequency == 0) || (frequency > 15000000)) {
+    if ((frequency < 1000) || (frequency > 15000000)) {
       badArg("Invalid frequency was passed for SCL clock!");
+      return 1;
+    }
+  } else {
+    if (frequency < 1000) {
+      return 1;
     }
   }
   if (_data->_bools._hostEnabled == 1) {                  // Do something only if the host is enabled.
@@ -234,7 +239,9 @@ void TWI_MasterSetBaud(struct twiData *_data, uint32_t frequency) {
         _data->_module->MSTATUS   = TWI_BUSSTATE_IDLE_gc;   // Force the state machine into IDLE according to the data sheet
       }
     }
+    return 0;
   }
+  return 1;
 }
 
 /**
@@ -258,11 +265,11 @@ uint8_t TWI_MasterCalcBaud(uint32_t frequency) {
       baud = TWI_BAUD(frequency, 600);  // 300kHz will be off at 10MHz. Trade-off between size and accuracy
     }
   #else
-    if (frequency >= 600000) {         // assuming 1.5kOhm
+    if (frequency >= 600000) {          // assuming 1.5kOhm
       baud = TWI_BAUD(frequency, 250);
-    } else if (frequency >= 400000) {  // assuming 2.2kOhm
+    } else if (frequency >= 400000) {   // assuming 2.2kOhm
       baud = TWI_BAUD(frequency, 400);
-    } else {                          // assuming 4.7kOhm
+    } else {                            // assuming 4.7kOhm
       baud = TWI_BAUD(frequency, 600);
     }
   #endif
@@ -276,9 +283,9 @@ uint8_t TWI_MasterCalcBaud(uint32_t frequency) {
   #endif
 
   if (baud < baudlimit) {
-    baud = baudlimit;
+    return baudlimit;
   } else if (baud > 255) {
-    baud = 255;
+    return 255;
   }
 
   return (uint8_t)baud;
@@ -317,11 +324,10 @@ uint8_t TWI_MasterWrite(struct twiData *_data, bool send_stop)  {
   uint16_t timeout = 0;
 
 
-  if (((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) || // If the bus was not initialized
-      ((module->MCTRLA & TWI_ENABLE_bm) == false)) { // Or is disabled,
-    return TWI_ERR_UNINIT;                     // return
-  }
-
+    if (((module->MSTATUS & TWI_BUSSTATE_gm) == TWI_BUSSTATE_UNKNOWN_gc) || // If the bus was not initialized
+      ((module->MCTRLA & TWI_ENABLE_bm) == false)) {  // Or is disabled,
+      return TWI_ERR_UNINIT;                          // return
+    }
 
   while (true) {
     currentStatus = module->MSTATUS;
@@ -798,3 +804,4 @@ void NotifyUser_onReceive(struct twiData *_data) {
     }
   }
 }
+
