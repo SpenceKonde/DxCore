@@ -95,7 +95,7 @@
       #endif
     #endif
   #endif
-  /* If NUM_HWSERIAL_PORTS is not defined, we calculate it assuming there are no gaps.
+  /* If NUM_HWSERIAL_PORTS is not defined, we calculate it assuming there are no gaps. */
 
   /* Recreate all those old defines so they aren't spread over all the variants when they don't vary! */
   #if defined(USART0)

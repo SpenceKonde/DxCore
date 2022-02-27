@@ -558,7 +558,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
                F_CPU == 27000000UL)&& /* warn fools who messed with the timers.h file too and expected that the core would sort out how */ \
                ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) ||/*how to make the timer work correctly*/ \
                (TIME_TRACKING_TIMER_DIVIDER == 1 && (TIME_TRACKING_TICKS_PER_OVF == F_CPU/500 && F_CPU == 1000000)) || \
-               (TIME_TRACKING_TIMER_DIVIDER == 2 (TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 2000000))))  /*  without them implementing it. No such luck  */
+               (TIME_TRACKING_TIMER_DIVIDER == 2 && (TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 2000000))))  /*  without them implementing it. No such luck  */
           #warning "Millis timer (TCBn) at this frequency and/or configuration unsupported, micros() will return totally bogus values."
         #endif
       #else // TCA
