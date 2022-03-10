@@ -197,7 +197,7 @@ inline __attribute__((always_inline)) void pinMode(uint8_t pin, uint8_t mode) {
         if (__builtin_constant_p(mode)) {
           if (mode == OUTPUT) {
             /* If HARDWIRE_INPUT_ONLY is defined, that pin is to be an INPUT only */
-            badArg("This pin cannot be set as an output on the Azduino NanoDB Rev. A. It is hardwired to onboard serial.") // future hardware will correct this defect;
+            badArg("This pin cannot be set as an output on the Azduino NanoDB Rev. A. It is hardwired to onboard serial."); // future hardware will correct this defect;
             return;
           }
         } else {

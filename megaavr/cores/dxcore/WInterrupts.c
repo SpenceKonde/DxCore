@@ -560,13 +560,15 @@
     }
 
     /* Clear flags that have been handled */
+    /* Note: Depending on the situation, this may or may not be the desired behavior. This is "late clear" type behavior
+     */
     portStruct->INTFLAGS = int_flags;
   }
 
   #define IMPLEMENT_ISR(vect, port) \
   ISR(vect) { \
     port_interrupt_handler(port);\
-  } \
+  }
 
 
   IMPLEMENT_ISR(PORTA_PORT_vect, PA)
@@ -585,4 +587,5 @@
   #if defined(PORTF_PORT_vect)
   IMPLEMENT_ISR(PORTF_PORT_vect, PF)
   #endif
+  // Nope, there was never attachInterrupt for PORTG and nobody complained for 2 years. Not going to change that  -Speence 3/5/22
 #endif
