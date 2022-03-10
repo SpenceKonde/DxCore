@@ -37,7 +37,7 @@ Include guard and include basic libraries. We are normally including this inside
  * PD0 and PD1, PD2, and PD3 are empty holes, but the there is no hole for PC0 or PF0.
  */
 
-#define PIN_PA0 (0)  // Not avalable if using HF crystal.
+#define PIN_PA0 (0)  // Not available if using HF crystal.
 #define PIN_PA1 (1)  // Not available if using HF crystal.
 // We aren't going to skip 6 pin numbers for PA2-PA6
 // No port B on any DD-series
@@ -45,7 +45,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC1 (3)
 #define PIN_PC2 (4)
 #define PIN_PC3 (5)  //A31
-#define PIN_PD0 (6)  // phantom pin - beause of it's position as the reference point for the start of the analog pins, we keep this one in the numbering.
+#define PIN_PD0 (6)  // phantom pin - because of it's position as the reference point for the start of the analog pins, we keep this one in the numbering.
 // No PD1 (7)
 // No PD2 (8)
 // No PD3 (9)

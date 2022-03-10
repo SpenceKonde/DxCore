@@ -241,7 +241,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A20  NOT_A_PIN
 #define PIN_A21  NOT_A_PIN
 #define PIN_A22  PIN_PA2   // Now it wraps alllll the way around to the beginning - but starts counting from the third pin of PORTA, because the first 2 instead are used for crystal
-#define PIN_A23  PIN_PA3   // That apparently was enoguh to get them removed from the list of pins the deserve analog channels. Likely they wanted to avoid reusing channels numbers associated with PE/PF elsewhere, and had 32 mux positions to distribute,
+#define PIN_A23  PIN_PA3   // That apparently was enough to get them removed from the list of pins the deserve analog channels. Likely they wanted to avoid reusing channels numbers associated with PE/PF elsewhere, and had 32 mux positions to distribute,
 #define PIN_A24  PIN_PA4   // The crystal pins might pose particular technical challenges, and were right at one end of the range of analog-less pins, so they were natural choice to ditch.
 #define PIN_A25  PIN_PA5
 #define PIN_A26  PIN_PA6

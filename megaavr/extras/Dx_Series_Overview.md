@@ -32,7 +32,7 @@
 | MVIO, pins                     | Yes, 3     | Yes, 3     | No         | Yes, 4     | Yes, 4     | No         | Yes, 4     | Yes, 4     | Yes, 8     | Yes, 8     | Yes, 8     | Yes, 8     |
 | Flash Endurance `!!`           | 10k        | 10k        | 1k (10k)   | 1k (10k)   | 10k        | 1k (10k)   | 1k (10k)   | 10k        | 1k (10k)   | 1k (10k)   | 1k (10k)   | 1k (10k)   |
 
-`*` For TCAs, only pins on a single port can be used. If no port is available with all 6 possible pins, shown as (most on one port)/(total). The 3-pin options for TCA1 are not included. For TCDs, only 2 independent channels can be generated. Output must alway be confined to one port.
+`*` For TCAs, only pins on a single port can be used. If no port is available with all 6 possible pins, shown as (most on one port)/(total). The 3-pin options for TCA1 are not included. For TCDs, only 2 independent channels can be generated. Output must always be confined to one port.
 
 `!` - a USART is marked as having a half pinmapping if one pin mapping doesn't have either TX or RX.  For SPI, if two numbers given, the first number lists only complete mappings with all three of the data and clock lines. The second number includes those partial options.
 
