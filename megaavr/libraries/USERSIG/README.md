@@ -1,7 +1,7 @@
 # USERSIG Library V2.1.0 for DxCore
 
-**Written by:** _Spence Konde_
-**Based on EEPROM.h by:** Christopher Andrews
+**Written by:** *Spence Konde*
+**Based on EEPROM.h by:** *Christopher Andrews*
 
 ## What is the USERSIG library
 
@@ -155,7 +155,7 @@ This should be obvious, and is no different from the EEPROM library (but is much
 ### **Subscript operator:** `USERSIG[address]`
 
 This operator allows using the identifier `USERSIG` like an array.
-USERSIG cells can be read _and_ **_written_** directly using this method.
+USERSIG cells can be read *and* **written** directly using this method.
 
 This operator returns a reference to the USERSIG cell. When writing this way **THE BYTE WRITTEN COUNT IS NOT RECORDED** - you must call `USERSIG.flush()` once you've written all you are planning to at the moment.
 
