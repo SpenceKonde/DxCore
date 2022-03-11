@@ -11,26 +11,26 @@
 #ifndef UART_CONSTANTS_H
   #define UART_CONSTANTS_H
 
-  #define SERIAL_PARITY_EVEN   (USART_PMODE_EVEN_gc)
-  #define SERIAL_PARITY_ODD    (USART_PMODE_ODD_gc)
-  #define SERIAL_PARITY_NONE   (USART_PMODE_DISABLED_gc)
-  #define SERIAL_PARITY_MASK   (USART_PMODE_gm)
+  #define SERIAL_PARITY_EVEN   (static_cast<uint8_t>(USART_PMODE_EVEN_gc))
+  #define SERIAL_PARITY_ODD    (static_cast<uint8_t>(USART_PMODE_ODD_gc))
+  #define SERIAL_PARITY_NONE   (static_cast<uint8_t>(USART_PMODE_DISABLED_gc))
+  #define SERIAL_PARITY_MASK   (static_cast<uint8_t>(USART_PMODE_gm))
 
-  #define SERIAL_STOP_BIT_1    (USART_SBMODE_1BIT_gc)
-  #define SERIAL_STOP_BIT_2    (USART_SBMODE_2BIT_gc)
-  #define SERIAL_STOP_BIT_MASK (USART_SBMODE_gm)
+  #define SERIAL_STOP_BIT_1    (static_cast<uint8_t>(USART_SBMODE_1BIT_gc))
+  #define SERIAL_STOP_BIT_2    (static_cast<uint8_t>(USART_SBMODE_2BIT_gc))
+  #define SERIAL_STOP_BIT_MASK (static_cast<uint8_t>(USART_SBMODE_gm))
 
-  #define SERIAL_DATA_5        (USART_CHSIZE_5BIT_gc & 0x04)
+  #define SERIAL_DATA_5        (static_cast<uint8_t>(USART_CHSIZE_5BIT_gc & 0x04))
   // Special case - we strip out bit 2 in order to detect use of high-byte modifiers without specifying low byte, which is presumably user error.
   // and default 8N1 instead of the hardware default of 5N1.
-  #define SERIAL_DATA_6        (USART_CHSIZE_6BIT_gc)
-  #define SERIAL_DATA_7        (USART_CHSIZE_7BIT_gc)
-  #define SERIAL_DATA_8        (USART_CHSIZE_8BIT_gc)
-  #define SERIAL_DATA_INVALID1 (badArg("This is a 'reserved' value and does not identify a character size"), 0x04)
-  #define SERIAL_DATA_INVALID2 (badArg("This is a 'reserved' value and does not identify a character size"), 0x05)
-  #define SERIAL_DATA_9L       (badArg("9-bit serial not supported"),0x06)
-  #define SERIAL_DATA_9H       (badArg("9-bit serial not supported"),0x07)
-  #define SERIAL_DATA_MASK     (USART_CHSIZE_gm)
+  #define SERIAL_DATA_6        (static_cast<uint8_t>(USART_CHSIZE_6BIT_gc))
+  #define SERIAL_DATA_7        (static_cast<uint8_t>(USART_CHSIZE_7BIT_gc))
+  #define SERIAL_DATA_8        (static_cast<uint8_t>(USART_CHSIZE_8BIT_gc))
+  #define SERIAL_DATA_INVALID1 (static_cast<uint8_t>(badArg("This is a 'reserved' value and does not identify a character size"), 0x04))
+  #define SERIAL_DATA_INVALID2 (static_cast<uint8_t>(badArg("This is a 'reserved' value and does not identify a character size"), 0x05))
+  #define SERIAL_DATA_9L       (static_cast<uint8_t>(badArg("9-bit serial not supported"),0x06))
+  #define SERIAL_DATA_9H       (static_cast<uint8_t>(badArg("9-bit serial not supported"),0x07))
+  #define SERIAL_DATA_MASK     (static_cast<uint8_t>(USART_CHSIZE_gm))
 /* 9-bit is a can of worms. Aggressive ones with sharp teeth,
  * hungry for soft fle-- oh, hm, it seems to be a typo, it says "flash"...
  *
@@ -44,17 +44,17 @@
  * could test if it was 0, and get rid of the SERIAL_CONFIG_VALID below.
  */
 
-  #define SERIAL_MODE_ASYNC     (USART_CMODE_ASYNCHRONOUS_gc)
-  #define SERIAL_MODE_MSPI      (USART_CMODE_MSPI_gc)
-  #define SERIAL_MODE_IRCOM     (USART_CMODE_IRCOM_gc)
-  #define SERIAL_MODE_SYNC      (USART_CMODE_SYNCHRONOUS_gc)
+  #define SERIAL_MODE_ASYNC     (static_cast<uint8_t>(USART_CMODE_ASYNCHRONOUS_gc))
+  #define SERIAL_MODE_MSPI      (static_cast<uint8_t>(USART_CMODE_MSPI_gc))
+  #define SERIAL_MODE_IRCOM     (static_cast<uint8_t>(USART_CMODE_IRCOM_gc))
+  #define SERIAL_MODE_SYNC      (static_cast<uint8_t>(USART_CMODE_SYNCHRONOUS_gc))
 /* MSPI doesn't use the Parity, have start or stop bits and is always 8 bit characters.
  * Sync and IRCOM modes are like ASync - but only */
 
 // Used only in MSPI mode.
-  #define SERIAL_MSPI_LSB       (USART_UDORD_bm)
-  #define SERIAL_MSPI_MSB       (0)
-  #define SERIAL_MSPI_PHASE     (USART_UCPHA_bm)
+  #define SERIAL_MSPI_LSB     (static_cast<uint8_t>(USART_UDORD_bm))
+  #define SERIAL_MSPI_MSB     (static_cast<uint8_t>(0))
+  #define SERIAL_MSPI_PHASE   (static_cast<uint8_t>(USART_UCPHA_bm))
 /* You can combine them yourself with | - but you need 5 things:
   * A SERIAL_MODE
   * A SERIAL_STOP_BIT option  (can be omitted for 1 SB)
