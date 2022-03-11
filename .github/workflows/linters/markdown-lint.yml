@@ -29,6 +29,7 @@ MD029: false                  # Ordered list item prefix
 MD033: false                  # Allow inline HTML
 MD036: false                  # Emphasis used instead of a heading
 MD037: false                  # Allow spaces around around emphacis marks because they are probably just rendering as the characters!
+MD038: false                  # false: do not prohibit code in backticks that starts or ends with a space. We see that in an example to specify a search term that reqires the leading space this was failing.
 MD024: false                  # More trouble than worth.
 
 #################
