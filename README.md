@@ -1,6 +1,6 @@
 # DxCore - Arduino support for the AVR DA-series, DB-series and upcoming DD-series
 **Please be on watch for typos in the docs and report them. Codespell is not a very good spellchecker. (Obviously, PR's to fix are even better!)**
-**1.4.0 is in with some HUGE changes - new Wire! Improved Serial! Tons more stuff!**
+**1.4.9 will be available in board manager later today, I still have the megaTinyCore release that pairs with it to finalize and I cannot stay awake any longer**
 
 ## HEY HEY WE GOT AVR64DD PRELIMINARY DATASHEETS
 [Read them they are *yawn* well, pretty much what everyone expected](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DD32-28-Prelim-DataSheet-DS40002315A.pdf)
