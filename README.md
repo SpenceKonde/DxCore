@@ -8,6 +8,24 @@
 Reset is disabled by default (but this poses no challenges to working with the parts), and makes sense on the low pincount ones. I guess at that point, they'd do it for the whole line, rather than give the "small" ones (for which we don't yet have a datasheet) disabled reset as the default and the "large" ones enabled reset.
 I mean, this is pretty much how it was supposed to go down - no surprises in the datasheet, landing pad ready for them in the core, any differences are trivial and nothing to get worked up about, and we all sit here twiddling our thumbs waiting for the 14-pin and 20-pins ones which are what everyone wants. If there were big surprises there, I wouldn't be happy. Even if they were good surprises.
 
+## And we got initial Ex-series headers
+Surprises so far:
+* DAC will have an additional "high range" or "low range" output, or can be set to choose automatically. (maybe to enhance precision at the ends?)
+* CLKCTRL looks to have gotten some changes.
+* Event system for pin events reworked -looks like will now offer 2 events per port, but each channel can use any of those. PORT structs have new event generation fields.
+  * This could end up being either welcome or unwelcome
+* Okay, not much  of a surprise, but NVMCTRL is different again. Back to page writes, as expected.
+* No indication that AVDD power
+* INLVL support on all parts
+* Some new control over event generationfom the RTC PIT - I think they want to make all the channels equivalent.
+  * Looks any info on the group codes involved with the event generaion machanism is omittted.
+  * Same goes for CLKCTRL - too soon to say much more on it.
+* More info to come - right now I'm gonna push on ATTinyCore 2.0.0 so that is out of the way when these new parts start dropping. We should have some time. The DD-series should start appearing soon, though finally, but we are pretty much 100% ready for that .
+
+### EA will be a big deal
+In case there was ever any doubt about it..
+
+
 ## What is DxCore
 This is an Arduino core to support the exciting new AVR DA, DB, and "coming soon" DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned and these are simply the successor to the megaAVR series. But whatever the story of their origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... Yet for each of these systems they've added at least one small but significant improvement of some sort (while largely preserving backwards compatibility - the tinyAVR 2-series also typically adds the new features that the Dx-series gt , giving the impression that these reflect a "new version" of . You like the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with slightly-improved instruction timing compared to "classic" AVRs
 
@@ -28,7 +46,7 @@ The DD-series is a smaller-pincount line; parts will be available with 14-32 pin
 If you were hoping to use a tinyAVR breakout board for the 14 or 20-pin versions, I hate to be the bearer of bad news, but the tinyAVR boards won't work. They swapped power and ground on the SOIC packages vis-a-vis tinyAVR, and the layout of the VQFN20 is different (and it's 33% larger in size - 4mm x 4mm) than the 20-pin tinyAVRs. (The 28 and 32 pin parts are pin compatible with AVR-DB - but as I said, I don't think anyone is standing in line for those). Actually, no, I don't hate being the bearer of that news. To me, it's great news - I sell breakout boards, remember? I've already got boards on standby for the 14-pin parts, in fact....
 
 ### EA-series
-The EA-series is known only from it's product brief. According to the product brief it will be available only in 28, 32, and 48 pin packages, with up to 64k of flash, no DAC or Type D timer, but in exchange, there will be dual type A timers in all pincounts, and it will feature the 12-bit true differential ADC with programmable gain amplifier that the tinyAVR 2-series has.
+The EA-series is known only from it's product brief, and now some very sparse headers. It looks like it is the first example of a new generation. Except for the whole lower maximum clock speed thing, that I don't get...  According to the product brief it will be available only in 28, 32, and 48 pin packages, with up to 64k of flash, no DAC or Type D timer, but in exchange, there will be dual type A timers in all pincounts, and it will feature the 12-bit true differential ADC with programmable gain amplifier that the tinyAVR 2-series has.
 The most puzzling thing about these, though is that some of their specs like the oscillator seem to represent a step backwards. On the third hand, they will represent A NEW version of the NVM controller, being the first modern AVR to advertise NRWW and RWW sections of flash. As more information becomes available the determination of whether support for these partswill be through DxCore or a new core will be made, but unless there are substantial changes to other systems, we will likely keep it in DxCore.
 
 ### DU-series (details unconfirmed)
