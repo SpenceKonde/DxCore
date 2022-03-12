@@ -28,8 +28,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-## Note on the DD-series
-The DD-series headers are consistent with neither themselves nor the product brief in several places. This is typical (they clearly copy+pasted the content of the DB-series parts), and by the time silicon is shipping, we'll probably have a better set of headers. The important stuff all seems to be present and as expected.
+## Note on the unreleased parts
+The headers for unreleased parts are included to help us all engage in speculation and prediction, which is always fun. They may change wihout notice.
+
+## Note on versions
+These are the latest versions as of 3/11/2022.
+They are more recent than the ones used by the core when compiling. The toolchain will be updated with the next release
 
 ## The most useful references
 The highest pincount, highest flash headers are the most useful ones to refer to when you need to know what some option is called or how it's spelled.
@@ -65,6 +69,20 @@ These are literally identical except for things directly related to flash or ram
 * [AVR32DB28 - ioavr32db28.h](ioavr32db28.h)
 * [AVR32DB32 - ioavr32db32.h](ioavr32db32.h)
 * [AVR32DB48 - ioavr32db48.h](ioavr32db48.h)
+* [AVR32DD14 - ioavr64dd14.h](ioavr32dd14.h)
+* [AVR32DD20 - ioavr64dd20.h](ioavr32dd20.h)
+* [AVR32DD28 - ioavr64dd28.h](ioavr32dd28.h)
+* [AVR32DD32 - ioavr64dd32.h](ioavr32dd32.h)
+* [AVR16DD14 - ioavr64dd14.h](ioavr16dd14.h)
+* [AVR16DD20 - ioavr64dd20.h](ioavr16dd20.h)
+* [AVR16DD28 - ioavr64dd28.h](ioavr16dd28.h)
+* [AVR16DD32 - ioavr64dd32.h](ioavr16dd32.h)
+
+## EA is coming
+Some things are exciting, some disappointing. On the whole, reason to be optimistic, but not ecstatic. Save that for the DU-series.
+* [AVR64EA28 - ioavr64dd28.h](ioavr64ea28.h)
+* [AVR64EA32 - ioavr64dd32.h](ioavr64ea32.h)
+* [AVR64EA28 - ioavr64dd28.h](ioavr64ea48.h)
 
 ## The original v1.0.16 headers
 These are not used, and have problems that have since been fixed. They also mention a couple of features that were removed from the product with the backspace key (as in, they were removed only from the documentation).
