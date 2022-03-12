@@ -18,8 +18,8 @@ Surprises so far:
 * No indication that AVDD power
 * INLVL support on all parts
 * Some new control over event generationfom the RTC PIT - I think they want to make all the channels equivalent.
-  * Looks any info on the group codes involved with the event generaion machanism is omittted.
-  * Same goes for CLKCTRL - too soon to say much more on it.
+  * PIT gets to choose up to two frequencies of event to output - but all channels can use them. This I think is a gooddecision.
+* Oh, and the mysery of what they're gonna do about USART PORTMUX for portsafter USART1 os solved - on parts with the expanded mapping options, only USART0 and USART1 go in USARTROUTEA, USART2 goes in USARTROUTEB. 
 * More info to come - right now I'm gonna push on ATTinyCore 2.0.0 so that is out of the way when these new parts start dropping. We should have some time. The DD-series should start appearing soon, though finally, but we are pretty much 100% ready for that .
 
 ### EA will be a big deal
@@ -46,8 +46,9 @@ The DD-series is a smaller-pincount line; parts will be available with 14-32 pin
 If you were hoping to use a tinyAVR breakout board for the 14 or 20-pin versions, I hate to be the bearer of bad news, but the tinyAVR boards won't work. They swapped power and ground on the SOIC packages vis-a-vis tinyAVR, and the layout of the VQFN20 is different (and it's 33% larger in size - 4mm x 4mm) than the 20-pin tinyAVRs. (The 28 and 32 pin parts are pin compatible with AVR-DB - but as I said, I don't think anyone is standing in line for those). Actually, no, I don't hate being the bearer of that news. To me, it's great news - I sell breakout boards, remember? I've already got boards on standby for the 14-pin parts, in fact....
 
 ### EA-series
-The EA-series is known only from it's product brief, and now some very sparse headers. It looks like it is the first example of a new generation. Except for the whole lower maximum clock speed thing, that I don't get...  According to the product brief it will be available only in 28, 32, and 48 pin packages, with up to 64k of flash, no DAC or Type D timer, but in exchange, there will be dual type A timers in all pincounts, and it will feature the 12-bit true differential ADC with programmable gain amplifier that the tinyAVR 2-series has.
-The most puzzling thing about these, though is that some of their specs like the oscillator seem to represent a step backwards. On the third hand, they will represent A NEW version of the NVM controller, being the first modern AVR to advertise NRWW and RWW sections of flash. As more information becomes available the determination of whether support for these partswill be through DxCore or a new core will be made, but unless there are substantial changes to other systems, we will likely keep it in DxCore.
+The EA-series is known only from it's product brief, and now some very sparse headers. It looks like it is the first example of a new generation. Except for the whole lower maximum clock speed thing, that I don't get...  However - it does appear that we get a whole 8 bit in the internal oscillator cal regisiter! It will remain to be seen the magnitude of the changes, but if all 8 of thos bits are functional, we will either be able to tune very accurately, and/or fling the spoeed up and down dramatically like we can on the tinyAVRs. Either way, it's good. According to the product brief it will be available only in 28, 32, and 48 pin packages, with up to 64k of flash - or as little as 8k (implying it is at least in part aimed at dragging the users of the old ATmega8 and such into the modern era, kicking and screaming), no Type D timer, but in exchange, there will be dual type A timers in all pincounts (confirmed by headers, with new 5-6-7 mappings for multiple ports) and it will feature the 12-bit true differential ADC with programmable gain amplifier that the tinyAVR 2-series has. The DAC appears to have some new functionality, albeit likely nothing huge. 
+
+The most puzzling thing about these, though is that some of their specs like the oscillator seem to represent a step backwards. On the third hand, they will represent A NEW version of the NVM controller, being the first modern AVR to advertise NRWW and RWW sections of flash. Event system looks to be getting significant changes with the laudable goal of getting 
 
 ### DU-series (details unconfirmed)
 The DU-series was described by a product brief which was almost immediately pulled down. It described something with DD-like pincounts, MVIO replaced with USB, and no TCD. One imagines that under the hood, TCD is repurposed for the 48 MHz USB reference clock, and the MVIO is levelshifting the USB data lines to 3.3v. It feature crystalless USB, the same flash options as the DD (except no 64k 14/20 pin). It also suggested a builtin USB programming interface of some sort, which is of course very exciting news - though all USB stuff will depend on availability of reference code to write the USB modules. We look forward to the release of more information, and, evnetually, the product. I predict the DU14 and DU20 will be extremely popular.
@@ -154,6 +155,8 @@ These parts all have a large number of analog inputs - DA and DB-series have up 
 
 ### DAC Support
 The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (note that this provides low current and can only be used as a voltage reference or control voltage, it cannot be used to power other devices). This generates voltages between 0 and the selected `VREF` (unlike the tinyAVR 1-series, this can be Vcc!). Set the DAC reference voltage via the DACR`eference()` function - pass it any of the ADC reference options listed under the ADC section above (including VDD!). Call `analogWrite()` on the DAC pin (PD6) to set the voltage to be output by the DAC (this uses it in 8-bit mode). To turn off the DAC output, call `digitalWrite()` or `turnOffPWM()` on that pin.
+
+There may be additional options to configure the DAC on the EA-series.
 
 See the [**ADC and DAC Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
 
