@@ -20,7 +20,7 @@ Surprises so far:
 * Some new control over event generationfom the RTC PIT - I think they want to make all the channels equivalent.
   * PIT gets to choose up to two frequencies of event to output - but all channels can use them. This I think is a gooddecision.
 * Oh, and the mysery of what they're gonna do about USART PORTMUX for portsafter USART1 os solved - on parts with the expanded mapping options, only USART0 and USART1 go in USARTROUTEA, USART2 goes in USARTROUTEB. 
-* More info to come - right now I'm gonna push on ATTinyCore 2.0.0 so that is out of the way when these new parts start dropping. We should have some time. The DD-series should start appearing soon, though finally, but we are pretty much 100% ready for that .
+* More info to come - right now I'm gonna push on ATTinyCore 2.0.0 so that is out of the way when these new parts start dropping. We should have some time. The DD-series should start appearing soon, though finally, but we are pretty much 100% ready for that. [a bit more info](megaavr/extras/EA_first_look.md
 
 ### EA will be a big deal
 In case there was ever any doubt about it..
