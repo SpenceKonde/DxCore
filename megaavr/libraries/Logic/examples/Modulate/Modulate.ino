@@ -39,7 +39,18 @@ void setup() {
   Logic0.truth = 0x08;                  // Set truth table - HIGH only if both high
   Logic0.init();                        // Initialize logic block 0
   Logic::start();                       // Start the AVR logic hardware
-  analogWrite(PIN_PB0, 128);            // start TCA0 WO0 running
+  // How to configure timer is beyond the scope of this example, so we will just kick off
+  // WO0 with analogWrite(). We need to know where that is though
+  #if !defined(MEGATINYCORE)
+  // if it's a fullsize part, TCA can be put onto any port, but only PORTA is guaranteed to exist and have a pin 0
+  // and we need that in order to be we can start WO0 which is what we're using as the input
+  // in practice, you would have taken over TCA0 and configured it manually.
+  PORTMUX.TCAROUTEA = PORTMUX_TCA0_PORTA_gc; // put TCA outputs onto PORTA
+  analogWrite(PIN_PA0,128);             // Now we can call analogWrite on PA0 and get our output.
+  #elif defined(PIN_PB0)                // Most tinies have a PB0, which naturally gets WO0.
+  analogWrite(PIN_PB0, 128);            // so on those that's what we use.
+  #else                                 // Otherwise it's one of the cursed 8-pin ones which megaTinyCore
+  analogWrite(PIN_PA7, 128);            // configures to put WO0 on PA7.
   TCB1.CTRLA = 0x01;                    // enabled with CLKPER as clock source
   TCB1.CTRLB = 0x07;                    // PWM8 mode, but output pin not enabled
   TCB1.CCMPL = 255;                     // 255 counts
