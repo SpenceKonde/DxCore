@@ -7,6 +7,12 @@
  * These are values that get passed to the second argument of Serial.begin in
  * DxCore 1.4.0+ and megaTinyCore 2.5.0+.
  */
+/*"What the bloody hell are all these static casts for?!"
+ * Well, the io headers define them as enumerated types. From C++20 onwards mixing enums is deprecated. These static casts do not effect behavior for everyone e;se
+ * but makethe user experience significantly better for C++20 people.
+ * Note that C++ 20 is not supported by this core . This was done in response to a PR and has zero impact om everone else. Changes to make life easier for users
+ * of unsupported versions of the standards that do not meet both of thoe criteria will not be addressed.
+ */
 
 #ifndef UART_CONSTANTS_H
   #define UART_CONSTANTS_H
@@ -93,12 +99,12 @@
   #define SERIAL_MSPI_LSB_FIRST_PHASE  (SERIAL_MODE_MSPI | SERIAL_MSPI_PHASE | SERIAL_MSPI_LSB)
 
 /* helper options for syncBegin() and mspiBegin() */
-  #define MSPIBEGIN_INVERT          (PIN_DIR_SET|PIN_INVERT_SET)
-  #define MSPIBEGIN_NORMAL          (PIN_DIR_SET|PIN_INVERT_CLR)
-  #define SYNCBEGIN_INVERT_MASTER   (PIN_DIR_SET|PIN_INVERT_SET)
-  #define SYNCBEGIN_NORMAL_MASTER   (PIN_DIR_SET|PIN_INVERT_CLR)
-  #define SYNCBEGIN_INVERT_SLAVE    (PIN_DIR_CLR|PIN_INVERT_SET)
-  #define SYNCBEGIN_NORMAL_SLAVE    (PIN_DIR_CLR|PIN_INVERT_CLR)
+  #define MSPIBEGIN_INVERT          (PIN_DIR_SET | PIN_INVERT_SET)
+  #define MSPIBEGIN_NORMAL          (PIN_DIR_SET | PIN_INVERT_CLR)
+  #define SYNCBEGIN_INVERT_MASTER   (PIN_DIR_SET | PIN_INVERT_SET)
+  #define SYNCBEGIN_NORMAL_MASTER   (PIN_DIR_SET | PIN_INVERT_CLR)
+  #define SYNCBEGIN_INVERT_SLAVE    (PIN_DIR_CLR | PIN_INVERT_SET)
+  #define SYNCBEGIN_NORMAL_SLAVE    (PIN_DIR_CLR | PIN_INVERT_CLR)
 /* helper defines to get pins currently selected by number */
   #define PIN_SERIAL_TX             (0)
   #define PIN_SERIAL_RX             (1)
@@ -184,7 +190,9 @@
  *   rate that both ends are set to and don't need it. It's great if you need
  *   to meet the LIN specifications, of course, but that's not a typical or
  *   advisable Arduino use case...
- *
+ *   Based on persistent requests from users, who want it badly enough to try
+ *   hacking something together to make use of it anyway, a future version
+ *   will incorporate generic autobaud mode, even though it's pretty silly.
  */
 
 /* Everything contigured by the SERIAL_xPs constants goes right into CTRLC:
@@ -228,9 +236,9 @@
 
   /* These are not usable on these parts. badCall() gets pulled in if you use them. */
 
-  #define SERIAL_PARITY_MARK   (badArg("Mark as 'parity' is not supported, use an extra stop bit"),0)
-  #define SERIAL_PARITY_SPACE  (badArg("Space as 'parity' is not supported on AVR"),0)
-  #define SERIAL_STOP_BIT_1_5  (badArg("1.5 stop bits is not supported on AVR"),0)
+  #define SERIAL_PARITY_MARK   (badArg("'Mark' as parity is not supported, use an extra stop bit"),0)
+  #define SERIAL_PARITY_SPACE  (badArg("'Space' as parity is not supported on AVR"),0)
+  #define SERIAL_STOP_BIT_1_5  (badArg("1.5 stop bits is not a supported settting on AVR"),0)
   #define SERIAL_5M1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_MARK | SERIAL_DATA_5)
   #define SERIAL_6M1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_MARK | SERIAL_DATA_6)
   #define SERIAL_7M1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_MARK | SERIAL_DATA_7)
