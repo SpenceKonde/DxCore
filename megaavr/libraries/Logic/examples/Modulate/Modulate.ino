@@ -51,6 +51,7 @@ void setup() {
   analogWrite(PIN_PB0, 128);            // so on those that's what we use.
   #else                                 // Otherwise it's one of the cursed 8-pin ones which megaTinyCore
   analogWrite(PIN_PA7, 128);            // configures to put WO0 on PA7.
+  #endif
   TCB1.CTRLA = 0x01;                    // enabled with CLKPER as clock source
   TCB1.CTRLB = 0x07;                    // PWM8 mode, but output pin not enabled
   TCB1.CCMPL = 255;                     // 255 counts
