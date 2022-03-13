@@ -51,6 +51,8 @@ jobs:
         - megaavr/libraries/Logic/examples/Three_input_AND
         - megaavr/libraries/Logic/examples/Three_input_NAND
         - megaavr/libraries/Logic/examples/Three_input_OR
+        - megaavr/libraries/Logic/examples/Modulate
+        - megaavr/libraries/Logic/examples/Oscillate
         - megaavr/libraries/Logic/examples/Two_input_AND
         - megaavr/libraries/Logic/examples/Two_input_NAND
         - megaavr/libraries/Logic/examples/Two_input_OR

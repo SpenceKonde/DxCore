@@ -5,7 +5,7 @@ DAC: Headers show n that there will be a high and a low output range selectable,
 
 PORTMUX: USART2 is in USARTROUTEB it looks like.
 
-TCA1 gets a number of extra 5-6-7 pin mappings, so you can get PWM out of it on parts with less than 48 pins. It'll also be killer as a utility timer, because of how it can interract with CCL and EVSYS.
+TCA1 gets a number of extra 5-6-7 pin mappings, so you can get PWM out of it on parts with less than 48 pins. It'll also be killer as a utility timer, because of how it can interact with CCL and EVSYS.
 
 EVSYS is getting major changes in the two areas where not all channels were the same:
 Each PORTx looks like it's getting an 8 bit register to control event generation from generators 0 and 1 of that port. The group masks are defined as 0x07 and 0x70. I'm gonna take a wild guess and say we put the number of the pin within the port into this bitfield. In return, all event channels can be tuned to any port's generators. Oh - here, my guess confirmed.
@@ -14,7 +14,7 @@ The mass port configuration that the DX had is here.
 
 INLVL is here despite the absence of MVIO
 
-Same reset and UPDI pin alternate funcions as DD.
+Same reset and UPDI pin alternate functions as DD.
 
 RTC gets a similar treatment to port in terms of event generation from the PIT, it has an 8 bit register with two 4-bit bitfields to control the two event outputs, which will toggle oncce per 2^(groupcode) prescaled RTC clocks. This is less powerful than what we have now, but less burden of remembering which event channels can do what frequencies.
 

@@ -30,7 +30,7 @@ void setup() {
 
   Logic0.enable = true;                 // Enable logic block 0
   Logic0.input0 = in::tca0;             // Use TCA WO0 as input0
-  Logic0.input1 = in::tcb1;             // Use TCB1 WO as input 1
+  Logic0.input1 = in::tcb;              // Use TCB WO as input 1 (input 1 = TCB1)
   Logic0.input2 = in::masked;           // mask input 2
   // Logic0.output_swap = out::pin_swap; // Uncomment this line if you want or
   //                                       need to use the alternate output pin

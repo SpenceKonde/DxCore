@@ -464,7 +464,8 @@ void demo9a() {
   /* Event1 - EVSYS CHANNEL1 */
   Event1.stop();                            // Stop Event1 (if it was running)
   Event1.set_generator(gen::ccl0_out);      // Use output of Logic0
-  Event1.set_user(user::tca0_cnta);         // Connect Event1 (carrying Logic0 output) to TCA0 event a
+  Event1.set_user(user::tca0_cnt_a);        // Connect Event1 (carrying Logic0 output) to TCA0 event A
+                                            // Note that megaAVR 0-series and tinyAVR 0/1-series parts don't have an event b.
   Event1.start();                           // Enable Event1
 
   Logic::start();                           // Start the CCL hardware

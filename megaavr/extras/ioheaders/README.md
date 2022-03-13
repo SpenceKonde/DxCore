@@ -29,7 +29,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 ## Note on the unreleased parts
-The headers for unreleased parts are included to help us all engage in speculation and prediction, which is always fun. They may change wihout notice.
+The headers for unreleased parts are included to help us all engage in speculation and prediction, which is always fun. They may change without notice.
 
 ## Note on versions
 These are the latest versions as of 3/11/2022.
