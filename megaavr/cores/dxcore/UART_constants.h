@@ -10,7 +10,7 @@
 /*"What the bloody hell are all these static casts for?!"
  * Well, the io headers define them as enumerated types. From C++20 onwards mixing enums is deprecated. These static casts do not effect behavior for everyone e;se
  * but makethe user experience significantly better for C++20 people.
- * Note that C++ 20 is not supported by this core . This was done in response to a PR and has zero impact om everone else. Changes to make life easier for users
+ * Note that C++ 20 is not supported by this core . This was done in response to a PR and has zero impact om everyone else. Changes to make life easier for users
  * of unsupported versions of the standards that do not meet both of thoe criteria will not be addressed.
  */
 
@@ -238,7 +238,7 @@
 
   #define SERIAL_PARITY_MARK   (badArg("'Mark' as parity is not supported, use an extra stop bit"),0)
   #define SERIAL_PARITY_SPACE  (badArg("'Space' as parity is not supported on AVR"),0)
-  #define SERIAL_STOP_BIT_1_5  (badArg("1.5 stop bits is not a supported settting on AVR"),0)
+  #define SERIAL_STOP_BIT_1_5  (badArg("1.5 stop bits is not a supported setting on AVR"),0)
   #define SERIAL_5M1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_MARK | SERIAL_DATA_5)
   #define SERIAL_6M1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_MARK | SERIAL_DATA_6)
   #define SERIAL_7M1  (SERIAL_MODE_ASYNC | SERIAL_STOP_BIT_1 | SERIAL_PARITY_MARK | SERIAL_DATA_7)

@@ -31,27 +31,23 @@ void setup() {
   Logic0.enable = true;                 // Enable logic block 0
   Logic0.input0 = in::tca0;             // Use TCA WO0 as input0
   Logic0.input1 = in::tcb;              // Use TCB WO as input 1 (input 1 = TCB1)
+  // not tcb1 as you would use on tinyAVR - the timer is based on the input.
   Logic0.input2 = in::masked;           // mask input 2
   // Logic0.output_swap = out::pin_swap; // Uncomment this line if you want or
   //                                       need to use the alternate output pin
-  Logic0.output = out::enable;          // Enable logic block 0 output pin or PA4 (ATtiny))
+  Logic0.output = out::enable;          // Enable logic block 0 output pin, PA3 on non-tinyAVRs.
   Logic0.filter = filter::disable;      // No output filter enabled
   Logic0.truth = 0x08;                  // Set truth table - HIGH only if both high
   Logic0.init();                        // Initialize logic block 0
   Logic::start();                       // Start the AVR logic hardware
   // How to configure timer is beyond the scope of this example, so we will just kick off
   // WO0 with analogWrite(). We need to know where that is though
-  #if !defined(MEGATINYCORE)
-  // if it's a fullsize part, TCA can be put onto any port, but only PORTA is guaranteed to exist and have a pin 0
-  // and we need that in order to be we can start WO0 which is what we're using as the input
-  // in practice, you would have taken over TCA0 and configured it manually.
+  // TCA0 can be put onto any port, but only PORTA is guaranteed to exist and have a pin 0
+  // and we need that if we're going to have TCA0 be input0 to the CCL block insetead of input 1 or 2.
+  // This is not what you'd do in practice - you would would have taken over TCA0 and configured it manually.
+  // but this is a a quick way to a signal you can look at on the 'scope.
   PORTMUX.TCAROUTEA = PORTMUX_TCA0_PORTA_gc; // put TCA outputs onto PORTA
-  analogWrite(PIN_PA0,128);             // Now we can call analogWrite on PA0 and get our output.
-  #elif defined(PIN_PB0)                // Most tinies have a PB0, which naturally gets WO0.
-  analogWrite(PIN_PB0, 128);            // so on those that's what we use.
-  #else                                 // Otherwise it's one of the cursed 8-pin ones which megaTinyCore
-  analogWrite(PIN_PA7, 128);            // configures to put WO0 on PA7.
-  #endif
+  analogWrite(PIN_PA0, 128);             // Now we can call analogWrite on PA0 and get our output.
   TCB1.CTRLA = 0x01;                    // enabled with CLKPER as clock source
   TCB1.CTRLB = 0x07;                    // PWM8 mode, but output pin not enabled
   TCB1.CCMPL = 255;                     // 255 counts
