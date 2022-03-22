@@ -545,8 +545,10 @@ void demo9b() {
   TCB0.CTRLA = 0;
   TCB0.CTRLA = TCB_CLKSEL_DIV2_gc | TCB_ENABLE_bm;  // Switch to clk_per clock & enable
   Serial.println("Before (CLK_PER/2): ~47 kHz");    // 24 / 2 = 12 MHz, 12 MHz / 255 count/cycle = ~47 kHz
-  analogWrite(PIN_PF4, 128);                         // Output some pwm to demo change in frequency
-  delay(5000);
+  //we need to pick the PWM pin that the TCB is actually pointed at.
+  //
+  analogWrite(PIN_TCB0_WO_INIT, 128);               // Output some pwm to demo change in frequency
+  delay(5000);                                      // That constant is the pin that we can assume the core configures that timer for by default/
   TCB0.CTRLA = 0;                                   // Disable TCB0
   TCB0.CTRLA = TCB_CLKSEL_EVENT_gc | TCB_ENABLE_bm; // Switch to event clock & enable
   Serial.println("After: ~11.7 kHz");               // 24 / 8 = 3 MHz, 3 MHz / 255 count/cycle = ~11.7 kHz
@@ -711,7 +713,7 @@ void demo10() {
 
 
   /* TCB0 - Timer/Counter Type B */
-  analogWrite(PIN_PF4, 128);                         // Output some pwm to demo frequency
+  analogWrite(PIN_TCB0_WO_INIT, 128);               // Output some pwm to demo frequency
   TCB0.CTRLA = 0;                                   // Disable TCB0
   TCB0.CTRLA = TCB_CLKSEL_EVENT_gc | TCB_ENABLE_bm; // Switch to event clock & enable
   Serial.println("After: ~10.4 kHz");               // 24*2 / 18 = 2.667 MHz, 2.667 MHzz / 255 count/cycle = ~10.4 kHz
@@ -759,7 +761,7 @@ void loop() {
   Serial.println("Divided clocks: TCB gets independent prescaler! Dx/2-series only");
   demo9b();
   delay(10000);
-  digitalWrite(PIN_PF4, 0);
+  digitalWrite(PIN_TCB0_WO_INIT, 0);
   pinMode(PIN_PF4, INPUT);
   #endif
 
@@ -767,6 +769,7 @@ void loop() {
   Serial.println("Divided clocks: TCD pre-prescaler. Dx/1-series only");
   demo9d();
   delay(10000);
+
   digitalWrite(PIN_PA6, 0);
   pinMode(PIN_PA6, INPUT);
   #endif

@@ -351,6 +351,12 @@ This core adds a number of new features include fast digital I/O (1-14 clocks de
 See the [**Improved Digital I/O Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 
 ## Additional DxCore documentation
+### Official [application notes from Microchip](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Microchip.md)
+A partial listing of applicable app notes. The ones that looked most useful or interetsting.
+#### [IO-headers](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/ioheaders/README.md)
+These are a copy of the latest i/o headers (not necessarily the ones we use!), for user convenience; they are meant for online viewing or manual installations, since a board manager installation will bury them just as deeply as the copies the toolchain uses.
+### Library documentation
+See the [library index](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Libraries.md) or readme files for each library (the former is mostly composed of links to the latter)
 ### Reference Material
 #### [Function Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Functions.md)
 Covering top-level functions and macros that are non-standard, or are standard but poorly documented.
@@ -378,8 +384,6 @@ Supported clock sources and considerations for the use thereof.
 These are provided by the core and can be overridden with code to run in the event of certain conditions, or at certain times in the startup process.
 #### [Constants for part/feature/pin/version identification](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Defines.md)
 The core feature defines are used by megaTinyCore and other cores I maintain as well. This also documents what constant values are defined by the core for version identification, testing for features, and dealing with compatibility problems.
-#### [IO-headers from Microchip](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/ioheaders/README.md)
-These are a copy of the headers packages with the compiler toolchain to support these parts, for user convenience; they are meant for online viewing or manual installations, since a board manager installation will bury them just as deeply as the copies the toolchain uses.
 #### [Assembly Listing and Memory Maps](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Export.md)
 Export compiled binary generates both assembly listings and memory maps, in addition to the hex file. The options selected are encoded in the name of the file to help prevent confusion, and make it easy to compare two configurations when you are surprised by the differences between them.
 #### [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
@@ -388,8 +392,6 @@ The sources of reset, and how to handle reset cause flags to ensure clean resets
 Covers a variety of design considerations for making something that will opperate reliably in the field, some specific to DxCore, others general. Lately I have been seeing a lot of projects get too far along without considering these. **Must read for production systems**
 #### [Power Saving techniques and Sleep - inherited from megaTinyCore](megaavr/extras/PowerSave.md)
 There are plans for a better wrapper around this sort of functionality, which keep getting deferred as more pressing issues come up. This was inherited from megaTinyCore and is essentially unmodified and may not reflect all the features of the Dx-series.
-### Library documentation
-See the [library index](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Libraries.md) or readme files for each library (the former is mostly composed of links to the latter)
 
 ## List of Tools sub-menus
 * Tools -> Chip - sets the specific part within a selected family to compile for and upload to.

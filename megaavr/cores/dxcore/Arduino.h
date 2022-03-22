@@ -225,6 +225,10 @@ void          turnOffPWM(uint8_t pinNumber               );
 // Not a function, still important
 #define digitalPinHasPWMNow(p)            (digitalPinToTimerNow(p) != NOT_ON_TIMER)
 
+uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
+// Realized we're not going to be able to make generic code without this.
+
+
 // avr-libc defines _NOP() since 1.6.2
 // Really? Better tell avr-gcc that, it seems to disagree...
 #ifndef _NOP
@@ -307,57 +311,80 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERB2         (0x22) // TCB2
 #define TIMERB3         (0x23) // TCB3
 #define TIMERB4         (0x24) // TCB4
-
-#define TIMERRTC        (0x90)
-#define TIMERRTC_XTAL   (0x91)
-#define TIMERRTC_CLK    (0x92)
+#define TIMERD0         (0x40)
 #define DACOUT          (0x80)
-
-/* Check order for future ones would probably be to check 0x40 (that means TCD) 0x20 (that means a TCB)
- * on alt pins if 0x10 set too. 0x10without the 0x20 means it's TCA0, no defines for mappings because of the simplicity of full size parts.
- * 0x08 means it's a TCA1, and the weird pin options might get the constants below assigned if we ever support those.
+/* The above are all used in the digitalPinToTimer() macro and appear in the timer table, in addition to being how we identify millis timer.
+ * For the millis timer, there's nothing weird here.
+ * But the timer table constants contain more information than that for these. When user code interprets the timer table entries it is critical to do it right:
+ *  1. If 0x80 is set, and it's from the timer table, it's a DAC output. If it's the millis timer, 0x01 will also be set and you're on a tinyAVR part and the
+ *  2. If 0x40 is set, TCD0 can output here. bits 4 and 5 contain information on what channel, and bits 0-2 specify what the PORTMUX must be set to.
+ *  3. If it's not set, check 0x20 - if that's set, it's a TCB pin.
+ *    3a. If 0x20 is set, check 0x10 - if that's set, it's the alt pin mapping. This is not currently used.
+ *  4. If 0x10 is set, it's a TCA0 pin. This is never used in the timer table, and likely never will be because of the simplicity of the mapping scheme.
+ *  5. If 0x08 is set, it's a TCA1 pin. This is never used in the timer table. Utility functions in futureversions may use it.
  */
-/*
-#define TIMERA1_1WO0    (0x09) // Mapping1, WO0 - mappings 0 and 3 are handled directly because they don't need any sort of LUT.
-#define TIMERA1_1WO1    (0x0A) // Mapping1, WO1
-#define TIMERA1_1WO2    (0x0B) // Mapping1, WO2
-#define TIMERA1_2WO1    (0x0D) // Mapping2, WO0
-#define TIMERA1_2WO2    (0x0E) // Mapping2, WO1
-#define TIMERA1_2WO3    (0x0F) // Mapping2, WO2
-#define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping.
-#define TIMERB1_ALT     (0x31) // TCB1 with alternate pin mapping.
-#define TIMERB2_ALT     (0x32) // TCB2 with alternate pin mapping.
-#define TIMERB3_ALT     (0x33) // TCB3 with alternate pin mapping.
-#define TIMERB4_ALT     (0x34) // TCB4 with alternate pin mapping.
-*/
 
-#define TIMERD0         (0x40) // 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
+#define TIMERRTC        (0x90) // RTC with internal osc
+#define TIMERRTC_XTAL   (0x91) // RTC with crystal
+#define TIMERRTC_CLK    (0x92) // RTC with ext clock
+
+/* Not yet implemented used for anything meaningful, but will be needed moving forward.  */
+
+#define TIMERA0_MUX0    (0x10) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX1    (0x11) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX2    (0x12) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX3    (0x13) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX4    (0x14) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX5    (0x15) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX6    (0x16) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA0_MUX7    (0x17) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
+#define TIMERA1_MUX0    (0x08) // Will never be used in the table - MUX0 is a 6-pin mapping that we special-case, for PORTB
+#define TIMERA1_MUX1    (0x09) // Mapping1 (PORTC 4-6) - channel = bit_pos - 4. Not yet implemented, but will be in time for EA
+#define TIMERA1_MUX2    (0x0A) // Mapping2 (PORTE 4-6) - channel = bit_pos - 4. Not yet implemented, but will be in time for EA
+#define TIMERA1_MUX3    (0x0B) // Will never be used in the table - MUX3 is a 6-pin mapping that we special-case, for PORTG
+#define TIMERA1_MUX4    (0x0C) // Mapping4 (PORTA 4-6) - EA-series only
+#define TIMERA1_MUX5    (0x0D) // Mapping5 (PORTD 4-6) - EA-series only
+
+#define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB1_ALT     (0x31) // TCB1 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB2_ALT     (0x32) // TCB2 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB3_ALT     (0x33) // TCB3 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB4_ALT     (0x34) // TCB4 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB1_ALT     (0x31) // TCB1 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB2_ALT     (0x32) // TCB2 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB3_ALT     (0x33) // TCB3 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB4_ALT     (0x34) // TCB4 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+
+
+ // 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
 //                            bit C specifies whether it's channel A (0) or B (1). If M is 1 it is WOC outputting chan A or WOB outputting D.
 //                            WOD outputting A or WOC outputting B is not supported by the core. WOB outputting A or WOA outputting B is not supported by the hardware.
-//                            thus far, we can ignore the 3rd bit of portmux for WOA/WOB, which is good because the timer table camn omly fit one entry per pin.
-#define TIMERD0_0WOA    (0x40)
+//                            Hence, if PORTMUX.TCDROUTEA == (timer table entry) & 0x07
+// These are used only on the parts with workng TCD mux
+#define TIMERD0_0WOA    (0x40) // PORTA
 #define TIMERD0_0WOB    (0x50)
 #define TIMERD0_0WOC    (0x60)
 #define TIMERD0_0WOD    (0x70)
-#define TIMERD0_1WOA    (0x41)
+#define TIMERD0_1WOA    (0x41) // PORTB
 #define TIMERD0_1WOB    (0x51)
 #define TIMERD0_1WOC    (0x61)
 #define TIMERD0_1WOD    (0x71)
-#define TIMERD0_2WOA    (0x42)
+#define TIMERD0_2WOA    (0x42) // PORTF
 #define TIMERD0_2WOB    (0x52)
 #define TIMERD0_2WOC    (0x62)
 #define TIMERD0_2WOD    (0x72)
-#define TIMERD0_3WOA    (0x43)
+#define TIMERD0_3WOA    (0x43) // PORTG
 #define TIMERD0_3WOB    (0x53)
 #define TIMERD0_3WOC    (0x63)
 #define TIMERD0_3WOD    (0x73)
-//#define TIMERD0_4WOA  (0x44)
-//#define TIMERD0_4WOB  (0x54)
-#define TIMERD0_4WOC    (0x64)
+//#define TIMERD0_4WOA  (0x44) - this is PA4, duplicates mux 0.
+//#define TIMERD0_4WOB  (0x54) - this is PA5, duplicates mux 0.
+#define TIMERD0_4WOC    (0x64) // second half is PORTD
 #define TIMERD0_4WOD    (0x74)
 /*
 // For future use
-#define TIMERD0_5WOA    (0x45)
+#define TIMERD0_5WOA    (0x45) // Will we ever see other PORTD mappings? Probably, but only time will tell.
 #define TIMERD0_5WOB    (0x55)
 #define TIMERD0_5WOC    (0x65)
 #define TIMERD0_5WOD    (0x75)
@@ -391,16 +418,18 @@ extern const uint8_t digital_pin_to_timer[];
  * RAM for parts with 8 or 16k of RAM. */
 
 /* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
-
-#define NOT_A_PIN         (255)
-// Generally, you should check for getting this when you ask for a pin  ;-)
-#define NOT_A_PORT        (255)
-// Same numeric value, but used for improved code readability
-#define NOT_AN_INTERRUPT  (255)
-#define NOT_A_MUX         (255)
+// These mostly take the same numeric value, but used for improved code readability
+#define NOT_A_PIN         (255) // When you try to get a pin number, make sure it's not NOT_A_PIN before proceeding
+#define NOT_A_PORT        (255) // as above for ports.
+#define NOT_AN_INTERRUPT  (255) // As above, for interrupts
+#define NOT_A_MUX         (255) //
+// Notice the different value!
 #define MUX_NONE          (128)
-// invalid portmux options
 // When cast to int8_t these are -1, but it is critical to define them as 255, not -1 because we check if they're less than the number of something
+
+//for PWMchannelToPin() utility function only:
+#define TIMER_NOT_CONNECTED (254) // If we search and find that there is currently NO pin that could (ever) output the specified PWM, we return this
+#define TIMER_BROKEN_ERRATA (253) // On DA and DB parts lacking the fix, TCD routing options other than 0 are hopelessly broken
 
 #define PA (0)
 #define PB (1)
@@ -411,6 +440,8 @@ extern const uint8_t digital_pin_to_timer[];
 #define PG (6)
 #define NUM_TOTAL_PORTS (7) /* one could argue that this should be 6 except on 64-pin parts, and that parts that don't
 have ports shoulod have those Px constants defined as NOT_A_PORT. I think that would cause problems rather than solve them, though */
+
+#define PERIPHERAL_IN_USE (254) // Returned when a rare few functions are asked about something, (say, which PWM pin a type B tmer s abot to output PWM on) but we know we can't output PWM with itvecause ti is in use for millis. Srudd rlikw rhr. asked abot something
 
 // These are used as the second argument to pinConfigure(pin, configuration)
 // You can bitwise OR as many of these as you want, or just do one. Very
@@ -520,12 +551,18 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #define digitalPinToPortStruct(pin)         (((pin)     < NUM_TOTAL_PINS ) ?    (((PORT_t *) &PORTA) + digitalPinToPort( pin))                 : NULL)
 #define getPINnCTRLregister(port, bit_pos)  ((((port) != NULL) && (bit_pos < 8)) ? (((volatile uint8_t *) &(port->PIN0CTRL)) + bit_pos)        : NULL)
 #define digitalPinToInterrupt(P)            (P)
-
+// Remember to test for NOT_A_PORT before using thiese.
 #define portOutputRegister(P) ((volatile uint8_t *)(&portToPortStruct(P)->OUT))
 #define portInputRegister(P)  ((volatile uint8_t *)(&portToPortStruct(P)->IN ))
 #define portModeRegister(P)   ((volatile uint8_t *)(&portToPortStruct(P)->DIR))
-
-
+#if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
+  #define portEventRegister(p)  ((volatile uint8_t *)(&portToPortStruct(P)->EVGENCTRL))
+  uint8_t setEventPin(uint8_t pin, uint8_t number); // preliminary thought - pass a pin number, it looks up port, and from there the event control register and sets it.
+  //Number being 0 or 1 or 255 to pick the lowest numbered one not set. Returns event channel number TBD if that should be the EVSYS valus or 0 or 1. If "Pick unused ome" is requested but both already assigned, will return 255
+  uint8_t getPortEventConfig(uint8_t port); // just shorthand for looking up the port and returning it's EVGENCTRL value
+  uint8_t setRTCEventChan(uint8_t div, uint8_t number); // number is 0, 1 or 255 like above, div is log(2) of the divisor (ie, for 2^5, his would be 5).
+  uint8_t getRTCEventConfig(); //simply returns the RTC channel configuration. Will likely return 255 if called on non Ex
+#endif
 #ifdef __cplusplus
 } // extern "C"
 #endif
@@ -548,20 +585,25 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   #define TWI_MANDS
   #define TWI_USING_WIRE1
 #else
-  #error "An option must be selected from all tools submenus. No option was selected for the Wire Mode. "
+  // Allow for the possibility that someoen directly defines these when using PlatformIO or similar.
+  #if !(defined(TWI_MORS) || defined(TWI_MANDS))
+    #warning "No wire mode specified - either a menu option must be selected (if using Arduino IDE) or the defines manually provided (if using PlatformIO/etc) - defaulting to TWI_MORS"
+    #define TWI_MORS
+  #endif
 #endif
 
 #include "pins_arduino.h"
 // Take this trash out of variants!
 #if !defined(NUM_DIGITAL_PINS)
 /* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
- * that is, it's the first non-pin integer above which there are no pins.
+ * that is, it's the first integer which does not refer to a pin, and the number of digital pins if there
+ * were no gaps in the numbering. Almost every pin mapping has gaps.
  * Tests like if (pin >= NUM_DIGITAL_PIN) return; are ubiquitous.
  * So we need to make our NUM_DIGITAL_PINS work like that.
  */
-  #if defined(PIN_PG7) // if there's a PORTG, that's the last pin. Add 1  to get the first non-pin
+  #if defined(PIN_PG7) // if there's a PORTG, that's the last pin. Add 1 to get the first non-pin
     #define NUM_DIGITAL_PINS            (PIN_PG7 + 1)
-  #elif defined(PIN_PF7)  // if the UPDI pin, PF7 is defined and there's no PORTG that's the highest.
+  #elif defined(PIN_PF7)  // if the UPDI pin, PF7 is defined (ie, UPDI can be prorgrammed as GPIO)
     #define NUM_DIGITAL_PINS            (PIN_PF7 + 1)
   #elif defined(PIN_PF6)  // otherwise it should be the reset pin, PG6.
     #define NUM_DIGITAL_PINS            (PIN_PF6 + 1)
@@ -573,13 +615,19 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   #define NUM_RESERVED_PINS             (0)
 #endif
 #if !defined(NUM_INTERNALLY_USED_PINS)
-  #define NUM_INTERNALLY_USED_PINS      (0)
+  #if CLOCK_SOURCE == 1
+    #define NUM_INTERNALLY_USED_PINS    (2) // Extermal crystal tales PA0 amd PA1
+  #elif CLOCK_SOURCE == 2
+    #define NUM_INTERNALLY_USED_PINS    (1) // External clock takes out PA0
+  #else
+    #define NUM_INTERNALLY_USED_PINS    (0)
+  #endif
 #endif
 #if !defined(NUM_I2C_PINS)
-  #define NUM_I2C_PINS                  (2)
+  #define NUM_I2C_PINS                  (2) // per I2C port in use - this number is nonsensical without qualification is is only for compatibility.
 #endif
 #if !defined(NUM_SPI_PINS)
-  #define NUM_SPI_PINS                  (3)
+  #define NUM_SPI_PINS                  (3) // per SPI port in use - this number is nonsensical without qualification is is only for compatibility.
 #endif
 #if !defined(NUM_TOTAL_FREE_PINS)
   #define NUM_TOTAL_FREE_PINS           (PINS_COUNT - NUM_INTERNALLY_USED_PINS)
@@ -670,6 +718,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 // Note that if MVIO is disabled, we cannot detect that.
   #if defined(DD_14_PINS) || defined(DD_20_PINS)
     #define SERIAL_PORT_MVIO Serial0
+    #define SERIAL_PORT_MVIO_MUX 0x04 // TX PC1 RX PC2
   #else
     #define SERIAL_PORT_MVIO Serial1
   #endif

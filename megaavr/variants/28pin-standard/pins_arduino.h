@@ -119,6 +119,9 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
+#define PIN_TCB0_WO_INIT  PIN_PA2
+#define PIN_TCB1_WO_INIT  PIN_PA3
+#define PIN_TCB2_WO_INIT  PIN_PC0
 #define PIN_TCD0_WOA_INIT PIN_PA4
 
 

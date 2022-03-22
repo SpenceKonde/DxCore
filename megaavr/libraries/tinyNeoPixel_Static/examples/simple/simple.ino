@@ -5,10 +5,14 @@
 
 
 // Which pin on the Arduino is connected to the NeoPixels?
-#define PIN            3
+#define PIN_PIXEL      PIN_PF5
+#define PIN_REDEN      PIN_PF1
+#define PIN_BLUEN      PIN_PF2
+#define PIN_GRNEN      PIN_PF3
+#define PIN_BRIGHT     PIN_PF4
 
 // How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      16
+#define NUMPIXELS      500
 
 // Since this is for the static version of the library, we need to supply the pixel array
 // This saves space by eliminating use of malloc() and free(), and makes the RAM used for
@@ -25,21 +29,22 @@ tinyNeoPixel leds = tinyNeoPixel(NUMPIXELS, PIN, NEO_GRB, pixels);
 int delayval = 500; // delay for half a second
 
 void setup() {
-  pinMode(PIN, OUTPUT);
-  // with tinyNeoPixel_Static, you need to set pinMode yourself. This means you can eliminate pinMode()
-  // and replace with direct port writes to save a couple hundred bytes in sketch size (note that this
-  // savings is only present when you eliminate *all* references to pinMode).
-  // leds.begin() not needed on tinyNeoPixel
+  pinMode(PIN_PIXEL, OUTPUT);
+  pinMode(PIN_REDEN, INPUT_PULLUP);
+  pinMode(PIN_GRNEN, INPUT_PULLUP);
+  pinMode(PIN_BLUEN, INPUT_PULLUP);
+  pinMode(PIN_BRIGHT, INPUT_PULLUP);
+  analogReadResolution(12);
 }
 
 void loop() {
 
   // For a set of NeoPixels the first NeoPixel is 0, second is 1, all the way up to the count of pixels minus one.
-
+  uint8_t brightness = analogRead(PIN_BRIGHT) >> 4; // scale 12-bit value to 8 bits
   for (int i = 0; i < NUMPIXELS; i++) {
-
+    
     // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
-    leds.setPixelColor(i, leds.Color(0, 150, 0)); // Moderately bright green color.
+    leds.setPixelColor(i, leds.Color(digitalReadFast(PIN_REDEN) ? 0 : brightness ,digitalReadFast(PIN_GRNEN) ? 0: brightness, digitalReadFast(PIN_BLUEN ? 0 : brightness))); // Moderately bright green color.
 
     leds.show(); // This sends the updated pixel color to the hardware.
 

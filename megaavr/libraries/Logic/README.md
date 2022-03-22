@@ -6,6 +6,9 @@ All of the examples assume the use of megaTinyCore, MegaCoreX or DxCore as appro
 More information about CCL can be found in the [Microchip Application Note TB3218](http://ww1.microchip.com/downloads/en/AppNotes/TB3218-Getting-Started-with-CCL-90003218A.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf) and the datasheet for the part in question.
 
 
+## Invelid/reserved options
+Note that there exist reserved and invalid values for many bitfields here. This library does not support specifying these, and no comprehensive investigation has been undertaken to exclude the existence of useful ones. A discovery of useful ones
+
 
 ## Logic
 `Logic` is the class the library provides for interfacing with a built-in logic block (sometimes referred to as `LUT`s, from the "LookUp Table" - though it is curious use of language, that is what Microchip refers to them as). Use the predefined objects `Logic0`, `Logic1`, `Logic2`, `Logic3`, `Logic4` and `Logic5`. The logic blocks are paired, each pair sharing a single sequencer and `feedback` channel. Additionally, each logic block is associated with a specific port, having it's input on pins 0 through 2, and it's output on pin 3 or 6 (note that these pin mappings are dramatically different on tinyAVR parts). In order: `PORTA`, `PORTC`, `PORTD`, `PORTF`, `PORTB`, and `PORTG`.
@@ -17,27 +20,27 @@ More information about CCL can be found in the [Microchip Application Note TB321
 Logic Block |  IN0-2  | OUT | ALT OUT | Availability  | Notes:
 ------------|---------|-----|---------|---------------|-----------------------------
 Logic0      | PA0-PA2 | PA3 |     PA6 |    All parts  |
-Logic1      | PC3-PC5 | PA7 |     PA6 |    All parts  |
-Logic2      | PD0-PD2 | PD3 |     PD6 |    All parts  |
-Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on most parts for block 3.
-Logic4      | PCB-PB2 | PB3 |     PB6 | 48+ pin DA/DB |
-Logic5      | PC0-PC2 | PC3 |     PG6 | 48+ pin DA/DB | On 48-pin parts, this can and should be used if you need a logic block and require ,either pin input nor, nor an output pin. When it will work, it is often the best choice sinece it saves the more useful ones.
+Logic1      | PC0-PC2 | PC3 |     PC6 |    All parts  |
+Logic2      | PD0-PD2 | PD3 |     PD6 |    All parts  | There is no PD0, hence no input 0 on any DD, 28 pin DB, or 32-pin DB
+Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on most DA/DB parts
+Logic4      | PB0-PB2 | PB3 |     PB6 | 48+ pin DA/DB |
+Logic5      | PC0-PC2 | PC3 |     PG6 | 48+ pin DA/DB |
 
-
-Logic Block |  14-pin DD            |  20-pin DD          |  28 pin Dx          |  32-pin Dx  y        |  48-pin Dx          |  64-pin Dx          |
+Logic Block |  14-pin DD            |  20-pin DD          |  28 pin Dx          |  32-pin Dx          |  48-pin Dx          |  64-pin Dx          |
 ------------|-----------------------|---------------------|---------------------|---------------------|---------------------|---------------------|
-Logic0 IN   | No IN2,0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal |
-Logic0 OUT  | No outputs.           | YES, Both           | YES, both           | YES, both           | YES, both           | YES, both           |
+Logic0 IN   | IN0/1 if no xtal used | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal |
+Logic0 OUT  | None                  | YES, Both           | YES, both           | YES, both           | YES, both           | YES, both           |
 Logic1 IN   | No IN0 because no PC0 | No IN0 - no PC0     | YES, all            | YES, all            | YES, all            | YES, all            |
-Logic1 OUT  | No ALT OUT 1          | NO ALT OUT1         | YES, both           | YES, both           | YES, both           | YES, both           |
-Logic2 IN   | No inputs - no PD0-3  | No input - no PD0-3 | IN0 on DA only      | IN0 on DA only      | YES, all            | YES, all            |
-Logic3 IN   | No inputs - No PF0/1  | No inputs - No PF0/1| IN0, IN1 only       | YES, all            | YES, all            | YES, all            |
-Logic3 OUT  | No outputs            | No outputs          | No outputs          | No alt output       | No alt output       | No alt output       |
-Logic4 IN   | N/A                   | N/A                 | N/A                 | N/A                 | YES, all            | YES, all            |
-Logic4 OUT  | N/A                   | N/A                 | N/A                 | N/A                 | No alt output       | YES, Both           |
-Logic5 IN   | N/A                   | N/A                 | N/A                 | N/A                 | NO, no PORTG        | YES, all            |
-Logic5 Out  | N/A                   | N/A                 | N/A                 | N/A                 | NO, no PORTG        | YES, Both           |
+Logic1 OUT  | No alt output         | No alt output       | YES, both           | YES, both           | YES, both           | YES, both           |
+Logic2 IN   | None                  | None                | No IN0 on DB/DD     | No IN0 on DB/DD     | YES, all            | YES, all            |
+Logic3 IN   | None                  | None                | IN0, IN1 only       | YES, all            | YES, all            | YES, all            |
+Logic3 OUT  | None                  | None                | None                | No alt output       | No alt output       | No alt output       |
+Logic4 IN   | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| YES, all            | YES, all            |
+Logic4 OUT  | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| No alt output       | YES, both           |
+Logic5 IN   | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| NO (no PORTG)       | YES, all            |
+Logic5 Out  | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| NO (no PORTG)       | YES, both           |
 
+Notice how logic block 2 and 3 on 14/20 pin DD and logic block 5 on 48-pin parts have no dedicated pins. If you are not using pin input or output, use these logic blocks to conserve the more useful ones when not precluded by other considerations.
 
 These objects expose all configuration options as properties ("member variables" in C++ parlance - C++ predates the names "property" and "method") as documented below, as well as methods ("member functions") to set the applicable registers.
 
@@ -93,10 +96,10 @@ in::masked;           // Pin not in use
 in::unused;           // Pin not in use
 in::disable;          // Pin not in use
 in::feedback;         // Connect output of sequencer (if used) or even logic block (n or n-1) to this input
-in::link;             // Connect output of logic block n+1 to this input, or block 0 for the last block.
-in::event_0;          // Connect input to event a
+in::link;             // Connect output of logic block n+1 to this input, or block 0 for the last block on parts not effected by relevant silicon errata,
+in::event_0;          // Connect input to event a (deprecated, even on tinyAVR where this is what the datasheet calls it)
 in::event_a;          // Connect input to event a (preferred)
-in::event_1;          // Connect input to event b
+in::event_1;          // Connect input to event b (deprecated, even on tinyAVR where this is what the datasheet calls it)
 in::event_b;          // Connect input to event b (preferred)
 in::pin;              // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, do not change pinMode
 in::input_pullup;     // Connect input to CCL IN0, IN1, IN2 for input 0, 1, 2, set input, pullup on
@@ -106,11 +109,13 @@ in::ac;               // Connect input to the output of the internal analog comp
 in::zcd;              // Connect input to the output of the zero crossing detector (input 0, 1, 2 come from ZCD0, 1, or 2) - Dx-series only
 in::uart;             // Connect input to UART TX. Input 0 connects to UART0 TX, input 1 to UART1 TX, and input 2 to UART2 TX
 in::spi;              // Connect input to SPI. Input 0 and 1 connects to MOSI, and input 2 connects to SCK
-in::tca0;             // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2 (preferred)
-in::tca;              // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2
+in::tca0;             // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2
+in::tca;              // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2 - Deprecated synontm for TCA0
 in::tca1;             // Connect input to TCA1. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2 - parts with TCA1 only
-in::tcb;              // Connect input to TCB. Input 0 connects to TCB0 W0, input 1 to TCB1 WO, and input 2 to TCB2 WO. It is not possible to use other
+in::tcb;              // Connect input to TCB. Input 0 connects to TCB0 W0, input 1 to TCB1 WO, and input 2 to TCB2 WO. It is not possible to use other TCBs in this way
+in::tcb1;             // Connect input to TCB. Synonym for above for potential compatibility with tinyAVR. Strongly deprecated except on tinyAVR.
 in::tcd;              // Connect input to TCD0. Input 0 connects to WOA, input 1 to WOB and input2 to WOC (on tinyAVR 1-series, input2 goes to WOA too)
+in::tcd0;             // Connect input to TCD0. Synonym for in::tcd as no current or announced parts have more than one TCD.
 ```
 
 Note:
@@ -120,7 +125,7 @@ Note:
 * If input on the highest-number Logic block is set to link, it will use the output of Logic0.
 * On 28-pin and 32-pin Dx-series parts, link input for the highest-number logic block does not work, at least in the initial silicon releases. See the applicable Errata sheet.
 * If you need to link input to logic block other than the n+1 block, you can use the event system for that.
-* Not all Dx-series parts have 3 analog comparators or zero-crossing detectors. The datasheet does not specify what happens if, for example, input1 is set to ac on a part with a single analog comparator - it's not clear if it uses the output of AC0 (or ZCD0), or is simply logic 0.
+* Not all Dx-series parts have 3 analog comparators or zero-crossing detectors. The datasheet does not specify what happens if, for example, input1 is set to ac on a part with a single analog comparator - it's not clear if it uses the output of AC0 (or ZCD0), or is simply logic 0, or if something more exotic happens.
 * Timer/Counter input sources are associated with a WO (Waveform Output) channel - they are logic 1 (true) when the PWM output on that channel is `HIGH` (See the datasheet I/O multiplexed signals chart to associate WO channels with pins)
 * See the version of this file distributed with megaTinyCore for information on the corresponding options on those parts.
 

@@ -781,3 +781,107 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   }
   return timer;
 }
+
+/*
+Not ready yet, but we ought to have something like this.
+
+
+uint8_t PWMoutputToPin(uint8_t timer, uint8_t channel, bool muxed) {
+  /* valid values for timer start at line 300ish in Arduino.h.
+   * NOT RECOMMENDED FOR CODE WHERE PERFORMNANCE IS IMPORTANT, no flash constrained settings. It's great for making library example code work.
+   * valid values for channel are:
+   * TCA: 0-5
+   * TCB: 0 - this function tells you where PWM is currently piped, not where it could be piped.
+   * TCD: 0-3
+
+  If muxed is 0
+
+  To efficiently test for error values, cast the result to an int8_t and verify that it's greater than 0.
+  -1 indicates that a channel that the timer doesn't have was requested, but is not a compile time constant so we couldn't error then.
+  -2 indicates that we found the pin that would work with that timer channel, but that's not the pin the timer is pointed at, and you need to fix that
+  -3 indicates that you're requesting a channel that does not function due to outstanding errata on the chip. Go complain to microchip.
+
+  if (__builtin_constant_p(channel)) {
+    if (channel >=6) {
+      badArg("PWMOutputToPin was called with an invalid value; no timer supports more than 6 channels, zero-indexed");
+    }
+    return NOT_A_PIN;
+  }
+  uint8_t retval = NOT_A_PIN
+  //beyond that we shall make no assumptions!
+  if (timer & TIMERD0) {
+    if (channel > 3) {
+      if (__builtin_constant_p(channel)) {
+        badArg("TCDs only have channels 0~3, a channel outide that rane was requested!");
+      }
+      return NOT_A_PIN;
+    } else if (PORTMUX.TCDROUTEA != (timer & 0x03)) {
+      return TIMER_NOT_CONNECTED;
+    }
+    #if defined(ERRATA_TCD_PORTMUX)
+      #if (!defined PIN_PA4)
+        #error "Can't happen, all parts that have the TCD portmux errata have a PA4, so there is a bug in the core that should be reported promptly");
+      if (PORTMUX.TCDROUTEA != 0) {
+        return TIMER_BROKEN_ERRATA;
+      }
+      retval = PIN_PA4 + channel.
+    #else
+      for (uint8_t i = 0; i < PINS_COUNT; i++) {
+        retval = i;
+        if (digitalPinToTimer(i) == timer) {
+          break;
+        }
+      }
+    #endif
+  } else if (timer & TIMERA0) {
+    if (channel > 5) {
+      return NOT_A_PIN; // TCA's never have more than 6 pins per mapping
+    }
+    for (uint8_t i = 0; i < PINS_COUNT) {
+      uint8_t port = USARTROUTEA & 0x07;
+      if (digitalPinToPort(pin) == port) {
+        if (digitalPinToBitPostion(pin == channel)) {
+          retval = i;
+          break;
+        }
+      }
+    }
+  } else if (timer & TIMERB0) {
+    if (channel) {
+      return NOT_A_PIN; // TCBs have an alt pin but it's for the same channel, and the timer argument i different.
+    } else {
+      if (MILLIS_TIMER == timer) return PERIPHERAL_IN_USE;
+      switch(timer) {
+        case TIMERB0:
+          #if defined(PIN_PA2)
+            return PIN_PA2;
+          #endif
+          break;
+        case TIMERB1:
+          #if defined(PIN_PA3)
+            return PIN_PA3;
+          #endif
+          break;
+
+        case TIMERB2:
+          #if defined(PIN_PB5)
+            return PIN_PB5;
+          #endif
+          break;
+
+        case TIMERB3:
+          #if defined(PIN_PC0)
+            return PIN_PC0;
+          #endif
+          break;
+
+        case TIMERB4:
+          #if defined(PIN_PG3)
+            return PIN_Pxn;
+          #endif
+          break;
+        }
+      }
+    }
+  }
+*/

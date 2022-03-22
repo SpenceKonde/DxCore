@@ -15,6 +15,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Based on feedback, removed emulation of classicAVR pinMode() calls as regards the state of the PORTx.OUT register.
 * tinyNeoPixel 2.0.4, with support down to lower speeds, and inline assembly that is technically correct. (Before this it was only an accident of the deterministic avr-gcc register allocation and the fact that illegally written read-only operands represented variables that fell out of scope without being further used)
 * Fix some errors in Logic library examples
+* Preempt compatibility problems with libraries that assume a HardwareSerial.h file.
 
 ### 1.4.9
 * Never released, because of some version related bungling.
