@@ -109,7 +109,8 @@ int main() {
   setup();
   for (;;) {
     loop();
-    #ifdef ENABLE_SERIAL_EVENT /* this is never true unless core is modified */
+    #ifdef ENABLE_SERIAL_EVENT /* this is never true unless core is modified 
+      This option is strongly deprecated and Serial Event's days i nthe core are numbered. Users of serialEvent should begin migration with a sense of urgency*/
       if (serialEventRun) serialEventRun();
     #endif
   }
@@ -125,7 +126,7 @@ void init_ADC0()        __attribute__((weak)); // this is called to initialize A
 void init_timers();                            // this function calls the timer initialization functions. Overriding is not permitted.
 void init_TCA0()        __attribute__((weak)); // called by init_timers() - Don't override this if using TCA0 for millis.
 void init_TCA1()        __attribute__((weak)); // called by init_timers() - Don't override this if using TCA1 for millis.
-void init_TCBs()        __attribute__((weak)); // called by init_timers() - Does not break millis if overridden - the TCB used for millis is initialized in init_millis();
+void init_TCBs()        __attribute__((weak)); // called by init_timers() - Does not break millis if overridden, even if using the same timer, because it is either skipped or overwritten by te millis confige in init_millis();
 void init_TCD0()        __attribute__((weak)); // called by init_timers() - Does nothing if TCD0 is used as millis timer but that is not currently supported on DxCore.
 void init_millis()      __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
 ```
@@ -159,7 +160,7 @@ Initializes and kicks off millis timekeeping. If millis is handled by a type B o
 
 If you just want to turn off millis, set the millis timer to "disabled". That both gets rid of the ISR and provides a working delay().
 
-Note that the ISR will still be defined, but not enabled, if this is overridden
+Note that the ISR will still be defined, but not enabled, if this is overridde, that is, more flash wikk be used for the same functionality.
 
 ### initVariant
 ```c++
