@@ -36,23 +36,29 @@
 
 
 /* Microchip has shown a tendency to rename registers bitfields and similar between product lines, even when the behavior is identical.
- * This is a major hindrance to writing highly portable code. This is not expected to present any sort of issue. HOWEVER if it does,
- * The line above can be uncommented to disable all of the places where we find this and add define the old names to point to new ones.
- * The spelling of here is intentional. With it undefined, we will define the backwards compatible names, but if not.
- * If instead the user seeks to thwart compatibility (or alert themselves to code where they used old names) they are seeking the
- * opposite of backward compatibility like (apparently) Microchip is, Some wags have have termed this "backward combatibility"
- * in that case, you can enable backwards combatibility mode and none of these macros will be available.*/
+ * This is a major hindrance to writing highly portable code which I assume is what most people wish to do. It certainly beats having
+ * to run code through find replace making trivial changes, forcing a fork where you would rather not have one.
+ * Since having to adjust code to match the arbitrary and capricious whims of the header generation scheme kinda sucks, we try to catch
+ * all the places they do this and provide a macro for backwards compatibility. For some bizzare reason you may wish to turn this off
+ * maybe in preparation for jumping to another development environment like Microchip Studio that does not use Arduino cores.
+ * Instead of backwards compatibilily, you want the opposite, which some wags have called "Backwards combatibility"
+ * Defining BACKWARD_COMBATIBILITY_MODE turns off all of these definitions that paper over name changes.
+ */
 
 // #define BACKWARD_COMBATIBILITY_MODE
 
-
 #if !defined(BACKWARD_COMBATIBILITY_MODE)
+  // We default to seeking compatibility - every name
+
   #if defined(RTC_CLKSEL)
   /* Man they just *HAD* to change the names of these values that get assigned to the same register and do the same thing didn't they?
-   * Worse still we can't even verify that they are present... just blindly definr and pray. Enums can't be seen by macros   */
-    #define RTC_CLKSEL_INT32K_gc  RTC_CLKSEL_OSC32K_gc
-    #define RTC_CLKSEL_INT1K_gc   RTC_CLKSEL_OSC1K_gc
-    #define RTC_CLKSEL_TOSC32K_gc RTC_CLKSEL_XOSC32K_gc
+   * Worse still we can't even verify that they are present... just blindly define and pray. Enums can't be seen by macros   */
+    #define RTC_CLKSEL_INT32K_gc              RTC_CLKSEL_OSC32K_gc
+    #define RTC_CLKSEL_INT1K_gc               RTC_CLKSEL_OSC1K_gc
+    #define RTC_CLKSEL_TOSC32K_gc             RTC_CLKSEL_XOSC32K_gc
+    #define RTC_CLKSEL_XTAL32K_gc             RTC_CLKSEL_XOSC32K_gc
+    // #define RTC_CLKSEL_XOSC32K_gc          RTC_CLKSEL_XTAL32K_gc
+    // for when they notice the IO header doesn't match the datasheet and have to "fix" something...
   #endif
   /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
    * They now appear to have decided they don't like either of the previous conventions, one just a few years old. Now they are grouping
@@ -62,16 +68,16 @@
 
   // All non-xmega pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn
   #ifndef GPIOR0
-    #define GPIOR0 (GPR_GPR0)
-    #define GPIOR1 (GPR_GPR1)
-    #define GPIOR2 (GPR_GPR2)
-    #define GPIOR3 (GPR_GPR3)
+    #define GPIOR0                           (GPR_GPR0)
+    #define GPIOR1                           (GPR_GPR1)
+    #define GPIOR2                           (GPR_GPR2)
+    #define GPIOR3                           (GPR_GPR3)
   #endif
 
   /* In one xMega AVR, they were GPIOn, rather than GPIORn
    * One? Yup: The ATxmega32d4. Not the 32d3, nor the 32e5, nor anything else. All the xmega's have GPIORs
-   * and their headers list the GPIOn names too. But.... they ar
-   * but there is only a single header file with them not marked as "Deprecated": ATxmega32D4
+   * and their headers list the GPIOn names too. But.... there is only a single header
+   * file with them not marked as "Deprecated": ATxmega32D4
    * 24 of the 46 xmega parts with headers in the compiler packages (including the 32d3 and 32e5) had the
    * 4 GPIOR's that we have, and had GPIOn and GPIO_GPIOn present but marked as deprecated.
    * On those parts, these are at addresses 0x0000-0x003, and 0x0004-0x000F do not appear to be used.
@@ -85,14 +91,14 @@
    * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
    * xmega line, and decided that wasn't a winning formula */
   #ifndef GPIO0
-    #define GPIO0       (GPR_GPR0)
-    #define GPIO_GPIO0  (GPR_GPR0)
-    #define GPIO1       (GPR_GPR1)
-    #define GPIO_GPIO1  (GPR_GPR1)
-    #define GPIO2       (GPR_GPR2)
-    #define GPIO_GPIO2  (GPR_GPR2)
-    #define GPIO3       (GPR_GPR3)
-    #define GPIO_GPIO3  (GPR_GPR3)
+    #define GPIO0                           (GPR_GPR0)
+    #define GPIO_GPIO0                      (GPR_GPR0)
+    #define GPIO1                           (GPR_GPR1)
+    #define GPIO_GPIO1                      (GPR_GPR1)
+    #define GPIO2                           (GPR_GPR2)
+    #define GPIO_GPIO2                      (GPR_GPR2)
+    #define GPIO3                           (GPR_GPR3)
+    #define GPIO_GPIO3                      (GPR_GPR3)
   #endif
   /* They are are the 4 registers in the GPR "peripheral", GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
    * Let's not split hairs about whether calling 4 registers that do absolutely nothing other than being
@@ -104,14 +110,14 @@
   /* Code written for tinyAVR's TCA EVACT, which is identical to EVACTA on newer parts, would not work
    * even though they have the same functionality
    */
-  #define TCA_SINGLE_CNTEI_bm              TCA_SINGLE_CNTAEI_bm
-  #define TCA_SINGLE_CNTEI_bp              TCA_SINGLE_CNTAEI_bp
-  #define TCA_SINGLE_EVACT_gm              TCA_SINGLE_EVACTA_gm
-  #define TCA_SINGLE_EVACT_gp              TCA_SINGLE_EVACTA_gp
-  #define TCA_SINGLE_EVACT_CNT_POSEDGE_gc TCA_SINGLE_EVACTA_CNT_POSEDGE_gc
-  #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc
-  #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
-  #define TCA_SINGLE_EVACT_UPDOWN_gc      TCA_SINGLE_EVACTA_UPDOWN_gc
+  #define TCA_SINGLE_CNTEI_bm               TCA_SINGLE_CNTAEI_bm
+  #define TCA_SINGLE_CNTEI_bp               TCA_SINGLE_CNTAEI_bp
+  #define TCA_SINGLE_EVACT_gm               TCA_SINGLE_EVACTA_gm
+  #define TCA_SINGLE_EVACT_gp               TCA_SINGLE_EVACTA_gp
+  #define TCA_SINGLE_EVACT_CNT_POSEDGE_gc   TCA_SINGLE_EVACTA_CNT_POSEDGE_gc
+  #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc   TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc
+  #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc   TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
+  #define TCA_SINGLE_EVACT_UPDOWN_gc        TCA_SINGLE_EVACTA_UPDOWN_gc
 
   #if defined (CLKCTRL_SELHF_bm)
     /* They changed the damned name after selling the part for 6 months!
@@ -150,7 +156,8 @@
     #define CLKCTRL_FRQSEL_28M_gc CLKCTRL_FREQSEL_28M_gc    /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
     #define CLKCTRL_FRQSEL_32M_gc CLKCTRL_FREQSEL_32M_gc    /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
   #endif
-#endif
+  // Note that it is intended to not hide the fact that 28 and 32 MHz are not official. If you choose it from the menu, it says "Overclocked" next to the speed too.
+#endif /* this is the end of the backwards compatibility defines */
 
 /* Chip families
  *
@@ -363,10 +370,10 @@
   #define     _AVR_FAMILY       "DD"
 #elif defined(__AVR_DU__)
   #define     _AVR_FAMILY       "DU"
-  #error "The AVR DU-series is not available. The product brief has been retracted and it's fate is uncertain. Where did you get toolchain support for it?!"
+  #error "The AVR DU-series is not available. The product brief has been retracted and it's fate is uncertain. Where did you get toolchain support for it?"
 #elif defined(__AVR_EA__)
   #define     _AVR_FAMILY       "EA"
-  #error "The AVR EA-series is not available. There is no datasheet yet available, though current indicateions suggest most changes will be confined to libraries."
+  #error "The AVR EA-series is not available. There is no datasheet yet available, though current indications suggest most changes will be confined to libraries."
 #else
   #define     _AVR_FAMILY       "UNKNOWN"
 #endif
@@ -409,13 +416,11 @@
   #elif (PROGMEM_SIZE == 0x2000)  // 8k
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
   #endif
-#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DD__) || defined(__AVR_DU__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x20) /* 128k DA/DB, 64k DD/DU */
-#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
-  #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x20) /*  64k DA/DB, 32k DD/DU */
-#elif   (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif   (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DD__) || defined(__AVR_DU__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x10) /*  32k DA/DB, 16k DD/DU */
-#elif   (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
+#elif   (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DD__) || defined(__AVR_DU__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"
@@ -450,10 +455,9 @@
   #define ADC_MAXIMUM_PIN_CHANNEL      (31) /* Highest number that might be associated with a pin on DD - there are */
   #define ADC_MAXIMUM_NEGATIVE_PIN     (31) /* gaps on lower pincount parts. On DD and EA, all ADC pins work as     */
 #else                                       /* negative inputs! The EA even has a decent differential ADC!          */
-  #define ADC_MAXIMUM_PIN_CHANNEL      (21) /* The negative input for differential measurements is limited to the   */
-                                            /* first 16 pins on DA and DB parts. */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* for the DD and EA-series. The tinyAVR 2-series had 7 pins of PORTA   */
-#endif                                      /* only. but the EA=series will likely have more options.               */
+  #define ADC_MAXIMUM_PIN_CHANNEL      (21) /* At most, there are only 21 analog pins on a DA/DB                    */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* and only PORTD and PORTE work with MUXNEG for differential reading   */
+#endif
 #if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
   #define ADC_MAXIMUM_GAIN             (16) /* The EA series will have a PGA like the 2-series parts.               */
 #elif defined(OPAMP0)
