@@ -177,9 +177,13 @@
  * they got stuck off in the LD/ST swamp. And back on those parts, even with
  * st, writing to them was 2 clocks. People would probably expect 256k flash
  * from it though, cause they'd want to replace roloes held by 2560's, and
- * that introduces another layer of garbage (1 extra clock cycle for every
+ * that introduces another layer of problems (1 extra clock cycle for every
  * call, rcall, reti and ret - because it's an extra thing to push onto the
  * stack and pop off the stack as part of those instructions...
+ * I imagine Microchip isn't in a hurry to place itself in such a "zugswang"
+ * situation where it is compelled to make a design decision that will
+ * ultimately suck (the phrase comes from chess, a player in zugswang may
+ * appear to have options, but none of them have any hope of victory)
  */
 
 
@@ -199,6 +203,7 @@
 #define ID_AVR32EA      (0xE8)
 #define ID_AVR16EA      (0xD8)
 #define ID_AVR8EA       (0xB8)
+// We could cover an 8 pin part! Or a 100-pin one. Neither seems likely
 #define ID_14_PINS      (0x01)
 #define ID_20_PINS      (0x02)
 #define ID_24_PINS      (0x03)
@@ -209,12 +214,12 @@
 
 #define ID_AVR_DA       (0x00)
 #define ID_AVR_DB       (0x08)
-#define ID_AVR_DD       (0x40)
-#define ID_AVR_DU       (0x48)
-/*      ID_AVR_??       (0x80) */
-/*      ID_AVR_??       (0x88) */
-/*      ID_AVR_??       (0xC0) */
-#define ID_AVR_EA       (0xC8)
+#define ID_AVR_DD       (0x40) // Almost released - can't want to get my hands on those DD's!
+#define ID_AVR_DU       (0x48) // Product brief posted then deleted. Who knows if it will exist.
+/*      ID_AVR_??       (0x80) */ // We don't yet know the letters that further series will have but I'm pretty confident that the last one
+/*      ID_AVR_??       (0x88) */ // this system can support won't be a low pincount, fancy-ADC bearing "ED-series"...  though it
+/*      ID_AVR_??       (0xC0) */ // would be an amusing contrast to the sexy lettering for the low-pincount Dx parts
+#define ID_AVR_EA       (0xC8) // Not yet released
 
 #define ID_MASK_SERIES  (0xC8)
 #define ID_MASK_FLASH   (0x30)
@@ -347,7 +352,7 @@
   #define CORE_PART_ID_LOW (ID_28_PINS)
   #define __AVR_EA__
 #else
-  #error "Can't-happen: unknown chip somehow being used"
+  #error "Can't-happen: unknown chip somehow being used - and we detect every Dx and Ex chip announced!"
 #endif
 
 #if   defined(__AVR_DA__)
@@ -356,13 +361,12 @@
   #define     _AVR_FAMILY       "DB"
 #elif defined(__AVR_DD__)
   #define     _AVR_FAMILY       "DD"
-  #warning "AVR DD support is totally untested and was implemented without the benefit of a datasheet, which has not been released yet, much less hardware."
 #elif defined(__AVR_DU__)
   #define     _AVR_FAMILY       "DU"
-  #error "The AVR DU-series is not available and so we can't add support for it. There isn't even a non-retracted product brief!"
+  #error "The AVR DU-series is not available. The product brief has been retracted and it's fate is uncertain. Where did you get toolchain support for it?!"
 #elif defined(__AVR_EA__)
   #define     _AVR_FAMILY       "EA"
-  #error "The AVR EA-series is not available and so we can't add support for it. Support will be added pending availability of datasheet"
+  #error "The AVR EA-series is not available. There is no datasheet yet available, though current indicateions suggest most changes will be confined to libraries."
 #else
   #define     _AVR_FAMILY       "UNKNOWN"
 #endif
@@ -392,18 +396,18 @@
 #elif PROGMEM_SIZE == 0x2000
   #define                     _AVR_FLASH     (8)
 #elif PROGMEM_SIZE == 0x1000
-  #define                     _AVR_FLASH     (4)
+  #define                     _AVR_FLASH     (4) /* Unlikely to be seen on Dx */
 #endif
 
 #if (defined(__AVR_EA__)) /* 4 sizes of flash instead of 3 like Dx */
   #if   (PROGMEM_SIZE == 0x10000) // 64k
-    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x30)
+    #define CORE_PART_ID (CORE_PART_ID_LOW | 0x30)
   #elif (PROGMEM_SIZE == 0x8000)  // 32k
-    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x20)
+    #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
   #elif (PROGMEM_SIZE == 0x4000)  // 16k
-    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x10)
+    #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
   #elif (PROGMEM_SIZE == 0x2000)  // 8k
-    #define CORE_PART_ID (CORE_PART_ID_LOG | 0x00)
+    #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
   #endif
 #elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DA__) || defined(__AVR_DB__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x20) /* 128k DA/DB, 64k DD/DU */
@@ -442,12 +446,12 @@
 #define ADC_MAXIMUM_ACCUMULATE        (128) /* Maximum burst accumulation                                           */
 #define ADC_MAXIMUM_SAMPDUR          (0xFF) /* Maximum SAMPLEN or SAMPDUR                                           */
 #define ADC_RESULT_SIZE                (16) /* ADC Result Size (bits)                                               */
-#ifdef __AVR_DD__
-  #define ADC_MAXIMUM_PIN_CHANNEL      (31) /* Highest number that might be associated with a pin - there may be    */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* one or more holes where pins that only exist on other parts would be */
-#else
+#if defined(__AVR_DD__) || defined(__AVR_EA__)
+  #define ADC_MAXIMUM_PIN_CHANNEL      (31) /* Highest number that might be associated with a pin on DD - there are */
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (31) /* gaps on lower pincount parts. On DD and EA, all ADC pins work as     */
+#else                                       /* negative inputs! The EA even has a decent differential ADC!          */
   #define ADC_MAXIMUM_PIN_CHANNEL      (21) /* The negative input for differential measurements is limited to the   */
-                                            /* first 16 pins on DA and DB parts. It is not clear what will be done  */
+                                            /* first 16 pins on DA and DB parts. */
   #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* for the DD and EA-series. The tinyAVR 2-series had 7 pins of PORTA   */
 #endif                                      /* only. but the EA=series will likely have more options.               */
 #if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
@@ -470,12 +474,17 @@
     #define PIN_OPAMP2_INN          PIN_PE3
   #endif
 #endif
+#if defined(__AVR_EA__)
+  #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to   */
+                                            /* replace the current one. It brings channel uniformity at the cost  */
+                                            /* being limitd to two event inputs per port and two RTC PIT derived  */
+                                            /* inputs                                                             */
 #ifdef DAC0
   #ifndef PIN_DACOUT
     #define PIN_DACOUT PIN_PD6
   #endif
 #endif
-#if (defined(__AVR_DB__) || defined(__AVR_DD__))
+#if (defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_EA__)) // IO headers say EA gets INLVL - looks like it's standard now!
   #define PORT_ID_INLVL                 (1)
 #else
   #define PORT_ID_INLVL                 (0)
@@ -489,7 +498,7 @@
  * been announced with it anywhere else, nor has any product been announced with more than 1. */
 
 /* ERRATA TESTS */
-/* Not exhaustive, we'd need another file if I wanted to test for all the bugs. These are just the worst ones */
+/* Not exhaustive, we'd be going on for thosands of lines to over all the errata. This code assumes all DB are Rev A5, not A4, A4 got pulled fast         */
 /* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
   #define ERRATA_TCA1_PORTMUX           (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
@@ -501,7 +510,7 @@
   #define ERRATA_DAC_DRIFT              (1)
 #endif
 
-#if defined(__AVR_DA__) || defined(__AVR_DB__)
+#if (1)
   // No device has been released that doesn't have this bug!
   #define ERRATA_TCB_CCMP               (1)
   #define ERRATA_CCL_PROTECTION         (1)
