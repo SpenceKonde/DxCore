@@ -126,7 +126,7 @@ void init_ADC0()        __attribute__((weak)); // this is called to initialize A
 void init_timers();                            // this function calls the timer initialization functions. Overriding is not permitted.
 void init_TCA0()        __attribute__((weak)); // called by init_timers() - Don't override this if using TCA0 for millis.
 void init_TCA1()        __attribute__((weak)); // called by init_timers() - Don't override this if using TCA1 for millis.
-void init_TCBs()        __attribute__((weak)); // called by init_timers() - Does not break millis if overridden, even if using the same timer, because it is either skipped or overwritten by te millis confige in init_millis();
+void init_TCBs()        __attribute__((weak)); // called by init_timers() - Does not break millis if overridden, even if using the same timer, because it is either skipped or overwritten by the millis confige in init_millis();
 void init_TCD0()        __attribute__((weak)); // called by init_timers() - Does nothing if TCD0 is used as millis timer but that is not currently supported on DxCore.
 void init_millis()      __attribute__((weak)); // called by init() after everything else and just before enabling interrupts and calling setup() - sets up and enables millis timekeeping.
 ```

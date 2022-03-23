@@ -39,7 +39,7 @@
  * This is a major hindrance to writing highly portable code which I assume is what most people wish to do. It certainly beats having
  * to run code through find replace making trivial changes, forcing a fork where you would rather not have one.
  * Since having to adjust code to match the arbitrary and capricious whims of the header generation scheme kinda sucks, we try to catch
- * all the places they do this and provide a macro for backwards compatibility. For some bizzare reason you may wish to turn this off
+ * all the places they do this and provide a macro for backwards compatibility. For some bizarre reason you may wish to turn this off
  * maybe in preparation for jumping to another development environment like Microchip Studio that does not use Arduino cores.
  * Instead of backwards compatibilily, you want the opposite, which some wags have called "Backwards combatibility"
  * Defining BACKWARD_COMBATIBILITY_MODE turns off all of these definitions that paper over name changes.
