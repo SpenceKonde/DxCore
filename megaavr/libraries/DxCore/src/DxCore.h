@@ -56,20 +56,6 @@ int8_t getMVIOVoltage();
 // returns ADC or MVIO error code, or voltage in millivolts;
 
 
-#if defined(MVIO) && defined(HAS_64_PINS)
-int8_t setMAX38903Voltage(uint8_t setting);
-#define REG_OFF 0xFF
-#define REG_1V2 0b01000100
-#define REG_1V5 0b10001000
-#define REG_1V8 0b01000000
-#define REG_2V5 0b00000000
-#define REG_3V0 0b11000000
-#define REG_3V1 0b11000100
-#define REG_3V3 0b10000000
-#define REG_4V0 0b11001000
-#define REG_5V0 0b11001100
-#endif
-
 #ifdef __cplusplus
 }
 #endif
@@ -79,13 +65,13 @@ int8_t setMAX38903Voltage(uint8_t setting);
 bool setTCA0MuxByPort(uint8_t port);
 bool setTCA0MuxByPin(uint8_t pin);
 
-#define MVIO_DISABLED       ( 0x40)
-#define MVIO_BAD_FUSE       ( 0x20)
-#define MVIO_UNDERVOLTAGE   ( 0x01)
-#define MVIO_OKAY           ( 0x00)
-#define MVIO_UNSUPPORTED    ( 0x80)
-#define MVIO_MENU_SET_WRONG ( 0x10)
-#define MVIO_IMPOSSIBLE_CFG ( 0x80)
+#define MVIO_DISABLED       (0x40)
+#define MVIO_BAD_FUSE       (0x20)
+#define MVIO_UNDERVOLTAGE   (0x01)
+#define MVIO_OKAY           (0x00)
+#define MVIO_UNSUPPORTED    (0x80)
+#define MVIO_MENU_SET_WRONG (0x10)
+#define MVIO_IMPOSSIBLE_CFG (0x80)
 
 #ifdef __cplusplus
   #ifdef TCA1

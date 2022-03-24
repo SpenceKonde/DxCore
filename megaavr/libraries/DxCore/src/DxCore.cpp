@@ -136,62 +136,6 @@ bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
 }               // chips that one might want to call this for don't exist, let's not bother :-)
 
 
-#if defined(HAS_64_PINS) && defined(MVIO)
-/* The Maxim regulator has 2 pins each of which can float, or be driven high or low to set the voltage,
-then you bounce enable to latch the new voltage.
-   REG_OFF    0xFF
-   REG_1V2    0b0100 0100
-   REG_1V5    0b1000 1000
-   REG_1V8    0b0100 0000
-   REG_2V5    0b0000 0000
-   REG_3V0    0b1100 0000
-   REG_3V1    0b1100 0100
-   REG_3V3    0b1000 0000
-   REG_4V0    0b1100 1000
-   REG_5V0    0b1100 1100
-*/
-
-
-
-int8_t setMAX38903Voltage(uint8_t setting) {
-  if (setting == REGOFF) {
-    VPORTE.OUT &= ~(1<<6);
-    return 0;
-  } else if (setting & 0x33) {
-      return -1; /* error - invalid setting */
-  } else if ((setting - (setting << 4)) < 0) {
-    return -1;
-  } else{
-      VPORTE.OUT     &= ~(1 << 6);     // cbi
-      VPORTE.DIR     |=  (1 << 6);     // sbi
-      if (setting     &  (1 << 7)) {   // andi breq
-        VPORTG.DIR   |=  (1 << 7);     // sbi
-        if (setting   &  (1 << 3)) {   // sbrc
-          VPORTG.OUT |=  (1 << 7);     // sbi
-        } else {                       // sbrs
-          VPORTG.OUT &= ~(1 << 7);     // cbi
-        }                              // rjmp
-      } else {
-        VPORTG.DIR   &= ~(1 << 7);     // cbi
-      }
-      if (setting     &  (1 << 6)) {  // sbrs rjmp
-        VPORTG.DIR   |=  (1 << 6);    // sbi
-        if (setting   &  (1 << 2)) {  // sbrc
-          VPORTG.OUT |=  (1 << 6);    // sbi
-        } else {                      // sbrs
-          VPORTG.OUT &= ~(1 << 6);    // cbi
-        }                             // rjmp
-      } else {
-        VPORTG.DIR   &= ~(1 << 6);    // cbi
-      }
-
-      VPORTE.OUT     |=  (1 << 6);    // sbi
-      return 1;                       // ldi ret
-    }
-  }
-}
-#endif
-
 int16_t getMVIOVoltage() {
   if (getMVIOStatus() == MVIO_OKAY) {
     uint8_t tempRef = VREF.ADC0REF; // save reference

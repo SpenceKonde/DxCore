@@ -19,6 +19,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Add list of useful Microchip app notes.
 * Clarify Ref_Optiboot. Update Errata page.
 * Fix several Logic examples to compile on more parts.
+* Fix documentation for DxCore library, which was inaccurate.
 
 ### 1.4.9
 * Never released, because of some version related bungling.
