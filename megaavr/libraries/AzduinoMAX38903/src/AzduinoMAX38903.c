@@ -1,3 +1,4 @@
+// *INDENT-OFF*
 int8_t setMAX38903Voltage(uint8_t setting) {
   if (setting & 0x33) {                //mov andi breq
     return -1; /* error - invalid setting */

@@ -54,6 +54,7 @@ void _pinMode(uint8_t pin, uint8_t mode) {
 * When you're just using the listing to track down the bloat, you likely have some idea where it is down to the granularity of map, and you are surprised that the function in question is as bloated as is. You can search for the function name, and then start scrolling down, following along with the comments until you find some code that you were  expecting would be small generating outsize portions of the executable, or conditionally compiled code whose condition you didn't think you met.
 
 ### Following the execution path
+<!-- markdownlint-disable -->
 You will quickly notice that assembly is non-linear it will often jump off to somewhere distant, for no immediately obvious reason. Other than an interrupt, there are only 3 things that can cause the next instruction executed to be anything other than the following instruction.
 * The argument is in decimal, not hexadecimal, the comment will contain the address of the target in hexadecimal.
 * Jump - the `jmp` and much more commonly, `rjmp` instructions move execution to a different address. `rjmp` is smaller and faster, but can only jump a limited distance. `jmp` can jump to anywhere in the flash - this is a 4-byte instruction, and the two second bytes are the address it's jumping to.
@@ -85,11 +86,12 @@ You will quickly notice that assembly is non-linear it will often jump off to so
 * There is an indirect version of jump, and of call - ijmp and icall. They jump or call the address in the Z register. Since you have the source mixed with the assembly, you usually know what it has called (and it's often a method of a class).
   * It's not uncommon to see it use ld X+ to load an address into the Y register which it then uss with ldd to load r30 and r31 and then ijmp or icall that. This is extremely disorienting without the intermixed C source.
 * For everything except ijmp and icall, wherever it's jumping to can be quickly found by searching the file.
-  * It is shown in hex after the `;` - in the above example, searching for <!-- markdownlint-disable --> ` a88:` <!-- markdownlint-restore --> will find only the target of the branch unless there is some particularly perverse C comment. Notice that there is a space at the beginning of that search string, so it won't match `1a88:` - if you have a regex-search capable text editor, `^ +a88:` should catch only the target of that branch.
+  * It is shown in hex after the `;` - in the above example, searching for ` a88:` will find only the target of the branch unless there is some particularly perverse C comment. Notice that there is a space at the beginning of that search string, so it won't match `1a88:` - if you have a regex-search capable text editor, `^ +a88:` should catch only the target of that branch.
   * You cannot follow assembly backwards. The place where a jump or branch lands *is not marked*.
     * Someone with time on their hands could write a script to annotate assembly listings, find all the places that jumps, calls, and branches land and mark the end of that line; except for `ijmp` and `icall`.
   * If one function is only ever called before another one but there are calls to the second function without the first, the first might be located immediately before the second, with no ret instruction, so it just keeps executing the next function when the first function is called
 * While not often encountered in files exported by Arduino, if you ever find yourself looking at a series of instructions with no source (perhaps you don't have the source) and you see a stretch of nonsensical instrucions, remember to consider the possibility that they aren't instructions at all, but rather constant data (which is normally not included in assembly listings - when the disassembler knows where the non-instructions are )
+ <!-- markdownlint-restore -->
 
 ### Working register?
 If you're unfamiliar with the concept of "working registers", the above doesn't entirely make sense.

@@ -18,6 +18,7 @@ Note that the AVR and the regulator must be running at approximately the same vo
 | 1.8     | REG_1V8 |                                                |
 | 1.5     | REG_1V5 | Will not work as VDDIO2 - MVIO requires 1.65v. |
 | 1.2     | REG_1V2 | Will not work as VDDIO2 - MVIO requires 1.65v. |
+| N/A     | REG_OFF | Turn off the regulator output.                 |
 
 ## API
 `setMAX38903Voltage()` - Call with any of the REG_xVx constants in the table above to set the voltage.

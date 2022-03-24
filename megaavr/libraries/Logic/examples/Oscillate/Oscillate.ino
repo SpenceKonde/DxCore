@@ -494,6 +494,9 @@ void demo9a() {
 
 }
 
+#if !defined(DX_14_PINS)
+/* These examples are not written to be compatible with the highly constrained pincount of a DD/DU 14 part. */
+
 void demo9b() {
   /* Divided Clocks: TCB0 - prescale it without dedicating the prescaler of a TCA to it!
    *
@@ -649,6 +652,7 @@ void demo9d() {
   // "fake" PWM made from PROGEV equal to each other - which is just what I wanted.
 
 }
+#endif
 
 void demo10() {
   /* Another route to scaled clocks on event channel: TCD+PLL+CCL
@@ -757,15 +761,15 @@ void loop() {
   delay(20000);
   TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
 
-  #ifdef TCB_CLKSEL2_bm // Only parts with the third CLKSEL bit have event clock
+  #if defined(TCB_CLKSEL2_bm) && !defined(DX_14_PINS) // Only parts with the third CLKSEL bit have event clock
   Serial.println("Divided clocks: TCB gets independent prescaler! Dx/2-series only");
   demo9b();
   delay(10000);
   digitalWrite(PIN_TCB0_WO_INIT, 0);
-  pinMode(PIN_PF4, INPUT);
+  pinMode(PIN_TCB0_WO_INIT, INPUT);
   #endif
 
-  #if defined(SHOW_TCD_DEMO) && defined(TCD0)
+  #if defined(SHOW_TCD_DEMO) && defined(TCD0) && !defined(DX_14_PINS)
   Serial.println("Divided clocks: TCD pre-prescaler. Dx/1-series only");
   demo9d();
   delay(10000);
