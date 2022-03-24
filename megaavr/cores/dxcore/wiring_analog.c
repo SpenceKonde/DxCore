@@ -782,18 +782,19 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   return timer;
 }
 
-/*
-Not ready yet, but we ought to have something like this.
 
+// Not ready yet, but we ought to have something like this.
 
-uint8_t PWMoutputToPin(uint8_t timer, uint8_t channel, bool muxed) {
+//uint8_t PWMoutputToPin(uint8_t timer, uint8_t channel, bool muxed) {
+
   /* valid values for timer start at line 300ish in Arduino.h.
    * NOT RECOMMENDED FOR CODE WHERE PERFORMNANCE IS IMPORTANT, no flash constrained settings. It's great for making library example code work.
    * valid values for channel are:
    * TCA: 0-5
    * TCB: 0 - this function tells you where PWM is currently piped, not where it could be piped.
    * TCD: 0-3
-
+   */
+/*
   If muxed is 0
 
   To efficiently test for error values, cast the result to an int8_t and verify that it's greater than 0.

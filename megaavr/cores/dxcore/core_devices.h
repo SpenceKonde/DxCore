@@ -479,10 +479,11 @@
   #endif
 #endif
 #if defined(__AVR_EA__)
-  #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to   */
+  #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to  */
                                             /* replace the current one. It brings channel uniformity at the cost  */
                                             /* being limitd to two event inputs per port and two RTC PIT derived  */
                                             /* inputs                                                             */
+#endif
 #ifdef DAC0
   #ifndef PIN_DACOUT
     #define PIN_DACOUT PIN_PD6
@@ -514,7 +515,7 @@
   #define ERRATA_DAC_DRIFT              (1)
 #endif
 
-#if (1)
+#if defined(__AVR_ARCH__)
   // No device has been released that doesn't have this bug!
   #define ERRATA_TCB_CCMP               (1)
   #define ERRATA_CCL_PROTECTION         (1)

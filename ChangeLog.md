@@ -9,13 +9,16 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ### 1.4.10
 * **CRITICAL BUGFIX** for attachInterrupt() (still!)
 * Fix timing problems at 1 MHz.
-* Expand documentation relating to upcoming AVR DD-series parts.
+* Expand documentation relating to upcoming AVR DD-series parts and provide initial information from the EA-series.
 * Correct bug in compatibility defines for CLKSEL macros for external crystal.
 * Improve user experience for people using updated compilers. Makes bit of a mess out of uart_constants.h though.
 * Based on feedback, removed emulation of classicAVR pinMode() calls as regards the state of the PORTx.OUT register.
 * tinyNeoPixel 2.0.4, with support down to lower speeds, and inline assembly that is technically correct. (Before this it was only an accident of the deterministic avr-gcc register allocation and the fact that illegally written read-only operands represented variables that fell out of scope without being further used)
 * Fix some errors in Logic library examples
 * Preempt compatibility problems with libraries that assume a HardwareSerial.h file.
+* Add list of useful Microchip app notes.
+* Clarify Ref_Optiboot. Update Errata page.
+* Fix several Logic examples to compile on more parts.
 
 ### 1.4.9
 * Never released, because of some version related bungling.
