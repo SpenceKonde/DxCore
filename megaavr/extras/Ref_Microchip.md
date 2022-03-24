@@ -25,7 +25,7 @@ These are probably the most useful of the documents, because the OPAMPs are so n
 ## ADC tips and tricks
 Unfortunately, the things I was most hoping for (things like "The latest parts have lika a million tunables - which ones should I pickif I want to best measure an analog signal of ____ impedance that changes at ___ Hz (or ___ V/s)? " amd "When I accumulte values on 2-series or Ex how many of the low bits are signal, and how many are noise, and what can I do to maximize that ratio?", "Can you make any quantitative recommendation whatsoever on selection of any of these 'tunable' options?").
 * [General hints of dubious value](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ApplicationNotes/ApplicationNotes/Max-Signal-Properly-TipsTrick-Acq-Analog-Signals-DS00004225.pdf)
-* [DSP on an 8-bit AVR ](https://ww1.microchip.com/downloads/en/Appnotes/Digital-Signal-Proc-Perform-AVR8Core-DS00002701B.pdf)
+* [DSP on an 8-bit AVR](https://ww1.microchip.com/downloads/en/Appnotes/Digital-Signal-Proc-Perform-AVR8Core-DS00002701B.pdf)
 
 ### EA-series and 2-series only
 These don't give very useful answ

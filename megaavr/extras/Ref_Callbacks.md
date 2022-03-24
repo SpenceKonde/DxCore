@@ -109,7 +109,7 @@ int main() {
   setup();
   for (;;) {
     loop();
-    #ifdef ENABLE_SERIAL_EVENT /* this is never true unless core is modified 
+    #ifdef ENABLE_SERIAL_EVENT /* this is never true unless core is modified
       This option is strongly deprecated and Serial Event's days i nthe core are numbered. Users of serialEvent should begin migration with a sense of urgency*/
       if (serialEventRun) serialEventRun();
     #endif
@@ -147,13 +147,12 @@ Initializes the ADC clock prescaler to get a legal frequency, sets up defaults a
 Calls initTCA9() and initTCA1() if TCA1 is present, and sets PORTMUX.TCAROUTEA() to match what variant specifies, then calls initTCBs(), and initTCD0(). No clear reason one would want to override
 
 #### init_TCA0 and init_TCA1
-Initialize the type A timers for PWM. The one for a timer used as millis must not be overridden. It is not recommended to override these at all except with an empty function in order to leave the peripheral in reset state (but takeOverTCAn() will also put it back in it's reset state. If you don't want to use analogWrite() through the timer, instead call takeOverTCAn() - which you need to do even if these are overridden if you don't want analogWrite() and digitalWrite() to manipulate the timer.
-
+Initialize the type A timers for PWM. The one for a timer used as millis must not be overridden. It is not recommended to override these at all except with an empty function in order to leave the peripheral in reset state (but takeOverTCAn() will also put it back in it's reset state. If you don't want to use analogWrite() through the timer, instead call takeOverTCAn() - which you need to do even if these are overridden if you don't want analogWrite() and digitalWrite() to manipulate the timer. This is solely a space saving method, and will most likely have little place except on things like the AVR8EA-series.
 #### init_TCBs
 Initializes the type B timers (the one used for millis is skipped if it's the highest numbered timer). It is not recommended to override this except with an empty function in order to leave the type B timers that are not used for millis in reset state.
 
 #### init_TCD0
-Initializes the type D timer. It is not recommended to override this except with an empty function in order to leave the peripheral in reset state. This is particularly useful with the type D timer, which has no "hard reset" command, and it's got the enable-locked fields and he ENRDY bit - If you're going to take it over anyway, this makes sense to override in order to make your life easier when reconfiguring it. As with the others, it is recommended to override with just an empty function in that case.
+Initializes the type D timer. It is not recommended to override this except with an empty function in order to leave the peripheral in reset state. This is particularly useful with the type D timer, which has no "hard reset" command, and it's got the enable-locked fields and he ENRDY bit - If you're going to take it over anyway, this makes sense to override in order to make your life easier when reconfiguring it. As with the others, it is recommended to override with just an empty function in that case. It also saves some flash.
 
 #### init_millis
 Initializes and kicks off millis timekeeping. If millis is handled by a type B or D timer, it also performs all initialization of that timer. Overriding this (with an empty function) is for debugging ONLY - it is a way of leaving in place millis, micros (they will always return 0) and delay (it will hang forever) if you need to isolate the impact of the millis interrupt running.
