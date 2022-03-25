@@ -12,26 +12,19 @@
 #######################################
 
 start	KEYWORD2
-stop	KEYWORD2
-init	KEYWORD2
-attachInterrupt	KEYWORD2
-detachInterrupt	KEYWORD2
 
-#######################################
-# Instances (KEYWORD2)
-#######################################
-
-Comparator	KEYWORD2
-Comparator0	KEYWORD2
-Comparator1	KEYWORD2
-Comparator2	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
 
-out	LITERAL1
-hyst	LITERAL1
-in_p	LITERAL1
-in_n	LITERAL1
-ref	LITERAL1
+REG_OFF	LITERAL1
+REG_1V2	LITERAL1
+REG_1V5	LITERAL1
+REG_1V8	LITERAL1
+REG_2V5	LITERAL1
+REG_3V0	LITERAL1
+REG_3V1	LITERAL1
+REG_3V3	LITERAL1
+REG_4V0	LITERAL1
+REG_5V0	LITERAL1
