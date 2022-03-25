@@ -23,7 +23,7 @@ We appear to have 8 bits dedicated to the tuning value
 We also have a 16/20 MHz fuse (boooo!)
 Sounds like the tuning registers, when not autotuning, will be like the 2-series (step right up ladies and gentlemenm place your bets - whose internal oscillator can be tuned higher without crashing?)
 
-NVMCTRL - clearly some things are expoected to be different since it support RWW supposedly. What I *wasn't* expecting was anything like this:
+NVMCTRL - clearly some things are expoected to be different since it supports RWW supposedly
 We are back to paged writes, which is of course sad.
 
 Commands list is:
@@ -61,7 +61,7 @@ Not unexpectedly, for RWW we have a few new vectors:
 #define NVMCTRL_NVMREADY_vect      _VECTOR(33)  /*  */
 ```
 
-Definitely unexpectedly, they exposed calibration registers for the EEPROM.... (Remind me to go see if these addresses are blank on existing part)
+What I *wasn't* expecting was anything like this:
 ```c
 /* NVMCTRL.EECALB  bit masks and bit positions */
 #define NVMCTRL_EEPUMPLVL_gm  0x0F  /* EEPROM Pump Level During Programming group mask. */
@@ -103,7 +103,7 @@ Definitely unexpectedly, they exposed calibration registers for the EEPROM.... (
 ```
 Probably will be gone from headers before release, but this is a damned sight more interesting than the BIST that was in early 2-series headers...
 
-Especially if these registers are writable at release (or present at all) - I think its's most liekly that they;ll be made to load from
+Especially if these registers are writable at release (or even visible at all) - I think its's most likely that they'll be made to load from
 SIGROW, and/or hidden entirely, and these are just there for development and testing.
 
 Did I miss anything?
