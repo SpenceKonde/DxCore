@@ -3,23 +3,32 @@
 
 #include <Arduino.h>
 
+#if defined(__AVR_DD__)
+#define ZCD ZCD3
+#endif
+
 namespace out {
   enum output_t : uint8_t {
     disable = 0x00,
     enable  = 0x40,
-    invert  = 0x08,
+    invert  = 0x08
   };
   enum pinswap_t : uint8_t {
     no_swap  = 0x00,
+    #if (defined(__AVR_DA__)||defined(__AVR_DB__))
     pin_swap = 0x01,
-    swap_all = 0x07,
+    swap_all = 0x07
+    #endif
   };
 };
 
 class ZeroCross {
   public:
+    #if !defined(__AVR_DD__)
     ZeroCross(const uint8_t zcd_number, ZCD_t &zcd, register8_t &input_pin);
-
+    #else
+    ZeroCross();
+    #endif
     void init();
     void start(bool state = true);
     void stop();
@@ -33,9 +42,11 @@ class ZeroCross {
     out::pinswap_t  output_swap = out::no_swap;
 
   private:
+    #if !defined(__AVR_DD__)
     const uint8_t zcd_number;
     ZCD_t &ZCD;
     register8_t &INPUT_PIN;
+    #endif
     bool enable = false;
 };
 

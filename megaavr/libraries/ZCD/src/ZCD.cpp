@@ -10,31 +10,49 @@
 #if defined(ZCD2_ZCD_vect)
   ZeroCross zcd2(2, ZCD2, PORTE.PIN7CTRL);
 #endif
-#if defined(ZCD3_ZCD_vect)
-  ZeroCross zcd3(3, ZCD3, PORTC.PIN2CTRL);
+#if defined(__AVR_DD__)
+  ZeroCross zcd3();
 #endif
 
 
 // Array for storing ISR function pointers
 #if defined(ZCD2_ZCD_vect)
-  static volatile voidFuncPtr intFuncAC[3];
+  static volatile voidFuncPtr intFuncZCD[3];
 #elif defined(ZCD1_ZCD_vect)
-  static volatile voidFuncPtr intFuncAC[2];
+  static volatile voidFuncPtr intFuncZCD[2];
 #elif defined(ZCD0_ZCD_vect) || defined(ZCD3_ZCD_vect)
-  static volatile voidFuncPtr intFuncAC[1];
+  static volatile voidFuncPtr intFuncZCD[1];
 #else
-  #error "target does not have zero-cross detection hardware!"
+  #error "No ZCD hardware detected!"
 #endif
 
-
+#if !defined(__AVR_DD__)
 ZeroCross::ZeroCross(const uint8_t zero_cross_number, ZCD_t &zcd, register8_t &input_pin)
   : zcd_number(zero_cross_number), ZCD(zcd), INPUT_PIN(input_pin) { }
+#else
+ZeroCross::ZeroCross() { }
+#endif
 
 void ZeroCross::init() {
   // Set input
-  INPUT_PIN = PORT_ISC_INPUT_DISABLE_gc;
-
+  #if defined(__AVR_DD__)
+  PORTC.PIN2CTRL = PORT_ISC_INPUT_DISABLE_gc;
+  PORT_t &output_port = PORTA;
+  uint8_t pin_number = PIN7_bm;
+  // Set output
+  if (output == out::enable) {
+    ZCD3.CTRLA = (ZCD.CTRLA & ~out::invert) | out::enable;
+    PORTA.DIRSET = pin_number;
+  } else if (output == out::invert) {
+    ZCD3.CTRLA |= out::enable | out::invert;
+    PORTA.DIRSET = pin_number;
+  } else if (output == out::disable) {
+    ZCD3.CTRLA &= ~out::enable & ~out::invert;
+    // output_port.DIRCLR = pin_number;
+  }
+  #else
   // Prepare for output pin swap
+  INPUT_PIN = PORT_ISC_INPUT_DISABLE_gc;
   PORT_t &output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
   if (output_swap == out::pin_swap || output_swap == out::swap_all) {
@@ -42,7 +60,6 @@ void ZeroCross::init() {
     pin_number = PIN7_bm;
     PORTMUX.ZCDROUTEA = ~(1 << zcd_number) | output_swap;
   }
-
   // Set output
   if (output == out::enable) {
     ZCD.CTRLA = (ZCD.CTRLA & ~out::invert) | out::enable;
@@ -54,6 +71,7 @@ void ZeroCross::init() {
     ZCD.CTRLA &= ~out::enable & ~out::invert;
     // output_port.DIRCLR = pin_number;
   }
+  #endif
 }
 
 bool ZeroCross::have_separate_mux() {
@@ -62,6 +80,7 @@ bool ZeroCross::have_separate_mux() {
   return (SYSCFG.REVID >= 0x14);
   #else
   // other parts are still waiting...
+  // if they have support for remapping ZCD pins at all (the DD does not, and the EA doesn't even HAVE a ZCD)
   return false;
   #endif
 }
@@ -102,9 +121,9 @@ void ZeroCross::attachInterrupt(void (*userFunc)(void), uint8_t mode) {
 
   // Store function pointer
   #ifdef __AVR_DD__
-  intFuncAC[0] = userFunc;
+  intFuncZCD[0] = userFunc;
   #else
-  intFuncAC[zcd_number] = userFunc;
+  intFuncZCD[zcd_number] = userFunc;
   #endif
   // Set interrupt trigger and enable interrupt
   ZCD.INTCTRL = intmode;
@@ -118,7 +137,7 @@ void ZeroCross::detachInterrupt() {
 #ifdef ZCD0_ZCD_vect
 ISR(ZCD0_ZCD_vect) {
   // Run user function
-  intFuncAC[0]();
+  intFuncZCD[0]();
 
   // Clear flag
   ZCD0.STATUS = ZCD_CROSSIF_bm;
@@ -128,7 +147,7 @@ ISR(ZCD0_ZCD_vect) {
 #ifdef ZCD1_ZCD_vect
 ISR(ZCD1_ZCD_vect) {
   // Run user function
-  intFuncAC[1]();
+  intFuncZCD[1]();
 
   // Clear flag
   ZCD1.STATUS = ZCD_CROSSIF_bm;
@@ -138,7 +157,7 @@ ISR(ZCD1_ZCD_vect) {
 #ifdef ZCD2_ZCD_vect
 ISR(ZCD2_ZCD_vect) {
   // Run user function
-  intFuncAC[2]();
+  intFuncZCD[2]();
 
   // Clear flag
   ZCD2.STATUS = ZCD_CROSSIF_bm;
@@ -148,7 +167,7 @@ ISR(ZCD2_ZCD_vect) {
 #ifdef ZCD3_ZCD_vect
 ISR(ZCD3_ZCD_vect) {
   // Run user function
-  intFuncAC[0]();
+  intFuncZCD[0]();
 
   // Clear flag
   ZCD3.STATUS = ZCD_CROSSIF_bm;
