@@ -102,12 +102,25 @@ class TwoWire: public Stream {
       return endTransmission(true);
     }
 
-    uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop);
-    uint8_t requestFrom(uint8_t address, uint8_t quantity);
-    uint8_t requestFrom(uint8_t address, size_t  quantity, bool    sendStop);
-    uint8_t requestFrom(uint8_t address, size_t  quantity);
-    uint8_t requestFrom(int     address, int     quantity, int     sendStop);
-    uint8_t requestFrom(int     address, int     quantity);
+    uint8_t requestFrom(const uint8_t address, const uint8_t quantity);
+    uint8_t requestFrom(const uint8_t address,       uint8_t quantity, const uint8_t sendStop);
+    uint8_t requestFrom(const uint8_t address, const uint8_t quantity, const bool    sendStop); 
+    uint8_t requestFrom(const uint8_t address, const uint8_t quantity, const int16_t sendStop);  
+    uint8_t requestFrom(const uint8_t address, const int16_t quantity); 
+    uint8_t requestFrom(const uint8_t address, const int16_t quantity, const bool    sendStop); 
+    uint8_t requestFrom(const uint8_t address, const int16_t quantity, const int16_t sendStop); 
+    uint8_t requestFrom(const uint8_t address, const size_t  quantity);
+    uint8_t requestFrom(const uint8_t address, const size_t  quantity, const bool    sendStop);    
+    uint8_t requestFrom(const uint8_t address, const size_t  quantity, const int16_t sendStop); 
+    uint8_t requestFrom(const int16_t address, const uint8_t quantity); 
+    uint8_t requestFrom(const int16_t address, const uint8_t quantity, const bool    sendStop); 
+    uint8_t requestFrom(const int16_t address, const uint8_t quantity, const int16_t sendStop); 
+    uint8_t requestFrom(const int16_t address, const int16_t quantity);     
+    uint8_t requestFrom(const int16_t address, const int16_t quantity, const bool    sendStop);     
+    uint8_t requestFrom(const int16_t address, const int16_t quantity, const int16_t sendStop);
+    uint8_t requestFrom(const int16_t address, const size_t  quantity);     
+    uint8_t requestFrom(const int16_t address, const size_t  quantity, const bool    sendStop);     
+    uint8_t requestFrom(const int16_t address, const size_t  quantity, const int16_t sendStop); 
 
     uint16_t writeRead(uint8_t quantity, uint8_t sendStop);
 
