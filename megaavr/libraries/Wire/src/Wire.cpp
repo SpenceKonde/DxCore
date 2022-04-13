@@ -244,7 +244,6 @@ void TwoWire::endSlave(void) {
 #endif
 
 
-
 /**
  *@brief      requestFrom sends a host READ with the specified client address
  *
@@ -259,22 +258,79 @@ void TwoWire::endSlave(void) {
  *@return     uint8_t
  *@retval     amount of bytes that were actually read. If 0, no read took place due to a bus error.
  */
-uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity)                   {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+uint8_t TwoWire::requestFrom(const uint8_t address, const uint8_t quantity) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
 }
-uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity,  bool     sendStop) {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const uint8_t quantity, const bool sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
 }
-uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity)                   {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const uint8_t quantity, const int16_t sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
 }
-uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity,  int16_t  sendStop) {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const int16_t quantity) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
 }
-uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity)                   {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const int16_t quantity, const bool sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
 }
-uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity,  uint8_t sendStop) {
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const int16_t quantity, const int16_t sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const size_t quantity) {        
+  return requestFrom((uint8_t)  address, (uint8_t) quantity, (uint8_t) 1);
+}
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const size_t quantity, const bool sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const size_t quantity, const int16_t sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const uint8_t quantity) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const uint8_t quantity, const bool sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const uint8_t quantity, const int16_t sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const int16_t quantity) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const int16_t quantity, const bool sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const int16_t quantity, const int16_t sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const size_t quantity) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const size_t quantity, const bool sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+}
+
+uint8_t TwoWire::requestFrom(const int16_t address, const size_t quantity, const int16_t sendStop) {
+  return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+} 
+
+uint8_t TwoWire::requestFrom(const uint8_t address, const uint8_t quantity, const uint8_t sendStop) {
   if (quantity > BUFFER_LENGTH) {
     quantity = BUFFER_LENGTH;
   }
