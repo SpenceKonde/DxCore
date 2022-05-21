@@ -433,7 +433,6 @@ void Logic::initInput(in::input_t &input, PORT_t &port, const uint8_t pin_bm) {
     } else {
       PINCTRL(port, pin_bm) |= PORT_PULLUPEN_bm;
     }
-    input = in::input;
   }
 }
 
@@ -460,8 +459,8 @@ void Logic::init() {
     }
   }
   // Set inputs modes
-  block.LUTCTRLB = (input1 << CCL_INSEL1_gp) | (input0 << CCL_INSEL0_gp);
-  block.LUTCTRLC = (input2 << CCL_INSEL2_gp);
+  block.LUTCTRLB = ((input1 << CCL_INSEL1_gp) & 0xf0) | ((input0 << CCL_INSEL0_gp) & 0x0f);
+  block.LUTCTRLC = ((input2 << CCL_INSEL2_gp) & 0x0f);
 
   // Set truth table
   block.TRUTH = truth;
