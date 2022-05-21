@@ -70,22 +70,41 @@ PIN_SERIAL_XDIR
 
 This function is meant for use by libraries to allow them to figure out which pin is in use without duplicating the logic we have already implemented.
 
-### Serial.printHex() and Serial.printHexln()
-Serial.printHex() is a cut-down method to print hexadecimal numbers with less bloat than Serial.print(number,HEX). It's designed to print numbers in the way that programmers would want them printed - the number of leading zeros will match the data type, ie if you print an unsigned long, with 1 in the low byte and 0's in the other three, it will print 00000001, not 1. As you would expect, printHexln() does the same thing and adds a newline.
 
-There are two additional features aimed at the same goal sort of use case:
+### Serial.printHex() and Serial.printHexln()
+One extremely common task in embedded programming, particualarly debugging embedded code, is printing data out as hexadecimal numbers. There is of course,  `Serial.print(number,HEX)`, but not only does that burn more flash, it doesn't add an appropriate number of leading zeros (making it hard to read). It's designed to print numbers in the way that programmers would want them printed - the number of leading zeros will match the data type, ie if you print an unsigned long, with 1 in the low byte and 0's in the other three, it will print 00000001, not 1. As you would expect, printHexln() does the same thing and adds a newline.
+Below is an unabridged list of the versions:
+```c++
+    void                printHex(const     uint8_t              b);
+    void                printHex(const    uint16_t  w, bool s = 0);
+    void                printHex(const    uint32_t  l, bool s = 0);
+    void                printHex(const      int8_t  b)              {printHex((uint8_t )   b);           }
+    void                printHex(const        char  b)              {printHex((uint8_t )   b);           }
+    void                printHex(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s);           }
+    void                printHex(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s);           }
+    void              printHexln(const      int8_t  b)              {printHex((uint8_t )b   ); println();}
+    void              printHexln(const        char  b)              {printHex((uint8_t )b   ); println();}
+    void              printHexln(const     uint8_t  b)              {printHex(          b   ); println();}
+    void              printHexln(const    uint16_t  w, bool s = 0)  {printHex(          w, s); println();}
+    void              printHexln(const    uint32_t  l, bool s = 0)  {printHex(          l, s); println();}
+    void              printHexln(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s); println();}
+    void              printHexln(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s); println();}
+    uint8_t *           printHex(          uint8_t* p, uint8_t len, char sep = 0            );
+    uint16_t *          printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
+    volatile uint8_t *  printHex(volatile  uint8_t* p, uint8_t len, char sep = 0            );
+    volatile uint16_t * printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
+```
+
+There are two particular features worth noting in addition to the correct number of leading zeros, and the fact that it is not horrendously bloated like full serial print.
 1. For 16 and 32-bit datatypes, you can pass a boolean as the second argument. If it is true, the endianness will be reversed.
 
-2. You can also pass a pointer to either a uint8_t or a uint16_t. In this case the arguments are:
+2. You can also pass a pointer to either a uint8_t or a uint16_t variable. In this case the arguments are:
 ```c
 uint8_t *  printHex(uint8_t * p, uint8_t len, char sep = 0);
 uint16_t * printHex(uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
 ```
 
-It will print n elements starting from the address the pointer is pointed at, if `sep` is non-zero, that character will be placed between each byte or word. If s is true, the endianness will be swapped as well. There is a slightly different implementation for volatile pointers, and know that the compiler won't try to "help" you by skipping the reads.
-
-All cases where a pointer is used return a pointer to the next element. These automatically put a newline at the end.
-The point of it was doing things like this when debugging issues with a peripheral:
+It will print `len` elements starting from the address the pointer is pointed at, if `sep` is non-zero, that character will be placed between each byte or word - these are **characters** not strings. A single charachter, enclosed between a pair of single quotes. ":" is a 2 character string - a colon followed by a null terminator, and is invalid. Anything between double quotes is invalid. Use single quotes as shown below. If `s` is true for a pointer to 16-bit values, the endianness will be swapped as well. There is a slightly different implementation for pointers to volatile variables to help prevent problems when using this to dump the contents of peripheral registers. Which is what printHex was made for.
 ```c
   // dump every register associated with the CCL
   volatile uint8_t * cclconfig= (volatile uint8_t*)&CCL;
@@ -102,8 +121,7 @@ The point of it was doing things like this when debugging issues with a peripher
 00:00:00:00
 */
 ```
-Many peripherals have a couple of 16-bit registers; this works very nicely. Say I'm trying to debug a problem involving the synchronous mode serial (because recently I was), it's got a baud register in the middle that I'd like to have formatted nicely. A union of a word and a byte pointer is just the thing here
-
+Many peripherals have a couple of 16-bit registers, amongst a sea of 16-bit ones. Say I'm trying to debug a problem involving the synchronous mode serial (because recently I was), it's got a baud register in the middle that I'd like to have formatted nicely. A union of a word and a byte pointer is just the thing here:
 ```c
   union {
     volatile uint16_t *  intp;
@@ -121,7 +139,6 @@ Many peripherals have a couple of 16-bit registers; this works very nicely. Say 
   00:00:00:00:00:00
 */
 ```
-
 ### Serial.begin(uint32_t baud, uint16_t options)
 This starts the serial port. Options should be made by combining the constant referring to the desired baud rate, parity and stop bit length, zero or more of the modifiers below
 
@@ -178,17 +195,17 @@ or use `pinConfigure()` [See Digital I/O Reference](Ref_Digital.md)
 RS485 mode in combination with RX_ONLY will simply set the pin to an output, but never use it, because the TX module isn't enabled.
 
 #### These options were meant to be combined
-* Loopback + Open Drain - These two not-particularly-useful options, when combined, become very useful - this gives you a half-duplex single serial interface. This is fairly common (UPDI is actually implemented this way), but it's almost ubiquitous in RS485.
-* Loopback + Open Drain + RX485: In this mode, it will work perfectly for the case where there is an external line driver IC but it has only a single TX/RX combined wire and a TX_Enable pin (terminology may vary).
+* Loopback + Open Drain - These two not-particularly-useful options, when combined, become very useful - this gives you a half-duplex single wire serial interface! This is fairly common. In fact I bet you've used or will use one within a few hours of reading thsi document: this is exactly how UPDI is implemented! (as far as I can tell, it's essentially a serial port that can only be run in this mode, complete with all the quirks of a normal serial port, like the implicit 2 byte RX bufffer (actually makes a *big* difference when writing to a Dx-series - except instead of talking to the chip itself, it talks to soem supervisor portion of the chip that has the power to force resets, write fuses and flash and so on. It also has a hardware debugging functionality, but they don't publically release the protocol, so you're forced to use the official tooling). But in any event - you'll see implementations of half duplex UARTs all over the place, and sooner or later, you'll probably end up making one even when you control both ends of the connection, to cut the pincount.
+* Loopback + Open Drain + RX485: In this mode, it will work perfectly for the case where there is an external line driver IC but it has only a single TX/RX combined wire and a TX_Enable pin (terminology may vary). This configuration is probablty more common than full duplex RS485 by a large margin. You almost never see more than 1 differential RS485 pair set up.
 
-#### Half-duplex schemes change the behavior of Serial in important ways
+#### Warning: Half-duplex schemes change the behavior of Serial in important ways
 Normally, RX functionality is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the characters you transmit. That's fine for just loopback - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent would end up intermixed with actual received data. This is not very helpful (and checking the receive buffer to verify successful transmit looked awkward, since you'd have to keep a record of what you sent to compare it to. - that would be ideal, of course, but I didn't think it was worth the development time or flash it would take)
 SO, whenever the following bits are set:
 
 CTRLA: LBME
 CTRLB: ODME and TXEN and RXEN
 
-In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes, it will disable itself after  reading RXDATAL until the RXC flag is cleared (to flush out the characters you sent), and enable the RXC interrupt again.
+In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes, it will disable itself after reading RXDATAL until the RXC flag is cleared (to flush out the characters you sent), and enable the RXC interrupt again. We considered the idea of checking the received data against the
 
 That configuration will result from calling the two argument version of begin() with SERIAL_OPEN_DRAIN and SERIAL_LOOPBACK, or equivalently, SERIAL_HALF_DUPLEX, and neither SERIAL_TX_ONLY nor SERIAL_RX_ONLY.
 
