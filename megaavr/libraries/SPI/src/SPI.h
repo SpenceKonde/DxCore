@@ -1,7 +1,8 @@
 /*
  * SPI Master library for Arduino Zero.
  * Copyright (c) 2015 Arduino LLC
- *
+ * With modification 2016-2022 Spence Konde for megaTinyCore and DxCore.
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -110,26 +111,26 @@
 #endif
 
 #ifndef SPI_MODE0
-  #define SPI_MODE0           (SPI_MODE_0_gc)
+  #define SPI_MODE0           ((SPI_SSD_bm) | SPI_MODE_0_gc)
 #endif
 #ifndef SPI_MODE1
-  #define SPI_MODE1           (SPI_MODE_1_gc)
+  #define SPI_MODE1           ((SPI_SSD_bm) | SPI_MODE_1_gc)
 #endif
 #ifndef SPI_MODE2
-  #define SPI_MODE2           (SPI_MODE_2_gc)
+  #define SPI_MODE2           ((SPI_SSD_bm) | SPI_MODE_2_gc)
 #endif
 #ifndef SPI_MODE3
-  #define SPI_MODE3           (SPI_MODE_3_gc)
+  #define SPI_MODE3           ((SPI_SSD_bm) | SPI_MODE_3_gc)
 #endif
 
 #ifndef SPI_MODE_MASK
-  #define SPI_MODE_MASK       (SPI_MODE_gm   )
+  #define SPI_MODE_MASK       (SPI_MODE_gm )
 #endif
 #ifndef SPI_CLOCK_MASK
-  #define SPI_CLOCK_MASK      (SPI_PRESC_gm  )
+  #define SPI_CLOCK_MASK      (SPI_PRESC_gm)
 #endif
 #ifndef SPI_2XCLOCK_MASK
-  #define SPI_2XCLOCK_MASK    (SPI_CLK2X_bm  )
+  #define SPI_2XCLOCK_MASK    (SPI_CLK2X_bm)
 #endif
 
 #ifndef SPI_INTERRUPT_DISABLE
@@ -176,7 +177,7 @@ class SPISettings {
       //   1    1     1   fosc/128  125  kHz
 
       // We find the fastest clock that is less than or equal to the
-      // given clock rate. The clock divider that results in clock_setting
+      // request  clock rate. The clock divider that results in clock_setting
       // is 2 ^^ (clock_div + 1). If nothing is slow enough, we'll use the
       // slowest (128 == 2 ^^ 7, so clock_div = 6).
       uint8_t clockDiv;
@@ -208,16 +209,19 @@ class SPISettings {
       clockDiv ^= 0x1;
 
       /* Pack into the SPISettings::ctrlb class */
-      /* Set mode, disable master slave select, and disable buffering. */
-      /* dataMode is register correct, when using SPI_MODE defines     */
-      ctrlb = (dataMode)            |
-              (SPI_SSD_bm)          |
-              (0 << SPI_BUFWR_bp)   |
-              (0 << SPI_BUFEN_bp);
+      /* Set mode, disable master slave select, and disable buffering.   */
+      /* dataMode is register correct, when using SPI_MODE defines only! */
+      /* they have had SSD added to the modebits. That permits the SPI   */
+      /* library to coeexist with code that uses the SPI as a slave,     */
+      /* if and only if the SPI_MODEn named constants are used           */
+      ctrlb = (dataMode);
+              // (SPI_SSD_bm)          |
+              // (0 << SPI_BUFWR_bp)   |
+              // (0 << SPI_BUFEN_bp);
 
       /* Get Clock related values.*/
       uint8_t clockDiv_mult = (clockDiv & 0x1);
-      uint8_t clockDiv_pres = (clockDiv >>  1);
+      uint8_t clockDiv_pres = (clockDiv >> 1);
 
       /* Pack into the SPISettings::ctrlb class     */
       /* Set Prescaler, x2, SPI to Master, and Bit Order. */
@@ -249,7 +253,7 @@ class SPIClass {
     void beginTransaction(SPISettings settings);
     void endTransaction(void);
 
-    bool pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS = 255);
+    bool pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, uint8_t pinSS = NOT_A_PIN);
     bool swap(uint8_t state = 1);
     void begin();
     void end();

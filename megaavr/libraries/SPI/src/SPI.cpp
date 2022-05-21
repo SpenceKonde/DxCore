@@ -346,7 +346,7 @@ void SPIClass::begin() {
     #elif defined(PORTMUX_TWISPIROUTEA)
       // megaAVR 0-series
       PORTMUX.TWISPIROUTEA = _uc_mux | (PORTMUX.TWISPIROUTEA & ~PORTMUX_SPI0_gm);
-    #else // defined(PORTMUX_CTRLB)
+    #else // defined(PORTMUX_CTRLB) - tiny 0 or 1-series.
       PORTMUX.CTRLB = uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
     #endif
   #else
@@ -459,7 +459,7 @@ void SPIClass::detachMaskedInterrupts() {
   uint8_t shift = 0;
   while (temp != 0) {
     if (temp & 1) {
-      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift/8), shift%8);
+      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift / 8), shift % 8);
       irqMap[shift] = *pin_ctrl_reg;
       *pin_ctrl_reg &= ~(PORT_ISC_gm);
     }
@@ -470,7 +470,7 @@ void SPIClass::detachMaskedInterrupts() {
   shift = 32;
   while (temp != 0) {
     if (temp & 1) {
-      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift/8), shift%8);
+      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift / 8), shift % 8);
       irqMap[shift] = *pin_ctrl_reg;
       *pin_ctrl_reg &= ~(PORT_ISC_gm);
     }
@@ -484,7 +484,7 @@ void SPIClass::reattachMaskedInterrupts() {
   uint8_t shift = 0;
   while (temp != 0) {
     if (temp & 1) {
-      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift/8), shift%8);
+      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift / 8), shift % 8);
       *pin_ctrl_reg |= irqMap[shift];
     }
     temp = temp >> 1;
@@ -494,7 +494,7 @@ void SPIClass::reattachMaskedInterrupts() {
   shift = 32;
   while (temp != 0) {
     if (temp & 1) {
-      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift/8), shift%8);
+      volatile uint8_t* pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(shift / 8), shift % 8);
       *pin_ctrl_reg |= irqMap[shift];
     }
     temp = temp >> 1;
@@ -566,6 +566,7 @@ void SPIClass::setBitOrder(uint8_t order) {
 }
 
 void SPIClass::setDataMode(uint8_t mode) {
+  mode |= 4;
   SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | mode);
 }
 
@@ -606,8 +607,8 @@ uint16_t SPIClass::transfer16(uint16_t data) {
 }
 
 void SPIClass::transfer(void *buf, size_t count) {
-  uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
-  for (size_t i=0; i<count; i++) {
+  uint8_t *buffer = reinterpret_cast<uint8_t *> (buf);
+  for (size_t i = 0; i < count; i++) {
     *buffer = transfer(*buffer);
     buffer++;
   }
