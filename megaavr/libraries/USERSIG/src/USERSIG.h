@@ -33,7 +33,7 @@
 
 #ifndef USERSIG_h
 #define USERSIG_h
-
+#include "Arduino.h"
 #include <inttypes.h>
 #include <avr/io.h>
 
