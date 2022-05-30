@@ -1,12 +1,23 @@
 # DxCore - Arduino support for the AVR DA-series, DB-series and upcoming DD-series
-**Please be on watch for typos in the docs and report them. Codespell is not a very good spellchecker. (Obviously, PR's to fix are even better!)**
-**1.4.10 will be available in board manager later today, I still have the megaTinyCore release that pairs with it to finalize**
 
-## HEY HEY WE GOT AVR64DD PRELIMINARY DATASHEETS
-[Read them they are *yawn* well, pretty much what everyone expected](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/DataSheets/AVR64DD32-28-Prelim-DataSheet-DS40002315A.pdf)
-**Anyone able to find anything novel in there?** (aside from the fact that the HV override to turn UPDI back into UPDI goes on reset, which was already pretty obvious).
-Reset is disabled by default (but this poses no challenges to working with the parts), and makes sense on the low pincount ones. I guess at that point, they'd do it for the whole line, rather than give the "small" ones (for which we don't yet have a datasheet) disabled reset as the default and the "large" ones enabled reset.
-I mean, this is pretty much how it was supposed to go down - no surprises in the datasheet, landing pad ready for them in the core, any differences are trivial and nothing to get worked up about, and we all sit here twiddling our thumbs waiting for the 14-pin and 20-pins ones which are what everyone wants. If there were big surprises there, I wouldn't be happy. Even if they were good surprises.
+## **They've DDone the DDeed** - DD parts are shipping!
+We will be releasing an updated core to patch the remaining holes in the support for these parts shortly! 
+And more interesting news:
+They started with 16k/32k parts for the 14 and 20 pin versions.... but 64k for the 28/32 pin ones! (which sort of confirms that the 15 and 32k versions share one version of the die, the timer-poor one, while the 28-32 pin ones use a different die. 
+Whelp there's only one way to find out how good these really are. I almost ordered some, then microchipdirect stopped working for the small flash parts! Argh! 
+
+Ordering some of the big ones and trying to score some of the small ones for testing. I've got a breakout board forthe 14-pin ones ready to go!
+
+By the way, we were of course all wondeing how the pricing would shake out; basically, it looks like these are very close to tinyAVR territory, closer to that pricing than to Dx-series pricing! Which supports my theory about the impending death of the tinyAVR branding (I do not expect to see a 3-series, but rather low pincount/flash Ex and Dx parts try to move into that territory. 
+
+ 
+| Pincount | DA64 | DB64 | DD64 | DA32 | DB32 | DD32 | DA128 | DB128| t322x |
+|----------|------|------|------|------|------|------|-------|------|-------|
+| 14-pin   |   -  |   -  |  ??? |   -  |  -   | 1.09 |   -   |   -  | 0.96  |
+| 20-pin   |   -  |   -  |  ??? |   -  |  -   |      |   -   |   -  | 1.23  |
+| 28-pin   | 2.77 | 2.93 | 2.21 | 2.46 | 2.63 |  ??? | 2.77  | 3.64 |   -   |
+| 32-pin   | 1.96 | 2.16 | 1.44 | 1.66 | 1.78 |  ??? | 1.82  | 1.96 |   -   |
+
 
 ## And we got initial Ex-series headers
 [It has some surprises in it](megaavr/extras/EA_first_look.md)
