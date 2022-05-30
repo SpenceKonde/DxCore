@@ -18,6 +18,8 @@ By the way, we were of course all wondeing how the pricing would shake out; basi
 | 28-pin   | 2.77 | 2.93 | 2.21 | 2.46 | 2.63 |  ??? | 2.77  | 3.64 |   -   |
 | 32-pin   | 1.96 | 2.16 | 1.44 | 1.66 | 1.78 |  ??? | 1.82  | 1.96 |   -   |
 
+Prices are microchip direct qty 1 price for the item. 
+
 
 ## And we got initial Ex-series headers
 [It has some surprises in it](megaavr/extras/EA_first_look.md)
