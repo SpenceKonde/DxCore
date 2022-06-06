@@ -20,7 +20,8 @@ But regardless of the implausibility of my dreams, the double D's are now availa
 | 28-pin   | 2.77 | 2.93 | **2.21** | 2.46 | 2.63 |  tbd |  tbd | 3.16  | 3.31  |   -   |  -   |
 | 32-pin   | 1.82 | 1.96 | **1.44** | 1.66 | 1.78 |  tbd |  tbd | 2.06  | 2.19  |   -   |  -   |
 
-Prices are microchip direct qty 1 price for the item, industrial temp range. packages SOIC, SOIC, PDIP, and TQFP respectively.
+Prices are microchip direct qty 1 price for the item, industrial temp range. packages SOP14, SOIC20, PDIP28, and TQFP32 respectively.
+There is also a VQFN version of the 29, 28 and 32pin parts. The 32-pin parts have a 1 cent premium as VQFN, The 20-pin parts on the other hand have a whopping 27 cent discount for gettign a VQFN....
 
 
 ## And we got initial Ex-series headers
