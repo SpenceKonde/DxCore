@@ -21,7 +21,7 @@ But regardless of the implausibility of my dreams, the double D's are now availa
 | 32-pin   | 1.82 | 1.96 | **1.44** | 1.66 | 1.78 |  tbd |  tbd | 2.06  | 2.19  |   -   |  -   |
 
 Prices are microchip direct qty 1 price for the item, industrial temp range. packages SOP14, SOIC20, PDIP28, and TQFP32 respectively.
-There is also a VQFN version of the 29, 28 and 32pin parts. The 32-pin parts have a 1 cent premium as VQFN, The 20-pin parts on the other hand have a whopping 27 cent discount for gettign a VQFN....
+There is also a VQFN version of the 29, 28 and 32pin parts. The 32-pin parts have a 1 cent premium as VQFN, The 20-pin parts on the other hand have a whopping 27 cent discount for gettign a VQFN. Since DIPS are alays expensive, its no surprise that the DD28 in SOIC,TSSOP, or VQFN are priced at 1.56. 1.42, and 1.31 respectively. 
 
 
 ## And we got initial Ex-series headers
@@ -76,10 +76,10 @@ Note that you must install via board manager or replace your tool chain with the
 * [AVR128DB32, AVR64DB32, AVR32DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md)
 * [AVR128DB48, AVR64DB48, AVR32DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)
 * [AVR128DB64 and AVR64DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)
-* AVR64DD14, AVR32DD14, AVR16DD14 (pending release)
-* AVR64DD20, AVR32DD20, AVR16DD20 (pending release)
-* AVR64DD28, AVR32DD28, AVR16DD28 (pending release)
-* AVR64DD32, AVR32DD32, AVR16DD32 (pending release)
+* AVR64DD14, AVR32DD14, AVR16DD14 (Yes, we have no pinout chart here today)
+* AVR64DD20, AVR32DD20, AVR16DD20 (Yes, we have no pinout chart here today)
+* AVR64DD28, AVR32DD28, AVR16DD28 (Yes, we have no pinout chart here today)
+* AVR64DD32, AVR32DD32, AVR16DD32 (Yes, we have no pinout chart here today)
 * AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending release)
 * AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending release)
 * AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending release)
