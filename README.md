@@ -8,17 +8,17 @@ Whelp there's only one way to find out how good these really are. I almost order
 
 Ordering some of the big ones and trying to score some of the small ones for testing. I've got a breakout board forthe 14-pin ones ready to go!
 
-By the way, we were of course all wondeing how the pricing would shake out; basically, it looks like these are very close to tinyAVR territory, closer to that pricing than to Dx-series pricing! Which supports my theory about the impending death of the tinyAVR branding (I do not expect to see a 3-series, but rather low pincount/flash Ex and Dx parts try to move into that territory. 
+By the way, we were of course all wondeing how the pricing would shake out; basically, it looks like these are very close to tinyAVR territory, closer to that pricing than to Dx-series pricing! Which supports my theory about the impending death of the tinyAVR branding (I do not expect to see a 3-series, but rather low pincount/flash Ex and Dx parts try to move into that territory. Not that I wouldn't *LOVE* a 3-series that simply copied the 1-series, only replacing the crap event system with the one the 2-series has, and the 2 CCL LUTs with 4 (like the 2-series), plus the second usart and alt reset pin of the 2-series, with 2-series flash+ram options, while keeping the 1-series' unique features like TCD0 and the multiple comparators. The other thing I'm dying for is a part with more than 6 CCL blocks (though thet enable locking errata would need to be fixed first), maybe a 48 pin chiop with at least 10 CCLs. I expect both of these to be available around the same time that farmers have to start teathering their pigs to the ground to keep them from flying away
 
  
-| Pincount | DA64 | DB64 | DD64 | DA32 | DB32 | DD32 | DA128 | DB128| t322x |
-|----------|------|------|------|------|------|------|-------|------|-------|
-| 14-pin   |   -  |   -  |  ??? |   -  |  -   | 1.09 |   -   |   -  | 0.96  |
-| 20-pin   |   -  |   -  |  ??? |   -  |  -   |      |   -   |   -  | 1.23  |
-| 28-pin   | 2.77 | 2.93 | 2.21 | 2.46 | 2.63 |  ??? | 2.77  | 3.64 |   -   |
-| 32-pin   | 1.96 | 2.16 | 1.44 | 1.66 | 1.78 |  ??? | 1.82  | 1.96 |   -   |
+| Pincount | 64DA | 64DB | 64DD | 32DA | 32DB | 32DD | DA128 | DB128 | t321x | t322x |
+|----------|------|------|------|------|------|------|-------|-------|-------|-------|
+| 14-pin   |   -  |   -  |  tbd |   -  |  -   | **1.09** |   -   |   -   | 0.96  |  -   |
+| 20-pin   |   -  |   -  |  tbd |   -  |  -   | **1.35** |   -   |   -   | 1.23  | 1.21 |
+| 28-pin   | 2.77 | 2.93 | **2.21** | 2.46 | 2.63 |  ??? | 3.16  | 3.31  |   -   |  -   |
+| 32-pin   | 1.82 | 1.96 | **1.44** | 1.66 | 1.78 |  ??? | 2.06  | 2.19  |   -   |  -   |
 
-Prices are microchip direct qty 1 price for the item. packages SOIC, SOIC, PDIP, and TQFP respectively.
+Prices are microchip direct qty 1 price for the item, industrial temp range. packages SOIC, SOIC, PDIP, and TQFP respectively.
 
 
 ## And we got initial Ex-series headers
