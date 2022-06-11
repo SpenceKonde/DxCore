@@ -1,25 +1,27 @@
 # DxCore - Arduino support for the AVR DA-series, DB-series and upcoming DD-series
 
 ## **They've DDone the DDeed** - DD parts are shipping!
-We will be releasing an updated core to patch the remaining holes in the support for these parts shortly! 
+We will be releasing an updated core to patch the remaining holes in the support for these parts shortly!
 And more interesting news:
-They started with 16k/32k parts for the 14 and 20 pin versions.... but 64k for the 28/32 pin ones! (which sort of confirms that the 15 and 32k versions share one version of the die, the timer-poor one, while the 28-32 pin ones use a different die. 
-Whelp there's only one way to find out how good these really are. I almost ordered some, then microchipdirect stopped working for the small flash parts! Argh! 
+They started with 16k/32k parts for the 14 and 20 pin versions.... but 64k for the 28/32 pin ones! (which sort of confirms that the 15 and 32k versions share one version of the die, the timer-poor one, while the 28-32 pin ones use a different die.
+Whelp there's only one way to find out if these little devils measure up to their hype. And that's buying some and trying to make code build for them. I've got mine ordered!
 
-Ordering some of the big ones and trying to score some of the small ones for testing. I've got a breakout board forthe 14-pin ones ready to go!
+By the way, we were of course all wondeing how the pricing would shake out. Would the DD's be a poverty model DB? And how closely would they encroach on the tinyAVRs turf? Or would they be more in line with the low end of the DA pricing? Well, the answer is "almost tinyAVR" pricing: The DD army is threatenign tinyAVR like never before, but holding back from a full scale assault, likely waiting for the EA series to rout tinyAVR once and for all. My theory has always been that they want to do away with tinyAVR branding because ATtiny is an ATmel name, and this is , and go to 100% double-letter (Dx, Ex, etc) for upcoming parts. I do not expect to see a 3-series, but rather low pincount/flash Ex and Dx parts try to move into that territory. The EA's are going to go down to 8k but will only come in relatively high pincounts... but where there's an EA, you have to wonder whether an EB, EC, ED, etc isn't right around the corner, with the same 8-64k flash, and pincounts down to 14 like these, and prices that will take over the market from tinyAVRs.
 
-By the way, we were of course all wondeing how the pricing would shake out; basically, it looks like these are very close to tinyAVR territory, closer to that pricing than to Dx-series pricing! Which supports my theory about the impending death of the tinyAVR branding (I do not expect to see a 3-series, but rather low pincount/flash Ex and Dx parts try to move into that territory. 
 
- 
 | Pincount | DA64 | DB64 | DD64 | DA32 | DB32 | DD32 | DA128 | DB128| t322x |
 |----------|------|------|------|------|------|------|-------|------|-------|
-| 14-pin   |   -  |   -  |  ??? |   -  |  -   | 1.09 |   -   |   -  | 0.96  |
-| 20-pin   |   -  |   -  |  ??? |   -  |  -   |      |   -   |   -  | 1.23  |
+| 14-pin   |   -  |   -  |  ??? |   -  |  -   | 0.99 |   -   |   -  | 0.96  |
+| 20-pin   |   -  |   -  |  ??? |   -  |  -   | 1.35 |   -   |   -  | 1.23  |
 | 28-pin   | 2.77 | 2.93 | 2.21 | 2.46 | 2.63 |  ??? | 2.77  | 3.64 |   -   |
 | 32-pin   | 1.96 | 2.16 | 1.44 | 1.66 | 1.78 |  ??? | 1.82  | 1.96 |   -   |
 
 Prices are microchip direct qty 1 price for the item. packages SOIC, SOIC, PDIP, and TQFP respectively.
 
+I've got some DIP-28's, TQFP32's. SOIC20's and SOP-14's coming.
+I have breakout boards on standby for the 14-pin ones, and the 28-pin ones. And 32-pin ones can use anything that worked with a DB32.
+
+I am working on an updated version of the core that will add these parts as fully supported (most of the heavy lifting is done; if this were a building, we've got everything ready except the facade and the water supply to the toilets)
 
 ## And we got initial Ex-series headers
 [It has some surprises in it](megaavr/extras/EA_first_look.md)

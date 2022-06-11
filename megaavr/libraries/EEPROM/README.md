@@ -1,7 +1,7 @@
 # **EEPROM Library V2.1.3** for Modern AVRs
 
 **Written by:** *Christopher Andrews*.
-**Ported by:** *Spence Konde*.
+**Ported and updated by:** *Spence Konde*.
 
 ## What is the EEPROM library?
 
@@ -13,9 +13,9 @@ This is the documentation for the version included with with DxCore and megaTiny
 
 ## When is EEPROM erased?
 1. When a sketch manually erases some or all of it.
-2. IF using a non-optiboot configuration, it can optionally be erased every time new code is uploaded. This is controlled by the EESAVE fuse bit. On AVR DA and DB parts, this is a "safe" fuse and is set on all uploads. On AVR DD and ATTiny parts, it is not considered a safe fuse, since it can disable non-HV UPDI programming; on those parts you must do "burn bootloader" to apply these changes.
+2. IF using a non-optiboot configuration, it can optionally be erased every time new code is uploaded. This is controlled by the EESAVE fuse bit. On AVR DA and DB parts, this is a "safe" fuse and is set on all uploads. On AVR DD and ATTiny parts, it is not considered a safe fuse, since it is on the same fusebyte that can disable non-HV UPDI programming; on those parts you must do "burn bootloader" to apply these changes. Note that according to recent datasheet clarifications, on a locked chip, EESAVE is will preserve the EEPROM - at least on those chips. In the incredibly unlikly event that this matters to you, check the relevant eratta and datasheet clarification document.
 
-See also the [USERSIG](../USERSIG/README.md) library which writes to the rather similar memory section known as the USERROW (aka "user signature space"), which is only erased if manually erased or if a locked chip is erased to unlock it (that will always restore the flash, EEPROM, and USERROW to blank state to protect proprietary or confidential information from leaking. Note that there are significant differences in the USERSIG library on tinyAVR and AVR Dx-series parts due to underlying differences in the NVM controller; on tinyAVR the library presents an identical interface to EEPROM. On DxCore, it is necessaey to call an additional function to commit the new data if an erase is required.
+See also the [USERSIG](../USERSIG/README.md) library which writes to the rather similar memory section known as the USERROW (aka "user signature space"), which is only erased if manually erased or if a locked chip is erased to unlock it (that will always restore the flash, EEPROM, and USERROW to blank state to protect proprietary or confidential information from leaking). Note that there are significant differences in the USERSIG library on tinyAVR and AVR Dx-series parts due to underlying differences in the NVM controller; on tinyAVR the library presents an identical interface to EEPROM. On DxCore, it is necessaey to call an additional function to commit the new data if an erase is required. See the linked readme file for more information.
 
 ## How to use it
 The EEPROM library is included with all hardware packages for hardware with that functionality (which is almost universal).
@@ -44,8 +44,8 @@ The library provides a global variable named `EEPROM`, you use this variable to 
 | tinyAVR 0/1/2-series 4-8k flash     |        128b |             4 ms |
 | tinyAVR 0/1/2-series 16-32k flash   |        256b |             4 ms |
 | megaAVR 0-series (all flash sizes)  |        256b |             4 ms |
-| DA, DB, EA-series (all flash sizes) |        512b |        11 ms (?) |
-| DD-series (all flash sizes)         |        256b | TBD-likely 11 ms |
+| DA, DB-series (all flash sizes)     |        512b |            11 ms |
+| DD-series (all flash sizes)         |        256b |            11 ms |
 | EA-series (all flash sizes)         |        512b |              TBD |
 
 Specifying an address beyond the size of the EEPROM will wrap around to the beginning. The addresses passed to EEPROM functions are a `uint8_t` (aka byte) on parts with up to 256b of flash and a `uint16_t` (word or unsigned int) on parts with more.
@@ -166,7 +166,7 @@ This is useful for STL objects, custom iteration and C++11 style ranged for loop
 This function returns an `EEPtr` pointing at the location after the last EEPROM cell.
 Used with `begin()` to provide custom iteration.
 
-**Note:** The `EEPtr` returned is invalid as it is out of range.
+**Note:** The `EEPtr` returned is invalid as it is out of range (this is the standard behavior required by the aforementioned programming techniques. Note that on 256b EEPROM parts, the EEPtr returned cannot be distinguished in any way from a pointer to address 0 as the address is represented by an 8-bit value, which may cause code that uses it to behave in unexpected ways). I have not heard of any real-world code using this call.
 
 ## Very advanced considerations
 Because we have people using megaTinyCore and DxCore to write code that will be deployed to a production environment, these considerations had to be addressed.
@@ -190,7 +190,7 @@ The avr-libc runtime included with the toolchain provides an eeprom_write_byte()
 
 
 ### EEPROM corruption due to low supply voltage
-If the power supply voltage is insufficient (as in, below operating specifications) while writing to the EEPROM, corruption can result; this includes the case of a slow-rising power supply and a write at startup (as mentioned above) and the case where power is cut entirely while writing to the EEPROM. This phenomenon is described in the "Preventing Flash/EEPROM corruption" section (9.3.3) of the datasheet. Enabling the Brown-Out Detect functionality ("burn bootloader" required after changing those settings to apply them) will prevent this by holding the part in reset when below a minimum supply voltage. Even better would be to use the VLM to detect when the operating voltage is perilously close to the BOD threshold.
+If the power supply voltage is insufficient (as in, below operating specifications) while writing to the EEPROM, corruption can result; In addition to the case discussed earlier, where a slow rising power supply and an early EEPROM write conspire to yield a corrupted value being written, (which users have encountered on tinyAVRs with the BOD off when writing the EEPROM immediately at power on) this includes the case where power is cut entirely while writing to the EEPROM in addition to transient brownouts, which are likely a less frequent cause of this sort of issue). This phenomenon is described in the "Preventing Flash/EEPROM corruption" section (9.3.3) of the datasheet. Enabling the Brown-Out Detect functionality ("burn bootloader" required after changing those settings to apply them) will prevent this by holding the part in reset when below a minimum supply voltage. Even better would be to use the VLM to detect when the operating voltage is perilously close to the BOD threshold.
 
 Alternate methods of ensuring that there is not expected to be a power failure within the next 11 ms (DxCore) or 4ms (megaTinyCore) might include monitoring the supply voltage with the ADC. It is also important to practice good hardware design: particularly, you should have sufficient board-level decoupling capacitors to make sure the power can't drop out so quickly that a write might not finish. And if user action is the likely cause of the power loss, one could flash an LED while writing or similar.
 

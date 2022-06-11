@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 void yield(void);
@@ -19,32 +19,31 @@ void yield(void);
 #define MSBFIRST         1    /* used for shiftIn/shiftOut */
 
 
-#define PI          3.1415926535897932384626433832795
-#define HALF_PI     1.5707963267948966192313216916398
-#define TWO_PI      6.283185307179586476925286766559
-#define DEG_TO_RAD  0.017453292519943295769236907684886
-#define RAD_TO_DEG  57.295779513082320876798154814105
-#define EULER       2.718281828459045235360287471352
+#define PI            3.1415926535897932384626433832795
+#define HALF_PI       1.5707963267948966192313216916398
+#define TWO_PI        6.283185307179586476925286766559
+#define DEG_TO_RAD    0.017453292519943295769236907684886
+#define RAD_TO_DEG    57.295779513082320876798154814105
+#define EULER         2.718281828459045235360287471352
 
-#define SERIAL      0x0
-#define DISPLAY     0x1
-
+#define SERIAL        0x00
+#define DISPLAY       0x01
 
 #define min(a,b) \
-  ({typeof (a) _a = (a); \
-    typeof (b) _b = (b); \
+  ({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
     _a < _b ? _a : _b; })
 
 #define max(a,b) \
-  ({typeof (a) _a = (a); \
-    typeof (b) _b = (b); \
+  ({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
     _a > _b ? _a : _b; })
 
 #ifndef constrain
 #define constrain(x,low,high)   ({  \
-  typeof (x)    _x = (x);           \
-  typeof (low)  _l = (low);         \
-  typeof (high) _h = (high);        \
+  __typeof__ (x)    _x = (x);           \
+  __typeof__ (low)  _l = (low);         \
+  __typeof__ (high) _h = (high);        \
   _x < _l ? _l : _x > _h ? _h :_x ;})
 #endif
 
@@ -57,34 +56,82 @@ void yield(void);
 #endif
 
 #ifndef sq
-#define sq(x)        ({ typeof (x) _x = (x); _x * _x; })
+#define sq(x)        ({ __typeof__ (x) _x = (x); _x * _x; })
 #endif
 
+
+/* This is sorta silly. But normal round() builtin is bulkier and returns a float while arduino code written for other platforms will expect
+integer types... This also has the same concerns about sideffects as before - except they're less likely to show up when
+starting from a float. Who does meFloat++? Certainly not as many as do constrain(myInt++,minval,maxval);
+*/
+
 #ifndef round
-#define round(x)     ({ typeof (x) _x = (x);  _x >= 0 ? (long)x + 0.5 : (long)x - 0.5;})
+#define round(x)     ({ __typeof__ (x) _x = (x);  _x >= 0 ? (long)(_x + 0.5) : (long)(_x - 0.5 );})
 #endif
+
+/* In the end, it is probably better to do this manually rather than using round(). Why?
+
+* If you know the value you're starting with is positive, you can skip the first test and just add 0.5 and cast to integer type - saves space.
+* You can use the minimum size datatypes (wthis casts things to 4-byte values. Maybe the thing your rounding is, say -50.0 to 50.0 you can cast to a single byte for more compact code
+* You can choose which of the rounding strategies you wish to use. Because there are not less than TEN DIFFERENT STRATEGIES TO ROUND NUMBERS
+* Any of these approaches will result in smaller code:
+* For example, rounding a number you know ought to fit a 16 bit unsigned datatype easily, you might do:
+* uint16_t roundedval = (uint16_t) (floatval + 0.5)
+*
+* Even better, avoid using floats in the first place. Why are you using them? sometimes you really don't have much of a choice, other times
+* you very definitely do. This is particularly true with ADC readings, for example say you're using to 4.096 Volt reference, and you
+* want to measure and print out a voltage.
+uint32_t reading = analogReadEnh(adc_pin, 12);  //where adc_pin is just the pin number being read
+float temp = reading;
+Serial.print(temp/1000); // 4.096v reference, and 12 bit accuracy (ie, 0-4095). So each LSB is 1 mv so dividing by 1000 gets volts.
+Serial.println('V'); //print out the units too
+3.2k on a 1626/
+Or you could do:
+uint32_t reading = analogReadEnh(adc_pin, 12); // same analog reading
+Serial.print(reading/1000) //volts
+Serial.print('.'); //decimal point
+Serial.print(reading%1000) //millivolts
+Serial.println('V'); //print out the units too
+// This would print the same thing, only without any floating point derived error... weighing in at 2k of flash.
+
+// And just doing this saves another 100 bytes:
+uint32_t reading = analogReadEnh(1, 12);  //where adc_pin is just the pin number being read
+Serial.print((uint16_t)reading);
+Serial.println("mV");
+
+
+* Yeah the last one is kind of a copoout,  but not only is it flash-efficient, it also runs *much* faster, because division,
+* be it floating point or otherwise, is sloowwwwwwww on AVR. But the fact that there are better ways to round than round()
+* was not an excuse for it being broken like that.
+*/
+
+
 
 typedef void (*voidFuncPtr)(void);
 
 // interrupts() / noInterrupts() must be defined by the core
 
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
-
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
+// a bunch of really silly hand-holding macros!
+#define lowByte(w)  ((uint8_t) ((w)    &  0xff))
+#define highByte(w) ((uint8_t) ((w)    >>    8))
+#define  bitRead(value, bit) (((value) >> (bit)) & 0x01)
+#define   bitSet(value, bit)  ((value) |= (1UL << (bit)))
+#define bitClear(value, bit)  ((value) &= ~(1UL << (bit)))
 #define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 
 #ifndef bit
 #define bit(b) (1UL << (b))
 #endif
 
-/* TODO: request for removal */
+#if defined(DISCOURAGE_NONSTANDARD_TYPES) && DISCOURAGE_NONSTANDARD_TYPES
+typedef bool      boolean __attribute__ ((deprecated("a 'boolean' is called a 'bool' in standard C - suggest using standard type name")));
+typedef uint8_t   byte __attribute__ ((deprecated("a 'byte' is an 'unsigned char' (may be more than 8 bits on non-AVR) or 'uint8_t' (always 8 bits) in standard C - suggest using one of these standard types.")));
+typedef uint16_t  word __attribute__ ((deprecated("a 'word' is an 'unsigned int' (may be more than 16 bits on non-AVR) or 'uint15_t' (always 16 bits) in standard C - suggest using one of these standard types.")));
+#else
 typedef bool      boolean;
 typedef uint8_t   byte;
 typedef uint16_t  word;
-
+#endif
 void init(void);
 void initVariant(void);
 
@@ -93,9 +140,9 @@ int main() __attribute__((weak));
 
 #ifdef EXTENDED_PIN_MODE
 // Platforms who want to declare more than 256 pins need to define EXTENDED_PIN_MODE globally
-  typedef uint32_t pin_size_t;
+typedef uint32_t pin_size_t;
 #else
-  typedef uint8_t pin_size_t;
+typedef uint8_t pin_size_t;
 #endif
 
 void    pinMode(         pin_size_t pinNumber, uint8_t mode);
@@ -104,6 +151,7 @@ int8_t  digitalRead(     pin_size_t pinNumber);
 void    analogWrite(     pin_size_t pinNumber, int value);
 int     analogRead(      pin_size_t pinNumber);
 void    analogReference(         uint8_t mode);
+bool    analogReadResolution(     uint8_t res);
 
 unsigned long millis(void);
 unsigned long micros(void);
@@ -111,7 +159,7 @@ unsigned long micros(void);
 
 void delay(unsigned long);
 void delayMicroseconds(unsigned int us);
-unsigned long pulseIn(    pin_size_t pin, uint8_t state, unsigned long timeout);
+unsigned long     pulseIn(pin_size_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(pin_size_t pin, uint8_t state, unsigned long timeout);
 
 void   shiftOut(pin_size_t dataPin, pin_size_t clockPin, uint8_t bitOrder, uint8_t val);
@@ -124,7 +172,7 @@ void setup(void);
 void loop(void);
 
 #ifdef __cplusplus
-  } // extern "C"
+} // extern "C"
 #endif
 
 #ifdef __cplusplus

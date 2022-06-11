@@ -1,7 +1,7 @@
 /* Arduino.h - Main include file for the Arduino SDK
  * Copyright (c) 2005-2013 Arduino Team.  All right reserved.
  * And presumably from then until 2018 when this was forked
- * for megaTinyCore. Copyright 2018-2021 Spence Konde
+ * for megaTinyCore. Copyright 2018-2022 Spence Konde
  * Part of DxCore, which adds Arduino support for the AVR DA,
  * DB, and DD-series microcontrollers from Microchip.
  * DxCore is free software (LGPL 2.1)
@@ -232,24 +232,74 @@ uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 // avr-libc defines _NOP() since 1.6.2
 // Really? Better tell avr-gcc that, it seems to disagree...
 #ifndef _NOP
-  #define _NOP()    __asm__ __volatile__ ("nop");
+  #define _NOP()    __asm__ __volatile__ ("nop")
 #endif
 #ifndef _NOP2
-  #define _NOP2()   __asm__ __volatile__ ("rjmp .+0");
+  #define _NOP2()   __asm__ __volatile__ ("rjmp .+0")
 #endif
 #ifndef _NOPNOP
-  #define _NOPNOP() __asm__ __volatile__ ("rjmp .+0");
+  #define _NOPNOP() __asm__ __volatile__ ("rjmp .+0")
 #endif
 #ifndef _NOP8
-  #define _NOP8()   __asm__ __volatile__ ("rjmp .+2"  "\n\t" \
-                                          "ret"       "\n\t" \
-                                          "rcall .-4" "\n\t");
+  #define _NOP8()   __asm__ __volatile__ ("rjmp .+2"  "\n\t"   /* 2 clk jump over next instruction */ \
+                                          "ret"       "\n\t"   /* 2 clk return (wha? why here?) */    \
+                                          "rcall .-4" "\n\t" ) /* 4 clk "Oh, I see. We jump over a return (2 clock) call it, and then immediately return." */
 #endif
+
+/*
+Not enabled. Ugly ways to get delays at very small flash cost.
+#ifndef _NOP6
+  #define _NOP6()   __asm__ __volatile__ ("rcall lonereturn") // 2 bytes of flash.  2+4=6 clk only works if you've got _LONE_RETURN() somewhere. Only guaranteed to work on 8k and smaller parts.
+  #define _NOP7()   __asm__ __volatile__ ("call lonereturn")  // 4 bytes of flash.  3+4=7 clk and see above, except that this will only work w/>8k flash.
+  #define _LONE_RETURN() __asm__ __volatile__ ("rjmp .+2"    "\n\t"  \  // 4 bytes of flash overhead, but must exist once and only once for NOP6/7 (but not any others) . Don't trip over thr ret. Note that if you're writing inline assembly with ret elsewhere, just proceed
+                                               "lonereturn:" "\n\t"  \  // it with a a label and jump to it to save 2 bytes vs this methodMust exist somwehere for
+                                                 "ret"         "\n\t" )
+  // It could be put into it's own function and marked with the "used" attribute. This allows elimination of the initial rjmp, at the cost of making an ugly hack even uglier.
+  // Or even worse, you have other inline assembly, and you just stick the label right before the return!
+  // Really, these are things you shoudnt do unless you have your back against the flash/RAM limits and a gun to your head.
+  #endif
+*/
 #ifndef _NOP14
-  #define _NOP14()  __asm__ __volatile__ ("rjmp .+2"  "\n\t" \
-                                          "ret"       "\n\t" \
-                                          "rcall .-4" "\n\t" \
-                                          "rcall .-6" "\n\t" );
+  #define _NOP14()  __asm__ __volatile__ ("rjmp .+2"  "\n\t"   /* same idea as above. */ \
+                                          "ret"       "\n\t"   /* Except now it's no longer able to beat the loop if it has a free register. */ \
+                                          "rcall .-4" "\n\t"   /* so this is unlikely to be better, ever. */ \
+                                          "rcall .-6" "\n\t" )
+#endif
+/* Beyond this, just use a loop.
+ * If you don't need submicrosecond accuracy, just use delayMicroseconds(), which uses very similar methods. See Ref_Timers
+ * (eg, ldi (any upper register), n; dec r0; brne .-4)
+ * and pad with rjmp or nop if needed to get target delay.
+ * Simplest form takes a uint8_t and runs for 3n cycles in 3 words. Padded with `nop` or `rjmp .+0`for 3n + 1 or 3n + 2 if outside the loop, 4n or 5n if padded inside the loop
+ * And so on. You will likely end up doing something like
+ *
+                    #define CLOCKS_PER_US   (F_CPU / 1000000);    // preprocessed away
+                    #define DELAYCLOCKS     (0.8 * CLOCKS_PER_US) // say we wanted a 0.8 us delay.
+                    uint8_t x = DELAYCLOCKS / 3;                  // preprocessed into a constant
+                    __asm__ __volatile__ ("dec %0"      "\n\t"    // before this, an ldi is used to load x into the input opperand %0
+                                          "brne .-4"    "\n\t"
+                      #if (DELAYCLOCKS % 3 == 2)                  // 2 clocks extra needed at end
+                                          "rjmp .+0"    "\n\t"
+                      #elif (DELAYCLOCKS % 3 == 1)                // 1 clock extra needed at end
+                                          "nop"         "\n\t"
+                      #endif
+                                          : "+d"((uint8_t)(x));
+ *
+ * The above will take very close to 0.8us under most any conditions.  Notice how all the calculation was moved to the preprocessor.
+ *
+ *
+ * You can extend the length of the iterations by adding nop between the dec and brne, and branching 2 bytes further. that makes it 4 clocks per iteration.
+ * You can go for much longer by using 16-bits:
+ *                  uint16_t x = 2000;    * overall takes 8 bytrsd
+ *                  __asm__ __volatile__ ("sbiw %0,1"    "\n\t"  // Line is preceded by 2 implied LDI's to fill that upper register pair, Much higher chance of having to push and pop.
+ *                                        \"brne .-4      \"\n\t\"  // SBIW takes 2 clocks. branch takes 2 clocks unless it doesn't branch, when it only takes one
+ *                                        : +w"((uint16_t)(x))  // hence this takes 4N+1 clocks (4 per iteration, except for last one which is only 3, plus 2 for the pair of LDI's)
+ *
+ */
+
+
+// The fastest way to swap nybbles
+#ifndef _SWAP
+  #define _SWAP(n) __asm__ __volatile__ ("swap %0"  "\n\t" :"+r"((uint8_t)(n)));
 #endif
 uint16_t clockCyclesPerMicrosecond();
 uint32_t clockCyclesToMicroseconds(uint32_t cycles);
@@ -279,7 +329,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  *
  * Prior to 1.3.x TCAs were all 0x1_, TCBs 0x2_. But in order to make the
  * take-over tracking work efficiently I needed a dedicated bit for each TCA.
- * so that we can just do (PeripheralControl | TIMERA0) to test if user has
+ * so that we can just do (__PeripheralControl | TIMERA0) to test if user has
  * taken over the timer. Hence, all the "big" timers (those which have a
  * takeOverTCxn() function and which PORTMUX moves en masse instead of one at
  * a time) have their own bit within these macros.
@@ -398,8 +448,13 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERD0_7WOD    (0x77)
 */
 
-// These are lookup tables to find pin parameters from Arduino pin numbers
-// They are defined in the variant's pins_arduino.h
+__attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
+
+
+// Get the bit location within the hardware port of the given virtual pin.
+// This comes from the arrays in the  pins_arduino.c file for the active
+// board configuration.
+// These perform slightly better as macros compared to inline functions
 
 extern const uint8_t digital_pin_to_port[];
 extern const uint8_t digital_pin_to_bit_mask[];

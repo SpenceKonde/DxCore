@@ -414,9 +414,6 @@ void analogWrite(uint8_t pin, int val)
   pinMode(pin, OUTPUT);
 
   uint8_t digital_pin_timer =  digitalPinToTimer(pin); // NON-TCA timer!
-  if (digital_pin_timer != 0 && !(digital_pin_timer & PeripheralControl)) {
-    digital_pin_timer=0;
-  }
   uint8_t* timer_cmp_out;
   #if defined(NO_GLITCH_TIMERD)
     if (digital_pin_timer != TIMERD0 && digital_pin_timer != DACOUT)
@@ -424,11 +421,13 @@ void analogWrite(uint8_t pin, int val)
     if (digital_pin_timer != DACOUT)
   #endif
   { /* Opening of body for above */
-    if(val <= 0){ /* if zero or negative drive digital low */
+    if(val <= 0) { /* if zero or negative drive digital low */
       return digitalWrite(pin, LOW);
-    } else if(val >= 255){  /* if max or greater drive digital high */
+    } else if (val >= 255) {  /* if max or greater drive digital high */
       return digitalWrite(pin, HIGH);
     }
+  } else if digital_pin_timer == 0 {
+    return; //return now if the pin doesn't have a PWM timer
   }
 
   TCB_t *timer_B;
@@ -443,7 +442,7 @@ void analogWrite(uint8_t pin, int val)
     uint8_t portnum  = digitalPinToPort(pin);
     uint8_t tcaroute = PORTMUX.TCAROUTEA;
 
-    if ((portnum == (tcaroute & (0x07))) && (PeripheralControl & TIMERA0)) {
+    if ((portnum == (tcaroute & (0x07))) && (__PeripheralControl & TIMERA0)) {
       uint8_t offset = 0;
       if (bit_mask > 0x04) { // separate high from low timers
         bit_mask <<= 1;
@@ -464,7 +463,7 @@ void analogWrite(uint8_t pin, int val)
  */
     tcaroute &= (0x18);
     /*  What about TCA1? */
-    if (((portnum == 6 && tcaroute == 0x18) || (portnum == 1 && tcaroute ==0)) && (PeripheralControl & TIMERA1)) {
+    if (((portnum == 6 && tcaroute == 0x18) || (portnum == 1 && tcaroute ==0)) && (__PeripheralControl & TIMERA1)) {
       /* We are on TCA1 - Set pwm and return */
       uint8_t offset = 0;
       if (bit_mask > 0x04) { // separate high from low timers
@@ -679,7 +678,7 @@ void takeOverTCA0() {
     stop_millis();
   #endif
   TCA0.SPLIT.CTRLA = 0;          // Stop TCA0
-  PeripheralControl &= ~TIMERA0; // Mark timer as user controlled
+  __PeripheralControl &= ~TIMERA0; // Mark timer as user controlled
   TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA0
   /* Okay, seriously? The datasheets and io headers disagree here for tinyAVR
      about whether the low bits even exist! Much less whether they need to be
@@ -690,7 +689,7 @@ void resumeTCA0() {
   TCA0.SPLIT.CTRLA = 0;         // Stop TCA0
   TCA0.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA0
   init_TCA0();                  // reinitialize TCA0
-  PeripheralControl |= TIMERA0; // Mark timer as core controlled
+  __PeripheralControl |= TIMERA0; // Mark timer as core controlled
   #if defined(MILLIS_USE_TIMERA0)
     restart_millis();              // If we stopped millis for takeover, restart
   #endif
@@ -702,7 +701,7 @@ void takeOverTCA1() {
     stop_millis();
   #endif
   TCA1.SPLIT.CTRLA = 0;               // Stop TCA1
-  PeripheralControl &= ~TIMERA1;      // Mark timer as user controlled
+  __PeripheralControl &= ~TIMERA1;      // Mark timer as user controlled
   TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA1
 }
 
@@ -710,7 +709,7 @@ void resumeTCA1() {
   TCA1.SPLIT.CTRLA = 0;         // Stop TCA1
   TCA1.SPLIT.CTRLESET = TCA_SPLIT_CMD_RESET_gc | 0x03; // Reset TCA1
   init_TCA1();                  // reinitialize TCA1
-  PeripheralControl |= TIMERA1; // Mark timer as core controlled
+  __PeripheralControl |= TIMERA1; // Mark timer as core controlled
   #if defined(MILLIS_USE_TIMERA1)
     restart_millis();              // If we stopped millis for takeover, restart
   #endif
@@ -721,7 +720,7 @@ void takeOverTCD0() {
 #if !defined(MILLIS_USE_TIMERD0)
   TCD0.CTRLA = 0;                     // Stop TCD0
   _PROTECTED_WRITE(TCD0.FAULTCTRL,0); // Turn off all outputs
-  PeripheralControl &= ~TIMERD0;      // Mark timer as user controlled
+  __PeripheralControl &= ~TIMERD0;      // Mark timer as user controlled
 #else
   badCall("TCD0 takeover not permitted when TCD0 is millis source");
   /* Note that it's just TCD0 we protect like this... With TCA's, the user has
@@ -742,19 +741,19 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   if ( bit_pos < 6) {                                /* SPLIT MODE TCA output is on pins 0-5       */
   #if defined(TCA1)
     uint8_t tcamux = PORTMUX.TCAROUTEA;
-    if ( PeripheralControl & TIMERA0) {              /* make sure user hasn't taken over TCA0      */
+    if ( __PeripheralControl & TIMERA0) {              /* make sure user hasn't taken over TCA0      */
       if (((tcamux & PORTMUX_TCA0_gm) == port)) {    /* TCA0 mux is EASY - same as the port number */
         return TIMERA0;
       }
     }
     tcamux &= 0x18;
-    if (PeripheralControl & TIMERA1) {               /* make sure user hasn't taken over TCA0      */
+    if (__PeripheralControl & TIMERA1) {               /* make sure user hasn't taken over TCA0      */
       if ((tcamux == 0 && port == PB ) || (tcamux == 0x18 && port == PG)) { /* supports only 6-ch  */
         return TIMERA1;                              /* mux options, not 3-channel ones on bit 4:6 */
       }
     }
   #else
-    if (PeripheralControl & TIMERA0) {               /* here we don't need to store tcamux */
+    if (__PeripheralControl & TIMERA0) {               /* here we don't need to store tcamux */
       if ((PORTMUX.TCAROUTEA & PORTMUX_TCA0_gm) == port) { /* because it is only used once */
         return TIMERA0;
       }
@@ -763,7 +762,7 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   }
   uint8_t timer = digitalPinToTimer(p);
   /*
-  if ( PeripheralControl & TIMERD0) {
+  if ( __PeripheralControl & TIMERD0) {
     if (timer & TIMERD0) {
       byte tcdmux = (PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm);
       if (tcdmux == (timer & ~TIMERD0)) {

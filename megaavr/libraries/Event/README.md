@@ -6,21 +6,29 @@ Developed by [MCUdude](https://github.com/MCUdude/).
 > The Event System (EVSYS) enables direct peripheral-to-peripheral signaling. It allows a change in one peripheral (the event generator) to trigger actions in other peripherals (the event users) through event channels, without using the CPU. It is designed to provide short and predictable response times between peripherals, allowing for autonomous peripheral control and interaction, and also for synchronized timing of actions in several peripheral modules. It is thus a powerful tool for reducing the complexity, size, and execution time of the software.
 
 ## Overview
-The event system allows routing of signals from event "generators" (outputs on various peripherals) through an event "channel", which one or more "event users" can be connected. When an event signal coming from the generator is is "active" or "high", the users connected to the same channel as the generator will perform certain specified actions depending on the peripheral. Generators are often the sorts of things that generate an interrupt if that is enabled - but some things can generate constant level events (such as following the state of a pin). The event users can do a wide variety of things. Opamps can be enabled and disabled entirely through events, the ACD can kick off a staged measurement. Type A and B timers can count them, and type B timers can measure their duration or time between them with input capture. USARTs can even use them as their RX input! This is nice and all - but what really makes the Event system reach it's potential is CCL (configurable custom logic) which can use events as inputs, in addiion to having access to several more internal sourcesof "event-like" signals - and being event generators in their own right.
+The event system allows routing of signals from event "generators" (outputs on various peripherals) through an event "channel", which one or more "event users" can be connected. When an event signal coming from the generator is is "active" or "high", the users connected to the same channel as the generator will perform certain specified actions depending on the peripheral. Generators are often the sorts of things that generate an interrupt if that is enabled - but some things can generate constant level events (such as following the state of a pin). The event users can do a wide variety of things. Opamps can be enabled and disabled entirely through events, the ACD can kick off a staged measurement. Type A and B timers can count them, and type B timers can measure their duration or time between them with input capture. USARTs can even use them as their RX input! This is nice and all - but what really makes the Event system reach it's potential is CCL (configurable custom logic) which can use events as inputs, in addiion to having access to several more internal sources of "event-like" signals - and being event generators in their own right.
 
 More information about the Event system and how it works can be found in the [Microchip Application Note AN2451](http://ww1.microchip.com/downloads/en/AppNotes/DS00002451B.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf).
 
 ## Level vs. Pulse events
-There are two types of events - a "pulse" interrupt, which lasts for the duration of a single clock cycle (either `CLK_PER` or a relevant (slower) clock - for example, the USART XCK generator provides a pulse event which lasts one XCK period, which is far slower than CLK_PER (the "peripheral; . while the TCD0-derived ones are) or a "level" interrupt which lasts for the duration of some condition. Often for a given generator or user only one or the other makes sense. Less often, for some reason or another, you may need a level event, but all you have is a pulse event - or the other way around. A [CCL module (Logic.h)](../Logic/README.md) event between the two at the cost of the logic module and one event channel. In the case of timer WO (PWM) channels, the CCL already has level inputs to match the pulse inputs that the event system can get on compare match. Many of the pulse interrupts are generated at the same moment that interrupt flags get set - except that where an interrupt bit sticks around until serviced, the pulse bit is present generally for only a single clock cycle (meaning they are only *usable* for triggering other event system things or peripherals).
+There are two types of events - a "pulse" interrupt, which lasts for the duration of a single clock cycle (either `CLK_PER` or a relevant (slower) clock - for example, the USART XCK generator provides a pulse event which lasts one XCK period, which is far slower than CLK_PER (the "peripheral; . while the TCD0-derived ones are) or a "level" interrupt which lasts for the duration of some condition. Often for a given even generator or user only one or the other makes sense. Less often, for some reason or another, you may need a level event, but all you have is a pulse event - or the other way around. A [CCL module (Logic.h)](../Logic/README.md) event between the two at the cost of the logic module and one event channel. In the case of timer WO (PWM) channels, the CCL already has level inputs to match the pulse inputs that the event system can get on compare match. Many of the pulse interrupts are generated at the same moment that interrupt flags get set - except that where an interrupt bit sticks around until serviced, the pulse bit is present generally for only a single clock cycle (meaning they are only *usable* for triggering other event system things or peripherals. s can be (they often let you do similar things faster with less CPU involvement, too), but unlike interrupts, they won't stick around until you explicitly clear them
+
 
 ## Synchronization
+The 0/1-series are weird here - read the 2-series section first.
+
+### 2-series
+The event system, under the hood, is asynchronous - it can react faster than the system clock (often a lot faster). On the 2-series, these work like the Dx-series and presumably future releases will. Per the datasheet for the 2-series:
+
 >Events can be either synchronous or asynchronous to the peripheral clock. Each Event System channel has two subchannels: one asynchronous and one synchronous.
 >The asynchronous subchannel is identical to the event output from the generator. If the event generator generates a signal asynchronous to the peripheral clock, the signal on the asynchronous subchannel will be asynchronous. If the event generator generates a signal synchronous to the peripheral clock, the signal on the asynchronous subchannel
 >will also be synchronous.
 >The synchronous subchannel is identical to the event output from the generator, if the event generator generates a signal synchronous to the peripheral clock. If the event generator generates a signal asynchronous to the peripheral clock, this signal is first synchronized before being routed onto the synchronous subchannel. Depending on when the event occurs, synchronization will delay the it by two to three clock cycles. The Event System automatically perform this synchronization if an asynchronous generator is selected for an event channel.
 
-The fact that it is asynchronous usually doesn't matter - it's either "faster than anything else" (if the user is async), or "2-3 clock cycles behind", but it is one of the things one should keep in mind when using these features, because every so often it does. As I understand it, an event coming from the TCD domain could be *faster* that a the main clock. I am not sure *which* TCD clock this means (is it the clock going in? clock after the sync prescaler? Or the clock after the count prescaler? Can the system actually miss events, or is there some mechanism to prevent this? )
+The fact that it is asynchronous usually doesn't matter - it's either "faster than anything else" (if the user is async), or "2-3 clock cycles behind", but it is one of the things one should keep in mind when using these features, because every so often it does.
 
+### 0/1-series
+Unlike the 2-series, where sync vs async is handled transparently, there are no hidden subchannels here. There are two channels with synchronizers and 4 without. Two of the peripherals care: USART0 and TCA0 can only use the sync channels. Everything else can use either kind. The layout of channels is also totally different.
 
 ### Generator table
 Below is a table with all possible generators for each channel. Many generators are associated with specific peripherals, and on low pin-count devices, attempting to use peripherals not present on the selected part will result in a compile error.
@@ -197,6 +205,45 @@ The best you can do is pipe the outputs to a pin and read the pin....
 Class for interfacing with the Event systemn (`EVSYS`). Each event channel has its own object.
 Use the predefined objects `Event0`, `Event1`, `Event2`, `Event3`, `Event4`, `Event5`. These, alternately, are known as `EventSync0`, `EventSync1`, `EventAsync0`, `EventAsync1`, `EventAsync2`, `EventAsync3` on the tinyAVR 0-series and 1-series. Additionally, there is an `Event_empty` that is returned whenever you call a method that returns an Event reference, but it can't fulfil your request.  Note that not all generators are available on all channels; see the tables above. On 2-series, it's fairly simple, and, all else being equal,  the first channels are the most useful, so the standard rule of thumb of "whenever you use a generator that can go anywhere, use the highest number port" holds. With so many options for each pin, relative to the number of pins, that's unlikely to be a problem. The 0 and 1-series oparts are more complicated. Obviously,on 8 pin parts, the two channels that can do PORTA are the most valuable, and the 1 or 3 channels without them a better choice, when you have a choice. The sixth channel, present only on 1-series, has the RTC division options in place of pins. It is either critical to your application, or the least useful, with no middle ground.
 
+
+### Class Overview
+
+| Method            | Argument/Return Type                                                     | Function                                |
+|-------------------|--------------------------------------------------------------------------|-----------------------------------------|
+| get_channel_number() | Returns channel number as a uint8_t                                   | For working with references             |
+| get_generator()   | returns uint8_t indicating generator number.                             |                                         |
+| set_generator()   | gen::, genN:: or pin number                                              | Sets the specified source as generator  |
+| set_user()        | user::user_t                                                             | Sets specified user to this channel     |
+| set_user_pin();   | valid EVOUT pin number, returns -1 if not valid pin, else user::user_t   | Set the event user to a pin             |
+| soft_event()      |                                                                          | Inverts the channel for one clock cycle |
+| long_soft_event() | duration of event, 4, 6, 10, or 16 - in clock cycles.                    | Inverts the channel for longer          |
+| start()           |                                                                          | Enables this channel                    |
+| stop()            |                                                                          | Disables this channel                   |
+
+
+These class methods return a reference to an event channel (an Event&), or Event_empty if none can be found.
+| Class Method                    | Argument Type     | Function                                      |
+|---------------------------------|-------------------|-----------------------------------------------|
+| Event::get_channel()            | uint8_t           | Get channel by number                         |
+| Event::get_generator_channel()  | gen::generator_t  | Get channel by generator (first match only)   |
+| Event::get_generator_channel()  | uint8_t           | Get channel by pin number                     |
+| Event::get_user_channel()       | user::user_t      | Get channel that user is set to               |
+| Event::assign_generator()       | gen::generator_   | return channel that has that generator,<br/> pick one and set if none currently set |
+| Event::assign_generator_pin()   | uint8_t           | return channel that has that pin as generator,<br/> pick one and set if none currently set |
+
+
+Class methods for working with users or looking up generator or user numbers
+| Class Method                     | Argument Types               |                                                  |
+|----------------------------------|------------------------------|--------------------------------------------------|
+| Event::get_user_channel_number() | user::user_t, returns int8_t | Returns the event channel number user set to.    |
+| Event::clear_user()              | user::user_t                 | Disconnect specified user from any event channel |
+| Event::gen_from_peripheral()     | TCA_t, TCB_t, `CCL`, or AC_t | Return the generator for this peripheral <br/> second argument specified which generator, if several |
+| Event::user_from_peripheral()    | TCA_t, TCB_t, `CCL`, or USART_t | Return the user for this peripheral <br/> second argument specifies which user, if several |
+
+For the CCL, when looking up a generator, the second argumennt is the logic block number, for looking up a user, it is twice the logic block number for input A
+
+
+
 ### get_channel_number()
 Method to get the current channel number. Useful if the channel object has been passed to a function as reference.
 
@@ -258,7 +305,7 @@ Method to get the generator used for a particular channel.
 #### Usage
 ```c++
 uint8_t generator_used = Event0.get_generator();
-if(generator_used == gen::ccl0_out) {
+if (generator_used == gen::ccl0_out) {
   Serial.println("We're using gen::ccl0_out as generator");
 }
 ```
@@ -321,7 +368,7 @@ Event0.soft_event(); // Create a single software event on Event0
 ```
 
 ### long_soft_event()
-soft_event() is only one system clock long. Often you need something a little longer. 2 clocks? 4 clocks maybe? Maybe it needs to get past the 'filter' on a CCL... Or you've got 2 things that need to happen a fraction of a microsecond apart; you've tried triggering one on the rising edge of a soft_event and the other on the falling edge, but it's just a hair too fast, and the other obvious solutions aren't viable due to the specifics of your scheme. The only way that a soft-event can last multiple system clocks is if the register is written every clock cycle. There is no time got a loop; only brute force (ie, a contiguous block of 'ST'ore instructions) will do the trick. Now in many ways this defeats the point of the event system; however, there are times when it is not entirely unreasonable to do this (as noted above), particularly if doing weird things with the CCLs, event system, and other peripherals.
+soft_event() is only one system clock long. Often you need something a little longer. 2 clocks? 4 clocks maybe? Maybe it needs to get past the 'filter' on a CCL... Or you've got 2 things that need to happen a fraction of a microsecond apart; you've tried triggering one on the rising edge of a soft_event and the other on the falling edge, but it's just a hair too fast, and the other obvious solutions aren't viable due to the specifics of your scheme. The only way that a soft-event can last multiple system clocks is if the register is written every clock cycle. There is no time for a loop; only brute force (ie, a contiguous block of 'ST'ore instructions) will do the trick. Now in many ways this defeats the point of the event system; however, there are times when it is not entirely unreasonable to do this (as noted above), particularly if doing weird things with the CCLs, event system, and other peripherals.
 
 The lengths that are available are 2, 4, 6, 10 and 16 (any number less than 4 will give 2 clock-long pulse, only 4 will give a 4 clock long one. Anything between 4 and 10 will give 6, exactly 10 will give 10, and anything larger will give 16). Those numbers were chosen arbitrarily to keep the size small, and give a selection that covered the reasonable use cases I could think of. If you need longer, you shouold definitely use a different approach.
 
@@ -333,6 +380,10 @@ Event0.long_soft_event(10); // will invert the state of the event channel for 10
 ```
 Don't forget that this is an invert, not a "high" or "low". It should be entirely possible for the event that normally drives it to occur resulting in the state changing during that pulse, depending on it's configuration. Note also that the overhead of long_soft_event is typically several times the length of the pulse due to calculating the bitmask to write; it's longer with higher numbered channels. if that is a problem, whatever your use case is, it is not one of the ones this was intended for...
 
+#### Usage
+```c++
+Event0.soft_event(); // Create a single software event on Event0
+```
 
 ### start()
 Starts an event generator channel by writing the generator selected by `set_generator()` method to the `EVSYS.CHANNELn` register.
@@ -344,7 +395,6 @@ Event0.start(); // Starts the Event0 generator channel
 
 ### stop()
 Stops an event generator channel by clearing the `EVSYS.CHANNELn` register. The `EventN` object retains memory of what generator it was previously set to.
-
 #### Usage
 ```c++
 Event0.stop(); // Stops the Event0 generator channel
@@ -369,16 +419,16 @@ uint8_t init(TCB_t* some_timer, /*and more arguments, most likely */) { // User 
 
 Shown below, generators/user per instance  (second argument should be less than this; zero-indexed), and the number of instances (for reference)
 
-| Peripheral |   tiny0  |   tiny1  |   tiny2  |   mega0  |  DA/DB/DB   |
-|------------|----------|----------|----------|----------|-------------|
-| TCAn       | 5 / 1 x1 | 5/1 x1   | 5 / 2 x1 | 5 / 1 x1 |  5 / 2 x1-2 |
-| TCBn       |    ***   |    ***   | 2 / 2 x2 | 1/1 x3-4 |  2 / 2 x2-5 |
-| CCL **     | 2 / 4    | 2 / 4    | 4 / 8    | 4 / 8    |4-6 / 8-12   |
-| ACn        | 1 / 0 x1 | */0 x1-3 | 1 / 0 x1 | 1 / 0 x1 |  1 / 0 x1-3 |
-| USARTn     | 0 / 1 x1 | 0/1 x1   | ! / 1 x2 | !/1 x3-4 |  ! / 1 x2-6 |
+| Peripheral |   tiny0  |   tiny1  |   tiny2  |   mega0  |  DA/DB/DB   |     EA     |
+|------------|----------|----------|----------|----------|-------------|------------|
+| TCAn       | 5 / 1 x1 | 5/1 x1   | 5 / 2 x1 | 5 / 1 x1 |  5 / 2 x1-2 | 5 / 2 x2   |
+| TCBn       |    ***   |    ***   | 2 / 2 x2 | 1/1 x3-4 |  2 / 2 x2-5 | 2 / 2 x3-4 |
+| CCL **     | 2 / 4    | 2 / 4    | 4 / 8    | 4 / 8    |4-6 / 8-12   | 4 / 8      |
+| ACn        | 1 / 0 x1 | */0 x1-3 | 1 / 0 x1 | 1 / 0 x1 |  1 / 0 x1-3 | 1 / 0 x1-2 |
+| USARTn     | 0 / 1 x1 | 0 / 1 x1 | ! / 1 x2 | !/1 x3-4 |  ! / 1 x2-6 | ! / 1 x2-3 |
 
 `*` - the tiny1 parts with 1 AC work normally. This is unfortuately not supported for tiny1 parts with the triple-AC configuration:
-`**` - There is only one CCL peripheral, with multiple logic blocks. Each logic block has 1 event generator and 2 event users. If using the logic library, get the Logic instance number. The output generator is that number. The input is twice that number, and twice that number + 1.
+`**` - There is only one CCL peripheral, with multiple logic blocks. Each logic block has 1 event generator and 2 event users. If using the logic library, get the Logic instance number. The output generator is that number. The inputs are twice that number, and twice that number + 1.
 `***` - This peripheral is not supported becausse the generator numbers are channel dependent.
 `!` - These parts do have an option, but we didn't bother to implement it because it isn't particularly useful. But the Event RX mode combined with the TX input to the CCL permit arbitrary remapping of RX and very flexible remapping of TX.
 

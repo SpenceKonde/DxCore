@@ -5,7 +5,7 @@
 // astyle should never be allowed to stomp on inline assembly
 
 /* Ugly ugly
- * SPMCOMMAND will be #defomed as the assembly command that we call
+ * SPMCOMMAND will be #defined as the assembly command that we call
  * to write to the flash after setting up the Z register and putting the data into r0:r1.
  * if we're using CODESIZE > 0 then it's SPM Z+, if not optiboot, call to label, and if it
  * is optiboot, the magic address 0x1FA.
@@ -29,10 +29,9 @@
  * always set to 0 first - and then if asked to set it elsewhere, then
  * do so. Undecided about whether to have these functions clear it.
  * It's not risky to leave them that way, but could annoy people with
- * other routines to write to EEPROM. On the other hand, depending on
- * how I end up implementing bootloaderless flash writes, they might
- * have no choice in adapting to our way of doing things if they want
- * to write to EEPROM (or USERROW).
+ * other routines to write to EEPROM by hand and make bad assumptions,
+ * except insofar as the actual SPM instruction remains a loaded gun
+ * pointed at your flash.
  */
 void do_nvmctrl(uint8_t command) {
   while (NVMCTRL.STATUS & 0x03); // wait if busy, though this is unlikely
@@ -121,6 +120,12 @@ uint8_t FlashClass::checkWritable() {
  * not "It is the responsibility of the user to ensure..."
  */
 
+  #if !defined(NO_CORE_RESERVED)
+  if (address > PROGMEM_SIZE - 514) {
+    return FLASHWRITE_RESERVED_BY_CORE;
+  }
+  #endif
+
 uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
     if ((FUSE.BOOTSIZE != 0x01)) {
@@ -131,6 +136,9 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   }
   uint8_t command;
   uint16_t minaddress = 0x200; // 512 (bootloader section).
+  if (address >= PROGMEM_SIZE) {F
+    return FLASHWRITE_BADADDR;
+  }
   switch (size) {
     case 1:
       command = NVMCTRL_CMD_FLPER_gc;
@@ -158,14 +166,15 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
     default:
       return FLASHWRITE_BADSIZE;
   }
-  if (address > (PROGMEM_SIZE - 1) || address < minaddress) {
+  if (address < minaddress) {
     return FLASHWRITE_BADADDR;
+  } else if (address > (PROGMEMSIZE - minaddress - 1))
+    return FLASHWRITE_RESERVED_BY_CORE;
   }
   #if (PROGMEM_SIZE > 0x10000)
+    RAMPZ = 0;
     if (address > 0xFFFF) {
       RAMPZ = 1;
-    } else {
-      RAMPZ = 0;
     }
   #endif
   do_nvmctrl(command);
@@ -223,8 +232,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
   do_nvmctrl(NVMCTRL_CMD_FLWR_gc);
   uint16_t zaddress=address;
   __asm__ __volatile__(
-            "mov  r0,%A[dat]"                     "\n\t"
-            "mov  r1,%B[dat]"                     "\n\t"
+            "movw r0,%A[dat]"                     "\n\t"
             SPMCOMMAND                            "\n\t"
             "clr  r1"                             "\n\t"
             : [flptr]   "+z"   (zaddress)
@@ -234,12 +242,12 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
     RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
   uint8_t status = NVMCTRL.STATUS & 0x70;
-  if (status != 0) {
+  if (status) {
     NVMCTRL.STATUS = 0;
     return (FLASHWRITE_FAIL | (status >> 4)); // uhoh, NVMCTRL says we did something wrong...
   }
   if ((NVMCTRL.ADDR&0xFFFFFF) != (address + 1)) {
-    return FLASHWRITE_SPM_NOT_USED;
+    return FLASHWRITE_NOT_WRITTEN;
   }
   return FLASHWRITE_OK;
 }
@@ -254,9 +262,14 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   #endif
     return FLASHWRITE_NOBOOT;
   }
-  if (address > (PROGMEM_SIZE - 2) || address < 512) {
+  if (address > (PROGMEM_SIZE - 2 || address < 512) {
     return FLASHWRITE_BADADDR;
   }
+  #if !defined(NO_CORE_RESERVED)
+  if (address > PROGMEM_SIZE - 513) {
+    return FLASHWRITE_RESERVED_BY_CORE;
+  }
+  #endif
   #if (PROGMEM_SIZE > 0x10000)
     if (address > 0xFFFF) {
       RAMPZ = 1;
@@ -280,17 +293,16 @@ uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   // No, it most definitely is not ignored! It will definitely do unaligned writes
   // unless they cross the page boundary, in which case the byte that would
   // be in the last byte of the prior page ends up on the second byte if the new page...
-  uint16_t zaddress=address & 0xFFFE; // truncate and force low bit to 0...
+  uint16_t zaddress = address & 0xFFFE; // truncate and force low bit to 0...
   do_nvmctrl(NVMCTRL_CMD_FLWR_gc);
   __asm__ __volatile__(
-            "mov  r0,%A[dat]"                     "\n\t"
-            "mov  r1,%B[dat]"                     "\n\t"
+            "movw  r0,%A[dat]"                     "\n\t"
             SPMCOMMAND                            "\n\t"
             "clr  r1"                             "\n\t"
             : [flptr]   "+z"   (zaddress)
             : [dat]      "r"   (dataword)
           );
-  #if (PROGMEM_SIZE > 0x10000)
+  #if PROGMEM_SIZE > 0x10000
     RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
   uint8_t status = NVMCTRL.STATUS & 0x70;

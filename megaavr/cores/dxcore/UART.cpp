@@ -28,12 +28,13 @@
 // this next line disables the entire UART.cpp if there's no hardware serial
 #if defined(USART0) || defined(USART1) || defined(USART2) || defined(USART3) || defined(USART4) || defined(USART5)
 
-// macro to guard critical sections when needed for large TX buffer sizes
-#if (SERIAL_TX_BUFFER_SIZE > 256)
-#define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-#else
-#define TX_BUFFER_ATOMIC
-#endif
+#if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3)
+  // macro to guard critical sections when needed for large TX buffer sizes
+  #if (SERIAL_TX_BUFFER_SIZE > 256)
+    #define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  #else
+    #define TX_BUFFER_ATOMIC
+  #endif
 
 /*##  ###  ####
   #  #     #   #
@@ -42,24 +43,24 @@
  ### ####  #  */
 
 #if USE_ASM_TXC == 1
-  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void){
-    __asm__ __volatile__(   // we start with the r30 but not r31 preserved
-      "_do_txc:"                  "\n\t"  // the low byte of the address of the USART is in r30.
+  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void) {
+    __asm__ __volatile__(
+      "_do_txc:"                  "\n\t"  //
         "push     r31"            "\n\t"  // push other half of Z register.
         "push     r24"            "\n\t"  // push r24
         "in       r24,     0x3f"  "\n\t"  // save sreg to r24
-        "push     r24"            "\n\t"  // and push that. Next, finish usartn address..
+        "push     r24"            "\n\t"  // and push that. r30 pushed and loaded by ISR already.
         "ldi      r31,     0x08"  "\n\t"  // all USARTs are 0x08n0 where n is an even hex digit.
       "_txc_flush_rx:"            "\n\t"  // start of rx flush loop.
-        "ld       r24,        Z"  "\n\t"  // rx data
-        "ldd      r24,   Z +  4"  "\n\t"  // status
-        "sbrs     r24,        7"  "\n\t"  // if RXC bit is set,...
-        "rjmp     _txc_flush_rx"  "\n\t"  // .... skip this jump which jumps back a few lines to remove more
-        "ldd      r24,   Z +  5"  "\n\t"  // read CTRLA
+        "ld       r24,        Z"  "\n\t"  // Z + 0 = USARTn.RXDATAL rx data
+        "ldd      r24,   Z +  4"  "\n\t"  // Z + 4 = USARTn.STATUS
+        "sbrs     r24,        7"  "\n\t"  // if RXC bit is set...
+        "rjmp     _txc_flush_rx"  "\n\t"  // .... skip this jump to remove more from the buffer.
+        "ldd      r24,   Z +  5"  "\n\t"  // Z + 5 = USARTn.CTRLA read CTRLA
         "andi     r24,     0xBF"  "\n\t"  // clear TXCIE
         "ori      r24,     0x80"  "\n\t"  // set RXCIE
         "std   Z +  5,      r24"  "\n\t"  // store CTRLA
-        "pop      r24"            "\n\t"  // pop r24, containing old sreg.
+        "pop      r24"            "\n\t"  // pop r24, xcontaining old sreg.
         "out     0x3f,      r24"  "\n\t"  // restore it
         "pop      r24"            "\n\t"  // pop r24 to get it's old value back
         "pop      r31"            "\n\t"  // and r31
@@ -69,11 +70,22 @@
     __builtin_unreachable();
   }
 #endif
+/*
 
-#if (USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
-  // We only ever use this on the 2-series. 1-series doesn't gain anything with this. The inlining makes the compiler FAR more efficient. RXC isn't compiled stupidly,
-  // the problem is that the ABI requires it to be inefficient as hell. But it's a big deal for the smaller size 2-series parts.
-  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_rxc(void){
+  ISR(USART0_RXC_vect, ISR_NAKED) {
+    __asm__ __volatile__(
+          "push      r30"     "\n\t"
+          "push      r31"     "\n\t"
+          :::);
+    __asm__ __volatile__(
+          "rjmp   do_rxc"     "\n\t"
+          ::"z"(&Serial));
+    __builtin_unreachable();
+  }
+
+*/
+#if (USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) )
+  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_rxc(void) {
     __asm__ __volatile__(
       "_do_rxc:"                      "\n\t" //
         "push       r18"              "\n\t" // r30 and r31 pushed before this.
@@ -86,11 +98,11 @@
         "ldd        r28,    Z + 12"   "\n\t" // Load USART into Y pointer
 //      "ldd        r29,    Z + 13"   "\n\t" // We interact with the USART only this once
         "ldi        r29,      0x08"   "\n\t" // High byte always 0x08 for USART peripheral: Save-a-clock.
-        "ldd        r24,    Y +  1"   "\n\t" // load high byte first
-        "ld         r25,         Y"   "\n\t" // then low byte of RXdata
-        "sbrc       r24,         1"   "\n\t" // if there's a parity error, then
-        "rjmp  _end_rxc"              "\n\t" // do nothing more (framing errors are ok?)
-        "ldd        r28,    Z + 19"   "\n\t" // load current head index      **<---OFFSET CHANGES with class structure**
+        "ldd        r24,    Y +  1"   "\n\t" // Y + 1 = USARTn.RXDATAH - load high byte first
+        "ld         r25,         Y"   "\n\t" // Y + 0 = USARTn.RXDATAH - then low byte of RXdata
+        "sbrc       r24,         1"   "\n\t" // if there's a parity error, then do nothing more. Copies the behavior of
+        "rjmp  _end_rxc"              "\n\t" // stock implementation - framing errors are ok, apparently...
+        "ldd        r28,    Z + 17"   "\n\t" // load current head index
         "ldi        r24,         1"   "\n\t" // Clear r24 and initialize it with 1
         "add        r24,       r28"   "\n\t" // add current head index to it
 #if   SERIAL_RX_BUFFER_SIZE == 256
@@ -134,13 +146,17 @@
   void UartClass::_rx_complete_irq(UartClass& uartClass) {
     // if (bit_is_clear(*_rxdatah, USART_PERR_bp)) {
     uint8_t rxDataH = uartClass._hwserial_module->RXDATAH;
-    uint8_t c = uartClass._hwserial_module->RXDATAL;  // no need to read the data twice. read it, then decide what to do
+    uint8_t       c = uartClass._hwserial_module->RXDATAL;  // no need to read the data twice. read it, then decide what to do
     rx_buffer_index_t rxHead = uartClass._rx_buffer_head;
 
     if (!(rxDataH & USART_PERR_bm)) {
       // No Parity error, read byte and store it in the buffer if there is room
       // unsigned char c = uartClass._hwserial_module->RXDATAL;
-      rx_buffer_index_t i = (unsigned int)(rxHead + 1) % SERIAL_RX_BUFFER_SIZE;
+      #if SERIAL_RX_BUFFER_SIZE > 256
+        rx_buffer_index_t i = (uint16_t)(rxHead + 1) % SERIAL_RX_BUFFER_SIZE;
+      #else
+        rx_buffer_index_t i = (uint8_t)(rxHead + 1) % SERIAL_RX_BUFFER_SIZE;
+      #endif
 
       // if we should be storing the received character into the location
       // just before the tail (meaning that the head would advance to the
@@ -153,11 +169,23 @@
     }
   }
 #endif
+/*
 
+ISR(USART0_DRE_vect, ISR_NAKED) {
+  __asm__ __volatile__(
+            push  r30
+            push  r31    "\n\t"
+            :::);
+  __asm__ __volatile__(
+            "rjmp do_dre"   "\n\t"
+            ::"z"(&Serial));
+  __builtin_unreachable();
+
+*/
 
 #if USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
                         (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16)
-  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_dre(void){
+  void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_dre(void) {
     __asm__ __volatile__(
     "_do_dre:"                        "\n\t"
       "push        r18"               "\n\t"
@@ -227,10 +255,10 @@
       "pop         r28"               "\n\t"  // finish popping Y
 #if PROGMEM_SIZE > 8192
       "brts        .+4"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
-      "jmp  _poll_dre_done"           "\n\t"  // >8k parts must us jmp, otherwise it will give PCREL error.
+      "jmp _poll_dre_done"            "\n\t"  // >8k parts must us jmp, otherwise it will give PCREL error.
 #else
       "brts        .+2"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
-      "rjmp  _poll_dre_done"          "\n\t"  // 8k parts can use RJMP
+      "rjmp _poll_dre_done"           "\n\t"  // 8k parts can use RJMP
 #endif
       "pop         r27"               "\n\t"  // and continue with popping registers.
       "pop         r26"               "\n\t"
@@ -246,12 +274,12 @@
     __builtin_unreachable();
   }
 #elif USE_ASM_DRE == 1
-  #warning "USE_ASM_DRE is defined, but the buffer sizes are not supported, falling back to the classical DRE."
+  #warning "USE_ASM_DRE == 1, but the buffer sizes are not supported, falling back to the classical DRE."
 #else
   void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
-    USART_t* usartModule = (USART_t*)uartClass._hwserial_module;  // reduces size a little bit
-    tx_buffer_index_t txTail = uartClass._tx_buffer_tail;
-  /*
+    USART_t* usartModule      = (USART_t*)uartClass._hwserial_module;  // reduces size a little bit
+    tx_buffer_index_t txTail  = uartClass._tx_buffer_tail;
+
     // Check if tx buffer already empty. when called by _poll_tx_data_empty()
     if (uartClass._tx_buffer_head == txTail) {
       // Buffer empty, so disable "data register empty" interrupt
@@ -307,8 +335,8 @@ void UartClass::_poll_tx_data_empty(void) {
 
         return;
       }
-      #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
-                              (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
+      #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128  || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+                                (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128  || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
         _tx_data_empty_irq(*this);
       #else
         void * thisSerial = this;
@@ -386,7 +414,7 @@ void UartClass::begin(unsigned long baud, uint16_t options) {
     ctrla  |= USART_RXCIE_bm;               // we will want to enable the ISR.
   }
   uint8_t setpinmask = ctrlb & 0xC8;        // ODME in bit 3, TX and RX enabled in bit 6, 7
-  if ((ctrla & USART_LBME_bm) && (setpinmask == 0xC8)) { // if it's open-drain and loopback AND both TX and RX are enabled, need to set state bit 2.
+  if ((ctrla & USART_LBME_bm) && (setpinmask == 0xC8)) { // if it's open-drain and loopback, need to set state bit 2.
     _state                 |= 2;            // since that changes some behavior (RXC disabled while sending) // Now we should be able to ST _state.
     setpinmask             |= 0x10;         // this tells _set_pins not to disturb the configuration on the RX pin.
   }
@@ -448,73 +476,17 @@ int UartClass::read(void) {
     _rx_buffer_tail = (rx_buffer_index_t)(_rx_buffer_tail + 1) & (SERIAL_RX_BUFFER_SIZE - 1);   // % SERIAL_RX_BUFFER_SIZE;
     return c;
   }
-}
 
-int UartClass::availableForWrite(void) {
-  tx_buffer_index_t head;
-  tx_buffer_index_t tail;
-
-  TX_BUFFER_ATOMIC {
-    head = _tx_buffer_head;
-    tail = _tx_buffer_tail;
+  int UartClass::read(void) {
+    // if the head isn't ahead of the tail, we don't have any characters
+    if (_rx_buffer_head == _rx_buffer_tail) {
+      return -1;
+    } else {
+      unsigned char c = _rx_buffer[_rx_buffer_tail];
+      _rx_buffer_tail = (rx_buffer_index_t)(_rx_buffer_tail + 1) & (SERIAL_RX_BUFFER_SIZE - 1); // % SERIAL_RX_BUFFER_SIZE;
+      return c;
+    }
   }
-  if (head >= tail) {
-    return SERIAL_TX_BUFFER_SIZE - 1 - head + tail;
-  }
-  return tail - head - 1;
-}
-
-void UartClass::flush() {
-  // If we have never written a byte, no need to flush. This special
-  // case is needed since there is no way to force the TXCIF (transmit
-  // complete) bit to 1 during initialization
-  if (!(_state & 1)) {
-    return;
-  }
-
-  // Check if we are inside an ISR already (e.g. connected to a different peripheral then UART), in which case the UART ISRs will not be called.
-  // Spence 10/23/20: Changed _poll_tx_data_empty() to instead call the ISR directly in this case too
-  // Why elevate the interrupt if we're going to go into a busywait loop checking if the interrupt is disabled and if so, check for the bit and
-  // manually call the ISR if the bit is set... *anyway*? Plus, in write(), this mode will be enabled upon a write of a single character from an ISR
-  // and will stay that way until the buffer is empty, which would mean that the fairly long and slow UART TX ISR would have priority over a
-  // potentially very fast interrupt that the user may have set to priority level 1. Just because a whizz-bang feature is there doesn't mean
-  // it's appropriate to use for applications where it has only very small benefits, and significant risk of surprising the user and causing
-  // breakage of code that would otherwise work. Finally, the previous implementation didn't check if it was called from the current lvl1 ISR
-  // and in that case flush(), and write() with full buffer would just straight up hang...
-
-
-  // Spin until the data-register-empty-interrupt is disabled and TX complete interrupt flag is raised
-  while (((*_hwserial_module).CTRLA & USART_DREIE_bm) || (!((*_hwserial_module).STATUS & USART_TXCIF_bm))) {
-    // poll this, which will ensure that bytes keep getting sent even if interrupts are disabled or something.
-    _poll_tx_data_empty();
-  }
-  // When we get here, nothing is queued anymore (DREIE is disabled) and
-  // the hardware finished transmission (TXCIF is set).
-}
-
-// Static
-void UartClass::_mux_set(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_code) {
-#if HWSERIAL_MUX_REG_COUNT > 1  // for big pincount devices that have more then one USART PORTMUX register
-  uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 1;
-  uint16_t mux_options_off_gm = pgm_read_word_near(mux_info_ptr);  /* pointer offset to the second columun
-  at the end bottom row of the table, with info about the mux options, rather than a specefic option
-  Low byte is the offset from USARTROUTEA, second byte is the group mask. */
-  volatile uint8_t* portmux  = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)mux_options_off_gm); // offset
-  uint8_t temp   = *portmux;
-  temp          &= ~((uint8_t) (mux_options_off_gm >> 8)); // Group Mask
-  temp          |= mux_code;
-  *portmux       = temp;
-#else
-  uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 2;
-  /* Only one register, so no offset, so only read a byte */
-  uint8_t mux_mask = pgm_read_byte_near(mux_info_ptr);     // only read the group mask
-  volatile uint8_t* portmux = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE);
-  uint8_t temp   = *portmux;
-  temp          &= ~(mux_mask);
-  temp          |= mux_code;
-  *portmux       = temp;
-#endif
-}
 
 // Note that *no attempt is made* to detect and react to incomplete pinsets. It is the resposnability of the user to pick a pinset that contains
 // all the pins they need. Unless you're only receiving, pinset 0, USART1, AVR DD14 or DD20 isn't much use.
@@ -572,7 +544,8 @@ uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint
         mux_table_ptr += USART_PINS_WIDTH; // otherwise try the next mux option
       }
     }
-    return NOT_A_MUX; // At this point, we have checked all group codes for this peripheral. It ain't there. Return NOT_A_MUX.
+    // When we get here, nothing is queued anymore (DREIE is disabled) and
+    // the hardware finished transmission (TXCIF is set).
   }
 }
 // Not static
@@ -668,77 +641,78 @@ size_t UartClass::write(uint8_t c) {
   return 1;
 }
 
-void UartClass::printHex(const uint8_t b) {
-  char x = (b >> 4) | '0';
-  if (x > '9')
-    x += 7;
-  write(x);
-  x = (b & 0x0F) | '0';
-  if (x > '9')
-    x += 7;
-  write(x);
-}
+  void UartClass::printHex(const uint8_t b) {
+    char x = (b >> 4) | '0';
+    if (x > '9')
+      x += 7;
+    write(x);
+    x = (b & 0x0F) | '0';
+    if (x > '9')
+      x += 7;
+    write(x);
+  }
 
-void UartClass::printHex(const uint16_t w, bool swaporder) {
-  uint8_t *ptr = (uint8_t *) &w;
-  if (swaporder) {
-    printHex(*(ptr++));
-    printHex(*(ptr));
-  } else {
-    printHex(*(ptr + 1));
-    printHex(*(ptr));
+  void UartClass::printHex(const uint16_t w, bool swaporder) {
+    uint8_t *ptr = (uint8_t *) &w;
+    if (swaporder) {
+      printHex(*(ptr++));
+      printHex(*(ptr));
+    } else {
+      printHex(*(ptr + 1));
+      printHex(*(ptr));
+    }
   }
-}
 
-void UartClass::printHex(const uint32_t l, bool swaporder) {
-  uint8_t *ptr = (uint8_t *) &l;
-  if (swaporder) {
-    printHex(*(ptr++));
-    printHex(*(ptr++));
-    printHex(*(ptr++));
-    printHex(*(ptr));
-  } else {
-    ptr+=3;
-    printHex(*(ptr--));
-    printHex(*(ptr--));
-    printHex(*(ptr--));
-    printHex(*(ptr));
+  void UartClass::printHex(const uint32_t l, bool swaporder) {
+    uint8_t *ptr = (uint8_t *) &l;
+    if (swaporder) {
+      printHex(*(ptr++));
+      printHex(*(ptr++));
+      printHex(*(ptr++));
+      printHex(*(ptr));
+    } else {
+      ptr+=3;
+      printHex(*(ptr--));
+      printHex(*(ptr--));
+      printHex(*(ptr--));
+      printHex(*(ptr));
+    }
   }
-}
 
-uint8_t * UartClass::printHex(uint8_t* p, uint8_t len, char sep) {
-  for (byte i = 0; i < len; i++) {
-    if (sep && i) write(sep);
-    printHex(*p++);
+  uint8_t * UartClass::printHex(uint8_t* p, uint8_t len, char sep) {
+    for (byte i = 0; i < len; i++) {
+      if (sep && i) write(sep);
+      printHex(*p++);
+    }
+    println();
+    return p;
   }
-  println();
-  return p;
-}
 
-uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporder) {
-  for (byte i = 0; i < len; i++) {
-    if (sep && i) write(sep);
-    printHex(*p++, swaporder);
+  uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporder) {
+    for (byte i = 0; i < len; i++) {
+      if (sep && i) write(sep);
+      printHex(*p++, swaporder);
+    }
+    println();
+    return p;
   }
-  println();
-  return p;
-}
-volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
-  for (byte i = 0; i < len; i++) {
-    if (sep && i) write(sep);
-    uint8_t t = *p++;
-    printHex(t);
+  volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
+    for (byte i = 0; i < len; i++) {
+      if (sep && i) write(sep);
+      uint8_t t = *p++;
+      printHex(t);
+    }
+    println();
+    return p;
   }
-  println();
-  return p;
-}
-volatile uint16_t * UartClass::printHex(volatile uint16_t* p, uint8_t len, char sep, bool swaporder) {
-  for (byte i = 0; i < len; i++) {
-    if (sep && i) write(sep);
-    uint16_t t = *p++;
-    printHex(t, swaporder);
+  volatile uint16_t * UartClass::printHex(volatile uint16_t* p, uint8_t len, char sep, bool swaporder) {
+    for (byte i = 0; i < len; i++) {
+      if (sep && i) write(sep);
+      uint16_t t = *p++;
+      printHex(t, swaporder);
+    }
+    println();
+    return p;
   }
-  println();
-  return p;
-}
+
 #endif

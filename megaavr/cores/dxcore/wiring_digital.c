@@ -20,17 +20,17 @@
   Boston, MA  02111-1307  USA
 
   Modified 28 September 2010 by Mark Sproul
+  Modified extensively 2018~2021 by Spence Konde for
+  megaTinyCore and DxCore.
 */
 
 #define ARDUINO_MAIN
 #include "wiring_private.h"
 #include "pins_arduino.h"
 
-
-inline __attribute__((always_inline)) void check_valid_digital_pin(uint8_t pin)
-{
-  if(__builtin_constant_p(pin)) {
-    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
+inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
+  if (__builtin_constant_p(pin))
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN)
     // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
     // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
     // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
@@ -377,33 +377,46 @@ void digitalWrite(uint8_t pin, uint8_t val) {
      * have a 1 clock delay. So read first + invert */
     val = !(port->OUT & bit_mask);
     port->OUTTGL = bit_mask;
+    // Now, for the pullup setting part below
+    // we need to know if it's been set high or low
+    // otherwise the pullup state could get out of
+    // sync with the output bit. Annoying!
+    val = port->OUT & bit_mask;
     // val will now be 0 (LOW) if the toggling made it LOW
-    // or 1 (HIGH) otherwise.
-  } else { /* If HIGH OR  > TOGGLE  */
+    // or bit_mask if not. And further down, we only need to
+    // know if it's
+  /* If HIGH OR  > TOGGLE  */
+  } else {
     port->OUTSET = bit_mask;
   }
-  if (!(port->DIR & bit_mask)) { /* Input direction */
-    /* on classic AVR, digitalWrite() has side effect
-     * that when pin set as input, the pull-up is
-     * enabled if this function is called.
-     * Code in the wild relies on this so we'd better implement it
-     * which sucks, cause this function would be way faster w/out it
-     *
-     * Get bit position for getting pin ctrl reg */
+
+  /* Input direction */
+  if (!(port->DIR & bit_mask)) {
+    /* Old implementation has side effect when pin set as input -
+      pull up is enabled if this function is called.
+      Should we purposely implement this side effect?
+    */
+
+    /* Get bit position for getting pin ctrl reg */
     uint8_t bit_pos = digitalPinToBitPosition(pin);
 
     /* Calculate where pin control register is */
     volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(port, bit_pos);
 
-    uint8_t status = SREG;                /* Save system status and disable interrupts */
+    /* Save system status and disable interrupts */
+    uint8_t status = SREG;
     cli();
-    if (val == LOW) {                     /* We set it LOW so turn them off */
-      *pin_ctrl_reg &= ~PORT_PULLUPEN_bm; /* Disable pull-up */
-    } else {                              /* We set it HIGH so turn them on */
-      *pin_ctrl_reg |= PORT_PULLUPEN_bm;  /* Enable pull-up  */
+
+    if (val == LOW) {
+      /* Disable pullup */
+      *pin_ctrl_reg &= ~PORT_PULLUPEN_bm;
+    } else {
+      /* Enable pull-up */
+      *pin_ctrl_reg |= PORT_PULLUPEN_bm;
     }
 
-    SREG = status; /* Restore system status */
+    /* Restore system status */
+    SREG = status;
   }
   /* Turn off PWM if applicable
    * If the pin supports PWM output, we need to turn it off.
@@ -414,13 +427,11 @@ void digitalWrite(uint8_t pin, uint8_t val) {
    * analogWritten() 255, then digitallyWritten() to HIGH, which
    * would turn it off for the time between turnOffPWM() and
    * PORT->OUTCLR)
-   * Since there's no penalty, why make a glitch we don't have to?
-   */
+   * Since there's no penalty, why make a glitch we don't have to? */
   turnOffPWM(pin);
 }
 
-inline __attribute__((always_inline)) void digitalWriteFast(uint8_t pin, uint8_t val)
-{
+inline __attribute__((always_inline)) void digitalWriteFast(uint8_t pin, uint8_t val) {
   check_constant_pin(pin);
   check_valid_digital_pin(pin);
   if (pin == NOT_A_PIN) return; // sigh... I wish I didn't have to catch this... but it's all compile time known so w/e
@@ -477,8 +488,7 @@ int8_t digitalRead(uint8_t pin) {
 }
 
 
-inline __attribute__((always_inline)) int8_t digitalReadFast(uint8_t pin)
-{
+inline __attribute__((always_inline)) int8_t digitalReadFast(uint8_t pin) {
   check_constant_pin(pin);
   check_valid_digital_pin(pin);
   // Mega-0, Tiny-1 style IOPORTs
@@ -494,21 +504,22 @@ inline __attribute__((always_inline)) int8_t digitalReadFast(uint8_t pin)
   return !!(vport->IN & mask);
 }
 
-void openDrain(uint8_t pin, uint8_t state){
+
+void openDrain(uint8_t pin, uint8_t state) {
   check_valid_digital_pin(pin);
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if (bit_mask == NOT_A_PIN)  return;
   /* Get port */
   PORT_t *port = digitalPinToPortStruct(pin);
-  port->OUTCLR=bit_mask;
+  port->OUTCLR = bit_mask;
   if (state == LOW)
-    port->DIRSET=bit_mask;
+    port->DIRSET = bit_mask;
   else if (state == CHANGE)
     port->DIRTGL=bit_mask;
   else // assume FLOATING
     port->DIRCLR=bit_mask;
   turnOffPWM(pin);
-  }
+}
 
 inline __attribute__((always_inline)) void openDrainFast(uint8_t pin, uint8_t val)
 {
@@ -524,13 +535,11 @@ inline __attribute__((always_inline)) void openDrainFast(uint8_t pin, uint8_t va
   PORT_t *portstr;
   portstr=(PORT_t *)(0x400+(0x20*port));
 
-  if (val == LOW) {
-    vport->OUT &= ~mask;
+  if (val == LOW)
     vport->DIR |= mask;
-  } else if (val == CHANGE) {
-    vport->OUT &= ~mask;
+  else if (val == CHANGE)
     portstr->DIRTGL = mask;
-  } else// FLOAT
+  else// FLOAT
     vport->DIR &= ~mask;
 }
 

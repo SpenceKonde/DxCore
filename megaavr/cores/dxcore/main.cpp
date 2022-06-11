@@ -105,24 +105,6 @@ int main() {
     GPIOR0 = flags;
   }
 
-
-
-/* This is the simplest solution that clears the flags. However, it is trivial to extend to     *
- * the case where we want to preserve the flags. In the below code, simply move the `flags`      *
- * declaration outside of the function, making it a global variable. You can then read it at    *
- * your leisure                                                                                 *
- * Read the RESET GUIDE for more information on hardening your code against dirty resets.       */
-
-/*
-// Better: Reset if we wound up here through malfunction and clear flags.
-  void init_reset_flags() {
-    uint8_t flags = RSTCTRL.RSTFR;  // Make this a global instead if you will need to access
-    RSTCTRL.RSTFR == flags          // Write 1 to a bit to clear it.
-    if (flags == 0){                // Reset cause - if 0 (no reset), that indicates a
-      _PROTECTED_WRITE(RSTCTRL.SWRR, 1);  // malfunction of some sort occurred
-    }
-  }
-*/
 #endif
 
 /* If using SPM from app, but not actually using Optiboot, we need to point the vector tables in the right place.

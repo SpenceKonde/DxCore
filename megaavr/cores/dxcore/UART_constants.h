@@ -8,7 +8,7 @@
  * DxCore 1.4.0+ and megaTinyCore 2.5.0+.
  */
 /*"What the bloody hell are all these static casts for?!"
- * Well, the io headers define them as enumerated types. From C++20 onwards mixing enums is deprecated. These static casts do not effect behavior for everyone e;se
+ * Well, the io headers define them as enumerated types. From C++20 onwards mixing enums is deprecated. These static casts do not effect behavior for everyone else
  * but makethe user experience significantly better for C++20 people.
  * Note that C++ 20 is not supported by this core . This was done in response to a PR and has zero impact om everyone else. Changes to make life easier for users
  * of unsupported versions of the standards that do not meet both of thoe criteria will not be addressed.

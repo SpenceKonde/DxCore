@@ -5,7 +5,7 @@
  * Copyright (c) 2006 Nicholas Zambetti, Modified by
  * 11/23/2006 David A. Mellis, 9/20/2010 Mark Sproul,
  * 8/24/2012 Alarus, 12/3/2013 Matthijs Kooijman
- * unknown others 2013-2020, 2020-2021 Spence Konde
+ * unknown others 2013-2020, 2020-2022 Spence Konde
  */
 
 /* Each UartClass is defined in its own file, sine the linker pulls
@@ -32,7 +32,7 @@
 
 
 #if defined(USART0)
-  #if USE_ASM_TXC == 1
+  #if defined(USE_ASM_TXC) && USE_ASM_TXC == 1 //&& defined(USART1) // No benefit to this if it's just one USART
     ISR(USART0_TXC_vect, ISR_NAKED) {
       __asm__ __volatile__(
             "push  r30"         "\n\t" // push the low byte of Z

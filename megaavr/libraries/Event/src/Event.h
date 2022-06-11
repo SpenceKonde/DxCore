@@ -1178,7 +1178,7 @@ class Event {
 
     #if defined(TINY_0_OR_1_SERIES)
       void get_generator_channel(gens::generator_t generator) { get_generator_channel((gen::generator_t)generator); }
-      void set_generator(gen::generator_t generator) { set_generator((gen::generator_t)generator); }
+      void set_generator(gens::generator_t generator) { set_generator((gen::generator_t)generator); }
     #endif
     #if defined(EVSYS_CHANNEL0)
       void get_generator_channel(gen0::generator_t generator) { get_generator_channel((gen::generator_t)generator); }
