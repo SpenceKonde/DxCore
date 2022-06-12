@@ -105,17 +105,13 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 // Timer pin mapping
-#define TCA0_PINS PORTMUX_TCA0_PORTC_gc     // EVERY option here sucks; this one gives us... 3 PWM channels...
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
-#define TCD0_PINS PORTMUX_TCD0_ALT4_gc      // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
+#define TCA0_PINS (PORTMUX_TCA0_PORTC_gc)     // EVERY option here sucks; this one gives us... 3 PWM channels...
+#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
+#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
+#define TCD0_PINS (PORTMUX_TCD0_PORTAD)       // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
 
-#define PIN_TCA0_WO0_INIT PIN_PC0
-
-
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
+#define PIN_TCA0_WO0_INIT                 (PC)
 #define NO_GLITCH_TIMERD0
-
 #define digitalPinHasPWM(p)               (((p) >= PIN_PC1 && (p) <= PIN_PC3) || (p) == PIN_PD4 || (p) == PIN_PD5)
 
         /*##   ###  ####  ##### #   # #   # #   #

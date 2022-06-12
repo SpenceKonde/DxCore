@@ -7,7 +7,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 ### planned 1.4.11/1.5.0
 * Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
 * Fix logic library handling of pin inputs
-*
+* Update event library to latest megaTinyCore
+* Enable all released DD's,
 
 ## Version History
 
