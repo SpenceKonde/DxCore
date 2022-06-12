@@ -373,7 +373,7 @@ void AnalogComparator::init() {
         #else
           VREF.CTRLB &= ~VREF_DAC0REFEN_bm;
           #ifdef DAC0
-            uint8_t temp=DAC0.CTRLA;
+            uint8_t temp = DAC0.CTRLA;
             if (!(temp & DAC_OUTEN_bm)) /* Don't disable the DAC if it's also outputting */
               DAC0.CTRLA = temp & (~DAC_ENABLE_bm);
           #endif
@@ -396,7 +396,7 @@ void AnalogComparator::init() {
     AC.CTRLA = (AC.CTRLA & ~(AC_HYSMODE_gm | AC_OUTEN_bm)) | hysteresis | (output & 0x40);
   #else /* megaAVR 0-series */
     // Set voltage reference
-    if(reference != ref::disable)
+    if (reference != ref::disable)
     {
       VREF.CTRLA = (VREF.CTRLA & ~VREF_AC0REFSEL_AVDD_gc) | reference;
       VREF.CTRLB = VREF_AC0REFEN_bm;

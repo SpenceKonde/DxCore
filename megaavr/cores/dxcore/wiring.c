@@ -1142,7 +1142,6 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
 {
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("set_millis() is only valid with millis timekeeping enabled.");
-    GPR.GPR0 |= newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
   #else
     #if defined(MILLIS_USE_TIMERRTC)
       // timer_overflow_count = newmillis >> 16;
@@ -1296,10 +1295,8 @@ void  __attribute__((weak)) init_clock() {
      * We here use the old spelling, and breathe a sigh of relief that we didn't use the group code names.
      * Our supplied core_devices.h will work around this: if the the old spelling of the group masks and
      * is not defined, we define it to the new spelling (and if neither is defined, then we are attempting
-     * to compile for something that isn't a supported part so failure is expected). core_devices.h doesn't
-     * patch up the group codes, and those should not be used until a toolchain package with the new names
-     * is ready for DxCore. This will happen only after ship dates are available for DD-series parts with
-     * less than 64k of flash or  major changes/fixes are put in that impact available parts.
+     * to compile for something that isn't a supported part so failure is expected). core_devices.h now does
+     * patch up the group codes
      */
     #if (F_CPU == 32000000)
       /* Overclocked - generally reliable at room temperature, and a very convenient frequency. */

@@ -18,7 +18,7 @@ void setup() {
    * Iterate the EEPROM using a for loop.
    */
 
-  for (int index = 0; index < EEPROM.length(); index++) {
+  for (int index = 0 ; index < EEPROM.length() ; index++) {
 
     // Add one to each cell in the EEPROM
     EEPROM[index] += 1;

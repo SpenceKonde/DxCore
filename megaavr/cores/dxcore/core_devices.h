@@ -34,6 +34,12 @@
   #define PROGMEM_MAPPED
 #endif
 
+#define PORTMUX_TCD0_PORTA  (PORTMUX_TCD0_DEFAULT_gc)
+#define PORTMUX_TCD0_PORTB  (PORTMUX_TCD0_ALT1_gc)
+#define PORTMUX_TCD0_PORTF  (PORTMUX_TCD0_ALT2_gc)
+#define PORTMUX_TCD0_PORTG  (PORTMUX_TCD0_ALT3_gc)
+#define PORTMUX_TCD0_PORTAD (PORTMUX_TCD0_ALT4_gc)
+
 
 /* Microchip has shown a tendency to rename registers bitfields and similar between product lines, even when the behavior is identical.
  * This is a major hindrance to writing highly portable code which I assume is what most people wish to do. It certainly beats having
@@ -126,35 +132,35 @@
   #endif
   /* And one version later they did it again... */
   #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)
-    #define CLKCTRL_FREQSEL_gm     CLKCTRL_FRQSEL_gm        /*    Group Mask                  */
-    #define CLKCTRL_FREQSEL_gp     CLKCTRL_FRQSEL_gp        /*    Group Position              */
+    #define CLKCTRL_FREQSEL_gm     (CLKCTRL_FRQSEL_gm)      /*    Group Mask                  */
+    #define CLKCTRL_FREQSEL_gp     (CLKCTRL_FRQSEL_gp)      /*    Group Position              */
     //                                                      /*    Group Codes                 */
-    #define CLKCTRL_FREQSEL_1M_gc  CLKCTRL_FRQSEL_1M_gc     /*  1 MHz system clock            */
-    #define CLKCTRL_FREQSEL_2M_gc  CLKCTRL_FRQSEL_2M_gc     /*  2 MHz system clock            */
-    #define CLKCTRL_FREQSEL_3M_gc  CLKCTRL_FRQSEL_3M_gc     /*  3 MHz system clock            */
-    #define CLKCTRL_FREQSEL_4M_gc  CLKCTRL_FRQSEL_4M_gc     /*  4 MHz system clock default    */
-    #define CLKCTRL_FREQSEL_8M_gc  CLKCTRL_FRQSEL_8M_gc     /*  8 MHz system clock            */
-    #define CLKCTRL_FREQSEL_12M_gc CLKCTRL_FRQSEL_12M_gc    /* 12 MHz system clock            */
-    #define CLKCTRL_FREQSEL_16M_gc CLKCTRL_FRQSEL_16M_gc    /* 16 MHz system clock            */
-    #define CLKCTRL_FREQSEL_20M_gc CLKCTRL_FRQSEL_20M_gc    /* 20 MHz system clock            */
-    #define CLKCTRL_FREQSEL_24M_gc CLKCTRL_FRQSEL_24M_gc    /* 24 MHz system clock            */
-    #define CLKCTRL_FREQSEL_28M_gc CLKCTRL_FRQSEL_28M_gc    /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
-    #define CLKCTRL_FREQSEL_32M_gc CLKCTRL_FRQSEL_32M_gc    /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
+    #define CLKCTRL_FREQSEL_1M_gc  (CLKCTRL_FRQSEL_1M_gc)   /*  1 MHz system clock            */
+    #define CLKCTRL_FREQSEL_2M_gc  (CLKCTRL_FRQSEL_2M_gc)   /*  2 MHz system clock            */
+    #define CLKCTRL_FREQSEL_3M_gc  (CLKCTRL_FRQSEL_3M_gc)   /*  3 MHz system clock            */
+    #define CLKCTRL_FREQSEL_4M_gc  (CLKCTRL_FRQSEL_4M_gc)   /*  4 MHz system clock default    */
+    #define CLKCTRL_FREQSEL_8M_gc  (CLKCTRL_FRQSEL_8M_gc)   /*  8 MHz system clock            */
+    #define CLKCTRL_FREQSEL_12M_gc (CLKCTRL_FRQSEL_12M_gc)  /* 12 MHz system clock            */
+    #define CLKCTRL_FREQSEL_16M_gc (CLKCTRL_FRQSEL_16M_gc)  /* 16 MHz system clock            */
+    #define CLKCTRL_FREQSEL_20M_gc (CLKCTRL_FRQSEL_20M_gc)  /* 20 MHz system clock            */
+    #define CLKCTRL_FREQSEL_24M_gc (CLKCTRL_FRQSEL_24M_gc)  /* 24 MHz system clock            */
+    #define CLKCTRL_FREQSEL_28M_gc (CLKCTRL_FRQSEL_28M_gc)  /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
+    #define CLKCTRL_FREQSEL_32M_gc (CLKCTRL_FRQSEL_32M_gc)  /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
   #elif defined(CLKCTRL_FRQSEL_gm) && !defined(CLKCTRL_FREQSEL_gm)
-    #define CLKCTRL_FRQSEL_gm     CLKCTRL_FREQSEL_gm        /*    Group Mask                  */
-    #define CLKCTRL_FRQSEL_gp     CLKCTRL_FREQSEL_gp        /*    Group Position              */
+    #define CLKCTRL_FRQSEL_gm     (CLKCTRL_FREQSEL_gm)      /*    Group Mask                  */
+    #define CLKCTRL_FRQSEL_gp     (CLKCTRL_FREQSEL_gp)      /*    Group Position              */
     //                                                      /*    Group Codes                 */
-    #define CLKCTRL_FRQSEL_1M_gc  CLKCTRL_FREQSEL_1M_gc     /*  1 MHz system clock            */
-    #define CLKCTRL_FRQSEL_2M_gc  CLKCTRL_FREQSEL_2M_gc     /*  2 MHz system clock            */
-    #define CLKCTRL_FRQSEL_3M_gc  CLKCTRL_FREQSEL_3M_gc     /*  3 MHz system clock            */
-    #define CLKCTRL_FRQSEL_4M_gc  CLKCTRL_FREQSEL_4M_gc     /*  4 MHz system clock default    */
-    #define CLKCTRL_FRQSEL_8M_gc  CLKCTRL_FREQSEL_8M_gc     /*  8 MHz system clock            */
-    #define CLKCTRL_FRQSEL_12M_gc CLKCTRL_FREQSEL_12M_gc    /* 12 MHz system clock            */
-    #define CLKCTRL_FRQSEL_16M_gc CLKCTRL_FREQSEL_16M_gc    /* 16 MHz system clock            */
-    #define CLKCTRL_FRQSEL_20M_gc CLKCTRL_FREQSEL_20M_gc    /* 20 MHz system clock            */
-    #define CLKCTRL_FRQSEL_24M_gc CLKCTRL_FREQSEL_24M_gc    /* 24 MHz system clock            */
-    #define CLKCTRL_FRQSEL_28M_gc CLKCTRL_FREQSEL_28M_gc    /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
-    #define CLKCTRL_FRQSEL_32M_gc CLKCTRL_FREQSEL_32M_gc    /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
+    #define CLKCTRL_FRQSEL_1M_gc  (CLKCTRL_FREQSEL_1M_gc)   /*  1 MHz system clock            */
+    #define CLKCTRL_FRQSEL_2M_gc  (CLKCTRL_FREQSEL_2M_gc)   /*  2 MHz system clock            */
+    #define CLKCTRL_FRQSEL_3M_gc  (CLKCTRL_FREQSEL_3M_gc)   /*  3 MHz system clock            */
+    #define CLKCTRL_FRQSEL_4M_gc  (CLKCTRL_FREQSEL_4M_gc)   /*  4 MHz system clock default    */
+    #define CLKCTRL_FRQSEL_8M_gc  (CLKCTRL_FREQSEL_8M_gc)   /*  8 MHz system clock            */
+    #define CLKCTRL_FRQSEL_12M_gc (CLKCTRL_FREQSEL_12M_gc)  /* 12 MHz system clock            */
+    #define CLKCTRL_FRQSEL_16M_gc (CLKCTRL_FREQSEL_16M_gc)  /* 16 MHz system clock            */
+    #define CLKCTRL_FRQSEL_20M_gc (CLKCTRL_FREQSEL_20M_gc)  /* 20 MHz system clock            */
+    #define CLKCTRL_FRQSEL_24M_gc (CLKCTRL_FREQSEL_24M_gc)  /* 24 MHz system clock            */
+    #define CLKCTRL_FRQSEL_28M_gc (CLKCTRL_FREQSEL_28M_gc)  /* 28 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
+    #define CLKCTRL_FRQSEL_32M_gc (CLKCTRL_FREQSEL_32M_gc)  /* 32 MHz system clock unofficial - this will just error out if used since it will replace one undefined symbol with another */
   #endif
   // Note that it is intended to not hide the fact that 28 and 32 MHz are not official. If you choose it from the menu, it says "Overclocked" next to the speed too.
 #endif /* this is the end of the backwards compatibility defines */
@@ -416,11 +422,11 @@
   #elif (PROGMEM_SIZE == 0x2000)  // 8k
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
   #endif
-#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && !(defined(__AVR_DD__) || defined(__AVR_DU__)))
+#elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DD__) || defined(__AVR_DU__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x20) /* 128k DA/DB, 64k DD/DU */
-#elif   (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && !(defined(__AVR_DD__) || defined(__AVR_DU__)))
+#elif   (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DD__) || defined(__AVR_DU__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x10) /*  32k DA/DB, 16k DD/DU */
-#elif   (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && !(defined(__AVR_DD__) || defined(__AVR_DU__)))
+#elif   (PROGMEM_SIZE ==  0x8000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE ==  0x4000 && (defined(__AVR_DD__) || defined(__AVR_DU__)))
   #define   CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
 #else
   #error "Unrecognized combination of flash size and chip type"

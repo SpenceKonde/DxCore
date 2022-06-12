@@ -32,12 +32,12 @@
 #else
   /* we're on a tinyAVR.... */
   #if   ((MEGATINYCORE_SERIES == 0 && defined(__AVR_ATTinyxy4__)                      ) || \
-         (MEGATINYCORE_SERIES == 1 && defined(__AVR_ATTinyxy4__)  && FLASH_SIZE < 8192) || \
+         (MEGATINYCORE_SERIES == 1 && defined(__AVR_ATTinyxy4__)  && PROGMEM_SIZE <= 8192) || \
                                       defined(__AVR_ATtinyxy2__)                      )
     /* P0, N0. Nada mas - for 8-pin parts, 14-pin 0-series, and 14-pin "lesser" 1-series */
     #define ANALOG_COMP_PINS_TINY_FEW
   #elif  (MEGATINYCORE_SERIES == 0) || \
-         (MEGATINYCORE_SERIES == 1  /*20 or 24 pin parts now */   && FLASH_SIZE < 8192)
+         (MEGATINYCORE_SERIES == 1  /*20 or 24 pin parts now */   && PROGMEM_SIZE <= 8192)
     /* P0, P1, N0, N1 - for 20/24-pin 0-series, and 20/24-pin "lesser" 1-series */
     #define ANALOG_COMP_PINS_TINY_SOME
   #elif (MEGATINYCORE_SERIES == 1) // if above didn't catch it, we've got a "golden" 1-series
@@ -186,16 +186,16 @@ namespace ref {
 
       vref_1v024 = 0x00, // 1.024V
       vref_2v048 = 0x01, // 2.048V
-      vref_2v500 = 0x03, // 2.5V
-      vref_2v5   = 0x03,
-      vref_4v096 = 0x02, // 4.096V
-      vref_vdd   = 0x05, // VDD as reference
-  #else
-      vref_0v55 = 0x00, // 1.024V
-      vref_1v1   = 0x01, // 2.048V
-      vref_1v5   = 0x04, // 2.5V
+      vref_2v500 = 0x02, // 2.5V
       vref_2v5   = 0x02,
-      vref_4v3   = 0x03, // 4.096V
+      vref_4v096 = 0x03, // 4.096V
+      vref_vdd   = 0x07, // VDD as reference
+  #else
+      vref_0v55  = 0x00, // 0.55V
+      vref_1v1   = 0x01, // 1.1V
+      vref_1v5   = 0x04, // 1.5V
+      vref_2v5   = 0x02,
+      vref_4v3   = 0x03, // 4.3V
   #endif
   #if defined(DXCORE)
     vref_vrefa = 0x06, // External reference from the VREFA pin
