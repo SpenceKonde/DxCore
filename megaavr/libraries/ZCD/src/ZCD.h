@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #if defined(__AVR_DD__)
-#define ZCD ZCD3
+  #define ZCD ZCD3
 #endif
 
 namespace out {
@@ -65,7 +65,7 @@ class ZeroCross {
 
 #if defined(ZCD3_ZCD_vect)
   extern ZeroCross zcd3;
-#define zcd zcd3
+  #define zcd zcd3
 #endif
 
 #endif

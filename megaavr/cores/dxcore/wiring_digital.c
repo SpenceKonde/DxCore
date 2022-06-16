@@ -29,36 +29,44 @@
 #include "pins_arduino.h"
 
 inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
-  if (__builtin_constant_p(pin))
-    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN)
-    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
-    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
-    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
-    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+  if (__builtin_constant_p(pin))  {
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
+      // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+      // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+      // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+      // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
       if (pin & 0x80) {
-        badArg("Digital pin is constant, but not a valid pin - it is > 0x80 and not NOT_A_PIN. At present, this function only accepts digital pin numbers, NOT analog channel numbers.");
+          badArg("Digital pin is constant, but not a valid pin - it is > 0x80 and not NOT_A_PIN. At present, this function only accepts digital pin numbers, NOT analog channel numbers.");
+        } else {
+          badArg("Digital pin is constant, but not a valid pin");
+        }
       } else {
-        badArg("Digital pin is constant, but not a valid pin");
-      }
-    } else {
-      #if (CLOCK_SOURCE == 2)
-        if (pin == 0)
-          badArg("Digital pin is constant PIN_PA0, but that pin is used for the selected external clock source and is not available for other uses.");
-        else
-      #elif (CLOCK_SOURCE == 1)
-        if (pin < 2)
-          badArg("Digital pin is constant, PIN_PA0 or PA1, used for selected external crystal, and are nor available for other uses.");
-        else
-      #endif
-      {
-      #if defined(XTAL_PINS_HARDWIRED)
-        if (pin < 2)
-          badArg("Digital Pin is constant PIN_PA0 or PA1, but those are hardwired to an external crystal and not available for other uses");
+      #if defined(MEGATINYCORE)
+        #if CLOCK_SOURCE == 2
+          if (pin == PIN_PA3) {
+            badArg("Pin PA0 cannot be used for digital I/O because it is external clock input.");
+          }
+        #endif
+      #else
+        #if (CLOCK_SOURCE == 2)
+          if (pin == 0) {
+            badArg("Pin PA0 cannot be used for digital I/O because it is external clock input.");
+          } else
+        #elif (CLOCK_SOURCE == 1)
+            if (pin < 2) {
+              badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
+            } else
+        #endif
+        #if defined(XTAL_PINS_HARDWIRED)
+          if (pin < 2) {
+            badArg("In the selected board, PA0 and PA1 are hardwired to the crystal. They may not be used for other purposes.");
+          }
+        #endif
       #endif
       }
     }
   }
-}
+
 
 inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
   if(__builtin_constant_p(mode)) {
@@ -197,7 +205,7 @@ inline __attribute__((always_inline)) void pinMode(uint8_t pin, uint8_t mode) {
         if (__builtin_constant_p(mode)) {
           if (mode == OUTPUT) {
             /* If HARDWIRE_INPUT_ONLY is defined, that pin is to be an INPUT only */
-            badArg("This pin cannot be set as an output on the Azduino NanoDB Rev. A. It is hardwired to onboard serial."); // future hardware will correct this defect;
+            badArg("This pin cannot be set as an output due to a known hardware defect in the Rev. A. ."); // future hardware will correct this defect;
             return;
           }
         } else {
