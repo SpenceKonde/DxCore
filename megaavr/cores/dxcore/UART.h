@@ -198,8 +198,8 @@ class UartClass : public HardwareSerial {
     inline  size_t         write(int           n) {return                   write((uint8_t)n);}
     using Print::write;   // pull in write(str) and write(buf, size) from Print
     explicit operator       bool()                {return                                true;}
-    bool             AutoBaudWFB()                {if (_hwserial_module->CTRLB & 0x04 == 0x04) {
-                                                      _hwserial_module->STATUS |= 1;
+    bool             autoBaudWFB()                {if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
+                                                      _hwserial_module->STATUS = 1;
                                                       return true;
                                                     }
                                                     return false;
