@@ -1613,7 +1613,7 @@ avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
 avrdaopti.bootloader.BOOTSIZE=0x01
 avrdaopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
-avrdaopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+avrdaopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 
 #----------------------------------------#
 # Upload parameters for Optiboot         #
@@ -1997,7 +1997,7 @@ avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
-avrdbopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+avrdbopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 
 #----------------------------------------#
 # Upload parameters for Optiboot         #
@@ -2433,7 +2433,7 @@ avrddopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrddopti.bootloader.CODESIZE=0x00
 avrddopti.bootloader.BOOTSIZE=0x01
 avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
-avrddopti.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+avrddopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 
 #----------------------------------------#
 # Upload parameters for Optiboot         #
@@ -2931,7 +2931,7 @@ azduinoboard.build.printf=
 #________________________________________#
 azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt.hex
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
-azduinoboard.bootloader.pymcuprogstring=-f{bootloader.file} -a write
+azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
 azduinoboard.bootloader.WDTCFG=0x00
 azduinoboard.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
