@@ -231,4 +231,4 @@ tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/pr
 # Upload/Program will set fuses 5-8. Fuse 0 is not written because the core never configures that, and if a user went and set that themselvesm we shouldn't undo it.
 # Fuse 1 is the BOD configuration , which could "brick" the chip if set for a higher voltage than the power rail.
 # That leaves the two SYSCFG fuses which are safe (SYSCFG0 will not be safe on DD, though!), and the boot and codesize fuses.
-tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}
+tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} -f "{build.path}/{build.project_name}.hex" -a write {program.verbose}
