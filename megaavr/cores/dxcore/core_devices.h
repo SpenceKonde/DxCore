@@ -509,7 +509,7 @@
  * been announced with it anywhere else, nor has any product been announced with more than 1. */
 
 /* ERRATA TESTS */
-/* Not exhaustive, we'd be going on for thosands of lines to over all the errata. This code assumes all DB are Rev A5, not A4, A4 got pulled fast         */
+/* Not exhaustive, we'd be going on for thousands of lines to over all the errata. This code assumes all DB are Rev A5, not A4, A4 got pulled fast         */
 /* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
   #define ERRATA_TCA1_PORTMUX           (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
