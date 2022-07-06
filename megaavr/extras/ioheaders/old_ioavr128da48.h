@@ -494,7 +494,7 @@ typedef enum CCL_INSEL1_enum
     CCL_INSEL1_TCA0_gc = (0x0A<<4),  /* TCA0 WO1 input source */
     CCL_INSEL1_TCA1_gc = (0x0B<<4),  /* TCA1 WO1 input source */
     CCL_INSEL1_TCB1_gc = (0x0C<<4),  /* TCB1 WO input source */
-    CCL_INSEL1_TCD0_gc = (0x0D<<4),  /* TCD0 WOB input source */
+    CCL_INSEL1_TCD0_gc = (0x0D<<4),  /* TCD0 WOB input soruce */
 } CCL_INSEL1_t;
 
 /* LUT Input 2 Source Selection select */
@@ -7483,3 +7483,4 @@ IO Module Instances. Mapped to memory.
 
 
 #endif /* #ifdef _AVR_AVR128DA48_H_INCLUDED */
+
