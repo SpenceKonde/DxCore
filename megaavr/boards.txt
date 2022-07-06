@@ -2,11 +2,11 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     #  #     #  #  #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #  #    ## ##  #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####     #  #  #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##  #  #  #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ##    # ## ###### #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####      ###  #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #        #  ## #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####     # # # #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##  ##  # #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##   ###  #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -115,6 +115,7 @@ avrda.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
 avrda.bootloader.BOOTSIZE=0x01
+# Note that BOOTSIZE is overridden by App SPM menu's default option - this way is just less verbose.
 avrda.bootloader.avrdudestring=
 avrda.bootloader.pymcuprogstring=-aerase
 
@@ -253,10 +254,10 @@ avrda.menu.clock.30extclock.build.clocksource=2
 avrda.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrda.menu.clock.32extclock.build.speed=32
 avrda.menu.clock.32extclock.build.clocksource=2
-avrda.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrda.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 avrda.menu.clock.36extclock.build.speed=36
 avrda.menu.clock.36extclock.build.clocksource=2
-avrda.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrda.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 avrda.menu.clock.40extclock.build.speed=40
 avrda.menu.clock.40extclock.build.clocksource=2
 avrda.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -345,7 +346,7 @@ avrda.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-avrda.menu.attach.allenabled=On all pins, like usual
+avrda.menu.attach.allenabled=On all pins, with new implementation.
 avrda.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrda.menu.attach.manual=Only enabled ports. Please see documentation
 avrda.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
@@ -419,7 +420,10 @@ avrda.menu.appspm.56plus.bootloader.CODESIZE=112
 avrda.menu.appspm.64plus=Above 64k (AVR128 only)
 avrda.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
 avrda.menu.appspm.64plus.bootloader.CODESIZE=128
-avrda.menu.appspm.96plus=Above 96k (AVR128 only)
+avrda.menu.appspm.80plus=Above 80k (AVR128 only)
+avrda.menu.appspm.80plus.bootloader.appspm=-DSPM_FROM_APP=160
+avrda.menu.appspm.80plus.bootloader.CODESIZE=160
+avrda.menu.appspm.96plus=Above 96k (AVR128 only, where it allows write of whole mapped part of flash)
 avrda.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
 avrda.menu.appspm.96plus.bootloader.CODESIZE=192
 avrda.menu.appspm.112plus=Above 112k (AVR128 only)
@@ -458,7 +462,6 @@ avrdb.bootloader.WDTCFG=0x00
 avrdb.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
-#avrdb.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdb.bootloader.CODESIZE=0x00
 avrdb.bootloader.BOOTSIZE=0x01
 avrdb.bootloader.avrdudestring=
@@ -614,10 +617,10 @@ avrdb.menu.clock.30crystal.build.clocksource=1
 avrdb.menu.clock.32crystal=32 MHz crystal (overclocked)
 avrdb.menu.clock.32crystal.build.speed=32
 avrdb.menu.clock.32crystal.build.clocksource=1
-avrdb.menu.clock.36crystal=36 MHz crystal (overclocked)
+avrdb.menu.clock.36crystal=36 MHz crystal (highly overclocked)
 avrdb.menu.clock.36crystal.build.speed=36
 avrdb.menu.clock.36crystal.build.clocksource=1
-avrdb.menu.clock.40crystal=40 MHz crystal (overclocked)
+avrdb.menu.clock.40crystal=40 MHz crystal (highly overclocked)
 avrdb.menu.clock.40crystal.build.speed=40
 avrdb.menu.clock.40crystal.build.clocksource=1
 avrdb.menu.clock.25extclock=25 MHz ext. clock (slightly overclocked)
@@ -635,10 +638,10 @@ avrdb.menu.clock.30extclock.build.clocksource=2
 avrdb.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdb.menu.clock.32extclock.build.speed=32
 avrdb.menu.clock.32extclock.build.clocksource=2
-avrdb.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrdb.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 avrdb.menu.clock.36extclock.build.speed=36
 avrdb.menu.clock.36extclock.build.clocksource=2
-avrdb.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrdb.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 avrdb.menu.clock.40extclock.build.speed=40
 avrdb.menu.clock.40extclock.build.clocksource=2
 avrdb.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -729,7 +732,7 @@ avrdb.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-avrdb.menu.attach.allenabled=On all pins, like usual
+avrdb.menu.attach.allenabled=On all pins, with new implementation.
 avrdb.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrdb.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdb.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
@@ -813,7 +816,7 @@ avrdb.menu.appspm.56plus.bootloader.CODESIZE=112
 avrdb.menu.appspm.64plus=Above 64k (AVR128 only)
 avrdb.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
 avrdb.menu.appspm.64plus.bootloader.CODESIZE=128
-avrdb.menu.appspm.96plus=Above 96k (AVR128 only)
+avrdb.menu.appspm.96plus=Above 96k (AVR128 only - allows write of whole mapped flash area.)
 avrdb.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
 avrdb.menu.appspm.96plus.bootloader.CODESIZE=192
 avrdb.menu.appspm.112plus=Above 112k (AVR128 only)
@@ -875,68 +878,68 @@ avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
 # changed just like tinyAVRs do          #
 #________________________________________#
 avrdd.menu.chip.avr64dd32=AVR64DD32
+avrdd.menu.chip.avr64dd28=AVR64DD28
+avrdd.menu.chip.avr32dd20=AVR32DD20
+avrdd.menu.chip.avr32dd14=AVR32DD14
+avrdd.menu.chip.avr16dd20=AVR16DD20
+avrdd.menu.chip.avr16dd14=AVR16DD14
+avrdd.menu.chip.avr64dd20=AVR64DD20
+avrdd.menu.chip.avr64dd14=AVR64DD14
+avrdd.menu.chip.avr32dd32=AVR32DD32
+avrdd.menu.chip.avr32dd28=AVR32DD28
+avrdd.menu.chip.avr16dd32=AVR16DD32
+avrdd.menu.chip.avr16dd28=AVR16DD28
 avrdd.menu.chip.avr64dd32.build.mcu=avr64dd32
 avrdd.menu.chip.avr64dd32.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd32.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd32.build.variant=32pin-ddseries
 avrdd.menu.chip.avr64dd20.build.highestcb=B2
-avrdd.menu.chip.avr64dd28=AVR64DD28
 avrdd.menu.chip.avr64dd28.build.mcu=avr64dd28
 avrdd.menu.chip.avr64dd28.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd28.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd28.build.variant=28pin-ddseries
 avrdd.menu.chip.avr64dd20.build.highestcb=B2
-avrdd.menu.chip.avr64dd20=AVR64DD20
 avrdd.menu.chip.avr64dd20.build.mcu=avr64dd20
 avrdd.menu.chip.avr64dd20.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd20.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd20.build.highestcb=B1
 avrdd.menu.chip.avr64dd20.build.variant=20pin-ddseries
-avrdd.menu.chip.avr64dd14=AVR64DD14
 avrdd.menu.chip.avr64dd14.build.mcu=avr64dd14
 avrdd.menu.chip.avr64dd14.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd14.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd14.build.highestcb=B1
 avrdd.menu.chip.avr64dd14.build.variant=14pin-ddseries
-avrdd.menu.chip.avr32dd32=AVR32DD32
 avrdd.menu.chip.avr32dd32.build.mcu=avr32dd32
 avrdd.menu.chip.avr32dd32.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd32.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd32.build.variant=32pin-ddseries
-avrdd.menu.chip.avr32dd28=AVR32DD28
 avrdd.menu.chip.avr32dd28.build.mcu=avr32dd28
 avrdd.menu.chip.avr32dd28.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd28.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd28.build.variant=28pin-ddseries
-avrdd.menu.chip.avr32dd20=AVR32DD20
 avrdd.menu.chip.avr32dd20.build.mcu=avr32dd20
 avrdd.menu.chip.avr32dd20.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd20.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd20.build.highestcb=B1
 avrdd.menu.chip.avr32dd20.build.variant=20pin-ddseries
-avrdd.menu.chip.avr32dd14=AVR32DD14
 avrdd.menu.chip.avr32dd14.build.mcu=avr32dd14
 avrdd.menu.chip.avr32dd14.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd14.build.highestcb=B1
 avrdd.menu.chip.avr32dd14.build.variant=14pin-ddseries
-avrdd.menu.chip.avr16dd32=AVR16DD32
 avrdd.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrdd.menu.chip.avr16dd32.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd32.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd32.build.variant=32pin-ddseries
-avrdd.menu.chip.avr16dd28=AVR16DD28
 avrdd.menu.chip.avr16dd28.build.mcu=avr16dd28
 avrdd.menu.chip.avr16dd28.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd28.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd28.build.variant=28pin-ddseries
-avrdd.menu.chip.avr16dd20=AVR16DD20
 avrdd.menu.chip.avr16dd20.build.mcu=avr16dd20
 avrdd.menu.chip.avr16dd20.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd20.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd20.build.highestcb=B1
 avrdd.menu.chip.avr16dd20.build.variant=20pin-ddseries
-avrdd.menu.chip.avr16dd14=AVR16DD14
 avrdd.menu.chip.avr16dd14.build.mcu=avr16dd14
 avrdd.menu.chip.avr16dd14.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd14.upload.maximum_data_size=2048
@@ -1021,10 +1024,10 @@ avrdd.menu.clock.30crystal.build.clocksource=1
 avrdd.menu.clock.32crystal=32 MHz crystal (overclocked)
 avrdd.menu.clock.32crystal.build.speed=32
 avrdd.menu.clock.32crystal.build.clocksource=1
-avrdd.menu.clock.36crystal=36 MHz crystal (overclocked)
+avrdd.menu.clock.36crystal=36 MHz crystal (highly overclocked)
 avrdd.menu.clock.36crystal.build.speed=36
 avrdd.menu.clock.36crystal.build.clocksource=1
-avrdd.menu.clock.40crystal=40 MHz crystal (overclocked)
+avrdd.menu.clock.40crystal=40 MHz crystal (highly overclocked)
 avrdd.menu.clock.40crystal.build.speed=40
 avrdd.menu.clock.40crystal.build.clocksource=1
 avrdd.menu.clock.25extclock=25 MHz ext. clock (slightly overclocked)
@@ -1042,10 +1045,10 @@ avrdd.menu.clock.30extclock.build.clocksource=2
 avrdd.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdd.menu.clock.32extclock.build.speed=32
 avrdd.menu.clock.32extclock.build.clocksource=2
-avrdd.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrdd.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 avrdd.menu.clock.36extclock.build.speed=36
 avrdd.menu.clock.36extclock.build.clocksource=2
-avrdd.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrdd.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 avrdd.menu.clock.40extclock.build.speed=40
 avrdd.menu.clock.40extclock.build.clocksource=2
 avrdd.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -1134,7 +1137,7 @@ avrdd.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-avrdd.menu.attach.allenabled=On all pins, like usual
+avrdd.menu.attach.allenabled=On all pins, with new implementation.
 avrdd.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrdd.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdd.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
@@ -1175,47 +1178,47 @@ avrdd.menu.startuptime.64.bootloader.sutbits=111
 
 #-------------------------------------#
 #         Wire Mode Selection         #
-# To enable TWI1 or master+slave mode #
+#     To enable master+slave mode     #
 #_____________________________________#
-avrdd.menu.wiremode.mors1=1x Wire, Master or Slave
-avrdd.menu.wiremode.mors1.build.wire.mode=MORS_SINGLE
-avrdd.menu.wiremode.mors1.build.wireabr=.wO
-avrdd.menu.wiremode.mands1=1x Wire, Master and Slave
-avrdd.menu.wiremode.mands1.build.wire.mode=MANDS_SINGLE
-avrdd.menu.wiremode.mands1.build.wireabr=.wA
+avrdd.menu.wiremode.mors= Master or Slave
+avrdd.menu.wiremode.mors.build.wire.mode=MORS_SINGLE
+avrdd.menu.wiremode.mors.build.wireabr=.wO
+avrdd.menu.wiremode.mands=Master and Slave
+avrdd.menu.wiremode.mands.build.wire.mode=MANDS_SINGLE
+avrdd.menu.wiremode.mands.build.wireabr=.wA
 
-
+#-------------------------------------#
+#         SPM from app mode           #
+# To enable writing flash from app    #
+#_____________________________________#
 avrdd.menu.appspm.no=Disabled
 avrdd.menu.appspm.no.bootloader.appspm=
-avrdd.menu.appspm.no.build.appspmabr=
 avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrdd.menu.appspm.no.build.appspmabr=
 avrdd.menu.appspm.full=Anywhere
 avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrdd.menu.appspm.full.build.appspmabr=.spmALL
-avrdd.menu.appspm.16plus=Above 8k
-avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=16
+avrdd.menu.appspm.8plus=Above 8k (Not recommended except for AVR16)
+avrdd.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=16
+avrdd.menu.appspm.8plus.bootloader.CODESIZE=16
+avrdd.menu.appspm.12plus=Above 12k (Not recommended except for AVR16)
+avrdd.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=24
+avrdd.menu.appspm.12plus.bootloader.CODESIZE=24
+avrdd.menu.appspm.16plus=Above 16k (AVR64/32 only)
+avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
-avrdd.menu.appspm.24plus=Above 12k
-avrdd.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=25
+avrdd.menu.appspm.24plus=Above 24k (AVR64/32 only)
+avrdd.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrdd.menu.appspm.24plus.bootloader.CODESIZE=48
-avrdd.menu.appspm.32plus=Above 16k (AVR64/32 only)
-avrdd.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=32
+avrdd.menu.appspm.32plus=Above 32k (AVR64 only)
+avrdd.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrdd.menu.appspm.32plus.bootloader.CODESIZE=64
-avrdd.menu.appspm.48plus=Above 20k (AVR64/32 only)
-avrdd.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=40
+avrdd.menu.appspm.48plus=Above 48k (AVR64 only)
+avrdd.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrdd.menu.appspm.48plus.bootloader.CODESIZE=96
-avrdd.menu.appspm.56plus=Above 24k (AVR64/32 only)
-avrdd.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=48
+avrdd.menu.appspm.56plus=Above 56k (AVR64 only)
+avrdd.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
 avrdd.menu.appspm.56plus.bootloader.CODESIZE=112
-avrdd.menu.appspm.64plus=Above 32k (AVR64 only)
-avrdd.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=64
-avrdd.menu.appspm.64plus.bootloader.CODESIZE=128
-avrdd.menu.appspm.96plus=Above 48k (AVR64 only)
-avrdd.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=96
-avrdd.menu.appspm.96plus.bootloader.CODESIZE=192
-avrdd.menu.appspm.112plus=Above 56k (AVR64 only)
-avrdd.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=112
-avrdd.menu.appspm.112plus.bootloader.CODESIZE=224
 
 ##########################################################################
 #                                                                        #
@@ -1428,10 +1431,10 @@ avrdd.build.appspmabr=
 #avrea.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 #avrea.menu.clock.32extclock.build.speed=32
 #avrea.menu.clock.32extclock.build.clocksource=2
-#avrea.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+#avrea.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 #avrea.menu.clock.36extclock.build.speed=36
 #avrea.menu.clock.36extclock.build.clocksource=2
-#avrea.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+#avrea.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 #avrea.menu.clock.40extclock.build.speed=40
 #avrea.menu.clock.40extclock.build.clocksource=2
 #avrea.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -1536,7 +1539,7 @@ avrdd.build.appspmabr=
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-#avrea.menu.attach.allenabled=On all pins, like usual
+#avrea.menu.attach.allenabled=On all pins, with new implementation.
 #avrea.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 #avrea.menu.attach.manual=Only enabled ports. Please see documentation.
 #avrea.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
@@ -1772,10 +1775,10 @@ avrdaopti.menu.clock.30extclock.build.clocksource=2
 avrdaopti.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdaopti.menu.clock.32extclock.build.speed=32
 avrdaopti.menu.clock.32extclock.build.clocksource=2
-avrdaopti.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrdaopti.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 avrdaopti.menu.clock.36extclock.build.speed=36
 avrdaopti.menu.clock.36extclock.build.clocksource=2
-avrdaopti.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrdaopti.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 avrdaopti.menu.clock.40extclock.build.speed=40
 avrdaopti.menu.clock.40extclock.build.clocksource=2
 avrdaopti.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -1857,7 +1860,7 @@ avrdaopti.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-avrdaopti.menu.attach.allenabled=On all pins, like usual
+avrdaopti.menu.attach.allenabled=On all pins, with new implementation.
 avrdaopti.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrdaopti.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdaopti.menu.attach.manual.build.attachmode=
@@ -2191,10 +2194,10 @@ avrdbopti.menu.clock.30extclock.build.clocksource=2
 avrdbopti.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrdbopti.menu.clock.32extclock.build.speed=32
 avrdbopti.menu.clock.32extclock.build.clocksource=2
-avrdbopti.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrdbopti.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 avrdbopti.menu.clock.36extclock.build.speed=36
 avrdbopti.menu.clock.36extclock.build.clocksource=2
-avrdbopti.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrdbopti.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 avrdbopti.menu.clock.40extclock.build.speed=40
 avrdbopti.menu.clock.40extclock.build.clocksource=2
 avrdbopti.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -2275,7 +2278,7 @@ avrdbopti.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-avrdbopti.menu.attach.allenabled=On all pins, like usual
+avrdbopti.menu.attach.allenabled=On all pins, with new implementation.
 avrdbopti.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrdbopti.menu.attach.manual=Only enabled ports. Please see documentation.
 avrdbopti.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
@@ -2463,68 +2466,80 @@ avrddopti.build.appspmabr=
 # 14/20-pin parts get default millis     #
 # changed just like tinyAVRs do          #
 #________________________________________#
+avrddopti.menu.chip.avr64dd32=AVR64DD32
+avrddopti.menu.chip.avr64dd28=AVR64DD28
+avrddopti.menu.chip.avr32dd20=AVR32DD20
+avrddopti.menu.chip.avr32dd14=AVR32DD14
+avrddopti.menu.chip.avr16dd20=AVR16DD20
+avrddopti.menu.chip.avr16dd14=AVR16DD14
+avrddopti.menu.chip.avr64dd20=AVR64DD20
 avrddopti.menu.chip.avr64dd14=AVR64DD14
+avrddopti.menu.chip.avr32dd32=AVR16DD32
+avrddopti.menu.chip.avr32dd28=AVR16DD28
+avrddopti.menu.chip.avr16dd32=AVR16DD32
+avrddopti.menu.chip.avr16dd28=AVR16DD28
 avrddopti.menu.chip.avr64dd14.build.mcu=avr64dd14
 avrddopti.menu.chip.avr64dd14.bootloader.class=optiboot_dd64
 avrddopti.menu.chip.avr64dd14.upload.maximum_size=65024
 avrddopti.menu.chip.avr64dd14.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd14.build.highestcb=B1
 avrddopti.menu.chip.avr64dd14.build.variant=14pin-ddseries
-avrddopti.menu.chip.avr64dd20=AVR64DD20
 avrddopti.menu.chip.avr64dd20.build.mcu=avr64dd20
 avrddopti.menu.chip.avr64dd20.bootloader.class=optiboot_dd64
 avrddopti.menu.chip.avr64dd20.upload.maximum_size=65024
 avrddopti.menu.chip.avr64dd20.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd20.build.highestcb=B1
 avrddopti.menu.chip.avr64dd20.build.variant=20pin-ddseries
-avrddopti.menu.chip.avr64dd28=AVR64DD28
 avrddopti.menu.chip.avr64dd28.build.mcu=avr64dd28
 avrddopti.menu.chip.avr64dd28.bootloader.class=optiboot_dd64
 avrddopti.menu.chip.avr64dd28.upload.maximum_size=65024
 avrddopti.menu.chip.avr64dd28.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd28.build.variant=28pin-ddseries
 avrddopti.menu.chip.avr64dd28.build.highestcb=B2
-avrddopti.menu.chip.avr64dd32=AVR64DD32
 avrddopti.menu.chip.avr64dd32.build.mcu=avr64dd32
 avrddopti.menu.chip.avr64dd32.bootloader.class=optiboot_dd64
 avrddopti.menu.chip.avr64dd32.upload.maximum_size=65024
 avrddopti.menu.chip.avr64dd32.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd32.build.highestcb=B2
 avrddopti.menu.chip.avr64dd32.build.variant=32pin-ddseries
-avrddopti.menu.chip.avr32dd20=AVR32DD20
+avrddopti.menu.chip.avr32dd32.build.mcu=avr32dd32
+avrddopti.menu.chip.avr32dd32.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr32dd32.upload.maximum_size=32256
+avrddopti.menu.chip.avr32dd32.upload.maximum_data_size=4096
+avrddopti.menu.chip.avr32dd32.build.variant=32pin-ddseries
+avrddopti.menu.chip.avr32dd28.build.mcu=avr32dd28
+avrddopti.menu.chip.avr32dd28.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr32dd28.upload.maximum_size=32256
+avrddopti.menu.chip.avr32dd28.upload.maximum_data_size=4096
+avrddopti.menu.chip.avr32dd28.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr32dd20.build.mcu=avr32dd20
 avrddopti.menu.chip.avr32dd20.bootloader.class=optiboot_dx32_16
 avrddopti.menu.chip.avr32dd20.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd20.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd20.build.highestcb=B1
 avrddopti.menu.chip.avr32dd20.build.variant=20pin-ddseries
-avrddopti.menu.chip.avr32dd14=AVR32DD20
 avrddopti.menu.chip.avr32dd14.build.mcu=avr32dd14
 avrddopti.menu.chip.avr32dd14.bootloader.class=optiboot_dx32_16
 avrddopti.menu.chip.avr32dd14.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd14.build.highestcb=B1
 avrddopti.menu.chip.avr32dd14.build.variant=14pin-ddseries
-avrddopti.menu.chip.avr16dd32=AVR16DD32
 avrddopti.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_dx32_16
 avrddopti.menu.chip.avr16dd32.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd32.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd32.build.variant=32pin-ddseries
-avrddopti.menu.chip.avr16dd32=AVR16DD32
-avrddopti.menu.chip.avr16dd32.build.mcu=avr16dd32
-avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_dx32_16
-avrddopti.menu.chip.avr16dd32.upload.maximum_size=15872
-avrddopti.menu.chip.avr16dd32.upload.maximum_data_size=2048
-avrddopti.menu.chip.avr16dd32.build.variant=32pin-ddseries
-avrddopti.menu.chip.avr16dd20=AVR16DD20
+avrddopti.menu.chip.avr16dd28.build.mcu=avr16dd28
+avrddopti.menu.chip.avr16dd28.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr16dd28.upload.maximum_size=15872
+avrddopti.menu.chip.avr16dd28.upload.maximum_data_size=2048
+avrddopti.menu.chip.avr16dd28.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr16dd20.build.mcu=avr16dd20
 avrddopti.menu.chip.avr16dd20.bootloader.class=optiboot_dx32_16
 avrddopti.menu.chip.avr16dd20.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd20.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd20.build.highestcb=B1
 avrddopti.menu.chip.avr16dd20.build.variant=20pin-ddseries
-avrddopti.menu.chip.avr16dd14=AVR16DD14
 avrddopti.menu.chip.avr16dd14.build.mcu=avr16dd14
 avrddopti.menu.chip.avr16dd14.bootloader.class=optiboot_dx32_16
 avrddopti.menu.chip.avr16dd14.upload.maximum_size=15872
@@ -2631,10 +2646,10 @@ avrddopti.menu.clock.30extclock.build.clocksource=2
 avrddopti.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 avrddopti.menu.clock.32extclock.build.speed=32
 avrddopti.menu.clock.32extclock.build.clocksource=2
-avrddopti.menu.clock.36extclock=36 MHz ext. clock (overclocked)
+avrddopti.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
 avrddopti.menu.clock.36extclock.build.speed=36
 avrddopti.menu.clock.36extclock.build.clocksource=2
-avrddopti.menu.clock.40extclock=40 MHz ext. clock (overclocked)
+avrddopti.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
 avrddopti.menu.clock.40extclock.build.speed=40
 avrddopti.menu.clock.40extclock.build.clocksource=2
 avrddopti.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
@@ -2828,22 +2843,27 @@ avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portswap=2
 
 
 
-###################################################################################
-#                                                                                 #
-#  ###       ####                                                    ####  ####   #
-# #   # #### #   # #   #  #  #  #  ###      #  #  ##  #  #  ###      #   # #   #  #
-# #####   #  #   # #   #  #  ## # #   #     ## # #  # ## # #   #     #   # ####   #
-# #   #  #   #   # #   #  #  # ## #   #     # ## #### # ## #   #     #   # #   #  #
-# #   # #### ####   ###   #  #  #  ###      #  # #  # #  #  ###      ####  ####   #
-#_________________________________________________________________________________#
-#                                        #
-# Parameters and defaults for DB parts   #
-# The Azduino Nano DB is an approximately#
-# Nano-shaped dev-board (it is not pin   #
-# compatible because the nano pin mapping#
-# is terribad) that uses Optiboot        #
-#________________________________________#
-azduinoboard.build.board=avrdb
+########################################################################################################
+#                                                                                                      #
+#  ###       ####                                                    ####  ####      //  ####   ####   #
+# #   # #### #   # #   #  #  #  #  ###      #  #  ##  #  #  ###      #   # #   #    //   #   #  #   #  #
+# #####   #  #   # #   #  #  ## # #   #     ## # #  # ## # #   #     #   # ####    //    #   #  #   #  #
+# #   #  #   #   # #   #  #  # ## #   #     # ## #### # ## #   #     #   # #   #  //     #   #  #   #  #
+# #   # #### ####   ###   #  #  #  ###      #  # #  # #  #  ###      ####  ####  //      ####   ####   #
+#______________________________________________________________________________________________________#
+#                                         #
+# As well as other Azduino boards with    #
+# features that alter what things make    #
+# sensible defaults, ex, the port serial  #
+# uploads occur on, whether crystal pins  #
+# need to be disabled even if not using   #
+# crystal because it's still hardwired to #
+# one which would be destroyed if they    #
+# were set as outputs. If you've modified #
+# the board to change that, then you      #
+# should be using the generic DB/DD board #
+#_________________________________________#
+azduinoboard.build.board=InvalidBoard
 azduinoboard.build.MVIOenable=-DMVIO_ENABLED
 azduinoboard.build.core=dxcore
 azduinoboard.build.f_cpu={build.speed}000000L
@@ -2851,9 +2871,9 @@ azduinoboard.build.text_section_start=.text=0x200
 azduinoboard.build.extra_flags=
 azduinoboard.build.export_merged_output=true
 azduinoboard.build.printf=
-#----------------------------------------#
-# Bootloading parameters and fuses       #
-#________________________________________#
+#-----------------------------------------#
+# Bootloading parameters and fuses        #
+#_________________________________________#
 azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt.hex
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
@@ -2864,9 +2884,9 @@ azduinoboard.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 azduinoboard.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 azduinoboard.bootloader.CODESIZE=0x00
 azduinoboard.bootloader.BOOTSIZE=0x01
-#----------------------------------------#
-# Upload parameters for Optiboot         #
-#________________________________________#
+#-----------------------------------------#
+# Upload parameters for Optiboot          #
+#_________________________________________#
 azduinoboard.upload.tool=avrdude
 azduinoboard.upload.protocol=arduino
 azduinoboard.upload.extra_params=-D
@@ -2889,7 +2909,8 @@ azduinoboard.build.appspmabr=
 #____________________________________________#
 # Chip (memory and pincount)             #
 #________________________________________#
-azduinoboard.menu.board.NanoDB_A=Azduino Nano DB (Rev. A))
+azduinoboard.menu.board.NanoDB_A=Azduino_NanoDB_RevA
+azduinoboard.menu.board.NanoDB_A.build.board=Azduino_NanoDB_A
 azduinoboard.menu.board.NanoDB_A.build.mcu=avr128db32
 azduinoboard.menu.board.NanoDB_A.bootloader.class=optiboot_dx128
 azduinoboard.menu.board.NanoDB_A.upload.maximum_size=130560
@@ -2898,7 +2919,8 @@ azduinoboard.menu.board.NanoDB_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDB_A.bootloader.portswap=1
 azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.MVIOenable}
 azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
-azduinoboard.menu.board.NanoDB_A=Azduino Nano DD (Rev. A))
+azduinoboard.menu.board.NanoDD_A=Azduino_NanoDD_RevA
+azduinoboard.menu.board.NanoDD_A.build.board=Azduino_NanoDD_A
 azduinoboard.menu.board.NanoDD_A.build.mcu=avr64dd32
 azduinoboard.menu.board.NanoDD_A.bootloader.class=optiboot_dd32
 azduinoboard.menu.board.NanoDD_A.upload.maximum_size=65024
@@ -2914,14 +2936,14 @@ azduinoboard.menu.board.NanoDD_A.build.variant=32pin-ddseries
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_data_size=16384
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
-azduinoboard.menu.board.NanoDBPlus.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.MVIOenable}
-azduinoboard.menu.board.NanoDBPlus.build.variant=32pin-standard
-azduinoboard.menu.board.NanoDBPlus=Azduino Nano DB++, Light Controller 2.1+
-azduinoboard.menu.board.NanoDBPlus.build.mcu=avr128db48
-azduinoboard.menu.board.NanoDBPlus.bootloader.class=optiboot_dx128
-azduinoboard.menu.board.NanoDBPlus.upload.maximum_size=130560
-azduinoboard.menu.board.NanoDBPlus.upload.maximum_data_size=16384
-azduinoboard.menu.board.NanoDBPlus.build.variant=48pin-standard
+azduinoboard.menu.board.LEDCTRLA.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.MVIOenable}
+azduinoboard.menu.board.LEDCTRLA=LEDCTRLA Light Controller 2.1+
+azduinoboard.menu.board.LEDCTRLA=Azduino_LEDCTRLA
+azduinoboard.menu.board.LEDCTRLA.build.mcu=avr128db48
+azduinoboard.menu.board.LEDCTRLA.bootloader.class=optiboot_dx128
+azduinoboard.menu.board.LEDCTRLA.upload.maximum_size=130560
+azduinoboard.menu.board.LEDCTRLA.upload.maximum_data_size=16384
+azduinoboard.menu.board.LEDCTRLA.build.variant=48pin-standard
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -2947,10 +2969,10 @@ azduinoboard.menu.clock.20crystal.build.clocksource=1
 azduinoboard.menu.clock.16crystal=16 MHz crystal
 azduinoboard.menu.clock.16crystal.build.speed=16
 azduinoboard.menu.clock.16crystal.build.clocksource=1
-azduinoboard.menu.clock.32crystal=32 MHz crystal (overclocked)
+azduinoboard.menu.clock.32crystal=32 MHz crystal (highly overclocked)
 azduinoboard.menu.clock.32crystal.build.speed=32
 azduinoboard.menu.clock.32crystal.build.clocksource=1
-azduinoboard.menu.clock.40crystal=40 MHz crystal (overclocked)
+azduinoboard.menu.clock.40crystal=40 MHz crystal (highly overclocked)
 azduinoboard.menu.clock.40crystal.build.speed=40
 azduinoboard.menu.clock.40crystal.build.clocksource=1
 azduinoboard.menu.clock.32internal=32 MHz internal (overclocked)
@@ -2969,14 +2991,14 @@ azduinoboard.menu.clock.30crystal.build.clocksource=1
 #----------------------------------------#
 # BrownOut detection (BOD) options       #
 #________________________________________#
+azduinoboard.menu.bodvoltage.2v85=2.85V (Recommended if powered from USB - if Vusb < 2.85V, something else is wrong)
+azduinoboard.menu.bodvoltage.2v85.bootloader.bodlevbits=011
 azduinoboard.menu.bodvoltage.1v9=1.9V
 azduinoboard.menu.bodvoltage.1v9.bootloader.bodlevbits=000
 azduinoboard.menu.bodvoltage.2v45=2.45V
 azduinoboard.menu.bodvoltage.2v45.bootloader.bodlevbits=001
 azduinoboard.menu.bodvoltage.2v70=2.70V
 azduinoboard.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-azduinoboard.menu.bodvoltage.2v85=2.85V
-azduinoboard.menu.bodvoltage.2v85.bootloader.bodlevbits=011
 azduinoboard.menu.bodmode.disabled=Disabled/Disabled
 azduinoboard.menu.bodmode.enabled=Enabled/Enabled
 azduinoboard.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
@@ -3036,7 +3058,7 @@ azduinoboard.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-azduinoboard.menu.attach.allenabled=On all pins, like usual
+azduinoboard.menu.attach.allenabled=On all pins, with new implementation.
 azduinoboard.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 azduinoboard.menu.attach.manual=Only enabled ports. Please see documentation.
 azduinoboard.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
@@ -3091,9 +3113,9 @@ azduinoboard.menu.wiremode.mors1.build.wireabr=.wO
 azduinoboard.menu.wiremode.mands1=1x Wire, Master and Slave
 azduinoboard.menu.wiremode.mands1.build.wire.mode=MANDS_SINGLE
 azduinoboard.menu.wiremode.mands1.build.wireabr=.wA
-azduinoboard.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
+azduinoboard.menu.wiremode.mors2=2x Wire, Master or Slave (not available on Nano DD)
 azduinoboard.menu.wiremode.mors2.build.wire.mode=MORS_BOTH
 azduinoboard.menu.wiremode.mors2.build.wireabr=.wO2
-azduinoboard.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
+azduinoboard.menu.wiremode.mands2=2x Wire, Master and Slave (not available on Nano DB)
 azduinoboard.menu.wiremode.mands2.build.wire.mode=MANDS_BOTH
 azduinoboard.menu.wiremode.mands2.build.wireabr=.wA2
