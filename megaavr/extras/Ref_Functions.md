@@ -87,7 +87,7 @@ For example, AVR64DD14, the pins are PA0, PA1, PC1, PC2, PC3, PD4, PD5, PD6, PD7
 (Standard) Returns true if the pin has PWM available in the standard core configuration. This is a compile-time-known constant as long as the pin is, and does not account for the PORTMUX registers.
 
 ## Attach Interrupt Enable
-If using the old or default (all ports) options, these functions are not available; WInterrupt will define ALL port pin interrupt vectors if `attachInterrupt()` is referemced amywhere in the sketch or included library. This is the old behavior.
+If using the old or default (all ports) options, these functions are not available; WInterrupt will define ALL port pin interrupt vectors if `attachInterrupt()` is referemced anywhere in the sketch or included library. This is the old behavior.
 If you are using the new implementation in manual mode you must call one of the following functions before attaching the interrupt (override `onPreMain()` if you need it ready for a class constructor. That port can have interrupts attached, but others cannot. That port cannot have manuallly written interrupts, which are typically 10-20 times faster), while the other ports can. I will also note that the implementation is hand-tuned assembly and that's still how slow it is. See the [Interrupt Reference for more information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md).
 ```c
 void attachPortAEnable()
