@@ -1,0 +1,174 @@
+LABELS,DEFAULT,TYPE,GROUP,Name,Special,num,ADC0,AC0,DAC0,ZCD3,USARTn,SPI0,SPI0B,TWI0,TCA0,TCBn,TCD0,EVYS,CCL-LUT
+BORDER COLOR, grey
+BORDER WIDTH, 2
+BORDER OPACITY, 1
+#                                Name,Special,       ADC0,       AC0,   DAC0,   ZCD3, USARTn,SPI0,TWI0,TCA0,TCBn,TCD0,EVYS,CCL-LUT
+FILL COLOR, white, white, white, white, deepskyblue, khaki, lime, greenyellow, green, olivedrab, cornflowerblue, yellow, yellow, orange, lavender, magenta, darkorchid, red, gold
+OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+FONT , Rubik, , , Work Sans, Work Sans
+FONT SIZE , 25, , , 25, 25
+FONT COLOR , black, , , , ,
+FONT SLANT , normal , , , , , 
+FONT BOLD , 700 , , , 700 
+FONT STRETCH , normal 
+FONT OUTLINE , black
+FONT OUTLINE THICKNESS, 0.1
+BOXES, STD, , , PIN BOX, SPECIAL BOX, DUMB BOX, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED
+
+TYPE, IO, black, 1      
+TYPE, INPUT, black, 1   
+TYPE, OUTPUT, black, 1  
+
+WIRE, DIGITAL, black, 1, 5
+WIRE, PWM, black, 1, 5
+WIRE, ANALOG, black, 1, 5
+WIRE, HS-ANALOG, black, 1, 5
+WIRE, POWER, black, 1, 10
+
+
+GROUP, COMBINED, chocolate, 0.5
+
+
+GROUP, POWER, orange, 0.5
+GROUP, GROUND, black, 0.5
+GROUP, PORT_PIN, green, 0.5
+GROUP, LEGACY_PIN, yellow, 0.5
+GROUP, AVR_DIG, blue, 0.5
+GROUP, AVR_ANA, blue, 0.5
+GROUP, AVR_VDDIO2, blue, 0.5
+
+
+BOX, STD, black, 1, white, 0, 1, 100,55,2,2,0,0
+BOX, PIN BOX, black, 1, white, 0, 1, 110, 55, 5, 5, -10, 0
+BOX, SPECIAL BOX, black, 1, white, 0, 1, 125, 55, 5, 5, -10, 0
+BOX, DUMB BOX, black, 1, white, 0, 1, 55, 55, 5, 5, -10, 0
+BOX, SKEWED, black, 1, white, 0, 1, 125,55,5,5,-10,0
+BOX, PAGE BORDER, black, 1, white, 1, 50, 100,100,0,0,0,0
+BOX, DETAIL BOX, darkblue, 1, white, 0, 3, 250, 200, 15,15,0,0
+
+
+TEXT FONT, PowerPin, Dejavu Sans, 25, , black, normal, bold, normal
+TEXT FONT, Heading, BenchNine, 50, , black, normal, 700, normal
+    
+PAGE, A4-L
+DPI, 300
+
+DRAW
+
+# Load up the fonts we use
+GOOGLEFONT,"https://fonts.googleapis.com/css?family=BenchNine:300,400,700|Pragati+Narrow:700|Rubik|Ruslan+Display|Work+Sans:700,800,900"
+
+# Draw a border on the page
+BOX, PAGE BORDER, 0,0, 100%, 100%
+
+# Draw Title
+MESSAGE, 1700, 200, 175, Heading, 216, CENTER, TOP
+TEXT, black,black, AVRxxDD14, NL
+
+# draw chip outline
+BOX, DETAIL BOX, 1700, 400, 375, 850, , TOP,
+MESSAGE, 1750, 420, 100, Name, 48, LEFT, TOP
+TEXT, none, black, AVRxxDD14, NL
+MESSAGE, 1725, 1170, 40, Name, 32, LEFT, TOP
+TEXT, none, black, github.com/, NL
+TEXT, none, black, SpenceKonde/DxCore, NL
+
+MESSAGE, 1725, 500, 100, Name, 48, LEFT, TOP
+TEXT, none, black, 1, NL
+TEXT, none, black, 2, NL
+TEXT, none, black, 3, NL
+TEXT, none, black, 4, NL
+TEXT, none, black, 5, NL
+TEXT, none, black, 6, NL
+TEXT, none, black, 7, NL
+
+MESSAGE, 2050, 500, 100, Name, 48, RIGHT, TOP
+TEXT, none, black, 14, NL
+TEXT, none, black, 13, NL
+TEXT, none, black, 12, NL
+TEXT, none, black, 11, NL
+TEXT, none, black, 10, NL
+TEXT, none, black, 9, NL
+TEXT, none, black, 8, NL
+
+
+# Left Side Pins
+ANCHOR, 1670,455
+PINSET, LEFT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
+PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
+PIN, DIGITAL , INPUT, ,PF6(5),RESET,14,,,,,,,,,,,,
+PIN, DIGITAL , IO, ,PF7,UPDI,15,,,,,,SS(3),,,,,,EVOUTF\\n(3),
+PIN, PWM , IO, ,PA0,XTAL1\\nEXTCLK,0,,,,,"0,TxD",MOSI\\n(3),,SDA\\n(H)(3),WO0,,,,"0,IN0"
+PIN, PWM , IO, ,PA1,XTAL2,1,,,,,"0,RxD",MISO\\n(3),,SCL\\n(H)(3),WO1,,,,"0,IN1"
+PIN, PWM , IO, ,PC1,,3,AIN29(6),,,,"1,RxD\\n0,TxD(3)","SS(3)\\nMISO(3)","MOSI\\n(3)",,WO1(3),,,,"1,IN1"
+PIN, PWM , IO, ,PC2,Fm+,4,AIN30(6),AINN3(6),,ZCIN,"1,XCK\\n0,RxD(3)","SCK(3)\\nMISO(3)",,"SDA(C)\\nSDA(H)(3)",WO2(3),,,EVOUTC,"1,IN2"
+
+
+# Right Side Pins
+ANCHOR, 2110,455
+PINSET, RIGHT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
+PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
+PIN, ANALOG, IO, ,PD7,VREFA,13,AIN7,AINN2,,,"0,XDIR(3)\\n1,RxD(3)",SS(3),,,,,,EVOUTD\\n(3),
+PIN, ANALOG, IO, ,PD6,,12,AIN6,AINP3,VOUT,,"0,XCK(3)\\n1,TxD(3)",SCK(3),,,,,,,"2,OUT(3)"
+PIN, PWM, IO, ,PD5,,11,AIN5,,,,"0,RxD(3)",MISO(3),,,WO5(3),,WOD(3),,
+PIN, PWM, IO, ,PD4,,10,AIN4,,,,"0,TxD(3)",MOSI(3),,,WO4(3),,WOC(3),,
+PINTEXT, POWER, IO, POWER , VDDIO2 , PowerPin,"1.8V-5.5V"
+PIN, PWM, IO, ,PC3,Fm+,5,AIN31(6),AINP4(6),,,"1,XDIR\\n0,XCK(3)","SS(3)\\nSCK(3)",,"SCL(C)\\nSCL(H)(3)",WO3(3),,,,"1,OUT"
+
+
+
+# Key
+BOX, DETAIL BOX, 200, 1200, 650, 1100, , TOP, KEY
+
+
+ANCHOR, 250,1250
+PINSET, RIGHT, PACKED, CENTER, CENTER, 74.75, 30, 45, 60, 10, 0
+MESSAGE, 500, 1280, 74.75, Name, 26, LEFT, TOP
+TEXT, none, black, Special Function, NL
+PIN, DIGITAL , IO, ,,"...",,,,,,,,,,,,,,
+TEXT, none, black, Legacy Arduino Pin\#, NL
+PIN, DIGITAL , IO, ,,,"...",,,,,,,,,,,,,
+TEXT, none, black, ADC0, NL
+PIN, DIGITAL , IO, ,,,,"...",,,,,,,,,,,,
+TEXT, none, black, AC0, NL
+PIN, DIGITAL , IO, ,,,,,"...",,,,,,,,,,,
+TEXT, none, black, DAC0, NL
+PIN, DIGITAL , IO, ,,,,,,"...",,,,,,,,,,
+TEXT, none, black, ZCD3, NL
+PIN, DIGITAL , IO, ,,,,,,,"...",,,,,,,,,
+TEXT, none, black, USARTn, NL
+PIN, DIGITAL , IO, ,,,,,,,,"...",,,,,,,,
+TEXT, none, black, SPI0, NL
+PIN, DIGITAL , IO, ,,,,,,,,,"...",,,,,,,
+TEXT, none, black, TWI0, NL
+PIN, DIGITAL , IO, ,,,,,,,,,,,"...",,,,,
+TEXT, none, black, TCA0, NL
+PIN, DIGITAL , IO, ,,,,,,,,,,,,"...",,,,
+TEXT, none, black, TCBn, NL
+PIN, DIGITAL , IO, ,,,,,,,,,,,,,"...",,,
+TEXT, none, black, TCD0, NL
+PIN, DIGITAL , IO, ,,,,,,,,,,,,,,"...",,
+TEXT, none, black, EVYS, NL
+PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,"...",
+TEXT, none, black, CCL-LUT, NL
+PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,,"..."
+
+MESSAGE, 250, 2251.75, 74.75, Name, 26, LEFT, TOP
+TEXT, none, black, (3) Alternate Position  (5) VDDIO2 fused off, NL
+
+
+
+# Blurb
+BOX, DETAIL BOX, 900, 1300, 2500, 1000, , TOP, Features & Notes
+MESSAGE, 925, 1350, 35, Name, 26, LEFT, TOP
+TEXT, none, black, *recommend using PIN_PA0 in preference to 0 (legacy arduino pin\#), NL
+TEXT, none, black, *not sure what the best way to represent the stuff marked (3) is, NL
+TEXT, none, black, *perhaps [N] for pinswap(N)?, NL
+TEXT, none, black, *colors chosen somewhat arbitrarily and easy to change, NL
+TEXT, none, black, *other random verbiage goes here, NL
+
+
+
+MESSAGE, 2200, 1350, 35, Name, 26, LEFT, TOP
+TEXT, none, black, *another column, NL
+
