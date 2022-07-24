@@ -4,12 +4,12 @@ BORDER WIDTH, 2
 BORDER OPACITY, 1
 #                                Name,Special,       ADC0,       AC0,   DAC0,   ZCD3,USARTn,SPI0,TWI0,TCA0,TCBn,TCD0,EVYS,CCL-LUT
 #FILL COLOR, white, white, white, white, deepskyblue, khaki, lime, greenyellow, green, olivedrab, cornflowerblue, yellow, yellow, orange, lavender, magenta, darkorchid, red, gold
-FILL COLOR, white, white, white, white, blue, seagreen, forestgreen, green, limegreen, olivedrab, mediumblue, indianred, indianred, orange, lavender, magenta, darkorchid, red, gold
+FILL COLOR, white, white, white, white, darkslateblue, seagreen, forestgreen, green, limegreen, olivedrab, mediumblue, mediumvioletred, mediumvioletred, darkorange, grey, magenta, darkorchid, maroon, goldenrod
 
 OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 #FONT , , , , Work Sans, Work Sans
 FONT , Rubik, , , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans
-FONT SIZE , 32
+FONT SIZE , 36
 #FONT COLOR , black, , , , ,
 FONT COLOR , black, black, black, black, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white
 FONT SLANT , normal , , , , ,
@@ -43,10 +43,10 @@ GROUP, AVR_VDDIO2, blue, 0.5
 
 
 BOX, STD, black, 1, white, 0, 1, 100,55,2,2,0,0
-BOX, PIN BOX, black, 1, white, 0, 1, 145, 55, 5, 5, -10, 0
-BOX, SPECIAL BOX, black, 1, white, 0, 1, 125, 55, 5, 5, -10, 0
+BOX, PIN BOX, black, 1, white, 0, 1, 165, 45, 5, 5, -10, 0
+BOX, SPECIAL BOX, black, 1, white, 0, 1, 165, 45, 5, 5, -10, 0
 BOX, DUMB BOX, black, 1, white, 0, 1, 55, 55, 5, 5, -10, 0
-BOX, SKEWED, black, 1, white, 0, 1, 125,55,5,5,-10,0
+BOX, SKEWED, black, 1, white, 0, 1, 145,45,5,5,-10,0
 BOX, PAGE BORDER, black, 1, white, 1, 50, 100,100,0,0,0,0
 BOX, DETAIL BOX, darkblue, 1, white, 0, 3, 250, 200, 15,15,0,0
 
@@ -63,10 +63,10 @@ DRAW
 GOOGLEFONT,"https://fonts.googleapis.com/css?family=BenchNine:300,400,700|Pragati+Narrow:700|Rubik|Ruslan+Display|Work+Sans:700,800,900"
 
 # Draw a border on the page
-BOX, PAGE BORDER, 0,0, 100%, 100%
+#BOX, PAGE BORDER, 0,0, 100%, 100%
 
 # Draw Title
-MESSAGE, 1700, 200, 175, Heading, 216, CENTER, TOP
+MESSAGE, 1850, 200, 175, Heading, 216, CENTER, TOP
 TEXT, black,black, AVRxxDD14, NL
 
 # draw chip outline
@@ -78,60 +78,68 @@ TEXT, none, black, github.com/, NL
 TEXT, none, black, SpenceKonde/DxCore, NL
 
 MESSAGE, 1725, 500, 100, Name, 48, LEFT, TOP
-TEXT, none, black, 1, NL
-TEXT, none, black, 2, NL
-TEXT, none, black, 3, NL
-TEXT, none, black, 4, NL
-TEXT, none, black, 5, NL
-TEXT, none, black, 6, NL
-TEXT, none, black, 7, NL
+TEXT, none, black, 1 GND, NL
+TEXT, none, black, 2 F6, NL
+TEXT, none, black, 3 F7, NL
+TEXT, none, black, 4 A0, NL
+TEXT, none, black, 5 A1, NL
+TEXT, none, black, 6 C1, NL
+TEXT, none, black, 7 C2, NL
 
 MESSAGE, 2050, 500, 100, Name, 48, RIGHT, TOP
-TEXT, none, black, 14, NL
-TEXT, none, black, 13, NL
-TEXT, none, black, 12, NL
-TEXT, none, black, 11, NL
-TEXT, none, black, 10, NL
-TEXT, none, black, 9, NL
-TEXT, none, black, 8, NL
+TEXT, none, black, VDD 14, NL
+TEXT, none, black, D7 13, NL
+TEXT, none, black, D6 12, NL
+TEXT, none, black, D5 11, NL
+TEXT, none, black, D4 10, NL
+TEXT, none, black, VDD2 9, NL
+TEXT, none, black, C3 8, NL
 
 
 # Left Side Pins
 ANCHOR, 1670,455
 PINSET, LEFT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
-PIN, DIGITAL , INPUT, ,PF6(5),RESET,,,,,,,,,,,,,
-PIN, DIGITAL , IO, ,PIN_PF7,UPDI,,,,,,,SS(3),,,,,,EOF*,
-PIN, PWM , IO, ,PIN_PA0,XTAL1|EXTCLK,,,,,,"0,TxD",MOSI\\n(3),,SDA\\n(H)(3),WO0,,,,"0,IN0"
-PIN, PWM , IO, ,PIN_PA1,XTAL2,,,,,,"0,RxD",MISO\\n(3),,SCL\\n(H)(3),WO1,,,,"0,IN1"
-PIN, PWM , IO, ,PIN_PC1,,,AIN29(6),,,,"1,RxD|0,TxD(3)","SS(3)|MISO(3)","MOSI\\n(3)",,WO1(3),,,,"1,IN1"
-PIN, PWM , IO, ,PIN_PC2,Fm+,,AIN30(6),AINN3(6),,ZCIN,"1,XCK\\n0,RxD(3)","SCK(3)\\nMISO(3)",,"SDA(C)\\nSDA(H)(3)",WO2(3),,,EVOUTC,"1,IN2"
-
+PIN, DIGITAL , INPUT, ,PIN_PF6,RESET,,,,,,,,,,,,,
+PIN, DIGITAL , IO, ,PIN_PF7,UPDI,,,,,,,SS.6,,,,,,EoF.?,
+PIN, PWM , IO, ,PIN_PA0,XTAL1|EXTCLK,,,,,,"TX0",,,SDA.3,WO0,,,,"0,IN0"
+PIN, PWM , IO, ,PIN_PA1,XTAL2,,,,,,RX0,,,SCL.3,WO1,,,,"0,IN1"
+PIN, PWM , IO, ,PIN_PC1,,,AIN29*,,,,"RX1|TX0.4","MISO.5|MOSI.6",,,WO1.?,,,,"1,IN1"
+#PIN, PWM , IO, ,PIN_PC2,Fm+,,AIN30*,AINN3*,,ZCIN,"1,XCK\\n0,RxD(3)",SCK.5|MISO.6,,"SDA.2|SDAs.3",WO2(3),,,EVOUTC,"1,IN2"
+PIN, PWM , IO, ,PIN_PC2,Fm+,,AIN30*,AINN3*,,ZCIN,"XCK1|RX0.4",SCK.5|MISO.6,,,,,,,
+# line break PC2
+ANCHOR, 1670,1105
+PINSET, LEFT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
+PIN,  NONE, NONE, ,,,,,,,,,,,"SDA.2|SDAs.3",WO2.?,,,EoC,"1,IN2"
 
 # Right Side Pins
 ANCHOR, 2110,455
 PINSET, RIGHT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
-PIN, ANALOG, IO, ,PIN_PD7,VREFA,,AIN7,AINN2,,,"0,XDIR(3)|1,RxD(3)",SS(3),,,,,,EVOUTD\\n(3),
-PIN, ANALOG, IO, ,PIN_PD6,,,AIN6,AINP3,VOUT,,"0,XCK(3)|1,TxD(3)",SCK(3),,,,,,,"2,OUT(3)"
-PIN, PWM, IO, ,PIN_PD5,,,AIN5,,,,"0,RxD(3)",MISO(3),,,WO5(3),,WOD(3),,
-PIN, PWM, IO, ,PIN_PD4,,,AIN4,,,,"0,TxD(3)",MOSI(3),,,WO4(3),,WOC(3),,
+PIN, ANALOG, IO, ,PIN_PD7,VREFA,,AIN7,AINN2,,,"XDIR0.3|RX1.2",SS.4,,,,,,EoD.?,
+PIN, ANALOG, IO, ,PIN_PD6,,,AIN6,AINP3,VOUT,,"XCK0.3|TX1.2",SCK.4,,,,,,,"2,OUT.?"
+PIN, PWM, IO, ,PIN_PD5,,,AIN5,,,,RX0.3,MISO.4,,,WO5.?,,WOD.?,,
+PIN, PWM, IO, ,PIN_PD4,,,AIN4,,,,TX0.3,MOSI.4,,,WO4.?,,WOC.?,,
 PINTEXT, POWER, IO, POWER , VDDIO2 , PowerPin,"1.8V-5.5V"
-PIN, PWM, IO, ,PIN_PC3,Fm+,,AIN31(6),AINP4(6),,,"1,XDIR\\n0,XCK(3)","SS(3)\\nSCK(3)",,"SCL(C)\\nSCL(H)(3)",WO3(3),,,,"1,OUT"
-
+#PIN, PWM, IO, ,PIN_PC3,Fm+,,AIN31(6),AINP4(6),,,"1,XDIR\\n0,XCK(3)","SS(3)\\nSCK(3)",,"SCL.2|SCLs.3",WO3.?,,,,"1,OUT"
+PIN, PWM, IO, ,PIN_PC3,Fm+,,AIN31*,AINP4*,,,XDIR1|XCK0.4,"SS.5|SCK.6",
+ANCHOR, 2110,1105
+PINSET, RIGHT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
+PIN, NONE, NONE, ,,,,,,,,,,,"SCL.2|SCLs.3",WO3.?,,,,"1,OUT"
 
 
 # Key
-BOX, DETAIL BOX, 200, 1200, 650, 1100, , TOP, KEY
+BOX, DETAIL BOX, 200, 1200, 650, 800, , TOP, KEY
+
 
 
 ANCHOR, 250,1250
-PINSET, RIGHT, PACKED, CENTER, CENTER, 74.75, 30, 45, 60, 10, 0
-MESSAGE, 500, 1280, 74.75, Name, 26, LEFT, TOP
-TEXT, none, black, Special Function, NL
+PINSET, RIGHT, PACKED, CENTER, CENTER, 54.75, 30, 45, 60, 10, 0
+MESSAGE, 525, 1280, 54.75, Name, 42, LEFT, TOP
+TEXT, none, black, Special Fn, NL
 PIN, DIGITAL , IO, ,,"...",,,,,,,,,,,,,,
-TEXT, none, black, Legacy Arduino Pin\#, NL
-PIN, DIGITAL , IO, ,,,"...",,,,,,,,,,,,,
+#TEXT, none, black, Legacy Arduino Pin\#, NL
+#PIN, DIGITAL , IO, ,,,"...",,,,,,,,,,,,,
 TEXT, none, black, ADC0, NL
 PIN, DIGITAL , IO, ,,,,"...",,,,,,,,,,,,
 TEXT, none, black, AC0, NL
@@ -157,19 +165,31 @@ PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,"...",
 TEXT, none, black, CCL-LUT, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,,"..."
 
-MESSAGE, 250, 2251.75, 74.75, Name, 26, LEFT, TOP
-TEXT, none, black, (3) Alternate Position  (5) PF6 has no output driver and receives the HV pulse if using PF7 as a GPIO (6)VDDIO2 fused off, NL
+#MESSAGE, 250, 2251.75, 74.75, Name, 26, LEFT, TOP
+#TEXT, none, black, (3) Alternate Position  (5) PF6 has no output driver and receives the HV pulse if using PF7 as a GPIO (6)VDDIO2 fused off, NL
 
 
 
 # Blurb
 BOX, DETAIL BOX, 900, 1300, 2500, 1000, , TOP,
-MESSAGE, 925, 1350, 35, Name, 36, LEFT, TOP
-TEXT, none, black, *recommend using PIN_PA0 in preference to 0 (legacy arduino pin\#), NL
-TEXT, none, black, *not sure what the best way to represent the stuff marked (3) is, NL
-TEXT, none, black, *perhaps [N] for pinswap(N)?, NL
-TEXT, none, black, *colors chosen somewhat arbitrarily and easy to change, NL
-TEXT, none, black, *other random verbiage goes here, NL
+MESSAGE, 925, 1350, 40, Name, 36, LEFT, TOP
+TEXT, none, black, * warning: this revision involved a lot of hand editing and may, NL
+TEXT, none, black,  contain errors. once the formatting is cleaned up I'll resume, NL
+TEXT, none, black,  work on auto-generation, NL
+TEXT, none, black, * PC2/PC3 split into 2 lines because of poor choices by microchip, NL
+TEXT, none, black, * The notation SDA.3 means Wire.swap(3)., NL
+TEXT, none, black,   You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together., NL
+TEXT, none, black, * The notation xxx.? means xxx on an alternate location that isn't updated here yet, NL
+TEXT, none, black, * The notation SDAs.3/SCLs.3 is where the slave pins are in dual mode., NL
+TEXT, none, black, * recommend using PIN_PA0 in preference to 0 (legacy arduino pin\#), NL
+TEXT, none, black, * a * is a reminder for the analog functions of port c which, NL
+TEXT, none, black,   is only available with MVIO fused off and VDDIO2 tied to VDD, NL
+TEXT, none, black, * colors chosen somewhat arbitrarily and easy to change, NL
+TEXT, none, black, * other random verbiage goes here, NL
+TEXT, none, black, * tcaroute can be used to point timera to portX[0-5], NL
+TEXT, none, black,  unfortunately on this part that is at most 3 pins, NL
+
+
 
 
 
