@@ -2,17 +2,21 @@ LABELS,DEFAULT,TYPE,GROUP,Name,Special,num,ADC0,AC0,DAC0,ZCD3,USARTn,SPI0,SPI0B,
 BORDER COLOR, grey
 BORDER WIDTH, 2
 BORDER OPACITY, 1
-#                                Name,Special,       ADC0,       AC0,   DAC0,   ZCD3, USARTn,SPI0,TWI0,TCA0,TCBn,TCD0,EVYS,CCL-LUT
-FILL COLOR, white, white, white, white, deepskyblue, khaki, lime, greenyellow, green, olivedrab, cornflowerblue, yellow, yellow, orange, lavender, magenta, darkorchid, red, gold
+#                                Name,Special,       ADC0,       AC0,   DAC0,   ZCD3,USARTn,SPI0,TWI0,TCA0,TCBn,TCD0,EVYS,CCL-LUT
+#FILL COLOR, white, white, white, white, deepskyblue, khaki, lime, greenyellow, green, olivedrab, cornflowerblue, yellow, yellow, orange, lavender, magenta, darkorchid, red, gold
+FILL COLOR, white, white, white, white, blue, seagreen, forestgreen, green, limegreen, olivedrab, mediumblue, indianred, indianred, orange, lavender, magenta, darkorchid, red, gold
+
 OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-FONT , Rubik, , , Work Sans, Work Sans
-FONT SIZE , 25, , , 25, 25
-FONT COLOR , black, , , , ,
-FONT SLANT , normal , , , , , 
+#FONT , , , , Work Sans, Work Sans
+FONT , Rubik, , , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans
+FONT SIZE , 32
+#FONT COLOR , black, , , , ,
+FONT COLOR , black, black, black, black, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white
+FONT SLANT , normal , , , , ,
 FONT BOLD , 700 , , , 700 
-FONT STRETCH , normal 
+FONT STRETCH , normal
 FONT OUTLINE , black
-FONT OUTLINE THICKNESS, 0.1
+FONT OUTLINE THICKNESS, 0
 BOXES, STD, , , PIN BOX, SPECIAL BOX, DUMB BOX, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED
 
 TYPE, IO, black, 1      
@@ -39,7 +43,7 @@ GROUP, AVR_VDDIO2, blue, 0.5
 
 
 BOX, STD, black, 1, white, 0, 1, 100,55,2,2,0,0
-BOX, PIN BOX, black, 1, white, 0, 1, 110, 55, 5, 5, -10, 0
+BOX, PIN BOX, black, 1, white, 0, 1, 145, 55, 5, 5, -10, 0
 BOX, SPECIAL BOX, black, 1, white, 0, 1, 125, 55, 5, 5, -10, 0
 BOX, DUMB BOX, black, 1, white, 0, 1, 55, 55, 5, 5, -10, 0
 BOX, SKEWED, black, 1, white, 0, 1, 125,55,5,5,-10,0
@@ -96,24 +100,24 @@ TEXT, none, black, 8, NL
 ANCHOR, 1670,455
 PINSET, LEFT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
-PIN, DIGITAL , INPUT, ,PF6(5),RESET,14,,,,,,,,,,,,
-PIN, DIGITAL , IO, ,PF7,UPDI,15,,,,,,SS(3),,,,,,EVOUTF\\n(3),
-PIN, PWM , IO, ,PA0,XTAL1\\nEXTCLK,0,,,,,"0,TxD",MOSI\\n(3),,SDA\\n(H)(3),WO0,,,,"0,IN0"
-PIN, PWM , IO, ,PA1,XTAL2,1,,,,,"0,RxD",MISO\\n(3),,SCL\\n(H)(3),WO1,,,,"0,IN1"
-PIN, PWM , IO, ,PC1,,3,AIN29(6),,,,"1,RxD\\n0,TxD(3)","SS(3)\\nMISO(3)","MOSI\\n(3)",,WO1(3),,,,"1,IN1"
-PIN, PWM , IO, ,PC2,Fm+,4,AIN30(6),AINN3(6),,ZCIN,"1,XCK\\n0,RxD(3)","SCK(3)\\nMISO(3)",,"SDA(C)\\nSDA(H)(3)",WO2(3),,,EVOUTC,"1,IN2"
+PIN, DIGITAL , INPUT, ,PF6(5),RESET,,,,,,,,,,,,,
+PIN, DIGITAL , IO, ,PIN_PF7,UPDI,,,,,,,SS(3),,,,,,EOF*,
+PIN, PWM , IO, ,PIN_PA0,XTAL1|EXTCLK,,,,,,"0,TxD",MOSI\\n(3),,SDA\\n(H)(3),WO0,,,,"0,IN0"
+PIN, PWM , IO, ,PIN_PA1,XTAL2,,,,,,"0,RxD",MISO\\n(3),,SCL\\n(H)(3),WO1,,,,"0,IN1"
+PIN, PWM , IO, ,PIN_PC1,,,AIN29(6),,,,"1,RxD|0,TxD(3)","SS(3)|MISO(3)","MOSI\\n(3)",,WO1(3),,,,"1,IN1"
+PIN, PWM , IO, ,PIN_PC2,Fm+,,AIN30(6),AINN3(6),,ZCIN,"1,XCK\\n0,RxD(3)","SCK(3)\\nMISO(3)",,"SDA(C)\\nSDA(H)(3)",WO2(3),,,EVOUTC,"1,IN2"
 
 
 # Right Side Pins
 ANCHOR, 2110,455
 PINSET, RIGHT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
-PIN, ANALOG, IO, ,PD7,VREFA,13,AIN7,AINN2,,,"0,XDIR(3)\\n1,RxD(3)",SS(3),,,,,,EVOUTD\\n(3),
-PIN, ANALOG, IO, ,PD6,,12,AIN6,AINP3,VOUT,,"0,XCK(3)\\n1,TxD(3)",SCK(3),,,,,,,"2,OUT(3)"
-PIN, PWM, IO, ,PD5,,11,AIN5,,,,"0,RxD(3)",MISO(3),,,WO5(3),,WOD(3),,
-PIN, PWM, IO, ,PD4,,10,AIN4,,,,"0,TxD(3)",MOSI(3),,,WO4(3),,WOC(3),,
+PIN, ANALOG, IO, ,PIN_PD7,VREFA,,AIN7,AINN2,,,"0,XDIR(3)|1,RxD(3)",SS(3),,,,,,EVOUTD\\n(3),
+PIN, ANALOG, IO, ,PIN_PD6,,,AIN6,AINP3,VOUT,,"0,XCK(3)|1,TxD(3)",SCK(3),,,,,,,"2,OUT(3)"
+PIN, PWM, IO, ,PIN_PD5,,,AIN5,,,,"0,RxD(3)",MISO(3),,,WO5(3),,WOD(3),,
+PIN, PWM, IO, ,PIN_PD4,,,AIN4,,,,"0,TxD(3)",MOSI(3),,,WO4(3),,WOC(3),,
 PINTEXT, POWER, IO, POWER , VDDIO2 , PowerPin,"1.8V-5.5V"
-PIN, PWM, IO, ,PC3,Fm+,5,AIN31(6),AINP4(6),,,"1,XDIR\\n0,XCK(3)","SS(3)\\nSCK(3)",,"SCL(C)\\nSCL(H)(3)",WO3(3),,,,"1,OUT"
+PIN, PWM, IO, ,PIN_PC3,Fm+,,AIN31(6),AINP4(6),,,"1,XDIR\\n0,XCK(3)","SS(3)\\nSCK(3)",,"SCL(C)\\nSCL(H)(3)",WO3(3),,,,"1,OUT"
 
 
 
@@ -154,13 +158,13 @@ TEXT, none, black, CCL-LUT, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,,"..."
 
 MESSAGE, 250, 2251.75, 74.75, Name, 26, LEFT, TOP
-TEXT, none, black, (3) Alternate Position  (5) VDDIO2 fused off, NL
+TEXT, none, black, (3) Alternate Position  (5) PF6 has no output driver and receives the HV pulse if using PF7 as a GPIO (6)VDDIO2 fused off, NL
 
 
 
 # Blurb
-BOX, DETAIL BOX, 900, 1300, 2500, 1000, , TOP, Features & Notes
-MESSAGE, 925, 1350, 35, Name, 26, LEFT, TOP
+BOX, DETAIL BOX, 900, 1300, 2500, 1000, , TOP,
+MESSAGE, 925, 1350, 35, Name, 36, LEFT, TOP
 TEXT, none, black, *recommend using PIN_PA0 in preference to 0 (legacy arduino pin\#), NL
 TEXT, none, black, *not sure what the best way to represent the stuff marked (3) is, NL
 TEXT, none, black, *perhaps [N] for pinswap(N)?, NL
@@ -169,6 +173,6 @@ TEXT, none, black, *other random verbiage goes here, NL
 
 
 
-MESSAGE, 2200, 1350, 35, Name, 26, LEFT, TOP
+MESSAGE, 2200, 1350, 35, Name, 36, LEFT, TOP
 TEXT, none, black, *another column, NL
 
