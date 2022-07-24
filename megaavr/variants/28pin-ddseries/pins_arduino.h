@@ -175,7 +175,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MOSI_PINSWAP_6          PIN_PC1
 #define PIN_SPI_MISO_PINSWAP_6          PIN_PC2
 #define PIN_SPI_SCK_PINSWAP_6           PIN_PC3
-#define PIN_SPI_SS_PINSWAP_6            NOT_A_PIN
+#define PIN_SPI_SS_PINSWAP_6            PIN_PF7 //(UPDI)
 
 
 // TWI 0

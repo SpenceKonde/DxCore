@@ -130,7 +130,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 // SPI 0
 #define SPI_MUX                         PORTMUX_SPI0_DEFAULT_g
-#define SPI_MUX_PINSWAP_3               PORTMUX_SPI0_ALT3_gc
 #define SPI_MUX_PINSWAP_4               PORTMUX_SPI0_ALT4_gc
 #define SPI_MUX_PINSWAP_5               PORTMUX_SPI0_ALT5_gc
 #define SPI_MUX_PINSWAP_6               PORTMUX_SPI0_ALT6_gc
@@ -139,10 +138,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MISO                    PIN_PA5
 #define PIN_SPI_SCK                     PIN_PA6
 #define PIN_SPI_SS                      PIN_PA7
-#define PIN_SPI_MOSI_PINSWAP_3          PIN_PA0
-#define PIN_SPI_MISO_PINSWAP_3          PIN_PA1
-#define PIN_SPI_SCK_PINSWAP_3           PIN_PC0
-#define PIN_SPI_SS_PINSWAP_3            PIN_PC1
 #define PIN_SPI_MOSI_PINSWAP_4          PIN_PD4
 #define PIN_SPI_MISO_PINSWAP_4          PIN_PD5
 #define PIN_SPI_SCK_PINSWAP_4           PIN_PD6
@@ -154,7 +149,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MOSI_PINSWAP_6          PIN_PC1
 #define PIN_SPI_MISO_PINSWAP_6          PIN_PC2
 #define PIN_SPI_SCK_PINSWAP_6           PIN_PC3
-#define PIN_SPI_SS_PINSWAP_6            NOT_A_PIN
+#define PIN_SPI_SS_PINSWAP_6            PIN_PF7 //(UPDI)
 
 // TWI 0
 #define PIN_WIRE_SDA                    PIN_PA2
