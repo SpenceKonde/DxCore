@@ -4,14 +4,14 @@ BORDER WIDTH, 2
 BORDER OPACITY, 1
 #                                Name,Special,       ADC0,       AC0,   DAC0,   ZCD3,USARTn,SPI0,TWI0,TCA0,TCBn,TCD0,EVYS,CCL-LUT
 #FILL COLOR, white, white, white, white, deepskyblue, khaki, lime, greenyellow, green, olivedrab, cornflowerblue, yellow, yellow, orange, lavender, magenta, darkorchid, red, gold
-FILL COLOR, white, white, white, white, darkslateblue, seagreen, forestgreen, green, limegreen, olivedrab, mediumblue, mediumvioletred, mediumvioletred, darkorange, grey, magenta, darkorchid, maroon, goldenrod
+FILL COLOR, white, white, white, black, darkslateblue, seagreen, forestgreen, green, limegreen, olivedrab, mediumblue, mediumvioletred, mediumvioletred, darkorange, grey, magenta, darkorchid, maroon, goldenrod
 
 OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 #FONT , , , , Work Sans, Work Sans
-FONT , Rubik, , , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans
+#FONT , Rubik, , , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans
 FONT SIZE , 36
 #FONT COLOR , black, , , , ,
-FONT COLOR , black, black, black, black, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white
+FONT COLOR , black, black, black, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white
 FONT SLANT , normal , , , , ,
 FONT BOLD , 700 , , , 700 
 FONT STRETCH , normal
@@ -101,31 +101,31 @@ ANCHOR, 1670,455
 PINSET, LEFT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
 PIN, DIGITAL , INPUT, ,PIN_PF6,RESET,,,,,,,,,,,,,
-PIN, DIGITAL , IO, ,PIN_PF7,UPDI,,,,,,,SS.6,,,,,,EoF.?,
+PIN, DIGITAL , IO, ,PIN_PF7,UPDI,,,,,,,SS.6,,,,,,EoF.1,
 PIN, PWM , IO, ,PIN_PA0,XTAL1|EXTCLK,,,,,,"TX0",,,SDA.3,WO0,,,,"0,IN0"
 PIN, PWM , IO, ,PIN_PA1,XTAL2,,,,,,RX0,,,SCL.3,WO1,,,,"0,IN1"
-PIN, PWM , IO, ,PIN_PC1,,,AIN29*,,,,"RX1|TX0.4","MISO.5|MOSI.6",,,WO1.?,,,,"1,IN1"
+PIN, PWM , IO, ,PIN_PC1,,,AIN29*,,,,"RX1|TX0.4","MISO.5|MOSI.6",,,WO1.2,,,,"1,IN1"
 #PIN, PWM , IO, ,PIN_PC2,Fm+,,AIN30*,AINN3*,,ZCIN,"1,XCK\\n0,RxD(3)",SCK.5|MISO.6,,"SDA.2|SDAs.3",WO2(3),,,EVOUTC,"1,IN2"
 PIN, PWM , IO, ,PIN_PC2,Fm+,,AIN30*,AINN3*,,ZCIN,"XCK1|RX0.4",SCK.5|MISO.6,,,,,,,
 # line break PC2
 ANCHOR, 1670,1105
 PINSET, LEFT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
-PIN,  NONE, NONE, ,,,,,,,,,,,"SDA.2|SDAs.3",WO2.?,,,EoC,"1,IN2"
+PIN,  NONE, NONE, ,,,,,,,,,,,"SDA.2|SDAs.3",WO2.2,,,EoC,"1,IN2"
 
 # Right Side Pins
 ANCHOR, 2110,455
 PINSET, RIGHT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
-PIN, ANALOG, IO, ,PIN_PD7,VREFA,,AIN7,AINN2,,,"XDIR0.3|RX1.2",SS.4,,,,,,EoD.?,
-PIN, ANALOG, IO, ,PIN_PD6,,,AIN6,AINP3,VOUT,,"XCK0.3|TX1.2",SCK.4,,,,,,,"2,OUT.?"
-PIN, PWM, IO, ,PIN_PD5,,,AIN5,,,,RX0.3,MISO.4,,,WO5.?,,WOD.?,,
-PIN, PWM, IO, ,PIN_PD4,,,AIN4,,,,TX0.3,MOSI.4,,,WO4.?,,WOC.?,,
+PIN, ANALOG, IO, ,PIN_PD7,VREFA,,AIN7,AINN2,,,"XDIR0.3|RX1.2",SS.4,,,,,,EoD.1,
+PIN, ANALOG, IO, ,PIN_PD6,,,AIN6,AINP3,VOUT,,"XCK0.3|TX1.2",SCK.4,,,,,,,"2,OUT.1"
+PIN, PWM, IO, ,PIN_PD5,,,AIN5,,,,RX0.3,MISO.4,,,WO5.3,,WOD.4,,
+PIN, PWM, IO, ,PIN_PD4,,,AIN4,,,,TX0.3,MOSI.4,,,WO4.3,,WOC.4,,
 PINTEXT, POWER, IO, POWER , VDDIO2 , PowerPin,"1.8V-5.5V"
 #PIN, PWM, IO, ,PIN_PC3,Fm+,,AIN31(6),AINP4(6),,,"1,XDIR\\n0,XCK(3)","SS(3)\\nSCK(3)",,"SCL.2|SCLs.3",WO3.?,,,,"1,OUT"
 PIN, PWM, IO, ,PIN_PC3,Fm+,,AIN31*,AINP4*,,,XDIR1|XCK0.4,"SS.5|SCK.6",
 ANCHOR, 2110,1105
 PINSET, RIGHT, PACKED, CENTER, CENTER, 100, 30, 45, 60, 10, 0
-PIN, NONE, NONE, ,,,,,,,,,,,"SCL.2|SCLs.3",WO3.?,,,,"1,OUT"
+PIN, NONE, NONE, ,,,,,,,,,,,"SCL.2|SCLs.3",WO3.2,,,,"1,OUT"
 
 
 # Key
@@ -156,13 +156,13 @@ TEXT, none, black, TWI0, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,"...",,,,,
 TEXT, none, black, TCA0, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,"...",,,,
-TEXT, none, black, TCBn, NL
+TEXT, none, black, TCBn (no pins), NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,,"...",,,
 TEXT, none, black, TCD0, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,,,"...",,
-TEXT, none, black, EVYS, NL
+TEXT, none, black, EVYSn, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,"...",
-TEXT, none, black, CCL-LUT, NL
+TEXT, none, black, CCL-LUTn, NL
 PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,,"..."
 
 #MESSAGE, 250, 2251.75, 74.75, Name, 26, LEFT, TOP
@@ -172,24 +172,25 @@ PIN, DIGITAL , IO, ,,,,,,,,,,,,,,,,"..."
 
 # Blurb
 BOX, DETAIL BOX, 900, 1300, 2500, 1000, , TOP,
-MESSAGE, 925, 1350, 40, Name, 36, LEFT, TOP
-TEXT, none, black, * warning: this revision involved a lot of hand editing and may, NL
-TEXT, none, black,  contain errors. once the formatting is cleaned up I'll resume, NL
-TEXT, none, black,  work on auto-generation, NL
-TEXT, none, black, * PC2/PC3 split into 2 lines because of poor choices by microchip, NL
+MESSAGE, 925, 1350, 46, Name, 36, LEFT, TOP
 TEXT, none, black, * The notation SDA.3 means Wire.swap(3)., NL
 TEXT, none, black,   You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together., NL
-TEXT, none, black, * The notation xxx.? means xxx on an alternate location that isn't updated here yet, NL
+TEXT, none, black, * Each peripheral can have only one swap position set, NL
+TEXT, none, black, * Where the key says NAME0 that is a peripheral, NL
+TEXT, none, black, * Where the key says NAMEn there are multiple, NL
+TEXT, none, black, " identified either by SIGn or n,FUNCTION", NL
 TEXT, none, black, * The notation SDAs.3/SCLs.3 is where the slave pins are in dual mode., NL
-TEXT, none, black, * recommend using PIN_PA0 in preference to 0 (legacy arduino pin\#), NL
+TEXT, none, black, * PC2/PC3 split into 2 lines because of poor choices by microchip, NL
 TEXT, none, black, * a * is a reminder for the analog functions of port c which, NL
 TEXT, none, black,   is only available with MVIO fused off and VDDIO2 tied to VDD, NL
 TEXT, none, black, * colors chosen somewhat arbitrarily and easy to change, NL
 TEXT, none, black, * other random verbiage goes here, NL
-TEXT, none, black, * tcaroute can be used to point timera to portX[0-5], NL
-TEXT, none, black,  unfortunately on this part that is at most 3 pins, NL
-
-
+TEXT, none, black, * this part's timer b only routes to non-existant pins, NL
+TEXT, none, black, * this part has one timer A and one timer D each with one route,NL
+TEXT, none, black, * max possible PWM pins are timer A on port C (3) + D on D4/D5,NL
+TEXT, none, black, * warning: this revision involved a lot of hand editing and may, NL
+TEXT, none, black,  contain errors. once the formatting is cleaned up I'll resume, NL
+TEXT, none, black,  work on auto-generation, NL
 
 
 
