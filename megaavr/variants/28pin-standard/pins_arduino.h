@@ -54,7 +54,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF0 (20)
 #define PIN_PF1 (21)
 #define PIN_PF6 (22) /* RESET can be used as an input via fuse setting. It poses no reprogramming challenges, and has no output drivers. */
-/*      PIN_PF7 (23) UPDI pin not available for alternative functions on DA/DB */
+//#define PIN_PF7 (23) /*UPDI pin not available for alternative functions on DA/DB */
 
 #if defined(MVIO)
   #define FAKE_PIN_PD0
@@ -112,11 +112,11 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS PORTMUX_TCA0_PORTD_gc     // TCA0 output on PD[0:5]
+#define TCA0_PINS 0x03                      // TCA0 output on PD[0:5]
 #define TCB0_PINS 0x00                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here)
 #define TCB1_PINS 0x00                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default), not PB4 (Doesn't exist here)
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc
+#define TCD0_PINS 0x00                      //
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
 #define PIN_TCB0_WO_INIT  PIN_PA2

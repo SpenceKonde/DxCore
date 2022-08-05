@@ -22,7 +22,7 @@ Prices are microchip direct qty 1 price for the item, industrial temp range.
 There is also a VQFN version of the 20-pin (in 3mm x 3mm package 0.4mm pitch, not 4mm x 4mm like had been suggested by the product brief), 28-pin (4mm x 4mm, 0.4mm pitch) and 32-pin (5mm x 5mm, 0.05mm pitch) parts. The 32-pin parts have a 1 cent premium as VQFN vs the TQFP, while the 20-pin parts on the other hand have a whopping 27 cent discount for gettign a VQFN. Since DIPS are always expensive, its no surprise that the DD28 in SOIC, TSSOP, or VQFN are all much cheaper. The prices are 1.56. 1.42, and 1.31 respectively. Notice the tiny price difference below 32k, which supports the theory that the 16k and 32k DD's are the same die.
 
 I've got some DIP-28's, TQFP32's. SOIC20's and SOP-14's coming.
-I have breakout boards on standby for the 14-pin ones, and the 28-pin DIY DIP ones. And 32-pin ones can use anything that worked with a DB32. A hastily designed DD20 breakout is at the board house.
+I have breakout boards on standby for the 14-pin ones, and the 28-pin DIY DIP ones. And 32-pin ones can use anything that worked with a DB32. A hastily designed DD20 breakout is ready for DD20's.
 
 I am working on an updated version of the core that will add the DD parts as fully supported (most of the heavy lifting is done; if this were a building, we've got everything ready except the facade is half-mising and we haven't hooked up water to the toilets.)
 

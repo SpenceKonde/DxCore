@@ -148,10 +148,12 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCA1_PINS 0x00                      // TCA1 output on PB[0:5] after init() (no pinswap)
 #define TCB0_PINS PORTMUX_TCB0_bm           // TCB0 output on PF4 instead of PA2 (default)
 #define TCB1_PINS PORTMUX_TCB1_bm           // TCB1 output on PF5 instead of PA3 (default)
-#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4 (default)
+#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4.
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 #define TCB4_PINS 0x00                      // TCB4 output on PG3 (default) instead of PC6
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // TCD0 output on PA[4:7] (default - only default port option works on DA, DB parts=).
+#define TCD0_PINS 0                         // TCD0 output on PA[4:7] (default - only default port option works on DA, DB parts.
+// Note that we need to use the numerical value, not the _gc constant here. Group codes (_gc) are defined as enumerated types,
+// which are not understood by the preprocessor and can't be tested for by preprocessor conditionals.
 // Setting TCB2 and TCB3 for PWM on PC0, PC1 doesn't sound optimal for the AVR DB, but you shouldn't be using TCBs for PWM anyway!
 // They are there as a last resort, not a first resort.
 #define PIN_TCA0_WO0_INIT PIN_PC0
@@ -590,10 +592,10 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //   1 PA1
   NOT_ON_TIMER, //   2 PA2
   NOT_ON_TIMER, //   3 PA3
-  TIMERD0,      //   4 PA4/MOSI      WOA
-  TIMERD0,      //   5 PA5/MISO      WOB
-  TIMERD0,      //   6 PA6/SCK       WOC mirrors WOA
-  TIMERD0,      //   7 PA7/SS/CLKOUT WOD mirrors WOB
+  TIMERD0_0WOA, //   4 PA4/MOSI      WOA
+  TIMERD0_0WOB, //   5 PA5/MISO      WOB
+  TIMERD0_0WOC, //   6 PA6/SCK       WOC mirrors WOA
+  TIMERD0_0WOD, //   7 PA7/SS/CLKOUT WOD mirrors WOB
   NOT_ON_TIMER, //   8 PB0
   NOT_ON_TIMER, //   9 PB1
   NOT_ON_TIMER, //  10 PB2

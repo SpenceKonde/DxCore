@@ -28,7 +28,7 @@
 // this next line disables the entire UART.cpp if there's no hardware serial
 #if defined(USART0) || defined(USART1) || defined(USART2) || defined(USART3) || defined(USART4) || defined(USART5)
 
-  #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3)
+  #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3) || defined(HAVE_HWSERIAL4) || defined(HAVE_HWSERIAL5)
     // macro to guard critical sections when needed for large TX buffer sizes
     #if (SERIAL_TX_BUFFER_SIZE > 256)
       #define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -95,14 +95,38 @@
           "push       r25"              "\n\t" //
           "push       r28"              "\n\t" //
           "push       r29"              "\n\t" //
+          "push       r0"               "\n\t" // Finally we do use register 0 now, a running checklist of error flags that have been raised at minimal cost.
           "ldd        r28,    Z + 12"   "\n\t" // Load USART into Y pointer
-  //      "ldd        r29,    Z + 13"   "\n\t" // We interact with the USART only this once
           "ldi        r29,      0x08"   "\n\t" // High byte always 0x08 for USART peripheral: Save-a-clock.
-          "ldd        r24,    Y +  1"   "\n\t" // Y + 1 = USARTn.RXDATAH - load high byte first
-          "ld         r25,         Y"   "\n\t" // Y + 0 = USARTn.RXDATAH - then low byte of RXdata
-          "sbrc       r24,         1"   "\n\t" // if there's a parity error, then do nothing more. Copies the behavior of
-          "rjmp  _end_rxc"              "\n\t" // stock implementation - framing errors are ok, apparently...
-          "ldd        r28,    Z + 17"   "\n\t" // load current head index
+  #ifdef PERMIT_WAKE_ON_SERIAL
+          #error "PERMIT_WAKE_ON_SERIAL Not supported at this time"
+          "ldd        r18,    Y +  4"   "\n\t" // Load usart status too
+          "andi       r18,      0x1A"   "\n\t" // STATUS = check for three critical conditions
+          "sbrs       r18,         4"   "\n\t" // if start of frame interrupt, we must clear RXSIE
+           "rjmp      .+8"              "\n\t" // so we skip the rjmp past these
+             "ldd     r24,     Y + 5"   "\n\t" // this is the SDF bit - must be cleared promptly
+             "andi    r24       0xEF"   "\n\t" // clear the start frame detect interrupt enable bit.
+             "std   Y + 5,       r24"   "\n\t" // if we just woke up
+             "bst     r18          1"   "\n\t" // stash the BDF flag in T flag
+          "andi       r18,      0x18"   "\n\t" // strip out BDF
+          "std      Y + 4        r18"   "\n\t" // clear RXSIF and ISFIF
+  #else
+          "ldd        r18,    Y +  4"   "\n\t" // Load usart status too
+          "andi       r18,      0x0A"   "\n\t" // STATUS = check for bad sync and break detected
+          "sbrs       r18,         3"   "\n\t" // Detect ISFIF and if it's set write r18 to that status to clear the bits. We know BDF is not clear
+           "std     Y + 4        r18"   "\n\t" // We know there can't be an ISFIF and BDF set, so if the former is set, the latter isn't, and likely even if it were, the the autobaud failed
+          "rsl        r18"              "\n\t" // Moves bits we care about from 0x0A to 0x05
+          "swap       r18"              "\n\t" // And swaps them to 0x50.
+  #endif
+          "ldd        r0,     Y +  1"   "\n\t" // Y + 1 = USARTn.RXDATAH - load high byte first (which does not shift data)
+          "ld         r25,         Y"   "\n\t" // Y + 0 = USARTn.RXDATAL - then low byte of RXdata (which does)
+          "lsl         r0"              "\n\t" // we will leftshift the errors spoecific to this bit
+          "or          r0,       r18"   "\n\t" // and then OR them with r0 - we now have | OVF | ISFIF | 0 | BDF | FrameErr | Parity | 0 | 0 |
+          "mov        r18,        r0"   "\n\t"
+          "andi       r18,      0x54"   "\n\t" // In the case of parity error, BDF or ICFIF, no valid data was received, therefore te character
+           "rjmp _end_rxc"              "\n\t" // so we are done here and skip the rest of the routine. .
+  #endif  // either way, we return to finding head.
+          "ldd        r28,    Z + 19"   "\n\t" // load current head index
           "ldi        r24,         1"   "\n\t" // Clear r24 and initialize it with 1
           "add        r24,       r28"   "\n\t" // add current head index to it
   #if   SERIAL_RX_BUFFER_SIZE == 256
@@ -118,14 +142,22 @@
   #endif
           "ldd        r18,    Z + 20"   "\n\t" // load tail index              **<---OFFSET CHANGES with class structure**
           "cp         r18,       r24"   "\n\t" // See if head is at tail. If so, buffer full,
-          "breq  _end_rxc"              "\n\t" // can't do anything, just restore state and leave.
+         "breq   _ovf_rxc"              "\n\t" // can't do anything, just restore state and leave.
           "add        r28,       r30"   "\n\t" // r28 has what would be the next index in it.
           "mov        r29,       r31"   "\n\t" // and this is the high byte of serial instance
           "ldi        r18,         0"   "\n\t" // need a known zero to carry.
           "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 23 bytes before head
           "std     Y + 23,       r25"   "\n\t" // store the new char in buffer **<---OFFSET CHANGES with class structure**
-          "std     Z + 19,       r24"   "\n\t" // write that new head index.   **<---OFFSET CHANGES with class structure**
-        "_end_rxc:"                     "\n\t" //
+          "std     Z + 19,       r24"   "\n\t" // write that new tail index.   **<---OFFSET CHANGES with class structure**
+         "_ovf_rxc:"                    "\n\t" // when ring buffer full, DATA IS LOST, and it would be sporting for users to know what hapened, vs framing and parity errors
+          "ldi        r18       0x40"   "\n\t" // load high bit in that r18 if we overflowed the software ring, rest handled in main program.
+         "_err_rxc:"
+          "ldd        r29,    Z + 18"   "\n\t" // get current status
+          "or          r0,       r29"   "\n\t" // comp
+          "or          r0,       r18"   "\n\t" // R
+          "std     Z + 18,        r0"   "\n\t" // Store that to serial objet
+         "_end_rxc:"                    "\n\t" // Bad sync packet'
+          "pop         r0"              "\n\t" // eror detection
           "pop        r29"              "\n\t" // Y Pointer was used for head and usart
           "pop        r28"              "\n\t" //
           "pop        r25"              "\n\t" // r25 held the received character
@@ -135,7 +167,8 @@
           "pop        r18"              "\n\t" // used as tail pointer and z known zero.
           "pop        r31"              "\n\t" // end with Z which the isr pushed to make room for
           "pop        r30"              "\n\t" // pointer to serial instance
-          "reti"                        "\n"   // return
+          "reti"                        "\n\t" // return
+        "ovf_rxc:"
           ::);
       __builtin_unreachable();
 
@@ -255,10 +288,10 @@
         "pop         r28"               "\n\t"  // finish popping Y
   #if PROGMEM_SIZE > 8192
         "brts        .+4"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
-        "jmp _poll_dre_done"            "\n\t"  // >8k parts must us jmp, otherwise it will give PCREL error.
+        "jmp _poll_dre_done"            "\n\t"  // >8k parts must use jmp, otherwise it will give PCREL error.
   #else
         "brts        .+2"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
-        "rjmp _poll_dre_done"           "\n\t"  // 8k parts can use RJMP
+        "rjmp _poll_dre_done"           "\n\t"  // 8k parts must use RJMP
   #endif
         "pop         r27"               "\n\t"  // and continue with popping registers.
         "pop         r26"               "\n\t"
@@ -286,8 +319,6 @@
         usartModule->CTRLA &= (~USART_DREIE_bm);
         return;
       } // moved to poll function to make ISR smaller and faster
-    */
-
       // There must be more data in the output
       // buffer. Send the next byte
       uint8_t c = uartClass._tx_buffer[txTail];
@@ -399,9 +430,17 @@
     uint8_t   ctrla =(uint8_t) (options >> 8);        // CTRLA will get the remains of the options high byte.
     uint16_t baud_setting = 0;                        // at this point it should be able to reuse those 2 registers that it received options in!
     uint8_t         ctrlb = (~ctrla & 0xC0);          // Top two bits (TXEN RXEN), inverted so they match he sense in the registers - we could return here, but we don't cae about speed, and it'd be 4 more bytes
-    if (baud > F_CPU / 16) {                          // if this baud is too fast for non-U2X
-      ctrlb              |= USART_RXMODE0_bm;         // set the U2X bit in what will become CTRLB
-      baud              >>= 1;                        // And lower the baud rate by haldf
+    __asm__ __volatile__(                             // If you let the compiler do this, it will take 4 instructions to do a bitwise and with 0x80000000. And then breq (1-2 clocks) the 1 for the ctrlb bit, and then 4 more instructions for the bitwise and.
+                                     // Total: 4 + 1 or 2 + 1 + 4 = 10 clocks if autobaud or 6 if no autobaud, taking 20 bytes. This does it in 3 clocks un
+            "sbrc %D0,7"      "\n\t" // skip the ori if bit 7 in the MSB of baud is set (indicating we want autobaud)
+            "ori %1,0x04"     "\n\t" // set that bit in what will become the CTRLB value
+            "andi %D0, 0x7F"  "\n\t" // and whether or not we did that we clear the high bit. This has no effect unless autobaud requested.
+          : "+d"((uint32_t)(baud)),
+            "+d"((uint8_t)(ctrlb))
+      );
+    if (baud > F_CPU / 16 && ((ctrlb & 0x04) == 0)) { // if this baud is too fast for non-U2X and we're not using
+      ctrlb              |= USART_RXMODE_0_bm;        // set the U2X bit in what will become CTRLB
+      baud              >>= 1;                        // And lower the baud rate by half
     }
     baud_setting          = (((4 * F_CPU) / baud));   // And now the registers that baud was passed in are done.
     if (baud_setting < 64){                           // so set to the maximum baud rate setting.
@@ -410,6 +449,7 @@
     // Baud setting done now we do the other options.
     // that aren't in CTRLC;
     ctrla &= 0x2B;                            // Only LBME and RS485 (both of them); will get written to CTRLA, but we leave the event bit.
+                                              // 0x2B - 0b0010 1011
     if (ctrlb & USART_RXEN_bm) {              // if RX is to be enabled
       ctrla  |= USART_RXCIE_bm;               // we will want to enable the ISR.
     }
@@ -515,15 +555,17 @@
       }
     }
     _mux_set(mux_table_ptr, mux_count, mux_group_code);
+
+  uint8_t getStatus() {
+    return _state;
+
   }
-
-
   // Static
   uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
     if (tx_pin == NOT_A_PIN && rx_pin == NOT_A_PIN) {
       return  128;            // get MUX_NONE
     } else {
-      rx_pin -=tx_pin;        // Test if these *could* match each other.
+      rx_pin -= tx_pin;        // Test if these *could* match each other.
       if(rx_pin == 1) {       // thus far no parts where the pins are not adjacent! */
         mux_table_ptr++;                                              // prepare to read the information with one byte offset
         for (uint8_t i = 0; i < mux_count; i++) {                     // until we hit the end of this USART's mux...
@@ -537,10 +579,13 @@
       // When we get here, nothing is queued anymore (DREIE is disabled) and
       // the hardware finished transmission (TXCIF is set).
     }
+    return 255;
   }
   // Not static
+  /* takes values SERIAL_PIN_TX, SERIAL_PIN_RX, SERIAL_PIN_XDIR, SERIAL_PIN_XCK */
+  /* Returns an Arduino pin number */
   uint8_t UartClass::getPin(uint8_t pin) {
-    return _getPin(_usart_pins, pin, _pin_set, _mux_count);
+    return _getPin(_usart_pins, _mux_count, _pin_set, pin);
   }
   // Static
   uint8_t UartClass::_getPin(uint8_t * mux_table_ptr, uint8_t muxcount, uint8_t pinset, uint8_t pin) {
@@ -559,7 +604,7 @@
       return NOT_A_PIN;
     }
     #if (defined(__AVR_DD__) && _AVR_PINCOUNT < 28)
-      if ((base == PIN_PC0 && pin == 0) || (base == PIN_PC3 && pin == 3)) {
+      if ((base == 8 && pin == 0)) {
         return NOT_A_PIN;/* these are the only cases where RX exists without TX, or XDIR exists without XCK */
       } /* and the only case where only one of the first two pins exists.
          * There are many examples where TX/RX exist by XCK doesn't, but these are already handled.
@@ -630,6 +675,127 @@
 
     return 1;
   }
+  uint8_t UartClass::autoBaudWFB() {
+    if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
+      if((_hwserial_module.STATUS ^ 2) & 3) {
+        _hwserial_module->STATUS = 1;
+        return SERIAL_WFB_EN;
+      }
+      return SERIAL_NEW_BAUD
+    }
+    return SERIAL_AUTOBAUD_OFF;
+  }
+  void UartClass::simpleSync() {
+    flush();
+    write(0x00);
+    write(0x55);
+  }
+   uint8_t UartClass::autobaudWFB_and_wait(uint8_t n) {
+    if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
+                                                      while (available()) {
+                                                        read();
+                                                      }
+                                                      cli()
+                                                      uint8_t mask = 0x00;
+                                                      while (n && (_hwserialmodule->STATUS & (USART_DREIF_bm ))) {
+                                                        _hwserialmodule->TXDATAL = mask;
+                                                        mask ^= 4; // alternates netween 4 and 1, giving frame lengths of
+                                                        n--;
+                                                      }
+                                                      sei();
+                                                      return SERIAL_NEW_BAUD;
+                                                    }
+                                                    return SERIAL_AUTOBAUD_OFF;
+                                                  }
+    uint8_t UartClass::waitForSync() {
+      uint8_t ctrlb=_hwserial_module->CTRLB;
+      if ((ctrlb & 0x06) != 0x04) {
+        return SERIAL_AUTOBAUD_OFF;
+      }
+      uint8_t sreg = SREG;
+      cli();
+      uint16_t timer = (F_CPU / 2000)
+      do {
+        uint8_t st = _hwserial_module->STATUS; // ld 2 clk
+        if (st & 2) { //mov + andi + breq 4 clk
+          ret = SERIAL_NEW_BAUD; //skipped during the loop proper
+          break;
+        } else if ((st & 8)) { // andi breq = 3 clk
+          ret = SERIAL_BAD_SYNC
+          break;
+        }
+        _NOP();
+        _NOPNOP();
+      while (timer--); // 2 for sbiw, 2 for a brneq that usually branches. 2 load 4 clocks first, 3 second = 6 + 4 + 3 = 13., throw on a 3x nop to make it 16
+      // so max 3k loops per ms @ 48 (worst case for loop counter size) and 9600 baud (slowest likely to be used. Let's place the limit at 8ms.
+      // So at 16 MHz, this would run at 1m loops/s or 1k loops/ms, so 8k loops would be 8ms,)
+      // hence why above we set timer to F_CPU / 2000
+      const uint16_t onems = F_CPU/2000;
+      int8_t msleft = 8; // calci;
+      __asm__ __volatile__ (
+         "_synctime:"
+          "subi %1, 1"      "\n\t"
+          "breq .+ 6"         "\n\t"
+          "sub %0A, %2A"      "\n\t"
+          "subc %0B, %2B"     "\n\t"
+          "brcc _synctime"    "\n\t"
+        : "+r"((uint16_t)timer), "+d"((uint8_t) msleft) : "r"((uint16_t) onems));
+      }
+      msleft = 7 - msleft;
+      if (msleft > 0) {
+        nudge_millis(msleft) // we just spent up to 8 ms in a timed loop, with interrupts disabled to prevent them from interfering.
+      }
+      SREG=sreg;
+      #if defined(ERRATA_ISFIF)
+        if (ret == SERIAL_BAD_SYNC) {
+          uint8_t ctrlb = _hwserial_module->CTRLB;
+          _hwserial_module->CTRLB = (ctrlb & (~SERIAL_RXEN_bm))
+        }
+      return ret;
+    }
+    uint8_t autobaudWFB_and_request(uint8_t n = 2) { if(autobaud_WFB() == SERIAL_WFB_EN) {
+                                                      uint16_t temp = _hwserialmodule->BAUD;
+                                                      uint8_t port = digitalPinToPort(getPin(SERIAL_PIN_TX));
+                                                      _SWAP(PORT);
+                                                      port <<= 1;
+                                                      port |= 0x10; // now contains 0b___1000
+                                                      port += digitalPinToBitPosition(getPin(SERIAL_PIN_TX));// now contains the offset of pinnctrl, relative to the start of PORTA at 0x400..
+                                                      uint16_t pinctrl = 0x0400 + port; // put into 16-bit datatype
+                                                      flush(); //make sure everything has sent.
+                                                      while (available()) {
+                                                        read(); //We've been getting framing errors, so the received data is probably garbage, so toss it out.
+                                                      }
+                                                      uint8_t pinsettings=*((volatile uint8_t*)pinctrl);
+                                                      if (!_hwserialmodule->STATUS & USART_BDF_bm) {
+                                                        *((volatile uint8_t)pinctrl) = (pinsettings | 0x80);
+                                                          while (loopcount && (!_hwserialmodule->STATUS & USART_BDF_bm)) {  //ld sbic (usually skipping) rjmp (skipped) = 4 clocks
+                                                            loopcount--; //sbiw, and brneq that usually branches = 4 clocks for total of 8 per loop. So loop count should be F_CPU/8000 times the number of milliseconds maximum we want to wait for.
+                                                            //
+                                                          }
+                                                        *((volatile uint8_t)pinctrl) = (pinsettings);
+                                                        uint16_t loopcount = F_CPU/8000;
+                                                                                                                                     -`
+                                                      }
+                                                    }
+                                                    return
+                                                  }
+    uint8_t getState();                         { uint8_t st = _state;
+                                                  uint8_t ret = 0;
+                                                  if (st & 0x04) {
+                                                    ret |= SERIAL_FRAME_ERROR;
+                                                  }
+                                                  if (st & 0x05) {
+                                                    ret |= SERIAL_NEW_BAUD
+                                                  }
+                                                  if (st & 0x04) {
+                                                    ret |= SERIAL_WFB_EN
+                                                  }
+                                                  if (st & 0x02 ) {
+                                                    ret |= SERIAL_HALFDUP_TX
+                                                  }
+                                                  else if (st & 0x01)
+                                                }
+
 
     void UartClass::printHex(const uint8_t b) {
       char x = (b >> 4) | '0';

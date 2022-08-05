@@ -138,7 +138,7 @@
   }})
 
 
-class UartClass : public HardwareSerial {
+class HardwareSerial : public HardwareSerial {
 /* DANGER DANGER DANGER
  * CHANGING THE MEMBER VARIABLES BETWEEN HERE AND THE OTHER SCARY COMMENT WILL COMPLETELY BREAK SERIAL
  * WHEN USE_ASM_DRE or USE_ASM_RXC is used!
@@ -162,8 +162,8 @@ class UartClass : public HardwareSerial {
    * ANY CHANGES BETWEEN OTHER SCARY COMMENT AND THIS ONE WILL BREAK SERIAL when USE_ASM_DRE or USE_ASM_RXC is used!
    * DANGER DANGER DANGER */
  public:
-    inline UartClass(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_default);
-    void                   begin(unsigned long   baud) {begin(baud, SERIAL_8N1);}
+    inline HardwareSerial(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_default);
+    void                   begin(unsigned long   baud) {begin(baud, SERIAL_8N1              );}
     void                   begin(unsigned long   baud, uint16_t options                     );
     void                     end(                                                           );
     bool                    pins(uint8_t           tx, uint8_t rx                           );
@@ -192,29 +192,43 @@ class UartClass : public HardwareSerial {
     virtual int             read(void                                                       );
     virtual void           flush(void                                                       );
     virtual size_t         write(uint8_t b                                                  );
-    inline  size_t         write(unsigned long n) {return                   write((uint8_t)n);}
-    inline  size_t         write(long          n) {return                   write((uint8_t)n);}
-    inline  size_t         write(unsigned int  n) {return                   write((uint8_t)n);}
-    inline  size_t         write(int           n) {return                   write((uint8_t)n);}
+    inline  size_t         write(unsigned long n) { return                  write((uint8_t)n);}
+    inline  size_t         write(long          n) { return                  write((uint8_t)n);}
+    inline  size_t         write(unsigned int  n) { return                  write((uint8_t)n);}
+    inline  size_t         write(int           n) { return                  write((uint8_t)n);}
     using Print::write;   // pull in write(str) and write(buf, size) from Print
-    explicit operator       bool()                {return                                true;}
-    bool             autoBaudWFB()                {if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
-                                                      _hwserial_module->STATUS = 1;
-                                                      return true;
+    explicit operator       bool()                { return                                true;}
+    uint8_t          autoBaudWFB()                { if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
+                                                      if((_hwserial_module->STATUS ^ 2) & 3) {}
+                                                        _hwserial_module->STATUS = 1;
+                                                        return SERIAL_WFB_EN;
+                                                      }
+                                                      return SERIAL_NEW_BAUD
                                                     }
-                                                    return false;
+                                                    return SERIAL_AUTOBAUD_OFF;
                                                   }
+    void             simpleSync()                 {
+                                                    flush();
+                                                    write(0x00);
+                                                    write(0x55);
+                                                  }
+    uint8_t autobaudWFB_and_wait(uint8_t n = 2);
+    uint8_t waitForSync();
+    uint8_t autobaudWFB_and_request(uint8_t n = 2);
+    uint8_t getStatus() {
+      return _statuscheck(_hwserial_module->CTRLB, _hwserial_module->STATUS, _status);
+    }
 
-    uint8_t               getPin(uint8_t pin                                                );
+    uint8_t getPin(uint8_t pin); //wrapper around static _getPin
 
     // Interrupt handlers - Not intended to be called externally
     #if !(defined(USE_ASM_RXC) && USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
-      static void _rx_complete_irq(UartClass& uartClass);
+      static void _rx_complete_irq(HardwareSerial& hwserial);
     #endif
     #if !(defined(USE_ASM_DRE) && USE_ASM_DRE == 1 && \
          (SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
          (SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
-      static void _tx_data_empty_irq(UartClass& uartClass);
+      static void _tx_data_empty_irq(HardwareSerial& hwserial);
     #endif
 
  private:
@@ -224,23 +238,52 @@ class UartClass : public HardwareSerial {
     static void         _mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code                    );
     static uint8_t _pins_to_swap(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin,       uint8_t rx_pin);
     static uint8_t       _getPin(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting,  uint8_t pin);
+    /* Return value is:
+     * 0bRT
+     * R = RX_ENABLED
+     * T = TX_ENABLED
+     *
+     *
+     *
+     *
+     *
+     *
+     */
+    static uint8_t _statuscheck(uint8_t status, uint8_t ctrlb, uint8_t ctrla) {
+      uint8_t ret;
+      ret = ctrlb & 0xC0;
+
+      if (ctrlb & 0x06 == 0x04) {
+        ret |= SERIAL_AUTOBAUD_ENABLED
+      }
+      if (status & 0x02) { // We think we're in half-duplex mode
+
+        if ((ctrlb & ctrla & 0x04 /* LBME and ODME are in the same bit location*/) && (ret & 0x0C == 0x0C ) && (ctrla & 0x0C)) { // does the hardware agree
+          ret |= SERIAL_HALF_DUPLEX_ENABLED
+        } else {
+          ret |= SERIAL_BAD_STATE
+        }
+      }
+
+
+    }
 };
 
 #if defined(USART0)
-  extern UartClass Serial0;
+  extern HardwareSerial Serial0;
 #endif
 #if defined(USART1)
-  extern UartClass Serial1;
+  extern HardwareSerial Serial1;
 #endif
 #if defined(USART2)
-  extern UartClass Serial2;
+  extern HardwareSerial Serial2;
 #endif
 #if defined(USART3)
-  extern UartClass Serial3;
+  extern HardwareSerial Serial3;
 #endif
 #if defined(USART4)
-  extern UartClass Serial4;
+  extern HardwareSerial Serial4;
 #endif
 #if defined(USART5)
-  extern UartClass Serial5;
+  extern HardwareSerial Serial5;
 #endif
