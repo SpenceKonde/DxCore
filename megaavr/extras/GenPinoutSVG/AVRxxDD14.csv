@@ -9,11 +9,15 @@ FILL COLOR, white, white, white, black, darkslateblue, seagreen, forestgreen, gr
 OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 #FONT , , , , Work Sans, Work Sans
 #FONT , Rubik, , , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans , Work Sans, Work Sans
+#FONT , Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo,Menlo
+#FONT, M PLUS 1 Code,,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code,M PLUS 1 Code
+#FONT, Ubuntu,,
+#FONT, Monaco,,
 FONT SIZE , 36
 #FONT COLOR , black, , , , ,
 FONT COLOR , black, black, black, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white
 FONT SLANT , normal , , , , ,
-FONT BOLD , 700 , , , 700 
+FONT BOLD , 600 , , , 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600
 FONT STRETCH , normal
 FONT OUTLINE , black
 FONT OUTLINE THICKNESS, 0
@@ -44,7 +48,7 @@ GROUP, AVR_VDDIO2, blue, 0.5
 
 BOX, STD, black, 1, white, 0, 1, 100,55,2,2,0,0
 BOX, PIN BOX, black, 1, white, 0, 1, 165, 45, 5, 5, -10, 0
-BOX, SPECIAL BOX, black, 1, white, 0, 1, 165, 45, 5, 5, -10, 0
+BOX, SPECIAL BOX, black, 1, white, 0, 1, 170, 45, 5, 5, -10, 0
 BOX, DUMB BOX, black, 1, white, 0, 1, 55, 55, 5, 5, -10, 0
 BOX, SKEWED, black, 1, white, 0, 1, 145,45,5,5,-10,0
 BOX, PAGE BORDER, black, 1, white, 1, 50, 100,100,0,0,0,0
@@ -60,7 +64,7 @@ DPI, 300
 DRAW
 
 # Load up the fonts we use
-GOOGLEFONT,"https://fonts.googleapis.com/css?family=BenchNine:300,400,700|Pragati+Narrow:700|Rubik|Ruslan+Display|Work+Sans:700,800,900"
+GOOGLEFONT,"https://fonts.googleapis.com/css?family=M+PLUS+1+Code:300,400,700|Monaco:300,400,700|Ubuntu:300,400,500,600,700|BenchNine:300,400,700|Pragati+Narrow:700|Rubik|Ruslan+Display|Work+Sans:700,800,900"
 
 # Draw a border on the page
 #BOX, PAGE BORDER, 0,0, 100%, 100%
