@@ -4224,5 +4224,4 @@
   #elif defined(ZCD_INTMODE_1_bp)
     deprecated_constant_name ZCD_INTMODE1_bp = ZCD_INTMODE_1_bp;
   #endif /* this is the end of the backwards compatibility defines */
-#endif /* this is the end of the backwards compatibility defines */
 #endif // end of core_devices
