@@ -228,7 +228,7 @@ void          turnOffPWM(uint8_t pinNumber               );
 uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 // Realized we're not going to be able to make generic code without this.
 
-// Again as above, but this time with tthe unwieldy 8-byte integer datatype as the base
+// Again as above, but this time with the unwieldy 8-byte integer datatype as the base
 // avr-libc defines _NOP() since 1.6.2
 // Really? Better tell avr-gcc that, it seems to disagree...
 #ifndef _NOP
@@ -519,7 +519,7 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
 #define PERIPHERAL_IN_USE (254) // Returned when a rare few functions are asked about a peripheral that is not configured for that use.
 // This is only currently used by digitalPinToTimerNow(pin) which returns the timer that can output PWM on a given pin, considering the current PORTMUX settings.
 // This will be returned when the pin is driven by a TCB not configured for PWM. It will not otherwise be returned - so you can't use it to test whether your code
-// has stomped on the configuration ot TCA/TCD timers such that they aren't able to output PWM, consistent with the guiding principles that the core was written
+// has stomped on the configuration of TCA/TCD timers such that they aren't able to output PWM, consistent with the guiding principles that the core was written
 // in accordance with. (Namely, that if you're setting registers directly, you're responsible for your own actions, and for tracking them. Since tone() and the
 // millis timekeeping can render the TCBs unavailable for PWM. You should use takeOverTCA0/TCA1/TCD0() if reconfiguring the timers in this way, which will also
 // cause digitalPinToTimerNow() to return NOT_ON_TIMER

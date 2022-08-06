@@ -123,7 +123,7 @@
           "lsl         r0"              "\n\t" // we will leftshift the errors spoecific to this bit
           "or          r0,       r18"   "\n\t" // and then OR them with r0 - we now have | OVF | ISFIF | 0 | BDF | FrameErr | Parity | 0 | 0 |
           "mov        r18,        r0"   "\n\t"
-          "andi       r18,      0x54"   "\n\t" // In the case of parity error, BDF or ICFIF, no valid data was received, therefore te character
+          "andi       r18,      0x54"   "\n\t" // In the case of parity error, BDF or ICFIF, no valid data was received, therefore the character
            "rjmp _end_rxc"              "\n\t" // so we are done here and skip the rest of the routine. .
   #endif  // either way, we return to finding head.
           "ldd        r28,    Z + 19"   "\n\t" // load current head index
@@ -149,15 +149,15 @@
           "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 23 bytes before head
           "std     Y + 23,       r25"   "\n\t" // store the new char in buffer **<---OFFSET CHANGES with class structure**
           "std     Z + 19,       r24"   "\n\t" // write that new tail index.   **<---OFFSET CHANGES with class structure**
-         "_ovf_rxc:"                    "\n\t" // when ring buffer full, DATA IS LOST, and it would be sporting for users to know what hapened, vs framing and parity errors
+         "_ovf_rxc:"                    "\n\t" // when ring buffer full, DATA IS LOST, and it would be sporting for users to know what happened, vs framing and parity errors
           "ldi        r18       0x40"   "\n\t" // load high bit in that r18 if we overflowed the software ring, rest handled in main program.
          "_err_rxc:"
           "ldd        r29,    Z + 18"   "\n\t" // get current status
           "or          r0,       r29"   "\n\t" // comp
           "or          r0,       r18"   "\n\t" // R
-          "std     Z + 18,        r0"   "\n\t" // Store that to serial objet
+          "std     Z + 18,        r0"   "\n\t" // Store that to serial object
          "_end_rxc:"                    "\n\t" // Bad sync packet'
-          "pop         r0"              "\n\t" // eror detection
+          "pop         r0"              "\n\t" // error detection
           "pop        r29"              "\n\t" // Y Pointer was used for head and usart
           "pop        r28"              "\n\t" //
           "pop        r25"              "\n\t" // r25 held the received character
