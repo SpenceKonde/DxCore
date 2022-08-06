@@ -328,7 +328,7 @@
 
 #if defined(ADC1)
   #define _AVR_ADC_COUNT     (2)
-#else
+#elif defined(ADC0)
   #define _AVR_ADC_COUNT     (1)
 #else
   #warning "No ADC? No supported parts exist, something is wrong"
