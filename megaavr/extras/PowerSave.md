@@ -18,24 +18,37 @@ If your power budget is tiny, make sure the Brown Out Detection is either disabl
 (is it better on the Dx-series? Or does it not make a difference because VCore is the same?) Various pull-ups and pull-downs will waste less power. You also might consider a switching regulator which can save you significant power. The LM3671 is quite simple and requires about the same component count and board area as an LDO. Consider running at 2.5-2.8v for more savings (but check the requirements of other circuitry).
 
 ## Check for unexpected power hogs
-Most 1117 style LDOs suck (power) - pulling up a random one (https://www.ti.com/lit/ds/symlink/lm1117.pdf) I see quiescent current of 5ma. Always on power led with a 330 ohm resistor? Depending on the environment and choice of LED, a 10K might work fine. Better yet don't have an always on LED. Unnecessarily strong pull-up or pull-down? Worse yet, a voltage divider that causes static draw all the time. Chinese modules often waste tons of power. Measure everything.
+Most 1117 style LDOs suck (power) 5mA is not unusual.. Some simply suck (counterfeit chinese AMS1117's are known to exist, and the short circuit protection doesn't work). On the other hand, the LDL1117 regulator has a typical I<sub>q</sub> of just 250uA. If you need low power consumption always verify the quiescent current of all the parts your using. Surprises abound. If you use LEDs and habitually use a 220 or 330 ohm resistor, depending on the environment and choice of LED, a 10K be bright enough to be visible, and will save a lot of power; it may also be easier on the eye in a dark environment. Ideally, always-on LEDs should be avoided entirely. Also pay attention to the strength of your pullup resistors, especially if they'll be spending a good portion of the time driven to the opposite power rail (consider if you can rearrange things such that that isn't the case). One of the worst offenders, though, is a voltage divider that causes static draw all the time (definitely do not do this to measure the supply voltage on an AVR DB, AVR DD, or TinyAVR 2-series - these have a buildtin VDDDIV10 channel, which can by read with `analogRead(ADC_VDDDIV10)`. Be wary of modules, particularly the dirt cheap ones from China - these were generally designed without concern for power efficiency
 
 ## Disable unwanted peripherals
-DO NOT use anything in <avr/power.h> - it is for legacy parts and does nothing. Some subset of this before sleeping:
-```
-  ADC0.CTRLA &= ~ADC_ENABLE_bm;
-  TCD0.CTRLA = 0;
-  TCA0.SPLIT.CTRLA = 0;
-  RTC.CTRLA = 0;
-```
-may reduce draw by hundreds of ua.
+DO NOT use <avr/power.h> - it is for legacy parts and does nothing (and the avr-libc team has not updated it).
 
+## When not sleeping, make sure to disable any peripherals you are not using, ex:
+```c
+TCA0.SPLIT.CTRLA = 0; //If you aren't useing TCA0 for anything
+```
+By default at startup, DxCore enables all timers for use with PWM; if you're not using them you can also override the initialization functions with empty ones, see [callback reference](Ref_Callback.md)
+
+## Beware of the ADC in sleep mode
+
+The ADC can be a source of power drain.
+```c++
+// Before sleeping
+  ADC0.CTRLA &= ~ADC_ENABLE_bm; //Very important on the tinyAVR 2-series
+// upon waking if ou plan to use the ADC
+  ADC0.CTRLA |= ~ADC_ENABLE_bm;
+```
+may reduce draw by hundreds of ua. You should also be sure to set all unused pins to either INPUT_PULLUP, OUTPUT, or disable their input (see [the Digital Pin Function referernce](Ref_Digital.md))
+
+This can also be achieved with the `analogPowerOption()` function (see [the analog reference](Ref_Analog))
+
+Other things that can waste power in standby sleep mode if not disabled include the RTC, the CCL (if set to use a clock source and run in standby mode), and any peripheral set to run in standby mode (not only do these keep the peripheral on, they keep their clock source on, which is often a larger power draw)
 
 ## Use Sleep Mode
 The absolute minimum power consumption of the device, when all the peripherals are stopped, is 0.1μA. This can be achieved in power-down sleep mode; enabling the WDT and/or RTC (to keep track of time) but will continue where it left off after it receives an interrupt. While the CPU is not running, the device itself is still monitoring all the interrupts out there and to do so has to keep the peripherals running. Which peripherals are running depends on the sleep mode setting selected before entering sleep mode. The following 3 options are available:
 
-1. Idle, only the CPU is turned off. All peripherals continue to run.  This does not save very much power.
-1. Standby, the CPU is turned off as are most Peripherals. All unneeded clock sources are also turned off. Most peripherals can be set to remain active in standby - the specific implications of that may vary depending on the peripheral, and some peripherals can account for a large portion of the power consumption - especially if they keep the main oscillator running. On these parts, standby sleep mode is far more useful than it was on classic AVRs, where it was "Like power-down, only you don't save as much power" . Being able to select which peripherals you leave on, and the wealth of configuration options available for them, has made a world of difference.
+1. Idle - only the CPU is turned off. All peripherals continue to run.  This does not save very much power.
+1. Standby - on classic AVRs, this was "like power-down, only you don't save as much power". No longer - on the modern parts it is much more flexible and capable of saving as much or nearly as much power as power down mode! Obviously, the CPU is turned off. So are all peripherals unless you specifically set them to run in standby. All unneeded clock sources are also turned off - which clock sources those are depend on the settings of any peripherals set to run in standby (and unfortunately, a great many do use the main oscillator)
 1. Power Down, the CPU is turned off and all Peripherals (except the WDT and RTC) are shut down. Only the PIT (RTC), Pin change and TWI Address Match interrupts can wake up the device. The same mode was available on classic AVRs with similar effects.
 
 (wait, what? TWI address match? I knew about PCINT and RTC, but where did TWI address match come from? - Actually, if you go back and look for it, it's available in classic AVRs too. Who knows what the cost is in terms of power and die area, but it doesn't appear to be much. If you imagine making a TWI sensor built around one of these parts, that is not just nice to have, it is a 100% must have feature.
