@@ -453,8 +453,9 @@
 #define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
                                                2 = all wave output channels move together */
 #define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#if defined()
-#define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
+#if defined(__AVR_DD__) || !defined(ERRATA_TCD_PORTMUX)
+  #define CORE_DETECTS_TCD_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
+#endif
 #define CORE_HAS_FASTIO                 (1) /* DxCore has the digitalReadFast() and digitalWriteFast()              */
 #define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
 #define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
