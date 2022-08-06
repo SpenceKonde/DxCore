@@ -1168,24 +1168,17 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
     #endif
   #endif
 }
-/*
-void nudge_millis(uint16_t nudgesize) {
-  #if defined(MILLIS_USE_TIMERNONE)
-    badCall("set_millis() is only valid with millis timekeeping enabled.");
-    GPR.GPR0 = newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
-  #elif !(defined(MILLIS_USE_TIMERA0)||defined(MILLIS_USE_TIMERA1))
 
+void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
+  #if (MILLIS_TIMER &= 0x78) /* 0x40 matches TCDs, 0x20 matches TCBs, 0x10 matches TCA0 0x08 matches TCA1, so OR them together and AND it with the timer to make sure it's not RTC, disabled, etc.  */
     uint8_t oldSREG=SREG;
     cli();
     timer_millis += nudgesize;
     SREG=oldSREG;
   #else
-    badCall("Not yet supported for this timer, only TCBn");
-    GPR.GPR0=nudgesize;
+    #warning "Timer correction not yet supported for this timer.");
   #endif
 }
-
-*/
 
 /********************************* ADC ****************************************/
 #if defined(ADC0)
@@ -1559,6 +1552,14 @@ void init_timers() {
   init_TCBs();
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
     init_TCD0();
+    #if !defined(ERRATA_TCD_PORTMUX) && defined(TCD0_PINS)
+      PORTMUX.TCDROUTEA = TCD0_PINS;
+    #else
+      /* Do nothing - portmux is busted */
+      #if (defined(TCD0_PINS) && (TCD0_PINS != 0))
+        #error "You are using a variant that specifies alternate portmux value for TCD0. However, the selected part doesn't have available silicon that has that functionality due to outstanding errata."
+      #endif
+    #endif
   #endif
 }
 
@@ -1677,13 +1678,13 @@ void __attribute__((weak)) init_TCBs() {
   // Find end timer - the highest numbered TCB that is not used for millis.
   // though if we do set up the millis timer because it's in the middle, that's
   // fine and there's no need to skip it.
-  #if   defined(TCB4) && !defined(MILLIS_USE_TIMERB4)
+  #if   defined(TCB4)
     TCB_t *timer_B_end = (TCB_t *) &TCB4;
-  #elif defined(TCB3) && !defined(MILLIS_USE_TIMERB3)
+  #elif defined(TCB3)
     TCB_t *timer_B_end = (TCB_t *) &TCB3;
-  #elif defined(TCB2) && !defined(MILLIS_USE_TIMERB2)
+  #elif defined(TCB2)
     TCB_t *timer_B_end = (TCB_t *) &TCB2;
-  #elif defined(TCB1) && !defined(MILLIS_USE_TIMERB1)
+  #elif defined(TCB1)
     TCB_t *timer_B_end = (TCB_t *) &TCB1;
   #else // Only TCB0 - possible only for DD-series with 14 or 20 pins using TCB1 for millis
     TCB_t *timer_B_end = (TCB_t *) &TCB0;
@@ -1691,21 +1692,33 @@ void __attribute__((weak)) init_TCBs() {
 
   // Timer B Setup loop for TCB[0:end]
   do {
-    // 8 bit PWM mode, but do not enable output yet, will do in analogWrite()
-    timer_B->CTRLB = (TCB_CNTMODE_PWM8_gc);
+    #if defined(MILLIS_USE_TIMERB0)
+      if(timer_B != (TCB_t *)&TCB0)
+    #elif defined(MILLIS_USE_TIMERB1)
+      if(timer_B != (TCB_t *)&TCB1)
+    #elif defined(MILLIS_USE_TIMERB2)
+      if(timer_B != (TCB_t *)&TCB2)
+    #elif defined(MILLIS_USE_TIMERB3)
+      if(timer_B != (TCB_t *)&TCB3)
+    #elif defined(MILLIS_USE_TIMERB4)
+      if(timer_B != (TCB_t *)&TCB4)
+    #endif
+    {
+      // 8 bit PWM mode, but do not enable output yet, will do in analogWrite()
+      timer_B->CTRLB = (TCB_CNTMODE_PWM8_gc);
 
-    // Assign 8-bit period
-    timer_B->CCMPL = PWM_TIMER_PERIOD; // TOP = 254 see section at start
-    // default duty 50% - we have to set something here because of the
-    // errata, otherwise CCMP will not get the CCMPL either.
-    timer_B->CCMPH = PWM_TIMER_COMPARE;
+      // Assign 8-bit period
+      timer_B->CCMPL = PWM_TIMER_PERIOD; // TOP = 254 see section at start
+      // default duty 50% - we have to set something here because of the
+      // errata, otherwise CCMP will not get the CCMPL either.
+      timer_B->CCMPH = PWM_TIMER_COMPARE;
 
-    // Use TCA clock (250kHz, +/- 50%) and enable
-    timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
+      // Use TCA clock (250kHz, +/- 50%) and enable
+      timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
 
-    // Increment pointer to next TCB instance
-    timer_B++;
-
+      // Increment pointer to next TCB instance
+      timer_B++;
+    }
     // Stop when pointing to the last timer.
   } while (timer_B <= timer_B_end);
 }
@@ -1767,4 +1780,5 @@ void __attribute__((weak)) init_TCD0() {
     // See timers.h for determination
   #endif
 }
+
 #endif

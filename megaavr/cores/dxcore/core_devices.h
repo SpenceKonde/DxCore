@@ -264,6 +264,7 @@
   #define     _AVR_FAMILY       "EA"
   #error "The AVR EA-series is not available. There is no datasheet yet available, though current indications suggest most changes will be confined to libraries."
 #else
+  #error "Unrecognized part, this should not be possible"
   #define     _AVR_FAMILY       "UNKNOWN"
 #endif
 
@@ -315,6 +316,104 @@
   #error "Unrecognized combination of flash size and chip type"
 #endif
 
+#if defined(AC2)
+  #define _AVR_AC_COUNT      (3)
+#elif defined(AC1)
+  #define _AVR_AC_COUNT      (2)
+#elif defined(AC0)
+  #define _AVR_AC_COUNT      (1)
+#else
+  #define _AVR_AC_COUNT      (1)
+#endif
+
+#if defined(ADC1)
+  #define _AVR_ADC_COUNT     (2)
+#else
+  #define _AVR_ADC_COUNT     (1)
+#else
+  #warning "No ADC? No supported parts exist, something is wrong"
+#endif
+
+
+#if defined(OPAMP2)
+  #define _AVR_OPAMP_COUNT   (3)
+#elif defined(OPAMP1)
+  #define _AVR_OPAMP_COUNT   (2)
+#elif defined(OPAMP0)
+  #define _AVR_OPAMP_COUNT   (1)
+#else
+  #define _AVR_OPAMP_COUNT   (0)
+#endif
+
+
+#if defined(CCL_TRUTH4)
+  #define _AVR_LUT_COUNT     (6)
+#elif defined(CCL_TRUTH2)
+  #define _AVR_LUT_COUNT     (4)
+#elif defined(CCL_TRUTH0)
+  #define _AVR_LUT_COUNT     (2)
+#else
+  #warning "No AC? No supported parts exist, something is wrong"
+#endif
+
+
+#if defined(TCA1)
+  #define _AVR_TCA_COUNT     (2)
+#elif defined(TCA0)
+  #define _AVR_TCA_COUNT     (1)
+#else
+  #warning "No TCA? No supported parts exist, something is wrong"
+#endif
+
+#if defined(TCB5)
+  #define _AVR_TCB_COUNT     (6)
+#elif defined(TCB4)
+  #define _AVR_TCB_COUNT     (5)
+#elif defined(TCB3)
+  #define _AVR_TCB_COUNT     (4)
+#elif defined(TCB2)
+  #define _AVR_TCB_COUNT     (3)
+#elif defined(TCB1)
+  #define _AVR_TCB_COUNT     (2)
+#elif defined(TCB0)
+  #define _AVR_TCB_COUNT     (1)
+#else
+  #warning "No TCBs? No such parts exist, something is wrong"
+#endif
+
+#if defined(TCD1)
+  #define _AVR_TCD_COUNT     (1)
+#else
+  #define _AVR_TCD_COUNT     (0)
+#endif
+
+#if defined(TWI1)
+  #define _AVR_TWI_COUNT     (2)
+#elif defined(TWI1)
+  #define _AVR_TWI_COUNT     (1)
+#else
+  #define _AVR_TWI_COUNT     (0)
+  #warning "No TWI? No supported parts like tht exist..."
+#endif
+
+#if defined(USART5)
+  #define _AVR_USART_COUNT     (6)
+#elif defined(USART4)
+  #define _AVR_USART_COUNT     (5)
+#elif defined(USART3)
+  #define _AVR_USART_COUNT     (4)
+#elif defined(USART2)
+  #define _AVR_USART_COUNT     (3)
+#elif defined(USART1)
+  #define _AVR_USART_COUNT     (2)
+#elif defined(USART0)
+  #define _AVR_USART_COUNT     (1)
+#else
+  #warning "No USARTs? No such parts exist, something is wrong"
+#endif
+
+
+
 /* ERRATA TESTS */
 /* Not exhaustive, we'd be going on for thosands of lines to over all the errata. This code assumes all DB are Rev A5, not A4, A4 got pulled fast         */
 /* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
@@ -328,10 +427,11 @@
   #define ERRATA_DAC_DRIFT              (1)
 #endif
 
-#if !defined(PIGS_ARE_FLYING)
-  // No device has been released that doesn't have this bug! I am not optimistic that this will ever change. I couldn't care less about the TCB issue, but there would be dancing in the streets if new silicon revisoin that fixed the CCL one were released. Shortllived, of course, since they'd soon realize what the backorder time was on the parts was, fix or no fix.
-
+// No device has been released that doesn't have this bug! I am not optimistic that this will ever change. I couldn't care less about the TCB issue, but there would be dancing in the streets if new silicon revisoin that fixed the CCL one were released. Shortllived, of course, since they'd soon realize what the backorder time was on the parts was, fix or no fix.
+#if defined(__AVR_DD__)
   #define ERRATA_TCB_CCMP               (1)
+#endif //"They fixed it?!"
+#if(!PIGS_ARE_FLYING)
   #define ERRATA_CCL_PROTECTION         (1)
 #endif
 
