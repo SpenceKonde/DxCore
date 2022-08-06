@@ -393,7 +393,7 @@
   #define _AVR_TWI_COUNT     (1)
 #else
   #define _AVR_TWI_COUNT     (0)
-  #warning "No TWI? No supported parts like tht exist..."
+  #warning "No TWI? No supported parts like that exist..."
 #endif
 
 #if defined(USART5)
