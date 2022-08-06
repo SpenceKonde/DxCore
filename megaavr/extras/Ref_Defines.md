@@ -3,7 +3,7 @@ It is often useful to identify what options are selected on the menus from withi
 
 You cannot check for options that depend on the fuses at compile-time, because we don't know what they will be - sketch can be uploaded separately from setting them.
 
-## Timer identification from within code.
+## Timer identification from within code
 You may need to know programmatically what millis source is in use. There are several defines to help with this.
 There are the legacy ones:
 * `MilLIS_USE_TIMERA0`
@@ -23,24 +23,24 @@ It is often more convenient to use these newer macros, which identify instead te
 * `MILLIS_TIMER`
 * `MILLIS_VECTOR`
 
-#### Millia timer codea:
+#### Millia timer codes
 These are the values that the MILLIS_TIMER may be defined as:
 
 | Name            | Numeric value | Meaning                             |
 |-----------------|---------------|----------------------------------------------------------
-* `NOT_ON_TIMER`  |          0x00 | Millis is disabled
-* `NONE`          |          0x00 | Millia ia disabled
-* `TIMERA0`       |          0x10 | Millis is generated from TCA0
-* `TIMERA1`       |          0x08 | Millis is generated from TCA1
-* `TIMERB0`       |          0x20 | Millis is generated from TCB0
-* `TIMERB1`       |          0x21 | Millis is generated from TCB1
-* `TIMERB2`       |          0x23 | Millis is generated from TCB2
-* `TIMERB3`       |          0x23 | Millis is generated from TCB3
-* `TIMERB4`       |          0x24 | Millis is generated from TCB4
-* `TIMERD0`       |          0x40 | Not planned for implementation on DxCore.
-* `TIMERRTC`      |          0x80 | (not yet implemented on DxCore)
-* `TIMERRTC_XTAL` |          0x81 | (not yet implemented on DxCore)
-* `TIMERRTC_XOSC` |          0x82 | (not yet implemented on DxCore)
+| `NOT_ON_TIMER`  |          0x00 | Millis is disabled
+| `NONE`          |          0x00 | Millia ia disabled
+| `TIMERA0`       |          0x10 | Millis is generated from TCA0
+| `TIMERA1`       |          0x08 | Millis is generated from TCA1
+| `TIMERB0`       |          0x20 | Millis is generated from TCB0
+| `TIMERB1`       |          0x21 | Millis is generated from TCB1
+| `TIMERB2`       |          0x23 | Millis is generated from TCB2
+| `TIMERB3`       |          0x23 | Millis is generated from TCB3
+| `TIMERB4`       |          0x24 | Millis is generated from TCB4
+| `TIMERD0`       |          0x40 | Not planned for implementation on DxCore.
+| `TIMERRTC`      |          0x80 | (not yet implemented on DxCore)
+| `TIMERRTC_XTAL` |          0x81 | (not yet implemented on DxCore)
+| `TIMERRTC_XOSC` |          0x82 | (not yet implemented on DxCore)
 
 
 However, the other bits are also used when digitalPinToTimer/Now() are used:
@@ -50,7 +50,7 @@ However, the other bits are also used when digitalPinToTimer/Now() are used:
 * For TCD it is the form 0b0xx10yyy where xx is the WO channel and yyy is the PORTMUX setting.
 
 To to find the millis timer:
-```
+```c
 if (MILLIS_TIMER & 0x40) {
   //timer D (not available on DxCore)
 } else if (MILLIS_TIMER & 0x10) {

@@ -23,11 +23,12 @@ Most 1117 style LDOs suck (power) 5mA is not unusual.. Some simply suck (counter
 ## Disable unwanted peripherals
 DO NOT use <avr/power.h> - it is for legacy parts and does nothing (and the avr-libc team has not updated it).
 
-## When not sleeping, make sure to disable any peripherals you are not using, ex:
+## When not sleeping, make sure to disable any peripherals you are not using
+For example:
 ```c
-TCA0.SPLIT.CTRLA = 0; //If you aren't useing TCA0 for anything
+TCA0.SPLIT.CTRLA = 0; //If you aren't using TCA0 for anything
 ```
-By default at startup, DxCore enables all timers for use with PWM; if you're not using them you can also override the initialization functions with empty ones, see [callback reference](Ref_Callback.md)
+By default at startup, DxCore enables all timers for use with PWM; if you're not using them you can also override the initialization functions with empty ones, see [callback reference](Ref_Callbacks.md)
 
 ## Beware of the ADC in sleep mode
 
@@ -40,7 +41,7 @@ The ADC can be a source of power drain.
 ```
 may reduce draw by hundreds of ua. You should also be sure to set all unused pins to either INPUT_PULLUP, OUTPUT, or disable their input (see [the Digital Pin Function referernce](Ref_Digital.md))
 
-This can also be achieved with the `analogPowerOption()` function (see [the analog reference](Ref_Analog))
+This can also be achieved with the `analogPowerOption()` function (see [the analog reference](Ref_Analog.md))
 
 Other things that can waste power in standby sleep mode if not disabled include the RTC, the CCL (if set to use a clock source and run in standby mode), and any peripheral set to run in standby mode (not only do these keep the peripheral on, they keep their clock source on, which is often a larger power draw)
 
@@ -146,7 +147,7 @@ The RTC is in its own "clock domain" and the microcontroller has to "synchronize
 ## Sleep and Serial ports
 If there are any serial ports which you print output to, before going to sleep, be sure to let them finish printing everything in their transmit buffer by calling `Serial.flush()`. Also, wake on serial seems to lose data outside of sleep mode idle. And if you have serial ports connected during your power measurements, current leakage through the serial port may affect your measurements. A pair of schottky diodes + pull-ups to block current flow over the serial port data lines can solve this - BAT20JFILM is a reasonably low leakage option, 0.65ua typ at 5v.
 
-```
+```text
              serial power
                 |
 mcu tx  --<|--- z------ usb serial rx
