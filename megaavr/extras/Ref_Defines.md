@@ -4,7 +4,7 @@ It is often useful to identify what options are selected on the menus from withi
 You cannot check for options that depend on the fuses at compile-time, because we don't know what they will be - sketch can be uploaded separately from setting them.
 
 ## Timer identification from within code.
-You may need to know programatically what millis source is in use. There are several defines to help with this.
+You may need to know programmatically what millis source is in use. There are several defines to help with this.
 There are the legacy ones:
 * `MilLIS_USE_TIMERA0`
 * `MILLIS_USE_TIMERA1`
@@ -37,7 +37,7 @@ These are the values that the MILLIS_TIMER may be defined as:
 * `TIMERB2`       |          0x23 | Millis is generated from TCB2
 * `TIMERB3`       |          0x23 | Millis is generated from TCB3
 * `TIMERB4`       |          0x24 | Millis is generated from TCB4
-* `TIMERD0`       |          0x40 | Not planned for implemenetation on DxCore.
+* `TIMERD0`       |          0x40 | Not planned for implementation on DxCore.
 * `TIMERRTC`      |          0x80 | (not yet implemented on DxCore)
 * `TIMERRTC_XTAL` |          0x81 | (not yet implemented on DxCore)
 * `TIMERRTC_XOSC` |          0x82 | (not yet implemented on DxCore)
