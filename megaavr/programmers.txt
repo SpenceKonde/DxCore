@@ -42,21 +42,21 @@ nedbg.program.protocol=curiosity_updi
 nedbg.program.tool=avrdude
 nedbg.program.extra_params=-Pusb
 
-medbg.name=mEDBG, debug chip: ATmega32u4
-medbg.communication=usb
-medbg.protocol=xplainedmini_updi
-medbg.program.protocol=xplainedmini_updi
-medbg.program.tool=avrdude
-medbg.program.extra_params=-Pusb
-
-edbg.name=EDBG, debug chip: AT32UC3A4256
+edbg.name=Xplained Pro (EDBG, debug chip: AT32UC3A4256)
 edbg.communication=usb
 edbg.protocol=xplainedpro_updi
 edbg.program.protocol=xplainedpro_updi
 edbg.program.tool=avrdude
 edbg.program.extra_params=-Pusb
 
-atmelice_updi.name=Atmel-ICE (UPDI mode)
+medbg.name=Xplained Mini (mEDBG, debug chip: ATmega32u4)
+medbg.communication=usb
+medbg.protocol=xplainedmini_updi
+medbg.program.protocol=xplainedmini_updi
+medbg.program.tool=avrdude
+medbg.program.extra_params=-Pusb
+
+atmelice_updi.name=Atmel-ICE
 atmelice_updi.communication=usb
 atmelice_updi.protocol=atmelice_updi
 atmelice_updi.program.protocol=jtagice3_updi

@@ -429,7 +429,7 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
   if (address > PROGMEM_SIZE) return (uint8_t*) NULL;
   // If location is outside bounds of flash, return null pointer
   #if PROGMEM_SIZE == 0x10000
-    if ((address > 0x8000) == !!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
+    if ((address > 0x8000) == !!(NVMCTRL.CTRLB & NVMCTRL_FLMAP_0_bm)) {
       return (uint8_t *) (0x8000 | ((uint16_t) address));
     } else {
       return (uint8_t*) NULL;
@@ -455,7 +455,7 @@ uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
   }
   uint32_t address= (uint16_t) mappedPtr;
   #if PROGMEM_SIZE == 0x10000
-    if (!(NVMCTRL.CTRLB & NVMCTRL_FLMAP0_bm)) {
+    if (!(NVMCTRL.CTRLB & NVMCTRL_FLMAP_0_bm)) {
       address -= 0x8000;
     }
     return address;

@@ -116,7 +116,7 @@
   #define SERIAL_RS485         (((uint16_t) USART_RS485_0_bm) << 8)// 0x0100
   #define SERIAL_RS485_OTHER   (((uint16_t) USART_RS485_1_bm) << 8)// 0x0200 tinyAVR 0/1 - that wacky, other RS485 mode.
 #else
-  #define SERIAL_RS485         (((uint16_t) USART_RS485_bm)   << 8)// 0x0100
+  #define SERIAL_RS485         (((uint16_t) USART_RS485_bm)  << 8)// 0x0100
 #endif
 #define   SERIAL_OPENDRAIN      ((uint16_t)                 0x0400)// 0x0400
 #define   SERIAL_LOOPBACK      (((uint16_t) USART_LBME_bm)    << 8)// 0x0800
@@ -125,7 +125,8 @@
 #define   SERIAL_EVENT_RX       ((uint16_t)                 0x2000)// 0x2000
 //#define SERIAL_MODE_SYNC      Defined Above                     // 0x0040 - works much like a modifier to enable synchronous mode.
 // See the Serial reference for more information as additional steps are required
-#define SERIAL_HALF_DUPLEX     (SERIAL_LOOPBACK | SERIAL_OPENDRAIN)
+  #define SERIAL_HALF_DUPLEX     (SERIAL_LOOPBACK | SERIAL_OPENDRAIN)
+  //
 
 #define SERIAL_AUTOBAUD                     (0x80000000) // OR with baud rate for topology 3 in Ref. Serial
 #define SERIAL_REQUIRE_AUTOBAUD             (0xFFFFFFFF) // Specify autobaud... plus an obscenely fast baud rate. The other device must send a sync frame. Good for slaves in topology 2, or in topology 1
@@ -208,6 +209,9 @@
  *   rate that both ends are set to and don't need it. It's great if you need
  *   to meet the LIN specifications, of course, but that's not a typical or
  *   advisable Arduino use case...
+ *   Based on persistent requests from users, who want it badly enough to try
+ *   hacking something together to make use of it anyway, a future version
+ *   will incorporate generic autobaud mode, even though it's pretty silly.
  */
 
 /* Everything contigured by the SERIAL_xPs constants goes right into CTRLC:

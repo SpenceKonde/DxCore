@@ -13,6 +13,21 @@
  * pinswap.h if it relates to PORTMUX, which is a great volume
  * of stuff nobody should have to read.
  *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+ /*
  * That means functions and macros that may be used by user code
  * (except for part-feature ones - those are clearly documented
  * in the readme if they are ready for users).
@@ -109,6 +124,7 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 #define ADC_ERROR_DISABLED                          (-32767)
 #define ADC_ERROR_BUSY                              (-32766)
 #define ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL       (-2100000000)
+     
 // positive channel is not (0x80 | valid_channel) nor a digital pin number
 // referring to a pin with analog input.
 #define ADC_ENH_ERROR_BUSY                     (-2100000001)
@@ -130,10 +146,73 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 // Never actually returned, because we give compile error here
 #define ADC_ENH_ERROR_DISABLED                 (-2100000007)
 // The ADC is not currently enabled. This error is disabled currently - if analogReadEnh encounters a disabled ADC, it will enable it, take the reading, and disable it again.
-#define ADC_ERROR_INVALID_CLOCK                     (-32764)
+#define ADC_ERROR_INVALID_CLOCK                     (-32255)
 // Returned by analogClockSpeed if the value in the register is currently unknown, or if an invalid frequency is requested.
 
 
+// only returned by analogCheckError()
+#define ADC_IMPOSSIBLE_VALUE                        (-127)
+
+
+#if (!defined(TCB_CLKSEL2_bm))
+  // This means it's a tinyAVR 0/1-series, or a megaAVR 0-series.
+  // Their TCB_CLKSEL enums use different names for the clock settings, for reasons unclear.
+  // To align with the future, we use the Dx-series names for these.
+  #define TCB_CLKSEL_DIV2_gc TCB_CLKSEL_CLKDIV2_gc
+  #define TCB_CLKSEL_DIV1_gc TCB_CLKSEL_CLKDIV1_gc
+#endif
+
+#define VCC_5V0 2
+#define VCC_3V3 1
+#define VCC_1V8 0
+
+#define interrupts() sei()
+#define noInterrupts() cli()
+
+
+// NON-STANDARD API
+
+
+void init_ADC0(void); /* Called by init() after clock is set */
+#if defined(ADC1)
+  void init_ADC1(void); /* Never called automatically, but must be called manuaklkly in order to use the ADC1 functions. */
+#endif
+void init_clock(void);/* called by init() first  */
+void init_millis();   /* called by init() last   */
+void init_timers();   /* called by init()        */
+void init_TCA0();     /* called by init_timers() */
+void init_TCD0();     /* called by init_timers() */
+
+// callbacks normally empty and optimized away.
+void onPreMain();
+void onBeforeInit();
+uint8_t onAfterInit();
+void initVariant();
+
+
+// Peripheral takeover
+// These will remove things controlled by
+// these timers from analogWrite()/turnOffPWM()
+// 0x40 - TCD0, 0x10 - TCA0
+void takeOverTCA0();
+void takeOverTCD0();
+
+// millis() timer control
+void stop_millis();                   // Disable the interrupt and stop counting millis.
+void restart_millis();                // Reinitialize the timer and start counting millis again
+void set_millis(uint32_t newmillis);  // set current millis time.
+/* Expected usage:
+ * uint32_t oldmillis=millis();
+ * stop_millis();
+ * user_code_that_messes with timer
+ * set_millis(oldmillis+estimated_time_spent_above)
+ * restart millis();
+ *
+ * Also, this might at times be appropriate
+ * set_millis(millis() + known_offset);
+ * after doing something that we know will block too long for millis to keep time
+ * see also:
+ */
 
 
 /* inlining of a call to delayMicroseconds() would throw it off */
@@ -275,7 +354,7 @@ Not enabled. Ugly ways to get delays at very small flash cost.
                     #define CLOCKS_PER_US   (F_CPU / 1000000);    // preprocessed away
                     #define DELAYCLOCKS     (0.8 * CLOCKS_PER_US) // say we wanted a 0.8 us delay.
                     uint8_t x = DELAYCLOCKS / 3;                  // preprocessed into a constant
-                    __asm__ __volatile__ ("dec %0"      "\n\t"    // before this, an ldi is used to load x into the input opperand %0
+                    __asm__ __volatile__ ("dec %0"      "\n\t"    // before this, an ldi is used to load x into the input operand %0
                                           "brne .-4"    "\n\t"
                       #if (DELAYCLOCKS % 3 == 2)                  // 2 clocks extra needed at end
                                           "rjmp .+0"    "\n\t"
@@ -674,7 +753,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #endif
 
 #include "pins_arduino.h"
-// Take this trash out of variants!
+// this stuff used to be in the variants. 
 #if !defined(NUM_DIGITAL_PINS)
 /* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
  * that is, it's the first integer which does not refer to a pin, and the number of digital pins if there

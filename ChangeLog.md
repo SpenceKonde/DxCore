@@ -1,16 +1,48 @@
 # Changelog
-This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of DxCore. Note that this document is maintained by a human, who is - by nature - imperfect; sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare.
+This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of megaTinyCore. Note that this document is maintained by a human, who is - by nature - imperfect (this is also why there are so many bugs to fix); sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare. Change descriptions may be incomplete or unclear; this is not meant to be an indepth reference.
+## Planned changes not yet implemented
+These items are in addition to what was listed under changes already in release.
+
+### Unconfirmed bugs
+1. Issue with Serial.printf and it's ilk. Suspect user error.
+2. SerialUPDI uploads don't work if any file path contains spaces, because of missing quotes in platform.txt? But I can't see where... Need example verbose upload attempt in order to further debug.
+
+### Planned enhancements
+"Enhancements" are changes to the core which improve functionality and introduce new and exotic bugs. Sometimes called "Features", I prefer the term "enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compiletime error detection. All things that, as well as new features, would add to the
+
+#### Enhancements Planned for 1.5.x
+* Add pinout charts for the DD-series that don't look like they made by an untalented failure in microsoft paint. Because that's what we're going to get in 1.5.0 it looks like. They'll look even uglier than the mess I made out of the DB and DA-series diagrams. Sorry guys, I don't have the artistic talent.
+
+#### Enhancements Planned for 1.5.0
+* Change class hierarchy for UART class to eliminate most virtual functions and allow for vastly signficant flash size reduction since unusued virtual functions now don't have to exist. (This was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints and analysis relating to the fact that the original version of Wire wouldn't fit into a 4k 8-pin part), so that rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) as UartClass, we instead simply subclass Stream directly. UART.h will be renamed to HardwareSerial.h, HardwareSerial.h (a compatibility layer) will be renamed to UART.h and the latter adjusted to #define UartClass as HardwareSerial, and api/HardwareSerial.h will be gutted and simply #include "../HardwareSerial.h" and contain comments jutifyingthis flagrant disrespect for the API. ArduinoAPI was sort of disasterous for low resource parts like AVRs.
+* Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM. Note that this also requires all offsets used to access the Serial transmit and receive buffers to be reduced accordingly in the inline assembly in UART.cpp. Related to above.
+* Package Azduino5 toolchain, required to support DD-series
 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
 ### planned 1.5.0
+* Port fixes to Logic, Event and Comparator libraries from megaTinyCore.
+  * This means if you don't attach an interrupt using the `attachInterrupt()` method, you can make your own interrupt, or just save the flash.
 * Fix issue with SerialUPDI uploads on updated versions of linux
 * Add more part infomrmation macros (See [the define list](megaavr/extras/Ref_Defines.md))
 * Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
-* Fix logic library handling of pin inputs
-* Update event library to latest megaTinyCore
-* Enable all released DD's,
+* Fix bug with Wire.h complaining inappropriately about ambiguous types.
+* Enable support for alternate TCD pins based on portmux for DD where this works.
+* Update event library to latest version from megaTinyCore
+* New Toolchain version: Azduino5 to support the DDs
+  * Required changes because of Microchip having renamed a bunch of registers >.<
+  * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
+  * Adds support for 32k and 16k DD-series parts.
+  * Currently implemented changed should make it compatible but the toolchain has yet to be packaged.
+* Largely reimplemented the first half of analogWrite(). On parts wth a TCA1, all PORTMUX options should now work, even those with only 3 pins.
+* Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
+* Add flash spm options for DD-series parts, and a smaller number of SPM options for people who have very small code but want to store huge amounts of user data in flash (read: Standalone Programmers)
+* Enable all DD-series parts
+* Complete rewrite of the logic used to determine which timer and pins on TCA0 and TCA1 are used for PWM
+* Implement generic autobaud for Serial and some associated functionality.
+* Fix serial receive issue.
+
 
 ## Version History
 

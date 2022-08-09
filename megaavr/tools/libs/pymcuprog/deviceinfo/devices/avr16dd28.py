@@ -1,6 +1,6 @@
 
 """
-Required device info for the avr64dd14 devices
+Required device info for the avr64dd20 devices
 The following data would normally have been collected from device packs.
 But since Microchip hasn't done this, it was deduced from device packs by Spence Konde.
 """
@@ -8,7 +8,7 @@ But since Microchip hasn't done this, it was deduced from device packs by Spence
 from pymcuprog.deviceinfo.eraseflags import ChiperaseEffect
 
 DEVICE_INFO = {
-    'name': 'avr64dd14',
+    'name': 'avr16dd28',
     'architecture': 'avr8x',
 
     # eeprom
@@ -31,7 +31,7 @@ DEVICE_INFO = {
 
     # internal_sram
     'internal_sram_address_byte': 0x6000,
-    'internal_sram_size_bytes': 0x800,
+    'internal_sram_size_bytes': 0x1000,
     'internal_sram_page_size_bytes': 1,
     'internal_sram_read_size_bytes': 1,
     'internal_sram_write_size_bytes': 1,
@@ -81,5 +81,5 @@ DEVICE_INFO = {
     'interface': 'UPDI',
     'address_size': '24-bit',
     'prog_clock_khz': 1800,
-    'device_id': 0x1E961D,
+    'device_id': 0x1E9432,
 }

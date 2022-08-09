@@ -1,3 +1,4 @@
 megaavr/tools/python3/*
 *.pyc
-.DS_Store
+*.DS_Store
+megaavr/extras/.DS_Store

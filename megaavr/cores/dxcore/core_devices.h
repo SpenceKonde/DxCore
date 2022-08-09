@@ -323,7 +323,7 @@
 #elif defined(AC0)
   #define _AVR_AC_COUNT      (1)
 #else
-  #define _AVR_AC_COUNT      (1)
+  #define _AVR_AC_COUNT      (0)
 #endif
 
 #if defined(ADC1)
@@ -331,6 +331,7 @@
 #elif defined(ADC0)
   #define _AVR_ADC_COUNT     (1)
 #else
+  #define _AVR_ADC_COUNT     (0)
   #warning "No ADC? No supported parts exist, something is wrong"
 #endif
 
@@ -389,7 +390,7 @@
 
 #if defined(TWI1)
   #define _AVR_TWI_COUNT     (2)
-#elif defined(TWI1)
+#elif defined(TWI0)
   #define _AVR_TWI_COUNT     (1)
 #else
   #define _AVR_TWI_COUNT     (0)
@@ -409,7 +410,8 @@
 #elif defined(USART0)
   #define _AVR_USART_COUNT     (1)
 #else
-  #warning "No USARTs? No such parts exist, something is wrong"
+  #define _AVR_USART_COUNT     (0)
+  #warning "No USARTs? No such parts exist, something is wrong";
 #endif
 
 

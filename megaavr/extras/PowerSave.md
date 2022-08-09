@@ -157,6 +157,11 @@ mcu tx  --<|--- z------ usb serial rx
 usb serial tx  --<|--- z------ mcu rx
 ```
 
+## 2-Series ADC Power Consumption
+When using a 2-series part, the ADC should be disabled during power down sleep mode, as it will otherwise consume 130uA continuously, almost 2 orders of magnitude more than the rest of the chip in this mode just like on classic AVRs. It may be related to the LOWLAT mode, but the LOWLAT mode needs to be enabled on some 2-series parts due to one of the few errata known for the new ADC. Turning off the ADC during sleep is currently our recommended workaround and can be doone by clearing the `ADC_ENABLE` bit of `ADC0.CTRLA` (and setting it upon wake) or using the `ADCPowerOptions()` function as detailed in [the Analog reference document](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Analog.md#adcpoweroptionsoptions-2-series-only-prior-to-2512)
 
 ## Future Development
 There are plans for a library to provide improved wrappers around sleep modes, particularly regarding timekeeping. This will also provide a means to handle serial ports automatically - including waking the part upon seeing an incoming character on the serial port. The latter is more complicated than the datasheet implies due to a widespread silicon bug with SFD (Start-of-Frame Detection).
+
+## Notes
+1. "Pin change with restrictions? Like always, sure. RTC? But of course, that's what it's here for. TWI address match? Wait, we can wake from deepest sleep modes on that?" If your first thought is "one of these things looks out of place here" - that was mine too. One presumes that this can be implemented asynchronously at a low cost (it is, effectively, just a shift register and 7-bit binary comparator...). I don't know how difficult of an engineering task it was, or what compromises were made for it, but if you imagine building an I2C device with one of these as it's core, this is functionality has a very high payback.

@@ -7,7 +7,7 @@ A callback would be where you supply a function pointer which we then call (whic
 Some of these were added in 1.3.7 (actually, quite a few of them were, which was the impetus for writing this)
 
 ## Startup Sequence
-When execution reaches the application after reset or bootloader, it hits the reset vector first, andthen jumps where ver that is pointing and begins execution with the .init sections
+When execution reaches the application after reset or bootloader, it hits the reset vector first, and then jumps where ver that is pointing and begins execution with the .init sections
 ```text
 .init2: This initializes the stack and clears r1 (the known zero) that avr-gcc needs. No C code before here works correctly!
 .init3: This calls the DxCore function _initThreeStuff()
@@ -102,7 +102,7 @@ The functions listed below can be overridden. In most cases they should not be. 
 ### main
 ```c
 int main() {
-  onBeforeInit(); //Emnpty callback called before init but after the .init stuff. First normal code executed
+  onBeforeInit(); //Emnpty callback called before init but after the .init stuff. First normal code executed - no peripherals have been set up yet, but class constructors have been run. Useful if you need to fiddle with a class instance at this point in time,
   init(); //Interrupts are turned on just prior to init() returning.
   initVariant();
   if (!onAfterInit()) sei();  //enable interrupts.
@@ -116,13 +116,14 @@ int main() {
   }
 }
 ```
-This is the main program. The only things that run first are the things in the .initN sections - this means init_reset_flags(), onPreMain(), and class constructors. It can be overridden but in this case nothing will be initialized, and the clock will be 4 MHz internal when it is called. If you have a different speed selected, everything that depends on F_CPU (including the avrlibc delay.h) will have all timing wrong. Even if you override main, you probably want to call init_clock() at the start or be sure to compile for 4 MHz. If you just don't want to use the Arduino setup/loop structure, but you do want everything else (millis, pwm, adc, and anything that a library needs to do in initVariant), simply put your code in setup and leave loop empty - don't override main.
+This is the main program, and it calls all the initialization functions described herein except for initThreeStuff(). The only things that run first are the things in the .initN sections - this means init_reset_flags(), onPreMain(), and class constructors. It can be overridden but in this case nothing will be initialized, and the clock will be 4 MHz internal when it is called. If you have a different speed selected, everything that depends on F_CPU (including the avrlibc delay.h) will have all timing wrong. Even if you override main, you probably want to call init_clock() at the start or be sure to compile for 4 MHz. If you just don't want to use the Arduino setup/loop structure, but you do want everything else (millis, pwm, adc, and anything that a library needs to do in initVariant), simply put your code in setup and leave loop empty - don't override main.
 
 ### Initializers of peripherals
+Overriding these is not recommended. They're most likely to become relevant if you have overridden init() or main(), yet still want the peripheral in question initialized (which of course raises the question of why you overrode init() or main() in the first place). Occasionally useful for debugging, and that's why they exist.
 ```c
 void init()             __attribute__((weak)); // This calls all of the others.
 void init_clock()       __attribute__((weak)); // this is called first, to initialize the system clock.
-void init_ADC0()        __attribute__((weak)); // this is called to initialize ADC.
+void init_ADC0()        __attribute__((weak)); // this is called to initialize ADC0. be called manually on parts with an ADC1 to initialize that just as we do ADC0.
 void init_timers();                            // this function calls the timer initialization functions. Overriding is not permitted.
 void init_TCA0()        __attribute__((weak)); // called by init_timers() - Don't override this if using TCA0 for millis.
 void init_TCA1()        __attribute__((weak)); // called by init_timers() - Don't override this if using TCA1 for millis.
@@ -139,10 +140,12 @@ The timer initialization functions do different things if the timer is used for 
 #### init_clock
 Initializes the system clock so that it will run at the F_CPU passed to it. Don't override this unless you can ensure that the F_CPU that is passed via the compiler command line will be correct or as s desperate measure in debugging. Overriding it with an empty function may be useful when debugging exotic problems where you want to make sure that a problem isn't being caused by the clock configuration code. (and accept that the timekeeping will be wrong while debugging)
 
-This is the wrong way to debug a problem that you think might be caused by a malfunctioning external clock, In that case, just build for internal clock.
+*if overriding main() or init() you probably want to call this directly at initialization, otherwise no timing or baud rate calculation will work correctly - this is what sets the chip to run at the clock speed you're compiling for*
+
+Changing this is the wrong way to debug a problem that you think might be caused by a malfunctioning external clock. In that case, just build for internal clock.
 
 #### init_ADC0
-Initializes the ADC clock prescaler to get a legal frequency, sets up defaults and enables the ADC. It can be overridden with an empty function to prevent it from initializing the ADC to save flash if the ADC is not used.
+Initializes the ADC clock prescaler to get a legal frequency, sets up defaults and enables the ADC. It can be overridden with an empty function to prevent it from initializing the ADC to save flash if the ADC is not used. if main is overridden and tou want the right clock speed, you MUST init_clock MUST be called first in that case.
 #### init_timers
 Calls initTCA9() and initTCA1() if TCA1 is present, and sets PORTMUX.TCAROUTEA() to match what variant specifies, then calls initTCBs(), and initTCD0(). No clear reason one would want to override
 
@@ -167,6 +170,4 @@ void initVariant() __attribute__((weak)){;}
 ```
 This is the ONLY one of these functions that is standard (other than init, setup, and loop, of course).
 
-
-initVariant is meant for variant files to call, but none of them ever do that on any core i've seen, and library authors use this sometimes for code that needs to run at startup.
-**DO NOT OVERRIDE THIS** in the sketch - it is reserved for library/core/board authors. It is part of the Arduino API and is present on all cores as far as I know.
+initVariant is meant for variant files to call, but none of them ever do that on any core i've seen, and library authors use this sometimes for code that needs to run at startup. **NO SKETCH SHOULD EVER OVERRIDE THIS** - This hook is reserved for library and variant authors. It is part of the Arduino API and is present on all cores as far as I know.

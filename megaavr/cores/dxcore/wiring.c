@@ -122,11 +122,20 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
   #elif defined(MILLIS_USE_TIMERB0)
     ISR(TCB0_INT_vect)
   #elif defined(MILLIS_USE_TIMERB1)
-    ISR(TCB1_INT_vect)
+    #ifndef TCB1
+      #error "Selected millis timer, TCB1 does not exist on this part."
+    #endif
+    &TCB1;
   #elif defined(MILLIS_USE_TIMERB2)
-    ISR(TCB2_INT_vect)
+    #ifndef TCB2
+      #error "Selected millis timer, TCB2 does not exist on this part."
+    #endif
+    &TCB2;
   #elif defined(MILLIS_USE_TIMERB3)
-    ISR(TCB3_INT_vect)
+    #ifndef TCB3
+      #error "Selected millis timer, TCB3 does not exist on this part."
+    #endif
+    &TCB3;
   #elif defined(MILLIS_USE_TIMERB4)
     ISR(TCB4_INT_vect)
   #else
@@ -1116,17 +1125,17 @@ void __attribute__((weak)) init_millis()
     #elif defined(MILLIS_USE_TIMERRTC)
       while(RTC.STATUS); // if RTC is currently busy, spin until it's not.
       // to do: add support for RTC timer initialization
-      RTC.PER = 0xFFFF;
-    #ifdef MILLIS_USE_TIMERRTC_XTAL
-      _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, 0x03);
-      RTC.CLKSEL = 2; // external crystal
-    #else
-      _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA, 0x02);
-      // RTC.CLKSEL = 0; this is the power on value
-    #endif
-      RTC.INTCTRL = 0x01; // enable overflow interrupt
-      RTC.CTRLA = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
-    #else // It's a type b timer
+      RTC.PER             = 0xFFFF;
+      #ifdef MILLIS_USE_TIMERRTC_XTAL
+        _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x03);
+        RTC.CLKSEL        = 2; // external crystal
+      #else
+        _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,0x02);
+        // RTC.CLKSEL=0; this is the power on value
+      #endif
+      RTC.INTCTRL         = 0x01; // enable overflow interrupt
+      RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
+    #else // It's a type b timer - we have already errored out if that wasn't defined
       _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
       // Enable timer interrupt, but clear the rest of register
       _timer->INTCTRL = TCB_CAPT_bm;
@@ -1142,6 +1151,7 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
 {
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("set_millis() is only valid with millis timekeeping enabled.");
+    GPIOR0 |= newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
   #else
     #if defined(MILLIS_USE_TIMERRTC)
       // timer_overflow_count = newmillis >> 16;

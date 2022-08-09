@@ -22,15 +22,16 @@ USART is "Universal Synchronous/Asynchronous Receiver Transmitter"
 
 A UART can only communicate in asynchronous mode (with TX and RX), while a USART optionally adds a third pin, XCK, that can be configured as a clock. The serial ports on AVR devices have always been USARTs (a very small number of ancient classic AVRs have UARTs instead)
 
-The synchronous mode isn't as flexible as you might think, largely because of the whole start/stop bit thing. Another reason it is less frequently used is the availability of adapter hardware for desktop compters, or rather the lack thereof. It is, if anything, even harder to find support for than SPI.
+The synchronous mode isn't as flexible as you might think, largely because of the whole start/stop bit thing. Another reason it is less frequently used is the availability of adapter hardware for desktop computers, or rather the lack thereof. It is, if anything, even harder to find support for than SPI.
 
-Note that, unlike the `MSPI` mode, Synchronous Mode does support operation as either slave or master; the MSPI mode, which drops the start and stop bits, and works largely like a proper SPI interface. MSPI mode is as name implies, master only.
+Note that, unlike the `MSPI` mode, Synchronous Mode does support operation as either slave or master; the MSPI mode, which drops the start and stop bits, and works largely like a proper SPI interface is master only.
 
 `MSPI` mode is not supported by the core. A third party library must be used.
 
-### Terminology
-The following terms are used in this document.
-* "pinset" or "pin set" - synonym for "pin mapping option" and other descriptive terms, consisting of all the pins that could be enabled with a given PORTMUX configuration and their roles,
+
+
+### Terminology (non-standard)
+* "Pin set" - synonym for "pin mapping option" and other descriptive terms, consisting of all the pins that could be enabled with a given PORTMUX configuration and their roles,
 * "Mux Code" - For a given pinset, the mux code is the value written to the appropriate bits of the PORTMUX register controlling USART pin selection. It is a value of 0, 1, 2, or 3 leftshifted some number of places. For the same pinset, for the same peripheral, with the same swap level, different parts may have a different mux code.
 * "Swap Level"  - The swap level is the logical number of the pinset - the default mapping is always 0, swap level n is the option named as ALTn in the datasheet. Microchip has never articulated any policy of keeping pinsets consistent between parts and on future parts but all indications are that they intend to keep pinsets consistent, and only add new ones. The mux codes are, however, not treated with the same level of respect - it's likely that the D
 
@@ -38,7 +39,7 @@ For example, TX = PC4, RX = PC5, XCK = PC6, XDIR = PC7 is pinset 1 for USART1.
 It's swap level is 1, and it's mux code is is 0x04 (on DA/DB parts - it will presumably be 0x08 on the EA-series, assuming it stays like the product brief describes, with the DD-series mux options).
 
 ## Serial in DxCore and megaTinyCore
-We have tweaked the Serial classes for greater flexibility, efficiencty, and performance.
+We have tweaked the Serial classes for greater flexibility, efficiency, and performance.
 It implements the standard Serial API, plus a small number of additional options.
 
 ### Serial.swap(mux option)
@@ -71,7 +72,7 @@ This function is meant for use by libraries to allow them to figure out which pi
 
 
 ### Serial.printHex() and Serial.printHexln()
-One extremely common task in embedded programming, particualarly debugging embedded code, is printing data out as hexadecimal numbers. There is of course,  `Serial.print(number,HEX)`, but not only does that burn more flash, it doesn't add an appropriate number of leading zeros (making it hard to read). It's designed to print numbers in the way that programmers would want them printed - the number of leading zeros will match the data type, ie if you print an unsigned long, with 1 in the low byte and 0's in the other three, it will print 00000001, not 1. As you would expect, printHexln() does the same thing and adds a newline.
+One extremely common task in embedded programming, particularly debugging embedded code, is printing data out as hexadecimal numbers. There is of course,  `Serial.print(number,HEX)`, but not only does that burn more flash, it doesn't add an appropriate number of leading zeros (making it hard to read). It's designed to print numbers in the way that programmers would want them printed - the number of leading zeros will match the data type, ie if you print an unsigned long, with 1 in the low byte and 0's in the other three, it will print 00000001, not 1. As you would expect, printHexln() does the same thing and adds a newline.
 Below is an unabridged list of the versions:
 ```c++
     void                printHex(const     uint8_t              b);
@@ -231,17 +232,28 @@ RS485 mode in combination with RX_ONLY will simply set the pin to an output, but
 * Loopback + Open Drain - These two not-particularly-useful options, when combined, become very useful - this gives you a half-duplex single wire serial interface! This is fairly common. In fact I bet you've used or will use one within a few hours of reading this document: this is exactly how UPDI is implemented! (as far as I can tell, it's essentially a serial port that can only be run in this mode, complete with all the quirks of a normal serial port, like the implicit 2 byte RX buffer (actually makes a *big* difference when writing to a Dx-series - except instead of talking to the chip itself, it talks to some supervisor portion of the chip that has the power to force resets, write fuses and flash and so on. It also has a hardware debugging functionality, but they don't publicly release the protocol, so you're forced to use the official tooling). But in any event - you'll see implementations of half duplex UARTs all over the place, and sooner or later, you'll probably end up making one even when you control both ends of the connection, to cut the pincount.
 * Loopback + Open Drain + RX485: In this mode, it will work perfectly for the case where there is an external line driver IC but it has only a single TX/RX combined wire and a TX_Enable pin (terminology may vary). This configuration is probablty more common than full duplex RS485 by a large margin. You almost never see more than 1 differential RS485 pair set up.
 
-#### Warning: Half-duplex schemes change the behavior of Serial in an important way
-Normally, RX functionality is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you will receive all the characters you transmit. That's fine for just loopback - since TX is actively driven high when idle, you can't receive data any other way. When Open Drain mode is also active, though, the stuff that you sent would end up intermixed with actual received data. This is not very helpful (and checking the receive buffer to verify successful transmit looked awkward, since you'd have to keep a record of what you sent to compare it to. - that would be ideal, of course, but I didn't think it was worth the development time or flash it would take).
-So as a middle ground, whenever the following bits are set:
+#### Half-duplex schemes change the behavior of Serial in important ways
+Normally, RX functionality is not disabled unless the user specifically requests it. Bytes received at any time will be placed into the buffer by the USARTn RxC interrupt as long as it is not full. With loopback mode enabled, you receive all the characters you transmit. That's fine for just loopback - since TX is actively driven high when idle, you can't exactly receive data any other way. When Open Drain mode is also active, though, the stuff that you sent would end up intermixed with actual received data. This is not very helpful (It would be nice to check the received data for to ensure there were no collisions. However, this is challenging since you'd have to keep a record of what you sent to compare it to. There are almost 3 bytes of buffer (receive is double-buffered, plus the incoming shift register; but transmit is handled by the DRE interrupt, while receive is handled by the RXC interrupt, so it would need to implement ring buffer that both of these could access.... But those are written in assembly with n alarming small number of clockcycles after the end of the ISR before the next character has to be dealt with (see Appendix A). So under these circumstances behavior regarding RX is altered slightly. Rigorously, the condition is when both TX and RX are enabled, loopback mode is set
 
+```text
 CTRLA: LBME
 CTRLB: ODME and TXEN and RXEN
+```
 
 In this case, Any *write* will temporarily disable the RXC interrupt, and enable the TXC interrupt. When the TXC interrupt executes indicating that all data has been sent, it will disable itself after reading RXDATAL until the RXC flag is cleared (to flush out the characters you sent), and enable the RXC interrupt again. We considered the idea of checking the received data against the
 
 That configuration will result from calling the two argument version of begin() with SERIAL_OPEN_DRAIN and SERIAL_LOOPBACK, or equivalently, SERIAL_HALF_DUPLEX, and neither SERIAL_TX_ONLY nor SERIAL_RX_ONLY.
 
+### Inverted Serial
+Rarely, one needs to have *inverted* serial, ie, idle line is low, the start bit is high, high bits are 0, low bits are 1 and the stop bit is low.) This can be achieved by by inverting the port (either manually, `PORTx.PINxCTRL |= PORT_INVEN_bm;` or via pinConfigure() - [see Digital I/O Reference](Ref_Digital.md) . Generally, when one of the pins is inverted, the other one is to, so you probably want to invert both TX and RX, and you probably don't want the pullup on either of them, since they lines are idle LOW when inverted.
+
+```c
+//after Serial.begin(), which would mess all this up.
+// assumg TX_PIN and RX_PIN are the TX and RX pins respectively
+pinConfigure(TX_PIN,(PIN_PULLUP_OFF | PIN_INVERT_ON));
+pinConfigure(TX_PIN,(PIN_PULLUP_OFF | PIN_INVERT_ON));
+// for Sync mode, you can use the constants described below
+```
 ### Event RX - documentation pending testing and verification
 
 ### Using Synchronous modes
@@ -272,7 +284,7 @@ SYNCBEGIN_NORMAL_SLAVE
 */
 ```
 
-That *should* be all that is needed to use Synchronous mode. Note however that this mode has not been tested. There is one potential issue - they specify that the low 6 bits of the baud register are not used and should be written as zero. Serial won't do that. It is not clear whether those bits, if non-zero, will cause problems or not. If you have problems operating as sync master (probably taking the form of clock generation problems), I would suggest trying `USARTn.BAUD &= 0xFFC0;` after Serial.begin. If it was broken, and that fixed it, or if you have experience with this mode, please let me know so that I can update this document.
+That *should* be all that is needed to use Synchronous mode. Note however that this mode has not been tested rigorously. There is one potential issue - they specify that the low 6 bits of the baud register are not used and should be written as zero. Serial won't do that. It is not clear whether those bits, if non-zero, will cause problems or not. If you have problems operating as sync master (probably taking the form of clock generation problems), I would suggest trying `USARTn.BAUD &= 0xFFC0;` after Serial.begin. If it was broken, and that fixed it, or if you have experience with this mode, please let me know so that I can update this document.
 
 In Synchronous USART mode, the master will *continually* generate a clock signal, permitting the slave to communicate at any time. (unless you call serial.end, or set the pin to input; if you do things like that, make sure that you leave the pin in the idle state - that is, that it is either pulled down (with an external resistor) if the pin is not inverted, or pulled up (can use internal pullup) if it is)
 
@@ -282,12 +294,12 @@ If operating as slave, if the master does not provide a clock signal, you will e
 This mode is very similar to synchronous mode, and even more rarely used - it is most notable in that it lets you configure the clock speed of SPI far more precisely and at much lower speeds than the normal SPI peripheral. The steps to use it are much the same as for synchronous mode:
 * You must set pinMode() on the XCK pin to OUTPUT - only master mode is supported.
 * If the clock is HIGH while idle, you must invert the pin; just like Sync mode - except now the clock phase is configurable (and the data frame is not)
-* Divide the desired baud rate by 8.
+* Divide the desired baud rate by 8 or use the syncBegin()
 * As the options, specify one of the 4 MSPI options listed above. Refer to the discussion of data modes above, or the table below. If this is specified, it will sample on the second transition and transmit on the first, (like SPI modes 1 and 3, or sync USART), otherwise, it will sample on the leading edge.
 
 Character size, stop bits, and parity are not used in MSPI mode
 
-There is a macro which *should* work for this (done as a macro so it doesn't add anything to the class if not used). It should return 0 on success. This should be treated as experimental (the API may change)
+There is also a macro which *should* work for this. It should return 0 on success. This should be treated as experimental (the API may change)
 ```c
 syncBegin(port, baud, config, mspioptions);
 /*example*/
@@ -310,24 +322,26 @@ MSPIBEGIN_INVERT or MSPIBEGIN_NORMAL
 
 **The general rule for inverting is that if it's HIGH when idle, you need to invert the pin.**
 
-## More indepth background
+## More in-depth background
 
 ### Character size
-Baud is bits per second. But those are not just data bits. USART data is sent in "frames". These frames start with a "start bit" and end with 1 or 2 stop bits (rarely, 1.5; we don't support that, but some devices to), may or may not have parity, and while the 8-bit byte is almost ubiquitous now, it hasn't always been, leading the the proliferation of character lengths supported. The hardware supports 5, 6, 7, 8 or 9 bit characters. Since the common datatypes on the AVR are 8 or 16 bits, it is awkward to handle such larger size units of data, and impossible to do so efficiently or gracefully. DxCore and megaTinyCore only support 5-8 bit characters,  9-bit serial is vanishingly rare, and with good reason - the overhead to supporting it on a modern system (with 8-bit bytes) is brutal. Its not entirely clear for what applications it *was* intended for, though some sources suggest "industrial multi-drop systems" using the 9th bit to mark "address" bytes were at one point in time common, but what is clear is that it's almost unheardof nowadays.
+Baud is bits per second. But those are not just data bits. USART data is sent in "frames". These frames start with a "start bit" and end with 1 or 2 stop bits (rarely, 1.5; we don't support that, but some devices to), may or may not have parity, and while the 8-bit byte is almost ubiquitous now, it hasn't always been, leading the the proliferation of character lengths supported. The hardware supports 5, 6, 7, 8 or 9 bit characters. Since the common datatypes on the AVR are 8 or 16 bits, it is awkward to handle such larger size units of data, and impossible to do so efficiently or gracefully. DxCore and megaTinyCore only support 5-8 bit characters, 9-bit serial is vanishingly rare, and with good reason - the overhead to supporting it on a modern system (with 8-bit bytes) is brutal. Its not entirely clear for what applications it *was* intended for, though some sources suggest "industrial multi-drop systems" using the 9th bit to mark "address" bytes were at one point in time common, but what is clear is that it's almost unheard-of nowadays.
 
 The origin of the smaller character sizes though, is clear - they date to the earliest days of teletypes, where all the characters involved were letters anyway, so why would you need more than 32 character codes? Most plain text can be represented with 7-bits , since the standard ASCII character set maps the low 128 characters to (mostly) printable, familiar letters, and that's used almost universally. The upper half is not so universal, and typically consists of regionally specific/language specific glyphs, box-drawing characters, and varies by implementation. Some old applications are still in use that define "binaries" as having 8-bit bytes and "text" as 7-bit.
 
 
 ### Framing and levels
-The idle UART is held high by either pullupos on the receiving side, or active drive on the transmit side. An Open Drain configuration involves the USART transmitter either asserting the pin low, or releasing it to the pullups to bring it high. The advantage of this is that multiple devices can use one set of wires to communicate, though the top attainable speed is lower. This is how I2C works, too.
-Anyway - each frame starts with a "start bit": of normal length. This is always a 0. (so you can see it against the high idle state), then the data bits go out, starting with the smallest (this is the opposite of how I2C and most every other protocol works - when you look at the scope trace of a serial transmission on the 'scope that's why bits are in reverse order - the leftmode edge of a frame is the start bit, followed by the LSB instead of the MSB). After all databits, the parity bit (if any) is sent, followed by the "stop bit[s]" which are always high. Because the stop bits are always high, the same as the idle state, using 2 stopbits is essentially the same as adding a 1-bit-period delay between characters. 2 stopbits should be used when specified by the documentation of what you are talking to, or when you find that 1 or 2 characters in a row are handled correctly, but strings of more than a few are not (if it takes strings of length comparable to the buffers to manifest, that's more likely the problem)
+The idle UART is held high by either pullups on the receiving side, or active drive on the transmit side. An Open Drain configuration involves the USART transmitter either asserting the pin low, or releasing it to the pullups to bring it high. The advantage of this is that multiple devices can use one set of wires to communicate, though the top attainable speed is lower. This is how I2C works, too.
+Anyway - each frame starts with a "start bit": of normal length. This is always a 0. (so you can see it against the high idle state), then the data bits go out, starting with the smallest (this is the opposite of how I2C and most every other protocol works - when you look at the scope trace of a serial transmission on the 'scope that's why bits are in reverse order - the leftmost edge of a frame is the start bit, followed by the LSB instead of the MSB). After all databits, the parity bit (if any) is sent, followed by the "stop bit[s]" which are always high. Because the stop bits are always high, the same as the idle state, using 2 stopbits is essentially the same as adding a 1-bit-period delay between characters. 2 stopbits should be used when specified by the documentation of what you are talking to, or when you find that 1 or 2 characters in a row are handled correctly, but strings of more than a few are not (if it takes strings of length comparable to the buffers to manifest, that's more likely the problem, but if the boundary between working and not working is on the order of just a few characters, adding another stop bit may help).
 
 Receipt and transmission both depend on the two devices having agreed ahead of time on what baud rate and connection settings to use, and on both having reasonably accurate clock speeds, including that they be running at the speed they think they are. A 16 MHz modern AVR running 115200 might calculate the baud rate to an accuracy of 0.1% - but it will be 25% higher than that if the chip is actually running at 20 MHz.
+
+Stop bits are used detect so-called framing errors which are the cause of the gibberish you have probably seen on serial when the baud rates are mismatched.
 
 ### Buffer Size
 The hardware itself has a 2-byte buffer on both transmit and receive. When receiving, if both bytes in the buffer are full, a third byte is waiting to be transferred into them, and the start bit of a fourth is detected, data is lost. The core Serial class implements the RXC (Receive Complete) interrupt, and copies received data from the hardware RXDATA register to software implemented ring buffer - unless there is no room in that buffer, in which case data will also be lost. Hence two things will cause data to be lost: Keeping interrupts disabled (including by execution of another interrupt) for longer than the time it takes to receive more than 3 bytes, or allowing the ring buffer to fill up (not using Serial.read() even as Serial.available() reaches the size of the buffer). At very high baud-to-clock ratios, the first possibility becomes precarious. U2X permits baud rates as high as F_CPU/8, so 1 byte (8 bits + 2 framing bits) could come in every 80 clocks. As of the latest versions of the core, the receive complete interrupt, including getting to the interrupt and returning from it takes..... 75 clocks with the ASM RXC enabled. Without ASM_RXC, it's about 89 clocks if there's more than one serial port on the part (single port parts have always been comparable to the ASM RXC implementation - the assembly was used to bypass overhead associated with handling multiple ports without undue flash waste). Thus, as long as interrupts are never disabled while incoming data is arriving, the latest versions will be able to keep up with the maximum hardware-supported baud rate, but older versions or configurations not using the ASM RXC implementation are limited to under 90% of that rate. In both cases, it's far faster than normally encountered unless the clock speed is unusually low.
 
-Simiarly transmission is handled through the Data Register Empty interrupt (DRE) and a second ring buffer, on top of the 2 bytes of buffering provided by TXDATA. Unlike receiving, if the ring buffer is full, we can just wait until there is room. This sometimes surprises users who have used the slow 9600 baud (very common in examples) while using very verbose logging. They quickly fill the buffer, and then execution slows such that not more than 960 bytes of debugging information are printed per second. And they can't figure out why it's so slow, so they add more debugging print statements to try to figure it out...  These are modern AVRs, there's no reason not to default 115200 baud, which pushes the amount of logging that triggers that sort of thing outside the realm of the normal.
+Similarly transmission is handled through the Data Register Empty interrupt (DRE) and a second ring buffer, on top of the 2 bytes of buffering provided by TXDATA. Unlike receiving, if the ring buffer is full, we can just wait until there is room. This sometimes surprises users who have used the slow 9600 baud (very common in examples) while using very verbose logging. They quickly fill the buffer, and then execution slows such that not more than 960 bytes of debugging information are printed per second. And they can't figure out why it's so slow, so they add more debugging print statements to try to figure it out... These are modern AVRs, there's no reason not to default 115200 baud, which pushes the amount of logging that triggers that sort of thing outside the realm of the normal.
 
 The sizes of the two buffers depends on the size of the memory and which core is in use, and apply to 2.5.0 and 1.4.0 and later; they were different in the past.
 
@@ -342,7 +356,7 @@ The sizes of the two buffers depends on the size of the memory and which core is
 ### Data Rate
 The data rate is the total number of bit times per frame: For the most common, 8N1 (8 bit, no parity, 1 stop bit) this is 10 bit times.
 
-While there's always some dead time between bits, that is usually *very* small, and and isn't really relevant. Dividing the baud rate by the bits per frame, including overhead, is an effectivee any appropriate way to calculate data rate.
+While there's always some dead time between bits, that is usually *very* small, and and isn't really relevant. Dividing the baud rate by the bits per frame, including overhead, is an effective any appropriate way to calculate data rate.
 
 
 ### How bad baud rate calculation used to be
@@ -357,17 +371,22 @@ Now, imagine you were to reconfigure the serial port on the 16 MHz one, so that 
 
 Now consider dropping a tinyAVR 1/2-series (ex, 1614) in there, and it's a fraction of a percent fast (they usually are 0-0.5% fast. So how far off are the baud rates here?
 * The tinyAVR's internal oscillator is between 0.0 and 0.5 % fast; it's baud rate calculation error is negligible.
-* The 16 MHz classic is running 2.12% fast assuming perfect clock due to calculation error with U2X - and 3.5% without it. Ironically, this will improve communication with the classic AVRs and hinder it with the modern AVR whose baud rate is closest to the "correct" value.
-* The 8 MHz one with a crystal is 3.5% slow - but it will do worse than the 16 MHz one at receiving, even though they're both calculating a baud rate 3.5% low). , because U2X reduces the allowable baud error;. The faster of them is hence net 2.5% slow, while the other one is a mindnumbing 5.5% slow.
-* The tiny will likely have no trouble talking the the fast crystalless or the  16 MHz with crystal and U2X - though it may have trouble when U2X is turned b
-* The surprise though is that the tiny might have trouble with the 8MHz one with a crystal. Classic AVRs had a large error of the way they generated the baud rate from the system clock by integer division.
+* The 16 MHz classic is running 2.12% fast assuming perfect clock due to calculation error with U2X - and 3.5% slow without it. Ironically, this will improve communication with the classic AVRs and hinder it with the modern AVR whose baud rate is closest to the "correct" value.
+* The 8 MHz one with a crystal is 3.5% slow - but it will do worse than the 16 MHz one at receiving, even though they're both calculating a baud rate 3.5% low), because U2X reduces the allowable baud error. The faster of them is hence net 2.5% slow, while the other one is a mindnumbing 5.5% slow.
+* The tiny will likely have no trouble talking the fast crystalless or the 16 MHz with crystal and U2X - though it may have trouble when U2X is turned off.
+* The surprise though is that the tiny might have trouble even talking to the 8MHz one with a crystal.
 
-It would come as no surprise to the owner of that hypothetical quarrelsome quartet when their new tinyAVR couldn't talk to some of them. However, someone who had been using classic AVRs with crystals in an existing setup, and they were all talking only to other classic AVRs might be unaware that their "115200 baud" is actually 111111 baud and something with a nearly accurate baud rate, which is off in the other direction, would have problems communicating with them. They would probably blamethe modern AVR (I have had that discussion a few times)
+It would come as no surprise to the owner of that hypothetical quarrelsome quartet when their new tinyAVR couldn't talk to some of them. However, someone who had been using classic AVRs with crystals in an existing setup, and they were all talking only to other classic AVRs might be unaware that their "115200 baud" is actually 111111 baud and something with a nearly accurate baud rate, which is off slightly in the other direction, would have problems communicating with them. They would probably blame the modern AVR (I have had that discussion a few times).
 
-In the old days, people would often advise "lower the baud rate" as a solution. This would help baud calculation error, but it was of zero benefit if the oscillator accuracy was the limit, and if the speed was still high enough that calculation error was significant, could make it worse.  On classic AVRs, it was not that unusual to find parts where, at certain unfavorable speeds, UART was flaky. And generally speaking, the incredibly popular 115200 and 57600 bauds were some of the worst for 8 and 16 MHz parts! 76800 is nearly perfect on 8 MHz with U2X, and that or twice that are nearly perfect at 16MHz.
+In the old days, people would often advise "lower the baud rate" as a solution. This would help baud calculation error, but it was of zero benefit if the oscillator accuracy was the limit, and if the speed was still high enough that calculation error was significant, could make it worse. On classic AVRs, it was not that unusual to find parts where, at certain unfavorable speeds, UART was flaky. What's surprising is that the incredibly popular 115200 and 57600 bauds were some of the worst for 8 and 16 MHz parts! 76800 is nearly perfect on 8 MHz with U2X, and that or twice that are nearly perfect at 16MHz - but instead we use some of the least accurately calculated clock speeds.
+
+In the old days, people would often advise "lower the baud rate" as a solution. This would help baud calculation error, but it was of zero benefit if the oscillator accuracy was the limit, and if the speed was still high enough that calculation error was significant, could make it worse.  On classic AVRs, it was not that unusual to find parts where, at certain unfavorable speeds, UART was flaky. And generally speaking, the incredibly popular 115200 and 57600 bauds were some of the worst for 8 and 16 MHz parts! 76800 is nearly perfect on 8 MHz
+ with U2X, and that or twice that are nearly perfect at 16MHz.
+
+The point of this is to demonstrate by example just how large the error baud rate error was on classic AVRs, due to the way they generated the baud rate from the system clock by integer division - and the only way to fix it on those parts is to use a "UART crystal" and clock the whole chip at some weird speed like 7.37 MHz or 9.21, and so on. This adversely impacts the runtime of `micros()` to a lesser extent, the accuracy of timekeeping in general.
 
 #### Bringing this back to modern AVRs
-So, you should all be very, very thankful for the new fractional baud rate generators, which are responsible for the charts linked above being a sea of sub 1% and mostly 0.1% error at most. Here, your problem isn't the baud rate calculation. It's usually not the oscillator either, which is rarely even 1% off on any modern AVR. No, your problem 9 times out of 10, is going to be that the device you're talking to generating an incorrect baud rate, more often than not a classic AVR . The path of least resistance with such legacy devices? They probably aren't worth trying to find a way to improve the baud accuracy on.  Instead, just nudge the baud rate the modern AVR up or down 2%, and make a note that those roles in your system should be replaced with a new  - that'll either make it much worse, or solve the problem; if it's in the worse category, instead use a baud rate 2% lower than expected, and you should be good.
+So, you should all be very, very thankful for the new fractional baud rate generators, which are responsible for the charts linked below being a sea of sub 1% and mostly 0.1% error at most. Here, your problem isn't the baud rate calculation. It's usually not the oscillator either, which is rarely even 1% off on any modern AVR. No, your problem 9 times out of 10, is going to be that the device you're talking to generating an incorrect baud rate, more often than not this encountered when talking to a classic AVR . The path of least resistance with such legacy devices? They probably aren't worth trying to find a way to improve the baud accuracy on. Instead, just nudge the baud rate the modern AVR up or down 2% (whichever fixes it) and make note that that role in the system ought to be on the list to replace with newer hardware.
 
 ### Baud rate reference chart
 See the [**AVR Baud Rate Chart**](https://docs.google.com/spreadsheets/d/1uzU_HqWEpK-wQUo4Q7FBZGtHOo_eY4P_BAzmVbKCj6Y/edit?usp=sharing) in google sheets for a table of actual vs requested baud rates.
@@ -385,10 +404,10 @@ First three columns are normal mode, last three are U2X, which is used if you ar
 | (8+1 parity) 9 bits | -4.19% | +4.14% | +/- 1.5 % | -3.61% | +3.53% | +/- 1.5 % |
 |(9+1 parity) 10 bits | -3.83% | +3.78% | +/- 1.5 % | -3.30% | +3.23% | +/- 1.0 % |
 
-That table is from the receiver's perspective - notice how baud rate does not appear there: *baud rate only has larger than marginal impact error when it changes baud division calculations*. Otherwise, it's all about the number of bits, and the magnitude of the mismatch (and if U2X is in use - it is favorable if you have larger baud rate calculation error, or if you just plain can't achieve that speeed without it. You need to work to find something for which U2X mode is favorable on a modern AVR though. Classic AVRs always used it on Arduino land... because they desperately needed anything that would lower the baud rate calculation error.
+That table is from the receiver's perspective - notice how baud rate does not appear there: *baud rate only has larger than marginal impact error when it changes baud division calculations*. Otherwise, it's all about the number of bits, and the magnitude of the mismatch (and if U2X is in use - it is favorable if you have larger baud rate calculation error without it, which is often the case on classic AVRs. Classic AVRs always used it on Arduino land... because they desperately needed anything that would lower the baud rate calculation error. On a modern AVR, however, U2X mode is only favorable if you can't otherwise reach the required speed.
 
 ### Minimum and Maximum baud rates
-Like Classic AVRs the maximum baud rate is F_CPU / 8, using the `U2X` mode.
+Like Classic AVRs the maximum baud rate is F_CPU / 8, using the `U2X` mode, which is still the case.
 
 Unlike classic AVRs, the gap between the theoretical maximum and the practical maximum is much smaller thanks to the fractional baud rate generator". On the older parts there were "gaps" between adjacent UART clock division values. Since the numbers used for standard baud rates don't resemble round numbers, people who needed accurate baud rates would use crystals with bizarre frequencies like 18.42 MHz, so it could be divided down to the match standard baud rates. That - unsurprisingly - led to slower, less accurate timekeeping, where it was supported by an Arduino core at all. Luckily, the days of UART crystals are over! Instead of supplying a whole number, the value passed to the fractional baud rate generator is in 64ths, so as long as it is within the supported range of baud rates, the farthest any two settings are from each other is 1/64, or 1.56%, so the highest baud rate error from the calculation is half that, comfortably within the limits of USART 0.78%. This corresponds to baud rates just below the maximum possible for a given system clock, which for typically used clock speeds is far above what would commmonly be used.
 
@@ -409,16 +428,16 @@ The highest baud rates possible are listed below. In practice, below 1 mbaud, it
 Combined with a highly accurate internal oscillator with virtually no voltage dependence, you are essentially guaranteed that UART will work without even resorting to autotune or autobaud, and cases where such measures are required will be the fault of the other device being way off of what they advertise. The most likely situation which would encounter problems is when trying to commuinicate with.... a classic AVR operating near it's limits, such as an 8 MHz ATmega328p at 115200 baud. The ATmega328p will actually be speaking 111111 baud even with a crystal due to the clock division described above, which is a difference of 3.55%, which is just on the edge of working. In situations like this, since you know which direction the other device is off, and by approximately how much you can just nudge the baud rate down a bit. If you *don't* know what direction it is off by, only that it is not quite working, if the other device can talk to a serial adapter, you only need to check two options: 2% higher than the nominal baud rate and 2% lower, since the accuracy tolerance of UART serial is around 4%. You will rarely encounter devices where the UART baud rates are so far off that they're on the edge of not working (other than classic AVRs running at 8 MHz and 115200 baud, which is a particularly bad speed for them) but which are not all wrong in the same direction - anything off by more than a few % is probably wrong because of integer-math like classic AVR, rather than oscillator inaccuracy.
 
 #### Minimums
-On classic AVRs, minimum baud rate was when the register was at it's maximum of 4095, leading to a baud rate (F_CPU / 4096 * 16) = 1/65536th of the system clock, so 16 MHz would have a minimum of 244 baud. On modern AVRs the BAUD register can take a full 16-bit value (2<sup>4</sup> times larger than the 12-bit value of classic parts), but needs to be 64 times (2<sup>6</sup>) higher for a given baud rate and system clock. Hence, the minimums are 4 times higher (2<sup>(6-4)</sup> = 2<sup>2</sup> = 4), or 1/16384th of the system clock. This still allows very low baud rates, but whereas on classic AVRs there was essentially nothing that required a baud rate too slow for them to generate, even running at their maximum speed, that is not so on modern AVRs. One will occasionally encounter something that uses 1200, 600, or even 300 baud (:
+On classic AVRs, minimum baud rate was when the register was at it's maximum of 4095 (F_CPU / 4096 * 16) = 1/65536th of the system clock, so 16 MHz would have a minimum of 244 baud. On modern AVRs the BAUD register can take a full 16-bit value (2<sup>4</sup> times larger than the 12-bit value of classic parts), but needs to be 64 times (2<sup>6</sup>) higher for the same baud rate and system clock. Hence, the minimums are 4 times higher (2<sup>(6-4)</sup> = 2<sup>2</sup> = 4), or 1/16384th of the system clock. This still allows very low baud rates, but whereas on classic AVRs there was essentially nothing that required a baud rate too slow for them to generate, on modern AVRs, that is not so - very rarely, one will encounter something that uses 1200 (or even lower) baud rates:
 * 300 baud will work only when F_CPU is no higher than 5 MHz.
 * 600 baud will work only when F_CPU is no higher than 10 MHz.
 * 1200 baud will work as long as F_CPU is no higher than 20 MHz.
 
 
 #### Synchronous Mode
-Synchronous mode can operate at significantly higher frequencies. Since it does not require the two devices to have matching clocks and baud rates configured, there isn't a list of standard baud rates like for async. modes. The minimum baud rate in synchronous mode as master, and in and MSPI mode, is F_CPU / 2048 - 8 times the minimum asynchronous baud rate - and the maximum is F_CPU / 2  (that is, 8 times the maximum without U2X mode); These speeds are well beyond the range of what one would plausibly want except at extremely low system clock frequencies.
+Synchronous mode can operate at significantly higher frequencies. Since it does not require the two devices to have matching clocks and baud rates configured, there isn't a list of standard baud rates like for async. modes. The minimum baud rate in synchronous mode as master, and in and MSPI mode, is F_CPU / 2048 - 8 times the minimum asynchronous baud rate - and the maximum is F_CPU / 2 (that is, 8 times the maximum without U2X mode); These speeds are well beyond the range of what one would plausibly want except at extremely low system clock frequencies.
 
-The maximum baud rate while opperating as slave in synchronous mode is F_CPU / 4 (2 system clock cycle minimum for each high and low of the clock).
+The maximum baud rate while operating as slave in synchronous mode is F_CPU / 4 (2 system clock cycle minimum for each high and low of the clock).
 
 ### Common Baud Rates
 
@@ -427,7 +446,7 @@ The maximum baud rate while opperating as slave in synchronous mode is F_CPU / 4
 |      1200 | rare today, Legacy | A modern AVR cannot generate this above 20 MHz          |
 |      2400 | rare today, Legacy | A modern AVR cannot generate this above 40 MHz          |
 |      4800 | rare today, Legacy | Sometimes used for niche applications.                  |
-|      9600 | V. high in Arduino | V. common default, so slow (1ms/char() that it causes new <br/> problems just because of how slow it is)  |
+|      9600 | V. high in Arduino | V. common default, so slow (1ms/char() that it causes <br/> confusing problems just because of how slow it is)  |
 |     14400 |           Uncommon | Was an unpopular modem speed, and rare everywhere else  |
 |     19200 |      Fairly common | Used by Arduino ISP, and some bootloaders for upload    |
 |     28800 |   Very Rare... now | During the dialup days, this was one of the most common |
@@ -438,14 +457,12 @@ The maximum baud rate while opperating as slave in synchronous mode is F_CPU / 4
 |    172800 |          Unheardof | You would expect this - but its not actually used anywhere |
 |    230400 |           Uncommon | The first non-exotic speed higher than 115200           |
 |    256000 |            V. Rare |  Looka like the math would be easy. Nope. Not really.   |
-|    345600 |             Exotic | 1.5x 230400, continues the pattern. Only DxCore uses it <br/> in SerialUPDI, (460.8 exceeds the write speed limit) |
+|    345600 |             Exotic | 1.5x 230400, continues the pattern. DxCore uses it <br/> in SerialUPDI, (460.8 exceeds the write speed limit) |
 |    460800 |           Uncommon | The next to last of the standard usart speeds.          |
 |    512000 |            V. Rare | As with 256k above, it looks more convenient than it is |
-|    921200 |               Rare | You don't see this one in use much, that's for sure <br/> Hard to generate from most devices, and very close to 1mbaud |
-|   1000000 |           Uncommon | The highest commonly used baud rate. more popular than <br/> 921.2kbaud easier to make by dividing common clocks |
+|    921600 |               Rare | You don't see this one in use much, that's for sure <br/> Hard to generate from most devices, and very close to 1mbaud |
+|   1000000 |           Uncommon | The highest commonly used baud rate. more popular than <br/> 921.6kbaud easier to make by dividing common clocks |
 
-These are some of the most common; Most - but not all - adapters can generate nearly arbitrary baud rates. The CP2102 has a preprogrammed list, though the vendor has a utility that can change them. The HT42B534 has no mechanism for changing the baud rates, etc. Low-end serial adapters usually cap out at 1.5, 2. or 3mbaud. The highest I have seen is 6 mbaud, available only on FTDI's top-end parts, and which is fast enough that the wire's electrical properties that we normally neglect would become relevant; physics would make communication fiddly.
+These are some of the most common; Most - but not all - adapters can generate nearly arbitrary baud rates. The CP2102 has a preprogrammed list, though the vendor has a utility that can change them. The HT42B534 has no mechanism for changing the supported baud rates baud rates, etc. Low-end serial adapters usually cap out at 1.5, 2. or 3mbaud. The highest I have seen is 6 mbaud, available only on FTDI's top-end parts, and which is fast enough that the wire's electrical properties that we normally neglect would become relevant; physics would make communication fiddly.
 
-
-
-*fun project idea:* Make a Serial scanner that monitors serial at an unknown baud rate and figures out what it is. You'd want the RX line of the serial port, and probably a event input pin piped to a type B timer, such that you could keep measuring to see what the shortest time betweentwo transitions that you see is 1 bit period. 1-over-period = baud rate.
+*fun project idea:* Make a true "autobaud" system that monitors listens to serial at an unknown baud rate, figures out what it is, and then configures the Serial appropriate. You'd want the RX line of the serial port, and probably a event input pin piped to a type B timer, such that you could keep measuring to see what the shortest time between two transitions that you see is 1 bit period. 1-over-period = baud rate.

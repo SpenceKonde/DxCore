@@ -69,7 +69,9 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
 
 
 inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {
-  if(__builtin_constant_p(mode)) {
+  if (__builtin_constant_p(mode)) {
+    // if (mode == OUTPUT_PULLUP)
+      // badArg("OUTPUT_PULLUP is not supported through pinMode due to overhead and impracticality vis-a-vis other pinMode features; use pinConfigure() or pinModeFast()");
     if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP) {
       badArg("The mode passed to pinMode must be INPUT, OUTPUT, or INPUT_PULLUP (these have numeric values of 0, 1, or 2); it was given a constant that was not one of these.");
     }
@@ -541,7 +543,7 @@ inline __attribute__((always_inline)) void openDrainFast(uint8_t pin, uint8_t va
   VPORT_t *vport;
   vport = (VPORT_t *)(port * 4);
   PORT_t *portstr;
-  portstr=(PORT_t *)(0x400+(0x20*port));
+  portstr = (PORT_t *)(0x400 + (0x20 * port));
 
   if (val == LOW)
     vport->DIR |= mask;

@@ -3,9 +3,10 @@
 |                                                                       |
 | Interrupt.ino                                                         |
 |                                                                       |
-| A library for interfacing with the AVR DA/DB analog comparator.       |
-| Developed in 2019 by MCUdude                                          |
-| https://github.com/MCUdude/                                           |
+| A library for interfacing with the tinyAVR analog comparator(s).      |
+| Developed in 2019 by MCUdude  https://github.com/MCUdude/             |
+| Ported to tinyAVR 2021 by Spence Konde for megaTinyCore               |
+| https://github.com/SpenceKonde/megaTinyCore                           |
 |                                                                       |
 | In this example we use an internal reference voltage instead of an    |
 | external one on the negative pin. This eliminates the need for an     |
@@ -29,12 +30,16 @@ void setup() {
   Serial.begin(115200);
 
   // Configure relevant comparator parameters
-  Comparator.input_p = in_p::in0;       // Use positive input 0 (PD2)
-  Comparator.input_n = in_n::dacref;    // Connect the negative pin to the DACREF voltage
-  Comparator.reference = ref::vref_2v5; // Set the DACREF voltage to 2.5V
+  Comparator.input_p = comparator::in_p::in0;       // Use positive input 0 (PA7)
+  #if MEGATINYCORE_SERIES == 0
+  Comparator.input_n = comparator::in_n::vref;      // 0-series has no DACREF, so use vref directly.
+  #else
+  Comparator.input_n = comparator::in_n::dacref;    // Connect the negative pin to the DACREF voltage
   Comparator.dacref = 255;              // Gives us 2.5V -> (255 / 256) * 2.5V = 2.5V
-  Comparator.hysteresis = hyst::large;  // Use a 50mV hysteresis
-  Comparator.output = out::disable;     // Use interrupt trigger instead of output pin
+  #endif
+  Comparator.reference = comparator::ref::vref_2v5; // Set the DACREF voltage to 2.5V
+  Comparator.hysteresis = comparator::hyst::large;  // Use a 50mV hysteresis
+  Comparator.output = comparator::out::disable;     // Use interrupt trigger instead of output pin
 
   // Initialize comparator
   Comparator.init();

@@ -12,12 +12,12 @@ digitalWrite(pinnbr, HIGH); // This will also error, because there is no chance 
 volatile uint8_t pinnumber = 100;
 digitalWrite(pinnumber, HIGH); // This will not error at compile time, because the compiler cannot optimize away the volatile variable.
 ```
-
+Note that in the case of the digital I/O functions, NOT_A_PIN (255) *IS* permitted
 ### `void badArg("msg")`
-This error means that you passed an argument to a function that is guaranteed to give garbage results, and we know at compile time, such as `analogRead(PinThatHasNoAnalogCapability)`. The message will indicate why that argument is invalid. The text will describe what was wrong with the argunment.
+This function is what we call when user code passed an argument to a function that is guaranteed to give results without meaning or requested something which is not achievable, and we know at compile time, such as `analogRead(pin without analog input option)`. The message will indicate the nature of the problem.
 
 ### `void badCall("msg")`
-This error means that you called a function that does not make sense to call with the current hardware or tools submenu selections, regardless of what values one passes. For example, calling `stop_millis()` when millis is disabled. The message will indicate why that call is invalid.
+This function is what we call when user code a function that doesn't make sense to call with the current configuration, regardless of what values one passes. For example, calling `stop_millis()` when millis is disabled. The message will indicate why that call is invalid.
 
 ## Digital Functions
 See [Digital Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
@@ -33,11 +33,11 @@ void    turnOffPWM(      uint8_t pin)
 These are almost all preprocessor macros, not functions, but what they expand to is appropriate for the stated datatypes/
 These are in many cases part of the standard API, but not all are. The concept of analog channel identifiers (eg, ADC_CH(0) = 0x80) is new in my cores, and gives an unambiguous way to represent an input by either pin or channel. Historically, this has been a mess on non-328p parts. Note that *digital I/O functions do not accept channel identifiers at this time on DxCore* - I am trying to train people away from that practice.
 
-As a reminder, we recommend getting in the habit of using PIN_Pxn notation rather than raw numbers - it makes your code more portable between modern AVR parts.
+As a reminder, we recommend getting in the habit of using PIN_Pxn notation rather than raw numbers - it makes your code more portable between modern AVR parts, makes it easier to refer to manufacturer documentation, and promotes the habit of using those names, which eliminate all ambiguity when referring to pins, for example in forum discussions, where people on
 
 
 ### `uint8_t digitalPinToPort(pin)`
-(standard) Returns the port that a pin belongs to - these are constants named PA, PB, PC, etc (not to be confused with PORTA, which is the port struct itself). These have numeric values of 0-6 for the existing poerrts, PA to PG.
+(standard) Returns the port that a pin belongs to - these are constants named PA, PB, PC, etc (not to be confused with PORTA, which is the port struct itself). These have numeric values of 0-6 for the existing ports, PA to PG.
 
 ### `uint8_t digitalPinToBitPosition(pin)`
 (standard) Returns the bit position of a pin within a port, eg, `digitalPinToBitPosition(PIN_PA5)` will return 5.
@@ -53,7 +53,7 @@ Returns the timer used for PWM - at default core configuration, assuming the pin
 
 ### `PORT_t* portToPortStruct(port)`
 ### `PORT_t* digitalPinToPortStruct(pin)`
-(standard) These get a pointer to the port structure associated with either the given port or the port that the pin is a member of
+(standard) These accept, respectively, a port name (`PA`, `PB`, or `PC`), or a pin, and return a pointer to the PORTx structure associated with either the given port or the port that the pin is a member of (`PORTA`, `PORTB`, or `PORTC`). Invalid arguments will return a null pointer.
 
 ### `volatile uint8_t * getPINnCTRLregister(port, bit_pos)`
 Returns a pointer to the PINnCTRL register associated with that port and bit position.
@@ -83,12 +83,11 @@ For example, AVR64DD14, the pins are PA0, PA1, PC1, PC2, PC3, PD4, PD5, PD6, PD7
 
 (Standard) Returns true if the pin has PWM available in the standard core configuration. This is a compile-time-known constant as long as the pin is, and does not account for the PORTMUX registers.
 ### `uint8_t digitalPinHasPWM(p)`
-
 (Standard) Returns true if the pin has PWM available in the standard core configuration. This is a compile-time-known constant as long as the pin is, and does not account for the PORTMUX registers.
 
 ## Attach Interrupt Enable
-If using the old or default (all ports) options, these functions are not available; WInterrupt will define ALL port pin interrupt vectors if `attachInterrupt()` is referemced anywhere in the sketch or included library. This is the old behavior.
-If you are using the new implementation in manual mode you must call one of the following functions before attaching the interrupt (override `onPreMain()` if you need it ready for a class constructor. That port can have interrupts attached, but others cannot. That port cannot have manuallly written interrupts, which are typically 10-20 times faster), while the other ports can. I will also note that the implementation is hand-tuned assembly and that's still how slow it is. See the [Interrupt Reference for more information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md).
+If using the old or default (all ports) options, these functions are not available; WInterrupt will define ALL port pin interrupt vectors if `attachInterrupt()` is referenced anywhere in the sketch or included library. This is the old behavior.
+If you are using the new implementation in manual mode you must call one of the following functions before attaching the interrupt (override `onPreMain()` if you need it ready for a class constructor. That port can have interrupts attached, but others cannot. That port cannot have manually written interrupts, which are typically 10-20 times faster), while the other ports can. I will also note that the implementation is hand-tuned assembly and that's still how slow it is. See the [Interrupt Reference for more information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md).
 ```c
 void attachPortAEnable()
 void attachPortBEnable()
@@ -101,48 +100,103 @@ void attachPortGEnable()
 ## Overridables
 See [Callback Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Callbacks.md)
 ```c++
-  void init_reset_flags()
-  void onPreMain()
-  void onBeforeInit()
-  void init() // Part of ArduinoAPI
-  void initVariant() //part of ArduinoAPI - reserved for core and rare libraries
-  void init_TCA0()
-  void init_TCA1()
-  void init_TCBs()
-  void init_TCD0()
-  void init_millis()
-  uint8_t onAfterInit()
-  void onClockFailure()
-  void onClockTimeout()
-  int main(); // the Big One!
+void init_reset_flags()
+void onPreMain()
+void onBeforeInit()
+void init() // Part of ArduinoAPI
+void initVariant() //part of ArduinoAPI - reserved for core and rare libraries
+void init_TCA0()
+void init_TCA1()
+void init_TCBs()
+void init_TCD0()
+void init_millis()
+uint8_t onAfterInit()
+void onClockFailure()
+void onClockTimeout()
+int main(); // the Big One!
 ```
 
 ### `Related: uint8_t digitalPinToInterrupt(P)`
-This is an obsolete macro that is only present for compatibility with old code. It has nothing do do and simply expands to the sole arguent.
+This is an obsolete macro that is only present for compatibility with old code. It has nothing to do and simply expands to the sole argument.
 
 
 ## Analog Functions
 See [Analog Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
 ```c
-  int32_t analogReadEnh( uint8_t pin,              uint8_t res, uint8_t gain)
-  int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain)
-  int16_t analogClockSpeed(int16_t frequency,      uint8_t options)
-  bool    analogReadResolution(uint8_t res)
-  bool    analogSampleDuration(uint8_t dur)
-  void    DACReference(        uint8_t mode)
-  uint8_t getAnalogReference()
-  uint8_t getDACReference()
-  uint8_t getAnalogSampleDuration()
-  int8_t  getAnalogReadResolution()
+int32_t analogReadEnh(       uint8_t pin,                    uint8_t res,    uint8_t gain)
+int32_t analogReadDiff(      uint8_t pos,       uint8_t neg, uint8_t res,    uint8_t gain)
+int16_t analogClockSpeed(    int16_t frequency,              uint8_t options             )
+bool    analogReadResolution(uint8_t res)
+bool    analogSampleDuration(uint8_t dur)
+void    DACReference(        uint8_t mode)
+uint8_t getAnalogReference()
+uint8_t getDACReference()
+uint8_t getAnalogSampleDuration()
+int8_t  getAnalogReadResolution()
 ```
 
 ## Timekeeping
 
+### `millis()` and `micros()`
+(standard) One difference from the stock implementation - `millis` is #defined as `millis`, and `micros` is #defined as `micros`. Macros do not expand themselves, but this allows you to test #if defined(millis) to determine if millis is available.
+These functions are not available if millis has been disabled from the tools menu. They are available if timekeeping is enabled in the tools menu, but has been prevented from operating in some other way, such as by overriding the timer initialization function or calling `stop_millis()` - in that case the number they return will not increase (if the timer isn't running) or will return nonsensical values (if it is). As long as interrupts are never disabled for more than 1ms at a time, they will not throw off the times returned. These functions will lose time and behave erratically beyond that. Time will be guaranteed to be lost when interrupts are disabled for more than 2ms
+
 ### `delay()`
-(standard) This works normally. If millis is disabled, the builtin avrlibc implementation is `_delay_ms()` is used: for constant arguments it is used directly andfor variable ones it is called in a loop with 1ms delay. The catch with that is that if interrupts fire in the middle, timespent in those does not count towards the delay.
+(standard) This works normally. If millis is disabled, the builtin avrlibc implementation is `_delay_ms()` is used; for constant arguments it is used directly and for variable ones it is called in a loop with 1ms delay. The catch with that is that if interrupts fire in the middle, time spent in those does not count towards the delay. However, be warned that if millis is stopped in any way other than the tools menu, **delay will not know to use `_delay_ms()` and will likely wait forever (if the timer is stopped) or wait for unpredictable lengths of time (if it is running in some different configuration)**.
+
+When delay is used with RTC as the millis timer, different implementations are used
+
+delay() must never be called when interrupts are disabled; it will delay forever.
 
 ### `delayMicroseconds()`
-(standard) If called with a constant argument (which you should strive to always do) it will use the highly accurate builtin `_delay_us()` from avrlibc. Otherwise, it will use an Arduino-style loop, but with protection against inaccurate timing of short delays.
+(standard) In order to achieve small code size and accurate timing at short delays, this function accepts an unsigned 16-bit number of microseconds, not an unsigned long like delay(). Like the official cores, delayMicroseconds() does NOT disable interrupts during the delay period - if it did, any interrupts that occurred during the delay would fire as it returned, causing your code to be delayed by them anyway. Instead, in the event that you are doing something where there are tight timing constraints, you need to have interrupts disabled before delayMicroseconds() is called, do your time-critical thing, and then re-enable it. Be aware that millis() can lose time if interrupts are disabled for more than 1ms (1000us).
+
+If called with a constant argument (which you should strive to always do) it will use the highly accurate builtin `_delay_us()` from avrlibc. In that case, the timing will always be exact and the section below does not apply.
+
+If called with an argument not known at compile time, it will use an Arduino-style loop. These are pretty damned close, even for short delays (we ensure that even when delayMicroseconds is only called in one place, it will not be inlined, since it relies on the function call overhead); The speeds for which delayMicroseconds has a variable-time delay period implemented are the same on megaTinyCore and DxCore. Not all speeds are available on both cores. The table below applies only when the delay is not known constant at compile time. The minimum is the minimum length of any call to delayMicroseconds() - at 1 MHz, calling delayMicroseconds(x) where x is known only at runtime to have a value of 1 will result in a 16 us delay - that's how long the function call and initialization overhead takes. The resolution is always 1uS unless noted otherwise; at very low speeds, the loop takes several microseconds to run; at it's shortest, it's a 4 clock cycle loop (some speeds use a slower loop - ex, 5/10/20 use a 5-clock-cycle loop, and so on - to make sure the clocks/us is evenly divisible by the length of the loop and to increase the maximum delay length)
+
+| Clock speed | Minimum delay | Maximum delay | Notes |
+|-------------|---------------|---------------|----|
+|       1 MHz |         16 us |      65535 us | 4us resolution |
+|       2 MHz |          8 us |      65535 us | 2us resolution |
+|       4 MHz |          4 us |      65535 us |    |
+|       5 MHz |          3 us |      65535 us |    |
+|       8 MHz |          2 us |      32767 us |    |
+|      10 MHz |          2 us |      32767 us |    |
+|      12 MHz |        1.5 us |      21845 us | delayMicroseconds(1) gives 1.5us, delayMicroseconds(2) gives 2us |
+|      16 MHz |          1 us |      16383 us |    |
+|      20 MHz |          1 us |      32767 us |    |
+|      24 MHz |          1 us |      21845 us |    |
+|      27 MHz |          1 us |      21845 us |    |
+|      28 MHz |          1 us |      16383 us |    |
+|      30 MHz |          1 us |      21845 us |    |
+|      32 MHz |          1 us |      16383 us |    |
+|      40 MHz |          1 us |      16383 us | DxCore only |
+|      44 MHz |          1 us |      16383 us | DxCore only |
+|      48 MHz |          1 us |      16383 us | DxCore only |
+
+Speeds not listed above will use an implementation for the next lowest speed and hence return wrong timing
+
+delayMicroseconds is recommended only for delays of under 1000us - for longer ones, use micros() and a while loop, and you can leave interrupts enabled.
+
+#### Recap: delay vs delayMicroseconds()
+delay():
+* Uses the millis timekeeping machinery
+  * For RTC or disabled millis, a pure cyclecounting delay is used, see above for notes)
+* Requires interrupts to be enabled
+* Gives the requested delay regardless of interrupts occurring in the middle of it.
+* Works for delays of up to 4.2 billion milliseconds.
+
+
+delayMicroseconds():
+* Is always a pure cycle-counting busy-wait delay.
+* Interrupts will lengthen the delay
+  * Disable interrupts during the timing critical section if that is problematic
+* Should be used only for short delays
+  * If interrupts are disabled for more than 1000us millis() timekeeping can lose time.
+  * Function may not work correctly with values higher than 16383us unless the delay is a compile time known constant.
+* Delays should be constants known at compile time (hence subject to constant folding) whenever possible.
+* Does not have the bug where certain very short, compile-time-known delays come out shorter than they should. This bug was introduced when LTO support was added and still impacts many cores - LTO would inline the function, but the function was accounting for the call overhead in it's calculated delay.
 
 ### `uint16_t clockCyclesPerMicrosecond()`
 Part of the standard API, but not documented. Does exactly what it says.
