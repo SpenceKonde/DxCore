@@ -15,14 +15,17 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+/* THIS FILE IS NOT USED BY ANY PART OF megaTinyCore
+ * Wire subclasses Stream directly, saving a large amount of flash
+ * The overhead was additive, and made the Wire.h unusable 2/4k parts.
+ */
 
 #pragma once
 
 #include <inttypes.h>
 #include "Stream.h"
 
-class HardwareI2C : public Stream
-{
+class HardwareI2C : public Stream {
   public:
     virtual void begin() = 0;
     virtual void begin(uint8_t address) = 0;

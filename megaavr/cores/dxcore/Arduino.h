@@ -1,7 +1,7 @@
 /* Arduino.h - Main include file for the Arduino SDK
  * Copyright (c) 2005-2013 Arduino Team.  All right reserved.
  * And presumably from then until 2018 when this was forked
- * for megaTinyCore. Copyright 2018-2021 Spence Konde
+ * for megaTinyCore. Copyright 2018-2022 Spence Konde
  * Part of DxCore, which adds Arduino support for the AVR DA,
  * DB, and DD-series microcontrollers from Microchip.
  * DxCore is free software (LGPL 2.1)
@@ -13,6 +13,21 @@
  * pinswap.h if it relates to PORTMUX, which is a great volume
  * of stuff nobody should have to read.
  *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+ /*
  * That means functions and macros that may be used by user code
  * (except for part-feature ones - those are clearly documented
  * in the readme if they are ready for users).
@@ -109,6 +124,7 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 #define ADC_ERROR_DISABLED                          (-32767)
 #define ADC_ERROR_BUSY                              (-32766)
 #define ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL       (-2100000000)
+     
 // positive channel is not (0x80 | valid_channel) nor a digital pin number
 // referring to a pin with analog input.
 #define ADC_ENH_ERROR_BUSY                     (-2100000001)
@@ -130,10 +146,73 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 // Never actually returned, because we give compile error here
 #define ADC_ENH_ERROR_DISABLED                 (-2100000007)
 // The ADC is not currently enabled. This error is disabled currently - if analogReadEnh encounters a disabled ADC, it will enable it, take the reading, and disable it again.
-#define ADC_ERROR_INVALID_CLOCK                     (-32764)
+#define ADC_ERROR_INVALID_CLOCK                     (-32255)
 // Returned by analogClockSpeed if the value in the register is currently unknown, or if an invalid frequency is requested.
 
 
+// only returned by analogCheckError()
+#define ADC_IMPOSSIBLE_VALUE                        (-127)
+
+
+#if (!defined(TCB_CLKSEL2_bm))
+  // This means it's a tinyAVR 0/1-series, or a megaAVR 0-series.
+  // Their TCB_CLKSEL enums use different names for the clock settings, for reasons unclear.
+  // To align with the future, we use the Dx-series names for these.
+  #define TCB_CLKSEL_DIV2_gc TCB_CLKSEL_CLKDIV2_gc
+  #define TCB_CLKSEL_DIV1_gc TCB_CLKSEL_CLKDIV1_gc
+#endif
+
+#define VCC_5V0 2
+#define VCC_3V3 1
+#define VCC_1V8 0
+
+#define interrupts() sei()
+#define noInterrupts() cli()
+
+
+// NON-STANDARD API
+
+
+void init_ADC0(void); /* Called by init() after clock is set */
+#if defined(ADC1)
+  void init_ADC1(void); /* Never called automatically, but must be called manuaklkly in order to use the ADC1 functions. */
+#endif
+void init_clock(void);/* called by init() first  */
+void init_millis();   /* called by init() last   */
+void init_timers();   /* called by init()        */
+void init_TCA0();     /* called by init_timers() */
+void init_TCD0();     /* called by init_timers() */
+
+// callbacks normally empty and optimized away.
+void onPreMain();
+void onBeforeInit();
+uint8_t onAfterInit();
+void initVariant();
+
+
+// Peripheral takeover
+// These will remove things controlled by
+// these timers from analogWrite()/turnOffPWM()
+// 0x40 - TCD0, 0x10 - TCA0
+void takeOverTCA0();
+void takeOverTCD0();
+
+// millis() timer control
+void stop_millis();                   // Disable the interrupt and stop counting millis.
+void restart_millis();                // Reinitialize the timer and start counting millis again
+void set_millis(uint32_t newmillis);  // set current millis time.
+/* Expected usage:
+ * uint32_t oldmillis=millis();
+ * stop_millis();
+ * user_code_that_messes with timer
+ * set_millis(oldmillis+estimated_time_spent_above)
+ * restart millis();
+ *
+ * Also, this might at times be appropriate
+ * set_millis(millis() + known_offset);
+ * after doing something that we know will block too long for millis to keep time
+ * see also:
+ */
 
 
 /* inlining of a call to delayMicroseconds() would throw it off */
@@ -228,29 +307,98 @@ void          turnOffPWM(uint8_t pinNumber               );
 uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 // Realized we're not going to be able to make generic code without this.
 
-
+// Again as above, but this time with the unwieldy 8-byte integer datatype as the base
 // avr-libc defines _NOP() since 1.6.2
 // Really? Better tell avr-gcc that, it seems to disagree...
 #ifndef _NOP
-  #define _NOP()    __asm__ __volatile__ ("nop");
+  #define _NOP()    __asm__ __volatile__ ("nop")
 #endif
 #ifndef _NOP2
-  #define _NOP2()   __asm__ __volatile__ ("rjmp .+0");
+  #define _NOP2()   __asm__ __volatile__ ("rjmp .+0")
 #endif
 #ifndef _NOPNOP
-  #define _NOPNOP() __asm__ __volatile__ ("rjmp .+0");
+  #define _NOPNOP() __asm__ __volatile__ ("rjmp .+0")
 #endif
 #ifndef _NOP8
-  #define _NOP8()   __asm__ __volatile__ ("rjmp .+2"  "\n\t" \
-                                          "ret"       "\n\t" \
-                                          "rcall .-4" "\n\t");
+  #define _NOP8()   __asm__ __volatile__ ("rjmp .+2"  "\n\t"   /* 2 clk jump over next instruction */ \
+                                          "ret"       "\n\t"   /* 4 clk return "wha? why here?" */    \
+                                          "rcall .-4" "\n\t" ) /* 2 clk "Oh, I see. We jump over a return (2 clock) call it, and then immediately return." */
 #endif
+
+/*
+Not enabled. Ugly ways to get delays at very small flash cost.
+#ifndef _NOP6
+  #define _NOP6()   __asm__ __volatile__ ("rcall lonereturn") // 2 bytes of flash.  2+4=6 clk only works if you've got _LONE_RETURN() somewhere. Only guaranteed to work on 8k and smaller parts.
+  #define _NOP7()   __asm__ __volatile__ ("call lonereturn")  // 4 bytes of flash.  3+4=7 clk and see above, except that this will only work w/>8k flash.
+  #define _LONE_RETURN() __asm__ __volatile__ ("rjmp .+2"    "\n\t"  \  // 4 bytes of flash overhead, but must exist once and only once for NOP6/7 (but not any others) . Don't trip over thr ret. Note that if you're writing inline assembly with ret elsewhere, just proceed
+                                               "lonereturn:" "\n\t"  \  // it with a a label and jump to it to save 2 bytes vs this methodMust exist somwehere for
+                                                 "ret"         "\n\t" )
+  // It could be put into it's own function and marked with the "used" attribute. This allows elimination of the initial rjmp, at the cost of making an ugly hack even uglier.
+  // Or even worse, you have other inline assembly, and you just stick the label right before the return!
+  // Really, these are things you shoudnt do unless you have your back against the flash/RAM limits and a gun to your head.
+  #endif
+*/
 #ifndef _NOP14
-  #define _NOP14()  __asm__ __volatile__ ("rjmp .+2"  "\n\t" \
-                                          "ret"       "\n\t" \
-                                          "rcall .-4" "\n\t" \
-                                          "rcall .-6" "\n\t" );
+  #define _NOP14()  __asm__ __volatile__ ("rjmp .+2"  "\n\t"   /* same idea as above. */ \
+                                          "ret"       "\n\t"   /* Except now it's no longer able to beat the loop if it has a free register. */ \
+                                          "rcall .-4" "\n\t"   /* so this is unlikely to be better, ever. */ \
+                                          "rcall .-6" "\n\t" )
 #endif
+/* Beyond this, just use a loop.
+ * If you don't need submicrosecond accuracy, just use delayMicroseconds(), which uses very similar methods. See Ref_Timers
+ * (eg, ldi (any upper register), n; dec r0; brne .-4)
+ * and pad with rjmp or nop if needed to get target delay.
+ * Simplest form takes a uint8_t and runs for 3n cycles in 3 words. Padded with `nop` or `rjmp .+0`for 3n + 1 or 3n + 2 if outside the loop, 4n or 5n if padded inside the loop
+ * And so on. You will likely end up doing something like
+ *
+                    #define CLOCKS_PER_US   (F_CPU / 1000000);    // preprocessed away
+                    #define DELAYCLOCKS     (0.8 * CLOCKS_PER_US) // say we wanted a 0.8 us delay.
+                    uint8_t x = DELAYCLOCKS / 3;                  // preprocessed into a constant
+                    __asm__ __volatile__ ("dec %0"      "\n\t"    // before this, an ldi is used to load x into the input operand %0
+                                          "brne .-4"    "\n\t"
+                      #if (DELAYCLOCKS % 3 == 2)                  // 2 clocks extra needed at end
+                                          "rjmp .+0"    "\n\t"
+                      #elif (DELAYCLOCKS % 3 == 1)                // 1 clock extra needed at end
+                                          "nop"         "\n\t"
+                      #endif
+                                          : "+d"((uint8_t)(x));
+ *
+ * The above will take very close to 0.8us under most any conditions.  Notice how all the calculation was moved to the preprocessor.
+ *
+ *
+ * You can extend the length of the iterations by adding nop between the dec and brne, and branching 2 bytes further. that makes it 4 clocks per iteration.
+ * You can go for much longer by using 16-bits:
+ *                  uint16_t x = 2000;    * overall takes 8 bytrsd
+ *                  __asm__ __volatile__ ("sbiw %0,1"    "\n\t"  // Line is preceded by 2 implied LDI's to fill that upper register pair, Much higher chance of having to push and pop.
+ *                                        \"brne .-4      \"\n\t\"  // SBIW takes 2 clocks. branch takes 2 clocks unless it doesn't branch, when it only takes one
+ *                                        : +w"((uint16_t)(x))  // hence this takes 4N+1 clocks (4 per iteration, except for last one which is only 3, plus 2 for the pair of LDI's)
+ *
+ */
+
+
+// The fastest way to swap nybbles
+#ifndef _SWAP
+  #define _SWAP(n) __asm__ __volatile__ ("swap %0"  "\n\t" :"+r"((uint8_t)(n)));
+#endif
+// internally used - fast multiply by 0x20 that assumes x < 8, so you can add it to a uint8_t* to PORTA or member of PORTA,
+// and get the corresponding value for the other port, or equivalently it can be added to 0x0400 which is the address of PORTA.
+// Valid only with a valid port number, which must be verified first
+// This exists to sidestep inefficiency of compiler generated code when you only know the port at runtime, for the very common task of
+// addressing a port register by port number and offset. Trashes the variable you pass it
+/*
+#define _WRITE_VALUE_TO_PORT_OFFSET(p,o,v) ({
+          __asm__ __volatile__ (
+            "swap %0A"        "\n\t" // start with a 16-bit pointer register
+            "add %0A, %0A "   "\n\t" // low byte for port register is port * 0x20 - so swap nybbles and leftshift to do in 2 cycles.
+            "ldi %0B, 0x04"   "\n\t" // high byte for all port registers is 0x0400
+            "add %0A, %1"     "\n\t" // add the offset within the port
+            "st %a0, %2"      "\n\t" // write the value
+           :"+e"(uint16_t)(p)
+           :"r"  (uint8_t)(o),
+            "r"  (uint8_t)(v)
+          );
+})
+*/
 uint16_t clockCyclesPerMicrosecond();
 uint32_t clockCyclesToMicroseconds(uint32_t cycles);
 uint32_t microsecondsToClockCycles(uint32_t microseconds);
@@ -279,7 +427,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  *
  * Prior to 1.3.x TCAs were all 0x1_, TCBs 0x2_. But in order to make the
  * take-over tracking work efficiently I needed a dedicated bit for each TCA.
- * so that we can just do (PeripheralControl | TIMERA0) to test if user has
+ * so that we can just do (__PeripheralControl | TIMERA0) to test if user has
  * taken over the timer. Hence, all the "big" timers (those which have a
  * takeOverTCxn() function and which PORTMUX moves en masse instead of one at
  * a time) have their own bit within these macros.
@@ -304,47 +452,47 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 /* More may be implemented here in the future */
 
 #define NOT_ON_TIMER    (0x00)
-#define TIMERA0         (0x10) // A "simple" type A timer mapping doesn't get constants for the WO channels, only the rare few funky ones do.
+#define TIMERA0         (0x10) // A "simple" type A timer mapping doesn't get constants for the WO channels.
 #define TIMERA1         (0x08) // Formerly 0x11 - giving it a dedicated bit makes the takeover tracking easy and efficient instead of being a morass of tests and bitmath.
 #define TIMERB0         (0x20) // TCB0
 #define TIMERB1         (0x21) // TCB1
 #define TIMERB2         (0x22) // TCB2
 #define TIMERB3         (0x23) // TCB3
 #define TIMERB4         (0x24) // TCB4
-#define TIMERD0         (0x40)
+#define TIMERD0         (0x70) // If any of these bits match it's potentially on TCD0
 #define DACOUT          (0x80)
 /* The above are all used in the digitalPinToTimer() macro and appear in the timer table, in addition to being how we identify millis timer.
  * For the millis timer, there's nothing weird here.
  * But the timer table constants contain more information than that for these. When user code interprets the timer table entries it is critical to do it right:
- *  1. If 0x80 is set, and it's from the timer table, it's a DAC output. If it's the millis timer, 0x01 will also be set and you're on a tinyAVR part and the
- *  2. If 0x40 is set, TCD0 can output here. bits 4 and 5 contain information on what channel, and bits 0-2 specify what the PORTMUX must be set to.
- *  3. If it's not set, check 0x20 - if that's set, it's a TCB pin.
- *    3a. If 0x20 is set, check 0x10 - if that's set, it's the alt pin mapping. This is not currently used.
- *  4. If 0x10 is set, it's a TCA0 pin. This is never used in the timer table, and likely never will be because of the simplicity of the mapping scheme.
- *  5. If 0x08 is set, it's a TCA1 pin. This is never used in the timer table. Utility functions in futureversions may use it.
+ *  1. If 0x40 is set, TCD0 can output here. bits 4 and 5 contain information on what channel, and bits 0-2 specify what the PORTMUX must be set to.
+ *  2. If 0x20 us set, there is a TCB can output PWM there.
+ *    2a. If 0x20 is set, check 0x10 - if that's set, it's the alt pin mapping. This is currently not returned by the table, and I assess it to be unlikely to be of use
+ *  4. If 0x10 is set, it's a TCA0 pin. This is never used in the timer table, but digitalPinToTimerNow() can return it.
+ *  5. If 0x08 is set, it's a TCA1 pin. This is never used in the timer table, but digitalPinToTimerNow() can return it.
+ * Ergo, use bitwise ands
  */
 
 #define TIMERRTC        (0x90) // RTC with internal osc
 #define TIMERRTC_XTAL   (0x91) // RTC with crystal
 #define TIMERRTC_CLK    (0x92) // RTC with ext clock
 
-/* Not yet implemented used for anything meaningful, but will be needed moving forward.  */
+/* Not used in table */
+#define TIMERA0_MUX0    (0x10) // Mapping0 (PORTA 0-5)
+#define TIMERA0_MUX1    (0x11) // Mapping1 (PORTB 0-5)
+#define TIMERA0_MUX2    (0x12) // Mapping2 (PORTC 0-5)
+#define TIMERA0_MUX3    (0x13) // Mapping3 (PORTD 0-5)
+#define TIMERA0_MUX4    (0x14) // Mapping4 (PORTE 0-5)
+#define TIMERA0_MUX5    (0x15) // Mapping5 (PORTF 0-5)
+#define TIMERA0_MUX6    (0x16) // Mapping6 (PORTG 0-5)
+#define TIMERA0_MUX7    (0x17) // Mapping7 (PORTA 0-5)
+#define TIMERA1_MUX0    (0x08) // Mapping0 (PORTB 0-5)
+#define TIMERA1_MUX1    (0x09) // Mapping1 (PORTC 4-6) - only three channels available.
+#define TIMERA1_MUX2    (0x0A) // Mapping2 (PORTE 4-6) - only three channels available.
+#define TIMERA1_MUX3    (0x0B) // Mapping3 (PORTG 0-5) - DB-series only due to errata.
+#define TIMERA1_MUX4    (0x0C) // Mapping4 (PORTA 4-6) - only three channels available.
+#define TIMERA1_MUX5    (0x0D) // Mapping5 (PORTD 4-6) - only three channels available.
 
-#define TIMERA0_MUX0    (0x10) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX1    (0x11) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX2    (0x12) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX3    (0x13) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX4    (0x14) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX5    (0x15) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX6    (0x16) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA0_MUX7    (0x17) // Will never be used in the table - nor will any other TCA0 muxes, since all are simple 6-pin mappings.
-#define TIMERA1_MUX0    (0x08) // Will never be used in the table - MUX0 is a 6-pin mapping that we special-case, for PORTB
-#define TIMERA1_MUX1    (0x09) // Mapping1 (PORTC 4-6) - channel = bit_pos - 4. Not yet implemented, but will be in time for EA
-#define TIMERA1_MUX2    (0x0A) // Mapping2 (PORTE 4-6) - channel = bit_pos - 4. Not yet implemented, but will be in time for EA
-#define TIMERA1_MUX3    (0x0B) // Will never be used in the table - MUX3 is a 6-pin mapping that we special-case, for PORTG
-#define TIMERA1_MUX4    (0x0C) // Mapping4 (PORTA 4-6) - EA-series only
-#define TIMERA1_MUX5    (0x0D) // Mapping5 (PORTD 4-6) - EA-series only
-
+/* Not used in table or at all, yet */
 #define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
 #define TIMERB1_ALT     (0x31) // TCB1 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
 #define TIMERB2_ALT     (0x32) // TCB2 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
@@ -360,46 +508,52 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  // 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
 //                            bit C specifies whether it's channel A (0) or B (1). If M is 1 it is WOC outputting chan A or WOB outputting D.
 //                            WOD outputting A or WOC outputting B is not supported by the core. WOB outputting A or WOA outputting B is not supported by the hardware.
-//                            Hence, if PORTMUX.TCDROUTEA == (timer table entry) & 0x07
-// These are used only on the parts with workng TCD mux
-#define TIMERD0_0WOA    (0x40) // PORTA
-#define TIMERD0_0WOB    (0x50)
-#define TIMERD0_0WOC    (0x60)
-#define TIMERD0_0WOD    (0x70)
-#define TIMERD0_1WOA    (0x41) // PORTB
-#define TIMERD0_1WOB    (0x51)
-#define TIMERD0_1WOC    (0x61)
-#define TIMERD0_1WOD    (0x71)
-#define TIMERD0_2WOA    (0x42) // PORTF
-#define TIMERD0_2WOB    (0x52)
-#define TIMERD0_2WOC    (0x62)
-#define TIMERD0_2WOD    (0x72)
-#define TIMERD0_3WOA    (0x43) // PORTG
-#define TIMERD0_3WOB    (0x53)
-#define TIMERD0_3WOC    (0x63)
-#define TIMERD0_3WOD    (0x73)
-//#define TIMERD0_4WOA  (0x44) - this is PA4, duplicates mux 0.
-//#define TIMERD0_4WOB  (0x54) - this is PA5, duplicates mux 0.
-#define TIMERD0_4WOC    (0x64) // second half is PORTD
-#define TIMERD0_4WOD    (0x74)
+//                            Hence, PORTMUX.TCDROUTEA == (timer table entry) & (0x07)
+//                            and any table entry > 0x40 but less than 0x80 could be a TCD
+//
+#define TIMERD0_0WOA      (0x40) // PORTA
+#define TIMERD0_0WOB      (0x50)
+#define TIMERD0_0WOC      (0x60)
+#define TIMERD0_0WOD      (0x70)
+#define TIMERD0_1WOA      (0x41) // PORTB
+#define TIMERD0_1WOB      (0x51)
+#define TIMERD0_1WOC      (0x61)
+#define TIMERD0_1WOD      (0x71)
+#define TIMERD0_2WOA      (0x42) // PORTF
+#define TIMERD0_2WOB      (0x52)
+#define TIMERD0_2WOC      (0x62)
+#define TIMERD0_2WOD      (0x72)
+#define TIMERD0_3WOA      (0x43) // PORTG
+#define TIMERD0_3WOB      (0x53)
+#define TIMERD0_3WOC      (0x63)
+#define TIMERD0_3WOD      (0x73)
+#define TIMERD0_4WOA      (0x44) // this is PA4, duplicates mux 0.
+#define TIMERD0_4WOB      (0x54) // this is PA5, duplicates mux 0.
+#define TIMERD0_4WOC      (0x64) // second half is PORTD
+#define TIMERD0_4WOD      (0x74)
 /*
 // For future use
-#define TIMERD0_5WOA    (0x45) // Will we ever see other PORTD mappings? Probably, but only time will tell.
-#define TIMERD0_5WOB    (0x55)
-#define TIMERD0_5WOC    (0x65)
-#define TIMERD0_5WOD    (0x75)
-#define TIMERD0_6WOA    (0x46)
-#define TIMERD0_6WOB    (0x56)
-#define TIMERD0_6WOC    (0x66)
-#define TIMERD0_6WOD    (0x76)
-#define TIMERD0_7WOA    (0x47)
-#define TIMERD0_7WOB    (0x57)
-#define TIMERD0_7WOC    (0x67)
-#define TIMERD0_7WOD    (0x77)
+#define TIMERD0_5WOA      (0x45) // hypothetical TCD0 WOA ALT5
+#define TIMERD0_5WOB      (0x55) // hypothetical TCD0 WOB ALT5
+#define TIMERD0_5WOC      (0x65) // hypothetical TCD0 WOC ALT5
+#define TIMERD0_5WOD      (0x75) // hypothetical TCD0 WOD ALT5
+#define TIMERD0_6WOA      (0x46) // hypothetical TCD0 WOA ALT6
+#define TIMERD0_6WOB      (0x56) // hypothetical TCD0 WOB ALT6
+#define TIMERD0_6WOC      (0x66) // hypothetical TCD0 WOC ALT6
+#define TIMERD0_6WOD      (0x76) // hypothetical TCD0 WOD ALT6
+#define TIMERD0_7WOA      (0x47) // hypothetical TCD0 WOA ALT7
+#define TIMERD0_7WOB      (0x57) // hypothetical TCD0 WOB ALT7
+#define TIMERD0_7WOC      (0x67) // hypothetical TCD0 WOC ALT7
+#define TIMERD0_7WOD      (0x77) // hypothetical TCD0 WOD ALT7
 */
 
-// These are lookup tables to find pin parameters from Arduino pin numbers
-// They are defined in the variant's pins_arduino.h
+__attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
+
+
+// Get the bit location within the hardware port of the given virtual pin.
+// This comes from the arrays in the  pins_arduino.c file for the active
+// board configuration.
+// These perform slightly better as macros compared to inline functions
 
 extern const uint8_t digital_pin_to_port[];
 extern const uint8_t digital_pin_to_bit_mask[];
@@ -441,7 +595,13 @@ extern const uint8_t digital_pin_to_timer[];
 #define NUM_TOTAL_PORTS (7) /* one could argue that this should be 6 except on 64-pin parts, and that parts that don't
 have ports shoulod have those Px constants defined as NOT_A_PORT. I think that would cause problems rather than solve them, though */
 
-#define PERIPHERAL_IN_USE (254) // Returned when a rare few functions are asked about something, (say, which PWM pin a type B tmer s abot to output PWM on) but we know we can't output PWM with itvecause ti is in use for millis. Srudd rlikw rhr. asked abot something
+#define PERIPHERAL_IN_USE (254) // Returned when a rare few functions are asked about a peripheral that is not configured for that use.
+// This is only currently used by digitalPinToTimerNow(pin) which returns the timer that can output PWM on a given pin, considering the current PORTMUX settings.
+// This will be returned when the pin is driven by a TCB not configured for PWM. It will not otherwise be returned - so you can't use it to test whether your code
+// has stomped on the configuration of TCA/TCD timers such that they aren't able to output PWM, consistent with the guiding principles that the core was written
+// in accordance with. (Namely, that if you're setting registers directly, you're responsible for your own actions, and for tracking them. Since tone() and the
+// millis timekeeping can render the TCBs unavailable for PWM. You should use takeOverTCA0/TCA1/TCD0() if reconfiguring the timers in this way, which will also
+// cause digitalPinToTimerNow() to return NOT_ON_TIMER
 
 // These are used as the second argument to pinConfigure(pin, configuration)
 // You can bitwise OR as many of these as you want, or just do one. Very
@@ -593,7 +753,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #endif
 
 #include "pins_arduino.h"
-// Take this trash out of variants!
+// this stuff used to be in the variants. 
 #if !defined(NUM_DIGITAL_PINS)
 /* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
  * that is, it's the first integer which does not refer to a pin, and the number of digital pins if there

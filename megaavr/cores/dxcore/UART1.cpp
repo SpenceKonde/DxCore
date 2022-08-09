@@ -5,7 +5,7 @@
  * Copyright (c) 2006 Nicholas Zambetti, Modified by
  * 11/23/2006 David A. Mellis, 9/20/2010 Mark Sproul,
  * 8/24/2012 Alarus, 12/3/2013 Matthijs Kooijman
- * unknown others 2013-2020, 2020-2021 Spence Konde
+ * unknown others 2013-2020, 2020-2022 Spence Konde
  */
 
 #include "Arduino.h"
@@ -29,11 +29,11 @@
     ISR(USART1_TXC_vect) {
       uint8_t ctrla;
       while (USART1.STATUS & USART_RXCIF_bm) {
-        ctrla = USART1.RXDATAL;
+        ctrla      = USART1.RXDATAL;
       }
-      ctrla = USART1.CTRLA;
-      ctrla |= USART_RXCIE_bm; // turn on receive complete
-      ctrla &= ~USART_TXCIE_bm; // turn off transmit complete
+      ctrla        = USART1.CTRLA;
+      ctrla       |= USART_RXCIE_bm; // turn on receive complete
+      ctrla       &= ~USART_TXCIE_bm; // turn off transmit complete
       USART1.CTRLA = ctrla;
     }
   #endif

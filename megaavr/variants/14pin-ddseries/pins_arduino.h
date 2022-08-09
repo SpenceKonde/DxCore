@@ -105,17 +105,13 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 // Timer pin mapping
-#define TCA0_PINS PORTMUX_TCA0_PORTC_gc     // EVERY option here sucks; this one gives us... 3 PWM channels...
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
-#define TCD0_PINS PORTMUX_TCD0_ALT4_gc      // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
+#define TCA0_PINS (PORTMUX_TCA0_PORTC_gc)     // EVERY option here sucks; this one gives us... 3 PWM channels...
+#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
+#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
+#define TCD0_PINS (PORTMUX_TCD0_PORTAD)       // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
 
-#define PIN_TCA0_WO0_INIT PIN_PC0
-
-
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
+#define PIN_TCA0_WO0_INIT                 (PC)
 #define NO_GLITCH_TIMERD0
-
 #define digitalPinHasPWM(p)               (((p) >= PIN_PC1 && (p) <= PIN_PC3) || (p) == PIN_PD4 || (p) == PIN_PD5)
 
         /*##   ###  ####  ##### #   # #   # #   #
@@ -130,15 +126,15 @@ Include guard and include basic libraries. We are normally including this inside
 // defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid.
 // SPI 0
 
-#define SPI_MUX_PINSWAP_3      PORTMUX_SPI0_ALT3_gc
+
 #define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
 #define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
 #define SPI_MUX_PINSWAP_6      PORTMUX_SPI0_ALT6_gc
 #define SPI_MUX_PINSWAP_NONE   PORTMUX_SPI0_NONE_gc
-#define PIN_SPI_MOSI_PINSWAP_3 PIN_PA0
-#define PIN_SPI_MISO_PINSWAP_3 PIN_PA1
-#define PIN_SPI_SCK_PINSWAP_3  NOT_A_PIN // "What use is that?!" you say? The clock could be recovered from event channel or via a CCL and output on a pin. Master only though, ofc.
-#define PIN_SPI_SS_PINSWAP_3   PIN_PC1
+#define PIN_SPI_MOSI           NOT_A_PIN
+#define PIN_SPI_MISO           NOT_A_PIN
+#define PIN_SPI_SCK            NOT_A_PIN
+#define PIN_SPI_SS             NOT_A_PIN
 #define PIN_SPI_MOSI_PINSWAP_4 PIN_PD4
 #define PIN_SPI_MISO_PINSWAP_4 PIN_PD5
 #define PIN_SPI_SCK_PINSWAP_4  PIN_PD6
@@ -150,7 +146,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MOSI_PINSWAP_6 PIN_PC1
 #define PIN_SPI_MISO_PINSWAP_6 PIN_PC2
 #define PIN_SPI_SCK_PINSWAP_6  PIN_PC3
-#define PIN_SPI_SS_PINSWAP_6   NOT_A_PIN
+#define PIN_SPI_SS_PINSWAP_6   PIN_PF7 //(UPDI)
 
 
 // TWI 0

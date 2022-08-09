@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #if defined(__AVR_DD__)
-#define ZCD ZCD3
+  #define ZCD ZCD3
 #endif
 
 namespace out {

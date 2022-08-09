@@ -23,6 +23,7 @@
 #ifndef WiringPrivate_h
 #define WiringPrivate_h
 
+#include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -30,11 +31,10 @@
 #include "Arduino.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
-
-extern uint8_t PeripheralControl;
+extern uint8_t __PeripheralControl;
 
 uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, unsigned long maxloops);
 

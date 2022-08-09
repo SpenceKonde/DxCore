@@ -89,39 +89,46 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   #  ### #  #   ###   ##*/
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
-
-#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):((p) > PIN_PA1 ? (p) + 20 : NOT_A_PIN)) /* Seriously?! */
-#define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+#if !defined(USING_BOOTLOADER) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
+  #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
+    #define IS_MVIO_ENABLED()                    (1)
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF6) ? (p) - PIN_PD0 : NOT_A_PIN):((((p) > PIN_PA1 && (p) < 8)                        ? (p) + 20 : NOT_A_PIN)))
+    #define analogChannelToDigitalPin(p)         ((p) > 27                              ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : NOT_A_PIN))
+  #else
+    #define IS_MVIO_ENABLED()                    (0)
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF6) ? (p) - PIN_PD0 : NOT_A_PIN):((((p) > PIN_PA1)                                   ? (p) + 20 : NOT_A_PIN)))
+    #define analogChannelToDigitalPin(p)         ((p) > 31                              ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : ((p) > 21 && (p) != 28) ? (p) - 20 : NOT_A_PIN))
+  #endif
+#else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
+  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
+  #define digitalPinToAnalogInput(p)             ((p) >= PIN_PD0 ? (((p) < PIN_PF6) ? (p) - PIN_PD0 : NOT_A_PIN):(((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= 8) ? (p) + 20 : NOT_A_PIN)))
+  #define analogChannelToDigitalPin(p)           ((p) > (IS_MVIO_ENABLED() ? 27 : 31)   ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : ((p) > 21 && (p) != 28) ? (p) - 20 : NOT_A_PIN))
+#endif
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
-#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
 #define portToDigitalPinZero(port)        ((port) == 0 ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
 
 // PWM pins
 
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0)
+  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA3)
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0)
-#elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA2)
 #else //no TCB's are used for millis
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS PORTMUX_TCA0_PORTD_gc     // TCA0 output on PD[0:5]
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here)
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
-#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default), not PB4 (Doesn't exist here)
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc
+#define TCA0_PINS (PORTMUX_TCA0_PORTA_gc)     // TCA0 output on PA[0:5]
+#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here). Only used for PWM if you changed the TCA0 PORTMUX, losing more than the two TCB PWM pins you would gain.
+#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
+#define TCD0_PINS (PORTMUX_TCD0_ALT4_gc)      // TCD0 output on PA4, PA5 (not used for same reason as TCBs) and PD4, PD5
 
-#define PIN_TCA0_WO0_INIT PIN_PD0
-#define PIN_TCD0_WOA_INIT PIN_PA4
+#define PIN_TCA0_WO0_INIT (PIN_PD0)
 
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) == PIN_PD4 || (p) == PIN_PD5) || ((p) > PIN_PA0 && (p) < PIN_PA6))
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
@@ -133,7 +140,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 // SPI 0
 #define SPI_MUX                         PORTMUX_SPI0_DEFAULT_g
-#define SPI_MUX_PINSWAP_3               PORTMUX_SPI0_ALT3_gc
 #define SPI_MUX_PINSWAP_4               PORTMUX_SPI0_ALT4_gc
 #define SPI_MUX_PINSWAP_5               PORTMUX_SPI0_ALT5_gc
 #define SPI_MUX_PINSWAP_6               PORTMUX_SPI0_ALT6_gc
@@ -142,10 +148,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MISO                    PIN_PA5
 #define PIN_SPI_SCK                     PIN_PA6
 #define PIN_SPI_SS                      PIN_PA7
-#define PIN_SPI_MOSI_PINSWAP_3          PIN_PA0
-#define PIN_SPI_MISO_PINSWAP_3          PIN_PA1
-#define PIN_SPI_SCK_PINSWAP_3           PIN_PC0
-#define PIN_SPI_SS_PINSWAP_3            PIN_PC1
 #define PIN_SPI_MOSI_PINSWAP_4          PIN_PD4
 #define PIN_SPI_MISO_PINSWAP_4          PIN_PD5
 #define PIN_SPI_SCK_PINSWAP_4           PIN_PD6
@@ -157,7 +159,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MOSI_PINSWAP_6          PIN_PC1
 #define PIN_SPI_MISO_PINSWAP_6          PIN_PC2
 #define PIN_SPI_SCK_PINSWAP_6           PIN_PC3
-#define PIN_SPI_SS_PINSWAP_6            NOT_A_PIN
+#define PIN_SPI_SS_PINSWAP_6            PIN_PF7 //(UPDI)
 
 // TWI 0
 #define PIN_WIRE_SDA                    PIN_PA2
@@ -203,7 +205,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
 #define HWSERIAL1_MUX_PINSWAP_2         PORTMUX_USART1_ALT2_gc
 #define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
-#define PIN_HWSERIAL1_TX                NOT_A_PIN
+#define PIN_HWSERIAL1_TX                8
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3

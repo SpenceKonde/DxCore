@@ -152,9 +152,12 @@ recipe.hooks.savehex.presavehex.2.pattern.macosx=cp "{build.path}/{build.project
 # with new python upload tools.         #
 #########################################
 
-## Unused Parameters
+## Unused but required parameters
+# Uploading without verification is prohibited. Since there is no checksum or verification of success at any point in the upload process otherwise,
+# if verificiation was disabled, an upload problem could look like a code problem, and you could debug it unsuccessfully for days with no progress.
 tools.avrdude.program.verify=
 tools.avrdude.upload.verify=
+# the erase pattern, if defined, is used I think immediately prior to bootloading only, but bootloading can be done in a single operation; there is no need for this.
 tools.avrdude.erase.params.verbose=
 tools.avrdude.erase.params.quiet=
 tools.avrdude.erase.pattern=
@@ -182,7 +185,8 @@ tools.avrdude.bootloader.params.verbose=-v
 tools.avrdude.bootloader.params.quiet=-q -q
 tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e "-Ufuse0:w:{bootloader.WDTCFG}:m" "-Ufuse1:w:{bootloader.BODCFG}:m" "-Ufuse5:w:{bootloader.SYSCFG0}:m" "-Ufuse6:w:{bootloader.SYSCFG1}:m" "-Ufuse7:w:{bootloader.CODESIZE}:m" "-Ufuse8:w:{bootloader.BOOTSIZE}:m" "{bootloader.avrdudestring}"
 
-## This functionality has never been tested with these parts. The maintainers of this core have no idea what this is, or whether it is expected to work.
+## OTA/Remote upload
+# This functionality has never been tested with these parts. The maintainers of this core have no idea what this is, or whether it is expected to work.
 tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex {upload.verbose} -p{build.mcu}
 tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -d -v
 
@@ -199,25 +203,25 @@ tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -por
 tools.serialupdi.cmd={runtime.platform.path}/tools/python3/python3
 #REMOVE#tools.serialupdi.cmd={runtime.tools.python3.path}/python3
 
-# Unused Parameters.
+## Unused Parameters.
 # SerialUPDI has only one level of verbosity.
 # There's an *actual* internal verbose mode, but it is WAY too verbose and results >500kb log files which are mostly useless.
-# SerialUPDI must verify, because errors are not checked for along the way
+# Verification is not optional as there are no guardrails against unsuccessful uploads other than protocol failures
 # Upload is only for uploading through a bootloader, and erase is not used anywhere.
 tools.serialupdi.bootloader.params.noverify=
 tools.serialupdi.bootloader.params.quiet=
-tools.serialupdi.bootloader.params.verbose=-v
+tools.serialupdi.bootloader.params.verbose= -v
 tools.serialupdi.bootloader.verify=
 tools.serialupdi.erase.params.quiet=
-tools.serialupdi.erase.params.verbose=-v
+tools.serialupdi.erase.params.verbose= -v
 tools.serialupdi.erase.pattern=
 tools.serialupdi.program.params.noverify=
 tools.serialupdi.program.params.quiet=
-tools.serialupdi.program.params.verbose=-v
+tools.serialupdi.program.params.verbose= -v
 tools.serialupdi.program.verify=
 tools.serialupdi.upload.params.noverify=
 tools.serialupdi.upload.params.quiet=
-tools.serialupdi.upload.params.verbose=-v
+tools.serialupdi.upload.params.verbose= -v
 tools.serialupdi.upload.verify=
 tools.serialupdi.upload.pattern=echo "This can't happen, but has to be here or automated tests fail"
 
@@ -231,4 +235,4 @@ tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/pr
 # Upload/Program will set fuses 5-8. Fuse 0 is not written because the core never configures that, and if a user went and set that themselvesm we shouldn't undo it.
 # Fuse 1 is the BOD configuration , which could "brick" the chip if set for a higher voltage than the power rail.
 # That leaves the two SYSCFG fuses which are safe (SYSCFG0 will not be safe on DD, though!), and the boot and codesize fuses.
-tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}
+tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 5:{bootloader.SYSCFG0} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} -f "{build.path}/{build.project_name}.hex" -a write {program.verbose}

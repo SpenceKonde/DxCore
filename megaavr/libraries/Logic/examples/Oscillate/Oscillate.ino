@@ -761,7 +761,7 @@ void loop() {
   delay(20000);
   TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
 
-  #if defined(TCB_CLKSEL2_bm) && !defined(DX_14_PINS) // Only parts with the third CLKSEL bit have event clock
+  #if defined(TCB_CLKSEL_2_bm) && !defined(DX_14_PINS) // Only parts with the third CLKSEL bit have event clock
   Serial.println("Divided clocks: TCB gets independent prescaler! Dx/2-series only");
   demo9b();
   delay(10000);
@@ -778,7 +778,7 @@ void loop() {
   pinMode(PIN_PA6, INPUT);
   #endif
 
-  #if defined(TCD0) && defined(TCB_CLKSEL2_bm)
+  #if defined(TCD0) && defined(TCB_CLKSEL_2_bm)
   Serial.println("Clock dividing: TCD+PLL->CCL->Event->TCB0 ");
   demo10();
   delay(10000);

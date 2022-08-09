@@ -7,7 +7,7 @@
  * The original version was written in 2006 by Nicholas
  * Zambetti, and modified 11/23/2006 by David A. Mellis,
  * 9/20/2010 by Mark Sproul, 8/24/2012 by Alarus, and
- * Others (unknown) 2013-2017.
+ * other members of the Arduino community who did not sign.
  */
 
 #include "wiring_private.h"

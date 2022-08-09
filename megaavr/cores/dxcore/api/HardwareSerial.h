@@ -31,8 +31,7 @@
 // when they are ALL LOCATED NEXT TO EACH OTHER ON THE SAME BYTE is madness!
 // See UART_constants.h
 
-class HardwareSerial : public Stream
-{
+class HardwareSerial : public Stream {
   public:
     virtual void begin(unsigned long) = 0;
     virtual void begin(unsigned long baudrate, uint16_t config) = 0;

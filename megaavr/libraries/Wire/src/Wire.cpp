@@ -259,23 +259,36 @@ void TwoWire::endSlave(void) {
  *@return     uint8_t
  *@retval     amount of bytes that were actually read. If 0, no read took place due to a bus error.
  */
+
+/* Spence: Oh ffs, why did we have all these type translating signatures to begin with when type conversion would automatically fix the problem for us
+ * so the worst anyone could say was that we would compile successfully instead of with obtuse errors,
+ * if a user was using inappropriate types with values that get truncated in conversion, this wouldn't work for them with or without these
+ * Buffer sizes listed in library documentation should not be exceeded, and the maximum a library can be configured for is 256 since it uses uint8_t's
+ * internally. Which is a huge amount of data for an AVr. it's 2 pages fromn AT24-type EEPROM (recall that the default of 120b long buffer is
+ * specifically to support writing a page at a time. I2C is also slow, and if you need to transfer data aggressively to and from external peripherals
+ * do it in chunks and do consider deeply if you've gotten off track. And uint8_t's and bools are the same
+ * internally, and a bool gets automatically converted if passed to a function expecting a uint8_t - and if a future part get some new feature
+ * that had to be specified on a per-request basis, it could be extended without changing the function signature and just adding some
+ * constants you could pass that would enable it, like with UART.
+ */
 uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity)                   {
          return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
 }
-uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity,  bool     sendStop) {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
-}
-uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity)                   {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-}
-uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity,  int16_t  sendStop) {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
-}
-uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity)                   {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-}
+//uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity,  bool     sendStop) {
+//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+//
+//uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity)                   {
+//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+//}
+//uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity,  int16_t  sendStop) {
+//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+//}
+//uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity)                   {
+//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
+//}
 uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity,  uint8_t sendStop) {
   if (quantity > BUFFER_LENGTH) {
+    // Can't do a __builtin_constant_p check here because classes make the optimizer lose the plot.
     quantity = BUFFER_LENGTH;
   }
   vars._clientAddress = address << 1;
@@ -302,6 +315,8 @@ void TwoWire::beginTransmission(uint8_t address) {
     uint8_t* txHead  = &(vars._bytesToWrite);
   #endif
   if (__builtin_constant_p(address) > 0x7F) {     // Compile-time check if address is actually 7 bit long
+    // Spence: pretty sure this doesn't work. Constant folding and autoinlining doesn't seem to happen correctly when constants are passed to class methods, even when called a single time... .
+    // C++ stuff confuses the optimizer almost as much as me. I know  C not C++.
     badArg("Supplied address seems to be 8 bit. Only 7-bit-addresses are supported");
     return;
   }

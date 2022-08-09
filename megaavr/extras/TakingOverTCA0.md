@@ -1,6 +1,6 @@
 # Reconfiguring a Type A timer (like TCA0)
 
-We have received many questions from users about how to take over TCA0 or TCA1 to generate 16-bit PWM or change the output frequency. There are a few non-obvious complications here, and this document aims to clear up these confusions. First, before you begin, make sure you have a recemt version of megaTinyCore installed. This document was written for tinyAVR and AVR DA/DB parts, though it is expected to remain accurate for the DD-series and EA-series.
+We have received many questions from users about how to take over TCA0 to generate 16-bit PWM or change the output frequency. There are a few non-obvious complications here, and this document aims to clear up these confusions. First, before you begin, make sure you have a recemt version of megaTinyCore installed. This document references functions added in the 2.3.x versions; pre-2.x versions further contain significant differences that render much of this document inapplicable. What is written here largely applies to TCA1 on the AVR Dx-series parts, and is expected to apply to the AVR EA-series as well, though no definitive information on those parts beyond their mention in the AVR EA-series technical brief has been released. It it unlikely that any relevant changes will be madem but not impossible.
 
 ## For far more information on type A timers
 Microchip has made available a Technical Brief describing the capabilities of the Type A timer, which is arguably the most powerful timer available on modern AVR devices (it's this or the type D timer, but while that is unquestionably more complex and is capable of some tasks which the TCAs are not, it is applicable to significantly fewer use cases, and far more challenging to configure). That technical brief describes all applications of the type A timer, not just PWM (and also assumes it is starting from power on reset (POR) state; if you are using code from there, you can call `takeOverTCA0()` or `takeOverTCA1()` to both reset it to this state, and ensure that the core does not subsequently mess with it).
@@ -54,15 +54,15 @@ uint8_t OutputPin = PIN_PC1;
 
 
 void setup() {
-  pinMode(OutputPin, OUTPUT);
-  takeOverTCA0(); // this replaces disabling and resettng the timer, required previously.
-  PORTMUX.TCAROUTEA   = (PORTMUX.TCAROUTEA & ~(PORTMUX_TCA0_gm)) | PORTMUX_TCA0_PORTC_gc; // Set mux to PORTC
-  TCA0.SINGLE.CTRLB   = (TCA_SINGLE_CMP1EN_bm | TCA_SINGLE_WGMODE_DSBOTTOM_gc); // Dual slope PWM mode OVF interrupt at BOTTOM, PWM on WO0.
-  TCA0.SINGLE.PER     = 0xFFFF;                                                 // Count all the way up to 0xFFFF.
-  //  At 20MHz, this gives ~152Hz PWM with no prescaling.
-  TCA0.SINGLE.CMP1    = DutyCycle;            // 0 - 65535
-  TCA0.SINGLE.INTCTRL = TCA_SINGLE_OVF_bm;    // enable overflow interrupt
-  TCA0.SINGLE.CTRLA   = TCA_SINGLE_ENABLE_bm; // enable the timer with no prescaler
+  // We will be outputting PWM on PB0
+  pinMode(PIN_PB0, OUTPUT); //PB0 - TCA0 WO0, pin7 on 14-pin parts
+  takeOverTCA0();                           // This replaces disabling and resettng the timer, required previously.
+  TCA0.SINGLE.CTRLB = (TCA_SINGLE_CMP0EN_bm | TCA_SINGLE_WGMODE_DSBOTTOM_gc); //Dual slope PWM mode OVF interrupt at BOTTOM, PWM on WO0
+  TCA0.SINGLE.PER = 0xFFFF; // Count all the way up to 0xFFFF
+  // At 20MHz, this gives ~152Hz PWM
+  TCA0.SINGLE.CMP0 = DutyCycle;
+  TCA0.SINGLE.INTCTRL = TCA_SINGLE_OVF_bm; //enable overflow interrupt
+  TCA0.SINGLE.CTRLA = TCA_SINGLE_ENABLE_bm; //enable the timer with no prescaler
 }
 
 void loop() { // Not even going to do anything in here
@@ -110,16 +110,16 @@ void loop() {
 
 void PWMDemo(unsigned long frequency){
   setFrequency(frequency);
-  setDutyCycle(64);   //  ~25%
+  setDutyCycle(64); // ~25%
   delay(4000);
-  setDutyCycle(128);  //  ~50%
+  setDutyCycle(128);// ~50%
   delay(4000);
-  setDutyCycle(192);  //  ~75%
+  setDutyCycle(192);// ~75%
   delay(4000);
 }
 
 void setDutyCycle(byte duty) {
-  TCA0.SINGLE.CMP1=map(duty, 0, 255, 0, Period);
+  TCA0.SINGLE.CMP1 = map(duty, 0, 255, 0, Period);
 }
 
 void setFrequency(unsigned long freqInHz) {

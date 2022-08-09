@@ -128,10 +128,13 @@
 
     if (intFunc[port] != NULL) { // if it is null the port is not enabled for attachInterrupt
       intFunc[port][bitpos] = userFunc;
-      uint8_t portoffset=((port << 5) & 0xE0) + 0x10 + bitpos;
+      uint8_t portoffset = ((port << 5) & 0xE0) + 0x10 + bitpos;
+      uint8_t oldSREG = SREG;
+      cli();
       // We now have the port, the mode, the bitpos and the pointer
       uint8_t settings = *(portbase + portoffset) & 0xF8;
       *(portbase + portoffset) = settings | mode;
+      SREG = oldSREG;
     }
 
   }
@@ -171,12 +174,12 @@
       "ld    r29,     X"  "\n\t" // ... to the Y pointer reg.
       "add   r16,   r16"  "\n\t" // double r16, so it is 4x port number - that's the address of the start of the VPORT
       "subi  r16,   253"  "\n\t" // Now this is the address of the VPORTx.INTFLAGS
-      "mov   r26,   r16"  "\n\t" // r16 to x reg low byte
+      "mov   r26,   r16"  "\n\t" // r16 to x reg low byte ASM always lists the destination operand first.
       "ldi   r27,     0"  "\n\t" // clear x high byte
       "ld    r15,     X"  "\n\t" // Load flags to r15"
-      "sbiw  r26,     0"  "\n\t" // this will set flag if it's zero.
+      "sbiw  r26,     0"  "\n\t" // subtract 0 from it - this serves as a single-word way to test if it's 0, because it will still set the Zero flag. It's no faster than cpi r26, 0, cpc r27, r1 but takes less flash.
       "breq  AIntEnd"     "\n\t" // port not enabled, null pointer, just clear flags end hit the exit ramp.
-      "mov   r17,   r15"  "\n\t" // copy that flags to r17
+      "mov   r17,   r15"  "\n\t" // copy the flags to r17
     "AIntLoop:"           "\n\t"
       "lsr   r17"         "\n\t" // shift it right one place, now the LSB is in carry.
       "brcs  .+6"         "\n\t" // means we have something to do this time.
@@ -313,8 +316,7 @@
     if (bitpos == NOT_A_PIN) {
       return;
     }
-
-    uint8_t port=digitalPinToPort(pin);
+    uint8_t port = digitalPinToPort(pin);
     uint8_t p = (port << 5) + bitpos;
     *(((volatile uint8_t*) &PORTA_PIN0CTRL) + p) &= 0xF1; // int off....
     *((volatile uint8_t*) ((uint16_t)((port << 4) + 3)))  = (1 << bitpos);// flag clear
@@ -325,8 +327,9 @@
  * To avoid each interrupt vector having it's own lengthy prologue and epilog separaely, which is needed in order for a function call to be made in an ISR
  * All we do is push an upper register onto the stack so can load a value twice the PORT number there, and jump to actual function that does the work here.
  *
- * The isrBody() has two consecutive blocks of inline assembly, First, do what is basically a standard prologue, for something that calls a function. We finish the prologue but we need to
- * push the Y pointer and r15 (call saved) for this routine. Then we pop out of that assembly block just to grab the pointer to IntFunc array, which we need in a pointer reg.
+ * The isrBody() has two consecutive blocks of inline assembly, First, do what is basically a standard prologue, for something that calls a function (thus there is only one prologue, instead of one per port).
+ * We finish the prologue but we need to push the Y pointer and r15 (call saved) for this routine. Then we slip out out of that assembly block just to grab the pointer to IntFunc array, which we need in a pointer reg;
+ * The second block of inline ASM specifies that the pointer to the array of pointers to arrays of pointers to interrupt functions be passed in the X pointer register
  *
  * Assembly is split up only so we can grab that address through that in a constraint.
  * We couldn't have done that any sooner, we had nowhere to put it. To that we add the pre-doubled port number - pointers are 2 bytes so we need that
@@ -349,35 +352,42 @@
 */
 
   #if defined(CORE_ATTACH_ALL)
-    #ifdef PORTA
-      ISR(PORTA_PORT_vect, ISR_NAKED){
-      asm volatile(
-        "push r16"      "\n\t"
-        "ldi r16, 0"    "\n\t"
-        "jmp AttachedISR" "\n\t"
-        ::);
-      __builtin_unreachable();
+    ISR(PORTA_PORT_vect, ISR_NAKED) {
+    asm volatile(
+      "push r16"      "\n\t"
+      "ldi r16, 0"    "\n\t"
+#if PROGMEM_SIZE > 8192
+      "jmp AttachedISR" "\n\t"
+#else
+      "rjmp AttachedISR" "\n\t"
+#endif
+      ::);
+    __builtin_unreachable();
     }
-    #endif
     #ifdef PORTB
       ISR(PORTB_PORT_vect, ISR_NAKED){
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 2"    "\n\t"
+#if PROGMEM_SIZE > 8192
         "jmp AttachedISR" "\n\t"
+#else
+        "rjmp AttachedISR" "\n\t"
+#endif
         ::);
       __builtin_unreachable();
     }
     #endif
-    #ifdef PORTC
-      ISR(PORTC_PORT_vect, ISR_NAKED){
+    #ifdef PORTC_PINS
+      ISR(PORTC_PORT_vect, ISR_NAKED) {
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 4"    "\n\t"
+#if PROGMEM_SIZE > 8192
         "jmp AttachedISR" "\n\t"
-        ::);
-      __builtin_unreachable();
-    }
+#else
+        "rjmp AttachedISR" "\n\t"
+#endif
     #endif
     #ifdef PORTD
       ISR(PORTD_PORT_vect, ISR_NAKED){
@@ -466,13 +476,13 @@
 
     /* Get bit position and check pin validity */
     uint8_t bit_pos = digitalPinToBitPosition(pin);
-    if(bit_pos == NOT_A_PIN) return;
+    if (bit_pos == NOT_A_PIN) return;
 
     /* Get interrupt number from pin */
     uint8_t interruptNum = (digitalPinToPort(pin) * 8) + bit_pos;
 
     /* Check interrupt number and apply function pointer to correct array index */
-    if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
+    if (interruptNum < EXTERNAL_NUM_INTERRUPTS) {
       intFunc[interruptNum] = userFunc;
 
       // Configure the interrupt mode (trigger on low input, any change, rising
@@ -512,12 +522,12 @@
   void detachInterrupt(uint8_t pin) {
     /* Get bit position and check pin validity */
     uint8_t bit_pos = digitalPinToBitPosition(pin);
-    if(bit_pos == NOT_A_PIN) return;
+    if (bit_pos == NOT_A_PIN) return;
 
     /* Get interrupt number from pin */
     uint8_t interruptNum = (digitalPinToPort(pin) * 8) + bit_pos;
 
-    if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
+    if (interruptNum < EXTERNAL_NUM_INTERRUPTS) {
       // Disable the interrupt.
 
       /* Get pointer to correct pin control register */
@@ -540,16 +550,16 @@
     uint8_t bit_pos = PIN0_bp, bit_mask = PIN0_bm;
 
     /* Iterate through flags */
-    while(bit_pos <= PIN7_bp){
+    while(bit_pos <= PIN7_bp) {
 
       /* Check if flag raised */
-      if(int_flags & bit_mask){
+      if (int_flags & bit_mask) {
 
       /* Get interrupt */
       uint8_t interrupt_num = port*8 + bit_pos;
 
         /* Check if function defined */
-        if(intFunc[interrupt_num] != 0){
+        if (intFunc[interrupt_num] != 0) {
 
           /* Call function */
           intFunc[interrupt_num]();
@@ -566,7 +576,7 @@
   #define IMPLEMENT_ISR(vect, port) \
   ISR(vect) { \
     port_interrupt_handler(port);\
-  }
+  } \
 
 
   IMPLEMENT_ISR(PORTA_PORT_vect, PA)

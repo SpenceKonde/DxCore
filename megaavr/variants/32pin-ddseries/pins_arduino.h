@@ -78,7 +78,7 @@ Include guard and include basic libraries. We are normally including this inside
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
   #define LED_BUILTIN                  PIN_PA7
-#endif
+
 /* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS        48
@@ -125,23 +125,19 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS PORTMUX_TCA0_PORTF_gc     // TCA0 output on PF[0:5] by default.
-/* PORTD which we default on DA/DB can now get serial or SPI pins muxed to it, which it never could before.
- * And PORTD loses one pin. So it's less attractive.
- * Meanwhile PORTF lost it's USART. It's only alternate functionality is the 32k crystal, analog inputs, CCL, and PWM.
- * So this is what we default for PWM. But you can always change it! */
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default), not PF4
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default), not PF5
-#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) (there is no other option on these parts)
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // use the 3 pins on PORTF by default, tjey are way less useful than PORTA.
+#define TCA0_PINS (PORTMUX_TCA0_PORTD_gc)     // TCA0 output on PD[0:5]
+#define TCB0_PINS (0x01)                      // TCB0 output on PF4 (alt)
+#define TCB1_PINS (0x02)                      // TCB1 output on PF5 (alt) - Pins on PORTA are more useful than the ones on PORTF
+#define TCB2_PINS (0x00)                      // TCB2 output on PC0 (default) as the other options are not present on these parts.
+#define TCD0_PINS (PORTMUX_TCD0_PORTF)        // TCD0 output on PF0-3. Same as PORTMUX_TCD0_ALT2_gc. Note that not only is this broken on DA/DB parts.
+// Even if it worked there, it would never be as good because they have other alternate functions on those pins while the DDs don't.
 
-#define PIN_TCA0_WO0_INIT PIN_PD0
-#define PIN_TCD0_WOA_INIT PIN_PA4
+#define PIN_TCA0_WO0_INIT (PIN_PD0)
 
 //#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
 #define NO_GLITCH_TIMERD0
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PF0 && (p) < PIN_PF6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PD1 && (p) <= PIN_PD5) || ((p) >= PIN_PF0 && (p) < PIN_PF4))
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #

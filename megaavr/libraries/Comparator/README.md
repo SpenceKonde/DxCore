@@ -75,11 +75,11 @@ in_p::pc3; // Synonym for in_p::in4 on the DD and EA series only.
 
 #### Usage
 ``` c++
-Comparator.input_p = in_p::in0;  // Connect positive input pin 0 to the positive pin of the comparator
+Comparator.input_p = comparator::in_p::in0;  // Connect positive input pin 0 to the positive input of the comparator
 ```
 
 #### Default state
-`Comparator.input_p` defaults to `in_p::in0` if not specified in the user program.
+`Comparator.input_p` defaults to `comparator::in_p::in0` if not specified in the user program.
 
 
 ### input_n
@@ -98,11 +98,11 @@ in_n::pc2;    // Synonym for in_n::in3 on the DD and EA series only.
 
 #### Usage
 ``` c++
-Comparator.input_n = in_n::in0;  // Connect negative input pin 0 to the negative pin of the comparator
+Comparator.input_n = comparator::in_n::vref;  // Connect voltage reference to the negative input of the comparator
 ```
 
 #### Default state
-`Comparator.input_n` defaults to `in_n::in0` if not specified in the user program.
+`Comparator.input_n` defaults to `comparator::in_n::in0` if not specified in the user program.
 
 
 ### reference
@@ -123,12 +123,11 @@ ref::vref_vrefa; // External reference from the VREFA pin
 
 #### Usage
 ``` c++
-Comparator.reference = ref::vref_4v096;  // Use the internal 4.096V reference for the DACREF
+Comparator.reference = comparator::ref::vref_4v096;  // Use the internal 4.096V reference for the DACREF
 ```
 
 #### Default state
-`Comparator.reference` defaults to `ref::disable` if not specified in the user program.
-
+`Comparator.reference` defaults to `comparator::ref::disable` if not specified in the user program.
 
 ### dacref
 This property configures the DACREF value - this voltage can be selected as the input for the negative side of the comparator. This is essentially an 8-bit DAC that can only be used as the AC negative input. It is calculated as:
@@ -151,19 +150,19 @@ This variable configures the comparator hysteresis (the difference between when 
 
 Accepted values:
 ``` c++
-hyst::disable; // No hysteresis
-hyst::small;   // 10mV hysteresis (±5mV)
-hyst::medium;  // 25mV hysteresis (±12.5mV)
-hyst::large;   // 50mV hysteresis (±25mV)
+comparator::hyst::disable; // No hysteresis
+comparator::hyst::small;   // 10mV hysteresis (±5mV)
+comparator::hyst::medium;  // 25mV hysteresis (±12.5mV)
+comparator::hyst::large;   // 50mV hysteresis (±25mV)
 ```
 
 #### Usage
 ``` c++
-Comparator.hysteresis = hyst::large;  // Use 50mV hysteresis
+Comparator.hysteresis = comparator::hyst::large;  // Use 50mV hysteresis
 ```
 
 #### Default state
-`Comparator.hysteresis` defaults to `hyst::disable` if not specified in the user program.
+`Comparator.hysteresis` defaults to `comparator::hyst::disable` if not specified in the user program.
 
 
 ### output
@@ -171,20 +170,20 @@ Property to configure the comparator output - either internal or external, inver
 
 Accepted values:
 ``` c++
-out::disable;        // No output pin, signal not inverted internally
-out::disable_invert; // No output pin, signal inverted internally
-out::enable;         // Enable output pin (PA7), signal not inverted internally
-out::invert;         // Enable output pin (PA7), signal inverted internally
-out::enable_invert;  // Identical to out::invert
+comparator::out::disable;        // No output pin, signal not inverted internally
+comparator::out::disable_invert; // No output pin, signal inverted internally
+comparator::out::enable;         // Enable output pin, signal not inverted internally
+comparator::out::invert;         // Enable output pin, signal inverted internally
+comparator::out::enable_invert;  // Identical to comparator::out::invert
 ```
 
 #### Usage
 ``` c++
-Comparator.output = out::enable; // Enable output pin (PA7), which will be HIGH when the positive input is higher than the negative one.
+Comparator.output = comparator::out::enable; // Enable output pin (PA7), which will be HIGH when the positive input is higher than the negative one.
 ```
 
 ``` c++
-Comparator.output = out::enable_invert; // Enable inverted output on pin (PA7)
+Comparator.output = comparator::out::enable_invert; // Enable inverted output on pin (PA5)
 Comparator.init();                      // Must be done before writing to the PINnCTRL
 PORTA.PIN7CTRL = PORT_INVEN_bm;         // Invert PA7
 // Now, PIN_PA7 will provide non-inverted output, while Comparator.read() and the event outputs provides inverted output.
@@ -199,8 +198,8 @@ PORTA.PIN7CTRL = PORT_INVEN_bm;         // Invert PA7
 Variable for pin swapping the physical output pin to its alternative position, if available. There is only an alternate pin available to Dx/Ex-series on parts with at least 48 pins and is not available on megaAVR 0-series, or any tinyAVR parts.
 Accepted values:
 ```c++
-out::no_swap;  // Use default pin position
-out::pin_swap; // Use alternative position (48 and 64-pin parts only)
+comparator::out::no_swap;  // Use default pin position
+comparator::out::pin_swap; // Use alternative position (48 and 64-pin parts only)
 ```
 
 #### Usage
@@ -209,44 +208,42 @@ Comparator.output_swap = out::no_swap; // No pin swap for output
 ```
 
 #### Default state
-`Comparator.output_swap` defaults to `out::no_swap` if not specified in the user program.
+`Comparator.output_swap` defaults to `comparator::out::no_swap` if not specified in the user program.
 
 
 ### output_initval
 When the comparator is initialized, the pin is set to this state until the comparator has output available. To prevent a glitch during initialization, set this to what you expect it to initially output.
 Accepted values:
 ```c++
-out::init_low;  // Output pin low after initialization
-out::init_high; // Output pin high after initialization
+comparator::out::init_low;  // Output pin low after initialization
+comparator::out::init_high; // Output pin high after initialization
 ```
 
 #### Usage
 ```c++
-Comparator.output_initval = out::init_high;
+Comparator.output_initval = comparator::out::init_high;
 ```
 
 #### Default state
-`Comparator.output_initval` defaults to `out::init_low` if not specified in the user program.
-
+`Comparator.output_initval` defaults to `comparator::out::init_low` if not specified in the user program.
 
 ### Which properties work where
 
-|        Option | DA/DB |  DD |  EA | Tiny0 | Tiny1 | Tiny1+ | Tiny2 | Mega0 |
-|---------------|-------|-----|-----|-------|-------|--------|-------|-------|
-|     in_p::in0 |   All |Some | All |   All |   All |    All |   All |   All |
-|     in_p::in1 |   All | All | All |  Some |  Some |    All |  Some |   All |
-|     in_p::in2 |   All | All | All |    No |    No |    All |   All |   All |
-|     in_p::in3 |   All | All | All |    No |    No |   Some |  Some |   All |
-|     in_p::in4 |    No | All | All |    No |    No |     No |    No |    No |
-|     in_n::in0 |   All |Some | All |   All |   All |    All |   All |   All |
-|     in_n::in1 |  Some |  No | All |  Some |  Some |    All |  Some |   All |
-|     in_n::in2 |   All |  No | All |    No |    No |   Some |  Some |   All |
-|     in_n::in3 |    No | All | All |    No |    No |     No |   All |    No |
-|    in_n::vref |    No |  No |  No |   All |   All |    All |    No |    No |
-|  in_n::dacref |   All | All | All |    No |   All |    All |   All |   All |
-| out::pin_swap |  Some |  No |Some |    No |    No |     No |    No |    No |
-Where it is marked "Some", this will depend on pincount. Check the chart further up for more information. All means that **at least one comparator** on all pincounts has the specified input, **not that they all have it**. We do not guarantee that the library will reject attempts to specify invalid pins, and on parts with more than one comparator, it can only reject them if they are absent for ALL comparators (ex, AINN1 is always PD0 on Dx-series, and DB-series parts with 28 or 32 pins don't have that pin, so specifying `in_n::in0` will be rejected with a compile error. A tiny1614 has AINP1 for AC2 and AINP2 for AC0 and AC1. Using `in_p::in1` for AC0 or AC1 will not result in any compile error, nor will using `in_p::in2` with AC2). Use extra care on parts with multiple comparators.
-
+|                    Option | DA/DB |  DD |  EA | Tiny0 | Tiny1 | Tiny1+ | Tiny2 | Mega0 |
+|---------------------------|-------|-----|-----|-------|-------|--------|-------|-------|
+|     comparator::in_p::in0 |   All |Some | All |   All |   All |    All |   All |   All |
+|     comparator::in_p::in1 |   All | All | All |  Some |  Some |    All |  Some |   All |
+|     comparator::in_p::in2 |   All | All | All |    No |    No |    All |   All |   All |
+|     comparator::in_p::in3 |   All | All | All |    No |    No |   Some |  Some |   All |
+|     comparator::in_p::in4 |    No | All | All |    No |    No |     No |    No |    No |
+|     comparator::in_n::in0 |   All |Some | All |   All |   All |    All |   All |   All |
+|     comparator::in_n::in1 |  Some |  No | All |  Some |  Some |    All |  Some |   All |
+|     comparator::in_n::in2 |   All |  No | All |    No |    No |   Some |  Some |   All |
+|     comparator::in_n::in3 |    No | All | All |    No |    No |     No |   All |    No |
+|    comparator::in_n::vref |    No |  No |  No |   All |   All |    All |    No |    No |
+|  comparator::in_n::dacref |   All | All | All |    No |   All |    All |   All |   All |
+| comparator::out::pin_swap |  Some |  No |Some |    No |    No |     No |    No |    No |
+Where it is marked "Some", this will depend on pincount. Check the chart further up for more information. All means that **at least one comparator** on all pincounts has the specified input, **not that they all have it**. We do not guarantee that the library will reject attempts to specify invalid pins, and on parts with more than one comparator, it can only reject them if they are absent for ALL comparators (ex, AINN1 is always PD0 on Dx-series, and DB-series parts with 28 or 32 pins don't have that pin, so specifying `comparator::in_n::in0` will be rejected with a compile error. A tiny1614 has AINP1 for AC2 and AINP2 for AC0 and AC1. Using `comparator::in_p::in1` for AC0 or AC1 will not result in any compile error, nor will using `comparator::in_p::in2` with AC2). Use extra care on parts with multiple comparators.
 
 ## Comparator class methods
 
@@ -279,7 +276,7 @@ Comparator.stop(true); // Stop comparator. Digital input on the pins that this c
 ```
 
 ### read()
-This method readss the current value of the comparator and returns it as a `bool`. It is effected by output invert configured for the analog comparator. If the output pin was inverted a second time (useful for particularly obscure use cases) via the `PINnCTRL` register, this value will not reflect it.
+This method reads the current value of the comparator and returns it as a `bool`. It is effected by output invert configured for the analog comparator. If the output pin was inverted a second time (useful for particularly obscure use cases) via the `PINnCTRL` register, this value will not reflect it.
 
 #### Usage
 ```c++

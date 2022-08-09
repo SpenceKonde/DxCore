@@ -1,6 +1,8 @@
-/*
-  New version 2021 for megaTinyCore and DxCore.
-  Free software (LGPL 2.1) see the License.md file included with this core. */
+/* New version (c) Spence Konde 2021
+ * This file is part of megaTinyCore, DxCore, and ATTinyCore.
+ * This is free software (released under the LGPL 2.1). For more
+ * information, see the License.md file included with this core.
+ */
 
 /*
   C++11 needed some new new and delete operators.
@@ -10,7 +12,7 @@
     efficiency.
   Since C++17, there's four more each for new / delete, to support allocation
     of objects with alignment greater than __STDCPP_DEFAULT_NEW_ALIGNMENT__.
-    This has two major differences from the C++14 sized deallocaton.
+    This has two major differences from the C++14 sized deallocation.
     1. It cannot be simply ignored - they presumably wanted alignment for
     a reason; this implementation is not impossible, but nor is it trivial.
     2. If code used on C++14 or earlier is asking for the alignment aware
