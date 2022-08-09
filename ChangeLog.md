@@ -4,7 +4,9 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
-### planned 1.4.11/1.5.0
+### planned 1.5.0
+* Fix issue with SerialUPDI uploads on updated versions of linux
+* Add more part infomrmation macros (See [the define list](megaavr/extras/Ref_Defines.md))
 * Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
 * Fix logic library handling of pin inputs
 * Update event library to latest megaTinyCore
@@ -21,7 +23,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Based on feedback, removed emulation of classicAVR pinMode() calls as regards the state of the PORTx.OUT register.
 * tinyNeoPixel 2.0.4, with support down to lower speeds, and inline assembly that is technically correct. (Before this it was only an accident of the deterministic avr-gcc register allocation and the fact that illegally written read-only operands represented variables that fell out of scope without being further used)
 * Fix some errors in Logic library examples
-* Preempt compatibility problems with libraries that assume a HardwareSerial.h file.
+* Preempt compatibility problems with libraries that assume a HardwareSerial.h file. These changes were implemented in a different and better way for 1.5.0
 * Add list of useful Microchip app notes.
 * Clarify Ref_Optiboot. Update Errata page.
 * Fix several Logic examples to compile on more parts.
@@ -35,7 +37,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ### 1.4.7
 * Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
-* **CRITTICAL BUGFIX** for horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138, #140)
+* **CRITICAL BUGFIX** for horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138, #140)
 * Fix missing ADC_ACCn constants, and text of the error message when using invalid values which inaccurately describes the name of the constants (which didn't exist, as noted) (#139)
 * Update the Wire docs to clarify the limitations and assumptions of setClock and explain why it is not possible to get the speed you requested if the elecrical conditions of the bus are worse than the code assumes.
 * Improve error reporting for SerialUPDI.
