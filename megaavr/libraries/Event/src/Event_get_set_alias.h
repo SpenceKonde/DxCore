@@ -8,7 +8,7 @@
 #if !defined(EVENT_H)
   #error "This should only be included as part of Event.h"
 #endif
-
+/* *INDENT-OFF* */
 #ifndef EVENT_GET_SET_ALIAS_H
 #define EVENT_GET_SET_ALIAS_H
 
@@ -78,3 +78,5 @@
   void set_generator(event::gen15::generator_t generator) { set_generator((event::gen::generator_t)generator); }
 #endif
 #endif //EVENT_PARTS_H
+
+/* *INDENT-ON* */
