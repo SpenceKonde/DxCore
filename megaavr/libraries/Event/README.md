@@ -203,7 +203,7 @@ The best you can do is pipe the outputs to a pin and read the pin....
 
 ## The Event class
 Class for interfacing with the Event systemn (`EVSYS`). Each event channel has its own object.
-Use the predefined objects `Event0`, `Event1`, `Event2`, `Event3`, `Event4`, `Event5`. These, alternately, are known as `EventSync0`, `EventSync1`, `EventAsync0`, `EventAsync1`, `EventAsync2`, `EventAsync3` on the tinyAVR 0-series and 1-series. Additionally, there is an `Event_empty` that is returned whenever you call a method that returns an Event reference, but it can't fulfil your request.  Note that not all generators are available on all channels; see the tables above. On 2-series, it's fairly simple, and, all else being equal,  the first channels are the most useful, so the standard rule of thumb of "whenever you use a generator that can go anywhere, use the highest number port" holds. With so many options for each pin, relative to the number of pins, that's unlikely to be a problem. The 0 and 1-series oparts are more complicated. Obviously,on 8 pin parts, the two channels that can do PORTA are the most valuable, and the 1 or 3 channels without them a better choice, when you have a choice. The sixth channel, present only on 1-series, has the RTC division options in place of pins. It is either critical to your application, or the least useful, with no middle ground.
+Use the predefined objects `Event0`, `Event1`, `Event2`, `Event3`, `Event4`, `Event5`. These, alternately, are known as `EventSync0`, `EventSync1`, `EventAsync0`, `EventAsync1`, `EventAsync2`, `EventAsync3` on the tinyAVR 0-series and 1-series. Additionally, there is an `Event_empty` that is returned whenever you call a method that returns an Event reference, but it can't fulfil your request. Note that not all generators are available on all channels; see the tables above. On 2-series, it's fairly simple, and, all else being equal, the first channels are the most useful, so the standard rule of thumb of "whenever you use a generator that can go anywhere, use the highest number port" holds. With so many options for each pin, relative to the number of pins, that's unlikely to be a problem. The 0 and 1-series oparts are more complicated. Obviously,on 8 pin parts, the two channels that can do PORTA are the most valuable, and the 1 or 3 channels without them a better choice, when you have a choice. The sixth channel, present only on 1-series, has the RTC division options in place of pins. It is either critical to your application, or the least useful, with no middle ground.
 
 
 ### Class Overview
@@ -240,7 +240,7 @@ Class methods for working with users or looking up generator or user numbers
 | Event::gen_from_peripheral()     | TCA_t, TCB_t, `CCL`, or AC_t | Return the generator for this peripheral <br/> second argument specified which generator, if several |
 | Event::user_from_peripheral()    | TCA_t, TCB_t, `CCL`, or USART_t | Return the user for this peripheral <br/> second argument specifies which user, if several |
 
-For the CCL, when looking up a generator, the second argumennt is the logic block number, for looking up a user, it is twice the logic block number for input A
+For the CCL, when looking up a generator, the second argument is the logic block number, for looking up a user, it is twice the logic block number for input A
 
 
 
@@ -427,9 +427,10 @@ Shown below, generators/user per instance  (second argument should be less than 
 | ACn        | 1 / 0 x1 | */0 x1-3 | 1 / 0 x1 | 1 / 0 x1 |  1 / 0 x1-3 | 1 / 0 x1-2 |
 | USARTn     | 0 / 1 x1 | 0 / 1 x1 | ! / 1 x2 | !/1 x3-4 |  ! / 1 x2-6 | ! / 1 x2-3 |
 
-`*` - the tiny1 parts with 1 AC work normally. This is unfortuately not supported for tiny1 parts with the triple-AC configuration:
-`**` - There is only one CCL peripheral, with multiple logic blocks. Each logic block has 1 event generator and 2 event users. If using the logic library, get the Logic instance number. The output generator is that number. The inputs are twice that number, and twice that number + 1.
-`***` - This peripheral is not supported becausse the generator numbers are channel dependent.
+`*` - the tiny1 parts with 1 AC work normally. This is unfortunately not supported for tiny1 parts with the triple-AC configuration:
+`**` - There is only one CCL peripheral, with multiple logic blocks. Each logic block has 1 event generator and 2 event users. If using the logic library, get the Logic instance number. The output generator is that number. The input is twice that number, and twice that number + 1.
+`***` - This peripheral is not supported because the generator numbers are channel dependent.
+
 `!` - These parts do have an option, but we didn't bother to implement it because it isn't particularly useful. But the Event RX mode combined with the TX input to the CCL permit arbitrary remapping of RX and very flexible remapping of TX.
 
 And what they are:

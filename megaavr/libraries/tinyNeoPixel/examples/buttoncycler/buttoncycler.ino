@@ -1,17 +1,25 @@
-// NeoPixel Ring simple sketch (c) 2013 Shae Erisson
-// released under the GPLv3 license to match the rest of the AdaFruit NeoPixel library
+// This is a demonstration on how to use an input device to trigger changes on your neo pixels.
+// You should wire a momentary push button to connect from ground to a digital IO pin.  When you
+// press the button it will change to a new pixel animation.  Note that you need to press the
+// button once to start the first animation!
 
-#include <tinyNeoPixel.h>
+#include <tinyNeoPixel_Static.h>
 
 #define BUTTON_PIN   2    // Digital IO pin connected to the button.  This will be
 // driven with a pull-up resistor so the switch should
 // pull the pin to ground momentarily.  On a high -> low
 // transition the button press logic will execute.
 
-#define PIXEL_PIN    13    // Digital IO pin connected to the NeoPixels
+#define PIXEL_PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
 
 #define PIXEL_COUNT 16
 
+
+// Since this is for the static version of the library, we need to supply the pixel array
+// This saves space by eliminating use of malloc() and free(), and makes the RAM used for
+// the frame buffer show up when the sketch is compiled.
+
+byte pixels[PIXEL_COUNT * 3];
 
 // Parameter 1 = number of pixels in strip,  neopixel stick has 8
 // Parameter 2 = pin number (most are valid)
@@ -19,14 +27,15 @@
 //   NEO_RGB     Pixels are wired for RGB bitstream
 //   NEO_GRB     Pixels are wired for GRB bitstream, correct for neopixel stick
 
-tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB);
+tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB, pixels);
 
 bool oldState = HIGH;
 int showType = 0;
 
 void setup() {
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  strip.begin();
+  pinMode(PIXEL_PIN, OUTPUT);
+  // strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }
 

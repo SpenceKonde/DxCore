@@ -1,6 +1,6 @@
 #include <tinyNeoPixel.h>
 
-#define PIN 3
+#define PIN PIN_PC3 //For DxCore, the example uses PC1 whichexists on all parts
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)

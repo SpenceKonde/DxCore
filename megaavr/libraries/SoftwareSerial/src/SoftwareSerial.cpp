@@ -45,7 +45,7 @@
 #include <util/delay_basic.h>
 
 //
-// Static Variables
+// Static methods
 //
 SoftwareSerial *SoftwareSerial::active_object = 0;
 uint8_t SoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF];
@@ -287,6 +287,7 @@ void SoftwareSerial::begin(long speed) {
     #if GCC_VERSION > 40800
     // Timings counted from gcc 4.8.2 output. This works up to 115200 on
     // 16Mhz and 57600 on 8Mhz.
+    // These should really be recalculated on avr-gcc 7.3....
     //
     // When the start bit occurs, there are 3 or 4 cycles before the
     // interrupt flag is set, 4 cycles before the PC is set to the right
