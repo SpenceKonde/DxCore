@@ -72,20 +72,11 @@ class TwoWire: public Stream {
 
     void begin(); // all attempts to make these look prettier were rejected by astyle, and it's not worth disabling linting over.
     void begin(uint8_t  address, bool receive_broadcast, uint8_t second_address);
-    void begin(int      address, bool receive_broadcast, uint8_t second_address) {
-      begin((uint8_t) address, receive_broadcast, second_address);
-    }
     void begin(uint8_t  address, bool receive_broadcast) {
       begin(address, receive_broadcast, 0);
     }
-    void begin(int      address, bool receive_broadcast) {
-      begin((uint8_t) address, receive_broadcast, 0);
-    }
     void begin(uint8_t  address) {
       begin(address, 0, 0);
-    }
-    void begin(int      address) {
-      begin((uint8_t) address, 0, 0);
     }
 
     void end();
@@ -104,7 +95,6 @@ class TwoWire: public Stream {
 
     uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop = 0x01);
     /*
-    uint8_t requestFrom(uint8_t address, uint8_t quantity);
     uint8_t requestFrom(uint8_t address, size_t  quantity, bool    sendStop);
     uint8_t requestFrom(uint8_t address, size_t  quantity);
     uint8_t requestFrom(int     address, int     quantity, int     sendStop);

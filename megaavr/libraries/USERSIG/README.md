@@ -34,7 +34,7 @@ tinyAVR/megAVR parts and the Dx-series parts must use a different version of the
 Specifying an address beyond the size of the USEROW will wrap around to the beginning.
 
 ## Write Endurance
-There is no specification given in the datasheet. You should treat the USERROW as if had a limit of 10k write/erase cycle, like flash; that has been confirmed to me in the context of the Dx-series parts by a well-placed source - however, I do not know if the same is true on tinyAVR, or if (like it's erase and write procedures) it is instead like EEPROM. The datasheets of Dx-series parts consistently refer to it being like flash, while the datasheets of the tinyAVRs compare it to EEPROM - but never is the context of write endurance discussed.
+There is no specification given in the datasheet. You should treat the USERROW as if had a limit of comparable to flash. That has been confirmed to me in the context of the Dx-series parts by a well-placed source - however, I do not know if the same is true on tinyAVR, or if (like it's erase and write procedures) it is instead like EEPROM. The datasheets of Dx-series parts consistently refer to it being like flash, while the datasheets of the tinyAVRs compare it to EEPROM - but never is the context of write endurance discussed). This may be more of an issue now that the write endurance of the DA and DB systems for flash has been reduced by a factor of 10.
 
 ## How to use it
 The USERSIG library is included with DxCore. To add its functionality to your sketch you'll need to reference the library header file. You do this by adding an include directive to the top of your sketch.
@@ -54,17 +54,18 @@ void loop() {
 
 The library provides a global variable named `USERSIG`, you use this variable to access the library functions. The methods provided in the USERSIG class are listed below.
 
+You can view all the examples [here](examples/).
 
 ## Library functions
 
-### `USERSIG.read(address)`
+### `USERSIG.read(address)` [[_example_]](examples/usersig_read/usersig_read.ino)
 
 This function allows you to read a single byte of data from the USERROW (if there are no pending writes) or the temporary buffer (if there are).
 Its only parameter is an `int` which should be set to the address you wish to read (for the current parts this could have fit in a byte, but there was an announced part that had a much larger USERROW until they pulled down the product brief a few hours later, and that will need a larger address).
 
 The function returns an `uint8_t` (byte) containing the value read.
 
-### `USERSIG.write(address, value)`
+### `USERSIG.write(address, value)` [[_example_]](examples/usersig_write/usersig_write.ino)
 
 The `write()` method allows you to write a single byte of data to the USERROW.
 Two parameters are needed. The first is an `int` containing the address that is to be written, and the second is the data to be written, a `byte`.
