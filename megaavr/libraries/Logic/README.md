@@ -68,6 +68,7 @@ These objects expose all configuration options as properties ("member variables"
 | attachInterrupt();  | Attach an interrupt on the CCL, supports RISING/FALLING/CHANGE              |
 | detachInterrupt();  | Detach the currently attached interrupt.                                    |
 
+## Properties
 
 ### enable
 Property controlling whether the logic block is enabled. Like all properties, you must call LogicN.init() to apply any changes.
@@ -87,9 +88,14 @@ Logic0.enable = true; // Enable logic block 0
 
 
 ### input0..input2
-Variable for setting what mode input 0..2 on a logic block should have.
+Properties setting input sources for the three inputs of this logic block.
 
-Accepted values for non-tinyAVR parts:
+General notes:
+* Timer/Counter input sources are associated with a WO (Waveform Output) channel - they are logic 1 (true) when the PWM output on that channel is `HIGH` (See the datasheet I/O multiplexed signals chart to associate WO channels with pins)
+* The tinyAVR 0/1-series datasheets refer to the event channels as 0 and 1. On all subsequent parts, they are referred to as A and B. The Logic library always accepts both, though we recommend using event_a/event_b everywhere, as it is clear that that is the convention that Microchip chose to settle on.
+* The point of `in::pin` to enable you to use a pin which is configured as an **output** too - either as a way to manually switch behavior, or when a pin is being controlled by a peripheral that is not directly accessible as an input. There are only a few cases like this that apply to tinyAVR parts (USART XDIR, TCA WO3-5 in split mode) and anything TWI come to mind)
+
+#### Accepted values for non-tinyAVR parts:
 
 ``` c++
 logic::in::masked;           // Pin not in use
@@ -396,7 +402,7 @@ Logic::start(); // re-enable
 ```
 
 ## Think outside the box
-To consider the CCL system as simply a built-in multifunction gate IC is to greatly undersell it. The true power of the CCL is in it's ability to use events directly, and to take inputs from almost everything. Even doing neat stuff like the above 0xD4 truth table on an even-numbered logic block with input 2 set to feedback to make an R/S latch without using the second logic block is only scratching the surface of what these can do! Taking that a step farther... you could then use the odd-numbered logic block with that same feedback to, say, switch between two waveforms being output by one of the PWM timers...
+To consider the CCL system as simply a built-in multifunction gate IC is to greatly undersell it. The true power of the CCL is in it's ability to use events directly, and to take inputs from almost everything. Even doing neat stuff like the above 0xD4 truth table on an even-numbered logic block with input 2 set to feedback to make an R/S latch without using the second logic block is only scratching the surface of what these can do! Taking that a step farther... you could then use the odd-numbered logic block with that same feedback to, say, switch between two waveforms being output by one of the PWM timers... see the [Tricks and Tips page](Tricks_and_Tips.md)
 
 ## Note on terminology
 Yes, technically, C++ doesn't have "properties" or "methods" - these are "member variables" and "member functions" in C++ parlance. They mean the same thing. I've chosen to use the more familiar, preseent day terminology.

@@ -1,4 +1,100 @@
-# Prescaling clocks with the CCL
+# CCL Toolbox
+
+There are some simple patterns that you can use with the CCL/Logic library to generate very widly applicable effects:
+
+In the below examples X, Y, Z and 2 are used to refer to inputs. X, Y, and Z can refer to any input, but for the purposes of the LUT presented, X = 0, Y = 1, Z = 2
+
+Input 2, since it can be used as a clock, may be specifically required.
+
+## Oscillation
+You can make a CCL oscillate (and this is used in prescaling of clocks, see the bottom section).
+
+X: Feedback
+Y: masked
+Z: masked
+Clock: N/A
+LUT:
+000: 1
+001: 0
+
+TRUTH = 0x01
+
+This will oscillate at around 80-100 MHz and is highly sensitive to conditions.
+
+It's much more useful if you put a clock source in, typically the system clock.
+
+## Switch
+X: Input A
+Y: Input B
+Z: Select
+Clock: as dictated by application
+
+LUT:
+000: 0
+001: 1
+010: 0
+011: 1
+100: 0
+101: 0
+110: 1
+111: 1
+TRUTH = 0xCB
+Will output whatever input 0 is if input 2 is low, and whatever input 1 is if input 2 is high.
+
+## PWM is magic
+Unlike the event channels, where you get a single clock long pulse from a compare match or overflow, the inputs to logic blocks are the level of the output compare! That means that you can remap pins that don't exist on your part but would have PWM if they did to the LUT output pin.
+
+Combine with count on event to switch between two inputs based on the value of the counter,
+
+
+## Feedback
+The "Feedback" channel is the **output of the sequencer if used, and the even LUT in that pair if not**
+
+### But I need feedback on an ODD LUT
+Then pay the price in the form of one event channel: Use the output as a generator, and set one of the event inputs of the CCL block to that channel
+
+## Sequential logic with just one LUT
+You can simulate some sequential logic units with just one LUT!
+
+Enable the synchronizer to get the analogous flip-flop.
+
+### S-R latch
+X: Feedback
+Y: Set (any input source)
+Z: Clear (any input source)
+Clock: N/A
+
+LUT:
+* 000: 0
+* 001: 1
+* 010: 1
+* 011: 1
+* 100: 0
+* 101: 0
+* 110: Per application requirements - logic block is getting contradictroy signals
+* 111: Per application requirements - logic block is getting contradictroy signals
+Ergo: TRUTH = 0x0b??001110 = 0x07, 0x47, 0x87, 0xC7
+
+Of those the last two should have the same value, unless you want very high speed oscillation. So, that means with 0x07 or 0xC7.
+
+### D-Type latch
+X: Feedback
+Y: D (gated signal to latch)
+Z: G (Gate)
+Clock: N/A
+
+LUT:
+* 000: 0
+* 001: 1
+* 010: 0
+* 011: 1
+* 100: 0
+* 101: 0
+* 110: 1
+* 111: 1
+Ergo: TRUTH = 0xCB
+
+## Prescaling clocks with the CCL
 
 You can use CCL logic blocks to prescale a clock, albeit inefficiently. On parts with 6 LUTs, you can prescale by 2^18 if you're willing to use all LUTs and 3 event channels. This can be used for example to clock a TCB from a prescaled value that is slower than half the system clock but not used by any TCA.
 

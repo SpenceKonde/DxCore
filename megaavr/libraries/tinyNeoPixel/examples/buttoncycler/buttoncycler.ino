@@ -3,7 +3,7 @@
 // press the button it will change to a new pixel animation.  Note that you need to press the
 // button once to start the first animation!
 
-#include <tinyNeoPixel_Static.h>
+#include <tinyNeoPixel.h>
 
 #define BUTTON_PIN   2    // Digital IO pin connected to the button.  This will be
 // driven with a pull-up resistor so the switch should
@@ -19,15 +19,13 @@
 // This saves space by eliminating use of malloc() and free(), and makes the RAM used for
 // the frame buffer show up when the sketch is compiled.
 
-byte pixels[PIXEL_COUNT * 3];
-
 // Parameter 1 = number of pixels in strip,  neopixel stick has 8
 // Parameter 2 = pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
 //   NEO_RGB     Pixels are wired for RGB bitstream
 //   NEO_GRB     Pixels are wired for GRB bitstream, correct for neopixel stick
 
-tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB, pixels);
+tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB);
 
 bool oldState = HIGH;
 int showType = 0;

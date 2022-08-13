@@ -36,11 +36,15 @@
       #define TX_BUFFER_ATOMIC
     #endif
 
-  /*##  ###  ####
-    #  #     #   #
-    #   ###  ####
-    #      # # #
-   ### ####  #  */
+    /*##  ###  ####
+      #  #     #   #
+      #   ###  ####
+      #      # # #
+     ### ####  #  */
+
+    /*************************************
+     Transmit Complete for Half Duplex
+      This is a more efficient and scalable version of the TXC ISR, the original implementation is below:
 
   #if USE_ASM_TXC == 1
     void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void) {

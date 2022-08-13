@@ -29,22 +29,22 @@
 #include "pins_arduino.h"
 
 inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
-  if (__builtin_constant_p(pin))  {
-    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
-      // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
-      // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
-      // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
-      // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
-      if (pin & 0x80) {
-          badArg("Digital pin is constant, but not a valid pin - it is > 0x80 and not NOT_A_PIN. At present, this function only accepts digital pin numbers, NOT analog channel numbers.");
-        } else {
-          badArg("Digital pin is constant, but not a valid pin");
+  if (__builtin_constant_p(pin)) {
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN)
+    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+      badArg("Digital pin is constant, but not a valid pin");
+    #if (CLOCK_SOURCE == 2)
+        if (pin == PIN_PA0) {
+          badArg("Constant digital pin PIN_PA0, used for selected external osc, and is not available for other uses.");
         }
       } else {
       #if defined(MEGATINYCORE)
         #if CLOCK_SOURCE == 2
           if (pin == PIN_PA3) {
-            badArg("Pin PA0 cannot be used for digital I/O because it is external clock input.");
+            badArg("Pin PA3 cannot be used for digital I/O because it is external clock input.");
           }
         #endif
       #else
