@@ -149,9 +149,9 @@ Include guard and include basic libraries. We are normally including this inside
 
 // SPI 1
 #define SPI1_MUX                PORTMUX_SPI1_DEFAULT_gc
-#define PIN_SPI1_MISO           PIN_PC0
-#define PIN_SPI1_SCK            PIN_PC1
-#define PIN_SPI1_MOSI           PIN_PC2
+#define PIN_SPI1_MOSI           PIN_PC0
+#define PIN_SPI1_MISO           PIN_PC1
+#define PIN_SPI1_SCK            PIN_PC2
 #define PIN_SPI1_SS             PIN_PC3
 
 // TWI 0
