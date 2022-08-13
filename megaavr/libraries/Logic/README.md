@@ -95,7 +95,7 @@ General notes:
 * The tinyAVR 0/1-series datasheets refer to the event channels as 0 and 1. On all subsequent parts, they are referred to as A and B. The Logic library always accepts both, though we recommend using event_a/event_b everywhere, as it is clear that that is the convention that Microchip chose to settle on.
 * The point of `in::pin` to enable you to use a pin which is configured as an **output** too - either as a way to manually switch behavior, or when a pin is being controlled by a peripheral that is not directly accessible as an input. There are only a few cases like this that apply to tinyAVR parts (USART XDIR, TCA WO3-5 in split mode) and anything TWI come to mind)
 
-#### Accepted values for non-tinyAVR parts:
+#### Accepted values for non-tinyAVR parts
 
 ``` c++
 logic::in::masked;           // Pin not in use

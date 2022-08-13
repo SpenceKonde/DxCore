@@ -5,7 +5,7 @@
 | Ported to tinyAVR 2021 by Spence Konde for megaTinyCore               |
 | https://github.com/SpenceKonde/megaTinyCore                           |
 | Ported to tinyAVR 2022 by Spence Konde for DxCore                     |
-| https://github.com/SpenceKonde/DxCore                                 |  
+| https://github.com/SpenceKonde/DxCore                                 |
 |                                                                       |
 | In this example we use an internal reference voltage instead of an    |
 | external one on the negative pin. This eliminates the need for an     |
