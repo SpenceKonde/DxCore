@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
   This version was designed for and will be included with:
-  megaTinyCore 2.3.3+
-  DxCore 1.3.6+
+  megaTinyCore 2.6.0+
+  DxCore 1.5.0+
 */
 
 #ifndef __SERVO_TIMERS_H__
@@ -75,10 +75,6 @@
   #error "Only one TCB, TCB0 but it is being used for millis - choose a different millis timer."
 #endif
 
-/* #if (!defined(USE_TIMERB0) && !defined(USE_TIMERB1) && !defined(USE_TIMERB2) && !defined(USE_TIMERB3) && !defined(USE_TIMERB4))
-  #error "ServoTimers.h is unable to find an available timer; see other #error above for more details"
-#endif */
-// I think we can safely comment that out - it will always #error if we can't find a timer.
 
 //_timer is obviously used in Servo.cpp; and Servo.cpp works without explicitly telling the compiler this is used...
 // it just generates a spurious warning, which is undesirable, all else being equal. What is really weird is that whether

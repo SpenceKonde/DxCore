@@ -24,9 +24,9 @@ FONT OUTLINE , black
 FONT OUTLINE THICKNESS, 0
 BOXES, STD, , , PIN BOX, SPECIAL BOX, DUMB BOX, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED
 
-TYPE, IO, black, 1      
-TYPE, INPUT, black, 1   
-TYPE, OUTPUT, black, 1  
+TYPE, IO, black, 1
+TYPE, INPUT, black, 1
+TYPE, OUTPUT, black, 1
 
 WIRE, DIGITAL, black, 1, 5
 WIRE, PWM, black, 1, 5
@@ -58,7 +58,7 @@ BOX, DETAIL BOX, darkblue, 1, white, 0, 3, 250, 200, 15,15,0,0
 
 TEXT FONT, PowerPin, Dejavu Sans, 25, , black, normal, bold, normal
 TEXT FONT, Heading, BenchNine, 50, , black, normal, 700, normal
-    
+
 PAGE, A4-L
 DPI, 300
 
@@ -201,4 +201,3 @@ TEXT, none, black,  work on auto-generation, NL
 
 MESSAGE, 2200, 1350, 35, Name, 36, LEFT, TOP
 TEXT, none, black, *another column, NL
-

@@ -1,7 +1,7 @@
 #ifndef __CORE_PARAMETERS_H__
 #define __CORE_PARAMETERS_H__
 
-#if !(defined(MEGATINYCORE) || defined(DXCORE) || defined(ATTIYNCORE))
+#if !(defined(DXCORE) || defined(MEGATINYCORE) || defined(ATTIYNCORE))
 
   // This define can get black-hole'ed somehow (reported on platformio) likely the ugly syntax to pass a string define from platform.txt via a -D
   // directive passed to the compiler is getting mangled somehow, though I'm amazed it doesn't cause a  compile error. But checking for defined(DXCore)

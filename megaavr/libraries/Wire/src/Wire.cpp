@@ -179,7 +179,7 @@ void TwoWire::begin(void) {
  *
  *@return     void
  */
-void TwoWire::begin(uint8_t address, bool receive_broadcast, uint8_t second_address) {
+void TwoWire::begin(uint8_t address, uint8_t receive_broadcast, uint8_t second_address) {
   if (__builtin_constant_p(address) > 0x7F) {     // Compile-time check if address is actually 7 bit long
     badArg("Supplied address seems to be 8 bit. Only 7 bit addresses are supported");
     return;
@@ -271,9 +271,6 @@ void TwoWire::endSlave(void) {
  * that had to be specified on a per-request basis, it could be extended without changing the function signature and just adding some
  * constants you could pass that would enable it, like with UART.
  */
-uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity)                   {
-         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-}
 //uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity,  bool     sendStop) {
 //         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
 //

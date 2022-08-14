@@ -124,7 +124,7 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
 #define ADC_ERROR_DISABLED                          (-32767)
 #define ADC_ERROR_BUSY                              (-32766)
 #define ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL       (-2100000000)
-     
+
 // positive channel is not (0x80 | valid_channel) nor a digital pin number
 // referring to a pin with analog input.
 #define ADC_ENH_ERROR_BUSY                     (-2100000001)
@@ -753,7 +753,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #endif
 
 #include "pins_arduino.h"
-// this stuff used to be in the variants. 
+// this stuff used to be in the variants.
 #if !defined(NUM_DIGITAL_PINS)
 /* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
  * that is, it's the first integer which does not refer to a pin, and the number of digital pins if there

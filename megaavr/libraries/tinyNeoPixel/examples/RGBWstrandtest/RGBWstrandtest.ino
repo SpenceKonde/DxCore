@@ -1,8 +1,7 @@
 #include <tinyNeoPixel.h>
 
 
-#define PIN 2
-
+#define PIN PIN_PC3 //chosen because all Dx and Ex parts have itz
 #define NUM_LEDS 60
 
 #define BRIGHTNESS 50
@@ -73,7 +72,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
   for (int k = 0; k < rainbowLoops; k ++) {
     for (int j = 0; j < 256; j++) { // 5 cycles of all colors on wheel
 
-      for (int i = 0; i < strip.numPixels(); i++) {
+      for (uint16_t i = 0; i < strip.numPixels(); i++) {
 
         wheelVal = Wheel(((i * 256 / strip.numPixels()) + j) & 255);
 
@@ -153,7 +152,8 @@ void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength) {
           strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
         }
       }
-
+      // *INDENT-OFF*  f'n a-style
+      #if !defined(MILLIS_USE_TIMERNONE)
       if (millis() - lastTime > whiteSpeed) {
         head++;
         tail++;
@@ -162,6 +162,10 @@ void whiteOverRainbow(uint8_t wait, uint8_t whiteSpeed, uint8_t whiteLength) {
         }
         lastTime = millis();
       }
+      #else
+        #warning "WhiteOverRainbow() function of this sketch require millis, which is not currently enabled. This function will not operate correctly "
+      #endif
+      // *INDENT-ON*
 
       if (loopNum == loops) {
         return;

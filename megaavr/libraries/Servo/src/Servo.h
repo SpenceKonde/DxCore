@@ -9,8 +9,8 @@
   This library is included with megaTinyCore and DxCore.
 
   This version was designed for and will be included with:
-  megaTinyCore 2.3.3+
-  DxCore 1.3.6+
+  megaTinyCore 2.6.0+
+  DxCore 1.5.0+
 */
 
 /*  OBLIGATORY LEGAL BOILERPLATE
@@ -86,7 +86,7 @@
   #error "This is an architecture specific library for ARDUINO_ARCH_MEGAAVR, but this device is not of that architecture"
 #endif
 
-
+// *INDENT-OFF*
 #define Servo_VERSION              2     // software version of this library
 #define MIN_PULSE_WIDTH          544     // the shortest pulse sent to a servo
 #define MAX_PULSE_WIDTH         2400     // the longest pulse sent to a servo
@@ -94,14 +94,14 @@
 #define REFRESH_INTERVAL       20000UL   // minumim time to refresh servos in microseconds - UL is super-important!
 #define SERVOS_PER_TIMER          12     // the maximum number of servos controlled by one timer
 #define INVALID_SERVO            255     // flag indicating an invalid servo index
-
+// *INDENT-ON*
 #define MAX_SERVOS (_Nbr_16timers  * SERVOS_PER_TIMER)
 
 
 typedef struct  {       // port & bitmask used instead of pin number to realize dramatic performance boost
   uint8_t isActive;    // true if this channel is enabled, pin not pulsed if false
   uint8_t port;         // port number (A=0, B=1, and so on)
-  uint8_t bitmask;      // output pin bitmask
+  uint8_t bitmask;      // port & bitmask used instead of pin number to realize dramatic performance boost
 } ServoPin_t   ;
 
 typedef struct {
