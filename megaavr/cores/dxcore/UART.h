@@ -27,7 +27,7 @@
 #pragma once
 
 #include <inttypes.h>
-#include "api/HardwareSerial.h"
+#include "api/Stream.h"
 #include "pins_arduino.h"
 #include "UART_swap.h"
 
@@ -138,7 +138,22 @@
   }})
 
 
-class HardwareSerial : public HardwareSerial {
+  //This offsets are used for the transmission assembly
+static const uint8_t USART_MODULE_OFFSET = sizeof(Stream);
+static const uint8_t USART_PINS_OFFSET   = USART_MODULE_OFFSET + sizeof(USART_t*);  //_hwserial_module
+static const uint8_t USART_MUX_OFFSET    = USART_PINS_OFFSET   + sizeof(uint8_t*);  //_usart_pins
+static const uint8_t USART_PIN_OFFSET    = USART_MUX_OFFSET    + sizeof(uint8_t);   //_mux_count
+static const uint8_t USART_STATE_OFFSET  = USART_PIN_OFFSET    + sizeof(uint8_t);   //_pin_set
+static const uint8_t USART_RXHEAD_OFFSET = USART_STATE_OFFSET  + sizeof(uint8_t);   //_state
+static const uint8_t USART_RXTAIL_OFFSET = USART_RXHEAD_OFFSET + sizeof(rx_buffer_index_t); //_rx_buffer_head
+static const uint8_t USART_TXHEAD_OFFSET = USART_RXTAIL_OFFSET + sizeof(rx_buffer_index_t); //_rx_buffer_tail
+static const uint8_t USART_TXTAIL_OFFSET = USART_TXHEAD_OFFSET + sizeof(tx_buffer_index_t); //_tx_buffer_head
+static const uint8_t USART_RXBUF_OFFSET  = USART_TXTAIL_OFFSET + sizeof(tx_buffer_index_t); //_tx_buffer_tail
+//static const uint8_t USART_TXBUF_OFFSET  = USART_RXBUF_OFFSET  + SERIAL_RX_BUFFER_SIZE; this one has to be calculated otherwise
+
+
+
+class HardwareSerial : public Stream {
 /* DANGER DANGER DANGER
  * CHANGING THE MEMBER VARIABLES BETWEEN HERE AND THE OTHER SCARY COMMENT WILL COMPLETELY BREAK SERIAL
  * WHEN USE_ASM_DRE or USE_ASM_RXC is used!
@@ -199,13 +214,16 @@ class HardwareSerial : public HardwareSerial {
     using Print::write;   // pull in write(str) and write(buf, size) from Print
     explicit operator       bool()                { return                                true;}
     uint8_t          autoBaudWFB()                { if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
-                                                      if((_hwserial_module->STATUS ^ 2) & 3) {}
+                                                      if((_hwserial_module->STATUS ^ 2) & 3) {
                                                         _hwserial_module->STATUS = 1;
-                                                        return SERIAL_WFB_EN;
+                                                        //return SERIAL_WFB_EN;
+                                                        return 0;
                                                       }
-                                                      return SERIAL_NEW_BAUD
+                                                      //return SERIAL_NEW_BAUD;
+                                                      return 0;
                                                     }
-                                                    return SERIAL_AUTOBAUD_OFF;
+                                                    //return SERIAL_AUTOBAUD_OFF;
+                                                    return 0;
                                                   }
     void             simpleSync()                 {
                                                     flush();
@@ -216,7 +234,7 @@ class HardwareSerial : public HardwareSerial {
     uint8_t waitForSync();
     uint8_t autobaudWFB_and_request(uint8_t n = 2);
     uint8_t getStatus() {
-      return _statuscheck(_hwserial_module->CTRLB, _hwserial_module->STATUS, _status);
+      return _statuscheck(_state, _hwserial_module->CTRLB, _hwserial_module->STATUS);
     }
 
     uint8_t getPin(uint8_t pin); //wrapper around static _getPin
@@ -250,22 +268,23 @@ class HardwareSerial : public HardwareSerial {
      *
      */
     static uint8_t _statuscheck(uint8_t status, uint8_t ctrlb, uint8_t ctrla) {
-      uint8_t ret;
+      uint8_t ret = 0;
       ret = ctrlb & 0xC0;
 
-      if (ctrlb & 0x06 == 0x04) {
-        ret |= SERIAL_AUTOBAUD_ENABLED
+      if ((ctrlb & 0x06) == 0x04) {
+        //ret |= SERIAL_AUTOBAUD_ENABLED;
       }
       if (status & 0x02) { // We think we're in half-duplex mode
 
-        if ((ctrlb & ctrla & 0x04 /* LBME and ODME are in the same bit location*/) && (ret & 0x0C == 0x0C ) && (ctrla & 0x0C)) { // does the hardware agree
-          ret |= SERIAL_HALF_DUPLEX_ENABLED
+        if ((ctrlb & ctrla & 0x04) &&   /* LBME and ODME are in the same bit location*/ 
+           ((ret & 0x0C) == 0x0C ) && 
+            (ctrla & 0x0C)) {            // does the hardware agree
+          //ret |= SERIAL_HALF_DUPLEX_ENABLED;
         } else {
-          ret |= SERIAL_BAD_STATE
+          //ret |= SERIAL_BAD_STATE;
         }
       }
-
-
+      return ret;
     }
 };
 

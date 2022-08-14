@@ -125,17 +125,17 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
     #ifndef TCB1
       #error "Selected millis timer, TCB1 does not exist on this part."
     #endif
-    &TCB1;
+    ISR(TCB1_INT_vect)
   #elif defined(MILLIS_USE_TIMERB2)
     #ifndef TCB2
       #error "Selected millis timer, TCB2 does not exist on this part."
     #endif
-    &TCB2;
+    ISR(TCB2_INT_vect)
   #elif defined(MILLIS_USE_TIMERB3)
     #ifndef TCB3
       #error "Selected millis timer, TCB3 does not exist on this part."
     #endif
-    &TCB3;
+    ISR(TCB3_INT_vect)
   #elif defined(MILLIS_USE_TIMERB4)
     ISR(TCB4_INT_vect)
   #else
@@ -1180,7 +1180,7 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
 }
 
 void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
-  #if (MILLIS_TIMER &= 0x78) /* 0x40 matches TCDs, 0x20 matches TCBs, 0x10 matches TCA0 0x08 matches TCA1, so OR them together and AND it with the timer to make sure it's not RTC, disabled, etc.  */
+  #if ((MILLIS_TIMER != TIMERRTC) && (MILLIS_TIMER != NOT_ON_TIMER))  /* 0x40 matches TCDs, 0x20 matches TCBs, 0x10 matches TCA0 0x08 matches TCA1, so OR them together and AND it with the timer to make sure it's not RTC, disabled, etc.  */
     uint8_t oldSREG=SREG;
     cli();
     timer_millis += nudgesize;
@@ -1727,7 +1727,7 @@ void __attribute__((weak)) init_TCBs() {
       timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
 
       // Increment pointer to next TCB instance
-      timer_B++;
+      timer_B += sizeof(TCB_t);
     }
     // Stop when pointing to the last timer.
   } while (timer_B <= timer_B_end);

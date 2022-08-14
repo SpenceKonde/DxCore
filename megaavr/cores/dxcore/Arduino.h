@@ -162,10 +162,6 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
   #define TCB_CLKSEL_DIV1_gc TCB_CLKSEL_CLKDIV1_gc
 #endif
 
-#define VCC_5V0 2
-#define VCC_3V3 1
-#define VCC_1V8 0
-
 #define interrupts() sei()
 #define noInterrupts() cli()
 

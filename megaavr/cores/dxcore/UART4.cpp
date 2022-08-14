@@ -39,7 +39,7 @@
   #endif
   #if !(USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
     ISR(USART4_RXC_vect) {
-      UartClass::_rx_complete_irq(Serial4);
+      HardwareSerial::_rx_complete_irq(Serial4);
     }
   #else
       ISR(USART4_RXC_vect, ISR_NAKED) {
@@ -60,7 +60,7 @@
   #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
                             (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
     ISR(USART4_DRE_vect) {
-      UartClass::_tx_data_empty_irq(Serial4);
+      HardwareSerial::_tx_data_empty_irq(Serial4);
     }
   #else
     ISR(USART4_DRE_vect, ISR_NAKED) {
@@ -79,5 +79,5 @@
     }
   #endif
 
-  UartClass Serial4(&USART4, (uint8_t*)_usart4_pins, MUXCOUNT_USART4, HWSERIAL4_MUX_DEFAULT);
+  HardwareSerial Serial4(&USART4, (uint8_t*)_usart4_pins, MUXCOUNT_USART4, HWSERIAL4_MUX_DEFAULT);
 #endif  // HWSERIAL4

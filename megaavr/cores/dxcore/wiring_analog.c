@@ -447,15 +447,16 @@ void analogWrite(uint8_t pin, int val)
   }
   #if defined(TCA1) //maybe it's one of the 3-channel mux options?
     if (bit_mask > 0x10) {
-      portmux_tca &= 0x38
+      portmux_tca &= 0x38;
       #if !defined (__AVR_EA__)
         if ((portmux_tca == 0x08 && portnum == PC) || (portmux_tca == 0x10 && portnum == PD))
       #else
-        if ((portmux_tca == 0x08 && portnum == PC) || (portmux_tca == 0x10 && portnum == PD) || (portmux_tca == 0x20 && portnum == PA) || (portmux_tca == 0x28 && portnum == PF))
+        if ((portmux_tca == 0x08 && portnum == PC) || (portmux_tca == 0x10 && portnum == PD) || 
+            (portmux_tca == 0x20 && portnum == PA) || (portmux_tca == 0x28 && portnum == PF))
       #endif
       {
         offset = (bit_mask == 0x80) ? 4 : (bit_mask ? 2 : 0);
-        timer_cmp_out     =   (uint16_t*)((uint16_t)(&TCA1.SINGLE.CMP0) + offset);
+        uint16_t* timer_cmp_out = (uint16_t*)((uint16_t)(&TCA1.SINGLE.CMP0) + offset);
         (*timer_cmp_out)  =   val;
         TCA0.SPLIT.CTRLB |=   bit_mask;
         (*(uint8_t *) (0x0401 + (portnum << 5))) = bit_mask; // PORTx.DIRSET = bit_mask - set pin to be output
@@ -544,7 +545,7 @@ void analogWrite(uint8_t pin, int val)
           // hopefully that gets rendereed as swap, not 4 leftshifts
           if (bit_mask < 0x10) bit_mask = bit_mask << 4;
         #else
-          if (digital_pin_timer & 0x07 != 0) break;
+          if ((digital_pin_timer & 0x07) != 0) break;
         #endif
       #else
         // tinyAVR 1-series

@@ -36,7 +36,8 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
     // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
     // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
       badArg("Digital pin is constant, but not a valid pin");
-    #if (CLOCK_SOURCE == 2)
+      #if (CLOCK_SOURCE == 2)
+      {
         if (pin == PIN_PA0) {
           badArg("Constant digital pin PIN_PA0, used for selected external osc, and is not available for other uses.");
         }
@@ -64,8 +65,9 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
         #endif
       #endif
       }
-    }
+    #endif
   }
+}
 
 
 inline __attribute__((always_inline)) void check_valid_pin_mode(uint8_t mode) {

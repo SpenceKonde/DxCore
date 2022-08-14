@@ -45,7 +45,7 @@
     /*************************************
      Transmit Complete for Half Duplex
       This is a more efficient and scalable version of the TXC ISR, the original implementation is below:
-
+    */
   #if USE_ASM_TXC == 1
     void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void) {
       __asm__ __volatile__(
@@ -100,7 +100,7 @@
           "push       r28"              "\n\t" //
           "push       r29"              "\n\t" //
           "push       r0"               "\n\t" // Finally we do use register 0 now, a running checklist of error flags that have been raised at minimal cost.
-          "ldd        r28,    Z + 12"   "\n\t" // Load USART into Y pointer
+          "ldd        r28, Z + %[SMODU]""\n\t" // Load USART into Y pointer
           "ldi        r29,      0x08"   "\n\t" // High byte always 0x08 for USART peripheral: Save-a-clock.
   #ifdef PERMIT_WAKE_ON_SERIAL
           #error "PERMIT_WAKE_ON_SERIAL Not supported at this time"
@@ -109,17 +109,17 @@
           "sbrs       r18,         4"   "\n\t" // if start of frame interrupt, we must clear RXSIE
            "rjmp      .+8"              "\n\t" // so we skip the rjmp past these
              "ldd     r24,     Y + 5"   "\n\t" // this is the SDF bit - must be cleared promptly
-             "andi    r24       0xEF"   "\n\t" // clear the start frame detect interrupt enable bit.
+             "andi    r24,      0xEF"   "\n\t" // clear the start frame detect interrupt enable bit.
              "std   Y + 5,       r24"   "\n\t" // if we just woke up
-             "bst     r18          1"   "\n\t" // stash the BDF flag in T flag
+             "bst     r18,         1"   "\n\t" // stash the BDF flag in T flag
           "andi       r18,      0x18"   "\n\t" // strip out BDF
-          "std      Y + 4        r18"   "\n\t" // clear RXSIF and ISFIF
+          "std      Y + 4,       r18"   "\n\t" // clear RXSIF and ISFIF
   #else
           "ldd        r18,    Y +  4"   "\n\t" // Load usart status too
           "andi       r18,      0x0A"   "\n\t" // STATUS = check for bad sync and break detected
           "sbrs       r18,         3"   "\n\t" // Detect ISFIF and if it's set write r18 to that status to clear the bits. We know BDF is not clear
-           "std     Y + 4        r18"   "\n\t" // We know there can't be an ISFIF and BDF set, so if the former is set, the latter isn't, and likely even if it were, the the autobaud failed
-          "rsl        r18"              "\n\t" // Moves bits we care about from 0x0A to 0x05
+           "std     Y + 4,       r18"   "\n\t" // We know there can't be an ISFIF and BDF set, so if the former is set, the latter isn't, and likely even if it were, the the autobaud failed
+          "lsr        r18"              "\n\t" // Moves bits we care about from 0x0A to 0x05
           "swap       r18"              "\n\t" // And swaps them to 0x50.
   #endif
           "ldd        r0,     Y +  1"   "\n\t" // Y + 1 = USARTn.RXDATAH - load high byte first (which does not shift data)
@@ -130,36 +130,28 @@
           "andi       r18,      0x54"   "\n\t" // In the case of parity error, BDF or ICFIF, no valid data was received, therefore the character
            "rjmp _end_rxc"              "\n\t" // so we are done here and skip the rest of the routine. .
   #endif  // either way, we return to finding head.
-          "ldd        r28,    Z + 19"   "\n\t" // load current head index
+          "ldd        r28, Z + %[SRXHE]""\n\t" // load current head index      **<---OFFSET CHANGES with class structure**
           "ldi        r24,         1"   "\n\t" // Clear r24 and initialize it with 1
           "add        r24,       r28"   "\n\t" // add current head index to it
-  #if   SERIAL_RX_BUFFER_SIZE == 256
-          // No additional action needed, head wraps naturally.
-  #elif SERIAL_RX_BUFFER_SIZE == 128
-          "andi       r24,      0x7F"   "\n\t" // Wrap the head around
-  #elif SERIAL_RX_BUFFER_SIZE == 64
-          "andi       r24,      0x3F"   "\n\t" // Wrap the head around
-  #elif SERIAL_RX_BUFFER_SIZE == 32
-          "andi       r24,      0x1F"   "\n\t" // Wrap the head around
-  #elif SERIAL_RX_BUFFER_SIZE == 16
-          "andi       r24,      0x0F"   "\n\t" // Wrap the head around
+  #if   SERIAL_RX_BUFFER_SIZE != 256           // at 256 no additional action needed, head wraps naturally.
+          "andi       r24,     %[SRXBS]""\n\t" // Wrap the head around
   #endif
-          "ldd        r18,    Z + 20"   "\n\t" // load tail index              **<---OFFSET CHANGES with class structure**
+          "ldd        r18, Z + %[SRXTA]""\n\t" // load tail index              **<---OFFSET CHANGES with class structure**
           "cp         r18,       r24"   "\n\t" // See if head is at tail. If so, buffer full,
          "breq   _ovf_rxc"              "\n\t" // can't do anything, just restore state and leave.
           "add        r28,       r30"   "\n\t" // r28 has what would be the next index in it.
           "mov        r29,       r31"   "\n\t" // and this is the high byte of serial instance
           "ldi        r18,         0"   "\n\t" // need a known zero to carry.
           "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 23 bytes before head
-          "std     Y + 23,       r25"   "\n\t" // store the new char in buffer **<---OFFSET CHANGES with class structure**
-          "std     Z + 19,       r24"   "\n\t" // write that new tail index.   **<---OFFSET CHANGES with class structure**
+          "std Y + %[SRXBU],      r25"  "\n\t" // store the new char in buffer **<---OFFSET CHANGES with class structure**
+          "std Z + %[SRXHE],      r24"  "\n\t" // write that new head index.   **<---OFFSET CHANGES with class structure**
          "_ovf_rxc:"                    "\n\t" // when ring buffer full, DATA IS LOST, and it would be sporting for users to know what happened, vs framing and parity errors
-          "ldi        r18       0x40"   "\n\t" // load high bit in that r18 if we overflowed the software ring, rest handled in main program.
+          "ldi        r18,      0x40"   "\n\t" // load high bit in that r18 if we overflowed the software ring, rest handled in main program.
          "_err_rxc:"
-          "ldd        r29,    Z + 18"   "\n\t" // get current status
+          "ldd        r29, Z + %[SSTAT]""\n\t" // get current status
           "or          r0,       r29"   "\n\t" // comp
           "or          r0,       r18"   "\n\t" // R
-          "std     Z + 18,        r0"   "\n\t" // Store that to serial object
+          "std Z + %[SSTAT],      r0"   "\n\t" // Store that to serial object
          "_end_rxc:"                    "\n\t" // Bad sync packet'
           "pop         r0"              "\n\t" // error detection
           "pop        r29"              "\n\t" // Y Pointer was used for head and usart
@@ -173,14 +165,20 @@
           "pop        r30"              "\n\t" // pointer to serial instance
           "reti"                        "\n\t" // return
         "ovf_rxc:"
-          ::);
+          ::[SRXBS] "M" (SERIAL_RX_BUFFER_SIZE-1), \
+            [SMODU] "I" (USART_MODULE_OFFSET),     \
+            [SSTAT] "I" (USART_STATE_OFFSET),     \
+            [SRXHE] "I" (USART_RXHEAD_OFFSET),     \
+            [SRXTA] "I" (USART_RXTAIL_OFFSET),     \
+            [SRXBU] "I" (USART_RXBUF_OFFSET)      \
+           );
       __builtin_unreachable();
 
     }
   #elif defined(USE_ASM_RXC) && USE_ASM_RXC == 1
     #warning "USE_ASM_RXC is defined and this has more than one serial port, but the buffer size is not supported, falling back to the classical RXC."
   #else
-    void UartClass::_rx_complete_irq(UartClass& uartClass) {
+    void HardwareSerial::_rx_complete_irq(HardwareSerial& uartClass) {
       // if (bit_is_clear(*_rxdatah, USART_PERR_bp)) {
       uint8_t rxDataH = uartClass._hwserial_module->RXDATAH;
       uint8_t       c = uartClass._hwserial_module->RXDATAL;  // no need to read the data twice. read it, then decide what to do
@@ -237,10 +235,10 @@
         "push        r28"               "\n\t"
         "push        r29"               "\n\t"
         "ldi         r18,        0"     "\n\t"
-        "ldd         r28,   Z + 12"     "\n\t"  // usart in Y
+        "ldd         r28, Z + %[SMODU]" "\n\t"  // usart in Y
   //    "ldd         r29,   Z + 13"     "\n\t"  // usart in Y
         "ldi         r29,     0x08"     "\n\t"  // High byte always 0x08 for USART peripheral: Save-a-clock.
-        "ldd         r25,   Z + 22"     "\n\t"  // tx tail in r25 **<---OFFSET CHANGES with class structure**
+        "ldd         r25, Z + %[STXTA]" "\n\t"  // tx tail in r25 **<---OFFSET CHANGES with class structure**
         "movw        r26,      r30"     "\n\t"  // copy of serial in X
         "add         r26,      r25"     "\n\t"  // Serial + txtail
         "adc         r27,      r18"     "\n\t"  // Carry (X = &Serial tail )
@@ -269,25 +267,17 @@
         "std       Y + 4,      r18"     "\n\t"  // clear TXC
         "std       Y + 2,      r24"     "\n\t"  // write char
         "subi        r25,     0xFF"     "\n\t"  // txtail +1
-  #if   SERIAL_TX_BUFFER_SIZE == 256
-  //    // No action needed to wrap the tail around
-  #elif SERIAL_TX_BUFFER_SIZE == 128
-        "andi        r25,     0x7F"     "\n\t" // Wrap the head around
-  #elif SERIAL_TX_BUFFER_SIZE == 64
-        "andi        r25,     0x3F"     "\n\t" // Wrap the head around
-  #elif SERIAL_TX_BUFFER_SIZE == 32
-        "andi        r25,     0x1F"     "\n\t" // Wrap the head around
-  #elif SERIAL_TX_BUFFER_SIZE == 16
-        "andi        r25,     0x0F"     "\n\t" // Wrap the head around
+  #if   SERIAL_TX_BUFFER_SIZE != 256            // at 256 no additional action needed, head wraps naturally.
+        "andi        r25,  %[STXBS]"    "\n\t" // Wrap the head around
   #endif
         "ldd         r24,   Y +  5"     "\n\t"  // get CTRLA into r24
-        "ldd         r18,   Z + 21"     "\n\t"  // txhead into r18 **<---OFFSET CHANGES with class structure**
+        "ldd         r18, Z + %[STXHE]" "\n\t"  // txhead into r18 **<---OFFSET CHANGES with class structure**
         "cpse        r18,      r25"     "\n\t"  // if they're the same
         "rjmp  _done_dre_irq"           "\n\t"
         "andi        r24,     0xDF"     "\n\t"  // DREIE off
         "std      Y +  5,      r24"     "\n\t"  // write new ctrla
       "_done_dre_irq:"                  "\n\t"  // Beginning of the end of the DRE
-        "std      Z + 22,      r25"     "\n\t"  // store new tail **<---OFFSET CHANGES with class structure**
+        "std Z + %[STXTA],     r25"     "\n\t"  // store new tail **<---OFFSET CHANGES with class structure**
         "pop         r29"               "\n\t"  // pop Y
         "pop         r28"               "\n\t"  // finish popping Y
   #if PROGMEM_SIZE > 8192
@@ -307,13 +297,17 @@
         "pop         r31"               "\n\t"  // pop the Z that the isr pushed.
         "pop         r30"               "\n\t"
         "reti"                          "\n"   // and RETI!
-        ::);
+        ::[STXBS] "M" (SERIAL_TX_BUFFER_SIZE-1), \
+          [SMODU] "I" (USART_MODULE_OFFSET),     \
+          [STXHE] "I" (USART_TXHEAD_OFFSET),     \
+          [STXTA] "I" (USART_TXTAIL_OFFSET)      \
+          );
       __builtin_unreachable();
     }
   #elif USE_ASM_DRE == 1
     #warning "USE_ASM_DRE == 1, but the buffer sizes are not supported, falling back to the classical DRE."
   #else
-    void UartClass::_tx_data_empty_irq(UartClass& uartClass) {
+    void HardwareSerial::_tx_data_empty_irq(HardwareSerial& uartClass) {
       USART_t* usartModule      = (USART_t*)uartClass._hwserial_module;  // reduces size a little bit
       tx_buffer_index_t txTail  = uartClass._tx_buffer_tail;
 
@@ -345,7 +339,7 @@
   #endif
 
   // To invoke data empty "interrupt" via a call, use this method
-  void UartClass::_poll_tx_data_empty(void) {
+  void HardwareSerial::_poll_tx_data_empty(void) {
     if ((!(SREG & CPU_I_bm)) ||  CPUINT.STATUS) {
       // We're here because we're waiting for space in the buffer *or* we're in flush
       // and waiting for the last byte to leave, yet we're either in an ISR, or
@@ -401,12 +395,12 @@
    #      ###  ####  #### ###  ###     #   # ####   #   #   #  ###  ####   ##*/
 
   // Invoke this function before 'begin' to define the pins used
-  bool UartClass::pins(uint8_t tx, uint8_t rx) {
+  bool HardwareSerial::pins(uint8_t tx, uint8_t rx) {
     uint8_t ret_val = _pins_to_swap(_usart_pins, _mux_count, tx, rx);   // return 127 when correct swap number wasn't found
     return swap(ret_val);
   }
 
-  bool UartClass::swap(uint8_t newmux) {
+  bool HardwareSerial::swap(uint8_t newmux) {
     if (newmux < _mux_count) {
       _pin_set = newmux;
       return true;
@@ -419,7 +413,7 @@
     return false;
   }
 
-  void UartClass::begin(unsigned long baud, uint16_t options) {
+  void HardwareSerial::begin(unsigned long baud, uint16_t options) {
     // Make sure no transmissions are ongoing and USART is disabled in case begin() is called by accident
     // without first calling end()
     if (_state & 1) {
@@ -484,7 +478,7 @@
     SREG=oldSREG;
   }
 
-  void UartClass::end() {
+  void HardwareSerial::end() {
     // wait for transmission of outgoing data
     flush();
     // Disable receiver and transmitter as well as the RX complete and the data register empty interrupts.
@@ -499,11 +493,11 @@
     _state = 0;
   }
 
-  int UartClass::available(void) {
+  int HardwareSerial::available(void) {
     return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + _rx_buffer_head - _rx_buffer_tail)) & (SERIAL_RX_BUFFER_SIZE - 1);   //% SERIAL_RX_BUFFER_SIZE;
   }
 
-  int UartClass::peek(void) {
+  int HardwareSerial::peek(void) {
     if (_rx_buffer_head == _rx_buffer_tail) {
       return -1;
     } else {
@@ -511,7 +505,7 @@
     }
   }
 
-  int UartClass::read(void) {
+  int HardwareSerial::read(void) {
     // if the head isn't ahead of the tail, we don't have any characters
     if (_rx_buffer_head == _rx_buffer_tail) {
       return -1;
@@ -521,6 +515,74 @@
       return c;
     }
   }
+
+
+void HardwareSerial::flush() {
+  // If we have never written a byte, no need to flush. This special
+  // case is needed since there is no way to force the TXCIF (transmit
+  // complete) bit to 1 during initialization
+  if (!(_state & 1)) {
+    return;
+  }
+
+  // Check if we are inside an ISR already (e.g. connected to a different peripheral then UART), in which case the UART ISRs will not be called.
+  // Spence 10/23/20: Changed _poll_tx_data_empty() to instead call the ISR directly in this case too
+  // Why elevate the interrupt if we're going to go into a busywait loop checking if the interrupt is disabled and if so, check for the bit and
+  // manually call the ISR if the bit is set... *anyway*? Plus, in write(), this mode will be enabled upon a write of a single character from an ISR
+  // and will stay that way until the buffer is empty, which would mean that the fairly long and slow UART TX ISR would have priority over a
+  // potentially very fast interrupt that the user may have set to priority level 1. Just because a whizz-bang feature is there doesn't mean
+  // it's appropriate to use for applications where it has only very small benefits, and significant risk of surprising the user and causing
+  // breakage of code that would otherwise work. Finally, the previous implementation didn't check if it was called from the current lvl1 ISR
+  // and in that case flush(), and write() with full buffer would just straight up hang...
+
+
+  // Spin until the data-register-empty-interrupt is disabled and TX complete interrupt flag is raised
+  while (((*_hwserial_module).CTRLA & USART_DREIE_bm) || (!((*_hwserial_module).STATUS & USART_TXCIF_bm))) {
+    // poll this, which will ensure that bytes keep getting sent even if interrupts are disabled or something.
+    _poll_tx_data_empty();
+  }
+  // When we get here, nothing is queued anymore (DREIE is disabled) and
+  // the hardware finished transmission (TXCIF is set).
+}
+
+// Static
+void HardwareSerial::_mux_set(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_code) {
+#if HWSERIAL_MUX_REG_COUNT > 1  // for big pincount devices that have more then one USART PORTMUX register
+  uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 1;
+  uint16_t mux_options_off_gm = pgm_read_word_near(mux_info_ptr);  /* pointer offset to the second columun
+  at the end bottom row of the table, with info about the mux options, rather than a specefic option
+  Low byte is the offset from USARTROUTEA, second byte is the group mask. */
+  volatile uint8_t* portmux  = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)mux_options_off_gm); // offset
+  uint8_t temp   = *portmux;
+  temp          &= ~((uint8_t) (mux_options_off_gm >> 8)); // Group Mask
+  temp          |= mux_code;
+  *portmux       = temp;
+#else
+  uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 2;
+  /* Only one register, so no offset, so only read a byte */
+  uint8_t mux_mask = pgm_read_byte_near(mux_info_ptr);     // only read the group mask
+  volatile uint8_t* portmux = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE);
+  uint8_t temp   = *portmux;
+  temp          &= ~(mux_mask);
+  temp          |= mux_code;
+  *portmux       = temp;
+#endif
+}
+
+int HardwareSerial::availableForWrite(void) {
+  tx_buffer_index_t head;
+  tx_buffer_index_t tail;
+
+  TX_BUFFER_ATOMIC {
+    head = _tx_buffer_head;
+    tail = _tx_buffer_tail;
+  }
+  if (head >= tail) {
+    return SERIAL_TX_BUFFER_SIZE - 1 - head + tail;
+  }
+  return tail - head - 1;
+}
+
 
   // Note that *no attempt is made* to detect and react to incomplete pinsets. It is the resposnability of the user to pick a pinset that contains
   // all the pins they need. Unless you're only receiving, pinset 0, USART1, AVR DD14 or DD20 isn't much use.
@@ -540,7 +602,7 @@
   //  1  1  1  1      TX set input pullup. Half-duplex mode.
   // * indicates that RS485 mode if requested will be enabled, even though it is inappropriate. These configurations are documented unsupported.
   // Static
-  void UartClass::_set_pins(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask) {
+  void HardwareSerial::_set_pins(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask) {
     uint8_t* mux_row_ptr   = mux_table_ptr + (mux_setting * USART_PINS_WIDTH);
     uint16_t mux_row_gc_tx = pgm_read_word_near(mux_row_ptr); // Clever trick for faster PGM reads of consecutive bytes!
     uint8_t mux_group_code = (uint8_t) (mux_row_gc_tx);       // this is the mux
@@ -559,13 +621,10 @@
       }
     }
     _mux_set(mux_table_ptr, mux_count, mux_group_code);
-
-  uint8_t getStatus() {
-    return _state;
-
   }
+
   // Static
-  uint8_t UartClass::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
+  uint8_t HardwareSerial::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
     if (tx_pin == NOT_A_PIN && rx_pin == NOT_A_PIN) {
       return  128;            // get MUX_NONE
     } else {
@@ -588,11 +647,11 @@
   // Not static
   /* takes values SERIAL_PIN_TX, SERIAL_PIN_RX, SERIAL_PIN_XDIR, SERIAL_PIN_XCK */
   /* Returns an Arduino pin number */
-  uint8_t UartClass::getPin(uint8_t pin) {
+  uint8_t HardwareSerial::getPin(uint8_t pin) {
     return _getPin(_usart_pins, _mux_count, _pin_set, pin);
   }
   // Static
-  uint8_t UartClass::_getPin(uint8_t * mux_table_ptr, uint8_t muxcount, uint8_t pinset, uint8_t pin) {
+  uint8_t HardwareSerial::_getPin(uint8_t * mux_table_ptr, uint8_t muxcount, uint8_t pinset, uint8_t pin) {
     if (pin >3 || pinset > muxcount) {
       return NOT_A_PIN;
     }
@@ -621,7 +680,7 @@
   }
 
 
-  size_t UartClass::write(uint8_t c) {
+  size_t HardwareSerial::write(uint8_t c) {
     _state |= 1;
 
     // If the buffer and the data register is empty, just write the byte
@@ -679,7 +738,9 @@
 
     return 1;
   }
-  uint8_t UartClass::autoBaudWFB() {
+/*
+  
+  uint8_t HardwareSerial::autoBaudWFB() {
     if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
       if((_hwserial_module.STATUS ^ 2) & 3) {
         _hwserial_module->STATUS = 1;
@@ -689,29 +750,35 @@
     }
     return SERIAL_AUTOBAUD_OFF;
   }
-  void UartClass::simpleSync() {
+  
+  
+  void HardwareSerial::simpleSync() {
     flush();
     write(0x00);
     write(0x55);
   }
-   uint8_t UartClass::autobaudWFB_and_wait(uint8_t n) {
+  
+  
+   uint8_t HardwareSerial::autobaudWFB_and_wait(uint8_t n) {
     if ((_hwserial_module->CTRLB & 0x06) == 0x04) {
-                                                      while (available()) {
-                                                        read();
-                                                      }
-                                                      cli()
-                                                      uint8_t mask = 0x00;
-                                                      while (n && (_hwserialmodule->STATUS & (USART_DREIF_bm ))) {
-                                                        _hwserialmodule->TXDATAL = mask;
-                                                        mask ^= 4; // alternates netween 4 and 1, giving frame lengths of
-                                                        n--;
-                                                      }
-                                                      sei();
-                                                      return SERIAL_NEW_BAUD;
-                                                    }
-                                                    return SERIAL_AUTOBAUD_OFF;
-                                                  }
-    uint8_t UartClass::waitForSync() {
+      while (available()) {
+        read();
+      }
+      cli()
+      uint8_t mask = 0x00;
+      while (n && (_hwserial_module->STATUS & (USART_DREIF_bm ))) {
+        _hwserial_module->TXDATAL = mask;
+        mask ^= 4; // alternates netween 4 and 1, giving frame lengths of
+        n--;
+      }
+      sei();
+      return SERIAL_NEW_BAUD;
+    }
+    return SERIAL_AUTOBAUD_OFF;
+  }
+    
+    
+    uint8_t HardwareSerial::waitForSync() {
       uint8_t ctrlb=_hwserial_module->CTRLB;
       if ((ctrlb & 0x06) != 0x04) {
         return SERIAL_AUTOBAUD_OFF;
@@ -757,6 +824,9 @@
         }
       return ret;
     }
+    
+    
+    
     uint8_t autobaudWFB_and_request(uint8_t n = 2) { if(autobaud_WFB() == SERIAL_WFB_EN) {
                                                       uint16_t temp = _hwserialmodule->BAUD;
                                                       uint8_t port = digitalPinToPort(getPin(SERIAL_PIN_TX));
@@ -783,7 +853,9 @@
                                                     }
                                                     return
                                                   }
-    uint8_t getState();                         { uint8_t st = _state;
+    uint8_t getState();                         { 
+    
+    uint8_t st = _state;
                                                   uint8_t ret = 0;
                                                   if (st & 0x04) {
                                                     ret |= SERIAL_FRAME_ERROR;
@@ -800,8 +872,8 @@
                                                   else if (st & 0x01)
                                                 }
 
-
-    void UartClass::printHex(const uint8_t b) {
+*/
+    void HardwareSerial::printHex(const uint8_t b) {
       char x = (b >> 4) | '0';
       if (x > '9')
         x += 7;
@@ -812,7 +884,7 @@
       write(x);
     }
 
-    void UartClass::printHex(const uint16_t w, bool swaporder) {
+    void HardwareSerial::printHex(const uint16_t w, bool swaporder) {
       uint8_t *ptr = (uint8_t *) &w;
       if (swaporder) {
         printHex(*(ptr++));
@@ -823,7 +895,7 @@
       }
     }
 
-    void UartClass::printHex(const uint32_t l, bool swaporder) {
+    void HardwareSerial::printHex(const uint32_t l, bool swaporder) {
       uint8_t *ptr = (uint8_t *) &l;
       if (swaporder) {
         printHex(*(ptr++));
@@ -839,7 +911,7 @@
       }
     }
 
-    uint8_t * UartClass::printHex(uint8_t* p, uint8_t len, char sep) {
+    uint8_t * HardwareSerial::printHex(uint8_t* p, uint8_t len, char sep) {
       for (byte i = 0; i < len; i++) {
         if (sep && i) write(sep);
         printHex(*p++);
@@ -848,7 +920,7 @@
       return p;
     }
 
-    uint16_t * UartClass::printHex(uint16_t* p, uint8_t len, char sep, bool swaporder) {
+    uint16_t * HardwareSerial::printHex(uint16_t* p, uint8_t len, char sep, bool swaporder) {
       for (byte i = 0; i < len; i++) {
         if (sep && i) write(sep);
         printHex(*p++, swaporder);
@@ -856,7 +928,7 @@
       println();
       return p;
     }
-    volatile uint8_t * UartClass::printHex(volatile uint8_t* p, uint8_t len, char sep) {
+    volatile uint8_t * HardwareSerial::printHex(volatile uint8_t* p, uint8_t len, char sep) {
       for (byte i = 0; i < len; i++) {
         if (sep && i) write(sep);
         uint8_t t = *p++;
@@ -865,7 +937,7 @@
       println();
       return p;
     }
-    volatile uint16_t * UartClass::printHex(volatile uint16_t* p, uint8_t len, char sep, bool swaporder) {
+    volatile uint16_t * HardwareSerial::printHex(volatile uint16_t* p, uint8_t len, char sep, bool swaporder) {
       for (byte i = 0; i < len; i++) {
         if (sep && i) write(sep);
         uint16_t t = *p++;
@@ -874,5 +946,4 @@
       println();
       return p;
     }
-  #endif
 #endif
