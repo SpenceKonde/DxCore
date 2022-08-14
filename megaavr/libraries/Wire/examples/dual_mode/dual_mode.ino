@@ -13,17 +13,17 @@
  * parts are connected to the same pins. But the AVRs offer the Dual Mode, which
  * disconnects the Slave part from the Master pins and connects it to dedicated pins. This
  * is useful if you have different voltage levels, clocks, or multiple devices with a
- * hardcoded address that require different buses. 
- * This code initializes the Slave part with the address 0x54 (7-bit format) with two 
- * different behaviours depending wether the Master sends or requests data. If data is 
+ * hardcoded address that require different buses.
+ * This code initializes the Slave part with the address 0x54 (7-bit format) with two
+ * different behaviours depending weather the Master sends or requests data. If data is
  * received by the Slave it is put into the rxBuffer and printed out in the loop. If data
  * is requested, the Slave sends it's millis() value.
  * The Master, depending on the Serial input, either sends data to the address 0x54 or
  * requests from it. When the first char from Serial is an 'r' or 'R', a request is made,
  *  otherwise the Text is send directly to the Slave.
  */
- 
- 
+
+
 #include "Wire.h"
 
 void srmw (int);
@@ -43,13 +43,13 @@ void setup() {
   Wire.enableDualMode(true);    // set argument true if FastMode+ speeds are expected on slave
                                 // This has to be called before begin(), so that  the library prepares the other pins
   Wire.usePullups();
-  //Wire.swap(2);                 // Route TWI pins to an alternative pinout, if neccessary.
+  //Wire.swap(2);                 // Route TWI pins to an alternative pinout, if necessary.
   //Wire.pins(PIN_PC2, PIN_PC3);  // Note - the pins in the argument are for Host/Client only. There is no pin lookup for Dual mode
                                   // e.g. Wire.pins(PIN_PC6, PIN_PC7) does not work at this point right now! Please use swap() instead.
-  
+
   Wire.begin();                   // initialize master
   Wire.begin(0x54, false);        // initialize slave
-  
+
   MySerial.begin(115200);         // Use 115200 baud - this is the 2020's, and these are modern AVRs.
 }
 
@@ -81,7 +81,7 @@ void readFromSerial() {
     while (c == -1) {               // when the buffer is empty, Serial.read() returns -1
       c = MySerial.read();          // this avoids filling the input buffer with gibberish
     }
-    
+
     if (c == '\n' || c == '\r') {   // until a new line or carriage return is found
       break;                        // if so, break the endless while-loop
     }                               // otherwise
@@ -91,7 +91,7 @@ void readFromSerial() {
     if (txLen > 30) {               // if there is too much data
       break;                        // break the while-loop to avoid buffer overflow
     }
-    
+
     #ifndef MILLIS_USE_TIMERNONE    // If we have millis and didn't get a newline
     if (millis() - timeout > 30000) {
       // we will give up after 30 seconds, and send what we have.
