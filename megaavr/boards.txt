@@ -34,24 +34,7 @@
 # they aren't all on the same screen                                     #
 #                                                                        #
 # EA, are not available yet. 64DD32/28 and 32/16DD20/14 parts are!       #
-#                                                                        #
-# All DD board defs sketched in and commented out, very few unknowns     #
-#                                                                        #
-# Only EA boards without optiboot sketched in - since we know like       #
-# nothing about implementation, and how Dx-y it will be.                 #
-#________________________________________________________________________#
-
-avrda.name=AVR DA-series (no bootloader)
-avrdb.name=AVR DB-series (no bootloader)
-avrdd.name=AVR DD-series (no bootloader)
-#avrea.name=AVR EA-series (no bootloader)
-#microchip.name=Microchip Curiosity Nano
-avrdaopti.name=AVR DA-series (Optiboot)
-avrdbopti.name=AVR DB-series (Optiboot)
-avrddopti.name=AVR DD-series (Optiboot)
-#avreaopti.name=AVR EA-series (Optiboot)
-azduinoboard.name=Azduino Boards (Optiboot)
-
+##########################################################################
 
 
 ##########################################################################
@@ -62,6 +45,12 @@ azduinoboard.name=Azduino Boards (Optiboot)
 #                # #   # #   # #   # #    #  ## #   #     #              #
 #             ###   ###  ####  #   # #### #   #  ###   ###               #
 #________________________________________________________________________#
+# The *opti menus are for Optiboot board definitions - We name them
+# differently when the option takes on different meaning for a bootloaded
+# board. Eg - UPDI can set fuses, so OSCCFG is set on all uploads and
+# you don't need to burn bootloader to change clock speed.
+# 2.4.3 - the TCD0CFG fuse handling is U G L Y - but there isn't really
+# another way to do it with the tools we get as hardware package folks.
 
 menu.chip=Chip
 menu.board=Board/version
@@ -83,7 +72,53 @@ menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
 
+##########################################################################
+#                                                                        #
+###              ####    ###    ###   ####   ####    ###               ###
+#####            #   #  #   #  #   #  #   #  #   #  #                #####
+#######          ####   #   #  #####  ####   #   #   ###           #######
+#####            #   #  #   #  #   #  #  #   #   #      #            #####
+###              ####    ###   #   #  #   #  ####    ###               ###
+#________________________________________________________________________#
+##########################################################################
+# Names listed at the top so they can be kept in consistent format       #
+# Only EA boards without optiboot sketched in - since we know like       #
+# nothing about implementation, and how Dx-y it will be.                 #
+#_________________________________________________________________________
 
+avrda.name=AVR DA-series (no bootloader)
+avrdb.name=AVR DB-series (no bootloader)
+avrdd.name=AVR DD-series (no bootloader)
+#avrea.name=AVR EA-series (no bootloader)
+microchip.name=Microchip Curiosity Nano
+avrdaopti.name=AVR DA-series (Optiboot)
+avrdbopti.name=AVR DB-series (Optiboot)
+avrddopti.name=AVR DD-series (Optiboot)
+#avreaopti.name=AVR EA-series (Optiboot)
+azduinoboard.name=Azduino Boards (Optiboot)
+
+#----------------------------------------#
+# printf() version options               #
+#________________________________________#
+avrda.menu.printf.default=Default, 1.5k flash, no floats
+avrda.menu.printf.full=Full, 2.6k, prints floats
+avrda.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
+avrda.menu.printf.full.build.printfabr=.pfF
+avrda.menu.printf.minimal=Minimal, 1.1k flash used
+avrda.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
+avrda.menu.printf.minimal.build.printfabr=.pfM
+
+#----------------------------------------#
+# attachInterrupt Mode                   #
+#________________________________________#
+avrda.menu.attach.allenabled=On all pins, with new implementation.
+avrda.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+avrda.menu.attach.manual=Only enabled ports. Please see documentation
+avrda.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+avrda.menu.attach.oldversion=Old version, (may fix bugs)
+avrda.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrda.menu.attach.manual.build.attachabr=.aMan
+avrda.menu.attach.oldversion.build.attachabr=.aOld
 
 ##########################################################################
 #                                                                        #
@@ -1863,7 +1898,7 @@ avrdaopti.menu.printf.minimal.build.printfabr=.pfM
 avrdaopti.menu.attach.allenabled=On all pins, with new implementation.
 avrdaopti.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
 avrdaopti.menu.attach.manual=Only enabled ports. Please see documentation.
-avrdaopti.menu.attach.manual.build.attachmode=
+avrdaopti.menu.attach..manual.build.attachmode=-DCORE_ATTACH_NONE
 avrdaopti.menu.attach.oldversion=Old version, (may fix bugs)
 avrdaopti.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
 avrdaopti.menu.attach.manual.build.attachabr=.aMan

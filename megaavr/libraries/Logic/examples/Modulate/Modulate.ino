@@ -49,14 +49,14 @@ void setup() {
 
 
   Logic0.enable = true;                 // Enable logic block 0
-  Logic0.input0 = in::tcb;              // Use TCB WO as input 0 (input 0 = TCB0)
-  Logic0.input1 = in::tca0;             // Mask ii
+  Logic0.input0 = logic::in::tcb;              // Use TCB WO as input 0 (input 0 = TCB0)
+  Logic0.input1 = logic::in::tca0;             // Mask ii
   // not tcb1 as you would use on tinyAVR - the timer is based on the input.
-  Logic0.input2 = in::masked;           // mask input 2
-  // Logic0.output_swap = out::pin_swap; / Uncomment this line if you want or
+  Logic0.input2 = logic::in::masked;           // mask input 2
+  // Logic0.output_swap = logic::out::pin_swap; / Uncomment this line if you want or
   //                                       need to use the alternate output pin
-  Logic0.output = out::enable;          // Enable logic block 0 output pin, PA3 on non-tinyAVRs.
-  Logic0.filter = filter::disable;      // No output filter enabled
+  Logic0.output = logic::out::enable;          // Enable logic block 0 output pin, PA3 on non-tinyAVRs.
+  Logic0.filter = logic::filter::disable;      // No output filter enabled
   Logic0.truth = 0x08;                  // Set truth table - HIGH only if both high
   Logic0.init();                        // Initialize logic block 0
   Logic::start();                       // Start the AVR logic hardware

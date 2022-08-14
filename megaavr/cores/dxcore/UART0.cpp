@@ -1,6 +1,7 @@
-/* UART0.cpp - Hardware serial library
- * This library is free software under LGPL 2.1. See License.md
- * for more information. This file is part of DxCore.
+/* UART0.cpp - Hardware serial library for USART0
+ * This library is free software released under LGPL 2.1.
+ * See License.md for more information.
+ * This file is part of megaTinyCore.
  *
  * Copyright (c) 2006 Nicholas Zambetti, Modified by
  * 11/23/2006 David A. Mellis, 9/20/2010 Mark Sproul,
@@ -8,23 +9,27 @@
  * unknown others 2013-2020, 2020-2022 Spence Konde
  */
 
-/* Each UartClass is defined in its own file, sine the linker pulls
+/* Each HardwareSerial is defined in its own file, sine the linker pulls
  * in the entire file when any element inside is used. --gc-sections can
  * additionally cause unused symbols to be dropped, but ISRs have the
  * "used" attribute so are never dropped and they keep the
- * UartClass instance in as well. Putting each instance in its own
+ * HardwareSerial instance in as well. Putting each instance in its own
  * file prevents the linker from pulling in any unused instances in the
  * first place.
- * There are now two versions of each ISR. Except for TXC, which is trivial,
- * both versions are stubs to call the real code (so it is not duplicated).
- * The ASM versions are more efficient that calling normally can be because
- * they completely ignore the ABI rules and do it the most efficient way
- * they can. They'll stop working if anything changes, and it's not
- * entirely clear whether the trick of dropping out of assembly while naked
- * to grab the address is legal, though there's no reason it shouldn't be.
+ * There are now two versions of each ISR. All versions are stubs to call
+ * the real code (so it is not duplicated). The ASM versions are more
+ * efficient than calling normally can ever be because they completely
+ * ignore the ABI rules for the transition from duplicated to shared
+ * code and call it the most effcieient way possiblem so the almost all of
+ * the flash overhead is in the shared section. They'll stop working if
+ * anything changes, and it's not entirely clear whether the trick of
+ * dropping out of assembly while naked to grab the address is legal,
+ * though there's no reason it shouldn't be.
  * The assembly implementations over in UART.cpp depends on the structure
  * of the SerialClass. Any changes to the class member variables will
  * require changes to the asm to match.
+ * This was done for 1.5.12 to correct a serious defect. amd fix a
+ * to make things work better with millis off, and free up 4 bytes of sram.
  */
 #include "Arduino.h"
 #include "UART.h"
@@ -33,6 +38,7 @@
 
 #if defined(USART0)
   #if defined(USE_ASM_TXC) && USE_ASM_TXC == 1 //&& defined(USART1) // No benefit to this if it's just one USART
+    // Note the difference between this and the other ISRs - here we don't care at all about the serial object, we just have to work with the USART
     ISR(USART0_TXC_vect, ISR_NAKED) {
       __asm__ __volatile__(
             "push  r30"         "\n\t" // push the low byte of Z

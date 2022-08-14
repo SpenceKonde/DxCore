@@ -435,6 +435,7 @@ void SPIClass::usingInterrupt(uint8_t interruptNumber) {
 void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
   if ((interruptNumber == NOT_AN_INTERRUPT))
     return;
+  }
 
   if (interruptMode & SPI_IMODE_GLOBAL)
     return; // can't go back, as there is no reference count
@@ -448,8 +449,8 @@ void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
   if (interruptMask_lo == 0 && interruptMask_hi == 0) {
     interruptMode = SPI_IMODE_NONE;
     #if USE_MALLOC_FOR_IRQ_MAP
-      free(irqMap);
-      irqMap = NULL;
+    free(irqMap);
+    irqMap = NULL;
     #endif
   }
 }
@@ -506,8 +507,7 @@ void SPIClass::beginTransaction(SPISettings settings) {
   if (interruptMode != SPI_IMODE_NONE) {
     if (interruptMode & SPI_IMODE_GLOBAL) {
       noInterrupts();
-    }
-    else if (interruptMode & SPI_IMODE_EXTINT) {
+    } else if (interruptMode & SPI_IMODE_EXTINT) {
       detachMaskedInterrupts();
     }
   }
@@ -517,10 +517,10 @@ void SPIClass::beginTransaction(SPISettings settings) {
 void SPIClass::endTransaction(void) {
   if (interruptMode != SPI_IMODE_NONE) {
     if (interruptMode & SPI_IMODE_GLOBAL) {
-        interrupts();
-    }
-    else if (interruptMode & SPI_IMODE_EXTINT)
+      interrupts();
+    } else if (interruptMode & SPI_IMODE_EXTINT) {
       reattachMaskedInterrupts();
+    }
   }
 }
 #else // End of old interrupt related stuff, start of new-attachInterrupt-compatible implementation.
@@ -540,7 +540,7 @@ void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
 
 void SPIClass::beginTransaction(SPISettings settings) {
   if (interruptMode != SPI_IMODE_NONE) {
-    old_sreg=SREG;
+    old_sreg = SREG;
     cli(); // NoInterrupts();
   }
   in_transaction = 1;
@@ -559,9 +559,9 @@ void SPIClass::endTransaction(void) {
 
 
 void SPIClass::setBitOrder(uint8_t order) {
-  if (order == LSBFIRST)
+  if (order == LSBFIRST) {
     SPI_MODULE.CTRLA |=  (SPI_DORD_bm);
-  else
+}  else {
     SPI_MODULE.CTRLA &= ~(SPI_DORD_bm);
 }
 
@@ -572,7 +572,7 @@ void SPIClass::setDataMode(uint8_t mode) {
 
 void SPIClass::setClockDivider(uint8_t div) {
   SPI_MODULE.CTRLA = ((SPI_MODULE.CTRLA &
-                  ((~SPI_PRESC_gm) | (~SPI_CLK2X_bm)))  // mask out values
+                  ((~SPI_PRESC_gm | SPI_CLK2X_bm)))  // mask out values
                   | div);                           // write value
 }
 
@@ -591,7 +591,13 @@ byte SPIClass::transfer(uint8_t data) {
 }
 
 uint16_t SPIClass::transfer16(uint16_t data) {
-  union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
+  union {
+    uint16_t val;
+    struct {
+      uint8_t lsb;
+      uint8_t msb;
+    };
+  } t;
 
   t.val = data;
 
@@ -607,7 +613,7 @@ uint16_t SPIClass::transfer16(uint16_t data) {
 }
 
 void SPIClass::transfer(void *buf, size_t count) {
-  uint8_t *buffer = reinterpret_cast<uint8_t *> (buf);
+  uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
   for (size_t i = 0; i < count; i++) {
     *buffer = transfer(*buffer);
     buffer++;

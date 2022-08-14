@@ -41,7 +41,7 @@ In accordance with the recommendations of Microchip from the datasheet, we disab
 
 When the PINnCTRL register is modified by the class at any point, any other configuration (input level on DB/DD, inversion, and internal pullup) will be returned to the default values. You likely don't want any of those options while using the analog comparator anyway. The pullup will throw off the reading (and is not of a tightly controlled strength, so you can't use it as part of a resistor divider), and as these pins will have analog voltages likely between the input high and low thresholds applied to them, leaving the digital input enabled will increase power consumption.
 
-Comparator input pins should not be set as OUTPUT except in truly unusual cases. The comparator cannot be used on MVIO pins, and otherwise, voltage on any pin must not exceed the supply voltage or be lower than ground by more than half a volt, and the common mode voltage range is even narrower, at -0.2V - Vcc - and used as an output, the pin will either output 0V or Vdd, so the comparator will always have one value unless either the pin is heavilly (possibly excessively) loaded, or an inappropriate external voltage is being applied to the pins. The only plausible use case I can come up with is monitoring an output pin for a possible short circuit or excessive load. Note that this library assumes that you have not set the pins to be outputs (the comparator library, internally, only knows the PINnCTRL register for the pins - it doesn't know anything else about them, and adding that functionality would add rarely used bloat) - if you have, be sure to set them back to inputs.
+Comparator input pins should not be set as OUTPUT except in truly unusual cases. The comparator cannot be used on MVIO pins, and otherwise, voltage on any pin must not exceed the supply voltage or be lower than ground by more than half a volt, and the common mode voltage range is even narrower, at -0.2V - Vcc - and used as an output, the pin will either output 0V or Vdd, so the comparator will always have one value unless either the pin is heavily (possibly excessively) loaded, or an inappropriate external voltage is being applied to the pins. The only plausible use case I can come up with is monitoring an output pin for a possible short circuit or excessive load. Note that this library assumes that you have not set the pins to be outputs (the comparator library, internally, only knows the PINnCTRL register for the pins - it doesn't know anything else about them, and adding that functionality would add rarely used bloat) - if you have, be sure to set them back to inputs.
 
 ### No settings are applied until init() is called
 Like the other basic wrappers around modern avr peripherals (logic, ZCD, event), until the `init()` method is called, none of the requested settings have been written to the peripheral. This is correct and intended behavior, and allows modifying multiple options as close to simultaneously as possible. Nothing prevents you from calling `init()` on an enabled comparator if need be.
@@ -189,9 +189,9 @@ PORTA.PIN7CTRL = PORT_INVEN_bm;         // Invert PA7
 // Now, PIN_PA7 will provide non-inverted output, while Comparator.read() and the event outputs provides inverted output.
 ```
 
-
-#### Default state
-`Comparator.output` defaults to `out::disable` if not specified in the user program.
+|     | AC0 | AC1 | AC2 | AC0 on 8-pin parts |
+|-----|-----|-----|-----|--------------------|
+| PIN | PA5 | PB3 | PB2 |         PA3        |
 
 
 ### output_swap
@@ -202,9 +202,13 @@ comparator::out::no_swap;  // Use default pin position
 comparator::out::pin_swap; // Use alternative position (48 and 64-pin parts only)
 ```
 
+#### Default state
+`Comparator.output` defaults to `comparator::out::disable` if not specified in the user program.
+
+
 #### Usage
 ```c++
-Comparator.output_swap = out::no_swap; // No pin swap for output
+Comparator.output_swap = comparator::out::no_swap; // No pin swap for output
 ```
 
 #### Default state
