@@ -87,7 +87,7 @@ void readFromSerial() {
     }                               // otherwise
     txBuffer[txLen] = c;            // save the char
     txLen++;                        // increment the position
-    
+
     if (txLen > 30) {               // if there is too much data
       break;                        // break the while-loop to avoid buffer overflow
     }
