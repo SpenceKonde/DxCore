@@ -172,7 +172,7 @@ void TwoWire::begin(void) {
  *
  *
  *@param      uint8_t address - the desired address for the client module
- *@param      bool receive_broadcast - if true, enables a response on the 0x00 call
+ *@param      uint8_t receive_broadcast - if true, enables a response on the 0x00 call
  *@param      uint8_t second_address holds the data for the SADDRMASK register. If the LSB is '1'
  *              the TWI handles the 7 MSB as a second address for the client, otherwise the 7 MSB
  *              act as a bit mask, that disables the check on the corresponding SADDR bit.
@@ -259,33 +259,8 @@ void TwoWire::endSlave(void) {
  *@return     uint8_t
  *@retval     amount of bytes that were actually read. If 0, no read took place due to a bus error.
  */
-
-/* Spence: Oh ffs, why did we have all these type translating signatures to begin with when type conversion would automatically fix the problem for us
- * so the worst anyone could say was that we would compile successfully instead of with obtuse errors,
- * if a user was using inappropriate types with values that get truncated in conversion, this wouldn't work for them with or without these
- * Buffer sizes listed in library documentation should not be exceeded, and the maximum a library can be configured for is 256 since it uses uint8_t's
- * internally. Which is a huge amount of data for an AVr. it's 2 pages fromn AT24-type EEPROM (recall that the default of 120b long buffer is
- * specifically to support writing a page at a time. I2C is also slow, and if you need to transfer data aggressively to and from external peripherals
- * do it in chunks and do consider deeply if you've gotten off track. And uint8_t's and bools are the same
- * internally, and a bool gets automatically converted if passed to a function expecting a uint8_t - and if a future part get some new feature
- * that had to be specified on a per-request basis, it could be extended without changing the function signature and just adding some
- * constants you could pass that would enable it, like with UART.
- */
-//uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity,  bool     sendStop) {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
-//
-//uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity)                   {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-//}
-//uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity,  int16_t  sendStop) {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
-//}
-//uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity)                   {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-//}
 uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity,  uint8_t sendStop) {
   if (quantity > BUFFER_LENGTH) {
-    // Can't do a __builtin_constant_p check here because classes make the optimizer lose the plot.
     quantity = BUFFER_LENGTH;
   }
   vars._clientAddress = address << 1;
@@ -312,8 +287,6 @@ void TwoWire::beginTransmission(uint8_t address) {
     uint8_t* txHead  = &(vars._bytesToWrite);
   #endif
   if (__builtin_constant_p(address) > 0x7F) {     // Compile-time check if address is actually 7 bit long
-    // Spence: pretty sure this doesn't work. Constant folding and autoinlining doesn't seem to happen correctly when constants are passed to class methods, even when called a single time... .
-    // C++ stuff confuses the optimizer almost as much as me. I know  C not C++.
     badArg("Supplied address seems to be 8 bit. Only 7-bit-addresses are supported");
     return;
   }
@@ -471,10 +444,7 @@ int TwoWire::available(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::read(void) {
-
-  uint8_t* rxHead;
-  uint8_t* rxTail;
-  uint8_t* rxBuffer;
+  uint8_t *rxHead, *rxTail, *rxBuffer;
 
   #if defined(TWI_MANDS)                         // Add following if host and client are split
     if (vars._bools._toggleStreamFn == 0x01) {
@@ -507,6 +477,33 @@ int TwoWire::read(void) {
 
 
 /**
+ *@brief      readBytes reads a number of bytes from the buffer and removes them
+ *
+ *            Usually, the function reads the bytes from the host buffer.
+ *            If called inside the specified onReceive or onRequest functions, or after
+ *            selectSlaveBuffer, it reads the bytes from the slave buffer and removes it
+ *            from there. When there are less bytes then requested, the return value will
+ *            be smaller then the requested amount. It is more efficient then the Stream
+ *            variant and overwrites it.
+ *
+ *@param      uint8_t *data - pointer to the array
+ *@param      size_t quantity - amount of bytes to copy
+ *
+ *@return     size_t
+ *@retval     actually read bytes.
+ */
+size_t TwoWire::readBytes(char* data, size_t quantity) {
+  uint8_t i = 0;
+  for (; i < quantity; i++) {
+    int16_t c = read();
+    if (c < 0) break;   // break if buffer empty
+    (*data++) = c;
+  }
+  return i;
+}
+
+
+/**
  *@brief      peek returns a byte from the host or client buffer but does not remove it
  *
  *            Usually, the function returns the byte from the host buffer.
@@ -520,10 +517,7 @@ int TwoWire::read(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::peek(void) {
-
-  uint8_t* rxHead;
-  uint8_t* rxTail;
-  uint8_t* rxBuffer;
+  uint8_t *rxHead, *rxTail, *rxBuffer;
 
   #if defined(TWI_MANDS)                         // Add following if host and client are split
     if (vars._bools._toggleStreamFn == 0x01) {
@@ -597,18 +591,9 @@ uint8_t TwoWire::getIncomingAddress(void) {
  */
 
 uint8_t TwoWire::getBytesRead() {
-  uint8_t* txTail;
-  #if defined(TWI_MANDS)                         // Add following if host and client are split
-      txTail   = &(vars._bytesReadWrittenS);
-  #else
-    #if defined(TWI_MERGE_BUFFERS)               // Same Buffers for tx/rx
-      txTail   = &(vars._bytesReadWritten);
-    #else                                        // Separate tx/rx Buffers
-      txTail   = &(vars._bytesWritten);
-    #endif
-  #endif
-  // txTail variable (what ever applies on the mode) is reset on every slave AddrRead
-  return (*txTail);
+  uint8_t num = vars._bytesTransmittedS;
+  vars._bytesTransmittedS = 0;
+  return num;
 }
 
 /**
@@ -717,20 +702,16 @@ void TwoWire::deselectSlaveBuffer(void) {
  */
 void TwoWire::onSlaveIRQ(TWI_t *module) {          // This function is static and is, thus, the only one for both
                                                     // Wire interfaces. Here is decoded which interrupt was fired.
-  #if defined(TWI1)                                 // Two TWIs available
-    #if defined(TWI_USING_WIRE1)                        // User wants to use Wire and Wire1. Need to check the interface
-      if (module == &TWI0) {
-        TWI_HandleSlaveIRQ(&(Wire.vars));
-      } else if (module == &TWI1) {
-        TWI_HandleSlaveIRQ(&(Wire1.vars));
-      }
-    #else                                           // User uses only Wire but can use TWI0 and TWI1
-      TWI_HandleSlaveIRQ(&(Wire.vars));             // Only one possible SlaveIRQ source/Target Class
-    #endif
-  #else                                             // Only TWI0 available, IRQ can only have been issued by that interface
-    TWI_HandleSlaveIRQ(&(Wire.vars));               // No need to check for it
+  #if defined(TWI1) &&  defined(TWI_USING_WIRE1)   // Two TWIs available and TWI1 is used. Need to check the module
+    if (module == &TWI0) {
+      TWI_HandleSlaveIRQ(&(Wire.vars));
+    } else if (module == &TWI1) {
+      TWI_HandleSlaveIRQ(&(Wire1.vars));
+    }
+  #else                                 // Otherwise, only one Wire object is being used anyway, no need to check 
+    (void)module;
+    TWI_HandleSlaveIRQ(&(Wire.vars));
   #endif
-  (void)module;
 }
 
 
@@ -745,17 +726,7 @@ void TwoWire::onSlaveIRQ(TWI_t *module) {          // This function is static an
  *@return     void
  */
 void TwoWire::onReceive(void (*function)(int)) {
-  if (__builtin_constant_p(function)) {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onReceive = function;
-    } else {
-      badArg("Null pointer passed to onReceive()");
-    }
-  } else {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onReceive = function;
-    }
-  }
+  vars.user_onReceive = function;
 }
 
 
@@ -769,17 +740,7 @@ void TwoWire::onReceive(void (*function)(int)) {
  *@return     void
  */
 void TwoWire::onRequest(void (*function)(void)) {
-  if (__builtin_constant_p(function)) {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onRequest = function;
-    } else {
-      badArg("Null pointer passed to onRequest()");
-    }
-  } else {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onRequest = function;
-    }
-  }
+  vars.user_onRequest = function;
 }
 
 
