@@ -26,8 +26,8 @@
 
 #include "Wire.h"
 
-void srmw (int);
-void swmr (void);
+void srmw(int);
+void swmr(void);
 
 #define MySerial Serial       // The serial port connected to the to the computer.
 

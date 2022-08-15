@@ -708,7 +708,7 @@ void TwoWire::onSlaveIRQ(TWI_t *module) {          // This function is static an
     } else if (module == &TWI1) {
       TWI_HandleSlaveIRQ(&(Wire1.vars));
     }
-  #else                                 // Otherwise, only one Wire object is being used anyway, no need to check 
+  #else                                 // Otherwise, only one Wire object is being used anyway, no need to check
     (void)module;
     TWI_HandleSlaveIRQ(&(Wire.vars));
   #endif
