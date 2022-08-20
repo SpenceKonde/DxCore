@@ -3,7 +3,7 @@ LABELS,DEFAULT,TYPE,GROUP,Name,Special,ADC0,AC0,DAC0,ZCD3,USART,SPI,TWI,TCA,TCD,
 BORDER COLOR, grey
 BORDER WIDTH, 2
 BORDER OPACITY, 1
-FILL COLOR, white, white, white, black,darkslateblue,forestgreen,seagreen,limegreen,olivedrab,mediumblue,mediumvioletred,darkorange,grey,darkorchid,maroon,goldenrod
+FILL COLOR, white, white, white, black,grey,forestgreen,seagreen,limegreen,olivedrab,mediumblue,dodgerblue,steelblue,red,mediumvioletred,darkorange,goldenrod
 
 OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 #FONT, Menlo,,
@@ -77,7 +77,7 @@ TEXT, none, black,"chip is square, shown as a breakout" , NL
 #MESSAGE, 50, 1785, 40, Name, 36, LEFT, TOP
 MESSAGE, 50, 2380, 40, Name, 36, LEFT, TOP
 TEXT, none, black, "The notation SDA.3 means Wire.swap(3). You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together. Each peripheral can have only one swap position set. Signals are often suffixed by the", NL
-TEXT, none, black, "peripheral number so RX1 is UART1 rx. In a few cases n,FN is used. The notation SDAS.3/SCLS.3 is where the slave pins are in dual mode. Diagrams by ObviousInRetrospect.",NL
+TEXT, none, black, "peripheral number so RX1 is UART1 rx. In a few cases n,FN is used (2,OUT.1). The notation SDAS.3/SCLS.3 is where the slave pins are in dual mode. Diagrams by ObviousInRetrospect.",NL
 
 #left pin name labels
 MESSAGE, 1600, 800, 125, Name, 48, LEFT, TOP

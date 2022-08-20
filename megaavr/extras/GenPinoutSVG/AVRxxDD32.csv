@@ -1,9 +1,9 @@
-LABELS,DEFAULT,TYPE,GROUP,Name,Special,ADC0,AC0,DAC0,ZCD3,USART,SPI,TWI,TCA,TCD,EVSYS,CCL,TCB
+LABELS,DEFAULT,TYPE,GROUP,Name,Special,ADC0,AC0,DAC0,ZCD3,USART,SPI,TWI,TCA,TCB,TCD,EVSYS,CCL
 
 BORDER COLOR, grey
 BORDER WIDTH, 2
 BORDER OPACITY, 1
-FILL COLOR, white, white, white, black,darkslateblue,forestgreen,seagreen,limegreen,olivedrab,mediumblue,mediumvioletred,darkorange,grey,darkorchid,maroon,goldenrod,magenta
+FILL COLOR, white, white, white, black,grey,forestgreen,seagreen,limegreen,olivedrab,mediumblue,dodgerblue,steelblue,red,maroon,mediumvioletred,darkorange,goldenrod
 
 OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 #FONT, Menlo,,
@@ -77,7 +77,7 @@ TEXT, none, black,"chip is square, shown as a breakout" , NL
 #MESSAGE, 50, 2380, 40, Name, 36, LEFT, TOP
 MESSAGE, 50, 2380, 40, Name, 36, LEFT, TOP
 TEXT, none, black, "The notation SDA.3 means Wire.swap(3). You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together. Each peripheral can have only one swap position set. Signals are often suffixed by the", NL
-TEXT, none, black, "peripheral number so RX1 is UART1 rx. In a few cases n,FN is used. The notation SDAS.3/SCLS.3 is where the slave pins are in dual mode. Diagrams by ObviousInRetrospect.",NL
+TEXT, none, black, "peripheral number so RX1 is UART1 rx. In a few cases n,FN is used (2,OUT.1). The notation SDAS.3/SCLS.3 is where the slave pins are in dual mode. Diagrams by ObviousInRetrospect.",NL
 
 #left pin name labels
 MESSAGE, 1600, 350, 120, Name, 48, LEFT, TOP
@@ -125,44 +125,44 @@ PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
 PIN, DIGITAL , IO, ,PIN_PA3, Fm+|TWI, AIN23, , , , RX0.2|XDIR0, , SCL|SCL.1, , , , , 
 ANCHOR, 1545, 355
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , , , WO3, , , "0,OUT", WOb1
+PIN, NONE , NONE, ,, , , , , , , , , WO3, WOb1, , , "0,OUT"
 ANCHOR, 1545, 425
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, DIGITAL , IO, ,PIN_PA4, , AIN24, , , , TX0.1, MOSI, , WO4, WOA|WOA.4, , , 
-PIN, DIGITAL , IO, ,PIN_PA5, , AIN25, , , , RX0.1, MISO, , WO5, WOB|WOB.4, , , 
-PIN, DIGITAL , IO, ,PIN_PA6, , AIN26, , , , XCK0.1, SCK, , , WOC, , "0,OUT.1", 
-PIN, DIGITAL , IO, ,PIN_PA7, CLKOUT, AIN27, OUT, , ZCOUT, XDIR0.1, SS, , , WOD, , , 
+PIN, DIGITAL , IO, ,PIN_PA4, , AIN24, , , , TX0.1, MOSI, , WO4, , WOA|WOA.4, , 
+PIN, DIGITAL , IO, ,PIN_PA5, , AIN25, , , , RX0.1, MISO, , WO5, , WOB|WOB.4, , 
+PIN, DIGITAL , IO, ,PIN_PA6, , AIN26, , , , XCK0.1, SCK, , , , WOC, , "0,OUT.1"
+PIN, DIGITAL , IO, ,PIN_PA7, CLKOUT, AIN27, OUT, , ZCOUT, XDIR0.1, SS, , , , WOD, , 
 ANCHOR, 1545, 835
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , , , , , EoA.1, , 
+PIN, NONE , NONE, ,, , , , , , , , , , , , EoA.1, 
 ANCHOR, 1545, 905
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, DIGITAL , IO, ,PIN_PC0, , AIN28, , , , TX1, MOSI.5|SCK.3, , WO0.2, , , "1,IN0|1,IN0.1", 
+PIN, DIGITAL , IO, ,PIN_PC0, , AIN28, , , , TX1, MOSI.5|SCK.3, , WO0.2, , , , "1,IN0|1,IN0.1"
 PIN, DIGITAL , IO, ,PIN_PC1, , AIN29, , , , RX1|TX0.4, MISO.5|MOSI.6|SS.3, , WO1.2, , , , 
 ANCHOR, 1545, 1075
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , , , , , , "1,IN1|1,IN1.1", 
+PIN, NONE , NONE, ,, , , , , , , , , , , , , "1,IN1|1,IN1.1"
 ANCHOR, 1545, 1145
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
 PIN, DIGITAL , IO, ,PIN_PC2, Fm+|TWI, AIN30, AINN3, , ZCIN, RX0.4|XCK1, , , , , , , 
 ANCHOR, 1545, 1195
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , MISO.6|SCK.5, SDA.2|SDAS|SDAS.3, WO2.2, , , "1,IN2|1,IN2.1", 
+PIN, NONE , NONE, ,, , , , , , , MISO.6|SCK.5, SDA.2|SDAS|SDAS.3, WO2.2, , , , "1,IN2|1,IN2.1"
 ANCHOR, 1545, 1265
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
 PIN, DIGITAL , IO, ,PIN_PC3, Fm+|TWI, AIN31, AINP4, , , XCK0.4|XDIR1, , , , , , , 
 ANCHOR, 1545, 1315
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , SCK.6|SS.5, SCL.2|SCLS|SCLS.3, WO3.2, , , "1,OUT", 
+PIN, NONE , NONE, ,, , , , , , , SCK.6|SS.5, SCL.2|SCLS|SCLS.3, WO3.2, , , , "1,OUT"
 ANCHOR, 1545, 1385
 PINSET, LEFT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , VDDIO2 , PowerPin,"1.8V-5.5V"
-PIN, DIGITAL , IO, ,PIN_PD1, , AIN1, , , , , , , WO1.3, , , "2,IN1|2,IN1.1", 
-PIN, DIGITAL , IO, ,PIN_PD2, , AIN2, AINP0, , , , , , WO2.3, , EoD, "2,IN2|2,IN2.1", 
-PIN, DIGITAL , IO, ,PIN_PD3, , AIN3, AINN0, , , , , , WO3.3, , , "2,OUT", 
-PIN, DIGITAL , IO, ,PIN_PD4, , AIN4, , , , TX0.3, MOSI.4, , WO4.3, WOC.4, , , 
-PIN, DIGITAL , IO, ,PIN_PD5, , AIN5, , , , RX0.3, MISO.4, , WO5.3, WOD.4, , , 
-PIN, DIGITAL , IO, ,PIN_PD6, , AIN6, AINP3, VOUT, , TX1.2|XCK0.3, SCK.4, , , , , "2,OUT.1", 
+PIN, DIGITAL , IO, ,PIN_PD1, , AIN1, , , , , , , WO1.3, , , , "2,IN1|2,IN1.1"
+PIN, DIGITAL , IO, ,PIN_PD2, , AIN2, AINP0, , , , , , WO2.3, , , EoD, "2,IN2|2,IN2.1"
+PIN, DIGITAL , IO, ,PIN_PD3, , AIN3, AINN0, , , , , , WO3.3, , , , "2,OUT"
+PIN, DIGITAL , IO, ,PIN_PD4, , AIN4, , , , TX0.3, MOSI.4, , WO4.3, , WOC.4, , 
+PIN, DIGITAL , IO, ,PIN_PD5, , AIN5, , , , RX0.3, MISO.4, , WO5.3, , WOD.4, , 
+PIN, DIGITAL , IO, ,PIN_PD6, , AIN6, AINP3, VOUT, , TX1.2|XCK0.3, SCK.4, , , , , , "2,OUT.1"
 
 # Right Side Pins
 ANCHOR, 1985, 305
@@ -172,39 +172,39 @@ PIN, DIGITAL , IO, ,PIN_PA2, Fm+|TWI, AIN22, , , , TX0.2|XCK0, , SDA|SDA.1, , , 
 # Right Side Pins
 ANCHOR, 1985, 355
 PINSET, RIGHT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , , , WO2, , EoA, "0,IN2|0,IN2.1", WOb0
+PIN, NONE , NONE, ,, , , , , , , , , WO2, WOb0, , EoA, "0,IN2|0,IN2.1"
 
 # Right Side Pins
 ANCHOR, 1985, 425
 PINSET, RIGHT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, DIGITAL , IO, ,PIN_PA1, XTALHF2, , , , , RX0, MISO.3, SCL.3, WO1, , , "0,IN1|0,IN1.1", 
+PIN, DIGITAL , IO, ,PIN_PA1, XTALHF2, , , , , RX0, MISO.3, SCL.3, WO1, , , , "0,IN1|0,IN1.1"
 PIN, DIGITAL , IO, ,PIN_PA0, EXTCLK|XTALHF1, , , , , TX0, MOSI.3, SDA.3, WO0, , , , 
 
 # Right Side Pins
 ANCHOR, 1985, 595
 PINSET, RIGHT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , , , , , , "0,IN0|0,IN0.1", 
+PIN, NONE , NONE, ,, , , , , , , , , , , , , "0,IN0|0,IN0.1"
 
 # Right Side Pins
 ANCHOR, 1985, 665
 PINSET, RIGHT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
 PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
 PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
-PIN, DIGITAL , IO, ,PIN_PF7, UPDI, , , , , , SS.6, , , , EoF.1, , 
+PIN, DIGITAL , IO, ,PIN_PF7, UPDI, , , , , , SS.6, , , , , EoF.1, 
 PIN, DIGITAL , IO, ,PIN_PF6, RESET, , , , , , , , , , , , 
-PIN, DIGITAL , IO, ,PIN_PF5, , AIN21, , , , , , , WO5.5, , , , WOb1.1
-PIN, DIGITAL , IO, ,PIN_PF4, , AIN20, , , , , , , WO4.5, , , , WOb0.1
-PIN, DIGITAL , IO, ,PIN_PF3, Fm+|TWI, AIN19, , , , , , , WO3.5, WOD.2, , , 
-PIN, DIGITAL , IO, ,PIN_PF2, Fm+|TWI, AIN18, , , , , , , WO2.5, WOC.2, EoF, , 
-PIN, DIGITAL , IO, ,PIN_PF1, XTAL32K2, AIN17, , , , , , , WO1.5, WOB.2, , , 
-PIN, DIGITAL , IO, ,PIN_PF0, XTAL32K1, AIN16, , , , , , , WO0.5, WOA.2, , , 
+PIN, DIGITAL , IO, ,PIN_PF5, , AIN21, , , , , , , WO5.5, WOb1.1, , , 
+PIN, DIGITAL , IO, ,PIN_PF4, , AIN20, , , , , , , WO4.5, WOb0.1, , , 
+PIN, DIGITAL , IO, ,PIN_PF3, Fm+|TWI, AIN19, , , , , , , WO3.5, , WOD.2, , 
+PIN, DIGITAL , IO, ,PIN_PF2, Fm+|TWI, AIN18, , , , , , , WO2.5, , WOC.2, EoF, 
+PIN, DIGITAL , IO, ,PIN_PF1, XTAL32K2, AIN17, , , , , , , WO1.5, , WOB.2, , 
+PIN, DIGITAL , IO, ,PIN_PF0, XTAL32K1, AIN16, , , , , , , WO0.5, , WOA.2, , 
 PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
 PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
-PIN, DIGITAL , IO, ,PIN_PD7, VREFA, AIN7, AINN2, , , RX1.2|XDIR0.3, SS.4, , , , EoD.1, , 
+PIN, DIGITAL , IO, ,PIN_PD7, VREFA, AIN7, AINN2, , , RX1.2|XDIR0.3, SS.4, , , , , EoD.1, 
 
 # legend
 ANCHOR, 800, 10
 PINSET, RIGHT, PACKED, CENTER, CENTER, 120, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,Name, Special, ADC0, AC0, DAC0, ZCD3, USART, SPI, TWI, TCA, TCD, EVSYS, CCL, TCB
+PIN, NONE , NONE, ,Name, Special, ADC0, AC0, DAC0, ZCD3, USART, SPI, TWI, TCA, TCB, TCD, EVSYS, CCL
 MESSAGE, 800, 60, 120, Name, 72, RIGHT, TOP
 TEXT, none, black, Legend, NL
