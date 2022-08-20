@@ -41,7 +41,8 @@ BOX, PIN BOX, black, 1, white, 0, 1, 180, 45, 5, 5, -10, 0
 BOX, SPECIAL BOX, black, 1, white, 0, 1, 170, 45, 5, 5, -10, 0
 BOX, DUMB BOX, black, 1, white, 0, 1, 55, 55, 5, 5, -10, 0
 BOX, SKEWED, black, 1, white, 0, 1, 145,42,5,5,-10,0
-BOX, PAGE BORDER, black, 1, white, 1, 1, 100,100,0,0,0,0
+#BOX, PAGE BORDER, black, 1, white, 1, 1, 100,100,0,0,0,0
+BOX, PAGE BORDER, white, 1, white, 1, 1, 100,100,0,0,0,0
 BOX, DETAIL BOX, darkblue, 1, white, 0, 3, 250, 200, 15,15,0,0
 
 TEXT FONT, PowerPin, Dejavu Sans, 25, , black, normal, bold, normal
