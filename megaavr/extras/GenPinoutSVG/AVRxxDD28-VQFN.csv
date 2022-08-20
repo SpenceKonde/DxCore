@@ -187,7 +187,7 @@ PIN, DIGITAL , IO, ,PIN_PF6, RESET, , , , , , , , , , , ,
 PIN, DIGITAL , IO, ,PIN_PF1, XTAL32K2, AIN17, , , , , , , WO1.5, WOB.2, , , 
 PIN, DIGITAL , IO, ,PIN_PF0, XTAL32K1, AIN16, , , , , , , WO0.5, WOA.2, , , 
 PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
-PIN, DIGITAL , IO, ,PIN_AVDD, , , , , , , , , , , , , 
+PINTEXT, POWER, IO, POWER , AVDD , PowerPin,"1.8V-5.5V"
 PIN, DIGITAL , IO, ,PIN_PD7, VREFA, AIN7, AINN2, , , RX1.2|XDIR0.3, SS.4, , , , EoD.1, , 
 PIN, DIGITAL , IO, ,PIN_PD6, , AIN6, AINP3, VOUT, , TX1.2|XCK0.3, SCK.4, , , , , "2,OUT.1", 
 PIN, DIGITAL , IO, ,PIN_PD5, , AIN5, , , , RX0.3, MISO.4, , WO5.3, WOD.4, , , 
