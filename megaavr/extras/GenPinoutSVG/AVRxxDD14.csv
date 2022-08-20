@@ -46,7 +46,8 @@ BOX, PAGE BORDER, white, 1, white, 1, 1, 100,100,0,0,0,0
 BOX, DETAIL BOX, darkblue, 1, white, 0, 3, 250, 200, 15,15,0,0
 
 TEXT FONT, PowerPin, Dejavu Sans, 25, , black, normal, bold, normal
-TEXT FONT, Heading, BenchNine, 50, , black, normal, 700, normal
+#TEXT FONT, Heading, BenchNine, 50, , black, normal, 700, normal
+#TEXT FONT, Heading, , 50, , black, normal, 700, normal
 
 PAGE, A4-L
 DPI, 300
