@@ -39,7 +39,7 @@ More information on what each line means can be found futher down on this page.
 
 ```ini
 ; PlatformIO template configuration file for DxCore
-; https://github.com/MCUdude/DxCore/
+; https://github.com/SpenceKonde/DxCore/
 ;
 ;   Build options: build flags, source filter
 ;   Hardware options: oscillator type, BOD, UART number, EEPROM retain
@@ -48,7 +48,7 @@ More information on what each line means can be found futher down on this page.
 ;   Advanced options: extra scripting
 ;
 ; Please visit documentation for the other options
-; https://github.com/MCUdude/DxCore/blob/master/PlatformIO.md
+; https://github.com/SpenceKonde/DxCore/blob/master/PlatformIO.md
 ; https://docs.platformio.org/page/projectconf.html
 ; https://docs.platformio.org/en/latest/platforms/atmelmegaavr.html
 
@@ -232,26 +232,18 @@ Holds the current pinout in use.
 | [`64pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)| [`48pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md) | [`32pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md) | [`28pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md) |
 
 
+### `build_flags`
+This parameter is used to set compiler flags.
+
+**Example:**
+`build_flags =-Wall -Wextra`
+
+
 ### `build_unflags`
 This parameter is used to unflag flags automatically set by the PlatformIO build environment.
 
 **Example:**
 `build_unflags =-flto -fpermissive`
-
-
-### `build_flags`
-This parameter is used to set compiler flags. This is useful if you want to for instance want to chage the serial RX or TX buffer. Here's a list of the current available core files flags:
-
-| Flag                        | Default size | Description                                               |
-|-----------------------------|--------------|-----------------------------------------------------------|
-| -lprintf_flt                |              | Lets you print floats with printf (occupies ~1.5 kB)      |
-| -Wall -Wextra               |              | Show on all compiler warnings                             |
-| -DSERIAL_RX_BUFFER_SIZE=128 | 64 bytes     | Sets the serial RX buffer to 128 bytes                    |
-| -DSERIAL_TX_BUFFER_SIZE=128 | 64 bytes     | Sets the serial TX buffer to 128 bytes                    |
-| -DTWI_BUFFER_SIZE=64        | 32 bytes     | Sets the TWI (i2c) buffer to 64 bytes                     |
-
-**Example:**
-`build_flags = -DSERIAL_RX_BUFFER_SIZE=128 -DSERIAL_TX_BUFFER_SIZE=128`
 
 
 ### `upload_port`
