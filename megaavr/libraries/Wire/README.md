@@ -148,9 +148,9 @@ uint8_t slaveTransactionOpen();
 ```
 This method, when called by the slave will return a value indicating whether there is currently an ongoing transfer. This is of particular use when the slave device is going to go to sleep but doesn't want to cut off a transaction in the middle. This could be polled until false prior to entering sleep. Remember - the onReceive handler is called at the end of a write, while the onRequest handler is called at the beginning of a read, and nothing is called at the end. This is only useful in slave mode. When operating as a master in Master or Slave mode, this simply returns 0.
 
-The version of the Wire library shipped in 1.4.10 and earlier (and possibly other versions prior to 1.5.0) has some bugs that make it do strange things for a slave that sleeps in sleep modes other than SLEEP_MODE_IDLE. See https://github.com/SpenceKonde/DxCore/issues/322. Replacing the Wire implimentation in your Arduino15/../DxCore/megaavr/libraries/Wire/src code with the contents of https://github.com/SpenceKonde/DxCore/files/9389669/src.zip will improve the results dramatically.
+Cores prior to 1.5.0 do not support wake-on-TWI and will behave erratically if a slave device tries to do so. 
 
-You must be extremely careful to not sleep the CPU with a slave transaction open, doing so (expecially in SLEEP_MODE_PWR_DOWN) can cause the slave to stop responding entirely. You will want some version of the following code in your main loop:
+In 1.5.0 and later it is safe to sleep as long as a slave transaction is not open. Doing so (expecially in SLEEP_MODE_PWR_DOWN) can cause the slave to stop responding entirely. You will want some version of the following code in your main loop:
 
 ```c++
 void loop(){
@@ -160,9 +160,9 @@ void loop(){
 while (!wake && Wire.slaveTransactionOpen()) {
     delay(1);
   }
-  if(!wake){ //need this part if you want to avoid serial corruption (and use serial)
-    Serial.flush();    
-  }
+  // if(!wake){ //need this part if you want to avoid serial corruption (and use serial)
+  //   Serial.flush();    
+  // }
   // yes, real-world testing proves this level of paranoia is in fact necessary
   // the body of the below loop used to just sleep_cpu(). it would fail 
   // approximately 3 times per million
