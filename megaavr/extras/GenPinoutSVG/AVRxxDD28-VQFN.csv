@@ -73,11 +73,14 @@ TEXT, none, black, github.com/, NL
 TEXT, none, black, SpenceKonde/DxCore, NL
 TEXT, none, black, , NL
 MESSAGE, 1425, 2270, 40, Name, 36, LEFT, TOP
-TEXT, none, black,"chip is square, shown as a breakout" , NL
+TEXT, none, black,"Chip is square, shown as a breakout." , NL
 #MESSAGE, 50, 2310, 40, Name, 36, LEFT, TOP
-MESSAGE, 50, 2380, 40, Name, 36, LEFT, TOP
-TEXT, none, black, "The notation SDA.3 means Wire.swap(3). You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together. Each peripheral can have only one swap position set. Signals are often suffixed by the", NL
-TEXT, none, black, "peripheral number so RX1 is UART1 rx. In a few cases n,FN is used (2,OUT.1). The notation SDAS.3/SCLS.3 is where the slave pins are in dual mode. Diagrams by ObviousInRetrospect.",NL
+MESSAGE, 50, 2340, 48, Name, 48, LEFT, TOP
+TEXT, none, black, "The notation SDA.3 means Wire.swap(3). You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together. Each peripheral can have only one swap", NL
+TEXT, none, black, "position set. Signals are often suffixed by the peripheral number so RX1 is UART1 rx. In a few cases n,FN is used (2,OUT.1). The notation SDAS.3/SCLS.3",NL
+TEXT, none, black, "is where the slave pins are in dual mode. Diagrams by ObviousInRetrospect.",NL
+
+
 
 #left pin name labels
 MESSAGE, 1600, 450, 125, Name, 48, LEFT, TOP
