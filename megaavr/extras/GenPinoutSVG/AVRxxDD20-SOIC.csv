@@ -153,7 +153,7 @@ PIN, DIGITAL , IO, ,PIN_PC3, Fm+|TWI, AIN31, AINP4, , , XCK0.4|XDIR1, , , , , , 
 # Right Side Pins
 ANCHOR, 1985, 1405
 PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , SCK.6|SS.5, SCL.2|SCLS|SCLS.3, WO3.2, , , , "1,OUT"
+PIN, NONE , NONE, ,, , , , , , , SCK.6|SS.5, SCL.2|SCLs|SCLs.3, WO3.2, , , , "1,OUT"
 
 # Right Side Pins
 ANCHOR, 1985, 1480
@@ -163,7 +163,7 @@ PIN, DIGITAL , IO, ,PIN_PC2, Fm+|TWI, AIN30, AINN3, , ZCIN, RX0.4|XCK1, , , , , 
 # Right Side Pins
 ANCHOR, 1985, 1530
 PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
-PIN, NONE , NONE, ,, , , , , , , MISO.6|SCK.5, SDA.2|SDAS|SDAS.3, WO2.2, , , , "1,IN2|1,IN2.1"
+PIN, NONE , NONE, ,, , , , , , , MISO.6|SCK.5, SDA.2|SDAs|SDAs.3, WO2.2, , , , "1,IN2|1,IN2.1"
 
 # Right Side Pins
 ANCHOR, 1985, 1605
