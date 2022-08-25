@@ -100,8 +100,8 @@ class TwoWire: public Stream {
     uint8_t slaveTransactionOpen(void);
     void    enableDualMode(bool fmp_enable);      // Moves the Slave to dedicated pins
 
-    inline void selectSlaveBuffer();
-    inline void deselectSlaveBuffer();
+    void selectSlaveBuffer();
+    void deselectSlaveBuffer();
 
     void onReceive(void (*)(int));
     void onRequest(void (*)(void));

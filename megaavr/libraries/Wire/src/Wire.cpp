@@ -483,8 +483,8 @@ int TwoWire::read(void) {
  *            If called inside the specified onReceive or onRequest functions, or after
  *            selectSlaveBuffer, it reads the bytes from the slave buffer and removes it
  *            from there. When there are less bytes then requested, the return value will
- *            be smaller then the requested amount. It is more efficient then the Stream
- *            variant and overwrites it.
+ *            be smaller then the requested amount. It is more then the Stream variant
+ *            and overwrites it.
  *
  *@param      uint8_t *data - pointer to the array
  *@param      size_t quantity - amount of bytes to copy
@@ -612,10 +612,9 @@ uint8_t TwoWire::getBytesRead() {
  */
 
 uint8_t TwoWire::slaveTransactionOpen() {
-  uint8_t status = vars._module->SSTATUS;
-  if (!(status & TWI_AP_bm)) return 0;  // If AP bit is cleared, last match was a stop condition -> not in transaction.
-  if (status & TWI_DIR_bm) return 2;    // DIR bit will be 1 if last address match was for read
-  return 1;                             // Otherwise it was a write.
+   if (vars._module->SSTATUS & (TWI_DIR_bm | TWI_AP_bm)) return 2;
+   if (vars._module->SSTATUS & TWI_AP_bm) return 1; // Slave Status is a volatile register, thus two loads
+   return 0;
 }
 
 /**
@@ -623,6 +622,7 @@ uint8_t TwoWire::slaveTransactionOpen() {
  *
  *            useful when you want to separate multiple TWI buses.
  *            Only available on the chips with a bigger pin count. See data sheet.
+ *            To disable dualmode, please use Wire.endSlave() (in MANDS case) or Wire.end();
  *
  *@param      bool fmp_enable - set true if the TWI module has to expect a high
  *              frequency (>400kHz) on the salve pins
