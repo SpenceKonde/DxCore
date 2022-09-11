@@ -5,33 +5,22 @@
  * Part of DxCore, which adds Arduino support for the AVR DA,
  * DB, and DD-series microcontrollers from Microchip.
  * DxCore is free software (LGPL 2.1)
- * See LICENSE.txt for full legal boilerplate if you must */
+ * See LICENSE.txt for full legal boilerplate if you must
+ *************************************************************/
+
 /*************************************************************
  * This file contains the stuff I think people are most likely
  * to need to refer to. The minutia has all been pushed into
  * core_devices.h if it's independent of pins_arduino.h or into
- * pinswap.h if it relates to PORTMUX, which is a great volume
- * of stuff nobody should have to read.
+ * pinswap.h if it relates to PORTMUX. Most importantly, core_devices
+ * is where we dumped the 3000 lines of #ifdefs needed to make sure
+ * the new toolchains worked. At least they did bump the major version!
+ * All in all, core_devices is full of all the crap that you don't care
+ * to read through.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
- /*
- * That means functions and macros that may be used by user code
- * (except for part-feature ones - those are clearly documented
- * in the readme if they are ready for users).
- * I also try to put detailed comments in where appropriate.
+ * That includes the declarations for all functions that the core supplies
+ * which the user has business calling. Plus several that they have
+ * no business calling,
  *************************************************************/
 
 #ifndef Arduino_h
@@ -420,6 +409,10 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  */
 
 
+// Copies of above for internal use, and for the really exotic use cases that want this instead of system clocks (basically never in user-land)
+uint16_t millisClockCyclesPerMicrosecond();
+unsigned long millisClockCyclesToMicroseconds(unsigned long cycles);
+unsigned long microsecondsToMillisClockCycles(unsigned long microseconds);
 /* Timers and Timer-like-things
  * These are used for two things: Identifying the timer on a pin in
  * digitalPinToTimer(), and for the MILLIS_TIMER define that users can test to
@@ -576,6 +569,7 @@ extern const uint8_t digital_pin_to_timer[];
 #define NOT_A_PIN         (255) // When you try to get a pin number, make sure it's not NOT_A_PIN before proceeding
 #define NOT_A_PORT        (255) // as above for ports.
 #define NOT_AN_INTERRUPT  (255) // As above, for interrupts
+#define NOT_A_CHANNEL     (255) // for channel identification on ea-series
 #define NOT_A_MUX         (255) //
 // Notice the different value!
 #define MUX_NONE          (128)
@@ -603,6 +597,9 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
 // millis timekeeping can render the TCBs unavailable for PWM. You should use takeOverTCA0/TCA1/TCD0() if reconfiguring the timers in this way, which will also
 // cause digitalPinToTimerNow() to return NOT_ON_TIMER
 
+/*******************************************************************
+ * PIN CONFIGURE Set any or all pin settings, easily invert, etc   *
+ *******************************************************************
 // These are used as the second argument to pinConfigure(pin, configuration)
 // You can bitwise OR as many of these as you want, or just do one. Very
 // flexible function; not the world's fastest though. Directives are handled
@@ -676,20 +673,22 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
 // reserved                  (0x0400) // reserved
 // reserved                  (0x0800) // reserved
 // reserved                  (0x0C00) // reserved
-#define PIN_INLVL_TTL        (0x1000) // TTL INPUT LEVELS - MVIO parts only
-#define PIN_INLVL_ON         (0x1000) // alias MVIO parts only
-#define PIN_INLVL_SET        (0x1000) // alias MVIO parts only
-#define PIN_INLVL_SCHMITT    (0x2000) // SCHMITT INPUT LEVELS - MVIO parts only
-#define PIN_INLVL_OFF        (0x2000) // alias MVIO parts only
-#define PIN_INLVL_CLR        (0x2000) // alias MVIO parts only
+#define PIN_INLVL_TTL        (0x1000) // TTL INPUT LEVELS - DD, DB, EA (maybe all future non-tinies!)
+#define PIN_INLVL_ON         (0x1000) // alias
+#define PIN_INLVL_SET        (0x1000) // alias
+#define PIN_INLVL_SCHMITT    (0x2000) // SCHMITT INPUT LEVELS
+#define PIN_INLVL_OFF        (0x2000) // alias
+#define PIN_INLVL_CLR        (0x2000) // alias
 // reserved                  (0x3000) // INLVL TOGGLE - not supported. If you tell me a reasonable use case
-// I'll do it.each possible value is handled separately, slowing it down, and I don't think this would get used.
+// I'll do it. But when would you ever just want to switch the inlvl from whatever it is now? Don't you want to put it to either schmitt or ttl and know which one you want?each possible value is handled separately, slowing it down, and I don't think this would get used.
 #define PIN_INVERT_ON        (0x4000) // PIN INVERT ON
 #define PIN_INVERT_SET       (0x4000) // alias
 #define PIN_INVERT_OFF       (0x8000) // PIN INVERT OFF
 #define PIN_INVERT_CLR       (0x8000) // alias
 #define PIN_INVERT_TGL       (0xC000) // PIN_INVERT_TOGGLE
 #define PIN_INVERT_TOGGLE    (0xC000) // alias
+
+
 
 /*
 Supplied by Variant file:
@@ -717,11 +716,13 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #define portModeRegister(P)   ((volatile uint8_t *)(&portToPortStruct(P)->DIR))
 #if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
   #define portEventRegister(p)  ((volatile uint8_t *)(&portToPortStruct(P)->EVGENCTRL))
-  uint8_t setEventPin(uint8_t pin, uint8_t number); // preliminary thought - pass a pin number, it looks up port, and from there the event control register and sets it.
+  uint8_t _setRTCEventChan(uint8_t val, uint8_t chan);
+  uint8_t _setEventPin(uint8_t pin, uint8_t number); // preliminary thought - pass a pin number, it looks up port, and from there the event control register and sets it.
   //Number being 0 or 1 or 255 to pick the lowest numbered one not set. Returns event channel number TBD if that should be the EVSYS valus or 0 or 1. If "Pick unused ome" is requested but both already assigned, will return 255
-  uint8_t getPortEventConfig(uint8_t port); // just shorthand for looking up the port and returning it's EVGENCTRL value
-  uint8_t setRTCEventChan(uint8_t div, uint8_t number); // number is 0, 1 or 255 like above, div is log(2) of the divisor (ie, for 2^5, his would be 5).
-  uint8_t getRTCEventConfig(); //simply returns the RTC channel configuration. Will likely return 255 if called on non Ex
+  uint8_t _getPortEventConfig(uint8_t port); // just shorthand for looking up the port and returning it's EVGENCTRL value
+  uint8_t _setRTCEventChan(uint8_t vail, uint8_t chan); // number is 0, 1 or 255 like above, div is log(2) of the divisor (ie, for 2^5, his would be 5).
+  uint8_t _getRTCEventConfig(); //simply returns the RTC channel configuration. Will likely return 255 if called on non Ex
+
 #endif
 #ifdef __cplusplus
 } // extern "C"
@@ -866,13 +867,13 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
     #endif
   #endif
 #endif
-
-#if !defined(SERIAL_PORT_MVIO) && defined(MVIO)
+#if !defined(SERIAL_PORT_MVIO) && defined(MVIO) // defined on DD snd DB.
 // DD-series parts with 20-or-fewer pins will not have a PC0 for the TX line of
-// Serial1, so it can't be their MVIO serial port (without involving the event
+// Serial1. that makes it difficult to , so it can't be their MVIO serial port (without involving the event
 // system, of course) - but they can get a serial port on MVIO pins with USART0
 // and an alternate mapping. So for those parts only, Serial is their MVIO port.
-// For everyone else it's Serial1, and for non-DD parts, that is the only port
+// For everyone else it's Serial1, and for non-DD parts, that is the only serial port connected to thr mvio
+// serial port.
 // that could be used with MVIO (again, short of rerouting signals with
 // the event system)
 // Note that if MVIO is disabled, we cannot detect that.
@@ -884,6 +885,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   #endif
 #endif
 
+
 // Spence Konde: This is a bit silly - but it does have some utility. I am of the
 // opinion that anything that needs to use a serial port or other peripheral of
 // which a chip may have several, and it needs to be sure to pick the "right" one
@@ -891,4 +893,66 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 // open serial port, if the user tied it to a different port? Or thought they
 // were going to use software serial "like they always did" (*shudder*)
 
+
+/********************************************************************************
+ * CORE AND HARDWARE FEATURE SUPPORT  *
+ * CORE_HAS_FASTIO is 1 when digitalReadFast and digitalWriteFast are supplied, and 2 when openDrainFast and pinModeFast are as well.
+ * CORE_HAS_OPENDRAIN
+ * CORE_HAS_PINCONFIG is 1 if pinConfig is supplied. The allows full configuration of any pin. It is 2 if it accepts commas instead of bitwise or between configuration parameters (NYI)
+ * CORE_HAS_FASTPINMODE is 1 if pinModeFast is supplied
+ * CORE_HAS_ANALOG_ENH is 0 if no analogReadEnh is supplied, 1 if it is, and 2 if it is supplied and both core and hardware support a PGA.
+ * CORE_HAS_ANALOG_DIFF is 0 if no analogReadDiff is supplied, 1 if it's DX-like (Vin < VREF), and 2 if it's a proper
+ * differential ADC, supported in both hardware and software. The value -1 is also valid and indicates it's a classic AVR with a  * differential ADC, see the documentation for the core.
+ * CORE_HAS_TIMER_TAKEOVER is 1 if takeOverTCxn functions are provided to tell the core not to automatically use all
+ * type A and D timers.
+ * CORE_HAS_TIMER_RESUME is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.
+ * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core, 0 if it would be if
+ * the harware worked, and not defined at all if the hardware doesnt have such a feature even in theory
+ * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.
+ ********************************************************************************/
+#define CORE_HAS_FASTIO                 (2)
+#define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
+#define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
+#define CORE_HAS_FASTPINMODE            (1)
+#define CORE_DETECTS_TCD_PORTMUX        (1)
+                                            /* we support using it */
+#define CORE_HAS_TIMER_TAKEOVER         (1)
+#define CORE_HAS_TIMER_RESUME           (1)
+#define CORE_SUPPORT_LONG_TONES         (1)
+#define CORE_HAS_ANALOG_ENH             (1)
+#define CORE_HAS_ANALOG_DIFF            (1)
+
+
+/* Hardware capabilities (ADC)
+ * ADC_DIFFERENTIAL is 1 for a half-way differential ADC like DX-serie has, 2 for a real one like EA-series will    *
+ * ADC_MAX_OVERSAMPLED_RESOLUTION is the maximum resolution attainable by oversampling and decimation               *
+ * ADC_NATIVE_RESOLUTION is the higher of the two native ADC resolutions. Either 10 or 12                           *
+ * ADC_NATIVE_RESOLUTION_LOW is the lower of the two native ADC resolutions. Either 8 or 10. Can't be deduced from  *
+ * above. All permutations where the "native resolution" is higher are extant somewhere                             *
+ * ADC_MAXIMUM_ACCUMULATE is the maximum number of sameples that can be accumulated by the burst accumulation mode  *
+ * ADC_MAXIMUM_SAMPDUR is the maximum sample duration value. Refer to the core documentation or datasheet for detail*
+ * ADC_RESULT_SIZE is the size (in bits) of the registers that hold the ADC result. V2.0 ADC has 32, others have 16 *
+ * ADC_MAXIMUM_GAIN is defined if there is a way to amplify the input to the ADC. If you have to use onchip opamps  *
+ * and the chip has them, it's -1, otherwise it is the maximum multiplier
+ * ADC_REFERENCE_SET is 1 if the references are the weird ones that tinyAVR 0 and 1 use, and 2 if they are 1.024,   *
+ * 2.048, 4.096 and 2.5V like civilized parts */
+
+#define ADC_DIFFERENTIAL                (1)
+#define ADC_MAX_OVERSAMPLED_RESOLUTION (15)
+#define ADC_NATIVE_RESOLUTION          (12)
+#define ADC_NATIVE_RESOLUTION_LOW      (10)
+#define ADC_MAXIMUM_ACCUMULATE        (128)
+#define ADC_MAXIMUM_SAMPDUR          (0xFF)
+#define ADC_RESULT_SIZE                (16)
+#if defined(__AVR_DD__) || defined(__AVR_EA__)
+  #define ADC_MAXIMUM_PIN_CHANNEL      (31)
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (31)
+#else                                       /* negative inputs! The EA even has a decent differential ADC!          */
+  #define ADC_MAXIMUM_PIN_CHANNEL      (21)
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (15)
 #endif
+#if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
+  #define ADC_MAXIMUM_GAIN             (16)
+#elif defined(OPAMP0)
+  #ifndef ADC_MAXIMUM_GAIN
+    #define ADC_MAXIMUM_GAIN           (-1)  /* DB-series can use their OPAMPs as a PGA                             */

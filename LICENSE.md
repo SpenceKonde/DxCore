@@ -1,4 +1,4 @@
-# DxCore is released under the LGPL version 2.1
+# DxCore and megaTiny released under the LGPL version 2.1
 All files included with the DxCore package are covered by this unless
 otherwise noted. Some included files and libraries are covered by other
 licenses. Any file licensed under terms other than the LGPL 2.1 will have

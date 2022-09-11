@@ -1,8 +1,9 @@
-/* core_devices - a part of Arduino.h for DxCore 1.3.0 and later
+/* core_devices  - a part of Arduino.h for megaTinyCore 2.3.0 and later and DxCore 1.4.0, but
+ * which takes ion much greater importance (and girth) with the toolchain update in 2.6 and 1.6)
  * This is directly included by Arduino.h and nothing else; it just moves
- * clutter out of that file.
+ * clutter out of that file. You should not directly include this file ever. 
  *
- * Spence Konde 2021 - DxCore is free software (LGPL 2.1)
+ * Spence Konde 2021 -2022- megaTinyCore and DxCore are free software (LGPL 2.1)
  * See LICENSE.txt for full legal boilerplate if you must */
 
 #ifndef Core_Devices_h
@@ -458,38 +459,6 @@
 #if defined(__AVR_DD__) || !defined(ERRATA_TCD_PORTMUX)
   #define CORE_DETECTS_TCD_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
 #endif
-#define CORE_HAS_FASTIO                 (1) /* DxCore has the digitalReadFast() and digitalWriteFast()              */
-#define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
-#define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
-#define CORE_DETECTS_TCD_PORTMUX        (1) /* indicates that portmux for TCD0 is working on these parts and used by analog Writer
-#define CORE_HAS_FAST_
-#define CORE_HAS_TIMER_TAKEOVER         (1) /* DxCore has takeOverTCA0(), takeOverTCA1() and takeOverTCD0()         */
-#define CORE_HAS_TIMER_RESUME           (1) /* DxCore has   resumeTCA0(),   resumeTCA1(); there is no resumeTCD0()  */
-#define CORE_SUPPORT_LONG_TONES         (1) /* tone()s specifying duration are timed by counting the oscillations.  */
-                                            /* This causes problem for long high frequency tones. By rearranging a  */
-                                            /* division operator, we can expand the range by a factor of 100, so    */
-                                            /* that no reasonable tone will trigger it at cost of 100 bytes or so   */
-#define ADC_DIFFERENTIAL                (1) /* Basic modern-AVR differential ADC                                    */
-#define CORE_HAS_ANALOG_ENH             (1) /* DxCore has analogReadEnh()                                           */
-#define CORE_HAS_ANALOG_DIFF            (1) /* DxCore has analogReadDiff()                                          */
-#define ADC_MAX_OVERSAMPLED_RESOLUTION (15) /* DxCore has 15 bit maximum resolution via oversampling and decimation */
-#define ADC_NATIVE_RESOLUTION          (12) /*                                                                      */
-#define ADC_NATIVE_RESOLUTION_LOW      (10) /*                                                                      */
-#define ADC_MAXIMUM_ACCUMULATE        (128) /* Maximum burst accumulation                                           */
-#define ADC_MAXIMUM_SAMPDUR          (0xFF) /* Maximum SAMPLEN or SAMPDUR                                           */
-#define ADC_RESULT_SIZE                (16) /* ADC Result Size (bits)                                               */
-#if defined(__AVR_DD__) || defined(__AVR_EA__)
-  #define ADC_MAXIMUM_PIN_CHANNEL      (31) /* Highest number that might be associated with a pin on DD - there are */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     (31) /* gaps on lower pincount parts. On DD and EA, all ADC pins work as     */
-#else                                       /* negative inputs! The EA even has a decent differential ADC!          */
-  #define ADC_MAXIMUM_PIN_CHANNEL      (21) /* At most, there are only 21 analog pins on a DA/DB                    */
-  #define ADC_MAXIMUM_NEGATIVE_PIN     (15) /* and only PORTD and PORTE work with MUXNEG for differential reading   */
-#endif
-#if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
-  #define ADC_MAXIMUM_GAIN             (16) /* The EA series will have a PGA like the 2-series parts.               */
-#elif defined(OPAMP0)
-  #ifndef ADC_MAXIMUM_GAIN
-    #define ADC_MAXIMUM_GAIN           (-1)  /* DB-series can use their OPAMPs as a PGA                             */
   #endif
   #define PIN_OPAMP0_INP            PIN_PD1
   #define PIN_OPAMP0_OUT            PIN_PD2

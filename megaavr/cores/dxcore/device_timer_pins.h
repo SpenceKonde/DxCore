@@ -33,25 +33,33 @@
       #define PIN_TCD0_WOA_ALT4     PIN_PA4
       #define PIN_TCD0_WOB_ALT4     PIN_PA5
     #endif
-    #define PIN_TCD0_WOA_DEFAULT    PIN_PA4
-    #define PIN_TCD0_WOB_DEFAULT    PIN_PA5
-    #define PIN_TCD0_WOC_DEFAULT    PIN_PA6
-    #define PIN_TCD0_WOD_DEFAULT    PIN_PA7
+    #ifdef __AVR_EA__
+      #define PIN_TCA1_WO0_ALT4     PIN_PA4
+      #define PIN_TCA1_WO1_ALT4     PIN_PA5
+      #define PIN_TCA1_WO2_ALT4     PIN_PA6
+    #endif
+    #ifdef TCD0
+      #define PIN_TCD0_WOA_DEFAULT    PIN_PA4
+      #define PIN_TCD0_WOB_DEFAULT    PIN_PA5
+      #define PIN_TCD0_WOC_DEFAULT    PIN_PA6
+      #define PIN_TCD0_WOD_DEFAULT    PIN_PA7
+    #endif
   #else
     // no PA2:7 for 14 pin
     #define PIN_TCA0_WO2_DEFAULT    NOT_A_PIN
     #define PIN_TCA0_WO3_DEFAULT    NOT_A_PIN
     #define PIN_TCA0_WO4_DEFAULT    NOT_A_PIN
     #define PIN_TCA0_WO5_DEFAULT    NOT_A_PIN
-
     #ifdef __AVR_DD__
       #define PIN_TCD0_WOA_ALT4     NOT_A_PIN
       #define PIN_TCD0_WOB_ALT4     NOT_A_PIN
     #endif
-    #define PIN_TCD0_WOA_DEFAULT    NOT_A_PIN
-    #define PIN_TCD0_WOB_DEFAULT    NOT_A_PIN
-    #define PIN_TCD0_WOC_DEFAULT    NOT_A_PIN
-    #define PIN_TCD0_WOD_DEFAULT    NOT_A_PIN
+    #ifdef TCD0
+      #define PIN_TCD0_WOA_DEFAULT    NOT_A_PIN
+      #define PIN_TCD0_WOB_DEFAULT    NOT_A_PIN
+      #define PIN_TCD0_WOC_DEFAULT    NOT_A_PIN
+      #define PIN_TCD0_WOD_DEFAULT    NOT_A_PIN
+    #endif
   #endif
 
   #if ((ID_MASK_PINS & CORE_PART_ID) >= ID_28_PINS)
@@ -81,8 +89,10 @@
     #define PIN_TCA0_WO0_ALT5       NOT_A_PIN
     #define PIN_TCA0_WO1_ALT5       NOT_A_PIN
 
-    #define PIN_TCD0_WOA_ALT2       NOT_A_PIN
-    #define PIN_TCD0_WOB_ALT2       NOT_A_PIN
+    #ifdef TCD0
+      #define PIN_TCD0_WOA_ALT2       NOT_A_PIN
+      #define PIN_TCD0_WOB_ALT2       NOT_A_PIN
+    #endif
   #endif
 
   // Everything except sub-28 pin has PC9, all have PC1/2/3
@@ -94,6 +104,11 @@
   #define PIN_TCA0_WO4_ALT3         PIN_PD4
   #define PIN_TCA0_WO5_ALT3         PIN_PD5
 
+  #ifdef __AVR_EA__
+    #define PIN_TCA1_WO0_ALT5       PIN_PD4
+    #define PIN_TCA1_WO1_ALT5       PIN_PD5
+    #define PIN_TCA1_WO2_ALT5       PIN_PD6
+  #endif
   #ifdef __AVR_DD__
     #define PIN_TCD0_WOC_ALT4       PIN_PD4
     #define PIN_TCD0_WOD_ALT4       PIN_PD5
@@ -106,16 +121,20 @@
     #define PIN_TCA0_WO4_ALT5       PIN_PF4
     #define PIN_TCA0_WO5_ALT5       PIN_PF5
 
-    #define PIN_TCD0_WOC_ALT2       PIN_PF2
-    #define PIN_TCD0_WOD_ALT2       PIN_PF3
+    #ifdef TCD0
+      #define PIN_TCD0_WOC_ALT2       PIN_PF2
+      #define PIN_TCD0_WOD_ALT2       PIN_PF3
+    #endif
   #else
     #define PIN_TCA0_WO2_ALT5       NOT_A_PIN
     #define PIN_TCA0_WO3_ALT5       NOT_A_PIN
     #define PIN_TCA0_WO4_ALT5       NOT_A_PIN
     #define PIN_TCA0_WO5_ALT5       NOT_A_PIN
 
-    #define PIN_TCD0_WOC_ALT2       NOT_A_PIN
-    #define PIN_TCD0_WOD_ALT2       NOT_A_PIN
+    #ifdef TCD0
+      #define PIN_TCD0_WOC_ALT2       NOT_A_PIN
+      #define PIN_TCD0_WOD_ALT2       NOT_A_PIN
+    #endif
   #endif
 
 
@@ -136,9 +155,10 @@
     #define PIN_TCA1_WO4_DEFAULT    PIN_PB4
     #define PIN_TCA1_WO5_DEFAULT    PIN_PB5
 
-    #define PIN_TCD0_WOA_ALT1       PIN_PB4
-    #define PIN_TCD0_WOB_ALT1       PIN_PB5
-
+    #ifdef TCD0
+      #define PIN_TCD0_WOA_ALT1       PIN_PB4
+      #define PIN_TCD0_WOB_ALT1       PIN_PB5
+    #endif
     // anything with 48+ pins has full PORTC
     #define PIN_TCA0_WO4_ALT2       PIN_PC4
     #define PIN_TCA0_WO5_ALT2       PIN_PC5
@@ -153,10 +173,10 @@
     #define PIN_TCA0_WO2_ALT4       PIN_PE2
     #define PIN_TCA0_WO3_ALT4       PIN_PE3
     #if ((ID_MASK_PINS & CORE_PART_ID) == ID_64_PINS)
-
-
-      #define PIN_TCD0_WOC_ALT1     PIN_PB6
-      #define PIN_TCD0_WOD_ALT1     PIN_PB7
+      #ifdef TCD0
+        #define PIN_TCD0_WOC_ALT1     PIN_PB6
+        #define PIN_TCD0_WOD_ALT1     PIN_PB7
+      #endif
       // Full port E for 64 pin
       #define PIN_TCA0_WO4_ALT4     PIN_PE4
       #define PIN_TCA0_WO5_ALT4     PIN_PE5
@@ -178,15 +198,17 @@
       #define PIN_TCA1_WO3_ALT3     PIN_PG3
       #define PIN_TCA1_WO4_ALT3     PIN_PG4
       #define PIN_TCA1_WO5_ALT3     PIN_PG5
-
-      #define PIN_TCD0_WOA_ALT3     PIN_PG4
-      #define PIN_TCD0_WOB_ALT3     PIN_PG5
-      #define PIN_TCD0_WOC_ALT3     PIN_PG6
-      #define PIN_TCD0_WOD_ALT3     PIN_PG7
-
+      #ifdef TCD0
+        #define PIN_TCD0_WOA_ALT3     PIN_PG4
+        #define PIN_TCD0_WOB_ALT3     PIN_PG5
+        #define PIN_TCD0_WOC_ALT3     PIN_PG6
+        #define PIN_TCD0_WOD_ALT3     PIN_PG7
+      #endif
     #else
-      #define PIN_TCD0_WOC_ALT1     NOT_A_PIN
-      #define PIN_TCD0_WOD_ALT1     NOT_A_PIN
+      #ifdef TCD0
+        #define PIN_TCD0_WOC_ALT1     NOT_A_PIN
+        #define PIN_TCD0_WOD_ALT1     NOT_A_PIN
+      #endif
       // Half port E for 48-pin
       #define PIN_TCA0_WO4_ALT4     NOT_A_PIN
       #define PIN_TCA0_WO5_ALT4     NOT_A_PIN
@@ -209,11 +231,12 @@
       #define PIN_TCA1_WO3_ALT3     NOT_A_PIN
       #define PIN_TCA1_WO4_ALT3     NOT_A_PIN
       #define PIN_TCA1_WO5_ALT3     NOT_A_PIN
-
-      #define PIN_TCD0_WOA_ALT3     NOT_A_PIN
-      #define PIN_TCD0_WOB_ALT3     NOT_A_PIN
-      #define PIN_TCD0_WOC_ALT3     NOT_A_PIN
-      #define PIN_TCD0_WOD_ALT3     NOT_A_PIN
+      #ifdef TCD0
+        #define PIN_TCD0_WOA_ALT3     NOT_A_PIN
+        #define PIN_TCD0_WOB_ALT3     NOT_A_PIN
+        #define PIN_TCD0_WOC_ALT3     NOT_A_PIN
+        #define PIN_TCD0_WOD_ALT3     NOT_A_PIN
+      #endif
     #endif
   #else
 
@@ -225,10 +248,12 @@
     #define PIN_TCA0_WO4_ALT1       NOT_A_PIN
     #define PIN_TCA0_WO5_ALT1       NOT_A_PIN
 
-    #define PIN_TCD0_WOA_ALT1       NOT_A_PIN
-    #define PIN_TCD0_WOB_ALT1       NOT_A_PIN
-    #define PIN_TCD0_WOC_ALT1       NOT_A_PIN
-    #define PIN_TCD0_WOD_ALT1       NOT_A_PIN
+    #ifdef TCD0
+      #define PIN_TCD0_WOA_ALT1       NOT_A_PIN
+      #define PIN_TCD0_WOB_ALT1       NOT_A_PIN
+      #define PIN_TCD0_WOC_ALT1       NOT_A_PIN
+      #define PIN_TCD0_WOD_ALT1       NOT_A_PIN
+    #endif
 
     // under 48 gets half port C
     #define PIN_TCA0_WO4_ALT2       NOT_A_PIN
@@ -249,10 +274,19 @@
     #define PIN_TCA0_WO4_ALT6       NOT_A_PIN
     #define PIN_TCA0_WO5_ALT6       NOT_A_PIN
 
-    #define PIN_TCD0_WOA_ALT3       NOT_A_PIN
-    #define PIN_TCD0_WOB_ALT3       NOT_A_PIN
-    #define PIN_TCD0_WOC_ALT3       NOT_A_PIN
-    #define PIN_TCD0_WOD_ALT3       NOT_A_PIN
-
+    #ifdef TCD0
+      #define PIN_TCD0_WOA_ALT3       NOT_A_PIN
+      #define PIN_TCD0_WOB_ALT3       NOT_A_PIN
+      #define PIN_TCD0_WOC_ALT3       NOT_A_PIN
+      #define PIN_TCD0_WOD_ALT3       NOT_A_PIN
+    #endif
+  #endif
+  #ifndef __AVR_EA__
+    #define PIN_TCA1_WO0_ALT4     NOT_A_PIN
+    #define PIN_TCA1_WO1_ALT4     NOT_A_PIN
+    #define PIN_TCA1_WO2_ALT4     NOT_A_PIN
+    #define PIN_TCA1_WO0_ALT5     NOT_A_PIN
+    #define PIN_TCA1_WO1_ALT5     NOT_A_PIN
+    #define PIN_TCA1_WO2_ALT5     NOT_A_PIN
   #endif
 #endif
