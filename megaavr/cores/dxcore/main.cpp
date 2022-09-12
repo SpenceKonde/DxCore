@@ -1,4 +1,5 @@
 /* main.cpp - Main loop for Arduino sketches
+   Part of megaTinyCore - github.com/SpenceKonde/DxCore
    Copyright (c) 2018~2021 Spence Konde, (c) 2005-2013 Arduino
    Free Software - LGPL 2.1, please see LICENCE.md for details */
 

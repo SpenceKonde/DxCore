@@ -1,4 +1,4 @@
-# DxCore - Arduino support for the AVR DA-series, DB-series and upcoming DD-series
+# DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
 ## **They've DDone the DDeed** - DD parts are shipping
 We will be releasing an updated core to patch the remaining holes in the support for these parts shortly!
@@ -109,34 +109,63 @@ See the [Clock Reference](https://github.com/SpenceKonde/DxCore/blob/master/mega
 ### For the EA-series
 The maximum rated clock speed is 20 MHz. It is tinyAVR-like not Dx-like.
 
-## UPDI programming
-The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface) used on the AVR Dx-series, tinyAVR 0/1/2-series, megaAVR 0-series, and which will likely be used for all AVR microcontrollers for the foreseeable future. However, the debugging functionality is not documented (and has not been reverse engineered, though I suspect that would not be as hard to do as it was for debugwire, since it is based on the UPDI protocol which is documented - it requires a different key, and opens up a few new registers and bitfields within registers, but spying on UPDI is trivial, and that's a lot of the difficulty with these things) and hence is achievable only with Microchip's software. In addition to purchasing a purpose-made UPDI programmer (such as the ones produced by Microchip), there are two very low-cost approaches to creating a UPDI programmer:
+## UPDI Programming
+The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface), which is used used on the tinyAVR 0/1/2-Series, as well as all other modern AVR microcontrollers. While one can always purchase a purpose-made UPDI programmer from Microchip, this is not recommended when you will be using the Arduino IDE rather than Microchip's (godawful complicated) IDE. There are widespread reports of problems on Linux for the official Microchip programmers. There are two very low-cost alternative approaches to creating a UPDI programmer, both of which the Arduino community has more experience with than those official programmers.
 
-### From a USB-Serial adapter with included SerialUPDI (recommended)
-Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of the pyupdi author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a tool developed and maintained by Microchip which includes the same serial-port upload mechanism (though within that context the SerialUPDI capacity is rather hidden - that tool is more about uploading via the native-USB debuggers sold by Microchip. I had initially hoped to use it for that as well, but it appeared that wrangling the USB/driver angle was going to be a problem - so when the fix for avrdude to support the 24-bit firmware on the Microchip Curiosity boards came out, we lost interest in that. **If installing manually** you must [add the python package](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system python installation is not sufficient, nor is one necessary). No additional actions are required if you install via board manager, which lets us pull that in automatically.
+### From a USB-Serial Adapter With SerialUPDI (pyupdi-style - Recommended)
+Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple Python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of its author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a "more robust" tool developed and "maintained by Microchip" which includes the same serial-port upload feature, only without the performance optimizations. **If installing manually** you must [add the Python package](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system Python installation is not sufficient, nor is one necessary).
 
-With the release of 2.3.6 and dramatic improvements in performance of SerialUPDI, **this is now the recommended method to program these parts**
-[Instructions for wiring a serial adapter for SerialUPDI](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md)
+Read the [**SerialUPDI documentation**](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md) for information on the wiring.
 
-Note that this does not give you serial monitor - you need to connect a serial adapter the normal way for that (I suggest using two, along with an external serial terminal application). This technique works with those $1 CH340 serial adapters from ebay, aliexpress, etc. Did you accidentally buy some that didn't have a DTR pin broken out, and so weren't very useful with the Pro Minis you hoped to use them with? Now is your chance to make them useful.
+As of 2.3.2, with the dramatic improvements in performance, and the proven reliability of the wiring scheme using a diode instead of a resistor, and in light of the flakiness of the jtag2updi firmware, this is now the recommended programming method. As of this version, programming speed has been increased by as much as a factor of 20, and now far exceeds what was possible with jtag2updi (programming via jtag2updi is roughly comparable in speed to programming via SerialUPDI on the "SLOW" speed option, 57600 baud; the normal 230400 baud version programs about three times faster than the SLOW version or jtag2updi, while the "TURBO" option (runs at 460800 baud and increases upload speed by approximately 50% over the normal one. The TURBO speed version should only be used with devices running at 4.5v or more, as we have to run the UPDI clock faster to keep up (it is also not expected to be compatible with all serial adapters - this is an intentional tradeoff for improved performance), but it allows for upload and verification of a 32kB sketch in 4 seconds.
 
-Until 1.3.6, SerialUPDI was slow, and sometimes fiddly to set up. Those issues have been addressed and software improvements have increased the speed *by a factor of 20-30* for uploading to Dx parts, and we are able to get as close to the maximum rate that the NVM controller can write as one could hope for, with speeds in the area of 24kb/s at 345.6k baud, allowing the whole 128k of flash to be written and validated in 11 seconds at maximum speed, 16 seconds at a less demanding 230400 baud - compared with 31 seconds via optiboot, 42 seconds via jtag2updi, or a minute to a Curiosity Nano via the onboard debugger. Prior to 1.3.6, this upload method was hopelessly slow, and the same upload would have taken 2-20 minutes depending on the serial adapter.
+#### Coming before year end 2022: HV programming tool
+An HV programming tool to be called HyperUPDI is expected to be available (though silicon shortages may limit quantities) by year end. It is *not* intended to replace SerialUPDI.
+* HV programming support for AVR-DD, AVR-EA, and tinyAVR parts, allowing the UPDI pin to be used as GPIO without precluding further programming.
+* An on-board buffer will allow data to be sent in chunks of 2k or more. The result of this will be a dramatic improvement in programming speed. I expect an improvement of perhaps 5-10% on Dx-series vs SerialUPDI (as it is already very close to the theoretical maximum) - but the benefits on tinyAVR c will be considerably greater, as at TURBO speed they spent half their time in a USB latency period/
+* When a normal serial console is used to access it, it will operate in passthrough mode, featuring the classic FTDI pinout.
+* When in programming mode, the nominal CTS line is used to output the UPDI signal. Many boards (including those I sell) now have a solder-jumper to connect CTS to UPDI. This will allow a you to upload via UPDI and then open the serial console without changing any connections nor the use of a bootloader!
+* It will utilize a new upload script (neither Prog.py nor avrdude) which leverages the python installation we bring in for SerialUPDI already.
+* Because of the built in awareness of the UPDI protocol and the NVMCTRL of supported parts other features like partial erase (to supplement Flash.h on the Dx-series).
+* Voltage options of 5V, 3.3V, and V<sub>target</sub> will be selectable with a slide switch, allowing programming where the target voltage is as low as 1.8V, programming devices running directly off LiPo batteries at 3.7-4.2v and so on.
+* Due to the considerably more complex hardware, HyperUPDI will obviously not be a $1 device like SerialUPDI (which I expect most people will continue to use)
 
-### With an Arduino using jtag2updi
-One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that - see using a Nano running jtag2updi, you should select jtag2updi from the tools->programmer menu. Prior to the release of 1.3.6, this was the recommended method, despite the balky jtag2updi firmware and incompatibility with converting an Arduino Micro - there wasn't a good alternative. Now there is, and jtag2updi is slower, less reliable, and costs more than SerialUPDI.
+#### Really coming before year end 2022: Superior serial adapters
+A single-port version that switches between UPDI and normal mode and 5v and 3.3v (via physical switches), and exposes all modem liaison pins is a near certainty.
 
-### Using a Curiosity Nano
-Choose the nEDBG programmer option, and things should just work. There are a lot of things I'm not a huge fan of on those boards, and the grindingly slow upload through avrdude (40 seconds for a full 128k flash) is just one of them, but programming them should work without particular issue. Some people have had issues on linux machines, apparently due to the compilation options used to build avrdude.
+#### (New in 2.5.6) What's With All The Different SerialUPDI Options?
+Depending on adapter model, and operating system, it has been found that different timing settings are required; however, settings needed to keep even 230400 baud from failing on Linux/Mac with most adapters impose a much larger time penalty on Windows, where the OS's serial handling is slow enough that nothing needs that delay...
 
-### Troubleshooting uploads - quick tips
-From experience, there are a few quick things to check before you conclude that there's a more serious problem. These only apply to jtag2updi and SerialUODI
-* Check the serial port selected.
-* If you get an error about bootloader.BOOTEND, you were using megaTinyCore, with SerialUPDI, and then switched to a DxCore part and didn't select a programmer. The IDE is still set to use the other core's programmer... which is done *using that core's platform.txt*. When you open the tools menu you'll see a that no programmer name is listed next to "programmer". Select one, and it should work.
-* One of the most common problems is still poor connections. It seems like it would be very hard to have wiring problems with just 1 pin and power and ground (usually one knows if those aren't right) - but it still happens. I've worn out the crap terminals on several sets of dupont line that wi
+The "write delay" mentioned here is to allow for the page erase-write command to finish executing; this takes a non-zero time. Depending on the adapter, USB latency and the implicit 2 or 3 byte buffer (it's like a USART, and probably implemented as one internally. The third byte that arrives has nowhere to go, because the hardware buffer is only 2 bytes deep) may be enough to allow it to work without an explicit delay. Or, it may fail partway through and report an "Error with st". The faster the adapter's latency timeout, and the faster the OS's serial handling is, the greater the chance of this being a problem. This is controlled by the `-wd` command line parameter if executing prog.py manually. As of 2.5.6 this write delay is closer to the actual time requested (in ms), previously it had a granularity of several ms, when 1 is all you needed, and as a result, the penalty it imposed was *brutal*, particularly on Windows.
 
-### Optiboot-derived bootloader (optional)
-There is an included Optiboot derived bootloader included with the core. You may use it instead of UPDI programming it it suits your application or preferences better. The bootloader, of course, requires a UPDI programmer to install.
-[**Optiboot Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)
+Selection guide:
+* 460800+ baud requires the target to be running at 4.5V+ to remain in spec (in practice, it probably doesn't need to be quite that high - but it must be a voltage high enough to be stable at 16 MHz. We set the interface clock to the maximum for all speeds above 230400 baud - while a few adapters sometimes work at 460800 without this step (which in and of itself is strange - 460800 baud is 460800 baud right?), most do not and SerialUPDI doesn't have a way of determining what the adapter is.
+* CH340-based adapters have high-enough latency on most platforms, and almost always work at any speed without resorting to write delay. All options work without using the write delay.
+* Almost all adapters work on Windows at 230.4k without using the write delay. A rare few do not, including some native USB microcontrollers programmed to act as serial adapters (ex: SAMD11C).
+* Almost nothing except the CH340-based adapters will work at 460.8k or more without the write delay, regardless of platform.
+* On Windows, many adapters (even ones that really should support it) will be unsuccessful switching to 921600 baud. I do not know why. The symptom is a pause at the start of a few seconds as it tries, followed by uploading at 115200 baud. The only one I have had success with so far is the CH340, oddly enough.
+* 460800 baud on Windows with the write delay is often slower than 230400 baud without it. The same is not true on Linux/Mac, and the smaller the page size, the larger the performance hit from write delay.
+* 57600 baud should be used if other options are not working, or when programming at Vcc = < 2.7V.
+* 460800 baud works without the write delay on some adapters with a 10k resistor placed across the Schottky diode between TX and RX, when it doesn't work without that unless the write delay is enabled. No, I do not understand how this could be either!
+* As you can see from the above, this information is largely empirical; it is not yet known how to predict the behavior.
+
+#### Why is My FTDI Adapter Insanely Slow?
+FTDI adapters (FT232, FT2232, and FT4232 etc), including the fake ones that are available on eBay/AliExpress for around $2, on Windows default to an excruciatingly long latency period of 16ms. Even with the lengths we go to in order to limit the number of latency delay periods we must wait through, this will prolong a 2.2 second upload to over 15 seconds. You must change this in order to get tolerable upload speeds:
+1. Open control panel, device manager.
+2. Expand Ports (COM and LPT)
+3. Right click the port and choose properties
+4. Click the Port Settings tab
+5. Click "Advanced..." to open the advanced settings window.
+6. Under the "BM Options" section, find the "Latency Timer" menu, which will likely be set to 16. Change this to 1.
+7. Click OK to exit the advanced options window, and again to exit properties. You will see device manager refresh the list of hardware.
+8. Uploads should be much faster now.
+
+### With a Classic Arduino (jtag2updi)
+One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that. We no longer provide detailed documentation for this processes; jtag2updi is deprecated. If you are still using it, you should select jtag2updi from the tools->programmer menu. This was previously our recommended option. Due to persistent jtag2updi bugs, and its reliance on the largely unmaintained 'avrdude' tool (which among other things inserts a spurious error message into all UPDI uploads made with it), this is no longer recommended.
+
+## Compatibility Note for 32-bit Linux
+Apparently Arduino isn't packaging 32-bit versions of the latest avrdude.
+I defined a new tool definition which is a copy of arduino18 (the latest) except that it pulls in version 17 instead on 32-bit Linux, since that's the best that's available for that platform. The arduino17 version does not correctly support uploading with some of the Microchip programming tools.
 
 ## Ways to refer to pins
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
@@ -155,6 +184,13 @@ The core also provides An and PIN_An constants (where n is a number from 0 to th
 ### There is no A0 or PIN_PD0 aka 12 on DB-series or DD-series parts with less than 48 pins
 DB-series parts with 32 or 28 pins don't have a an analog channel 0. It's located on pin PD0, which was displaced by the `VDDIO`2 pin. Based on the errata - the PD0 pad exists on the chip... but doesn't have any bond wire attached to it. Per manufacturer recommendations we disable the digital input buffer to save power.
 
+
+
+
+### Link-time Optimization (LTO) support
+This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the tinyAVR Dx- Series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in codesize when introduced, typically on the order of 5-20%!
+
+
 ## Exposed Hardware Features
 
 ### ADC Support
@@ -165,31 +201,36 @@ The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (
 
 There may be additional options to configure the DAC on the EA-series.
 
-See the [**ADC and DAC Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
+See the [**ADC and DAC Reference**](https://github.com/SpenceKonde/DxCoreCore/blob/master/megaavr/extras/Ref_Analog.md) for the full details.
 
-Using the `An` constants is deprecated - the recommended practice is to just use the digital pin number, or better yet, use `PIN_Pxn` notation when calling `analogRead()`. Particularly since the release of 1.3.0 and megaTinyCore 2.3.0, a number of enhanced ADC features have been added to expose more of the power of the sophisticated ADC in these parts to users.
+Using the `An` constants for analog pins is deprecated - the recommended practice is to just use the digital pin number, or better yet, use `PIN_Pxn` notation when calling `analogRead()`.
 
 ### Watchdog timer, software reset
-There are more options than on classic AVR for resetting, including if the code gets hung up somehow. The watchdog timer can only reset (use the RTC and PIT for timed interrupts)
-See the [**Reset and Watchdog (WDT) Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
+There are more options than on classic AVR for resetting, including if the code gets hung up somehow. The watchdog timer can only reset (use the RTC and PIT for timed interrupts).
+
+See the [**Reset and Watchdog (WDT) Reference**](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Reset.md)and (The core-auxiliary library, DxCore/.)[../megaavr/libraries/megaTinyCore/README.md]
+
+### Improved Digital I/O
+This core adds a number of new features include fast digital I/O (1-14 clocks depending on what's known at compile time, and 2-28 bytes of flash (pin number must be known at compile time for the `________Fast()` functions, and for configuring all per-pin settings the hardware has with `pinConfigure()`.
+
+See the [**Improved Digital I/O Reference**](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Digital.md).
 
 ### Serial (UART) Support
-All UARTs are made available as Serial, Serial1, and so on. All parts have at least 2, with the 64-pin parts having no less than 6 of them. Serial nominally refers to USART0, but variants are permitted to define it as a different UART (eg, it is supported for a variant creator to `#define Serial Serial2` - which they would do if that was the port connected to the serial adapter). DxCore does not contain any variant definitions that do that at this time.
+All of the 0/1-Series parts have a single hardware serial port (UART or USART); the 2-Series parts have two. It works exactly like the one on official Arduino boards except that there is no auto-reset, unless you've wired it up by fusing the UPDI pin as reset (requiring either HV-UPDI or the Optiboot bootloader to upload code), or set up an "ersatz reset pin" as described elsewhere in this document. See the pinout charts for the locations of the serial pins.
 
-The alternate pins may be selected using `swap()` or `pins()`. From 1.4.0 onwards, there is support for additional advanced features like one-wire mode and RS-485 mode (which automatically controls an external line-drivers TX-enable pin).
-The USART support is described fully in the [Serial Documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Serial.md)
+Prior to putting the part into a sleep mode, or otherwise disabling it's ability to transmit, be sure that it has finished sending the data in the buffer by calling `Serial.flush()`, otherwise the serial port will emit corrupted characters and/or fail to complete transmission of a message.
+
+See the [**Serial Reference**](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Serial.md) for a full list of options. As of 2.5.0, almost every type of functionality that the serial hardware can do is supported, including RS485 mode, half-duplex (via LBME and ODME), and even synchronous and Master SPI mode, and 2.6.0 will add autobaud, even though it's not very useful.
 
 ### SPI support
 A compatible SPI.h library is included; it provides one SPI master interface which can use either of the underlying SPI modules - they are treated as if they are pin mapping options (only one interface is available at a time - the library code available in the wild has a name collision with the I/O headers if one wanted to support using both at once, and all the workarounds that I can think of involve the libraries being changed as well). That's fine though, as treating them as pin mappings gives you most of the benefit as master, and slave support is not and never has been a thing in Arduino (it's pretty easy to do manually, at least for simple stuff).
 
-See the [**SPI documentation**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/SPI/README.md)
+On all parts except the 14-pin parts, the SPI pins can be moved to an alternate location (note: On 8-pin parts, the SCK pin cannot be moved). This is configured using the `SPI.swap()` or `SPI.pins()` methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This must be called **before** calling `SPI.begin()`.
 
-### I2C (TWI) support
-All of these parts have two hardware I2C (TWI) peripherals, except the 28-pin version, which has one. The included copy of the Wire library works almost exactly like the one on official Arduino boards, except that it does not activate the internal pullups unless they are specifically requested as described in the documentation linked below. The TWI pins can be swapped to an alternate location; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin(), as should any method that enable certain modes.
+### I2C (TWI) support`SPI.swap(1)` or `SPI.swap(0)` will set the the mapping to the alternate (`1`) or default (`0`) pins. It will return true if this is a valid option, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to the default one.
+All DA and DB parts with >28 pins have 2 I2C peripherals peripherals, except the 28-pin version, which has one. The included copy of the Wire library works almost exactly like the one on official Arduino boards, except that it does not activate the internal pullups unless they are specifically requested as described in the documentation linked below. The TWI pins can be swapped to an alternate location; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin(), as should any method that enable certain modes. All DD-series parts have only a single TWI0
 
-See **[Wire.h documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)** for full description and details.
-
-From version 1.4.0 onwards, Wire.h supports operating as a master and slave simultaneously, either one set of pins (as in a multi-master configuration) or on different pins (using dual mode). Wire can now also run on both TWI peripherals in this manner - or, if only one instance is needed, but you need it on the Wire1 pins, you can swap the module that Wire uses. A facility has been added whereby the slave can check how many bytes were read by the master since the last time that method was called (useful to implement the "register" type interface with autoincrement like normal devices do).
+See **[Wire.h documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)** for full description and details. The harware I2C is one of the more complicated peripherals
 
 ### Alternate pin mapping (PORTMUX) support
 Like most recent parts, the Dx-series parts have multiple pin-mapping options for many of their peripherals. For the serial data interfaces, we provide the same `.swap()` and `.pins()` methods like megaTinyCore and MegaCoreX (which first introduced this feature) whereby each instance of a UART, SPI interface, or I2C interface can be moved appropriately, excepting SPI1 as noted above and described in detail in that library documentation.
@@ -220,6 +261,8 @@ analogWrite(PIN_PA4, 0);  // PA4 set low, but still on timer! This would also im
 analogWrite(PIN_PA6, 128); // PA4 still connected, so both pins will output 50% duty cycle - without the usual short glitch on the PWM you've been outputting since the second line of the example.
 
 ```
+
+The issue with alternate mapping opptions should be fixed on the DD-series.
 
 (Note that there is a complicated and very hacky way to squeeze a third channel out of using the delayed event, that's covered in Ref_TCD, linked above).
 
@@ -329,22 +372,23 @@ This core provides a version of the Servo library. This version of Servo always 
 **If you have also installed Servo** to your `<sketchbook>/libraries` folder (including via library manager), the IDE will use that version of the library (which is not compatible with these parts) instead of the one supplied with DxCore (which is). As a workaround, a duplicate of the Servo library is included with a different name - to use it, `#include <Servo_DxCore.h>` instead of `#include <Servo.h>` - all other code can remain unchanged.
 
 ### `printf()` support for "printable" class
-Unlike the official board packages, but like many third party board packages, megaTinyCore includes the `printf()` method for the printable class (used for Serial and many other libraries that have `print()` methods); this works like `printf()`, except that it outputs to the device in question; for example:
+Unlike the official board packages, but like many third party board packages, megaTinyCore includes the `printf()` method for the printable class (used for UART serial ports and most everything else with `print()` methods); this works like `sprintf()`, except that it outputs to the device in question; for example:
 ```cpp
 Serial.printf("Milliseconds since start: %ld\n", millis());
 ```
-Note that using this method will pull in just as much bloat as `sprintf()` and is subject to the same limitations as printf - by default, floating point values aren't printed.
-You can choose to have a full `printf()` implementation from a tools submenu if you want to print floating point numbers
+Note that using this method will pull in just as much bloat as `sprintf()` and is subject to the same limitations as printf - by default, floating point values aren't printed. You can use this with all serial ports
+You can choose to have a full `printf()` implementation from a Tools submenu if you want to print floating point numbers, at a cost of some additional flash.
 
-**Gotcha warning** There are a considerable number of ways to screw up with printf. Some of the recent issues that have come up:
+#### **WARNING** `printf()` and Variants Thereof Have Many Pitfalls
+There are a considerable number of ways to screw up with `printf()`. Some of the recent issues that have come up:
 * Formatting specifiers have modifiers that they must be paired with depending on the datatype being printed, for all except one type. See the table of ones that I expect will work below (it was cribbed from [cplusplus.com/reference/cstdio/printf/](https://www.cplusplus.com/reference/cstdio/printf/), and then I chopped off all the rows that aren't applicable, which is most of them). Apparently many people are not fully aware (or at all aware) of how important this is - even when they think they know how to use printf(), and may have done so on previously (on a desktop OS, with 32-bit ints and no reason to use smaller datatypes for simple stuff).
-* There are (as of 1.4.0) warnings enabled for format specifiers that don't match the the arguments, but you should not rely on them. Doublecheck what you pass to printf - printf bugs are a common cause of software bugs in the real world. Be aware that *while you can use F() on the format string, there are no warnings for invalid format strings in that case*; a conservative programmer would first make the app work without F() around the format string, and only switch to F() once the format string was known working.
+* There are (as of 1.4.0) warnings enabled for format specifiers that don't match the the arguments, but you should not rely on them. Double check what you pass to `printf()` - `printf()` bugs are a common cause of software bugs in the real world. Be aware that *while you can use F() on the format string, there are no warnings for invalid format strings in that case*; a conservative programmer would first make the app work without F() around the format string, and only switch to F() once the format string was known working.
 
 From cplusplus.com:
 >The length sub-specifier modifies the length of the data type. This is a chart showing the types used to interpret the corresponding arguments with and without length specifier ~(if a different type is used, the proper type promotion or conversion is performed, if allowed)~:
-Strikethrough mine 'cause that don't work here (and it's not my fault nor under my control - it's supplied with avrlibc, and I suspect that it's because the overhead of implementing it on an 8-bit AVR is too large) - When incorrect length specifiers are given (including none when one should be used) surprising things happen. It looks to me like all the arguments get smushed together into a group of bytes. Then it reads the format string, and when it gets to a format specifier for an N byte datatype, it grabs N bytes from the argument array, formats them and prints them to whatever you're printing to (likely a serial port), proceeding until the end of the format string. Thus, failing to match the format specifiers' length modifiers with the arguments will result in printing wrong data, for that substitution **and all subsequent ones** in that call to printf.
+Strikethrough mine 'cause that don't work here (and it's not my fault nor under my control - it's supplied with avrlibc, and I suspect that it's because the overhead of implementing it on an 8-bit AVR is too large). When incorrect length specifiers are given (including none when one should be used) surprising things happen. It looks to me like all the arguments get smushed together into a group of bytes. Then it reads the format string, and when it gets to a format specifier for an N byte datatype, it grabs N bytes from the argument array, formats them and prints them to whatever you're printing to, proceeding until the end of the format string. Thus, failing to match the format specifiers' length modifiers with the arguments will result in printing wrong data, for that substitution **and all subsequent ones** in that call to `printf()`.
 
-The table below is the relevant lines from that table - many standard types are not a thing in Arduino.
+The table below comprises the relevant lines from that table - many standard types are not a thing in Arduino.
 
 | length | d i | u o x X | f F e E g G a A |  c  |    s   |  p   |    n     |
 |--------|-----|---------|-----------------|-----|--------|------|----------|
@@ -352,12 +396,19 @@ The table below is the relevant lines from that table - many standard types are 
 | hh     |int8 |  uint8  |                 |     |        |      | char*    |
 | l      |int32|  uint32 |                 |     |        |      | int32_t* |
 
-Notice that there is no line for 64 bit types in the table above; these are not supported (support for 64-bit types is pretty spotty, which is not surprising. Variables of that size are hard to work with on an 8-bit microcontroller). This applies to all versions of printf - the capability is not supplied by avrlibc.
+Notice that there is no line for 64 bit types in the table above; these are not supported (support for 64-bit types is pretty spotty, which is not surprising. Variables of that size are hard to work with on an 8-bit microcontroller with just 32 working registers). This applies to all versions of `printf()` - the capability is not supplied by avr-libc.
 
+There are reports of memory corruption with printf, I suspect it is misunderstandign of above that is actually at hand here.
 
-#### Selectable printf() implementation
-A tools submenu lets you choose from full `printf()` with all features, the default one that drops float support to save 1k of flash, and the minimal one drops almost everything and for another 450 bytes (will be a big deal on the 16k and 8k parts. Less so on 128k ones.) - note that selecting any non-default option here *will cause it to be included in the binary even if it's never called* - and if it's never called, it normally wouldn't be included. So an empty sketch will take more space with minimal printf selected than with the default, while a sketch that uses printf will take less space with minimal printf vs default.
+#### Selectable `printf()` Implementation
+A Tools submenu lets you choose from three levels of `printf()`: full `printf()` with all features, the default one that drops float support to save 1k of flash, and the minimal one drops almost everything and for another 450 bytes flash saving (will be a big deal on the 16k and 8k parts. Less so on 128k ones). Note that selecting any non-default option here *will cause it to be included in the binary even if it's never called* - and if it's never called, it normally wouldn't be included. So an empty sketch will take more space with minimal `printf()` selected than with the default, while a sketch that uses `printf()` will take less space with minimal `printf()` vs default.
 
+### Interrupts From Pins and in General
+All pins can be used with `attachInterrupt()` and `detachInterrupt()`, on `RISING`, `FALLING`, `CHANGE`, or `LOW`. All pins can wake the chip from sleep on `CHANGE` or `LOW`. Pins marked as Async Interrupt pins on the megaTinyCore pinout charts (pins 2 and 6 within each port) can be used to wake from sleep on `RISING` and `FALLING` edges as well. Those pins are termed "fully asynchronous pins" in the datasheet.
+
+Advanced users can instead set up interrupts manually, ignoring `attachInterrupt()`, manipulating the relevant port registers appropriately and defining the ISR with the `ISR()` macro - this will produce smaller code (using less flash and RAM) and the ISRs will run faster as they don't have to check whether an interrupt is enabled for every pin on the port.
+
+For full information and example, see [the Interrupt Reference](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Interrupts.md).
 
 ### Assembler Listing generation
 Like my other cores, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder. A memory map is also created. The formatting of the memory map leaves something to be desired, and I've written a crude script to try to improve it, see the Export reference for more information.
@@ -366,11 +417,13 @@ see [**Exported Files documentation**](https://github.com/SpenceKonde/DxCore/blo
 ### EESAVE configuration option
 The EESAVE fuse can be controlled via the Tools -> Save EEPROM menu. If this is set to "EEPROM retained", when the board is erased during programming, the EEPROM will not be erased. If this is set to "EEPROM not retained", uploading a new sketch will clear out the EEPROM memory. Note that this only applies when programming via UPDI - programming through the bootloader never touches the EEPROM. Burning the bootloader is not required to apply this change on DA and DB parts, as that fuse is "safe". It IS required on DD-series parts, because its on the same fuse that controls whether the UPDI pins is acting as UPDI or I/O
 
+See the [Export Reference](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Export.md).
+
+
 ### BOD configuration options
 These parts support multiple BOD trigger levels, with Disabled, Active, and Sampled operation options for when the chip is in Active and Sleep modes - Disabled uses no power, Active uses the most, and Sampled is in the middle. See the datasheet for details on power consumption and the meaning of these options. You must do Burn Bootloader to apply this setting, as this is not a "safe" setting: If it is set to a voltage higher than the voltage the board is running at, the chip cannot be reprogrammed until you apply a high enough voltage to exceed the BOD threshold. The BOD thresholds are quite low on these devices,
 
-### Link-time Optimization (LTO) support
-This core *always* uses Link Time Optimization to reduce flash usage.
+
 
 
 ### NeoPixels (aka WS2812/SK6812 and many, many others)
@@ -396,10 +449,19 @@ A partial listing of applicable app notes. The ones that looked most useful or i
 These are a copy of the latest i/o headers (not necessarily the ones we use!), for user convenience; they are meant for online viewing or manual installations, since a board manager installation will bury them just as deeply as the copies the toolchain uses.
 ### Library documentation
 See the [library index](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Libraries.md) or readme files for each library (the former is mostly composed of links to the latter)
+## Bootloader (Optiboot) Support
+A new version of Optiboot (Optiboot_dx) now runs on the tinyAVR DA and DB-series and DD is expected shortly It's under 512 bytes, and (will) on all parts supported by this core, allowing for a convenient workflow with the same serial connections used for both uploading code and debugging (like a normal Arduino Pro Mini). Note the exception about not having autoreset unless you disable UPDI (except for the 20 and 24-pin 2-Series parts which can put reset on PB4 instead), which is a bit of a bummer.
+
+To use the serial bootloader, select a board definition with (optiboot) after it. Note - the optiboot suffix might be visually cut off due to the width of the menu; the second / lower set of board definitions in the board menu are the optiboot ones). The 2-Series Optiboot definitions and the 0/1-Series Optiboot definitions are separate entries in the board menu.
+
+See the [Optiboot reference](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Reset.md)for more information.
+
+## Guides
+These guides cover subsystems of the core in much greater detail (some of it extraneous or excessive).
 ### Reference Material
 #### [Function Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Functions.md)
-Covering top-level functions and macros that are non-standard, or are standard but poorly documented.
-#### [Analog Input (ADC) and output (DAC)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
+Covering top-level functions and macros that are non-standard, or are standard but poorly documented, and which aren't covered anywhere else.
+#### [Analog Input (ADC) and Output (DAC)](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Analog.md)
 The API reference for the analog-related functionality that is included in this core beyond the standard Arduino API.
 #### [Digital I/O and enhanced options](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 The API reference for the digital I/O-related functionality that is included in this core beyond the standard Arduino API, as well as a few digital I/O related features that exist in the hardware which we provide no wrapper around.
@@ -457,23 +519,28 @@ I sell breakout boards with regulator, UPDI header, and Serial header and other 
 
 
 ## Warnings and Caveats
+There are however a few cautions warranted regarding DxCore - either areas where the core is different from official cores, or where the behavior is the same, but not as well known.
 
 ### Direct Register Manipulation
-If you are manually manipulating registers controlling a peripheral, you should not count on the behavior of API functions that relate to the same peripheral, nor should you assume that calling said API functions will be harmless either. For example, if you reconfigure TCA0, you should not expect that using `analogWrite()` will work correctly on TCA0-based pins (for example, if it's no longer in split mode, analogWrite, might overwrite one half of the compare value. If you have reconfigured the ADC for free running mode, `analogRead()` will return errors, and so on. There are exceptions to this of course - Timer/counter prescalers just change the frequency of the PWM, and there are several other exceptions noted in the above reference documents.
-
+If you are manually manipulating registers controlling a peripheral, except as specifically noted in relevant reference pages, the stated behavior of API functions can no longer be assured. It may work like you hope, it may not, and it is not a bug if it does not, and you should not assume that calling said API functions will not adversely impact the rest of your application. For example, if you "take over" TCA0, you should not expect that using `analogWrite()` - except on the two pins on the 20/24-pin parts controlled by TCD0 - will work for generating PWM. If you reconfigure TCA0 except as noted in Ref_Timers, without calling `takeOverTCA0`, both `analogWrite()` and `digitalWrite()` on a PWM pin may disrupt your changed configuration.
 #### Timer PWM and exceptions
 In the special case of TCA0, TCA1, and TCD0, a special function called `takeOverTCAn()` (or `takeOverTCD0()`) is provided - calling this will tell the core that you are assuming full responsibility for everything related to that timer. analogWrite on pins it is pointed at will not turn on PWM, nor will digitalWrite turn it off. This function will not be available for any timer used to control millis timekeeping (and manually reconfiguring such a timer should be expected to break timekeeping. Note that if you are using PWM on a pin provided by a type B timer (not recommended, they're lousy at it) they depend on the prescaler settings of a type A timer See the [Timers and PWM](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md) reference for more information.
 
 TCD0 has additional specific exceptions to the normal "manual configuration = our API functions won't work right" policy, in order to keep it from being forever unused beyond what analogWrite() defaults to (it can be slowed way down, or sped way the hell up, and some of the advanced functions can be used as long as you don't touch certain parts.)
+## Differences in Behavior between DxCore and Official Cores
+While we generally make an effort to emulate the official Arduino core, there are a few cases where the decision was made to have different behavior to avoid compromising the overall functionality; the official core is disappointing on many levels. The following is a (hopefully nearly complete) list of these cases.
 
 ### I2C **requires** external pullup resistors
 Earlier versions of megaTinyCore, and possibly very early versions of DxCore enabled the internal pullup resistors on the I2C pins. This is no longer done automatically - they are not strong enough to meet the I2C specifications, and it is preferable for it to fail consistently without external ones than to work under simple conditions with the internal ones, yet fail under more demanding ones (more devices, longer wires, etc). However, as a testing aid, we supply Wire.`usePullups()` to turn on the weak internal pullups. If `usePullups()` ever fixes anything, you should install external pullups straight away. Our position is that whenever external pullups are not present, I2C is not expected to work. Remember that many modules include their own on-board pullups. For more information, including on the appropriate values for pullups, see the [Wire library documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)
 
-## Differences in Behavior between DxCore and Official Cores
-While we generally make an effort to emulate the official Arduino core, there are a few cases where the decision was made to have different behavior to avoid compromising the overall functionality; the official core is disappointing on many levels. The following is a (hopefully nearly complete) list of these cases.
+### Serial Does Not Manipulate Interrupt Priority
+The official core for the (similar) megaAVR 0-Series parts, which megaTinyCore was based on, fiddles with the interrupt priority (bet you didn't know that!) in methods that are of dubious wisdoom. megaTinyCore does not do this, saving several hundred bytes of flash in the process, and fixing at least one serious bug which could result in the microcontroller hanging if Serial was used in ways that everyone tells you not to use it, but which frequently work anyway. Writing to Serial when its buffer is full, or calling `Serial.flush()` with interrupts disabled, or during another ISR (which you *really shouldn't do*) will behave as it does on classic AVRs and simply block, manually calling the transmit handlers, until there is space in the buffer for all of the data waiting to be written or the buffer is empty (for `flush()`). On th stock megaAVR core, this could hang forever.
+
+### SerialEvent Support is Dropped
+This is deprecated on the official core and is, and always has been, a dreadful misfeature. Dropped as of 1.3.0.
 
 ### `digitalRead()` does not turn off PWM
-On official cores, and most third party ones, the `digitalRead()` function turns off PWM when called on a pin. This behavior is not documented by the Arduino reference. This interferes with certain optimizations and moreover is logically inconsistent - a "read" operation should not change the thing it's called on. That's why it's called "read" and not "write". There does not seem to be a logical reason to do this, either. while it's rarely useful per se, it does let you demonstrate what PWM is just by reading the pin a bunch of times in succession. Though, I suppose that would also highlight just how slow digitalRead is...
+On official cores, and most third party ones, the `digitalRead()` function turns off PWM when called on a pin. This behavior is not documented by the Arduino reference. This interferes with certain optimizations, makes `digitalRead()` take at least twice as long (likely much longer) as it needs to and generally makes little sense. Why should a "read" operation change the thing it's called on? We have a function that alters the pin it's called on: `digitalWrite()`. There does not seem to be a logically coherent reason for this and, insofar as Arduino is supposed to be an educational platform it makes simple demonstrations of what PWM is non-trivial (imagine setting a pin to output PWM, and then looking at the output by repeatedly reading the pin).
 
 ### `digitalWrite()`/`pinMode()` and INPUT pins
 Like the official "megaavr" core, calling `digitalWrite()` on a pin currently set INPUT will enable or disable the pullups as appropriate. Recent version of DxCore fix two gaps in this "classic emulation". On a classic core, `digitalWrite()` on an INPUT would also write to the port output register - thus, if one subsequently called `pinMode(pin, OUTPUT)`, the pin would immediately output that level. This behavior is not emulated in the official core, and there is a considerable amount of code in the wild which depends on it. `digitalWrite()` now replicates that behavior. `digitalWrite()` also supports `CHANGE` as an option; on the official core, this will turn the pullup on, regardless of which state the pin was previously in, instead of toggling the state of it. The state of the pullup is now set to match the value that the port output register was just set to.
@@ -524,7 +591,7 @@ This really comes down to 2 changes
 * CBI/SBI are single clock - unclear if the mechanism is the same as above/
 
 ## License
-DxCore itself is released under the [LGPL 2.1](LICENSE.md). It may be used, modified, and distributed, and it may be used as part of an application which, itself, is not open source (though any modifications to these libraries must be released under the LGPL as well). Unlike LGPLv3, if this is used in a commercial product, you are not required to provide means for user to update it.
+DxCore itself is released under the [LGPL 2.1](LICENSE.md). It may be used, modified, and distributed freely, and it may be used as part of an application which, itself, is not open source (though any modifications to these libraries must be released under the LGPL as well). Unlike LGPLv3, if this is used in a commercial product, you are not required to provide means for user to update it.
 
 The DxCore hardware package (and by extension this repository) contains DxCore as well as libraries, bootloaders, and tools. These are released under the same license, *unless specified otherwise*. For example, tinyNeoPixel and tinyNeoPixel_Static, being based on Adafruit's library, are released under GPLv3, as described in the LICENSE.md in those subfolders and within the body of the library files themselves.
 

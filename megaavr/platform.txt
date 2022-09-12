@@ -12,7 +12,11 @@ versionnum.postfix=
 versionnum.released=0
 
 version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
-#BUILDVERSION#
+#####################
+# Stupid workaround #
+# for IDE bug       #
+#####################
+version=1.5.0
 
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DMEGATINYCORE="{version}" -DMEGATINYCORE_MAJOR={versionnum.major}UL -DMEGATINYCORE_MINOR={versionnum.minor}UL -DMEGATINYCORE_PATCH={versionnum.patch}UL -DMEGATINYCORE_RELEASED={versionnum.released}
 
@@ -180,7 +184,7 @@ tools.avrdude.upload.pattern="{cmd.path}" "-C{config.path}" {upload.verbose} {up
 ## Used for Tools -> Burn Bootloader
 tools.avrdude.bootloader.params.verbose=-v
 tools.avrdude.bootloader.params.quiet=-q -q
-tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e "-Ufuse0:w:{bootloader.WDTCFG}:m" "-Ufuse1:w:{bootloader.BODCFG}:m" "-Ufuse5:w:{bootloader.SYSCFG0}:m" "-Ufuse6:w:{bootloader.SYSCFG1}:m" "-Ufuse8:w:{bootloader.BOOTSIZE}:m" "-Ufuse7:w:{bootloader.CODESIZE}:m""-Ufuse8:w:{bootloader.BOOTSIZE}:m" "{bootloader.avrdudestring}"
+tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verbose} -p{build.mcu} -c{protocol} {program.extra_params} -e "-Ufuse0:w:{bootloader.WDTCFG}:m" "-Ufuse1:w:{bootloader.BODCFG}:m" "-Ufuse5:w:{bootloader.SYSCFG0}:m" "-Ufuse6:w:{bootloader.SYSCFG1}:m" "-Ufuse8:w:{bootloader.BOOTSIZE}:m" "-Ufuse7:w:{bootloader.CODESIZE}:m" "{bootloader.avrdudestring}"
 
 ## OTA/Remote upload
 # This functionality has never been tested with these parts. The maintainers of this core have no idea what this is, or whether it is expected to work.
@@ -251,5 +255,3 @@ tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.pla
 
 ## For HyperUPDI super-powered HV programming tools under development
 #tools.hyperupdi.program.pattern="{cmd}" -u "{runtime.platform.path}/tools/hyperUPDI.py" {program.extra_params} -m{program.mode} -d {build.mcu} --fuses 2:{bootloader.OSCCFG} 5:{bootloader.SYSCFG0}  6:{bootloader.SYSCFG1} 7:{bootloader.APPEND} 8:{bootloader.BOOTEND} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}
-
-compiler.warning_flags.all=-Wall -Wextra

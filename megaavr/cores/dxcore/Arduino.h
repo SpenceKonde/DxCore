@@ -722,7 +722,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   uint8_t _getPortEventConfig(uint8_t port); // just shorthand for looking up the port and returning it's EVGENCTRL value
   uint8_t _setRTCEventChan(uint8_t vail, uint8_t chan); // number is 0, 1 or 255 like above, div is log(2) of the divisor (ie, for 2^5, his would be 5).
   uint8_t _getRTCEventConfig(); //simply returns the RTC channel configuration. Will likely return 255 if called on non Ex
-
+  uint8_t _RTCPrescaleToVal(uint16_t prescale)
 #endif
 #ifdef __cplusplus
 } // extern "C"

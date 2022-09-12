@@ -100,13 +100,19 @@
   // static void _attachInterruopt(uint8_t pin, void (*userFunc)(void), uint8_t mode);
 
   volatile uint8_t* portbase = (volatile uint8_t*)((uint16_t)0x400);
+  /* On modern AVRs, the PORT registers start at 0x400
+   * At 32 bytes per port, with plenty of room to spare, up to 8 ports will fit before we are forced into  0x500.
+   * And the rest of this implementation falls over if there's an 8th port because it relies on VPORTs
+   * of which there are only 7 ports worth of registers available. So this implementation is guaranteed not to work on a
+   * future part with 8 ports anyway. We will cross that bridge once Microchip has announced intent to build it.
+   */
 
   void  attachInterrupt(uint8_t pin, void (*userFunc)(void), uint8_t mode) {
     uint8_t bitpos = digitalPinToBitPosition(pin);
     if (bitpos == NOT_A_PIN) {
       return;
     }
-    uint8_t port=digitalPinToPort(pin);
+    uint8_t port = digitalPinToPort(pin);
     switch (mode) {
       case CHANGE:
         mode = PORT_ISC_BOTHEDGES_gc;
@@ -123,10 +129,8 @@
       default:
         return;
     }
-
-
-
-    if (intFunc[port] != NULL) { // if it is null the port is not enabled for attachInterrupt
+    if (intFunc[port] != NULL && userFunc != NULL) {
+      // if it is null the port is not enabled for attachInterrupt, and obviously a null user function is invalid too.
       intFunc[port][bitpos] = userFunc;
       uint8_t portoffset = ((port << 5) & 0xE0) + 0x10 + bitpos;
       uint8_t oldSREG = SREG;
