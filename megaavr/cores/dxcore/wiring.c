@@ -168,19 +168,58 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       // if RTC is used as timer, we only increment the overflow count
       timer_overflow_count++;
     #endif
-     /* Clear flag */
+  /* Clear flag */
     #if defined(MILLIS_USE_TIMERA0)
       TCA0.SPLIT.INTFLAGS = TCA_SPLIT_HUNF_bm;
-    #elif defined(MILLIS_USE_TIMERA1)
-      TCA1.SPLIT.INTFLAGS = TCA_SPLIT_HUNF_bm;
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.INTFLAGS = TCD_OVF_bm;
     #elif defined(MILLIS_USE_TIMERRTC)
-      RTC.INTFLAGS = RTC_OVF_bm;
+      RTC.INTFLAGS = RTC_OVF_bm | RTC_CMP_bm;
     #else // timerb
       _timer->INTFLAGS = TCB_CAPT_bm;
     #endif
   }
+
+/*  Both millis and micros must take great care to prevent any kind of backward time travel.
+ *
+ * These values are unsigned, and should not decrease, except when they overflow. Hence when
+ * we compare a value with what we recorded previously and find the new value to be lower, it
+ * looks the same as it would 2^32 (4.2 billion) intervals in the future. Timeouts end prematurely
+ * and similar undesired behaviors occur.
+ *
+ * There are three hazardous things we read here:
+ * timer_millis, timer_overflow_count, and the timer count itself (TCxn.CNT).
+ * The normal variables need only be read with interrupts disabled, in case of an
+ * interrupt writing to it while we were reading it. AVRs are little-endian, so this would result
+ * in the low byte being read before the overflow and the high byte after, and hence a value
+ * higher than it should be for that call. Subsequent calls would return the right value.
+ *
+ * In the case of the timer value, it is more complicated.
+ * Here, the hardware at first glance seems to protect us (see "reading 16-bit registers" in the
+ * datasheet). But the register gets read in the interrupt, so we still need those disabled.
+ * There is an additional risk though that we get a value from after the timer has overflowed
+ * and since we disabled interrupts, the interrupt hasn't updated the overflow. We check the
+ * interrupt flag, and if it's set, we check whether the timer value we read was near overflow
+ * (the specifics vary by the timer - they're very different timers). If it isn't close to overflow
+ * but the flag is set, we must have read it after the overflow, so we compensate for the missed
+ * interrupt. If interrupts are disabled for long enough, this heuristic will be wrong, but in
+ * that case it is the user's fault, as this limitation is widely known and documentedm, as well
+ * as unavoidable. Failure to compensate looks like the inverse of the above case.
+ *
+ * (note that only micros reads the timer, and hence, only micros can experience backwards time
+ * travel due to interrupts being left disabled for too long, millis will just stop increasing.
+ *
+ * Both of these cause severe breakage everywhere. The first type is simple to avoid, but if
+ * missed can be more subtle, since it makes a big difference only if the byte where the read
+ * was interrupted rolled over. The second type is more obvious, potentially happening on every timer
+ * overflow, instead of just every 256th timer overflow, and when it does happen, anything waiting
+ * for a specific number of microseconds to pass that gets that value will do so.
+ * Though (see delay below) each incidence only short-circuits one ms of delay(), not the whole
+ * thing.
+ *
+ * All time time travel except for glitchs from disabling millis for too long should no longer
+ * be possible. If they are, that is a critical bug.
+ */
 
   unsigned long millis()
   {
@@ -639,6 +678,34 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
     return -1;
   }
 #endif // end of non-MILLIS_USE_TIMERNONE code
+
+
+/* delay()
+ * So what do you WANT in a good delay function?
+ * First, obviously you want it to delay things. You do not want it to block interrupts (then a long one would throw off
+ * timekeeping, miss inputs, and so on). And you want the compiled size to not be prohibitive for the part.
+ * The reason it's so important wrt. interrupts is that in Arduino standard delay(), if an interrupt fires in the middle,
+ * will still end at the same time - it is "interrupt insensitive". Whenever a delay is using the builtin _delay_ms()
+ * if that is interrupted it has no way of knowing time has passed. Now hopefully you're not spending so much time in
+ * an ISR that this is significant, but it is still undesirable.
+ *
+ * For the unfortunate souls using small-flash parts, the flash usage becomes a major problem - why is it such a space-hog?
+ * Because it has to pull in micros(), which is bulky even with the division turned into bitshifts... RTC has same problem
+ * with millis(), the conversion of 1024ths of a second to 1000ths is a killer, even with the bitshift tricks,
+ * and the compiler seems really stupid about how it handles it; I can't keep it from making an extra copy of the 32-bit
+ * value, which ALSO requires 4 more push and pop operations to get registers it can use.
+ *
+ * Now we will use one of three delay() implementations:
+ * If you have 16k+ your delay is the standard one, it pulls in micros(), yes, but you may well already have grabbed
+ *  that for your sketch already, and the delay is more accurate and fully interrupt insensitive, and you can afford
+ *  the memory. For RTC users they will get the analogous implementation that is based on millis.
+ * Users with millis disabled, or with less than 16k flash and using RTC will get the implementation based on _delay_ms().
+ * Everyone else (flash under 16k but millis enabled via non-RTC timer) will get the light version which calls _delay_ms()
+ *  if the delay is under 16 ms to get less flash usage, and calculates the delay using **millis** not micros otherwise,
+ *  saving over 100b of flash. The reason for the split is that the limited granularity of millis introduces an error in
+ *  the delay duration of up to 1ms. That doesn't matter much when you call delay(1000) on an internal clock that's within
+ *  1% on a good day. It matters greatly when you call delay(1);    */
+
 
 #if (!(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERRTC) || (F_CPU == 7000000L || F_CPU == 14000000)))
   // delay implementation when we do have micros() - we know it won't work at 7 or 14, and those can be generated

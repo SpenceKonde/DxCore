@@ -1,6 +1,6 @@
 /* main.cpp - Main loop for Arduino sketches
-   Part of megaTinyCore - github.com/SpenceKonde/DxCore
-   Copyright (c) 2018~2021 Spence Konde, (c) 2005-2013 Arduino
+   Part of DxCore - github.com/SpenceKonde/DxCore
+   Copyright (c) 2018~2022 Spence Konde, (c) 2005-2013 Arduino
    Free Software - LGPL 2.1, please see LICENCE.md for details */
 
 #include <Arduino.h>
@@ -91,7 +91,7 @@ int main() {
  * gather data about the nature of the fault. For example, turn on an LED if\ LVL0EX is set     *
  * meaning you got here from a missing ISR. With one of those little boards with 6 LEDs on      *
  * (many are available reasonably cheaply on aliexpress et al.) end up being very useful        *
- * for this sort of thing.                                                                      
+ * for this sort of thing.
  *
  * * The register in question is GPIOR0 on megaTinyCore, GPR.GPR0 on Dx-series, but both names  *
  * are aliases of eachother per core_devices for compatibility

@@ -119,7 +119,11 @@ My tentative ruling is that:
 #define AVAILABLE_TONE_PINS 1
 
 #if defined(MILLIS_USE_TIMERB0)
-  #define USE_TIMERB1
+  #if defined(TCB1)
+    #define USE_TIMERB1
+  #else
+    #define TONE_UNAVAILABLE
+  #endif
 #else
   #define USE_TIMERB0
 #endif

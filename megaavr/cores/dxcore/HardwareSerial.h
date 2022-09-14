@@ -51,8 +51,8 @@
  *  ": memory" clobber to create a memory barrier. This ensures that it
  * is atomic, but significantly hurts performance. (theoretical worst case
  * is 94 clocks, real-world is usually far less, but I'll only say "less"
- * The functions in question have considerable register pressure). But, 
- * it unquestionably would impact USART performance at high speeeds. 
+ * The functions in question have considerable register pressure). But,
+ * it unquestionably would impact USART performance at high speeeds.
  *
  * * The USE_ASM_* options can be disabled by defining them as 0 either in variant pins_arduino.h
  * The buffer sizes can be overridden in by defining SERIAL_TX_BUFFER either in variant file (
@@ -77,8 +77,8 @@
  * |  128k |       -  |       -  |       -  |   -  |  16384 |   -  |
  * This ratio is remarkably consistent. No AVR part was ever made with
  * less than 8:1 flash:ram, nor more than 16:1, since first ATmegas!
- * The sole exception? The ATmega2560/2561 has only 4k RAM.
- * (to be fair, you are allowed to use external RAM - which was a very rare feature
+ * The sole exception? The ATmega2560/2561 has only 8k RAM, a 32:1 flash to ram ratio.
+ * (to be fair, you are allowed to use external RAM - which was a very rare feature indeed,
  */
 #if !defined(USE_ASM_TXC)
   #define USE_ASM_TXC 1    // This *appears* to work? It's the easy one. saves 6b for 1 USART and 44b for each additional one
@@ -94,8 +94,8 @@
 // savings:
 // 44 total for 0/1,
 // 301 for 2-series, which may be nearly 9% of the total flash!
-// The USE_ASM_* options can be disabled by defining them as 0 either in variant pins_arduino.h
-// The buffer sizes can be overridden in by defining SERIAL_TX_BUFFER either in variant file (as defines in pins_arduino.h) or boards.txt as (By passing them as extra flags).
+// The USE_ASM_* options can be disabled by defining them as 0 (in the same way that buffer sizes can be overridden)
+// The buffer sizes can be overridden in by defining SERIAL_TX_BUFFER either in variant file (as defines in pins_arduino.h) or boards.txt (By passing them as extra flags).
 // note that buffer sizes must be powers of 2 only.
 
 
@@ -233,15 +233,15 @@ class HardwareSerial : public HardwareSerial {
       uint16_t* ret;  ret=printHex(p, len, sep, s); println(); return ret;
     }
     volatile uint8_t *  printHexln(volatile  uint8_t* p, uint8_t len, char sep = 0            ) {
-      volatile uint8_t* ret;   
-      ret=printHex(p, len, sep);    
-      println(); 
+      volatile uint8_t* ret;
+      ret=printHex(p, len, sep);
+      println();
       return ret;
     }
     volatile uint16_t * printHexln(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
         volatile uint16_t* ret;
         ret=printHex(p, len, sep, s);
-        println(); 
+        println();
         return ret;
       }
 
@@ -265,17 +265,30 @@ class HardwareSerial : public HardwareSerial {
     uint8_t waitForSync();
     uint8_t autobaudWFB_and_request(uint8_t n = 2);
     uint8_t getStatus() {
-      return _statuscheck(_hwserial_module->CTRLB, _hwserial_module->STATUS, _status);
+      uint8_t ret = _statuscheck(_hwserial_module->CTRLB, _hwserial_module->STATUS, _state);
+      if ((ret & 0x30) == 0x30) {
+        _hwserial_module->STATUS = USART_ISFIF_bm;
+        #if defined(ERRATA_ISFIF)
+          uint8_t ctrlb _hwserial_module->CTRLB;
+          uint8_t rxoff = ctrlb & (~USART_RXEN_bm);
+          _hwserial_module->CTRLB = rxoff;
+          _hwserial_module->CTRLB = ctrlb;
+        #endif
+      }
+      _state &= 0x03; // Clear the errors we just reported.
+      return ret;
     }
 
     uint8_t getPin(uint8_t pin); //wrapper around static _getPin
 
     // Interrupt handlers - Not intended to be called externally
-    #if !(USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
+    #if !(USE_ASM_RXC == 1 && \
+         (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16))
       static void _rx_complete_irq(HardwareSerial& uartClass);
     #endif
-    #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
-                              (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
+    #if !(USE_ASM_DRE == 1 && \
+         (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+         (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128 || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
       static void _tx_data_empty_irq(HardwareSerial& uartClass);
     #endif
 
@@ -297,28 +310,26 @@ class HardwareSerial : public HardwareSerial {
      *
      *
      */
-    static uint8_t _statuscheck(uint8_t status, uint8_t ctrlb, uint8_t ctrla) {
-      uint8_t ret;
-      ret = ctrlb & 0xC0;
-
-      if (ctrlb & 0x06 == 0x04) {
-        ret |= SERIAL_AUTOBAUD_ENABLED
-      }
-      if (status & 0x02) { // We think we're in half-duplex mode
-
-        if ((ctrlb & ctrla & 0x04 /* LBME and ODME are in the same bit location*/) && (ret & 0x0C == 0x0C ) && (ctrla & 0x0C)) { // does the hardware agree
-          ret |= SERIAL_HALF_DUPLEX_ENABLED
+    static uint8_t _statuscheck(uint8_t ctrlb, uint8_t status, uint8_t state) {
+      uint8_t ret = state;
+      // We have now: |HW OVF| RING OVF|_____|_______|FrameError|ParityError|HalfDuplex|Written|
+      // now we fill high nybble
+      if ((ctrlb & 0x06) == 0x04) {
+        // Autobaud
+        if (status & USART_BDF_bm) {
+          ret |= SERIAL_AUTOBAUD_SYNC;
+        } else if (status & USART_ISFIF_bm) {
+          ret |= SERIAL_AUTOBAUD_BADSYNC;
         } else {
-          ret |= SERIAL_BAD_STATE
+          ret |= SERIAL_AUTOBAUD_ENABLED;
         }
       }
-
-
+      return ret;
     }
-};
+  };
 
 #if defined(USART0)
-  extern HardwareSerial Serial;
+  extern HardwareSerial Serial0;
 #endif
 #if defined(USART1)
   extern HardwareSerial Serial1;

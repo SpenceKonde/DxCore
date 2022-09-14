@@ -1,7 +1,7 @@
 /* core_devices  - a part of Arduino.h for megaTinyCore 2.3.0 and later and DxCore 1.4.0, but
  * which takes ion much greater importance (and girth) with the toolchain update in 2.6 and 1.6)
  * This is directly included by Arduino.h and nothing else; it just moves
- * clutter out of that file. You should not directly include this file ever. 
+ * clutter out of that file. You should not directly include this file ever.
  *
  * Spence Konde 2021 -2022- megaTinyCore and DxCore are free software (LGPL 2.1)
  * See LICENSE.txt for full legal boilerplate if you must */
