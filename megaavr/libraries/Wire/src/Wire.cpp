@@ -21,7 +21,7 @@
   Modified 2019-2021 by Spence Konde for megaTinyCore and DxCore.
   This version is part of megaTinyCore and DxCore; it is not expected
   to work with other hardware or cores without modifications.
-  Modified extensively 2021 by MX682X for megaTinyCore and DxCore.
+  Modified extensively 2021-22 by MX682X for megaTinyCore and DxCore.
   Added Support for Simultaneous host/client, dual mode and Wire1.
 */
 // *INDENT-OFF*   astyle wants this file to be completely unreadable with no indentation for the many preprocessor conditionals!
@@ -64,6 +64,44 @@ TwoWire::TwoWire(TWI_t *twi_module) {
  *@retval     true if change was successful
  */
 bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
+  if (__builtin_constant_p(sda_pin) && __builtin_constant_p(scl_pin)) {
+    if (!(
+      #if defined(PIN_WIRE_SDA)
+          (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) ||
+      #endif
+      #if defined(PIN_WIRE_SDA_PINSWAP_1)
+          (sda_pin == PIN_WIRE_SDA_PINSWAP_1 && scl_pin == PIN_WIRE_SCL_PINSWAP_1) ||
+      #endif
+      #if defined(PIN_WIRE_SDA_PINSWAP_2)
+          (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) ||
+      #endif
+      #if defined(PIN_WIRE_SDA_PINSWAP_3)
+          (sda_pin == PIN_WIRE_SDA_PINSWAP_3 && scl_pin == PIN_WIRE_SCL_PINSWAP_3) ||
+      #endif
+      #if defined(PIN_WIRE1_SDA)
+          (sda_pin == PIN_WIRE1_SDA && scl_pin == PIN_WIRE1_SCL) ||
+      #endif
+      #if defined(PIN_WIRE1_SDA_PINSWAP_1)
+          (sda_pin == PIN_WIRE1_SDA_PINSWAP_1 && scl_pin == PIN_WIRE1_SCL_PINSWAP_1) ||
+      #endif
+      #if defined(PIN_WIRE1_SDA_PINSWAP_2)
+          (sda_pin == PIN_WIRE1_SDA_PINSWAP_2 && scl_pin == PIN_WIRE1_SCL_PINSWAP_2) ||
+      #endif
+        false)) { // SDA and SCL are always next to each other
+      #if defined(TWI1)
+        badArg("Pins passed to Wire.pins() or Wire1.pins() known at compile time to be invalid");
+      #else
+        badArg("Pins passed to Wire.pins() known at compile time to be invalid");
+      #endif
+    }
+  }
+  /* The above blob of code is entirely removed by the compiler - it either generates the compile error or doesn't, and nothing is evaluated at runtime
+   * This was for a time in twi_pins.c - but that prevented it from ever firing, because constant folding doesn't happen if it's in a different file
+   * and hence a different compilation unit. This still will only catch the case where the pins are not a valid pin combination. The construction below, I think
+   * is enough to render the optimizer unable to do the sort of things it needs to in order to do this.
+   * Using both Wire.pins() and Wire1.pins() within the same sketch may also be enough to defang the optimizer such that it can't check these.
+   * I don't see a way around that, though... but this will at least catch the majority of cases. -SK 10/5/22.
+   */
   #if defined(TWI1)
     if (&TWI0 == vars._module)  {
       return TWI0_Pins(sda_pin, scl_pin);
@@ -88,6 +126,56 @@ bool TwoWire::pins(uint8_t sda_pin, uint8_t scl_pin) {
  *@retval     true if change was successful
  */
 bool TwoWire::swap(uint8_t state) {
+  if (__builtin_constant_p(state)) {
+    #if defined(TWI1) // DA and DB have a second TwI, TWI1. Both have swap levels 0-2. Swap 1 and 2 of TWI1 and swap 1 of TWI0 are unavailable with under 48 pins.
+      if (!(
+        #if defined(PIN_WIRE1_SDA_PINSWAP_2) || defined(PIN_WIRE_SDA_PINSWAP_2)
+          state == 2 ||
+        #endif
+        #if defined(PIN_WIRE1_SDA_PINSWAP_1) || defined(PIN_WIRE_SDA_PINSWAP_1)
+          state == 1 ||
+        #endif
+        #if defined(PIN_WIRE_SDA) || defined(PIN_WIRE1_SDA)
+          state == 0 ||
+        #endif
+        false)) {
+          if (state > 3) {
+            badArg("The requested swap level is not available on any current or announced part - did you pass a bitmask instead of a number?")
+          } else if (state == 3){
+            badArg("Swap level 3 is not available on DA or DB devices, only swaps 0, 1 and 2.")
+          } else {
+            badArg("The requested swap level is not available on this part.")
+            return false
+          }
+        }
+
+    #elif defined(TWI0) // case for one TWI, TWI0
+      if (!(
+        #if defined(PIN_WIRE_SDA_PINSWAP_3)
+          state == 3 ||
+        #endif
+        #if defined(PIN_WIRE_SDA_PINSWAP_2)
+          state == 2 ||
+        #endif
+        #if defined(PIN_WIRE_SDA_PINSWAP_1)
+          state == 1 ||
+        #endif
+        #if defined(PIN_WIRE_SDA)
+          state == 0 ||
+        #endif
+        false)) {
+          if (state > 3) {
+            badArg("The requested swap level is known at compiletime to be one that is not available on any part. (did you pass a bitmask instead of a number?)")
+          } else {
+            badArg("The requested swap level is not available on this part.")
+            return false
+          }
+        }
+
+    #else
+      #error "This library (Wire.h) is for modern AVRs, and all parts announced or in production have a TWI0"
+    #endif
+  }
   #if defined(TWI1)
     if (&TWI0 == vars._module) {
       return TWI0_swap(state);
@@ -179,9 +267,9 @@ void TwoWire::begin(void) {
  *
  *@return     void
  */
-void TwoWire::begin(uint8_t address, uint8_t receive_broadcast, uint8_t second_address) {
+void TwoWire::begin(uint8_t address, bool receive_broadcast, uint8_t second_address) {
   if (__builtin_constant_p(address) > 0x7F) {     // Compile-time check if address is actually 7 bit long
-    badArg("Supplied address seems to be 8 bit. Only 7 bit addresses are supported");
+    badArg("TWI addresses must be supplied in 7-bit format. The read/write bit is handled by the library");
     return;
   }
   TWI_SlaveInit(&vars, address, receive_broadcast, second_address);
@@ -242,7 +330,106 @@ void TwoWire::endSlave(void) {
   TWI_DisableSlave(&vars);
 }
 #endif
+/**
+ *@brief      specialConfig allows configuring of wacky features.
+ *            smbus evel: Vihmin and Vilmax are normally 0.7*Vdd (or VDDIO on MVIO pins) and 0.3*Vdd respectively. This option sets them to the SMBus 3.0 levels:
+ *            In this mode, any voltage below 0.8V is guaranteed to be a LOW, and anything above 1.35 or 1.45 (see electrical characteristics in datasheet)
+ *            This is of great utility for communication with lower voltage devices, especially where you don't have MVIO. Can also be set independantly if dual mode used.
+ *            loongsetup: The setup times are normally 4 system clocks, however this can be doubled for disagreeable devices and/or adverse bus conditions
+ *            Four options are available for the SDA hold times. sda_hold_dual handles the dual pins. This is used for SMBus 2.0 compatibility.
+ *              WIRE_SDA_HOLD_OFF 0 - hold time off (default)
+ *              WIRE_SDA_HOLD_50  1 - short hold time
+ *              WIRE_SDA_HOLD_300 2 - meets SMBus 2.0 spec in typical cases
+ *              WIRE_SDA_HOLD_500 3 - meets SMBus 2.0 across all corner cases
+ *
+ *            Returns a value between 0 and 7. 0 indicates all is well.
+ *            it is otherwise bitwis combination of three error conditions (the first two of which we will stop compilation if they are constants and wrong)
+ *            0x01 - smbuslevel must be 0 on parts that don't support it, you passed something else.
+ *            0x02 - sda_hold_dual or smbuslevel_dual must be 0 if there is no dual mode
+ *
+ *@param      bool smbuslvl, bool longsetup, uint8_t sda_hold, uint8_t sda_hold_dual
+ *
+ *@return     uint8_t
+ *            0x01 = smbus level ignored because part does not support it
+ *            0x02 = sda_hold_dual ignored because part does not have dual mode.
+ *            0x04 = sda_hold_dual ignored because dual mode not enabled.
+ */
 
+uint8_t TwoWire::specialConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual, uint8_t sda_hold_dual) {
+  uint8_t ret = 0;
+  #if !defined(TWI_INPUTLVL_bm) // if there's no input level option, we want to notify the user with an error so they don't think they have a feature they don't
+    if (__builtin_constant_p(smbuslvl))  { //but they could be passign a zero, which is legal. See if it's constant...
+      if (smbuslvl) {                      // and non-zero, in which case error:
+        badCall("the smbus level option is not present on these parts. You need a Dx for that.");
+      }
+    } else if (smbuslvldual) { //same deal for dual mode
+      if (smbuslvldual) {
+        badCall("the smbus level option is not present on these parts. You need a Dx for that.");
+      }
+    // the above will always fold to nothing or and error, and does not bloat binary
+    // but we may not know at compiletime what will be passed, so we have to have a runtime test.
+    }
+      else if (smbuslvl || smbuslvldual) {
+        ret         |= 1; //
+        smbuslvl     = 0; // We don't HAVE this option here, so zero out the option we pass along.
+       //#if defined(TWI_DUALCTRL)
+       //   smbuslvldual = 0; // no need to 0 - variable is no longer used, w/out dual ctrl, theres also not going to be smbus levels.
+       //#endif
+      }
+    }
+  #endif
+  if (__builtin_constant_p(sda_hold))  {
+    if (sda_hold > 3) {
+      badArg("Only 0, 1, 2 and 3 are valid SDA hold options. Suggest using the named constants.")
+    }
+  } else if (sda_hold > 3) {
+    ret |= 0x08;
+    sda_hold = 0;
+  }
+
+  #if !defined(TWI_DUALCTRL) // if no dual control, let user know with an error that they're trying to use dual mode features
+    if (__builtin_constant_p(sda_hold_dual))  {
+      if (sda_hold_dual) {
+        badCall("Dual Mode is not supported on this part, sda_hold_dual and smbuslvl_dual must be omitted or 0");
+      }
+    }
+    if (__builtin_constant_p(smbuslvl_dual))  {
+      if (smbuslvl_dual) {
+        badCall("Dual Mode is not supported on this part, smbuslvl_dual must be omitted or 0");
+      }
+    }
+    else { //not compiletime constant so have to check at runtime
+      if (sda_hold_dual) { // only hav to do SDA hold 0 - already caught bad input levels.
+        ret |= 2; //error code.
+        //sda_hold_dual= 0; not needed to zero out if no dual mode, we don't use this value anmore.
+      }
+    }
+  #else
+    if (__builtin_constant_p(sda_hold_dual))  {
+      if (sda_hold_dual > 3) {
+        badArg("Only 0, 1, 2 and 3 are valid SDA hold options. Suggest using the named constants.")
+      }
+    } else if (sda_hold_dual > 3) {
+      ret |= 0x08;
+      sda_hold_dual = 0;
+    }
+  #endif
+  // Now we actually call the function in twi_pins.
+  // Notice how the non-dualctrl parts also don't have smbus levels!
+  #if defined(TWI1) // TWI_DUALCTRL is also defined here - everything with TWI1 has dual mode
+    if (&TWI0 == vars._module) {
+      return ret | TWI0_setConfig(smbuslvl, longsetup, smbuslvl_dual, sda_hold_dual);
+    } else if (&TWI1 == vars._module) {
+      return ret | TWI1_setConfig(smbuslvl, longsetup, smbuslvl_dual, sda_hold_dual);
+    }
+  #else
+    #if defined(TWI_DUALCTRL) // And nothing without dual mode has smbus levels either.
+      return ret | TWI0_setConfig(smbuslvl, longsetup, sda_hold, smbuslvl_dual, sda_hold_dual);
+    #else
+      return ret | TWI0_setConfig(longsetup, sda_hold);
+    #endif
+  #endif
+}
 
 
 /**
@@ -256,36 +443,11 @@ void TwoWire::endSlave(void) {
  *@param      int/uint8_t/size_t quantity - the amount of bytes that are expected to be received
  *@param      int/bool sendStop - if the transaction should be terminated with a STOP condition
  *
- *@return     uint8_t
+ *@return     uint8_t/uint16_t
  *@retval     amount of bytes that were actually read. If 0, no read took place due to a bus error.
  */
-
-/* Spence: Oh ffs, why did we have all these type translating signatures to begin with when type conversion would automatically fix the problem for us
- * so the worst anyone could say was that we would compile successfully instead of with obtuse errors,
- * if a user was using inappropriate types with values that get truncated in conversion, this wouldn't work for them with or without these
- * Buffer sizes listed in library documentation should not be exceeded, and the maximum a library can be configured for is 256 since it uses uint8_t's
- * internally. Which is a huge amount of data for an AVr. it's 2 pages fromn AT24-type EEPROM (recall that the default of 120b long buffer is
- * specifically to support writing a page at a time. I2C is also slow, and if you need to transfer data aggressively to and from external peripherals
- * do it in chunks and do consider deeply if you've gotten off track. And uint8_t's and bools are the same
- * internally, and a bool gets automatically converted if passed to a function expecting a uint8_t - and if a future part get some new feature
- * that had to be specified on a per-request basis, it could be extended without changing the function signature and just adding some
- * constants you could pass that would enable it, like with UART.
- */
-//uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity,  bool     sendStop) {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
-//
-//uint8_t TwoWire::requestFrom(uint8_t  address,  size_t   quantity)                   {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-//}
-//uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity,  int16_t  sendStop) {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
-//}
-//uint8_t TwoWire::requestFrom(int16_t  address,  int16_t  quantity)                   {
-//         return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) 1);
-//}
-uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity,  uint8_t sendStop) {
-  if (quantity > BUFFER_LENGTH) {
-    // Can't do a __builtin_constant_p check here because classes make the optimizer lose the plot.
+twi_buffer_index_t TwoWire::requestFrom(uint8_t  address,  twi_buffer_index_t quantity,  uint8_t sendStop) {
+  if (quantity >= BUFFER_LENGTH) {
     quantity = BUFFER_LENGTH;
   }
   vars._clientAddress = address << 1;
@@ -306,14 +468,13 @@ uint8_t TwoWire::requestFrom(uint8_t  address,  uint8_t  quantity,  uint8_t send
  *@return     void
  */
 void TwoWire::beginTransmission(uint8_t address) {
+  twi_buffer_index_t *txHead;
   #if defined(TWI_MERGE_BUFFERS)                  // Same Buffers for tx/rx
-    uint8_t* txHead  = &(vars._bytesToReadWrite);
+    txHead  = &(vars._bytesToReadWrite);
   #else                                           // Separate tx/rx Buffers
-    uint8_t* txHead  = &(vars._bytesToWrite);
+    txHead  = &(vars._bytesToWrite);
   #endif
   if (__builtin_constant_p(address) > 0x7F) {     // Compile-time check if address is actually 7 bit long
-    // Spence: pretty sure this doesn't work. Constant folding and autoinlining doesn't seem to happen correctly when constants are passed to class methods, even when called a single time... .
-    // C++ stuff confuses the optimizer almost as much as me. I know  C not C++.
     badArg("Supplied address seems to be 8 bit. Only 7-bit-addresses are supported");
     return;
   }
@@ -371,9 +532,8 @@ uint8_t TwoWire::endTransmission(bool sendStop) {
  *@retval     1 if successful, 0 if the buffer is full
  */
 size_t TwoWire::write(uint8_t data) {
-  uint8_t* txHead;
   uint8_t* txBuffer;
-
+  twi_buffer_index_t *txHead;
   #if defined(TWI_MANDS)                   // Add following if host and client are split
     if (vars._bools._toggleStreamFn == 0x01) {
       txHead   = &(vars._bytesToReadWriteS);
@@ -415,8 +575,8 @@ size_t TwoWire::write(uint8_t data) {
  *@retval     amount of bytes copied
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
-  uint8_t i = 0;  // uint8_t since we don't use bigger buffers
-  uint8_t qty = quantity > BUFFER_LENGTH ? BUFFER_LENGTH : quantity; //Don't overfill the buffer.
+  twi_buffer_index_t i = 0;
+  twi_buffer_index_t qty = (quantity >= BUFFER_LENGTH) ? BUFFER_LENGTH : quantity; //Don't overfill the buffer.
   for (; i < qty; i++) {
     if (write(*(data + i)) == 0) break;   // break if buffer full
   }
@@ -471,11 +631,8 @@ int TwoWire::available(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::read(void) {
-
-  uint8_t* rxHead;
-  uint8_t* rxTail;
-  uint8_t* rxBuffer;
-
+  uint8_t *rxBuffer;
+  twi_buffer_index_t *rxHead, *rxTail;
   #if defined(TWI_MANDS)                         // Add following if host and client are split
     if (vars._bools._toggleStreamFn == 0x01) {
       rxHead   = &(vars._bytesToReadWriteS);
@@ -507,6 +664,33 @@ int TwoWire::read(void) {
 
 
 /**
+ *@brief      readBytes reads a number of bytes from the buffer and removes them
+ *
+ *            Usually, the function reads the bytes from the host buffer.
+ *            If called inside the specified onReceive or onRequest functions, or after
+ *            selectSlaveBuffer, it reads the bytes from the slave buffer and removes it
+ *            from there. When there are less bytes then requested, the return value will
+ *            be smaller then the requested amount. It is more then the Stream variant
+ *            and overwrites it.
+ *
+ *@param      uint8_t *data - pointer to the array
+ *@param      size_t quantity - amount of bytes to copy
+ *
+ *@return     size_t
+ *@retval     actually read bytes.
+ */
+size_t TwoWire::readBytes(char* data, size_t quantity) {
+  twi_buffer_index_t i = 0;
+  for (; i < quantity; i++) {
+    int16_t c = read();
+    if (c < 0) break;   // break if buffer empty
+    (*data++) = c;
+  }
+  return i;
+}
+
+
+/**
  *@brief      peek returns a byte from the host or client buffer but does not remove it
  *
  *            Usually, the function returns the byte from the host buffer.
@@ -520,11 +704,8 @@ int TwoWire::read(void) {
  *@retval     byte in the buffer or -1 if buffer is empty
  */
 int TwoWire::peek(void) {
-
-  uint8_t* rxHead;
-  uint8_t* rxTail;
-  uint8_t* rxBuffer;
-
+  uint8_t *rxBuffer;
+  twi_buffer_index_t *rxHead, *rxTail;
   #if defined(TWI_MANDS)                         // Add following if host and client are split
     if (vars._bools._toggleStreamFn == 0x01) {
       rxHead   = &(vars._bytesToReadWriteS);
@@ -583,6 +764,7 @@ uint8_t TwoWire::getIncomingAddress(void) {
   #endif
 }
 
+
 /**
  *@brief      getBytesRead provides a facility for the slave to check how many bytes were
  *              successfully read by the master.
@@ -591,25 +773,17 @@ uint8_t TwoWire::getIncomingAddress(void) {
  *            Calling this will reset the counter, since it is an unusual use case for
  *              that to not be the next thing you do.
  *
- *@return     uint8_t
+ *@return     uint8_t/uint16_t
  *@retval     Number of bytes read by a master from this device acting as a slave since
  *              the last time this was called.
  */
 
-uint8_t TwoWire::getBytesRead() {
-  uint8_t* txTail;
-  #if defined(TWI_MANDS)                         // Add following if host and client are split
-      txTail   = &(vars._bytesReadWrittenS);
-  #else
-    #if defined(TWI_MERGE_BUFFERS)               // Same Buffers for tx/rx
-      txTail   = &(vars._bytesReadWritten);
-    #else                                        // Separate tx/rx Buffers
-      txTail   = &(vars._bytesWritten);
-    #endif
-  #endif
-  // txTail variable (what ever applies on the mode) is reset on every slave AddrRead
-  return (*txTail);
+twi_buffer_index_t TwoWire::getBytesRead() {
+  twi_buffer_index_t num = vars._bytesTransmittedS;
+  vars._bytesTransmittedS = 0;
+  return num;
 }
+
 
 /**
  *@brief      slaveTransactionOpen provides a facility for the slave to determine if a there
@@ -633,11 +807,13 @@ uint8_t TwoWire::slaveTransactionOpen() {
   return 1;                             // Otherwise it was a write.
 }
 
+
 /**
  *@brief      enableDualMode enables the splitting of host and client pins
  *
  *            useful when you want to separate multiple TWI buses.
  *            Only available on the chips with a bigger pin count. See data sheet.
+ *            To disable dualmode, please use Wire.endSlave() (in MANDS case) or Wire.end();
  *
  *@param      bool fmp_enable - set true if the TWI module has to expect a high
  *              frequency (>400kHz) on the salve pins
@@ -650,6 +826,33 @@ void TwoWire::enableDualMode(bool fmp_enable) {
   #else
     badCall("enableDualMode was called, but device does not support it");
     (void) fmp_enable;    // Disable unused variable warning
+  #endif
+}
+
+
+/**
+ *@brief      checkPinLevels returns the pin level of the Master SDA/SCL pins
+ *
+ *            useful when you want to make sure the bus is ready and there is
+ *              no device that might take longer to switch its pins to open-drain.
+ *              In a multi-master system, a return value of 0x03 does not guarantee
+ *              that the bus is IDLE.
+ *
+ *@param      none
+ *
+ *@return     uint8_t - SDA level is represented with bit 0, SCL with bit 1. Bus ready with 0x03
+ */
+uint8_t TwoWire::checkPinLevels(void) {
+  #if defined(TWI1)
+    if (&TWI0 == vars._module)  {
+      return TWI0_checkPinLevel();
+    } else if (&TWI1 == vars._module)  {
+      return TWI1_checkPinLevel();
+    } else {
+      return false;
+    }
+  #else
+    return TWI0_checkPinLevel();
   #endif
 }
 
@@ -717,20 +920,16 @@ void TwoWire::deselectSlaveBuffer(void) {
  */
 void TwoWire::onSlaveIRQ(TWI_t *module) {          // This function is static and is, thus, the only one for both
                                                     // Wire interfaces. Here is decoded which interrupt was fired.
-  #if defined(TWI1)                                 // Two TWIs available
-    #if defined(TWI_USING_WIRE1)                        // User wants to use Wire and Wire1. Need to check the interface
-      if (module == &TWI0) {
-        TWI_HandleSlaveIRQ(&(Wire.vars));
-      } else if (module == &TWI1) {
-        TWI_HandleSlaveIRQ(&(Wire1.vars));
-      }
-    #else                                           // User uses only Wire but can use TWI0 and TWI1
-      TWI_HandleSlaveIRQ(&(Wire.vars));             // Only one possible SlaveIRQ source/Target Class
-    #endif
-  #else                                             // Only TWI0 available, IRQ can only have been issued by that interface
-    TWI_HandleSlaveIRQ(&(Wire.vars));               // No need to check for it
+  #if defined(TWI1) &&  defined(TWI_USING_WIRE1)   // Two TWIs available and TWI1 is used. Need to check the module
+    if (module == &TWI0) {
+      TWI_HandleSlaveIRQ(&(Wire.vars));
+    } else if (module == &TWI1) {
+      TWI_HandleSlaveIRQ(&(Wire1.vars));
+    }
+  #else                                 // Otherwise, only one Wire object is being used anyway, no need to check
+    (void)module;
+    TWI_HandleSlaveIRQ(&(Wire.vars));
   #endif
-  (void)module;
 }
 
 
@@ -745,17 +944,7 @@ void TwoWire::onSlaveIRQ(TWI_t *module) {          // This function is static an
  *@return     void
  */
 void TwoWire::onReceive(void (*function)(int)) {
-  if (__builtin_constant_p(function)) {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onReceive = function;
-    } else {
-      badArg("Null pointer passed to onReceive()");
-    }
-  } else {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onReceive = function;
-    }
-  }
+  vars.user_onReceive = function;
 }
 
 
@@ -769,17 +958,7 @@ void TwoWire::onReceive(void (*function)(int)) {
  *@return     void
  */
 void TwoWire::onRequest(void (*function)(void)) {
-  if (__builtin_constant_p(function)) {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onRequest = function;
-    } else {
-      badArg("Null pointer passed to onRequest()");
-    }
-  } else {
-    if (__builtin_expect(function != NULL, 1)) {
-      vars.user_onRequest = function;
-    }
-  }
+  vars.user_onRequest = function;
 }
 
 

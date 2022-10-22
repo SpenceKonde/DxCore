@@ -18,7 +18,7 @@
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
 
-  Modified 2021 by MX682X for megaTinyCore and DxCore.
+  Modified 2021-2022 by MX682X for megaTinyCore and DxCore.
   Added Support for Simultaneous master/slave, dual mode and Wire1.
 */
 
@@ -58,6 +58,16 @@ extern "C" {
 // While a mask is specified by leftshifting the mask, and leaving low bit 0.
 #define WIRE_ADDRESS_MASK(mask) (mask << 1)
 
+#define WIRE_SDA_HOLD_OFF 0
+#define WIRE_SDA_HOLD_50  1
+#define WIRE_SDA_HOLD_300 2
+#define WIRE_SDA_HOLD_500 3
+
+#define WIRE_SDA_SETUP_4  0
+#define WIRE_SDA_SETUP_8  1
+
+#define WIRE_I2C_LEVELS  0
+#define WIRE_SMBUS_LEVELS  1
 
 class TwoWire: public Stream {
   private:
@@ -71,14 +81,7 @@ class TwoWire: public Stream {
     uint8_t setClock(uint32_t);
 
     void begin(); // all attempts to make these look prettier were rejected by astyle, and it's not worth disabling linting over.
-    void begin(uint8_t  address, uint8_t receive_broadcast, uint8_t second_address);
-    void begin(uint8_t  address, uint8_t receive_broadcast) {
-      begin(address, receive_broadcast, 0);
-    }
-    void begin(uint8_t  address) {
-      begin(address, 0, 0);
-    }
-
+    void begin(uint8_t  address, bool receive_broadcast = 0, uint8_t second_address = 0);
     void end();
     void endMaster(void);
     void endSlave(void);
@@ -93,30 +96,23 @@ class TwoWire: public Stream {
       return endTransmission(true);
     }
 
-    uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop = 0x01);
-    /*
-    uint8_t requestFrom(uint8_t address, size_t  quantity, bool    sendStop);
-    uint8_t requestFrom(uint8_t address, size_t  quantity);
-    uint8_t requestFrom(int     address, int     quantity, int     sendStop);
-    uint8_t requestFrom(int     address, int     quantity);
-    */
-
-    uint16_t writeRead(uint8_t quantity, uint8_t sendStop);
+    twi_buffer_index_t requestFrom(uint8_t address, twi_buffer_index_t quantity, uint8_t sendStop = 1);
 
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *, size_t);
     virtual int available(void);
     virtual int read(void);
     virtual int peek(void);
-    virtual void flush(void);
-
+    void flush(void);
+    uint8_t specialConfig(bool smbuslvl = 0, bool longsetup = 0, uint8_t sda_hold = 0, bool smbuslvl_dual = 0, uint8_t sda_hold_dual = 0);
     uint8_t getIncomingAddress(void);
-    uint8_t getBytesRead(void);
+    twi_buffer_index_t getBytesRead(void);
     uint8_t slaveTransactionOpen(void);
-    void    enableDualMode(bool fmp_enable);      // Moves the Slave to dedicated pins
+    uint8_t checkPinLevels(void);             // Can be used to make sure after boot that SDA/SCL are high
+    void    enableDualMode(bool fmp_enable);  // Moves the Slave to dedicated pins
 
-    inline void selectSlaveBuffer();
-    inline void deselectSlaveBuffer();
+    void selectSlaveBuffer();
+    void deselectSlaveBuffer();
 
     void onReceive(void (*)(int));
     void onRequest(void (*)(void));
@@ -135,12 +131,15 @@ class TwoWire: public Stream {
     }
     using Print::write;
 
+
+    size_t readBytes(uint8_t * data, size_t quantity) {
+      return readBytes((char *) data, quantity);
+    }
+    size_t readBytes(char * data, size_t quantity);
+
     #if defined(TWI_READ_ERROR_ENABLED) && defined(TWI_ERROR_ENABLED)
     uint8_t returnError();
     #endif
-
-    void    TWI_onReceiveService(int numBytes);
-    uint8_t TWI_onRequestService(void);
 
     static void onSlaveIRQ(TWI_t *module);    // is called by the TWI interrupt routines
 };
