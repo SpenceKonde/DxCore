@@ -42,14 +42,18 @@ The function must be declared with both `((naked))` and `((used))` attributes! T
 These are the functions which are there with the intent that users will have good reason to override them. Except as described for `init_reset_flags`, these should only be used when you can't just do whatever you need to do in setup() for some reason/
 
 ### init_reset_flags
+This is used only when not building for an optiboot board (if you are building for optiboot, this same functionality is performed by the bootloader, as it's needed to ensure that the bootloader won't try to run on a chip in an unknown state. The bootloader prime directive is that no code, no matter how awful, should be able to break the bootloader and prevent the upload of corrected code. )
 ```c
-  void init_reset_flags() __attribute__((weak)) {
-    if (RSTCTRL.RSTFR == 0){
-      _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
-    }
+void init_reset_flags() __attribute__((weak)) {
+  uint8_t flags = RSTCTRL.RSTFR;
+  RSTCTRL.RSTFR = flags;
+  if (flags == 0) {
+    _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
   }
+  GPIOR0 = flags;
+}
 ```
-[The reset reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md) has recommended overrides and explanation of why this is so important.
+This can be used to try to pick apart when you are getting unexpected resets (likely "dirty resets"), by doing something else when RSTCTRL.RSTFR == 0 - note that because it is run so early in the initialization process, and we're here because we called an ISR that doesn't exist or smashed the stack, you can count on very little working correctly; your best bet is probably to test theories and give output by writing I/O pins to, for example, turn on an LED. (Since you have no timekeeping yet, and are likely debugging a showstopping bug, you probably just want to write the LED pin with pinModeFast and digitalWriteFast, and then hang with while(1). Having multiple LEDs connected here really helps: turn on one LED for any dirty reset, and a second LED for the theory you're testing). You might, for example, want to determine if the dirty reset is coming about through a bad ISR: if `CPUINT.STATUS & (CPUINT_LVL0EX_bm | CPUINT_LVL1EX_bm)` that means it it thinks it's in an interrupt, but it's running non-interrupt initialization code, so one of two things happened: either a non-existent ISR was called, or a function called by an ISR`*`,  wasn't inlined and smashed the stack (the dirty reset can occur after smashing the stack only when a `ret` or `reti` is executed, so if you smash the stack within the ISR proper, the reti will still execute, RSTCTRL.STATUS will be cleared, and *then* you'll end up in a dirty reset). See the [Reset Reference](Ref_Reset.md) for more information.
 
 
 ### onPreMain
@@ -68,33 +72,20 @@ uint8_t onAfterInit() __attribute__((weak)) {
 }
 
 ```
-onAfterInit runs just before setup is called, but after all other initialization. returning a non-zero value will prevent interrupts from being enabled. Good for debugging if you suspect that an interrupt is firing and wrecking everything as soon as they're enabled (for example. from a flag that gets set during initialization) and this is malfunctioning badly enough that you can't get any debugging information out (since most Arduino users are not set up for using a hardware debugger).
+onAfterInit runs just before setup is called, but after all other initialization. returning a non-zero value will prevent interrupts from being enabled. Good for debugging if you suspect that an interrupt is firing and wrecking everything as soon as they're enabled (for example, an interrupt which you cannot identify is being enabled by a class constructor in a poorly written library, such that the flag is set before setup() is called - and there's something horribly wrong about that interrupt (say, maybe it doesn't exist causing a dirty reset, or loops forever because it does `while(SOME_REGISTER = 1);` (instead of `== 1`)). In cases like this, it can be hard to get information out ("Who here knows what a hardware debugger is?" *most hands go up* "Who here has seen a hardware debugger for an AVR in person?" *most hands go down* "Who here has used one...." *all the hands remain up* "... for hardware debugging, not just programming" *all the hands go down except for that one smart guy in every class* )
 
 
 ### onBeforeInit
 ```c++
 void onBeforeInit() __attribute__((weak));{;}
 ```
-onBeforeInit is called as the first code in main, useful if you need to do something AFTER class constructors have run but BEFORE initialization.
-
+onBeforeInit is called as the first code in main, useful if you need to squeeze in some code between class constructors and the rest of the internal initialization. Rarely useful - where it is, it's probably a shim for a poorly written library whose class constructor makes a mess of something that then causes an even bigger problem when init() is called, while you wait for a fix from the author - in this situation, if you don't want to modify your copy of the library, but you have to do something to extinguish whatever small dumpster fire was started by the class constructor before the init() routine dumps a bucket of gasoline on it, this is how you would do it. Please report any library that requires this to me so that I can A) apply additional pressure to the library maintainer, and B) warn people in the library compatibility list.
 
 ## Clock Failure Handling
 
-```c
-void onClockTimeout() __attribute__((weak)); // called if we try to switch to external clock, but it doesn't work. Default action is a blink code with 4 blinks.
-void __attribute__((weak)) onClockTimeout() {
-  _blinkCode(3);
-}
-
-void onClockFailure() __attribute__((weak)); // called by the clock failure detection ISR. Default action is a blink code with 4 blinks.
-void __attribute__((weak)) onClockFailure() {
-  _blinkCode(4);
-}
-```
-These are called when the external clock source doesn't provide any clock - either it never does (onClockTimeout() ) or it does initially but then dies and gets called by the CFD ISR; that interrupt rarely fires successfully if a crystal malfunctions - if it gets as far as enabling it, it will usually reset instead if something goes wrong with the crystal.
-`_blinkcode()` never returns and blinks forever. Most likely to be overridden in the former case to run on internal and log an error, and in the latter case just to prevent the blink code because something else is connected to that pin.
-
-See [The clock source reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) for examples of how to use it.
+If using an external clock source, and it stops, so does the chip. There are two possible results if the external clock disappears:
+1. If the WDT is enabled, it will reset the chip. init_clock() will then try to use the non-functional source again, presumably failing, and leave the default /6 prescaler enabled while running from the internal oscillator. This will also happen if set to use an external clock that is not functioning at startup. If you're trying to use an external clock, but you instead appear to be running at 2.66 or 3.33 MHz, this is what is happening.
+2. If the WDT is not enabled, it will just hang when deprived of a clock source.
 
 ## Things you probably shouldn't override
 The functions listed below can be overridden. In most cases they should not be. They are listed for completeness; many of them were added for use during development of the core to make core development easier. They may be useful for debugging and on rare occasions in
@@ -147,7 +138,10 @@ Changing this is the wrong way to debug a problem that you think might be caused
 #### init_ADC0
 Initializes the ADC clock prescaler to get a legal frequency, sets up defaults and enables the ADC. It can be overridden with an empty function to prevent it from initializing the ADC to save flash if the ADC is not used. if main is overridden and tou want the right clock speed, you MUST init_clock MUST be called first in that case.
 #### init_timers
-Calls initTCA9() and initTCA1() if TCA1 is present, and sets PORTMUX.TCAROUTEA() to match what variant specifies, then calls initTCBs(), and initTCD0(). No clear reason one would want to override
+Calls initTCA0(), and then initTCD0() (if the part has one). There is no general initialization of TCBs as they are not used for e generic purpose. This cannot be overridden - override the function for the timer you're doing something different to, if required for your application. If all the timer initialization functions are overridden with empty functions then this will be optimized away.
+
+#### init_TCA0
+Initialize the type A timer for PWM. The one for a timer used as millis must not be overridden. It is not recommended to override these at all except with an empty function in order to leave the peripheral in reset state (but takeOverTCA0() will also put it back in it's reset state - and if you don't `takeOverTCA0` then it will try to turn off PWM when you call digitalWrite() - and not necessarily on the pin you called it on! That is *why* there is a `takeOverTCA0()` function; If you don't want to use analogWrite() through the timer, instead call takeOverTCA0() - which you need to do even if these are overridden if you don't want analogWrite() and digitalWrite() to manipulate the timer. As the tinyAVRs only have one TCA, there's no `init_TCA1()` and the PORTMUX configuration is handled in this function. If not using PWM, overriding this saves 22 bytes of flash. The only case when you can safely override this with an empty function without calling takeOkverTCA0() is if neither your code nor any library makes any call to digitalWrite() or analogWrite(). The case of disabling all PWM functionality on one or both types of timer to save flash will be addressed in 2.6.x.
 
 #### init_TCA0 and init_TCA1
 Initialize the type A timers for PWM. The one for a timer used as millis must not be overridden. It is not recommended to override these at all except with an empty function in order to leave the peripheral in reset state (but takeOverTCAn() will also put it back in it's reset state. If you don't want to use analogWrite() through the timer, instead call takeOverTCAn() - which you need to do even if these are overridden if you don't want analogWrite() and digitalWrite() to manipulate the timer. This is solely a space saving method, and will most likely have little place except on things like the AVR8EA-series.
@@ -160,9 +154,8 @@ Initializes the type D timer. It is not recommended to override this except with
 #### init_millis
 Initializes and kicks off millis timekeeping. If millis is handled by a type B or D timer, it also performs all initialization of that timer. Overriding this (with an empty function) is for debugging ONLY - it is a way of leaving in place millis, micros (they will always return 0) and delay (it will hang forever) if you need to isolate the impact of the millis interrupt running.
 
-If you just want to turn off millis, set the millis timer to "disabled". That both gets rid of the ISR and provides a working delay().
 
-Note that the ISR will still be defined, but not enabled, if this is overridde, that is, more flash wikk be used for the same functionality.
+*If you just want to turn off millis, set the millis timer to "disabled"*. That provides a working delay() implementation, allows libraries to detect that millis is disabled, and realizes far more flash savings than just overriding init_millis() with an empty function.
 
 ### initVariant
 ```c++

@@ -4,12 +4,22 @@
 | Simple_comparator.ino                                                 |
 |                                                                       |
 | A library for interfacing with the AVR DA/DB analog comparator.       |
-| Developed in 2019 by MCUdude                                          |
-| https://github.com/MCUdude/                                           |
+| Developed in 2019 by MCUdude  https://github.com/MCUdude/             |
+|                                                                       |
+| Ported 2021-2022 to DxCore, megaTinyCore bu Spence Konde.             |                                                                      |
 |                                                                       |
 | In this example we use the negative and positive input 0 of the       |
 | comparator. The output goes high if the positive input is higher than |
 | the negative input, and low otherwise.                                |
+| This is much like tranplanting an 'lm339" only with better specs into |
+| your AVR. Pin used are:                                               |
+|       | Dx/Ex/Mega0 | TinyAVR  |  DD14      |                         |
+| In_p  | PD2         |      PA7 | AINP3 PB                     |
+| in_N  | PD3         |      PA6 |            |                         |
+| Out   | PA7         |      PA5 | Todo: evsys|           |             |
+|                                                                       |
+|Note that the evetn library can by used to redirect the outputt        |
+|
 |***********************************************************************/
 
 #include <Comparator.h>

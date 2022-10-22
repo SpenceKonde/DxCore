@@ -5,7 +5,7 @@
 | Ported to tinyAVR 2021 by Spence Konde for megaTinyCore               |
 | https://github.com/SpenceKonde/megaTinyCore                           |
 | Ported to tinyAVR 2022 by Spence Konde for DxCore                     |
-| https://github.com/SpenceKonde/DxCore                                 |                   |
+| https://github.com/SpenceKonde/DxCore                                 |
 |                                                                       |
 | In this example we use the negative and positive input 0 of the       |
 | comparator. The output goes high if the positive input is higher than |

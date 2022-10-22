@@ -23,7 +23,10 @@
 | that pin                                  | 1 | 1 | 1 | 1 |           |
 |                                                                       |
 | The sky (well, and the number of LUTs) is the limit!!                 |
-************************************************************************/
+|                                                                       |
+| Warning: This involves EVSYS, which is very different on tiny0/1 vs   |
+| everything else. This code is not directly usable on tinyAVR 0/1      | 
+|***********************************************************************/
 
 #include <Logic.h>
 
