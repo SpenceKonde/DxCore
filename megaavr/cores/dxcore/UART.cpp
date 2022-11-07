@@ -606,7 +606,7 @@
     #if HWSERIAL_MUX_REG_COUNT > 1  // for big pincount devices that have more then one USART PORTMUX register
       uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 1;
       uint16_t mux_options_off_gm = pgm_read_word_near(mux_info_ptr);  /* pointer offset to the second columun
-      at the end bottom row of the table, with info about the mux options, rather than a specefic option
+      at the end bottom row of the table, with info about the mux options, rather than a specific option
       Low byte is the offset from USARTROUTEA, second byte is the group mask. */
       volatile uint8_t* portmux  = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)mux_options_off_gm); // offset
       uint8_t temp   = *portmux;

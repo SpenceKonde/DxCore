@@ -109,7 +109,7 @@ There are only two places where someone with an AVR is likely to routinely encou
 
 
 ### External clocks
-Thankfully, these are simpler: Just keep the high frequencty trace short, and make sure that you provide the decoupling capacitor the datasheet asks for. Most often I see 0.01uF specified. There's usually a pin, pulled up internally, that will disable it when brought low. Make sure you donn't connect that to ground. Be careful about the orientation, too, since they are rectangular, and can be rotated 180 degrees with all the pads lining up. This will swap Vcc and Ground. Like most ICs, that will destroy them almost instantly, and present a near-short to the power supply.
+Thankfully, these are simpler: Just keep the high frequencty trace short, and make sure that you provide the decoupling capacitor the datasheet asks for. Most often I see 0.01uF specified. There's usually a pin, pulled up internally, that will disable it when brought low. Make sure you don't connect that to ground. Be careful about the orientation, too, since they are rectangular, and can be rotated 180 degrees with all the pads lining up. This will swap Vcc and Ground. Like most ICs, that will destroy them almost instantly, and present a near-short to the power supply.
 
 So with the added simplicity, one might wonder why they are so uncommon. There are several reasons:
 1. They are power hogs. 10-25 mA is normal, 50mA is not unheardof.
@@ -174,7 +174,7 @@ A number of behaviors have been observed when the clock has been configured wron
 #include <util/delay.h> -  there is no timekeeping in onPreMain
 
 void onPreMain() {
-  openDrainFast(LED_BUILTIN,LOW); //As discused in digital I/O reference, this is currently also the cheap trick to change direction with fastDigitalIO.
+  openDrainFast(LED_BUILTIN,LOW); //As discussed in digital I/O reference, this is currently also the cheap trick to change direction with fastDigitalIO.
   _delay_ms(500*4/24); // F_CPU is #defined globally, but init is the first part of main. This is running before that so you need to use the builtin avr delay functions.
   digitalWrite(LED_BUILTIN, CHANGE); // now it's high
   _delay_ms(500*4/24); // F_CPU is #defined globally, but init is the first part of main. This is running before that so you need to use the builtin avr delay functions.

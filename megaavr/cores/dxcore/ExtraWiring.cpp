@@ -89,11 +89,11 @@
       "brne .+6"        "\n\t" // if low byte is not equal to 0, then high byte is 0, so we don't need to loop over a 2 byte value
       "ldi   %0,   6"   "\n\t" // if it is, then value must be 7 or more, so load 6 into it
       "mov  %1A, %1B"   "\n\t" // and copy the high byte which we know has a single 1 bit...
-      "inc  %0"         "\n\t" // Increment ret. After this, is 7, 8, 9 ... if low byte was zero (and high byte is now where low byte was), or 0, 1, 2 ... if it wasnt.
+      "inc  %0"         "\n\t" // Increment ret. After this, is 7, 8, 9 ... if low byte was zero (and high byte is now where low byte was), or 0, 1, 2 ... if it wasn't.
       "lsr  %1A"        "\n\t" // shift the byte we care about (handled above). We know that if the low byte was non zero, the first two bits must be 0 so we want an extra lsr.
       "brcc .-6"        "\n\t" // goes back to the inc unless carry bit was set by the lsr shifting out a 1. So after each increment we check if a carry bit was set.
                                // The brne lands on the lsr if low byte wasn't 0, shifting out the first 0, then it increments ret to 0 and shifts out second 0,
-                               // So if original prescale was 4, that would get shifted into the carry bit as soon as ret was incremeted to 1. Perfect.
+                               // So if original prescale was 4, that would get shifted into the carry bit as soon as ret was incremented to 1. Perfect.
                                // And if the prescale was 256, 6 will increment to 7 as a 1 is shifted out, Perfect.
       :"+d" ((uint8_t)ret),
       "+d" ((uint16_t)prescale) //doesn't matter that we shit on prescale, it's not referenced again and was passed by value, so what we do to it doesn't matter.

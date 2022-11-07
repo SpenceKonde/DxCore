@@ -190,7 +190,7 @@ TEXT, none, black, * a * is a reminder for the analog functions of port c which,
 TEXT, none, black,   is only available with MVIO fused off and VDDIO2 tied to VDD, NL
 TEXT, none, black, * colors chosen somewhat arbitrarily and easy to change, NL
 TEXT, none, black, * other random verbiage goes here, NL
-TEXT, none, black, * this part's timer b only routes to non-existant pins, NL
+TEXT, none, black, * this part's timer b only routes to non-existent pins, NL
 TEXT, none, black, * this part has one timer A and one timer D each with one route,NL
 TEXT, none, black, * max possible PWM pins are timer A on port C (3) + D on D4/D5,NL
 TEXT, none, black, * warning: this revision involved a lot of hand editing and may, NL

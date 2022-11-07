@@ -230,7 +230,7 @@ On all parts except the 14-pin parts, the SPI pins can be moved to an alternate 
 ### I2C (TWI) support`SPI.swap(1)` or `SPI.swap(0)` will set the the mapping to the alternate (`1`) or default (`0`) pins. It will return true if this is a valid option, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to the default one.
 All DA and DB parts with >28 pins have 2 I2C peripherals peripherals, except the 28-pin version, which has one. The included copy of the Wire library works almost exactly like the one on official Arduino boards, except that it does not activate the internal pullups unless they are specifically requested as described in the documentation linked below. The TWI pins can be swapped to an alternate location; this is configured using the Wire.swap() or Wire.pins() methods. Both of them achieve the same thing, but differ in how you specify the set of pins to use. This should be called **before** Wire.begin(), as should any method that enable certain modes. All DD-series parts have only a single TWI0
 
-See **[Wire.h documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)** for full description and details. The harware I2C is one of the more complicated peripherals
+See **[Wire.h documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)** for full description and details. The hardware I2C is one of the more complicated peripherals
 
 ### Alternate pin mapping (PORTMUX) support
 Like most recent parts, the Dx-series parts have multiple pin-mapping options for many of their peripherals. For the serial data interfaces, we provide the same `.swap()` and `.pins()` methods like megaTinyCore and MegaCoreX (which first introduced this feature) whereby each instance of a UART, SPI interface, or I2C interface can be moved appropriately, excepting SPI1 as noted above and described in detail in that library documentation.
@@ -490,7 +490,7 @@ Export compiled binary generates both assembly listings and memory maps, in addi
 #### [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
 The sources of reset, and how to handle reset cause flags to ensure clean resets and proper functioning in adcverse events. **Must read for production systems**
 #### [Considerations for robust applications](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Robust.md)
-Covers a variety of design considerations for making something that will opperate reliably in the field, some specific to DxCore, others general. Lately I have been seeing a lot of projects get too far along without considering these. **Must read for production systems**
+Covers a variety of design considerations for making something that will operate reliably in the field, some specific to DxCore, others general. Lately I have been seeing a lot of projects get too far along without considering these. **Must read for production systems**
 #### [Power Saving techniques and Sleep - inherited from megaTinyCore](megaavr/extras/PowerSave.md)
 There are plans for a better wrapper around this sort of functionality, which keep getting deferred as more pressing issues come up. This was inherited from megaTinyCore and is essentially unmodified and may not reflect all the features of the Dx-series.
 

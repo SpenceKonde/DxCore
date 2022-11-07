@@ -8,14 +8,14 @@ These items are in addition to what was listed under changes already in release.
 2. SerialUPDI uploads don't work if any file path contains spaces, because of missing quotes in platform.txt? But I can't see where... Need example verbose upload attempt in order to further debug.
 
 ### Planned enhancements
-"Enhancements" are changes to the core which improve functionality and introduce new and exotic bugs. Sometimes called "Features", I prefer the term "enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compiletime error detection. All things that, as well as new features, would add to the
+"Enhancements" are changes to the core which improve functionality and introduce new and exotic bugs. Sometimes called "Features", I prefer the term "enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compile time error detection. All things that, as well as new features, would add to the
 
 #### Enhancements Planned for 1.5.x
 * Add pinout charts for the DD-series that don't look like they made by an untalented failure in microsoft paint. Because that's what we're going to get in 1.5.0 it looks like. They'll look even uglier than the mess I made out of the DB and DA-series diagrams. Sorry guys, I don't have the artistic talent.
 * Third version of wire in the last 4 weeks or so, as we try to
 
 #### Enhancements Planned for 1.5.0
-* Change class hierarchy for UART class to eliminate most virtual functions and allow for vastly signficant flash size reduction since unusued virtual functions now don't have to exist. (This was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints and analysis relating to the fact that the original version of Wire wouldn't fit into a 4k 8-pin part), so that rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) as UartClass, we instead simply subclass Stream directly. UART.h will be renamed to HardwareSerial.h, HardwareSerial.h (a compatibility layer) will be renamed to UART.h and the latter adjusted to #define UartClass as HardwareSerial, and api/HardwareSerial.h will be gutted and simply #include "../HardwareSerial.h" and contain comments jutifyingthis flagrant disrespect for the API. ArduinoAPI was sort of disasterous for low resource parts like AVRs.
+* Change class hierarchy for UART class to eliminate most virtual functions and allow for vastly significant flash size reduction since unused virtual functions now don't have to exist. (This was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints and analysis relating to the fact that the original version of Wire wouldn't fit into a 4k 8-pin part), so that rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) as UartClass, we instead simply subclass Stream directly. UART.h will be renamed to HardwareSerial.h, HardwareSerial.h (a compatibility layer) will be renamed to UART.h and the latter adjusted to #define UartClass as HardwareSerial, and api/HardwareSerial.h will be gutted and simply #include "../HardwareSerial.h" and contain comments jutifyingthis flagrant disrespect for the API. ArduinoAPI was sort of disastrous for low resource parts like AVRs.
 * Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM. Note that this also requires all offsets used to access the Serial transmit and receive buffers to be reduced accordingly in the inline assembly in UART.cpp. Related to above.
 * Package Azduino5 toolchain, required to support DD-series
 * Ensure that libraries that broke are fixed
@@ -36,7 +36,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
   * Adds support for 32k and 16k DD-series parts.
   * Currently implemented changed should make it compatible but the toolchain has yet to be packaged.
-* Largely reimplemented the first half of analogWrite(). On parts wth a TCA1, all PORTMUX options should now work, even those with only 3 pins.
+* Largely reimplemented the first half of analogWrite(). On parts with a TCA1, all PORTMUX options should now work, even those with only 3 pins.
 * Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
 * Add flash spm options for DD-series parts, and a smaller number of SPM options for people who have very small code but want to store huge amounts of user data in flash (read: Standalone Programmers)
 * Enable all DD-series parts
@@ -46,7 +46,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 
 ### Thus far implemented in 1.5.0
 * Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this has little impact on actual behavior)
-* Correct issue with the menu options for AVR DD-series parts, which resulting in burn bootloader bricking these chips to all who don't have an NV UPDI programmer, of which I belive only one is currently available, from Microchip, for an arm and a leg.
+* Correct issue with the menu options for AVR DD-series parts, which resulting in burn bootloader bricking these chips to all who don't have an NV UPDI programmer, of which I believe only one is currently available, from Microchip, for an arm and a leg.
   * Special thanks to the folks who reported this before I had a chance to brick any of my own hardware!
 * Improvements for menu options for all boards.
 *

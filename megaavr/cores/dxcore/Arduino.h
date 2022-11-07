@@ -398,7 +398,7 @@ unsigned long microsecondsToMillisClockCycles(unsigned long microseconds);
  * There are two functions within the core that need to know this:
  * AnalogWrite, and turnOffPWM. These each carry their own implementation of
  * logic to identify the timer and channel; the only other cases in which these
- * pins need ro be identified are within user code, where the pin mapping can
+ * pins need to be identified are within user code, where the pin mapping can
  * be chosen freely (subject to user code needing access to other pins), so
  * it does not present the complexity of the core library which must work with
  * the pins in ANY of 7, 2, or 5 mappings (for TCA0, TCA1 and TCD0 respectively)

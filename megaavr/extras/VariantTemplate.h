@@ -48,7 +48,7 @@ List the part numbers (if applicable) or what board this variant supports.
         these two pins, PF6 and PF7 should be locasted at at the end of the pin numbers, or at the end of PORTF (this is only different on 64-pin parts. )
  * No pins shalt be arbitrarily renumbered to make the pin numbers "more like an Uno" or for any other purpose.
       This depraved and barbarous practice has no place in modern society. In the bad old days, when peripherals on classic AVRs were strewn
-      haphazard across ports, it was justifiable. That is not the case here. The pinout makes sense, and gnerally demonstrates that at least
+      haphazard across ports, it was justifiable. That is not the case here. The pinout makes sense, and generally demonstrates that at least
       some of the team was of sound mind during the design process. Again this is a contrast to classic AVRs.
  * Regarding those above mentioned pins that get numberd but can't be used, see the pin array section below.
 /*
@@ -148,7 +148,7 @@ List the part numbers (if applicable) or what board this variant supports.
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #endif
 
-/* Tell code where it should expect these waveform outputs would be poitned initially */
+/* Tell code where it should expect these waveform outputs would be pointed initially */
 #define PIN_TCA0_WO0_INIT PIN_PC0
 #define PIN_TCA1_WO0_INIT PIN_PB0
 #define PIN_TCD0_WOA_INIT PIN_PA4

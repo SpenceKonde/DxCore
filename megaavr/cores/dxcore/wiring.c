@@ -337,7 +337,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
          * Finally, the artifacts of the calculation that are unavoidable should be distributed uniformly.
          * Undershooting or overshooting 999 endpoint at the counter's maximum value is the usual
          * source of large jumps (at the overflow point) in either direction. Terms should, as much as
-         * possible alternate between positive and negative to minimize artifacs.
+         * possible alternate between positive and negative to minimize artifacts.
          *
          * The most popular/important speeds are hand-implemented in assembly because the compiler
          * was doing a miserable job of it - wasting 20-30% of the execution time and it's one of the few
@@ -1477,7 +1477,7 @@ void  __attribute__((weak)) init_clock() {
  * anything the user might upload.                                                             *
  * The weakly defined functions can be overridden if the blink code should be disabled or if   *
  * the same frequency can be achieved with internal oscilaltor and that is desired as a        *
- * fallback insead of halting startup.                                                         *
+ * fallback instead of halting startup.                                                         *
  ***********************************************************************************************/
 
 
@@ -1603,7 +1603,7 @@ void  __attribute__((weak)) init_clock() {
  *                                                                                              *
  * Unfortunately there's no 1/128 prescaler option.                                             *
  *                                                                                              *
- * The type D timer has more flexible optons for PWM frequency partly because there we can      *
+ * The type D timer has more flexible options for PWM frequency partly because there we can      *
  * increase TOP and analogWrite can leftshift it's argument accordingly.                        *
  * Changing at runtime is supported for TCD and analogWrite()                                   *
  ************************************************************************************************/

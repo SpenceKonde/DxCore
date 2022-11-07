@@ -46,7 +46,7 @@ Logic2      | PB0-PB2 | PB3 |  --- |     PB6 |     2-series |
 Logic3      | PC0-PC2 | PC4 |  --- |     PA5 |     2-series |
 
 * Inputs are always in consecutive order counting by bit position (not physical order).
-* All logic blocks present *on tinyAVR* always have an output pin, but may not have input pins. *This is not true of Dx and Ex-series parts* which bind each LUT to a port - they gain in consistency, but sacrifice coherance and effectiveness ("Why do we have 3 logic blocks with no output pins and all these pins with hardly any special functions?" versus "How did they choose the pin mapping for this thing, by throwing darts at a diagam? There's no rhyme or reason to any of it!")
+* All logic blocks present *on tinyAVR* always have an output pin, but may not have input pins. *This is not true of Dx and Ex-series parts* which bind each LUT to a port - they gain in consistency, but sacrifice coherence and effectiveness ("Why do we have 3 logic blocks with no output pins and all these pins with hardly any special functions?" versus "How did they choose the pin mapping for this thing, by throwing darts at a diagam? There's no rhyme or reason to any of it!")
 * `Logic2` and `Logic3` are present only on the 2-series.
 
 Logic Block |  8-pin        | 14-pin        | 20-pin        | 24-pin        |
@@ -220,7 +220,7 @@ Notes specific to ATtiny 0/1-series:
 * CCL0's IN0 pin is on PA0, which is nominally the UPDI pin. This may limit the usefulness of CCL0 on the ATtiny parts (though it may work as long as the input cannot be mistaken for a UPDI activation command); configuring UPDI as GPIO prevents further programming via UPDI except via HV programming. One can always use the event system to substitute another input for IN0; This is demonstrated in the three input example.
 * Only the ATtiny1614, 1616, 1617, 3216, and 3217 have TCB1, AC1, and AC2.
 * **Errata warning** Many parts in circulation are impacted by an errata (though not all - some never had it, while the 32k parts have gotten a die rev that fixes it. On effected parts, the link input does not work unless pin output of the other logic block is enabled. Check the applicable errata and datasheet clarification document from Microchip to see if your part is impacted.
-* **Compatibility warning** These were the first AVRs with CCL. They made some decisions that they realized weren't such a good idea afterall and changed for parts released more recently. Most importantly, for TCBs and ACs, as well as USARTs, the peripheral number used is the input number. SPI on these parts makes MISO available supposedly. Later parts do not. Later parts also only make USART TXD available - though you can get XCK from the event system.
+* **Compatibility warning** These were the first AVRs with CCL. They made some decisions that they realized weren't such a good idea after all and changed for parts released more recently. Most importantly, for TCBs and ACs, as well as USARTs, the peripheral number used is the input number. SPI on these parts makes MISO available supposedly. Later parts do not. Later parts also only make USART TXD available - though you can get XCK from the event system.
 * USART option will use XCK on input 0, TXD on input 1, and is not valid for input 2.
   * MISO is (supposedly) available as an input when SPI is used as the input.
   * Parts with two TCBs or three ACs give them their own channel on 0/1-series. Obviously there wouldn't be enough channels for this if it were done on a Dx with 5 TCBs, and 3 ACs. The other parts that have multiples of these (2-series and Dx) have one channel for this, and the input number selects which one is used, but only the first two can be used.
@@ -256,7 +256,7 @@ Notes for tinyAVR 2-series:
 * Not all pin inputs are available on all parts (see table above). The event system can be used to bring in input from other pins.
 
 #### Input "value"
-As shown above not all inputs are equal, particulaly on tinyAVR 2-series and Dx/Ex-series, nor are all instances of the peripherals that can generate inputs equal. This effect is most prominent on devices with smaller numbers of pins and peripherals, particularly the DD-series. However, unlike with the event system it is harder to give specific guidance, because the type of inputs needed will vary so much. This challenge manifests most acutely on the 2-series tinyAVR and the DD-series parts with low pincount, which have fewer instances of peripherals (2 TCB, 1 AC, 2 USART). The larger DD's have another TCB, but are still limited to 2 USARTs and 1 AC. On all parts, input 2 is also very special - it's the only input that you can use to clock the filter/synchronizer ande sequential logic - this means that you can't get the SPI SCK input this way unless you're using it as the clock for the logic block (though that's probably the thing one would be most likely to use that for). This constraint only applies to useing one of these inputs as the clock - you can used the internal oscillator, 32kHz internal
+As shown above not all inputs are equal, particularly on tinyAVR 2-series and Dx/Ex-series, nor are all instances of the peripherals that can generate inputs equal. This effect is most prominent on devices with smaller numbers of pins and peripherals, particularly the DD-series. However, unlike with the event system it is harder to give specific guidance, because the type of inputs needed will vary so much. This challenge manifests most acutely on the 2-series tinyAVR and the DD-series parts with low pincount, which have fewer instances of peripherals (2 TCB, 1 AC, 2 USART). The larger DD's have another TCB, but are still limited to 2 USARTs and 1 AC. On all parts, input 2 is also very special - it's the only input that you can use to clock the filter/synchronizer ande sequential logic - this means that you can't get the SPI SCK input this way unless you're using it as the clock for the logic block (though that's probably the thing one would be most likely to use that for). This constraint only applies to using one of these inputs as the clock - you can used the internal oscillator, 32kHz internal
 
 On the larger DA/DB parts, there is a similar but opposite consideration - USART0-2 and TCB0-2 are more valuable than other instances of the same peripheral - if you are using them as CCL inputs. Because of it's use as the clock input, though USART2, AC2, and TCB2 are marginally less useful.
 
@@ -372,8 +372,8 @@ logic::sequencer::d_latch;      // Gated D latch sequencer connected - note that
 logic::sequencer::rs_latch;     // RS latch sequencer connected
 ```
 
-The available sequencer options, unfortunately, are capable of only slightly moore than wjat can be done with just a logic block alone using feedback. See the examples below. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs; if 2 is feedback and say Clear or G is 1 and Set or D is 0
-Below is shown in the 4 left columms an RS latch, and in the right 4, a D latch on the left
+The available sequencer options, unfortunately, are capable of only slightly moore than what can be done with just a logic block alone using feedback. See the examples below. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs; if 2 is feedback and say Clear or G is 1 and Set or D is 0
+Below is shown in the 4 left columns an RS latch, and in the right 4, a D latch on the left
 
 | 2 | 1 | 0 | Out | 2 | 1 | 0 | Out |
 |---|---|---|-----|---|---|---|-----|
@@ -386,7 +386,7 @@ Below is shown in the 4 left columms an RS latch, and in the right 4, a D latch 
 | 1 | 1 | 0 |  0  | 1 | 1 | 0 |  0  |
 | 1 | 1 | 1 |  1  | 1 | 1 | 1 |  1  |
 
-Hence truth tables are 0xB2 and 0xB8, and both of these leave the odd LUT availble. Of course, if you need a logic block to come up with the inputs to set and reset, this is less useful.
+Hence truth tables are 0xB2 and 0xB8, and both of these leave the odd LUT available. Of course, if you need a logic block to come up with the inputs to set and reset, this is less useful.
 
 #### D Flip-flop
 The D-type fiip-flow outputs a 0 or a 1, and retains it's value unless told otherwise. The inputs consist of G (maybe for gate?) and D (data?) input. As long as G is low, nothing will change, When G is high, each rising edge will latch the value on the D line to the output.
@@ -401,7 +401,7 @@ The JK-type fiip-flow outputs a 0 or a 1, and retains it's value unless told oth
 This is the unclocked equivalent of D flip-flop - again, there is a D and a G input. However, here, there is no clock. Asynchronously, whenever G is high, the output is set to D, and whenever G is low, the output doesn't change.
 
 #### RS Latch
-This, again, is the unclocked version of the JK flip-flop. This one more sensibly names the intputs S and R for Set and Reset. Because there is no clock, the behavior when both R and R are high is not defined (this behavior is part of deal when you use an RS latch, integrated into a CCL like this or as a discrete component). Otherwise, if the S line is high, it is set to 1, and if the R line is high, it is set to 0
+This, again, is the unclocked version of the JK flip-flop. This one more sensibly names the inputs S and R for Set and Reset. Because there is no clock, the behavior when both R and R are high is not defined (this behavior is part of deal when you use an RS latch, integrated into a CCL like this or as a discrete component). Otherwise, if the S line is high, it is set to 1, and if the R line is high, it is set to 0
 
 | LUT  | D | G | J | K | R | S |
 |------|---|---|---|---|---|---|

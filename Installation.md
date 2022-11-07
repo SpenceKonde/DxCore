@@ -41,7 +41,7 @@ Manual installation allows the latest version of the core to be installed, with 
   * Scroll down to the most recent version (currently azduino6)
   * Download and decompress the version for your OS. If the most recent version has no listing for your OS, go to the next most recent (this happens when I release a bad package for certain OS's and have to release a fixed version for those OS's only).
   * You will find an 'avr' directory containing several subdirectories. This may or may not be enclosed in one or more directories depending on what program is used to decompress it..
-    * The directory structure is *very* confusing, and behavior of archiving tools is very ideosyncratic with regards to .tar.bz2 files. There are a hell of a lot of nested "avr" directories, "lib" and "bin" directories that are talking about totally different things at different points in the tree.
+    * The directory structure is *very* confusing, and behavior of archiving tools is very idiosyncratic with regards to .tar.bz2 files. There are a hell of a lot of nested "avr" directories, "lib" and "bin" directories that are talking about totally different things at different points in the tree.
   * Copy this into `arduino root folder)/hardware/tools` - if you did this right, you'll be told that thousands of files are different. Replace them all!
 * If you want SerialUPDI, you need to also follow [megaavr/tools/ManualPython.md](megaavr/tools/ManualPython.md).
 

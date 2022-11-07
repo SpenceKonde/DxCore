@@ -550,7 +550,7 @@ next year, thanks! Gotta go, bye!"
  * type A and D timers.
  * CORE_HAS_TIMER_RESUME is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.
  * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core, 0 if it would be if
- * the harware worked, and not defined at all if the hardware doesnt have such a feature even in theory
+ * the hardware worked, and not defined at all if the hardware doesn't have such a feature even in theory
  * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.
  ********************************************************************************/
 #define CORE_HAS_FASTIO                 (2)

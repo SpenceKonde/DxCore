@@ -169,7 +169,7 @@ optiboot_%.elf:	optiboot_dx.c FORCE
 # A "Board-level Platform" implies a manufactured platform with a particular
 # AVR_FREQ, LED, and so on.  Parameters are not particularly changeable from
 # the "make" command line.
-# Most of the board-level platform builds should envoke make recursively
+# Most of the board-level platform builds should invoke make recursively
 #  appropriate specific options
 #---------------------------------------------------------------------------
 

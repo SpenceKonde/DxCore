@@ -3,7 +3,7 @@ This library provides methods write to the application section of flash from wit
 
 1. If using Optiboot, the bootloader will contain a special entry point to execute the one protected command, and these methods call that.
 
-2. If not using Optiboot, but configured to allow writes "anywhere in the flash", during UPDI upload, we define a fake bootloader section encompasing the first page of flash, since only BOOTCODE can write to APPCODE.
+2. If not using Optiboot, but configured to allow writes "anywhere in the flash", during UPDI upload, we define a fake bootloader section encompassing the first page of flash, since only BOOTCODE can write to APPCODE.
 
 3. If not using Optiboot, but configured to allow writes only to a limited section at the end of flash (configurable via tools submenu, in increments of 16k -
 
@@ -182,7 +182,7 @@ FLASHWRITE_RESERVED_BY_CORE   = 0x48 // In a future version of the core either t
 // It would poermit some dramatic optimizations of basic core API stuff while reducing SRAM footprint of the core.
 FLASHWRITE_BOOTSECTOR         = 0x49 // You are attempting to write to the fist page of the flash. This is always BOOTCODE (this core only ever has BOOTSIZE = 1
 // or BOOTSIZE = 0. if BOOTSIZE = 0, the whole flash is BOOTCODE and you can't use this library - and then you would have gotten FLASHWRITE_FUSS)
-FLASHWRITE_NOBOOT             = 0x10 // In 1.3.0, bootloader is reqired for this library.
+FLASHWRITE_NOBOOT             = 0x10 // In 1.3.0, bootloader is required for this library.
 FLASHWRITE_FAIL_x             = 0x8x // This was attempted, but NVMCTRL.STATUS showed an error.
 ```
 
@@ -220,7 +220,7 @@ FLASHWRITE_RESERVED_BY_CORE   = 0x48 // In a future version of the core either t
 // It would poermit some dramatic optimizations of basic core API stuff while reducing SRAM footprint of the core.
 FLASHWRITE_BOOTSECTOR         = 0x49 // You are attempting to write to the fist page of the flash. This is always BOOTCODE (this core only ever has BOOTSIZE = 1
 // or BOOTSIZE = 0. if BOOTSIZE = 0, the whole flash is BOOTCODE and you can't use this library - and then you would have gotten FLASHWRITE_FUSS)
-FLASHWRITE_NOBOOT             = 0x10 // In 1.3.0, bootloader is reqired for this library.
+FLASHWRITE_NOBOOT             = 0x10 // In 1.3.0, bootloader is required for this library.
 FLASHWRITE_FAIL_x             = 0x80 // This was attempted, but NVMCTRL.STATUS showed an error
 ```
 

@@ -6,7 +6,7 @@
 | A library for interfacing with the AVR DA/DB analog comparator.       |
 | Developed in 2019 by MCUdude  https://github.com/MCUdude/             |
 |                                                                       |
-| Ported 2021-2022 to DxCore, megaTinyCore bu Spence Konde.             |                                                                      |
+| Ported 2021-2022 to DxCore, megaTinyCore by Spence Konde.             |                                                                      |
 |                                                                       |
 | In this example we use the negative and positive input 0 of the       |
 | comparator. The output goes high if the positive input is higher than |
