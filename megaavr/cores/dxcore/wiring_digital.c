@@ -37,25 +37,25 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
     // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
       badArg("Digital pin is constant, but not a valid pin");
     }
-    #if (CLOCK_SOURCE == 2)
-      #if defined(MEGATINYCORE)
-        if (pin == PIN_PA3) {
-          badArg("Constant digital pin PIN_PA3 is used for the external osc, and is not available for other uses.");
-        }
-      #else
-        if (pin == PIN_PA0) {
-          badArg("Constant digital pin PIN_PA0 is used for the external osc, and is not available for other uses.");
-        }
-      #endif
-    #elif CLOCK_SOURCE == 1
-      if (pin < 2) {
-        badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
-      } else
-    #elif defined(XTAL_PINS_HARDWIRED)
-      if (pin < 2) {
-        badArg("On the selected board, PA0 and PA1 are hardwired to the crystal. They may not be used for other purposes.");
+  #if (CLOCK_SOURCE == 2)
+    #if defined(MEGATINYCORE)
+      if (pin == PIN_PA3) {
+        badArg("Constant digital pin PIN_PA3 is used for the external osc, and is not available for other uses.");
+      }
+    #else
+      if (pin == PIN_PA0) {
+        badArg("Constant digital pin PIN_PA0 is used for the external osc, and is not available for other uses.");
       }
     #endif
+  #elif CLOCK_SOURCE == 1
+    if (pin < 2) {
+      badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
+    } else
+  #elif defined(XTAL_PINS_HARDWIRED)
+    if (pin < 2) {
+      badArg("On the selected board, PA0 and PA1 are hardwired to the crystal. They may not be used for other purposes.");
+    }
+  #endif
   }
 }
 
