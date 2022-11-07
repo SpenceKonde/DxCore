@@ -18,9 +18,9 @@ version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.post
 #####################
 version=1.5.0
 
-build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DMEGATINYCORE="{version}" -DMEGATINYCORE_MAJOR={versionnum.major}UL -DMEGATINYCORE_MINOR={versionnum.minor}UL -DMEGATINYCORE_PATCH={versionnum.patch}UL -DMEGATINYCORE_RELEASED={versionnum.released}
+build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL -DDXCORE_RELEASED={versionnum.released}
 
-build.optiondefines=-DF_CPU={build.f_cpu} -DCLOCK_SOURCE={build.clocksource} -DTWI_{build.wire} -DMILLIS_USE_TIMER{build.millistimer} {build.attachmode}
+build.optiondefines=-DF_CPU={build.f_cpu} -DCLOCK_SOURCE={build.clocksource} -DTWI_{build.wiremode} -DMILLIS_USE_TIMER{build.millistimer} {build.attachmode}
 
 #########################
 # AVR compile variables #

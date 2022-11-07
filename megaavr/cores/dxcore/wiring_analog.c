@@ -27,7 +27,7 @@
 #include "Arduino.h"
 #include <avr/pgmspace.h>
 
-/* magic value passsed as the negative pin to tell the _analogReadEnh() (which implements both th new ADC
+/* magic value passed as the negative pin to tell the _analogReadEnh() (which implements both th new ADC
  * functions) to tell them what kind of mode it's to be used in. This also helps with providing useful and accurate
  * error messages and codes at runtime, since we have no other way to report such.                                 */
 
@@ -54,7 +54,7 @@ inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) 
 
 inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
   if (__builtin_constant_p(res)) {
-    if (res < 0x80){
+    if (res < 0x80) {
       if (res < ADC_NATIVE_RESOLUTION_LOW) {
             badArg("When a resolution is passed to analogReadEnh, it must be at least the minimum native resolution (8 bits)");
       } else if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) {
@@ -168,7 +168,7 @@ inline __attribute__((always_inline)) void check_valid_negative_pin(uint8_t pin)
       pin = digitalPinToAnalogInput(pin);
     }
     pin &= 0x3F;
-    if (pin != 0x40 && pin != 0x48 && pin > 0x0F) { /* Damn really? that's the garbage set of internal sources for differential read, ground and the DAC?! */
+    if (pin != 0x40 && pin != 0x48 && pin > 0x0F) { /* Not many options other than pins are valid */
       badArg("Invalid negative pin - valid options are ADC_GROUND, ADC_DAC0, or any pin on PORTD or PORTE.");
     }
   }
@@ -203,14 +203,14 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
    *  Phase 1: Input Processing  |
    ******************************/
   // if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
-  // 5/16 - uhhhhl if it's disabled, we should re-enable it, take the reading, and our cleanup will turn it off again...
+  // 5/16 - uhhhh if it's disabled, we should re-enable it, take the reading, and our cleanup will turn it off again...
   uint8_t sampnum;
-  if (res & 0x80) { // raw accumulation
-    sampnum=res & 0x7F;
-    if (sampnum > 7) return ADC_ENH_ERROR_RES_TOO_HIGH;
+  if (res & 0x80) {           // raw accumulation
+    sampnum=res & 0x7F;       // strip high bit and treat as negative number
+    if (sampnum > 7)  return  ADC_ENH_ERROR_RES_TOO_HIGH; //
   } else {
-    if (res < 8) return ADC_ENH_ERROR_RES_TOO_LOW;
-    if (res > 15) return ADC_ENH_ERROR_RES_TOO_HIGH;
+    if (res < 8)                              return   ADC_ENH_ERROR_RES_TOO_LOW;
+    if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) return  ADC_ENH_ERROR_RES_TOO_HIGH;
     sampnum = (res > ADC_NATIVE_RESOLUTION ? ((res - ADC_NATIVE_RESOLUTION) << 1) : 0);
   }
   if (pin < 0x80) {
@@ -400,9 +400,12 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
 // for the variant in use. On all other pins, the best we
 // can do is output a HIGH or LOW except on PIN_PD6, which
 // is the DAC output pin.
-
-void analogWrite(uint8_t pin, int val)
-{
+#if defined(TCA1)
+  const PROGMEM uint8_t tcaonemux[7] = {0x20, 0x00, 0x08, 0x28, 0x10, 0xFF, 0x18}; // just enough order that no efficient operation works! Really?
+  // mux(port) = 4, 0, 1, 5, 2, -, 3, -?
+  // port(mux) = 1, 2, 4, 6, 0, 3, -, - ?
+#endif
+void analogWrite(uint8_t pin, int val) {
   check_valid_digital_pin(pin);   // Compile error if pin is constant and isn't a pin.
   check_valid_duty_cycle(val);    // Compile error if constant duty cycle isn't between 0 and 255, inclusive. If those are generated at runtime, it is truncated to that range.
   uint8_t bit_mask = digitalPinToBitMask(pin);
@@ -410,66 +413,77 @@ void analogWrite(uint8_t pin, int val)
   uint8_t offset = 0;
   uint8_t portnum  = digitalPinToPort(pin);
   uint8_t portmux_tca = PORTMUX.TCAROUTEA;
-  if (bit_mask < 0x40) {
-    uint8_t* timer_cmp_out = (uint8_t*) 0x0000;
-    uint8_t ctrlb_bit = bit_mask;
-    // It could be a TCA0 or 1 or TCA1 mux 0 or 3;
-    #if (defined(TCA1))
-      if  (((portmux_tca & 0x07)       == portnum     ) && (__PeripheralControl & TIMERA0))
-    #else
-      if  ((portmux_tca                == portnum     ) && (__PeripheralControl & TIMERA0))
-    #endif
-    {
-      timer_cmp_out       = (uint8_t*) (&TCA0.SPLIT.LCMP0);
+  TCA_t* timer_A = NULL;
+  // It could be a TCA0 or 1 or TCA1 mux 0 or 3;
+  #if (defined(TCA1))
+    uint8_t threepin = 0;
+    if  (bit_mask < 0x40 && ((portmux_tca & 0x07) == portnum) && (__PeripheralControl & TIMERA0)) {
+      timer_A = &TCA0;
+    } else if (__PeripheralControl & TIMERA1) && ((portmux & 0x38) == pgm_read_byte_near(&tcaonemux[portnum])) {
+      if (portnum == 1 || portnum == 6) {
+        if (bit_mask < 0x40) {
+          timer_A = &TCA1;
+        }
+      } else if ((bit_mask & 0x70) && portnum != 5) {
+        timer_A = &TCA1;
+        threepin == 1;
+      }
     }
-    #if defined(__AVR_DA__)
-      else if   (((portmux_tca & 0x38) == 0) && portnum == 1 && (__PeripheralControl & TIMERA1)) { // PORTG doesn't work on DA per errata.
-        timer_cmp_out     = (uint8_t*) (&TCA1.SPLIT.LCMP0);
-      }
-    #elif (defined(__AVR_DB__))
-      else if (((((portmux_tca & 0x38) == 3) && portnum == 6) || (((portmux_tca & 0x38) == 0) && portnum == 1)) && (__PeripheralControl & TIMERA1)) {
-        timer_cmp_out     = (uint8_t*) (&TCA1.SPLIT.LCMP0);
-      }
-    #endif
-    if (timer_cmp_out != 0x0000) {
-      if (bit_mask & 0b00111000) {   // WO3-5
-        offset++;                         // so use HCMP instead of LCMP
-        ctrlb_bit <<= 1;                  //
-      }
-      if      (ctrlb_bit & 0b01000100) offset += 4;
-      else if (ctrlb_bit & 0b00100010) offset += 2;
-      timer_cmp_out     += offset;
-      (*timer_cmp_out)  = val;
-      TCA0.SPLIT.CTRLB |= bit_mask;
-      (*(uint8_t *) (0x0401 + (portnum << 5))) = bit_mask; // PORTx.DIRSET = bit_mask - set pin to be output
-      return; // either way, we're done here, we set a pwm channel
-    }
-  }
-  #if defined(TCA1) //maybe it's one of the 3-channel mux options?
-    if (bit_mask > 0x10) {
-      portmux_tca &= 0x38
-      #if !defined (__AVR_EA__)
-        if ((portmux_tca == 0x08 && portnum == PC) || (portmux_tca == 0x10 && portnum == PD))
-      #else
-        if ((portmux_tca == 0x08 && portnum == PC) || (portmux_tca == 0x10 && portnum == PD) || (portmux_tca == 0x20 && portnum == PA) || (portmux_tca == 0x28 && portnum == PF))
-      #endif
-      {
-        offset = (bit_mask == 0x80) ? 4 : (bit_mask ? 2 : 0);
-        timer_cmp_out     =   (uint16_t*)((uint16_t)(&TCA1.SINGLE.CMP0) + offset);
-        (*timer_cmp_out)  =   val;
-        TCA0.SPLIT.CTRLB |=   bit_mask;
-        (*(uint8_t *) (0x0401 + (portnum << 5))) = bit_mask; // PORTx.DIRSET = bit_mask - set pin to be output
-        return;
-      }
+  #else
+    if  ((bit_mask < 0x40) && ((portmux_tca == portnum) && (__PeripheralControl & TIMERA0))) {
+      timer_A = &TCA0;
     }
   #endif
-
+  if (timer_A != NULL) {
+    offset = bit_mask;
+    #if defined(TCA1)
+      if (threepin) {
+        _SWAP(offset); // 0b00000xxx
+      }
+    #endif
+    uint8_t ctrlb = offset;
+    if (bit_mask > 0x07) {
+      ctrlb <<= 1;
+    }
+    if (offset & 0x07){
+      offset &= 0xFE; // WO0-2 ok - 0x0000 0xx0
+    } else {
+      offset <<= 1;    //0b0xxx 0000
+      _SWAP(offset)   //0b0000 0xx0
+      offset |= 0x01; //0b0000 0xx1 OK!
+    }
+    #if defined(TCA1)
+      if (threepin) {
+        *(uint16_t*)(((uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
+      } else
+    #endif
+    {
+      *(((uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
+    }
+    *(uint8_t*) &(timer_A->SPLIT.CTRLB) |= ctrlb;
+    *((uint8_t*)((uint16_t*)(portnum + 0x401))) = bit_mask;
+    return;
+  }
+    /* Okay, this layout tends towards maximum pervosity. You basically have to treat them as entirely separate timers at this point!
+     * PORT | DA | DB | DD | EA | portnum
+     *    A | XX | XX | XX | 20 | 0; portmux == 0x20 EA only                    portnux >> 2 == 4
+     *    B | 00 | 00 | XX | 00 | 1; portmux == 0    DA, DB, EA 48 pin - 6 pins portmux >> 2 == 0
+     *    C | 08 | 08 | XX | 08 | 2 == portmux >> 2; DA, DB, EA 48 pin - 3 pins portmux >> 2 == 2
+     *    D | XX | XX | XX | 28 | 3; portmux == 0x28 EA only                    portmux >> 2 == 5
+     *    E | 10 | 10 | XX | XX | 4 == portmux >> 2  DB, 48 pin (and DA, maybe) - 3 pins
+     *    F | XX | XX | XX | XX | -
+     *    G | 18 | 18 | XX | XX | 6 == portmux >> 2; DB, 48 pin (and DA, maybe) - 6 pins
+     *
+     * PORTG and PORTE do not function on currently available DA hardware.
+     *
+     * PORTC, PORTA, PORTD, and PORTE are pins 4-6 only. No PORTE except on 64-pin parts.
+     *
+     * No TCA1 on 32-pin or less DB.
+     * No PORTA or PORTD except on EA (it was a newly added mux option) there.
+     * No TCA1 on DD at all.
+     */
   TCB_t *timer_B;
   // TCA_t *timer_A;
-/*   Find out Port and Pin to correctly handle port mux, and timer.
- *switch (digital_pin_timer) {
- *  case TIMERA0:
- */
  uint8_t digital_pin_timer = digitalPinToTimer(pin);
   switch (digital_pin_timer) {
     case NOT_ON_TIMER:
@@ -544,7 +558,7 @@ void analogWrite(uint8_t pin, int val)
           // hopefully that gets rendereed as swap, not 4 leftshifts
           if (bit_mask < 0x10) bit_mask = bit_mask << 4;
         #else
-          if (digital_pin_timer & 0x07 != 0) break;
+          if ((digital_pin_timer & 0x07) != 0) break;
         #endif
       #else
         // tinyAVR 1-series

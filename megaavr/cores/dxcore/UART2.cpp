@@ -79,5 +79,5 @@
       __builtin_unreachable();
     }
   #endif
-  UartClass Serial2(&USART2, (uint8_t*)_usart2_pins, MUXCOUNT_USART2, HWSERIAL2_MUX_DEFAULT);
+  HardwareSerial Serial2(&USART2, (uint8_t*)_usart2_pins, MUXCOUNT_USART2, HWSERIAL2_MUX_DEFAULT);
 #endif

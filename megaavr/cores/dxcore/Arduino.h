@@ -41,7 +41,7 @@
 #include <avr/interrupt.h>
 
 #ifdef __cplusplus
-extern "C"{
+  extern "C"{
 #endif
 
 /* we call badArg() when we know at compile time that one or more arguments passed to
@@ -151,10 +151,6 @@ inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
   #define TCB_CLKSEL_DIV1_gc TCB_CLKSEL_CLKDIV1_gc
 #endif
 
-#define VCC_5V0 2
-#define VCC_3V3 1
-#define VCC_1V8 0
-
 #define interrupts() sei()
 #define noInterrupts() cli()
 
@@ -177,32 +173,6 @@ void onPreMain();
 void onBeforeInit();
 uint8_t onAfterInit();
 void initVariant();
-
-
-// Peripheral takeover
-// These will remove things controlled by
-// these timers from analogWrite()/turnOffPWM()
-// 0x40 - TCD0, 0x10 - TCA0
-void takeOverTCA0();
-void takeOverTCD0();
-
-// millis() timer control
-void stop_millis();                   // Disable the interrupt and stop counting millis.
-void restart_millis();                // Reinitialize the timer and start counting millis again
-void set_millis(uint32_t newmillis);  // set current millis time.
-/* Expected usage:
- * uint32_t oldmillis=millis();
- * stop_millis();
- * user_code_that_messes with timer
- * set_millis(oldmillis+estimated_time_spent_above)
- * restart millis();
- *
- * Also, this might at times be appropriate
- * set_millis(millis() + known_offset);
- * after doing something that we know will block too long for millis to keep time
- * see also:
- */
-
 
 /* inlining of a call to delayMicroseconds() would throw it off */
 void _delayMicroseconds(unsigned int us) __attribute__((noinline));
@@ -618,7 +588,7 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
 // Additional names are defined where they might be easier to remember.
 // It's not an accident that the PORT options have PIN_(name of register in PORTx)
 // as an alias.
-// Microchip can add one more binary option >.>
+// Microchip can add one more binary option >.>                    */
 
 /* normal PORT binary options */
 #define PIN_DIR_SET          (0x0001) // OUTPUT
@@ -894,65 +864,4 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 // were going to use software serial "like they always did" (*shudder*)
 
 
-/********************************************************************************
- * CORE AND HARDWARE FEATURE SUPPORT  *
- * CORE_HAS_FASTIO is 1 when digitalReadFast and digitalWriteFast are supplied, and 2 when openDrainFast and pinModeFast are as well.
- * CORE_HAS_OPENDRAIN
- * CORE_HAS_PINCONFIG is 1 if pinConfig is supplied. The allows full configuration of any pin. It is 2 if it accepts commas instead of bitwise or between configuration parameters (NYI)
- * CORE_HAS_FASTPINMODE is 1 if pinModeFast is supplied
- * CORE_HAS_ANALOG_ENH is 0 if no analogReadEnh is supplied, 1 if it is, and 2 if it is supplied and both core and hardware support a PGA.
- * CORE_HAS_ANALOG_DIFF is 0 if no analogReadDiff is supplied, 1 if it's DX-like (Vin < VREF), and 2 if it's a proper
- * differential ADC, supported in both hardware and software. The value -1 is also valid and indicates it's a classic AVR with a  * differential ADC, see the documentation for the core.
- * CORE_HAS_TIMER_TAKEOVER is 1 if takeOverTCxn functions are provided to tell the core not to automatically use all
- * type A and D timers.
- * CORE_HAS_TIMER_RESUME is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.
- * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core, 0 if it would be if
- * the harware worked, and not defined at all if the hardware doesnt have such a feature even in theory
- * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.
- ********************************************************************************/
-#define CORE_HAS_FASTIO                 (2)
-#define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
-#define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
-#define CORE_HAS_FASTPINMODE            (1)
-#define CORE_DETECTS_TCD_PORTMUX        (1)
-                                            /* we support using it */
-#define CORE_HAS_TIMER_TAKEOVER         (1)
-#define CORE_HAS_TIMER_RESUME           (1)
-#define CORE_SUPPORT_LONG_TONES         (1)
-#define CORE_HAS_ANALOG_ENH             (1)
-#define CORE_HAS_ANALOG_DIFF            (1)
-
-
-/* Hardware capabilities (ADC)
- * ADC_DIFFERENTIAL is 1 for a half-way differential ADC like DX-serie has, 2 for a real one like EA-series will    *
- * ADC_MAX_OVERSAMPLED_RESOLUTION is the maximum resolution attainable by oversampling and decimation               *
- * ADC_NATIVE_RESOLUTION is the higher of the two native ADC resolutions. Either 10 or 12                           *
- * ADC_NATIVE_RESOLUTION_LOW is the lower of the two native ADC resolutions. Either 8 or 10. Can't be deduced from  *
- * above. All permutations where the "native resolution" is higher are extant somewhere                             *
- * ADC_MAXIMUM_ACCUMULATE is the maximum number of sameples that can be accumulated by the burst accumulation mode  *
- * ADC_MAXIMUM_SAMPDUR is the maximum sample duration value. Refer to the core documentation or datasheet for detail*
- * ADC_RESULT_SIZE is the size (in bits) of the registers that hold the ADC result. V2.0 ADC has 32, others have 16 *
- * ADC_MAXIMUM_GAIN is defined if there is a way to amplify the input to the ADC. If you have to use onchip opamps  *
- * and the chip has them, it's -1, otherwise it is the maximum multiplier
- * ADC_REFERENCE_SET is 1 if the references are the weird ones that tinyAVR 0 and 1 use, and 2 if they are 1.024,   *
- * 2.048, 4.096 and 2.5V like civilized parts */
-
-#define ADC_DIFFERENTIAL                (1)
-#define ADC_MAX_OVERSAMPLED_RESOLUTION (15)
-#define ADC_NATIVE_RESOLUTION          (12)
-#define ADC_NATIVE_RESOLUTION_LOW      (10)
-#define ADC_MAXIMUM_ACCUMULATE        (128)
-#define ADC_MAXIMUM_SAMPDUR          (0xFF)
-#define ADC_RESULT_SIZE                (16)
-#if defined(__AVR_DD__) || defined(__AVR_EA__)
-  #define ADC_MAXIMUM_PIN_CHANNEL      (31)
-  #define ADC_MAXIMUM_NEGATIVE_PIN     (31)
-#else                                       /* negative inputs! The EA even has a decent differential ADC!          */
-  #define ADC_MAXIMUM_PIN_CHANNEL      (21)
-  #define ADC_MAXIMUM_NEGATIVE_PIN     (15)
 #endif
-#if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
-  #define ADC_MAXIMUM_GAIN             (16)
-#elif defined(OPAMP0)
-  #ifndef ADC_MAXIMUM_GAIN
-    #define ADC_MAXIMUM_GAIN           (-1)  /* DB-series can use their OPAMPs as a PGA                             */

@@ -15,7 +15,7 @@
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 August 2012 by Alarus
  * Modified 3 December 2013 by Matthijs Kooijman
- * Modified by SOMEONE around 2016-2017; hardware seriel didn't port itself to the megaAVR 0-series.
+ * Modified by SOMEONE around 2016-2017; hardware serial didn't port itself to the megaAVR 0-series.
  * Modified 2017-2021 by Spence Konde for megaTinyCore and DxCore.
  * Modified late 2021 by Spence Konde and MX682X for DxCore
  * 12/26/21: Correct bug introduced in my ASM macros. -Spence
@@ -33,7 +33,7 @@
 #include "api/Stream.h"
 #include "pins_arduino.h"
 #include "UART_constants.h"
-#include "UART_check_pins.h"
+#include "UART_swap.h"
 
 // No UART_swap.h on megaTinyCore - there isn't enough to put in separate file.
 
@@ -84,7 +84,8 @@
  * (to be fair, you are allowed to use external RAM - which was a very rare feature indeed,
  */
 #if !defined(USE_ASM_TXC)
-  #define USE_ASM_TXC 1    // This *appears* to work? It's the easy one. saves 6b for 1 USART and 44b for each additional one
+  #define USE_ASM_TXC 2    // A bit slower than 1 in exchange for halfduplex.
+//#define USE_ASM_TXC 1    // This *appears* to work? It's the easy one. saves 6b for 1 USART and 44b for each additional one
 #endif
 
 #if !defined(USE_ASM_RXC)
@@ -176,7 +177,7 @@
   }})
 
 
-class HardwareSerial : public HardwareSerial {
+class HardwareSerial : public Stream {
 /* DANGER DANGER DANGER
  * CHANGING THE MEMBER VARIABLES BETWEEN HERE AND THE OTHER SCARY COMMENT WILL COMPLETELY BREAK SERIAL
  * WHEN USE_ASM_DRE or USE_ASM_RXC is used!
@@ -201,7 +202,7 @@ class HardwareSerial : public HardwareSerial {
 /* DANGER DANGER DANGER */
 
   public:
-    inline             HardwareSerial(volatile USART_t *hwserial_module, uint8_t module_number, uint8_t default_pinset);
+    inline             HardwareSerial(volatile USART_t *hwserial_module, uint8_t *usart_pins, uint8_t mux_count, uint8_t mux_default);
     bool                    pins(uint8_t tx, uint8_t rx);
     bool                    swap(uint8_t mux_level = 1);
     void                   begin(uint32_t baud) {begin(baud, SERIAL_8N1);}
@@ -229,7 +230,7 @@ class HardwareSerial : public HardwareSerial {
     volatile uint16_t *   printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
     uint8_t *           printHexln(          uint8_t* p, uint8_t len, char sep = 0            ) {
       uint8_t* ret;
-      ret=printHex(p, len, sep);
+      ret = printHex(p, len, sep);
       println(); return ret;
     }
     uint16_t *          printHexln(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
@@ -237,13 +238,13 @@ class HardwareSerial : public HardwareSerial {
     }
     volatile uint8_t *  printHexln(volatile  uint8_t* p, uint8_t len, char sep = 0            ) {
       volatile uint8_t* ret;
-      ret=printHex(p, len, sep);
+      ret = printHex(p, len, sep);
       println();
       return ret;
     }
     volatile uint16_t * printHexln(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
         volatile uint16_t* ret;
-        ret=printHex(p, len, sep, s);
+        ret = printHex(p, len, sep, s);
         println();
         return ret;
       }
@@ -301,6 +302,7 @@ class HardwareSerial : public HardwareSerial {
     static void        _set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting,  uint8_t enmask);
     static void         _mux_set(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_code                    );
     static uint8_t _pins_to_swap(uint8_t* pinInfo, uint8_t mux_count, uint8_t tx_pin,       uint8_t rx_pin);
+    static uint8_t       _getPin(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting,  uint8_t pin);
    /* _statuscheck() - the static side to getStatus(). Static methods have no concept of which instance they are called from. This gives the optimizer more handholds
      * As you probably know, the optimizer's hands are pretty tightly bound when working with a normal class method, but it has a much freer hand in static methods.
      * Return value is:

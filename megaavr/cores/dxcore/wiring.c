@@ -43,11 +43,11 @@ inline uint16_t clockCyclesPerMicrosecond() {
   return ((F_CPU) / 1000000L);
 }
 
-inline unsigned long clockCyclesToMicroseconds(unsigned long cycles) {
+inline uint32_t clockCyclesToMicroseconds(const uint32_t cycles) {
   return (cycles / clockCyclesPerMicrosecond());
 }
 
-inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
+inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
   return (microseconds * clockCyclesPerMicrosecond());
 }
 
@@ -100,7 +100,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
           #error "Selected millis timer, TCB4 does not exist on this part."
         #endif
         &TCB4;
-      #else  // it's not TCB0, TCB1, TCD0, TCA0, TCA1, or RTC
+      #else  // it's not a TCB, TCA0, TCA1, or RTC
         #error "No millis timer selected, but not disabled - can't happen!".
       #endif
     #else
@@ -122,20 +122,11 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
   #elif defined(MILLIS_USE_TIMERB0)
     ISR(TCB0_INT_vect)
   #elif defined(MILLIS_USE_TIMERB1)
-    #ifndef TCB1
-      #error "Selected millis timer, TCB1 does not exist on this part."
-    #endif
-    &TCB1;
+    ISR(TCB1_INT_vect)
   #elif defined(MILLIS_USE_TIMERB2)
-    #ifndef TCB2
-      #error "Selected millis timer, TCB2 does not exist on this part."
-    #endif
-    &TCB2;
+    ISR(TCB2_INT_vect)
   #elif defined(MILLIS_USE_TIMERB3)
-    #ifndef TCB3
-      #error "Selected millis timer, TCB3 does not exist on this part."
-    #endif
-    &TCB3;
+    ISR(TCB3_INT_vect)
   #elif defined(MILLIS_USE_TIMERB4)
     ISR(TCB4_INT_vect)
   #else
@@ -221,8 +212,9 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
  * be possible. If they are, that is a critical bug.
  */
 
-  unsigned long millis()
-  {
+
+  unsigned long millis() {
+    // return timer_overflow_count; // for debugging timekeeping issues where these variables are out of scope from the sketch
     unsigned long m;
     // disable interrupts while we read timer_millis or we might get an
     // inconsistent value (e.g. in the middle of a write to timer_millis)
@@ -582,7 +574,7 @@ inline unsigned long microsecondsToClockCycles(unsigned long microseconds) {
       #elif (F_CPU ==  5000000UL)
         ticks = ticks >> 1;
         microseconds = overflows * 1000 + (ticks - (ticks >> 2) + (ticks >> 4) - (ticks >> 6)); // + (ticks >> 8)
-*/
+      */
 
       // powers of 2  - and a catchall for parts without dedicated implementations. It gives wrong results, but
       // it also doesn't take forever like doing division would.
@@ -1247,7 +1239,7 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
 }
 
 void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
-  #if (MILLIS_TIMER &= 0x78) /* 0x40 matches TCDs, 0x20 matches TCBs, 0x10 matches TCA0 0x08 matches TCA1, so OR them together and AND it with the timer to make sure it's not RTC, disabled, etc.  */
+  #if (MILLIS_TIMER & 0x78) /* 0x40 matches TCDs, 0x20 matches TCBs, 0x10 matches TCA0 0x08 matches TCA1, so OR them together and AND it with the timer to make sure it's not RTC, disabled, etc.  */
     uint8_t oldSREG=SREG;
     cli();
     timer_millis += nudgesize;

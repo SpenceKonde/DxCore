@@ -23,8 +23,8 @@
   #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION3")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
-  #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION0")))
-  #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION1")))
+  #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
+  #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION3")))
 #elif (__AVR_ARCH__ == 102)
   #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
@@ -325,7 +325,7 @@
   #define _AVR_AC_COUNT      (1)
 #else
   #define _AVR_AC_COUNT      (0)
-  #warning "No AC? No supported parts exist without one, something is wrong"
+  #error "No AC? No supported parts exist without one, something is wrong"
 #endif
 
 #if defined(ADC1)
@@ -334,7 +334,7 @@
   #define _AVR_ADC_COUNT     (1)
 #else
   #define _AVR_ADC_COUNT     (0)
-  #warning "No ADC? No supported parts exist without one, something is wrong"
+  #error "No ADC? No supported parts exist without one, something is wrong"
 #endif
 
 
@@ -365,7 +365,7 @@
 #elif defined(TCA0)
   #define _AVR_TCA_COUNT     (1)
 #else
-  #warning "No TCA? No supported parts exist without one, something is wrong"
+  #error "No TCA? No supported parts exist without one, something is wrong"
 #endif
 
 #if defined(TCB5)
@@ -381,7 +381,7 @@
 #elif defined(TCB0)
   #define _AVR_TCB_COUNT     (1)
 #else
-  #warning "No TCBs? No supported parts exist without one, something is wrong"
+  #error "No TCBs? No supported parts exist without one, something is wrong"
 #endif
 
 #if defined(TCD1)
@@ -395,8 +395,15 @@
 #elif defined(TWI0)
   #define _AVR_TWI_COUNT     (1)
 #else
-  #define _AVR_TWI_COUNT     (0)
-  #warning "No TWI? No supported parts exist without one, something is wrong"
+  #error "No TWI? No supported parts exist without one, something is wrong"
+#endif
+
+#if defined(SPI1)
+  #define _AVR_SPI_COUNT     (2)
+#elif defined(SPI0)
+  #define _AVR_SPI_COUNT     (1)
+#else
+  #error "No SPI? No supported parts exist without one, something is wrong"
 #endif
 
 #if defined(USART5)
@@ -412,55 +419,33 @@
 #elif defined(USART0)
   #define _AVR_USART_COUNT     (1)
 #else
-  #define _AVR_USART_COUNT     (0)
-  #warning "No USARTs? No such parts exist, something is wrong";
+  #error "No USARTs? No supported parts exist without one, something is wrong"
 #endif
 
 
-
-/* ERRATA TESTS */
-/* Not exhaustive, we'd be going on for thosands of lines to over all the errata. This code assumes all DB are Rev A5, not A4, A4 got pulled fast         */
-/* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
-#if defined(__AVR_DA__) && (_AVR_FLASH == 128)
-  #define ERRATA_TCA1_PORTMUX           (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
-  #define ERRATA_PORTS_B_E_EVSYS        (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
-  #define ERRATA_NVM_ST_BUG             (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
+#if defined(ZCD3)
+  #define _AVR_ZCD_COUNT     (1) /* Only the DD's have ZCD3, which is their ZCD0 by a different name, since it uses different pins */
+#elif defined(ZCD2)
+  #define _AVR_ZCD_COUNT     (3)
+#elif defined(ZCD1)
+  #define _AVR_ZCD_COUNT     (2)
+#elif defined(ZCD0)
+  #define _AVR_ZCD_COUNT     (1)
+#else
+  #define _AVR_ZCD_COUNT     (0)
 #endif
 
-#if !defined(__AVR_DD__)
-  #define ERRATA_DAC_DRIFT              (1)
+#if defined(DAC2)
+  #define _AVR_DAC_COUNT     (3)
+#elif defined(DAC1)
+  #define _AVR_DAC_COUNT     (2)
+#elif defined(DAC0)
+  #define _AVR_DAC_COUNT     (1) /* Note that thus far, no DAC other than DAC0 has ever been able to output data. DAC1 and DAC2 are just the DACREFs for AC1 and AC2 on tinyAVR 1-series parts.*/
+#else
+  #define _AVR_DAC_COUNT     (0)
 #endif
 
-// No device has been released that doesn't have this bug! I am not optimistic that this will ever change. I couldn't care less about the TCB issue, but there would be dancing in the streets if new silicon revisoin that fixed the CCL one were released. Shortllived, of course, since they'd soon realize what the backorder time was on the parts was, fix or no fix.
-#if defined(__AVR_DD__)
-  #define ERRATA_TCB_CCMP               (1)
-#endif //"They fixed it?!"
-#if(!PIGS_ARE_FLYING)
-  #define ERRATA_CCL_PROTECTION         (1)
-#endif
-
-#if defined(__AVR_DA__) || defined(__AVR_DB__)
-  // Almost certainly won't be in the DD.
-  #define ERRATA_TCD_PORTMUX            (1)
-  #define ERRATA_ADC_PIN_DISABLE        (1)
-#endif
-
-#if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__) /* STILL?! */
-  #define ERRATA_TWI_FLUSH
-#endif
-
- /* HARDWARE FEATURES - Used by #ifdefs and as constants in calculations in
-  * the core and in libraries; it is hoped that these are at least somewhat
-  * useful to users, as well. These are described in more detail in the
-  * README. */
-
-#define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
-                                               2 = all wave output channels move together */
-#define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#if defined(__AVR_DD__) || !defined(ERRATA_TCD_PORTMUX)
-  #define CORE_DETECTS_TCD_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#endif
-  #endif
+#ifdef OPAMP0
   #define PIN_OPAMP0_INP            PIN_PD1
   #define PIN_OPAMP0_OUT            PIN_PD2
   #define PIN_OPAMP0_INN            PIN_PD3
@@ -475,6 +460,14 @@
     #define PIN_OPAMP2_INN          PIN_PE3
   #endif
 #endif
+
+#define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
+                                               2 = all wave output channels move together */
+#define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
+#if defined(__AVR_DD__) || !defined(ERRATA_TCD_PORTMUX)
+  #define CORE_DETECTS_TCD_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
+#endif
+
 #if defined(__AVR_EA__)
   #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to  */
                                             /* replace the current one. It brings channel uniformity at the cost  */
@@ -491,31 +484,47 @@
 #else
   #define PORT_ID_INLVL                 (0)
 #endif
-/* if (ADC_NATIVE_RESOLUTION + Log4(ADC_MAXIMUM_ACCUMULATE)) > ADC_RESULT_SIZE, long accumulations are truncated.
- * with maximum accumulation of Dx, for example, 12 + 7 = 19, so the internal representation would be a 19-bit number
- * but only the 16 most significant bits are presented in ADC0.RES. analogReadEnh() accounts for this when
- * asked to oversample and decimate.
- *
- * If not otherwise specified, we will assume the DAC outputs on PD6 - No product has
- * been announced with it anywhere else, nor has any product been announced with more than 1. */
 
-/* ERRATA TESTS */
-/* Not exhaustive, we'd be going on for thousands of lines to over all the errata. This code assumes all DB are Rev A5, not A4, A4 got pulled fast         */
-/* If they're ever fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
+/* Hardware incapabilities: Errata */
+
+/* When they're fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
+/* aaahahahah! Sorry...
+... I meant, *if* they're ever fixed. If that happens, maybe put on a jacket or something... just in case a pig coming in for
+a landing collides with you on your way to claim your lottery jackpot, and you end up in hell, and there's nothing but ice as far as you can see. */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
   #define ERRATA_TCA1_PORTMUX           (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
   #define ERRATA_PORTS_B_E_EVSYS        (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
   #define ERRATA_NVM_ST_BUG             (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
+  // Needless to say, that's the only version that's ever been for sale.
 #endif
 
-#if defined(__AVR_DA__)
-  #define ERRATA_DAC_DRIFT              (1)
+#if defined(__AVR_DA__) || defined(__AVR_DB__)
+  #define ERRATA_DAC_DRIFT              (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
 #endif
 
 #if defined(__AVR_ARCH__)
-  // No device has been released that doesn't have this bug!
   #define ERRATA_TCB_CCMP               (1)
-  #define ERRATA_CCL_PROTECTION         (1)
+  #define ERRATA_CCL_PROTECTION         (1) // You mean this wasn't intended behavior? Isn't that how they saidit worked in the datasheet...
+  #define ERRATA_TCA_RESTART            (1)
+/* "The software can force a restart of the current waveform period by issuing a RESTART command. In this case, the
+counter, direction, and all compare outputs are set to ‘0’ " - Datasheet, for example, AVR128DA datasheet rev C, sec 21.3.3.5
+   "Restart Will Reset Counter Direction in NORMAL and FRQ Mode
+When the TCA is configured to a NORMAL or FRQ mode (WGMODE in TCAn.CTRLB is ‘0x0’ or ‘0x1’), a RESTART
+command or Restart event will reset the count direction to default. The default is counting upwards." - Errata
+
+I just don't know what to say. The only description of restarting a TCA is the command description. That's a bug?
+Usually when the product does what the docs say it will, that's not something that needs to be corrected.
+Especially when there are about a dozen errata containing "does not [work/function]" or "is not [working/functional]", but
+an unambiguous, quantitative specification - like flash endurance - just received an order of magnitude downgrade... a year after release....
+That was called a "clarification"....
+
+"Hmm? Yeah 1000 erase cycles, working as intended, why do you ask? What? No way, ten? Our datasheet? Really? You're kidding!
+Hmm, Oh... that does look kind of like... alright you're a big customer so let me see that datasheet and I'll try to clear this up with the design team"
+*scribblescribble* "Okay, how about now?" (stunned silence) "Great, let me know if there's anything else I can clarify! Your big order? Yeah - about this time
+next year, thanks! Gotta go, bye!"
+
+
+*/
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
@@ -526,6 +535,71 @@
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
   #define ERRATA_TWI_FLUSH
+#endif
+
+/********************************************************************************
+ * CORE AND HARDWARE FEATURE SUPPORT  *
+ * CORE_HAS_FASTIO is 1 when digitalReadFast and digitalWriteFast are supplied, and 2 when openDrainFast and pinModeFast are as well.
+ * CORE_HAS_OPENDRAIN
+ * CORE_HAS_PINCONFIG is 1 if pinConfig is supplied. The allows full configuration of any pin. It is 2 if it accepts commas instead of bitwise or between configuration parameters (NYI)
+ * CORE_HAS_FASTPINMODE is 1 if pinModeFast is supplied
+ * CORE_HAS_ANALOG_ENH is 0 if no analogReadEnh is supplied, 1 if it is, and 2 if it is supplied and both core and hardware support a PGA.
+ * CORE_HAS_ANALOG_DIFF is 0 if no analogReadDiff is supplied, 1 if it's DX-like (Vin < VREF), and 2 if it's a proper
+ * differential ADC, supported in both hardware and software. The value -1 is also valid and indicates it's a classic AVR with a  * differential ADC, see the documentation for the core.
+ * CORE_HAS_TIMER_TAKEOVER is 1 if takeOverTCxn functions are provided to tell the core not to automatically use all
+ * type A and D timers.
+ * CORE_HAS_TIMER_RESUME is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.
+ * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core, 0 if it would be if
+ * the harware worked, and not defined at all if the hardware doesnt have such a feature even in theory
+ * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.
+ ********************************************************************************/
+#define CORE_HAS_FASTIO                 (2)
+#define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
+#define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
+#define CORE_HAS_FASTPINMODE            (1)
+#define CORE_DETECTS_TCD_PORTMUX        (1)
+                                            /* we support using it */
+#define CORE_HAS_TIMER_TAKEOVER         (1)
+#define CORE_HAS_TIMER_RESUME           (1)
+#define CORE_SUPPORT_LONG_TONES         (1)
+#define CORE_HAS_ANALOG_ENH             (1)
+#define CORE_HAS_ANALOG_DIFF            (1)
+
+
+/* Hardware capabilities (ADC)
+ * ADC_DIFFERENTIAL is 1 for a half-way differential ADC like DX-serie has, 2 for a real one like EA-series will    *
+ * ADC_MAX_OVERSAMPLED_RESOLUTION is the maximum resolution attainable by oversampling and decimation               *
+ * ADC_NATIVE_RESOLUTION is the higher of the two native ADC resolutions. Either 10 or 12                           *
+ * ADC_NATIVE_RESOLUTION_LOW is the lower of the two native ADC resolutions. Either 8 or 10. Can't be deduced from  *
+ * above. All permutations where the "native resolution" is higher are extant somewhere                             *
+ * ADC_MAXIMUM_ACCUMULATE is the maximum number of sameples that can be accumulated by the burst accumulation mode  *
+ * ADC_MAXIMUM_SAMPDUR is the maximum sample duration value. Refer to the core documentation or datasheet for detail*
+ * ADC_RESULT_SIZE is the size (in bits) of the registers that hold the ADC result. V2.0 ADC has 32, others have 16 *
+ * ADC_MAXIMUM_GAIN is defined if there is a way to amplify the input to the ADC. If you have to use onchip opamps  *
+ * and the chip has them, it's -1, otherwise it is the maximum multiplier
+ * ADC_REFERENCE_SET is 1 if the references are the weird ones that tinyAVR 0 and 1 use, and 2 if they are 1.024,   *
+ * 2.048, 4.096 and 2.5V like civilized parts */
+
+#define ADC_DIFFERENTIAL                (1)
+#define ADC_MAX_OVERSAMPLED_RESOLUTION (15)
+#define ADC_NATIVE_RESOLUTION          (12)
+#define ADC_NATIVE_RESOLUTION_LOW      (10)
+#define ADC_MAXIMUM_ACCUMULATE        (128)
+#define ADC_MAXIMUM_SAMPDUR          (0xFF)
+#define ADC_RESULT_SIZE                (16)
+#if defined(__AVR_DD__) || defined(__AVR_EA__)
+  #define ADC_MAXIMUM_PIN_CHANNEL      (31)
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (31)
+#else                                       /* negative inputs! The EA even has a decent differential ADC!          */
+  #define ADC_MAXIMUM_PIN_CHANNEL      (21)
+  #define ADC_MAXIMUM_NEGATIVE_PIN     (15)
+#endif
+#if defined(ADC0_PGACTRL)                   /* The product briefs do not mention either way                         */
+  #define ADC_MAXIMUM_GAIN             (16)
+#elif defined(OPAMP0)
+  #ifndef ADC_MAXIMUM_GAIN
+    #define ADC_MAXIMUM_GAIN           (-1)  /* DB-series can use their OPAMPs as a PGA                             */
+  #endif
 #endif
 
 /* _switchInternalToF_CPU()
@@ -585,7 +659,6 @@
   #define _switchInternalToF_CPU() badCall("The _switchInternalToF_CPU() macro can only set the internal oscillator to a value which is supported by the core")
 #endif
 
-#define CLOCK_TUNE_START (USER_SIGNATURES_SIZE - 12)
 
 /* Microchip has shown a tendency to rename registers bitfields and similar between product lines, even when the behavior is identical.
  * This is a major hindrance to writing highly portable code which I assume is what most people wish to do. It certainly beats having
@@ -603,18 +676,22 @@
   // We default to seeking compatibility. for COMBATability you would uncomment that #define, and that turns all these off.
 
   #if defined(RTC_CLKSEL)
-  /* Man they just *HAD* to change the names of these values that get assigned to the same register and do the same thing didn't they?
-   * Worse still we can't even verify that they are present... just blindly define and pray. Enums can't be seen by macros   */
-    #define RTC_CLKSEL_INT32K_gc              RTC_CLKSEL_OSC32K_gc
-    #define RTC_CLKSEL_INT1K_gc               RTC_CLKSEL_OSC1K_gc
-    #if defined(RTC_CLKSEL0_bm) //Seriously?!
+    /* Man they just *HAD* to change the names of these values that get assigned to the same register and do the same thing didn't they?
+     * Worse still we can't even verify that they are present... just blindly define and pray. Enums can't be seen by macros
+     */
+     // tinyAVR has TOSC32K (tinyOscillator?)
+    #if defined(MEGATINYCORE)
+      #define RTC_CLKSEL_OSC32K_gc            RTC_CLKSEL_INT32K_gc
+      #define RTC_CLKSEL_OSC1K_gc             RTC_CLKSEL_INT1K_gc
+      #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_TOSC32K_gc
+      #define RTC_CLKSEL_XOSC32K_gc           RTC_CLKSEL_TOSC32K_gc
+    #else
+  // Dx has an XOSC32K
+      #define RTC_CLKSEL_INT32K_gc            RTC_CLKSEL_OSC32K_gc
+      #define RTC_CLKSEL_INT1K_gc             RTC_CLKSEL_OSC1K_gc
       #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XOSC32K_gc
       #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_XOSC32K_gc
-    #else
-      #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XTAL32K_gc
-      #define RTC_CLKSEL_XOSC32K_gc           RTC_CLKSEL_XTAL32K_gc
     #endif
-    // for when they notice the IO header doesn't match the datasheet and have to "fix" something...
   #endif
   /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn
    * They now appear to have decided they don't like either of the previous conventions, one just a few years old. Now they are grouping
@@ -622,13 +699,8 @@
    * I/O occurring here (ofc they were referring to the IN and OUT instructions, which can be used on these), but I certainly wouldn't
    * have changed a convention like this, at least not when I had just done so a few years prior. */
 
-  // All non-xmega pre-Dx-series parts call them GPIORn instead of GPR.GPRn/GPR_GPRn
-  #ifndef GPIOR0
-    #define GPIOR0                           (GPR_GPR0)
-    #define GPIOR1                           (GPR_GPR1)
-    #define GPIOR2                           (GPR_GPR2)
-    #define GPIOR3                           (GPR_GPR3)
-  #endif
+  // All non-xmega pre-Dx-series modern AVR parts call them GPIORn instead of GPR.GPRn/GPR_GPRn
+  // Some classics called them GPIOn.
 
   /* In one xMega AVR, they were GPIOn, rather than GPIORn
    * One? Yup: The ATxmega32d4. Not the 32d3, nor the 32e5, nor anything else. All the xmega's have GPIORs
@@ -646,35 +718,31 @@
    * heads screwed on properly and realized that 4 GPIOR-- excuse me, GPRs, 4 awkward VPORTs and
    * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
    * xmega line, and decided that wasn't a winning formula */
-  #ifndef GPIO0
-    #define GPIO0                           (GPR_GPR0)
-    #define GPIO_GPIO0                      (GPR_GPR0)
-    #define GPIO1                           (GPR_GPR1)
-    #define GPIO_GPIO1                      (GPR_GPR1)
-    #define GPIO2                           (GPR_GPR2)
-    #define GPIO_GPIO2                      (GPR_GPR2)
-    #define GPIO3                           (GPR_GPR3)
-    #define GPIO_GPIO3                      (GPR_GPR3)
+  #if !defined(GPIOR0)
+    #define GPIOR0                            (_SFR_MEM8(0x001C))
+    #define GPIOR1                            (_SFR_MEM8(0x001D))
+    #define GPIOR2                            (_SFR_MEM8(0x001E))
+    #define GPIOR3                            (_SFR_MEM8(0x001F))
   #endif
-  /* They are are the 4 registers in the GPR "peripheral", GPR.GPR0, GPR.GPR1, GPR.GPR2, and GPR.GPR3!
-   * Let's not split hairs about whether calling 4 registers that do absolutely nothing other than being
-   * located at addresses 0x1C, 0x1D, 0x1E and 0x1F allowing use of all the glorious instructions that brings
-   * SBI, CBI, SBIS, SBIC, IN, and OUT, is enough to qualify as a peripheral.
-   * Anyway - the flat names were used because if we don't, in some situations that winds up causing weird
-   * problems. */
-
-  /* Code written for tinyAVR's TCA EVACT, which is identical to EVACTA on newer parts, would not work
-   * even though they have the same functionality
-   */
-  #define TCA_SINGLE_CNTEI_bm               TCA_SINGLE_CNTAEI_bm
-  #define TCA_SINGLE_CNTEI_bp               TCA_SINGLE_CNTAEI_bp
-  #define TCA_SINGLE_EVACT_gm               TCA_SINGLE_EVACTA_gm
-  #define TCA_SINGLE_EVACT_gp               TCA_SINGLE_EVACTA_gp
-  #define TCA_SINGLE_EVACT_CNT_POSEDGE_gc   TCA_SINGLE_EVACTA_CNT_POSEDGE_gc
-  #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc   TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc
-  #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc   TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
-  #define TCA_SINGLE_EVACT_UPDOWN_gc        TCA_SINGLE_EVACTA_UPDOWN_gc
-
+  #if !defined(GPIO0)
+    #define GPIO0                             (_SFR_MEM8(0x001C))
+    #define GPIO1                             (_SFR_MEM8(0x001D))
+    #define GPIO2                             (_SFR_MEM8(0x001E))
+    #define GPIO3                             (_SFR_MEM8(0x001F))
+  #endif
+  #if !defined(GPIO_GPIOR0)
+    #define GPIO_GPIO0                        (_SFR_MEM8(0x001C))
+    #define GPIO_GPIO1                        (_SFR_MEM8(0x001D))
+    #define GPIO_GPIO2                        (_SFR_MEM8(0x001E))
+    #define GPIO_GPIO3                        (_SFR_MEM8(0x001F))
+  #endif
+  #if !defined(GPR_GPR0)
+    #define GPR_GPR0                        (_SFR_MEM8(0x001C))
+    #define GPR_GPR1                        (_SFR_MEM8(0x001D))
+    #define GPR_GPR2                        (_SFR_MEM8(0x001E))
+    #define GPR_GPR3                        (_SFR_MEM8(0x001F))
+  #endif
+ // The naming of this has gotten so confusing. I give up, we all know where the registers are.
   #if defined (CLKCTRL_SELHF_bm)
     /* They changed the damned name after selling the part for 6 months!
      * annoyingly you can't even test if it's using the new version of the headers because it's an enum! */
@@ -720,16 +788,35 @@
   //typedef const uint8_t __attribute__ ((deprecated("\nMicrochip changed the spelling of bits within a bitfiels (macros that end in the bitnumber followed by _bm or _bp), you are using the old name, ex PERIPH_BITFIRLD1_bm.\nYou should use PERIPH_BITFIELD_1_bm; we do not guarantee that this 4000-line bandaid will not be removed in the future.\r\nWhy did they do this? Beats me. Ask their support folks - if enough of us do it, they might hesitate next time they have the urge to mass rename things in their headers")))  deprecated_constant_name;
 
   // Okay, well that fix didn't work so well. back to plan A.
-#if !defined(BACKWARD_COMBATIBILITY_MODE)
+
+
   /* Add a feature - yay!
    * Rename registers so people can't carry code back and forth - booo!
    */
-  #ifndef TCA_SINGLE_CNTEI_bm
+  // TCA V1.0 - tinyAVR 0/1, megaAVR 0
+  // this only has one event input, but code needs to be able to flow smoothly
+  // so we define macros named after he the new version pointing to the old version of event input A.
+  // Obviously, we can't do anything about the unfortunate soul who tries to use input B.
+  #if !defined(TCA_SINGLE_CNTAEI_bm)
+    #define TCA_SINGLE_CNTAEI_bm TCA_SINGLE_CNTEI_bm
+    #define TCA_SINGLE_EVACTA_POSEDGE_gc TCA_SINGLE_EVACTA_CNT_POSEDGE_gc
+    #define TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc
+    #define TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
+    #define TCA_SINGLE_EVACTA_UPDOWN_gc TCA_SINGLE_EVACTA_UPDOWN_gc
+  #endif
+  // TCA V1.1 - DA, DB, tinyAVR 2?
+  //  with two inputs changes the names the existing ones to specify channel A
+  // We add in the non-postfixed ana
+  #if !defined(TCA_SINGLE_CNTEI_bm)
+    #define _TCA_
     #define TCA_SINGLE_CNTEI_bm TCA_SINGLE_CNTAEI_bm
     #define TCA_SINGLE_EVACT_POSEDGE_gc TCA_SINGLE_EVACTA_CNT_POSEDGE_gc
     #define TCA_SINGLE_EVACT_CNT_ANYEDGE_gc TCA_SINGLE_EVACTA_CNT_ANYEDGE_gc
     #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
     #define TCA_SINGLE_EVACT_UPDOWN_gc TCA_SINGLE_EVACTA_UPDOWN_gc
+  #endif
+
+  #if (!defined(MEGATINYCORE) || MEGATINYCORE_SERIES >= 2)
     #define TCB_CLKSEL_CLKDIV1_gc TCB_CLKSEL_DIV1_gc
     #define TCB_CLKSEL_CLKDIV2_gc TCB_CLKSEL_DIV2_gc
     #define TCB_CLKSEL_CLKTCA_gc TCB_CLKSEL_TCA0_gc
@@ -745,7 +832,14 @@
       #error "Only the tinyAVR 1-series and 2-series parts with at least 14 pins support external RTC timebase"
     #endif
   #endif
+  // And now, it it appears that they realized that they should have had some sort of delimiter between the bit number within a bitfield, and the name of the bitfield, since the names of many bitfields end in numbers,
+  // So they went ahead and made that change. Without any compatibility layer.
 
+  // Well, I'd wanted to make deprecation warnings come up only if they were used. I was unuccessful.
+
+  // typedef const uint8_t __attribute__ ((deprecated("\nMicrochip changed the spelling of bits within a bitfiels (macros that end in the bitnumber followed by _bm or _bp), you are using the old name, ex PERIPH_BITFIRLD1_bm.\nYou should use PERIPH_BITFIELD_1_bm; we do not guarantee that this 4000-line bandaid will not be removed in the future.\r\nWhy did they do this? Beats me. Ask their support folks - if enough of us do it, they might hesitate next time they have the urge to mass rename things in their headers")))  deprecated_constant_name;
+
+  // Okay, well that fix didn't work so well. back to plan A.
   /* ======= ACs ======= */
   #if !defined(AC_HYSMODE_0_bm) && defined(AC_HYSMODE0_bm)
     #define AC_HYSMODE_0_bm AC_HYSMODE0_bm
@@ -4812,65 +4906,64 @@
   #if !defined(WDT_WINDOW_0_bm) && defined(WDT_WINDOW0_bm)
     #define WDT_WINDOW_0_bm WDT_WINDOW0_bm
   #elif defined(WDT_WINDOW_0_bm)
-    //deprecated_constant_name WDT_WINDOW0_bm = WDT_WINDOW_0_bm;
     #define WDT_WINDOW0_bm WDT_WINDOW_0_bm //Deprecated as of Q2 2022 header change.
   #endif
   #if !defined(WDT_WINDOW_0_bp) && defined(WDT_WINDOW0_bp)
     #define WDT_WINDOW_0_bp WDT_WINDOW0_bp
   #elif defined(WDT_WINDOW_0_bp)
-    deprecated_constant_name WDT_WINDOW0_bp = WDT_WINDOW_0_bp;
+    #define WDT_WINDOW0_bp WDT_WINDOW_0_bp; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(WDT_WINDOW_1_bm) && defined(WDT_WINDOW1_bm)
     #define WDT_WINDOW_1_bm WDT_WINDOW1_bm
   #elif defined(WDT_WINDOW_1_bm)
-    deprecated_constant_name WDT_WINDOW1_bm = WDT_WINDOW_1_bm;
+    #define WDT_WINDOW1_bm WDT_WINDOW_1_bm; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(WDT_WINDOW_1_bp) && defined(WDT_WINDOW1_bp)
     #define WDT_WINDOW_1_bp WDT_WINDOW1_bp
   #elif defined(WDT_WINDOW_1_bp)
-    deprecated_constant_name WDT_WINDOW1_bp = WDT_WINDOW_1_bp;
+    #define WDT_WINDOW1_bp WDT_WINDOW_1_bp; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(WDT_WINDOW_2_bm) && defined(WDT_WINDOW2_bm)
     #define WDT_WINDOW_2_bm WDT_WINDOW2_bm
   #elif defined(WDT_WINDOW_2_bm)
-    deprecated_constant_name WDT_WINDOW2_bm = WDT_WINDOW_2_bm;
+    #define WDT_WINDOW2_bm WDT_WINDOW_2_bm; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(WDT_WINDOW_2_bp) && defined(WDT_WINDOW2_bp)
     #define WDT_WINDOW_2_bp WDT_WINDOW2_bp
   #elif defined(WDT_WINDOW_2_bp)
-    deprecated_constant_name WDT_WINDOW2_bp = WDT_WINDOW_2_bp;
+    #define WDT_WINDOW2_bp WDT_WINDOW_2_bp; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(WDT_WINDOW_3_bm) && defined(WDT_WINDOW3_bm)
     #define WDT_WINDOW_3_bm WDT_WINDOW3_bm
   #elif defined(WDT_WINDOW_3_bm)
-    deprecated_constant_name WDT_WINDOW3_bm = WDT_WINDOW_3_bm;
+    #define WDT_WINDOW3_bm WDT_WINDOW_3_bm; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(WDT_WINDOW_3_bp) && defined(WDT_WINDOW3_bp)
     #define WDT_WINDOW_3_bp WDT_WINDOW3_bp
   #elif defined(WDT_WINDOW_3_bp)
-    deprecated_constant_name WDT_WINDOW3_bp = WDT_WINDOW_3_bp;
+    #define WDT_WINDOW3_bp WDT_WINDOW_3_bp; //Deprecated as of Q2 2022 header change
   #endif
 
   /* ======= ZCD ======= */
   #if !defined(ZCD_INTMODE_0_bm) && defined(ZCD_INTMODE0_bm)
     #define ZCD_INTMODE_0_bm ZCD_INTMODE0_bm
   #elif defined(ZCD_INTMODE_0_bm)
-    deprecated_constant_name ZCD_INTMODE0_bm = ZCD_INTMODE_0_bm;
+    #define ZCD_INTMODE0_bm ZCD_INTMODE_0_bm; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(ZCD_INTMODE_0_bp) && defined(ZCD_INTMODE0_bp)
     #define ZCD_INTMODE_0_bp ZCD_INTMODE0_bp
   #elif defined(ZCD_INTMODE_0_bp)
-    deprecated_constant_name ZCD_INTMODE0_bp = ZCD_INTMODE_0_bp;
+    #define ZCD_INTMODE0_bp ZCD_INTMODE_0_bp; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(ZCD_INTMODE_1_bm) && defined(ZCD_INTMODE1_bm)
     #define ZCD_INTMODE_1_bm ZCD_INTMODE1_bm
   #elif defined(ZCD_INTMODE_1_bm)
-    deprecated_constant_name ZCD_INTMODE1_bm = ZCD_INTMODE_1_bm;
+    #define ZCD_INTMODE1_bm ZCD_INTMODE_1_bm; //Deprecated as of Q2 2022 header change
   #endif
   #if !defined(ZCD_INTMODE_1_bp) && defined(ZCD_INTMODE1_bp)
     #define ZCD_INTMODE_1_bp ZCD_INTMODE1_bp
   #elif defined(ZCD_INTMODE_1_bp)
-    deprecated_constant_name ZCD_INTMODE1_bp = ZCD_INTMODE_1_bp;
+    #define ZCD_INTMODE1_bp ZCD_INTMODE_1_bp; //Deprecated as of Q2 2022 header change
   #endif
 #endif /* this is the end of the backwards compatibility defines */
 #endif // end of core_devices

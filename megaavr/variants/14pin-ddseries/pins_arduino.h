@@ -41,23 +41,24 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PA1 (1)  // Not available if using HF crystal.
 // We aren't going to skip 6 pin numbers for PA2-PA6
 // No port B on any DD-series
-// No PC0 (2) on 14/20-pin
-#define PIN_PC1 (3)
-#define PIN_PC2 (4)
-#define PIN_PC3 (5)  //A31
-#define PIN_PD0 (6)  // phantom pin - because of it's position as the reference point for the start of the analog pins, we keep this one in the numbering.
+#define PIN_PC0 (8)  // NOT_A_PIN
+#define PIN_PC1 (9)
+#define PIN_PC2 (10)
+#define PIN_PC3 (11)  // A31
+#define PIN_PD0 (12)  // NOT_A_PIN
 // No PD1 (7)
 // No PD2 (8)
 // No PD3 (9)
-#define PIN_PD4 (10)
-#define PIN_PD5 (11)
-#define PIN_PD6 (12)
-#define PIN_PD7 (13)
+#define PIN_PD4 (16)
+#define PIN_PD5 (17)
+#define PIN_PD6 (18)
+#define PIN_PD7 (19)
 // No PF0-PF6 with < 28 pins - again because 6 pins being skipped, we are not putting a hole in the numbers here.
-#define PIN_PF6 (14) // RESET
-#define PIN_PF7 (15) // UPDI
+#define PIN_PF6 (20) // RESET
+#define PIN_PF7 (21) // UPDI
 
 #define FAKE_PIN_PD0
+#define FAKE_PIN_PC0
 
         /*##   ##   ###  ###  ###  ###
         #   # #  # #      #  #    #
@@ -65,10 +66,10 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     11
-#define NUM_ANALOG_INPUTS
-// #define NUM_RESERVED_PINS            0     // These may at your option be defined,
-// #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
+#define PINS_COUNT                     (11)
+#define NUM_ANALOG_INPUTS              ( 4)
+// #define NUM_RESERVED_PINS           ( 0)    // These may at your option be defined,
+// #define NUM_INTERNALLY_USED_PINS    ( 0)    // They will be filled in with defaults otherwise
 // Autocalculated are :
 // NUM_DIGITAL_PINS and NUM_TOTAL_PINS = highest number of any valid pin. NOT the number of pins!
 // TOTAL_FREE_OPINS = PINS_COUNT - NUM_INTERNALLY_USED_PINS
@@ -90,12 +91,25 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   #  ### #  #   ###   ##*/
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
-
-#define digitalPinToAnalogInput(p)        ((p) >= PIN_PD0 ? ((p) < PIN_PF6) ? (p) - PIN_PD0 : NOT_A_PIN) : ((p) >= PIN_PC1 ? (p) + 27 : NOT_A_PIN)  // (analog pins are PD4~7 and PC1~3)
-#define analogChannelToDigitalPin(p)      ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 28 ? (p) + 27 :  NOT_A_PIN))
+#if !defined(USING_BOOTLOADER) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
+  #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
+    #define IS_MVIO_ENABLED()             (1)
+    #define digitalPinToAnalogInput(p)    (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : NOT_A_PIN)
+    #define analogChannelToDigitalPin(p)  (((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : NOT_A_PIN) : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN))
+  #else
+    #define IS_MVIO_ENABLED()             (0)
+    #define digitalPinToAnalogInput(p)    (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) > PIN_PC0 && (p) <= PIN_PC3) ? (P) : ((p) - PIN_PC)
+    #define analogChannelToDigitalPin(p)  (((p) <  8       && (p) > 3       ) ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN)
+  #endif
+#else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
+  // strange indentation chosen intentionally to highlight symmetry
+  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
+  #define digitalPinToAnalogInput(p)      ((p) >= PIN_PD4           ?            ((p) > PIN_PD7 ? NOT_A_PIN : (p) - PIN_PD0) : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0) ? (p) + 20 : NOT_A_PIN)))
+  #define analogChannelToDigitalPin(p)    ((p) > (IS_MVIO_ENABLED() ? 27 : 31) || (p) != 28     ? NOT_A_PIN : (p) < 8        ? ( (p) + PIN_PD0) : ( (p) >      21                        ? (p) - 20 : NOT_A_PIN))
+#endif
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= PIN_PF7 && (p >= PIN_PD4 || p < PIN_PD0)) ? (p) : NOT_A_PIN))
-#define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PD ? PIN_PD0 : NOT_A_PIN))
+#define portToPinZero(port)               ((port) == PD ? PIN_PD0 : ((port)== PC ? PIN_PC0 : ((port)== PA ? PIN_PA0 : NOT_A_PIN)))
 
 
 // PWM pins
@@ -105,7 +119,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 // Timer pin mapping
-#define TCA0_PINS (PORTMUX_TCA0_PORTC_gc)     // EVERY option here sucks; this one gives us... 3 PWM channels...
+#define TCD0_PINS (PORTMUX_TCA0_PORTC_gc)     // EVERY option here sucks; this one gives us... 3 PWM channels...
 #define TCB0_PINS (0x00)                      // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
 #define TCB1_PINS (0x00)                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
 #define TCD0_PINS (PORTMUX_TCD0_PORTAD)       // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
@@ -309,7 +323,7 @@ static const uint8_t A31 = PIN_A31;
 const uint8_t digital_pin_to_port[] = {
   PA,         //  0 PA0/USART0_Tx/CLKIN
   PA,         //  1 PA1/USART0_Rx
-  NOT_A_PORT, //
+  PC,         //  2 PC0 Phantom pin
   PC,         //  3 PC1/USART1_Rx/TCA0 PWM
   PC,         //  4 PC2/TCA0 PWM
   PC,         //  5 PC3/TCA0 PWM

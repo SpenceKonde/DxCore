@@ -189,10 +189,12 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MISO           PIN_PA5
 #define PIN_SPI_SCK            PIN_PA6
 #define PIN_SPI_SS             PIN_PA7
+
 #define PIN_SPI_MOSI_PINSWAP_1 PIN_PE0
 #define PIN_SPI_MISO_PINSWAP_1 PIN_PE1
 #define PIN_SPI_SCK_PINSWAP_1  PIN_PE2
 #define PIN_SPI_SS_PINSWAP_1   PIN_PE3
+
 #define PIN_SPI_MOSI_PINSWAP_2 PIN_PG4
 #define PIN_SPI_MISO_PINSWAP_2 PIN_PG5
 #define PIN_SPI_SCK_PINSWAP_2  PIN_PG6
@@ -207,10 +209,12 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI1_MISO           PIN_PC1
 #define PIN_SPI1_SCK            PIN_PC2
 #define PIN_SPI1_SS             PIN_PC3
+
 #define PIN_SPI1_MOSI_PINSWAP_1 PIN_PC4
 #define PIN_SPI1_MISO_PINSWAP_1 PIN_PC5
 #define PIN_SPI1_SCK_PINSWAP_1  PIN_PC6
 #define PIN_SPI1_SS_PINSWAP_1   PIN_PC7
+
 #define PIN_SPI1_MOSI_PINSWAP_2 PIN_PB4
 #define PIN_SPI1_MISO_PINSWAP_2 PIN_PB5
 #define PIN_SPI1_SCK_PINSWAP_2  PIN_PB6

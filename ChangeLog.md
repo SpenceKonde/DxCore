@@ -12,7 +12,7 @@ These items are in addition to what was listed under changes already in release.
 
 #### Enhancements Planned for 1.5.x
 * Add pinout charts for the DD-series that don't look like they made by an untalented failure in microsoft paint. Because that's what we're going to get in 1.5.0 it looks like. They'll look even uglier than the mess I made out of the DB and DA-series diagrams. Sorry guys, I don't have the artistic talent.
-* Third version of wire in the last 4 weeks or so, as we try to 
+* Third version of wire in the last 4 weeks or so, as we try to
 
 #### Enhancements Planned for 1.5.0
 * Change class hierarchy for UART class to eliminate most virtual functions and allow for vastly signficant flash size reduction since unusued virtual functions now don't have to exist. (This was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints and analysis relating to the fact that the original version of Wire wouldn't fit into a 4k 8-pin part), so that rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) as UartClass, we instead simply subclass Stream directly. UART.h will be renamed to HardwareSerial.h, HardwareSerial.h (a compatibility layer) will be renamed to UART.h and the latter adjusted to #define UartClass as HardwareSerial, and api/HardwareSerial.h will be gutted and simply #include "../HardwareSerial.h" and contain comments jutifyingthis flagrant disrespect for the API. ArduinoAPI was sort of disasterous for low resource parts like AVRs.
@@ -31,7 +31,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Fix bug with Wire.h complaining inappropriately about ambiguous types.
 * Enable support for alternate TCD pins based on portmux for DD where this works.
 * Update event library to latest version from megaTinyCore
-* New Toolchain version: ~Azduino5~ Azduino5 was no good, so Azduino6 for DD supportDs
+* New Toolchain version: ~Azduino5~ Azduino5 was no good, so Azduino6 for DD support
   * Required changes because of Microchip having renamed a bunch of registers >.<
   * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
   * Adds support for 32k and 16k DD-series parts.
@@ -43,6 +43,13 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Complete rewrite of the logic used to determine which timer and pins on TCA0 and TCA1 are used for PWM
 * Implement generic autobaud for Serial and some associated functionality.
 * Fix serial receive issue.
+
+### Thus far implemented in 1.5.0
+* Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this has little impact on actual behavior)
+* Correct issue with the menu options for AVR DD-series parts, which resulting in burn bootloader bricking these chips to all who don't have an NV UPDI programmer, of which I belive only one is currently available, from Microchip, for an arm and a leg.
+  * Special thanks to the folks who reported this before I had a chance to brick any of my own hardware!
+* Improvements for menu options for all boards.
+*
 
 
 ## Version History

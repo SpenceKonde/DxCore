@@ -1,7 +1,15 @@
 #ifndef __CORE_PARAMETERS_H__
 #define __CORE_PARAMETERS_H__
 
-#if !(defined(DXCORE) || defined(MEGATINYCORE) || defined(ATTIYNCORE))
+#if !defined(DXCORE_NUM)
+  #if !(defined(DXCORE_MAJOR) && defined(DXCORE_MINOR) && defined(DXCORE_PATCH) && defined(DXCORE_RELEASED))
+    #warning "All of the version defines are missing, please correct your build environment; it is likely failing to define other critical values"
+    // Version related defines now handled in platform.txt
+  #else
+    #define DXCORE_NUM ((DXCORE_MAJOR << 24) + (DXCORE_MINOR << 16) + (DXCORE_PATCH << 8) + DXCORE_RELEASED)
+  #endif
+#endif
+#if !(defined(MEGATINYCORE) || defined(DXCORE) || defined(ATTIYNCORE))
 
   // This define can get black-hole'ed somehow (reported on platformio) likely the ugly syntax to pass a string define from platform.txt via a -D
   // directive passed to the compiler is getting mangled somehow, though I'm amazed it doesn't cause a  compile error. But checking for defined(DXCore)

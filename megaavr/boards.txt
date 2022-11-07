@@ -60,12 +60,12 @@ menu.bodvoltage=BOD level if enabled (Bootload burn req'd)
 menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
 menu.eesave=Save EEPROM
 menu.eesavedd=Save EEPROM (Bootload burn req'd)
-menu.resetpin=Reset pin function
+menu.resetpin=Reset pin function (Bootload burn req'd)
 menu.resetupdipins=Reset and UPDI pin functions (Bootload burn req'd)
-menu.startuptime=Startup Time
+menu.startuptime=Startup Time (Bootload burn req'd)
 menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
-menu.timeout=Bootloader Timeout (Bootload burn req'd)
-menu.appspm=Flash Writing
+menu.entrycond=Bootloader Entry Condition (Bootload burn req'd)
+menu.appspm=Write to flash from app
 menu.mvio=MultiVoltage I/O (MVIO)
 menu.mvioopti=MultiVoltage I/O (MVIO) - (bootloader burn req'd)
 menu.attach=attachInterrupt() Version
@@ -90,7 +90,6 @@ avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
 #avrea.name=AVR EA-series (no bootloader)
-microchip.name=Microchip Curiosity Nano
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
 avrddopti.name=AVR DD-series (Optiboot)
@@ -356,7 +355,6 @@ avrda.menu.millis.tcb3=TCB3 (48/64-pin parts only)
 avrda.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrda.menu.millis.tca0=TCA0
 avrda.menu.millis.tca1=TCA1 (48/64-pin parts only)
-#avrda.menu.millis.tcd0=TCD0
 avrda.menu.millis.tcb0.build.millistimer=B0
 avrda.menu.millis.tcb1.build.millistimer=B1
 avrda.menu.millis.tcb2.build.millistimer=B2
@@ -364,7 +362,6 @@ avrda.menu.millis.tcb3.build.millistimer=B3
 avrda.menu.millis.tcb4.build.millistimer=B4
 avrda.menu.millis.tca0.build.millistimer=A0
 avrda.menu.millis.tca1.build.millistimer=A1
-#avrda.menu.millis.tcd0.build.millistimer=D0
 avrda.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -430,40 +427,46 @@ avrda.menu.wiremode.mands2.build.wireabr=.wA2
 #----------------------------------------#
 # SPM (writing flash from app)           #
 #________________________________________#
-avrda.menu.appspm.no=Disabled
+avrda.menu.appspm.no=Disabled (Always use this if not writing flash from app)
 avrda.menu.appspm.no.bootloader.appspm=
 avrda.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avrda.menu.appspm.no.build.appspmabr=
-avrda.menu.appspm.full=Anywhere
+avrda.menu.appspm.full=Anywhere after 0x0200 (Warning: App allowed to overwrite itself)
 avrda.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrda.menu.appspm.full.build.appspmabr=.spmALL
-avrda.menu.appspm.16plus=Above 16k
+avrda.menu.appspm.16plus=Above 0x4000
 avrda.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrda.menu.appspm.16plus.bootloader.CODESIZE=32
-avrda.menu.appspm.24plus=Above 24k
+avrda.menu.appspm.24plus=Above 0x6000
 avrda.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrda.menu.appspm.24plus.bootloader.CODESIZE=48
-avrda.menu.appspm.32plus=Above 32k (AVR128/64 only)
+avrda.menu.appspm.32plus=Above 0x8000 (AVR128/64 only, All mapped flash on AVR64 writable)
 avrda.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrda.menu.appspm.32plus.bootloader.CODESIZE=64
-avrda.menu.appspm.48plus=Above 48k (AVR128/64 only)
+avrda.menu.appspm.48plus=Above 0xC000 (AVR128/64 only)
 avrda.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrda.menu.appspm.48plus.bootloader.CODESIZE=96
-avrda.menu.appspm.56plus=Above 56k (AVR128/64 only)
+avrda.menu.appspm.56plus=Above 0xD000 (AVR128/64 only)
 avrda.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
 avrda.menu.appspm.56plus.bootloader.CODESIZE=112
-avrda.menu.appspm.64plus=Above 64k (AVR128 only)
+avrda.menu.appspm.60plus=Above 0xE000 (AVR128/64 only)
+avrda.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
+avrda.menu.appspm.60plus.bootloader.CODESIZE=120
+avrda.menu.appspm.64plus=Above 0x10000 (AVR128 only)
 avrda.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
 avrda.menu.appspm.64plus.bootloader.CODESIZE=128
-avrda.menu.appspm.80plus=Above 80k (AVR128 only)
+avrda.menu.appspm.80plus=Above 0x14000 (AVR128 only)
 avrda.menu.appspm.80plus.bootloader.appspm=-DSPM_FROM_APP=160
 avrda.menu.appspm.80plus.bootloader.CODESIZE=160
-avrda.menu.appspm.96plus=Above 96k (AVR128 only, where it allows write of whole mapped part of flash)
+avrda.menu.appspm.96plus=Above 0x18000 (AVR128 only, where it allows write of all mapped flash)
 avrda.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
 avrda.menu.appspm.96plus.bootloader.CODESIZE=192
-avrda.menu.appspm.112plus=Above 112k (AVR128 only)
+avrda.menu.appspm.112plus=Above 0x1C000 (AVR128 only)
 avrda.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrda.menu.appspm.112plus.bootloader.CODESIZE=224
+avrda.menu.appspm.120plus=Above 0x1E000
+avrda.menu.appspm.120plus.bootloader.appspm=-DSPM_FROM_APP=240
+avrda.menu.appspm.120plus.bootloader.CODESIZE=240
 
 
 ##########################################################################
@@ -480,11 +483,11 @@ avrda.menu.appspm.112plus.bootloader.CODESIZE=224
 avrdb.upload.tool=avrdude
 avrdb.upload.prog_interlock=
 avrdb.build.board=avrdb
-avrdb.build.MVIOenable=-DMVIO_ENABLED
+avrdb.build.mvioenable=-DMVIO_ENABLED
 avrdb.build.core=dxcore
 avrdb.build.f_cpu={build.speed}000000L
 avrdb.build.text_section_start=.text=0x0
-avrdb.build.extra_flags= {bootloader.appspm} {build.MVIOenable}
+avrdb.build.extra_flags= {bootloader.appspm} {build.mvioenable}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 avrdb.build.printf=
@@ -727,7 +730,7 @@ avrdb.menu.eesave.disable.bootloader.eesavebit=0
 #________________________________________#
 avrdb.menu.resetpin.reset=Hardware Reset (recommended)
 avrdb.menu.resetpin.reset.bootloader.resetpinbits=10
-avrdb.menu.resetpin.input=Input (no output, ever)
+avrdb.menu.resetpin.input=Input
 avrdb.menu.resetpin.input.bootloader.resetpinbits=00
 
 #----------------------------------------#
@@ -741,7 +744,6 @@ avrdb.menu.millis.tcb3=TCB3 (48/64-pin parts only)
 avrdb.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrdb.menu.millis.tca0=TCA0
 avrdb.menu.millis.tca1=TCA1 (48/64-pin parts only)
-#avrdb.menu.millis.tcd0=TCD0
 avrdb.menu.millis.tcb0.build.millistimer=B0
 avrdb.menu.millis.tcb1.build.millistimer=B1
 avrdb.menu.millis.tcb2.build.millistimer=B2
@@ -749,7 +751,6 @@ avrdb.menu.millis.tcb3.build.millistimer=B3
 avrdb.menu.millis.tcb4.build.millistimer=B4
 avrdb.menu.millis.tca0.build.millistimer=A0
 avrdb.menu.millis.tca1.build.millistimer=A1
-#avrdb.menu.millis.tcd0.build.millistimer=D0
 avrdb.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -781,10 +782,10 @@ avrdb.menu.attach.oldversion.build.attachabr=.aOld
 #________________________________________#
 avrdb.menu.mvio.enabled=Enabled
 avrdb.menu.mvio.enabled.bootloader.mviobits=01
-avrdb.memu.mvio.enabled.build.MVIOenable=-DMVIO_ENABLED
+avrdb.menu.mvio.enabled.build.mvioenable=-DMVIO_ENABLED
 avrdb.menu.mvio.disabled=Disabled
 avrdb.menu.mvio.disabled.bootloader.mviobits=10
-avrdb.memu.mvio.disabled.build.MVIOenable=
+avrdb.menu.mvio.disabled.build.mvioenable=
 
 #----------------------------------------#
 # Startup time options                   #
@@ -826,37 +827,46 @@ avrdb.menu.wiremode.mands2.build.wireabr=.wA2
 #----------------------------------------#
 # SPM (writing flash from app)           #
 #________________________________________#
-avrdb.menu.appspm.no=Disabled
+avrdb.menu.appspm.no=Disabled (Always use this if not writing flash from app)
 avrdb.menu.appspm.no.bootloader.appspm=
-avrdb.menu.appspm.no.build.appspmabr=
 avrdb.menu.appspm.no.bootloader.BOOTSIZE=0x00
-avrdb.menu.appspm.full=Anywhere
+avrdb.menu.appspm.no.build.appspmabr=
+avrdb.menu.appspm.full=Anywhere after 0x0200 (Warning: App allowed to overwrite itself)
 avrdb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrdb.menu.appspm.full.build.appspmabr=.spmALL
-avrdb.menu.appspm.16plus=Above 16k
+avrdb.menu.appspm.16plus=Above 0x4000
 avrdb.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdb.menu.appspm.16plus.bootloader.CODESIZE=32
-avrdb.menu.appspm.24plus=Above 24k
+avrdb.menu.appspm.24plus=Above 0x6000
 avrdb.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrdb.menu.appspm.24plus.bootloader.CODESIZE=48
-avrdb.menu.appspm.32plus=Above 32k (AVR128/64 only)
+avrdb.menu.appspm.32plus=Above 0x8000 (AVR128/64 only, All mapped flash on AVR64 writable)
 avrdb.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrdb.menu.appspm.32plus.bootloader.CODESIZE=64
-avrdb.menu.appspm.48plus=Above 48k (AVR128/64 only)
+avrdb.menu.appspm.48plus=Above 0xC000 (AVR128/64 only)
 avrdb.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrdb.menu.appspm.48plus.bootloader.CODESIZE=96
-avrdb.menu.appspm.56plus=Above 56k (AVR128/64 only)
+avrdb.menu.appspm.56plus=Above 0xD000 (AVR128/64 only)
 avrdb.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
 avrdb.menu.appspm.56plus.bootloader.CODESIZE=112
-avrdb.menu.appspm.64plus=Above 64k (AVR128 only)
+avrdb.menu.appspm.60plus=Above 0xE000 (AVR128/64 only)
+avrdb.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
+avrdb.menu.appspm.60plus.bootloader.CODESIZE=120
+avrdb.menu.appspm.64plus=Above 0x10000 (AVR128 only)
 avrdb.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
 avrdb.menu.appspm.64plus.bootloader.CODESIZE=128
-avrdb.menu.appspm.96plus=Above 96k (AVR128 only - allows write of whole mapped flash area.)
+avrdb.menu.appspm.80plus=Above 0x14000 (AVR128 only)
+avrdb.menu.appspm.80plus.bootloader.appspm=-DSPM_FROM_APP=160
+avrdb.menu.appspm.80plus.bootloader.CODESIZE=160
+avrdb.menu.appspm.96plus=Above 0x18000 (AVR128 only, where it allows write of all mapped flash)
 avrdb.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
 avrdb.menu.appspm.96plus.bootloader.CODESIZE=192
-avrdb.menu.appspm.112plus=Above 112k (AVR128 only)
+avrdb.menu.appspm.112plus=Above 0x1C000 (AVR128 only)
 avrdb.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
+avrdb.menu.appspm.120plus=Above 0x1E000
+avrdb.menu.appspm.120plus.bootloader.appspm=-DSPM_FROM_APP=240
+avrdb.menu.appspm.120plus.bootloader.CODESIZE=240
 
 ##########################################################################
 #                                                                        #
@@ -872,11 +882,11 @@ avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
 avrdd.upload.tool=avrdude
 avrdd.upload.prog_interlock=
 avrdd.build.board=avrdd
-avrdd.build.MVIOenable=-DMVIO_ENABLED
+avrdd.build.mvioenable=-DMVIO_ENABLED
 avrdd.build.core=dxcore
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
-avrdd.build.extra_flags= {bootloader.appspm} {build.MVIOenable}
+avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable}
 avrdd.build.export_merged_output=false
 avrdd.build.highestcb=B2
 avrdd.build.printf=
@@ -914,16 +924,16 @@ avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
 #________________________________________#
 avrdd.menu.chip.avr64dd32=AVR64DD32
 avrdd.menu.chip.avr64dd28=AVR64DD28
-avrdd.menu.chip.avr32dd20=AVR32DD20
-avrdd.menu.chip.avr32dd14=AVR32DD14
-avrdd.menu.chip.avr16dd20=AVR16DD20
-avrdd.menu.chip.avr16dd14=AVR16DD14
 avrdd.menu.chip.avr64dd20=AVR64DD20
 avrdd.menu.chip.avr64dd14=AVR64DD14
 avrdd.menu.chip.avr32dd32=AVR32DD32
 avrdd.menu.chip.avr32dd28=AVR32DD28
+avrdd.menu.chip.avr32dd20=AVR32DD20
+avrdd.menu.chip.avr32dd14=AVR32DD14
 avrdd.menu.chip.avr16dd32=AVR16DD32
 avrdd.menu.chip.avr16dd28=AVR16DD28
+avrdd.menu.chip.avr16dd20=AVR16DD20
+avrdd.menu.chip.avr16dd14=AVR16DD14
 avrdd.menu.chip.avr64dd32.build.mcu=avr64dd32
 avrdd.menu.chip.avr64dd32.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd32.upload.maximum_data_size=8192
@@ -1131,14 +1141,14 @@ avrdd.menu.eesavedd.disable.bootloader.eesavebit=0
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
 #________________________________________#
-avrdd.menu.resetupdipins.reset=PF6: Reset & PF7: UPDI
-avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=11
-avrdd.menu.resetupdipins.input=PF6: Input & UPDI (no challenges)
-avrdd.menu.resetupdipins.input.bootloader.resetpinbits=10
-avrdd.menu.resetupdipins.reset=PF6: Reset & GPIO (DD-compatible HV UPDI required)
-avrdd.menu.resetupdipins.reset.bootloader.resetpinbits=01
-avrdd.menu.resetupdipins.input=PF6: Input & GPIO (DD-compatible HV UPDI required)
-avrdd.menu.resetupdipins.input.bootloader.resetpinbits=00
+avrdd.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
+avrdd.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
+avrdd.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no programming challenges)
+avrdd.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
+avrdd.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (DD-compatible HV UPDI required)
+avrdd.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
+avrdd.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (DD-compatible HV UPDI required)
+avrdd.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -1154,7 +1164,6 @@ avrdd.menu.millis.tcb0.build.millistimer=B0
 avrdd.menu.millis.tcb1.build.millistimer=B1
 avrdd.menu.millis.tcb2.build.millistimer=B2
 avrdd.menu.millis.tca0.build.millistimer=A0
-#avrdd.menu.millis.tcd0.build.millistimer=D0
 avrdd.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -1186,10 +1195,10 @@ avrdd.menu.attach.oldversion.build.attachabr=.aOld
 #________________________________________#
 avrdd.menu.mvio.enabled=Enabled
 avrdd.menu.mvio.enabled.bootloader.mviobits=01
-avrdd.memu.mvio.enabled.build.MVIOenable=-DMVIO_ENABLED
+avrdd.menu.mvio.enabled.build.mvioenable=-DMVIO_ENABLED
 avrdd.menu.mvio.disabled=Disabled
 avrdd.menu.mvio.disabled.bootloader.mviobits=10
-avrdd.memu.mvio.disabled.build.MVIOenable=
+avrdd.menu.mvio.disabled.build.mvioenable=
 
 #----------------------------------------#
 # Startup time options                   #
@@ -1226,34 +1235,43 @@ avrdd.menu.wiremode.mands.build.wireabr=.wA
 #         SPM from app mode           #
 # To enable writing flash from app    #
 #_____________________________________#
-avrdd.menu.appspm.no=Disabled
+avrdd.menu.appspm.no=Disabled (Always use this if not writing flash from app)
 avrdd.menu.appspm.no.bootloader.appspm=
 avrdd.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avrdd.menu.appspm.no.build.appspmabr=
-avrdd.menu.appspm.full=Anywhere
+avrdd.menu.appspm.full=Anywhere after 0x0200 (Warning: App allowed to overwrite itself)
 avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrdd.menu.appspm.full.build.appspmabr=.spmALL
-avrdd.menu.appspm.8plus=Above 8k (Not recommended except for AVR16)
+avrdd.menu.appspm.8plus=Above 8k (probably a bad idea except on AVR16)
 avrdd.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=16
 avrdd.menu.appspm.8plus.bootloader.CODESIZE=16
-avrdd.menu.appspm.12plus=Above 12k (Not recommended except for AVR16)
+avrdd.menu.appspm.12plus=Above 12k (probably a bad idea except on AVR16)
 avrdd.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=24
 avrdd.menu.appspm.12plus.bootloader.CODESIZE=24
-avrdd.menu.appspm.16plus=Above 16k (AVR64/32 only)
+avrdd.menu.appspm.14plus=Above 14k (probably a bad idea except on AVR16)
+avrdd.menu.appspm.14plus.bootloader.appspm=-DSPM_FROM_APP=28
+avrdd.menu.appspm.14plus.bootloader.CODESIZE=28
+avrdd.menu.appspm.16plus=Above 16k (AVR64/32 only, probably a bad idea except on AVR32)
 avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
-avrdd.menu.appspm.24plus=Above 24k (AVR64/32 only)
+avrdd.menu.appspm.24plus=Above 24k (AVR64/32 only, probably a bad idea except on AVR32)
 avrdd.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrdd.menu.appspm.24plus.bootloader.CODESIZE=48
-avrdd.menu.appspm.32plus=Above 32k (AVR64 only)
+avrdd.menu.appspm.28plus=Above 28k (AVR64/32 only, probably a bad idea except on AVR32)
+avrdd.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=56
+avrdd.menu.appspm.28plus.bootloader.CODESIZE=56
+avrdd.menu.appspm.32plus=Above 32k (AVR64 only all mapped flash writable 0x8000)
 avrdd.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrdd.menu.appspm.32plus.bootloader.CODESIZE=64
-avrdd.menu.appspm.48plus=Above 48k (AVR64 only)
+avrdd.menu.appspm.48plus=Above 48k (AVR64 only all mapped flash writable 0xC000)
 avrdd.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrdd.menu.appspm.48plus.bootloader.CODESIZE=96
 avrdd.menu.appspm.56plus=Above 56k (AVR64 only)
 avrdd.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
 avrdd.menu.appspm.56plus.bootloader.CODESIZE=112
+avrdd.menu.appspm.60plus=Above 60k (AVR64 only)
+avrdd.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
+avrdd.menu.appspm.60plus.bootloader.CODESIZE=120
 
 ##########################################################################
 #                                                                        #
@@ -1526,13 +1544,13 @@ avrdd.build.appspmabr=
 #  Values speculative                #
 #  Features Known                    #
 #____________________________________#
-#avrea.menu.resetupdipins.resetupdi=Reset & UPDI
+#avrea.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
 #avrea.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
-#avrea.menu.resetupdipins.inputupdi=Input & UPDI (no challenges)
+#avrea.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
 #avrea.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
-#avrea.menu.resetupdipins.resetgpio=Reset & GPIO (HV pulse RST for UPDI)
+#avrea.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (DD/EA-compatible HV UPDI required)
 #avrea.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
-#avrea.menu.resetupdipins.inputgpio=Input & GPIO (HV pulse RST for UPDI)
+#avrea.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (DD/EA-compatible HV UPDI required)
 #avrea.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
 
 #----------------------------------------#
@@ -1645,7 +1663,9 @@ avrdaopti.build.printf=
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdaopti.bootloader.tool=avrdude
-avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
+avrdaopti.bootloader.defaultentrycond=_extrf
+avrdaopti.bootloader.entrycond={bootloader.defaultentrycond}
+avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}{bootloader.timeout}.hex
 avrdaopti.bootloader.WDTCFG=0x00
 avrdaopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
@@ -1854,10 +1874,27 @@ avrdaopti.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Reset pin as input option              #
 #________________________________________#
-avrdaopti.menu.resetpin.reset=Hardware Reset (recommended)
+avrdaopti.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & SW resets, 1 sec timeout)
+avrdaopti.menu.resetpin.reset.bootloader.defaultentrycond=_extr
 avrdaopti.menu.resetpin.reset.bootloader.resetpinbits=10
-avrdaopti.menu.resetpin.input=Input (no output, ever)
+avrdaopti.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
+avrdaopti.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
 avrdaopti.menu.resetpin.input.bootloader.resetpinbits=00
+
+#----------------------------------------#
+# Optiboot Entry Conditions              #
+#________________________________________#
+avrdaopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
+avrdaopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
+avrdaopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
+avrdaopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+avrdaopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code will not run bootloader, forcing UPDI to reprogram)
+avrdaopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
+avrdaopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrdaopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
+avrdaopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
+avrdaopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
+avrdaopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -1870,7 +1907,6 @@ avrdaopti.menu.millis.tcb3=TCB3 (48/64-pin parts only)
 avrdaopti.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrdaopti.menu.millis.tca0=TCA0
 avrdaopti.menu.millis.tca1=TCA1 (48/64-pin parts only)
-#avrdaopti.menu.millis.tcd0=TCD0
 avrdaopti.menu.millis.tcb0.build.millistimer=B0
 avrdaopti.menu.millis.tcb1.build.millistimer=B1
 avrdaopti.menu.millis.tcb2.build.millistimer=B2
@@ -1878,7 +1914,6 @@ avrdaopti.menu.millis.tcb3.build.millistimer=B3
 avrdaopti.menu.millis.tcb4.build.millistimer=B4
 avrdaopti.menu.millis.tca0.build.millistimer=A0
 avrdaopti.menu.millis.tca1.build.millistimer=A1
-#avrdaopti.menu.millis.tcd0.build.millistimer=D0
 avrdaopti.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -1940,14 +1975,6 @@ avrdaopti.menu.wiremode.mors2.build.wireabr=.wO2
 avrdaopti.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdaopti.menu.wiremode.mands2.build.wire.mode=MANDS_BOTH
 avrdaopti.menu.wiremode.mands2.build.wireabr=.wA2
-
-#----------------------------------------#
-# Optiboot upload timeout                #
-#________________________________________#
-avrdaopti.menu.timeout.1sec=1 second (for use w/autoreset)
-avrdaopti.menu.timeout.1sec.bootloader.timeout=
-avrdaopti.menu.timeout.8sec=8 second (for use w/out autoreset)
-avrdaopti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 #----------------------------------------#
 # Optiboot serial port                   #
@@ -2015,11 +2042,11 @@ avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 # Parameters and defaults for DB parts   #
 #________________________________________#
 avrdbopti.build.board=avrdb
-avrdbopti.build.MVIOenable=-DMVIO_ENABLED
+avrdbopti.build.mvioenable=-DMVIO_ENABLED
 avrdbopti.build.core=dxcore
 avrdbopti.build.f_cpu={build.speed}000000L
 avrdbopti.build.text_section_start=.text=0x200
-avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.MVIOenable}
+avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable}
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.printf=
 
@@ -2027,17 +2054,17 @@ avrdbopti.build.printf=
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdbopti.bootloader.tool=avrdude
-avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
+avrdbopti.bootloader.defaultentrycond=_extrf
+avrdbopti.bootloader.entrycond={bootloader.defaultentrycond}
+avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}{bootloader.timeout}.hex
 avrdbopti.bootloader.WDTCFG=0x00
 avrdbopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
-#avrdbopti.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrdbopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
-
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -2045,7 +2072,7 @@ avrdbopti.upload.tool=avrdude
 avrdbopti.upload.protocol=arduino
 avrdbopti.upload.extra_params=-D
 avrdbopti.upload.speed=115200
-avrdbopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards"
+avrdbopti.upload.prog_interlock="ERROR: Upload using programmer is not supported on optiboot boards as it is guaranteed run correctly"
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -2272,10 +2299,27 @@ avrdbopti.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Reset pin as input option              #
 #________________________________________#
-avrdbopti.menu.resetpin.reset=Hardware Reset (recommended)
+avrdbopti.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & SW resets, 1 sec timeout)
+avrdbopti.menu.resetpin.reset.bootloader.defaultentrycond=_extr
 avrdbopti.menu.resetpin.reset.bootloader.resetpinbits=10
-avrdbopti.menu.resetpin.input=Input (no output, ever)
+avrdbopti.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
+avrdbopti.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
 avrdbopti.menu.resetpin.input.bootloader.resetpinbits=00
+
+#----------------------------------------#
+# Optiboot Entry Conditions              #
+#________________________________________#
+avrdbopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
+avrdbopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
+avrdbopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug)
+avrdbopti.menu.entrycond.all=Always: Every reset except a WDT reset or BOD reset w/out POR, 8 second timeout
+avrdbopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code will not run bootloader, forcing UPDI to reprogram)
+avrdbopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset)
+avrdbopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrdbopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
+avrdbopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
+avrdbopti.menu.entrycond.swr.bootloader.entrycond=_swr_8sec
+avrdbopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -2288,7 +2332,6 @@ avrdbopti.menu.millis.tcb3=TCB3 (48/64-pin parts only)
 avrdbopti.menu.millis.tcb4=TCB4 (64-pin parts only)
 avrdbopti.menu.millis.tca0=TCA0
 avrdbopti.menu.millis.tca1=TCA1 (48/64-pin parts only)
-#avrdbopti.menu.millis.tcd0=TCD0
 avrdbopti.menu.millis.tcb0.build.millistimer=B0
 avrdbopti.menu.millis.tcb1.build.millistimer=B1
 avrdbopti.menu.millis.tcb2.build.millistimer=B2
@@ -2296,7 +2339,6 @@ avrdbopti.menu.millis.tcb3.build.millistimer=B3
 avrdbopti.menu.millis.tcb4.build.millistimer=B4
 avrdbopti.menu.millis.tca0.build.millistimer=A0
 avrdbopti.menu.millis.tca1.build.millistimer=A1
-#avrdbopti.menu.millis.tcd0.build.millistimer=D0
 avrdbopti.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
@@ -2327,16 +2369,16 @@ avrdbopti.menu.attach.oldversion.build.attachabr=.aOld
 #________________________________________#
 avrdbopti.menu.mvioopti.enabled=Enabled
 avrdbopti.menu.mvioopti.enabled.bootloader.mviobits=01
-avrdbopti.memu.mvioopti.enabled.build.MVIOenable=-DMVIO_ENABLED
+avrdbopti.menu.mvioopti.enabled.build.mvioenable=-DMVIO_ENABLED
 avrdbopti.menu.mvioopti.disabled=Disabled
 avrdbopti.menu.mvioopti.disabled.bootloader.mviobits=10
-avrdbopti.memu.mvioopti.disabled.build.MVIOenable=
-avrdbopti.menu.mvioopti.reallyenabled=Enabled and "burn bootloader" has for sure done w/this selected.
+avrdbopti.menu.mvioopti.disabled.build.mvioenable=
+avrdbopti.menu.mvioopti.reallyenabled=Enabled. Assume that "burn bootloader" has been performed with this option.
 avrdbopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
-avrdbopti.memu.mvioopti.reallyenabled.build.MVIOenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
-avrdbopti.menu.mvioopti.reallydisabled=Disabled and "burn bootloader" has for sure been done w/this selected.
+avrdbopti.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+avrdbopti.menu.mvioopti.reallydisabled=Disabled. Assume that "burn bootloader" has been performed with this option.
 avrdbopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
-avrdbopti.memu.mvioopti.reallydisabled.build.MVIOenable=-DASSUME_MVIO_FUSE
+avrdbopti.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
 
 #----------------------------------------#
 # Startup time options                   #
@@ -2374,15 +2416,6 @@ avrdbopti.menu.wiremode.mors2.build.wireabr=.wO2
 avrdbopti.menu.wiremode.mands2=2x Wire, Master and Slave (not available on 28-pin devices)
 avrdbopti.menu.wiremode.mands2.build.wire.mode=MANDS_BOTH
 avrdbopti.menu.wiremode.mands2.build.wireabr=.wA2
-
-
-#----------------------------------------#
-# Optiboot upload timeout                #
-#________________________________________#
-avrdbopti.menu.timeout.1sec=1 second (for use w/autoreset)
-avrdbopti.menu.timeout.1sec.bootloader.timeout=
-avrdbopti.menu.timeout.8sec=8 second (for use w/out autoreset)
-avrdbopti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 #----------------------------------------#
 # Optiboot serial port                   #
@@ -2450,11 +2483,11 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 # Parameters and defaults for DD parts   #
 #________________________________________#
 avrddopti.build.board=avrdd
-avrddopti.build.MVIOenable=-DMVIO_ENABLED
+avrddopti.build.mvioenable=-DMVIO_ENABLED
 avrddopti.build.core=dxcore
 avrddopti.build.f_cpu={build.speed}000000L
 avrddopti.build.text_section_start=.text=0x200
-avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable>}
+avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable}
 avrddopti.build.export_merged_output=false
 avrddopti.build.highestcb=B2
 avrddopti.build.printf=
@@ -2463,7 +2496,7 @@ avrddopti.build.printf=
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrddopti.bootloader.tool=avrdude
-avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.timeout}.hex
+avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}{bootloader.timeout}.hex
 avrddopti.bootloader.WDTCFG=0x00
 avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
@@ -2724,14 +2757,33 @@ avrddopti.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
 #________________________________________#
-avrddopti.menu.resetupdipinsopti.reset=Reset & UPDI
-avrddopti.menu.resetupdipinsopti.reset.bootloader.resetpinbits=11
-avrddopti.menu.resetupdipinsopti.input=Input & UPDI (no reset to enter optiboot)
-avrddopti.menu.resetupdipinsopti.input.bootloader.resetpinbits=10
-avrddopti.menu.resetupdipinsopti.reset=Reset & GPIO (HV pulse RST for UPDI)
-avrddopti.menu.resetupdipinsopti.reset.bootloader.resetpinbits=01
-avrddopti.menu.resetupdipinsopti.input=Input & GPIO (no reset, HV pulse for UPDI)
-avrddopti.menu.resetupdipinsopti.input.bootloader.resetpinbits=00
+avrddopti.menu.resetupdipinsopti.resetupdi=PF6: Reset & PF7: UPDI (default boot entry on reset pin & SW resets, 1 sec timeout)
+avrddopti.menu.resetupdipinsopti.resetupdi.bootloader.defaultentrycond=_extr
+avrddopti.menu.resetupdipinsopti.resetupdi.bootloader.resetpinbits=11
+avrddopti.menu.resetupdipinsopti.inputupdi=PF6: Input & PF7: UPDI (default boot entry on power on & SW resets, 8 sec timeout)
+avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.defaultentrycond=_por_8sec
+avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.resetpinbits=10
+avrddopti.menu.resetupdipinsopti.resetgpio=PF6: Reset & PF7: GPIO (DD-compatible HV UPDI required, default boot entry on reset pin)
+avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.entrycond=_extr
+avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.resetpinbits=01
+avrddopti.menu.resetupdipinsopti.inputgpio=PF6: Input & PF7: GPIO (DD-compatible HV UPDI required, default boot entry on POR)
+avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.entrycond=_por_8sec
+avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.resetpinbits=00
+
+#----------------------------------------#
+# Optiboot Entry Conditions              #
+#________________________________________#
+avrddopti.menu.entrycond.default=Default
+avrddopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
+avrddopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug)
+avrddopti.menu.entrycond.all=Always: Every reset except a WDT reset or BOD reset w/out POR, 8 second timeout
+avrddopti.menu.entrycond.swr=SW-only (including accidental "dirty" resets): 8 second delay (Warning: Bad app code can brick bootloader. Don't use with UPDI disabled w/out HV programmer)
+avrddopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset)
+avrddopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrddopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
+avrddopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
+avrddopti.menu.entrycond.swr.bootloader.entrycond=_swr_8sec
+avrddopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -2739,7 +2791,7 @@ avrddopti.menu.resetupdipinsopti.input.bootloader.resetpinbits=00
 avrddopti.menu.millis.tcbhighest=TCB2 on 28/32pin else TCB1 (recommended)
 avrddopti.menu.millis.disabled=Disabled (delay() only)
 avrddopti.menu.millis.tcb0=TCB0
-avrddopti.menu.millis.tcb1=TCB1 (same as first option on 14/20 pins)
+avrddopti.menu.millis.tcb1=TCB1 (Default on 20/14 pin parts)
 avrddopti.menu.millis.tcb2=TCB2 (only available on 28/32-pin parts)
 avrddopti.menu.millis.tcbhighest.build.millistimer={build.highestcb}
 avrddopti.menu.millis.tcb0.build.millistimer=B0
@@ -2778,16 +2830,16 @@ avrddopti.menu.attach.oldversion.build.attachabr=.aOld
 #________________________________________#
 avrddopti.menu.mvioopti.enabled=Enabled
 avrddopti.menu.mvioopti.enabled.bootloader.mviobits=01
-avrddopti.memu.mvioopti.enabled.build.MVIOenable=-DMVIO_ENABLED
+avrddopti.menu.mvioopti.enabled.build.mvioenable=-DMVIO_ENABLED
 avrddopti.menu.mvioopti.disabled=Disabled
 avrddopti.menu.mvioopti.disabled.bootloader.mviobits=10
-avrddopti.memu.mvioopti.disabled.build.MVIOenable=
-avrddopti.menu.mvioopti.reallyenabled=Enabled and "burn bootloader" has for sure been done w/this selected.
+avrddopti.menu.mvioopti.disabled.build.mvioenable=
+avrddopti.menu.mvioopti.reallyenabled=Enabled. Assume that "burn bootloader" has been performed with this option.
 avrddopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
-avrddopti.memu.mvioopti.reallyenabled.build.MVIOenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
-avrddopti.menu.mvioopti.reallydisabled=Disabled and "burn bootloader" has for sure been done w/this selected.
+avrddopti.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+avrddopti.menu.mvioopti.reallydisabled=Disabled. Assume that "burn bootloader" has been performed with this option.
 avrddopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
-avrddopti.memu.mvioopti.reallydisabled.build.MVIOenable=-DASSUME_MVIO_FUSE
+avrddopti.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
 
 
 
@@ -2899,7 +2951,7 @@ avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portswap=2
 # should be using the generic DB/DD board #
 #_________________________________________#
 azduinoboard.build.board=InvalidBoard
-azduinoboard.build.MVIOenable=-DMVIO_ENABLED
+azduinoboard.build.mvioenable=-DMVIO_ENABLED
 azduinoboard.build.core=dxcore
 azduinoboard.build.f_cpu={build.speed}000000L
 azduinoboard.build.text_section_start=.text=0x200
@@ -2909,7 +2961,9 @@ azduinoboard.build.printf=
 #-----------------------------------------#
 # Bootloading parameters and fuses        #
 #_________________________________________#
-azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt.hex
+azduinoboard.bootloader.entrycond={bootloader.defaultentrycond}
+azduinoboard.bootloader.defaulttimeout=
+azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}_ser0_alt{bootloader.entrycond}{bootloader.timeout}.hex.
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
@@ -2952,7 +3006,7 @@ azduinoboard.menu.board.NanoDB_A.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDB_A.upload.maximum_data_size=16384
 azduinoboard.menu.board.NanoDB_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDB_A.bootloader.portswap=1
-azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.MVIOenable}
+azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.mvioenable}
 azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 azduinoboard.menu.board.NanoDD_A=Azduino_NanoDD_RevA
 azduinoboard.menu.board.NanoDD_A.build.board=Azduino_NanoDD_A
@@ -2962,7 +3016,7 @@ azduinoboard.menu.board.NanoDD_A.upload.maximum_size=65024
 azduinoboard.menu.board.NanoDD_A.upload.maximum_data_size=8192
 azduinoboard.menu.board.NanoDD_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDD_A.bootloader.portswap=1
-azduinoboard.menu.board.NanoDD_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.MVIOenable}
+azduinoboard.menu.board.NanoDD_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.mvioenable}
 azduinoboard.menu.board.NanoDD_A.build.variant=32pin-ddseries
 #azduinoboard.menu.board.NanoDB_B=Azduino Nano DB (Rev. B or A w/resistor mod)
 #azduinoboard.menu.board.NanoDB_B.build.mcu=avr128db32
@@ -2971,7 +3025,7 @@ azduinoboard.menu.board.NanoDD_A.build.variant=32pin-ddseries
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_data_size=16384
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
-azduinoboard.menu.board.LEDCTRLA.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.MVIOenable}
+azduinoboard.menu.board.LEDCTRLA.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PA6 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.mvioenable}
 azduinoboard.menu.board.LEDCTRLA=LEDCTRLA Light Controller 2.1+
 azduinoboard.menu.board.LEDCTRLA=Azduino_LEDCTRLA
 azduinoboard.menu.board.LEDCTRLA.build.mcu=avr128db48
@@ -2979,7 +3033,13 @@ azduinoboard.menu.board.LEDCTRLA.bootloader.class=optiboot_dx128
 azduinoboard.menu.board.LEDCTRLA.upload.maximum_size=130560
 azduinoboard.menu.board.LEDCTRLA.upload.maximum_data_size=16384
 azduinoboard.menu.board.LEDCTRLA.build.variant=48pin-standard
-
+azduinoboard.menu.board.NanoDBplus.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PA6 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.mvioenable}
+azduinoboard.menu.board.NanoDBplus=Azduino NanoDB++
+azduinoboard.menu.board.NanoDBplus.build.mcu=avr128db48
+azduinoboard.menu.board.NanoDBplus.bootloader.class=optiboot_dx128
+azduinoboard.menu.board.NanoDBplus.upload.maximum_size=130560
+azduinoboard.menu.board.NanoDBplus.upload.maximum_data_size=16384
+azduinoboard.menu.board.NanoDBplus.build.variant=48pin-standard
 #----------------------------------------#
 # Clock speed and source options         #
 # For the Azduino products we drop clock #
@@ -3056,10 +3116,28 @@ azduinoboard.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Reset pin as input option              #
 #________________________________________#
-azduinoboard.menu.resetpin.reset=Hardware Reset (recommended)
+azduinoboard.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & SW resets, 1 sec timeout)
+azduinoboard.menu.resetpin.reset.bootloader.defaultentrycond=_extr
 azduinoboard.menu.resetpin.reset.bootloader.resetpinbits=10
-azduinoboard.menu.resetpin.input=Input (no output, ever)
+azduinoboard.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
+azduinoboard.menu.resetpin.input.bootloader.defaulttimeout=_8sec
+azduinoboard.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
 azduinoboard.menu.resetpin.input.bootloader.resetpinbits=00
+
+#----------------------------------------#
+# Optiboot Entry Conditions              #
+#________________________________________#
+azduinoboard.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
+azduinoboard.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
+azduinoboard.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug)
+azduinoboard.menu.entrycond.all=Always: Every reset except a WDT reset or BOD reset w/out POR, 8 second timeout
+azduinoboard.menu.entrycond.swr=SW-only: 8 second delay (if you don't want the 8 sec pause, reset with WDT)
+azduinoboard.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset)
+azduinoboard.menu.entrycond.extr.bootloader.entrycond=_extr
+azduinoboard.menu.entrycond.por.bootloader.entrycond=_por_8sec
+azduinoboard.menu.entrycond.all.bootloader.entrycond=_all_8sec
+azduinoboard.menu.entrycond.swr.bootloader.entrycond=_swr_8sec
+azduinoboard.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -3107,16 +3185,16 @@ azduinoboard.menu.attach.oldversion.build.attachabr=.aOld
 #________________________________________#
 azduinoboard.menu.mvioopti.enabled=Enabled
 azduinoboard.menu.mvioopti.enabled.bootloader.mviobits=01
-azduinoboard.memu.mvioopti.enabled.build.MVIOenable=-DMVIO_ENABLED
+azduinoboard.menu.mvioopti.enabled.build.mvioenable=-DMVIO_ENABLED
 azduinoboard.menu.mvioopti.disabled=Disabled
 azduinoboard.menu.mvioopti.disabled.bootloader.mviobits=10
-azduinoboard.memu.mvioopti.disabled.build.MVIOenable=
-azduinoboard.menu.mvioopti.reallyenabled=Enabled and "burn bootloader" has for sure done w/this selected.
+azduinoboard.menu.mvioopti.disabled.build.mvioenable=
+azduinoboard.menu.mvioopti.reallyenabled=Enabled. Assume that "burn bootloader" has been performed with this option.
 azduinoboard.menu.mvioopti.reallyenabled.bootloader.mviobits=01
-azduinoboard.memu.mvioopti.reallyenabled.build.MVIOenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
-azduinoboard.menu.mvioopti.reallydisabled=Disabled and "burn bootloader" has for sure been done w/this selected.
+azduinoboard.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+azduinoboard.menu.mvioopti.reallydisabled=Disabled. Assume that "burn bootloader" has been performed with this option.
 azduinoboard.menu.mvioopti.reallydisabled.bootloader.mviobits=10
-azduinoboard.memu.mvioopti.reallydisabled.build.MVIOenable=-DASSUME_MVIO_FUSE
+azduinoboard.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
 
 #----------------------------------------#
 # Startup time options                   #

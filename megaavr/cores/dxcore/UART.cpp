@@ -40,10 +40,14 @@
       #   ###  ####
       #      # # #
      ### ####  #  */
+    /* There ain't no such thing as a free lunch. Every new feature makes these worse.
+    USE_ASM_TXC 2 takes an additional 2 words/2 clocks vs 1
+    USE_ASM_RXC 2 takes an additional 5 words/5 clocks vs 1
+    RXC takes another 3 words/4 clocks if SDF errata compensation is needed.
+    Both USE_ASM_RXC and USE_ASM_TXC must be mode 2 for half duplex to work
 
-    /*************************************
-     Transmit Complete for Half Duplex
-      This is a more efficient and scalable version of the TXC ISR, the original implementation is below:
+    Transmit Complete for Half Duplex
+       This is a more efficient and scalable version of the TXC ISR, the original implementation is below:
 
 
 
@@ -59,18 +63,19 @@
         USART1.CTRLA = ctrla;
       }
 
-      in the USARTn.cpp, there's something like this that puts the low byte of the address of the USART into r30
-      after saving the register. Then it just jumps to this routine, which loads the (always the same) high byte!
-      and finishes up clearing out the other register we will need and saving the SREG. The logic is very simple,
-      It's just ugly. It gets worse for the other interrupts because we have to work with the class, not just the
-      hardware. Crucially the only thing different betweren the USARTs here isthe addressthey're working with.
-      Much of the benefit comes from being able to get the benefits of functionsin terms of flash use without the
-      penalties that come with using a true CALL instruction in an ISR (50-80 byte prologue + epiloge), and also
-      being aware that the X register can't do displacement when planning what goes in which regiseser... which
-      is not avr-gcc's strong suite, and often ends up displacing from the X with adiw/sbiw spam. savings for one
-      copy of it is small. Savings for several is gets large fast! Performance is better, but not much.
-      Biggest advantage is for 2-series with the dual UARTs, but potentially as little as 4k of flash.
+    In the USARTn.cpp, there's something like this that puts the low byte of the address of the USART into r30
+  after saving the register. Then it just jumps to this routine, which loads the (always the same) high byte!
+  and finishes up clearing out the other register we will need and saving the SREG. The logic is very simple,
+  It's just ugly. It gets worse for the other interrupts because we have to work with the class, not just the
+  hardware. Crucially the only thing different betweren the USARTs here isthe addressthey're working with.
+  Much of the benefit comes from being able to get the benefits of functionsin terms of flash use without the
+  penalties that come with using a true CALL instruction in an ISR (50-80 byte prologue + epiloge), and also
+  being aware that the X register can't do displacement when planning what goes in which regiseser... which
+  is not avr-gcc's strong suite, and often ends up displacing from the X with adiw/sbiw spam. savings for one
+  copy of it is small. Savings for several is gets large fast! Performance is better, but not much.
+  Biggest advantage is for 2-series with the dual UARTs, but potentially as little as 4k of flash.
 
+    TXC isr  starts from this:
     ISR(USART1_TXC_vect, ISR_NAKED) {
       __asm__ __volatile__(
                 "push  r30"         "\n\t" // 1
@@ -82,7 +87,47 @@
 
     */
 
-    #if USE_ASM_TXC == 1
+    #if USE_ASM_TXC == 2
+      void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void) {
+        __asm__ __volatile__(
+        "_do_txc:"                      "\n\t" // We start out 11-13 clocks after the interrupt
+            "push       r24"              "\n\t" // r30 and r31 pushed before this.
+            "in         r24,      0x3f"   "\n\t"  // Save SREG
+            "push       r24"              "\n\t"  //
+            "push       r25"              "\n\t"  //
+            "push       r28"              "\n\t"  //
+            "push       r29"              "\n\t"  //
+            "ldd        r28,   Z +  8"    "\n\t"  // Load USART into Y pointer, low byte
+            "ldi        r29,     0x08"    "\n\t"  // all USARTs are 0x08n0 where n is an even hex digit.
+            "ldd        r25,   Y +  5"    "\n\t"  // Y + 5 = USARTn.CTRLA read CTRLA
+          "_txc_flush_rx:"                "\n\t"  // start of rx flush loop.
+            "ld         r24,        Y"    "\n\t"  // Y + 0 = USARTn.RXDATAL rx data
+            "ldd        r24,   Y +  4"    "\n\t"  // Y + 4 = USARTn.STATUS
+            "sbrc       r24,        7"    "\n\t"  // if RXC bit is clear...
+            "rjmp       _txc_flush_rx"    "\n\t"  // .... skip this jump to remove more from the buffer.
+            "andi       r25,     0xBF"    "\n\t"  // clear TXCIE
+            "ori        r25,     0x80"    "\n\t"  // set RXCIE
+            "std     Y +  5,      r25"    "\n\t"  // store CTRLA
+//          "ldd        r24,   Z + 12"    "\n\t"
+//          "ahha,   always,     true"    "\n\t"  // wait, if we're in TXC, We are in half duplex mode, duuuuh
+//          "sbrs       r24,        2"    "\n\t"  // if we're in half duplex skip...
+//          "rjmp      .+ 6"              "\n\t"  // a jump over the next three instructoins. Do do them iff in half duplex only
+//          "ori        r24,     0x10"    "\n\t"  // add the "there's an echo in here" bit
+//          "std     Z + 12,      r24"    "\n\t"  // Store modified state
+            "pop        r29"              "\n\t"
+            "pop        r28"              "\n\t"
+            "pop        r25"              "\n\t"
+            "pop        r24"              "\n\t"  // pop r24 to get old SREG back
+            "out       0x3F,      r24"    "\n\t"  // restore sreg.
+            "pop        r24"              "\n\t"  // pop r24 restore it
+            "pop        r31"              "\n\t"  // and r31
+            "pop        r30"              "\n\t"  // Pop the register the ISR did
+            "reti"                        "\n"    // return from the interrupt.
+            ::
+          );
+        __builtin_unreachable();
+      }
+    #elif USE_ASM_TXC == 1
       void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_txc(void) {
         __asm__ __volatile__(
           "_do_txc:"                  "\n\t"  //
@@ -111,7 +156,7 @@
       }
     #endif
     /*
-
+      We are starting from this:
       ISR(USART0_RXC_vect, ISR_NAKED) {
         __asm__ __volatile__(
               "push      r30"     "\n\t"
@@ -119,15 +164,16 @@
               :::);
         __asm__ __volatile__(
               "rjmp   do_rxc"     "\n\t"
-              ::"z"(&Serial));
+              ::"z"(&Serialn));
         __builtin_unreachable();
       }
 
     */
-    #if (USE_ASM_RXC == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) )
+
+    #if ((USE_ASM_RXC == 1) && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) )
       void __attribute__((naked)) __attribute__((used)) __attribute__((noreturn)) _do_rxc(void) {
         __asm__ __volatile__(
-          "_do_rxc:"                      "\n\t" //
+          "_do_rxc:"                      "\n\t" // We start out 11-13 clocks after the interrupt
             "push       r18"              "\n\t" // r30 and r31 pushed before this.
             "in         r18,      0x3f"   "\n\t" // Save SREG
             "push       r18"              "\n\t" //
@@ -138,13 +184,13 @@
             "push       r29"              "\n\t" //
             "ldd        r28,    Z +  8"   "\n\t" // Load USART into Y pointer
     //      "ldd        r29,    Z +  9"   "\n\t" // We interact with the USART only this once
-            "ldi        r29,      0x08"   "\n\t" // High byte always 0x08 for USART peripheral: Save-a-clock.
-  #if defined(ERRATA_USART_WAKE)                 // This bug appears to be near-universal
+            "ldi        r29,      0x08"   "\n\t" // High byte always 0x08 for USART peripheral: Save-a-clock. 11 clocks to here
+  #if defined(ERRATA_USART_WAKE)                 // This bug appears to be near-universal, 4 clocks to workaround.
             "ldd        r18,    Y +  6"   "\n\t"
             "andi       r18,      0xEF"   "\n\t"
             "std      Y + 6,       r18"   "\n\t" // turn off SFD interrupt before reading RXDATA so we don't corrupt the next character.
   #endif
-            "ldd        r24,    Y +  1"   "\n\t" // Y + 1 = USARTn.RXDATAH - load high byte first
+            "ldd        r24,    Y +  1"   "\n\t" // Y + 1 = USARTn.RXDATAH - load high byte first - 16 clocks from here to next
             "ld         r25,         Y"   "\n\t" // Y + 0 = USARTn.RXDATAL - then low byte of RXdata
             "andi       r24,      0x46"   "\n\t" // extract framing, parity bits.
             "lsl        r24"              "\n\t" // leftshift them one place
@@ -152,6 +198,17 @@
             "or         r19,       r24"   "\n\t" // bitwise or with errors extracted from _state
             "sbrc       r24,         2"   "\n\t" // if there's a parity error, then do nothing more (note the leftshift).
             "rjmp  _end_rxc"              "\n\t" // Copies the behavior of stock implementation - framing errors are ok, apparently...
+    //#if USE_ASM_TXC == 2 && USE_ASM_RXC == 2
+            //"sbic      0x1F,         0"   "\n\t"
+            //"sbi       0x01,         2"   "\n\t"
+            //"sbrs       r19,         4"   "\n\t" // Is there an echo in here?
+            //"rjmp       storechar"      "\n\t" // if not skip these next isns       "\n\t"
+            //"sbic      0x1F,         0"   "\n\t"
+            //"sbi       0x02,         4"   "\n\t"
+            //"andi       r19,      0xEF"   "\n\t" // clear t
+            //"rjmp  _end_rxc"              "\n\t"
+    //       "storechar:"
+    //#endif
             "ldd        r28,    Z + 13"   "\n\t" // load current head index
             "ldi        r24,         1"   "\n\t" // Clear r24 and initialize it with 1
             "add        r24,       r28"   "\n\t" // add current head index to it
@@ -166,7 +223,7 @@
     #elif SERIAL_RX_BUFFER_SIZE == 16
             "andi       r24,      0x0F"   "\n\t" // Wrap the head around
     #endif
-            "ldd        r18,    Z + 14"   "\n\t" // load tail index
+            "ldd        r18,    Z + 14"   "\n\t" // load tail index This to _end_rxc is 11 clocks unless the buffer was full, in which case it's 8.
             "cp         r18,       r24"   "\n\t" // See if head is at tail. If so, buffer full. The incoming data is discarded,
             "breq  _buff_full_rxc"        "\n\t" // because there is noplace to put it, and we just restore state and leave.
             "add        r28,       r30"   "\n\t" // r28 has what would be the next index in it.
@@ -175,11 +232,10 @@
             "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 17 bytes before head
             "std     Y + 17,       r25"   "\n\t" // store the new char in buffer
             "std     Z + 13,       r24"   "\n\t" // write that new head index.
-          "_buff_full_rxc:"               "\n\t"
-            "ori        r19,      0x40"   "\n\t" // record that there was a ring buffer overflow.
-          "_end_rxc:"                     "\n\t" //
+          "_end_rxc:"                     "\n\t"
             "std     Z + 12,       r19"   "\n\t" // record new state including new errors
-            "pop        r29"              "\n\t" // Y Pointer was used for head and usart
+                                       // Epilogue: 9 pops + 1 out + 1 reti +1 std = 24 clocks
+            "pop        r29"              "\n\t" // Y Pointer was used for head and usart.
             "pop        r28"              "\n\t" //
             "pop        r25"              "\n\t" // r25 held the received character
             "pop        r24"              "\n\t" // r24 held rxdatah, then the new head.
@@ -189,8 +245,11 @@
             "pop        r18"              "\n\t" // used as tail offset, and then as known zero.
             "pop        r31"              "\n\t" // end with Z which the isr pushed to make room for
             "pop        r30"              "\n\t" // pointer to serial instance
-            "reti"                        "\n"   // return
-            ::);
+            "reti"                        "\n\t" // return
+          "_buff_full_rxc:"               "\n\t" // potential improvement: move _buff_full_rxc to after the reti, and then rjmp back, saving 2 clocks for the common case
+            "ori        r19,      0x40"   "\n\t" // record that there was a ring buffer overflow. 1 clk
+            "rjmp _end_rxc"               "\n\t" // and now jump back to end. That way we don't need to jump over this in the middle of the common case.
+            ::); // total: 77 or 79 clocks, just barely squeaks by for cyclic RX of up to RX_BUFFER_SIZE characters.
         __builtin_unreachable();
 
       }
@@ -227,7 +286,7 @@
       }
     #endif
     /*
-
+    DRE starts just like RXC
     ISR(USART0_DRE_vect, ISR_NAKED) {
       __asm__ __volatile__(
                 push  r30
@@ -315,7 +374,7 @@
           "brts        .+2"               "\n\t"  // hop over the next insn if T bit set, means entered through do_dre, rather than poll_dre
           "rjmp _poll_dre_done"           "\n\t"  // 8k parts can use RJMP
     #endif
-          "pop         r27"               "\n\t"  // and continue with popping registers.
+          "pop         r27"               "\n\t"  // and continue with popping registers. 21 clocks left
           "pop         r26"               "\n\t"
           "pop         r25"               "\n\t"
           "pop         r24"               "\n\t"
@@ -389,28 +448,30 @@
 
             return;
           }
-          #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128  || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
-                                    (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128  || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
+    #if !(USE_ASM_DRE == 1 && (SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128  || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16) && \
+                              (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128  || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
             _tx_data_empty_irq(*this);
-          #else
-            #ifdef USART1
-              void * thisSerial = this;
-            #endif
+    #else // We're using ASM DRE
+      #ifdef USART1
+        void * thisSerial = this;
+      #endif
             __asm__ __volatile__(
-                    "clt"              "\n\t" // Clear the T flag to signal to the ISR that we got there from here.
-    #if PROGMEM_SIZE > 8192
+                    "clt"              "\n\t" // Clear the T flag to signal to the ISR that we got there from here. This is safe per the ABI - The T-flag can be treated like R0
+      #if PROGMEM_SIZE > 8192
                     "jmp _poll_dre"    "\n\t"
-    #else
+      #else
                     "rjmp _poll_dre"    "\n\t"
-    #endif
+      #endif
                     "_poll_dre_done:"    "\n"
-    #ifdef USART1
+      #ifdef USART1
                     ::"z"((uint16_t)thisSerial)
-    #else
-                    ::"z"(&Serial)
+      #else
+                    ::"z"(&Serial0)
+      #endif
+                    : "r18","r19","r24","r25","r26","r27"); // these got saved and restored in the ISR context, but here we don't need top and in many cases no action is needed.
+                    // the Y pointer was already handled, because as a call-saved register, it would always need to be saved and restored, so we save 4 words of flash by doing that after
+                    // jumps into the middle of the ISR, and before it jumps back here.
     #endif
-                    : "r18","r19","r24","r25","r26","r27");
-          #endif
         }
       }
       // In case interrupts are enabled, the interrupt routine will be invoked by itself
@@ -426,57 +487,54 @@
 
     // Invoke this function before 'begin' to define the pins used
     bool HardwareSerial::pins(uint8_t tx, uint8_t rx) {
-      uint8_t ret_val = _pins_to_swap(_module_number, tx, rx);   // return 127 when correct swap number wasn't found
+      uint8_t ret_val = _pins_to_swap(_usart_pins, _mux_count, tx, rx);   // return 127 when correct swap number wasn't found
       return swap(ret_val);
     }
 
-    uint8_t HardwareSerial::_pins_to_swap(uint8_t port_num, uint8_t tx_pin, uint8_t rx_pin) {
-      if (tx_pin == NOT_A_PIN && rx_pin == NOT_A_PIN) {
-        return  128;            // get MUX_NONE
-      } else {
-        const uint8_t * muxtab_ptr = _usart_pins[port_num];
-        if (*muxtab_ptr == tx_pin && (*(muxtab_ptr + 1) == rx_pin)) {
-          return 0;
-        }
-        #if !defined(__AVR_ATtinyx24__)
-          if ((*(muxtab_ptr + 4)) == tx_pin && (*(muxtab_ptr + 5) == rx_pin))
-        #else
-          if (port_num && (*(muxtab_ptr + 4)) == tx_pin && (*(muxtab_ptr + 5) == rx_pin))
-        #endif
-        {
-          return 1;
-        }
-        return NOT_A_MUX; // At this point, we have checked all group codes for this peripheral. It ain't there. Return NOT_A_MUX.
+
+
+    // Not static
+    uint8_t HardwareSerial::getPin(uint8_t pin) {
+      return _getPin(_usart_pins, pin, _pin_set, _mux_count);
+    }
+    // Static
+    uint8_t HardwareSerial::_getPin(uint8_t * mux_table_ptr, uint8_t muxcount, uint8_t pinset, uint8_t pin) {
+      if (pin >3 || pinset > muxcount) {
+        return NOT_A_PIN;
       }
+      mux_table_ptr += USART_PINS_WIDTH * pinset;
+      if (pgm_read_byte_near(mux_table_ptr++) == NOT_A_MUX) {
+        return NOT_A_PIN; // somehow an invalid pinset is selected...
+      }
+      if (pin > 1) {
+        mux_table_ptr++;
+      }
+      uint8_t base = pgm_read_byte_near(mux_table_ptr); // TX or XCK
+      if (base == NOT_A_PIN) {
+        return NOT_A_PIN;
+      }
+      #if (defined(__AVR_DD__) && _AVR_PINCOUNT < 28)
+        if ((base == PIN_PC0 && pin == 0) || (base == PIN_PC3 && pin == 3)) {
+          return NOT_A_PIN;/* these are the only cases where RX exists without TX, or XDIR exists without XCK */
+        } /* and the only case where only one of the first two pins exists.
+           * There are many examples where TX/RX exist by XCK doesn't, but these are already handled.
+           */
+      #endif
+      if (pin & 1) {
+        base++;
+      }
+      return base; // RX = TX + 1. XDIR = XCK + 1 for all Dx and Ex parts!
     }
 
-    uint8_t HardwareSerial::getPin(uint8_t pin) {
-      if (pin >3) return NOT_A_PIN;
-      return (_usart_pins[_module_number + _pin_set][pin]);
-    }
 
     bool HardwareSerial::swap(uint8_t newmux) {
-      #if !(MEGATINYCORE_SERIES == 2 && defined(__ATtinyxy4__))
-        // it's either a 0/1-series: They have options of 0 and 1.
-        // Or it's a 2-series with 20 or 24 pins. Both USARTS have option of 0 & 1.
-        if (newmux < 2) {
-          _pin_set = newmux;
-          return true;
-        }
-      #else
-        // means it is a 14-pin 2-series, whose second USART doesn't have an alternate location.
-        if (_module_number + newmux < 2) {
-          _pin_set = newmux;
-          return true;
-        }
-      #endif
-      #if MEGATINYCORE_SERIES == 2
-        else if (newmux == MUX_NONE) {  // 128 codes for MUX_NONE
-          _pin_set = 3;
-          return true;
-        }
-      #endif
-      else {
+      if (newmux < _mux_count) {
+        _pin_set = newmux;
+        return true;
+      } else if (newmux == MUX_NONE) {  // 128 codes for MUX_NONE
+        _pin_set = _mux_count;
+        return true;
+      } else {
         _pin_set = 0;
       }
       return false;
@@ -539,79 +597,93 @@
       }                                         // finally strip out the SERIAL_EVENT_RX bit which is in the DREIE
       (*MyUSART).CTRLA          = ctrla & 0xDF; // position, which we never set in begin.
       (*MyUSART).CTRLB          = ctrlb;        // Set the all important CTRLB...
-      _set_pins(_module_number, _pin_set, setpinmask); // set up the pin(s)
+        _set_pins(_usart_pins, _mux_count, _pin_set, setpinmask); // set up the pin(s)
       SREG = oldSREG;                             // re-enable interrupts, and we're done.
     }
 
-    void HardwareSerial::_set_pins(uint8_t mod_nbr, uint8_t mux_set, uint8_t enmask) {
-      // Set the mux register
-      #if defined(PORTMUX_USARTROUTEA)
-        uint8_t muxregval    = PORTMUX.USARTROUTEA;
-        muxregval           &= ~(mod_nbr ? 0x0C : 0x03);
-        PORTMUX.USARTROUTEA  = (muxregval) | (mux_set << (mod_nbr ? 2 : 0)); // shift muxset left if needed.
-
-      #else
-        if (mux_set) {
-          PORTMUX.CTRLB       |= 0x01; // for 0/1-series this can only be zero or 1
-        } else {
-          PORTMUX.CTRLB       &= 0xFE;
-        }
-      #endif
-      #if MEGATINYCORE_SERIES == 2
-        if (mux_set == 3) { // not connected to pins...
-          return;           // so we are done!
-        }
-      #endif
-      const uint8_t* muxrow = &(_usart_pins[mod_nbr + mux_set][0]);
-      if ((enmask & 0x40 && !(enmask & 0x08))) {
-        pinMode(muxrow[0], OUTPUT); // If and only if TX is enabled and open drain isn't should the TX pin be output.
-      } else if (enmask & 0x50) { // if it is enabled but is in open drain mode, or is disabled, but loopback is enabled
-        // TX should be INPUT_PULLUP.
-        pinMode(muxrow[0], INPUT_PULLUP);
-      }
-      if (enmask & 0x80 && !(enmask & 0x10)) {
-        // Likewise if RX is enabled, unless loopback mode is too (in which case we caught it above, it should be pulled up
-        pinMode(muxrow[1], INPUT_PULLUP);
-      }
-      if (enmask & 0x01) { // finally if RS485 mode is enabled, we make XDIR output, otherwise it can't drive the pin.
-        pinMode(muxrow[3], OUTPUT); // make XDIR output.
-      }
-      /*
-      uint8_t muxrow = mod_nbr + mux_set;
-      if ((enmask & 0x40 && !(enmask & 0x08))) {
-        pinMode(_usart_pins[muxrow][0], OUTPUT); // If any only if TX is enabled and open drain isn't should the TX pin be output.
-      } else if (enmask & 0x50) { // if it is enabled but is in open drain mode, or is disabled, but loopback is enabled
-        // TX should be INPUT_PULLUP.
-        pinMode(_usart_pins[muxrow][0], INPUT_PULLUP);
-      }
-      if (enmask & 0x80 && !(enmask & 0x10)) {
-        // Likewise if RX is enabled, unless loopback mode is too (in which case we caught it above, it should be pulled up
-        pinMode(_usart_pins[muxrow][1], INPUT_PULLUP);
-      }
-      if (enmask & 0x01) { // finally if RS485 mode is enabled, we make XDIR output, otherwise it can't drive the pin.
-        pinMode(_usart_pins[muxrow][3], OUTPUT); // make XDIR output.
-      }
-      // And it is up to the user to configure the XCK pin as required for their application if they are using that.
-      */
-      /*
-      uint8_t muxrow = mod_nbr + mux_set;
-      if (enmask & 0x40) { // tx enabled
-        pinMode(_usart_pins[muxrow][0], (enmask & 0x08) ? INPUT_PULLUP : OUTPUT);
-      }
-      if (enmask & 0x80) {
-        if (!(enmask & 0x10)) {
-
-          pinMode(_usart_pins[muxrow][1], INPUT_PULLUP);
-        } else if (!(enmask & 0x40)) { // Loopback mode set, TX disabled, and RX enabled. Wacky configuration, but I guess that means TX should be INPUT_PULLUP.
-          pinMode(_usart_pins[muxrow][0], INPUT_PULLUP);
-        }
-      }
-      if (enmask & 0x01) { // RS485 enabled
-        pinMode(_usart_pins[muxrow][3], OUTPUT); // make XDIR output.
-      }
-      */
+// Static
+    void HardwareSerial::_mux_set(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_code) {
+    #if HWSERIAL_MUX_REG_COUNT > 1  // for big pincount devices that have more then one USART PORTMUX register
+      uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 1;
+      uint16_t mux_options_off_gm = pgm_read_word_near(mux_info_ptr);  /* pointer offset to the second columun
+      at the end bottom row of the table, with info about the mux options, rather than a specefic option
+      Low byte is the offset from USARTROUTEA, second byte is the group mask. */
+      volatile uint8_t* portmux  = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE + (uint8_t)mux_options_off_gm); // offset
+      uint8_t temp   = *portmux;
+      temp          &= ~((uint8_t) (mux_options_off_gm >> 8)); // Group Mask
+      temp          |= mux_code;
+      *portmux       = temp;
+    #else
+      uint8_t* mux_info_ptr = mux_table_ptr + (mux_count * USART_PINS_WIDTH) + 2;
+      /* Only one register, so no offset, so only read a byte */
+      uint8_t mux_mask = pgm_read_byte_near(mux_info_ptr);     // only read the group mask
+      volatile uint8_t* portmux = (uint8_t*)(HWSERIAL_MUX_REGISTER_BASE);
+      uint8_t temp   = *portmux;
+      temp          &= ~(mux_mask);
+      temp          |= mux_code;
+      *portmux       = temp;
+    #endif
     }
 
+    // Note that *no attempt is made* to detect and react to incomplete pinsets. It is the resposnability of the user to pick a pinset that contains
+    // all the pins they need. Unless you're only receiving, pinset 0, USART1, AVR DD14 or DD20 isn't much use.
+    // Likewise, you can't do RS485 on DD/EA USART0 pinset 4.
+    // and no RS485 nor any clocked modes with pinset 1 of USART3 on a 48-pin part, or pinset 1 on USART2 anywhere
+    // and the unfortunate souls on 28-pin parts can't use it on USART2 at all (though this is hardle the greatest of their woes).
+    // enmask: 0b rt_l o__s where r and r are 1 if RX and TX are enabled, l and o are loopback and open drain, and s is RS485 mode.
+    // That gives 32 options, though RX485 is independent, so the 16 options can be described as:
+    // RX TX LB OD      Result:
+    //  0  0  x  x   *  No pins are changed, usart disabled.
+    //  0  1  x  0      TX set output, RX not changed.
+    //  0  1  x  1      TX set input pulleup, RX not changed.
+    //  1  0  1  x   *  TX set input pullup.
+    //  1  1  0  0      TX set output, RX set input pullup.
+    //  1  1  0  1      TX and RX set input pullup.
+    //  1  1  1  0      TX set output, RX not changed. Loopback mode: you can only see what you send since TX is OUTPUT and that's what's connected to RX.
+    //  1  1  1  1      TX set input pullup. Half-duplex mode.
+    // * indicates that RS485 mode if requested will be enabled, even though it is inappropriate. These configurations are documented unsupported.
+    // Static
+    void HardwareSerial::_set_pins(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t mux_setting, uint8_t enmask) {
+      uint8_t* mux_row_ptr   = mux_table_ptr + (mux_setting * USART_PINS_WIDTH);
+      uint16_t mux_row_gc_tx = pgm_read_word_near(mux_row_ptr); // Clever trick for faster PGM reads of consecutive bytes!
+      uint8_t mux_group_code = (uint8_t) (mux_row_gc_tx);       // this is the mux
+      if (mux_setting < mux_count) {              // if false, pinmux none was selected, and we skip the pin configuration.
+        uint8_t mux_pin_tx   = (uint8_t) (mux_row_gc_tx >> 8);
+        if ((enmask & 0x40 && !(enmask & 0x08))) {
+          pinMode(mux_pin_tx, OUTPUT);            // If and only if TX is enabled and open drain isn't should the TX pin be output.
+        } else if (enmask & 0x50) {               // if it is enabled but is in open drain mode, or is disabled, but loopback is enabled
+          pinMode(mux_pin_tx, INPUT_PULLUP);      // TX should be INPUT_PULLUP.
+        }
+        if (enmask & 0x80 && !(enmask & 0x10)) {  // Likewise if RX is enabled, unless loopback mode is too
+          pinMode(mux_pin_tx + 1, INPUT_PULLUP);  // (in which case we caught it above), it should be pulled up
+        }
+        if (enmask & 1) {
+          pinMode(mux_pin_tx + 3, OUTPUT);        // in RS485 mode we need to make sure that XDIR is an output
+        }
+      }
+      _mux_set(mux_table_ptr, mux_count, mux_group_code);
+    }
+
+
+// Static
+    uint8_t HardwareSerial::_pins_to_swap(uint8_t* mux_table_ptr, uint8_t mux_count, uint8_t tx_pin, uint8_t rx_pin) {
+      if (tx_pin == NOT_A_PIN && rx_pin == NOT_A_PIN) {
+        return  128;            // get MUX_NONE
+      } else {
+        rx_pin -=tx_pin;        // Test if these *could* match each other.
+        if(rx_pin == 1) {       // thus far no parts where the pins are not adjacent! */
+          mux_table_ptr++;                                              // prepare to read the information with one byte offset
+          for (uint8_t i = 0; i < mux_count; i++) {                     // until we hit the end of this USART's mux...
+            uint8_t mux_tx_pin = pgm_read_byte_near(mux_table_ptr);     // read tx pin, which we are now pointing at.
+            if (tx_pin == mux_tx_pin) { // if it's the tx pin, and we know that the rx pin matches it.
+              return i;                 // return the swap number. The first line checked that the rx pin's must match this, since rx pins on all parts thus far are tx + 1.
+            }
+            mux_table_ptr += USART_PINS_WIDTH; // otherwise try the next mux option
+          }
+        }
+        return NOT_A_MUX; // At this point, we have checked all group codes for this peripheral. It ain't there. Return NOT_A_MUX.
+      }
+    }
     void HardwareSerial::end() {
       // wait for transmission of outgoing data
       flush();
