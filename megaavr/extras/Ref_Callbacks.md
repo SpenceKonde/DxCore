@@ -149,11 +149,10 @@ Initialize the type A timers for PWM. The one for a timer used as millis must no
 Initializes the type B timers (the one used for millis is skipped if it's the highest numbered timer). It is not recommended to override this except with an empty function in order to leave the type B timers that are not used for millis in reset state.
 
 #### init_TCD0
-Initializes the type D timer. It is not recommended to override this except with an empty function in order to leave the peripheral in reset state. This is particularly useful with the type D timer, which has no "hard reset" command, and it's got the enable-locked fields and he ENRDY bit - If you're going to take it over anyway, this makes sense to override in order to make your life easier when reconfiguring it. As with the others, it is recommended to override with just an empty function in that case. It also saves some flash.
+Initializes the type D timer. It is not recommended to override this except with an empty function in order to leave the peripheral in it's reset state. This is particularly useful with the type D timer, which has no "hard reset" command like the TCA does, and it's got the enable-locked fields and the ENRDY bit - If you're going to take it over anyway, you'll have an easier time if you override this - you don't have to put your initialization code there (though you could), simply overriding it with an empty function will give you a clean start . As with the others, it is recommended to override with just an empty function in that case. Overriding with empty function saves 34b of flash.
 
 #### init_millis
-Initializes and kicks off millis timekeeping. If millis is handled by a type B or D timer, it also performs all initialization of that timer. Overriding this (with an empty function) is for debugging ONLY - it is a way of leaving in place millis, micros (they will always return 0) and delay (it will hang forever) if you need to isolate the impact of the millis interrupt running.
-
+Initializes and kicks off millis timekeeping. If millis is handled by a type B or D timer, it also performs all initialization of that timer. **Overriding this (with an empty function) is for debugging ONLY** and should never be done except as a way of leaving in place millis, micros (they will always return 0) and delay (it will hang forever, so you need to use `_delay_ms() instead` for delays) if you need to isolate the impact of the millis interrupt running.
 
 *If you just want to turn off millis, set the millis timer to "disabled"*. That provides a working delay() implementation, allows libraries to detect that millis is disabled, and realizes far more flash savings than just overriding init_millis() with an empty function.
 

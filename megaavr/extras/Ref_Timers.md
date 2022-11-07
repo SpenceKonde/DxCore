@@ -217,23 +217,23 @@ When TCA0 is used as the millis timekeeping source, it is set to run at the syst
 |    40 MHz |  1.63 ms |   6.4 us |   0.19 % |        3.5 us |
 |    36 MHz |  1.81 ms |   7.1 us |   0.19 % |   aprx   4 us |
 |    32 MHz |  2.04 ms |   8.0 us |   0.19 % |          4 us |
-|    30 MHz |  0.54 ms |   2.1 us |   0.72 % |   aprx   4 us |
-|    28 MHz |  0.58 ms |   2.3 us |   0.72 % |          4 us |
-|    25 MHz |  0.65 ms |   2.6 us |   0.72 % |   aprx   4 us |
-|    24 MHz |  0.68 ms |   2.7 us |   0.72 % |          5 us |
-|    20 MHz |  0.82 ms |   3.2 us |   0.72 % |          7 us |
-|    16 MHz |  1.02 ms |   4.0 us |   0.72 % |          9 us |
-| !  14 MHz |  1.14 ms |   4.6 us |   0.72 % |   aprx  10 us |
-|    12 MHz |  1.36 ms |   5.3 us |   0.72 % |         10 us |
-|    10 MHz |  1.63 ms |   6.4 us |   0.72 % |         14 us |
-|     8 MHz |  2.04 ms |   8.0 us |   0.72 % |         17 us |
-| !   7 MHz |  0.58 ms |   2.3 us |   2.99 % |   aprx  18 us |
-| !   6 MHz |  0.68 ms |   2.7 us |   2.99 % |   aprx  19 us |
-|     5 MHz |  0.82 ms |   3.2 us |   2.99 % |         27 us |
-|     4 MHz |  1.02 ms |   4.0 us |   2.99 % |         33 us |
-| !   3 MHz |  0.68 ms |   2.7 us |   5.98 % |   aprx  45 us |
-| !   2 MHz |  1.02 ms |   4.0 us |   5.98 % |   aprx  60 us |
-|     1 MHz |  2.04 ms |   8.0 us |   5.98 % |        112 us |
+|    30 MHz |  0.54 ms |   2.1 us |   0.51 % |   aprx   4 us |
+|    28 MHz |  0.58 ms |   2.3 us |   0.51 % |          4 us |
+|    25 MHz |  0.65 ms |   2.6 us |   0.51 % |   aprx   4 us |
+|    24 MHz |  0.68 ms |   2.7 us |   0.51 % |          5 us |
+|    20 MHz |  0.82 ms |   3.2 us |   0.51 % |          7 us |
+|    16 MHz |  1.02 ms |   4.0 us |   0.51 % |          9 us |
+| !  14 MHz |  1.14 ms |   4.6 us |   0.51 % |   aprx  10 us |
+|    12 MHz |  1.36 ms |   5.3 us |   0.51 % |         10 us |
+|    10 MHz |  1.63 ms |   6.4 us |   0.51 % |         14 us |
+|     8 MHz |  2.04 ms |   8.0 us |   0.51 % |         17 us |
+| !   7 MHz |  0.58 ms |   2.3 us |   2.13 % |   aprx  18 us |
+| !   6 MHz |  0.68 ms |   2.7 us |   2.13 % |   aprx  19 us |
+|     5 MHz |  0.82 ms |   3.2 us |   2.13 % |         27 us |
+|     4 MHz |  1.02 ms |   4.0 us |   2.13 % |         33 us |
+| !   3 MHz |  0.68 ms |   2.7 us |   3.55 % |   aprx  45 us |
+| !   2 MHz |  1.02 ms |   4.0 us |   3.55 % |   aprx  60 us |
+|     1 MHz |  2.04 ms |   8.0 us |   3.55 % |        112 us |
 
 `!` - Theoretical, these speeds are not supported and have not been tested
 
@@ -241,11 +241,15 @@ In contrast to the type B timer where prescaler is held constant while the perio
 
 The micros execution time does not depend strongly on F_CPU, running from 112-145 clock cycles.
 
-Except when the resolution is way down near the minimum, the device spends more time in the ISR on these parts. Notice that at these points that - barely - favor TCAn, the interrupt they're being compared to is firing twice as frequently!
+Except when the resolution is way down near the minimum, the device spends more time in the ISR on these parts. Notice that at these points that - barely - favor TCAn, the interrupt they're being compared to is firing twice as frequently! TCD0's interrupt is slower than TCA's, but it is the timer least likely to be repupurposed.
 
+
+#### TCBn for millis timekeeping
+When a TCB is used for `millis()` timekeeping, it is set to run at the system clock prescaled by 2 (except at 1 or 2 MHz system clock) and tick over every millisecond. This makes the millis ISR very fast, and provides 1ms resolution at all but the slowest speeds for millis. The `micros()` function also has 1 us or almost-1 us resolution at all clock speeds (though there are small deterministic distortions due to the performance shortcuts used for the microsecond calculations (see appendix below). The only reason these excellent timers are not used by default except on parts with two TCBs and no TCD (that is, on the 2-series) is that too many other useful things need a TCB.
 
 ### TCBn for millis timekeeping
-When TCB2 (or other type B timer) is used for `millis()` timekeeping, it is set to run at the system clock prescaled by 2 (1 at 1 MHz system clock) and tick over every millisecond. This makes the millis ISR very fast, and provides 1ms resolution at all speeds for millis. The `micros()` function also has 1 us or almost-1 us resolution at all clock speeds (though there are small deterministic distortions due to the performance shortcuts used for the microsecond calculations. The type B timer is an ideal timer for millis - as these parts (except for future DD-series parts) have plenty of them, TCB2 is used by default on all parts except DD-series devices with only 2 type B timers, which use TCB1 instead. Except on those smaller DD-series parts, there is rarely competition for type B timers for other purposes, like `tone()`, servo, input capture or outputting pulses of a controlled length, which is a relatively common procedure; it is anticipated that as libraries for IR, 433MHz OOK'ed remote control, and similar add support for the modern AVR parts, that these timers will see even more use.
+When TCB2 (or other type B timer) is used for `millis()` timekeeping, it is set to run at the system clock prescaled by 2 (1 at 1 MHz system clock) and tick over every millisecond. This makes the millis ISR very fast, and provides 1ms resolution at all speeds for millis. The `micros()` function also has 1 us or almost-1 us resolution at all clock speeds (though there are small deterministic distortions due to the performance shortcuts used for the microsecond calculations. The type B timer is an ideal timer for millis, however, they';'re also good for a lot of other things too. It is anticipated that as libraries for IR, 433MHz OOK'ed remote control, and similar add support for the modern AVR parts, that these timers will see even more use.
+ISR execution time was decreased by 25% from 2.6.1 of megaTinyCore through reimplementation of the ISR is assembly, meaninmg less time spent incrementing millis and more on your code.
 
 |Note | CLK_PER | millis() | micros() | % in ISR | micros() time | Terms used             |
 |-----|---------|----------|----------|----------|---------------|------------------------|
@@ -268,10 +272,10 @@ When TCB2 (or other type B timer) is used for `millis()` timekeeping, it is set 
 | !   |   7 MHz |     1 ms |  1.14 us |   0.94 % | approx. 25 us | 5/7 (2,3,5,6 ~8,9~ )   |
 | ! * |   6 MHz |     1 ms |  1.33 us |   1.08 % |       > 20 us | 9 (0-7, 9)             |
 |   * |   5 MHz |     1 ms |     1 us |   1.30 % |         23 us | 6 (2,4,6,8,10)         |
-|  †  |   4 MHz |     1 ms |     1 us |   1.60 % |         21 us | 1                      |
-| ! * |   3 MHz |     1 ms |  1.33 us |   2.16 % |       > 40 us | 9 (0-7, 9)             |
-| !†  |   2 MHz |     2 ms |     1 us |   1.60 % |         39 us | 1                      |
-|  †  |   1 MHz |     2 ms |     1 us |   3.25 % |         78 us | 1                      |
+|  †  |   4 MHz |     1 ms |     1 us |   1.18 % |         21 us | 1                      |
+| ! * |   3 MHz |     1 ms |  1.33 us |   1.61 % |       > 40 us | 9 (0-7, 9)             |
+| !†  |   2 MHz |     2 ms |     1 us |   1.18 % |         39 us | 1                      |
+|  †  |   1 MHz |     2 ms |     1 us |   2.36 % |         78 us | 1                      |
 
 `!` - Theoretical, these speeds are not supported and have not been tested. % time in ISR and micros return times, where given are theoretically calculated, not experimentally verified.
 `†` - Naturally ideal - no ersatz division is needed for powers of 2

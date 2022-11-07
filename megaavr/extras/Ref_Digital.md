@@ -3,7 +3,7 @@ This core includes a number of features to provide more control or performance w
 
 ## Ballpark overhead figures
 The digital I/O functions are astonishingly inefficient. This isn't my fault - it's the Arduino API's fault
-Single call to the function, volatile variables used as argumentsto the functions to prevent compiler from making assumptions about their values.
+Single call to the function, volatile variables used as arguments to the functions to prevent compiler from making assumptions about their values.
 
 The comparison to the fast I/O functions is grossly unfair, because the fast I/O functions have constant arguments - but this gives an idea of the scale.
 Remember also that executing 1 word of code (2 bytes) takes 1 clock cycle, though not all of the code paths are traversed every time.
@@ -66,7 +66,7 @@ VPORTD.OUT |= 1 << 0; // The previous line is syntactic sugar for this. Beyond b
 | digitalWriteFast()  | 10 words  | 6 words  | 1 words         |
 | pinModeFast()       |      N/A  |     N/A  | 1 word if OUTPUT<br/>6 otherwise |
 
-Execution time is 1 or sometimes 2 clocks per word that is actually executed (not all of them are in the multiple possibility options. in the case of the "any option" digitalWrite, it's 5-7 (there are some that )
+Execution time is 1 or sometimes 2 clocks per word that is actually executed (not all of them are in the multiple possibility options. in the case of the "any option" digitalWrite, it's 5-7
 Note that the HIGH/LOW numbers include the overhead of a `(val ? HIGH : LOW)` which is required in order to get that result. That is how the numbers were generated - you can use a variable of volatile uint8_t and that will prevent the compiler from assuming anything about it's value. It is worth noting that when both pin and value are constant, this is 2-3 times faster and uses less flash than *even the call to the normal digital IO function*, much less the time it takes for the function itself (which is many times that. The worst offender is the normal digitalWrite(), because it also has to check for PWM functionality and then turn it off if enabled (and the compiler isn't allowed to skip this if you never use PWM).
 
 1 word is 2 bytes; when openDrainFast is not setting the pin FLOATING, it needs an extra word to set the output to low level as well (just in case). This was something I debated, but decided that since it could be connected to a lower voltage part and damage caused if a HIGH was output, ensuring that that wasn't what it would do seemed justified; if CHANGE is an option, it also uses an extra 2 words because instead of a single instruction against VPORT.IN, it needs to load the pin bit mask into a register (1 word) and use STS to write it (2 words) - and it also does the clearing of the output value - hence how we end up with the penalty of 4 for the unrestricted case vs digitalWriteFast.

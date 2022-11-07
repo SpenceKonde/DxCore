@@ -13,12 +13,12 @@ Analog reference voltage can be selected as usual using analogReference(). Suppo
  | `INTERNAL2V048`                         | 2.048 V |      2.5  V |      1 |
  | `INTERNAL4V096`                         | 4.096 V |      4.55 V |      2 |
  | `INTERNAL2V500`                         | 2.500 V |      2.7  V |      3 |
- | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.006 V |      4.55 V |      2 |
+ | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.096 V |      4.55 V |      2 |
  | `EXTERNAL`                              | VREF pin|        VREF |      6 |
 
  You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last columncolumn contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
 
- External reference voltage should be between 1.8v and Vdd. `INTERNAL` is not a supported reference, since there is no obvious reason why one of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V, but they do not guarantee it it's properties, and I do not know whether it remains useful all the way down to the minimum operating voltage of 1.8 V - I suspect it does, but verify first (please let me know if you have further information). Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
+ External reference voltage should be between 1.8v and Vdd. `INTERNAL` is not a supported reference, since there is no obvious reason that any of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V, but they do not guarantee it it's properties, and I do not know whether it remains useful all the way down to the minimum operating voltage of 1.8 V - I suspect it does, but verify first (please let me know if you have further information). Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
 
 ## Internal Sources
 In addition to reading from pins, you can read from a number of internal sources - this is done just like reading a pin, except the constant listed in the table below is used instead of the pin number:
@@ -41,8 +41,7 @@ DACREF0-2 are the the reference voltages for the analog comparators. On the DA-s
 The hardware supports increasing the resolution of analogRead() to the limit of the hardware's native resolution (10 or 12 bits); Additionally, we provide automatic oversampling and decimation up to the limit of what can be gathered using the accumulation feature allowing up to 15 bits of resolution (17 on future Ex-series); this is exposed through the `analogReadEnh()` function detailed below.
 
 ## ADC Sampling Speed
-DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (up to 3 MHz with internal ref, twice that on external of Vdd reference at full resolution. We use use 1.0 to 1.5 MHz on Dx, and will target 2-2.5 by default on EA unless someone provides information that shuggests I shouldn't.  To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being sgnoificant;y faster. On the 2-series, we'll  aim a bit lower with the sample duration as wecan actually calculate some numbers
-
+DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (up to 3 MHz for 2-series w/ with internal ref, twice that on external or Vdd reference at full resolution. We use use 1.0 to 1.5 MHz on Dx, and will target 2-2.5 by default on EA unless someone provides information that suggests I shouldn't.  To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being significantly faster by virtue of the much shorter conversion time.
 ## ADC Function Reference
 This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application.
 
@@ -64,7 +63,7 @@ speed. This returns a `bool` - it is `true` if value is valid.
 
 This value is used for all analog measurement functions.
 
-| Part Series | Sample time  | Conversion time | Total analogRead() time | SAMPDUR/SAMPLEN | ADC clock sample time |
+| Part Series | Sample time<br/>(default)  | Conversion time | Total analogRead() time | Default SAMPLEN | ADC clock sample time |
 |-------------|--------------|-----------------|-------------------------|-----------------|-----------------------|
 | Classic AVR |        12 us |           92 us |                  104 us | No such feature | 1.5                   |
 | 0/1-series  |        12 us |       8.8-10 us |              20.8-22 us |     7, 9, or 13 | 2 + SAMPLEN           |
@@ -82,8 +81,10 @@ On the 2-series, we are at least given some numbers: 8pF for the sample and hold
 Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res` is resolution in bits, which may range from 8 to `ADC_MAX_OVERSAMPLED_RESOLUTION`. This maximum is 15 bits for Dx-series parts, and 17 for Ex-series. If this is less than the native ADC resolution, that resolution is used, and then it is right-shifted 1, 2, or 3 times; if it is more than the native resolution, the accumulation option which will take 4<sup>n</sup> samples (where `n` is `res` native resolution) is selected. Note that maximum sample burst reads are not instantaneous, and in the most extreme cases can take milliseconds. Depending on the nature of the signal - or the realtime demands of your application - the time required for all those samples may limit the resolution that is acceptable. The accumulated result is then decimated (rightshifted n places) to yield a result with the requested resolution, which is returned. See [Atmel app note AVR121](https://ww1.microchip.com/downloads/en/appnotes/doc8003.pdf) - the specific case of the new ADC on the Ex and tinyAVR 2-series is discussed in the newer DS40002200 from Microchip, but it is a rather vapid document). Alternately, to get the raw accumulated ADC readings, pass one of the `ADC_ACC_n` constants for the second argument where `n` is a power of 2 up to 128 (Dx-series), or up to 1024 (Ex-series). The Dx-series only makes available the 16 MSBs, so when accumulating more than 16 samples, the value will be truncated to 16 bits. Be aware that the lowest bits of a raw accumulated reading should not be trusted.; they're noise, not data (which is why the decimation step is needed, and why 4x the samples are required for every extra bit of resolution instead of 2x). On Ex-series parts *the PGA can be used for single ended measurements*. Valid options for gain on the Ex-series are 0 (PGA disabled, default), 1 (unity gain - may be appropriate under some circumstances, though I don't know what those are), or powers of 2 up to 16 (for 2x to 16x gain). On Dx-series parts, the gain argument should be omitted or 0; these do not have a PGA.
 
 ```c++
-  int32_t adc_reading = analogReadEnh(PIN_PD2,13);
-  // Measure voltage on PD2, to 13 bits of resolution. This will be sampled 4 times using the accumulation function, and then rightshifted once.
+  int32_t adc_reading = analogReadEnh(PIN_PD2, 13); //be sure to choose a pin with ADC support. The Dx-series and tinyAVR have ADC on very different sets of pins.
+  // Measure voltage on PD2, to 13 bits of resolution.
+  // AVR Dx, Ex, and tinyAVR 2-series this will be sampled 4 times using the accumulation function, and then rightshifted once
+  // tinyAVR 0/1-series, this will be sampled 64 times, as we need 3 more bits, hence we need to take 2^(3*2) = 64 samples then rightshift them 3 times.,
   int32_t adc_reading2 = analogReadEnh(PIN_PD2, ADC_ACC128);
   // Take 128 samples and accumulate them. This value, k, is 19 bits wide; on the Dx-series parts, this is truncated to 16 bits - the hardware does not expose the three LSBs.
 ```
@@ -141,7 +142,9 @@ Serial.println(analogClockSpeed(20000,1)); // Above manufacturer's spec. but we 
 // maximum obtainable (which is several times the maximum supported) speed, with limits bypassed,
 // will lead it to choose the fastest possible ADC clock, which is only prescaled by a factor of 2,
 // and return that value, likely 8000 or 10000 unless for 16 or 20 MHz. (higher if you're overclocking
-// the chip in general too). Expect inaccurate results of other bad behavior.
+// the chip in general too). One version that was released shortly after the 2-series contained a bug that would always set the
+// ADC prescaler to the minimum. And I'd written about how disappointed I was in the new ADC. After fixing the bug, things improved significantly.
+// I am favorably impressed by how well the poor overclocked ADC performed, despite being overclocked
 
 // ******* For both *******
 int returned_default = analogClockSpeed(-1); // reset to default value, around 1000 - 1500 kHz for Dx and around 2500 for Ex.
@@ -164,16 +167,17 @@ Note that the numeric values, though not the names, of some of these were change
 
 | Error name                     |     Value   | analogCheckError val | Notes
 |--------------------------------|-------------|---------------------------------------------------------------------
-|ADC_ERROR_BAD_PIN_OR_CHANNEL    |      -32001 |                   -1 | The specified pin or ADC channel does not exist or does support analog reads.
+|ADC_ERROR_BAD_PIN_OR_CHANNEL    |      -32001 |                   -1 | The specified pin or ADC channel does not exist or does not support analog reads.
 |ADC_ERROR_BUSY                  |      -32002 |                   -2 | The ADC is busy with another conversion.
 |ADC_ERROR_DISABLED              |      -32007 |                   -7 | The ADC is disabled at this time. Did you disable it before going to sleep and not re-enable it?
-|ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL| -2100000001 |                   -1 | The specified pin or ADC channel does not exist or does support analog reads.
+|ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL| -2100000001 |                   -1 | The specified pin or ADC channel does not exist or does not support analog reads.
 |ADC_ENH_ERROR_BUSY              | -2100000002 |                   -2 | The ADC is busy with another conversion.
 |ADC_ENH_ERROR_RES_TOO_LOW       | -2100000003 |                   -3 | Minimum ADC resolution is 8 bits. If you really want less, you can always rightshift it.
-|ADC_ENH_ERROR_RES_TOO_HIGH      | -2100000004 |                   -4 | Maximum resolution, using automatic oversampling and decimation is less than the requested resolution.
+|ADC_ENH_ERROR_RES_TOO_HIGH      | -2100000004 |                   -4 | Maximum resolution using automatic oversampling and decimation is less than the requested resolution.
 |ADC_DIFF_ERROR_BAD_NEG_PIN      | -2100000005 |                   -5 | analogReadDiff() was called with a negative input that is not valid.
 |ADC_ENH_ERROR_DISABLED          | -2100000007 |                   -7 | The ADC is currently disabled. You must enable it to take measurements. Did you disable it before going to sleep and not re-enable it?
-|ADC_IMPOSSIBLE_VALUE            |         N/A |                 -127 | 16-bit value > 4095, or 32-bit value that's not an error code and is outside the range of -2,097,152-4,194,303 (raw 1024-sample accumulation range.
+|ADC_IMPOSSIBLE_VALUE            |         N/A |                 -127 | 16-bit (analogRead()) value > 4095, or 32-bit value that's not an error code and is outside the range of -2,097,152 to 4,193,280 accumulation range.
+|.                               |         N/A |                    . | Note that 4,193,280 = (2<sup>12</sup>-1)*1024, and is the maximum possible for any single reading
 |Potentially valid reading       |see previous |                    0 | If there is some combinations of settings that could get this value without an error condition it returns 0.
 
 The impossible values are checked for without testing all of the bytes for greater efficiency. If you see that result one of two things was the case: the value you passed in wasn't from analog read or had been cast to a different type before you passed it, or i, or was corrupted somehow (writing off end of adjacent array in memory? Overclocking too hard such that th chip was doing math wrong?).
@@ -181,7 +185,7 @@ The impossible values are checked for without testing all of the bytes for great
 ### Functions in megaTinyCore.h
 These functions are located in megaTinyCore.h - they do not require tight core integration to work,.
 #### printADCRuntimeError(uint32_t error, &UartClass DebugSerial)
-Pass one of the above runtime errors and the name of a serial port to get a human-readable error message. This is wasteful of space, do don't include it in your code unless you need to. Also, *you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value or a signed 16-bit one*
+Pass one of the above runtime errors and the name of a serial port to get a human-readable error message. This is wasteful of space, so don't include it in your code unless you need to. Also, *you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value (from analogReadEnh or analogReadDiff) or a signed 16-bit one (from analogRead())*
 ```c++
 int32_t adc_reading=AnalogReadDiff(PIN_PA1, PIN_PA2);
 if (analogCheckError) { // an error occurred! Print a human readable value
@@ -190,8 +194,7 @@ if (analogCheckError) { // an error occurred! Print a human readable value
 ```
 #### analogCheckError(value)
 Pass either the int16_t from analogRead or the int32_t from analogReadEnh to this to check if it's a valid value. If this returns a 1, that means that you got an error, and should be printing debugging information, not trying to make use of it.
-*you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value or a signed 16-bit one*
-```c++
+*you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value (from analogReadEnh or analogReadDiff) or a signed 16-bit one (from analogRead())*
 ```c++
 int32_t adcreading=analogReadEnh(PIN_PA1,12);
 if (analogCheckError(adcreading)) {

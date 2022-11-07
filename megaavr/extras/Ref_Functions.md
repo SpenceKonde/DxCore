@@ -260,7 +260,6 @@ Call this if you are running from the internal clock, but it is not at F_CPU - l
 See [Timer Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
 ```text
   void takeOverTCA0()
-  void takeOverTCA1()
   void takeOverTCD0()
   void resumeTCA0()
   void resumeTCA1()
