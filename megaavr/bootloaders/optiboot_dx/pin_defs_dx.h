@@ -585,10 +585,11 @@
  * the watch crystal to PA0/PA1 (same as HF XTAL) for parts that
  * don't have PF0, PF1.
  * They had to reshape the PORTMUX registers, but it turns out
- * that it doesn't matter. The fact that the USART1 portmux bits
- * are 1 further to the left to make room for their large neighbor
- * doesn't matter, other than that we need another damned set of
- * binaries.
+ * that this only changes matters in the case of USART1 in ALT2.
+ * Otherwise, we set the whole register to zero and are done.
+ * There aren't any parts with an alt1 for USART1.
+ * And of coure, for USART0, as there is no alt 2 for any earlier parts
+ * that and alt3 were added.
  * DA+DB share files and have 66 binaries for 22 parts
  * If DD can take same binaries for 32 and 16 (I think it can)
  * the that means 2 (flash sizes) * 8 (usart options) *2 (for the

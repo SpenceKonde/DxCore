@@ -573,6 +573,7 @@ int main (void) {
        * We have 2 bytes of buffer (RXDATA, and a buffer behind it), plus the shift register. So as
        * long as you can write pages faster than they come in, you don't need to make a buffer in RAM
        * At 115200 baud, we exceed it by nearly a factor of 3. Removing that would save a few bytes
+       * BUT WE WOULD NEED TO HAVE ERASED THE PAGE!!
        */
       // read a page worth of contents
       bufPtr = buff.bptr;
@@ -820,11 +821,10 @@ void watchdogConfig (uint8_t x) {
                               "dec %[len]"                  "\n\t" \
                               "brne head"                   "\n\t" \
                               "clr r1"                      "\n\t" \
-                              : [len]   "=r" (len) \
-                              : "z" ((uint16_t)address.word), \
-                                [ptr] "e" ((uint16_t)mybuff.bptr), \
-                                "0" ((uint8_t)len) \
-                              : "r0", "r24"
+                              : [len]   "+r" (len) \
+                              "+z" ((uint16_t)address.word), \
+                              [ptr] "e" ((uint16_t)mybuff.bptr),
+                              :: "r0", "r24"
                               );
       } // default block
     } // switch
@@ -855,10 +855,10 @@ static inline void read_flash(addr16_t address, pagelen_t length)
       //      do putch(pgm_read_byte_near(address++));
       //      while (--length);
       // read a Flash and increment the address (may increment RAMPZ)
-      __asm__ ("elpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
+      __asm__ ("elpm %0,Z+\n" : "=r" (ch), "+z" (address.bptr));
     #else
       // read a Flash byte and increment the address
-      __asm__ ("lpm %0,Z+\n" : "=r" (ch), "=z" (address.bptr): "1" (address));
+      __asm__ ("lpm %0,Z+\n" : "=r" (ch), "+z" (address.bptr));
     #endif
     putch(ch);
   } while (--length);

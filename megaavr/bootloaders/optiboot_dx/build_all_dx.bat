@@ -73,6 +73,22 @@ call omake dx32_ser3_8sec
 call omake dx32_ser3_alt_8sec
 call omake dx32_ser4_8sec
 echo "Building AVR64DD-series only bootloaders."
+call omake dd64_ser0
+call omake dd64_ser0_8sec
+call omake dd64_ser0_alt1
+call omake dd64_ser0_alt1_8sec
+call omake dd64_ser0_alt2
+call omake dd64_ser0_alt2_8sec
+call omake dd64_ser0_alt3
+call omake dd64_ser0_alt3_8sec
+call omake dd64_ser0_alt4
+call omake dd64_ser0_alt4_8sec
+call omake dd64_ser1_alt2
+call omake dd64_ser1_alt2_8sec
+call omake dd64_ser0
+call omake dd64_ser0_8sec
+call omake dd64_ser0_alt1
+call omake dd64_ser0_alt1_8sec
 call omake dd64_ser0_alt2
 call omake dd64_ser0_alt2_8sec
 call omake dd64_ser0_alt3
@@ -82,6 +98,22 @@ call omake dd64_ser0_alt4_8sec
 call omake dd64_ser1_alt2
 call omake dd64_ser1_alt2_8sec
 echo "Building AVR32DD-series and AVR16DD-series only bootloaders."
+call omake dd32_ser0
+call omake dd32_ser0_8sec
+call omake dd32_ser0_alt1
+call omake dd32_ser0_alt1_8sec
+call omake dd32_ser0_alt2
+call omake dd32_ser0_alt2_8sec
+call omake dd32_ser0_alt3
+call omake dd32_ser0_alt3_8sec
+call omake dd32_ser0_alt4
+call omake dd32_ser0_alt4_8sec
+call omake dd32_ser1_alt2
+call omake dd32_ser1_alt2_8sec
+call omake dd32_ser0
+call omake dd32_ser0_8sec
+call omake dd32_ser0_alt1
+call omake dd32_ser0_alt1_8sec
 call omake dd32_ser0_alt2
 call omake dd32_ser0_alt2_8sec
 call omake dd32_ser0_alt3
