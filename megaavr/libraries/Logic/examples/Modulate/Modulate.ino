@@ -1,9 +1,10 @@
 /***********************************************************************|
-| Configurable Custom Logic library                                     |
-| Developed in 2019 by MCUdude.      https://github.com/MCUdude/        |
-| Example by Spence Konde 2020-2022                                     |
+| tinyAVR Configurable Custom Logic library                             |
+| Modulate.ino                                                          |
 |                                                                       |
-| Modulate.ino - replicating the "timer modulation" feature             |
+| A library for interfacing with the megaAVR Configurable Custom Logic. |
+| Developed in 2019 by MCUdude.       Example by Spence Konde 2020-2021 |
+| https://github.com/MCUdude/            https://github.com/SpenceKonde |
 |                                                                       |
 | In this example we use the configurable logic peripherals of the of a |
 | modern AVR to achieve the "modulate one timer's PWN with another's"   |
@@ -43,36 +44,40 @@
 | to refer to them.                                                     |
 ************************************************************************/
 
+
+// Make sure this compiles on 8-pin parts for the automated tests...
+#if !defined(__AVR_ATtinyxy2__)
+  #define PIN_TCA_WO1 PIN_PB1
+#else
+  #define PIN_TCA_WO1 PIN_PA1
+#endif
+
+
 #include <Logic.h>
 
 void setup() {
 
 
-  Logic0.enable = true;                 // Enable logic block 0
-  Logic0.input0 = logic::in::tcb;              // Use TCB WO as input 0 (input 0 = TCB0)
-  Logic0.input1 = logic::in::tca0;             // Mask ii
-  // not tcb1 as you would use on tinyAVR - the timer is based on the input.
-  Logic0.input2 = logic::in::masked;           // mask input 2
-  // Logic0.output_swap = logic::out::pin_swap; / Uncomment this line if you want or
-  //                                       need to use the alternate output pin
-  Logic0.output = logic::out::enable;          // Enable logic block 0 output pin, PA3 on non-tinyAVRs.
-  Logic0.filter = logic::filter::disable;      // No output filter enabled
-  Logic0.truth = 0x08;                  // Set truth table - HIGH only if both high
-  Logic0.init();                        // Initialize logic block 0
-  Logic::start();                       // Start the AVR logic hardware
-  // How to configure timer is beyond the scope of this example, so we will just kick off
-  // WO1 with analogWrite(). We need to know where that is though, because
-  // TCA0 can be put onto any port. We can't use PORTA because that will error if a crystal were used, and we tried
-  // pin 0 or 1, and PORTD isn't guaranteed to have pins 0-3 available, so only PORTC can be used
-  // on all supported parts and still compile!
-  // This is not what you'd do in practice - you would would have taken over TCA0 and configured it manually.
-  // but this is a a quick way to a signal you can look at on the 'scope.
-  PORTMUX.TCAROUTEA = PORTMUX_TCA0_PORTC_gc; // put TCA outputs onto PORTC
-  analogWrite(PIN_PC1, 128);             // Now we can call analogWrite on PC1 and get our output.
-  TCB0.CTRLA = 0x01;                    // enabled with CLKPER as clock source
-  TCB0.CTRLB = 0x07;                    // PWM8 mode, but output pin not enabled
-  TCB0.CCMPL = 255;                     // 255 counts
-  TCB0.CCMPH = 128;                     // 50% duty cycle
+  Logic0.enable = true;               // Enable logic block 0
+  Logic0.input0 = logic::in::tcb;            // TCB channel - TCB0. On everything except 0/1-series tinyAVR, that's because this is input 0.
+  //                                     On those, it's because there's a logic::in::tcb1 option too...
+  Logic0.input1 = logic::in::tca0;           // Use TCA0 WO1 as input0
+  Logic0.input2 = logic::in::masked;         // mask input 2
+  Logic0.output = logic::out::enable;        // Enable logic block 0 output pin or PA4 (ATtiny))
+  Logic0.filter = logic::filter::disable;    // No output filter enabled
+  Logic0.truth = 0x08;                // Set truth table - HIGH only if both high
+
+  // Initialize logic block 0
+  Logic0.init();
+
+  // Start the AVR logic hardware
+  Logic::start();
+
+  analogWrite(PIN_TCA_WO1, 128); // start TCA0 WO0 running
+  TCB0.CTRLA = 0x01; // enabled with CLKPER as clock source
+  TCB0.CTRLB = 0x07; // PWM8 mode, but output pin not enabled
+  TCB0.CCMPL = 255; // 255 counts
+  TCB0.CCMPH = 128; // 50% duty cycle
 }
 
 void loop() {

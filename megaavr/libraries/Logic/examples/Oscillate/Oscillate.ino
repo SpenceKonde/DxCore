@@ -1,55 +1,58 @@
 /***********************************************************************|
-| megaAVR Configurable Custom Logic library                             |
-|                                                                       |
-| Oscillate.ino                                                         |
-|                                                                       |
-| A library for interfacing with the megaAVR Configurable Custom Logic. |
-| Developed in 2019 by MCUdude. https://github.com/MCUdude/             |
-| Example by Spence Konde, 2020 https://github.com/SpenceKonde/         |
-|                                                                       |
-| In this example, we demonstrate the fact that these are ASYNCHRONOUS  |
-| by (ab)using the CCL in a configuration which will oscillate - this   |
-| example uses two logic blocks - though you can even just use a singke |
-| one with it's first input set to 'feedback` and its truth table to 1  |
-| (HIGH if all inputs LOW), with the other two inputs masked.           |
-| If you set values for the filter, you  get sane output frequencies    |
-| which might even be useful (that is, it acts as a clock divider).     |
-| But what fun is that?! If you turn them both off, it oscillates much  |
-| faster - most parts generate something in the area of 30-40 MHz with  |
-| the below sketch, and around 100 just inverting their own output.     |
-|                                                                       |
-| It is temperature dependent - point a can of freeze spray (computer   |
-| duster held upside-down, so the liquid comes out) and the frequency   |
-| goes up. Aim a heat-gun or torch at it (use care - freeze spray DOES  |
-| burn, and you do NOT want to inhale the combustion products or cause  |
-| an inferno in your lab) and the frequency goes down. Warnings:        |
-| Hitting hot parts with freeze spray may crack the package, ruining the|
-| part, and freeze spray will cause frost to form on the parts. Best to |
-| disconnect them from power while they thaw and dry off before applying|
-| power to them again. PCBs also burn if you are not careful with that  |
-| torch) This maximum-speed oscillation is of essentially zero          |
-| practical use, but it sure is cool isn't it?                          |
-|                                                                       |
-| Maybe it could be used to examine a new silicon revision to see if    |
-| there were any significant process changes? *shrug*                   |
-|                                                                       |
-| And yes, if you happen to want your part to run at an indeterminate   |
-| and highly temperature dependent speed, you could then set the system |
-| clock prescaler to an appropriate prescaler, and connect a jumper     |
-| between the Logic0 output pin and EXTCLK pin, and switch to the       |
-| external clock, and it will run from that. This is not recommended    |
-| except as a joke or demo. But if you ever find yourself missing the   |
-| crap oscillator that the classic AVRs had....                         |
-|                                                                       |
-| In combination with the synchronizer/filter, though, it is has the    |
-| potential to be far more useful - as it will allow generation of a    |
-| prescaled  clock. On parts where a TCB can be clocked from an event,  |
-| this allows one to work around the limited prescaling options         |
-| available for TCBs, without having to change the TCA prescaler. For   |
-| more information on this, see: https://github.com/SpenceKonde/        |
-| AVR-Guidance/blob/master/CCL_EVSYS_hacks/CCL_prescaling.md            |
-|                                                                       |
-************************************************************************/
+  | megaAVR Configurable Custom Logic library                             |
+  |                                                                       |
+  | Oscillate.ino                                                         |
+  |                                                                       |
+  | A library for interfacing with the megaAVR Configurable Custom Logic. |
+  | Developed in 2019 by MCUdude. https://github.com/MCUdude/             |
+  | Example by Spence Konde, 2020 https://github.com/SpenceKonde/         |
+  |                                                                       |
+  | In this example, we demonstrate the fact that these are ASYNCHRONOUS  |
+  | by (ab)using the CCL in a configuration which will oscillate - this   |
+  | example uses two logic blocks - though there are plenty of ways to    |
+  | make it oscillate with a single one (see if you can come up with some |
+  | - assuming you find this fun). If you set values for the filter, you  |
+  | get sane output frequencies - just what one would expect from the     |
+  | datasheet. But what fun is that?! If you turn them both off, it       |
+  | oscillates much faster - faster than the clock speed! with a sawtooth |
+  | waveform which (measured by my 'scope) clocks in at 37 MHz - from a   |
+  | part running at 20 MHz! Different configurations will result in       |
+  | different frequencies. The simplest one can oscillate at a whopping   |
+  | 92 MHz!                                                               |
+  |                                                                       |
+  | It is temperature dependenr - point a can of freeze spray (computer   |
+  | duster held upside-down, so the liquid comes out) and the frequency   |
+  | goes up. Aim a heat-gun or torch at it (use care - freeze spray DOES  |
+  | burn, and you do NOT want to inhale the combustion products or cause  |
+  | an inferno in your lab.) and the frequency goes down. Warnings:       |
+  | Hitting hot parts with freeze spray may crack the package, ruining the|
+  | part, and freeze spray will cause frost to form on the parts. Best to |
+  | disconnect them from power while they thaw and dry off before applying|
+  | power to them again. PCBs also burn if you are not careful with that  |
+  | torch) This is maximum-speed oscillation is of essentially zero       |
+  | practical use, but it sure is cool isn't it?                          |
+  |                                                                       |
+  | Maybe it could be used to examine a new silicon revision to see if    |
+  | there were any significant process changes? *shrug*                   |
+  |                                                                       |
+  | And yes, if you happen to want your part to run at an indeterminate   |
+  | and highly temperature dependent speed, you could then set the system |
+  | clock prescaler to 2, connect a jumper between the Logic0 output pin  |
+  | and EXTCLK pin, and switch to the external clock, leading to it       |
+  | running at around 18.5 MHz with wide variation depending on conditions|
+  | This is not recommended except as a silly joke, and it is thoroughly  |
+  | useless. Maybe if you miss the +/- 10% tolerance on the classic AVR   |
+  | internal oscillator?                                                  |
+  |                                                                       |
+  | In combination with the synchronizer/filter, though, it is has the    |
+  | potential to be far more useful - as it will allow generation of a    |
+  | prescaled system clock. On parts where a TCB can be clocked from an   |
+  | event, this allows one to work around the limited prescale options    |
+  | available for TCBs, without having to change the TCA prescaler. For   |
+  | more information on this, see: https://github.com/SpenceKonde/        |
+  | AVR-Guidance/blob/master/CCL_EVSYS_hacks/CCL_prescaling.md            |
+  |                                                                       |
+  |***********************************************************************/
 
 #include <Logic.h>
 #include <Event.h>

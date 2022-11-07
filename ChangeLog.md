@@ -23,34 +23,32 @@ These items are in addition to what was listed under changes already in release.
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
 ### planned 1.5.0
-* Port fixes to Logic, Event and Comparator libraries from megaTinyCore.
-  * This means if you don't attach an interrupt using the `attachInterrupt()` method, you can make your own interrupt, or just save the flash.
-* Fix issue with SerialUPDI uploads on updated versions of linux
-* Add more part infomrmation macros (See [the define list](megaavr/extras/Ref_Defines.md))
-* Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
-* Fix bug with Wire.h complaining inappropriately about ambiguous types.
 * Enable support for alternate TCD pins based on portmux for DD where this works.
 * Update event library to latest version from megaTinyCore
-* New Toolchain version: ~Azduino5~ Azduino5 was no good, so Azduino6 for DD support
-  * Required changes because of Microchip having renamed a bunch of registers >.<
-  * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
-  * Adds support for 32k and 16k DD-series parts.
-  * Currently implemented changed should make it compatible but the toolchain has yet to be packaged.
-* Largely reimplemented the first half of analogWrite(). On parts with a TCA1, all PORTMUX options should now work, even those with only 3 pins.
 * Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
-* Add flash spm options for DD-series parts, and a smaller number of SPM options for people who have very small code but want to store huge amounts of user data in flash (read: Standalone Programmers)
-* Enable all DD-series parts
-* Complete rewrite of the logic used to determine which timer and pins on TCA0 and TCA1 are used for PWM
-* Implement generic autobaud for Serial and some associated functionality.
 * Fix serial receive issue.
 
 ### Thus far implemented in 1.5.0
+* Port fixes to Logic, Event and Comparator libraries from megaTinyCore.
+  * This means if you don't attach an interrupt using the `attachInterrupt()` method, you can make your own interrupt, or just save the flash.
 * Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this has little impact on actual behavior)
 * Correct issue with the menu options for AVR DD-series parts, which resulting in burn bootloader bricking these chips to all who don't have an NV UPDI programmer, of which I believe only one is currently available, from Microchip, for an arm and a leg.
   * Special thanks to the folks who reported this before I had a chance to brick any of my own hardware!
 * Improvements for menu options for all boards.
-*
-
+* Add flash spm options for DD-series parts.
+* New Toolchain version: ~Azduino5~ Azduino5 was no good, so Azduino6 for DD support
+  * Required changes because of Microchip having renamed a bunch of registers >.<
+  * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
+  * Adds support for 32k and 16k DD-series parts.
+* Largely reimplemented the first half of analogWrite(). On parts with a TCA1, all PORTMUX options should now work, even those with only 3 pins.
+* Fix issue with SerialUPDI uploads on updated versions of linux
+* Add more part infomrmation macros (See [the define list](megaavr/extras/Ref_Defines.md))
+* Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
+* Fix SPI pin issue with pin numbers
+* Enable all DD-series parts
+* Update to latest version of Wire.
+* Complete rewrite of the logic used to determine which timer and pins on TCA0 and TCA1 are used for PWM
+* Implement generic autobaud for Serial and some associated functionality.
 
 ## Version History
 

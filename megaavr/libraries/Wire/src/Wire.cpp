@@ -140,12 +140,12 @@ bool TwoWire::swap(uint8_t state) {
         #endif
         false)) {
           if (state > 3) {
-            badArg("The requested swap level is not available on any current or announced part - did you pass a bitmask instead of a number?")
+            badArg("The requested swap level is not available on any current or announced part - did you pass a bitmask instead of a number?");
           } else if (state == 3){
-            badArg("Swap level 3 is not available on DA or DB devices, only swaps 0, 1 and 2.")
+            badArg("Swap level 3 is not available on DA or DB devices, only swaps 0, 1 and 2.");
           } else {
-            badArg("The requested swap level is not available on this part.")
-            return false
+            badArg("The requested swap level is not available on this part.");
+            return false;
           }
         }
 
@@ -165,10 +165,10 @@ bool TwoWire::swap(uint8_t state) {
         #endif
         false)) {
           if (state > 3) {
-            badArg("The requested swap level is known at compile time to be one that is not available on any part. (did you pass a bitmask instead of a number?)")
+            badArg("The requested swap level is known at compile time to be one that is not available on any part. (did you pass a bitmask instead of a number?)");
           } else {
-            badArg("The requested swap level is not available on this part.")
-            return false
+            badArg("The requested swap level is not available on this part.");
+            return false;
           }
         }
 
@@ -268,9 +268,11 @@ void TwoWire::begin(void) {
  *@return     void
  */
 void TwoWire::begin(uint8_t address, bool receive_broadcast, uint8_t second_address) {
-  if (__builtin_constant_p(address) > 0x7F) {     // Compile-time check if address is actually 7 bit long
-    badArg("TWI addresses must be supplied in 7-bit format. The read/write bit is handled by the library");
-    return;
+  if (__builtin_constant_p(address)) {
+    if (address > 0x7F) {     // Compile-time check if address is actually 7 bit long
+      badArg("TWI addresses must be supplied in 7-bit format. The read/write bit is handled by the library");
+      return;
+    }
   }
   TWI_SlaveInit(&vars, address, receive_broadcast, second_address);
 }
@@ -355,32 +357,31 @@ void TwoWire::endSlave(void) {
  *            0x04 = sda_hold_dual ignored because dual mode not enabled.
  */
 
-uint8_t TwoWire::specialConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual, uint8_t sda_hold_dual) {
+uint8_t TwoWire::specialConfig( __attribute__ ((unused)) bool smbuslvl, __attribute__ ((unused)) bool longsetup, __attribute__ ((unused)) uint8_t sda_hold, __attribute__ ((unused)) bool smbuslvl_dual, __attribute__ ((unused)) uint8_t sda_hold_dual) {
   uint8_t ret = 0;
   #if !defined(TWI_INPUTLVL_bm) // if there's no input level option, we want to notify the user with an error so they don't think they have a feature they don't
     if (__builtin_constant_p(smbuslvl))  { //but they could be passign a zero, which is legal. See if it's constant...
       if (smbuslvl) {                      // and non-zero, in which case error:
         badCall("the smbus level option is not present on these parts. You need a Dx for that.");
       }
-    } else if (smbuslvldual) { //same deal for dual mode
-      if (smbuslvldual) {
+    } else if (smbuslvl_dual) { //same deal for dual mode
+      if (smbuslvl_dual) {
         badCall("the smbus level option is not present on these parts. You need a Dx for that.");
       }
     // the above will always fold to nothing or and error, and does not bloat binary
     // but we may not know at compile time what will be passed, so we have to have a runtime test.
     }
-      else if (smbuslvl || smbuslvldual) {
-        ret         |= 1; //
-        smbuslvl     = 0; // We don't HAVE this option here, so zero out the option we pass along.
-       //#if defined(TWI_DUALCTRL)
-       //   smbuslvldual = 0; // no need to 0 - variable is no longer used, w/out dual ctrl, there's also not going to be smbus levels.
-       //#endif
-      }
+    else if (smbuslvl || smbuslvl_dual) {
+      ret         |= 1; //
+      smbuslvl     = 0; // We don't HAVE this option here, so zero out the option we pass along.
+     //#if defined(TWI_DUALCTRL)
+     //   smbuslvldual = 0; // no need to 0 - variable is no longer used, w/out dual ctrl, there's also not going to be smbus levels.
+     //#endif
     }
   #endif
   if (__builtin_constant_p(sda_hold))  {
     if (sda_hold > 3) {
-      badArg("Only 0, 1, 2 and 3 are valid SDA hold options. Suggest using the named constants.")
+      badArg("Only 0, 1, 2 and 3 are valid SDA hold options. Suggest using the named constants.");
     }
   } else if (sda_hold > 3) {
     ret |= 0x08;
@@ -407,7 +408,7 @@ uint8_t TwoWire::specialConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, 
   #else
     if (__builtin_constant_p(sda_hold_dual))  {
       if (sda_hold_dual > 3) {
-        badArg("Only 0, 1, 2 and 3 are valid SDA hold options. Suggest using the named constants.")
+        badArg("Only 0, 1, 2 and 3 are valid SDA hold options. Suggest using the named constants.");
       }
     } else if (sda_hold_dual > 3) {
       ret |= 0x08;

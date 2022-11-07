@@ -134,7 +134,8 @@ This property configures the DACREF value - this voltage can be selected as the 
 
 <img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
-Or, in words, the the voltage from ACn.DACREF is dacref 256th's of the reference voltage.
+Or, in words, the the voltage from ACn.DACREF is that many 256th's of the reference voltage
+*(it does not appear to be `ACn.DACREF + 1` 256'ths interestingly enough, which is what one would naively expect, and would be strictly speaking slightly better) -SK*
 
 #### Usage
 ``` c++

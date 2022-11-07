@@ -28,7 +28,7 @@ void print_user_info(user::user_t my_user) {
 }
 
 void setup() {
-  Serial1.begin(9600); // Initialize hardware serial port
+  Serial.begin(115200); // Initialize hardware serial port
 
   Event4.set_generator(gen4::pin_pe0); // Set pin PE0 as event generator
   Event5.set_generator(gen5::pin_pe1); // Set pin PE1 as event generator

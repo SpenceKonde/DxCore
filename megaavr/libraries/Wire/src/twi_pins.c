@@ -29,7 +29,7 @@
 
 #include <Arduino.h>
 #include "twi_pins.h"
-
+/*
 bool TWI_checkPins(uint8_t sda_pin, uint8_t scl_pin);
 
 bool TWI_checkPins(uint8_t sda_pin, uint8_t scl_pin) {
@@ -73,7 +73,7 @@ bool TWI_checkPins(uint8_t sda_pin, uint8_t scl_pin) {
     // 2) This must be part of Wire.cpp so that the constant
   return true;
 }
-
+*/
 void TWI0_ClearPins() {
   // Set the pins low so we don't get errata'ed.
   // On parts where this erratum has been fixed, we shouldn't need to do *anything* for this!
@@ -161,11 +161,11 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
 // --- Attiny series ---
     #if defined(PORTMUX_CTRLB)
       #if defined(PIN_WIRE_SDA_PINSWAP_1)
-        if (sda_pin == PIN_WIRE_SDA_PINSWAP_1) {
+        if (sda_pin == PIN_WIRE_SDA_PINSWAP_1 && scl_pin == PIN_WIRE_SCL_PINSWAP_1) {
           // Use pin swap
           PORTMUX.CTRLB |= PORTMUX_TWI0_bm;
           return true;
-        } else if (sda_pin == PIN_WIRE_SDA) {
+        } else if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
           // Use default configuration
           PORTMUX.CTRLB &= ~PORTMUX_TWI0_bm;
           return true;
@@ -181,25 +181,25 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
     #elif defined(PORTMUX_TWIROUTEA)
       uint8_t portmux = (PORTMUX.TWIROUTEA & ~PORTMUX_TWI0_gm);
       #if      defined(PIN_WIRE_SDA_PINSWAP_3)
-        if (sda_pin == PIN_WIRE_SDA_PINSWAP_3) {
+        if (sda_pin == PIN_WIRE_SDA_PINSWAP_3 && scl_pin == PIN_WIRE_SCL_PINSWAP_3) {
           PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT3_gc;
           return true;
         } else
       #endif
       #if      defined(PIN_WIRE_SDA_PINSWAP_2)
-        if (sda_pin == PIN_WIRE_SDA_PINSWAP_2) {
+        if (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) {
           PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
           return true;
         } else
       #endif
       #if      defined(PIN_WIRE_SDA_PINSWAP_1)
-        if (sda_pin == PIN_WIRE_SDA_PINSWAP_1) {
+        if (sda_pin == PIN_WIRE_SDA_PINSWAP_1 && scl_pin == PIN_WIRE_SCL_PINSWAP_1) {
           PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT1_gc;
           return true;
         } else
       #endif
       #if      defined(PIN_WIRE_SDA)
-        if (sda_pin == PIN_WIRE_SDA) {
+        if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL_PINSWAP) {
           // Use default configuration
           PORTMUX.TWIROUTEA = portmux;
           return true;
@@ -472,7 +472,7 @@ uint8_t TWI0_checkPinLevel(void) {
 }
 
 #if defined(TWI_DUALCTRL) // full version for parts with dual mode and likely input level too
-  uint8_t TWI0_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual. uint8_t sda_hold_dual) {
+  uint8_t TWI0_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual, uint8_t sda_hold_dual) {
     uint8_t cfg = TWI0.CTRLA & 0x03;
     sda_hold <<= 2; // get these into the right place in the byte
     sda_hold_dual <<= 2;
@@ -482,7 +482,7 @@ uint8_t TWI0_checkPinLevel(void) {
     if (longsetup) {
       cfg |= 0x10;
     }
-    cfg |= sdahold;
+    cfg |= sda_hold;
     TWI0.CTRLA = cfg;
     #if defined(TWI0_DUALCTRL)
       cfg_dual = TWI1.DUALCTRL & 0x03;
@@ -504,7 +504,7 @@ uint8_t TWI0_checkPinLevel(void) {
     if (longsetup) {
       cfg |= 0x10;
     }
-    cfg |= sdahold;
+    cfg |= sda_hold;
     TWI0.CTRLA = cfg;
     return 0; // return success - all other errors are checked for before this is called.
   }
@@ -540,20 +540,20 @@ bool TWI1_Pins(uint8_t sda_pin, uint8_t scl_pin) {
     // Elsewhere, 'portmux' refers to the setting for this peripheral only, and we compare it to PORTMUX_TWI1_xxx_gc
     uint8_t portmux =  PORTMUX.TWIROUTEA & ~PORTMUX_TWI1_gm;
     #if defined(PIN_WIRE1_SDA_PINSWAP_2)
-      if (sda_pin == PIN_WIRE1_SDA_PINSWAP_2) {
+      if (sda_pin == PIN_WIRE1_SDA_PINSWAP_2 && scl_pin == PIN_WIRE1_SCL_PINSWAP_2) {
         // Use pin swap
         PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI1_ALT2_gc;
         return true;
       } else
     #endif
     #if defined(PIN_WIRE1_SDA_PINSWAP_1)
-      if (sda_pin == PIN_WIRE1_SDA_PINSWAP_1) {
+      if (sda_pin == PIN_WIRE1_SDA_PINSWAP_1 && scl_pin == PIN_WIRE1_SCL_PINSWAP_1) {
         PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI1_ALT1_gc;
         return true;
       } else
     #endif
     #if defined(PIN_WIRE1_SDA)
-      if (sda_pin == PIN_WIRE1_SDA) {
+      if (sda_pin == PIN_WIRE1_SDA && scl_pin == PIN_WIRE1_SCL) {
         // Use default configuration
         PORTMUX.TWIROUTEA = portmux;
         return true;
@@ -668,7 +668,7 @@ uint8_t TWI1_checkPinLevel(void) {
 }
 
 // All devices with TWI1 have dual mode and the most have the smbus levels; the exceptions are caught before this is called
-uint8_t TWI1_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual. uint8_t sda_hold_dual) {
+uint8_t TWI1_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual, uint8_t sda_hold_dual) {
   uint8_t cfg = TWI1.CTRLA & 0x03;
   if (smbuslvl) {
     cfg |= 0x40;
@@ -676,7 +676,7 @@ uint8_t TWI1_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smb
   if (longsetup) {
     cfg |= 0x10;
   }
-  cfg |= sdahold;
+  cfg |= sda_hold;
   TWI1.CTRLA = cfg;
   #if defined(TWI1_DUALCTRL)
     cfg_dual = TWI1.DUALCTRL & 0x03;

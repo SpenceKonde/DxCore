@@ -158,7 +158,7 @@ uint8_t getIncomingAddress();
 This returns the last incoming address which most recently matched a slave's address, secondary address, or masked-address. Critical to using the general call alternate/masked address options. See the secondary and masked address examples.
 
 ```c++
-uint8_t getBytesRead();
+twi_buffer_index_t getBytesRead();
 ```
 When called by an I2C/TWI slave, this returns the number of bytes that have been read by a master since the last time this was called.
 To replicate the sort of auto-incrementing pointer that retains state across multiple consecutive reads from the master (without an intervening write, which under the register model that this is intended for will reset the pointer;
@@ -167,10 +167,13 @@ I had always wondered why Arduino sketches that implemented slave functionality 
 
 This method is only useful when operating as a slave. See the register model example for a demonstration of how one might use it.
 
+`twi_buffer_index_t` is a `uint8_t` unless the buffer length has been set to more than 255 bytes, in which case it is a `uint16_t`
+
+
 ```c++
 uint8_t slaveTransactionOpen();
 ```
-This method, when called by an I2C slave, will return a value indicating whether the slave is busy (that is, if it has received a read command matching its address, but has either not sent any data, or has sent some data, but has not yet received a NACK after transmitting a byte to the master (which would indicate that the master is done reading from it) - in other words, if it is in the process of sending requested data to the master). If you want to enter sleep mode or change which sleep mode is selected you must make sure this returns 0. Otherwise, Bad Things can happen, which may include the bus becoming hung until the chip is reset (that is, going to sleep as slave while a transaction is open is a way that an AVR can be one of those badly behaved devices mentioned above that can get into a state where they hold onto one or both of the I2C lines and prevent all bus operation)
+This method, when called by an I2C slave, will return a value indicating whether the slave is busy (that is, if it has received a read command matching its address, but has either not sent any data, or has sent some data, but has not yet received a NACK after transmitting a byte to the master (which would indicate that the master is done reading from it) - in other words, if it is in the process of sending requested data to the master). If you want to enter sleep mode or change which sleep mode is selected you must make sure this returns 0. As of 2.6.2 we have failsafe measures in place (see sleep section below) to handle this eithout risk failing to let go of the bus, see the sleep section below; it is still possible to not end up in sleep mode in this case from just one call to sleep_cpu().
 
 ```c++
 endMaster();
@@ -219,54 +222,55 @@ SMBus levels | No            | No        | Yes   |
 Long setup   | Yes           | Yes       | Yes   |
 SDA hold     | Yes, no dual  | Yes       | Yes*  |
 
-`*` This option on the DA-series is impacted by errata on 128k parts two values are swapped.
+`*` This option on the DA-series is impacted by errata on 128k parts:  two values are swapped.
 
-#### SMBus levels
-Enabling this (DxOnly) changes the input levels, making them drastically lower. Thresholds as always are the maximum voltage that is still low enough to guarantee will read as low, and the minimum voltage guaranteed to be a high. These normally depend on Vdd - in SMBus voltage level mode, they do not. This is very useful for communicating with lower voltage devices - this is something that is most useful on either the DA (where there is no MVIO) or when the system contains three different voltage levels (say, the AVR running at 5v, using MVIO to talk to a 3.3v device, wishing to use some 1.8V I2C devices).
+**SMBus levels**
+Enabling this (Dx, possibly Ex only) changes the input levels, making them drastically lower, much like the TTL input level option available on some parts. Thresholds as always are the maximum voltage that is still low enough to guarantee will read as low, and the minimum voltage guaranteed to be a high. These normally depend on Vdd - in SMBus voltage level mode, they do not. This is very useful for communicating with lower voltage devices - this is something that is most useful on either the DA (where there is no MVIO) or when the system contains three different voltage levels (say, the AVR running at 5v, using MVIO to talk to a 3.3v device, wishing to use some 1.8V I2C devices).
 
 Vdd               | SMBus levels |  1.8V |  2.5V |  3.3V | 5.0V |
 ------------------|--------------|-------|-------|-------|------|
 Vin Low (max)     |        0.80V | 0.54V | 0.75V | 0.99V | 1.5V |
 Vin High (min)    | *      1.35V | 1.26V | 1.75V | 2.31V | 3.5V |
 
-`*` The DA and DD datasheets imply that the minimum guaranteed high is 1.45V in SMbus mode if running at less than 2.5v
+`*` The DA and DD (but not the DB) datasheets imply that the minimum guaranteed high is 1.45V in SMbus mode if running at less than 2.5v. Whether this is an issue with the documentation or an actual difference is unclear.
 
 
-#### SDA setup and hold times.
+**SDA setup and hold times**
 The setup time for SDA can be either 4 or 8 cycles. May be required for compatibility with some unusual devices.
 
 The hold time can be turned off, or set to 50, 300 or 500 ns. A non-default option is required to comply with SMBus protocol.
 
-#### Dual mode options
-Both the voltage levels and the hold times can be configured for the dual mode pins individually parts with those features.
+**Dual mode options**
+Both the voltage levels and the hold times can be configured for the dual mode pins independently from the master/slave pins on parts with those features.
 
-#### Constants associated with configSpecial.
+
+**Constants associated with specialConfig()**.
 ```C++
-#define WIRE_SDA_HOLD_OFF 0
-#define WIRE_SDA_HOLD_50  1
-#define WIRE_SDA_HOLD_300 2
-#define WIRE_SDA_HOLD_500 3
+#define WIRE_SDA_HOLD_OFF   0
+#define WIRE_SDA_HOLD_50    1
+#define WIRE_SDA_HOLD_300   2
+#define WIRE_SDA_HOLD_500   3
 
-#define WIRE_SDA_SETUP_4  0
-#define WIRE_SDA_SETUP_8  1
+#define WIRE_SDA_SETUP_4    0
+#define WIRE_SDA_SETUP_8    1
 
-#define WIRE_I2C_LEVELS  0
-#define WIRE_SMBUS_LEVELS  1
+#define WIRE_I2C_LEVELS     0
+#define WIRE_SMBUS_LEVELS   1
 ```
 
-This method should always return 0 (success). We try to error if compile time known invalid values are passed.
+This method should always return 0 (success). We try to error if compiletime-known invalid values are passed. During development, you should be sure to check this value to make sure that
 
 If not:
 
-| Return value | Meaning                                            |
-|--------------|----------------------------------------------------|
-| 0x00         | Successful                                         |
-| 0x01         | SMBus level requested on part without that feature |
+| Return value | Meaning                                                   |
+|--------------|-----------------------------------------------------------|
+| 0x00         | Successful                                                |
+| 0x01         | SMBus level requested on part without that feature        |
 | 0x02         | Dual mode options passed. Part does not support dual mode |
-| 0x04         | Dual mode options passed, dual mode present, but not enabled. See the startup order. |
+| 0x04         | Dual mode options passed, dual mode present, but not enabled. Refer to startup order. |
 | 0x08         | Invalid sda hold value passed (must be 0 - 3 or one of the named cosntants). The default is used instead |
 
-Linear combinations are possible 0x0B indicates that you asked for smbus levels, and dual mode options, and you passed an invalid value for the SDA hold times.
+Linear combinations are possible; 0x0B indicates that you asked for SMBus levels, and one or more dual mode options on a tinyAVR which supports none of those things, and you passed an invalid value for the SDA hold times, 0x05 indicates you asked for SMBus levels and one or more dual mode options without first enabling dual mode, on a megaAVR 0-series which does not support SMBus, and so on.
 
 ### Standard methods and features significant differences
 ```c++
@@ -333,6 +337,12 @@ flush();
 
 ~A `flush()` method exists on all versions of Wire.h; indeed, `Stream` which it subclasses demands that - however very rarely is it actually implemented by anything other than Serial - (where there is a specific and very common reason use case) where one must clear the buffer in a specific way (by waiting for it to empty) before doing things like going to sleep or performing a software reset. Wire has rarely implemented this. In this case, it performs the functionality that the datasheets refer to as a "TWI_FLUSH" - this resets the internal state *of the master* - and at the Wire library level, the buffers are cleared; that command is apparently intended for error handling. The hardware keeps track of activity on the bus (as required by the protocol), but misbehaving devices can confuse the master - they might do something that the specification says a device will will not do, or generate electrical conditions that the master is unable to interpret in a useful way - pins not reaching the logic level thresholds, malformed data and which may in turn leave it confused as to whether the bus is available. It might be necessary to call in an attempt to recover from adverse events, which has historically been a challenge for the Wire library.~
 
+There are two issues that lead to this method being a stub (do-nothing method, required to subclass stream). First is the tension with between the hardware "flush" functionality, which according to the datasheet is intended to clear up detected bus errors, with the arduino API for HardwareSerial, the only stream where flush is generally implemented, where it instead waits for outgoing transmissions to finish. Secondly, either all, or all non-tinyAVR parts appear likely to be impacted by an erratum that renders the hardware mechanism less than useful: "Flush Non-Functional", which according to the errata sheets can in practice cause the very problem it was intended to solve, and advising us to disable and re-enable TWI master instead.
+
+So, using the hardware's flush function to clear the master's state is out. One can also argue that because of the precedent set by HardwareSerial, we should defer to it's well-defined behavior over the foggy definition of the arduino Stream API, and have it mimic that functionality. But in that case, for the I2C master, the methods to send data already block until the operation is completed, and on the slave side, the device is at the mercy of the master - we could be waiting literally an eternity (that is, it is equivalent to using Serial.flush() when acting as a slave device in synchronous mode to transmit when the XCK pin has no clock signal - this is essentially the same situation with a different interface. Waiting for data to be clocked out, without control over that clock, is probably not the ideal API to provide either; the same behavior can be achieved with `while (slaveTransactionOpen()) {...}`, but this gives an opportunity to have a timeout after which the slave can decide that the master has fallen over and (for example) disable and re-enable the interface, expecting that the next contact from the master will be a fresh start condition from a reinitialized master.
+
+It is not hard to imagine a scenario where that would be relevant: Just consider the case of writing application code for the master, and uploading a new version while it happens to be in the middle of a transaction. You probably do not want to wait for the (reset) master to attempt (and fail at, because it would get a bus arbitration error as the slave attempted to answer at the same time the master tried to clock out the address) communication before doing anything, as you'd likely then have to reset both devices at once to upload - sometimes. If you're waiting on the completion of transactions before taking some action, you probably want to make sure you are handling the case where the master does not finish the transaction for some reason. I2C masters rarely take long periods of time between clocking in bytes when functioning correctly. At 100kHz, a byte takes under 100 us to transfer, and the master (if it's another Arduino device) is likely blocking during that time, waiting to grab another byte immediately. Even with a 130 byte buffer, this means that after a dozen ms, it should have been able to receive an entire buffer. If you were to wait 20 ms (or somewhat longer if you specifically modify the library for a massive buffer), you could conclude that the master is unlikely to ever finish. On the other hand, when the only think you intend to do is put the part to sleep, you can attempt to sleep on every pass through loop() instead as described below. On the third hand, if the system were battery powered, and that occurred, the slave would still be in a bad state, consuming IDLE sleep mode current, instead of POWER_DOWN current, which is many times lower, so maybe this would not be so great after all. In any event, a flush that worked like hardware serial would not help that case either, but rather make it drain the battery about twice as fast by not sleeping at all. This brings discussion back to the point I mentioned near the beginning: When something goes wrong with I2C, it usually goes very wrong. Unlike SPI, where you have a pin state to watch to see if the master thinks you are in a transaction, there is nothing physical that you can monitor and notice that the master vanished in the middle of a transaction.
+
 ```c++
 uint8_t endTransmission(bool sendStop);
 ```
@@ -341,7 +351,7 @@ In 2.5.4/1.4.4 it was reported that the return value of this method did not matc
 | Value | Meaning                                                        | Standard |
 |-------|----------------------------------------------------------------|----------|
 |  0x00 | Success                                                        | Yes      |
-|  0x01 | TX buffer overflow. Not used.                                  | Yes      |
+|  0x01 | ~TX buffer overflow~ (see note)                                | Yes      |
 |  0x02 | Timeout waiting for ack of address                             | Yes      |
 |  0x03 | Timeout waiting for ack of data                                | Yes      |
 |  0x04 | Unknown error                                                  | Yes      |
@@ -350,19 +360,20 @@ In 2.5.4/1.4.4 it was reported that the return value of this method did not matc
 |  0x11 | Line held low or not pulled up                                 | No       |
 |  0xFF | Bus in unknown state (begin() not called?)                     | No       |
 
-In the case of a TX buffer overflow, when it gets to endTransmission, this looks the same as a full buffer, because write() didn't put the excess data into the buffer, and returned a number smaller than the number of bytes passed to it. I'm not sure how error code 1 could ever happen.
+In the case of a TX buffer overflow, this is not indicated by endTransmission(). endTransmission simply transmits the portion of the buffer that fits. This condition should be detected (if your code could potentially generate it), because write() earlier returned a number smaller than the number of bytes passed to it. Error code 1 is never returned by endTransmission; we do not store an extra byte of state just to report this condition that was already reported by write(), with more complete information
 
 ### Methods that have their standard behaviour
-The implementation isn't identical, but the behaviour is unchanged - or differ only in an irrelevant and implicitly convertible return or argument type (some versions of the official core have sizes returned as `size_t` for example; Nothing that any AVR will ever likely to involve single I2C-related function calls that act on 256 or more bytes; using a `uint8_t` helps to reduce flash size).
+The implementation isn't identical, but the behaviour is unchanged, or is different only in an irrelevant and implicitly convertible return or argument type.
 ```c++
     void beginTransmission(uint8_t address);
-    uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop); // changed from size_t return type. Argument types differ, but are implicitly convertible without issues.
+    twi_buffer_index_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop); // changed from size_t return type. Argument types differ, but are implicitly convertible without issues.
     size_t write(uint8_t data);
     int available();
     int read();
     int peek();
     void end();
 ```
+`twi_buffer_index_t` is a `uint8_t` unless the buffer length has been set to more than 255 bytes, in which case it is a `uint16_t`
 
 ### Remember when the handlers are called
 ```c++
@@ -376,29 +387,40 @@ The implementation isn't identical, but the behaviour is unchanged - or differ o
 3. Slave detects and ACKs.
 4. Master clocks out 1 or more data bytes as slave ACKs them.
 5. Master generates a Stop Condition.
-6. Slave fires onReceive handler passing it the number of bytes as an int16_t
+6. Slave fires `onReceive` handler passing it the number of bytes as an int16_t
 
 #### Read Sequence
 1. Master generates start condition.
 2. Master clocks out the slave address with read-bit set
 3. Slave detects and stretches the clock.
 4. Slave fires onReceive handle.
-5. In onReceive handler, stages all the data the master can read at this time (up to the size of the Wire Buffer) noted above.
+5. In `onRequest` handler, stages all the data the master can read at this time (up to the size of the Wire Buffer) noted above.
 6. Slave releases clock and ack's.
-7. Master clocks in 1 while slave sends them, master ACKs each one before nacking when done and generating a stop condition.
+7. Master clocks in 1 byte. Slave interrupt fires *silently* after each byte to prepare the next byte and the master ACKs each one before finally NACKing when done and generating a stop condition.
+8. At that point the master's `endTransaction()` call (assuming it is another Arduino) returns, and the master processes the data it received.
 
-## Wire and Sleep
-Between 2.5.0 and 2.6.1, the library was checking the BUSERR flag and aborted a transmission and the data if it there was an error. However, when a device was in Stand-by(SB) or Power-Down(PD) sleep mode, the BUSERR bit would be set on the STOP condition, rendering any received transmission like it never happened. Upon investigating, following theory was concluded: The BUSERR circuitry relies on CLK_PER, which was disabled in sleep. Because of this it never registered the START condition and just saw two STOP conditions on the bus - an invalid state. It was decided to not check for BUSERR at all, as often other errors would also cover the BUSERR cases.
-Furthermore, with SB and PD sleep, the library was prone to leave the TWI bus in an undefined state, where both lines would be kept pulled low. This happened, because the TWI can wake the CPU from SB/PD only on an address match, not on a data interrupt. When the code puts the CPU to sleep between an address match and the data interrupt, the slave will keep the SCL line low and the TWI stays unresponsive. There was an attempt to mitigate this in 2.6.1 with `slaveTransactionOpen()`, but it ended up being kind of ugly.
-With 2.6.2 however, the Wire library makes sure, that the CPU can not enter SB/PD sleep mode between an address match interrupt and a STOP condition. This is achieved by buffering the current sleep setting and changing the sleep setting to IDLE. At a STOP condition, the buffered value is copied back to the register. This method was chosen, because it offers a further reduction of power consumption, as the CPU can stay in IDLE between data interrupts, as well as preventing the TWI bus of becoming unresponsive. Furthermore, the only thing the user has to do is to call `sleep_cpu()` repeatedly as long as no other jobs have to be executed. If not, the CPU will just wake up on the next data interrupt and stay awake, increasing power consumption.
+## Wire and Sleep on Slave devices
+Between 2.5.0 and 2.6.1, the library was checking the BUSERR flag and aborted a transmission and the data if it there was an error. However, when a device was in Stand-by(SB) or Power-Down(PD) sleep mode, the BUSERR bit would be set on the STOP condition, rendering any received transmission like it never happened. Investigation of the issue concluded that the BUSERR detection circuitry relies on CLK_PER, which is generally disabled in sleep. Because of this it would not register the START condition and saw only the two STOP conditions on the bus - an invalid state. It was decided to not check for BUSERR at all, as often other errors would also cover the BUSERR cases.
 
-## Why are there so many names for this protocol?
-Wire, TWI (Two Wire Interface), Two Wire, IIC, I2C-compatible, I2C, I<sup>2</sup>C... The reason for this is that I2C (and the explicitly formatted version of it, I<sup>2</sup>C) are trademarked by Phillips (now NXP) which has historically been very litigious, and would go after manufacturers of parts that didn't pay license fees. So devices that could communicate with and which were I2C in all but name proliferated. The last patent expired a while ago, but they still hold the trademarks, so other manufacturers persist in using their names. The actual terms described in the specification claim to cover to all devices that "can" communicate over I2C, and make exception only for FPGAs, where the person programming them also was supposed to get a license. It seems that the litigation wars have cooled somewhat now, though I still would be mighty careful if I was designing microcontrollers. In any event, Atmel always called it TWI, and that tradition was not lost when Microchip purchased them. . So where did this name come from? IIC was apparently the inspiration: "Inter-Integrated Circuit".
+Furthermore, with SB and PD sleep, the library was prone to leave the TWI bus in an undefined state, where both lines would be kept pulled low. This happened because the TWI can wake the CPU from SB/PD only on an address match, not on a data interrupt. When code attempted to put the CPU to sleep between an address match and the data interrupt, the slave will keep the SCL line low and the TWI stays unresponsive. There was an attempt to mitigate this in 2.6.1 with `slaveTransactionOpen()` but due to the lack of control over when the master might choose to initiate communications, this did not always achieve satisfactory results, and made for ugly implementations.
 
-Just don't get it confused with I2S (that's a specialized protocol for real-time transmission uncompressed digital audio - for example, it is (or was) often used in CD players between the disk reading circuitry and the DAC - as well as in professional audio equipment. I2S isn't supported by the AVR line - it's not a good match for the capabilities or intended use cases of AVR devices; it's for dedicated audio stuff, not general purpose microcontrollers). or I3C (a much faster superficially similar successor meant for much faster parts with more computational power - also not supported by AVR).
+As of 2.6.2, the Wire library makes sure that the CPU can not enter SB/PD sleep mode between an address match interrupt and a STOP condition. This is achieved by buffering the current sleep setting and changing the sleep setting to IDLE - in this case, when the user tried to put the device to sleep  At a STOP condition, the buffered value is copied back to the register. This method was chosen, because it offers a further reduction of power consumption, as the CPU can stay in IDLE between data interrupts, as well as preventing the TWI bus of becoming unresponsive. Furthermore, the only thing the user has to do is to call `sleep_cpu()` repeatedly as long as no other jobs have to be executed. If not, the CPU will just wake up on the next data interrupt and stay awake, increasing power consumption.
+
+Note that this is applicable only to slave devices. When acting as I2C master, you cannot accidentally put the part to sleep during a transaction unless you call sleep_cpu() from within an interrupt that fires during a transaction. In that case, you deserve what you get, which is likely the device being hung until a powercycle or reset. (Seriously folks, don't put the part to sleep within an interrupt. Not just in the context of wire. Whatever you're hoping to achieve, that is not the way to do it, and you're not going to like what it does).
 
 ## Errata warning
-All modern AVRs, since the release of the first tinyAVR 0/1-series, through the AVR DB-series, have always had a silicon bug relating to the TWI pins. When the TWI peripheral takes control of the SCL and SDA, it correctly controls their being an INPUT or OUTPUT - but it fails to also take over the output value... That means that if the PORTx.OUT bit is 1 for either of the pins, it would be trying to drive the line high instead of low, and the I2C bus would be non-functional. As of 2.2.6, we always clear those bits in begin(); this was not done on older versions. In any event, do not `digitalWrite()` either of the pins `HIGH` or set their `pinMode()` to `INPUT_PULLUP` after calling `Wire.begin()`. Calling them before that is pointless too, since they will be superseded by begin(). If you want to enabler the internal pullups, use Wire.usePullups.
+All modern AVRs, since the release of the first tinyAVR 0/1-series, through the AVR DB-series, have always had a silicon bug relating to the TWI pins. When the TWI peripheral takes control of the SCL and SDA, it correctly controls their being an INPUT or OUTPUT - but it fails to also take over the output value. That means that if the PORTx.OUT bit is 1 for either of the pins, it would be trying to drive the line high instead of low, the I2C bus would be non-functional **and hardware damage - while unlikely - could result**. The errata for the 2-series and DD-series implies that this issue does not impact those parts `*`. Nonetheless, we always clear those bits in begin(). Users should refrain from writing the I2C pins `HIGH` via `digitalWrite()` or any other means after calling `Wire.begin()`. Calling them before then is pointless too, since they will be superseded by begin(), and . *If you want to enable the internal pullups, use Wire.usePullups() - this should be done only as a debugging aid.*
+
+`*` - Presence of an issue in the errata is a reliable indicator of the bug being present, but not seeing the issue listed for that part don't mean it ain't there. Users routinely report entirely novel issues, and I am aware of two bugs that have not (yet) made it into *any* errata sheet despite being known to Microchip and impacting many - in some cases *all* modern AVRs - and which had just gone unnoticed until some Arduino user tried to make it do something obscure.
 
 ## Known incompatible devices
-For an unknown reason, the contactless IR-thermometer MLX90614 is not working out of the box with the new AVRs. We assume it has something to do with the implementation of the TWI module. A workaround is to set the clock frequency to a value between 110-125kHz.
+For an unknown reason, the contactless IR-thermometer MLX90614 is not working out of the box with the modern AVRs. We suspect it is related to the new TWI module implementation interacting with a some aspect of the interface on the MLX90614 which does not follow the specifications. A workaround is to set the clock frequency to a value between 110-125kHz.
+
+I would also suggest testing this with `Wire.specialConfig(0,1,3)` with the default speed (which normally doesn't work). If that fixes it, see if either of those non-zero arguments can be zero'ed out. If the third argument is the key one, see how far you can lower it before it fails (note that this may depend on the physical electronic properties of the bus that determine the rise and fall times). If you do this experiment, please report your results to me so that I can update this section!
+
+At least two of the rewrites of the clock caluculation algorithm that have been submitted, independently, by two different individuals (the second of whom didn't stop there and rewrote the whole library, slashing it's flash footprint while adding functionality) were prompted initially by users trying to get this specific part to work. So - really we're all in debt to this manufacturer, whose combination of compelling hardware saddled with a badly botched I2C interface has led to so much improvement in our Wire library.
+
+## Why are there so many names for this protocol?
+Wire, TWI (Two Wire Interface), Two Wire, IIC, I2C-compatible, I2C, I<sup>2</sup>C... The reason for this is that I2C (and the explicitly formatted version of it, I<sup>2</sup>C) are trademarked by Phillips (now NXP) which has historically been very litigious, and would go after manufacturers of parts that didn't pay license fees. So devices that could communicate with and which were I2C in all but name proliferated. The last patent expired a while ago, but they still hold the trademarks, so other manufacturers persist in using their names. The actual terms described in the specification claim to cover to all devices that "can" communicate over I2C, and make exception only for FPGAs, where the person programming them also was supposed to get a license. It seems that the litigation wars have cooled somewhat now, though I still would be mighty careful if I was designing microcontrollers. In any event, Atmel always called it TWI, and that tradition was not lost when Microchip purchased them. The original name, I<sup>2</sup>C is a stylization of "IIC", for "Inter-Integrated-Circuit".
+
+Just don't get it confused with I2S (that's a specialized protocol for real-time transmission uncompressed digital audio - for example, it is (or was) often used in CD players between the disk reading circuitry and the DAC - as well as in professional audio equipment. I2S isn't supported by the AVR line - it's not a good match for the capabilities or intended use cases of AVR devices; it's for dedicated audio stuff, not general purpose microcontrollers). or I3C (a much faster superficially similar successor meant for much faster parts with far more computational power - also not supported by AVR). Even calling it superficially similar is being rather generous, as the resemblance seems to be largely window dressing: there is a data line called SDA and a clock line called SCL, devices can be master or slave, and the slave devices have 7 bit addresses - and that's about the end of the resemblance. While the I3C standard claims backwards compatibility, it does not support clock stretching (which it calls "rarely used" - I'm not sure what gave them that idea, but the initiative is being spearheaded by Google, so it should surprise nobody that they are out of touch with reality). An AVR acting as slave could not even reach user onRequest or onReceive code even if the I3C bus was running at only 1 MHz. It runs at 12.5 MHz - in other words, these parts are between one and two orders of magnitude too slow to meet the timing constraints of I3C).
