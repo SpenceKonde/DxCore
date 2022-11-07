@@ -6,7 +6,7 @@
  * Copyright (c) 2006 Nicholas Zambetti, Modified by
  * 11/23/2006 David A. Mellis, 9/20/2010 Mark Sproul,
  * 8/24/2012 Alarus, 12/3/2013 Matthijs Kooijman
- * unknown others 2013-2020, 2020-2022 Spence Konde
+ * Others (unknown) 2013-2017, 2017-2021 Spence Konde
  */
 
 #include "Arduino.h"
