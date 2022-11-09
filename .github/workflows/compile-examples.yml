@@ -208,12 +208,6 @@ jobs:
             pincount: 20
           - device-family: ea
             pincount: 14
-          - device-family: dd
-            flash-class: 64
-          - device-family: dd
-            flash-class: 32
-          - device-family: dd
-            flash-class: 16
           - device-family: ea
 
     steps:
