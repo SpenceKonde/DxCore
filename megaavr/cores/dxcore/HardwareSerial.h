@@ -187,7 +187,7 @@ class HardwareSerial : public Stream {
     uint8_t * _usart_pins;   // pointer to the pin set, in PROGMEM
     uint8_t _mux_count;     // maximum MUX
     uint8_t _pin_set;       // the active pin set for setting the correct pins for I/O
-    uint8_t _state = 0; // LSB = _written. Second bit = half duplex (LBME) and special handling needed.
+    volatile uint8_t _state = 0; // LSB = _written. Second bit = half duplex (LBME) and special handling needed.
     volatile rx_buffer_index_t _rx_buffer_head;
     volatile rx_buffer_index_t _rx_buffer_tail;
     volatile tx_buffer_index_t _tx_buffer_head;

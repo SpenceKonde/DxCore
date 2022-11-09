@@ -229,8 +229,8 @@
             "add        r28,       r30"   "\n\t" // r28 has what would be the next index in it.
             "mov        r29,       r31"   "\n\t" // and this is the high byte of serial instance
             "ldi        r18,         0"   "\n\t" // need a known zero to carry.
-            "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 17 bytes before head
-            "std     Y + 17,       r25"   "\n\t" // store the new char in buffer
+            "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 19 bytes before head
+            "std     Y + 19,       r25"   "\n\t" // store the new char in buffer
             "std     Z + 15,       r24"   "\n\t" // write that new head index.
           "_end_rxc:"                     "\n\t"
             "std     Z + 14,       r19"   "\n\t" // record new state including new errors
@@ -246,7 +246,7 @@
             "pop        r31"              "\n\t" // end with Z which the isr pushed to make room for
             "pop        r30"              "\n\t" // pointer to serial instance
             "reti"                        "\n\t" // return
-          "_buff_full_rxc:"               "\n\t" // potential improvement: move _buff_full_rxc to after the reti, and then rjmp back, saving 2 clocks for the common case
+          "_buff_full_rxc:"               "\n\t" // _buff_full_rxc moved to after the reti, and then rjmps back, saving 2 clocks for the common case
             "ori        r19,      0x40"   "\n\t" // record that there was a ring buffer overflow. 1 clk
             "rjmp _end_rxc"               "\n\t" // and now jump back to end. That way we don't need to jump over this in the middle of the common case.
             ::); // total: 77 or 79 clocks, just barely squeaks by for cyclic RX of up to RX_BUFFER_SIZE characters.
@@ -324,22 +324,22 @@
           "add         r26,      r25"     "\n\t"  // SerialN + txtail
           "adc         r27,      r18"     "\n\t"  // X = &Serial + txtail
     #if   SERIAL_RX_BUFFER_SIZE == 256            // RX buffer determines offset from start of class to TX buffer
-          "subi        r26,     0xEF"     "\n\t"  // There's no addi/adci, so we instead subtract (65536-(offset we want to add))
+          "subi        r26,     0xED"     "\n\t"  // There's no addi/adci, so we instead subtract (65536-(offset we want to add))
           "sbci        r27,     0xFE"     "\n\t"  // +273
           "ld          r24,        X"     "\n\t"  // grab the character
     #elif SERIAL_RX_BUFFER_SIZE == 128
-          "subi        r26,     0x6F"     "\n\t"  //
+          "subi        r26,     0x6D"     "\n\t"  //
           "sbci        r27,     0xFF"     "\n\t"  // +145
           "ld          r24,        X"     "\n\t"  // grab the character
     #elif SERIAL_RX_BUFFER_SIZE == 64
-          "subi        r26,     0xAF"     "\n\t"  //
+          "subi        r26,     0xAD"     "\n\t"  //
           "sbci        r27,     0xFF"     "\n\t"  // +81
           "ld          r24,        X"     "\n\t"  // grab the character
     #elif SERIAL_RX_BUFFER_SIZE == 32
-          "adiw        r26,     0x31"     "\n\t"  // +49
+          "adiw        r26,     0x33"     "\n\t"  // +49
           "ld          r24,        X"     "\n\t"  // grab the character
     #elif SERIAL_RX_BUFFER_SIZE == 16
-          "adiw        r26,     0x21"     "\n\t"  // +33
+          "adiw        r26,     0x23"     "\n\t"  // +33
           "ld          r24,        X"     "\n\t"  // grab the character
     #endif
           "ldi         r18,     0x40"     "\n\t"
