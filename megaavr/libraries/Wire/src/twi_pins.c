@@ -199,7 +199,7 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
         } else
       #endif
       #if      defined(PIN_WIRE_SDA)
-        if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL_PINSWAP) {
+        if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
           // Use default configuration
           PORTMUX.TWIROUTEA = portmux;
           return true;
@@ -475,7 +475,7 @@ uint8_t TWI0_checkPinLevel(void) {
   uint8_t TWI0_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual, uint8_t sda_hold_dual) {
     uint8_t cfg = TWI0.CTRLA & 0x03;
     sda_hold <<= 2; // get these into the right place in the byte
-    sda_hold_dual <<= 2;
+
     if (smbuslvl) {
       cfg |= 0x40;
     }
@@ -485,7 +485,8 @@ uint8_t TWI0_checkPinLevel(void) {
     cfg |= sda_hold;
     TWI0.CTRLA = cfg;
     #if defined(TWI0_DUALCTRL)
-      cfg_dual = TWI1.DUALCTRL & 0x03;
+      sda_hold_dual <<= 2;
+      uint8_t cfg_dual = TWI0.DUALCTRL & 0x03;
       if (cfg_dual & 1) {
         cfg_dual |= sda_hold_dual;
         if (smbuslvl_dual) {
@@ -522,7 +523,7 @@ void TWI1_ClearPins() {
   {
     PORTF.OUTCLR = 0x0C;  // bits 2 and 3
   }
-  #if defined(TWI_DUALCTRL)
+  #if defined(TWI1_DUALCTRL)
     if (TWI1.DUALCTRL & TWI_ENABLE_bm) {
       if (portmux == PORTMUX_TWI1_DEFAULT_gc) {
         PORTB.OUTCLR = 0x0C;  // bits 2 and 3
@@ -689,7 +690,7 @@ uint8_t TWI1_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smb
     } else if (sda_hold_dual || smbuslvl_dual) {
       return 0x04;
     }
-   #endif;
+   #endif
    return 0;
 }
 
