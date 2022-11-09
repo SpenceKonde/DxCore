@@ -361,7 +361,7 @@ Whenever a function supplied by the core returns a representation of a timer, th
 
 0 (`NOT_ON_TIMER`) will be returned if the specified pin has no timer.
 
-`*` Currently, the 3 low bits are don't-care bits. At some point in the future we may pass arouind the compare channel in the 3 lsb when using for PWM. No other timer will ever be numbered 0x10-0x17, nor 0x08-0x0F. 0x18-0x1F is reserved for hypothetical future parts with a third TCA. Hence to test for TCA type: `(timerType = MILLIS_TIMER & 0xF8; if (timerType==TIMERA0) { ... })`
+`*` Currently, the 3 low bits are don't-care bits. At some point in the future we may pass around the compare channel in the 3 lsb when using for PWM. No other timer will ever be numbered 0x10-0x17, nor 0x08-0x0F. 0x18-0x1F is reserved for hypothetical future parts with a third TCA. Hence to test for TCA type: `(timerType = MILLIS_TIMER & 0xF8; if (timerType==TIMERA0) { ... })`
 `**` What was described above would look much like this. Currently we do not use the WOA/WOB/WOC/WOD specific values, but things will change when we get a working PORTMUX for it.
 `***` A hypothetical part with multiple DACs with output buffers will have extend up into 0x8x.
 `@` Plannedfor future use. All 0x9x values are reserved for future implementations involving the RTC or PIT
