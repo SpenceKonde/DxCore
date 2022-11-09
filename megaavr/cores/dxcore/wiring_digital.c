@@ -50,7 +50,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
   #elif CLOCK_SOURCE == 1
     if (pin < 2) {
       badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
-    } else
+    }
   #elif defined(XTAL_PINS_HARDWIRED)
     if (pin < 2) {
       badArg("On the selected board, PA0 and PA1 are hardwired to the crystal. They may not be used for other purposes.");
