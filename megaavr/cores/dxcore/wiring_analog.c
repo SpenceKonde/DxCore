@@ -419,14 +419,14 @@ void analogWrite(uint8_t pin, int val) {
     uint8_t threepin = 0;
     if  (bit_mask < 0x40 && ((portmux_tca & 0x07) == portnum) && (__PeripheralControl & TIMERA0)) {
       timer_A = &TCA0;
-    } else if (__PeripheralControl & TIMERA1) && ((portmux & 0x38) == pgm_read_byte_near(&tcaonemux[portnum])) {
+    } else if ((__PeripheralControl & TIMERA1) && ((portmux_tca & 0x38) == pgm_read_byte_near(&tcaonemux[portnum]))) {
       if (portnum == 1 || portnum == 6) {
         if (bit_mask < 0x40) {
           timer_A = &TCA1;
         }
       } else if ((bit_mask & 0x70) && portnum != 5) {
         timer_A = &TCA1;
-        threepin == 1;
+        threepin = 1;
       }
     }
   #else

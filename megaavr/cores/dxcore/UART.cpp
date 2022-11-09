@@ -194,7 +194,7 @@
             "ld         r25,         Y"   "\n\t" // Y + 0 = USARTn.RXDATAL - then low byte of RXdata
             "andi       r24,      0x46"   "\n\t" // extract framing, parity bits.
             "lsl        r24"              "\n\t" // leftshift them one place
-            "ldd        r19,    Z + 12"   "\n\t" // load _state
+            "ldd        r19,    Z + 14"   "\n\t" // load _state
             "or         r19,       r24"   "\n\t" // bitwise or with errors extracted from _state
             "sbrc       r24,         2"   "\n\t" // if there's a parity error, then do nothing more (note the leftshift).
             "rjmp  _end_rxc"              "\n\t" // Copies the behavior of stock implementation - framing errors are ok, apparently...
@@ -209,7 +209,7 @@
             //"rjmp  _end_rxc"              "\n\t"
     //       "storechar:"
     //#endif
-            "ldd        r28,    Z + 13"   "\n\t" // load current head index
+            "ldd        r28,    Z + 15"   "\n\t" // load current head index
             "ldi        r24,         1"   "\n\t" // Clear r24 and initialize it with 1
             "add        r24,       r28"   "\n\t" // add current head index to it
     #if   SERIAL_RX_BUFFER_SIZE == 256
@@ -223,7 +223,7 @@
     #elif SERIAL_RX_BUFFER_SIZE == 16
             "andi       r24,      0x0F"   "\n\t" // Wrap the head around
     #endif
-            "ldd        r18,    Z + 14"   "\n\t" // load tail index This to _end_rxc is 11 clocks unless the buffer was full, in which case it's 8.
+            "ldd        r18,    Z + 16"   "\n\t" // load tail index This to _end_rxc is 11 clocks unless the buffer was full, in which case it's 8.
             "cp         r18,       r24"   "\n\t" // See if head is at tail. If so, buffer full. The incoming data is discarded,
             "breq  _buff_full_rxc"        "\n\t" // because there is noplace to put it, and we just restore state and leave.
             "add        r28,       r30"   "\n\t" // r28 has what would be the next index in it.
@@ -231,9 +231,9 @@
             "ldi        r18,         0"   "\n\t" // need a known zero to carry.
             "adc        r29,       r18"   "\n\t" // carry - Y is now pointing 17 bytes before head
             "std     Y + 17,       r25"   "\n\t" // store the new char in buffer
-            "std     Z + 13,       r24"   "\n\t" // write that new head index.
+            "std     Z + 15,       r24"   "\n\t" // write that new head index.
           "_end_rxc:"                     "\n\t"
-            "std     Z + 12,       r19"   "\n\t" // record new state including new errors
+            "std     Z + 14,       r19"   "\n\t" // record new state including new errors
                                        // Epilogue: 9 pops + 1 out + 1 reti +1 std = 24 clocks
             "pop        r29"              "\n\t" // Y Pointer was used for head and usart.
             "pop        r28"              "\n\t" //
@@ -319,7 +319,7 @@
           "ldd         r28,   Z +  8"     "\n\t"  // usart in Y
     //    "ldd         r29,   Z +  9"     "\n\t"  // usart in Y
           "ldi         r29,     0x08"     "\n\t"  // High byte always 0x08 for USART peripheral: Save-a-clock.
-          "ldd         r25,   Z + 16"     "\n\t"  // tx tail in r25
+          "ldd         r25,   Z + 18"     "\n\t"  // tx tail in r25
           "movw        r26,      r30"     "\n\t"  // copy of serial in X
           "add         r26,      r25"     "\n\t"  // SerialN + txtail
           "adc         r27,      r18"     "\n\t"  // X = &Serial + txtail
@@ -358,13 +358,13 @@
           "andi        r25,     0x0F"     "\n\t" // Wrap the tail around
     #endif
           "ldd         r24,   Y +  5"     "\n\t"  // Y + 5 = USART.CTRLA - get CTRLA into r24
-          "ldd         r18,   Z + 15"     "\n\t"  // txhead into r18
+          "ldd         r18,   Z + 17"     "\n\t"  // txhead into r18
           "cpse        r18,      r25"     "\n\t"  // if they're the same
           "rjmp  _done_dre_irq"           "\n\t"
           "andi        r24,     0xDF"     "\n\t"  // DREIE off
           "std      Y +  5,      r24"     "\n\t"  // write new ctrla
         "_done_dre_irq:"                  "\n\t"  // Beginning of the end of DRE
-          "std      Z + 16,      r25"     "\n\t"  // store new tail
+          "std      Z + 18,      r25"     "\n\t"  // store new tail
           "pop         r29"               "\n\t"  // pop Y
           "pop         r28"               "\n\t"  // finish popping Y
     #if PROGMEM_SIZE > 8192
@@ -452,10 +452,8 @@
                               (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128  || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
             _tx_data_empty_irq(*this);
     #else // We're using ASM DRE
-      #ifdef USART1
         void * thisSerial = this;
-      #endif
-            __asm__ __volatile__(
+        __asm__ __volatile__(
                     "clt"              "\n\t" // Clear the T flag to signal to the ISR that we got there from here. This is safe per the ABI - The T-flag can be treated like R0
       #if PROGMEM_SIZE > 8192
                     "jmp _poll_dre"    "\n\t"
@@ -463,11 +461,7 @@
                     "rjmp _poll_dre"    "\n\t"
       #endif
                     "_poll_dre_done:"    "\n"
-      #ifdef USART1
                     ::"z"((uint16_t)thisSerial)
-      #else
-                    ::"z"(&Serial0)
-      #endif
                     : "r18","r19","r24","r25","r26","r27"); // these got saved and restored in the ISR context, but here we don't need top and in many cases no action is needed.
                     // the Y pointer was already handled, because as a call-saved register, it would always need to be saved and restored, so we save 4 words of flash by doing that after
                     // jumps into the middle of the ISR, and before it jumps back here.

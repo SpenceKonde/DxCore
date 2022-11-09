@@ -369,18 +369,18 @@
         #endif
         #if defined(HWSERIAL1_MUX_PINSWAP_1)
           #if (defined(PIN_HWSERIAL1_TX_PINSWAP_1) && defined(PIN_HWSERIAL1_RX_PINSWAP_1) && defined(PIN_HWSERIAL1_XCK_PINSWAP_1) && defined(PIN_HWSERIAL1_XDIR_PINSWAP_1) && (PIN_HWSERIAL1_TX_PINSWAP_1 != NOT_A_PIN || PIN_HWSERIAL1_RX_PINSWAP_1 != NOT_A_PIN))
-          #if !defined(HWSERIAL1_MUX_DEFAULT)
-            #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX_PINSWAP_1)
-          #endif
+            #if !defined(HWSERIAL1_MUX_DEFAULT)
+              #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX_PINSWAP_1)
+            #endif
             {HWSERIAL1_MUX_PINSWAP_1, PIN_HWSERIAL1_TX_PINSWAP_1, PIN_HWSERIAL1_XCK_PINSWAP_1},
           #else
             {HWSERIAL1_MUX_PINSWAP_1, NOT_A_PIN, NOT_A_PIN},
           #endif
-          #if defined(HWSERIAL1_MUX_PINSWAP2)
+          #if defined(HWSERIAL1_MUX_PINSWAP_2)
             #if (defined(PIN_HWSERIAL1_TX_PINSWAP_2) && defined(PIN_HWSERIAL1_RX_PINSWAP_2) && defined(PIN_HWSERIAL1_XCK_PINSWAP_2) && defined(PIN_HWSERIAL1_XDIR_PINSWAP_2) && (PIN_HWSERIAL1_TX_PINSWAP_2 != NOT_A_PIN || PIN_HWSERIAL1_RX_PINSWAP_2 != NOT_A_PIN))
-          #if !defined(HWSERIAL1_MUX_DEFAULT)
-            #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX_PINSWAP_2)
-          #endif
+              #if !defined(HWSERIAL1_MUX_DEFAULT)
+                #define HWSERIAL1_MUX_DEFAULT (HWSERIAL1_MUX_PINSWAP_2)
+              #endif
               {HWSERIAL1_MUX_PINSWAP_2, PIN_HWSERIAL1_TX_PINSWAP_2, PIN_HWSERIAL1_XCK_PINSWAP_2},
             #else
               {HWSERIAL1_MUX_PINSWAP_2, NOT_A_PIN, NOT_A_PIN},
