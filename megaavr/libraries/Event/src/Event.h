@@ -20,7 +20,7 @@
  * set_generator(uint8_t pin_number) - to handle to more complicated setup of pin generators.
  *
  */
-
+/* *INDENT-OFF* */
 class Event {
   public:
     Event(uint8_t channel_num, volatile uint8_t &channel_addr);
