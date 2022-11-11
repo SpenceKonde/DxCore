@@ -411,12 +411,12 @@ avrda.menu.startuptime.64.bootloader.SYSCFG1=0x07
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-avrda.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
-avrda.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-avrda.menu.wiremode.mors1.build.wireabr=.wO
-avrda.menu.wiremode.mands1=1x Wire, Master and Slave
-avrda.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-avrda.menu.wiremode.mands1.build.wireabr=.wA
+avrda.menu.wiremode.mors=1x Wire, Master or Slave (least Flash & RAM)
+avrda.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrda.menu.wiremode.mors.build.wireabr=.wO
+avrda.menu.wiremode.mands=1x Wire, Master and Slave
+avrda.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrda.menu.wiremode.mands.build.wireabr=.wA
 avrda.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrda.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrda.menu.wiremode.mors2.build.wireabr=.wO2
@@ -811,12 +811,12 @@ avrdb.menu.startuptime.64.bootloader.sutbits=111
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-avrdb.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
-avrdb.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-avrdb.menu.wiremode.mors1.build.wireabr=.wO
-avrdb.menu.wiremode.mands1=1x Wire, Master and Slave
-avrdb.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-avrdb.menu.wiremode.mands1.build.wireabr=.wA
+avrdb.menu.wiremode.mors=1x Wire, Master or Slave (least Flash & RAM)
+avrdb.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrdb.menu.wiremode.mors.build.wireabr=.wO
+avrdb.menu.wiremode.mands=1x Wire, Master and Slave
+avrdb.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrdb.menu.wiremode.mands.build.wireabr=.wA
 avrdb.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdb.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrdb.menu.wiremode.mors2.build.wireabr=.wO2
@@ -1628,12 +1628,12 @@ avrdd.build.appspmabr=
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-#avrea.menu.wiremode.mors1=1x Wire, Master or Slave
-#avrea.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-#avrea.menu.wiremode.mors1.build.wireabr=.wO
-#avrea.menu.wiremode.mands1=1x Wire, Master and Slave
-#avrea.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-#avrea.menu.wiremode.mands1.build.wireabr=.wA
+#avrea.menu.wiremode.mors=1x Wire, Master or Slave
+#avrea.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+#avrea.menu.wiremode.mors.build.wireabr=.wO
+#avrea.menu.wiremode.mands=1x Wire, Master and Slave
+#avrea.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+#avrea.menu.wiremode.mands.build.wireabr=.wA
 
 #-------------------------------------#
 # SPM from app incompatible with Dx   #
@@ -1963,12 +1963,12 @@ avrdaopti.menu.startuptime.64.bootloader.SYSCFG1=0x07
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-avrdaopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
-avrdaopti.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-avrdaopti.menu.wiremode.mors1.build.wireabr=.wO
-avrdaopti.menu.wiremode.mands1=1x Wire, Master and Slave
-avrdaopti.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-avrdaopti.menu.wiremode.mands1.build.wireabr=.wA
+avrdaopti.menu.wiremode.mors=1x Wire, Master or Slave (least Flash & RAM)
+avrdaopti.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrdaopti.menu.wiremode.mors.build.wireabr=.wO
+avrdaopti.menu.wiremode.mands=1x Wire, Master and Slave
+avrdaopti.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrdaopti.menu.wiremode.mands.build.wireabr=.wA
 avrdaopti.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdaopti.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrdaopti.menu.wiremode.mors2.build.wireabr=.wO2
@@ -2404,12 +2404,12 @@ avrdbopti.menu.startuptime.64.bootloader.sutbits=111
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-avrdbopti.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
-avrdbopti.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-avrdbopti.menu.wiremode.mors1.build.wireabr=.wO
-avrdbopti.menu.wiremode.mands1=1x Wire, Master and Slave
-avrdbopti.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-avrdbopti.menu.wiremode.mands1.build.wireabr=.wA
+avrdbopti.menu.wiremode.mors=1x Wire, Master or Slave (least Flash & RAM)
+avrdbopti.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrdbopti.menu.wiremode.mors.build.wireabr=.wO
+avrdbopti.menu.wiremode.mands=1x Wire, Master and Slave
+avrdbopti.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrdbopti.menu.wiremode.mands.build.wireabr=.wA
 avrdbopti.menu.wiremode.mors2=2x Wire, Master or Slave (not available on 28-pin devices)
 avrdbopti.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrdbopti.menu.wiremode.mors2.build.wireabr=.wO2
@@ -2867,12 +2867,12 @@ avrddopti.menu.startuptime.64.bootloader.sutbits=111
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-avrddopti.menu.wiremode.mors1=1x Wire, Master or Slave
-avrddopti.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-avrddopti.menu.wiremode.mors1.build.wireabr=.wO
-avrddopti.menu.wiremode.mands1=1x Wire, Master and Slave
-avrddopti.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-avrddopti.menu.wiremode.mands1.build.wireabr=.wA
+avrddopti.menu.wiremode.mors=1x Wire, Master or Slave
+avrddopti.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrddopti.menu.wiremode.mors.build.wireabr=.wO
+avrddopti.menu.wiremode.mands=1x Wire, Master and Slave
+avrddopti.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrddopti.menu.wiremode.mands.build.wireabr=.wA
 
 #----------------------------------------#
 # Optiboot upload timeout                #
@@ -3220,12 +3220,12 @@ azduinoboard.menu.startuptime.64.bootloader.sutbits=111
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-azduinoboard.menu.wiremode.mors1=1x Wire, Master or Slave (least Flash & RAM)
-azduinoboard.menu.wiremode.mors1.build.wiremode=MORS_SINGLE
-azduinoboard.menu.wiremode.mors1.build.wireabr=.wO
-azduinoboard.menu.wiremode.mands1=1x Wire, Master and Slave
-azduinoboard.menu.wiremode.mands1.build.wiremode=MANDS_SINGLE
-azduinoboard.menu.wiremode.mands1.build.wireabr=.wA
+azduinoboard.menu.wiremode.mors=1x Wire, Master or Slave (least Flash & RAM)
+azduinoboard.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+azduinoboard.menu.wiremode.mors.build.wireabr=.wO
+azduinoboard.menu.wiremode.mands=1x Wire, Master and Slave
+azduinoboard.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+azduinoboard.menu.wiremode.mands.build.wireabr=.wA
 azduinoboard.menu.wiremode.mors2=2x Wire, Master or Slave (not available on Nano DD)
 azduinoboard.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 azduinoboard.menu.wiremode.mors2.build.wireabr=.wO2
