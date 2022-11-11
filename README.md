@@ -201,26 +201,26 @@ The Dx-series parts have a 10-bit DAC which can generate a real analog voltage (
 
 There may be additional options to configure the DAC on the EA-series.
 
-See the [**ADC and DAC Reference**](https://github.com/SpenceKonde/DxCoreCore/blob/master/megaavr/extras/Ref_Analog.md) for the full details.
+See the [**ADC and DAC Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md) for the full details.
 
 Using the `An` constants for analog pins is deprecated - the recommended practice is to just use the digital pin number, or better yet, use `PIN_Pxn` notation when calling `analogRead()`.
 
 ### Watchdog timer, software reset
 There are more options than on classic AVR for resetting, including if the code gets hung up somehow. The watchdog timer can only reset (use the RTC and PIT for timed interrupts).
 
-See the [**Reset and Watchdog (WDT) Reference**](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Reset.md)and [The core-auxiliary library, DxCore](../megaavr/libraries/megaTinyCore/README.md)
+See the [**Reset and Watchdog (WDT) Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md) and [The core-auxiliary library, DxCore](../megaavr/libraries/DxCore/README.md)
 
 ### Improved Digital I/O
 This core adds a number of new features include fast digital I/O (1-14 clocks depending on what's known at compile time, and 2-28 bytes of flash (pin number must be known at compile time for the `________Fast()` functions, and for configuring all per-pin settings the hardware has with `pinConfigure()`.
 
-See the [**Improved Digital I/O Reference**](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Digital.md).
+See the [**Improved Digital I/O Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md).
 
 ### Serial (UART) Support
 All of the 0/1-Series parts have a single hardware serial port (UART or USART); the 2-Series parts have two. It works exactly like the one on official Arduino boards except that there is no auto-reset, unless you've wired it up by fusing the UPDI pin as reset (requiring either HV-UPDI or the Optiboot bootloader to upload code), or set up an "ersatz reset pin" as described elsewhere in this document. See the pinout charts for the locations of the serial pins.
 
 Prior to putting the part into a sleep mode, or otherwise disabling it's ability to transmit, be sure that it has finished sending the data in the buffer by calling `Serial.flush()`, otherwise the serial port will emit corrupted characters and/or fail to complete transmission of a message.
 
-See the [**Serial Reference**](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Serial.md) for a full list of options. As of 2.5.0, almost every type of functionality that the serial hardware can do is supported, including RS485 mode, half-duplex (via LBME and ODME), and even synchronous and Master SPI mode, and 2.6.0 will add autobaud, even though it's not very useful.
+See the [**Serial Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Serial.md) for a full list of options. As of 2.5.0, almost every type of functionality that the serial hardware can do is supported, including RS485 mode, half-duplex (via LBME and ODME), and even synchronous and Master SPI mode, and 2.6.0 will add autobaud, even though it's not very useful.
 
 ### SPI support
 A compatible SPI.h library is included; it provides one SPI master interface. These parts have either 1 or 2 SPI interfaces, however, the library we supply does not provide support for two simultaneous SPI ports operating. Although it can use either of the hardware SPI ports, it does not allow both of them to be used. (This is a reasonable limitation, because the main reason one might want that would be to operate as an SPI slave device. But there is no Arduino API for that. SPI slave has never been supported on Arduino's SPI library, on any device. More importantly, the precedent that has been set for multiple-SPI parts is for the second port to be SPI1, and so on, and this has to be the name for an instance of SPIClass. Unfortunately, Microchip took that name first, and SPI1 is instead an instance of their data structure type, `SPI_t` - but because all the existing code that supports more than 1 SPI module is hardwired to use that name. We're cau) of the underlying SPI modules - they are treated as if they are pin mapping options (only one interface is available at a time - the library code available in the wild has a name collision with the I/O headers if one wanted to support using both at once, and all the workarounds that I can think of involve the libraries being changed as well). That's fine though, as treating them as pin mappings gives you most of the benefit as master, and slave support is not and never has been a thing in Arduino (it's pretty easy to do manually, at least for simple stuff).
@@ -408,7 +408,7 @@ All pins can be used with `attachInterrupt()` and `detachInterrupt()`, on `RISIN
 
 Advanced users can instead set up interrupts manually, ignoring `attachInterrupt()`, manipulating the relevant port registers appropriately and defining the ISR with the `ISR()` macro - this will produce smaller code (using less flash and RAM) and the ISRs will run faster as they don't have to check whether an interrupt is enabled for every pin on the port.
 
-For full information and example, see [the Interrupt Reference](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Interrupts.md).
+For full information and example, see [the Interrupt Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md).
 
 ### Assembler Listing generation
 Like my other cores, Sketch -> Export compiled binary will generate an assembly listing in the sketch folder. A memory map is also created. The formatting of the memory map leaves something to be desired, and I've written a crude script to try to improve it, see the Export reference for more information.
@@ -417,7 +417,7 @@ see [**Exported Files documentation**](https://github.com/SpenceKonde/DxCore/blo
 ### EESAVE configuration option
 The EESAVE fuse can be controlled via the Tools -> Save EEPROM menu. If this is set to "EEPROM retained", when the board is erased during programming, the EEPROM will not be erased. If this is set to "EEPROM not retained", uploading a new sketch will clear out the EEPROM memory. Note that this only applies when programming via UPDI - programming through the bootloader never touches the EEPROM. Burning the bootloader is not required to apply this change on DA and DB parts, as that fuse is "safe". It IS required on DD-series parts, because its on the same fuse that controls whether the UPDI pins is acting as UPDI or I/O
 
-See the [Export Reference](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Export.md).
+See the [Export Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Export.md).
 
 
 ### BOD configuration options
@@ -454,14 +454,14 @@ A new version of Optiboot (Optiboot_dx) now runs on the tinyAVR DA and DB-series
 
 To use the serial bootloader, select a board definition with (optiboot) after it. Note - the optiboot suffix might be visually cut off due to the width of the menu; the second / lower set of board definitions in the board menu are the optiboot ones). The 2-Series Optiboot definitions and the 0/1-Series Optiboot definitions are separate entries in the board menu.
 
-See the [Optiboot reference](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Reset.md)for more information.
+See the [Optiboot reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)for more information.
 
 ## Guides
 These guides cover subsystems of the core in much greater detail (some of it extraneous or excessive).
 ### Reference Material
 #### [Function Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Functions.md)
 Covering top-level functions and macros that are non-standard, or are standard but poorly documented, and which aren't covered anywhere else.
-#### [Analog Input (ADC) and Output (DAC)](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/extras/Ref_Analog.md)
+#### [Analog Input (ADC) and Output (DAC)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
 The API reference for the analog-related functionality that is included in this core beyond the standard Arduino API.
 #### [Digital I/O and enhanced options](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 The API reference for the digital I/O-related functionality that is included in this core beyond the standard Arduino API, as well as a few digital I/O related features that exist in the hardware which we provide no wrapper around.
