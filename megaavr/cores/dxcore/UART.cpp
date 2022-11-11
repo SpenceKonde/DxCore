@@ -788,6 +788,9 @@
            * *immediately* after we checked that the buffer was empty, before we made it not empty. And
            * in that case, without this line it would lose one of the characters... with that line, it could
            * stop servicing DRE until another serial write, AND lose a character. That's not better! -Spence 4/2021
+           * So this is to stop a race condition in which people are doing something that every guide everywhere says not to do
+           * (writing serial from within an ISR).
+           * I maintain that users SHOULD NOT WRITE TO SERIAL FROM AN ISR, and certainly not while the non-interrupt code is also writing!
            * Original comments:
            * // Make sure data register empty interrupt is disabled to avoid
            * // that the interrupt handler is called in this situation

@@ -680,7 +680,7 @@ uint8_t TWI1_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smb
   cfg |= sda_hold;
   TWI1.CTRLA = cfg;
   #if defined(TWI1_DUALCTRL)
-    cfg_dual = TWI1.DUALCTRL & 0x03;
+    uint8_t cfg_dual = TWI1.DUALCTRL & 0x03;
     if (cfg_dual & 1) {
       cfg_dual |= sda_hold_dual;
       if (smbuslvl_dual) {
