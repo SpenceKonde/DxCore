@@ -46,7 +46,7 @@
 
 
 // Make sure this compiles on 8-pin parts for the automated tests...
-#if !defined(__AVR_ATtinyxy2__)
+#if !defined(__AVR_ATtinyxy2__) && defined(MEGATINYCORE)
   #define PIN_TCA_WO1 PIN_PB1
 #else
   #define PIN_TCA_WO1 PIN_PA1

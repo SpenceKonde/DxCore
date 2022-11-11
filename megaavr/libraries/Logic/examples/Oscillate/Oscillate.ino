@@ -84,11 +84,11 @@ void demo1() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::disable;          // No output filter enabled
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::disable;          // No output filter enabled
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -121,11 +121,11 @@ void demo2() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::link;                 // Use output of next logic block (Logic1)
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::disable;          // No output filter enabled
+  Logic0.input0 = logic::in::link;                 // Use output of next logic block (Logic1)
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::disable;          // No output filter enabled
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -136,11 +136,11 @@ void demo2() {
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
-  Logic1.input0 = in::feedback;             // use output of even-numbered block, ie, block 0
-  Logic1.input1 = in::masked;               // masked
-  Logic1.input2 = in::masked;               // masked
-  Logic1.output = out::enable;              // enable logic block 1 output pin
-  Logic1.filter = filter::disable;          // No output filter enabled
+  Logic1.input0 = logic::in::feedback;             // use output of even-numbered block, ie, block 0
+  Logic1.input1 = logic::in::masked;               // masked
+  Logic1.input2 = logic::in::masked;               // masked
+  Logic1.output = logic::out::enable;              // enable logic block 1 output pin
+  Logic1.filter = logic::filter::disable;          // No output filter enabled
   Logic1.truth = 0x02;                      // Set truth table: Copy, HIGH if input0 HIGH
   Logic1.init();                            // Initialize logic block 1
 
@@ -161,11 +161,11 @@ void demo3() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::event_a;              // use event channel A - a virtual feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::disable;          // No output filter enabled
+  Logic0.input0 = logic::in::event_a;              // use event channel A - a virtual feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::disable;          // No output filter enabled
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -204,11 +204,11 @@ void demo4() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::link;                 // link - use output of Logic1
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::disable;          // No output filter enabled
+  Logic0.input0 = logic::in::link;                 // link - use output of Logic1
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::disable;          // No output filter enabled
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -220,11 +220,11 @@ void demo4() {
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
-  Logic1.input0 = in::event_a;              // use event channel A
-  Logic1.input1 = in::masked;               // masked
-  Logic1.input2 = in::masked;               // masked
-  Logic1.output = out::enable;              // enable logic block 1 output pin
-  Logic1.filter = filter::disable;          // No output filter enabled
+  Logic1.input0 = logic::in::event_a;              // use event channel A
+  Logic1.input1 = logic::in::masked;               // masked
+  Logic1.input2 = logic::in::masked;               // masked
+  Logic1.output = logic::out::enable;              // enable logic block 1 output pin
+  Logic1.filter = logic::filter::disable;          // No output filter enabled
   Logic1.truth = 0x02;                      // Set truth table: Copy, HIGH if input0 HIGH
   Logic1.init();                            // Initialize logic block 0
 
@@ -250,11 +250,11 @@ void demo5() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::sync;             // Synchronizer - 2 clock-cycle delay each transition
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::sync;             // Synchronizer - 2 clock-cycle delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -285,11 +285,11 @@ void demo6() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::filter;           // Filter - 4 clock-cycle delay each transition
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::filter;           // Filter - 4 clock-cycle delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -320,11 +320,11 @@ void demo7() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::link;                 // output from Logic1
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin or PA4 (ATtiny))
-  Logic0.filter = filter::filter;           // Filter - 4 clock-cycle delay each transition
+  Logic0.input0 = logic::in::link;                 // output from Logic1
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin or PA4 (ATtiny))
+  Logic0.filter = logic::filter::filter;           // Filter - 4 clock-cycle delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -336,11 +336,11 @@ void demo7() {
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
-  Logic1.input0 = in::feedback;             // feedback (from logic0)
-  Logic1.input1 = in::masked;               // masked
-  Logic1.input2 = in::masked;               // masked
-  Logic1.output = out::enable;              // enable logic block 1 output pin
-  Logic1.filter = filter::sync;             // Synchronizer - 2 clock delay each transition
+  Logic1.input0 = logic::in::feedback;             // feedback (from logic0)
+  Logic1.input1 = logic::in::masked;               // masked
+  Logic1.input2 = logic::in::masked;               // masked
+  Logic1.output = logic::out::enable;              // enable logic block 1 output pin
+  Logic1.filter = logic::filter::sync;             // Synchronizer - 2 clock delay each transition
   Logic1.truth = 0x02;                      // Set truth table: Copy, HIGH if input0 HIGH
   Logic1.init();                            // Initialize logic block 1
 
@@ -382,12 +382,12 @@ void demo8() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::link;                 // input2 (used as clock) from Logic1
-  Logic0.clocksource = clocksource::in2;    // Use input 2 as clock instead of the default
-  Logic0.output = out::enable;              // Enable logic block 0 output pin PA3 or PA4 (ATtiny))
-  Logic0.filter = filter::filter;           // Filter - 4 clock delay each transition
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::link;                 // input2 (used as clock) from Logic1
+  Logic0.clocksource = logic::clocksource::in2;    // Use input 2 as clock instead of the default
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin PA3 or PA4 (ATtiny))
+  Logic0.filter = logic::filter::filter;           // Filter - 4 clock delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -402,11 +402,11 @@ void demo8() {
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
-  Logic1.input0 = in::event_a;              // use event A, which is coming from output of Logic1 (ie, feedback for an odd block)
-  Logic1.input1 = in::masked;               // masked
-  Logic1.input2 = in::masked;               // masked
-  Logic1.output = out::enable;              // enable logic block 1 output pin
-  Logic1.filter = filter::filter;           // Filter - 4 clock delay each transition
+  Logic1.input0 = logic::in::event_a;              // use event A, which is coming from output of Logic1 (ie, feedback for an odd block)
+  Logic1.input1 = logic::in::masked;               // masked
+  Logic1.input2 = logic::in::masked;               // masked
+  Logic1.output = logic::out::enable;              // enable logic block 1 output pin
+  Logic1.filter = logic::filter::filter;           // Filter - 4 clock delay each transition
   Logic1.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic1.init();                            // Initialize logic block 1
 
@@ -436,12 +436,12 @@ void demo9a() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::link;                 // input2 (used as clock) from Logic1
-  Logic0.clocksource = clocksource::in2;    // Use input 2 as clock instead of the default
-  Logic0.output = out::enable;              // Enable logic block 0 output pin PA3 or PA4 (ATtiny))
-  Logic0.filter = filter::filter;           // Filter - 4 clock delay each transition
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::link;                 // input2 (used as clock) from Logic1
+  Logic0.clocksource = logic::clocksource::in2;    // Use input 2 as clock instead of the default
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin PA3 or PA4 (ATtiny))
+  Logic0.filter = logic::filter::filter;           // Filter - 4 clock delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -456,11 +456,11 @@ void demo9a() {
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
-  Logic1.input0 = in::event_a;              // use event A, which is coming from output of Logic1 (ie, feedback for an odd block)
-  Logic1.input1 = in::masked;               // masked
-  Logic1.input2 = in::masked;               // masked
-  Logic1.output = out::enable;              // enable logic block 1 output pin
-  Logic1.filter = filter::sync;             // Filter - 4 clock delay each transition
+  Logic1.input0 = logic::in::event_a;              // use event A, which is coming from output of Logic1 (ie, feedback for an odd block)
+  Logic1.input1 = logic::in::masked;               // masked
+  Logic1.input2 = logic::in::masked;               // masked
+  Logic1.output = logic::out::enable;              // enable logic block 1 output pin
+  Logic1.filter = logic::filter::sync;             // Filter - 4 clock delay each transition
   Logic1.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic1.init();                            // Initialize logic block 1
 
@@ -521,12 +521,12 @@ void demo9b() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.clocksource = clocksource::clk_per;// Use CLK_PER (default) as clock source once more.
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::filter;           // Filter - 4 clock-cycle delay each transition
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.clocksource = logic::clocksource::clk_per;// Use CLK_PER (default) as clock source once more.
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::filter;           // Filter - 4 clock-cycle delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -598,11 +598,11 @@ void demo9d() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::feedback;             // feedback
-  Logic0.input1 = in::masked;               // masked
-  Logic0.input2 = in::masked;               // masked
-  Logic0.output = out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
-  Logic0.filter = filter::filter;           // Filter - 4 clock-cycle delay each transition
+  Logic0.input0 = logic::in::feedback;             // feedback
+  Logic0.input1 = logic::in::masked;               // masked
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin on PA3 (non-tiny) or PA4 (tiny)
+  Logic0.filter = logic::filter::filter;           // Filter - 4 clock-cycle delay each transition
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
@@ -693,12 +693,12 @@ void demo10() {
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
-  Logic0.input0 = in::masked;               // masked - this would be WOA, we want WOB
-  Logic0.input1 = in::tcd;                  // TCD0 WOB
-  Logic0.input2 = in::masked;               // masked
-  Logic0.clocksource = clocksource::clk_per;// Nothing clock-dependent here.
-  Logic0.output = out::enable;              // Enable logic block 0 output pin PA3 or PA4 (ATtiny))
-  Logic0.filter = filter::disable;          // No need for filter
+  Logic0.input0 = logic::in::masked;               // masked - this would be WOA, we want WOB
+  Logic0.input1 = logic::in::tcd;                  // TCD0 WOB
+  Logic0.input2 = logic::in::masked;               // masked
+  Logic0.clocksource = logic::clocksource::clk_per;// Nothing clock-dependent here.
+  Logic0.output = logic::out::enable;              // Enable logic block 0 output pin PA3 or PA4 (ATtiny))
+  Logic0.filter = logic::filter::disable;          // No need for filter
   Logic0.truth = 0x04;                      // Set truth table: Copy, HIGH if input1 HIGH
   Logic0.init();                            // Initialize logic block 0
 
