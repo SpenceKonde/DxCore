@@ -94,7 +94,7 @@ void TWI0_ClearPins() {
           PORTA.OUTCLR = 0x0C;  // bits 2 and 3
         #endif
       }
-      #if defined(TWI_DUALCTRL)
+      #if defined(TWI0_DUALCTRL)
         if (TWI0.DUALCTRL & TWI_ENABLE_bm) {
           #if defined(__AVR_DD__) || defined(__AVR_EA__)
             if ((portmux == PORTMUX_TWI0_DEFAULT_gc) || (portmux == PORTMUX_TWI0_ALT3_gc)) {
@@ -108,7 +108,7 @@ void TWI0_ClearPins() {
               }
             #endif
           #else
-            PORTC.OUTCLR = (portmux == PORTMUX_TWI0_DEFAULT_gc ? 0x0C : 0xC0)
+            PORTC.OUTCLR = (portmux == PORTMUX_TWI0_DEFAULT_gc ? 0x0C : 0xC0);
           #endif
         }
       #endif
@@ -124,7 +124,7 @@ void TWI0_ClearPins() {
     } else {
       PORTA.OUTCLR = 0x0C;  // bits 2 and 3
     }
-    #if defined(TWI_DUALCTRL)
+    #if defined(TWI0_DUALCTRL)
       if (TWI0.DUALCTRL & TWI_ENABLE_bm) {
         if (portmux == PORTMUX_TWI0_DEFAULT_gc) {
           PORTC.OUTCLR = 0x0C;
@@ -356,7 +356,7 @@ void TWI0_usePullups() {
       port->PIN2CTRL |= PORT_PULLUPEN_bm;
       port->PIN3CTRL |= PORT_PULLUPEN_bm;
     }
-    #if defined(TWI_DUALCTRL)   //Also handle slave pins, if enabled
+    #if defined(TWI0_DUALCTRL)   //Also handle slave pins, if enabled
       if (TWI0.DUALCTRL & TWI_ENABLE_bm) {
         #if !(defined(__AVR_DA__) || defined(__AVR_DB__))
           if (portmux == PORTMUX_TWI0_DEFAULT_gc ||
@@ -390,7 +390,7 @@ void TWI0_usePullups() {
     port->OUTCLR    = 0x0C;  // bits 2 and 3
     port->PIN2CTRL |= PORT_PULLUPEN_bm;
     port->PIN3CTRL |= PORT_PULLUPEN_bm;
-    #if defined(TWI_DUALCTRL)   //Also handle slave pins, if enabled
+    #if defined(TWI0_DUALCTRL)   //Also handle slave pins, if enabled
       if (TWI0.DUALCTRL & TWI_ENABLE_bm) {
         if (portmux == PORTMUX_TWI0_DEFAULT_gc) {
           port = &PORTC;
@@ -471,7 +471,7 @@ uint8_t TWI0_checkPinLevel(void) {
   #endif
 }
 
-#if defined(TWI_DUALCTRL) // full version for parts with dual mode and likely input level too
+#if defined(TWI0_DUALCTRL) // full version for parts with dual mode and likely input level too
   uint8_t TWI0_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smbuslvl_dual, uint8_t sda_hold_dual) {
     uint8_t cfg = TWI0.CTRLA & 0x03;
     sda_hold <<= 2; // get these into the right place in the byte
@@ -496,7 +496,7 @@ uint8_t TWI0_checkPinLevel(void) {
       } else if (sda_hold_dual || smbuslvl_dual) {
         return 0x04; // dual mode exists on this part, but is not enabled. This signifies a failure to follow documented startup order
       }
-     #endif;
+     #endif
      return 0; // return success - all other errors are checked for before this is called.
   }
 #else // very little to do here on tiny, do save flash with a smaller implementation.
@@ -638,7 +638,7 @@ void TWI1_usePullups() {
   port->PIN2CTRL |= PORT_PULLUPEN_bm;
   port->PIN3CTRL |= PORT_PULLUPEN_bm;
 
-  #if defined(TWI_DUALCTRL)
+  #if defined(TWI0_DUALCTRL)
     if (TWI1.DUALCTRL & TWI_ENABLE_bm) {
       if (portmux == PORTMUX_TWI1_DEFAULT_gc) {
         PORTB.OUTCLR = 0x0C;  // bits 2 and 3

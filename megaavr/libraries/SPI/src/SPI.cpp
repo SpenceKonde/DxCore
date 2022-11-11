@@ -339,7 +339,7 @@ void SPIClass::begin() {
       // megaAVR 0-series
       PORTMUX.TWISPIROUTEA = _uc_mux | (PORTMUX.TWISPIROUTEA & ~PORTMUX_SPI0_gm);
     #else // defined(PORTMUX_CTRLB) - tiny 0 or 1-series.
-      PORTMUX.CTRLB = uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm);
+      PORTMUX.CTRLB = uc_mux | (PORTMUX.CTRLB & ~PORTMUX_SPI0_bm) ;
     #endif
   #else
     // AVR DA-series or DB-series
@@ -358,9 +358,9 @@ void SPIClass::begin() {
   // no matter what we had to do about the mux; MOSI and SCK need to be set output - but now we set that up already instead of doing it here.
   pinMode(_uc_pinSCK,  OUTPUT);
   pinMode(_uc_pinMOSI, OUTPUT);
-  SPI_MODULE.CTRLB |= (SPI_SSD_bm);
-  SPI_MODULE.CTRLA |= (SPI_ENABLE_bm | SPI_MASTER_bm);
-
+  //SPI_MODULE.CTRLB |= (SPI_SSD_bm);
+  //SPI_MODULE.CTRLA |= (SPI_ENABLE_bm | SPI_MASTER_bm);
+  // We don't call this now because we are about to call config which does the same thing.
   config(DEFAULT_SPI_SETTINGS);
 }
 
@@ -385,7 +385,15 @@ void SPIClass::config(SPISettings settings) {
 }
 
 void SPIClass::end() {
-  SPI_MODULE.CTRLA &= ~(SPI_ENABLE_bm);
+  SPI_MODULE.CTRLA = 0;
+  // Is clearing this register a sane use of time? I don't thnk it is, we already turn off the port, and every time begin is called we reconfigure the PORTMUX.
+  // If user code is manually taking over SPI, and they're also using the SPI library, with the same SPI port at different times... do you really think that they'll be using the
+  // default pinset? And that, with all those moving parts, that the thing that they forget is going to have anything to do with the PORTMUX?
+  // Someone doing crazy things is either a fool, in which case why are we bothering? They won't make it work without a brain transplant.
+  // Or they're a skilled programmer, and can be treated like an adult. Thus we can trust them to check the PORTMUX when they switch their implementation back on after the SPI library has been used.
+  // One really does wonder if they claim to be in the second group though - I understand using a custom spi library, you need that for slave mode. But WTF are they doing screwing with this library?
+
+  /*
   #if defined(SPI1)
     PORTMUX.SPIROUTEA &= ~((_hwspi_module == &SPI0) ? PORTMUX_SPI0_gm : PORTMUX_SPI1_gm);
   #elif defined(PORTMUX_SPIROUTEA)
@@ -395,6 +403,7 @@ void SPIClass::end() {
   #else // defined(PORTMUX_CTRLB)
     PORTMUX.CTRLB &= PORTMUX_SPI0_bm;
   #endif
+  */
   pinMode(_uc_pinSCK,  INPUT);
   pinMode(_uc_pinMOSI, INPUT);
   initialized = false;
@@ -425,7 +434,7 @@ void SPIClass::usingInterrupt(uint8_t interruptNumber) {
 }
 
 void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
-  if ((interruptNumber == NOT_AN_INTERRUPT))
+  if ((interruptNumber == NOT_AN_INTERRUPT)) {
     return;
   }
 
@@ -441,8 +450,8 @@ void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
   if (interruptMask_lo == 0 && interruptMask_hi == 0) {
     interruptMode = SPI_IMODE_NONE;
     #if USE_MALLOC_FOR_IRQ_MAP
-    free(irqMap);
-    irqMap = NULL;
+      free(irqMap);
+      irqMap = NULL;
     #endif
   }
 }
@@ -516,6 +525,16 @@ void SPIClass::endTransaction(void) {
   }
 }
 #else // End of old interrupt related stuff, start of new-attachInterrupt-compatible implementation.
+// We aren't going to bother with all that wacky machinery to mask interrupts selectively. If you need it, you're doing something wrong.
+// You can send a very large chunk of data before you have to worry about things getting backed up even if you do have to disable interrupts.
+// But that would mean you're calling an SPI function from an interrupt, and you shouldn't be doing that anyway. So we can simply disable interrupts in a transaction globally,
+// and then you can use it from within interrupts, and unless your slave device is slow or your wiring long and janky, you can run SPI fast. 4 MHz to a 16 MHz AVR, most commercial
+// SPI slaves are much faster than that. That means two us per byte, and millis can wait for up to 1ms before
+// you can potentially lose 1 millisecond, or around 500 bytes. That's a damned big chunk to read in one go on an AVR.
+// If we're instead reading from a W25 flash or something (a more reasonable place to be getting 500 bytes from), the speed limits are much higher.
+// In fact, higher than not just the maximum SPI clock, but also the rated cpu frequency of these parts, and even the maximum practically achievable overclocked CPU frequency.
+//
+
 void SPIClass::usingInterrupt(uint8_t interruptNumber) {
   if ((interruptNumber == NOT_AN_INTERRUPT)) {
     return;
@@ -553,13 +572,14 @@ void SPIClass::endTransaction(void) {
 void SPIClass::setBitOrder(uint8_t order) {
   if (order == LSBFIRST) {
     SPI_MODULE.CTRLA |=  (SPI_DORD_bm);
-}  else {
+  }  else {
     SPI_MODULE.CTRLA &= ~(SPI_DORD_bm);
+  }
 }
 
 void SPIClass::setDataMode(uint8_t mode) {
   mode |= 4;
-  SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | mode);
+  SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | (mode));
 }
 
 void SPIClass::setClockDivider(uint8_t div) {
@@ -568,7 +588,7 @@ void SPIClass::setClockDivider(uint8_t div) {
                   | div);                           // write value
 }
 
-byte SPIClass::transfer(uint8_t data) {
+uint8_t SPIClass::transfer(uint8_t data) {
   /*
   * The following NOP introduces a small delay that can prevent the wait
   * loop from iterating when running at the maximum speed. This gives
