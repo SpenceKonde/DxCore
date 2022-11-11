@@ -1,5 +1,3 @@
-
-
 echo "Building AV1284DA/DB-series bootloaders for autoreset configurations"
 call omake dx128_ser0
 call omake dx128_ser0_alt
