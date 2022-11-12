@@ -77,7 +77,7 @@ Include guard and include basic libraries. We are normally including this inside
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                  PIN_D7
+  #define LED_BUILTIN                  PIN_PD7
 #endif
 /* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
