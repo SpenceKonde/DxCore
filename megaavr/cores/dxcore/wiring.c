@@ -1441,7 +1441,9 @@ void  __attribute__((weak)) init_clock() {
       _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
       #if (CLOCK_SOURCE == 2)
         // external clock
-        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (CLKCTRL_SELHF_EXTCLOCK_gc | CLKCTRL_ENABLE_bm));
+        // CLKCTRL_SELHF_EXTCLOCK_gc or CLKCTRL_SELHF_EXTCLK_gc? Microchip can't seem to decide, and we can't test for it with the preprocessor because it's a bloody enumerated type.
+        // 0x02 is the numeric value of that constant. I can't even provide compatibility defines, because I don't have any way to tell which one it is for a given version of the headers.
+        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (0x02 | CLKCTRL_ENABLE_bm));
         uint8_t i = 255;
       #else
         // external crystal
