@@ -45,27 +45,23 @@
 ************************************************************************/
 
 
-// Make sure this compiles on 8-pin parts for the automated tests...
-#if !defined(__AVR_ATtinyxy2__) && defined(MEGATINYCORE)
-  #define PIN_TCA_WO1 PIN_PB1
-#else
-  #define PIN_TCA_WO1 PIN_PA1
-#endif
 
+
+#define PIN_TCA_WO2 PIN_PC2
 
 #include <Logic.h>
 
 void setup() {
+  PORTMUX.TCAROUTEA = 0x02;                   // Force TCA onto a known set of pins.
 
-
-  Logic0.enable = true;               // Enable logic block 0
-  Logic0.input0 = logic::in::tcb;            // TCB channel - TCB0. On everything except 0/1-series tinyAVR, that's because this is input 0.
-  //                                     On those, it's because there's a logic::in::tcb1 option too...
-  Logic0.input1 = logic::in::tca0;           // Use TCA0 WO1 as input0
-  Logic0.input2 = logic::in::masked;         // mask input 2
-  Logic0.output = logic::out::enable;        // Enable logic block 0 output pin or PA4 (ATtiny))
-  Logic0.filter = logic::filter::disable;    // No output filter enabled
-  Logic0.truth = 0x08;                // Set truth table - HIGH only if both high
+  Logic0.enable = true;                       // Enable logic block 0
+  Logic0.input0 = logic::in::tcb;             // TCB channel - TCB0. On everything except 0/1-series tinyAVR, that's because this is input 0.
+  //                                              On those, it's because there's a logic::in::tcb1 option too...
+  Logic0.input1 = logic::in::masked;          // Mask input 2
+  Logic0.input2 = logic::in::tca0;            // Use TCA0 WO2 as input2
+  Logic0.output = logic::out::enable;         // Enable logic block 0 output pin or PA4 (ATtiny))
+  Logic0.filter = logic::filter::disable;     // No output filter enabled
+  Logic0.truth = 0x20;                        // Set truth table - HIGH only if both high
 
   // Initialize logic block 0
   Logic0.init();
@@ -73,7 +69,7 @@ void setup() {
   // Start the AVR logic hardware
   Logic::start();
 
-  analogWrite(PIN_TCA_WO1, 128); // start TCA0 WO0 running
+  analogWrite(PIN_TCA_WO2, 128); // start TCA0 WO0 running
   TCB0.CTRLA = 0x01; // enabled with CLKPER as clock source
   TCB0.CTRLB = 0x07; // PWM8 mode, but output pin not enabled
   TCB0.CCMPL = 255; // 255 counts
