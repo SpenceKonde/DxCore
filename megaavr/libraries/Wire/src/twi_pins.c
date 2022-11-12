@@ -517,20 +517,24 @@ void TWI1_ClearPins() {
   uint8_t portmux =  PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
   #if defined(PIN_WIRE1_SDA_PINSWAP_2)
     if (portmux == PORTMUX_TWI1_ALT2_gc) {  // make sure we don't get errata'ed
-      PORTB.OUTCLR = 0x0C;  // bits 2 and 3
+      #if defined(PORTB)
+        PORTB.OUTCLR = 0x0C;  // bits 2 and 3
+      #endif
     } else
   #endif
   {
     PORTF.OUTCLR = 0x0C;  // bits 2 and 3
   }
   #if defined(TWI1_DUALCTRL)
-    if (TWI1.DUALCTRL & TWI_ENABLE_bm) {
-      if (portmux == PORTMUX_TWI1_DEFAULT_gc) {
-        PORTB.OUTCLR = 0x0C;  // bits 2 and 3
-      } else {
-        PORTB.OUTCLR = 0xC0;  // bits 6 and 7
+    #if defined(PORTB)
+      if (TWI1.DUALCTRL & TWI_ENABLE_bm) {
+        if (portmux == PORTMUX_TWI1_DEFAULT_gc) {
+          PORTB.OUTCLR = 0x0C;  // bits 2 and 3
+        } else {
+          PORTB.OUTCLR = 0xC0;  // bits 6 and 7
+        }
       }
-    }
+    #endif
   #endif
 }
 
@@ -638,7 +642,7 @@ void TWI1_usePullups() {
   port->PIN2CTRL |= PORT_PULLUPEN_bm;
   port->PIN3CTRL |= PORT_PULLUPEN_bm;
 
-  #if defined(TWI0_DUALCTRL)
+  #if defined(TWI0_DUALCTRL) && defined(PORTB)
     if (TWI1.DUALCTRL & TWI_ENABLE_bm) {
       if (portmux == PORTMUX_TWI1_DEFAULT_gc) {
         PORTB.OUTCLR = 0x0C;  // bits 2 and 3
