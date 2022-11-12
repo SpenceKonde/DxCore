@@ -37,8 +37,8 @@ const byte WRITE        = 0b00000010;   // SCP1000's write command
 
 // pins used for the connection with the sensor
 // the other you need are controlled by the SPI library):
-const int dataReadyPin  = PIN_PA0;  // not the best pins, but present on all parts (this is part of the compile test suite)
-const int chipSelectPin = PIN_PA1;  // see above
+const int dataReadyPin  = PIN_PC1;  // not the best pins, but present on all parts (this is part of the compile test suite)
+const int chipSelectPin = PIN_PC2;  // see above
 
 void setup() {
   Serial.begin(9600);
