@@ -261,13 +261,14 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
 
 uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
-    if ((FUSE.BOOTSIZE != 0x01)) {
+    if ((FUSE.BOOTSIZE != 0x01))
   #else
-    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP))
   #endif
+  {
     return FLASHWRITE_NOBOOT;
   }
-  if (address > (PROGMEM_SIZE - 2 || address < 512) {
+  if ((address > PROGMEM_SIZE - 2) || address < 512) {
     return FLASHWRITE_BADADDR;
   }
   #if !defined(NO_CORE_RESERVED)
