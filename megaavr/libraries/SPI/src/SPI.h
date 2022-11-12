@@ -226,7 +226,7 @@ class SPISettings {
       /* Set Prescaler, x2, SPI to Master, and Bit Order. */
 
       ctrla = (clockDiv & 1 ? SPI_CLK2X_bm : 0)       |
-              (clockDiv & 6 )                         |
+              (clockDiv & 6)                          |
               (SPI_ENABLE_bm)                         |
               (SPI_MASTER_bm)                         |
               ((bitOrder == LSBFIRST) ? SPI_DORD_bm : 0);
