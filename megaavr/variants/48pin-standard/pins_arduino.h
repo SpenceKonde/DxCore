@@ -121,7 +121,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB1_PINS PORTMUX_TCB1_bm           // TCB1 output on PF5 instead of PA3 (default)
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
-#define TCD0_PINS PORTMUX_TCD0_DEFAULT_gc   // Only default port option works!
+#define TCD0_PINS PORTMUX_TCD0_PORTA        // Only default port option works!
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5))

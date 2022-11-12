@@ -151,7 +151,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4.
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 #define TCB4_PINS 0x00                      // TCB4 output on PG3 (default) instead of PC6
-#define TCD0_PINS 0                         // TCD0 output on PA[4:7] (default - only default port option works on DA, DB parts.
+#define TCD0_PINS PORTMUX_TCD0_PORTA        // TCD0 output on PA[4:7] (default - only default port option works on DA, DB parts.
 // Note that we need to use the numerical value, not the _gc constant here. Group codes (_gc) are defined as enumerated types,
 // which are not understood by the preprocessor and can't be tested for by preprocessor conditionals.
 // Setting TCB2 and TCB3 for PWM on PC0, PC1 doesn't sound optimal for the AVR DB, but you shouldn't be using TCBs for PWM anyway!
