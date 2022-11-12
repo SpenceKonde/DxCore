@@ -27,7 +27,7 @@ class FlashClass {
     void* mappedPointer(const uint32_t address);
     uint8_t* mappedPointerByte(const uint32_t address) {
       // juat syntactic
-      return (uint16_t*) mappedPointer(address);
+      return (uint8_t*) mappedPointer(address);
     }
     uint16_t* mappedPointerWord(const uint32_t address);
       // juat syntactic
@@ -37,6 +37,8 @@ class FlashClass {
 };
 
 extern FlashClass Flash;
+
+#define NO_CORE_RESERVED
 
 typedef enum FlashLockZones {
   LOCK_FLASH_MAP               = (0x80),

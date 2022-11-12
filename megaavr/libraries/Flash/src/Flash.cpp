@@ -109,9 +109,7 @@ uint8_t FlashClass::checkWritable() {
     */
     return FLASHWRITE_UNRECOGNIZED;
   #endif
-}
-
-/* All significant docs only written out once where first apply
+  /* All significant docs only written out once where first apply
  * In general, I am trying to be fairly careful about catching
  * inappropriate arguments and recklessness than usual, in the interest
  * of trying to help clever fools not write code that can brick itself
@@ -121,10 +119,13 @@ uint8_t FlashClass::checkWritable() {
  */
 
   #if !defined(NO_CORE_RESERVED)
-  if (address > PROGMEM_SIZE - 514) {
-    return FLASHWRITE_RESERVED_BY_CORE;
-  }
+    if (address > PROGMEM_SIZE - 514) {
+      return FLASHWRITE_RESERVED_BY_CORE;
+    }
   #endif
+}
+
+
 
 uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
@@ -136,7 +137,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   }
   uint8_t command;
   uint16_t minaddress = 0x200; // 512 (bootloader section).
-  if (address >= PROGMEM_SIZE) {F
+  if (address >= PROGMEM_SIZE) {
     return FLASHWRITE_BADADDR;
   }
   switch (size) {
@@ -168,13 +169,17 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   }
   if (address < minaddress) {
     return FLASHWRITE_BADADDR;
-  } else if (address > (PROGMEMSIZE - minaddress - 1))
-    return FLASHWRITE_RESERVED_BY_CORE;
   }
+  #if !defined(NO_CORE_RESERVED)
+    else if (address > (PROGMEM_SIZE - minaddress - 1)) {
+      return FLASHWRITE_RESERVED_BY_CORE;
+    }
+  #endif
   #if (PROGMEM_SIZE > 0x10000)
-    RAMPZ = 0;
     if (address > 0xFFFF) {
       RAMPZ = 1;
+    } else {
+      RAMPZ = 0;
     }
   #endif
   do_nvmctrl(command);
@@ -186,7 +191,7 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
    * And if you then call SPM Z+ , but the compiler knows Z hasn't changed (because you
    * told it that) you get undefined behavior when it relies on that value being the same!
    */
-  __asm__ __volatile__(SPMCOMMAND : "+z" (zaddress));
+  __asm__ __volatile__(SPMCOMMAND "\n\t" : "+z" (zaddress));
   #if (PROGMEM_SIZE > 0x10000)
     RAMPZ = 0; // just begging for trouble not resetting that.
   #endif
