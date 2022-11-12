@@ -35,12 +35,6 @@
   #define PROGMEM_MAPPED
 #endif
 
-#define PORTMUX_TCD0_PORTA  (PORTMUX_TCD0_DEFAULT_gc)
-#define PORTMUX_TCD0_PORTB  (PORTMUX_TCD0_ALT1_gc)
-#define PORTMUX_TCD0_PORTF  (PORTMUX_TCD0_ALT2_gc)
-#define PORTMUX_TCD0_PORTG  (PORTMUX_TCD0_ALT3_gc)
-#define PORTMUX_TCD0_PORTAD (PORTMUX_TCD0_ALT4_gc)
-
 /* Chip families
  *
  * 0b ffssfppp
@@ -486,26 +480,29 @@
 #endif
 
 /* Hardware incapabilities: Errata */
+// 0 = = this erratum does not apply to a part
+// -1 = this erratum applies to all parts.
+// any other value: This erratum applies to parts before this silicon REVID.
 
 /* When they're fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
 /* aaahahahah! Sorry...
 ... I meant, *if* they're ever fixed. If that happens, maybe put on a jacket or something... just in case a pig coming in for
 a landing collides with you on your way to claim your lottery jackpot, and you end up in hell, and there's nothing but ice as far as you can see. */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
-  #define ERRATA_TCA1_PORTMUX           (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
-  #define ERRATA_PORTS_B_E_EVSYS        (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
-  #define ERRATA_NVM_ST_BUG             (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
+  #define ERRATA_TCA1_PORTMUX           (-1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
+  #define ERRATA_PORTS_B_E_EVSYS        (-1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
+  #define ERRATA_NVM_ST_BUG             (-1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
   // Needless to say, that's the only version that's ever been for sale.
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
-  #define ERRATA_DAC_DRIFT              (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
+  #define ERRATA_DAC_DRIFT              (-1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
 #endif
 
 #if defined(__AVR_ARCH__)
-  #define ERRATA_TCB_CCMP               (1)
-  #define ERRATA_CCL_PROTECTION         (1) // You mean this wasn't intended behavior? Isn't that how they saidit worked in the datasheet...
-  #define ERRATA_TCA_RESTART            (1)
+  #define ERRATA_TCB_CCMP               (-1)
+  #define ERRATA_CCL_PROTECTION         (-1) // You mean this wasn't intended behavior? Isn't that how they saidit worked in the datasheet...
+  #define ERRATA_TCA_RESTART            (-1)
 /* "The software can force a restart of the current waveform period by issuing a RESTART command. In this case, the
 counter, direction, and all compare outputs are set to ‘0’ " - Datasheet, for example, AVR128DA datasheet rev C, sec 21.3.3.5
    "Restart Will Reset Counter Direction in NORMAL and FRQ Mode
@@ -515,8 +512,9 @@ command or Restart event will reset the count direction to default. The default 
 I just don't know what to say. The only description of restarting a TCA is the command description. That's a bug?
 Usually when the product does what the docs say it will, that's not something that needs to be corrected.
 Especially when there are about a dozen errata containing "does not [work/function]" or "is not [working/functional]", but
-an unambiguous, quantitative specification - like flash endurance - just received an order of magnitude downgrade... a year after release....
-That was called a "clarification"....
+an unambiguous, quantitative specification - like flash endurance - just received an order of magnitude downgrade...
+a year after release.... That was called a "clarification", meaning they won't even maintain a pretence of plans to correct it.
+Yet the TCA restart - which does what the datasheet says it is supposed to is on the list of things to fix?
 
 "Hmm? Yeah 1000 erase cycles, working as intended, why do you ask? What? No way, ten? Our datasheet? Really? You're kidding!
 Hmm, Oh... that does look kind of like... alright you're a big customer so let me see that datasheet and I'll try to clear this up with the design team"
@@ -529,12 +527,12 @@ next year, thanks! Gotta go, bye!"
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // Almost certainly won't be in the DD.
-  #define ERRATA_TCD_PORTMUX            (1)
-  #define ERRATA_ADC_PIN_DISABLE        (1)
+  #define ERRATA_TCD_PORTMUX            (-1)
+  #define ERRATA_ADC_PIN_DISABLE        (-1)
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
-  #define ERRATA_TWI_FLUSH
+  #define ERRATA_TWI_FLUSH              (-1)
 #endif
 
 /********************************************************************************
@@ -658,6 +656,25 @@ next year, thanks! Gotta go, bye!"
 #else
   #define _switchInternalToF_CPU() badCall("The _switchInternalToF_CPU() macro can only set the internal oscillator to a value which is supported by the core")
 #endif
+
+#if defined(TCD0)
+  //_gc's are enumerated types, the preprocessor doesn't understand them - but we need to do conditional compilation based on them
+  // and this is way down here so that we can take into account errata.
+  #define PORTMUX_TCD0_PORTA  (0x00) // PORTMUX_TCD0_DEFAULT_gc
+  #if ERRATA_TCD_PORTMUX != -1
+    #if defined(PORTB)
+      #define PORTMUX_TCD0_PORTB  (0x01) // PORTMUX_TCD0_ALT1_gc
+    #endif
+    #define PORTMUX_TCD0_PORTF  (0x02) // PORTMUX_TCD0_ALT2_gc
+    #if defined(PORTG)
+      #define PORTMUX_TCD0_PORTG  (0x03) // PORTMUX_TCD0_ALT3_gc
+    #endif
+    #if defined(__AVR_DD__)
+      #define PORTMUX_TCD0_PORTAD (0x04) // PORTMUX_TCD0_ALT4_gc
+    #endif
+  #endif
+#endif
+
 
 
 /* Microchip has shown a tendency to rename registers bitfields and similar between product lines, even when the behavior is identical.
