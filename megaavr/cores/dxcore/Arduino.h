@@ -380,9 +380,9 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 
 
 // Copies of above for internal use, and for the really exotic use cases that want this instead of system clocks (basically never in user-land)
-uint16_t millisClockCyclesPerMicrosecond();
-unsigned long millisClockCyclesToMicroseconds(unsigned long cycles);
-unsigned long microsecondsToMillisClockCycles(unsigned long microseconds);
+//uint16_t millisClockCyclesPerMicrosecond();
+//unsigned long millisClockCyclesToMicroseconds(unsigned long cycles);
+//unsigned long microsecondsToMillisClockCycles(unsigned long microseconds);
 /* Timers and Timer-like-things
  * These are used for two things: Identifying the timer on a pin in
  * digitalPinToTimer(), and for the MILLIS_TIMER define that users can test to

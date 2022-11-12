@@ -629,14 +629,14 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
         microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
             + ((ticks << 3) - ((uint16_t)(ticks << 1) + (ticks >> 1) - (ticks >> 3)));
       #elif (F_CPU == 5000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 16)
-        microseconds = (overflows * millisClockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+        microseconds = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
                      + (ticks * 3 + ((uint16_t)(ticks >> 2) - (ticks >> 4)));
       #else
         #if (TIME_TRACKING_TIMER_DIVIDER%(F_CPU/1000000))
           #warning "Millis timer (TCA0) at this frequency unsupported, micros() will return bogus values."
         #endif
-        microseconds = ((overflows * millisClockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
-                      + (ticks * (millisClockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF) / TIME_TRACKING_TIMER_PERIOD)));
+        microseconds = ((overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF))
+                      + (ticks * (clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF) / TIME_TRACKING_TIMER_PERIOD)));
       #endif
     #endif // end of timer-specific part of micros calculations
     return microseconds;
