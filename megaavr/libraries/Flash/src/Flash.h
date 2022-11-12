@@ -163,7 +163,7 @@ typedef enum FLASHWRITE_RETURN_VALUES {
   * anything, but it is very possible that
   * that will change
   */
-  FLASHWRITE_BOOT_SECT         = (0x49)
+  FLASHWRITE_BOOT_SECT         = (0x49),
  /* Even the bootoader can't rewrite to
   * BOOTCODE section of flash.
   * 0x80 - NVMCTRL complained        */
