@@ -394,7 +394,7 @@ void TWI0_usePullups() {
       if (TWI0.DUALCTRL & TWI_ENABLE_bm) {
         if (portmux == PORTMUX_TWI0_DEFAULT_gc) {
           port = &PORTC;
-        else {
+        } else {
           port = &PORTF;
         }
         port->OUTCLR    = 0x0C;  // bits 2 and 3
