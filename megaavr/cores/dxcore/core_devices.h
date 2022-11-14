@@ -476,7 +476,7 @@
 #define ERRATA_APPLIES                  (1)
 #define ERRATA_DOES_NOT_APPLY           (0)
 
-#define checkErratum(errata)  (errata == 0 ? 0 : (errata == -1 ? 1 : (errata==-128 ? 0 :  (errata > SYSCFG.REVID ? 1 : 0))))
+#define checkErrata(errata)  (errata == 0 ? 0 : (errata == -1 ? 1 : (errata==-128 ? 0 :  (errata > SYSCFG.REVID ? 1 : 0))))
 
 
 /* When they're fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
