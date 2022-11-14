@@ -133,7 +133,7 @@ if (checkErrata(ERRATA_CCL_PROTECTION)) {
   Logic::stop(); //All other logic blocks briefly disabled!
   Logic1.init();
   Logic2.init();
-  Logic::start(); // all logic blocks reenabled.
+  Logic::start(); // all logic blocks re-enabled.
 } else {
   Logic1.init(); // Only logic block 1 disabled while this runs.
   Logic2.init(); // Only logic block 2 disabled while this runs.
@@ -582,7 +582,7 @@ ISR(CCL_CCL_vect) {
   // You also need to clear the intflags - that isn't done automatically
   // If interrupts may fire in very rapid succession the timing of when you clear the flags could matter.
   // You should always read the flags first thing. Writing them immediately minimizes the possibility
-  // of an repeated interrupt condition being missed because you hadn't cleared the flag yet, but it also increses
+  // of an repeated interrupt condition being missed because you hadn't cleared the flag yet, but it also increases
   // the potential for something like switch bounce to land you in the interrupt multiple times, and in extreme
   // situation, can result in the code being locked in the interrupt, because it will re-trigger immediately after
   // returning, It's probably smarter to only clear the intflags at the very end. This is done by writing a 1 to each
@@ -591,7 +591,7 @@ ISR(CCL_CCL_vect) {
   // triggered, it would naturally be triggered as soon as you left this interrupt. The interrupt would run twice, though
   // all interrupt conditions that occurred would be handled.
   // Anyway, back to the body of the ISR
-  // Assuming that your LED pin is a constant, this is the prefered way to toggle a pin:
+  // Assuming that your LED pin is a constant, this is the preferred way to toggle a pin:
   digitalWriteFast(myLedPin, CHANGE);
   // And now we clear the intflags...
   CCL.INTFLAGS = flags;

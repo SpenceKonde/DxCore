@@ -239,7 +239,7 @@ These constants are defined as either:
 
 `checkErrata(errata name)` will return `ERRATA_APPLIES` (1/true) if the errata applies to this part, or `ERRATA_DOES_NOT_APPLY` (0/false) if the errata does not apply or is irrelevant.
 
-Note that checkErrata does not get compiled to a known constant unless either all specimens of the part in question or none of them have the issue. Right now, only the A4 AVR DB-series parts have bugs that were fixed by a subsequent die rev - but very few of them made it out of Microchip - at least to the general public. I ordered them basically as soon as they were for sale, and received them before they even posted the datasheet. Mine were still all A5s. Therefor, to maximize performance, **the problems corrected by A5 in the DB128 and DB64 are are reported by the core to not impact those devices**, that is, on a DB-series, `ERRATA_PLL_RUNSTBY` will be defined as 0, not 0xA5.
+Note that checkErrata does not get compiled to a known constant unless either all specimens of the part in question or none of them have the issue. Right now, only the A4 AVR DB-series parts have bugs that were fixed by a subsequent die rev - but very few of them made it out of Microchip - at least to the general public. I ordered them basically as soon as they were for sale, and received them before they even posted the datasheet. Mine were still all A5s. Therefore, to maximize performance, **the problems corrected by A5 in the DB128 and DB64 are are reported by the core to not impact those devices**, that is, on a DB-series, `ERRATA_PLL_RUNSTBY` will be defined as 0, not 0xA5.
 
 When future die revs fix some of these problems, checkErrata() will no longer compile to a known constant. Thus, do not use it in #if statements. Do not use it in functions that your application relies upon the compiler constant-folding and optimizing away.
 
@@ -387,9 +387,9 @@ if (timer & TIMERD0 == TIMERD0) {
   // and we find the WO channel in bits 4 and 5:
   uint8_t wochan = (timer & 0x30) >> 4; // compiler ought to render this as mov andi swap
   TCD_t* tcd = &TCD0;
-  // to get the bit cooresponding to this pin in TCD0.FAULTCTRL
+  // to get the bit corresponding to this pin in TCD0.FAULTCTRL
   // 0x40 << wochan;
-  // looking up port and bit would take a lookup table of 1 byte per mux optin, containing the port number and a number indicating pin layout.
+  // looking up port and bit would take a lookup table of 1 byte per mux option, containing the port number and a number indicating pin layout.
   // 0b00000000, 0b00000001, 0b00001101, 0b00000110, 0b101100000
   // 0 = 4567
   // 1 = 0123
