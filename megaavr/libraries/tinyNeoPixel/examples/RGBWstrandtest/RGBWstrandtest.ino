@@ -1,7 +1,7 @@
 #include <tinyNeoPixel.h>
 
 
-#define PIN PIN_PC3 //chosen because all Dx and Ex parts have itz
+#define PIN PIN_PC1 //chosen because all Dx and Ex parts have itz
 #define NUM_LEDS 60
 
 #define BRIGHTNESS 50
