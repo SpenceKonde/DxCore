@@ -108,7 +108,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribut
         return true;
       } else
     #endif
-
+    #if defined(SPI_MUX)
     if(pinMOSI == PIN_SPI_MOSI && pinMISO == PIN_SPI_MISO && pinSCK == PIN_SPI_SCK  /* && pinSS == PIN_SPI_SS */) {
       _uc_mux        = SPI_MUX;
       _uc_pinMOSI    = PIN_SPI_MOSI;
@@ -120,6 +120,13 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribut
       _uc_pinSCK     = PIN_SPI_SCK;
       return false;
     }
+    #else
+
+      _uc_mux        = SPI_MUX_PINSWAP_4;
+      _uc_pinMOSI    = PIN_SPI_MOSI;
+      _uc_pinSCK     = PIN_SPI_SCK;
+      return false;
+    #endif
     // end of single-SPI implementation
 
   #else
