@@ -37,7 +37,6 @@ void ZeroCross::init() {
   // Set input
   #if defined(__AVR_DD__)
   PORTC.PIN2CTRL = PORT_ISC_INPUT_DISABLE_gc;
-  PORT_t &output_port = PORTA;
   uint8_t pin_number = PIN7_bm;
   // Set output
   if (output == out::enable) {
