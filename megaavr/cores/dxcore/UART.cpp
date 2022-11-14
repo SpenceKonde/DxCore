@@ -643,6 +643,7 @@
       uint8_t mux_group_code = (uint8_t) (mux_row_gc_tx);       // this is the mux
       if (mux_setting < mux_count) {              // if false, pinmux none was selected, and we skip the pin configuration.
         uint8_t mux_pin_tx   = (uint8_t) (mux_row_gc_tx >> 8);
+        // We don't care if the errata is here, I don't think...
         if ((enmask & 0x40 && !(enmask & 0x08))) {
           pinMode(mux_pin_tx, OUTPUT);            // If and only if TX is enabled and open drain isn't should the TX pin be output.
         } else if (enmask & 0x50) {               // if it is enabled but is in open drain mode, or is disabled, but loopback is enabled

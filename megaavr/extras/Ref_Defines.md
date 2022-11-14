@@ -230,38 +230,223 @@ Occasionally Microchip has not kept the names of registers or bitfields consiste
 * All things `CLKCTRL_FREQSEL` related, which had the E dropped in some ATPACK versions. This goes both ways, as different ATpacks name them differently.
 
 ## Errata
-There are macros to check if the parts are effected by major errata (minor ones aren't included, nor are ones that effect a peripheral that is only present on DxCore-supported parts and has it's own library included with the core. ). If the erratum is present, they will be 1, and if it never impacted this part, it not be defined. If/when these are fixed, they get replaced with a macro to check REVID and see if the bug is there or not (eg, `(SYSCFG.REVID >= 0xA5 ? 0 : 1)` for a bug fixed in A5 revision. See the [errata summary](./Errata.md) for details on them, and the example below for the best way to test them
+There are ah, a lot of errata on these parts, sad to say. See the [errata summary](./Errata.md) for details on them.
+These constants are defined as either:
+* `ERRATA_IRREL` (-127) - This errata does not apply to a part family because the conditions that would make it manifest can never exist there (ex: ERRATA_PORT_PD0 is irrelevant to the DA, because there are no DA parts that don't have a PD0, only smaller DBs have that (where they put the VDDIO2 pin instead).
+* `-1` - This applies to all parts in this family.
+* `0` - This does not apply to any parts in this family
+* Any other value - This is the die REVID that corrected this problem.
 
-* `ERRATA_ADC_PIN_DISABLE`  - The bug on DA with digital input being disabled on the pin the ADC is pointed at. Transparently worked around by the core.
-* `ERRATA_TCA1_PORTMUX`     - The bug on DA128 where the last 2 settings don't work for TCA1.
-* `ERRATA_DAC_DRIFT`        - On effected chips (all DA-series up to and including A8), the DAC output buffer drifts over the lifetime of the part, and you should verify the output with the ADC.
-* `ERRATA_NVM_ST_BUG`       - The bug on DA 128 where memory protection is applied to more areas than it should be when writing using ST (our bootloader and the flash module use SPM instead. It's faster too.)
-* `ERRATA_TCB_CCMP`         - Impacts all parts with TCBs except maybe DDs's. CCMPL and CCMPH cannot be written individually. You must write both together, in that order, because they're treated like a 16-bit register, even in PWM mode.
-* `ERRATA_CCL_PROTECTION`   - Impacts all parts with a CCL. CCL settings cannot be changed without disabling the whole CCL - not just the LUT, which was apparently the intent.
-* `ERRATA_TCD_PORTMUX`      - Impacts all DA/DB parts. Only the default TCD0 port mapping works.
+`checkErrata(errata name)` will return `ERRATA_APPLIES` (1/true) if the errata applies to this part, or `ERRATA_DOES_NOT_APPLY` (0/false) if the errata does not apply or is irrelevant.
 
+Note that checkErrata does not get compiled to a known constant unless either all specimens of the part in question or none of them have the issue. Right now, only the A4 AVR DB-series parts have bugs that were fixed by a subsequent die rev - but very few of them made it out of Microchip - at least to the general public. I ordered them basically as soon as they were for sale, and received them before they even posted the datasheet. Mine were still all A5s. Therefor, to maximize performance, **the problems corrected by A5 in the DB128 and DB64 are are reported by the core to not impact those devices**, that is, on a DB-series, `ERRATA_PLL_RUNSTBY` will be defined as 0, not 0xA5.
+
+When future die revs fix some of these problems, checkErrata() will no longer compile to a known constant. Thus, do not use it in #if statements. Do not use it in functions that your application relies upon the compiler constant-folding and optimizing away.
+
+
+| Errata name               |  DA  |  DB  |  DD  | Quick description
+|---------------------------|------|------|------|---------------------------------------
+| Many severe ADC bugs      | No   | A5   | No   | The ADC on the A4 DB parts (of which a vanishingly small number are in circulation) had tons of very serious ADC and OPAMP bugs. Hence the urgent die rev.
+| ERRATA_ADC_PIN_DISABLE    | All  | All  | No   | Pin pointed to by MUXPOS and MUXNEG are disabled, even when no conversion is ongoing.
+| ERRATA_CCL_PROTECTION     | All  | All  | No   | The whole CCL peripheral must be disabled in order to disable any one LUT to reconfigure it.
+| ERRATA_CCL_LINK           | All  | A5   | No   | On 28/32 pin parts, LINK input on LUT3 non-functional (it's trying to take input from non-existent LUT4)
+| ERRATA_DAC_DRIFT          | All  | All  | No   | If DAC used as internal source (OUTEN = 0), accuracy drifts over time.
+| ERRATA_EVSYS_PORT_B_E     | 128k | No   | No   | PE and PB pins not present on 48-pin parts not connected to EVSYS on 64 pin parts.
+| ERRATA_NVM_MULTIPAGE      | All  | All  | All  | A multipage erase can ignore the write protection, if it could write to the first page in that section.<br/>This requires a terribly contrived scenario to manifest.
+| ERRATA_NVM_ST_BUG         | 128k | No   | No   | ST incorrectly applies section protections, use SPM to write flash instead. It's twice as fast anyway.
+| ERRATA_PLL_RUNSTBY        | All  | A5   | No   | Runstby does not work for the PLL. It will never run during standby.<br/>Not only that, the PLLS status bit won't be set either.
+| ERRATA_PLL_XTAL           | Irr  | All  | No   | PLL cannot use external crystal as source.
+| ERRATA_PORT_PD0           | Irr  | All  | No   | On 28/32 pin DB-series, PD0 is not connected to a pin, but it is still set as an input. The core implements the recommended fix of disabling input.
+| ERRATA_TCA_RESTART        | All  | All  | No   | TCA restart resets direction, like DA/DB datasheet says. That's apparently wrong.<br/>On the DD it doesn't, and the datasheet says that.
+| ERRATA_TCA1_PORTMUX       | 128k | No   | No   | TCA1 mux options 2 and 3 don't work.
+| ERRATA_TCB_CCMP           | All  | All  | All  | In 8-bit PWM, CCMP treated as a 16-bit register not 2 8-bit ones, so both must be written, never just 1. Universal on modern AVRs.
+| ERRATA_TCD_ASYNC_COUNTPSC | All  | All  | No   | Async event's are missed when TCD tries to use them if count prescaler is engaged.
+| ERRATA_TCD_PORTMUX        | All  | All  | No   | TCD PORTMUX unusable. Only default portmux pins work.
+| ERRATA_TCD_HALTANDRESTART | All  | All  | All  | Halt and Wait for SW restart fault mode does not work in dual slope more, or if CMPASET = 0
+| ERRATA_TWI_PINS           | All  | All  | No   | The OUT register for SCL and SDA must be low, otherwise TWI will try to drive the pins high! (Wire.h makes sure this is done correctly)
+| ERRATA_TWI_FLUSH          | All  | All  | All  | TWI_FLUSH command leaves the bus in unknown state. That is exactly what it was supposed to fix.
+| ERRATA_USART_ISFIF        | All  | All  | All  | After an inconsistent sync field (ISFIF), you must turn off RXC and turn it back on
+| ERRATA_USART_ONEWIRE_PINS | All  | All  | No   | The DIR register for TX must be set INPUT when ODME bit is set, or it can drive pin high.
+| ERRATA_ZCD_PORTMUX        | All  | A5   | No   | All ZCD output pins controlled by ZCD0 bit of PORTMUX
+
+Note: Some problems only appeared on the 128k version of the AVR DA-series
 
 ## Identifying Timers
-Each timer has a number associated with it, as shown below. This may be used by preprocessor macros (`#if` et. al.) or `if()` statements to check what `MILLIS_TIMER` is, or to identify which timer (if any) is associated with a pin using the `digitalPinToTimer(pin)` macro. Defines are available on all parts that the core supports, whether or not the timer in question is present on the part (ie, it is safe to use them in tests/code without making sure that the part has that timer). There are two very closely related macros for determining pin timers:
-* `digitalPinToTimer()` tells you what timer (if any) the pin is associated with by default. This is a constant, when the argument is constant, the optimizer will optimize it away.
-* `digitalPinToTimerNow()` tells you what timer (if any) the pin is associated with currently. On megaTinyCore, this is either the result of `digitalPinToTimer()` unless that timer has been "taken over" by user code with `takeOverTCA0()` or `takeOverTCD0()`. On modern AVR cores like Dx-core which support use of `analogWrite()` even when the `PORTMUX.TCxROUTEA` register (where `x` is `A` or `D`) has been changed, this will return the timer currently associated with that pin. megaTinyCore does NOT support non-default timer pin mappings with `analogWrite()`- so if `PORTMUX.TCAROUTEA` (2-series) or `PORTMUX.CTRLC` (0/1-series) has been altered, this will not not reflect that.
+Each timer has a number associated with it, as shown below. This may be used by preprocessor macros (`#if` et. al.) or `if()` statements to check what `MILLIS_TIMER` is, or to identify which timer (if any) is associated with a pin using the `digitalPinToTimer(pin)` macro (however, this doesn't count TCA0 or TCA1 - TCA association with pins is dynamically determined at runtime based on the PORTMUX register, and the `digitalPinToTimerNow()` function must be used; it is not compile-time constant, and cannot be used for conditional compilation). Defines are available on all parts that the core supports, whether or not the timer in question is present on the part (ie, it is safe to use them in tests/code without making sure that the part has that timer).
+
+These are the "timers" that can be associated with a pin:
+```text
+NOT_ON_TIMER      0x00
+TIMERA0           0x10
+TIMERA1           0x08
+TIMERB0           0x20
+TIMERB1           0x21
+TIMERB2           0x22
+TIMERB3           0x23
+TIMERB4           0x24
+TIMERD0           0x40 (see notes)
+DACOUT            0x80 (not a timer - but treated like it was for purposes of pin-info.)
+```
+
+TCD0 will be 0x40 when it's being used as the millis timer (not supported on DxCore), but when a pin is interrogated and reveals that it can be used by TCD0, the value it returns will be of the form 0b01cc_0mmm. Here cc is the channel (0 = WOA, 1 = WOB, 2 = WOC, 3 = WOD), and mmm is the value of `PORTMUX.TCDROUTEA | PORTMUX_TCD0_gm`. In the event that a future part is released with a second type D timer, there are two bits that could be used to signify that, leaving a second bit available if they added a WOE and WOF (to replicate the functionality of the venerable ATtiny861, which is still the only game in town if you want to control a three-phase BLDC motor), without having to change the numbering system otherwise. Regardless, unless madness breaks out at Microchip and they release a part with 3 or more type D timers and a third comparison channel, or a part with 5 or more type D timers, you can count on `timer & 0x40 == 0x40` for a type D timer. We'll burn that bridge when we come to it.
+
+This is a stark contrast to classic AVRs the timers were just numbered sequentially - here we can still uniquely specify any combination of timer and mux setting
+
+Additionally, other contexts involving timers may return these values (obviously the RTC won't generate PWM for you).
+```
+TIMERRTC          0x90
+TIMERRTC_XTAL     0x91
+TIMERRTC_CLK      0x92
+```
+
+When digitalPinToTimer is used to get the timer associated with a pin, and that timer is a TCD the following constants may be returned.
+
+```
+TIMERD0_0WOA      0x40
+TIMERD0_0WOB      0x50
+TIMERD0_0WOC      0x60
+TIMERD0_0WOD      0x70
+TIMERD0_1WOA      0x41
+TIMERD0_1WOB      0x51
+TIMERD0_1WOC      0x61
+TIMERD0_1WOD      0x71
+TIMERD0_2WOA      0x42
+TIMERD0_2WOB      0x52
+TIMERD0_2WOC      0x62
+TIMERD0_2WOD      0x72
+TIMERD0_3WOA      0x43
+TIMERD0_3WOB      0x53
+TIMERD0_3WOC      0x63
+TIMERD0_3WOD      0x73
+TIMERD0_4WOA      0x44
+TIMERD0_4WOB      0x54
+TIMERD0_4WOC      0x64
+TIMERD0_4WOD      0x74
+```
+Similarly, future parts with more TCD0 mux options may use:
+```
+TIMERD0_5WOA      0x45
+TIMERD0_5WOB      0x55
+TIMERD0_5WOC      0x65
+TIMERD0_5WOD      0x75
+TIMERD0_6WOA      0x46
+TIMERD0_6WOB      0x56
+TIMERD0_6WOC      0x66
+TIMERD0_6WOD      0x76
+TIMERD0_7WOA      0x47
+TIMERD0_7WOB      0x57
+TIMERD0_7WOC      0x67
+TIMERD0_7WOD      0x77
+```
+Hence, if a pin returns a value with bit 6 set, and `(PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm)` is equal to the value of the three low bits, then the pin is on TCD, and TCD is pointed at that set of pins, and you could proceed to get PWM out of it from TCD0.
+
+
+A future version of the core may use these constants to specify that a pin has access to TCA0 or TCA1.
+```
+TIMERA0_MUX0      0x10
+TIMERA0_MUX1      0x11
+TIMERA0_MUX2      0x12
+TIMERA0_MUX3      0x13
+TIMERA0_MUX4      0x14
+TIMERA0_MUX5      0x15
+TIMERA0_MUX6      0x16
+TIMERA0_MUX7      0x17
+TIMERA1_MUX0      0x08
+TIMERA1_MUX1      0x09
+TIMERA1_MUX2      0x0A
+TIMERA1_MUX3      0x0B
+TIMERA1_MUX4      0x0C
+TIMERA1_MUX5      0x0D
+```
+Similar to above, the mux value is stored in the 3 low bits. Bit 4 signifies TCA0, and bit 3 TCA1 (TCA2 would get both, in the event that we get a part with a third TCA).
+
+And finally there are these. These are **currently not used in any way by the core** but may be used in a future version.
+```
+TIMERB0_ALT       0x30
+TIMERB1_ALT       0x31
+TIMERB2_ALT       0x32
+TIMERB3_ALT       0x33
+TIMERB4_ALT       0x34
+```
+
+### Timer Redux
+This means a specific order must be used when testing an 8-bit timer identifier (the format that the core uses internally refers to timers) to avoid incorrect results; assuming we take it as a given that we are using hardware that has been announced or released as of late 2022:
+1. If the high bit is set, it's the DAC or RTC, not a PWM timer.
+2. If 0x40 is set, TCD0. If any other bits are set, it's specifically a reference to a pin - bits 4 and 5 give the channel (A-D), and the low 3 bits are the mux.
+3. If 0x20 is set, it's a TCB, and the number is in the low nybble. If it's a pin reference, 0x10 indicates that it's on the alternate pin.
+4. If 0x10 is set, it's TCA0, if 0x08 is set it's TCA1, the mux option is in the low 7 bits, and if neither 0x10 or 0x08 are set, but it's not zero, you're trying to look up something that does not indicate any timer at all.
+
+### Timer identification examples
+Two strange examples cam be found below
 
 ```c++
-int8_t funWithTCA1() {
-  #if defined(ERRATA_TCA1_PORTMNUX) // Test if it's defined with preprocessor - so you can avoid any runtime cost if it never impacted that part.
-    if (__builtin_constant_p(ERRATA_TCA1_PORTMUX)) // test if it's constant and throw an error at compile time if the part has the bug and no silicon without the bug has been released.
-      badCall("This chip does not support directing output to PG0:5 or PE4:7. This impacts all currently available die revisions"); //prevents compilation.
-    if (ERRATA_TCA1_PORTMUX)       // Whether a potentially impacted part has the working die rev can ONLY be tested at runtime!
-      return -1; // Return error code.
-    doSomethingWithTCA1PinMapping();
-    return 0; // Uses the unix-like 0 = success convention
-  #endif
-}
+if (timer & TIMERD0 == TIMERD0) {
+  // it's a TCD.
+  // if it's a pin, the mux option that points to it is:
+  uint8_t pinmux = timer & 0x07;
+  // and we find the WO channel in bits 4 and 5:
+  uint8_t wochan = (timer & 0x30) >> 4; // compiler ought to render this as mov andi swap
+  TCD_t* tcd = &TCD0;
+  // to get the bit cooresponding to this pin in TCD0.FAULTCTRL
+  // 0x40 << wochan;
+  // looking up port and bit would take a lookup table of 1 byte per mux optin, containing the port number and a number indicating pin layout.
+  // 0b00000000, 0b00000001, 0b00001101, 0b00000110, 0b101100000
+  // 0 = 4567
+  // 1 = 0123
+  uint pin = wochan;
+  uint8_t tcdport = pgm_read_byte_near(&tcdtable[pinmux]
+  if !(tcdport & 0x08) {
+    pin += 4;
+  }
+  if (tcdport & 0x80) {
+    if(wochan & 0x02) {
+      _SWAP(tcdport);
+      pin -= 2;
+      // this is the pin within the port;
+    }
+    PORT_t *port = &PORTA + (tcdport & 0x07);
+    // and now we have the port!
+  } else if (!(timer & 0x80)) {
+  if ((timer & (TIMERB0) == TIMERB0) {
+    // TCB
+    uint8_t timernbr = timer & 7;
+    TCB_t* tcb=&TCB0;
+    tcb += timernbr;
+    // tcb now points to the TCB identified.
+    bool altpins = timer & 0x10
+    // This section left an an exercise for the reader.
+    /* looking up pins would take a lookup table of 2 bytes per timer
+     * hint: store each as 0bppp00bbb where ppp is the port number and bbb is the bit position
+     * then it's easy to fish out the PORT and pin. But there's a trick to that format -
+     * tcb_tbl & 0xE0 is the low byte of the address of the PORTx register! just 'or' with 0x0400
+     */
+  }
+  uint8_t timernbr
+  if(timer &(TIMERA0 | TIMERA1)) {
+    uint8_t timernbr
+    timernbr = (timer & TIMERA1 ? 1 : 0);
+    if(timer & TIMERA0){
+      timernbr + timernbr; // 0 -> 0,  1 -> 2
+    }
+    TCA_t *tca = &TCA0 + timernbr;
+    if (timernbr == 0) {
+      port = &PORTA + (PORTMUX.TCAROUTEA & PORTMUX_TCD0_gm);
+    }
+    // pin can't be worked back from the identity of the TCA.
+    // and doing this for TCA1 is much messier because most of it's mappings are only 3 pin ones, and the mux to port mapping is completely random, but some aren't. Takes another lookup table.
+  }
+```
+
+```c++
 void setup() {
   Serial.begin(115200);
-  if funWithTCA1() {
+  if (checkErrata(ERRATA_TCA1_PORTMUX)) {
     Serial.println("ERROR: This chip cannot direct output from TCA1 to PG0:5 or PE4:7 due to silicon errata");
+    while (1) {
+      runInCirclesScreamAndShout();
+    }
   } else {
+    doSomethingWithTCA1PinMapping();
     partyDown();  // defined elsewhere.
   }
 }

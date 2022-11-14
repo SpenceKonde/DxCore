@@ -455,19 +455,7 @@
   #endif
 #endif
 
-#define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
-                                               2 = all wave output channels move together */
-#define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#if defined(__AVR_DD__) || !defined(ERRATA_TCD_PORTMUX)
-  #define CORE_DETECTS_TCD_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#endif
 
-#if defined(__AVR_EA__)
-  #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to  */
-                                            /* replace the current one. It brings channel uniformity at the cost  */
-                                            /* being limitd to two event inputs per port and two RTC PIT derived  */
-                                            /* inputs                                                             */
-#endif
 #ifdef DAC0
   #ifndef PIN_DACOUT
     #define PIN_DACOUT PIN_PD6
@@ -484,55 +472,93 @@
 // -1 = this erratum applies to all parts.
 // any other value: This erratum applies to parts before this silicon REVID.
 
+#define ERRATA_IRREL                 (-128)
+#define ERRATA_APPLIES                  (1)
+#define ERRATA_DOES_NOT_APPLY           (0)
+
+#define checkErratum(errata)  (errata == 0 ? 0 : (errata == -1 ? 1 : (errata==-128 ? 0 :  (errata > SYSCFG.REVID ? 1 : 0))))
+
+
 /* When they're fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
 /* aaahahahah! Sorry...
-... I meant, *if* they're ever fixed. If that happens, maybe put on a jacket or something... just in case a pig coming in for
-a landing collides with you on your way to claim your lottery jackpot, and you end up in hell, and there's nothing but ice as far as you can see. */
+... I meant, *if* they're ever fixed.
+
+If that happens, maybe put on a jacket or something...
+just in case a pig coming in for a landing collides with you on your way to claim your lottery jackpot, killing you...
+... and contrary to your expectations, you end up in hell... yet there's no fire and brimstone, just ice as far as you can see */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
   #define ERRATA_TCA1_PORTMUX           (-1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
   #define ERRATA_PORTS_B_E_EVSYS        (-1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
   #define ERRATA_NVM_ST_BUG             (-1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
   // Needless to say, that's the only version that's ever been for sale.
-#endif
-
-#if defined(__AVR_DA__) || defined(__AVR_DB__)
-  #define ERRATA_DAC_DRIFT              (-1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
+#else
+  #define ERRATA_TCA1_PORTMUX            (0) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
+  #define ERRATA_PORTS_B_E_EVSYS         (0) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
+  #define ERRATA_NVM_ST_BUG              (0)
 #endif
 
 #if defined(__AVR_ARCH__)
   #define ERRATA_TCB_CCMP               (-1)
-  #define ERRATA_CCL_PROTECTION         (-1) // You mean this wasn't intended behavior? Isn't that how they saidit worked in the datasheet...
-  #define ERRATA_TCA_RESTART            (-1)
-/* "The software can force a restart of the current waveform period by issuing a RESTART command. In this case, the
-counter, direction, and all compare outputs are set to ‘0’ " - Datasheet, for example, AVR128DA datasheet rev C, sec 21.3.3.5
-   "Restart Will Reset Counter Direction in NORMAL and FRQ Mode
-When the TCA is configured to a NORMAL or FRQ mode (WGMODE in TCAn.CTRLB is ‘0x0’ or ‘0x1’), a RESTART
-command or Restart event will reset the count direction to default. The default is counting upwards." - Errata
-
-I just don't know what to say. The only description of restarting a TCA is the command description. That's a bug?
-Usually when the product does what the docs say it will, that's not something that needs to be corrected.
-Especially when there are about a dozen errata containing "does not [work/function]" or "is not [working/functional]", but
-an unambiguous, quantitative specification - like flash endurance - just received an order of magnitude downgrade...
-a year after release.... That was called a "clarification", meaning they won't even maintain a pretence of plans to correct it.
-Yet the TCA restart - which does what the datasheet says it is supposed to is on the list of things to fix?
-
-"Hmm? Yeah 1000 erase cycles, working as intended, why do you ask? What? No way, ten? Our datasheet? Really? You're kidding!
-Hmm, Oh... that does look kind of like... alright you're a big customer so let me see that datasheet and I'll try to clear this up with the design team"
-*scribblescribble* "Okay, how about now?" (stunned silence) "Great, let me know if there's anything else I can clarify! Your big order? Yeah - about this time
-next year, thanks! Gotta go, bye!"
-
-
-*/
+#endif
+#if defined(__AVR_DA__)
+  #define ERRATA_CCL_LINK               (-1)
+  #define ERRATA_PLL_RUNSTBY            (-1)
+#endif
+#if defined(__AVR_DB__)
+  #define ERRATA_PLL_XTAL               (-1)
+#elif defined(__AVR_DA__)
+  #define ERRATA_PLL_XTAL     (ERRATA_IRREL)
+#else
+  #define ERRATA_PLL_XTAL                (0)
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // Almost certainly won't be in the DD.
   #define ERRATA_TCD_PORTMUX            (-1)
+  #define ERRATA_DAC_DRIFT              (-1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
   #define ERRATA_ADC_PIN_DISABLE        (-1)
+  #define ERRATA_TCA_RESTART            (-1)
+  #define ERRATA_CCL_PROTECTION         (-1) // waaaaait, this wasn't intended?
+  #define ERRATA_TCD_ASYNC_COUNTPSC     (-1)
+  #define ERRATA_TWI_PINS               (-1)
+  #define ERRATA_USART_ONEWIRE_PINS     (-1)
+  /* "The software can force a restart of the current waveform period by issuing a RESTART command. In this case, the
+   * counter, direction, and all compare outputs are set to ‘0’ " - Datasheet, for example, AVR128DA datasheet rev C, sec 21.3.3.5
+   * "Restart Will Reset Counter Direction in NORMAL and FRQ Mode
+   * When the TCA is configured to a NORMAL or FRQ mode (WGMODE in TCAn.CTRLB is ‘0x0’ or ‘0x1’), a RESTART
+   * command or Restart event will reset the count direction to default. The default is counting upwards." - Errata
+   * I think this also calls for a datasheet clarification to specify what it's actually supposed to do....
+   * According to DD datasheet, it's not supposed to reset the direction.
+   */
+#else
+  #define ERRATA_TCD_PORTMUX             (0)
+  #define ERRATA_DAC_DRIFT               (0)
+  #define ERRATA_ADC_PIN_DISABLE         (0)
+  #define ERRATA_TCA_RESTART             (0) /* really now? */
+  #define ERRATA_CCL_PROTECTION          (0) // Apparently not intended. Neat!
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Cool, I guess.
+  #define ERRATA_TWI_PINS                (0) // An unexpected fix.
+  #define ERRATA_USART_ONEWIRE_PINS      (0) // woah, wasn't expecting this fix
 #endif
+
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
   #define ERRATA_TWI_FLUSH              (-1)
+  #define ERRATA_FLASH_MULTIPAGE        (-1)
+  // If write protection is enabled on the APPDATA section, but
+  // it is not aligned on a 16k boundary, 32-page erase targeting the APPCODE section before it reached APPDATA  would still fire.
+  // Takes some dedicated contriving to come up with a scenario to make this relevant.
+  #define ERRATA_USART_ISFIF            (-1)
+  // After clearing the ISFIF, must turn RXEN off and back on to receive.
+  #define ERRATA_TCD_HALTANDRESTART     (-1)
+  /* Quoth the errata - I doubt many folks are going to trip over this one.
+   *
+   * Halting TCD and Waiting for SW Restart Does Not Work if Compare Value A is 0 or Dual Slope Mode is Used
+   * Halting TCD and waiting for software restart (INPUTMODE in TCDn.INPUTCTRLA is ‘0x7’) does not work if compare
+   * value A is 0 (CMPASET in TCDn.CMPASET is ‘0x0’) or Dual Slope mode is used (WGMODE in TCDn.CTRLB is ‘0x3’).
+   */
+#else
+   /* uhh right nothing without these exists */
 #endif
 
 /********************************************************************************
@@ -563,7 +589,23 @@ next year, thanks! Gotta go, bye!"
 #define CORE_HAS_ANALOG_ENH             (1)
 #define CORE_HAS_ANALOG_DIFF            (1)
 
+#define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
+                                               2 = all wave output channels move together */
+#define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
+#if defined(__AVR_DD__)
+  #define CORE_DETECTS_TCD_PORTMUX      (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
+#else
+  // When fixed hardware is available:
+  // #define CORE_DETECTS_TCD_PORTMUX (checkErrata(ERRATA_TCD_PORTMUX)? 0 :1)
+  // and code that uses it must be adapted to not use it in the preprocessor level
+#endif
 
+#if defined(__AVR_EA__)
+  #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to  */
+                                            /* replace the current one. It brings channel uniformity at the cost  */
+                                            /* being limitd to two event inputs per port and two RTC PIT derived  */
+                                            /* inputs                                                             */
+#endif
 /* Hardware capabilities (ADC)
  * ADC_DIFFERENTIAL is 1 for a half-way differential ADC like DX-serie has, 2 for a real one like EA-series will    *
  * ADC_MAX_OVERSAMPLED_RESOLUTION is the maximum resolution attainable by oversampling and decimation               *

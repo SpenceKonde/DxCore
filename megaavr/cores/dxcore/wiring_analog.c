@@ -297,7 +297,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
   /*******************************
    *  Phase 4: Cleanup + Return  |
    ******************************/
-  #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+  #if (defined(ERRATA_ADC_PIN_DISABLE) && ERRATA_ADC_PIN_DISABLE != 0)
     // That may become defined when DA-series silicon is available with the fix
     ADC0.MUXPOS = 0x40;
   #endif

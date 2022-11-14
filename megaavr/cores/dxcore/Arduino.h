@@ -422,7 +422,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERB2         (0x22) // TCB2
 #define TIMERB3         (0x23) // TCB3
 #define TIMERB4         (0x24) // TCB4
-#define TIMERD0         (0x70) // If any of these bits match it's potentially on TCD0
+#define TIMERD0         (0x40) // If any of these bits match it's potentially on TCD0
 #define DACOUT          (0x80)
 /* The above are all used in the digitalPinToTimer() macro and appear in the timer table, in addition to being how we identify millis timer.
  * For the millis timer, there's nothing weird here.
