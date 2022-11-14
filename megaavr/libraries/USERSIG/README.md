@@ -54,18 +54,17 @@ void loop() {
 
 The library provides a global variable named `USERSIG`, you use this variable to access the library functions. The methods provided in the USERSIG class are listed below.
 
-You can view all the examples [here](./examples/).
 
 ## Library functions
 
-### `USERSIG.read(address)` [[*example* ]](./examples/usersig_read/usersig_read.ino)
+### `USERSIG.read(address)` [[*example* ]]
 
 This function allows you to read a single byte of data from the USERROW (if there are no pending writes) or the temporary buffer (if there are).
 Its only parameter is an `int` which should be set to the address you wish to read (for the current parts this could have fit in a byte, but there was an announced part that had a much larger USERROW until they pulled down the product brief a few hours later, and that will need a larger address).
 
 The function returns an `uint8_t` (byte) containing the value read.
 
-### `USERSIG.write(address, value)` [[*example* ]](./examples/usersig_write/usersig_write.ino)
+### `USERSIG.write(address, value)` [[*example* ]]
 
 The `write()` method allows you to write a single byte of data to the USERROW.
 Two parameters are needed. The first is an `int` containing the address that is to be written, and the second is the data to be written, a `byte`.

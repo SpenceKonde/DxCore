@@ -293,7 +293,7 @@ TCD0 will be 0x40 when it's being used as the millis timer (not supported on DxC
 This is a stark contrast to classic AVRs the timers were just numbered sequentially - here we can still uniquely specify any combination of timer and mux setting
 
 Additionally, other contexts involving timers may return these values (obviously the RTC won't generate PWM for you).
-```
+```text
 TIMERRTC          0x90
 TIMERRTC_XTAL     0x91
 TIMERRTC_CLK      0x92
@@ -301,7 +301,7 @@ TIMERRTC_CLK      0x92
 
 When digitalPinToTimer is used to get the timer associated with a pin, and that timer is a TCD the following constants may be returned.
 
-```
+```text
 TIMERD0_0WOA      0x40
 TIMERD0_0WOB      0x50
 TIMERD0_0WOC      0x60
@@ -324,7 +324,7 @@ TIMERD0_4WOC      0x64
 TIMERD0_4WOD      0x74
 ```
 Similarly, future parts with more TCD0 mux options may use:
-```
+```text
 TIMERD0_5WOA      0x45
 TIMERD0_5WOB      0x55
 TIMERD0_5WOC      0x65
@@ -342,7 +342,7 @@ Hence, if a pin returns a value with bit 6 set, and `(PORTMUX.TCDROUTEA & PORTMU
 
 
 A future version of the core may use these constants to specify that a pin has access to TCA0 or TCA1.
-```
+```text
 TIMERA0_MUX0      0x10
 TIMERA0_MUX1      0x11
 TIMERA0_MUX2      0x12
@@ -361,7 +361,7 @@ TIMERA1_MUX5      0x0D
 Similar to above, the mux value is stored in the 3 low bits. Bit 4 signifies TCA0, and bit 3 TCA1 (TCA2 would get both, in the event that we get a part with a third TCA).
 
 And finally there are these. These are **currently not used in any way by the core** but may be used in a future version.
-```
+```text
 TIMERB0_ALT       0x30
 TIMERB1_ALT       0x31
 TIMERB2_ALT       0x32

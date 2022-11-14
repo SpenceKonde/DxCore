@@ -249,7 +249,7 @@ Notes specific to ATtiny 0/1-series:
 * USART option will use XCK on input 0, TXD on input 1, and is not valid for input 2.
   * MISO is (supposedly) available as an input when SPI is used as the input.
   * Parts with two TCBs or three ACs give them their own channel on 0/1-series. Obviously there wouldn't be enough channels for this if it were done on a Dx with 5 TCBs, and 3 ACs. The other parts that have multiples of these (2-series and Dx) have one channel for this, and the input number selects which one is used, but only the first two can be used.
-* The tinyAVR 0/1-series datasheets refer to the event channels as 0 and 1. On all subsequent parts, they are referred to as A and B. The Logic library always accepts both, though we recommend using event_a/event_b everywhere, as it is clear that that is the convention that Microchip chose to settle on.
+* The tinyAVR 0/1-series datasheets refer to the event channels as 0 and 1. On all subsequent parts, they are referred to as A and B. The Logic library always accepts both, though we recommend using `event_a`/`event_b`everywhere, as it is clear that that is the convention that Microchip chose to settle on.
 
 #### Accepted values for tinyAVR 2-series
 ``` c++
@@ -397,7 +397,36 @@ logic::sequencer::d_latch;      // Gated D latch sequencer connected (broken on 
 logic::sequencer::rs_latch;     // RS latch sequencer connected
 ```
 
-The available sequencer options, unfortunately, are capable of only slightly moore than what can be done with just the even block alone, using feedback. See the examples below. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs.
+#### D Flip-flop
+The D-type fiip-flow outputs a 0 or a 1, and retains it's value unless told otherwise. The inputs consist of G and D input. As long as G is low, nothing will change, When G is high, each rising edge will latch the value on the D line to the output. As I understand, D is derived from "Data" and G from "Gate", in the sense that it opens the gate and allows new data in.
+
+The even LUT drives the D input, and the odd LUT drives the G input.
+
+
+#### JK Flip-flop
+The JK-type fiip-flow outputs a 0 or a 1, and retains it's value unless told otherwise. The inputs consist of J (set) and K (clear). On the rising edge of the clock, if J is high and K is not, the output will be set to 1. If K is high and J is low, the output will be set to 0, and if both are high, it will toggle the output. In all cases, the value will be retained until the next rising edge of the lock occurs while J and K are set to values that instruct it to change. The names of the lines are as universal on flipflops are they are nonsensical - J and K? Your guess is as good as mine where they came from
+
+#### D Latch
+This is the unclocked equivalent of D flip-flop - again, there is a D and a G input. However, here, there is no clock. Asynchronously, whenever G is high, the output is set to D, and whenever G is low, the output doesn't change.
+
+#### RS Latch
+This, again, is the unclocked version of the JK flip-flop. This one more sensibly names the inputs S and R for Set and Reset. Because there is no clock, the behavior when both R and S are high is not defined (this behavior is part of deal when you use an RS latch, integrated into a CCL like this or as a discrete component). Otherwise, if the S line is high, it is set to 1, and if the R line is high, it is set to 0
+
+| LUT  | D | G | J | K | R | S |
+|------|---|---|---|---|---|---|
+| EVEN | X |   | X |   | X |   |
+| ODD  |   | X |   | X |   | X |
+
+#### Usage
+```c++
+Logic0.sequencer = logic::sequencer::disable; // Disable sequencer
+```
+
+#### Default state
+`LogicN.sequencer` defaults to `logic::sequencer::disable` if not specified in the user program.
+
+#### Latch-without-sequencer
+The available sequencer options, unfortunately, are capable of only slightly more than what can be done with just the even block alone, using feedback. See the examples below. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs.
 
 ##### RS-latch w/out sequencer
 Input0 is Set
@@ -439,33 +468,6 @@ Input2 is Feedback
 
 Hence truth tables are 0xB2 and 0xB8, and both of these leave the odd LUT available. Of course, if you need a logic block to come up with the inputs to set and reset, this is less useful.
 
-#### D Flip-flop
-The D-type fiip-flow outputs a 0 or a 1, and retains it's value unless told otherwise. The inputs consist of G and D input. As long as G is low, nothing will change, When G is high, each rising edge will latch the value on the D line to the output. As I understand, D is derived from "Data" and G from "Gate", in the sense that it opens the gate and allows new data in.
-
-The even LUT drives the D input, and the odd LUT drives the G input.
-
-
-#### JK Flip-flop
-The JK-type fiip-flow outputs a 0 or a 1, and retains it's value unless told otherwise. The inputs consist of J (set) and K (clear). On the rising edge of the clock, if J is high and K is not, the output will be set to 1. If K is high and J is low, the output will be set to 0, and if both are high, it will toggle the output. In all cases, the value will be retained until the next rising edge of the lock occurs while J and K are set to values that instruct it to change. The names of the lines are as universal on flipflops are they are nonsensical - J and K? Your guess is as good as mine where they came from
-
-#### D Latch
-This is the unclocked equivalent of D flip-flop - again, there is a D and a G input. However, here, there is no clock. Asynchronously, whenever G is high, the output is set to D, and whenever G is low, the output doesn't change.
-
-#### RS Latch
-This, again, is the unclocked version of the JK flip-flop. This one more sensibly names the inputs S and R for Set and Reset. Because there is no clock, the behavior when both R and S are high is not defined (this behavior is part of deal when you use an RS latch, integrated into a CCL like this or as a discrete component). Otherwise, if the S line is high, it is set to 1, and if the R line is high, it is set to 0
-
-| LUT  | D | G | J | K | R | S |
-|------|---|---|---|---|---|---|
-| EVEN | X |   | X |   | X |   |
-| ODD  |   | X |   | X |   | X |
-
-#### Usage
-```c++
-Logic0.sequencer = logic::sequencer::disable; // Disable sequencer
-```
-
-#### Default state
-`LogicN.sequencer` defaults to `logic::sequencer::disable` if not specified in the user program.
 
 
 ### truth
