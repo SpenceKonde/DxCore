@@ -1623,7 +1623,7 @@ void init_timers() {
   init_TCBs();
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
     init_TCD0();
-    #if defined(ERRATA_TCD_PORTMUX) && checkErrata(ERRATA_TCD_PORTMUX) && defined(TCD0_PINS)
+    #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0 && defined(TCD0_PINS)
       PORTMUX.TCDROUTEA = TCD0_PINS;
     #else
       /* Do nothing - portmux is busted */
