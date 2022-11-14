@@ -290,7 +290,7 @@ class SPIClass {
     #if defined(SPI_MUX)
       uint8_t _uc_mux = SPI_MUX;
     #else
-      uint8_t _uc_mux = SPI_MUX_PINSWAP_4
+      uint8_t _uc_mux = SPI_MUX_PINSWAP_4;
     #endif
     /* *INDENT-ON* */
     bool initialized;
