@@ -286,10 +286,13 @@ class SPIClass {
     uint8_t _uc_pinMOSI = PIN_SPI_MOSI;
     uint8_t _uc_pinSCK = PIN_SPI_SCK;
     uint8_t _uc_pinSS;
+    /* *INDENT-OFF* */
     #if defined(SPI_MUX)
       uint8_t _uc_mux = SPI_MUX;
     #else
       uint8_t _uc_mux = SPI_MUX_PINSWAP_4
+    #endif
+    /* *INDENT-ON* */
     bool initialized;
     uint8_t interruptMode;
     #ifdef CORE_ATTACH_OLD
