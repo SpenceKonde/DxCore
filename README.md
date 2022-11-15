@@ -15,15 +15,19 @@ But regardless of the implausibility of my dreams - double D's are now available
 |--------------|-------|-------|------|------|----------|------|------|----------|----------|-------|-------|-------|-------|-------|
 | 14-pin  SOIC |   -   |   -   |   -  |   -  | **1.23** |   -  |  -   | **0.99** | **0.95** |   -   |  0.96 |  0.77 |  0.86 |  0.88 |
 | 20-pin  SOIC |   -   |   -   |   -  |   -  | **1.54** |   -  |  -   | **1.35** | **1.25** |  1.21 |  1.23 |  1.06 |  1.10 |  1.16 |
-| 20-pin  VQFN |   -   |   -   |   -  |   -  |      tbd |   -  |  -   | **0.98** |      tbd |   -   |  1.01 |  1.06 |  1.10 |  1.16 |
-| 28-pin  PDIP | 3.16  |  3.31 | 2.77 | 2.93 | **2.21** | 2.46 | 2.63 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
-| 28-pin  SOIC | 3.16  |  3.31 | 2.77 | 2.93 | **1.42** | 2.46 | 2.63 | **1.42** | **1,35** |   -   |   -   |   -   |   -   |   -   |
-| 28-pin  SSOP | 3.16  |  3.31 | 2.77 | 2.93 | **1.42** | 2.46 | 2.63 | **1.29** | **1.20** |   -   |   -   |   -   |   -   |   -   |
-| 28-pin  VQFN | 3.16  |  3.31 | 2.77 | 2.93 | **1.31** | 2.46 | 2.63 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
-| 32-pin  TQFP | 2.06  |  2.19 | 1.82 | 1.96 | **1.44** | 1.66 | 1.78 | **1.32** | **1.42** |   -   |   -   |   -   |   -   |   -   |
-| 32-pin  VQFN | 2.19  |  2.41 | 1.82 | 1.96 | **1.45** | 1.68 | 1.83 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
+| 20-pin  VQFN |   -   |   -   |   -  |   -  |      tbd |   -  |  -   | **1.08** | **0.98** |   -   |  1.01 |  1.06 |  1.10 |  1.16 |
+| 28-pin  PDIP | 3.15  |  3.31 | 2.77 | 2.93 | **2.21** | 2.46 | 2.63 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
+| 28-pin  SOIC | 1.89  |  2.06 | 1.71 | 1.83 | **1.56** | 1.56 | 1.71 | **1.42** | **1.35** |   -   |   -   |   -   |   -   |   -   |
+| 28-pin  SSOP | 1.84  |  1.97 | 1.66 | 1.79 | **1.42** | 1.52 | 1.66 | **1.29** | **1.20** |   -   |   -   |   -   |   -   |   -   |
+| 28-pin  VQFN |   -   |   -   |  -   |  -   | **1.31** |  -   |  -   |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
+| 32-pin  TQFP | 2.06  |  2.19 | 1.82 | 1.96 | **1.44** | 1.66 | 1.79 | **1.32** | **1.42** |   -   |   -   |   -   |   -   |   -   |
+| 32-pin  VQFN | 2.04  |  2.19 | 1.82 | 1.96 | **1.45** | 1.68 | 1.82 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
 
-Prices are microchip direct qty 1 price for the item, industrial temp range (quantity discounts are significant - If this document was targeting industry folks instead of hobbyists, makers and maker-entrepreneurs, I'd be comparing teh 5000+ price instead. The trend would be ths same. 
+This gives prices (where comparable parts exist) of a ~20-27% savings vs the DB (whereas the DA provides at most 5% savings). It's worth noting that the DD-28 finally brings a 28-pin VQFN to the product line, something I'm sure the product designers would have liked to see in the DA/DB parts. Nobody in production wants to use a TSSOP package unless they absolutely have to - those things are huge, AND they cost more! TQFP vs QFN seems to be a wash, cost wise. But since SOIC always costs more than those two, it's no surprise that there's a discount on the QFN version of the DD32 relative to the SOIC version, but the scale is surprising. There's a 27 cent premium on both the 32DD and 16DD, which is a premium of 25% and 27% respectivelty. On the AVR128DB28, that premium is just 9 cents, under 5%. 
+
+Another lesson here is that the SOIC-20 versions stand out by virtue of their high prices compared to everything else. A TSSOP DD28 costs less, has more functionality, and takes up less board space than a DD20 in SOIC! Same goes for a TQFP-32 DD32, which would be easier to solder than the SSOP-28 too. To make sense, the 64DD20 (not yet announced) needs to land somewhere below $1.30 for people to not ignore it in favor of the oddly cheap 28-pin one in QFN. So I'm going to guess $1.20-1.25. 
+
+Prices are microchip direct qty 1 price for the item, industrial temp range (quantity discounts are significant - If this document was targeting industry folks instead of hobbyists, makers and maker-entrepreneurs, I'd be comparing teh 5000+ price instead. The trend would be the same
 New pincounts and packages seem to be dribbling out, probably as product capacity allows. A VQFN version of of the smaller 32 and 28 pin DDs is inevitable, and it's hard to belive there won't be a VQFN DD20 in 16k (I'm more nervous about the DD64, after the largest size tiny series 1 in 20 pins was skipped for the QFN package.
 
 Notice the tiny price difference below 32k, which supports the theory that the 16k and 32k DD's are the same die. 
@@ -126,16 +130,13 @@ Read the [**SerialUPDI documentation**](https://github.com/SpenceKonde/AVR-Guida
 
 As of 2.3.2, with the dramatic improvements in performance, and the proven reliability of the wiring scheme using a diode instead of a resistor, and in light of the flakiness of the jtag2updi firmware, this is now the recommended programming method. As of this version, programming speed has been increased by as much as a factor of 20, and now far exceeds what was possible with jtag2updi (programming via jtag2updi is roughly comparable in speed to programming via SerialUPDI on the "SLOW" speed option, 57600 baud; the normal 230400 baud version programs about three times faster than the SLOW version or jtag2updi, while the "TURBO" option (runs at 460800 baud and increases upload speed by approximately 50% over the normal one. The TURBO speed version should only be used with devices running at 4.5v or more, as we have to run the UPDI clock faster to keep up (it is also not expected to be compatible with all serial adapters - this is an intentional tradeoff for improved performance), but it allows for upload and verification of a 32kB sketch in 4 seconds.
 
-#### Coming before year end 2022: HV programming tool
-An HV programming tool to be called HyperUPDI is expected to be available (though silicon shortages may limit quantities) by year end. It is *not* intended to replace SerialUPDI.
-* HV programming support for AVR-DD, AVR-EA, and tinyAVR parts, allowing the UPDI pin to be used as GPIO without precluding further programming.
-* An on-board buffer will allow data to be sent in chunks of 2k or more. The result of this will be a dramatic improvement in programming speed. I expect an improvement of perhaps 5-10% on Dx-series vs SerialUPDI (as it is already very close to the theoretical maximum) - but the benefits on tinyAVR c will be considerably greater, as at TURBO speed they spent half their time in a USB latency period/
-* When a normal serial console is used to access it, it will operate in passthrough mode, featuring the classic FTDI pinout.
-* When in programming mode, the nominal CTS line is used to output the UPDI signal. Many boards (including those I sell) now have a solder-jumper to connect CTS to UPDI. This will allow a you to upload via UPDI and then open the serial console without changing any connections nor the use of a bootloader!
-* It will utilize a new upload script (neither Prog.py nor avrdude) which leverages the python installation we bring in for SerialUPDI already.
-* Because of the built in awareness of the UPDI protocol and the NVMCTRL of supported parts other features like partial erase (to supplement Flash.h on the Dx-series).
-* Voltage options of 5V, 3.3V, and V<sub>target</sub> will be selectable with a slide switch, allowing programming where the target voltage is as low as 1.8V, programming devices running directly off LiPo batteries at 3.7-4.2v and so on.
-* Due to the considerably more complex hardware, HyperUPDI will obviously not be a $1 device like SerialUPDI (which I expect most people will continue to use)
+
+#### Coming soon - HyperUPDI Standalone programmer
+A direct-or-standalone programmer, for UPDI - and likely also classic AVRs. 
+In direct mode, a new upload tool will be used. Because the chip on the device will implement the UPDI protocol, USB latency will be drastically reduced as data can be sent in huge chunks at high baud rates and buffered in ram, and we should be able to feed data to the chip while receiving it from the computer, making this the fastest way to program a modern AVR. Because ISP is a somewhat more involved protocol, for those parts, HyperUPDI will still buffer large chunks of data, but will then write them before asking the computer for the next chunk of data (if there is one - for most tinyAVR parts, the ram is sufficient to buffer the entire flash contents). HyperUPDI will also come equipped with an 8 MB flash chip to hold flash (and optionaly EEPROM and USERROW) images, and a 64k EEPROM to hold the table of contents (since it will be written and erased much more often).  With the optional full standalone addon, a screen and buttons will provide a user interface to select an image, and then write it to the connected target, or store the target's contents to flash. Without the addon, you can still connect three buttons, such that one will dump the target chip to the next free space in the flash, and another will write the most recently dumped image to the target (so you can clone chips, provided they are unlocked) and the third will write a selected image (either the last one loaded from a computer OR the will be provided to connect a small number of buttons to dump a chip to a new "selected" (most recently written, or selected via serial commands) flash image to be written.
+
+#### Coming soon - simple HV-debricker
+A small simple device that can be used to restore the UPDI pin to UPDI so that simpler, cheaper devices can program it. 
 
 #### Really coming before year end 2022: Superior serial adapters
 A single-port version that switches between UPDI and normal mode and 5v and 3.3v (via physical switches), and exposes all modem liaison pins is a near certainty.
