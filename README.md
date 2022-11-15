@@ -13,18 +13,25 @@ But regardless of the implausibility of my dreams - double D's are now available
 
 | Pincount     | DA128 | DB128 | 64DA | 64DB |   64DD   | 32DA | 32DB |   32DD   |   16DD   | t321x | t322x | t160x | t161x | t162x |
 |--------------|-------|-------|------|------|----------|------|------|----------|----------|-------|-------|-------|-------|-------|
-| 14-pin  SOIC |   -   |   -   |   -  |   -  |      tbd |   -  |  -   | **0.99** | **0.95** |   -   |  0.96 |  0.77 |  0.86 |  0.88 |
-| 20-pin  SOIC |   -   |   -   |   -  |   -  |      tbd |   -  |  -   | **1.35** | **1.25** |  1.21 |  1.23 |  1.06 |  1.10 |  1.16 |
+| 14-pin  SOIC |   -   |   -   |   -  |   -  | **1.23** |   -  |  -   | **0.99** | **0.95** |   -   |  0.96 |  0.77 |  0.86 |  0.88 |
+| 20-pin  SOIC |   -   |   -   |   -  |   -  | **1.54** |   -  |  -   | **1.35** | **1.25** |  1.21 |  1.23 |  1.06 |  1.10 |  1.16 |
+| 20-pin  VQFN |   -   |   -   |   -  |   -  |      tbd |   -  |  -   | **0.98** |      tbd |   -   |  1.01 |  1.06 |  1.10 |  1.16 |
 | 28-pin  PDIP | 3.16  |  3.31 | 2.77 | 2.93 | **2.21** | 2.46 | 2.63 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
-| 32-pin  TQFP | 2.06  |  2.19 | 1.82 | 1.96 | **1.44** | 1.66 | 1.78 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
+| 28-pin  SOIC | 3.16  |  3.31 | 2.77 | 2.93 | **1.42** | 2.46 | 2.63 | **1.42** | **1,35** |   -   |   -   |   -   |   -   |   -   |
+| 28-pin  SSOP | 3.16  |  3.31 | 2.77 | 2.93 | **1.42** | 2.46 | 2.63 | **1.29** | **1.20** |   -   |   -   |   -   |   -   |   -   |
+| 28-pin  VQFN | 3.16  |  3.31 | 2.77 | 2.93 | **1.31** | 2.46 | 2.63 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
+| 32-pin  TQFP | 2.06  |  2.19 | 1.82 | 1.96 | **1.44** | 1.66 | 1.78 | **1.32** | **1.42** |   -   |   -   |   -   |   -   |   -   |
+| 32-pin  VQFN | 2.19  |  2.41 | 1.82 | 1.96 | **1.45** | 1.68 | 1.83 |      tbd |      tbd |   -   |   -   |   -   |   -   |   -   |
 
-Prices are microchip direct qty 1 price for the item, industrial temp range.
-There is also a VQFN version of the 20-pin (in 3mm x 3mm package 0.4mm pitch, not 4mm x 4mm like had been suggested by the product brief), 28-pin (4mm x 4mm, 0.4mm pitch) and 32-pin (5mm x 5mm, 0.05mm pitch) parts. The 32-pin parts have a 1 cent premium as VQFN vs the TQFP, while the 20-pin parts on the other hand have a whopping 27 cent discount for gettign a VQFN. Since DIPS are always expensive, its no surprise that the DD28 in SOIC, TSSOP, or VQFN are all much cheaper. The prices are 1.56. 1.42, and 1.31 respectively. Notice the tiny price difference below 32k, which supports the theory that the 16k and 32k DD's are the same die.
+Prices are microchip direct qty 1 price for the item, industrial temp range (quantity discounts are significant - If this document was targeting industry folks instead of hobbyists, makers and maker-entrepreneurs, I'd be comparing teh 5000+ price instead. The trend would be ths same. 
+New pincounts and packages seem to be dribbling out, probably as product capacity allows. A VQFN version of of the smaller 32 and 28 pin DDs is inevitable, and it's hard to belive there won't be a VQFN DD20 in 16k (I'm more nervous about the DD64, after the largest size tiny series 1 in 20 pins was skipped for the QFN package.
+
+Notice the tiny price difference below 32k, which supports the theory that the 16k and 32k DD's are the same die. 
 
 I've got some DIP-28's, TQFP32's. SOIC20's and SOP-14's coming.
 I have breakout boards on standby for the 14-pin ones, and the 28-pin DIY DIP ones. And 32-pin ones can use anything that worked with a DB32. A hastily designed DD20 breakout is ready for DD20's.
 
-I am working on an updated version of the core that will add the DD parts as fully supported (most of the heavy lifting is done; if this were a building, we've got everything ready except the facade is half-mising and we haven't hooked up water to the toilets.)
+I am working on an updated version of the core that will add the DD parts as fully supported. That support is in, but I have somehow introduced two bugs, one of which makes debugging impossible: Serial doesn't work. Again. And I don't have a hardware debugger nor would I know how to use one if i did, 
 
 ## And we got initial Ex-series headers
 [It has some surprises in it](megaavr/extras/EA_first_look.md)
