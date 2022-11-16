@@ -114,9 +114,11 @@ namespace comparator {
     #endif
         in2    = 0x02,
     #if defined(__AVR_DD__) || defined(__AVR_EA__)
-        in3    = 0x00, /* TBD - Will dacref change number, or will it's number be skipped? */
-    #endif
+        in3    = 0x03, /* TBD - Will dacref change number, or will it's number be skipped? */
+        dacref = 0x04,
+    #else
         dacref = 0x03,
+    #endif
         pd7    = 0x02,
       };
     };
