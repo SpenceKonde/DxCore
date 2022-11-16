@@ -67,7 +67,7 @@ menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
 menu.entrycond=Bootloader Entry Condition (Bootload burn req'd)
 menu.appspm=Write to flash from app
 menu.mvio=MultiVoltage I/O (MVIO)
-menu.mvioopti=MultiVoltage I/O (MVIO) - (bootloader burn req'd)
+menu.mvioopti=MultiVoltage I/O (MVIO) (Bootload burn req'd)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
@@ -1867,12 +1867,16 @@ avrdaopti.menu.resetpin.input.bootloader.resetpinbits=00
 #________________________________________#
 avrdaopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 avrdaopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
+avrdaopti.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
 avrdaopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
+avrdaopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrdaopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
-avrdaopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code will not run bootloader, forcing UPDI to reprogram)
+avrdaopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
 avrdaopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
 avrdaopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrdaopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
 avrdaopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
+avrdaopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 avrdaopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
 avrdaopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
 avrdaopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
@@ -2293,14 +2297,18 @@ avrdbopti.menu.resetpin.input.bootloader.resetpinbits=00
 #________________________________________#
 avrdbopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 avrdbopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
-avrdbopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug)
-avrdbopti.menu.entrycond.all=Always: Every reset except a WDT reset or BOD reset w/out POR, 8 second timeout
-avrdbopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code will not run bootloader, forcing UPDI to reprogram)
-avrdbopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset)
+avrdbopti.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
+avrdbopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
+avrdbopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
+avrdbopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+avrdbopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
+avrdbopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
 avrdbopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrdbopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
 avrdbopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
+avrdbopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 avrdbopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
-avrdbopti.menu.entrycond.swr.bootloader.entrycond=_swr_8sec
+avrdbopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
 avrdbopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
@@ -2756,16 +2764,21 @@ avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.resetpinbits=00
 #----------------------------------------#
 # Optiboot Entry Conditions              #
 #________________________________________#
-avrddopti.menu.entrycond.default=Default
+
+avrddopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 avrddopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
-avrddopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug)
-avrddopti.menu.entrycond.all=Always: Every reset except a WDT reset or BOD reset w/out POR, 8 second timeout
-avrddopti.menu.entrycond.swr=SW-only (including accidental "dirty" resets): 8 second delay (Warning: Bad app code can brick bootloader. Don't use with UPDI disabled w/out HV programmer)
-avrddopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset)
+avrddopti.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
+avrddopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
+avrddopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
+avrddopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+avrddopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
+avrddopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
 avrddopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrddopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
 avrddopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
+avrddopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 avrddopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
-avrddopti.menu.entrycond.swr.bootloader.entrycond=_swr_8sec
+avrddopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
 avrddopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
@@ -3113,15 +3126,20 @@ azduinoboard.menu.resetpin.input.bootloader.resetpinbits=00
 #________________________________________#
 azduinoboard.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 azduinoboard.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
-azduinoboard.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug)
-azduinoboard.menu.entrycond.all=Always: Every reset except a WDT reset or BOD reset w/out POR, 8 second timeout
-azduinoboard.menu.entrycond.swr=SW-only: 8 second delay (if you don't want the 8 sec pause, reset with WDT)
-azduinoboard.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset)
+azduinoboard.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
+azduinoboard.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
+azduinoboard.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
+azduinoboard.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+azduinoboard.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
+azduinoboard.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
 azduinoboard.menu.entrycond.extr.bootloader.entrycond=_extr
+azduinoboard.menu.entrycond.extronly.bootloader.entrycond=_extronly
 azduinoboard.menu.entrycond.por.bootloader.entrycond=_por_8sec
+azduinoboard.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 azduinoboard.menu.entrycond.all.bootloader.entrycond=_all_8sec
-azduinoboard.menu.entrycond.swr.bootloader.entrycond=_swr_8sec
+azduinoboard.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
 azduinoboard.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
+
 
 #----------------------------------------#
 # millis/micros timing source            #
