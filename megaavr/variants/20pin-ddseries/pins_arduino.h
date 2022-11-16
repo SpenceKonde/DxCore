@@ -118,7 +118,7 @@ Include guard and include basic libraries. We are normally including this inside
 #elif defined(MILLIS_USE_TIMERB1)
   #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA2)
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
 #endif
 
 // Timer pin mapping

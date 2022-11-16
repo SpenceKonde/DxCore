@@ -47,6 +47,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM.
 * Correct issue introduced in 1.4.x which could cause problems when receiving data over Serial.
 * Implement generic autobaud for Serial and some associated functionality.
+* Correct bad pwm-related macros on 28, 32, and 20 pin DD-series parts.
 
 ## Version History
 
