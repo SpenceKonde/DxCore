@@ -18,6 +18,7 @@
   #elif defined(__AVR_DD__)
     /* DD:1 AC:  P0, P3, P4, N0, N2, N3 */
     #define ANALOG_COMP_PINS_DD
+    #define AC_NULL_REG _SFR_MEM8(0x04B0)
     #define ANALOG_COMP_NO_N1
   #elif defined(__AVR_EA__)
     /* EA:2 ACs: P0, P1, P2, P3, P4, N0, N1, N2, N3 */
