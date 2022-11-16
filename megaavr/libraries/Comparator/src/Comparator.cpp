@@ -145,11 +145,11 @@ AnalogComparator::AnalogComparator(
                                    : comparator_number(comp_number),
                                      AC(ac),
                                      IN0_P(in0_p),
-                                     IN2_P(in3_p),
-                                     IN3_P(in4_p),
+                                     IN3_P(in3_p),
+                                     IN4_P(in4_p),
                                      IN0_N(in0_n),
-                                     IN1_N(in2_n),
-                                     IN2_N(in3_n) { }
+                                     IN2_N(in2_n),
+                                     IN3_N(in3_n) { }
 #elif defined(ANALOG_COMP_PINS_EA) /*9 inputs P0, P1, P2, P3, P4, N0, N1, N2, N3 */
 AnalogComparator::AnalogComparator(
                                    const uint8_t comp_number,
@@ -293,12 +293,16 @@ void AnalogComparator::init() {
     if (comparator_number != 0) {
       Comparator0.reference = reference;
     }
+    #if defined(AC1)
     if (comparator_number != 1) {
       Comparator1.reference = reference;
     }
+    #endif
+    #if defined(AC2)
     if (comparator_number != 2) {
       Comparator2.reference = reference;
     }
+    #endif
     // Set DACREF
     AC.DACREF = dacref;
 
