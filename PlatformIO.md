@@ -11,7 +11,7 @@ It has a built-in library manager and is Arduino compatible. It supports most op
 
 
 ## DxCore + PlatformIO
-DxCore and PlatformIO goes great together. You can do serial uploads and upload using a dedicated UPDI programmer, but you can also let PlatformIO calulate the fuses and load the correct bootloader file, just like Arduino IDE does!
+DxCore and PlatformIO goes great together. You can do serial uploads and upload using a dedicated UPDI programmer, but you can also let PlatformIO calculate the fuses and load the correct bootloader file, just like Arduino IDE does!
 
 PlatformIO uses the information provided in platformio.ini to calculate what fuse bits and what bootloader file to load.
 Simply provide enough information and run the following commands:
@@ -32,7 +32,7 @@ The most common functionality is available in this template. As you can see, the
 * Use the *[env:Upload_UPDI]* or *[env:Upload_UART]* to upload to your target.
 * Use *[env:fuses_bootloader]* to set the fuses or burn the bootloader.
 
-More information on what each line means can be found futher down on this page.
+More information on what each line means can be found further down on this page.
 
 
 ## platformio.ini template
@@ -157,7 +157,7 @@ Below is a table with supported clocks for DxCore. Defaults to 24 MHz internal i
 
 
 ### `board_hardware.oscillator`
-Spefices to use the internal or an external oscillator.
+Specifies to use the internal or an external oscillator.
 
 | Oscillator option    |
 |----------------------|
