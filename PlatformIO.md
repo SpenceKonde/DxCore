@@ -201,7 +201,7 @@ Specifies if the EEPROM memory should be retained when uploading using a program
 
 
 ### `board_hardware.rstpin`
-Specifies what functionality the reset pin should have. Note that the option `reset` _will_ be selected regardless if you're using a bootloader.
+Specifies what functionality the reset pin should have. Note that the option `reset` *will* be selected regardless if you're using a bootloader.
 
 | Reset pin functionality   |
 |---------------------------|
@@ -227,9 +227,11 @@ Specifies the millis/micros timing source.
 ### `board_build.variant`
 Holds the current pinout in use.
 
-| Pinouts 64 pin parts | Pinouts 48 pin parts | Pinouts 32 pin parts | Pinouts 28 pin parts |
-|----------------------|----------------------|----------------------|----------------------|
-| [`64pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)| [`48pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md) | [`32pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md) | [`28pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md) |
+| Series | Pinouts 64 pin parts | Pinouts 48 pin parts | Pinouts 32 pin parts | Pinouts 28 pin parts | Pinouts 20 pin parts | Pinouts 14 pin parts |
+|--------|----------------------|----------------------|----------------------|----------------------|----------------------|----------------------|
+| DA     | [`64pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)| [`48pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md) | [`32pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md) | [`28pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md) | N/A | N/A |
+| DB     | [`64pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)| [`48pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md) | [`32pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md) | [`28pin-standard` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md) | N/A | N/A |
+| DD     | N/A | N/A | [`32pin-ddseries` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md) | [`28pin-ddseries` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md) | [`20pin-ddseries` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md) | [`14pin-ddseries` (default)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md) |
 
 
 ### `build_flags`
@@ -288,7 +290,7 @@ Sets the serial monitor baud rate. Defaults to 9600 if not defined.
 ## pymcuprog
 [pymcuprog](https://github.com/microchip-pic-avr-tools/pymcuprog) is a Python utility for programming various Microchip MCU devices using Microchip CMSIS-DAP based debuggers. It can be installed directly in the PlatformIO virtual environment using the following command:
 
-```
+```console
 pip install pymcuprog
 ```
 
