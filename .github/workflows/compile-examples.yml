@@ -83,9 +83,6 @@ jobs:
         - megaavr/libraries/Wire/examples/slave_secondary_address
         - megaavr/libraries/Wire/examples/slave_address_mask
         - megaavr/libraries/Wire/examples/master_multi_address_write
-        - megaavr/libraries/ZCD/examples/Interrupt
-        - megaavr/libraries/ZCD/examples/Read_state
-        - megaavr/libraries/ZCD/examples/Simple_ZCD
         - megaavr/extras/ci/test-sketch/all/math_macros
         - megaavr/extras/ci/test-sketch/all/test_analog
         - megaavr/extras/ci/test-sketch/all/test_digital
@@ -94,11 +91,17 @@ jobs:
         - megaavr/extras/ci/test-sketch/all/test_timekeeping
       avr-da-series-sketch-paths: |
         - megaavr/extras/ci/test-sketch/da/dummysketch
+        - megaavr/libraries/ZCD/examples/Interrupt
+        - megaavr/libraries/ZCD/examples/Read_state
+        - megaavr/libraries/ZCD/examples/Simple_ZCD
       avr-db-series-sketch-paths: |
         - megaavr/libraries/Opamp/examples/Inverting_amplifier
         - megaavr/libraries/Opamp/examples/Inverting_amplifier_with_follower
         - megaavr/libraries/Opamp/examples/Non_inverting_amplifier
         - megaavr/libraries/Opamp/examples/Voltage_follower
+        - megaavr/libraries/ZCD/examples/Interrupt
+        - megaavr/libraries/ZCD/examples/Read_state
+        - megaavr/libraries/ZCD/examples/Simple_ZCD
         - megaavr/extras/ci/test-sketch/db/dummysketch
       #avr-dd-series-sketch-paths: |
       #avr-ea-series-sketch-paths: |
@@ -110,7 +113,6 @@ jobs:
         - megaavr/libraries/DxCore/examples/TCA0Demo3
         - megaavr/libraries/DxCore/examples/TCA0Demo4
       not-disabled-millis-sketch-paths: |
-        - megaavr/libraries/ZCD/examples/Frequency_counter
         - megaavr/libraries/tinyNeoPixel/examples/RGBWstrandtest
         - megaavr/libraries/Wire/examples/register_model
         - megaavr/libraries/Wire/examples/register_model_master
