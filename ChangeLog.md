@@ -8,23 +8,15 @@ These items are in addition to what was listed under changes already in release.
 2. SerialUPDI uploads don't work if any file path contains spaces, because of missing quotes in platform.txt? But I can't see where... Need example verbose upload attempt in order to further debug.
 
 ### Planned enhancements
-"Enhancements" are changes to the core which improve functionality and introduce new and exotic bugs. Sometimes called "Features", I prefer the term "enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compile time error detection. All things that, as well as new features, would add to the
+"Enhancements" are changes to the core which improve functionality and/or introduce new and exotic bugs. Sometimes called "Features", I prefer the term "enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compile time error detection. All things that, as well as new features, would qualify as an enhancement.
 
 #### Enhancements Planned for 1.5.x
-* Add pinout charts for the DD-series that don't look like they made by an untalented failure in microsoft paint. Because that's what we're going to get in 1.5.0 it looks like. They'll look even uglier than the mess I made out of the DB and DA-series diagrams. Sorry guys, I don't have the artistic talent.
-* Third version of wire in the last 4 weeks or so, as we try to
-
-#### Enhancements Planned for 1.5.0
-* Change class hierarchy for UART class to eliminate most virtual functions and allow for vastly significant flash size reduction since unused virtual functions now don't have to exist. (This was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints and analysis relating to the fact that the original version of Wire wouldn't fit into a 4k 8-pin part), so that rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) as UartClass, we instead simply subclass Stream directly. UART.h will be renamed to HardwareSerial.h, HardwareSerial.h (a compatibility layer) will be renamed to UART.h and the latter adjusted to #define UartClass as HardwareSerial, and api/HardwareSerial.h will be gutted and simply #include "../HardwareSerial.h" and contain comments jutifyingthis flagrant disrespect for the API. ArduinoAPI was sort of disastrous for low resource parts like AVRs.
-* Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM. Note that this also requires all offsets used to access the Serial transmit and receive buffers to be reduced accordingly in the inline assembly in UART.cpp. Related to above.
-* Package Azduino5 toolchain, required to support DD-series
-* Ensure that libraries that broke are fixed
+* Add pinout charts for the DD-series that don't look like they were made by an untalented hack in Microsoft paint using the DB pinouts.
 
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
 ### planned 1.5.0
-* Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
 * Timing is busted completely, even though I didn't change it.
 * Build all needed bootloaders
 
@@ -44,12 +36,16 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Adds support for 32k and 16k DD-series parts.
 * Largely reimplemented the first half of analogWrite(). On parts with a TCA1, all PORTMUX options should now work, even those with only 3 pins.
 * Fix issue with SerialUPDI uploads on updated versions of linux
-* Add more part infomrmation macros (See [the define list](megaavr/extras/Ref_Defines.md))
+* Add more part information macros (See [the define list](megaavr/extras/Ref_Defines.md))
 * Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
 * Fix SPI pin issue with pin numbers
 * Enable all DD-series parts
-* Update to latest version of Wire.
+* Update to latest version of Wire
+* Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
 * Complete rewrite of the logic used to determine which timer and pins on TCA0 and TCA1 are used for PWM
+* Change class hierarchy for hardware serial ports. This results in some flash size reduction since unused virtual functions now don't have to exist. (The same thing was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints about the fact that stock version of Wire wouldn't fit onto a 4k part. The Wire library has since seen a near total rewrite which further reduced flash usage). Thus, rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) to derive UartClass, we instead subclass Stream directly. This has been accompanied by changing the name of the class to HardwareSerial to ensure code compatibility (so a library could ask for a pointer to a HardwareSerial port - this works on both clasic and modern AVRs (and it did on DxCore in the past too, because UartClass was a subclass of HardwareSerial), with a smaller binary.
+* Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM.
+* Correct issue introduced in 1.4.x which could cause problems when receiving data over Serial.
 * Implement generic autobaud for Serial and some associated functionality.
 
 ## Version History
