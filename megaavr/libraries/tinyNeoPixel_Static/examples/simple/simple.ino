@@ -6,9 +6,9 @@
 
 // Which pin on the Arduino is connected to the NeoPixels?
 #if _AVR_PINCOUNT == 14
-#define PIN    PIN_PD4    // need to use a different pin on DD14
+  #define PIN    PIN_PD4    // need to use a different pin on DD14
 #else
-#define PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
+  #define PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
 #endif
 
 // How many NeoPixels are attached to the Arduino?

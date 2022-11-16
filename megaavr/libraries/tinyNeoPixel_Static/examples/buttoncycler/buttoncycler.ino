@@ -11,9 +11,9 @@
 // transition the button press logic will execute.
 
 #if _AVR_PINCOUNT == 14
-#define PIXEL_PIN    PIN_PD4    // need to use a different pin on DD14
+  #define PIXEL_PIN    PIN_PD4    // need to use a different pin on DD14
 #else
-#define PIXEL_PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
+  #define PIXEL_PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
 #endif
 
 #define PIXEL_COUNT 16
