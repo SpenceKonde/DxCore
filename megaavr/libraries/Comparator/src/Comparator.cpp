@@ -18,44 +18,63 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
 */
 #if (defined(ANALOG_COMP_PINS_DA_DB))
   /* P0, P1, P2, P3, N0, N1, N2 */
+  #if defined(MVIO) && !defined(PORTE)
+    /* if we have MVIO on a DB that has 32 or 28 pins, there's no PD0.
+     * We can test whether they have that pin by looking for PORTE, which is only present on
+     * parts with at least 48 pins, which will also have a PD0. Parts without MVIO always have PD0.*/
+    #define PORTDPIN0 AC_NULL_REG
+  #else
+    #define PORTDPIN0 PORTD.PIN0CTRL
+  #endif
   #if defined(AC0_AC_vect)
     #if defined(PORTE)
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL,                 PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN3CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
     #else
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL,                 PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN3CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
     #endif
   #endif
   #if defined(AC1_AC_vect)
-    AnalogComparator    Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL,                 PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+    AnalogComparator    Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN5CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
   #endif
   #if defined(AC2_AC_vect)
     #if defined(PORTE)
-      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL,                 PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN7CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
     #else
-      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, AC_NULL_REG,    PORTD.PIN6CTRL,                 PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, AC_NULL_REG,    PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN7CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
     #endif
   #endif
 #elif defined(ANALOG_COMP_PINS_DD)
   /* DD:1 AC:  P0, P3, P4, N0, N2, N3 */
+  /* IS_MVIO_ENABLED() may *or may not* be a compile time known constant!
+   * This depends on the tools menu option selected for MVIO, and whether we can assume that the code is running on a properly configured part.
+   * That is a safe assumption when we build for direct upload, since users will upload the code via UPDI and we can set the fuse then.
+   * When using a bootloader, we have no such guarantee - we can't set the fuses when we upload, so unless the user tells us that they
+   * really are sure it's configured right, we will test whether MVIO is enabled.
+   * In any event, PD2 is only present on parts with the nearly complete PORTD. */
+  #if _AVR_PINCOUNT > 20
+    #define PORTDPIN2 PORTD.PIN2CTRL
+  #else
+    #define PORTDPIN2 AC_NULL_REG
+  #endif
   #if defined(AC0_AC_vect)
-    AnalogComparator    Comparator0(0, AC0, PORTD.PIN2CTRL,                                 PORTD.PIN6CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN3CTRL)  PORTC.PIN3CTRL, PORTD.PIN3CTRL,                 PORTD.PIN7CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN2CTRL));
+    AnalogComparator    Comparator0(0, AC0, PORTDPIN2,      /* No in_p1 or in_p2          */ PORTD.PIN6CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN3CTRL),   PORTD.PIN3CTRL,                 PORTD.PIN7CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN2CTRL));
   #endif
 #elif defined(ANALOG_COMP_PINS_EA)
   /* EA:2 ACs: P0, P1, P2, P3, P4, N0, N1, N2, N3 */
   #if defined(AC0_AC_vect)
     #if defined(PORTE)
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
     #else
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
     #endif
   #endif
   #if defined(AC1_AC_vect)
-    AnalogComparator    Comparator0(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    AnalogComparator    Comparator0(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
   #endif
 #elif defined(ANALOG_COMP_PINS_MEGA)
   /* mega0:1 AC P0, P1, P2, P3, N0, N1, N2*/
   #if defined(AC0_AC_vect)
-    AnalogComparator    Comparator0(0, AC0, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN1CTRL,                 PORTD.PIN3CTRL, PORTD.PIN5CTRL, PORTD.PIN7CTRL);
+    AnalogComparator    Comparator0(0, AC0, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN1CTRL,/* megaAVR 0-series has no in_p4 */                    PORTD.PIN3CTRL, PORTD.PIN5CTRL, PORTD.PIN7CTRL);
   #endif
 /* Now for the tinyAVR parts
 |  PIN  |  8-pin  |0/1-series AC0|2-series AC0|1+series AC0|1+series AC1|1+series AC2|
@@ -68,6 +87,10 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
 |IN N1  |   n/a   |     PIN_PB4* |   PIN_PB4* |   PIN_PB4* |   PIN_PB7* |   PIN_PB6* |
 |IN N2  |   n/a   |       n/a    |   PIN_PB0  |     n/a    |     n/a    |     n/a    |
 |OUT    | PIN_PA3 |     PIN_PA5  |   PIN_PA5  |   PIN_PA5  |   PIN_PB3  |   PIN_PB2  |
+* * indicates pins that are not present on all parts:
+*   PB4, PB5 are not present on parts with less than 20 pins.
+*   PB6, PB7 are only present on 24-pin parts.
+* AC1, AC2 are only present on the "golden 1-series" - parts with 16k+ flash have special features.
 */
 #elif defined(ANALOG_COMP_PINS_TINY_FEW)
   /* P0, N0 */

@@ -225,16 +225,14 @@ class HardwareSerial : public Stream {
     void                printHexln(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s); println();}
     // The pointer-versions for mass printing uint8_t and uint16_t arrays.
     uint8_t *             printHex(          uint8_t* p, uint8_t len, char sep = 0            );
-    uint16_t *            printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
     volatile uint8_t *    printHex(volatile  uint8_t* p, uint8_t len, char sep = 0            );
+    uint16_t *            printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
     volatile uint16_t *   printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
+
     uint8_t *           printHexln(          uint8_t* p, uint8_t len, char sep = 0            ) {
       uint8_t* ret;
       ret = printHex(p, len, sep);
       println(); return ret;
-    }
-    uint16_t *          printHexln(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
-      uint16_t* ret;  ret=printHex(p, len, sep, s); println(); return ret;
     }
     volatile uint8_t *  printHexln(volatile  uint8_t* p, uint8_t len, char sep = 0            ) {
       volatile uint8_t* ret;
@@ -242,6 +240,11 @@ class HardwareSerial : public Stream {
       println();
       return ret;
     }
+
+    uint16_t *          printHexln(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
+      uint16_t* ret;  ret=printHex(p, len, sep, s); println(); return ret;
+    }
+
     volatile uint16_t * printHexln(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
         volatile uint16_t* ret;
         ret = printHex(p, len, sep, s);
