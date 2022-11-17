@@ -4,7 +4,6 @@
    Free Software - LGPL 2.1, please see LICENCE.md for details */
 
 #include <Arduino.h>
-
 /* Required by some libraries to compile successfully. Even though it's nonsense in Arduino. */
 int atexit(void ( * /*func*/)()) { return 0; }
 
@@ -164,13 +163,15 @@ int main() {
       onPreMain();
     }
     #if (SPM_FROM_APP == -1)
-      /* Declared as being located in .init3 so it gets put way at the start of the binary. This guarantees that
+      /* Declared as being located in .trampolines so it gets put way at the start of the binary. This guarantees that
        * it will be in the first page of flash. Must be marked ((used)) or LinkTime Optimization (LTO) will see
        * that nothing actually calls it and optimize it away. The trick of course is that it can be called if
        * the user wants to - but it's designed to be called via hideous methods like
        * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (zaddress))
        * see Flash.h */
-      /* No, we CAN'T move it to init3 - PROGMEM goes between trampolines and code! */
+      /* It must be located *before everything* - including PROGMEM, which the compiler puts ahead of .init.
+       * .trampolines however comes before progmem. The function must be naked, it must be used, and you need to guard it
+       * with the rjmp that hops over the spm and ret instructions unless you jump directly to the entrypoint.    */
       void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
       void __spm_entrypoint (void)
       {

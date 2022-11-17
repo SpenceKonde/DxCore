@@ -1105,7 +1105,6 @@ void init() {
     PORTD.PIN0CTRL = PORT_ISC_INPUT_DISABLE_gc;
   #endif
   init_clock();
-
   init_timers();
   #if defined(ADC0)
     init_ADC0();
@@ -1743,7 +1742,7 @@ void __attribute__((weak)) init_TCBs() {
   #endif
         ;
   // Start with TCB0 - we take advantage of the fact that we can get a pointer
-  // to TCB09's struct, and increment it to go through all of them.
+  // to TCB0's struct, and increment it to go through all of them.
   TCB_t *timer_B = (TCB_t *)&TCB0;
 
   // Find end timer - the highest numbered TCB that is not used for millis.
@@ -1787,9 +1786,9 @@ void __attribute__((weak)) init_TCBs() {
       // Use TCA clock (250kHz, +/- 50%) and enable
       timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
 
-      // Increment pointer to next TCB instance
-      timer_B++;
     }
+    // Increment pointer to next TCB instance
+    timer_B++;
     // Stop when pointing to the last timer.
   } while (timer_B <= timer_B_end);
 }
