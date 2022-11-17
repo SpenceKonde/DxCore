@@ -437,9 +437,9 @@ void AnalogComparator::init() {
       }
       if        (input_n == comparator::in_n::in0) {
         IN0_N = PORT_ISC_INPUT_DISABLE_gc;
-      } else if (input_n == comparator::in_n::in3) {
+      } else if (input_n == comparator::in_n::in2) {
         IN2_N = PORT_ISC_INPUT_DISABLE_gc;
-      } else if (input_n == comparator::in_n::in4) {
+      } else if (input_n == comparator::in_n::in3) {
         IN3_N = PORT_ISC_INPUT_DISABLE_gc;
       }
     #elif defined(ANALOG_COMP_PINS_DA_DB) || defined(ANALOG_COMP_PINS_MEGA)
@@ -562,7 +562,7 @@ void AnalogComparator::stop(bool restorepins) {
           IN0_N = 0;
         } else if (input_n == comparator::in_n::in3) {
           IN2_N = 0;
-        } else if (input_n == comparator::in_n::in4) {
+        } else if (input_n == comparator::in_n::in3) {
           IN3_N = 0;
         }
       #elif defined(ANALOG_COMP_PINS_DA_DB) || defined(ANALOG_COMP_PINS_MEGA)

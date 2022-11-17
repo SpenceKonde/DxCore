@@ -127,6 +127,10 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCD0_PINS (PORTMUX_TCD0_PORTF)        // TCD0 output on PF0 and 1. Same as PORTMUX_TCD0_ALT2_gc
 
 #define PIN_TCA0_WO0_INIT (PIN_PD0)
+#define PIN_TCB0_WO_INIT  (PIN_PA2)
+#define PIN_TCB1_WO_INIT  (PIN_PA3)
+#define PIN_TCB2_WO_INIT  (PIN_PC0)
+#define PIN_TCD0_WOA_INIT (PIN_PF0)
 
 
 //#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.

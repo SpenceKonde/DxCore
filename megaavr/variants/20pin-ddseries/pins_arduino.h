@@ -127,7 +127,10 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
 #define TCD0_PINS PORTMUX_TCD0_PORTAD         // TCD0 output on PA4, PA5 (not used for same reason as TCBs) and PD4, PD5
 
-#define PIN_TCA0_WO0_INIT (PIN_PD0)
+#define PIN_TCA0_WO0_INIT (PIN_PA0)
+#define PIN_TCB0_WO_INIT  (PIN_PA2)
+#define PIN_TCB1_WO_INIT  (PIN_PA3)
+#define PIN_TCD0_WOA_INIT (PIN_PA4)
 
 #define NO_GLITCH_TIMERD0
 

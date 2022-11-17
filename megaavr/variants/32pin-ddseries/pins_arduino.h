@@ -133,6 +133,10 @@ Include guard and include basic libraries. We are normally including this inside
 // Even if it worked there, it would never be as good because they have other alternate functions on those pins while the DDs don't.
 
 #define PIN_TCA0_WO0_INIT (PIN_PD0)
+#define PIN_TCB0_WO_INIT  (PIN_PF4)
+#define PIN_TCB1_WO_INIT  (PIN_PF5)
+#define PIN_TCB2_WO_INIT  (PIN_PC0)
+#define PIN_TCD0_WOA_INIT (PIN_PF0)
 
 //#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
 #define NO_GLITCH_TIMERD0

@@ -46,9 +46,9 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)  // A31
 #define PIN_PD0 (12)  // NOT_A_PIN
-// No PD1 (7)
-// No PD2 (8)
-// No PD3 (9)
+// No PD1 (13)
+// No PD2 (14)
+// No PD3 (15)
 #define PIN_PD4 (16)
 #define PIN_PD5 (17)
 #define PIN_PD6 (18)
@@ -124,8 +124,13 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB1_PINS (0x00)                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
 #define TCD0_PINS (PORTMUX_TCD0_PORTAD)       // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
 
-#define PIN_TCA0_WO0_INIT                 (PC)
+#define PIN_TCA0_WO0_INIT (PIN_PA0)
+#define PIN_TCB0_WO_INIT  (NOT_A_PIN)
+#define PIN_TCB1_WO_INIT  (NOT_A_PIN)
+#define PIN_TCD0_WOA_INIT (NOT_A_PIN)
+
 #define NO_GLITCH_TIMERD0
+
 #define digitalPinHasPWM(p)               (((p) >= PIN_PC1 && (p) <= PIN_PC3) || (p) == PIN_PD4 || (p) == PIN_PD5)
 
         /*##   ###  ####  ##### #   # #   # #   #
