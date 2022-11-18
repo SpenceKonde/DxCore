@@ -11,7 +11,7 @@
   ZeroCross zcd2(2, ZCD2, PORTE.PIN7CTRL);
 #endif
 #if defined(__AVR_DD__)
-  ZeroCross zcd3();
+  ZeroCross zcd3;
 #endif
 
 
