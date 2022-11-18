@@ -47,10 +47,8 @@
 #________________________________________________________________________#
 # The *opti menus are for Optiboot board definitions - We name them
 # differently when the option takes on different meaning for a bootloaded
-# board. Eg - UPDI can set fuses, so OSCCFG is set on all uploads and
-# you don't need to burn bootloader to change clock speed.
-# 2.4.3 - the TCD0CFG fuse handling is U G L Y - but there isn't really
-# another way to do it with the tools we get as hardware package folks.
+# board. Eg - UPDI can set fuses, so any fuse that can't brick the chip is written
+# And we can assume all fuses have the correct values.
 
 menu.chip=Chip
 menu.board=Board/version
@@ -1646,7 +1644,7 @@ avrdaopti.build.attachmode=-DCORE_ATTACH_ALL
 avrdaopti.bootloader.tool=avrdude
 avrdaopti.bootloader.defaultentrycond=_extrf
 avrdaopti.bootloader.entrycond={bootloader.defaultentrycond}
-avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}{bootloader.timeout}.hex
+avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
 avrdaopti.bootloader.WDTCFG=0x00
 avrdaopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
@@ -1868,17 +1866,16 @@ avrdaopti.menu.resetpin.input.bootloader.resetpinbits=00
 avrdaopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 avrdaopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
 avrdaopti.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
-avrdaopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
-avrdaopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrdaopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+avrdaopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrdaopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
 avrdaopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
+avrdaopti.menu.entrycond.default.bootloader.entrycond={bootloader.defaultentrycond}
 avrdaopti.menu.entrycond.extr.bootloader.entrycond=_extr
 avrdaopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
-avrdaopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
 avrdaopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 avrdaopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
-avrdaopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
+avrdaopti.menu.entrycond.swr.bootloader.entrycond=_swronly_8sec
 avrdaopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
@@ -2042,7 +2039,7 @@ avrdbopti.build.attachmode=-DCORE_ATTACH_ALL
 avrdbopti.bootloader.tool=avrdude
 avrdbopti.bootloader.defaultentrycond=_extrf
 avrdbopti.bootloader.entrycond={bootloader.defaultentrycond}
-avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}{bootloader.timeout}.hex
+avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
 avrdbopti.bootloader.WDTCFG=0x00
 avrdbopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
@@ -2051,6 +2048,7 @@ avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrdbopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
+
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -2289,7 +2287,7 @@ avrdbopti.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & SW r
 avrdbopti.menu.resetpin.reset.bootloader.defaultentrycond=_extr
 avrdbopti.menu.resetpin.reset.bootloader.resetpinbits=10
 avrdbopti.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
-avrdbopti.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
+avrdbopti.menu.resetpin.input.bootloader.defaultentrycond=_all_8sec
 avrdbopti.menu.resetpin.input.bootloader.resetpinbits=00
 
 #----------------------------------------#
@@ -2298,17 +2296,16 @@ avrdbopti.menu.resetpin.input.bootloader.resetpinbits=00
 avrdbopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 avrdbopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
 avrdbopti.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
-avrdbopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
-avrdbopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrdbopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+avrdbopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrdbopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
 avrdbopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
+avrdbopti.menu.entrycond.default.bootloader.entrycond={bootloader.defaultentrycond}
 avrdbopti.menu.entrycond.extr.bootloader.entrycond=_extr
 avrdbopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
-avrdbopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
 avrdbopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 avrdbopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
-avrdbopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
+avrdbopti.menu.entrycond.swr.bootloader.entrycond=_swronly_8sec
 avrdbopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
@@ -2487,7 +2484,7 @@ avrddopti.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrddopti.bootloader.tool=avrdude
-avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}{bootloader.timeout}.hex
+avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
 avrddopti.bootloader.WDTCFG=0x00
 avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
@@ -2527,16 +2524,16 @@ avrddopti.build.appspmabr=
 #________________________________________#
 avrddopti.menu.chip.avr64dd32=AVR64DD32
 avrddopti.menu.chip.avr64dd28=AVR64DD28
-avrddopti.menu.chip.avr32dd20=AVR32DD20
-avrddopti.menu.chip.avr32dd14=AVR32DD14
-avrddopti.menu.chip.avr16dd20=AVR16DD20
-avrddopti.menu.chip.avr16dd14=AVR16DD14
 avrddopti.menu.chip.avr64dd20=AVR64DD20
 avrddopti.menu.chip.avr64dd14=AVR64DD14
-avrddopti.menu.chip.avr32dd32=AVR16DD32
-avrddopti.menu.chip.avr32dd28=AVR16DD28
+avrddopti.menu.chip.avr32dd32=AVR32DD32
+avrddopti.menu.chip.avr32dd28=AVR32DD28
+avrddopti.menu.chip.avr32dd20=AVR32DD20
+avrddopti.menu.chip.avr32dd14=AVR32DD14
 avrddopti.menu.chip.avr16dd32=AVR16DD32
 avrddopti.menu.chip.avr16dd28=AVR16DD28
+avrddopti.menu.chip.avr16dd20=AVR16DD20
+avrddopti.menu.chip.avr16dd14=AVR16DD14
 avrddopti.menu.chip.avr64dd14.build.mcu=avr64dd14
 avrddopti.menu.chip.avr64dd14.bootloader.class=optiboot_dd64
 avrddopti.menu.chip.avr64dd14.upload.maximum_size=65024
@@ -2562,45 +2559,45 @@ avrddopti.menu.chip.avr64dd32.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd32.build.highestcb=B2
 avrddopti.menu.chip.avr64dd32.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr32dd32.build.mcu=avr32dd32
-avrddopti.menu.chip.avr32dd32.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr32dd32.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr32dd32.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd32.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd32.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr32dd28.build.mcu=avr32dd28
-avrddopti.menu.chip.avr32dd28.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr32dd28.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr32dd28.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd28.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd28.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr32dd20.build.mcu=avr32dd20
-avrddopti.menu.chip.avr32dd20.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr32dd20.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr32dd20.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd20.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd20.build.highestcb=B1
 avrddopti.menu.chip.avr32dd20.build.variant=20pin-ddseries
 avrddopti.menu.chip.avr32dd14.build.mcu=avr32dd14
-avrddopti.menu.chip.avr32dd14.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr32dd14.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr32dd14.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd14.build.highestcb=B1
 avrddopti.menu.chip.avr32dd14.build.variant=14pin-ddseries
 avrddopti.menu.chip.avr16dd32.build.mcu=avr16dd32
-avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr16dd32.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd32.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd32.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr16dd28.build.mcu=avr16dd28
-avrddopti.menu.chip.avr16dd28.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr16dd28.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr16dd28.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd28.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd28.build.variant=32pin-ddseries
 avrddopti.menu.chip.avr16dd20.build.mcu=avr16dd20
-avrddopti.menu.chip.avr16dd20.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr16dd20.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr16dd20.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd20.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd20.build.highestcb=B1
 avrddopti.menu.chip.avr16dd20.build.variant=20pin-ddseries
 avrddopti.menu.chip.avr16dd14.build.mcu=avr16dd14
-avrddopti.menu.chip.avr16dd14.bootloader.class=optiboot_dx32_16
+avrddopti.menu.chip.avr16dd14.bootloader.class=optiboot_dd32
 avrddopti.menu.chip.avr16dd14.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd14.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd14.build.highestcb=B1
@@ -2752,33 +2749,31 @@ avrddopti.menu.resetupdipinsopti.resetupdi=PF6: Reset & PF7: UPDI (default boot 
 avrddopti.menu.resetupdipinsopti.resetupdi.bootloader.defaultentrycond=_extr
 avrddopti.menu.resetupdipinsopti.resetupdi.bootloader.resetpinbits=11
 avrddopti.menu.resetupdipinsopti.inputupdi=PF6: Input & PF7: UPDI (default boot entry on power on & SW resets, 8 sec timeout)
-avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.defaultentrycond=_por_8sec
+avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.defaultentrycond=_all_8sec
 avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.resetpinbits=10
-avrddopti.menu.resetupdipinsopti.resetgpio=PF6: Reset & PF7: GPIO (DD-compatible HV UPDI required, default boot entry on reset pin)
-avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.entrycond=_extr
+avrddopti.menu.resetupdipinsopti.resetgpio=PF6: Reset & PF7: GPIO (DD-compatible HV UPDI required, default boot entry on reset pin & SW)
+avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.defaultentrycond=_extr
 avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.resetpinbits=01
-avrddopti.menu.resetupdipinsopti.inputgpio=PF6: Input & PF7: GPIO (DD-compatible HV UPDI required, default boot entry on POR)
-avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.entrycond=_por_8sec
+avrddopti.menu.resetupdipinsopti.inputgpio=PF6: Input & PF7: GPIO (DD-compatible HV UPDI required, default boot entry on POR & SW)
+avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.defaultentrycond=_all_8sec
 avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.resetpinbits=00
 
 #----------------------------------------#
 # Optiboot Entry Conditions              #
 #________________________________________#
-
 avrddopti.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 avrddopti.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
 avrddopti.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
-avrddopti.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
-avrddopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrddopti.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+avrddopti.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 avrddopti.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
 avrddopti.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
+avrddopti.menu.entrycond.default.bootloader.entrycond={bootloader.defaultentrycond}
 avrddopti.menu.entrycond.extr.bootloader.entrycond=_extr
 avrddopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
-avrddopti.menu.entrycond.por.bootloader.entrycond=_por_8sec
 avrddopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 avrddopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
-avrddopti.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
+avrddopti.menu.entrycond.swr.bootloader.entrycond=_swronly_8sec
 avrddopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
@@ -2870,13 +2865,6 @@ avrddopti.menu.wiremode.mands=1x Wire, Master and Slave
 avrddopti.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
 avrddopti.menu.wiremode.mands.build.wireabr=.wA
 
-#----------------------------------------#
-# Optiboot upload timeout                #
-#________________________________________#
-avrddopti.menu.timeout.1sec=1 second (for use w/autoreset)
-avrddopti.menu.timeout.1sec.bootloader.timeout=
-avrddopti.menu.timeout.8sec=8 second (for use w/out autoreset)
-avrddopti.menu.timeout.8sec.bootloader.timeout=_8sec
 
 #----------------------------------------#
 # Optiboot serial port                   #
@@ -3117,8 +3105,7 @@ azduinoboard.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & S
 azduinoboard.menu.resetpin.reset.bootloader.defaultentrycond=_extr
 azduinoboard.menu.resetpin.reset.bootloader.resetpinbits=10
 azduinoboard.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
-azduinoboard.menu.resetpin.input.bootloader.defaulttimeout=_8sec
-azduinoboard.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
+azduinoboard.menu.resetpin.input.bootloader.defaultentrycond=_all_8sec
 azduinoboard.menu.resetpin.input.bootloader.resetpinbits=00
 
 #----------------------------------------#
@@ -3127,17 +3114,16 @@ azduinoboard.menu.resetpin.input.bootloader.resetpinbits=00
 azduinoboard.menu.entrycond.default=Default (reset pin and SW reset, 1 sec timeout - unless reset pin disabled, then POR and 8 sec timeout)
 azduinoboard.menu.entrycond.extr=External (reset pin): Reset pin and SW reset, 1 second timeout (assume autoreset).
 azduinoboard.menu.entrycond.extronly=External reset only: 1 second timeout (assume autoreset).
-azduinoboard.menu.entrycond.por=Power On: When chip is powercycled, or after a software reset, 8 second timeout (assume manual unplug).
-azduinoboard.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 azduinoboard.menu.entrycond.all=Always: Every reset except a WDT reset, 8 second timeout - easy to enter bootloader
+azduinoboard.menu.entrycond.poronly= Power On Only: Only when chip is powercycled, 8 second timeout (assume manual unplug)
 azduinoboard.menu.entrycond.swr=SW-only: 8 second timeout (Warning: bad app code won't run the bootloader)
 azduinoboard.menu.entrycond.extr_slow=External (reset pin), slow: Reset pin and SW reset, 8 second timeout (assume manual reset).
+azduinoboard.menu.entrycond.default.bootloader.entrycond={bootloader.defaultentrycond}
 azduinoboard.menu.entrycond.extr.bootloader.entrycond=_extr
 azduinoboard.menu.entrycond.extronly.bootloader.entrycond=_extronly
-azduinoboard.menu.entrycond.por.bootloader.entrycond=_por_8sec
 azduinoboard.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
 azduinoboard.menu.entrycond.all.bootloader.entrycond=_all_8sec
-azduinoboard.menu.entrycond.swr.bootloader.entrycond=_extr_8sec
+azduinoboard.menu.entrycond.swr.bootloader.entrycond=_swronly_8sec
 azduinoboard.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 

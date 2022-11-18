@@ -180,7 +180,7 @@ optiboot_version = 256 * (OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVE
   // nop ret: do nothing, then return. The 0x0000 is an unambiguous way to signal that it is disabled
 #endif
 
-
+#define WRITE_MAPPED_BY_WORD
 
 #if (!defined(__AVR_XMEGA__)) || ((__AVR_ARCH__ != 102) && (__AVR_ARCH__ != 103) && (__AVR_ARCH__ != 104))
 #error CPU not supported by this version of Optiboot.
@@ -407,7 +407,7 @@ int main (void) {
   // but on these parts it is: saves flash.
   ch = RSTCTRL.RSTFR;   // get reset cause
 
-  if (ch==0) {
+  if (ch == 0) {
     // If app jumped direct to bootloader, we are in dangerous territory; the peripherals could be
     // a million flavors of bad! We assume everything is freshly reset. So, to stay safe, reset
     // immediately via software reset. Since this is an entry condition, we will achieve the naive
@@ -415,14 +415,21 @@ int main (void) {
     // We can also end up here on a freshly bootloaded chip, and
     _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
   }
-  #if defined(START_APP_ON_POR)
+  /* Entry conditions supported:
+   * Cond:      Exclude:  Require:
+   * _extr      WDRF      EXTRF,SWRF,orUPDIRF
+   * _extronly  WDRF      EXTRF
+   * _all       WDRF      !BORF
+   * _poronly   WDRF      PORF
+   * _swronly   WDRF      SWRF
+   * Require: 0x34, 0x04, 0x35, 0x01, 0x10.
+   */
+  #if defined(ENTRYCOND_REQUIRE)
     // If WDRF is set OR nothing except BORF and/or PORF is set, which are not entry conditions.
     // If this isn't true, EXTRF, SWRF, or UPDIRF set; all are entry condiions.
-    if (ch & RSTCTRL_WDRF_bm || ch < 4 ) {
-  #else //don't START_APP_ON_POR
-    // If WDRF is set OR nothing except BORF is set,
-    // If this isn't true, PORF, EXTRF, SWRF, or UPDIRF set; all are entry condiions
-    if (ch & RSTCTRL_WDRF_bm || ch == RSTCTRL_BORF_bm) {
+    if (ch & RSTCTRL_WDRF_bm || ch & ENTRYCOND_REQUIRE ) {
+  #else //No require specified, treat as all.
+    if (ch & RSTCTRL_WDRF_bm || ch & 0x35) {
   #endif
     // Start the app.
     // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
@@ -531,7 +538,7 @@ int main (void) {
         // byte addressed!
         verifySpace();
     } else if (ch == STK_UNIVERSAL) {
-      #ifdef RAMPZ
+      #if defined(RAMPZ) && PROGMEM_SIZE > 65536
         // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB
         // 128k? There.
         if ( AVR_OP_LOAD_EXT_ADDR == getch() ) {
@@ -809,23 +816,19 @@ void watchdogConfig (uint8_t x) {
            * Hmmph - converting all of that to assembly didn't save
            * as much as I had been hoping, just one instruction!
            */
-        __asm__ __volatile__ ("ldi r24, 8"                  "\n\t" \
-                              "rcall nvm_cmd"               "\n\t" \
-                              "spm"                         "\n\t" \
-                              "ldi r24, 2"                  "\n\t" \
-                              "rcall nvm_cmd"               "\n\t" \
-                              "head:"                       "\n\t" \
-                              "ld r0, %a[ptr]+"             "\n\t" \
-                              "ld r1, %a[ptr]+"             "\n\t" \
-                              "spm Z+"                      "\n\t" \
-                              "dec %[len]"                  "\n\t" \
-                              "brne head"                   "\n\t" \
-                              "clr r1"                      "\n\t" \
-                              : [len]   "+r" (len) \
-                              "+z" ((uint16_t)address.word), \
-                              [ptr] "e" ((uint16_t)mybuff.bptr),
-                              :: "r0", "r24"
-                              );
+        __asm__ __volatile__ ("ldi r24, 8"                  "\n\t"
+                              "rcall nvm_cmd"               "\n\t"
+                              "spm"                         "\n\t"
+                              "ldi r24, 2"                  "\n\t"
+                              "rcall nvm_cmd"               "\n\t"
+                              "head:"                       "\n\t"
+                              "ld r0, %a[ptr]+"             "\n\t"
+                              "ld r1, %a[ptr]+"             "\n\t"
+                              "spm Z+"                      "\n\t"
+                              "dec %[len]"                  "\n\t"
+                              "brne head"                   "\n\t"
+                              "clr r1"                      "\n\t"
+                              : [len]   "+r" (len), "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr):: "r0", "r24");
       } // default block
     } // switch
   }
@@ -849,7 +852,7 @@ static inline void read_flash(addr16_t address, pagelen_t length)
 {
   uint8_t ch;
   do {
-    #if defined(RAMPZ)
+    #if defined(RAMPZ) && PROGMEM_SIZE > 65536
       // Since RAMPZ should already be set, we need to use EPLM directly.
       // Also, we can use the autoincrement version of lpm to update "address"
       //      do putch(pgm_read_byte_near(address++));

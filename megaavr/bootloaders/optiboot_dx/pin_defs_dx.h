@@ -680,17 +680,7 @@
     #define MYUART_TXPIN (1<<PORT0)
     #define MYUART_PMUX_VAL (PORTMUX_USART1_DEFAULT_gc)
     #define MYPMUX_REG PORTMUX.USARTROUTEA
-  #elif (UARTTX == C4)
-    #define UART_NAME "C4"
-    #ifndef USART1
-      #error Pin on USART1, but no USART1 exists
-    #endif
-    #define MYUART USART1
-    #define MYUART_TXPORT VPORTC
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
-  #elif (UARTTX == C4)
+  #elif (UARTTX == D6)
     #define UART_NAME "D6"
     #ifndef USART1
       #error Pin on USART1, but no USART1 exists
@@ -698,8 +688,10 @@
     #define MYUART USART1
     #define MYUART_TXPORT VPORTD
     #define MYUART_TXPIN (1<<PORT6)
-    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT1_gc)
+    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT2_gc)
     #define MYPMUX_REG PORTMUX.USARTROUTEA
+  #endif
+#endif
 #ifndef MYUART
   #warning No UARTTX pin specified.
 #endif

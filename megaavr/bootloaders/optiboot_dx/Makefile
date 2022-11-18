@@ -173,467 +173,1963 @@ optiboot_%.elf:	optiboot_dx.c FORCE
 #  appropriate specific options
 #---------------------------------------------------------------------------
 
-dx128_ser0: TARGET = avr128da64
-dx128_ser0:
-	$(MAKE) -f $(MF) optiboot_dx128_ser0.hex UARTTX=A0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+
+dx128_ser0_extr: TARGET = avr128da64
+dx128_ser0_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_extr.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins.\n"
 
 
-dx128_ser0_alt: TARGET = avr128da64
-dx128_ser0_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt.hex UARTTX=A4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser0_alt_extr: TARGET = avr128da64
+dx128_ser0_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_extr.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins.\n"
 
 
-dx128_ser1: TARGET = avr128da64
-dx128_ser1:
-	$(MAKE) -f $(MF) optiboot_dx128_ser1.hex UARTTX=C0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser1_extr: TARGET = avr128da64
+dx128_ser1_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_extr.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins.\n"
 
 
-dx128_ser1_alt: TARGET = avr128da64
-dx128_ser1_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt.hex UARTTX=C4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser1_alt_extr: TARGET = avr128da64
+dx128_ser1_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_extr.hex UARTTX=C4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins.\n"
 
 
-dx128_ser2: TARGET = avr128da64
-dx128_ser2:
-	$(MAKE) -f $(MF) optiboot_dx128_ser2.hex UARTTX=F0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser2_extr: TARGET = avr128da64
+dx128_ser2_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_extr.hex UARTTX=F0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins.\n"
 
 
-dx128_ser2_alt: TARGET = avr128da64
-dx128_ser2_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt.hex UARTTX=F4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser2_alt_extr: TARGET = avr128da64
+dx128_ser2_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_extr.hex UARTTX=F4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins.\n"
 
 
-dx128_ser3: TARGET = avr128da64
-dx128_ser3:
-	$(MAKE) -f $(MF) optiboot_dx128_ser3.hex UARTTX=B0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser3_extr: TARGET = avr128da64
+dx128_ser3_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_extr.hex UARTTX=B0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins.\n"
 
 
-dx128_ser3_alt: TARGET = avr128da64
-dx128_ser3_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt.hex UARTTX=B4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser3_alt_extr: TARGET = avr128da64
+dx128_ser3_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_extr.hex UARTTX=B4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins.\n"
 
 
-dx128_ser4: TARGET = avr128da64
-dx128_ser4:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4.hex UARTTX=E0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser4_extr: TARGET = avr128da64
+dx128_ser4_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_extr.hex UARTTX=E0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins.\n"
 
 
-dx128_ser4_alt: TARGET = avr128da64
-dx128_ser4_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt.hex UARTTX=E4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser4_alt_extr: TARGET = avr128da64
+dx128_ser4_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_extr.hex UARTTX=E4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins.\n"
 
 
-dx128_ser5: TARGET = avr128da64
-dx128_ser5:
-	$(MAKE) -f $(MF) optiboot_dx128_ser5.hex UARTTX=G0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser5_extr: TARGET = avr128da64
+dx128_ser5_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_extr.hex UARTTX=G0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins.\n"
 
 
-dx128_ser5_alt: TARGET = avr128da64
-dx128_ser5_alt:
-	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx128_ser5_alt_extr: TARGET = avr128da64
+dx128_ser5_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt_extr.hex UARTTX=G4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins.\n"
 
-dx64_ser0: TARGET = avr64da64
-dx64_ser0:
-	$(MAKE) -f $(MF) optiboot_dx64_ser0.hex UARTTX=A0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser0_extr: TARGET = avr64da64
+dx64_ser0_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_extr.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins.\n"
 
 
-dx64_ser0_alt: TARGET = avr64da64
-dx64_ser0_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt.hex UARTTX=A4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser0_alt_extr: TARGET = avr64da64
+dx64_ser0_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_extr.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins.\n"
 
 
-dx64_ser1: TARGET = avr64da64
-dx64_ser1:
-	$(MAKE) -f $(MF) optiboot_dx64_ser1.hex UARTTX=C0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser1_extr: TARGET = avr64da64
+dx64_ser1_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_extr.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins.\n"
 
 
-dx64_ser1_alt: TARGET = avr64da64
-dx64_ser1_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt.hex UARTTX=C4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser1_alt_extr: TARGET = avr64da64
+dx64_ser1_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_extr.hex UARTTX=C4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins.\n"
 
 
-dx64_ser2: TARGET = avr64da64
-dx64_ser2:
-	$(MAKE) -f $(MF) optiboot_dx64_ser2.hex UARTTX=F0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser2_extr: TARGET = avr64da64
+dx64_ser2_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_extr.hex UARTTX=F0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins.\n"
 
 
-dx64_ser2_alt: TARGET = avr64da64
-dx64_ser2_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt.hex UARTTX=F4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser2_alt_extr: TARGET = avr64da64
+dx64_ser2_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_extr.hex UARTTX=F4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins.\n"
 
 
-dx64_ser3: TARGET = avr64da64
-dx64_ser3:
-	$(MAKE) -f $(MF) optiboot_dx64_ser3.hex UARTTX=B0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser3_extr: TARGET = avr64da64
+dx64_ser3_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_extr.hex UARTTX=B0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins.\n"
 
 
-dx64_ser3_alt: TARGET = avr64da64
-dx64_ser3_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt.hex UARTTX=B4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser3_alt_extr: TARGET = avr64da64
+dx64_ser3_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_extr.hex UARTTX=B4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins.\n"
 
 
-dx64_ser4: TARGET = avr64da64
-dx64_ser4:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4.hex UARTTX=E0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser4_extr: TARGET = avr64da64
+dx64_ser4_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_extr.hex UARTTX=E0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins.\n"
 
 
-dx64_ser4_alt: TARGET = avr64da64
-dx64_ser4_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt.hex UARTTX=E4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser4_alt_extr: TARGET = avr64da64
+dx64_ser4_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_extr.hex UARTTX=E4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins.\n"
 
 
-dx64_ser5: TARGET = avr64da64
-dx64_ser5:
-	$(MAKE) -f $(MF) optiboot_dx64_ser5.hex UARTTX=G0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser5_extr: TARGET = avr64da64
+dx64_ser5_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_extr.hex UARTTX=G0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins.\n"
 
 
-dx64_ser5_alt: TARGET = avr64da64
-dx64_ser5_alt:
-	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt.hex UARTTX=G4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx64_ser5_alt_extr: TARGET = avr64da64
+dx64_ser5_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt_extr.hex UARTTX=G4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins.\n"
 
-dx32_ser0: TARGET = avr32da48
-dx32_ser0:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0.hex UARTTX=A0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser0_extr: TARGET = avr32da48
+dx32_ser0_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_extr.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins.\n"
 
 
-dx32_ser0_alt: TARGET = avr32da48
-dx32_ser0_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt.hex UARTTX=A4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser0_alt_extr: TARGET = avr32da48
+dx32_ser0_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_extr.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins.\n"
 
 
-dx32_ser1: TARGET = avr32da48
-dx32_ser1:
-	$(MAKE) -f $(MF) optiboot_dx32_ser1.hex UARTTX=C0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser1_extr: TARGET = avr32da48
+dx32_ser1_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_extr.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins.\n"
 
 
-dx32_ser1_alt: TARGET = avr32da48
-dx32_ser1_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt.hex UARTTX=C4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser1_alt_extr: TARGET = avr32da48
+dx32_ser1_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_extr.hex UARTTX=C4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins.\n"
 
 
-dx32_ser2: TARGET = avr32da48
-dx32_ser2:
-	$(MAKE) -f $(MF) optiboot_dx32_ser2.hex UARTTX=F0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser2_extr: TARGET = avr32da48
+dx32_ser2_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_extr.hex UARTTX=F0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins.\n"
 
 
-dx32_ser2_alt: TARGET = avr32da48
-dx32_ser2_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt.hex UARTTX=F4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser2_alt_extr: TARGET = avr32da48
+dx32_ser2_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_extr.hex UARTTX=F4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins.\n"
 
 
-dx32_ser3: TARGET = avr32da48
-dx32_ser3:
-	$(MAKE) -f $(MF) optiboot_dx32_ser3.hex UARTTX=B0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser3_extr: TARGET = avr32da48
+dx32_ser3_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_extr.hex UARTTX=B0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins.\n"
 
 
-dx32_ser3_alt: TARGET = avr32da48
-dx32_ser3_alt:
-	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt.hex UARTTX=B4 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser3_alt_extr: TARGET = avr32da48
+dx32_ser3_alt_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_extr.hex UARTTX=B4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins.\n"
 
 
-dx32_ser4: TARGET = avr32da48
-dx32_ser4:
-	$(MAKE) -f $(MF) optiboot_dx32_ser4.hex UARTTX=E0 TIMEOUT=1 LED=A7 START_APP_ON_POR=1
+dx32_ser4_extr: TARGET = avr32da48
+dx32_ser4_extr:
+	$(MAKE) -f $(MF) optiboot_dx32_ser4_extr.hex UARTTX=E0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins.\n"
 
-dx128_ser0_8sec: TARGET = avr128da64
-dx128_ser0_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
+dx128_ser0_all_8sec: TARGET = avr128da64
+dx128_ser0_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_all_8sec.hex UARTTX=A0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser0_alt_8sec: TARGET = avr128da64
-dx128_ser0_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7
+dx128_ser0_alt_all_8sec: TARGET = avr128da64
+dx128_ser0_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_all_8sec.hex UARTTX=A4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser1_8sec: TARGET = avr128da64
-dx128_ser1_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser1_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7
+dx128_ser1_all_8sec: TARGET = avr128da64
+dx128_ser1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_all_8sec.hex UARTTX=C0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser1_alt_8sec: TARGET = avr128da64
-dx128_ser1_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7
+dx128_ser1_alt_all_8sec: TARGET = avr128da64
+dx128_ser1_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_all_8sec.hex UARTTX=C4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser2_8sec: TARGET = avr128da64
-dx128_ser2_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser2_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7
+dx128_ser2_all_8sec: TARGET = avr128da64
+dx128_ser2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_all_8sec.hex UARTTX=F0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser2_alt_8sec: TARGET = avr128da64
-dx128_ser2_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7
+dx128_ser2_alt_all_8sec: TARGET = avr128da64
+dx128_ser2_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_all_8sec.hex UARTTX=F4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser3_8sec: TARGET = avr128da64
-dx128_ser3_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser3_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7
+dx128_ser3_all_8sec: TARGET = avr128da64
+dx128_ser3_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_all_8sec.hex UARTTX=B0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser3_alt_8sec: TARGET = avr128da64
-dx128_ser3_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7
+dx128_ser3_alt_all_8sec: TARGET = avr128da64
+dx128_ser3_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_all_8sec.hex UARTTX=B4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser4_8sec: TARGET = avr128da64
-dx128_ser4_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7
+dx128_ser4_all_8sec: TARGET = avr128da64
+dx128_ser4_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_all_8sec.hex UARTTX=E0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser4_alt_8sec: TARGET = avr128da64
-dx128_ser4_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_8sec.hex UARTTX=E4 TIMEOUT=8 LED=A7
+dx128_ser4_alt_all_8sec: TARGET = avr128da64
+dx128_ser4_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_all_8sec.hex UARTTX=E4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser5_8sec: TARGET = avr128da64
-dx128_ser5_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser5_8sec.hex UARTTX=G0 TIMEOUT=8 LED=A7
+dx128_ser5_all_8sec: TARGET = avr128da64
+dx128_ser5_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_all_8sec.hex UARTTX=G0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx128_ser5_alt_8sec: TARGET = avr128da64
-dx128_ser5_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7
+dx128_ser5_alt_all_8sec: TARGET = avr128da64
+dx128_ser5_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_all_8sec.hex UARTTX=G4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins. 8 sec timeout for manual reset.\n"
 
-dx64_ser0_8sec: TARGET = avr64da64
-dx64_ser0_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
+dx64_ser0_all_8sec: TARGET = avr64da64
+dx64_ser0_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_all_8sec.hex UARTTX=A0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser0_alt_8sec: TARGET = avr64da64
-dx64_ser0_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7
+dx64_ser0_alt_all_8sec: TARGET = avr64da64
+dx64_ser0_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_all_8sec.hex UARTTX=A4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser1_8sec: TARGET = avr64da64
-dx64_ser1_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser1_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7
+dx64_ser1_all_8sec: TARGET = avr64da64
+dx64_ser1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_all_8sec.hex UARTTX=C0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser1_alt_8sec: TARGET = avr64da64
-dx64_ser1_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7
+dx64_ser1_alt_all_8sec: TARGET = avr64da64
+dx64_ser1_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_all_8sec.hex UARTTX=C4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser2_8sec: TARGET = avr64da64
-dx64_ser2_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser2_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7
+dx64_ser2_all_8sec: TARGET = avr64da64
+dx64_ser2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_all_8sec.hex UARTTX=F0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser2_alt_8sec: TARGET = avr64da64
-dx64_ser2_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7
+dx64_ser2_alt_all_8sec: TARGET = avr64da64
+dx64_ser2_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_all_8sec.hex UARTTX=F4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser3_8sec: TARGET = avr64da64
-dx64_ser3_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser3_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7
+dx64_ser3_all_8sec: TARGET = avr64da64
+dx64_ser3_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_all_8sec.hex UARTTX=B0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser3_alt_8sec: TARGET = avr64da64
-dx64_ser3_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7
+dx64_ser3_alt_all_8sec: TARGET = avr64da64
+dx64_ser3_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_all_8sec.hex UARTTX=B4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser4_8sec: TARGET = avr64da64
-dx64_ser4_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7
+dx64_ser4_all_8sec: TARGET = avr64da64
+dx64_ser4_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_all_8sec.hex UARTTX=E0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser4_alt_8sec: TARGET = avr64da64
-dx64_ser4_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_8sec.hex UARTTX=E4 TIMEOUT=8 LED=A7
+dx64_ser4_alt_all_8sec: TARGET = avr64da64
+dx64_ser4_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_all_8sec.hex UARTTX=E4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser5_8sec: TARGET = avr64da64
-dx64_ser5_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser5_8sec.hex UARTTX=G0 TIMEOUT=8 LED=A7
+dx64_ser5_all_8sec: TARGET = avr64da64
+dx64_ser5_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_all_8sec.hex UARTTX=G0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx64_ser5_alt_8sec: TARGET = avr64da64
-dx64_ser5_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7
+dx64_ser5_alt_all_8sec: TARGET = avr64da64
+dx64_ser5_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_all_8sec.hex UARTTX=G4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins. 8 sec timeout for manual reset.\n"
 
-dx32_ser0_8sec: TARGET = avr32da48
-dx32_ser0_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
+dx32_ser0_all_8sec: TARGET = avr32da48
+dx32_ser0_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_all_8sec.hex UARTTX=A0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser0_alt_8sec: TARGET = avr32da48
-dx32_ser0_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7
+dx32_ser0_alt_all_8sec: TARGET = avr32da48
+dx32_ser0_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_all_8sec.hex UARTTX=A4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser1_8sec: TARGET = avr32da48
-dx32_ser1_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser1_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7
+dx32_ser1_all_8sec: TARGET = avr32da48
+dx32_ser1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_all_8sec.hex UARTTX=C0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser1_alt_8sec: TARGET = avr32da48
-dx32_ser1_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7
+dx32_ser1_alt_all_8sec: TARGET = avr32da48
+dx32_ser1_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_all_8sec.hex UARTTX=C4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser2_8sec: TARGET = avr32da48
-dx32_ser2_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser2_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7
+dx32_ser2_all_8sec: TARGET = avr32da48
+dx32_ser2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_all_8sec.hex UARTTX=F0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser2_alt_8sec: TARGET = avr32da48
-dx32_ser2_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7
+dx32_ser2_alt_all_8sec: TARGET = avr32da48
+dx32_ser2_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_all_8sec.hex UARTTX=F4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser3_8sec: TARGET = avr32da48
-dx32_ser3_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser3_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7
+dx32_ser3_all_8sec: TARGET = avr32da48
+dx32_ser3_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_all_8sec.hex UARTTX=B0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser3_alt_8sec: TARGET = avr32da48
-dx32_ser3_alt_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7
+dx32_ser3_alt_all_8sec: TARGET = avr32da48
+dx32_ser3_alt_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_all_8sec.hex UARTTX=B4 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins. 8 sec timeout for manual reset.\n"
 
 
-dx32_ser4_8sec: TARGET = avr32da48
-dx32_ser4_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser4_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7
+dx32_ser4_all_8sec: TARGET = avr32da48
+dx32_ser4_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser4_all_8sec.hex UARTTX=E0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
 
 HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. 8 sec timeout for manual reset.\n"
 
-dx32_ser0_alt2_8sec: TARGET = avr32dd32
-dx32_ser0_8sec:
-	$(MAKE) -f $(MF) optiboot_dx32_ser0_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7
+dx128_ser0_poronly_8sec: TARGET = avr128da64
+dx128_ser0_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_poronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
 
-HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. 8 sec timeout for manual reset.\n"
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser0_alt_poronly_8sec: TARGET = avr128da64
+dx128_ser0_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_poronly_8sec.hex UARTTX=A4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser1_poronly_8sec: TARGET = avr128da64
+dx128_ser1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_poronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser1_alt_poronly_8sec: TARGET = avr128da64
+dx128_ser1_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_poronly_8sec.hex UARTTX=C4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser2_poronly_8sec: TARGET = avr128da64
+dx128_ser2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_poronly_8sec.hex UARTTX=F0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser2_alt_poronly_8sec: TARGET = avr128da64
+dx128_ser2_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_poronly_8sec.hex UARTTX=F4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser3_poronly_8sec: TARGET = avr128da64
+dx128_ser3_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_poronly_8sec.hex UARTTX=B0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser3_alt_poronly_8sec: TARGET = avr128da64
+dx128_ser3_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_poronly_8sec.hex UARTTX=B4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser4_poronly_8sec: TARGET = avr128da64
+dx128_ser4_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_poronly_8sec.hex UARTTX=E0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser4_alt_poronly_8sec: TARGET = avr128da64
+dx128_ser4_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_poronly_8sec.hex UARTTX=E4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser5_poronly_8sec: TARGET = avr128da64
+dx128_ser5_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_poronly_8sec.hex UARTTX=G0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser5_alt_poronly_8sec: TARGET = avr128da64
+dx128_ser5_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_poronly_8sec.hex UARTTX=G4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+dx64_ser0_poronly_8sec: TARGET = avr64da64
+dx64_ser0_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_poronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser0_alt_poronly_8sec: TARGET = avr64da64
+dx64_ser0_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_poronly_8sec.hex UARTTX=A4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser1_poronly_8sec: TARGET = avr64da64
+dx64_ser1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_poronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser1_alt_poronly_8sec: TARGET = avr64da64
+dx64_ser1_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_poronly_8sec.hex UARTTX=C4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser2_poronly_8sec: TARGET = avr64da64
+dx64_ser2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_poronly_8sec.hex UARTTX=F0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser2_alt_poronly_8sec: TARGET = avr64da64
+dx64_ser2_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_poronly_8sec.hex UARTTX=F4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser3_poronly_8sec: TARGET = avr64da64
+dx64_ser3_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_poronly_8sec.hex UARTTX=B0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser3_alt_poronly_8sec: TARGET = avr64da64
+dx64_ser3_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_poronly_8sec.hex UARTTX=B4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser4_poronly_8sec: TARGET = avr64da64
+dx64_ser4_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_poronly_8sec.hex UARTTX=E0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser4_alt_poronly_8sec: TARGET = avr64da64
+dx64_ser4_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_poronly_8sec.hex UARTTX=E4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser5_poronly_8sec: TARGET = avr64da64
+dx64_ser5_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_poronly_8sec.hex UARTTX=G0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser5_alt_poronly_8sec: TARGET = avr64da64
+dx64_ser5_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_poronly_8sec.hex UARTTX=G4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+dx32_ser0_poronly_8sec: TARGET = avr32da48
+dx32_ser0_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_poronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser0_alt_poronly_8sec: TARGET = avr32da48
+dx32_ser0_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_poronly_8sec.hex UARTTX=A4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser1_poronly_8sec: TARGET = avr32da48
+dx32_ser1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_poronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser1_alt_poronly_8sec: TARGET = avr32da48
+dx32_ser1_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_poronly_8sec.hex UARTTX=C4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser2_poronly_8sec: TARGET = avr32da48
+dx32_ser2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_poronly_8sec.hex UARTTX=F0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser2_alt_poronly_8sec: TARGET = avr32da48
+dx32_ser2_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_poronly_8sec.hex UARTTX=F4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser3_poronly_8sec: TARGET = avr32da48
+dx32_ser3_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_poronly_8sec.hex UARTTX=B0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser3_alt_poronly_8sec: TARGET = avr32da48
+dx32_ser3_alt_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_poronly_8sec.hex UARTTX=B4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser4_poronly_8sec: TARGET = avr32da48
+dx32_ser4_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser4_poronly_8sec.hex UARTTX=E0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser0_extronly: TARGET = avr128da64
+dx128_ser0_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_extronly.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser0_alt_extronly: TARGET = avr128da64
+dx128_ser0_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_extronly.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser1_extronly: TARGET = avr128da64
+dx128_ser1_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_extronly.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser1_alt_extronly: TARGET = avr128da64
+dx128_ser1_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_extronly.hex UARTTX=C4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser2_extronly: TARGET = avr128da64
+dx128_ser2_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_extronly.hex UARTTX=F0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser2_alt_extronly: TARGET = avr128da64
+dx128_ser2_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_extronly.hex UARTTX=F4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser3_extronly: TARGET = avr128da64
+dx128_ser3_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_extronly.hex UARTTX=B0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser3_alt_extronly: TARGET = avr128da64
+dx128_ser3_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_extronly.hex UARTTX=B4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser4_extronly: TARGET = avr128da64
+dx128_ser4_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_extronly.hex UARTTX=E0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser4_alt_extronly: TARGET = avr128da64
+dx128_ser4_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_extronly.hex UARTTX=E4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser5_extronly: TARGET = avr128da64
+dx128_ser5_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_extronly.hex UARTTX=G0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser5_alt_extronly: TARGET = avr128da64
+dx128_ser5_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt_extronly.hex UARTTX=G4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+dx64_ser0_extronly: TARGET = avr64da64
+dx64_ser0_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_extronly.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser0_alt_extronly: TARGET = avr64da64
+dx64_ser0_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_extronly.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser1_extronly: TARGET = avr64da64
+dx64_ser1_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_extronly.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser1_alt_extronly: TARGET = avr64da64
+dx64_ser1_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_extronly.hex UARTTX=C4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser2_extronly: TARGET = avr64da64
+dx64_ser2_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_extronly.hex UARTTX=F0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser2_alt_extronly: TARGET = avr64da64
+dx64_ser2_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_extronly.hex UARTTX=F4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser3_extronly: TARGET = avr64da64
+dx64_ser3_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_extronly.hex UARTTX=B0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser3_alt_extronly: TARGET = avr64da64
+dx64_ser3_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_extronly.hex UARTTX=B4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser4_extronly: TARGET = avr64da64
+dx64_ser4_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_extronly.hex UARTTX=E0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser4_alt_extronly: TARGET = avr64da64
+dx64_ser4_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_extronly.hex UARTTX=E4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser5_extronly: TARGET = avr64da64
+dx64_ser5_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_extronly.hex UARTTX=G0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser5_alt_extronly: TARGET = avr64da64
+dx64_ser5_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt_extronly.hex UARTTX=G4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+dx32_ser0_extronly: TARGET = avr32da48
+dx32_ser0_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_extronly.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser0_alt_extronly: TARGET = avr32da48
+dx32_ser0_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_extronly.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser1_extronly: TARGET = avr32da48
+dx32_ser1_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_extronly.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser1_alt_extronly: TARGET = avr32da48
+dx32_ser1_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_extronly.hex UARTTX=C4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser2_extronly: TARGET = avr32da48
+dx32_ser2_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_extronly.hex UARTTX=F0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser2_alt_extronly: TARGET = avr32da48
+dx32_ser2_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_extronly.hex UARTTX=F4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser3_extronly: TARGET = avr32da48
+dx32_ser3_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_extronly.hex UARTTX=B0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser3_alt_extronly: TARGET = avr32da48
+dx32_ser3_alt_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_extronly.hex UARTTX=B4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser4_extronly: TARGET = avr32da48
+dx32_ser4_extronly:
+	$(MAKE) -f $(MF) optiboot_dx32_ser4_extronly.hex UARTTX=E0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+dx128_ser0_swronly_8sec: TARGET = avr128da64
+dx128_ser0_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_swronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser0_alt_swronly_8sec: TARGET = avr128da64
+dx128_ser0_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_swronly_8sec.hex UARTTX=A4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser1_swronly_8sec: TARGET = avr128da64
+dx128_ser1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_swronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser1_alt_swronly_8sec: TARGET = avr128da64
+dx128_ser1_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_swronly_8sec.hex UARTTX=C4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser2_swronly_8sec: TARGET = avr128da64
+dx128_ser2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_swronly_8sec.hex UARTTX=F0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser2_alt_swronly_8sec: TARGET = avr128da64
+dx128_ser2_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_swronly_8sec.hex UARTTX=F4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser3_swronly_8sec: TARGET = avr128da64
+dx128_ser3_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_swronly_8sec.hex UARTTX=B0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser3_alt_swronly_8sec: TARGET = avr128da64
+dx128_ser3_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_swronly_8sec.hex UARTTX=B4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser4_swronly_8sec: TARGET = avr128da64
+dx128_ser4_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_swronly_8sec.hex UARTTX=E0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser4_alt_swronly_8sec: TARGET = avr128da64
+dx128_ser4_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_swronly_8sec.hex UARTTX=E4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser5_swronly_8sec: TARGET = avr128da64
+dx128_ser5_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_swronly_8sec.hex UARTTX=G0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx128_ser5_alt_swronly_8sec: TARGET = avr128da64
+dx128_ser5_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_swronly_8sec.hex UARTTX=G4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+dx64_ser0_swronly_8sec: TARGET = avr64da64
+dx64_ser0_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_swronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser0_alt_swronly_8sec: TARGET = avr64da64
+dx64_ser0_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_swronly_8sec.hex UARTTX=A4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser1_swronly_8sec: TARGET = avr64da64
+dx64_ser1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_swronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser1_alt_swronly_8sec: TARGET = avr64da64
+dx64_ser1_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_swronly_8sec.hex UARTTX=C4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser2_swronly_8sec: TARGET = avr64da64
+dx64_ser2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_swronly_8sec.hex UARTTX=F0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser2_alt_swronly_8sec: TARGET = avr64da64
+dx64_ser2_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_swronly_8sec.hex UARTTX=F4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser3_swronly_8sec: TARGET = avr64da64
+dx64_ser3_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_swronly_8sec.hex UARTTX=B0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser3_alt_swronly_8sec: TARGET = avr64da64
+dx64_ser3_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_swronly_8sec.hex UARTTX=B4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser4_swronly_8sec: TARGET = avr64da64
+dx64_ser4_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_swronly_8sec.hex UARTTX=E0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser4_alt_swronly_8sec: TARGET = avr64da64
+dx64_ser4_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_swronly_8sec.hex UARTTX=E4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser5_swronly_8sec: TARGET = avr64da64
+dx64_ser5_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_swronly_8sec.hex UARTTX=G0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx64_ser5_alt_swronly_8sec: TARGET = avr64da64
+dx64_ser5_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_swronly_8sec.hex UARTTX=G4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+dx32_ser0_swronly_8sec: TARGET = avr32da48
+dx32_ser0_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_swronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser0_alt_swronly_8sec: TARGET = avr32da48
+dx32_ser0_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_swronly_8sec.hex UARTTX=A4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser1_swronly_8sec: TARGET = avr32da48
+dx32_ser1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_swronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser1_alt_swronly_8sec: TARGET = avr32da48
+dx32_ser1_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_swronly_8sec.hex UARTTX=C4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser2_swronly_8sec: TARGET = avr32da48
+dx32_ser2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_swronly_8sec.hex UARTTX=F0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser2_alt_swronly_8sec: TARGET = avr32da48
+dx32_ser2_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_swronly_8sec.hex UARTTX=F4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser3_swronly_8sec: TARGET = avr32da48
+dx32_ser3_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_swronly_8sec.hex UARTTX=B0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser3_alt_swronly_8sec: TARGET = avr32da48
+dx32_ser3_alt_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_swronly_8sec.hex UARTTX=B4 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dx32_ser4_swronly_8sec: TARGET = avr32da48
+dx32_ser4_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser4_swronly_8sec.hex UARTTX=E0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+dx128_ser0_extr_8sec: TARGET = avr128da64
+dx128_ser0_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_extr_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser0_alt_extr_8sec: TARGET = avr128da64
+dx128_ser0_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser0_alt_extr_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART0 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser1_extr_8sec: TARGET = avr128da64
+dx128_ser1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_extr_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser1_alt_extr_8sec: TARGET = avr128da64
+dx128_ser1_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser1_alt_extr_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART1 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser2_extr_8sec: TARGET = avr128da64
+dx128_ser2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_extr_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser2_alt_extr_8sec: TARGET = avr128da64
+dx128_ser2_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser2_alt_extr_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART2 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser3_extr_8sec: TARGET = avr128da64
+dx128_ser3_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_extr_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser3_alt_extr_8sec: TARGET = avr128da64
+dx128_ser3_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser3_alt_extr_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART3 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser4_extr_8sec: TARGET = avr128da64
+dx128_ser4_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_extr_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser4_alt_extr_8sec: TARGET = avr128da64
+dx128_ser4_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser4_alt_extr_8sec.hex UARTTX=E4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART4 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser5_extr_8sec: TARGET = avr128da64
+dx128_ser5_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_extr_8sec.hex UARTTX=G0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx128_ser5_alt_extr_8sec: TARGET = avr128da64
+dx128_ser5_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx128_ser5_alt_extr_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 128Dx - any AVR128DA or AVR128DB device, USART5 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+dx64_ser0_extr_8sec: TARGET = avr64da64
+dx64_ser0_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_extr_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser0_alt_extr_8sec: TARGET = avr64da64
+dx64_ser0_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser0_alt_extr_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART0 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser1_extr_8sec: TARGET = avr64da64
+dx64_ser1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_extr_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser1_alt_extr_8sec: TARGET = avr64da64
+dx64_ser1_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser1_alt_extr_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART1 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser2_extr_8sec: TARGET = avr64da64
+dx64_ser2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_extr_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser2_alt_extr_8sec: TARGET = avr64da64
+dx64_ser2_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser2_alt_extr_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART2 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser3_extr_8sec: TARGET = avr64da64
+dx64_ser3_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_extr_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser3_alt_extr_8sec: TARGET = avr64da64
+dx64_ser3_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser3_alt_extr_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART3 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser4_extr_8sec: TARGET = avr64da64
+dx64_ser4_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_extr_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser4_alt_extr_8sec: TARGET = avr64da64
+dx64_ser4_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser4_alt_extr_8sec.hex UARTTX=E4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART4 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser5_extr_8sec: TARGET = avr64da64
+dx64_ser5_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_extr_8sec.hex UARTTX=G0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx64_ser5_alt_extr_8sec: TARGET = avr64da64
+dx64_ser5_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx64_ser5_alt_extr_8sec.hex UARTTX=G4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64Dx - any AVR64DA or AVR64DB device, USART5 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+dx32_ser0_extr_8sec: TARGET = avr32da48
+dx32_ser0_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_extr_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser0_alt_extr_8sec: TARGET = avr32da48
+dx32_ser0_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser0_alt_extr_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART0 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser1_extr_8sec: TARGET = avr32da48
+dx32_ser1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_extr_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser1_alt_extr_8sec: TARGET = avr32da48
+dx32_ser1_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser1_alt_extr_8sec.hex UARTTX=C4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART1 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser2_extr_8sec: TARGET = avr32da48
+dx32_ser2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_extr_8sec.hex UARTTX=F0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser2_alt_extr_8sec: TARGET = avr32da48
+dx32_ser2_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser2_alt_extr_8sec.hex UARTTX=F4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART2 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser3_extr_8sec: TARGET = avr32da48
+dx32_ser3_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_extr_8sec.hex UARTTX=B0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser3_alt_extr_8sec: TARGET = avr32da48
+dx32_ser3_alt_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser3_alt_extr_8sec.hex UARTTX=B4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART3 alternate pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dx32_ser4_extr_8sec: TARGET = avr32da48
+dx32_ser4_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dx32_ser4_extr_8sec.hex UARTTX=E0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32Dx - any AVR32DA or AVR32DB device, USART4 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+dd64_ser0_extr: TARGET = avr64dd32
+dd64_ser0_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_extr.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 default pins.\n"
+
+
+dd64_ser0_alt1_extr: TARGET = avr64dd32
+dd64_ser0_alt1_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt1_extr.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt2_extr: TARGET = avr64dd32
+dd64_ser0_alt2_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt2_extr.hex UARTTX=A2 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt3_extr: TARGET = avr64dd32
+dd64_ser0_alt3_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt3_extr.hex UARTTX=D4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset3. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt4_extr: TARGET = avr64dd32
+dd64_ser0_alt4_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt4_extr.hex UARTTX=C1 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset4. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser1_extr: TARGET = avr64dd32
+dd64_ser1_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_extr.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 default pins.\n"
+
+
+dd64_ser1_alt2_extr: TARGET = avr64dd32
+dd64_ser1_alt2_extr:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_alt2_extr.hex UARTTX=D6 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 alternate pinset2.\n"
+
+
+dd32_ser0_extr: TARGET = avr32dd32
+dd32_ser0_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_extr.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 default pins.\n"
+
+
+dd32_ser0_alt1_extr: TARGET = avr32dd32
+dd32_ser0_alt1_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt1_extr.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1.\n"
+
+
+dd32_ser0_alt2_extr: TARGET = avr32dd32
+dd32_ser0_alt2_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt2_extr.hex UARTTX=A2 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt3_extr: TARGET = avr32dd32
+dd32_ser0_alt3_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt3_extr.hex UARTTX=D4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset3. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt4_extr: TARGET = avr32dd32
+dd32_ser0_alt4_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt4_extr.hex UARTTX=C1 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset4. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser1_extr: TARGET = avr32dd32
+dd32_ser1_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_extr.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 default pins.\n"
+
+
+dd32_ser1_alt2_extr: TARGET = avr32dd32
+dd32_ser1_alt2_extr:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_alt2_extr.hex UARTTX=D6 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 alternate pinset2.\n"
+
+
+dd64_ser0_all_8sec: TARGET = avr64dd32
+dd64_ser0_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_all_8sec.hex UARTTX=A0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
+
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 default pins. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser0_alt1_all_8sec: TARGET = avr64dd32
+dd64_ser0_alt1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt1_all_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser0_alt2_all_8sec: TARGET = avr64dd32
+dd64_ser0_alt2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt2_all_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser0_alt3_all_8sec: TARGET = avr64dd32
+dd64_ser0_alt3_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt3_all_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser0_alt4_all_8sec: TARGET = avr64dd32
+dd64_ser0_alt4_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt4_all_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser1_all_8sec: TARGET = avr64dd32
+dd64_ser1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_all_8sec.hex UARTTX=C0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 default pins. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser1_alt2_all_8sec: TARGET = avr64dd32
+dd64_ser1_alt2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_alt2_all_8sec.hex UARTTX=D6 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 alternate pinset2. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser0_all_8sec: TARGET = avr32dd32
+dd32_ser0_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_all_8sec.hex UARTTX=A0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 default pins. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser0_alt1_all_8sec: TARGET = avr32dd32
+dd32_ser0_alt1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt1_all_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser0_alt2_all_8sec: TARGET = avr32dd32
+dd32_ser0_alt2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt2_all_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser0_alt3_all_8sec: TARGET = avr32dd32
+dd32_ser0_alt3_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt3_all_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser0_alt4_all_8sec: TARGET = avr32dd32
+dd32_ser0_alt4_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt4_all_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x35
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser1_all_8sec: TARGET = avr32dd32
+dd32_ser1_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_all_8sec.hex UARTTX=C0 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 default pins. Always enter bootloader, 8 second timeout.\n"
+
+
+dd32_ser1_alt2_all_8sec: TARGET = avr32dd32
+dd32_ser1_alt2_all_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_alt2_all_8sec.hex UARTTX=D6 TIMEOUT=8 ENTRYCOND_REQUIRE=0x35 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 alternate pinset2. Always enter bootloader, 8 second timeout.\n"
+
+
+dd64_ser0_poronly_8sec: TARGET = avr64dd32
+dd64_ser0_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_poronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt1_poronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt1_poronly_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt2_poronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt2_poronly_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt3_poronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt3_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt3_poronly_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt4_poronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt4_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt4_poronly_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser1_poronly_8sec: TARGET = avr64dd32
+dd64_ser1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_poronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser1_alt2_poronly_8sec: TARGET = avr64dd32
+dd64_ser1_alt2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_alt2_poronly_8sec.hex UARTTX=D6 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 alternate pinset2. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_poronly_8sec: TARGET = avr32dd32
+dd32_ser0_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_poronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt1_poronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt1_poronly_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt2_poronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt2_poronly_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt3_poronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt3_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt3_poronly_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt4_poronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt4_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt4_poronly_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x01
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser1_poronly_8sec: TARGET = avr32dd32
+dd32_ser1_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_poronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser1_alt2_poronly_8sec: TARGET = avr32dd32
+dd32_ser1_alt2_poronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_alt2_poronly_8sec.hex UARTTX=D6 TIMEOUT=1 ENTRYCOND_REQUIRE=0x01 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 alternate pinset2. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+dd64_ser0_extronly: TARGET = avr64dd32
+dd64_ser0_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_extronly.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt1_extronly: TARGET = avr64dd32
+dd64_ser0_alt1_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt1_extronly.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt2_extronly: TARGET = avr64dd32
+dd64_ser0_alt2_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt2_extronly.hex UARTTX=A2 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt3_extronly: TARGET = avr64dd32
+dd64_ser0_alt3_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt3_extronly.hex UARTTX=D4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt4_extronly: TARGET = avr64dd32
+dd64_ser0_alt4_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt4_extronly.hex UARTTX=C1 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser1_extronly: TARGET = avr64dd32
+dd64_ser1_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_extronly.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser1_alt2_extronly: TARGET = avr64dd32
+dd64_ser1_alt2_extronly:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_alt2_extronly.hex UARTTX=D6 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_extronly: TARGET = avr32dd32
+dd32_ser0_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_extronly.hex UARTTX=A0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt1_extronly: TARGET = avr32dd32
+dd32_ser0_alt1_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt1_extronly.hex UARTTX=A4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt2_extronly: TARGET = avr32dd32
+dd32_ser0_alt2_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt2_extronly.hex UARTTX=A2 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt3_extronly: TARGET = avr32dd32
+dd32_ser0_alt3_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt3_extronly.hex UARTTX=D4 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt4_extronly: TARGET = avr32dd32
+dd32_ser0_alt4_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt4_extronly.hex UARTTX=C1 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser1_extronly: TARGET = avr32dd32
+dd32_ser1_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_extronly.hex UARTTX=C0 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser1_alt2_extronly: TARGET = avr32dd32
+dd32_ser1_alt2_extronly:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_alt2_extronly.hex UARTTX=D6 TIMEOUT=1 LED=A7 ENTRYCOND_REQUIRE=0x04
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_swronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt1_swronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt1_swronly_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt2_swronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt2_swronly_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt3_swronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt3_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt3_swronly_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_alt4_swronly_8sec: TARGET = avr64dd32
+dd64_ser0_alt4_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt4_swronly_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser1_swronly_8sec: TARGET = avr64dd32
+dd64_ser1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_swronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser1_alt2_swronly_8sec: TARGET = avr64dd32
+dd64_ser1_alt2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_alt2_swronly_8sec.hex UARTTX=D6 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 alternate pinset2. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_swronly_8sec: TARGET = avr32dd32
+dd32_ser0_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_swronly_8sec.hex UARTTX=A0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt1_swronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt1_swronly_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt2_swronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt2_swronly_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt3_swronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt3_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt3_swronly_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser0_alt4_swronly_8sec: TARGET = avr32dd32
+dd32_ser0_alt4_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt4_swronly_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x10
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser1_swronly_8sec: TARGET = avr32dd32
+dd32_ser1_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_swronly_8sec.hex UARTTX=C0 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 default pins. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd32_ser1_alt2_swronly_8sec: TARGET = avr32dd32
+dd32_ser1_alt2_swronly_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_alt2_swronly_8sec.hex UARTTX=D6 TIMEOUT=1 ENTRYCOND_REQUIRE=0x10 LED=A7
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 alternate pinset2. 8 sec timeout for manual power-cycle, POR only entry condition.\n"
+
+
+dd64_ser0_extr_8sec: TARGET = avr64dd32
+dd64_ser0_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_extr_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt1_extr_8sec: TARGET = avr64dd32
+dd64_ser0_alt1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt1_extr_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt2_extr_8sec: TARGET = avr64dd32
+dd64_ser0_alt2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt2_extr_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt3_extr_8sec: TARGET = avr64dd32
+dd64_ser0_alt3_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt3_extr_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser0_alt4_extr_8sec: TARGET = avr64dd32
+dd64_ser0_alt4_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser0_alt4_extr_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser1_extr_8sec: TARGET = avr64dd32
+dd64_ser1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_extr_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd64_ser1_alt2_extr_8sec: TARGET = avr64dd32
+dd64_ser1_alt2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd64_ser1_alt2_extr_8sec.hex UARTTX=D6 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 64DD - any AVR64DD device, USART1 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_extr_8sec: TARGET = avr32dd32
+dd32_ser0_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_extr_8sec.hex UARTTX=A0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt1_extr_8sec: TARGET = avr32dd32
+dd32_ser0_alt1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt1_extr_8sec.hex UARTTX=A4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt2_extr_8sec: TARGET = avr32dd32
+dd32_ser0_alt2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt2_extr_8sec.hex UARTTX=A2 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt3_extr_8sec: TARGET = avr32dd32
+dd32_ser0_alt3_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt3_extr_8sec.hex UARTTX=D4 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser0_alt4_extr_8sec: TARGET = avr32dd32
+dd32_ser0_alt4_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser0_alt4_extr_8sec.hex UARTTX=C1 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART0 alternate pinset1. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser1_extr_8sec: TARGET = avr32dd32
+dd32_ser1_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_extr_8sec.hex UARTTX=C0 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 default pins. Reset Pin Reset Only, 1 second timeout.\n"
+
+
+dd32_ser1_alt2_extr_8sec: TARGET = avr32dd32
+dd32_ser1_alt2_extr_8sec:
+	$(MAKE) -f $(MF) optiboot_dd32_ser1_alt2_extr_8sec.hex UARTTX=D6 TIMEOUT=8 LED=A7 ENTRYCOND_REQUIRE=0x34
+
+HELPTEXT += "target 32DD - any AVR32DD or AVR16DD device, USART1 alternate pinset2. Reset Pin Reset Only, 1 second timeout.\n"
+
+
 
 #---------------------------------------------------------------------------
 #
