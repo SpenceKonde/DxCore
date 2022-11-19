@@ -39,7 +39,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 #define PIN_PA0 (0)  // Not available if using HF crystal.
 #define PIN_PA1 (1)  // Not available if using HF crystal.
-// We aren't going to skip 6 pin numbers for PA2-PA6
+// No PA2-PA7 (pins 2-7)   It is debatable whether skipping them was the right move.
 // No port B on any DD-series
 #define PIN_PC0 (8)  // NOT_A_PIN
 #define PIN_PC1 (9)
@@ -328,20 +328,26 @@ static const uint8_t A31 = PIN_A31;
 const uint8_t digital_pin_to_port[] = {
   PA,         //  0 PA0/USART0_Tx/CLKIN
   PA,         //  1 PA1/USART0_Rx
-  PC,         //  2 PC0 Phantom pin
-  PC,         //  3 PC1/USART1_Rx/TCA0 PWM
-  PC,         //  4 PC2/TCA0 PWM
-  PC,         //  5 PC3/TCA0 PWM
-  PD,         //  6 PD0 Phantom pin
-  NOT_A_PORT, //
-  NOT_A_PORT, //
-  NOT_A_PORT, //
-  PD,         // 10 PD4/AIN4
-  PD,         // 11 PD5/AIN5
-  PD,         // 12 PD6/AIN6
-  PD,         // 13 PD7/AIN7/AREF
-  PF,         // 14 PF6 RESET
-  PF          // 15 PF7 UPDI
+  NOT_A_PORT, //  2 PA2 does not exist
+  NOT_A_PORT, //  3 PA3 does not exist
+  NOT_A_PORT, //  4 PA4 does not exist
+  NOT_A_PORT, //  5 PA5 does not exist
+  NOT_A_PORT, //  6 PA6 does not exist
+  NOT_A_PORT, //  7 PA7 does not exist
+  PC,         //  8 PC0 Phantom pin
+  PC,         //  9 PC1/USART1_Rx/TCA0 PWM
+  PC,         // 10 PC2/TCA0 PWM
+  PC,         // 11 PC3/TCA0 PWM
+  PD,         // 12 PD0 Phantom pin
+  NOT_A_PORT, // 13
+  NOT_A_PORT, // 14
+  NOT_A_PORT, // 15
+  PD,         // 16 PD4/AIN4
+  PD,         // 17 PD5/AIN5
+  PD,         // 18 PD6/AIN6
+  PD,         // 19 PD7/AIN7/AREF
+  PF,         // 20 PF6 RESET
+  PF          // 21 PF7 UPDI
 };
 
 /* Use this for accessing PINnCTRL register */
@@ -356,7 +362,13 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   #else // PA1 used for external crystal.
     PIN1_bp,//   1 PA1
   #endif    // *INDENT-ON*
-  NOT_A_PIN,  //
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN, //   PC0 phantom pin
   PIN1_bp,   //  3 PC1/USART1_Rx
   PIN2_bp,   //  4 PC2
   PIN3_bp,   //  5 PC3
@@ -383,6 +395,12 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   #else // PA1 used for external crystal.
     PIN1_bm,//   1 PA1
   #endif    // *INDENT-ON*=
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
+  NOT_A_PIN,
   NOT_A_PIN, //
   PIN1_bm,   //  3 PC1/USART1_Rx
   PIN2_bm,   //  4 PC2
@@ -402,6 +420,12 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //   0 PA0/USART0_Tx/CLKIN
   NOT_ON_TIMER, //   1 PA1/USART0_Rx
+  NOT_ON_TIMER,
+  NOT_ON_TIMER,
+  NOT_ON_TIMER,
+  NOT_ON_TIMER,
+  NOT_ON_TIMER,
+  NOT_ON_TIMER,
   NOT_ON_TIMER, // NOT_A_PIN
   NOT_ON_TIMER, //   3 PC1/USART1_Rx  TCA0 WO1 typically
   NOT_ON_TIMER, //   4 PC2            TCA0 WO2 typically
