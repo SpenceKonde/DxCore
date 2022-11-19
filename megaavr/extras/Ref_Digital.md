@@ -198,7 +198,7 @@ PORTA.PORTCTRL |= PORT_SRL_bm;
 // Disable slew rate limiting on PORTA
 PORTA.PORTCTRL &= ~PORT_SRL_bm;
 ```
-However, because there is only one bit in this register, you don't actually need to use the |= and &= operators, which do a read-modify-write operation, taking 10 bytes and 6 clocks each. Instead, you can use simple assignment. This saves 4 bytes (3 clocks) when enabling, and 6 bytes (4 clocks) on disabling. (going from `LDS, ORI/ANDI, STS` to `LDI, STS` and just `STS`, since avr-gcc always keeps a "known zero" in r1). Of course, if a future part with more port options comes out, porting to that part would require a code change if you also wanted to use one of those new bits. I suggest a reminder that it's a shortcut if you take it, like the comment below.
+However, because there is only one bit in this register, you don't actually need to use the |= and &= operators, which do a read-modify-write operation, taking 10 bytes and 6 clocks each. Instead, you can use simple assignment. This saves 4 bytes (3 clocks) when enabling, and 6 bytes (4 clocks) on disabling. (going from `LDS, ORI/ANDI, STS` to `LDI, STS` and just `STS` if you're clearing it, since avr-gcc always keeps a "known zero" in r1). Of course, if a future part with more options set by the PORTCTRL register comes out, porting to that part would require a code change if you also wanted to use one of those new features. I suggest a reminder that it's a shortcut if you take it, like the comments below. **It is recommended that libraries not take this shortcut - because you may not still be maintaining the library, and users across the world will have downloaded it and most will not be able to figure out why your library breaks their other code**.
 
 ```c
 // Enable slew rate limiting on PORTA more efficiently
@@ -207,14 +207,58 @@ PORTA.PORTCTRL = PORT_SRL_bm; // simple assignment is okay because on DA, DB, an
 PORTA.PORTCTRL = 0;           // simple assignment is okay because on DA, DB, and DD-series parts, no other bits of PORTCTRL are used, saves 3 words and 4 clocks
 ```
 
-These parts (like many electronics) are better at driving pins low than high (all values are from the typ. column - neither min nor max are specified; one gets the impression that this is not tightly controlled):
+These parts (like many electronics) are better at driving pins low than high. With slew rate limiting enabled, the pins take about twice as long to transition. (all values are from the typ. column - neither min nor max are specified; one gets the impression that this is not tightly controlled):
 
 | Direction   | Normal | Slew Rate Limited |
 |-------------|--------|-------------------|
 | Rising      |  22 ns |             45 ns |
 | Falling     |  16 ns |             30 ns |
 
-With a 24 MHz system clock, that means "normal" would be just ovwr half a clock cycle while rising, and just under half a clock cycle falling; with slew rate limiting, it would be just over a clock cycle rising, and 3/4ths of a clock cycle on the falling side.
+With a 24 MHz system clock, that means "normal" would be just over half a clock cycle while rising, and just under half a clock cycle falling; with slew rate limiting, it would be just over a clock cycle rising, and 3/4ths of a clock cycle on the falling side.
+
+## Standard and semi-standard API functions
+There are a number of macros defined (as is the case with most cores) which provide a certain set of basic functions that sketches - or more importantly, library code - can use to get information on a pin number. Though these look like functions, they are preprocessor macros. This distinction only occcasionally becomes important.
+
+The return type (since it's a macro) is undefined; what is presented below is intended to give an indication of what the type it would return, and what argument types it would expect, if it were a function rather than a macro.
+
+### Basic pin information
+```c++
+uint8_t digitalPinToPort(uint8_t pin);
+uint8_t digitalPinToBitPosition(uint8_t pin);
+uint8_t digitalPinToBitMask(uint8_t pin);
+uint8_t analogPinToBitPosition(uint8_t pin);
+uint8_t analogPinToBitMask(uint8_t pin);
+```
+These take a pin number (which can be represented as a uint8_t - though it is unfortunately common practice to use 16-bit signed integers to store pin numbers in Arduino-land). If the pin passed is valid, these will return either the bit position (PIN_PA0 would return 0, PIN_PD4 will return 4 and so on), the bit mask (bit mask = 1 << (bit position), so PIN_PA0 would return 0x01, PIN_PD4 would return 0x10, etc) `*`, or the port number (PORTA = 0, PORTB = 1, etc).
+
+In the event that the pin passed to it does NOT correspond to a valid pin, the following behavior should be expected:
+* If the pin does not exist, with the exception of digitalPinToPort(), these will all always return NOT_A_PIN, a numeric constant with a value of 255 (or -1; 255 and -1 are equivalent when assigned to an 8-bit type).
+* digitalPinToPort has special behavior for one specific sort of situation: If the pin would have bit position 0, and that pin's number was skipped in the Arduino pin numbering, and other pins (which are neither RESET nor the UPDI pin) on that port do exist on this part (this is the case with PD0 on 28 and 32-pin DB-series and all DD-series parts, as well as PIN_PC0 for 14 and 20-pin DD-series), digitalPinToPort() will return the port number. Otherwise, digitalPinToPort() will return NOT_A_PORT if the pin is invalid. (also has a value of 255/-1 - the two are used just to make intent clearer and improve code readability).
+  * This is done because there are sometimes cases, particularly for TCA-driven PWM, where you need to know what the first pin number is, so that you can count up from that to find the pins on that port that can output TCA PWM (the first 6 pins on every port can output TCA0 PWM, and the same pins on PORTB and PORTG can output TCA1 PWM, if both those pins and TCA1 are present).
+  * This is only possible on DxCore because all ports are always numbered in the same order that they appear on the chip. It does NOT work on megaTinyCore (the pins aren't in order on those chips, and the TCA outputs are not as trivially ordered anyway and besides, flash is often tight enough that we can't be wasting even a small amount of flash).
+  * Any pin number corresponding to a skipped number in the pinout chart, and which would not be pin 0 within that port, will return NOT_A_PORT.
+  * Therefore, in order to test whether a pin exists or not, don't use `digitalPinToPort()`.
+
+The analog pin versions will additionally return NOT_A_PIN in the event that the pin does not have analog input capability, even if it exists. Note that analog and digital pin numbers are the same on DxCore. There is no concept of a separate numbering system for analog pins.
+
+
+### Things that return pointers
+```c++
+volatile uint8_t* getPINnCTRLregister(uint8_t port, uint8_t bit_pos);
+PORT_t* digitalPinToPortStruct(uint8_t pin);
+PORT_t* portToPortStruct(uint8_t port);
+volatile uint8_t* portOutputRegister(uint8_t port)
+volatile uint8_t* portInputRegister(uint8_t port)
+volatile uint8_t* portModeRegister(uint8_t port)
+```
+`getPINnCTRLregister` returns a pointer to the pin's PINnCTRL register, which is used to configure things like pin interrupts, invert the pin, and control the pullup - all things that pinConfigure() above can also do. This is a *pointer* to an 8-bit register.
+
+Two of them return a pointer to the PORT struct (having type PORT_t) for the port that this pin is part of (or for the port of that number, in the case of portToPortStruct).
+
+Finally, the last three take a port number (from digitalPinToPort) and return a pointer to the PORTx.OUT, PORTx.IN, or PORTx.DIR register. These are pointers. In the case of OUT and DIR, you can use pointer arithmetic to reach three highly useful registers from there: Add one to get OUTSET/DIRSET, add 2 to get OUTCLR/DIRCLR, and add 3 to get OUTTGL/DIRTGL.
+
+When working with the SET/CLR/TGL registers, remember that you must never use operators like |= or &= - you write a 1 to the bits you want to set, clear or toggle: These registers *read* as the value of the corresponding register, so `*(portOutputRegister(0) + 2) |= 1<<4;` clears the output bit of EVERY pin in PORTA that is set, not just PA4! (it reads the current value, which mirrors PORTA.OUT. It then sets bit 4 of that value, and writes the modified value to PORTA.OUTCLR, resulting in bit 4 being cleared, along with any other bit that was 1). To add insult to injury, it uses 2-3 more words of flash and 3-4 more clock cycles to do an inappropriate read-modify-write cycle than it would to do the correct thing, and simply write the value, eg (`*(portOutputRegister(0) + 2) = 1<<4;`which is equivalent to `PORTA.OUTCLR = 1<<4;`)
+
 
 
 ## Note on number of pins and future parts
@@ -222,3 +266,5 @@ The most any announced AVR has had is 86 digital pins, the ATmega2560; In the mo
 * **No VPORTH or higher** - This is clean, simple, and limiting in some ways, but probably the best route. If you needed to use VPORT access, you'll just need to use the lower 7 ports for it. Surely you don't need 57+ pins all with VPORT atomic single cycle access! This is also, in my judgement, most likely based on the fact that on the ATmega2560, the only precedent we have for running out of low I/O registers for pins, they didn't even put ports H through L into the high I/O space.
 * **VPORTs in High I/O** - There are many ways of dealing with it using a new set of differently behaving registers in the high I/O space. None of them retain the arbitrary compile-time-known-bit-write-is-one-clock of current VPORTs. At 8 registers per port, you could make a series of N operations on a bit or number of bits take N+1 clocks, and keep them atomic. This would mean a VPORT.DIR/DIRCLR/DIRSET, and VPORT.OUT/OUTSET/OUTCLR and VPORT.IN(writing to IN toggles, and there was never a single cycle DIR toggle). and VPORT.INTFLAGS. That's viable, though with the other registers in that, you could get at most only 3 more ports - which is only 24 pins: You couldn't quite do it for a 100 pin chip). Other solutions would lower capability and comprehensibility in exchange for squeezing in more pins. No matter how you do it, it doesn't really solve the problem.
 * **VPORTs that can be remapped at runtime** - The stuff of library author's nightmares. You'd have some subset of the VPORTs (or maybe all of them) could be remapped. If you put the register for that in the high I/O space it could be written quickly. But this will cause unaware old code to break by writing to the wrong pins if it didn't know to check for it, and any code that used them (ie, code that is supposed to be fast) might have to check the mapping first. This is most like what was done on the XMegas, but also serves as a shining example of the over-complexity that I think doomed those parts to poor uptake and slow death. The best of these bad approaches would probably be to have VPORTG changed into say VPORTX. Could configure it with a register in the high I/O space so it was 2 cycle overhead to write (1 for LDI port number, 1 to OUT to register). That way all code for other ports wouldn't worry, and port G is present on the fewest parts so the least code would be impacted if ported, and would be straightforward to document
+
+`*` - Note on conventions for specifying numbers: 0x## refers to a hexadecimal number, while ## refers to a decimal digit and 0b######## refers to a value given as binary. For hexadecimal values, if the size of the datatype is unambiguosly known, we will typically represent them with an appropriate number of leading 0's - so 1 in a 1-byte datatype is written as 0x01, while 1 in a 16-bit datatype is written as 0x0001. Any time a number is not prefixed by 0x or 0b, the decimal form should be assumed. Which representation of a given value is chosen is based on the context of that value. Values that simply represent numbers are generally given in decimal. Values that are being subjected to bitwise operators, or that are bit masks, group codes, and similar, will be shown in hexadecimal.
