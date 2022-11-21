@@ -2,6 +2,15 @@
 #define DXCORE_H
 #include <Arduino.h>
 
+// in ADCErrors.cpp
+// ADC error interpretation helper functions
+#ifdef __cplusplus
+  int8_t analogCheckError(int16_t val);
+  int8_t analogCheckError(int32_t val);
+  bool printADCRuntimeError(int32_t error, HardwareSerial &__dbgser = Serial);
+  bool printADCRuntimeError(int16_t error, HardwareSerial &__dbgser = Serial);
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -81,7 +90,17 @@ bool setTCA0MuxByPin(uint8_t pin);
   bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
   bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
 
-  uint8_t getMVIOStatus(bool printInfo = 1);
+  uint8_t getMVIOStatus(bool printInfo = 0, HardwareSerial &dbgserial = Serial);
 #endif
+// Reset immdiately using software reset. The bootloader, if present will run.
+
+inline void SoftwareReset() {
+  _PROTECTED_WRITE(RSTCTRL.SWRR,1);
+}
+// Reset after a very short delay. The bootloader, if present, will not run.
+inline void ResetWithWDT() {
+  _PROTECTED_WRITE(WDT.CTRLA,WDT_PERIOD_8CLK_gc); //enable the WDT, minimum timeout
+  while (1); // spin until reset
+}
 
 #endif

@@ -182,10 +182,10 @@ Note that the numeric values, though not the names, of some of these were change
 
 The impossible values are checked for without testing all of the bytes for greater efficiency. If you see that result one of two things was the case: the value you passed in wasn't from analog read or had been cast to a different type before you passed it, or i, or was corrupted somehow (writing off end of adjacent array in memory? Overclocking too hard such that th chip was doing math wrong?).
 
-### Functions in megaTinyCore.h
-These functions are located in megaTinyCore.h - they do not require tight core integration to work,.
-#### printADCRuntimeError(uint32_t error, &UartClass DebugSerial)
-Pass one of the above runtime errors and the name of a serial port to get a human-readable error message. This is wasteful of space, so don't include it in your code unless you need to. Also, *you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value (from analogReadEnh or analogReadDiff) or a signed 16-bit one (from analogRead())*
+### Functions in DxCore.h
+These functions are located in DxCore.h - they do not require tight core integration to work,.
+#### printADCRuntimeError(uint32_t error, &HardwareSerial DebugSerial)
+Pass one of the above runtime errors and the name of a serial port to get a human-readable error message. The serial port must have already been configured with the `begin()` method. This is a rather bloated function; once the analog stuff is working, you can probably lose this this function. Also, *you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value (from analogReadEnh or analogReadDiff) or a signed 16-bit one (from analogRead())*
 ```c++
 int32_t adc_reading=AnalogReadDiff(PIN_PA1, PIN_PA2);
 if (analogCheckError) { // an error occurred! Print a human readable value
@@ -193,35 +193,43 @@ if (analogCheckError) { // an error occurred! Print a human readable value
 }
 ```
 #### analogCheckError(value)
-Pass either the int16_t from analogRead or the int32_t from analogReadEnh to this to check if it's a valid value. If this returns a 1, that means that you got an error, and should be printing debugging information, not trying to make use of it.
-*you must not cast result to a different type before calling this. The logic is determined by whether it is passed a signed 32-bit value (from analogReadEnh or analogReadDiff) or a signed 16-bit one (from analogRead())*
+Pass either the int16_t from analogRead or the int32_t from analogReadEnh to this to check if it's a valid value. If this returns a non-zero value, that means that you got an error, and should be printing debugging information, not trying to make use of it.
+*you must not cast result to a different type before calling this - the logic is determined by whether it is passed a signed 32-bit value (from analogReadEnh or analogReadDiff) or a signed 16-bit one (from analogRead())*
 ```c++
+// Right:
 int32_t adcreading=analogReadEnh(PIN_PA1,12);
 if (analogCheckError(adcreading)) {
   Serial.print("Analog value returned was an error: ");
   Serial.println(adcreading);
 }
+// Right:
 int16_t adcreading2=analogRead(PIN_PA1);
 if (analogCheckError(adcreading2)) {
   Serial.print("Analog value returned was an error: ");
   Serial.println(adcreading2);
 }
-
+// Wrong:
+int32_t adcreading=analogRead(PIN_PA1); // analogRead() returned an int16_t, but if we assign it to a 32-bit variable it's going to think it came from analogReadEnh and will not correctly identify errors.
+if (analogCheckError(adcreading)) {
+  Serial.print("Analog value returned was an error: ");
+  Serial.println(adcreading);
+}
 ```
 
-### ADCPowerOptions(options) *2-series only prior to 2.5.12*
-*For compatibility, a much more limited version is provided for 0/1-series. See below*
+### ADCPowerOptions(options) *Planned for when the AVR EA-series is added
+*For compatibility, a much more limited version will be provided for the Dx-series parts*
 The PGA requires power when turned on. It is enabled by any call to `analogReadEnh()` or `analogReadDiff()` that specifies valid gain > 0; if it is not already on, this will slow down the reading. By default we turn it off afterwards. There is also a "low latency" mode that, when enabled, keeps the ADC reference and related hardware running to prevent the delay (on order of tens of microseconds) before the next analog reading is taken. We use that by default, but it can be turned off with this function.
-Generate the argument for this by using one of the following constants, or bitwise-or'ing together a low latency option and a PGA option. If only one option is supplied, the other configuration will not be changed. Note that due to current errata, you **must** have LOW_LAT enabled
-* `LOW_LAT_OFF`     Turn off low latency mode. *2-series only*
-* `LOW_LAT_ON`      Turn on low latency mode. *2-series only*
-* `PGA_OFF_ONCE`    Turn off the PGA now. Don't change settings; if not set to turn off automatically, that doesn't change. *2-series only*
-* `PGA_KEEP_ON`     Enable PGA. Disable the automatic shutoff of the PGA. *2-series only*
-* `PGA_AUTO_OFF`    Disable PGA now, and in future turn if off after use. *2-series only*
-* `ADC_ENABLE`      Enable the ADC if it is currently disabled.     *new 2.5.12*
-* `ADC_DISABLE`     Disable the ADC to save power in sleep modes.   *new 2.5.12*
-* `ADC_STANDBY_ON`  Turn on ADC run standby mode                    *new 2.5.12*
-* `ADC_STANDBY_OFF` Turn off ADC run standby mode                   *new 2.5.12*
+Generate the argument for this by using one of the following constants, or bitwise-or'ing together a low latency option and a PGA option. If only one option is supplied, the other configuration will not be changed.
+This is currently implemented on megaTinyCore, as the 2-series has the same ADC that the EA-series will be getting (possibly with a few changes, but nothing major - nothing like the difference between the tinyAVR 1-series and the AVR Dx parts.
+* `LOW_LAT_OFF`     Turn off low latency mode. *EA-series only*
+* `LOW_LAT_ON`      Turn on low latency mode. *EA-series only*
+* `PGA_OFF_ONCE`    Turn off the PGA now. Don't change settings; if not set to turn off automatically, that doesn't change. *EA-series only*
+* `PGA_KEEP_ON`     Enable PGA. Disable the automatic shutoff of the PGA. *EA-series only*
+* `PGA_AUTO_OFF`    Disable PGA now, and in future turn if off after use. *EA-series only*
+* `ADC_ENABLE`      Enable the ADC if it is currently disabled.
+* `ADC_DISABLE`     Disable the ADC to save power in sleep modes.
+* `ADC_STANDBY_ON`  Turn on ADC run standby mode
+* `ADC_STANDBY_OFF` Turn off ADC run standby mode
 
 Example:
 ```c++

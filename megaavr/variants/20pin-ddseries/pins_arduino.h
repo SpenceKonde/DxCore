@@ -91,7 +91,7 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   #  ### #  #   ###   ##*/
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
-#if !defined(USING_BOOTLOADER) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
+#if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()             (1)
     #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) >= PIN_PF6)    ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) < PIN_PC0) && ((p) >  PIN_PA1) ? (p) + 20 : NOT_A_PIN)))
