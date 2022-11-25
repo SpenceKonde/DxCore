@@ -4,7 +4,7 @@ The SPI library implements all of the standard functionality described in the [A
 ## Pins
 | Pin Mapping   | Pins        | Parts      | Swap-level name   |   Synonym  | Value |
 |---------------|-------------|------------|-------------------|------------|-------|
-| SPI0 DEFAULT  | PA4-PA7     | All        | SPI0_SWAP_DEFAULT | SPI0_SWAP0 | 0x00  |
+| SPI0 DEFAULT  | PA4-PA7     | Non-14-pin | SPI0_SWAP_DEFAULT | SPI0_SWAP0 | 0x00  |
 | SPI0 ALT1     | PE0-PE3     | 48+ pin    | SPI0_SWAP_ALT1    | SPI0_SWAP1 | 0x01  |
 | SPI0 ALT2     | PG4-PG7     | DA/DB 64   | SPI0_SWAP_ALT2    | SPI0_SWAP2 | 0x02  |
 | SPI0 ALT3     | PA0-1,PC0-1 | DD/EA only | SPI0_SWAP_ALT3    | SPI0_SWAP3 | 0x03  |
@@ -18,6 +18,8 @@ The SPI library implements all of the standard functionality described in the [A
 `*` - parts with SPI1 (at least those currently announced) haven't had more than 3 total pin mapping options represented by just 2 bits. The DD-series and EA-series have more complicated mappings. When they release a part with >3 pin options and >1 SPI interface, this library will need to be adjusted, which is why you should always use the names.
 
 SPI0 ALT6 on DD-series parts is clearly to provide a way to get the important SPI lines onto the MVIO pins
+
+SPI0 ALT4 is the default on 14-pin DD-series.
 
 ## SPI pin swap methods
 `SPI.swap(swap_level)` will set the the mapping to the specified pin swapping level. It will return true if this is a valid option for the part you're using, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to SPI0 on the default pins.

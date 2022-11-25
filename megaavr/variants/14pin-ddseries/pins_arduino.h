@@ -68,6 +68,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 #define PINS_COUNT                     (11)
 #define NUM_ANALOG_INPUTS              ( 4)
+#define NUM_TOTAL_PINS
 // #define NUM_RESERVED_PINS           ( 0)    // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS    ( 0)    // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -95,7 +96,7 @@ Include guard and include basic libraries. We are normally including this inside
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()              (1)
     #define digitalPinToAnalogInput(p)     (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : NOT_A_PIN)
-    #define analogChannelToDigitalPin(p)  ((((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : NOT_A_PIN)
+    #define analogChannelToDigitalPin(p)   (((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : NOT_A_PIN)
   #else
     #define IS_MVIO_ENABLED()              (0)
     #define digitalPinToAnalogInput(p)     (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) > PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))

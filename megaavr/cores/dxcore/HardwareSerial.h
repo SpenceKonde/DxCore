@@ -232,7 +232,8 @@ class HardwareSerial : public Stream {
     uint8_t *           printHexln(          uint8_t* p, uint8_t len, char sep = 0            ) {
       uint8_t* ret;
       ret = printHex(p, len, sep);
-      println(); return ret;
+      println();
+      return ret;
     }
     volatile uint8_t *  printHexln(volatile  uint8_t* p, uint8_t len, char sep = 0            ) {
       volatile uint8_t* ret;
@@ -242,15 +243,18 @@ class HardwareSerial : public Stream {
     }
 
     uint16_t *          printHexln(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
-      uint16_t* ret;  ret=printHex(p, len, sep, s); println(); return ret;
+      uint16_t* ret;
+      ret = printHex(p, len, sep, s);
+      println();
+      return ret;
     }
 
     volatile uint16_t * printHexln(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0) {
-        volatile uint16_t* ret;
-        ret = printHex(p, len, sep, s);
-        println();
-        return ret;
-      }
+      volatile uint16_t* ret;
+      ret = printHex(p, len, sep, s);
+      println();
+      return ret;
+    }
 
     virtual int availableForWrite(void);
     virtual int available(void);
