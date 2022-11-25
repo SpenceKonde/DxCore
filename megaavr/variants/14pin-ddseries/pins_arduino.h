@@ -93,23 +93,23 @@ Include guard and include basic libraries. We are normally including this inside
 // you must ensure that these will do what they say they will do.
 #if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
-    #define IS_MVIO_ENABLED()             (1)
+    #define IS_MVIO_ENABLED()              (1)
     #define digitalPinToAnalogInput(p)     (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : NOT_A_PIN)
-    #define analogChannelToDigitalPin(p)  ((((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : NOT_A_PIN) : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)  ((((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : NOT_A_PIN)
   #else
-    #define IS_MVIO_ENABLED()             (0)
-    #define digitalPinToAnalogInput(p)    (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) > PIN_PC0 && (p) <= PIN_PC3) ? (P) : ((p) - PIN_PC)
-    #define analogChannelToDigitalPin(p)  (((p) <  8       && (p) > 3       ) ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN)
+    #define IS_MVIO_ENABLED()              (0)
+    #define digitalPinToAnalogInput(p)     (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) > PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)   (((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : (((p) < 28      || (p) > 31)     ) ? (p) - 20 : NOT_A_PIN)
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
   // strange indentation chosen intentionally to highlight symmetry
   #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
-  #define digitalPinToAnalogInput(p)      ((p) >= PIN_PD4           ?            ((p) > PIN_PD7 ? NOT_A_PIN : (p) - PIN_PD0) : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0) ? (p) + 20 : NOT_A_PIN)))
-  #define analogChannelToDigitalPin(p)    ((p) > (IS_MVIO_ENABLED() ? 27 : 31) || (p) != 28     ? NOT_A_PIN : (p) < 8        ? ( (p) + PIN_PD0) : ( (p) >      21                        ? (p) - 20 : NOT_A_PIN))
+  #define digitalPinToAnalogInput(p)      ((p) >= PIN_PD4           ?            ((p) >  PIN_PD7 ? NOT_A_PIN : (p) - PIN_PD0) : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0) ? (p) + 20 : NOT_A_PIN)))
+  #define analogChannelToDigitalPin(p)    ((p) > (IS_MVIO_ENABLED() ? 27 : 31) || (p) != 28      ? NOT_A_PIN : (p) < 8        ?  ((p) + PIN_PD0) : ( (p) >      21                        ? (p) - 20 : NOT_A_PIN))
 #endif
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
-#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= PIN_PF7 && (p >= PIN_PD4 || p < PIN_PD0)) ? (p) : NOT_A_PIN))
-#define portToPinZero(port)               ((port) == PD ? PIN_PD0 : ((port)== PC ? PIN_PC0 : ((port)== PA ? PIN_PA0 : NOT_A_PIN)))
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : digitalPinToBitMask(p) ? (p) : NOT_A_PIN)
+#define portToPinZero(port)               ((port) == PD ? PIN_PD0: ((port)== PC ? PIN_PC0 : ((port)== PA ? PIN_PA0 : NOT_A_PIN)))
 
 
 // PWM pins

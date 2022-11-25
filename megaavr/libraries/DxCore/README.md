@@ -8,18 +8,16 @@ bool setTCA0MuxByPort(uint8_t port);
 bool setTCA0MuxByPin(uint8_t pin);
 
 // Parts with a TCA1 only (48 and 64-pin)
-bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok);
-bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok);
+bool setTCA1MuxByPort(uint8_t port);
+bool setTCA1MuxByPin(uint8_t pin);
 
-bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok);
-bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok);
+bool setTCD0MuxByPort(uint8_t port);
+bool setTCD0MuxByPin(uint8_t pin);
 
 ```
-The first argument passed to the `setTCxnMuxByPort/Pin` functions is, respectively the port number (0, 1, 2, 3, 4, 5, or 6 for ports A-G), or a pin number. The port number is the same value returned by digitalPinToPort() for a pin number; if the port is valid and supports output from that timer, the appropriate PORTMUX register is set to do so. For `setTCxnMuxByPin()` it verifies that the pin is is one which can output PWM from the specified timer. Note that as of 2/5/2021, there does not appear to be any silicon available in which any option other than the first (`PORTA`) works for TCD0 PORTMUX. Only that option is considered valid for that timer until such a time as working silicon becomes available and this code can test for it; it is included to offer guidance as to the planned interface.
+The first argument passed to the `setTCxnMuxByPort/Pin` functions is, respectively the port number (0, 1, 2, 3, 4, 5, or 6 for ports A-G), or a pin number. The port number is the same value returned by digitalPinToPort() for a pin number; if the port is valid and supports output from that timer, the appropriate PORTMUX register is set to do so. For `setTCxnMuxByPin()` it verifies that the pin is is one which can output PWM from the specified timer. Note that as of late 2022, only DD-series parts can use ports other than PORTA. This will return `false` for ports othe than PORTA on DA/DB parts.
 
-The second, optional `takeover_only_ports_ok` argument, is available only when there are options which cannot be used through the builtin API functions (mostly analogWrite() - it only supports PWM output from TCA's in split mode on a mapping option with all 6 outputs pointed to a pin, not the two options for TCA1 with only three pins available). Unless `true` is passed as this argument, these functions will not select one of those options.
-
-Returns `true` if an argument referring to a valid port was passed and a value was assigned to `PORTMUX.TCAROUTEA` (whether or not that was different from the value it previously had). `false` if an invalid port/pin, or one which cannot output PWM on the specified pin was specified. If the PORTMUX register is set, it will also turn off PWM output on all of the pins covered by the newly selected mapping before connecting it.
+Returns `true` if an argument referring to a valid port was passed and a value was assigned to `PORTMUX.TCAROUTEA` (whether or not that was different from the value it previously had). `false` if an invalid port/pin, or one which cannot output PWM from that timer was specified. If the PORTMUX register is set, it will also turn off PWM output on all of the pins covered by the newly selected mapping before connecting it.
 
 
 
@@ -28,20 +26,25 @@ The AVR DB-series supports a new feature, Multi-Voltage IO (MVIO). When enabled 
 
 This was expanded significantly in 1.4.8, because on the AVR-DD series, enabling MVIO disables some pin functionality, and a mismatch could result in analogRead() returning bogus values or the Comparator library giving incorrect results.
 
-This returns one of the following constants:
 ```c++
-MVIO_DISABLED        0x40 // 64
-MVIO_BAD_FUSE        0x20 // 32
-MVIO_UNDERVOLTAGE    0x01 // 1
-MVIO_OKAY            0x00 // 0
-MVIO_UNSUPPORTED     0x80 // 128
-MVIO_MENU_SET_WRONG  0x10 // 16
-MVIO_IMPOSSIBLE_CFG  0x08 // 8
+uint8_t getMVIOStatus(bool debugmode = 0, HardwareSerial &dbgserial = Serial)
+```
+
+This returns one of the following constants:
+```text
+MVIO_UNSUPPORTED      0x80 // 128 - You are calling this function on an AVR DA-series or EA-series. They do not support MVIO.
+MVIO_DISABLED         0x40 // 64  - MVIO is disabled via the fuses.
+MVIO_BAD_FUSE         0x20 // 32  - The MVIO configuration fuses are set to an invalid value (there are 2 bits, but only 2 legal values. 0b00 and b11 are invalid, and may produce unspecified behavior. )
+MVIO_MENU_SET_WRONG   0x10 // 16  - the MVIO menu does not match the hardware, and you're either not using a bootloader (will also get IMPOSSIBLE_CFG) or you have the option that states that you're certain the fuse is set. That is considerably worse than having the other incorrect option.
+MVIO_IMPOSSIBLE_CFG   0x08 // 8   - The MVIO menu does not match the hardware, yet we are not using a bootloader. This should not be possible unless you exported the hex file and manually uploaded it without correctly setting the fuses - it should be impossible to get here if you're using the Arduino IDE. If you can get this error with code uploaded by the IDE that is a bug which should be reported immediately.
+MVIO_SETTING_MISMATCH 0x04 // 4   - MVIO is either enabled when menu says disabled, or the other way around. If just this is set, you're using optiboot and didn't tell the core that it was safe to assume the state of the MVIO fuse.
+MVIO_UNDERVOLTAGE     0x01 // 1   - MVIO is enabled. The voltage on the VDDIO2 pin (if a voltage is applied at all) is too low for the port to function.
+MVIO_OKAY             0x00 // 0   - MVIO is enabled, the voltage on the VDDIO2 pin is good, the port is ready to go!
 ```
 
 
 By default (if no argument is passed to getMVIOStatus() it will not use "debugging mode", and will not print any output, even when severely broken conditions are found. Passing any non-zero value will enable debugging mode; this is written with the assumption that a human is reading the output of Serial, and, in the event of serious misconfigurations, will print out warning text. If it is being used with Serial connected to something else, and/or nobody is watching that serial port, no argument should be passed. As long as it its always called without non-zero argument, there will be no output to serial and the optimizer will be able to remove those print lines. In any event, even debugging mode will only generate any output in a small number of severely broken situations where core behavior in other areas will be impacted:
-1. If you are using Optiboot, and have set the MVIO tools menu to the "Enabled, and "burn bootloader" has for sure done w/this selected." or "Disabled, and "burn bootloader" has for sure done w/this selected.", but the fuse is set to the opposite of what you specified. This causes breakage, because choosing that option tells the core to assume that it is configured that way (instead of checking the fuse - if you choose simply "Enabled" or "Disabled", when we need to know if MVIO is enabled, we check the fuse; it is not unexpected that an Optiboot configuration might not match the menu options, because they are only set on bootload (the bootloader cannot write it's own fuses). This saves save flash and improve performance - but will cause breakage if the assumption you told it to make is not valid.
+1. If you are using Optiboot, and have set the MVIO tools menu to the "Enabled, and "burn bootloader" has for sure done w/this selected." or "Disabled, and "burn bootloader" has for sure done w/this selected.", but the fuse is set to the opposite of what you specified. This causes breakage, because choosing that option tells the core to assume that it is configured that way (instead of checking the fuse - if you choose simply "Enabled" or "Disabled", when we need to know if MVIO is enabled, we check the fuse; it is not unexpected that an Optiboot configuration might not match the menu options, because they are only set on bootload (the bootloader cannot write it's own fuses). Telling the core that you're really sure you've set the fuse saves flash and improves performance - but will cause unexpected behavior in some situations if you lied about this, it is in fact not configured correctly
 2. If you are not using Optiboot (and hence are uploading through UPDI), the SYSCFG1 fuse is set upon every upload. Thus, it should not be possible to end up with code on the chip that was compiled for MVIO being enabled when it wasn't or vice versa. In the event that this is detected, it will print a message and return `MVIO_MENU_SET_WRONG | MVIO_IMPOSSIBLE_CFG`  (numeric value 0x18).
 3. If under any circumstances, the MVIO bits are set to a value that does not correspond to a valid MVIO setting, `MVIO_IMPOSSIBLE_CFG` will be returned and an warning message will be printed.
 

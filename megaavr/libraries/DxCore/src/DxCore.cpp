@@ -68,16 +68,16 @@ bool setTCA0MuxByPin(uint8_t pin) {
 }
 
 #ifdef TCA1
-  bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
+  bool setTCA1MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_ports_ok = false) {
     #if defined(DB_64_PINS)
-      if (!((port == 1) || (port == 6) || (((port == 2) || (port == 4)) && takeover_only_ports_ok))) {
+      if (!((port == 1) || (port == 6) || ((port == 2) || (port == 4)))) {
         return false;
       }
-      // not one of the 4 working mapping options that we have on DB64. TCA1 mapping
+      // not one of the 4 mapping options that we have on DB64. TCA1 mapping
       // for this port doesn't exist, port is invalid, or not a port if not caught by above #if
     #else
       // if not a DB, the PORTG mapping option doesn't work per errata...
-      if (port != 1 && (!(port == 2  && takeover_only_ports_ok))) {
+      if (port != 1 && port != 2) {
         return false;
       }
     #endif
@@ -92,7 +92,7 @@ bool setTCA0MuxByPin(uint8_t pin) {
     return true;
   }
 
-  bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
+  bool setTCA1MuxByPin(uint8_t pin, bool  __attribute__((unused)) takeover_only_ports_ok = false) {
     uint8_t port = digitalPinToPort(pin);
     uint8_t bit_mask = digitalPinToBitMask(pin);
     #if defined(DB_64_PINS)
@@ -111,29 +111,57 @@ bool setTCA0MuxByPin(uint8_t pin) {
   }
 #endif // TCA1
 
-bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false) {
-  /* Errata :-(
-    if ((!(port < 2 || port > 4)) || (port >6))
+bool setTCD0MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_ports_ok = false) {
+  #if defined(__AVR_DD__)
+    if (!(port == 0 || port == 5 || port == 4))
       return false;
-    if (port > 4)
-      port -= 3; // 0, 1 left as is, 2, 3, 4 got return'ed out of. 5, 6 get turned into 2 and 3.
+    if (port == 5) {
+      port = 2;
+    } else if (port == 4) {
+      port = 4;
+    }
     PORTMUX.TCDROUTEA = port;
     return true;
-  */
-  if (port == 0 || takeover_only_ports_ok) { // See errata; appears to be broken on all parts, not just 128k ones. Return false unless the one working port was requested.
-    PORTMUX.TCDROUTEA = 0;
-    return true;
-  }
+  #else
+    if (port == 0) { // See errata; appears to be broken on all parts, not just 128k ones. Return false unless the one working port was requested.
+      PORTMUX.TCDROUTEA = 0;
+      return true;
+    }
+  #endif
   return false;
 
 }
 
 bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false) {
-  if (digitalPinToBitPosition(pin) & 0xF0) {
-    return setTCD0MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
-  }
-  return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
-}               // chips that one might want to call this for don't exist, let's not bother :-)
+  #if defined(__AVR_DD__)
+    uint8_t bitmask = digitalPinToBitMask(pin);
+    if (bitmask == NOT_A_PIN) {
+      return false;
+    }
+    uint8_t port = digitalPinToPort(pin);
+    if (bitmask & 0x0F) {
+      if (port != 5) {
+        return false;
+      }
+    } else if (port == 3) {
+      if (!(bitmask & 0x30)) {
+        return false;
+      }
+    } else if (!(bitmask & 0xF0)) {
+      return false;
+    }
+  #elif !defined(TCD0)
+    badCall("This part does not have a type D timer!");
+  #else
+    uint8_t bitpos=digitalPinToBitPosition(pin);
+    if (bitpos < 4 || bitpos > 7 ) {
+      return false;
+    }
+      return setTCD0MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
+    }
+    return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
+  #endif               // chips that one might want to call this for don't exist, let's not bother :-)
+}
 
 
 int16_t getMVIOVoltage() {
@@ -161,7 +189,7 @@ int16_t getMVIOVoltage() {
 
 
 #ifdef MVIO
-  uint8_t getMVIOStatus(bool debugmode) {
+  uint8_t getMVIOStatus(bool debugmode, HardwareSerial &dbgserial) {
     uint8_t retval = FUSE.SYSCFG1 & 0x18;
     if (retval == 0x08) {
       //great, it's enabled.
@@ -169,38 +197,48 @@ int16_t getMVIOVoltage() {
       #if !defined(MVIO_ENABLED) && defined(ASSUME_MVIO_FUSE) && defined(USING_OPTIBOOT)
         retval |= MVIO_MENU_SET_WRONG;
         if (debugmode) {
-          Serial.print(F("Woah, you've told the tools menu that you're sure you set the fuse to disabled, but it's not!"));
-          Serial.print(F("Either change menu selection to enabled or the other disabled (which allows for mis-set fuses), or burn bootloader if you want it disabled"));
-          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until you do one of those things."));
+          dbgserial.println(F("Woah, you've told the tools menu that you're sure you set the fuse to disabled, but... you didn't"));
+          dbgserial.println(F("Either change menu selection to enabled or the other disabled (which allows for mis-set fuses by checking), or burn bootloader if you want it disabled"));
+          dbgserial.println(F("Some core functions relating to the MVIO pins will malfunction until you do one of those things."));
         }
+      #elif !defined(MVIO_ENABLED) && defined(USING_OPTIBOOT)
+        retval |= MVIO_SETTING_MISMATCH;
       #elif !defined(MVIO_ENABLED) && !defined(USING_OPTIBOOT)
         retval |= MVIO_MENU_SET_WRONG | MVIO_IMPOSSIBLE_CFG;
         if (debugmode) {
-          Serial.print(F("Your tools submenu is set to disable MVIO, and it doesn't look like you're using optiboot, so MVIO should have been disabled"));
-          Serial.print(F("when the sketch was uploaded via UPDI, but it's not. If you are using a third party IDE, it is misconfigured."));
-          Serial.print(F("If you are using Arduino IDE, this is a bug in DxCore that should be reported promptly."));
-          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until your fuses match the menu selection."));
+          dbgserial.println(F("Your tools submenu is set to disable MVIO, and you are not using Optiboot, so MVIO should have been disabled"));
+          dbgserial.println(F("when the sketch was uploaded via UPDI. Yet that is not the case. If you are using a third party IDE, it is misconfigured."));
+          dbgserial.println(F("You must not specify MVIO as being enabled or disabled if you have not set the fuses that way (details depend on IDE)"));
+          dbgserial.println(F("If you are using Arduino IDE, this is a bug in DxCore that should be reported promptly."));
+          dbgserial.println(F("Some core functions relating to the MVIO pins will malfunction until your fuses match the menu selection."));
         }
       #endif
     } else if (retval == 0x10) {
       retval = MVIO_DISABLED;
       if (MVIO.STATUS != 1 || MVIO.INTFLAGS !=0) {
-        return retval |= MVIO_IMPOSSIBLE_CFG;
+        if (debugmode)
+          dbgserial.println(F("Impossible hardware situation: MVIO is disabled by fuse, but MVIO.STATUS is not 1, directly contradicting the datasheet"));
+          dbgserial.println(F("You should raise this issue with Microchip, and also create a DxCore issue to track it as it relates to the core."));
+          return retval |= MVIO_IMPOSSIBLE_CFG;
+        }
       }
       #if defined(MVIO_ENABLED) && defined(ASSUME_MVIO_FUSE) && defined(USING_OPTIBOOT)
         retval |= MVIO_MENU_SET_WRONG;
         if (debugmode) {
-          Serial.print(F("Woah, you've told the tools menu that you're sure you set the fuse to enabled, but it's not!"));
-          Serial.print(F("Either change menu selection to disabled or the other enabled (which allows for mis-set fuses), or burn bootloader if you want it enabled"));
-          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until you do one of those things."));
+          Serial.print(F("Woah, you've told the tools menu that you're sure you set the fuse to enabled... but you didn't. It's disabled. "));
+          dbgserial.println(F("Either change menu selection to disabled, or burn bootloader if you want it enabled"));
+          dbgserial.println(F("Some core functions relating to the MVIO pins will malfunction until you do one of those things."));
         }
-        #elif defined(MVIO_ENABLED) && !defined(USING_OPTIBOOT)
+      #elif !defined(MVIO_ENABLED) && defined(USING_OPTIBOOT)
+        retval |= MVIO_SETTING_MISMATCH;
+      #elif defined(MVIO_ENABLED) && !defined(USING_OPTIBOOT)
         retval |= MVIO_MENU_SET_WRONG | MVIO_IMPOSSIBLE_CFG;
         if (debugmode) {
-          Serial.print(F("Your tools submenu is set to enable MVIO, and you're not using optiboot, so MVIO should have been enabled"));
-          Serial.print(F("when the sketch was uploaded via UPDI, but it's not. If you are using a third party IDE, it is misconfigured."));
-          Serial.print(F("If you are using Arduino IDE, this is a bug in DxCore that should be reported promptly."));
-          Serial.print(F("Some core functions relating to the MVIO pins will malfunction until your fuses match the menu selection."));
+          dbgserial.println(F("Your tools submenu is set to enable MVIO, and you're not using optiboot, so MVIO should have been enabled"));
+          dbgserial.println(F("when the sketch was uploaded via UPDI, but it's not. If you are using a third party IDE, it is misconfigured."));
+          dbgserial.println(F("You must not specify MVIO as being enabled or disabled if you have not set the fuses that way (details depend on IDE)"));
+          dbgserial.println(F("If you are using Arduino IDE, this is a bug in DxCore that should be reported promptly."));
+          dbgserial.println(F("Some core functions relating to the MVIO pins will malfunction until your fuses match the menu selection."));
         }
       #endif
     } else {
@@ -208,16 +246,15 @@ int16_t getMVIOVoltage() {
       // DxCore is supposed to set them to.
       retval = MVIO_BAD_FUSE | MVIO_IMPOSSIBLE_CFG;
       if (debugmode) {
-        Serial.print(F("The MVIO bits in FUSE.SYSCFG1 are set to an invalid value! This should never happen."));
-        Serial.print(F("If you are using a third party tool or IDE to set the fuses, it is misconfigured."));
-        Serial.print(F("If you are using the Arduino IDE to set the fuses, this is a seruiys bug in DxCore that should be reported promptly."));
-        Serial.print(F("The MVIO pins may malfunction until they are set to a valid value."));
+        dbgserial.println(F("The MVIO bits in FUSE.SYSCFG1 are set to an invalid value. This should never happen."));
+        dbgserial.println(F("The bits should be either 01 (enable) or 10 (disable). Never 11 or 00. Microchip specifies no behavior."))
+        dbgserial.println(F("If you are using a third party tool or IDE to set the fuses, it is misconfigured."));
       }
     }
     return retval;
   }
 #else
-  uint8_t getMVIOStatus(__attribute__((unused))bool debugmode) {
+  uint8_t getMVIOStatus(__attribute__((unused))bool debugmode __attribute__ ((unused)) HardwareSerial &dbgserial {
     return MVIO_UNSUPPORTED;
   }
 #endif

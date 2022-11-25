@@ -74,21 +74,22 @@ int8_t getMVIOVoltage();
 bool setTCA0MuxByPort(uint8_t port);
 bool setTCA0MuxByPin(uint8_t pin);
 
-#define MVIO_DISABLED       (0x40)
-#define MVIO_BAD_FUSE       (0x20)
-#define MVIO_UNDERVOLTAGE   (0x01)
-#define MVIO_OKAY           (0x00)
-#define MVIO_UNSUPPORTED    (0x80)
-#define MVIO_MENU_SET_WRONG (0x10)
-#define MVIO_IMPOSSIBLE_CFG (0x80)
+#define MVIO_OKAY             (0x00) // If no other bits set, also configured correctly.
+#define MVIO_UNDERVOLTAGE     (0x01) // If no other bits set, configured correctly.
+#define MVIO_SETTING_MISMATCH (0x04) // Setting of fuses doesn't match tools menu selection.
+#define MVIO_IMPOSSIBLE_CFG   (0x08) // For some reason or another, this is not supposed to be possible with the Arduino IDE (or possibly at all)
+#define MVIO_MENU_SET_WRONG   (0x10) // Not only is the menu in disagreement with the fuses, you picked the option that said you were really sure.
+#define MVIO_BAD_FUSE         (0x20) // MVIO fuse bits are in an invalid state
+#define MVIO_DISABLED         (0x40) // MVIO is disabled. If no other bits set, all is configured correctly.
+#define MVIO_UNSUPPORTED      (0x80) // Why call this function? MVIO doesn't exist on this part.
 
 #ifdef __cplusplus
   #ifdef TCA1
-    bool setTCA1MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
-    bool setTCA1MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
+    bool setTCA1MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_ports_ok = false);
+    bool setTCA1MuxByPin(uint8_t pin, bool __attribute__((unused)) takeover_only_ports_ok = false);
   #endif // TCA1
-  bool setTCD0MuxByPort(uint8_t port, bool takeover_only_ports_ok = false);
-  bool setTCD0MuxByPin(uint8_t pin, bool takeover_only_ports_ok = false);
+  bool setTCD0MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_ports_ok = false);
+  bool setTCD0MuxByPin(uint8_t pin, bool __attribute__((unused)) takeover_only_ports_ok = false);
 
   uint8_t getMVIOStatus(bool printInfo = 0, HardwareSerial &dbgserial = Serial);
 #endif
