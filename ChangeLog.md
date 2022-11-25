@@ -16,11 +16,7 @@ These items are in addition to what was listed under changes already in release.
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
-### planned 1.5.0
-* Fix TCB millis, as that is the default, smallest, fastest, and most performant timer type. I haven't the faintest why it's busted, but it is well and truly hosed. TCA millis seems to be working.
-* Build all needed bootloaders
-
-### Thus far implemented in 1.5.0
+### New in 1.5.0
 * Port fixes to Logic, Event and Comparator libraries from megaTinyCore.
   * This means if you don't attach an interrupt using the `attachInterrupt()` method, you can make your own interrupt, or just save the flash.
 * Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this had little impact on actual behavior)

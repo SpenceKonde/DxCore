@@ -90,7 +90,6 @@
 /* one hardware uart (644P, 1284P, etc)                   */
 /*                                                        */
 /**********************************************************/
-
 /**********************************************************/
 /* Version Numbers!                                       */
 /*                                                        */
@@ -180,7 +179,13 @@ optiboot_version = 256 * (OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVE
   // nop ret: do nothing, then return. The 0x0000 is an unambiguous way to signal that it is disabled
 #endif
 
-#define WRITE_MAPPED_BY_WORD
+// For debugging purposes
+//#define WRITE_MAPPED_BY_WORD // Forces even parts with fully mapped flash to write by words instead of bytes.
+//#define READ_WITHOUT_MAPPED // Forces parts with fully mapped flash to use lpm to read the flash.
+
+#if PROGMEM_SIZE > 65536
+  #define AVOID_SPMZPLUS
+#endif
 
 #if (!defined(__AVR_XMEGA__)) || ((__AVR_ARCH__ != 102) && (__AVR_ARCH__ != 103) && (__AVR_ARCH__ != 104))
 #error CPU not supported by this version of Optiboot.
@@ -427,9 +432,9 @@ int main (void) {
   #if defined(ENTRYCOND_REQUIRE)
     // If WDRF is set OR nothing except BORF and/or PORF is set, which are not entry conditions.
     // If this isn't true, EXTRF, SWRF, or UPDIRF set; all are entry condiions.
-    if (ch & RSTCTRL_WDRF_bm || ch & ENTRYCOND_REQUIRE ) {
+    if (ch & RSTCTRL_WDRF_bm || ((ch & ENTRYCOND_REQUIRE) == 0) ) {
   #else //No require specified, treat as all.
-    if (ch & RSTCTRL_WDRF_bm || ch & 0x35) {
+    if (ch & RSTCTRL_WDRF_bm || ((ch & 0x35) == 0)) {
   #endif
     // Start the app.
     // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
@@ -465,8 +470,10 @@ int main (void) {
   // but we just got out of reset less than 3 us ago, so don't have to worry
 
   MYUART_TXPORT.DIR |= MYUART_TXPIN; // set TX pin to output
-  MYUART_TXPORT.OUT |= MYUART_TXPIN;  // and "1" as per datasheet
-  #if defined (MYUART_PMUX_VAL)
+  //MYUART_TXPORT.OUT |= MYUART_TXPIN;  // and "1" as per datasheet
+  MYUART_RXPINCTRL = 0x08;
+
+  #if (defined(MYUART_PMUX_VAL) && MYUART_PMUX_VAL != 0)
     MYPMUX_REG = MYUART_PMUX_VAL;  // alternate pinout to use
   #endif
   // Saves SIX BYTES! LDI 0 and an STS to the high byte!
@@ -561,6 +568,7 @@ int main (void) {
     } else if (ch == STK_PROG_PAGE) {
       uint8_t desttype;
       uint8_t *bufPtr;
+      // Starting from about here, the compiler starts generating abysmal code!
       GETLENGTH(length);
       #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
         pagelen_t savelength;
@@ -590,6 +598,7 @@ int main (void) {
 
       // Read command terminator, start reply
       verifySpace();
+      // end of abysmal compiler output....
       writebuffer(desttype, buff, address, savelength);
 
     /* Read memory block mode, length is big endian.  */
@@ -601,7 +610,7 @@ int main (void) {
 
       verifySpace();
 
-      #if (__AVR_ARCH__==103)
+      #if (__AVR_ARCH__==103) && !defined(READ_WITHOUT_MAPPED)
         // handle fully mapped flash - duplicating the test for type of memory
         // is far more readable than putting it before the #if macro
         // set address.word to point to start of mapped flash
@@ -635,7 +644,11 @@ int main (void) {
       #elif (PROGMEM_SIZE==65536)
         putch(0x96);
       #else
-        putch(SIGROW_DEVICEID1); //for the parts with fully memory mapped flash, writing takes less flash, so we can spare this, and we may not need different builds for 16k DD-series vs 32k DD-series.
+        #if defined(__AVR_DD__)
+          putch(SIGROW_DEVICEID1); // There is both 16k DD-series vs 32k DD-series.
+        #else
+        putch(0x94); // but only 32k DA/DB
+        #endif
       #endif
       putch(SIGROW_DEVICEID2);
     } else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
@@ -719,77 +732,43 @@ void watchdogConfig (uint8_t x) {
 /*
  * void writebuffer(memtype, buffer, address, length)
  */
-#if (__AVR_ARCH__==103)
-  #if !defined(WRITE_MAPPED_BY_WORD) //fully memory mapped flash
-    static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len) {
-      switch (memtype) {
+#if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
+  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len) {
+    switch (memtype) {
+      /*
+      case 'E': // EEPROM
+        address.word += MAPPED_EEPROM_START;
+        nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
+        while(len--) {
+          *(address.bptr++)= *(mybuff.bptr++);
+        }
+        break;
+      */
+      default:  // FLASH
+      {
         /*
-        case 'E': // EEPROM
-          address.word += MAPPED_EEPROM_START;
-          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-          while(len--) {
-            *(address.bptr++)= *(mybuff.bptr++);
-          }
-          break;
-        */
-        default:  // FLASH
-        {
-          /*
-           * Default to writing to Flash program memory.  By making this
-           * the default rather than checking for the correct code, we save
-           * space on chips that don't support any other memory types.
-           * Start the page erase.
-           * The CPU is halted during this time, so
-           * no need to NVMCTRL.STATUS.
-           */
-          nvm_cmd(NVMCTRL_CMD_FLPER_gc);
-          address.word += MAPPED_PROGMEM_START;
-          *(address.bptr)=0xFF;
-          nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-          while(len--) {
-            *(address.bptr++)= *(mybuff.bptr++);
-          }
-        } // default block
-      } // switch
-    }
-  #else
-    // same calling conventions as for larger memory chips, including the len = 0 for 256 words
-    static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
-      switch (memtype) {
-        /*
-        case 'E': // EEPROM
-          address.word += MAPPED_EEPROM_START;
-          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-          while(len--) {
-            *(address.bptr++)= *(mybuff.bptr++);
-          }
-          break;
-        */
-        default:  // FLASH
-        {
-          /*
-           * Default to writing to Flash program memory.  By making this
-           * the default rather than checking for the correct code, we save
-           * space on chips that don't support any other memory types.
-           * Start the page erase.
-           * The CPU is halted during this time, so
-           * no need to check NVMCTRL.STATUS.
-           */
-          nvm_cmd(NVMCTRL_CMD_FLPER_gc);
-          address.word += MAPPED_PROGMEM_START;
-          *(address.bptr)=0xFF;
-          nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-          do {
-            *(address.wptr++)= *(mybuff.wptr++);
-          } while(--len);
-        } // default block
-      } // switch
-    }
-  #endif
+         * Default to writing to Flash program memory.  By making this
+         * the default rather than checking for the correct code, we save
+         * space on chips that don't support any other memory types.
+         * Start the page erase.
+         * The CPU is halted during this time, so
+         * no need to NVMCTRL.STATUS.
+         */
+        nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+        address.word += MAPPED_PROGMEM_START;
+        *(address.bptr)=0xFF;
+        nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+        while(len--) {
+          *(address.bptr++)= *(mybuff.bptr++);
+        }
+      } // default block
+    } // switch
+  }
 #else
   // Write non-mapped flash the only way we can without being caught by the outstanding errata with
   // flash mapping on AVR128DA
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
+    //VPORTB.OUT=len;
     switch (memtype) {
 
       #ifdef BIGBOOT
@@ -816,19 +795,26 @@ void watchdogConfig (uint8_t x) {
            * Hmmph - converting all of that to assembly didn't save
            * as much as I had been hoping, just one instruction!
            */
-        __asm__ __volatile__ ("ldi r24, 8"                  "\n\t"
+        __asm__ __volatile__ ("ldi r24, 8"                  "\n\t" // page erase
+                              "rcall nvm_cmd"               "\n\t" // r25 has now been shat on
+                              "spm"                         "\n\t" // erase the page!
+                              "ldi r24, 2"                  "\n\t" // page write
                               "rcall nvm_cmd"               "\n\t"
-                              "spm"                         "\n\t"
-                              "ldi r24, 2"                  "\n\t"
-                              "rcall nvm_cmd"               "\n\t"
-                              "head:"                       "\n\t"
+                              "mov r25, %[len]"             "\n\t" // now copy the len, safely passed as read only
+                              "head:"                       "\n\t" // to the already shat on r25.
                               "ld r0, %a[ptr]+"             "\n\t"
                               "ld r1, %a[ptr]+"             "\n\t"
+        #if !defined(AVOID_SPMZPLUS) && PROGMEM_SIZE > 65536
                               "spm Z+"                      "\n\t"
-                              "dec %[len]"                  "\n\t"
+        #else
+                              "spm"                         "\n\t"
+                              "adiw r30,2"                  "\n\t"
+        #endif
+                              "dec r25"                     "\n\t" // and use the copy in r25 to cound down.
                               "brne head"                   "\n\t"
                               "clr r1"                      "\n\t"
-                              : [len]   "+r" (len), "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr):: "r0", "r24");
+                              : "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr): [len]   "l" (len): "r0", "r24", "r25"); // and declare r25 clobbered
+        // which we would always be required to do if we call something that clobbers a register from asm.
       } // default block
     } // switch
   }
@@ -837,15 +823,31 @@ void watchdogConfig (uint8_t x) {
 void nvm_cmd(uint8_t cmd) {
   //take advantage of the fact that NVMCTRL_CMD_NONE_gc=0x00 and use zero_reg
   //Also, we don't need to change NVMCTRL.CTRLA to NONE/NOOP until we want to change it.
-  __asm__ __volatile__("out %[ccp], %[ccp_spm_mask]" "\n\t" \
-                       "sts %[ioreg], r1"            "\n\t" \
-                       "out %[ccp], %[ccp_spm_mask]" "\n\t" \
-                       "sts %[ioreg], %[cmd]"        "\n\t" \
-                       :                                    \
-                       : [ccp]          "I" (_SFR_IO_ADDR(CCP)), \
-                         [ccp_spm_mask] "d" ((uint8_t)CCP_SPM_gc), \
-                         [ioreg]        "n" (_SFR_MEM_ADDR(NVMCTRL.CTRLA)), \
-                         [cmd]          "r" ((uint8_t)cmd));
+  // 11/20/22: AAaarrgghhh! Okay so... We can't let the compiler pick the random
+  // register that we use to store the ccp spm magic number, 0x9D, because we are calling this from
+  // asm in one place (immediately above), for two reasons. First, the reason I discovered this
+  // the compiler was picking r25 to give len to me above. Then I called nvmcmd, and it trashed
+  // the value in len, which was legal, because that's a call clobbered register.
+  // Secondly, we would need to either declare every call clobbered register as a clobber,
+  // or save and restore every register, unless we knew which registers were being shat on.
+  // So what do we do? We can't save and restore every register, and we don't want to clobber everything
+  // the above function gets inlined, and the compiler would then need to save everything it needs,
+  // but we don't have the flash for that either. Remember, we only have 6 instruction words tops.
+  // So - remove the request for the compiler to give that constant to us in a register. Instead, we pick r25 for it,
+  // use it, and declare it clobbered. THEN, in the above routine, we instead ask for len as a read-only operand, and then
+  // copy it to r25, use that normally, and again declare r25 clobbered.
+  // We know that the command will be in r24, since that's where it starts, and the compiler won't
+  // move a register if inline asm call
+  __asm__ __volatile__("ldi r25, 0x9D"               "\n\t"
+                       "out %[ccp], r25"             "\n\t"
+                       "sts %[ioreg], r1"            "\n\t"
+                       "out %[ccp], r25"             "\n\t"
+                       "sts %[ioreg], %[cmd]"        "\n\t"
+                       :
+                       : [ccp]          "I" (_SFR_IO_ADDR(CCP)),
+                         [ioreg]        "n" (_SFR_MEM_ADDR(NVMCTRL.CTRLA)),
+                         [cmd]          "r" ((uint8_t)cmd)
+                       : "r25");
 }
 
 static inline void read_flash(addr16_t address, pagelen_t length)

@@ -135,294 +135,294 @@
  * A statement like "#if LED == B0" will evaluation (in the preprocessor)
  * to #if C0 == B0, and then to #if 0x301 == 0x201
  */
-#if LED == B0
+#if LED == A0
+  #define LED_NAME "A0"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT0)
+#elif LED == A1
+  #define LED_NAME "A1"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT1)
+#elif LED == A2
+  #define LED_NAME "A2"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT2)
+#elif LED == A3
+  #define LED_NAME "A3"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT3)
+#elif LED == A4
+  #define LED_NAME "A4"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT4)
+#elif LED == A5
+  #define LED_NAME "A5"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT5)
+#elif LED == A6
+  #define LED_NAME "A6"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT6)
+#elif LED == A7
+  #define LED_NAME "A7"
+  #undef LED
+  #define LED_PORT    VPORTA
+  #define LED     (1 << PORT7)
+
+#elif LED == B0
   #define LED_NAME "B0"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT0)
+  #define LED     (1 << PORT0)
 #elif LED == B1
   #define LED_NAME "B1"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT1)
+  #define LED     (1 << PORT1)
 #elif LED == B2
   #define LED_NAME "B2"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT2)
+  #define LED     (1 << PORT2)
 #elif LED == B3
   #define LED_NAME "B3"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT3)
+  #define LED     (1 << PORT3)
 #elif LED == B4
   #define LED_NAME "B4"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT4)
+  #define LED     (1 << PORT4)
 #elif LED == B5
   #define LED_NAME "B5"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT5)
+  #define LED     (1 << PORT5)
 #elif LED == B6
   #define LED_NAME "B6"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT6)
+  #define LED     (1 << PORT6)
 #elif LED == B7
   #define LED_NAME "B7"
   #undef LED
   #define LED_PORT    VPORTB
-  #define LED     (1<<PORT7)
+  #define LED     (1 << PORT7)
 
 #elif LED == C0
   #define LED_NAME "C0"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT0)
+  #define LED     (1 << PORT0)
 #elif LED == C1
   #define LED_NAME "C1"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT1)
+  #define LED     (1 << PORT1)
 #elif LED == C2
   #define LED_NAME "C2"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT2)
+  #define LED     (1 << PORT2)
 #elif LED == C3
   #define LED_NAME "C3"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT3)
+  #define LED     (1 << PORT3)
 #elif LED == C4
   #define LED_NAME "C4"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT4)
+  #define LED     (1 << PORT4)
 #elif LED == C5
   #define LED_NAME "C5"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT5)
+  #define LED     (1 << PORT5)
 #elif LED == C6
   #define LED_NAME "C6"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT6)
+  #define LED     (1 << PORT6)
 #elif LED == C7
   #define LED_NAME "C7"
   #undef LED
   #define LED_PORT    VPORTC
-  #define LED     (1<<PORT7)
+  #define LED     (1 << PORT7)
 
 #elif LED == D0
   #define LED_NAME "D0"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT0)
+  #define LED     (1 << PORT0)
 #elif LED == D1
   #define LED_NAME "D1"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT1)
+  #define LED     (1 << PORT1)
 #elif LED == D2
   #define LED_NAME "D2"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT2)
+  #define LED     (1 << PORT2)
 #elif LED == D3
   #define LED_NAME "D3"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT3)
+  #define LED     (1 << PORT3)
 #elif LED == D4
   #define LED_NAME "D4"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT4)
+  #define LED     (1 << PORT4)
 #elif LED == D5
   #define LED_NAME "D5"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT5)
+  #define LED     (1 << PORT5)
 #elif LED == D6
   #define LED_NAME "D6"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT6)
+  #define LED     (1 << PORT6)
 #elif LED == D7
   #define LED_NAME "D7"
   #undef LED
   #define LED_PORT    VPORTD
-  #define LED     (1<<PORT7)
+  #define LED     (1 << PORT7)
 
 #elif LED == E0
   #define LED_NAME "E0"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT0)
+  #define LED     (1 << PORT0)
 #elif LED == E1
   #define LED_NAME "E1"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT1)
+  #define LED     (1 << PORT1)
 #elif LED == E2
   #define LED_NAME "E2"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT2)
+  #define LED     (1 << PORT2)
 #elif LED == E3
   #define LED_NAME "E3"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT3)
+  #define LED     (1 << PORT3)
 #elif LED == E4
   #define LED_NAME "E4"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT4)
+  #define LED     (1 << PORT4)
 #elif LED == E5
   #define LED_NAME "E5"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT5)
+  #define LED     (1 << PORT5)
 #elif LED == E6
   #define LED_NAME "E6"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT6)
+  #define LED     (1 << PORT6)
 #elif LED == E7
   #define LED_NAME "E7"
   #undef LED
   #define LED_PORT    VPORTE
-  #define LED     (1<<PORT7)
+  #define LED     (1 << PORT7)
 
 #elif LED == F0
   #define LED_NAME "F0"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT0)
+  #define LED     (1 << PORT0)
 #elif LED == F1
   #define LED_NAME "F1"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT1)
+  #define LED     (1 << PORT1)
 #elif LED == F2
   #define LED_NAME "F2"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT2)
+  #define LED     (1 << PORT2)
 #elif LED == F3
   #define LED_NAME "F3"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT3)
+  #define LED     (1 << PORT3)
 #elif LED == F4
   #define LED_NAME "F4"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT4)
+  #define LED     (1 << PORT4)
 #elif LED == F5
   #define LED_NAME "F5"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT5)
+  #define LED     (1 << PORT5)
 #elif LED == F6
   #define LED_NAME "F6"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT6)
+  #define LED     (1 << PORT6)
 #elif LED == F7
   #define LED_NAME "F7"
   #undef LED
   #define LED_PORT    VPORTF
-  #define LED     (1<<PORT7)
+  #define LED     (1 << PORT7)
 
 #elif LED == G0
   #define LED_NAME "G0"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT0)
+  #define LED     (1 << PORT0)
 #elif LED == G1
   #define LED_NAME "G1"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT1)
+  #define LED     (1 << PORT1)
 #elif LED == G2
   #define LED_NAME "G2"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT2)
+  #define LED     (1 << PORT2)
 #elif LED == G3
   #define LED_NAME "G3"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT3)
+  #define LED     (1 << PORT3)
 #elif LED == G4
   #define LED_NAME "G4"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT4)
+  #define LED     (1 << PORT4)
 #elif LED == G5
   #define LED_NAME "G5"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT5)
+  #define LED     (1 << PORT5)
 #elif LED == G6
   #define LED_NAME "G6"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT6)
+  #define LED     (1 << PORT6)
 #elif LED == G7
   #define LED_NAME "G7"
   #undef LED
   #define LED_PORT    VPORTG
-  #define LED     (1<<PORT7)
+  #define LED     (1 << PORT7)
 
   // PORTs after G will require a Microchip do something different about the VPORT registers, because that's it for the I/O space!
-
-#elif LED == A0
-  #define LED_NAME "A0"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT0)
-#elif LED == A1
-  #define LED_NAME "A1"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT1)
-#elif LED == A2
-  #define LED_NAME "A2"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT2)
-#elif LED == A3
-  #define LED_NAME "A3"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT3)
-#elif LED == A4
-  #define LED_NAME "A4"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT4)
-#elif LED == A5
-  #define LED_NAME "A5"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT5)
-#elif LED == A6
-  #define LED_NAME "A6"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT6)
-#elif LED == A7
-  #define LED_NAME "A7"
-  #undef LED
-  #define LED_PORT    VPORTA
-  #define LED     (1<<PORT7)
 
 #else
   // Stop compilation right away, so we don't get more errors.
@@ -451,126 +451,140 @@
   defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)  || \
   defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)  || \
   defined(__AVR_AVR32DA48__)  || defined(__AVR_AVR32DB48__)
+  #define __AVR_DA__
+  #define __AVR_DB__
   #if (UARTTX == A0)
     #define UART_NAME "A0"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTA.PIN1CTRL)
     #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == A4)
     #define UART_NAME "A4"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTA.PIN5CTRL)
     #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (0x01)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == B0)
     #define UART_NAME "B0"
     #ifndef USART3
       #error Pin on USART3, but no USART3 exists
     #endif
     #define MYUART USART3
+    #define MYUART_RXPINCTRL (PORTB.PIN1CTRL)
     #define MYUART_TXPORT VPORTB
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART3_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == B4)
     #define UART_NAME "B4"
-    #ifndef USART3
+    #ifndef USART4
       #error Pin on USART3, but no USART3 exists
     #endif
     #define MYUART USART3
+    #define MYUART_RXPINCTRL (PORTB.PIN5CTRL)
     #define MYUART_TXPORT VPORTB
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART3_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (0x40)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == C0)
     #define UART_NAME "C0"
     #ifndef USART1
-      #error Pin on USART1, but no USART1 exists
+      #error Pin on USART3, but no USART1 exists
     #endif
     #define MYUART USART1
+    #define MYUART_RXPINCTRL (PORTC.PIN1CTRL)
     #define MYUART_TXPORT VPORTC
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART1_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == C4)
     #define UART_NAME "C4"
     #ifndef USART1
       #error Pin on USART1, but no USART1 exists
     #endif
     #define MYUART USART1
+    #define MYUART_RXPINCTRL (PORTC.PIN5CTRL)
     #define MYUART_TXPORT VPORTC
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (0x04)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == F0)
     #define UART_NAME "F0"
     #ifndef USART2
       #error Pin on USART2, but no USART2 exists
     #endif
     #define MYUART USART2
+    #define MYUART_RXPINCTRL (PORTF.PIN1CTRL)
     #define MYUART_TXPORT VPORTF
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART2_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == F4)
     #define UART_NAME "F4"
     #ifndef USART2
       #error Pin on USART2, but no USART2 exists
     #endif
     #define MYUART USART2
+    #define MYUART_RXPINCTRL (PORTF.PIN5CTRL)
     #define MYUART_TXPORT VPORTF
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART2_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (0x10)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == E0)
     #define UART_NAME "E0"
     #ifndef USART4
       #error Pin on USART4, but no USART4 exists
     #endif
     #define MYUART USART4
+    #define MYUART_RXPINCTRL (PORTE.PIN5CTRL)
     #define MYUART_TXPORT VPORTE
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART4_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEB
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEB)
   #elif (UARTTX == E4)
     #define UART_NAME "E4"
     #ifndef USART4
       #error Pin on USART4, but no USART4 exists
     #endif
     #define MYUART USART4
+    #define MYUART_RXPINCTRL (PORTE.PIN5CTRL)
     #define MYUART_TXPORT VPORTE
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART4_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEB
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (0x01)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEB)
   #elif (UARTTX == G0)
     #define UART_NAME "G0"
     #ifndef USART5
       #error Pin on USART5, but no USART5 exists
     #endif
     #define MYUART USART5
+    #define MYUART_RXPINCTRL (PORTG.PIN1CTRL)
     #define MYUART_TXPORT VPORTG
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART5_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEB
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEB)
   #elif (UARTTX == G4)
     #define UART_NAME "G4"
     #ifndef USART2
       #error Pin on USART5, but no USART5 exists
     #endif
     #define MYUART USART5
+    #define MYUART_RXPINCTRL (PORTG.PIN5CTRL)
     #define MYUART_TXPORT VPORTG
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART5_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEB
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (0x04)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEB)
   #endif
 #endif
 
@@ -614,61 +628,64 @@
  */
 #if \
   defined(__AVR_AVR64DD32__) || defined(__AVR_AVR64DD28__) || \
-  defined(__AVR_AVR64DD20__) || defined(__AVR_AVR64DD14__) || \
   defined(__AVR_AVR32DD32__) || defined(__AVR_AVR32DD28__) || \
-  defined(__AVR_AVR32DD20__) || defined(__AVR_AVR32DD14__) || \
-  defined(__AVR_AVR16DD32__) || defined(__AVR_AVR16DD28__) || \
-  defined(__AVR_AVR16DD20__) || defined(__AVR_AVR16DD14__)
+  defined(__AVR_AVR16DD32__) || defined(__AVR_AVR16DD28__)
+  #define __AVR_DD__
   #if (UARTTX == A0)
     #define UART_NAME "A0"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTA.PIN1CTRL)
     #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == A4)
     #define UART_NAME "A4"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTA.PIN5CTRL)
     #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT1_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (1)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == A2)
     #define UART_NAME "A2"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTA.PIN3CTRL)
     #define MYUART_TXPORT VPORTA
-    #define MYUART_TXPIN (1<<PORT2)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT2_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT2)
+    #define MYUART_PMUX_VAL (2)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == D4)
     #define UART_NAME "D4"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTD.PIN5CTRL)
     #define MYUART_TXPORT VPORTD
-    #define MYUART_TXPIN (1<<PORT4)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT3_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (3)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #elif (UARTTX == C1)
     #define UART_NAME "C1"
     #ifndef USART0
       #error Pin on USART0, but no USART0 exists
     #endif
     #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTC.PIN2CTRL)
     #define MYUART_TXPORT VPORTC
-    #define MYUART_TXPIN (1<<PORT1)
-    #define MYUART_PMUX_VAL (PORTMUX_USART0_ALT4_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT1)
+    #define MYUART_PMUX_VAL (4)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
 
   #elif (UARTTX == C0)
     #define UART_NAME "C0"
@@ -676,10 +693,69 @@
       #error Pin on USART1, but no USART1 exists
     #endif
     #define MYUART USART1
+    #define MYUART_RXPINCTRL (PORTC.PIN1CTRL)
     #define MYUART_TXPORT VPORTC
-    #define MYUART_TXPIN (1<<PORT0)
-    #define MYUART_PMUX_VAL (PORTMUX_USART1_DEFAULT_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == D6)
+    #define UART_NAME "D6"
+    #ifndef USART1
+      #error Pin on USART1, but no USART1 exists
+    #endif
+    #define MYUART USART1
+    #define MYUART_RXPINCTRL (PORTD.PIN7CTRL)
+    #define MYUART_TXPORT VPORTD
+    #define MYUART_TXPIN (1 << PORT6)
+    #define MYUART_PMUX_VAL (0x04)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #endif
+#endif
+#if defined(__AVR_AVR64DD20__) || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
+  #define __AVR_DD__
+  #if (UARTTX == A0)
+    #define UART_NAME "A0"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == A4)
+    #define UART_NAME "A4"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (1)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == A2)
+    #define UART_NAME "A2"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1 << PORT2)
+    #define MYUART_PMUX_VAL (2)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == D4)
+    #define UART_NAME "D4"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_TXPORT VPORTD
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (3)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == C0)
+    #define UART_NAME "C0"
+    #error Requested USART was USART1 mux 0, but only mux2 is available on 20-pin parts
   #elif (UARTTX == D6)
     #define UART_NAME "D6"
     #ifndef USART1
@@ -687,11 +763,69 @@
     #endif
     #define MYUART USART1
     #define MYUART_TXPORT VPORTD
-    #define MYUART_TXPIN (1<<PORT6)
-    #define MYUART_PMUX_VAL (PORTMUX_USART1_ALT2_gc)
-    #define MYPMUX_REG PORTMUX.USARTROUTEA
+    #define MYUART_TXPIN (1 << PORT6)
+    #define MYUART_PMUX_VAL (2 << 3)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #endif
+#endif
+#if defined(__AVR_AVR64DD14__) || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
+  #define __AVR_DD__
+  #if (UARTTX == A0)
+    #define UART_NAME "A0"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTA.PIN1CTRL)
+    #define MYUART_TXPORT VPORTA
+    #define MYUART_TXPIN (1 << PORT0)
+    #define MYUART_PMUX_VAL (0)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == A4)
+    #define UART_NAME "A4"
+    #error Requested USART was USART1 mux 1, but only mux0, 3 and 4 are available on 14-pin parts
+  #elif (UARTTX == A2)
+    #define UART_NAME "A2"
+    #error Requested USART was USART1 mux 2, but only mux0, 3 and 4 are available on 14-pin parts
+  #elif (UARTTX == D4)
+    #define UART_NAME "D4"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTD.PIN5CTRL)
+    #define MYUART_TXPORT VPORTD
+    #define MYUART_TXPIN (1 << PORT4)
+    #define MYUART_PMUX_VAL (3)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+  #elif (UARTTX == C1)
+    #define UART_NAME "C1"
+    #ifndef USART0
+      #error Pin on USART0, but no USART0 exists
+    #endif
+    #define MYUART USART0
+    #define MYUART_RXPINCTRL (PORTC.PIN2CTRL)
+    #define MYUART_TXPORT VPORTC
+    #define MYUART_TXPIN (1 << PORT1)
+    #define MYUART_PMUX_VAL (4)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
+
+  #elif (UARTTX == C0)
+    #define UART_NAME "C0"
+    #error Requested USART was USART1 mux 0, but only mux2 is available on 14-pin parts
+  #elif (UARTTX == D6)
+    #define UART_NAME "D6"
+    #ifndef USART1
+      #error Pin on USART1, but no USART1 exists
+    #endif
+    #define MYUART USART1
+    #define MYUART_RXPINCTRL (PORTA.PIN7CTRL)
+    #define MYUART_TXPORT VPORTD
+    #define MYUART_TXPIN (1 << PORT6)
+    #define MYUART_PMUX_VAL (2 << 4)
+    #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #endif
 #endif
 #ifndef MYUART
-  #warning No UARTTX pin specified.
+  #warning No UARTTX pin specified, or specified pin does not correspond to a port or mux option on this part family.
 #endif
