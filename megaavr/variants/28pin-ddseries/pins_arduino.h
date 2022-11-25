@@ -150,7 +150,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define SPI_INTERFACES_COUNT   1
 
 // SPI 0
-#define SPI_MUX                         PORTMUX_SPI0_DEFAULT_g
+#define SPI_MUX                         PORTMUX_SPI0_DEFAULT_gc
 #define SPI_MUX_PINSWAP_3               PORTMUX_SPI0_ALT3_gc
 #define SPI_MUX_PINSWAP_4               PORTMUX_SPI0_ALT4_gc
 #define SPI_MUX_PINSWAP_5               PORTMUX_SPI0_ALT5_gc
