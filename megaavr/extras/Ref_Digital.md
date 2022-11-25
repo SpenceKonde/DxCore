@@ -90,13 +90,17 @@ On many cores, there is a `digitalPinToTimer(pin)` macro, mostly for internal us
 ## pinConfigure()
 pinConfigure is a somewhat ugly function to expose all options that can be configured on a per-pin basis. It is called as shown here; you can bitwise-or any number of the constants shown in the table below. All of those pin options will be configured as specified. Pin functions that don't have a corresponding option OR'ed into the second argument will not be changed. There are very few guard rails here: This function will happily enable pin interrupts that you don't have a handler for (but when they fire it'll crash the sketch), or waste power with pins driven low while connected to the pullup and so on.
 
+Thanks to the work of @MCUdude which I belatedly noticed in time for 1.5.0, we can instead separate these constants with commas, like arguments. This form often results in smaller binaries (!!)
+
+
 ```c++
 pinConfigure(PIN_PA4,(PIN_DIR_INPUT | PIN_PULLUP_ON | PIN_OUT_LOW | PIN_INLVL_TTL));
 // Set PIN_PA4 to input, with pullup enabled and output value of LOW (ready for openDrainFast() and using TTL logic levels, without changing whether the pin is inverted or triggers an interrupt.
 // This might be used for some sort of bi-directional open-drain communication protocol with a device operating at lower voltage.
 
-pinConfigure(PIN_PD4,(PIN_DIR_INPUT | PIN_OUT_LOW | PIN_PULLUP_OFF | PIN_INVERT_OFF | PIN_INLVL_SCHMITT | PIN_ISC_ENABLE));
-// Set PD4 inpit, with output register set low, pullup, invert, and alternate levels off, and digital input enabled. Ie, the reset condition!
+pinConfigure(PIN_PD4, PIN_DIR_INPUT, PIN_OUT_LOW, PIN_PULLUP_OFF, PIN_INVERT_OFF, PIN_INLVL_SCHMITT, PIN_ISC_ENABLE);
+// Set PD4 input, with output register set low, pullup, invert, and alternate levels off, and digital input enabled. Ie, the reset condition!
+// compare the flash usage for multiple variations in the number of places pinConfigure is called. At least for small numbers of calls, this is extremely flash efficient, though it appears that it's advantages shrink as it gets called more
 
 ```
 
