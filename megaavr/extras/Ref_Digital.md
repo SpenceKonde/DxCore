@@ -90,8 +90,7 @@ On many cores, there is a `digitalPinToTimer(pin)` macro, mostly for internal us
 ## pinConfigure()
 pinConfigure is a somewhat ugly function to expose all options that can be configured on a per-pin basis. It is called as shown here; you can bitwise-or any number of the constants shown in the table below. All of those pin options will be configured as specified. Pin functions that don't have a corresponding option OR'ed into the second argument will not be changed. There are very few guard rails here: This function will happily enable pin interrupts that you don't have a handler for (but when they fire it'll crash the sketch), or waste power with pins driven low while connected to the pullup and so on.
 
-Thanks to the work of @MCUdude which I belatedly noticed in time for 1.5.0, we can instead separate these constants with commas, like arguments. This form often results in smaller binaries (!!)
-
+Thanks to the work of @MCUdude which I belatedly noticed in time for 1.5.0, we can instead separate these constants with commas, like arguments. With only one or two  calls to pinConfigure, or with lots of calls to it, the commas compile significantly smaller. In the 3-6 call range though, if they're all bitwise OR's, they come out smaller. How strange.
 
 ```c++
 pinConfigure(PIN_PA4,(PIN_DIR_INPUT | PIN_PULLUP_ON | PIN_OUT_LOW | PIN_INLVL_TTL));
