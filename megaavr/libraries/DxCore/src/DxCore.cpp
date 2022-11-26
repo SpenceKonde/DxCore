@@ -2,7 +2,7 @@
 #include "DxCore.h"
 
 // *INDENT-OFF*
-void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable) {
+void configXOSC32K(X32K_OPT_t settings, X32K_ENABLE_t enable) {
   uint8_t newval = settings | enable;
   // if any of the bits are "enable protected" we need to turn off the external crystal/clock.
   if ((CLKCTRL.XOSC32KCTRLA ^ newval) & (CLKCTRL_SEL_bm | CLKCTRL_CSUT_gm)) {
@@ -18,7 +18,7 @@ uint8_t enableAutoTune() {
     return 0xFF;
   }
   if (CLKCTRL.XOSC32KCTRLA & 0x01) {
-    _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, X32K_HIGHPWR_START1S | X32K_ENABLED);
+    _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, X32K_HIGHPWR_START2S | X32K_ENABLED);
   }
   _PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA, CLKCTRL.OSCHFCTRLA | 0x01);
   uint8_t csut = (CLKCTRL.XOSC32KCTRLA & CLKCTRL_CSUT_gm) >> 4;

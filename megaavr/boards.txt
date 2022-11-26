@@ -56,6 +56,8 @@ menu.clock=Clock Speed
 menu.millis=millis()/micros() timer
 menu.bodvoltage=BOD level if enabled (Bootload burn req'd)
 menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
+menu.WDTtimeout=WDT Timeout (Bootload burn req'd)
+menu.WDTwindow=WDT "window" (Bootload burn req'd)
 menu.eesave=Save EEPROM
 menu.eesavedd=Save EEPROM (Bootload burn req'd)
 menu.resetpin=Reset pin function (Bootload burn req'd)
@@ -121,7 +123,7 @@ avrda.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrda.bootloader.tool=avrdude
-avrda.bootloader.WDTCFG=0x00
+avrda.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 avrda.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
@@ -445,6 +447,45 @@ avrda.menu.appspm.120plus=Above 0x1E000
 avrda.menu.appspm.120plus.bootloader.appspm=-DSPM_FROM_APP=240
 avrda.menu.appspm.120plus.bootloader.CODESIZE=240
 
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrda.menu.WDTtimeout.disabled=Disabled (recommended)
+avrda.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrda.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrda.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrda.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrda.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrda.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrda.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrda.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrda.menu.WDTwindow.disabled=No delay before window "opens"
+avrda.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrda.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrda.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrda.menu.WDTwindow.1second=1 Second before window "opens"
+avrda.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrda.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrda.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrda.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrda.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrda.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrda.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrda.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrda.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrda.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrda.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrda.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrda.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrda.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrda.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrda.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrda.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrda.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrda.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrda.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrda.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrda.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 
 ##########################################################################
 #                                                                        #
@@ -474,7 +515,7 @@ avrdb.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdb.bootloader.tool=avrdude
-avrdb.bootloader.WDTCFG=0x00
+avrdb.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 avrdb.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -846,6 +887,46 @@ avrdb.menu.appspm.120plus=Above 0x1E000
 avrdb.menu.appspm.120plus.bootloader.appspm=-DSPM_FROM_APP=240
 avrdb.menu.appspm.120plus.bootloader.CODESIZE=240
 
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrdb.menu.WDTtimeout.disabled=Disabled (recommended)
+avrdb.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrdb.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrdb.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrdb.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrdb.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrdb.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrdb.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrdb.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrdb.menu.WDTwindow.disabled=No delay before window "opens"
+avrdb.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrdb.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrdb.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrdb.menu.WDTwindow.1second=1 Second before window "opens"
+avrdb.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrdb.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrdb.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrdb.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrdb.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrdb.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrdb.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrdb.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrdb.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrdb.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrdb.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrdb.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrdb.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrdb.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrdb.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrdb.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrdb.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrdb.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrdb.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrdb.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrdb.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrdb.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
 ##########################################################################
 #                                                                        #
 ###                 ###  #     # ####      ####  ####                  ###
@@ -874,7 +955,7 @@ avrdd.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdd.bootloader.tool=avrdude
-avrdd.bootloader.WDTCFG=0x00
+avrdd.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdd.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -1252,6 +1333,48 @@ avrdd.menu.appspm.60plus=Above 60k (AVR64 only)
 avrdd.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
 avrdd.menu.appspm.60plus.bootloader.CODESIZE=120
 
+
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrdd.menu.WDTtimeout.disabled=Disabled (recommended)
+avrdd.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrdd.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrdd.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrdd.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrdd.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrdd.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrdd.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrdd.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrdd.menu.WDTwindow.disabled=No delay before window "opens"
+avrdd.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrdd.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrdd.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrdd.menu.WDTwindow.1second=1 Second before window "opens"
+avrdd.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrdd.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrdd.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrdd.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrdd.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrdd.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrdd.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrdd.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrdd.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrdd.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrdd.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrdd.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrdd.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrdd.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrdd.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrdd.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrdd.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrdd.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrdd.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrdd.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrdd.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrdd.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
+
 ##########################################################################
 #                                                                        #
 ###                 ###  #     # ####      #####   ###                 ###
@@ -1277,7 +1400,7 @@ avrdd.menu.appspm.60plus.bootloader.CODESIZE=120
 # Bootloading parameters and fuses       #
 #________________________________________#
 #avrea.bootloader.tool=avrdude
-#avrea.bootloader.WDTCFG=0x00
+#avrea.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 #avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 #avrea.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 #avrea.bootloader.CODESIZE=0x00
@@ -1619,6 +1742,47 @@ avrdd.build.appspmabr=
 # version of flash write in major way #
 #_____________________________________#
 
+
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+#avrea.menu.WDTtimeout.disabled=Disabled (recommended)
+#avrea.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+#avrea.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+#avrea.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+#avrea.menu.WDTtimeout.1second=Window remains open for 1 Second
+#avrea.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+#avrea.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+#avrea.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+#avrea.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+#avrea.menu.WDTwindow.disabled=No delay before window "opens"
+#avrea.menu.WDTwindow.8seconds=8 Second before window "opens"
+#avrea.menu.WDTwindow.4seconds=4 Second before window "opens"
+#avrea.menu.WDTwindow.2seconds=2 Second before window "opens"
+#avrea.menu.WDTwindow.1second=1 Second before window "opens"
+#avrea.menu.WDTwindow.500msec=500 millisecond before window "opens"
+#avrea.menu.WDTwindow.250msec=250 millisecond before window "opens"
+#avrea.menu.WDTwindow.125msec=125 millisecond before window "opens"
+#avrea.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+#avrea.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+#avrea.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+#avrea.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+#avrea.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+#avrea.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+#avrea.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+#avrea.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+#avrea.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+#avrea.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+#avrea.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+#avrea.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+#avrea.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+#avrea.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+#avrea.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+#avrea.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+#avrea.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+#avrea.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+#avrea.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
 ##########################################################################
 #                                                                        #
 #   ###  #     # ####      ####   ###            ###          #          #
@@ -1646,7 +1810,7 @@ avrdaopti.bootloader.tool=avrdude
 avrdaopti.bootloader.defaultentrycond=_extrf
 avrdaopti.bootloader.entrycond={bootloader.defaultentrycond}
 avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
-avrdaopti.bootloader.WDTCFG=0x00
+avrdaopti.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 avrdaopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
@@ -2012,6 +2176,45 @@ avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
 avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 
 
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrdaopti.menu.WDTtimeout.disabled=Disabled (recommended)
+avrdaopti.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrdaopti.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrdaopti.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrdaopti.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrdaopti.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrdaopti.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrdaopti.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrdaopti.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrdaopti.menu.WDTwindow.disabled=No delay before window "opens"
+avrdaopti.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrdaopti.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrdaopti.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrdaopti.menu.WDTwindow.1second=1 Second before window "opens"
+avrdaopti.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrdaopti.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrdaopti.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrdaopti.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrdaopti.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrdaopti.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrdaopti.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrdaopti.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrdaopti.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrdaopti.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrdaopti.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrdaopti.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrdaopti.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrdaopti.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrdaopti.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrdaopti.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrdaopti.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrdaopti.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrdaopti.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrdaopti.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrdaopti.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrdaopti.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 
 ##########################################################################
 #                                                                        #
@@ -2041,7 +2244,7 @@ avrdbopti.bootloader.tool=avrdude
 avrdbopti.bootloader.defaultentrycond=_extrf
 avrdbopti.bootloader.entrycond={bootloader.defaultentrycond}
 avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
-avrdbopti.bootloader.WDTCFG=0x00
+avrdbopti.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 avrdbopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -2458,6 +2661,46 @@ avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
 avrdbopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 
 
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrdbopti.menu.WDTtimeout.disabled=Disabled (recommended)
+avrdbopti.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrdbopti.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrdbopti.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrdbopti.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrdbopti.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrdbopti.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrdbopti.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrdbopti.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrdbopti.menu.WDTwindow.disabled=No delay before window "opens"
+avrdbopti.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrdbopti.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrdbopti.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrdbopti.menu.WDTwindow.1second=1 Second before window "opens"
+avrdbopti.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrdbopti.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrdbopti.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrdbopti.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrdbopti.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrdbopti.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrdbopti.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrdbopti.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrdbopti.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrdbopti.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrdbopti.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrdbopti.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrdbopti.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrdbopti.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrdbopti.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrdbopti.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrdbopti.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrdbopti.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrdbopti.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrdbopti.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrdbopti.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrdbopti.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
 
 ##########################################################################
 #                                                                        #
@@ -2486,7 +2729,7 @@ avrddopti.build.attachmode=-DCORE_ATTACH_ALL
 #________________________________________#
 avrddopti.bootloader.tool=avrdude
 avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
-avrddopti.bootloader.WDTCFG=0x00
+avrddopti.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
 avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -2901,6 +3144,46 @@ avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portname=Serial1
 avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portswap=2
 
 
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrddopti.menu.WDTtimeout.disabled=Disabled (recommended)
+avrddopti.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrddopti.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrddopti.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrddopti.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrddopti.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrddopti.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrddopti.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrddopti.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrddopti.menu.WDTwindow.disabled=No delay before window "opens"
+avrddopti.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrddopti.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrddopti.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrddopti.menu.WDTwindow.1second=1 Second before window "opens"
+avrddopti.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrddopti.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrddopti.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrddopti.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrddopti.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrddopti.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrddopti.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrddopti.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrddopti.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrddopti.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrddopti.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrddopti.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrddopti.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrddopti.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrddopti.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrddopti.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrddopti.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrddopti.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrddopti.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrddopti.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrddopti.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrddopti.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
 ##########################################################################
 #                                                                        #
 #   ###  #     # ####      #####   ###           ###          #          #
@@ -2954,7 +3237,7 @@ azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
-azduinoboard.bootloader.WDTCFG=0x00
+azduinoboard.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
 azduinoboard.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 azduinoboard.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 azduinoboard.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -3222,3 +3505,44 @@ azduinoboard.menu.wiremode.mors2.build.wireabr=.wO2
 azduinoboard.menu.wiremode.mands2=2x Wire, Master and Slave (not available on Nano DB)
 azduinoboard.menu.wiremode.mands2.build.wiremode=MANDS_BOTH
 azduinoboard.menu.wiremode.mands2.build.wireabr=.wA2
+
+
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+azduinoboard.menu.WDTtimeout.disabled=Disabled (recommended)
+azduinoboard.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+azduinoboard.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+azduinoboard.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+azduinoboard.menu.WDTtimeout.1second=Window remains open for 1 Second
+azduinoboard.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+azduinoboard.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+azduinoboard.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+azduinoboard.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+azduinoboard.menu.WDTwindow.disabled=No delay before window "opens"
+azduinoboard.menu.WDTwindow.8seconds=8 Second before window "opens"
+azduinoboard.menu.WDTwindow.4seconds=4 Second before window "opens"
+azduinoboard.menu.WDTwindow.2seconds=2 Second before window "opens"
+azduinoboard.menu.WDTwindow.1second=1 Second before window "opens"
+azduinoboard.menu.WDTwindow.500msec=500 millisecond before window "opens"
+azduinoboard.menu.WDTwindow.250msec=250 millisecond before window "opens"
+azduinoboard.menu.WDTwindow.125msec=125 millisecond before window "opens"
+azduinoboard.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+azduinoboard.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+azduinoboard.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+azduinoboard.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+azduinoboard.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+azduinoboard.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+azduinoboard.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+azduinoboard.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+azduinoboard.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+azduinoboard.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+azduinoboard.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+azduinoboard.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+azduinoboard.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+azduinoboard.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+azduinoboard.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+azduinoboard.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+azduinoboard.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+azduinoboard.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+azduinoboard.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100

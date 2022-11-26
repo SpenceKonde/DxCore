@@ -12,10 +12,7 @@ These items are in addition to what was listed under changes already in release.
 ## Changes not yet in release
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
-### planned 1.5.0
-* Build all needed bootloaders
-
-### Thus far implemented in 1.5.0
+### 1.5.0
 * Port fixes to Logic, Event and Comparator libraries from megaTinyCore.
   * This means if you don't attach an interrupt using the `attachInterrupt()` method, you can make your own interrupt, or just save the flash.
 * Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this had little impact on actual behavior)
@@ -25,7 +22,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Special thanks to the folks who reported this before I had a chance to brick any of my own hardware!
 * Improvements for menu options for all boards.
 * Add flash spm options for DD-series parts.
-* New Toolchain version: ~Azduino5~ Azduino5 was no good, so Azduino6 for DD support
+* New Toolchain version: ~Azduino5~ Azduino6 for DD support
   * Required changes because of Microchip having renamed a bunch of registers >.<
   * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
   * Adds support for 32k and 16k DD-series parts.
@@ -46,8 +43,9 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
 * Correct issue with spurious verification error on 128k parts using the bootloader when uploading a sketch of 64513-64024 bytes.
 * Correct internal flaw in the bootloader that meant the compiler could legally output a bootloader binary which would only write 314 bytes per 512 byte page, leaving the rest blank. This happened to not manifest for the previous bootloader binaries. This was purely dumb luck though, and the new ones didn't work.
 * Implement a greater variety of entry conditions for the bootloader. This combined with DD increases the number of binaries I distribute to 325 for this core,.
-* Correct issue with serial on alt pins. that *never* should have worked. I don't think it ever got shipped thankfully.
-* Add the MCUDude version of pinConfigure, arguments can now be separated by commas not bitwise OR's (though the old way will work)
+* Correct issue with serial on alt pins in Optiboot that *never* should have worked.
+* Add the MCUDude version of pinConfigure, arguments can now be separated by commas not bitwise OR's (though the old way will work).
+* Add WDT menu options to set the WDT fuse to forcibly enable the watchdog timer on start.
 
 
 ## Version History

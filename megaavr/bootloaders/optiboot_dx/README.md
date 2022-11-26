@@ -179,7 +179,7 @@ Every permutation which corresponds to a valid serial port on some chip is avail
 ## The bootloader **clears the reset flags** and stashes it's value in GPIOR0 before jumping to the app
 This is required in order to ensure that the entry conditions are honored, and to ensure that we don't try to run after a dirty reset without forcing a clean reset. With the reset flags cleared, a dirty reset is detected by a value of 0x00 in the reset flags.  In that case, we have no idea how the peripherals are configured, and since execution may have careened about the flash, whatever configuration the app had could be altered in arbitrary ways as well. Or it could have been caused by an interrupt with no ISR firing, in which case LVL0EX is still set and interrupts can't be enabled. Hence, the only action that can be expected to restore functionality is to issue a software reset.
 
-Note that the same thing is done for non-optiboot configurations, where this step is instead done by the sketch in .init3 (ie, as soon as the stack pointer is initalized and r1 is cleared. The behavior is the same - reset flags cleared and stashed in GPIOR0.
+Note that the same thing is done for non-optiboot configurations, where this step is instead done by the sketch in .init3 (ie, as soon as the stack pointer is initialized and r1 is cleared. The behavior is the same - reset flags cleared and stashed in GPIOR0.
 
 ## Making new entry conditions
 This is very easy - you need only pass ENTRYCOND_REQUIRE=0xXX. This is compared to the reset flags.

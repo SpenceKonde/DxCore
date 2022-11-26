@@ -401,9 +401,13 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
 // can do is output a HIGH or LOW except on PIN_PD6, which
 // is the DAC output pin.
 #if defined(TCA1)
-  const PROGMEM uint8_t tcaonemux[7] = {0x20, 0x00, 0x08, 0x28, 0x10, 0xFF, 0x18}; // just enough order that no efficient operation works! Really?
+  const PROGMEM uint8_t _tcaonemux[8] = {0x20, 0x00, 0x08, 0x28, 0x10, 0xFF, 0x18}; // just enough order that no efficient operation works! Really?
   // mux(port) = 4, 0, 1, 5, 2, -, 3, -?
   // port(mux) = 1, 2, 4, 6, 0, 3, -, - ?
+#endif
+#if defined(__AVR_DD__)
+  static const uint8_t _tcdmux[8]={0, 1, 5, 6, 4, -1, -1, -1};
+
 #endif
 void analogWrite(uint8_t pin, int val) {
   check_valid_digital_pin(pin);   // Compile error if pin is constant and isn't a pin.
@@ -419,7 +423,7 @@ void analogWrite(uint8_t pin, int val) {
     uint8_t threepin = 0;
     if  (bit_mask < 0x40 && ((portmux_tca & 0x07) == portnum) && (__PeripheralControl & TIMERA0)) {
       timer_A = &TCA0;
-    } else if ((__PeripheralControl & TIMERA1) && ((portmux_tca & 0x38) == pgm_read_byte_near(&tcaonemux[portnum]))) {
+    } else if ((__PeripheralControl & TIMERA1) && ((portmux_tca & 0x38) == pgm_read_byte_near(&_tcaonemux[portnum]))) {
       if (portnum == 1 || portnum == 6) {
         if (bit_mask < 0x40) {
           timer_A = &TCA1;
@@ -461,7 +465,7 @@ void analogWrite(uint8_t pin, int val) {
       *(((uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
     }
     *(uint8_t*) &(timer_A->SPLIT.CTRLB) |= ctrlb;
-    *((uint8_t*)((uint16_t*)(portnum + 0x401))) = bit_mask;
+    *((uint8_t*)((uint16_t)(portnum + 0x401))) = bit_mask;
     return;
   }
     /* Okay, this layout tends towards maximum pervosity. You basically have to treat them as entirely separate timers at this point!
@@ -552,13 +556,26 @@ void analogWrite(uint8_t pin, int val) {
       ***************************************/
       #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
         // Dx-series
-        #ifndef ERRATA_TCD_PORTMUX
+        uint8_t tcdmux = _tcdmux[(digital_pin_timer & 0x07)];
+        uint8_t port = digitalPinToPort(pin);
+        #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
           // First, if TCD portmux busted, don't
-          if ((digital_pin_timer & 0x07) != PORTMUX.TCDROUTEA) break;
+          if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
+
+            break;
+          }
+          if (!(tcdmux & 0x04)) {
+            if (bit_mask < 0x10) {
+              bit_mask = bit_mask << 4;
+            }
+          } else {
+            if (port == 3) {
+              bit_mask <<= 2;
+            }
+          }
           // hopefully that gets rendereed as swap, not 4 leftshifts
-          if (bit_mask < 0x10) bit_mask = bit_mask << 4;
         #else
-          if ((digital_pin_timer & 0x07) != 0) break;
+          if ((tcdmux & 0x07) != 0) break;
         #endif
       #else
         // tinyAVR 1-series
@@ -571,7 +588,7 @@ void analogWrite(uint8_t pin, int val) {
           bit_mask = (bit_mask == 0x20 ? 0x80 : 0x40);
         #endif
       #endif
-      val = 255-val;
+      val = 255 - val;
       uint8_t temp = TCD0.CMPBCLRL;
       temp = TCD0.CMPBCLRH;
       //
@@ -588,7 +605,7 @@ void analogWrite(uint8_t pin, int val) {
       }
 
       #if defined(NO_GLITCH_TIMERD0)
-        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(digitalPinToPortStruct(pin), digitalPinToBitPosition(pin));
+        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(port), digitalPinToBitPosition(pin));
         // if things aren't compile-time known, this is not a lightning fast operation.
         // We had been doing it closer to where we needed it, but there's no need to wait
         // until we have interrupts off to figure this out (though we do need them off when)
@@ -617,9 +634,9 @@ void analogWrite(uint8_t pin, int val) {
        * Better to just declare that CMPA shall drive WOC, and CMPB shall drive WOD.
        *-----------------------------------------------------------------------------------------*/
       if (bit_mask & 0xAA) {
-        TCD0.CMPBSET= val - 1;
+        TCD0.CMPBSET = val - 1;
       } else {
-        TCD0.CMPASET= val - 1;
+        TCD0.CMPASET = val - 1;
       }
       /* Check if channel active, if not, have to turn it on */
       if (!(TCD0.FAULTCTRL & bit_mask)) {
@@ -761,16 +778,15 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   #endif
   }
   uint8_t timer = digitalPinToTimer(p);
-  /*
+
   if ( __PeripheralControl & TIMERD0) {
     if (timer & TIMERD0) {
       byte tcdmux = (PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm);
       if (tcdmux == (timer & ~TIMERD0)) {
         return TIMERD0;
       }
-
+    }
   }
-  */
   if (timer & TIMERB0) { /* Finally check TCBn, if we made it here w/out returning */
     TCB_t* timer_B;
     timer_B = ((TCB_t *)&TCB0 + (timer - TIMERB0)); /* get timer struct */

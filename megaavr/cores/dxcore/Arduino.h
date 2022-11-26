@@ -257,7 +257,6 @@ int8_t   digitalReadFast(uint8_t pinNumber               );
 void    digitalWriteFast(uint8_t pinNumber,   uint8_t val);
 void         pinModeFast(uint8_t pinNumber,  uint8_t mode);
 void       openDrainFast(uint8_t pinNumber,   uint8_t val);
-void        pinConfigure(uint8_t pinNumber, uint16_t mode);
 void          turnOffPWM(uint8_t pinNumber               );
 
 // Not a function, still important
@@ -578,6 +577,7 @@ Yes, these are poorky named and do not use analog input, analog pin, and analog 
 See Ref_Analog.md for more information of the representations of "analog pins". I blame Arduino for the original sin of "analog pins" as a concept in the first place.
 */
 
+#include "pins_arduino.h"
 #define digitalPinToPort(pin)               (((pin)     < NUM_TOTAL_PINS ) ?                          digital_pin_to_port[pin]                 : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        (((pin)     < NUM_TOTAL_PINS ) ?                  digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
 #define digitalPinToBitMask(pin)            (((pin)     < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
@@ -605,9 +605,11 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
 #ifdef __cplusplus
   #include "UART.h"
+
+  //uint8_t digitalPinToTimerNow(uint8_t p);
+  void analogWrite_x(uint8_t pin, uint8_t val);
   int32_t analogReadEnh( uint8_t pin,              uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int16_t analogClockSpeed(int16_t frequency = 0,  uint8_t options = 0);
@@ -631,7 +633,6 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   #endif
 #endif
 
-#include "pins_arduino.h"
 // this stuff used to be in the variants.
 #if !defined(NUM_DIGITAL_PINS)
 /* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
@@ -799,6 +800,8 @@ uint16_t pincfg(const pin_configure_t mode, const MODES&... modes)
   return mode | pincfg(modes...);
 }
 
+
+//void        pinConfigure(const uint8_t pinNumber, const uint16_t mode, const MODES&... modes);
 
 /**
  * @brief Variadic template function for configuring a pin

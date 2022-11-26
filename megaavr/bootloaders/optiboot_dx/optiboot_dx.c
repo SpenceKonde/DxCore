@@ -796,12 +796,12 @@ void watchdogConfig (uint8_t x) {
            * as much as I had been hoping, just one instruction!
            */
         __asm__ __volatile__ ("ldi r24, 8"                  "\n\t" // page erase
-                              "rcall nvm_cmd"               "\n\t" // r25 has now been shat on
+                              "rcall nvm_cmd"               "\n\t" // r25 has now been shit on
                               "spm"                         "\n\t" // erase the page!
                               "ldi r24, 2"                  "\n\t" // page write
                               "rcall nvm_cmd"               "\n\t"
                               "mov r25, %[len]"             "\n\t" // now copy the len, safely passed as read only
-                              "head:"                       "\n\t" // to the already shat on r25.
+                              "head:"                       "\n\t" // to the already shit on r25.
                               "ld r0, %a[ptr]+"             "\n\t"
                               "ld r1, %a[ptr]+"             "\n\t"
         #if !defined(AVOID_SPMZPLUS) && PROGMEM_SIZE > 65536
@@ -810,7 +810,7 @@ void watchdogConfig (uint8_t x) {
                               "spm"                         "\n\t"
                               "adiw r30,2"                  "\n\t"
         #endif
-                              "dec r25"                     "\n\t" // and use the copy in r25 to cound down.
+                              "dec r25"                     "\n\t" // and use the copy in r25 to count down.
                               "brne head"                   "\n\t"
                               "clr r1"                      "\n\t"
                               : "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr): [len]   "l" (len): "r0", "r24", "r25"); // and declare r25 clobbered
@@ -829,7 +829,7 @@ void nvm_cmd(uint8_t cmd) {
   // the compiler was picking r25 to give len to me above. Then I called nvmcmd, and it trashed
   // the value in len, which was legal, because that's a call clobbered register.
   // Secondly, we would need to either declare every call clobbered register as a clobber,
-  // or save and restore every register, unless we knew which registers were being shat on.
+  // or save and restore every register, unless we knew which registers were being shit on.
   // So what do we do? We can't save and restore every register, and we don't want to clobber everything
   // the above function gets inlined, and the compiler would then need to save everything it needs,
   // but we don't have the flash for that either. Remember, we only have 6 instruction words tops.

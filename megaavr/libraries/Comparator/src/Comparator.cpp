@@ -15,6 +15,7 @@ IN N2# |  PIN_PD7  |  PIN_PD7  |  PIN_PD7  | PIN_PD7  | PIN_PD7  | PIN_PD7  | PI
 IN N3= |    n/a    |    n/a    |    n/a    | PIN_PC2! | PIN_PC2  | PIN_PC2  |   n/a    |
 OUT    |  PIN_PA7  |  PIN_PA7  |  PIN_PA7  | PIN_PA7* | PIN_PA7  | PIN_PA7  | PIN_PA7  |
 AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   n/a    |
+
 */
 #if (defined(ANALOG_COMP_PINS_DA_DB))
   /* P0, P1, P2, P3, N0, N1, N2 */

@@ -27,11 +27,11 @@ IN N3= |    n/a    |    n/a    |    n/a    | PIN_PC2! | PIN_PC2  | PIN_PC2  |   
 OUT    |  PIN_PA7  |  PIN_PA7  |  PIN_PA7  | PIN_PA7* | PIN_PA7  | PIN_PA7  | PIN_PA7  |
 AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   n/a    |
 
-`*`   - This pin does not exist on all parts. It is not a valid input unless the pin exists.
+`*`   - This pin does not exist on all parts. It is not a valid input/output unless the pin exists.
 `!`   - This input is not available unless MVIO is disabled.
-`#`   - This input is the same regardless of which comparator or part. (Dx, EA only)
-`=`   - This input is the same regardless of which comparator or part, IFF the part supports it.
-`n/a` - On this part, there is no such input.
+`#`   - This input is the same regardless of which comparator or part. (Dx, EA only - only N2 and P0 are the same on mega 0, and everything is different on tinies). Note that this is even more true of the outputs: non-tiny modern AVR supports AC output directly to pins other than PA7 or PC6
+`=`   - This input is the same regardless of which comparator or part, as long as it's a DD or EA and has the pin in the first place.
+`n/a` - On this part, there is no such input or output - the pin does not exist on the parts.
 
 ## Things to be aware of
 There are several things that may be surprising about this peripheral and the wrapper this class provides.
@@ -42,6 +42,16 @@ In accordance with the recommendations of Microchip from the datasheet, we disab
 When the PINnCTRL register is modified by the class at any point, any other configuration (input level on DB/DD, inversion, and internal pullup) will be returned to the default values. You likely don't want any of those options while using the analog comparator anyway. The pullup will throw off the reading (and is not of a tightly controlled strength, so you can't use it as part of a resistor divider), and as these pins will have analog voltages likely between the input high and low thresholds applied to them, leaving the digital input enabled will increase power consumption.
 
 Comparator input pins should not be set as OUTPUT except in truly unusual cases. The comparator cannot be used on MVIO pins, and otherwise, voltage on any pin must not exceed the supply voltage or be lower than ground by more than half a volt, and the common mode voltage range is even narrower, at -0.2V - Vcc - and used as an output, the pin will either output 0V or Vdd, so the comparator will always have one value unless either the pin is heavily (possibly excessively) loaded, or an inappropriate external voltage is being applied to the pins. The only plausible use case I can come up with is monitoring an output pin for a possible short circuit or excessive load. Note that this library assumes that you have not set the pins to be outputs (the comparator library, internally, only knows the PINnCTRL register for the pins - it doesn't know anything else about them, and adding that functionality would add rarely used bloat) - if you have, be sure to set them back to inputs.
+
+Note that the fact that the DD-series parts have very few pins results in very small numbers of available inputs on some parts:
+* DD14: Only one pair of pins available with MVIO on. in_p3, in_n2 With MVIO on, in_p4 and in_n3 are also available if MVIO is disabled.
+* DD20: As above, but with an output too.
+* DD28/32: All pins - p0, 2, 3, and n0, 2, plus p4 and n3 if MVIO disabled.
+* DA/DB28/32: p0, p1 (except AC0), p2 (except AC0, AC2), p3, n0, n1 (DA only), n2. No alt-output.
+* DA/DB48/64: All pins - p0-3, n0-2, with normal and alt outputs.
+* EA28/32: p0, 3, 4 and n0, 2, 3, plus the missing three for AC1 only. Only normal output pin.
+* EA48: All pins - p0-4, n0-2, both normal and alt outputs.
+
 
 ### No settings are applied until init() is called
 Like the other basic wrappers around modern avr peripherals (logic, ZCD, event), until the `init()` method is called, none of the requested settings have been written to the peripheral. This is correct and intended behavior, and allows modifying multiple options as close to simultaneously as possible. Nothing prevents you from calling `init()` on an enabled comparator if need be.
@@ -56,7 +66,8 @@ On the tinyAVR and megaAVR parts, there is instead an LPMODE (Low Power Mode) wh
 ### Window Mode is not supported
 Thus far all modern AVR parts with more than 1 comparator have had a "windowed mode" that can be selected to group 2 comparators into a single "windowed" comparator, where both comparators must use the same positive input, while the negative inputs define the upper and lower bounds of the "window", and interrupts can be generated when the state rises above, or falls below the input, or when it enters or leaves the window.
 
-The Comparator library does not support this odd option. There are no plans to add support for this odd feature. Note also that this is entirely separate from the ADC "window comparator" mode, where a similar effect is achieved with the ADC set in free-running mode.
+The Comparator library does not support this odd option. There are no plans to add support for this feature - it's an awkward amount of synchronization for this library to provide - it would need logic to permit . Note also that this is entirely separate from the ADC "window comparator" mode, where a similar effect is achieved with the ADC set in free-running mode.
+
 ## Properties of the Comparator class
 
 ### input_p
@@ -189,11 +200,6 @@ Comparator.init();                      // Must be done before writing to the PI
 PORTA.PIN7CTRL = PORT_INVEN_bm;         // Invert PA7
 // Now, PIN_PA7 will provide non-inverted output, while Comparator.read() and the event outputs provides inverted output.
 ```
-
-|     | AC0 | AC1 | AC2 | AC0 on 8-pin parts |
-|-----|-----|-----|-----|--------------------|
-| PIN | PA5 | PB3 | PB2 |         PA3        |
-
 
 ### output_swap
 Variable for pin swapping the physical output pin to its alternative position, if available. There is only an alternate pin available to Dx/Ex-series on parts with at least 48 pins and is not available on megaAVR 0-series, or any tinyAVR parts.

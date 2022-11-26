@@ -67,7 +67,7 @@ Bearing that in mind, the planned enhancement would bring the write speed up to 
 
 I've been asked about supporting the no-verify option. Since there is literally no check on whether an upload succeeded other the presence or absence of gross protocol errors and the verification step (with either Optiboot or SerialUPDI, I don't think I can endorse this option. The same is true on all other AVRs, and *I think it is foolish and irresponsible that the Aruino team offers that option to users at all* - at least on AVR. Maybe other platforms with other upload protocols have CRC checks and othher such basic safeguards. But AVR provides no such assurance.
 
-Note - somehow this got reenabled at somepoint. It's out again for 1.5.0, that verification is your first last and only line of defense against upload problems, and I will not abet such foolish behavior as disabling verify. Especially not when that just caused me to waste about an hour before I realized why he was getting an upload error and I wasn't.
+Note - somehow this got re-enabled at somepoint. It's out again for 1.5.0, that verification is your first last and only line of defense against upload problems, and I will not abet such foolish behavior as disabling verify. Especially not when that just caused me to waste about an hour before I realized why he was getting an upload error and I wasn't.
 
 ## Entry Conditions
 Depending on your needs, you may want or need different configurations for when the bootloader should run and when it should just jump straight to the application. It determines this with the reset flags, which it clears, and then stashes in GPR.GPR0 right before jumping to app. It doesn't clear them until it jumps to app, so you do get to see what kind of reset was involved.

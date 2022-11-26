@@ -231,7 +231,7 @@ class AnalogComparator {
                        register8_t& in1_n,
                        register8_t& in2_n);
 
-    #elif defined(ANALOG_COMP_PINS_DD) /*6 inputs: P0, P3, P4, N0, N2, N3 */
+    #elif defined(ANALOG_COMP_PINS_DD) /*6 inputs - P1, P2, and N1 are gone, but newly added P4 and N3 are available P0, P3, P4, N0, N2, N3 */
       AnalogComparator(const uint8_t comparator_number,
                        AC_t& ac,
                        register8_t& in0_p,
@@ -240,7 +240,7 @@ class AnalogComparator {
                        register8_t& in0_n,
                        register8_t& in2_n,
                        register8_t& in3_n);
-    #elif defined(ANALOG_COMP_PINS_EA) /*9 inputs P0, P1, P2, P3, P4, N0, N1, N2, N3 */
+    #elif defined(ANALOG_COMP_PINS_EA) /*9 inputs - with 48 pins EA gets all inputs for at least one comparator. P0, P1, P2, P3, P4, N0, N1, N2, N3 */
       AnalogComparator(const uint8_t comparator_number,
                        AC_t& ac,
                        register8_t& in0_p,

@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-typedef enum X32K_TYPE {
+typedef enum X32K_OPT {
   X32K_LOWPWR_START31MS   = (CLKCTRL_CSUT_1K_gc  | CLKCTRL_LPMODE_bm),
   X32K_LOWPWR_START500MS  = (CLKCTRL_CSUT_16K_gc | CLKCTRL_LPMODE_bm),
   X32K_LOWPWR_START1S     = (CLKCTRL_CSUT_32K_gc | CLKCTRL_LPMODE_bm),
@@ -25,7 +25,7 @@ typedef enum X32K_TYPE {
   X32K_HIGHPWR_START1S    = (CLKCTRL_CSUT_32K_gc),
   X32K_HIGHPWR_START2S    = (CLKCTRL_CSUT_64K_gc),
   X32K_EXTCLK             = (CLKCTRL_SEL_bm)
-} X32K_TYPE_t;
+} X32K_OPT_t;
 
 typedef enum X32K_ENABLE {
   X32K_DISABLED = (0x00),
@@ -37,7 +37,6 @@ typedef enum X32K_ENABLE {
 // attempts to configure the external crystal or oscillator.
 // see above for valid values of these two arguments. This handles the enable-locking of many of these bits.
 // which means it may disable this clock source (CSUT is long enough that this likely matters!)
-void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable);
 
 // void disableXOSC32K()
 // disables the external 32.768 kHz oscillator
@@ -48,7 +47,7 @@ void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable);
 
 uint8_t enableAutoTune();
 // if configXOSC32K() was previously called, those settings will be retained, otherwise external oscillator is enabled with
-// 1 second startu time and normal (not low power) crystal.
+// 2 second startup time and normal (not low power) crystal.
 // Returns 1 if autotune was not successfully enabled - waited for CSUT + 0.5 seconds, and status still reported XOSC32K as not running/stable!
 // Returns 255 (-1) if the current main clock source isn't the internal HF oscillator (presumably it's either external clock/crystal)
 // under this circumstance, autotune will not impact the main clock - and the main clock, in fact, is likely more accurate than autotune would achieve.
@@ -58,15 +57,15 @@ int8_t disableAutoTune();
 // Returns 255 (-1) if autotune was not enabled.
 // Returns 0 if autotune is successfully disabled.
 
-
-
-
 int8_t getMVIOVoltage();
 // returns ADC or MVIO error code, or voltage in millivolts;
 
 
 #ifdef __cplusplus
 }
+void configXOSC32K(X32K_TYPE_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t enable = X32K_ENABLED);
+#else
+void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable);
 #endif
 
 // passed a port number (eg, digitalPinToPort() from pin, or number 0-6)

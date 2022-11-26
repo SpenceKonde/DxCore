@@ -290,6 +290,18 @@
 #elif PROGMEM_SIZE == 0x1000
   #define                     _AVR_FLASH     (4) /* Unlikely to be seen on Dx */
 #endif
+/* Normal interrupt mode on a part with windowed flash is the same as the unnamed mode on those without that feature */
+#if (defined(__AVR_DD__))
+  #define AC_INTMODE_NORMAL_BOTHEDGE_gc AC_INTMODE_BOTHEDGE_gc
+  #define AC_INTMODE_NORMAL_NEGEDGE_gc AC_INTMODE_NEGEDGE_gc
+  #define AC_INTMODE_NORMAL_POSEDGE_gc AC_INTMODE_POSEDGE_gc
+  #define AC_INTMODE_NORMAL_t AC_INTMODE_t
+#else
+  #define AC_INTMODE_BOTHEDGE_gc AC_INTMODE_NORMAL_BOTHEDGE_gc
+  #define AC_INTMODE_NEGEDGE_gc AC_INTMODE_NORMAL_NEGEDGE_gc
+  #define AC_INTMODE_POSEDGE_gc AC_INTMODE_NORMAL_POSEDGE_gc
+  #define AC_INTMODE_t AC_INTMODE_NORMAL_t
+#endif
 
 #if (defined(__AVR_EA__)) /* 4 sizes of flash instead of 3 like Dx */
   #if   (PROGMEM_SIZE == 0x10000) // 64k

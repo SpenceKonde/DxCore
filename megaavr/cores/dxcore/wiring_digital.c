@@ -309,7 +309,7 @@ void turnOffPWM(uint8_t pin)
         uint8_t fcset = TCD0.FAULTCTRL & (bit_mask == 0x02 ? 0x80 : 0x40 );
       #else
         // on the DA series, it could be any of them
-        #ifndef ERRATA_TCD_PORTMUX
+        #if !defined(ERRATA_TCD_PORTMUX) || ERRATA_TCD_PORTMUX == 0
           //                                Px4-Px7
           uint8_t fcset = TCD0.FAULTCTRL & (bit_mask > 0x0F ? bit_mask : bit_mask << 4 ); // hopefully that gets rendereed as swap, not 4 leftshifts
         #else
