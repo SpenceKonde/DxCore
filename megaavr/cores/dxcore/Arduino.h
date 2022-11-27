@@ -698,6 +698,71 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 // as an alias.
 // Microchip can add one more binary option >.>                    */
 
+
+inline void _pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
+
+  uint8_t bit_mask = digitalPinToBitMask(digital_pin);
+  if(bit_mask == NOT_A_PIN || !pin_config) // Return if digital pin is invalid or the other parameters or out to zero
+    return;
+
+  uint8_t bit_pos  = digitalPinToBitPosition(digital_pin);
+  volatile uint8_t *portbase = (volatile uint8_t*) digitalPinToPortStruct(digital_pin);
+
+  // Write to selected pin direction register
+  uint8_t setting = pin_config & 0x03; // Mask out direction bits (DIR, DIRSET, DIRCLR, DIRTGL)
+  if(setting)
+    *(portbase + setting) = bit_mask;
+
+  // Write to selected output register
+  pin_config >>= 2;
+  setting = pin_config & 0x03;
+  if(setting)
+    *(portbase + 4 + setting) = bit_mask;
+
+  // Return if there is nothing more to configure
+  if(!(pin_config & 0x3FFC))
+    return;
+
+  uint8_t oldSREG = SREG; // Store SREG
+  cli(); // Disable interrupts
+
+  // PINnCTRL register
+  pin_config >>= 2;
+  uint8_t pinncfg = *(portbase + 0x10 + bit_pos);
+  // Input sense configuration (ISC)
+  if(pin_config & 0x08)
+    pinncfg = (pinncfg & 0xF8) | (pin_config & PORT_ISC_gm);
+  // Pullup resistor
+  uint8_t temp = pin_config & 0x30;
+  if(temp)
+  {
+    if(temp == 0x30)
+      pinncfg ^= PORT_PULLUPEN_bm;    // Toggle pullup
+    else if(temp == 0x20)
+      pinncfg &= ~(PORT_PULLUPEN_bm); // Clear pullup
+    else
+      pinncfg |= PORT_PULLUPEN_bm;    // Set pullup
+  }
+  // Invert pin
+  pin_config >>= 8;
+  temp = pin_config & 0x0C;
+  if(temp)
+  {
+    if(temp == 0x0C)
+      pinncfg ^= PORT_INVEN_bm;    // Toggle invert
+    else if(temp == 0x08)
+      pinncfg &= ~(PORT_INVEN_bm); // Clear
+    else
+      pinncfg |= PORT_INVEN_bm;    // Set
+  }
+  // Write to PINnCTRL register
+  *(portbase + 0x10 + bit_pos) = pinncfg;
+
+  // Restore SREG
+  SREG = oldSREG;
+}
+}
+
 #ifdef __cplusplus
 typedef enum : uint16_t
 {
@@ -781,69 +846,6 @@ typedef enum : uint16_t
  * @return pin_configure_t
  */
 
-inline void _pinconfigure(const uint8_t digital_pin, const uint16_t pin_config) {
-
-  uint8_t bit_mask = digitalPinToBitMask(digital_pin);
-  if(bit_mask == NOT_A_PIN || !pin_config) // Return if digital pin is invalid or the other parameters or out to zero
-    return;
-
-  uint8_t bit_pos  = digitalPinToBitPosition(digital_pin);
-  volatile uint8_t *portbase = (volatile uint8_t*) digitalPinToPortStruct(digital_pin);
-
-  // Write to selected pin direction register
-  uint8_t setting = pin_config & 0x03; // Mask out direction bits (DIR, DIRSET, DIRCLR, DIRTGL)
-  if(setting)
-    *(portbase + setting) = bit_mask;
-
-  // Write to selected output register
-  pin_config >>= 2;
-  setting = pin_config & 0x03;
-  if(setting)
-    *(portbase + 4 + setting) = bit_mask;
-
-  // Return if there is nothing more to configure
-  if(!(pin_config & 0x3FFC))
-    return;
-
-  uint8_t oldSREG = SREG; // Store SREG
-  cli(); // Disable interrupts
-
-  // PINnCTRL register
-  pin_config >>= 2;
-  uint8_t pinncfg = *(portbase + 0x10 + bit_pos);
-  // Input sense configuration (ISC)
-  if(pin_config & 0x08)
-    pinncfg = (pinncfg & 0xF8) | (pin_config & PORT_ISC_gm);
-  // Pullup resistor
-  uint8_t temp = pin_config & 0x30;
-  if(temp)
-  {
-    if(temp == 0x30)
-      pinncfg ^= PORT_PULLUPEN_bm;    // Toggle pullup
-    else if(temp == 0x20)
-      pinncfg &= ~(PORT_PULLUPEN_bm); // Clear pullup
-    else
-      pinncfg |= PORT_PULLUPEN_bm;    // Set pullup
-  }
-  // Invert pin
-  pin_config >>= 8;
-  temp = pin_config & 0x0C;
-  if(temp)
-  {
-    if(temp == 0x0C)
-      pinncfg ^= PORT_INVEN_bm;    // Toggle invert
-    else if(temp == 0x08)
-      pinncfg &= ~(PORT_INVEN_bm); // Clear
-    else
-      pinncfg |= PORT_INVEN_bm;    // Set
-  }
-  // Write to PINnCTRL register
-  *(portbase + 0x10 + bit_pos) = pinncfg;
-
-  // Restore SREG
-  SREG = oldSREG;
-}
-}
 
 inline pin_configure_t _pincfg(const pin_configure_t mode)
 {

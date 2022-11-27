@@ -65,7 +65,7 @@ int8_t getMVIOVoltage();
 }
 void configXOSC32K(X32K_TYPE_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t enable = X32K_ENABLED);
 #else
-void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable);
+  void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable);
 #endif
 
 // passed a port number (eg, digitalPinToPort() from pin, or number 0-6)
@@ -95,11 +95,11 @@ bool setTCA0MuxByPin(uint8_t pin);
 // Reset immdiately using software reset. The bootloader, if present will run.
 
 inline void SoftwareReset() {
-  _PROTECTED_WRITE(RSTCTRL.SWRR,1);
+  _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
 }
 // Reset after a very short delay. The bootloader, if present, will not run.
 inline void ResetWithWDT() {
-  _PROTECTED_WRITE(WDT.CTRLA,WDT_PERIOD_8CLK_gc); //enable the WDT, minimum timeout
+  _PROTECTED_WRITE(WDT.CTRLA, WDT_PERIOD_8CLK_gc); //enable the WDT, minimum timeout
   while (1); // spin until reset
 }
 
