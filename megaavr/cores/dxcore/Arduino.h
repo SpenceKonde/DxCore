@@ -699,7 +699,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 // Microchip can add one more binary option >.>                    */
 
 
-inline void _pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
+void _pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
 
   uint8_t bit_mask = digitalPinToBitMask(digital_pin);
   if(bit_mask == NOT_A_PIN || !pin_config) // Return if digital pin is invalid or the other parameters or out to zero
@@ -881,6 +881,11 @@ void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const M
 {
   // Or-ing together the arguments using recursion
   uint16_t pin_config = _pincfg(mode, modes...);
+  _pinconfigure(digital_pin, pin_config);
+}
+
+inline pinConfigure(const uint8_t digital_pin, uint16_t pin_config)
+{
   _pinconfigure(digital_pin, pin_config);
 }
 #endif
