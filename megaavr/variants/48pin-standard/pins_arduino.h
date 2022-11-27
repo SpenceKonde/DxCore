@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.*/
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####   ###      # ####  ####      #  #  ###
@@ -115,8 +115,8 @@ Include guard and include basic libraries. We are normally including this inside
 #define portToPinZero(port)               (((port) < PF) ? (((port) * 8) - (((port) > 1) ? 2 : 0) : ((port) == PF ? PIN_PF0 : NOT_A_PIN))
 
 // Timer pin swaps
-#define TCA0_PINS PORTMUX_TCA0_PORTC_gc     // TCA0 output on PD[0:5] by default, vbut just write the portmux to change it
-#define TCA1_PINS 0x00                      // TCA0 output on PB[0:5] (no pinswap, only swap is 3-pin only -> not supported by analogWrite())
+#define TCA0_PINS PORTMUX_TCA0_PORTC_gc     // TCA0 output on PC[0:5] by default, but just write the portmux to change it
+#define TCA1_PINS 0x00                      // TCA1 output on PB[0:5]
 #define TCB0_PINS PORTMUX_TCB0_bm           // TCB0 output on PF4 instead of PA2 (default)
 #define TCB1_PINS PORTMUX_TCB1_bm           // TCB1 output on PF5 instead of PA3 (default)
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
@@ -393,7 +393,7 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   PIN4_bp, //  4 PA4/MOSI
   PIN5_bp, //  5 PA5/MISO
   PIN6_bp, //  6 PA6/SCK
-  PIN7_bp, //  7 PA7/SS/CLKOUT
+  PIN7_bp, //  7 PA7/SS/CLKOUT/LED_BUILTIN
   PIN0_bp, //  8 PB0/USART3_Tx
   PIN1_bp, //  9 PB1/USART3_Rx
   PIN2_bp, // 10 PB2
@@ -425,7 +425,7 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   PIN2_bp, // 36 PF2/AIN12
   PIN3_bp, // 37 PF3/AIN13
   PIN4_bp, // 38 PF4/AIN14
-  PIN5_bp, // 39 PF5/AIN15/LED_BUILTIN
+  PIN5_bp, // 39 PF5/AIN15
   PIN6_bp, // 40 PF6 RESET
   //PIN7_bm// 55 PF7 (UPDI)
 };
@@ -446,7 +446,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN4_bm, //  4 PA4/MOSI
   PIN5_bm, //  5 PA5/MISO
   PIN6_bm, //  6 PA6/SCK
-  PIN7_bm, //  7 PA7/SS/CLKOUT
+  PIN7_bm, //  7 PA7/SS/CLKOUT/LED_BUILTIN
   PIN0_bm, //  8 PB0/USART3_Tx
   PIN1_bm, //  9 PB1/USART3_Rx
   PIN2_bm, // 10 PB2
@@ -478,7 +478,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN2_bm, // 36 PF2/AIN12
   PIN3_bm, // 37 PF3/AIN13
   PIN4_bm, // 38 PF4/AIN14
-  PIN5_bm, // 39 PF5/AIN15/LED_BUILTIN
+  PIN5_bm, // 39 PF5/AIN15
   PIN6_bm, // 40 PF6 RESET
   //PIN7_bm// 55 PF7 (UPDI)
 };

@@ -95,7 +95,7 @@ This is how the files DxCore ships with are built. I can provide no guarantee th
 ## Previous build instructions
 These may or may not work. I am not versed in the ways of makefiles and am not competent to fix any issues that may be encountered. Thus, if you want to use one of these methods, you'll have to fix the makefile yourself (sorry - my brain uses 16-bit addressing. You'll notice I never talk about working with an ATmega2560 - that would require an extra bit, ya see? So figuring out how to wrangle a makefile on a 64-bit desktop computer is well beyond my ability). I will gladly accept pull requests that fix these things - as long as they do not break the method detailed above, as that would leave me unable to build DxCore bootloaders without toolchain wrangling, which as I said, is outside my zone of competence. If you find that these do in fact work as written, please let me know so I can update this file.
 
-### Building optiboot for Arduino.
+### Building optiboot for Arduino
 
 Production builds of optiboot for Arduino are done on a Mac in "unix mode"
 using CrossPack-AVR-20100115.  CrossPack tracks WINAVR (for windows), which
@@ -110,7 +110,7 @@ this may change if compiler versions drift apart between CrossPack and
 the Arduino IDE.)
 
 
-### Building Optiboot in the Arduino IDE Install.
+### Building Optiboot in the Arduino IDE Install
 
 Work in the .../hardware/arduino/bootloaders/optiboot/ and use the
 `omake <targets>` command, which just generates a command that uses
@@ -126,7 +126,7 @@ The makefile uses relative paths (`../../../tools/` and such) to find
 the programs it needs, so you need to work in the existing optiboot
 directory (or something created at the same "level") for it to work.
 
-### Building Optiboot in the Arduino Source Development Install.
+### Building Optiboot in the Arduino Source Development Install
 
 In this case, there is no special shell script, and you're assumed to
 have "make" installed somewhere in your path.
@@ -141,7 +141,7 @@ or  `make OS=macosx ENV=arduinodev <targets>`
 This does not work on AVR Dx-series, and there are no plans to change this.
 
 ## Standard Targets
-Being designed for DxCore, this provides 276 targets - there are 6 combinations of entry condition and timeout duration. There are two possible sizes for a DD-series part, and 7 combinations of . In the list below, brackets indicate an optional
+Being designed for DxCore, this provides 325 targets - there are 5 combinations of entry condition and timeout duration. There are two possible sizes for a DD-series part, and 7 combinations of . In the list below, brackets indicate an optional
 parameter, while parenthesis indicates a mandatory one - one of the options must be used.
 * `dx128_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 * `dx64_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
@@ -149,22 +149,22 @@ parameter, while parenthesis indicates a mandatory one - one of the options must
 * `dd64_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 * `dd32_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 
-### The number after ser is the USART number
+### serN indicates the USART number
 
-* DA/DB: 0-5 for 64-pin parts, 0-4 for 48 pin parts, 0-2 for 28/32 pin ones
-	* All files are built for the largest pincount available with that memory size; they are binary compatible - but obviously one that tries to use a port or mux option that doesn't exist will not work.
-* DD: 0 or 1 for all parts.
-	* All files are built for the AVR64DD32 or AVR32DD32. These are binary compatible with lower pincounts, but as above, if you specified a port and mux option that isn't available, it will not work, see below.
+* DA/DB: N is 0-5 for 64-pin parts, 0-4 for 48 pin parts, 0-2 for 28/32 pin ones
+  * All files are built for the largest pincount available with that memory size; they are binary compatible - but obviously one that tries to use a port or mux option that doesn't exist will not work.
+* DD: N is 0 or 1 for all parts, however there are special builds for the low pincount devices to move the LED to PD7 instead of PA7
+  * All files are built for the AVR64DD32 or AVR32DD32. These are binary compatible with lower pincounts, but as above, if you specified a port and mux option that isn't available, it will not work, see below.
 
 ### The next optional argument specifies an alternate portmux option
 
 * DA/DB: Either omit to use default pins, or alt_ to use the alternate pins. Be aware that alternate pin availability depends on the pincount.
-	* ser4_alt will not work on 48-pin parts, ser1_alt works only on 48+ pin parts, and ser2_alt doesn't work on 28-pin parts.
-	* ser0 (no alt) will not work if a crystal or external clock is connected. In the case of a crystal, it may be damaged. ser2 (no alt) will not work if a watch crystal is connected, and has an even higher risk of damaging the crystal.
+  * ser4_alt will not work on 48-pin parts, ser1_alt works only on 48+ pin parts, and ser2_alt doesn't work on 28-pin parts.
+  * ser0 (no alt) will not work if a crystal or external clock is connected. In the case of a crystal, it may be damaged. ser2 (no alt) will not work if a watch crystal is connected, and has an even higher risk of damaging the crystal.
 * DD: omit to use the default pins, otherwise, ser0 can have alt1, alt2, alt3 or alt4. (PA4/5, PA2/3, PD4/PD5, PC1/PC2). ser1 can have only default pins, or alt2 (PD6, PD7).
-	* ser0_alt1 and ser0_alt2 will not work on 14-pin parts. ser1 (no alt) will not work on 14 or 20-pin parts.
-	* If a crystal of any sort is used, ser0 (no alt) will not work, and may damage the crystal connected to those pins.
-	* There is no ser1_alt1 - that would put the serial on PC4 and PC5. None of the DD-series parts have those pins.
+  * ser0_alt1 and ser0_alt2 will not work on 14-pin parts. ser1 (no alt) will not work on 14 or 20-pin parts.
+  * If a crystal of any sort is used, ser0 (no alt) will not work, and may damage the crystal connected to those pins.
+  * There is no ser1_alt1 - that would put the serial on PC4 and PC5. None of the DD-series parts have those pins.
 
 ### The final option is the entry condition
 * `extr` - Bootloader will run on reset pinreset and software reset, with a 1 second timeout. For uploads with autoreset.

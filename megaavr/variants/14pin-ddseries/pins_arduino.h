@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.*/
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####  ####        #   #  #
@@ -34,7 +34,7 @@ Include guard and include basic libraries. We are normally including this inside
 /* The extreme low pincount, and desire to not have the majority of
  * the pin tables filled with NOT_A_PIN/NOT_ON_TIMER/etc nulls dictates a
  * more constrained pin numbering scheme.
- * PD0 and PD1, PD2, and PD3 are empty holes, but the there is no hole for PC0 or PF0.
+ * PD0 and PD1, PD2, and PD3 are empty holes, but the there is no hole for PF0.
  */
 
 #define PIN_PA0 (0)  // Not available if using HF crystal.

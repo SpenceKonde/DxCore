@@ -3,7 +3,7 @@
 ## What is DxCore
 This is an Arduino core to support the exciting new AVR DA, DB, and "coming soon" DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned and these are simply the successor to the megaAVR series. But whatever the story of their origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... Yet for each of these systems they've added at least one small but significant improvement of some sort (while largely preserving backwards compatibility - the tinyAVR 2-series also typically adds the new features that the Dx-series gt , giving the impression that these reflect a "new version" of . You like the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with slightly-improved instruction timing compared to "classic" AVRs
 
-For a basic overview of the parts see [General AVR Dx-series and Ex-series information](megavr/extras/AboutDxSeries.md)
+For a basic overview of the parts and a comparison table, see [General AVR Dx-series and Ex-series information](megavr/extras/AboutDxSeries.md)
 
 ## Supported Parts (click link for pinout diagram and details)
 Note that you must install via board manager or replace your tool chain with the azduino4 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in some of the earliest-shipped AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled from distributors and replaced with working ones, but if you bought bad ones, you'd have to shake down support to get fixed ones. Note that this is *not* listed on any official material!
@@ -15,15 +15,13 @@ Note that you must install via board manager or replace your tool chain with the
 * [AVR128DB32, AVR64DB32, AVR32DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md)
 * [AVR128DB48, AVR64DB48, AVR32DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)
 * [AVR128DB64 and AVR64DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)
-* AVR64DD14, AVR32DD14, AVR16DD14 (Yes, we have no pinout chart here today)
-* AVR64DD20, AVR32DD20, AVR16DD20 (Yes, we have no pinout chart here today)
-* AVR64DD28, AVR32DD28, AVR16DD28 (Yes, we have no pinout chart here today)
-* AVR64DD32, AVR32DD32, AVR16DD32 (Yes, we have no pinout chart here today)
+* [AVR64DD14, AVR32DD14, AVR16DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB14.md) (Yes, we have no pinout chart here today)
+* [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB20.md) (Yes, we have no pinout chart here today)
+* [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md) (Yes, we have no pinout chart here today)
+* [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md) (Yes, we have no pinout chart here today)
 * AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending release)
 * AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending release)
 * AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending release)
-
-[AVR Dx-series comparison as a giant table](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Dx_Series_Overview.md)
 
 My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sinkism just to take up pins. But the 27 I/O pins on the 32-pin parts can get used up faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - and then I thought I would be fine with a 32-pin Dx as that had a few more pins... But I wound up switching to the 48 and am using about half of the added pins.
 
@@ -35,7 +33,7 @@ The maximum rated spec is 24 MHz **across the entire voltage and temperature ran
 The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating). These parts overclock very well. For compatibility with tinAVR, we also offer 5/10 MHz (generated by dividing 20 MHz).
 All parts can use an external clock, and DB and DD-series parts can also use a crystal.
 **Supported from internal:** 1 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz
-**Supported from external or crystal:** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz
+**Supported from external or crystal (crystal not supported by DA):** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz
 
 If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported; I suspect it is tuning based on the frequency before any PLL used to multiply or divide the clock speed.
 
@@ -134,8 +132,6 @@ There isn't really anything to do differently in the core to support MVIO - thou
   * There is no internal connection between VDD and VDDIO2 even when MVIO is disabled.
   * Hence PORTC still runs at the voltage on the VDDIO2 pin (which should be the same as VDD unless wired incorrectly) if MVIO is disabled. What is disabled is the internal monitoring of the state of VDDIO2. The status bit always reads 1 (MVIO OK). If VDDIO2 is not powered, the pins are not tristated, nor are inputs set to 0 - reading the pins returns random values.
 
-
-
 **Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
 
 ### ADC Support
@@ -165,7 +161,7 @@ All of the 0/1-Series parts have a single hardware serial port (UART or USART); 
 
 Prior to putting the part into a sleep mode, or otherwise disabling it's ability to transmit, be sure that it has finished sending the data in the buffer by calling `Serial.flush()`, otherwise the serial port will emit corrupted characters and/or fail to complete transmission of a message.
 
-See the [**Serial Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Serial.md) for a full list of options. As of 2.5.0, almost every type of functionality that the serial hardware can do is supported, including RS485 mode, half-duplex (via LBME and ODME), and even synchronous and Master SPI mode, and 2.6.0 will add autobaud, even though it's not very useful.
+See the [**Serial Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Serial.md) for a full list of options. As of 1.4.10, almost every type of functionality that the serial hardware can do is supported, including RS485 mode, half-duplex (via LBME and ODME), and even synchronous and Master SPI mode, and 1.5.0 adds autobaud, even though it's not very useful.
 
 ### SPI support
 A compatible SPI.h library is included; it provides one SPI master interface. These parts have either 1 or 2 SPI interfaces, however, the library we supply does not provide support for two simultaneous SPI ports operating. Although it can use either of the hardware SPI ports, it does not allow both of them to be used. (This is a reasonable limitation, because the main reason one might want that would be to operate as an SPI slave device. But there is no Arduino API for that. SPI slave has never been supported on Arduino's SPI library, on any device. More importantly, the precedent that has been set for multiple-SPI parts is for the second port to be SPI1, and so on, and this has to be the name for an instance of SPIClass. Unfortunately, Microchip took that name first, and SPI1 is instead an instance of their data structure type, `SPI_t` - but because all the existing code that supports more than 1 SPI module is hardwired to use that name. We're cau) of the underlying SPI modules - they are treated as if they are pin mapping options (only one interface is available at a time - the library code available in the wild has a name collision with the I/O headers if one wanted to support using both at once, and all the workarounds that I can think of involve the libraries being changed as well). That's fine though, as treating them as pin mappings gives you most of the benefit as master, and slave support is not and never has been a thing in Arduino (it's pretty easy to do manually, at least for simple stuff).
@@ -257,7 +253,7 @@ The CCL is exposed through the [**Logic library**](https://github.com/SpenceKond
 The event system is exposed through the [**Event library**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Event) by MCUDude. Number of channels depends on series and pincount:
 * 8 channels on 28/32-pin DA/DB-series
 * 10 on larger DA/DB-series
-* 6 on everything else.
+* 6 on everything else
 
 #### Zero-Crossing Detector
 The ZCD(s) are exposed through the [**ZCD library**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/ZCD) by MCUDude. Availability depends on pincount:
@@ -284,18 +280,18 @@ These parts for the most part are swimming in timers - The exception being the 1
     * 1 pwm channel each.
     * Most have 2 pin options (counting the default pin), some don't have a remapping option and some don't have a pin at all (particularly on DD-series)
     * Prescaler can only be 1, 2 or a value used by a TCA.
-    * These are lousy as PWM pins, they are excellent utility timers however.
+    * These are lousy as PWM timers. They are excellent utility timers however.
     * 2 can be combined for 32-bit input capture with the CASCADE option. (Dx and later only)
-    * Can be used to count on event inputs (Dx and later only)
+    * Can be used to count on event inputs (not on pre-DA-series parts though)
 * TCD - 12-bit asynchronous timer for high-speed and/or async PWM and internal PLL
   * 1 on all DA, DB, and DD parts
-  * None listed on the initial DU product brief (presumably it's still on the die, but being used to generate the 48 MHz reference clock needed for standards compliant USB 2.0)
+  * None listed on the initial DU product brief (presumably it's still on the die, but being used to generate that 48 MHz reference clock needed for standards compliant USB 2.0)
   * None on the EA-series
-    * Can be used to generate 2 independent 12-bit PWM outputs on up to 4 pins - usually pins 4-7 of the port selected with PORTMUX (we use the PA4-5 PD4-5 PORTMUX option on 14 and 20 pin DD-series during initialization, and PF0-3 on DD-series parts with more pins. If the errata is ever fixed for DA and DB, we will check the silicon revision and either leave it set to PA4-PA7 (if it's not fixed), or set it to PF0-3 (if it is))
+    * Can be used to generate 2 independent 12-bit PWM outputs on up to 2 pins each - usually pins 4-7 of the port selected with PORTMUX (we use the PA4-5 PD4-5 PORTMUX option on 14 and 20 pin DD-series during initialization, and do not change it from the default on parts with more, since it can be con
       * The PORTMUX is busted in DA/DB parts per errata.
     * See the Timer and TCD references for more information on how this timer is used for analogWrite().
-    * Can react to events asynchronously (ie, events shorter than 1 system clock cycle, but this only works correctly when the count prescaler is disabled due to errata).
-    * Can use an external clock up to 32 MHz (rated), and the on-chip PLL can "officially" multiply that by 3 for the TCD0 timing source (there's an undocumented but functional 4x multiplier)..
+    * Can react to events asynchronously (ie, events shorter than 1 system clock cycle), but this only works correctly when the count prescaler is disabled due to errata).
+    * Can use an external clock source, optionally multiplied by the PLL frequency. Runs at speeds far higher than CPU core can (and there's an undocumented but functional 4x multiplier).
     * Complex and fully automatic reactions to events to permit an "emergency stop" that would work without CPU intervention.
     * Challenging to configure, even to do simple stuff.
 

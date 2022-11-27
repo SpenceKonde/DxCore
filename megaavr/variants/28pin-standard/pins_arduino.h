@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on exisisting Arduino cores.*/
+/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####   ###      # ####  ####       ##   ###
@@ -43,7 +43,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12) /* On DB32, this isn't a pin - there, everything else NOT_A_PIN's pin 12 but we can add 3 to it to get PIN_PD3. */
+#define PIN_PD0 (12) /* On DB28, this isn't a pin - there, everything else NOT_A_PIN's pin 12 but we can add 3 to it to get PIN_PD3. */
 #define PIN_PD1 (13)
 #define PIN_PD2 (14)
 #define PIN_PD3 (15)
