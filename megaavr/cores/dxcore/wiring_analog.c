@@ -406,7 +406,7 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
   // port(mux) = 1, 2, 4, 6, 0, 3, -, - ?
 #endif
 
-#if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
+#if defined(TCD0)
   static const uint8_t _tcdmux[8]={0, 1, 5, 6, 4, -1, -1, -1};
 #endif
 
