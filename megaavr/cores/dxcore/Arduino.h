@@ -761,7 +761,7 @@ inline void _pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
   // Restore SREG
   SREG = oldSREG;
 }
-}
+
 
 #ifdef __cplusplus
 typedef enum : uint16_t
