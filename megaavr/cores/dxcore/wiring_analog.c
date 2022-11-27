@@ -558,8 +558,8 @@ void analogWrite(uint8_t pin, int val) {
       #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
         // Dx-series
         uint8_t port = digitalPinToPort(pin);
-          uint8_t tcdmux = _tcdmux[(digital_pin_timer & 0x07)];
-          // First, if TCD portmux busted, don't
+        uint8_t tcdmux = _tcdmux[(digital_pin_timer & 0x07)];
+        // First, if TCD portmux busted, don't
         #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
           if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
 
