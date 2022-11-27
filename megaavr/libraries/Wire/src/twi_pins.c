@@ -514,7 +514,9 @@ uint8_t TWI0_checkPinLevel(void) {
 
 #if defined(TWI1)
 void TWI1_ClearPins() {
-  uint8_t portmux =  PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
+  #if defined(PIN_WIRE1_SDA_PINSWAP_2) || defined(TWI1_DUALCTRL)
+    uint8_t portmux =  PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
+  #endif
   #if defined(PIN_WIRE1_SDA_PINSWAP_2)
     if (portmux == PORTMUX_TWI1_ALT2_gc) {  // make sure we don't get errata'ed
       #if defined(PORTB)
@@ -626,7 +628,9 @@ bool TWI1_swap(uint8_t state) {
 
 
 void TWI1_usePullups() {
-  uint8_t portmux = PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
+  #if defined(PIN_WIRE1_SDA_PINSWAP_2) || defined(TWI1_DUALCTRL)
+    uint8_t portmux =  PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
+  #endif
   PORT_t *port;
   #if defined(PORTB) //All parts with a TWI1 have a PORTF
     if (portmux == PORTMUX_TWI1_ALT2_gc) {

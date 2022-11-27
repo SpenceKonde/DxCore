@@ -116,7 +116,7 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribut
         return true;
       }
     #endif
-    #if __AVR_PINCOUNT > 14)
+    #if (_AVR_PINCOUNT > 14)
       else {
         _uc_mux        = SPI_MUX;
         _uc_pinMOSI    = PIN_SPI_MOSI;

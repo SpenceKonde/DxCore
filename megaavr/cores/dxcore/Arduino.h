@@ -781,40 +781,7 @@ typedef enum : uint16_t
  * @return pin_configure_t
  */
 
-inline pin_configure_t pincfg(const pin_configure_t mode)
-{
-  return mode;
-}
-
-/**
- * @brief Helper functions to catch the nth in the pincfg recursion loop
- *
- * @param digital_pin Arduino pin
- * @param mode First "mode" parameter
- * @param modes Nth "mode" parameter
- * @return uint16_t pin configuration or'ed together
- */
-template <typename... MODES>
-uint16_t pincfg(const pin_configure_t mode, const MODES&... modes)
-{
-  return mode | pincfg(modes...);
-}
-
-
-//void        pinConfigure(const uint8_t pinNumber, const uint16_t mode, const MODES&... modes);
-
-/**
- * @brief Variadic template function for configuring a pin
- *
- * @param digital_pin Arduino pin number
- * @param mode First "mode" parameter
- * @param modes Nth "mode" parameter
- */
-template <typename... MODES>
-void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const MODES&... modes)
-{
-  // Or-ing together the arguments using recursion
-  uint16_t pin_config = pincfg(mode, modes...);
+inline void _pinconfigure(const uint8_t digital_pin, const uint16_t pin_config) {
 
   uint8_t bit_mask = digitalPinToBitMask(digital_pin);
   if(bit_mask == NOT_A_PIN || !pin_config) // Return if digital pin is invalid or the other parameters or out to zero
@@ -875,6 +842,44 @@ void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const M
 
   // Restore SREG
   SREG = oldSREG;
+}
+}
+
+inline pin_configure_t _pincfg(const pin_configure_t mode)
+{
+  return mode;
+}
+
+/**
+ * @brief Helper functions to catch the nth in the pincfg recursion loop
+ *
+ * @param digital_pin Arduino pin
+ * @param mode First "mode" parameter
+ * @param modes Nth "mode" parameter
+ * @return uint16_t pin configuration or'ed together
+ */
+template <typename... MODES>
+uint16_t _pincfg(const pin_configure_t mode, const MODES&... modes)
+{
+  return mode | _pincfg(modes...);
+}
+
+
+//void        pinConfigure(const uint8_t pinNumber, const uint16_t mode, const MODES&... modes);
+
+/**
+ * @brief Variadic template function for configuring a pin
+ *
+ * @param digital_pin Arduino pin number
+ * @param mode First "mode" parameter
+ * @param modes Nth "mode" parameter
+ */
+template <typename... MODES>
+void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const MODES&... modes)
+{
+  // Or-ing together the arguments using recursion
+  uint16_t pin_config = _pincfg(mode, modes...);
+  _pinconfigure(digital_pin, pin_config);
 }
 #endif
 #include "pinswap.h"

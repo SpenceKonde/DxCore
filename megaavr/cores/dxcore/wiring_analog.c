@@ -405,10 +405,11 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
   // mux(port) = 4, 0, 1, 5, 2, -, 3, -?
   // port(mux) = 1, 2, 4, 6, 0, 3, -, - ?
 #endif
-#if defined(__AVR_DD__)
-  static const uint8_t _tcdmux[8]={0, 1, 5, 6, 4, -1, -1, -1};
 
+#if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
+  static const uint8_t _tcdmux[8]={0, 1, 5, 6, 4, -1, -1, -1};
 #endif
+
 void analogWrite(uint8_t pin, int val) {
   check_valid_digital_pin(pin);   // Compile error if pin is constant and isn't a pin.
   check_valid_duty_cycle(val);    // Compile error if constant duty cycle isn't between 0 and 255, inclusive. If those are generated at runtime, it is truncated to that range.
@@ -556,9 +557,9 @@ void analogWrite(uint8_t pin, int val) {
       ***************************************/
       #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
         // Dx-series
-        uint8_t tcdmux = _tcdmux[(digital_pin_timer & 0x07)];
         uint8_t port = digitalPinToPort(pin);
         #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
+          uint8_t tcdmux = _tcdmux[(digital_pin_timer & 0x07)];
           // First, if TCD portmux busted, don't
           if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
 
