@@ -38,7 +38,7 @@ section          size      addr
 .debug_ranges     104         0
 ```
 into what we'd really like:
-```
+```test
 .text             476         0
 .spmtarg            4       506
 .version            2       510
@@ -53,7 +53,7 @@ Size: 482
 ```
 If anyone reading this knows a way to do that, it would make me very happy if you would share that technique with me.
 
-## Known issues:
+## Known issues
 There are no known issues at this time (other than the fact that there is no EEPROM support That is because it does not fit. It might fit if we didn't need to buffer pages and could write data as it came in, but because we don't know we're getting a program page command until the fire hose of data has been turned on, we can't get rid of that so easily. It was a design decision to not lock in a 1024 byte bootloader section just to get EEPROM write capability; and the consequences are particularly serious on modern AVRs which cannot tolerate )
 
 Available "slack" in the binaries is extremely limited.
@@ -82,9 +82,9 @@ There is additional information in the wiki - however, the wiki does not reflect
 ## To set up this environment in windows
 This is how the files DxCore ships with are built. I can provide no guarantee that any other method will still work after what I've done to the makefile.
 1. Download and extract the Arduino 1.0.6 .zip package.
-  * Make sure it is not in a "protected" location. I normally put them in the root of C:.
-  * Rename the folder so you remember what it's for; I have it in `C:\arduino-1.0.6-7.3.0compiler` (this location will be used in the examples below)
-  * You may delete everything except the hardware and tools subdirectories
+* Make sure it is not in a "protected" location. I normally put them in the root of C:.
+* Rename the folder so you remember what it's for; I have it in `C:\arduino-1.0.6-7.3.0compiler` (this location will be used in the examples below)
+* You may delete everything except the hardware and tools subdirectories
 2. Download [the updated toolchain`https://spencekondetoolchains.s3.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino6-i686-w64-mingw32.tar.bz2`](https://spencekondetoolchains.s3.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino6-i686-w64-mingw32.tar.bz2)
 3. Extract the toolchain, and locate the top level 'avr' folder inside.
 4. Copy the AVR folder to the `C:\arduino-1.0.6-7.3.0compiler\hardware\tools` directory in the 1.0.6 install. Be careful not to put it inside the avr folder that is already there (if you make a mistake, delete the mess and go back to step 1 - trying to unpick the mess is hopeless, because there are like 4 nested folders named avr, 2 folders in different locations named bin, and several 'include' folders. Don't look at me, I didn't choose that directory structure!
