@@ -11,11 +11,22 @@
  * is optiboot, the magic address 0x1FA.
  */
 
+
+
 #if defined(USING_OPTIBOOT)
   #define SPMCOMMAND "call 0x1FA"
 #elif defined(SPM_FROM_APP)
   #if SPM_FROM_APP == -1
-    #define SPMCOMMAND "call EntryPointSPM"
+    #if defined(LTODISABLED)
+      #warning "Writing "everywhere" from within app without Optiboot requires LTO to be enabled.
+      #warning "ALL ATTEMPTS TO WRITE FLASH ARE REPLACED WITH NOP INSTRUCTIONS!"
+      /* Why not #error here? because that might result in internal changes that make the bug
+       * you disabled TO to fix go away. Since the LTO-disabled platform.txt does not permit
+       * code to be uploaded, this is mostly relevant if examining assembly */
+      #define SPMCOMMAND "nop"
+    #else
+      #define SPMCOMMAND "call EntryPointSPM"
+    #endif
   #else
     #define SPMCOMMAND "spm Z+"
   #endif

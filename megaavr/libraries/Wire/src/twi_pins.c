@@ -70,7 +70,7 @@ bool TWI_checkPins(uint8_t sda_pin, uint8_t scl_pin) {
     }
     // For this to work:
     // 1) sda_pin = scl_pin - 1 must actually be true for all parts (it's not, because portb is numbered backwards)
-    // 2) This must be part of Wire.cpp so that the constant
+    // 2) This must be part of Wire.cpp so that the constants that are passed can be constant folded
   return true;
 }
 */

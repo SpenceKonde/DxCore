@@ -32,17 +32,7 @@
  * error messages and codes at runtime, since we have no other way to report such.                                 */
 
 #define SINGLE_ENDED 254
-inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
-  if(__builtin_constant_p(pin)) {
-    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
-      /* Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
-       * While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
-       * taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
-       * Passing -1/255/NOT_A_PIN to the digital I/O functions is too likely to be intended                          */
-      badArg("digital I/O function called is constant, but not a valid pin");
-    }
-  }
-}
+
 
 inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
   if (__builtin_constant_p(mode)) {
@@ -454,7 +444,7 @@ void analogWrite(uint8_t pin, int val) {
       offset &= 0xFE; // WO0-2 ok - 0x0000 0xx0
     } else {
       offset <<= 1;    //0b0xxx 0000
-      _SWAP(offset)   //0b0000 0xx0
+      _SWAP(offset);   //0b0000 0xx0
       offset |= 0x01; //0b0000 0xx1 OK!
     }
     #if defined(TCA1)

@@ -52,15 +52,38 @@
  * badCall() on the other hand is called if we know that regardless of what arguments
  * are passed, that function is nonsensical with current settings, for example, millis()
  * when millis timekeeping has been disabled */
-void badArg(const char*)    __attribute__((error("")));
-void badCall(const char*)   __attribute__((error("")));
 
-// The fast digital I/O functions only work when the pin is known at compile time.
-inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
-{
-  if(!__builtin_constant_p(pin))
-    badArg("Fast digital pin must be a constant");
-}
+#if !defined(LTODISABLED)
+  void badArg(const char*)    __attribute__((error("")));
+  void badCall(const char*)   __attribute__((error("")));
+  // The fast digital I/O functions only work when the pin is known at compile time.
+  inline __attribute__((always_inline)) void check_constant_pin(pin_size_t pin)
+  {
+    if(!__builtin_constant_p(pin))
+      badArg("Fast digital pin must be a constant");
+  }
+#else
+  void badArg(const char*);
+  void badCall(const char*);
+  void check_constant_pin(pin_size_t pin);
+  #if defined(ARDUINO_MAIN) // We need to make sure these substitutes for the badArg and badCall functions are generated once and only once.
+    // They must not attempt to actully detect any error if LTO is disabled
+    void badArg(__attribute__((unused))const char* c) {
+      return;
+    }
+    void badCall(__attribute__((unused))const char* c) {
+      return;
+    }
+    void check_constant_pin(__attribute__((unused))pin_size_t pin) {
+      return;
+    }
+  #endif // Intentionally outside of the above #if so that your console gets fucking spammed with this warning.
+  // The linker errors you turned off LTO to better understand will still be at the bottom.
+  #warning "LTO is disabled. digitalWriteFast(), digitalReadFast(), pinModeFast() and openDrainFast() are unavailable, delayMicroseconds() for short delays and delay() with millis timing disabled is less accuratetest. Unsupported forms of 'new' compile without errors (but always return a NULL pointer). Additionally, functions which normally generate a compile error when passed a value that is known to be invalid at compile time will not do so. The same is true of functions which are not valid with the currently selected tools submenu options."
+  #warning "This mode is ONLY for debugging LINK-TIME ERRORS that are reported by the linker as being located at .text+0, and you can't figure out where the bug is from other information it provides. As noted above, while this may make compilation succeed, it will only turn compile-time errors into incorrect runtime behavior, which is much harder to debug. As soon as the bug that forced this to be used is fixed, switch back to the standard platform.txt!"
+  #warning "UART implementation is forcibly downgraded, Flash.h writes are replaced with NOPs, and pin interrupts are downgraded to the old (less efficient) implementation. All uploading is disabled, and behavior of exported binaries may vary from normal behavior arbitrarily."
+#endif
+
 
 
 /* Analog reference options - Configuring these is very simple, unlike tinyAVR 0/1
@@ -253,10 +276,20 @@ int8_t  getAnalogReadResolution();
 // DIGITAL I/O EXTENDED FUNCTIONS
 // Covered in documentation.
 void           openDrain(uint8_t pinNumber,   uint8_t val);
-int8_t   digitalReadFast(uint8_t pinNumber               );
-void    digitalWriteFast(uint8_t pinNumber,   uint8_t val);
-void         pinModeFast(uint8_t pinNumber,  uint8_t mode);
-void       openDrainFast(uint8_t pinNumber,   uint8_t val);
+#if !defined(LTODISABLED)
+  int8_t   digitalReadFast(uint8_t pinNumber               );
+  void    digitalWriteFast(uint8_t pinNumber,   uint8_t val);
+  void         pinModeFast(uint8_t pinNumber,  uint8_t mode);
+  void       openDrainFast(uint8_t pinNumber,   uint8_t val);
+#elif defined(FAKE_FAST_IO)
+  // Should be enabled if, and only if, you are debugging something that you can't debug with LTO enabled, AND
+  // your code makes use of the fast functions. Note that this drastically alters behavior of code that calls them, taking, in some cases, two orders of magnitude longer
+  #warning "FAKE_FAST_IO code should **never** be expected to work correctly running on hardware. It is just here to provide a way to get past missing definition errors when you are forced to disable LTO for debugging."
+  #define      digitalRead(uint8_t pinNumber               );
+  #define     digitalWrite(uint8_t pinNumber,   uint8_t val);
+  #define          pinMode(uint8_t pinNumber,  uint8_t mode);
+  #define        openDrain(uint8_t pinNumber,   uint8_t val);
+  #endif
 void          turnOffPWM(uint8_t pinNumber               );
 
 // Not a function, still important
@@ -336,7 +369,7 @@ Not enabled. Ugly ways to get delays at very small flash cost.
 
 // The fastest way to swap nybbles
 #ifndef _SWAP
-  #define _SWAP(n) __asm__ __volatile__ ("swap %0"  "\n\t" :"+r"((uint8_t)(n)));
+  #define _SWAP(n) __asm__ __volatile__ ("swap %0"  "\n\t" :"+r"((uint8_t)(n)))
 #endif
 // internally used - fast multiply by 0x20 that assumes x < 8, so you can add it to a uint8_t* to PORTA or member of PORTA,
 // and get the corresponding value for the other port, or equivalently it can be added to 0x0400 which is the address of PORTA.
@@ -608,8 +641,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #ifdef __cplusplus
   #include "UART.h"
 
-  //uint8_t digitalPinToTimerNow(uint8_t p);
-  void analogWrite_x(uint8_t pin, uint8_t val);
+  //uint8_t digitalPinToTimerNow(uint8_t p);=
   int32_t analogReadEnh( uint8_t pin,              uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int16_t analogClockSpeed(int16_t frequency = 0,  uint8_t options = 0);
@@ -675,6 +707,37 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #if !defined(NUM_TOTAL_PINS)
   #define NUM_TOTAL_PINS                (NUM_DIGITAL_PINS) /* Used the same way as NUM_DIGITAL_PINS. so it doesn't mean what it's named  - I didn't make the convention*/
 #endif
+
+inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pin) {
+  if (__builtin_constant_p(pin)) {
+    if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) {
+    // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
+    // While IMO very poor coding practice, these checks aren't here to prevent lazy programmers from intentionally
+    // taking shortcuts we disapprove of, but to call out things that are virtually guaranteed to be a bug.
+    // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
+      badArg("Digital pin is constant, but not a valid pin");
+    }
+  #if (CLOCK_SOURCE == 2)
+    #if defined(MEGATINYCORE)
+      if (pin == PIN_PA3) {
+        badArg("Constant digital pin PIN_PA3 is used for the external osc, and is not available for other uses.");
+      }
+    #else
+      if (pin == PIN_PA0) {
+        badArg("Constant digital pin PIN_PA0 is used for the external osc, and is not available for other uses.");
+      }
+    #endif
+  #elif CLOCK_SOURCE == 1
+    if (pin < 2) {
+      badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
+    }
+  #elif defined(XTAL_PINS_HARDWIRED)
+    if (pin < 2) {
+      badArg("On the selected board, PA0 and PA1 are hardwired to the crystal. They may not be used for other purposes.");
+    }
+  #endif
+  }
+}
 /*******************************************************************
  * PIN CONFIGURE Set any or all pin settings, easily invert, etc   *
  *******************************************************************
@@ -761,7 +824,14 @@ void _pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
   // Restore SREG
   SREG = oldSREG;
 }
+/* External defintitions */
+/* Actual implementation is in wiring_extra.c (or .cpp, if I find that I'm not able tomake it work with .c)
+ * Because of the incrutable rules of C++ scoping, you can define an inline function or a template function in a header....
+ * and not in the body of a separate file, while the opposite is true for ANY OTHER KIND OF FUNCTION. */
 
+void __pinconfigure(const uint8_t digital_pin, uint16_t pin_config);
+void _pinconfigure(uint8_t pin, uint16_t pin_config);
+void pinConfigure(const uint8_t digital_pin, uint16_t pin_config);
 
 #ifdef __cplusplus
 typedef enum : uint16_t
@@ -847,8 +917,7 @@ typedef enum : uint16_t
  */
 
 
-inline pin_configure_t _pincfg(const pin_configure_t mode)
-{
+inline pin_configure_t _pincfg(const pin_configure_t mode) {
   return mode;
 }
 
@@ -861,8 +930,7 @@ inline pin_configure_t _pincfg(const pin_configure_t mode)
  * @return uint16_t pin configuration or'ed together
  */
 template <typename... MODES>
-uint16_t _pincfg(const pin_configure_t mode, const MODES&... modes)
-{
+uint16_t _pincfg(const pin_configure_t mode, const MODES&... modes) {
   return mode | _pincfg(modes...);
 }
 
@@ -877,18 +945,13 @@ uint16_t _pincfg(const pin_configure_t mode, const MODES&... modes)
  * @param modes Nth "mode" parameter
  */
 template <typename... MODES>
-void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const MODES&... modes)
-{
+void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const MODES&... modes) {
   // Or-ing together the arguments using recursion
   uint16_t pin_config = _pincfg(mode, modes...);
   _pinconfigure(digital_pin, pin_config);
 }
 
-inline pinConfigure(const uint8_t digital_pin, uint16_t pin_config)
-{
-  _pinconfigure(digital_pin, pin_config);
-}
-#endif
+
 #include "pinswap.h"
 
 
@@ -983,5 +1046,5 @@ inline pinConfigure(const uint8_t digital_pin, uint16_t pin_config)
 // open serial port, if the user tied it to a different port? Or thought they
 // were going to use software serial "like they always did" (*shudder*)
 
-
+#endif
 #endif
