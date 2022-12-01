@@ -787,7 +787,7 @@ void watchdogConfig (uint8_t x) {
                               "spm"                         "\n\t"
                               "adiw r30,2"                  "\n\t"
         #endif
-                              "dec r25"                     "\n\t" // and use the copy in r25 to cound down.
+                              "dec r25"                     "\n\t" // and use the copy in r25 to count down.
                               "brne head"                   "\n\t"
                               "clr r1"                      "\n\t"
                               : "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr): [len]   "l" (len): "r0", "r24", "r25"); // and declare r25 clobbered

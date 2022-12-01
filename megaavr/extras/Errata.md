@@ -3,9 +3,9 @@ The errata for the DA128 parts was a rather depressing document. A large number 
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected.
 
 These are ordered first in order of the importance and surprisingness of the issue.
-Issues which Microchip has never spoken of publically, and which are hence most likely to come as a surprise are at the top (excepting the recalled 32DAs, which lost the priority as it's been 2 years since any shipped).
+Issues which Microchip has never spoken of publicly, and which are hence most likely to come as a surprise are at the top (excepting the recalled 32DAs, which lost the priority as it's been 2 years since any shipped).
 
-Following that issues known or belived to impact all parts, then issues that are supposedly not present in the AVR DD-series, but I am unsure whether I trust the errata sheet on the matter.
+Following that issues known or believed to impact all parts, then issues that are supposedly not present in the AVR DD-series, but I am unsure whether I trust the errata sheet on the matter.
 
 
 Issue                          | Severity | Source    | 128DA   | 64DA    | 32DA    |  128DB  | 64DB    | 32DB    | 64DD    | 32DD    | 16DD    | Notes                                       |

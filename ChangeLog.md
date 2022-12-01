@@ -22,7 +22,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Bugfix: `long_soft_event` method did not work correctly.
   * Bugfix: Correct bug(s) when waking from sleep mode via TWI (aka I2C/Wire) address match (Thanks @MX682X. You are one of our MVPs). TWI slaves should now *reliably* wake on address match and other wake sources from all sleep modes.
   * The big improvement is that if you don't attach an interrupt using the `attachInterrupt()` method, **you can make your own interrupt, or just save the flash.**
-  * Bugfix: Logic, Event, Comparator and ZCD no longer fight if mutliple are used at the same time.
+  * Bugfix: Logic, Event, Comparator and ZCD no longer fight if multiple are used at the same time.
 * **boards.txt menu related**
   * Enhancement: Improvements for menu options for all boards.
   * Enhancement: Add flash spm options for DD-series parts.
