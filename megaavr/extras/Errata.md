@@ -2,66 +2,71 @@
 The errata for the DA128 parts was a rather depressing document. A large number of issues were present, many of them rather serious. Reasonably complete errata sheets were not available until 8 months after release - and the errata sheet does a poor job of explaining some of the most important issues that it does mention. Where a revision is named, that is the last revision which exhibits this errata.
 As hardware which is not impacted by these issues becomes available, we will provide methods to determine the "silcon revision" and hence whether a part is effected.
 
-Note that as new errata have been discovered, not all of them have made it into here.
+These are ordered first in order of the importance and surprisingness of the issue.
+Issues which Microchip has never spoken of publically, and which are hence most likely to come as a surprise are at the top (excepting the recalled 32DAs, which lost the priority as it's been 2 years since any shipped).
 
-Issue                          | Severity | Source    | 128DA   | 64DA    | 32DA    |  128DB  | 64DB    | 32DB    | 64DD    | 32DD    | 16DD    | Notes                                |
---------------------------------------|---|-----------|---------|---------|---------|---------|---------|---------|---------|---------|---------|--------------------------------------|
-Increased Current if Vdd falls < 2.1V | 3 | Microchip | No?     | No?     | No?     | YES     | YES     | YES     | No?     | No?     | No?     |                                      |
-Violating maximum Vdd slew can damage | 3 |           | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all Dx-series parts.|
-BOD registers not reset if UPDI enable| 1 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | POR needed for them to be reset      |
-Vector table is wrong                 | 5 | AVRFreaks | -       | -       |RECALLED | -       | -       | -       | -       | -       | -       | Impacted chips recalled, incident hushed up |
-CRC check on reset non-functional     | 1 | Microchip | A6      | A3      | A3      | A4      | -       | -       | -       | -       | -       | Impacted parts very rarely seen.     |
-Fully async pins have dead-time.      | 1 | DxCore    | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Likely impacts all modern AVRs       |
-DAC drifts long term if no buffer     | ? | Microchip | YES     | YES?    | YES?    | YES     | YES?    | YES?    | No?     | No?     | No?     | Not quantified; Unclear how bad      |
-ADC disables digital input            | 2 | Microchip | YES     | YES     | YES     | -       | -       | -       | -       | -       | -       | Just a nuisance on DA-series only.   |
-Memory mapped flash issues            | 1 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | Largely a non-issue, just write by word |
-SPM does not ignore low bit of address| 1 | DxCore    | YES     | YES     | Yes     | YES     | YES     | YES     | LIKELY  | LIKELY  | LIKELY  | Unacknowledged by Microchip.         |
-Multipage erase can erase protected   | 1 | Microchop | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Only applies to later sections of memory. Non-issue for Arduino |
-TCA restart resets counter direction  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | -       | The datasheet says this is intended! |
-TCB CCMPH/CCMPL act as 16-bit in PWM  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all modern AVRs         |
-TCB async slower than sync events     | 3 | DxCore    | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all modern AVRs.    |
+Following that issues known or belived to impact all parts, then issues that are supposedly not present in the AVR DD-series, but I am unsure whether I trust the errata sheet on the matter.
+
+
+Issue                          | Severity | Source    | 128DA   | 64DA    | 32DA    |  128DB  | 64DB    | 32DB    | 64DD    | 32DD    | 16DD    | Notes                                       |
+--------------------------------------|---|-----------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------------------------------------------|
+Violating maximum Vdd slew can damage | * |           | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all Dx-series parts.       |
+Fully async pins have dead-time.      | 1 | DxCore    | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Likely impacts all modern AVRs              |
+SPM does not ignore low bit of address| 1 | DxCore    | YES     | YES     | Yes     | YES     | YES     | YES     | LIKELY  | LIKELY  | LIKELY  | Unacknowledged by Microchip.                |
+TCB async slower than sync events     | 3 | DxCore    | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all modern AVRs.           |
+Multipage erase can erase protected   | 1 | Microchop | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Extreme corner case                         |
+TCD0 halt+wait for SW with CMPA = 0   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Broken in dual slope or CMPA not used       |
+USART non-functional after ISF recv.  | 2 | Microchip | No?     | No?     | No?     | No?     | No?     | No?     | YES     | YES     | YES     | Worked around by core.                      |
+Flash endurance 1k, not 10k cycles    | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | Kinda   | Kinda   | Kinda   | On DD-series 10k rewrites never claimed     |
+TCA restart resets counter direction  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES?    | Kinda   | Kinda   | Kinda   | Restart "should" **NOT** reset direction    |
+TCB single-shot EDGE bit              | 3 | Microchip | Kinda   | Kinda   | Kinda   | YES     | YES     | YES     | Kinda   | Kinda   | Kinda   | Datasheet clarification/change              |
+TCB CCMPH/CCMPL act as 16-bit in PWM  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all pre-DD modern AVRs         |
+Increased Current if Vdd falls < 2.1V | 3 | Microchip | No?     | No?     | No?     | YES     | YES     | YES     | No?     | No?     | No?     |                                             |
+PLLS bit always 0 unless requested    | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | As long as you know, non-issue              |
+PLL doesn't work from ext. xtal       | 1 | Microchip | -       | -       | -       | YES     | YES     | YES     | No?     | No?     | No?     | Rarely important.                           |
+All CCL LUTs enable-locked to CCL     | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all pre-DD modern AVRs         |
+TCD0 async events w/CNTPRESC broken   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Has impacted all pre-DD modern AVRs         |
+TWI Pins must be LOW                  | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Has impacted all pre-DD modern AVRs         |
+DAC drifts long term if no buffer     | ? | Microchip | YES     | YES     | YES?    | YES     | YES     | YES     | -       | -       | -       | Not quantified; Unclear how bad             |
+USART Open Drain TX must be INPUT     | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Fixed with the DD!                          |
+USART start of frame detect in active | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Worked around by core.                      |
+TCD0 portmux options broken           | 4 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Intensely frustrating!                      |
+TWI Flush non-functional              | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Instead of un-jamming bus, jams bus         |
+BOD registers not reset if UPDI enable| 1 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | POR needed for them to be reset             |
+ADC disables digital input            | 2 | Microchip | YES     | YES     | YES     | -       | -       | -       | -       | -       | -       | Just a nuisance on DA-series only.          |
+ZCD Output remapping broken           | 1 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | Can be worked around with events            |
+CCL3 on 32/28-pin no LINK input       | 2 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | Fixed quickly, probably easy fix            |
+RUNSTBY broken for 32k external       | 2 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | Fixed quickly on the DB.                    |
+Memory mapped flash issues            | 1 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | Largely a non-issue, just write by word     |
 No TCA1 Remap on PORTE/G              | 4 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | This is a real pain now that we support alt mappings! |
-TWI Pins must be LOW                  | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Has impacted all modern AVRs         |
-SPI SSD must be set when mux=NONE     | 1 | Microchip | YES     | No?     | No?     | No?     | No?     | No?     | -       | -       | -       | What is the point of SPI w/mux=NONE? |
-USART Open Drain TX must be INPUT     | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Fixed with the DD!                   |
-USART start of frame detect in active | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Worked around by core.               |
-USART non-functional after ISF recv.  | 2 | Microchip | -       | -       | -       | -       | -       | -       | Yes     | Yes     | Yes     | Worked around by core.               |
-TWI SDA Hold Times                    | 1 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | Relevant to 128DA only.              |
-TWI Flush non-functional              | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | This feature not exposed in wire because of this |
-ZCD Output remapping broken           | 1 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | Can be worked around with events     |
-No Event on PB6,7 PE4,5,6,7           | 3 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | Use different pins.                  |
-All CCL LUTs enable-locked to CCL     | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all modern AVRs         |
-CCL3 on 32/28-pin no LINK input       | 2 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | Fixed quickly, probably easy fix     |
-Initial fuses don't match datasheet   | 1 | Microchip | A6      | A3      | A3      | A4      | -       | -       | -       | -       | -       | No practical implications            |
-TCD count prescale breaks async input | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all modern AVRs         |
-RUNSTBY broken for 32k external       | 2 | Microchip | YES     | YES     | YES     | A4      | -       | -       | -       | -       | -       | Fixed quickly on the DB.             |
-Ext. Clock status bit broken for ext. | 2 | Microchip | No?     | No?     | No?     | A4      | -       | -       | -       | -       | -       | DB Only? Likely caused by xtal support |
-PD0 input buffer floating             | 1 | Microchip | -       | -       | -       | YES     | YES     | YES     | -       | -       | -       | Automatically worked around by core  |
-TCD0 halt+wait for SW with CMPA = 0   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Broken in dual slope or CMPA not used|
-TCD0 async events w/CNTPRESC broken   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Unlikely to impact users.
-TCD0 portmux options broken           | 4 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | -       | -       | -       | Intensely frustrating!               |
-ADC increased offset in single-ended  | 5 | Microchip | -       | -       | -       | A4      | -       | -       | -       | -       | -       | Very nasty bug, fixed really fast    |
-OPAMP power consumption 3x higher     | 2 | Microchip | -       | -       | -       | A4      | -       | -       | -       | -       | -       | Opamp being this far off spec...     |
-OPAMP IRSEL bit read-only             | 2 | Microchip | -       | -       | -       | A4      | -       | -       | -       | -       | -       | ... was not a good look. Fast fix.   |
-PLLS bit always 0 unless requested    | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | As long as you know, non-issue       |
-PLL doesn't work from ext. xtal       | 1 | Microchip | -       | -       | -       | YES     | YES     | YES     | No?     | No?     | No?     | Rarely important.                    |
-Flash endurance 1k, not 10k cycles    | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | On DD-series 10k rewrites never claimed |
-TCB input capture EDGE bit            | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Datasheet clarification: Edge = 1 is both, not falling |
+TWI SDA Hold Times                    | 1 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | Relevant to 128DA only.                     |
+No Event on PB6,7 PE4,5,6,7           | 3 | Microchip | YES     | -       | -       | -       | -       | -       | -       | -       | -       | Use different pins.                         |
+PD0 input buffer floating             | 1 | Microchip | -       | -       | -       | YES     | YES     | YES     | -       | -       | -       | Automatically worked around by core         |
+SPI SSD must be set when mux=NONE     | 1 | Microchip | YES     | No?     | No?     | No?     | No?     | No?     | -       | -       | -       | What is the point of SPI w/mux=NONE?        |
+Ext. Clock status bit broken for ext. | 2 | Microchip | No?     | No?     | No?     | A4 **   | -       | -       | -       | -       | -       | DB Only? Likely caused by xtal support      |
+CRC check on reset non-functional     | 1 | Microchip | A6 **   | A3 **   | A3 **   | A4 **   | -       | -       | -       | -       | -       | Impacted parts very rarely seen.            |
+Initial fuses don't match datasheet   | 1 | Microchip | A6 **   | A3 **   | A3 **   | A4 **   | -       | -       | -       | -       | -       | No practical implications                   |
+ADC increased offset in single-ended  | 5 | Microchip | -       | -       | -       | A4 **   | -       | -       | -       | -       | -       | Very nasty bug, fixed really fast           |
+OPAMP power consumption 3x higher     | 2 | Microchip | -       | -       | -       | A4 **   | -       | -       | -       | -       | -       | Opamp being this far off spec...            |
+OPAMP IRSEL bit read-only             | 2 | Microchip | -       | -       | -       | A4 **   | -       | -       | -       | -       | -       |          ... was not a good look. Fast fix. |
+Vector table is wrong                 | 9 | AVRFreaks | -       | -       |RECALLED | -       | -       | -       | -       | -       | -       | Impacted chips recalled, incident hushed up |
 
+`**` - This revision occurred extremely close to release. If impacted parts made it out of the gates of the Microchip fab, their numbers are very small!
 
-
+Kinda - The change or bug is present on those parts - but here, it is behaving "correctly". The three issues here include two datasheet clarifications (flash endurance and TCB EDGE) - these get changed to Kinda when the actual datasheet is updated to reflect the change, and once they've been propagated to all Dx-series datasheets, they'll go in a different section, and one datasheet clarification + errata (TCA restart) where the parts worked as documented, but they decided the way it worked was dumb and that needed to change it.
+Yes? - Not mentioned in errata. I haven't looked for it on actual hardware. But I would be thoroughly stunned if the issue wasn't present
 No? - Not mentioned in errata, but has not been confirmed as not being present. Likely these are not present on DD-series parts, but may be present on DA/DB parts.
-Yes? -
 `-` : This erratum is not applicable to any of these parts as they do not have the pins and/or peripherals effected, or this erratum is known to not impact these parts
 
 ## Severity scale
 From Arduino perspective. Totally subjective and my own judgement.
-
+`*` - Hard to put a number on this issue as it cannot manifest unless the designer fails to observe normal best (or even mediocre) practices of electrical engineering. As long as you don't
 1. Nobody in Arduino-land likely to care: Either it is worked around transparently by core+libraries, and/or the feature impacted is exotic.
 2. Worked around in core and/or only rarely impacts users
 3. Cannot be fully worked around by core or user code, but also unlikely to cause severe problems for users.
 4. No viable workaround, and could compromise the viability of the part for applicable use cases
-5. Critical. The device is not usable for common tasks. These have all been fixed very rapidly.
+5. Critical. The device is not usable for common tasks. These have all been fixed very rapidly, though there is no evidence of the impacted parts having been recalled other than an absence of impacted parts in the wild.
+9. The device is unusable for any task, and was recallalled when Microchip became aware of it. Supposedly they will replace impacted parts, in the unlikely event that anyone still has them
 
 The issues I consider 4's are the two remapping issues, one of which is impacting all DA/DB (TCD), while the other only effects AVR128DA64.
 
@@ -159,11 +164,6 @@ See [the discussion topic, which quotes Microchip support](https://github.com/Sp
 
 There is no workaround.
 
-### TCB input capture EDGE bit (Datasheet Clarification)
-Originally the datasheets described EDGE = 0 as triggering on positive edge, and EDGE = 1 as triggering on negative edges. EDGE = 1 in fact is triggered on both edges (this is better, as you can invert the pin to trigger on the opposite edge if you need to.
-
-Marked "YES" for the DD-series because although their datasheet always described the behavior accurately, the
-
 ### TCD0 on non-default port doesn't work
 When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four outputs are controlled by the TCD0.FAULTCTRL CMPAEN bit (in other words, only PORTA works for TCD0, unless you want the same output on 4 pins).
 
@@ -237,7 +237,7 @@ Yeah, it always reads 0 unless a peripheral is using it. Pretty much defeats the
 ### PLL on DB-series doesn't run from external crystal
 If the SOURCE bit in CLKCTRL.PLLCTRLA is set to 1, datasheet implies that it should be clocked from external clock or crystal. This does not work - instead, it does not appear to generate any output whatsoever. I doubt anyone here cares, but, I tripped over this almost immediately when I started playing with the crystal as clock on DB-series... (was trying to make sure that clock sources were "requested" so the bits would be set in CLKCTRL.MCLKSTATUS, because of those other errata).
 
-### TCA restart resets counter direction
+### TCA restart resets counter direction (Errata *and* datasheet change)
 This erratum is going into every update to modern AVR errata (except the DD). It was not initially clear how that differed from the intended behavior...
 
 From Errata:
@@ -254,7 +254,14 @@ I can see how this might not be ideal for restart events... but nowhere is any t
 
 It would appear that they changed their mind and decided that the correct behavior is not to change the direction, per the DD-series datasheet.
 
-### Flash endurance 1k, not 10k cycles
+
+### TCB single-shot EDGE bit (Datasheet clarification)
+Originally the datasheets described EDGE = 0 as triggering on positive edge, and EDGE = 1 as triggering on negative edges. EDGE = 1 in fact is triggered on both edges (this is better, as you can invert the pin to trigger on the opposite edge if you need to.
+
+Marked "YES" for the DD-series because although their datasheet always described the behavior accurately, but it is still different from what you will expect if you're reading the DB datasheet or an older copy of the DA datasheet.
+
+
+### Flash endurance 1k, not 10k cycles (Datasheet clarification)
 This is a "datasheet clarification" instead of an errata, which I take to mean that they don't plan to fix this. Which seems sort of surprising, frankly, if the DD's are going to be released this fixed, when you just know most of the errata here are unlikely to ever get a correction. Maybe the DD's are going to get released with 1k flash write endurance, and they've decided that it's not practical to fix on the DD while keeping word writes?
 
 ### Fully vs Partially async pin behavior inconsistent with datasheet w/rt "dead time"
