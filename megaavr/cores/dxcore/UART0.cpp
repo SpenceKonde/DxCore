@@ -32,7 +32,7 @@
  * to make things work better with millis off, and free up 4 bytes of sram.
  */
 #include "Arduino.h"
-#include "UART.h"
+#include "HardwareSerial.h"
 #include "UART_private.h"
 
 
