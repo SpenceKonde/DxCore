@@ -65,6 +65,7 @@ menu.resetupdipins=Reset and UPDI pin functions (Bootload burn req'd)
 menu.resetupdipinsopti=Reset and UPDI pin functions (Bootload burn req'd)
 menu.startuptime=Startup Time (Bootload burn req'd)
 menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
+menu.bootloaderusartdd=Bootloader Serial Port, LED on 14-pin (Bootload burn req'd)
 menu.entrycond=Bootloader Entry Condition (Bootload burn req'd)
 menu.appspm=Write to flash from app
 menu.mvio=MultiVoltage I/O (MVIO)
@@ -2718,7 +2719,11 @@ avrddopti.build.mvioenable=-DMVIO_ENABLED
 avrddopti.build.core=dxcore
 avrddopti.build.f_cpu={build.speed}000000L
 avrddopti.build.text_section_start=.text=0x200
-avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable}
+avrddopti.build.altled=
+avrddopti.build.14pinled=
+# Now that's an ugly hack! - both of these empty string options get overridden. On 14-pin parts 14pinled is overridden to take thevalue of {build.altled}.
+# But that's an empty string.... UNLESS Serial1 instead of Serial0 is used, and is used with the ALT2 mux option. Then the LED couldn't be on the default pin, so we use PD4 instead of PD6.
+avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable} {build.altled}
 avrddopti.build.export_merged_output=false
 avrddopti.build.highestcb=B2
 avrddopti.build.printf=
@@ -2784,6 +2789,7 @@ avrddopti.menu.chip.avr64dd14.upload.maximum_size=65024
 avrddopti.menu.chip.avr64dd14.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd14.build.highestcb=B1
 avrddopti.menu.chip.avr64dd14.build.variant=14pin-ddseries
+avrddopti.menu.chip.avr64dd14.build.14pinled={build.altled}
 avrddopti.menu.chip.avr64dd20.build.mcu=avr64dd20
 avrddopti.menu.chip.avr64dd20.bootloader.class=optiboot_64dd
 avrddopti.menu.chip.avr64dd20.upload.maximum_size=65024
@@ -2824,6 +2830,7 @@ avrddopti.menu.chip.avr32dd14.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd14.build.highestcb=B1
 avrddopti.menu.chip.avr32dd14.build.variant=14pin-ddseries
+avrddopti.menu.chip.avr32dd14.build.14pinled={build.altled}
 avrddopti.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr16dd32.upload.maximum_size=15872
@@ -2846,6 +2853,8 @@ avrddopti.menu.chip.avr16dd14.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd14.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd14.build.highestcb=B1
 avrddopti.menu.chip.avr16dd14.build.variant=14pin-ddseries
+avrddopti.menu.chip.avr16dd14.build.14pinled={build.altled}
+
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -3114,35 +3123,35 @@ avrddopti.menu.wiremode.mands.build.wireabr=.wA
 #----------------------------------------#
 # Optiboot serial port                   #
 #________________________________________#
-avrddopti.menu.bootloaderusart.ser0=USART0 (default pins): TX PA0, RX PA1 (int. clock only)
+avrddopti.menu.bootloaderusart.ser0=USART0 (default pins): TX PA0, RX PA1 (int. clock only) (on 14-pin: PD6 is led, others PA7)
 avrddopti.menu.bootloaderusart.ser0.bootloader.port=_ser0
 avrddopti.menu.bootloaderusart.ser0.bootloader.portname=Serial
 avrddopti.menu.bootloaderusart.ser0.bootloader.portswap=0
-avrddopti.menu.bootloaderusart.ser0_alt1=USART0 (alt1): TX PA4, RX PA5 (20+ pin only)
+avrddopti.menu.bootloaderusart.ser0_alt1=USART0 (alt1): TX PA4, RX PA5 (20+ pin only, LED always PA7)
 avrddopti.menu.bootloaderusart.ser0_alt1.bootloader.port=_ser0_alt1
 avrddopti.menu.bootloaderusart.ser0_alt1.bootloader.portname=Serial
 avrddopti.menu.bootloaderusart.ser0_alt1.bootloader.portswap=1
-avrddopti.menu.bootloaderusart.ser0_alt2=USART0 (alt2): TX PA2, RX PA3 (20+ pin only)
+avrddopti.menu.bootloaderusart.ser0_alt2=USART0 (alt2): TX PA2, RX PA3 (20+ pin only, LED always PA7)
 avrddopti.menu.bootloaderusart.ser0_alt2.bootloader.port=_ser0_alt2
 avrddopti.menu.bootloaderusart.ser0_alt2.bootloader.portname=Serial
 avrddopti.menu.bootloaderusart.ser0_alt2.bootloader.portswap=2
-avrddopti.menu.bootloaderusart.ser0_alt3=USART0 (alt3): TX PD4, RX PD5
+avrddopti.menu.bootloaderusart.ser0_alt3=USART0 (alt3): TX PD4, RX PD5 (on 14-pin: PD6 is led, on others PA7)
 avrddopti.menu.bootloaderusart.ser0_alt3.bootloader.port=_ser0_alt3
 avrddopti.menu.bootloaderusart.ser0_alt3.bootloader.portname=Serial
 avrddopti.menu.bootloaderusart.ser0_alt3.bootloader.portswap=3
-avrddopti.menu.bootloaderusart.ser0_alt4=USART0 (alt4): TX PC1, RX PC2
+avrddopti.menu.bootloaderusart.ser0_alt4=USART0 (alt4): TX PC1, RX PC2 (on 14-pin: PD6 is led, on others PA7)
 avrddopti.menu.bootloaderusart.ser0_alt4.bootloader.port=_ser0_alt4
 avrddopti.menu.bootloaderusart.ser0_alt4.bootloader.portname=Serial
 avrddopti.menu.bootloaderusart.ser0_alt4.bootloader.portswap=4
-avrddopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1 (28/32 pin only)
+avrddopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1 (28/32 pin only, LED always PA7))
 avrddopti.menu.bootloaderusart.ser1.bootloader.port=_ser1
 avrddopti.menu.bootloaderusart.ser1.bootloader.portname=Serial1
 avrddopti.menu.bootloaderusart.ser1.bootloader.portswap=0
-avrddopti.menu.bootloaderusart.ser1_alt2=USART1 (alt2): TX PD6, RX PD7
+avrddopti.menu.bootloaderusart.ser1_alt2=USART1 (alt2): TX PD6, RX PD7 (on 14-pin: PD4 is led, on others PA7)
 avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.port=_ser1_alt2
 avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portname=Serial1
 avrddopti.menu.bootloaderusart.ser1_alt2.bootloader.portswap=2
-
+avrddopti.menu.bootloaderusart.ser1_alt2.altled=-DLED_BUILTIN=PIN_PD4
 
 #----------------------------------------#
 # WDT MODE                               #

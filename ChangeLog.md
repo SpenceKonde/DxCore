@@ -4,7 +4,7 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 These items are in addition to what was listed under changes already in release.
 
 ### Planned enhancements
-"Enhancements" are changes to the core which improve functionality and/or introduce new and exotic bugs. Sometimes called "Features", I prefer the term "enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compile time error detection. All things that, as well as new features, would qualify as an enhancement.
+"Enhancements" are changes to the core which improve functionality and/or introduce new and exotic bugs. Sometimes called "Features", I prefer the term "Enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compile time error detection. All things that, as well as new features, would qualify as an enhancement.
 
 #### Enhancements Planned for 1.5.x
 * Add pinout charts for the DD-series that don't look like they were made by an untalented hack in Microsoft paint using the DB pinouts.
@@ -13,40 +13,53 @@ These items are in addition to what was listed under changes already in release.
 Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
 
 ### 1.5.0
-* Port fixes to Logic, Event and Comparator libraries from megaTinyCore.
-  * This means if you don't attach an interrupt using the `attachInterrupt()` method, you can make your own interrupt, or just save the flash.
-* Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this had little impact on actual behavior)
-* Remove notice in that MVIO requires bootloader burn to apply for non-optiboot parts (where it is not required), and add it to optiboot parts (where it is - yes, these were backwards)
-* Add new entry condition menu for optiboot boards
-* Correct issue with the menu options for AVR DD-series parts, which resulting in burn bootloader bricking these chips to all who don't have an NV UPDI programmer, of which I believe only one is currently available, from Microchip, for an arm and a leg.
-  * Special thanks to the folks who reported this before I had a chance to brick any of my own hardware!
-* Improvements for menu options for all boards.
-* Add flash spm options for DD-series parts.
-* New Toolchain version: ~Azduino5~ Azduino6 for DD support
-  * Required changes because of Microchip having renamed a bunch of registers >.<
-  * Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK.
-  * Adds support for 32k and 16k DD-series parts.
-* Largely reimplemented the first half of analogWrite(). On parts with a TCA1, all PORTMUX options should now work, even those with only 3 pins.
-* Fix issue with SerialUPDI uploads on updated versions of linux
-* Add more part information macros (See [the define list](megaavr/extras/Ref_Defines.md))
-* Fix SPI.h library handling of SS disable bit - When beginTransaction was called, we were clearing it! (#277)
-* Fix SPI pin issue with pin numbers
-* Enable all DD-series parts
-* Update to latest version of Wire
-* Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
-* Complete rewrite of the logic used to determine which timer and pins on TCA0 and TCA1 are used for PWM
-* Change class hierarchy for hardware serial ports. This results in some flash size reduction since unused virtual functions now don't have to exist. (The same thing was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints about the fact that stock version of Wire wouldn't fit onto a 4k part. The Wire library has since seen a near total rewrite which further reduced flash usage). Thus, rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) to derive UartClass, we instead subclass Stream directly. This has been accompanied by changing the name of the class to HardwareSerial to ensure code compatibility (so a library could ask for a pointer to a HardwareSerial port - this works on both classic and modern AVRs (and it did on DxCore in the past too, because UartClass was a subclass of HardwareSerial), with a smaller binary.
-* Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM.
-* Correct issue introduced in 1.4.x which could cause problems when receiving data over Serial.
-* Implement generic autobaud for Serial and some associated functionality.
-* Correct bad pwm-related macros on 28, 32, and 20 pin DD-series parts.
-* Correct issue with spurious verification error on 128k parts using the bootloader when uploading a sketch of 64513-64024 bytes.
-* Correct internal flaw in the bootloader that meant the compiler could legally output a bootloader binary which would only write 314 bytes per 512 byte page, leaving the rest blank. This happened to not manifest for the previous bootloader binaries. This was purely dumb luck though, and the new ones didn't work.
-* Implement a greater variety of entry conditions for the bootloader. This combined with DD increases the number of binaries I distribute to 325 for this core,.
-* Correct issue with serial on alt pins in Optiboot that *never* should have worked.
-* Add the MCUDude version of pinConfigure, arguments can now be separated by commas not bitwise OR's (though the old way will work).
-* Add WDT menu options to set the WDT fuse to forcibly enable the watchdog timer on start.
-
+* **Major Enhancement: Support the AVR DD-series parts!!**
+* **Major Enhancement: Update to latest version of Wire**
+* **Related to other libraries**
+  * Bugfix: Fix issue with SSD bit being cleared when using beginTransaction().
+  * Bugfix: Fix bug in Logic with pin inputs being handled improperly.
+  * Bugfix: Remove multiple signatures for Wire.requestFrom to fix issues with Wire with certain libraries.
+  * Bugfix: `long_soft_event` method did not work correctly.
+  * Bugfix: Correct bug(s) when waking from sleep mode via TWI (aka I2C/Wire) address match (Thanks @MX682X. You are one of our MVPs). TWI slaves should now *reliably* wake on address match and other wake sources from all sleep modes.
+  * The big improvement is that if you don't attach an interrupt using the `attachInterrupt()` method, **you can make your own interrupt, or just save the flash.**
+  * Bugfix: Logic, Event, Comparator and ZCD no longer fight if mutliple are used at the same time.
+* **boards.txt menu related**
+  * Enhancement: Improvements for menu options for all boards.
+  * Enhancement: Add flash spm options for DD-series parts.
+  * Bugfix: Remove notice in that MVIO requires bootloader burn to apply for non-optiboot parts (where it is not required), and add it to optiboot parts (where it is - yes, these were backwards)
+  * Bugfix: Correct issue with the menu options for AVR DD-series parts, which resulting in burn bootloader bricking these chips to all who don't have an NV UPDI programmer, of which I believe only one is currently available, from Microchip, for an arm and a leg. (Special thanks to the folks who reported this before I had a chance to brick any of my own hardware)
+  * Enhancement: Add WDT menu options to set the WDT fuse to forcibly enable the watchdog timer on start.
+* **PWM related**
+  * Enhancement: Largely reimplemented the first half of analogWrite(). On parts with a TCA1, all PORTMUX options should now work, even those with only 3 pins.
+  * Enhancement: Enable PORTMUX detection for TCD0 on the DD's (and it can be enabled easily for DA and DB parts if they ever fix the errata)
+  * Bugfix: Correct bad pwm-related macros on 28, 32, and 20 pin DD-series parts.
+* **SerialUPDI related**
+  * Bugfix: Fix issue with SerialUPDI uploads on updated versions of linux
+  * Bugfix: Correct issue with SerialUPDI and PROGMEM_SECTIONn directives (it was tripping over the hole in the binary).
+* **Serial related**
+  * Major Enhancement: Change class hierarchy for hardware serial ports. This results in some flash size reduction since unused virtual functions now don't have to exist. (The same thing was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints about the fact that stock version of Wire wouldn't fit onto a 4k part. The Wire library has since seen a near total rewrite which further reduced flash usage). Thus, rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) to derive UartClass, we instead subclass Stream directly. This has been accompanied by changing the name of the class to HardwareSerial to ensure code compatibility (so a library could ask for a pointer to a HardwareSerial port, using that name like it would on classic AVRs) and it still works (it always did, but only because UARTclass was a subclass of HardwareSerial, which was a subclass of Stream). This saves yet more flash on top of the reduction from the 1.4.x series of versions where the ISRs were merged
+  * Enhancement: Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM.
+  * Bugfix: Correct issue introduced in 1.4.x which could cause problems when receiving data over Serial.
+  * Enhancement: Implement generic autobaud for Serial and some associated functionality.
+* **Bootloader related**
+  * Enhancement: Implement a greater variety of entry conditions for the bootloader. This combined with DD increases the number of binaries I distribute to 325 for this core from 65 to 330 (the entry conditions alone would have brought it to 198. The new parts added 132 more).
+  * Enhancement: Add new entry condition menu for optiboot boards.
+  * Bugfix: Correct issue with spurious verification error on 128k parts using the bootloader when uploading a sketch of 64513-64024 bytes.
+  * Bugfix: Correct internal flaw in the bootloader that meant the compiler could legally output a bootloader binary which would only write 314 bytes per 512 byte page, leaving the rest blank. This happened to not manifest for the previous bootloader binaries. This was purely dumb luck though, and the new ones didn't work.
+  * Bugfix: Correct issue with serial on alt pins in Optiboot that *never* should have worked.
+  * Bugfix: Account for the fact that there is no acceptable LED pin on a 14-pin DD that is viable for all serial port and mux options. We pick PD6, unless using USART1, in which case we assume the LED is on PD4.
+* **Related to errors that may occur at hidden locations when using LTO (".text+0")**
+  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - in some cases the things done to make it compile with LTO disabled do not preserve functionality).
+  * Enhancement: Add clean copies of platform.txt and platform.txt without LTO/uploading, for both manual and board manager installations to extras.
+* **Other**
+  * Enhancement: Add more part information macros (See [the define list](megaavr/extras/Ref_Defines.md))
+  * Enhancement: New Toolchain version: ~Azduino5~ Azduino6 for DD support. Added about 4000 lines of code to core_devices.h to ensure compatibility with people who manually install on instance with the old ATPACK
+  * Bugfix: Undesired quote stripping bug workaround for windows cmd /C
+  * Bugfix: Correct bug with MVIO enable/disable behavior always being treated as disabled by the application code (this had little impact on actual behavior)
+  * Actually make it impossible to disable warnings.
+  * Enhancement: Add the MCUDude version of pinConfigure, arguments can now be separated by commas not bitwise OR's (though the old way will work).
+  * Bugfix: Add the missing #defines for peripheral count and reorganize core_devices to make porting easier
+  * Port asm millis from mTC.
 
 ## Version History
 

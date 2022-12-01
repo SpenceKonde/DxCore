@@ -140,7 +140,7 @@
 
 
 #if !defined(OPTIBOOT_CUSTOMVER)
-  #define OPTIBOOT_CUSTOMVER 0x10
+  #define OPTIBOOT_CUSTOMVER 0x11
 #endif
 
 
@@ -250,8 +250,8 @@ typedef union {
 
 // DX series starts up at 4 MHz; we use it and leave it at that speed.
 
-#define BAUD_SETTING_4 (((4000000)*64) / (16L*BAUD_RATE))
-#define BAUD_ACTUAL_4 ((64L*(4000000)) / (16L*BAUD_SETTING))
+#define BAUD_SETTING_4 (((4000000) * 64) / (16L * BAUD_RATE))
+#define BAUD_ACTUAL_4 ((64L * (4000000)) / (16L * BAUD_SETTING))
 
 #if BAUD_SETTING_4 < 64   // divisor must be > 1.  Low bits are fraction.
   #error Unachievable baud rate (too fast) BAUD_RATE
@@ -325,9 +325,8 @@ static void getNch(uint8_t);
 
 static inline void read_flash(addr16_t, pagelen_t len);
 
-//#if (__AVR_ARCH__!=103)
-//static void do_spm_erase(const addr16_t address);
-//#endif
+//#define TRY_USING_EEPROM
+
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
  * lot of peripheral registers.
@@ -342,27 +341,6 @@ static inline void read_flash(addr16_t, pagelen_t len);
 /* These definitions are NOT zero initialised, but that doesn't matter */
 /* This allows us to drop the zero init code, saving us memory */
 static addr16_t buff = {(uint8_t *)(RAMSTART)};
-
-
-/* everything that needs to run VERY early */
-// Reworked writing to flash from app to simplify using it and save
-// precious bootloader space.
-/*
-void pre_main (void) {
-    // Allow convenient way of calling do_spm function - jump table,
-    //   so entry to this function will always be here, independent
-    //    of compilation, features, etc
-    __asm__ __volatile__ (
-  "  rjmp  1f\n"
-#ifndef APP_NOSPM
-  "  rjmp  do_nvmctrl\n"
-#else
-  "   ret\n"   // if do_spm isn't include, return without doing anything
-#endif
-  "1:\n"
-  );
-}
-*/
 
 /* main program starts here */
 int main (void) {
@@ -437,9 +415,9 @@ int main (void) {
     if (ch & RSTCTRL_WDRF_bm || ((ch & 0x35) == 0)) {
   #endif
     // Start the app.
-    // Dont bother trying to stuff it in r2, which requires heroic effort to fish out
+    // Dont bother trying to stuff it in r_2, which requires heroic effort to fish out
+    // Note 11/30/21: Mangled name of that second register so the asm can be searched to see which regs are unused.
     // we'll put it in GPIOR0 (aka GPR.GPR0) where it won't get stomped on.
-    //__asm__ __volatile__ ("mov r2, %0\n" :: "r" (ch));
     RSTCTRL.RSTFR=ch; //clear the reset causes before jumping to app...
     GPR.GPR0 = ch;    // but, stash the reset cause in GPIOR0 for use by app...
     // 11/29
@@ -735,15 +713,15 @@ void watchdogConfig (uint8_t x) {
 #if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len) {
     switch (memtype) {
-      /*
-      case 'E': // EEPROM
-        address.word += MAPPED_EEPROM_START;
-        nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-        while(len--) {
-          *(address.bptr++)= *(mybuff.bptr++);
-        }
-        break;
-      */
+      #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
+        case 'E': // EEPROM
+          address.word += MAPPED_EEPROM_START;
+          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
+          while(len--) {
+            *(address.bptr++)= *(mybuff.bptr++);
+          }
+          break;
+        #endif
       default:  // FLASH
       {
         /*
@@ -770,8 +748,7 @@ void watchdogConfig (uint8_t x) {
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
     //VPORTB.OUT=len;
     switch (memtype) {
-
-      #ifdef BIGBOOT
+      #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
         case 'E': // EEPROM
           address.word += MAPPED_EEPROM_START;
           nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
@@ -796,12 +773,12 @@ void watchdogConfig (uint8_t x) {
            * as much as I had been hoping, just one instruction!
            */
         __asm__ __volatile__ ("ldi r24, 8"                  "\n\t" // page erase
-                              "rcall nvm_cmd"               "\n\t" // r25 has now been shit on
+                              "rcall nvm_cmd"               "\n\t" // r25 has now been shat on
                               "spm"                         "\n\t" // erase the page!
                               "ldi r24, 2"                  "\n\t" // page write
                               "rcall nvm_cmd"               "\n\t"
                               "mov r25, %[len]"             "\n\t" // now copy the len, safely passed as read only
-                              "head:"                       "\n\t" // to the already shit on r25.
+                              "head:"                       "\n\t" // to the already shat on r25.
                               "ld r0, %a[ptr]+"             "\n\t"
                               "ld r1, %a[ptr]+"             "\n\t"
         #if !defined(AVOID_SPMZPLUS) && PROGMEM_SIZE > 65536
@@ -810,7 +787,7 @@ void watchdogConfig (uint8_t x) {
                               "spm"                         "\n\t"
                               "adiw r30,2"                  "\n\t"
         #endif
-                              "dec r25"                     "\n\t" // and use the copy in r25 to count down.
+                              "dec r25"                     "\n\t" // and use the copy in r25 to cound down.
                               "brne head"                   "\n\t"
                               "clr r1"                      "\n\t"
                               : "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr): [len]   "l" (len): "r0", "r24", "r25"); // and declare r25 clobbered
@@ -829,7 +806,7 @@ void nvm_cmd(uint8_t cmd) {
   // the compiler was picking r25 to give len to me above. Then I called nvmcmd, and it trashed
   // the value in len, which was legal, because that's a call clobbered register.
   // Secondly, we would need to either declare every call clobbered register as a clobber,
-  // or save and restore every register, unless we knew which registers were being shit on.
+  // or save and restore every register, unless we knew which registers were being shat on.
   // So what do we do? We can't save and restore every register, and we don't want to clobber everything
   // the above function gets inlined, and the compiler would then need to save everything it needs,
   // but we don't have the flash for that either. Remember, we only have 6 instruction words tops.
