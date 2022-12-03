@@ -445,4 +445,7 @@ const uint8_t digital_pin_to_timer[] = {
 
 
 #endif
+  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for.
+  #define _VALID_ANALOG_PIN(pin)  (pin < 4 && pin > 0 ? (PIN_PD4 + pin) : INVALID_PIN)
+  #define _VALID_DIGITAL_PIN(pin) (pin < 4 && pin > 0 ? (PIN_PD4 + pin) : INVALID_PIN)
 #endif

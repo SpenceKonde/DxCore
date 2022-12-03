@@ -611,6 +611,13 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 */
 
 #include "pins_arduino.h"
+#if !defined(_VALID_ANALOG_PIN)
+  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for.
+  #define _VALID_ANALOG_PIN(pin) (pin < 8 || pin > 0 ? INVALID_PIN : (PIN_PD4 + pin))
+#endif
+#if !defined(_VALID_DIGITAL_PIN)
+  #define _VALID_DIGITAL_PIN(pin) (pin < 4 || pin > 0 ? INVALID_PIN : (PIN_PD4 + pin))
+#endif
 #define digitalPinToPort(pin)               (((pin)     < NUM_TOTAL_PINS ) ?                          digital_pin_to_port[pin]                 : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        (((pin)     < NUM_TOTAL_PINS ) ?                  digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
 #define digitalPinToBitMask(pin)            (((pin)     < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
@@ -769,7 +776,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
 
 void __pinconfigure(const uint8_t digital_pin, uint16_t pin_config);
 void _pinconfigure(uint8_t pin, uint16_t pin_config);
-void pinConfigure(const uint8_t digital_pin, uint16_t pin_config);
+void pinConfigure(uint8_t digital_pin, uint16_t pin_config);
 
 #ifdef __cplusplus
 typedef enum : uint16_t

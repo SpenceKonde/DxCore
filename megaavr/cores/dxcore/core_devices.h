@@ -481,120 +481,129 @@
 
 /* Hardware incapabilities: Errata */
 // 0 = = this erratum does not apply to a part
-// -1 = this erratum applies to all parts.
+// 1 = this erratum applies to all of these parts
 // any other value: This erratum applies to parts before this silicon REVID.
 
 #define ERRATA_IRREL                 (-128)
 #define ERRATA_APPLIES                  (1)
 #define ERRATA_DOES_NOT_APPLY           (0)
 
-#define checkErrata(errata)  (errata == 0 ? 0 : (errata == -1 ? 1 : (errata==-128 ? 0 :  (errata > SYSCFG_REVID ? 1 : 0))))
+#define checkErrata(errata)  (errata == ERRATA_DOES_NOT_APPLY ? ERRATA_DOES_NOT_APPLY : (errata==ERRATA_IRREL ? ERRATA_DOES_NOT_APPLY :  (errata > SYSCFG_REVID ? ERRATA_DOES_APPLY : ERRATA_DOES_NOT_APPLY)))
 
 
 /* When they're fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
 /* aaahahahah! Sorry...
 ... I meant, *if* they're ever fixed.
 
-If that happens, maybe put on a jacket or something...
+Highly unlikely events come in groups, so, maybe put on a jacket or something as a precaution:
 just in case a pig coming in for a landing collides with you on your way to claim your lottery jackpot, killing you...
-... and contrary to your expectations, you end up in hell... yet there's no fire and brimstone, just ice as far as you can see */
+And if in that unlikely event, contrary to your expectations, you end up in hell, but instead of fire and brimstone there's just ice as far as you can see
+That's how pessimistic I am left feeling about these errata ever being fixed :-( (okay, maybe not the bit about me landing in hell being unexpected)       */
+
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
-  #define ERRATA_TCA1_PORTMUX           (-1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
-  #define ERRATA_PORTS_B_E_EVSYS        (-1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
-  #define ERRATA_NVM_ST_BUG             (-1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
+  #define ERRATA_TCA1_PORTMUX            (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
+  #define ERRATA_PORTS_B_E_EVSYS         (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
+  #define ERRATA_NVM_ST_BUG              (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
   // Needless to say, that's the only version that's ever been for sale.
 #else
-  #define ERRATA_TCA1_PORTMUX            (0) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
-  #define ERRATA_PORTS_B_E_EVSYS         (0) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
-  #define ERRATA_NVM_ST_BUG              (0)
-#endif
-
-#if defined(__AVR_ARCH__)
-  #define ERRATA_TCB_CCMP               (-1)
+  #define ERRATA_TCA1_PORTMUX            (0) /* TCA1 portmux works and always has on DB                                                                    */
+  #define ERRATA_PORTS_B_E_EVSYS         (0) /* Works everywhere else                                                                                      */
+  #define ERRATA_NVM_ST_BUG              (0) /* only present on DB128!                                                                                     */
 #endif
 #if defined(__AVR_DA__)
-  #define ERRATA_CCL_LINK               (-1)
-  #define ERRATA_PLL_RUNSTBY            (-1)
+  #define ERRATA_CCL_LINK                (1)
+  #define ERRATA_PLL_RUNSTBY             (1)
+  #define ERRATA_ADC_PIN_DISABLE         (1)
+  #define ERRATA_PLL_XTAL     (ERRATA_IRREL)
 #endif
 #if defined(__AVR_DB__)
-  #define ERRATA_PLL_XTAL               (-1)
-#elif defined(__AVR_DA__)
-  #define ERRATA_PLL_XTAL     (ERRATA_IRREL)
-#else
-  #define ERRATA_PLL_XTAL                (0)
+  #define ERRATA_PLL_XTAL                (1) /* DD BUG */
 #endif
-
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   // Almost certainly won't be in the DD.
-  #define ERRATA_TCD_PORTMUX            (-1)
-  #define ERRATA_DAC_DRIFT              (-1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
-  #define ERRATA_ADC_PIN_DISABLE        (-1)
-  #define ERRATA_TCA_RESTART            (-1)
-  #define ERRATA_CCL_PROTECTION         (-1) // waaaaait, this wasn't intended?
-  #define ERRATA_TCD_ASYNC_COUNTPSC     (-1)
-  #define ERRATA_TWI_PINS               (-1)
-  #define ERRATA_USART_ONEWIRE_PINS     (-1)
-  /* "The software can force a restart of the current waveform period by issuing a RESTART command. In this case, the
-   * counter, direction, and all compare outputs are set to ‘0’ " - Datasheet, for example, AVR128DA datasheet rev C, sec 21.3.3.5
-   * "Restart Will Reset Counter Direction in NORMAL and FRQ Mode
-   * When the TCA is configured to a NORMAL or FRQ mode (WGMODE in TCAn.CTRLB is ‘0x0’ or ‘0x1’), a RESTART
-   * command or Restart event will reset the count direction to default. The default is counting upwards." - Errata
-   * I think this also calls for a datasheet clarification to specify what it's actually supposed to do....
-   * According to DD datasheet, it's not supposed to reset the direction.
-   */
+  #define ERRATA_TCD_PORTMUX             (1)
+  #define ERRATA_DAC_DRIFT               (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
+  #if defined(__AVR_DA__)
+    #define ERRATA_ADC_PIN_DISABLE       (1)
+  #endif
+  #define ERRATA_TCA_RESTART             (1) // Is resets the direction, like the database said. Appaently bothe the documentation and the silicon were wrong.
+  #define ERRATA_CCL_PROTECTION          (1)
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (1)
+  #define ERRATA_TCB_CCMP                (1)
+  #define ERRATA_TWI_PINS                (1)
+  #define ERRATA_USART_ONEWIRE_PINS      (1)
+  #define ERRATA_TWI_FLUSH               (1)
+  #define ERRATA_USART_ISFIF             (0)
 #else
-  #define ERRATA_TCD_PORTMUX             (0)
-  #define ERRATA_DAC_DRIFT               (0)
-  #define ERRATA_ADC_PIN_DISABLE         (0)
-  #define ERRATA_TCA_RESTART             (0) /* really now? */
-  #define ERRATA_CCL_PROTECTION          (0) // Apparently not intended. Neat!
-  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Cool, I guess.
-  #define ERRATA_TWI_PINS                (0) // An unexpected fix.
-  #define ERRATA_USART_ONEWIRE_PINS      (0) // woah, wasn't expecting this fix
+  #define ERRATA_PLL_XTAL                (0)
+  #define ERRATA_TCD_PORTMUX             (0) // *dance dance dance*
+  #define ERRATA_DAC_DRIFT               (0) // Fixed??
+  #define ERRATA_ADC_PIN_DISABLE         (0) // One less annoying ting.
+  #define ERRATA_TCA_RESTART             (0) // Direction NOT reset
+  #define ERRATA_CCL_PROTECTION          (0) // *dance dance dance*
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Okay.
+  #define ERRATA_TWI_PINS                (0) // They actually bothered fixing these?
+  #define ERRATA_USART_ONEWIRE_PINS      (0) // Okay. *shrug*
+  #define ERRATA_USART_ISFIF             (1)
+  #define ERRATA_TWI_FLUSH               (0)
 #endif
 
-
 #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
-  #define ERRATA_TWI_FLUSH              (-1)
-  #define ERRATA_FLASH_MULTIPAGE        (-1)
+  #define ERRATA_FLASH_MULTIPAGE         (1)
   // If write protection is enabled on the APPDATA section, but
   // it is not aligned on a 16k boundary, 32-page erase targeting the APPCODE section before it reached APPDATA  would still fire.
   // Takes some dedicated contriving to come up with a scenario to make this relevant.
-  #define ERRATA_USART_ISFIF            (-1)
-  // After clearing the ISFIF, must turn RXEN off and back on to receive.
-  #define ERRATA_TCD_HALTANDRESTART     (-1)
-  /* Quoth the errata - I doubt many folks are going to trip over this one.
-   *
-   * Halting TCD and Waiting for SW Restart Does Not Work if Compare Value A is 0 or Dual Slope Mode is Used
-   * Halting TCD and waiting for software restart (INPUTMODE in TCDn.INPUTCTRLA is ‘0x7’) does not work if compare
-   * value A is 0 (CMPASET in TCDn.CMPASET is ‘0x0’) or Dual Slope mode is used (WGMODE in TCDn.CTRLB is ‘0x3’).
-   */
-#else
-   /* uhh right nothing without these exists */
+  #define ERRATA_TCD_HALTANDRESTART      (1)
+  /* Quoth the errata - I doubt many folks are going to trip over this one */
+  #else
+    #error "Unrecognized port, cannot tell if a guiven erratum applies."
+  #endif
 #endif
 
-/********************************************************************************
- * CORE AND HARDWARE FEATURE SUPPORT  *
- * CORE_HAS_FASTIO is 1 when digitalReadFast and digitalWriteFast are supplied, and 2 when openDrainFast and pinModeFast are as well.
- * CORE_HAS_OPENDRAIN
- * CORE_HAS_PINCONFIG is 1 if pinConfig is supplied. The allows full configuration of any pin. It is 2 if it accepts commas instead of bitwise or between configuration parameters (NYI)
- * CORE_HAS_FASTPINMODE is 1 if pinModeFast is supplied
- * CORE_HAS_ANALOG_ENH is 0 if no analogReadEnh is supplied, 1 if it is, and 2 if it is supplied and both core and hardware support a PGA.
- * CORE_HAS_ANALOG_DIFF is 0 if no analogReadDiff is supplied, 1 if it's DX-like (Vin < VREF), and 2 if it's a proper
- * differential ADC, supported in both hardware and software. The value -1 is also valid and indicates it's a classic AVR with a  * differential ADC, see the documentation for the core.
- * CORE_HAS_TIMER_TAKEOVER is 1 if takeOverTCxn functions are provided to tell the core not to automatically use all
- * type A and D timers.
- * CORE_HAS_TIMER_RESUME is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.
- * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core, 0 if it would be if
- * the hardware worked, and not defined at all if the hardware doesn't have such a feature even in theory
- * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.
- ********************************************************************************/
+/***********************************************************************************************************************************************\
+ * CORE AND HARDWARE FEATURE SUPPORT                                                                                                             *
+ * CORE_HAS_FASTIO is 1 when digitalReadFast and digitalWriteFast are supplied, and 2 when openDrainFast and pinModeFast are as well.            *
+ * CORE_HAS_OPENDRAIN                                                                                                                            *
+ * CORE_HAS_PINCONFIG       is 1 if pinConfigure() is supplied. The allows full configuration of any pin.                                        *
+ *                          is 2 if pinConfigure(pin,option1,option2,...optionn) sort of syntax is also valid.                                   *
+ * CORE_HAS_FASTPINMODE     is 1 if pinModeFast is supplied                                                                                      *
+ * CORE_HAS_ANALOG_ENH      is 0 if no analogReadEnh is supplied, 1 if it is, and 2 if it is supplied and both core and hardware support a PGA.  *
+ * CORE_HAS_ANALOG_DIFF     is 0 if no analogReadDiff is supplied, 1 if it's DX-like (Vin < VREF), and 2 if it's a proper                        *
+ * differential ADC, supported in both hardware and software. The value -1 is also valid and indicates it's a classic AVR with a  * differential *
+ *                                  ADC, see the documentation for the core.                                                                     *
+ * CORE_HAS_TIMER_TAKEOVER  is 1 if takeOverTCxn functions are provided to tell the core not to automatically use the type A and D timers.       *
+ * CORE_HAS_TIMER_RESUME    is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.                    *
+ * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core                                      *
+ *                             0 if doesnt, and the core thus does not attempt to use it.                                                        *
+ * DEVICE_PORTMUX_TCA       is 1 if the TCA portmux is tinyAVR like, with 1 bit per channel, 2 if the device is anti-tinyAVR-like with portmux   *
+ *                                  for TCA assigning pins in groups.                                                                            *
+ * DEVICE_PORTMUX_TCD       is 0 or undefined if there is no portmux register for TCD (like a tinyAVR).                                          *
+ *                             1 for a DA/DB-series mux (4 options 1 of which works),                                                            *
+ *                             2 for a DD-series mux (5 option, all of which work except 1 and 3 which aren't expected to work because the pins  *
+ *                                  don't exist)                                                                                                 *
+ * DEVICE_PORTMUX_UART      is 0 if there is tinyAVR-like single bit muxing for USART pins.                                                      *
+ *                             1 for 2-bit wide bitfieslds for each USART, 0-3 in USARTROUTEA and 4-7 in USARTROUTEB                             *
+ *                             2 for 3-bit wide bitfield for USART0, and at least 2 bits for USART1 (like a DD-series). It is not known yet what *
+ *                                  will be done about further USARTs                                                                            *
+ *        I can imagine a one with only 0 ever getting 3-bit bit wide muxes, (hence TCAROUTEA = 0, 1, 2, TCAOUTEB = 3, 4, 5, 6)                  *
+ *        I can imagine a one with 2 USART on PORTMUXA (0, 1, 2) having three bits, and the other 2. This could be followed by 3, 4. 5, and 7 on *
+ *                                  USARTROUTEB, or a permanent shift to 3:2:3 or 3:3:2                                                          *
+ *        The strangest possility is 3:2:2:1 with the first 4 USARTs still on USARTROUTEA, PORT3 losing it's "none" option, and retaining the 4  *
+ *                                  unmolested bits for either USART6 and USART7 If we see a USART3 on USARTROUTEA or USART4 in Bit bosition 0   *
+ *                                  of USARTROUTEB, that is a stong indicantion of a part in the works with >64 pins, and 7 serial ports.        *
+ *                                  with no other USART having more than 3 pin mapping. Other options would give more hope of bigger parts.      *                                                          *
+ *                                                                                                                                               *
+ * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.                                        *
+ ************************************************************************************************************************************************/
 #define CORE_HAS_FASTIO                 (2)
 #define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
-#define CORE_HAS_PINCONFIG              (1) /* pinConfigure is now implemented                                      */
+#define CORE_HAS_PINCONFIG              (3) /* pinConfigure is now implemented                                      */
 #define CORE_HAS_FASTPINMODE            (1)
-#define CORE_DETECTS_TCD_PORTMUX        (1)
-                                            /* we support using it */
+#if defined(__AVR_DD__)                     /* On the few parts where it works...*/
+  #define CORE_DETECTS_TCD_PORTMUX      (1) /* we support using it */
+#else
+  #define CORE_DETECTS_TCD_PORTMUX      (0) /* For the DA/DB parts where portmux is busted? No, we don;t use the same logic there */
+#endif
 #define CORE_HAS_TIMER_TAKEOVER         (1)
 #define CORE_HAS_TIMER_RESUME           (1)
 #define CORE_SUPPORT_LONG_TONES         (1)
@@ -603,10 +612,10 @@ just in case a pig coming in for a landing collides with you on your way to clai
 
 #define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
                                                2 = all wave output channels move together */
-#define CORE_DETECTS_TCA_PORTMUX        (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#if defined(__AVR_DD__)
-  #define CORE_DETECTS_TCD_PORTMUX      (1) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed */
-#else
+#define CORE_DETECTS_TCA_PORTMUX        (2) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed
+//                                           * If this is 2, as above, but on TCA1, the three pin options are also recognized
+//                                           * Note that there are only two three-pin mappings for TCA1 (                                            )
+                                             */
   // When fixed hardware is available:
   // #define CORE_DETECTS_TCD_PORTMUX (checkErrata(ERRATA_TCD_PORTMUX)? 0 :1)
   // and code that uses it must be adapted to not use it in the preprocessor level
@@ -715,7 +724,7 @@ just in case a pig coming in for a landing collides with you on your way to clai
   //_gc's are enumerated types, the preprocessor doesn't understand them - but we need to do conditional compilation based on them
   // and this is way down here so that we can take into account errata.
   #define PORTMUX_TCD0_PORTA  (0x00) // PORTMUX_TCD0_DEFAULT_gc
-  #if ERRATA_TCD_PORTMUX != -1
+  #if (defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX)
     #if defined(PORTB)
       #define PORTMUX_TCD0_PORTB  (0x01) // PORTMUX_TCD0_ALT1_gc
     #endif

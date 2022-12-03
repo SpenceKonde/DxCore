@@ -528,5 +528,4 @@ const uint8_t digital_pin_to_timer[] = {
 };
 
 #endif
-
 #endif
