@@ -574,7 +574,7 @@ extern const uint8_t digital_pin_to_timer[];
 #define NOT_A_CHANNEL     (255) // for channel identification on ea-series
 #define NOT_A_MUX         (255) // in context of peripheral swaps specified by pins, a function which got mux option from pins would return this if the pins didn't match any mux option.
 #define MUX_NONE          (128) // Very different from the above! USARTs and SPI ports have a "NONE" option which will disconnect the pins. It must be specifically requested.
-// IF we were certan combinations of evil, vindictive, and pedantry, we would set the PORTMUX to the NONE option when users requested a non-existant mapping.
+// IF we were certain combinations of evil, vindictive, and pedantry, we would set the PORTMUX to the NONE option when users requested a non-existent mapping.
 // We instead set it to the default.
 
 #define INVALID_PIN       (254) // A distinct constant for a pin that is clearly invalid, but which we do not have to silently allow to pass through digital I/O functions.

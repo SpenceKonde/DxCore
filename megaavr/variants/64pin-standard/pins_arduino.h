@@ -650,7 +650,7 @@ const uint8_t digital_pin_to_timer[] = {
   //NOT_ON_TIMER, //55 PF7 (UPDI)
 };
 #endif
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it woud;d actally work, we are concerned with )
+  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
   #if CLOCK_SOURCE != 0
     #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
   #else

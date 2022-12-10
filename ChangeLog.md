@@ -67,7 +67,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   // In CI situation, we ask the core for appropriate pins instead of duplicatinh pin determinations. you
   uint8_t mypin = _VALID_DIGITAL_PIN(0);
   uint8_t myotherpin = _VALID_DIGITAL_PIN(1);
-  uint8_t myanalogpin = _VALID_ANALOG_PIN(0); // Get's the first analog input
+  uint8_t myanalogpin = _VALID_ANALOG_PIN(0); // Gets the first analog input
 #else
   uint8_t mypin = PIN_PA1;
   uint8_t myotherpin = PIN_PA7;
