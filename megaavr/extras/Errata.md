@@ -17,9 +17,9 @@ TCB async slower than sync events     | 3 | DxCore    | LIKELY  | LIKELY  | LIKE
 Multipage erase can erase protected   | 1 | Microchop | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Extreme corner case                         |
 TCD0 halt+wait for SW with CMPA = 0   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Broken in dual slope or CMPA not used       |
 USART non-functional after ISF recv.  | 2 | Microchip | No?     | No?     | No?     | No?     | No?     | No?     | YES     | YES     | YES     | Worked around by core.                      |
-Flash endurance 1k, not 10k cycles    | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | Kinda   | Kinda   | Kinda   | On DD-series 10k rewrites never claimed     |
-TCA restart resets counter direction  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES?    | Kinda   | Kinda   | Kinda   | Restart "should" **NOT** reset direction    |
-TCB single-shot EDGE bit              | 3 | Microchip | Kinda   | Kinda   | Kinda   | YES     | YES     | YES     | Kinda   | Kinda   | Kinda   | Datasheet clarification/change              |
+Flash endurance 1k, not 10k cycles    | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | On DD-series 10k rewrites never claimed     |
+TCA restart resets counter direction  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES?    | No      | No      | No      | Restart "should" **NOT** reset direction    |
+TCB single-shot EDGE bit              | 3 | Microchip | Kinda   | Kinda   | Kinda   | YES     | YES     | YES     | No      | No      | No      | Datasheet clarification/change              |
 TCB CCMPH/CCMPL act as 16-bit in PWM  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all pre-DD modern AVRs         |
 Increased Current if Vdd falls < 2.1V | 3 | Microchip | No?     | No?     | No?     | YES     | YES     | YES     | No?     | No?     | No?     |                                             |
 PLLS bit always 0 unless requested    | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | As long as you know, non-issue              |

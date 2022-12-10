@@ -344,27 +344,43 @@
 #endif
 
 
-#if defined(OPAMP2)
-  #define _AVR_OPAMP_COUNT   (3)
-#elif defined(OPAMP1)
-  #define _AVR_OPAMP_COUNT   (2)
-#elif defined(OPAMP0)
-  #define _AVR_OPAMP_COUNT   (1)
+#if defined(OPAMP)
+  /* Allow for future chip with more opamps. There's room for 6 in the struct
+   * which has 64 bytes - 8 per OPAMP, and 16 at the start used for global settings
+   * At time of writing, on the only parts with OPAMPs, only 4 of the global bytes are used
+   * 6 of the 8 bytes for each OPAMP are used, 2 are spares. */
+  #if defined(OPAMP_OP5CTRLA)
+    #define _AVR_OPAMP_COUNT   (6)
+  #elif defined(OPAMP_OP4CTRLA)
+    #define _AVR_OPAMP_COUNT   (5)
+  #elif defined(OPAMP_OP3CTRLA)
+    #define _AVR_OPAMP_COUNT   (4)
+  #elif defined(OPAMP_OP2CTRLA)
+    #define _AVR_OPAMP_COUNT   (3)
+  #elif defined(OPAMP_OP1CTRLA)
+    #define _AVR_OPAMP_COUNT   (2)
+  #elif defined(OPAMP_OP0CTRLA)
+    #define _AVR_OPAMP_COUNT   (1)
+  #else
+    #error "We have an OPAMP peripheral, but no opamps? Something is wrong"
+  #endif
 #else
   #define _AVR_OPAMP_COUNT   (0)
 #endif
 
-
-#if defined(CCL_TRUTH4)
-  #define _AVR_LUT_COUNT     (6)
-#elif defined(CCL_TRUTH2)
-  #define _AVR_LUT_COUNT     (4)
-#elif defined(CCL_TRUTH0)
-  #define _AVR_LUT_COUNT     (2)
+#if defined(CCL)
+  #if defined(CCL_TRUTH4)
+    #define _AVR_LUT_COUNT     (6)
+  #elif defined(CCL_TRUTH2)
+    #define _AVR_LUT_COUNT     (4)
+  #elif defined(CCL_TRUTH0)
+    #define _AVR_LUT_COUNT     (2)
+  #else
+    #error "We have a CCL peripheral, but no truth tables? Something is wrong"
+  #endif
 #else
-  #warning "No CCL? No supported parts exist without one, something is wrong"
+  #error "No CCL? No supported parts exist without one, something is wrong"
 #endif
-
 
 #if defined(TCA1)
   #define _AVR_TCA_COUNT     (2)
@@ -451,19 +467,21 @@
   #define _AVR_DAC_COUNT     (0)
 #endif
 
-#ifdef OPAMP0
-  #define PIN_OPAMP0_INP            PIN_PD1
-  #define PIN_OPAMP0_OUT            PIN_PD2
-  #define PIN_OPAMP0_INN            PIN_PD3
-  #ifdef OPAMP1
-    #define PIN_OPAMP1_INP          PIN_PD4
-    #define PIN_OPAMP1_OUT          PIN_PD5
-    #define PIN_OPAMP1_INN          PIN_PD7
+#ifdef OPAMP
+  #if defined(OPAMP_OP0CTRLA)
+    #define PIN_OPAMP0_INP            PIN_PD1
+    #define PIN_OPAMP0_OUT            PIN_PD2
+    #define PIN_OPAMP0_INN            PIN_PD3
   #endif
-  #ifdef OPAMP2
-    #define PIN_OPAMP2_INP          PIN_PE1
-    #define PIN_OPAMP2_OUT          PIN_PE2
-    #define PIN_OPAMP2_INN          PIN_PE3
+  #if defined(OPAMP_OP1CTRLA)
+    #define PIN_OPAMP1_INP            PIN_PD4
+    #define PIN_OPAMP1_OUT            PIN_PD5
+    #define PIN_OPAMP1_INN            PIN_PD7
+  #endif
+  #if defined(OPAMP_OP2CTRLA)
+    #define PIN_OPAMP2_INP            PIN_PE1
+    #define PIN_OPAMP2_OUT            PIN_PE2
+    #define PIN_OPAMP2_INN            PIN_PE3
   #endif
 #endif
 
@@ -495,11 +513,15 @@
 /* aaahahahah! Sorry...
 ... I meant, *if* they're ever fixed.
 
-Highly unlikely events come in groups, so, maybe put on a jacket or something as a precaution:
+Highly unlikely events come in groups, so if they get fixed, maybe put on a jacket or something as a precaution....
 just in case a pig coming in for a landing collides with you on your way to claim your lottery jackpot, killing you...
-And if in that unlikely event, contrary to your expectations, you end up in hell, but instead of fire and brimstone there's just ice as far as you can see
-That's how pessimistic I am left feeling about these errata ever being fixed :-( (okay, maybe not the bit about me landing in hell being unexpected)       */
+And if in that unlikely event, contrary to your expectations, you end up in hell, yet find, instead of fire and brimstone there's just ice as far as you
+can see, the jacket will make etenal damnation to a frozen-over hell a bit less miserable.
 
+That's how pessimistic I am left feeling about the prospects for errata fixes by this point*/
+
+/* Now, what errata are we talking about here? */
+// The 128DA had a few unique and nasty ones.
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128)
   #define ERRATA_TCA1_PORTMUX            (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
   #define ERRATA_PORTS_B_E_EVSYS         (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
@@ -510,22 +532,26 @@ That's how pessimistic I am left feeling about these errata ever being fixed :-(
   #define ERRATA_PORTS_B_E_EVSYS         (0) /* Works everywhere else                                                                                      */
   #define ERRATA_NVM_ST_BUG              (0) /* only present on DB128!                                                                                     */
 #endif
+// A few were present on all the DA's, but fixed for the DBs.
 #if defined(__AVR_DA__)
   #define ERRATA_CCL_LINK                (1)
   #define ERRATA_PLL_RUNSTBY             (1)
   #define ERRATA_ADC_PIN_DISABLE         (1)
   #define ERRATA_PLL_XTAL     (ERRATA_IRREL)
+#else
+  #define ERRATA_CCL_LINK                (0)
+  #define ERRATA_PLL_RUNSTBY             (0)
+  #define ERRATA_ADC_PIN_DISABLE         (0)
 #endif
+
+//The new crystal clock support brought a bug along though.
 #if defined(__AVR_DB__)
-  #define ERRATA_PLL_XTAL                (1) /* DD BUG */
+  #define ERRATA_PLL_XTAL                (1) /* DB BUG */
 #endif
+
+// And both DA and DB had a whole slew of issues
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
-  // Almost certainly won't be in the DD.
-  #define ERRATA_TCD_PORTMUX             (1)
   #define ERRATA_DAC_DRIFT               (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
-  #if defined(__AVR_DA__)
-    #define ERRATA_ADC_PIN_DISABLE       (1)
-  #endif
   #define ERRATA_TCA_RESTART             (1) // Is resets the direction, like the database said. Appaently bothe the documentation and the silicon were wrong.
   #define ERRATA_CCL_PROTECTION          (1)
   #define ERRATA_TCD_ASYNC_COUNTPSC      (1)
@@ -534,17 +560,20 @@ That's how pessimistic I am left feeling about these errata ever being fixed :-(
   #define ERRATA_USART_ONEWIRE_PINS      (1)
   #define ERRATA_TWI_FLUSH               (1)
   #define ERRATA_USART_ISFIF             (0)
+  #define ERRATA_USART_WAKE              (1)
 #else
+  // but most were fixed in the DD
   #define ERRATA_PLL_XTAL                (0)
   #define ERRATA_TCD_PORTMUX             (0) // *dance dance dance*
   #define ERRATA_DAC_DRIFT               (0) // Fixed??
-  #define ERRATA_ADC_PIN_DISABLE         (0) // One less annoying ting.
+  #define ERRATA_ADC_PIN_DISABLE         (0) // One less annoying thing.
   #define ERRATA_TCA_RESTART             (0) // Direction NOT reset
   #define ERRATA_CCL_PROTECTION          (0) // *dance dance dance*
-  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Okay.
-  #define ERRATA_TWI_PINS                (0) // They actually bothered fixing these?
-  #define ERRATA_USART_ONEWIRE_PINS      (0) // Okay. *shrug*
-  #define ERRATA_USART_ISFIF             (1)
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // *shrug*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  #define ERRATA_TWI_PINS                (0) // What? Really? Okay...
+  #define ERRATA_USART_ONEWIRE_PINS      (0) // I guess they were looking at port-override stuff?
+  #define ERRATA_USART_ISFIF             (1) // Apparently in the couse of fixing USART wake
+  #define ERRATA_USART_WAKE              (0) // they busted ISFIF handling.
   #define ERRATA_TWI_FLUSH               (0)
 #endif
 
@@ -554,10 +583,8 @@ That's how pessimistic I am left feeling about these errata ever being fixed :-(
   // it is not aligned on a 16k boundary, 32-page erase targeting the APPCODE section before it reached APPDATA  would still fire.
   // Takes some dedicated contriving to come up with a scenario to make this relevant.
   #define ERRATA_TCD_HALTANDRESTART      (1)
-  /* Quoth the errata - I doubt many folks are going to trip over this one */
-  #else
-    #error "Unrecognized port, cannot tell if a guiven erratum applies."
-  #endif
+#else
+  #error "Unrecognized port, cannot tell if a guiven erratum applies."
 #endif
 
 /***********************************************************************************************************************************************\
@@ -582,11 +609,11 @@ That's how pessimistic I am left feeling about these errata ever being fixed :-(
  *                             2 for a DD-series mux (5 option, all of which work except 1 and 3 which aren't expected to work because the pins  *
  *                                  don't exist)                                                                                                 *
  * DEVICE_PORTMUX_UART      is 0 if there is tinyAVR-like single bit muxing for USART pins.                                                      *
- *                             1 for 2-bit wide bitfieslds for each USART, 0-3 in USARTROUTEA and 4-7 in USARTROUTEB                             *
+ *                             1 for 2-bit wide bitfiesd for each USART, 0-3 in USARTROUTEA and 4-7 in USARTROUTEB                             *
  *                             2 for 3-bit wide bitfield for USART0, and at least 2 bits for USART1 (like a DD-series). It is not known yet what *
  *                                  will be done about further USARTs                                                                            *
- *        I can imagine a one with only 0 ever getting 3-bit bit wide muxes, (hence TCAROUTEA = 0, 1, 2, TCAOUTEB = 3, 4, 5, 6)                  *
- *        I can imagine a one with 2 USART on PORTMUXA (0, 1, 2) having three bits, and the other 2. This could be followed by 3, 4. 5, and 7 on *
+ *        I can imagine a future with only 0 ever getting 3-bit bit wide muxes, (hence TCAROUTEA = 0, 1, 2, TCAOUTEB = 3, 4, 5, 6)               *
+ *        I can imagine a future with 2 USART on PORTMUXA (0, 1, 2) having three bits, and the other 2. This could be followed by 3, 4. 5, and 7 on *
  *                                  USARTROUTEB, or a permanent shift to 3:2:3 or 3:3:2                                                          *
  *        The strangest possility is 3:2:2:1 with the first 4 USARTs still on USARTROUTEA, PORT3 losing it's "none" option, and retaining the 4  *
  *                                  unmolested bits for either USART6 and USART7 If we see a USART3 on USARTROUTEA or USART4 in Bit bosition 0   *
@@ -609,17 +636,26 @@ That's how pessimistic I am left feeling about these errata ever being fixed :-(
 #define CORE_SUPPORT_LONG_TONES         (1)
 #define CORE_HAS_ANALOG_ENH             (1)
 #define CORE_HAS_ANALOG_DIFF            (1)
-
+#if defined(TCD0)
+  #if defined(__AVR_DD__)
+    #define DEVICE_PORTMUX_TCD          (2)
+  #else
+    #define DEVICE_PORTMUX_TCD          (1)
+  #endif
+#endif
+#if defined(__AVR_DD__)
+  #define DEVICE_PORTMUX_USART          (2)
+#else
+  #define DEVICE_PORTMUX_USART          (1)
+#endif
 #define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
-                                               2 = all wave output channels move together */
+                                               2 = all wave output channels move together
+                                               3 - as above, but TCA1 has the 4th and 5th channel options*/
 #define CORE_DETECTS_TCA_PORTMUX        (2) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed
 //                                           * If this is 2, as above, but on TCA1, the three pin options are also recognized
-//                                           * Note that there are only two three-pin mappings for TCA1 (                                            )
+//                                           * Note that there are only two three-pin mappings for TCA is mux = 2, 4 if mux = 3
                                              */
-  // When fixed hardware is available:
-  // #define CORE_DETECTS_TCD_PORTMUX (checkErrata(ERRATA_TCD_PORTMUX)? 0 :1)
-  // and code that uses it must be adapted to not use it in the preprocessor level
-#endif
+
 
 #if defined(__AVR_EA__)
   #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to  */
@@ -724,7 +760,7 @@ That's how pessimistic I am left feeling about these errata ever being fixed :-(
   //_gc's are enumerated types, the preprocessor doesn't understand them - but we need to do conditional compilation based on them
   // and this is way down here so that we can take into account errata.
   #define PORTMUX_TCD0_PORTA  (0x00) // PORTMUX_TCD0_DEFAULT_gc
-  #if (defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX)
+  #if (defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0)
     #if defined(PORTB)
       #define PORTMUX_TCD0_PORTB  (0x01) // PORTMUX_TCD0_ALT1_gc
     #endif

@@ -90,7 +90,9 @@ On many cores, there is a `digitalPinToTimer(pin)` macro, mostly for internal us
 ## pinConfigure()
 pinConfigure is a somewhat ugly function to expose all options that can be configured on a per-pin basis. It is called as shown here; you can bitwise-or any number of the constants shown in the table below. All of those pin options will be configured as specified. Pin functions that don't have a corresponding option OR'ed into the second argument will not be changed. There are very few guard rails here: This function will happily enable pin interrupts that you don't have a handler for (but when they fire it'll crash the sketch), or waste power with pins driven low while connected to the pullup and so on.
 
-Thanks to the work of @MCUdude which I belatedly noticed in time for 1.5.0, we can instead separate these constants with commas, like arguments. With only one or two  calls to pinConfigure, or with lots of calls to it, the commas compile significantly smaller. In the 3-6 call range though, if they're all bitwise OR's, they come out smaller. How strange.
+Thanks to the work of @MCUdude 1.5.0, we can instead separate these constants with commas, like arguments. This is much, much more natural - the comma form should be preferred over the OR-ing form.
+
+The flash efficiency of the two methods should be very similar, (though small differences do exist, depending on the number of times pinConfigure is called and with what arguments. Commas are smaller for most cases, but between 3 and 8 calls, approximately, they're slightly bigger)
 
 ```c++
 pinConfigure(PIN_PA4,(PIN_DIR_INPUT | PIN_PULLUP_ON | PIN_OUT_LOW | PIN_INLVL_TTL));
@@ -141,7 +143,8 @@ These are the maximum voltage guaranteed to qualify as LOW and the minimum guara
 Particularly in the context of these MVIO-equipped parts, however, the TTL input level option has an obvious major advatage: It makes communication with parts that run at lower voltages easier, and reduces competition for the limited number of MVIO pins. If we allow the low part to control it push-pull (aka totam-pole and other names), and treat it as an `INPUT`, we will always read what they intend. The fact that you can switch a pin between input and output, while pulling it up externally was noted above, and the voltage it was pulled up to could be the lower operating vboltage. That can be done on any AVR. But with INLVL, this scheme is viable for a bidirectional line: the The line between devices could either be pulled up to the lowest operating voltage externally, with the DB or DD series part manipulating the pin as an open drain output (see above). One need not stop with just two devices - multiple DB/DD-series parts with `INVLV = TTL` set could communicate with multiple devices operating at the low voltage, as long as none of them ever drove it `HIGH` (though, if it was low, they would not know which device was doing that. The designer would have to make sure this approach made sense in that regard, and that everything was smart enough to not hold onto the line or anything.
 
 ## PINCONFIG and associated registers
-The hardware has a series of registers - one shared across all ports, `PORTx.PINCONFIG` with bitfields matching the ones in the the PINnCTRL registers, and three which always read zero, `PORTx.PINCTRLUPD`,  `PORTx.PINCTRLSET` and  `PORTx.PINCTRLCLR`. These allow mass updating of the PINnCTRL registers: Every pin corresponding to a 1 on the port will have the contents of their PINnCTRL register either set to (`PINCTRLUPD`), bitwise-OR'ed with (`PINCTRLSET`) or bitwise-AND'ed with the inverse (`PORTx.PINCTRLCLR`) of the  `PINCONFIG` register.
+The hardware has a series of registers - one shared across all ports, `PORTx.PINCONFIG` with bitfields matching the ones in the the PINnCTRL registers, and three which always read zero, `PORTx.PINCTRLUPD`,  `PORTx.PINCTRLSET` and  `PORTx.PINCTRLCLR`. These allow mass updating of the PINnCTRL registers: Every pin corresponding to a 1 on the port will have the contents of their PINnCTRL register either set to (`PINCTRLUPD`), bitwise-OR'ed with (`PINCTRLSET`) or bitwise-AND'ed with the inverse (`PORTx.PINCTRLCLR`) of the  `PINCONFIG` register. Noting keeps you from setting ISC bitfield that way, you shouldn't do that, unless you really know what you're doing,
+
 
 So:
 ```c
@@ -183,13 +186,28 @@ PORTG.PIN3CTRL  =  PORT_PULLUPEN_bm | PORT_INVEN_bm;
  */
 
 ```
-
+PORTA.PINCONFIG =
 All bits make sense with PINCTRLUPD - some more than others - as long as you don't forget that it will replace whatever is there currently.
 The lower three bits, controlling whether the pin is acting as an interrupt, will have surprising and likely unwelcome effects with  `PORTx.PINCTRLSET` and  `PORTx.PINCTRLCLR`. For PINCTRLSET they should never be 1 (any of them). For PINCTRLCLR, all should be 0 or all should be 1 ( 0b00000111 would turn off pin interrupts on the pins it's applied to without otherwise changing PINnCTRL register contents). Otherwise, the concept of flipping individual bits makes little sense for that last bitfield - the bits individually do not have a separate function, there is just the function of those three bits as a group. When changing the input sense configuration on large numbers of pins, use PINCTRLUPD instead.
 
 This system is most useful at startup for devices running on battery to meet the datasheet requirement that the pins not be allowed to float if their digital input buffers are enabled.
 
-This core *currently* does not make use of this feature.
+```c++
+// Practical example
+/* Say we are using a Dx48, but only have any digital I/O on PORTA (maybe we are only using the DB48 because we need the three configurable opamps, and nothing else on other ports
+ * but we need to be able to go into power down sleep mode to minimize power consumption, meaning unused pins must have pin buffer disabled */
+
+PORTB.PINCONFIG = PORT_ISC_DISABLED_gc; //doesn't matter which port, shared between all ports.
+PORTB.PINCTRLUPD = 0x3F; //disable input buffer on all pins of portB
+PORTF.PINCTRLUPD = 0x3F; // disable input buffer on all pins of PORTF
+PORTD.PINCTRLUPD = 0xFF; // disable input buffer on all pins of PORTD
+PORTC.PINCTRLUPD = 0xFF; // disable input buffer on all pins of PORTC
+PORTE.PINCTRLUPD = 0x0F; // disable input buffer on all pins of PORTE
+// this is 1+2, 1+2+2, 1+2+2, 1+2 = 16 words, and executes in that many clocks. Imagine how much longer it would take to loop over 32 pins setting PINnCTRL for each (minimum words and more than that many clocks) plus the machinery for picking the port, likely hundreds of bytes total.
+
+```
+
+This core *currently* does not make use of this feature (which means that you are free to use it yourself without worrying that the core will have changed PINCONFIG or something, or will be expecting it to have a certain value (much as I wanted to have it set PINCONFIG to PORT_PULLUPEN_bm in init, and use that in pinMode() instead of looking up PINnCTRL, which would make setting the pullup into a 2-clock operation (ldi, std) if you already have the port struct (ie, pointer in a pointer reg) and the bitmask which you needed for setting input or output, instead of minimum of 3 clocks to get the bit position, 1 to add 0x10 to that, and another 2 to add that to the pointer and then ldi, st) 3 + 1 + 2 + 2 = 8 minimum, likely more likw 10-12. This is small compared to the turnOffPWM baggage that pinMode has though, so it wouldn't make much difference, which is why I didn't do it. It would be nice if there was a way to know when there was any need to check a pin for PWM at all (so digitalWrite() would know that analogWrite() was never called on this pin, or was never called period, and so we have no reason to call turnOffPWM() - had we that mechanism, this would be much more tempting).
 
 
 ## Slew Rate Limiting
@@ -271,3 +289,8 @@ The most any announced AVR has had is 86 digital pins, the ATmega2560; In the mo
 * **VPORTs that can be remapped at runtime** - The stuff of library author's nightmares. You'd have some subset of the VPORTs (or maybe all of them) could be remapped. If you put the register for that in the high I/O space it could be written quickly. But this will cause unaware old code to break by writing to the wrong pins if it didn't know to check for it, and any code that used them (ie, code that is supposed to be fast) might have to check the mapping first. This is most like what was done on the XMegas, but also serves as a shining example of the over-complexity that I think doomed those parts to poor uptake and slow death. The best of these bad approaches would probably be to have VPORTG changed into say VPORTX. Could configure it with a register in the high I/O space so it was 2 cycle overhead to write (1 for LDI port number, 1 to OUT to register). That way all code for other ports wouldn't worry, and port G is present on the fewest parts so the least code would be impacted if ported, and would be straightforward to document
 
 `*` - Note on conventions for specifying numbers: 0x## refers to a hexadecimal number, while ## refers to a decimal digit and 0b######## refers to a value given as binary. For hexadecimal values, if the size of the datatype is unambiguosly known, we will typically represent them with an appropriate number of leading 0's - so 1 in a 1-byte datatype is written as 0x01, while 1 in a 16-bit datatype is written as 0x0001. Any time a number is not prefixed by 0x or 0b, the decimal form should be assumed. Which representation of a given value is chosen is based on the context of that value. Values that simply represent numbers are generally given in decimal. Values that are being subjected to bitwise operators, or that are bit masks, group codes, and similar, will be shown in hexadecimal.
+
+
+## A few other macros you shouldn't need - meant for the CI testing; I need as many sketches as possible that run both here and megaTinyCor)'
+** `_VALID_DIGITAL_PIN(n)`** where N will include at least 4 supported values, depending on how much work I feel like putting into it. The pins returned will be the same on all DD-series and tinyAVR parts. These are not intended to be *good* pins, just *valid* pins. That is, they are to be used when automated test success or failure based on "does the sketch compile" not "is the behavior on the hardware what is expected?") We don't have capability to conduct such testing at this time
+** `_VALID_ANALOG_PIN(n)`** does the same thing for pins that can be used by analogRead(). PIN_PD0-PD7 for DA/DB series parts with at least 48 pins and all DA series parts. PD1-7 for 28 and 32-pin DD and DB-series. 20 pin parts get PD4-PD7, as do 14-pin ones.

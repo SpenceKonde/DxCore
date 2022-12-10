@@ -61,7 +61,21 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Bugfix: Add the missing #defines for peripheral count and reorganize core_devices to make porting easier
   * Port asm millis from mTC.
 
-## Version History
+* CI code will be passed with an extra -D in build.extra_params. The content that was in extra_params moved to more_params. Purpose of this is to replace the adhoc pin decisions in the sketches with something like
+```c
+#if defined(THIS_IS_CI)
+  // In CI situation, we ask the core for appropriate pins instead of duplicatinh pin determinations. you
+  uint8_t mypin = _VALID_DIGITAL_PIN(0);
+  uint8_t myotherpin = _VALID_DIGITAL_PIN(1);
+  uint8_t myanalogpin = _VALID_ANALOG_PIN(0); // Get's the first analog input
+#else
+  uint8_t mypin = PIN_PA1;
+  uint8_t myotherpin = PIN_PA7;
+  uint8_t myAnalgogPin = A5;
+#endif
+```
+This way the examples dont have have tio know everythinh about quirks of the core.
+
 
 ### 1.4.10
 * **CRITICAL BUGFIX** for attachInterrupt() (still!)

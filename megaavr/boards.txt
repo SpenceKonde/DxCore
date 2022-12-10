@@ -124,7 +124,9 @@ avrda.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrda.bootloader.tool=avrdude
-avrda.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+avrda.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrda.bootloader.wdtwindowbits=0000
+avrda.bootloader.wdttimeotbits=0000
 avrda.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrda.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrda.bootloader.CODESIZE=0x00
@@ -516,7 +518,9 @@ avrdb.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdb.bootloader.tool=avrdude
-avrdb.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+avrdb.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrdb.bootloader.wdtwindowbits=0000
+avrdb.bootloader.wdttimeotbits=0000
 avrdb.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -956,7 +960,9 @@ avrdd.build.attachmode=-DCORE_ATTACH_ALL
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdd.bootloader.tool=avrdude
-avrdd.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+avrdd.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrdd.bootloader.wdtwindowbits=0000
+avrdd.bootloader.wdttimeotbits=0000
 avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdd.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -1401,7 +1407,9 @@ avrdd.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 # Bootloading parameters and fuses       #
 #________________________________________#
 #avrea.bootloader.tool=avrdude
-#avrea.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+#avrea.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+#avrea.bootloader.wdtwindowbits=0000
+#avrea.bootloader.wdttimeotbits=0000
 #avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 #avrea.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
 #avrea.bootloader.CODESIZE=0x00
@@ -1811,7 +1819,9 @@ avrdaopti.bootloader.tool=avrdude
 avrdaopti.bootloader.defaultentrycond=_extrf
 avrdaopti.bootloader.entrycond={bootloader.defaultentrycond}
 avrdaopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
-avrdaopti.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+avrdaopti.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrdaopti.bootloader.wdtwindowbits=0000
+avrdaopti.bootloader.wdttimeotbits=0000
 avrdaopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdaopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdaopti.bootloader.CODESIZE=0x00
@@ -2245,7 +2255,9 @@ avrdbopti.bootloader.tool=avrdude
 avrdbopti.bootloader.defaultentrycond=_extrf
 avrdbopti.bootloader.entrycond={bootloader.defaultentrycond}
 avrdbopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
-avrdbopti.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+avrdbopti.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrdbopti.bootloader.wdtwindowbits=0000
+avrdbopti.bootloader.wdttimeotbits=0000
 avrdbopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdbopti.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 avrdbopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -2734,7 +2746,9 @@ avrddopti.build.attachmode=-DCORE_ATTACH_ALL
 #________________________________________#
 avrddopti.bootloader.tool=avrdude
 avrddopti.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}{bootloader.entrycond}.hex
-avrddopti.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+avrddopti.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrddopti.bootloader.wdtwindowbits=0000
+avrddopti.bootloader.wdttimeotbits=0000
 avrddopti.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrddopti.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}000
 avrddopti.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
@@ -3246,7 +3260,9 @@ azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
-azduinoboard.bootloader.WDTCFG=0b{bootloader.WDTwindow}{bootloader.WDTtimeout}
+azduinoboard.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+azduinoboard.bootloader.wdtwindowbits=0000
+azduinoboard.bootloader.wdttimeotbits=0000
 azduinoboard.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 azduinoboard.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}00
 azduinoboard.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}

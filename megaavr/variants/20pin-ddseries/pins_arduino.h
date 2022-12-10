@@ -452,7 +452,11 @@ const uint8_t digital_pin_to_timer[] = {
 };
 
 #endif
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for.
-  #define _VALID_ANALOG_PIN(pin) (pin < 4 || pin > 0 ? INVALID_PIN : (PIN_PD4 + pin))
-  #define _VALID_DIGITAL_PIN(pin) (pin < 4 || pin > 0 ? INVALID_PIN : (PIN_PD4 + pin))
+  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it woud;d actally work, we are concerned with )
+  #if CLOCK_SOURCE != 0
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
+  #else
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)
+  #endif
+  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD4) : NOT_A_PIN)
 #endif

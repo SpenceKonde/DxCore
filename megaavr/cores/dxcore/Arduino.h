@@ -480,12 +480,12 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERA0_MUX5    (0x15) // Mapping5 (PORTF 0-5)
 #define TIMERA0_MUX6    (0x16) // Mapping6 (PORTG 0-5)
 #define TIMERA0_MUX7    (0x17) // Mapping7 (PORTA 0-5)
-#define TIMERA1_MUX0    (0x08) // Mapping0 (PORTB 0-5)
-#define TIMERA1_MUX1    (0x09) // Mapping1 (PORTC 4-6) - only three channels available.
-#define TIMERA1_MUX2    (0x0A) // Mapping2 (PORTE 4-6) - only three channels available.
-#define TIMERA1_MUX3    (0x0B) // Mapping3 (PORTG 0-5) - DB-series only due to errata.
-#define TIMERA1_MUX4    (0x0C) // Mapping4 (PORTA 4-6) - only three channels available.
-#define TIMERA1_MUX5    (0x0D) // Mapping5 (PORTD 4-6) - only three channels available.
+#define TIMERA1_MUX0    (0x08) // Mapping0 (PORTB 0-5) - 48+ pin only.
+#define TIMERA1_MUX1    (0x09) // Mapping1 (PORTC 4-6) - only three channels available. 48+ pin only.
+#define TIMERA1_MUX2    (0x0A) // Mapping2 (PORTE 4-6) - only three channels available. DB-series only due to errata. 64-pin parts only
+#define TIMERA1_MUX3    (0x0B) // Mapping3 (PORTG 0-5) - DB-series only due to errata. 64-pin parts only.
+#define TIMERA1_MUX4    (0x0C) // Mapping4 (PORTA 4-6) - only three channels available. New on EA-series.
+#define TIMERA1_MUX5    (0x0D) // Mapping5 (PORTD 4-6) - only three channels available. New on EA-series.
 
 /* Not used in table or at all, yet */
 #define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
@@ -572,14 +572,25 @@ extern const uint8_t digital_pin_to_timer[];
 #define NOT_A_PORT        (255) // as above for ports.
 #define NOT_AN_INTERRUPT  (255) // As above, for interrupts
 #define NOT_A_CHANNEL     (255) // for channel identification on ea-series
-#define NOT_A_MUX         (255) //
-// Notice the different value!
-#define MUX_NONE          (128)
+#define NOT_A_MUX         (255) // in context of peripheral swaps specified by pins, a function which got mux option from pins would return this if the pins didn't match any mux option.
+#define MUX_NONE          (128) // Very different from the above! USARTs and SPI ports have a "NONE" option which will disconnect the pins. It must be specifically requested.
+// IF we were certan combinations of evil, vindictive, and pedantry, we would set the PORTMUX to the NONE option when users requested a non-existant mapping.
+// We instead set it to the default.
+
+#define INVALID_PIN       (254) // A distinct constant for a pin that is clearly invalid, but which we do not have to silently allow to pass through digital I/O functions.
 // When cast to int8_t these are -1, but it is critical to define them as 255, not -1 because we check if they're less than the number of something
 
-//for PWMchannelToPin() utility function only:
-#define TIMER_NOT_CONNECTED (254) // If we search and find that there is currently NO pin that could (ever) output the specified PWM, we return this
-#define TIMER_BROKEN_ERRATA (253) // On DA and DB parts lacking the fix, TCD routing options other than 0 are hopelessly broken
+// One can imagine a timerToDigitalPin() function. No such function has currently been written, but it would need some sort of error codes.
+// It would need to handle fout kind of problematic inputs - the timer channel identified does not exist at all (NOT_A_CHANNEL).
+// The timer may exist, but the channel isnot available because the portmux has not connected it to a pin that exists (ex, on a 14 pin part, default mux, you ask where WO2 of TCA0 is, you'd get this)
+// If this channel could ever be output on a pin, this should be the error returned.
+#define TIMER_NOT_CONNECTED (254)
+// The timer may exist, but the chip may be impacted by silicon errata impacting TCA1 (AVR128DA only) and TCD0 (all DA/DB), and while that timer should be possible to use, it's not.
+#define TIMER_BROKEN_ERRATA (253)
+// The timer may exist, but that instance of that timer can never output any pwm. It has no default or alternate pins. There may or may not be an associated portmux bitfield, but if there is
+// regardless of what it is set to, this timer channel cannot output pins; the portmux full of useless options is common on low-pincount parts within a family.
+#define TIMER_ALWAYS_PINLESS (252)
+// While NOT_A_PIN would seem logical to return from this, NOT_A_CHANNEL is indistinguishable from that and we want to give a different error if the channel they're asking for doesn't exist versus if the channel exists,
 
 #define PA (0)
 #define PB (1)
@@ -623,7 +634,10 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #define digitalPinToBitMask(pin)            (((pin)     < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
 #define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?   digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
 #define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?       digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
-#define digitalPinToTimer(pin)              (((pin)     < NUM_TOTAL_PINS ) ?                         digital_pin_to_timer[pin]                 : NOT_ON_TIMER)
+#if !defined(digitalPinToTimer)
+  // Allow variants to provide their own definition of digitalPinToTimer.
+  #define digitalPinToTimer(pin)              (((pin)     < NUM_TOTAL_PINS ) ?                         digital_pin_to_timer[pin]                 : NOT_ON_TIMER)
+#endif
 #define portToPortStruct(port)              (((port)    < NUM_TOTAL_PORTS) ?                   (((PORT_t *)  &PORTA) + (port))                 : NULL)
 #define digitalPinToPortStruct(pin)         (((pin)     < NUM_TOTAL_PINS ) ?    (((PORT_t *) &PORTA) + digitalPinToPort( pin))                 : NULL)
 #define getPINnCTRLregister(port, bit_pos)  ((((port) != NULL) && (bit_pos < 8)) ? (((volatile uint8_t *) &(port->PIN0CTRL)) + bit_pos)        : NULL)

@@ -120,10 +120,14 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 // Timer pin mapping
-#define TCA0_PINS (PORTMUX_TCA0_PORTC_gc)     // EVERY option here sucks; this one gives us... 3 PWM channels...
-#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
-#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
-#define TCD0_PINS (PORTMUX_TCD0_PORTAD)       // TCD0 output on PD4 and PD5, only option for which any pins exist on this part.
+#if !defined(_CORE_TCA0_PINS)
+  #define TCA0_PINS (0x00)                  // EVERY option here sucks; this one gives us... 3 PWM channels...
+#else
+  #define TCA0_PINS (_CORE_TCA0_PINS)
+#endif
+#define TCB0_PINS (0x00)                  // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
+#define TCB1_PINS (0x00)                  // TCB0 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
+#define TCD0_PINS (PORTMUX_TCD0_PORTAD)
 
 #define PIN_TCA0_WO0_INIT (PIN_PA0)
 #define PIN_TCB0_WO_INIT  (NOT_A_PIN)
@@ -445,7 +449,11 @@ const uint8_t digital_pin_to_timer[] = {
 
 
 #endif
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for.
-  #define _VALID_ANALOG_PIN(pin)  (pin < 4 && pin > 0 ? (PIN_PD4 + pin) : INVALID_PIN)
-  #define _VALID_DIGITAL_PIN(pin) (pin < 4 && pin > 0 ? (PIN_PD4 + pin) : INVALID_PIN)
+  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for
+  #if CLOCK_SOURCE != 0
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0  ? ((pin) == 4) ? ((pin) + PIN_PD4) : NOT_A_PIN
+  #else
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) == 0 || ((pin) == 1) ? (pin) : (pin) < 4 ? (PIN_PC0 + (pin)) : NOT_A_PIN
+  #endif
+  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD4) : NOT_A_PIN
 #endif
