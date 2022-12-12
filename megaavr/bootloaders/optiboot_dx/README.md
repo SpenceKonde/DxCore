@@ -246,4 +246,236 @@ Savings: 1 word
 
 In real world situations, does it ever run into the WDT syncbusy situation? If not, ditching that would save 4 words.
 
-Were there a way to know we had to erase a page beofre data was coiming down the wire and we can't take 10 ms to erase the page, ,
+Were there a way to know we had to erase a page before there was data on the way that we needed to receive, we could then write directly to the flash, making the process much faster and possibly lowering flash size enough to implement EEPROM writing! 
+
+But.... AFAIK there isn't a signal given of that. 
+
+## Where does the space go? 
+Here, sorted by instruction..
+256 instruction words is not very many instructions. 
+It is worth noting that this is not what typical compiled sketches are full of. You can see how r24 and sometimes r25 are the compiler's go-to registers for storing shortlived values
+
+```text
+   2: 80 91 40 00   lds r24, 0x0040 ; junk comment elided     040>  <--- 8x LDS == 32 bytes
+  7e: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>
+ 176: 80 91 02 11   lds r24, 0x1102 ; junk comment elided     102>
+ 188: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>
+ 196: 80 91 24 08   lds r24, 0x0824 ; junk comment elided     824>
+ 19e: 90 91 21 08   lds r25, 0x0821 ; junk comment elided     821>
+ 1a2: 80 91 20 08   lds r24, 0x0820 ; junk comment elided     820>
+ 1ae: 90 91 01 01   lds r25, 0x0101 ; junk comment elided     101>
+  10: 20 93 41 00   sts 0x0041, r18 ; junk comment elided     041>   <--- 11xSTS = 44 bytes
+  1e: 80 93 40 00   sts 0x0040, r24 ; junk comment elided     040> //These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set. 
+  2e: 80 93 51 04   sts 0x0451, r24 ; junk comment elided     451> //turning on a pullup
+  34: 80 93 28 08   sts 0x0828, r24 ; junk comment elided     828> //config USART
+  3a: 80 93 27 08   sts 0x0827, r24 ; junk comment elided     827> //config USART
+  40: 80 93 26 08   sts 0x0826, r24 ; junk comment elided     826> //config USART
+ 190: 80 93 22 08   sts 0x0822, r24 ; junk comment elided     822> //config USART
+ 1ba: 80 93 00 01   sts 0x0100, r24 ; junk comment elided     100> //config WDT
+ 1e2: 10 92 00 10   sts 0x1000, r1  ; junk comment elided     000> //writing to nvmctrl, kinda important for a bootloader to do
+ 1e8: 80 93 00 10   sts 0x1000, r24 ; junk comment elided     000> //right?
+   a: 98 ed         ldi r25, 0xD8 ; 216                              <--- 34 LDI = 68 bytes
+   c: 21 e0         ldi r18, 0x01 ; 1
+  26: 88 e0         ldi r24, 0x08 ; 8
+  2c: 88 e0         ldi r24, 0x08 ; 8
+  32: 8a e8         ldi r24, 0x8A ; 138
+  38: 83 e0         ldi r24, 0x03 ; 3
+  3e: 80 ec         ldi r24, 0xC0 ; 192
+  46: 87 e0         ldi r24, 0x07 ; 7
+  50: 40 e4         ldi r20, 0x40 ; 64
+  60: 81 e0         ldi r24, 0x01 ; 1
+  66: 8a e1         ldi r24, 0x1A ; 26
+  6c: 83 e0         ldi r24, 0x03 ; 3
+  70: 80 e1         ldi r24, 0x10 ; 16
+  78: 2a e2         ldi r18, 0x2A ; 42
+  7a: 38 e6         ldi r19, 0x68 ; 104
+  92: 84 e1         ldi r24, 0x14 ; 20
+  9c: 85 e0         ldi r24, 0x05 ; 5
+  c0: 81 e0         ldi r24, 0x01 ; 1
+  c4: 80 e0         ldi r24, 0x00 ; 0
+  c8: 83 e0         ldi r24, 0x03 ; 3
+  d6: d0 e0         ldi r29, 0x00 ; 0
+  ec: 30 e4         ldi r19, 0x40 ; 64
+  f2: 8f ef         ldi r24, 0xFF ; 255
+ 10c: 88 e0         ldi r24, 0x08 ; 8
+ 112: 82 e0         ldi r24, 0x02 ; 2
+ 130: d0 e0         ldi r29, 0x00 ; 0
+ 140: f6 e4         ldi r31, 0x46 ; 70
+ 16e: 8e e1         ldi r24, 0x1E ; 30
+ 172: 87 e9         ldi r24, 0x97 ; 151
+ 182: 81 e0         ldi r24, 0x01 ; 1
+ 1b6: 98 ed         ldi r25, 0xD8 ; 216
+ 1c6: 81 e0         ldi r24, 0x01 ; 1
+ 1cc: 84 e1         ldi r24, 0x14 ; 20
+ 1de: 9d e9         ldi r25, 0x9D ; 157
+  28: c2 d0         rcall .+388     ; 0x1ae <watchdogConfig> <--- 34 rcalls, most to getch() = 68 bytes
+  54: a0 d0         rcall .+320     ; 0x196 <getch>
+  5a: 9d d0         rcall .+314     ; 0x196 <getch>
+  5e: b0 d0         rcall .+352     ; 0x1c0 <verifySpace>
+  6e: 8c d0         rcall .+280     ; 0x188 <putch>
+  72: 8a d0         rcall .+276     ; 0x188 <putch>
+  94: 9d d0         rcall .+314     ; 0x1d0 <getNch>
+  a4: 78 d0         rcall .+240     ; 0x196 <getch>
+  a8: 76 d0         rcall .+236     ; 0x196 <getch>
+  ac: 89 d0         rcall .+274     ; 0x1c0 <verifySpace>
+  b4: 70 d0         rcall .+224     ; 0x196 <getch>
+  ba: 6d d0         rcall .+218     ; 0x196 <getch>
+  bc: 6c d0         rcall .+216     ; 0x196 <getch>
+  c2: 86 d0         rcall .+268     ; 0x1d0 <getNch>
+  d2: 61 d0         rcall .+194     ; 0x196 <getch>
+  dc: 5c d0         rcall .+184     ; 0x196 <getch>
+  e6: 57 d0         rcall .+174     ; 0x196 <getch>
+  f8: 4e d0         rcall .+156     ; 0x196 <getch>
+ 106: 5c d0         rcall .+184     ; 0x1c0 <verifySpace>
+ 10e: 67 d0         rcall .+206     ; 0x1de <nvm_cmd>
+ 114: 64 d0         rcall .+200     ; 0x1de <nvm_cmd>
+ 12c: 34 d0         rcall .+104     ; 0x196 <getch>
+ 136: 2f d0         rcall .+94      ; 0x196 <getch>
+ 13a: 2d d0         rcall .+90      ; 0x196 <getch>
+ 13e: 40 d0         rcall .+128     ; 0x1c0 <verifySpace>
+ 14e: 1c d0         rcall .+56      ; 0x188 <putch>
+ 160: 13 d0         rcall .+38      ; 0x188 <putch>
+ 16c: 29 d0         rcall .+82      ; 0x1c0 <verifySpace>
+ 170: 0b d0         rcall .+22      ; 0x188 <putch>
+ 174: 09 d0         rcall .+18      ; 0x188 <putch>
+ 184: 14 d0         rcall .+40      ; 0x1ae <watchdogConfig>
+ 1c0: ea df         rcall .-44      ; 0x196 <getch>
+ 1c8: f2 df         rcall .-28      ; 0x1ae <watchdogConfig>
+ 1d4: e0 df         rcall .-64      ; 0x196 <getch>
+   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Note that most of the comments the compiler adds and which were elided were interpreting the relative jump locations as offsets from variables in the dataspace. It's about as useful as trying to navigate europe with a map of Australia.
+  16: 03 c0         rjmp  .+6       ; junk comment elided     
+  24: ed c0         rjmp  .+474     ; 0x200 <app>
+  74: ef cf         rjmp  .-34      ; junk comment elided     
+  84: e4 cf         rjmp  .-56      ; junk comment elided     
+  8c: dd cf         rjmp  .-70      ; junk comment elided       
+  96: ec cf         rjmp  .-40      ; junk comment elided     
+  9e: fa cf         rjmp  .-12      ; junk comment elided     
+  ae: e0 cf         rjmp  .-64      ; junk comment elided     
+  c6: d3 cf         rjmp  .-90      ; junk comment elided     
+  ca: fb cf         rjmp  .-10      ; junk comment elided     
+  d0: 2b c0         rjmp  .+86      ; 0x128 <head+0x10>
+ 126: a4 cf         rjmp  .-184     ; junk comment elided     
+ 144: 08 c0         rjmp  .+16      ; 0x156 <head+0x3e>
+ 154: 8d cf         rjmp  .-230     ; junk comment elided     
+ 166: 84 cf         rjmp  .-248     ; junk comment elided     
+ 17a: 79 cf         rjmp  .-270     ; junk comment elided     
+ 180: 95 cf         rjmp  .-214     ; junk comment elided     
+ 186: 92 cf         rjmp  .-220     ; junk comment elided     
+ 18e: fc cf         rjmp  .-8       ; 0x188 <putch>
+ 19c: fc cf         rjmp  .-8       ; 0x196 <getch>
+ 1a8: 01 c0         rjmp  .+2       ; 0x1ac <getch+0x16>
+ 1b4: fc cf         rjmp  .-8       ; 0x1ae <watchdogConfig>
+ 1ca: ff cf         rjmp  .-2       ; 0x1ca <verifySpace+0xa>
+ 1ce: dc cf         rjmp  .-72      ; 0x188 <putch>
+ 1dc: f1 cf         rjmp  .-30      ; 0x1c0 <verifySpace>
+  18: 98 2f         mov r25, r24                             <-- 15 = 30 bytes on move/copies
+  4e: e1 2c         mov r14, r1
+  52: f4 2e         mov r15, r20
+  5c: c8 2f         mov r28, r24
+  a6: 08 2f         mov r16, r24
+  aa: 18 2f         mov r17, r24
+  d4: c8 2f         mov r28, r24
+  d8: dc 2f         mov r29, r28
+  ea: 81 2c         mov r8, r1
+  ee: 93 2e         mov r9, r19
+ 116: 9c 2d         mov r25, r12
+ 12e: c8 2f         mov r28, r24
+ 132: dc 2f         mov r29, r28                              
+ 13c: d8 2e         mov r13, r24
+ 1d2: c8 2f         mov r28, r24                              
+  e0: 6e 01         movw  r12, r28                            <-- 10 = 20 bytes on moveing bytes 2 at a time. 
+  f0: 54 01         movw  r10, r8
+  fa: f4 01         movw  r30, r8
+  fe: 45 01         movw  r8, r10
+ 108: f8 01         movw  r30, r16
+ 10a: d7 01         movw  r26, r14
+ 146: 68 01         movw  r12, r16
+ 148: f6 01         movw  r30, r12
+ 14c: 6f 01         movw  r12, r30
+ 158: f8 01         movw  r30, r16
+  56: 81 34         cpi r24, 0x41 ; 65                        <--- 13 cpi = 26 bytes
+  62: c2 38         cpi r28, 0x82 ; 130
+  68: c1 38         cpi r28, 0x81 ; 129
+  8e: 82 34         cpi r24, 0x42 ; 66
+  98: 85 34         cpi r24, 0x45 ; 69
+  a0: 85 35         cpi r24, 0x55 ; 85
+  b0: 86 35         cpi r24, 0x56 ; 86
+  b6: 8d 34         cpi r24, 0x4D ; 77
+  cc: 84 36         cpi r24, 0x64 ; 100
+ 128: 84 37         cpi r24, 0x74 ; 116
+ 168: 85 37         cpi r24, 0x75 ; 117
+ 17c: 81 35         cpi r24, 0x51 ; 81
+ 1c2: 80 32         cpi r24, 0x20 ; 32
+   e: 94 bf         out 0x34, r25 ; 52                        <--- 6 OUT = 12 bytes
+  22: 8c bb         out 0x1c, r24 ; 28
+  be: 8b bf         out 0x3b, r24 ; 59
+ 1b8: 94 bf         out 0x34, r25 ; 52
+ 1e0: 94 bf         out 0x34, r25 ; 52
+ 1e6: 94 bf         out 0x34, r25 ; 52
+  48: 81 50         subi  r24, 0x01 ; 1                       <--- 6 subi = 12 bytes
+  86: 21 50         subi  r18, 0x01 ; 1
+  e8: d0 5c         subi  r29, 0xC0 ; 192
+ 156: 1c 5e         subi  r17, 0xEC ; 236
+ 15c: 0f 5f         subi  r16, 0xFF ; 255
+ 1d6: c1 50         subi  r28, 0x01 ; 1 
+  2a: 40 9a         sbi 0x08, 0 ; 8                           
+  44: 07 9a         sbi 0x00, 7 ; 0
+  76: 17 9a         sbi 0x02, 7 ; 2
+ 150: 21 97         sbiw  r28, 0x01 ; 1
+ 162: 21 97         sbiw  r28, 0x01 ; 1
+   0: 11 24         eor r1, r1        <----- 4 eor - first one is to prepare zero reg, the one at 0x0124 cleans it after it's been used to write the flash
+  da: cc 27         eor r28, r28      <----- The other two are part of the grotesque method of copying a low and high byte into the low and high byte of a variable
+ 124: 11 24         eor r1, r1
+ 134: cc 27         eor r28, r28 
+ 194: 08 95         ret               <----- 4 ret
+ 1ac: 08 95         ret
+ 1be: 08 95         ret
+ 1ec: 08 95         ret
+  4c: a8 95         wdr               <----- 3 WDR
+  7c: a8 95         wdr
+ 1aa: a8 95         wdr
+ 118: 0d 90         ld  r0, X+        <----- only three loads...
+ 11a: 1d 90         ld  r1, X+
+ 15a: 80 81         ld  r24, Z
+ 110: e8 95         spm               <----- 2 SPM
+ 11c: e8 95         spm   
+  de: c8 2b         or  r28, r24      <----- the two 'or' instructions are -part of that aforementioned inefficienct way to assemble bytes to a word. 
+ 138: c8 2b         or  r28, r24
+  e2: d6 94         lsr r13           < a pair of rightshifts
+  e4: c7 94         ror r12
+  1a: 95 73         andi  r25, 0x35 ; 53 <---- Only a single ANDI, and no ORI's.
+  fc: 80 83         st  Z, r24          <------ Just one ST!
+ 1d0: cf 93         push  r28         <----- Why the fuck is there a push and a pop, we have 9 unused registers!!!!
+ 1da: cf 91         pop r28           <----- wtf???
+                                    ; And now all in one place: The control flow instructions. 
+  1c: 21 f4         brne  .+8       ; junk comment elided     <--16brne's = 32 bytes 
+  4a: a9 f4         brne  .+42      ; junk comment elided     
+  58: d1 f4         brne  .+52      ; junk comment elided     
+  8a: c1 f7         brne  .-16      ; junk comment elided     
+  90: 19 f4         brne  .+6       ; junk comment elided     
+  9a: 11 f4         brne  .+4       ; junk comment elided     
+  a2: 31 f4         brne  .+12      ; junk comment elided     
+  b2: 61 f4         brne  .+24      ; junk comment elided     
+  b8: 39 f4         brne  .+14      ; junk comment elided     
+ 104: a9 f7         brne  .-22      ; junk comment elided     
+ 122: d1 f7         brne  .-12      ; 0x118 <head>
+ 12a: f1 f4         brne  .+60      ; 0x168 <head+0x50>
+ 152: d1 f7         brne  .-12      ; 0x148 <head+0x30>
+ 164: c9 f7         brne  .-14      ; 0x158 <head+0x40>
+ 16a: 41 f4         brne  .+16      ; 0x17c <head+0x64>
+ 1d8: e9 f7         brne  .-6       ; 0x1d4 <getNch+0x4>
+  64: 21 f0         breq  .+8       ; 0x6e junk comment elided    <--- and 5 breq's
+  6a: 09 f0         breq  .+2       ; 0x6e junk comment elided   
+  ce: 09 f0         breq  .+2       ; 0xd2 junk comment elided   
+ 17e: 09 f0         breq  .+2       ; 0x182 <head+0x6a>
+ 1c4: 19 f0         breq  .+6       ; 0x1cc <verifySpace+0xc>
+  14: 83 fd         sbrc  r24, 3                              <--- 8 other skipifs - 16 bytes 
+  82: 97 fd         sbrc  r25, 7
+ 18c: 95 ff         sbrs  r25, 5
+ 19a: 87 ff         sbrs  r24, 7
+ 1a6: 92 fd         sbrc  r25, 2
+ 1b2: 90 fd         sbrc  r25, 0
+   6: 81 11         cpse  r24, r1                             
+ 142: df 12         cpse  r13, r31
+```
+
