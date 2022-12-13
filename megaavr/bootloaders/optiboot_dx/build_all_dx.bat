@@ -202,4 +202,6 @@ call omake 32dx_ser0_alt_extr_8sec
 call omake 32dx_ser1_alt_extr_8sec
 call omake 32dx_ser2_alt_extr_8sec
 call omake 32dx_ser3_alt_extr_8sec
-echo "Done with AVR DA/DB-series. There should be 198 hex files for AVR Dx."
+echo "Done with AVR DA/DB-series."
+echo "36 + 36 + 36 + 36 = 144 128 and 64k versions, and 30 + 24 = 54 for 32k"
+echo "Hence there should b 144 +  54 = 198 hex files for AVR Dx."

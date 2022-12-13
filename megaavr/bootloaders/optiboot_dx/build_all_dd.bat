@@ -138,5 +138,6 @@ call omake 32dd14_ser0_extr_8sec
 call omake 32dd14_ser0_alt3_extr_8sec
 call omake 32dd14_ser0_alt4_extr_8sec
 call omake 32dd14_ser1_alt2_extr_8sec
-echo "Done with AVR32DD14/AVR16DD14"
-echo "Done with all tasks. There should be 192+86+48 = 324 hex files total."
+echo "Done with AVR32DD14/AVR16DD14 There should be 48 files for 14-pin DD's "
+echo "Done with DD-series. There should be 42 + 42 + 24 + 24 = 132 hex files for DD-series parts"
+echo "Combined with 198 from DA/DB the total should be 330 hex files."
