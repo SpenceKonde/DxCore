@@ -138,6 +138,6 @@ void _pinconfigure(uint8_t pin, uint16_t pin_config) {
   __pinconfigure(pin,pin_config);
 }
 /* Allow calls with manually OR'ed constants */
-void pinConfigure(const uint8_t digital_pin, uint16_t pin_config) {
+void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
   _pinconfigure(digital_pin, pin_config);
 }
