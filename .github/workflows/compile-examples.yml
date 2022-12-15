@@ -265,6 +265,7 @@ jobs:
             # The sketches don't have any external library dependencies, so just define an empty array
             -
           verbose: false
+          cli-compile-flags: "--build-property build.cli_flags=-DTHIS_IS_CI"
           enable-deltas-report: true
           enable-warnings-report: true
           sketches-report-path: sketches-reports

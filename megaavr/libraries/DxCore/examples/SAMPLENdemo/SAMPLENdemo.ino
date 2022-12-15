@@ -36,7 +36,7 @@ void setup() {
   const uint8_t SECOND_PIN = _VALID_ANALOG_PIN(1);
   #else
   const uint8_t FIRST_PIN = A1;
-  const uint8_t SECOND_PIN = A2
+  const uint8_t SECOND_PIN = A2;
   #endif
   pinMode(SECOND_PIN, OUTPUT);
   digitalWrite(SECOND_PIN, LOW);
