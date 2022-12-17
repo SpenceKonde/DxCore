@@ -31,11 +31,11 @@ rather odd. Also that it goes all the way to 0 on a LOW, but not all the way to 
 */
 
 #if defined(THIS_IS_CI) // This sketch is compiletested in many configurations and parts automatically. Within that context, these macros are available to find valid pins
-const uint8_t FIRST_PIN = _VALID_ANALOG_PIN(0);
-const uint8_t SECOND_PIN = _VALID_ANALOG_PIN(1);
+  const uint8_t FIRST_PIN = _VALID_ANALOG_PIN(0);
+  const uint8_t SECOND_PIN = _VALID_ANALOG_PIN(1);
 #else
-const uint8_t FIRST_PIN = A1;
-const uint8_t SECOND_PIN = A2;
+  const uint8_t FIRST_PIN = A1;
+  const uint8_t SECOND_PIN = A2;
 #endif
 
 void setup() {
