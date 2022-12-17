@@ -93,7 +93,7 @@ This is inside the Arduino15 folder (on Windows, for example, it would be `C:\Us
 
 Either way, you'll see a file called platform.txt. Move it somewhere not under Arduino15, or rename it to something else.
 
-If you have a manual installation, copy [extras/platform_without_LTO_manual.txt](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/platform_with_LTO_manual.txt) in it's place. If it's a board manager installation (likely), you need to download [https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/platform_without_LTO.txt](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/platform_without_LTO.txt). Either way, rename it to platform.txt.
+If you have a manual installation, copy [extras/platform_without_LTO_manual.txt](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/platform_with_LTO_manual.txt) in it's place. If it's a board manager installation (likely), you need to download [github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/platform_without_LTO.txt](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/platform_without_LTO.txt). Either way, rename it to platform.txt.
 
 Start the IDE. You will find that the sketch will compile to a markedly larger binary (the one I was testing while writing this went from 2.5k to 4.7k - the difference is larger (as a percent) for small sketches)... and that the error will now actually have line numbers. You will also notice SWARMS of warnings about the fact that LTO is off. This is intentional, as it ensures that there's no way you could forget about having disabled LTO. Now, armed with that additional information, you should be able to track down the cause of the problem, and fix it.
 

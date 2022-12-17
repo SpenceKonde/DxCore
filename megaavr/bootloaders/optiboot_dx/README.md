@@ -91,6 +91,8 @@ This is how the files DxCore ships with are built. I can provide no guarantee th
 5. Copy the `optiboot_dx` folder from `(core install location)/megaavr/bootloaders` to `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders`.
 6. You should now be able to open a command window in `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders\optiboot_dx` and run `omake <target>`, or `build_all_dx.bat` to build all the binaries packaged with the core.
 
+This can be done the same way in linux exceopt you can expect make to actually be there, ignore omake, and just use the shell scripttsand can use the .sh scripts instead of batch files which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output throguh grep or something, but I don't know makefile or shellscripting :-) )
+
 
 ## Previous build instructions
 These may or may not work. I am not versed in the ways of makefiles and am not competent to fix any issues that may be encountered. Thus, if you want to use one of these methods, you'll have to fix the makefile yourself (sorry - my brain uses 16-bit addressing. You'll notice I never talk about working with an ATmega2560 - that would require an extra bit, ya see? So figuring out how to wrangle a makefile on a 64-bit desktop computer is well beyond my ability). I will gladly accept pull requests that fix these things - as long as they do not break the method detailed above, as that would leave me unable to build DxCore bootloaders without toolchain wrangling, which as I said, is outside my zone of competence. If you find that these do in fact work as written, please let me know so I can update this file.
@@ -126,15 +128,14 @@ The makefile uses relative paths (`../../../tools/` and such) to find
 the programs it needs, so you need to work in the existing optiboot
 directory (or something created at the same "level") for it to work.
 
+
+
 ### Building Optiboot in the Arduino Source Development Install
 
 In this case, there is no special shell script, and you're assumed to
 have "make" installed somewhere in your path.
 Build the Arduino source ("ant build") to unpack the tools into the
 expected directory.
-Work in Arduino/hardware/arduino/bootloaders/optiboot and use
-    `make OS=windows ENV=arduinodev <targets>`
-or  `make OS=macosx ENV=arduinodev <targets>`
 
 
 ## Programming Chips Using the `_isp` Targets
@@ -246,13 +247,13 @@ Savings: 1 word
 
 In real world situations, does it ever run into the WDT syncbusy situation? If not, ditching that would save 4 words.
 
-Were there a way to know we had to erase a page before there was data on the way that we needed to receive, we could then write directly to the flash, making the process much faster and possibly lowering flash size enough to implement EEPROM writing! 
+Were there a way to know we had to erase a page before there was data on the way that we needed to receive, we could then write directly to the flash, making the process much faster and possibly lowering flash size enough to implement EEPROM writing!
 
-But.... AFAIK there isn't a signal given of that. 
+But.... AFAIK there isn't a signal given of that.
 
-## Where does the space go? 
+## Where does the space go?
 Here, sorted by instruction..
-256 instruction words is not very many instructions. 
+256 instruction words is not very many instructions.
 It is worth noting that this is not what typical compiled sketches are full of. You can see how r24 and sometimes r25 are the compiler's go-to registers for storing shortlived values
 
 ```text
@@ -265,7 +266,7 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  1a2: 80 91 20 08   lds r24, 0x0820 ; junk comment elided     820>
  1ae: 90 91 01 01   lds r25, 0x0101 ; junk comment elided     101>
   10: 20 93 41 00   sts 0x0041, r18 ; junk comment elided     041>   <--- 11xSTS = 44 bytes
-  1e: 80 93 40 00   sts 0x0040, r24 ; junk comment elided     040> //These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set. 
+  1e: 80 93 40 00   sts 0x0040, r24 ; junk comment elided     040> //These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set.
   2e: 80 93 51 04   sts 0x0451, r24 ; junk comment elided     451> //turning on a pullup
   34: 80 93 28 08   sts 0x0828, r24 ; junk comment elided     828> //config USART
   3a: 80 93 27 08   sts 0x0827, r24 ; junk comment elided     827> //config USART
@@ -343,24 +344,24 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  1c8: f2 df         rcall .-28      ; 0x1ae <watchdogConfig>
  1d4: e0 df         rcall .-64      ; 0x196 <getch>
    8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Note that most of the comments the compiler adds and which were elided were interpreting the relative jump locations as offsets from variables in the dataspace. It's about as useful as trying to navigate europe with a map of Australia.
-  16: 03 c0         rjmp  .+6       ; junk comment elided     
+  16: 03 c0         rjmp  .+6       ; junk comment elided
   24: ed c0         rjmp  .+474     ; 0x200 <app>
-  74: ef cf         rjmp  .-34      ; junk comment elided     
-  84: e4 cf         rjmp  .-56      ; junk comment elided     
-  8c: dd cf         rjmp  .-70      ; junk comment elided       
-  96: ec cf         rjmp  .-40      ; junk comment elided     
-  9e: fa cf         rjmp  .-12      ; junk comment elided     
-  ae: e0 cf         rjmp  .-64      ; junk comment elided     
-  c6: d3 cf         rjmp  .-90      ; junk comment elided     
-  ca: fb cf         rjmp  .-10      ; junk comment elided     
+  74: ef cf         rjmp  .-34      ; junk comment elided
+  84: e4 cf         rjmp  .-56      ; junk comment elided
+  8c: dd cf         rjmp  .-70      ; junk comment elided
+  96: ec cf         rjmp  .-40      ; junk comment elided
+  9e: fa cf         rjmp  .-12      ; junk comment elided
+  ae: e0 cf         rjmp  .-64      ; junk comment elided
+  c6: d3 cf         rjmp  .-90      ; junk comment elided
+  ca: fb cf         rjmp  .-10      ; junk comment elided
   d0: 2b c0         rjmp  .+86      ; 0x128 <head+0x10>
- 126: a4 cf         rjmp  .-184     ; junk comment elided     
+ 126: a4 cf         rjmp  .-184     ; junk comment elided
  144: 08 c0         rjmp  .+16      ; 0x156 <head+0x3e>
- 154: 8d cf         rjmp  .-230     ; junk comment elided     
- 166: 84 cf         rjmp  .-248     ; junk comment elided     
- 17a: 79 cf         rjmp  .-270     ; junk comment elided     
- 180: 95 cf         rjmp  .-214     ; junk comment elided     
- 186: 92 cf         rjmp  .-220     ; junk comment elided     
+ 154: 8d cf         rjmp  .-230     ; junk comment elided
+ 166: 84 cf         rjmp  .-248     ; junk comment elided
+ 17a: 79 cf         rjmp  .-270     ; junk comment elided
+ 180: 95 cf         rjmp  .-214     ; junk comment elided
+ 186: 92 cf         rjmp  .-220     ; junk comment elided
  18e: fc cf         rjmp  .-8       ; 0x188 <putch>
  19c: fc cf         rjmp  .-8       ; 0x196 <getch>
  1a8: 01 c0         rjmp  .+2       ; 0x1ac <getch+0x16>
@@ -380,10 +381,10 @@ It is worth noting that this is not what typical compiled sketches are full of. 
   ee: 93 2e         mov r9, r19
  116: 9c 2d         mov r25, r12
  12e: c8 2f         mov r28, r24
- 132: dc 2f         mov r29, r28                              
+ 132: dc 2f         mov r29, r28
  13c: d8 2e         mov r13, r24
- 1d2: c8 2f         mov r28, r24                              
-  e0: 6e 01         movw  r12, r28                            <-- 10 = 20 bytes on moveing bytes 2 at a time. 
+ 1d2: c8 2f         mov r28, r24
+  e0: 6e 01         movw  r12, r28                            <-- 10 = 20 bytes on moveing bytes 2 at a time.
   f0: 54 01         movw  r10, r8
   fa: f4 01         movw  r30, r8
   fe: 45 01         movw  r8, r10
@@ -417,8 +418,8 @@ It is worth noting that this is not what typical compiled sketches are full of. 
   e8: d0 5c         subi  r29, 0xC0 ; 192
  156: 1c 5e         subi  r17, 0xEC ; 236
  15c: 0f 5f         subi  r16, 0xFF ; 255
- 1d6: c1 50         subi  r28, 0x01 ; 1 
-  2a: 40 9a         sbi 0x08, 0 ; 8                           
+ 1d6: c1 50         subi  r28, 0x01 ; 1
+  2a: 40 9a         sbi 0x08, 0 ; 8
   44: 07 9a         sbi 0x00, 7 ; 0
   76: 17 9a         sbi 0x02, 7 ; 2
  150: 21 97         sbiw  r28, 0x01 ; 1
@@ -426,7 +427,7 @@ It is worth noting that this is not what typical compiled sketches are full of. 
    0: 11 24         eor r1, r1        <----- 4 eor - first one is to prepare zero reg, the one at 0x0124 cleans it after it's been used to write the flash
   da: cc 27         eor r28, r28      <----- The other two are part of the grotesque method of copying a low and high byte into the low and high byte of a variable
  124: 11 24         eor r1, r1
- 134: cc 27         eor r28, r28 
+ 134: cc 27         eor r28, r28
  194: 08 95         ret               <----- 4 ret
  1ac: 08 95         ret
  1be: 08 95         ret
@@ -438,8 +439,8 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  11a: 1d 90         ld  r1, X+
  15a: 80 81         ld  r24, Z
  110: e8 95         spm               <----- 2 SPM
- 11c: e8 95         spm   
-  de: c8 2b         or  r28, r24      <----- the two 'or' instructions are -part of that aforementioned inefficienct way to assemble bytes to a word. 
+ 11c: e8 95         spm
+  de: c8 2b         or  r28, r24      <----- the two 'or' instructions are -part of that aforementioned inefficienct way to assemble bytes to a word.
  138: c8 2b         or  r28, r24
   e2: d6 94         lsr r13           < a pair of rightshifts
   e4: c7 94         ror r12
@@ -447,17 +448,17 @@ It is worth noting that this is not what typical compiled sketches are full of. 
   fc: 80 83         st  Z, r24          <------ Just one ST!
  1d0: cf 93         push  r28         <----- Why the fuck is there a push and a pop, we have 9 unused registers!!!!
  1da: cf 91         pop r28           <----- wtf???
-                                    ; And now all in one place: The control flow instructions. 
-  1c: 21 f4         brne  .+8       ; junk comment elided     <--16brne's = 32 bytes 
-  4a: a9 f4         brne  .+42      ; junk comment elided     
-  58: d1 f4         brne  .+52      ; junk comment elided     
-  8a: c1 f7         brne  .-16      ; junk comment elided     
-  90: 19 f4         brne  .+6       ; junk comment elided     
-  9a: 11 f4         brne  .+4       ; junk comment elided     
-  a2: 31 f4         brne  .+12      ; junk comment elided     
-  b2: 61 f4         brne  .+24      ; junk comment elided     
-  b8: 39 f4         brne  .+14      ; junk comment elided     
- 104: a9 f7         brne  .-22      ; junk comment elided     
+                                    ; And now all in one place: The control flow instructions.
+  1c: 21 f4         brne  .+8       ; junk comment elided     <--16brne's = 32 bytes
+  4a: a9 f4         brne  .+42      ; junk comment elided
+  58: d1 f4         brne  .+52      ; junk comment elided
+  8a: c1 f7         brne  .-16      ; junk comment elided
+  90: 19 f4         brne  .+6       ; junk comment elided
+  9a: 11 f4         brne  .+4       ; junk comment elided
+  a2: 31 f4         brne  .+12      ; junk comment elided
+  b2: 61 f4         brne  .+24      ; junk comment elided
+  b8: 39 f4         brne  .+14      ; junk comment elided
+ 104: a9 f7         brne  .-22      ; junk comment elided
  122: d1 f7         brne  .-12      ; 0x118 <head>
  12a: f1 f4         brne  .+60      ; 0x168 <head+0x50>
  152: d1 f7         brne  .-12      ; 0x148 <head+0x30>
@@ -465,17 +466,16 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  16a: 41 f4         brne  .+16      ; 0x17c <head+0x64>
  1d8: e9 f7         brne  .-6       ; 0x1d4 <getNch+0x4>
   64: 21 f0         breq  .+8       ; 0x6e junk comment elided    <--- and 5 breq's
-  6a: 09 f0         breq  .+2       ; 0x6e junk comment elided   
-  ce: 09 f0         breq  .+2       ; 0xd2 junk comment elided   
+  6a: 09 f0         breq  .+2       ; 0x6e junk comment elided
+  ce: 09 f0         breq  .+2       ; 0xd2 junk comment elided
  17e: 09 f0         breq  .+2       ; 0x182 <head+0x6a>
  1c4: 19 f0         breq  .+6       ; 0x1cc <verifySpace+0xc>
-  14: 83 fd         sbrc  r24, 3                              <--- 8 other skipifs - 16 bytes 
+  14: 83 fd         sbrc  r24, 3                              <--- 8 other skipifs - 16 bytes
   82: 97 fd         sbrc  r25, 7
  18c: 95 ff         sbrs  r25, 5
  19a: 87 ff         sbrs  r24, 7
  1a6: 92 fd         sbrc  r25, 2
  1b2: 90 fd         sbrc  r25, 0
-   6: 81 11         cpse  r24, r1                             
+   6: 81 11         cpse  r24, r1
  142: df 12         cpse  r13, r31
 ```
-
