@@ -16,16 +16,20 @@ Note that you must install via board manager or replace your tool chain with the
 * [AVR128DB48, AVR64DB48, AVR32DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)
 * [AVR128DB64 and AVR64DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)
 * [AVR64DD14, AVR32DD14, AVR16DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md)
-* [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md) (Yes, we have no pinout chart here today)
-* [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md) (Yes, we have no pinout chart here today)
-* [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md) (Yes, we have no pinout chart here today)
+* [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md) (Better pinouts chart for QFN coming)
+* [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md) (Better pinouts chart for QFN coming)
+* [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md) (Better pinouts chart for QFN coming)
 * AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending release)
 * AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending release)
 * AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending release)
+* AVR64EB14, AVR32EB14, AVR16EB14, AVR8EB14 (pending release)
+* AVR64EB20, AVR32EB20, AVR16EB20, AVR8EB20 (pending release)
+* AVR64EB28, AVR32EB28, AVR16EB28, AVR8EB28 (pending release)
+* AVR64EB32, AVR32EB32, AVR16EB32, AVR8EB32 (pending release)
 
 My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sinkism just to take up pins. But the 27 I/O pins on the 32-pin parts can get used up faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - and then I thought I would be fine with a 32-pin Dx as that had a few more pins... But I wound up switching to the 48 and am using about half of the added pins.
 
-For the DD-series, the 28 and 32-pin parts offer obvious economic benefits, but no new capability versus the DB. The smaller versions however offer capability well beyond the tinyAVR product line in the same tiny package sizes.
+For the DD-series, the 28 and 32-pin parts offer obvious economic benefits, but no new capability versus the DB (other than the very cheap VQFN28 package). The smaller versions however offer capability well beyond the tinyAVR product line in the same tiny package sizes.
 
 ## Supported Clock Speeds
 ### For the DA, DB, and DD-series parts

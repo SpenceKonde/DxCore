@@ -91,7 +91,7 @@ This is how the files DxCore ships with are built. I can provide no guarantee th
 5. Copy the `optiboot_dx` folder from `(core install location)/megaavr/bootloaders` to `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders`.
 6. You should now be able to open a command window in `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders\optiboot_dx` and run `omake <target>`, or `build_all_dx.bat` to build all the binaries packaged with the core.
 
-This can be done the same way in linux except you can expect make to actually be there, ignore omake, and can use the .sh shell scripts instead of batch files which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output throguh grep or something, but I don't know makefile or shellscripting :-) )
+This can be done the same way in linux exceopt you can expect make to actually be there, ignore omake, and just use the shell scripts =nstead of batch files which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output throguh grep or something, but I don't know makefile or shellscripting :-) )
 
 
 ## Previous build instructions
@@ -99,29 +99,43 @@ These may or may not work. I am not versed in the ways of makefiles and am not c
 
 ### Building optiboot for Arduino
 
-Production builds of optiboot for Arduino are done on a Mac in "unix mode" using CrossPack-AVR-20100115.  CrossPack tracks WINAVR (for windows), which is just a package of avr-gcc and related utilities, so similar builds should work on Windows or Linux systems.
+Production builds of optiboot for Arduino are done on a Mac in "unix mode"
+using CrossPack-AVR-20100115.  CrossPack tracks WINAVR (for windows), which
+is just a package of avr-gcc and related utilities, so similar builds should
+work on Windows or Linux systems.
 
-One of the Arduino-specific changes is modifications to the makefile to allow building optiboot using only the tools installed as part of the Arduino environment, or the Arduino source development tree.  All three build procedures should yield identical binaries (.hex files) (although this may change if compiler versions drift apart between CrossPack and the Arduino IDE.)
+One of the Arduino-specific changes is modifications to the makefile to
+allow building optiboot using only the tools installed as part of the
+Arduino environment, or the Arduino source development tree.  All three
+build procedures should yield identical binaries (.hex files) (although
+this may change if compiler versions drift apart between CrossPack and
+the Arduino IDE.)
 
 
 ### Building Optiboot in the Arduino IDE Install
-Requires a 1.0.6 version of the IDE on windows and maybe other OS's (later versions didn't have the same build tools), It is recommended to use a portable installation, and you must manually update the toolchain (see below)
 
-Work in the .../hardware/arduino/bootloaders/optiboot_dx/ (after copying it to that location) and use the `omake <targets>` command, which just generates a command that uses the arduino-included "make" utility with a command like:
+Work in the .../hardware/arduino/bootloaders/optiboot/ and use the
+`omake <targets>` command, which just generates a command that uses
+the arduino-included "make" utility with a command like:
     `make OS=windows ENV=arduino <targets>`
 or  `make OS=macosx ENV=arduino <targets>`
+On windows, this assumes you're using the windows command shell.  If
+you're using a cygwin or mingw shell, or have one of those in your
+path, the build will probably break due to slash vs backslash issues.
+On a Mac, if you have the developer tools installed, you can use the
+Apple-supplied version of make.
+The makefile uses relative paths (`../../../tools/` and such) to find
+the programs it needs, so you need to work in the existing optiboot
+directory (or something created at the same "level") for it to work.
 
-On windows, this assumes you're using the windows command shell.  If you're using a cygwin or mingw shell, or have one of those in your path, the build will probably break due to slash vs backslash issues.
 
-On a Mac, if you have the developer tools installed, you can use the Apple-supplied version of make.
-
-The makefile uses relative paths (`../../../tools/` and such) to find the programs it needs, so you need to work in the existing optiboot directory (or something created at the same "level") for it to work.
-
-On all platforms, in order to compile for these parts, you must
 
 ### Building Optiboot in the Arduino Source Development Install
 
-In this case, there is no special shell script, and you're assumed to have "make" installed somewhere in your path. Build the Arduino source ("ant build") to unpack the tools into the expected directory.
+In this case, there is no special shell script, and you're assumed to
+have "make" installed somewhere in your path.
+Build the Arduino source ("ant build") to unpack the tools into the
+expected directory.
 
 
 ## Programming Chips Using the `_isp` Targets
@@ -130,20 +144,25 @@ This does not work on AVR Dx-series, and there are no plans to change this.
 ## Standard Targets
 Being designed for DxCore, this provides 325 targets - there are 5 combinations of entry condition and timeout duration. There are two possible sizes for a DD-series part, and 7 combinations of . In the list below, brackets indicate an optional
 parameter, while parenthesis indicates a mandatory one - one of the options must be used.
-* `dx128_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `dx64_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `dx32_ser(0-4)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `dd64_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `dd32_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `128dd_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `64dd_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `32dd_ser(0-4)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `64dd_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `32dd_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `64dd_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `32dd14_ser(0, 0_alt3, 0_alt4 or 1_alt2)_(extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `64dd14_ser(0, 0_alt3, 0_alt4 or 1_alt2)_(extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 
 ### serN indicates the USART number
 
 * DA/DB: N is 0-5 for 64-pin parts, 0-4 for 48 pin parts, 0-2 for 28/32 pin ones
   * All files are built for the largest pincount available with that memory size; they are binary compatible - but obviously one that tries to use a port or mux option that doesn't exist will not work.
-* DD: N is 0 or 1 for all parts, however there are special builds for the low pincount devices to move the LED to PD7 instead of PA7
+  * There is no UART3, 4, or 5 on parts with less than 48 pins. UART5 is only found on 64-pin parts.
+* DD: N is 0 or 1 for all parts, as there are only two serial ports.
   * All files are built for the AVR64DD32 or AVR32DD32. These are binary compatible with lower pincounts, but as above, if you specified a port and mux option that isn't available, it will not work, see below.
+  * A separate file is provided for the DD14 (14-pin) parts. This differs in one way only - the pin which the bootloader tries to blink. If USART0 is used, PD6 is assumed to be the builtin LED. otherwise, PD4 is. The reasoning is described in the [DD14 part specific documentation](../../extras/DD14.md).
 
-### The next optional portion of the name specifies an alternate portmux option
+### The next optional portion of the name indicates portmux option
 
 * DA/DB: Either omit to use default pins, or alt_ to use the alternate pins. Be aware that alternate pin availability depends on the pincount.
   * ser4_alt will not work on 48-pin parts, ser1_alt works only on 48+ pin parts, and ser2_alt doesn't work on 28-pin parts.
@@ -240,7 +259,7 @@ But.... AFAIK there isn't a signal given of that.
 ## Where does the space go?
 Here, sorted by instruction..
 256 instruction words is not very many instructions.
-It is worth noting that this is not what typical compiled sketches are made up of - ld, ldd, st, and std are largely absent, and the only use of push and pop is unnecessary and stupid.
+It is worth noting that this is not what typical compiled sketches are full of. You can see how r24 and sometimes r25 are the compiler's go-to registers for storing shortlived values.
 
 ```text
    2: 80 91 40 00   lds r24, 0x0040 ; junk comment elided     040>  <--- 8x LDS == 32 bytes
@@ -329,9 +348,7 @@ It is worth noting that this is not what typical compiled sketches are made up o
  1c0: ea df         rcall .-44      ; 0x196 <getch>
  1c8: f2 df         rcall .-28      ; 0x1ae <watchdogConfig>
  1d4: e0 df         rcall .-64      ; 0x196 <getch>
-   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes.
-   Note that most of the comments the compiler adds and which were elided were interpreting the relative jump locations as offsets from variables in the dataspace instead of the codespace.
-   It's about as useful as trying to navigate europe with a map of Australia. These worthless comments are elided in the interest of clarity.
+   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Note that most of the comments the compiler adds and which were elided were interpreting the relative jump locations as offsets from variables in the dataspace. It's about as useful as trying to navigate europe with a map of Australia.
   16: 03 c0         rjmp  .+6       ; junk comment elided
   24: ed c0         rjmp  .+474     ; 0x200 <app>
   74: ef cf         rjmp  .-34      ; junk comment elided
@@ -372,7 +389,7 @@ It is worth noting that this is not what typical compiled sketches are made up o
  132: dc 2f         mov r29, r28
  13c: d8 2e         mov r13, r24
  1d2: c8 2f         mov r28, r24
-  e0: 6e 01         movw  r12, r28                            <-- 10 = 20 bytes on moving bytes 2 at a time.
+  e0: 6e 01         movw  r12, r28                            <-- 10 = 20 bytes on moveing bytes 2 at a time.
   f0: 54 01         movw  r10, r8
   fa: f4 01         movw  r30, r8
   fe: 45 01         movw  r8, r10

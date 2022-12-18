@@ -1,0 +1,218 @@
+LABELS,DEFAULT,TYPE,GROUP,Name,Special,ADC,AC,DAC,ZCD,USART,SPI,TWI,TCA,TCB,TCD,EVSYS,CCL
+
+BORDER COLOR, grey
+BORDER WIDTH, 2
+BORDER OPACITY, 1
+FILL COLOR, white, white, white, black,grey,forestgreen,seagreen,limegreen,olivedrab,mediumblue,dodgerblue,steelblue,red,maroon,mediumvioletred,darkorange,goldenrod
+
+OPACITY, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+#FONT, Menlo,,
+FONT SIZE , 35
+FONT COLOR , black, black, black, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white, white
+FONT SLANT , normal , , , , ,
+FONT BOLD , 600 , , , 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600, 600
+FONT STRETCH , normal
+FONT OUTLINE , black
+FONT OUTLINE THICKNESS, 0
+BOXES, STD, , , PIN BOX, SPECIAL BOX, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED, SKEWED
+
+
+TYPE, IO, black, 1
+TYPE, INPUT, black, 1
+TYPE, OUTPUT, black, 1
+
+WIRE, DIGITAL, black, 1, 5
+WIRE, PWM, black, 1, 5
+WIRE, ANALOG, black, 1, 5
+WIRE, HS-ANALOG, black, 1, 5
+WIRE, POWER, black, 1, 10
+
+GROUP, COMBINED, chocolate, 0.5
+GROUP, POWER, orange, 0.5
+GROUP, GROUND, black, 0.5
+GROUP, PORT_PIN, green, 0.5
+GROUP, LEGACY_PIN, yellow, 0.5
+GROUP, AVR_DIG, blue, 0.5
+GROUP, AVR_ANA, blue, 0.5
+GROUP, AVR_VDDIO2, blue, 0.5
+
+BOX, STD, black, 1, white, 0, 1, 100,55,2,2,0,0
+BOX, PIN BOX, black, 1, white, 0, 1, 180, 45, 5, 5, -10, 0
+BOX, SPECIAL BOX, black, 1, white, 0, 1, 170, 45, 5, 5, -10, 0
+BOX, DUMB BOX, black, 1, white, 0, 1, 55, 55, 5, 5, -10, 0
+BOX, SKEWED, black, 1, white, 0, 1, 145,42,5,5,-10,0
+#BOX, PAGE BORDER, black, 1, white, 1, 1, 100,100,0,0,0,0
+BOX, PAGE BORDER, white, 1, white, 1, 1, 100,100,0,0,0,0
+BOX, DETAIL BOX, darkblue, 1, white, 0, 3, 250, 200, 15,15,0,0
+
+TEXT FONT, PowerPin, Dejavu Sans, 25, , black, normal, bold, normal
+#TEXT FONT, Heading, BenchNine, 50, , black, normal, 700, normal
+#TEXT FONT, Heading, , 50, , black, normal, 700, normal
+
+PAGE, A4-L
+DPI, 300
+
+DRAW
+# Load up the fonts we use
+GOOGLEFONT,"https://fonts.googleapis.com/css?family=M+PLUS+1+Code:300,400,700|Monaco:300,400,700|Ubuntu:300,400,500,600,700|BenchNine:300,400,700|Pragati+Narrow:700|Rubik|Ruslan+Display|Work+Sans:700,800,900"
+
+# Draw a border on the page
+BOX, PAGE BORDER, 0,0, 100%, 100%
+
+# Draw Title
+MESSAGE, 1775, 250, 175, Heading, 144, CENTER, TOP
+TEXT, black,black,AVRxxDD28-QFN,NL
+
+
+# draw chip outline
+BOX, DETAIL BOX, 1575, 350, 375, 1900, , TOP,
+MESSAGE, 1625, 370, 100, Name, 48, LEFT, TOP
+TEXT, none, black, AVRxxDD28, NL
+MESSAGE, 1600, 2170, 40, Name, 32, LEFT, TOP
+TEXT, none, black, github.com/, NL
+TEXT, none, black, SpenceKonde/DxCore, NL
+TEXT, none, black, , NL
+MESSAGE, 1425, 2270, 40, Name, 36, LEFT, TOP
+TEXT, none, black,"Chip is square, shown as a breakout." , NL
+#MESSAGE, 50, 2310, 40, Name, 36, LEFT, TOP
+MESSAGE, 50, 2340, 48, Name, 48, LEFT, TOP
+TEXT, none, black, "The notation SDA.3 means Wire.swap(3). You must choose SDA.3 and SCL.3 or SDA.2 and SCL.2 together. Each peripheral can have only one swap ", NL
+TEXT, none, black, "position set. Signals are often suffixed by the peripheral number so RX1 is UART1 rx. In a few cases n,FN is used (2,OUT.1). The notation SDAs.3/SCLs.3", NL
+TEXT, none, black, "is where the slave pins are in dual mode. Data from AVR64DD28 dfp.2.1.152. Diagrams by ObviousInRetrospect.", NL
+
+
+#left pin name labels
+MESSAGE, 1600, 450, 125, Name, 48, LEFT, TOP
+TEXT, none, black, 1 A3, NL
+TEXT, none, black, 2 A4, NL
+TEXT, none, black, 3 A5, NL
+TEXT, none, black, 4 A6, NL
+TEXT, none, black, 5 A7, NL
+TEXT, none, black, 6 C0, NL
+TEXT, none, black, 7 C1, NL
+TEXT, none, black, 8 C2, NL
+TEXT, none, black, 9 C3, NL
+TEXT, none, black, 10 V2, NL
+TEXT, none, black, 11 D1, NL
+TEXT, none, black, 12 D2, NL
+TEXT, none, black, 13 D3, NL
+TEXT, none, black, 14 D4, NL
+
+
+MESSAGE, 1925, 450, 125, Name, 48, RIGHT, TOP
+TEXT, none, black, A2 28, NL
+TEXT, none, black, A1 27, NL
+TEXT, none, black, A0 26, NL
+TEXT, none, black, ⏚ 25, NL
+TEXT, none, black, + 24, NL
+TEXT, none, black, F7 23, NL
+TEXT, none, black, F6 22, NL
+TEXT, none, black, F1 21, NL
+TEXT, none, black, F0 20, NL
+TEXT, none, black, ⏚ 19, NL
+TEXT, none, black, + 18, NL
+TEXT, none, black, D7 17, NL
+TEXT, none, black, D6 16, NL
+TEXT, none, black, D5 15, NL
+
+
+
+# Left Side Pins
+ANCHOR, 1545, 405
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PA3, Fm+, AIN23, , , , RX0.2|XDIR0, , SCL|SCL.1, WO3, , , , 
+ANCHOR, 1545, 455
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , "1,WO", , , "0,OUT"
+ANCHOR, 1545, 530
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PA4, , AIN24, , , , TX0.1, MOSI, , WO4, , WOA|WOA.4, , 
+PIN, DIGITAL , IO, ,PIN_PA5, , AIN25, , , , RX0.1, MISO, , WO5, , WOB|WOB.4, , 
+PIN, DIGITAL , IO, ,PIN_PA6, , AIN26, , , , XCK0.1, SCK, , , , WOC, , "0,OUT.1"
+PIN, DIGITAL , IO, ,PIN_PA7, CLKOUT, AIN27, OUT, , ZOUT, XDIR0.1, SS, , , , WOD, , 
+ANCHOR, 1545, 955
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , , , EoA.1, 
+ANCHOR, 1545, 1030
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PC0, , AIN28, , , , TX1, MOSI.5|SCK.3, , WO0.2, "2,WO", , , 
+ANCHOR, 1545, 1080
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , , , , "1,IN0|1,IN0.1"
+ANCHOR, 1545, 1155
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PC1, , AIN29, , , , RX1|TX0.4, MISO.5|MOSI.6|SS.3, , WO1.2, , , , 
+ANCHOR, 1545, 1205
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , , , , "1,IN1|1,IN1.1"
+ANCHOR, 1545, 1280
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PC2, Fm+, AIN30, AINN3, , ZIN, RX0.4|XCK1, , , , , , , 
+ANCHOR, 1545, 1330
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , MISO.6|SCK.5, SDA.2|SDAs|SDAs.3, WO2.2, , , EoC, "1,IN2|1,IN2.1"
+ANCHOR, 1545, 1405
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PC3, Fm+, AIN31, AINP4, , , XCK0.4|XDIR1, SCK.6|SS.5, , , , , , 
+ANCHOR, 1545, 1455
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , SCL.2|SCLs|SCLs.3, WO3.2, , , , "1,OUT"
+ANCHOR, 1545, 1530
+PINSET, LEFT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PINTEXT, POWER, IO, POWER , VDDIO2 , PowerPin,"1.8V-5.5V"
+PIN, DIGITAL , IO, ,PIN_PD1, , AIN1, , , , , , , WO1.3, , , , "2,IN1|2,IN1.1"
+PIN, DIGITAL , IO, ,PIN_PD2, , AIN2, AINP0, , , , , , WO2.3, , , EoD, "2,IN2|2,IN2.1"
+PIN, DIGITAL , IO, ,PIN_PD3, , AIN3, AINN0, , , , , , WO3.3, , , , "2,OUT"
+PIN, DIGITAL , IO, ,PIN_PD4, , AIN4, , , , TX0.3, MOSI.4, , WO4.3, , WOC.4, , 
+
+# Right Side Pins
+ANCHOR, 1985, 405
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PA2, Fm+, AIN22, , , , TX0.2|XCK0, , SDA|SDA.1, WO2, , , , 
+
+# Right Side Pins
+ANCHOR, 1985, 455
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , "0,WO", , EoA, "0,IN2|0,IN2.1"
+
+# Right Side Pins
+ANCHOR, 1985, 530
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PA1, XTAL32K2.1|XTALHF2, , , , , RX0, MISO.3, SCL.3, WO1, , , , 
+
+# Right Side Pins
+ANCHOR, 1985, 580
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , , , , "0,IN1|0,IN1.1"
+
+# Right Side Pins
+ANCHOR, 1985, 655
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, DIGITAL , IO, ,PIN_PA0, EXTCLK|XTAL32K1.1|XTALHF1, , , , , TX0, MOSI.3, SDA.3, WO0, , , , 
+
+# Right Side Pins
+ANCHOR, 1985, 705
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,, , , , , , , , , , , , , "0,IN0|0,IN0.1"
+
+# Right Side Pins
+ANCHOR, 1985, 780
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
+PINTEXT, POWER, IO, POWER , VDD , PowerPin,"1.8V-5.5V"
+PIN, DIGITAL , IO, ,PIN_PF7, UPDI, , , , , , SS.6, , , , , EoF.1, 
+PIN, DIGITAL , IO, ,PIN_PF6, RESET, , , , , , , , , , , , 
+PIN, DIGITAL , IO, ,PIN_PF1, XTAL32K2, AIN17, , , , , , , WO1.5, , WOB.2, , "3,IN1"
+PIN, DIGITAL , IO, ,PIN_PF0, XTAL32K1, AIN16, , , , , , , WO0.5, , WOA.2, , "3,IN0"
+PINTEXT, POWER, IO, POWER , GND, PowerPin, Ground,
+PINTEXT, POWER, IO, POWER , AVDD , PowerPin,"1.8V-5.5V"
+PIN, DIGITAL , IO, ,PIN_PD7, VREFA, AIN7, AINN2, , , RX1.2|XDIR0.3, SS.4, , , , , EoD.1, 
+PIN, DIGITAL , IO, ,PIN_PD6, , AIN6, AINP3, DACo, , TX1.2|XCK0.3, SCK.4, , , , , , "2,OUT.1"
+PIN, DIGITAL , IO, ,PIN_PD5, , AIN5, , , , RX0.3, MISO.4, , WO5.3, , WOD.4, , 
+
+# legend
+ANCHOR, 800, 10
+PINSET, RIGHT, PACKED, CENTER, CENTER, 125, 30, 45, 60, 10, 0
+PIN, NONE , NONE, ,Name, Special, ADC, AC, DAC, ZCD, USART, SPI, TWI, TCA, TCB, TCD, EVSYS, CCL
+MESSAGE, 800, 60, 125, Name, 72, RIGHT, TOP
+TEXT, none, black, Legend, NL
