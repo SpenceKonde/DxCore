@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
+/*  (C) Spence Konde 2021-2022 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####  ####       ##   ###
