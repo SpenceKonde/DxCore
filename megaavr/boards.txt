@@ -950,7 +950,7 @@ avrdd.build.mvioenable=-DMVIO_ENABLED
 avrdd.build.core=dxcore
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
-avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable}
+avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable} {build.defaultswaps
 avrdd.build.export_merged_output=false
 avrdd.build.highestcb=B2
 avrdd.build.printf=
@@ -1016,11 +1016,13 @@ avrdd.menu.chip.avr64dd20.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd20.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd20.build.highestcb=B1
 avrdd.menu.chip.avr64dd20.build.variant=20pin-ddseries
+avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr64dd14.build.mcu=avr64dd14
 avrdd.menu.chip.avr64dd14.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd14.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd14.build.highestcb=B1
 avrdd.menu.chip.avr64dd14.build.variant=14pin-ddseries
+avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr32dd32.build.mcu=avr32dd32
 avrdd.menu.chip.avr32dd32.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd32.upload.maximum_data_size=4096
@@ -1034,11 +1036,13 @@ avrdd.menu.chip.avr32dd20.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd20.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd20.build.highestcb=B1
 avrdd.menu.chip.avr32dd20.build.variant=20pin-ddseries
+avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr32dd14.build.mcu=avr32dd14
 avrdd.menu.chip.avr32dd14.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd14.build.highestcb=B1
 avrdd.menu.chip.avr32dd14.build.variant=14pin-ddseries
+avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrdd.menu.chip.avr16dd32.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd32.upload.maximum_data_size=2048
@@ -1052,11 +1056,13 @@ avrdd.menu.chip.avr16dd20.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd20.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd20.build.highestcb=B1
 avrdd.menu.chip.avr16dd20.build.variant=20pin-ddseries
+avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr16dd14.build.mcu=avr16dd14
 avrdd.menu.chip.avr16dd14.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd14.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd14.build.highestcb=B1
 avrdd.menu.chip.avr16dd14.build.variant=14pin-ddseries
+avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -2733,9 +2739,10 @@ avrddopti.build.f_cpu={build.speed}000000L
 avrddopti.build.text_section_start=.text=0x200
 avrddopti.build.altled=
 avrddopti.build.14pinled=
+avrddopti.build.defaultswaps=
 # Now that's an ugly hack! - both of these empty string options get overridden. On 14-pin parts 14pinled is overridden to take thevalue of {build.altled}.
 # But that's an empty string.... UNLESS Serial1 instead of Serial0 is used, and is used with the ALT2 mux option. Then the LED couldn't be on the default pin, so we use PD4 instead of PD6.
-avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable} {build.altled}
+avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable} {build.altled} {build.defaultswaps}
 avrddopti.build.export_merged_output=false
 avrddopti.build.highestcb=B2
 avrddopti.build.printf=
@@ -2797,6 +2804,25 @@ avrddopti.menu.chip.avr16dd32=AVR16DD32
 avrddopti.menu.chip.avr16dd28=AVR16DD28
 avrddopti.menu.chip.avr16dd20=AVR16DD20
 avrddopti.menu.chip.avr16dd14=AVR16DD14 (LED on PD7 if boot on Serial, PD5 if Serial1
+avrddopti.menu.chip.avr64dd32.build.mcu=avr64dd32
+avrddopti.menu.chip.avr64dd32.bootloader.class=optiboot_64dd
+avrddopti.menu.chip.avr64dd32.upload.maximum_size=65024
+avrddopti.menu.chip.avr64dd32.upload.maximum_data_size=8192
+avrddopti.menu.chip.avr64dd32.build.highestcb=B2
+avrddopti.menu.chip.avr64dd32.build.variant=32pin-ddseries
+avrddopti.menu.chip.avr64dd28.build.mcu=avr64dd28
+avrddopti.menu.chip.avr64dd28.bootloader.class=optiboot_64dd
+avrddopti.menu.chip.avr64dd28.upload.maximum_size=65024
+avrddopti.menu.chip.avr64dd28.upload.maximum_data_size=8192
+avrddopti.menu.chip.avr64dd28.build.variant=28pin-ddseries
+avrddopti.menu.chip.avr64dd28.build.highestcb=B2
+avrddopti.menu.chip.avr64dd20.build.mcu=avr64dd20
+avrddopti.menu.chip.avr64dd20.bootloader.class=optiboot_64dd
+avrddopti.menu.chip.avr64dd20.upload.maximum_size=65024
+avrddopti.menu.chip.avr64dd20.upload.maximum_data_size=8192
+avrddopti.menu.chip.avr64dd20.build.highestcb=B1
+avrddopti.menu.chip.avr64dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrddopti.menu.chip.avr64dd20.build.variant=20pin-ddseries
 avrddopti.menu.chip.avr64dd14.build.mcu=avr64dd14
 avrddopti.menu.chip.avr64dd14.bootloader.class=optiboot_64dd14
 avrddopti.menu.chip.avr64dd14.upload.maximum_size=65024
@@ -2804,24 +2830,7 @@ avrddopti.menu.chip.avr64dd14.upload.maximum_data_size=8192
 avrddopti.menu.chip.avr64dd14.build.highestcb=B1
 avrddopti.menu.chip.avr64dd14.build.variant=14pin-ddseries
 avrddopti.menu.chip.avr64dd14.build.14pinled={build.altled}
-avrddopti.menu.chip.avr64dd20.build.mcu=avr64dd20
-avrddopti.menu.chip.avr64dd20.bootloader.class=optiboot_64dd
-avrddopti.menu.chip.avr64dd20.upload.maximum_size=65024
-avrddopti.menu.chip.avr64dd20.upload.maximum_data_size=8192
-avrddopti.menu.chip.avr64dd20.build.highestcb=B1
-avrddopti.menu.chip.avr64dd20.build.variant=20pin-ddseries
-avrddopti.menu.chip.avr64dd28.build.mcu=avr64dd28
-avrddopti.menu.chip.avr64dd28.bootloader.class=optiboot_64dd
-avrddopti.menu.chip.avr64dd28.upload.maximum_size=65024
-avrddopti.menu.chip.avr64dd28.upload.maximum_data_size=8192
-avrddopti.menu.chip.avr64dd28.build.variant=28pin-ddseries
-avrddopti.menu.chip.avr64dd28.build.highestcb=B2
-avrddopti.menu.chip.avr64dd32.build.mcu=avr64dd32
-avrddopti.menu.chip.avr64dd32.bootloader.class=optiboot_64dd
-avrddopti.menu.chip.avr64dd32.upload.maximum_size=65024
-avrddopti.menu.chip.avr64dd32.upload.maximum_data_size=8192
-avrddopti.menu.chip.avr64dd32.build.highestcb=B2
-avrddopti.menu.chip.avr64dd32.build.variant=32pin-ddseries
+avrddopti.menu.chip.avr64dd14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrddopti.menu.chip.avr32dd32.build.mcu=avr32dd32
 avrddopti.menu.chip.avr32dd32.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr32dd32.upload.maximum_size=32256
@@ -2838,6 +2847,7 @@ avrddopti.menu.chip.avr32dd20.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd20.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd20.build.highestcb=B1
 avrddopti.menu.chip.avr32dd20.build.variant=20pin-ddseries
+avrddopti.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrddopti.menu.chip.avr32dd14.build.mcu=avr32dd14
 avrddopti.menu.chip.avr32dd14.bootloader.class=optiboot_32dd14
 avrddopti.menu.chip.avr32dd14.upload.maximum_size=32256
@@ -2845,6 +2855,7 @@ avrddopti.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrddopti.menu.chip.avr32dd14.build.highestcb=B1
 avrddopti.menu.chip.avr32dd14.build.variant=14pin-ddseries
 avrddopti.menu.chip.avr32dd14.build.14pinled={build.altled}
+avrddopti.menu.chip.avr32dd14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrddopti.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrddopti.menu.chip.avr16dd32.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr16dd32.upload.maximum_size=15872
@@ -2861,6 +2872,7 @@ avrddopti.menu.chip.avr16dd20.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd20.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd20.build.highestcb=B1
 avrddopti.menu.chip.avr16dd20.build.variant=20pin-ddseries
+avrddopti.menu.chip.avr16dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrddopti.menu.chip.avr16dd14.build.mcu=avr16dd14
 avrddopti.menu.chip.avr16dd14.bootloader.class=optiboot_32dd14
 avrddopti.menu.chip.avr16dd14.upload.maximum_size=15872
@@ -2868,6 +2880,7 @@ avrddopti.menu.chip.avr16dd14.upload.maximum_data_size=2048
 avrddopti.menu.chip.avr16dd14.build.highestcb=B1
 avrddopti.menu.chip.avr16dd14.build.variant=14pin-ddseries
 avrddopti.menu.chip.avr16dd14.build.14pinled={build.altled}
+avrddopti.menu.chip.avr16dd14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 
 
 #----------------------------------------#

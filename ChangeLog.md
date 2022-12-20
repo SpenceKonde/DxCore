@@ -37,7 +37,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Bugfix: Fix issue with SerialUPDI uploads on updated versions of linux
   * Bugfix: Correct issue with SerialUPDI and PROGMEM_SECTIONn directives (it was tripping over the hole in the binary).
 * **Serial related**
-  * Major Enhancement: Change class hierarchy for hardware serial ports. This results in some flash size reduction since unused virtual functions now don't have to exist. (The same thing was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints about the fact that stock version of Wire wouldn't fit onto a 4k part. The Wire library has since seen a near total rewrite which further reduced flash usage). Thus, rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) to derive UartClass, we instead subclass Stream directly. This has been accompanied by changing the name of the class to HardwareSerial to ensure code compatibility (so a library could ask for a pointer to a HardwareSerial port, using that name like it would on classic AVRs) and it still works (it always did, but only because UARTclass was a subclass of HardwareSerial, which was a subclass of Stream). This saves yet more flash on top of the reduction from the 1.4.x series of versions where the ISRs were merged
+  * Major Enhancement: Change class hierarchy for hardware serial ports. This results in some flash size reduction since unused virtual functions now don't have to exist. (The same thing was done for Two_Wire (Wire.h) on a very early version of megaTinyCore due to complaints about the fact that stock version of Wire wouldn't fit onto a 4k part. The Wire library has since seen a near total rewrite which further reduced flash usage). Thus, rather than pulling in api/HardwareSerial.h, and subclassing that definition of HardwareSerial (itself a subclass of Stream) to derive UartClass, we instead subclass Stream directly. This has been accompanied by changing the name of the class to HardwareSerial to ensure code compatibility (so a library could ask for a pointer to a HardwareSerial port, using that name like it would on classic AVRs) and it still works (it always did, but only because UARTclass was a subclass of HardwareSerial, which was a subclass of Stream). This saves yet more flash on top of the reduction from the 1.4.x series of versions where the ISRs were merged and rewritten in asm.
   * Enhancement: Improvement to stream timed read to make it work when millis is disabled, and to save 4 bytes of RAM.
   * Bugfix: Correct issue introduced in 1.4.x which could cause problems when receiving data over Serial.
   * Enhancement: Implement generic autobaud for Serial and some associated functionality.
@@ -59,23 +59,7 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Actually make it impossible to disable warnings.
   * Enhancement: Add the MCUDude version of pinConfigure, arguments can now be separated by commas not bitwise OR's (though the old way will work).
   * Bugfix: Add the missing #defines for peripheral count and reorganize core_devices to make porting easier
-  * Port asm millis from mTC.
-
-* CI code will be passed with an extra -D in build.extra_params. The content that was in extra_params moved to more_params. Purpose of this is to replace the adhoc pin decisions in the sketches with something like
-```c
-#if defined(THIS_IS_CI)
-  // In CI situation, we ask the core for appropriate pins instead of duplicatinh pin determinations. you
-  uint8_t mypin = _VALID_DIGITAL_PIN(0);
-  uint8_t myotherpin = _VALID_DIGITAL_PIN(1);
-  uint8_t myanalogpin = _VALID_ANALOG_PIN(0); // Gets the first analog input
-#else
-  uint8_t mypin = PIN_PA1;
-  uint8_t myotherpin = PIN_PA7;
-  uint8_t myAnalgogPin = A5;
-#endif
-```
-This way the examples dont have have tio know everythinh about quirks of the core.
-
+  * Enhancement: Port asm millis from mTC.
 
 ### 1.4.10
 * **CRITICAL BUGFIX** for attachInterrupt() (still!)

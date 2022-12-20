@@ -1,4 +1,9 @@
-
+/*  (C) Spence Konde 2022 open source (LGPL2.1 see LICENSE.md)
+ * wiring_extra.cpp contains a few functions that are the sort of thing you'd expect in wiring.c or similar
+ * but which need to be in a cpp file because they use overloading or are just not closely related to any of
+ * those files' other functions.
+ *
+ *************************************************************/
 #include "Arduino.h"
 
 #if defined(LTODISABLED)

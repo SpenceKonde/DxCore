@@ -4,43 +4,47 @@ In early 2020, as the world was shutting down because of COVID-19, Microchip rel
 ## Specifications of AVR Dx-series parts by family and pincount
 ~Strikethrough~ value is hypothetical assuming datasheet reflected the available silicon. Non-struckthrough values are actual values after considering all outstanding errata.
 
-|                                | [AVR DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md)   | [AVR DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md)   | [AVR DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)   | [AVR DB28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md)   | [AVR DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md)   | AVR EA 28   | [AVR DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)   | [AVR DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md)   | [AVR DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md)   | AVR EA32   | [AVR DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md)   | [AVR DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)   | AVR EA48 | [AVR DA64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)   | [AVR DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)   |
-|--------------------------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
-| Released                       | Q3 2022    | Q3 2022    | Q2 2020    | Q3 2021    | Q1 2022    | TBA        | Q3 2020    | Q2 2022    | Q2 2020    | TBA        | Q2 2020    | Q2 2020    | TBA        | Q3 2020    | Q3 2020
-| Memory (max) Flash/RAM         | 64k/8k     | 64k/8k     | 128K/16K   | 128K/16K   | 64k/8k     | 64k/6k     | 128K/16K   | 128K/16K   | 64k/8k     | 64k/6k     | 128K/16K   | 128K/16K   | 64k/6k     | 128K/16K   | 128K/16K   |
-| Memory (min) Flash/RAM         | 16k/2k     | 16k/2k     | 32k/4k     | 32k/4k     | 16k/2k     | 8k/1k      | 32k/4k     | 32k/4k     | 16k/2k     | 8k/1k      | 32k/4k     | 32k/4k     | 16k/2k     | 32k/4k     | 32k/4k     |
-| EEPROM                         | 256        | 256        | 512        | 512        | 256        | 512        | 512        | 512        | 256        | 512        | 512        | 512        | 512        | 512        | 512        |
-| User Row                       | 32         | 32         | 32         | 32         | 32         | 64         | 32         | 32         | 32         | 64         | 32         | 32         | 64         | 32         | 32         |
-| Max. Frequency (rated, MHz)    | 24         | 24         | 24         | 24         | 24         | 20         | 24         | 24         | 24         | 20         | 24         | 24         | 20         | 24         | 24         |
-| Total pins on package          | 14         | 20         | 28         | 28         | 28         | 28         | 32         | 32         | 32         | 32         | 48         | 48         | 48         | 64         | 64         |
-| Avail. as TQFP                 | No         | No         | No         | No         | No         | No         | 7x7mm .8p  | 7x7 .8p    | 7x7 .8p    | Yes        | 7x7mm .5p  | 7x7mm .5p  | Yes        | 10x10mm .5p| 10x10mm .5p|
-| Avail. as VQFN                 | No         | 3x3mm .4p`*`| No        | No         | 4x4mm .4p`*`|  No?       | 5x5mm .5p | 5x5 .5p    | 5x5 .5p`*` | Yes        | 6x6mm .4p  | 6x6mm .4p  | Yes        | 9x9mm .5p  | 9x9mm .5p  |
-| Avail. as SSOP (5.3mm wide)    | No         | No         | Yes        | Yes        | Yes        | Yes        | No         | No         | No         | No         | No         | No         | No         | No         | No         |
-| Avail. as SOP (N = Narrow)     | Yes, N     | Yes, Wide  | Yes, Wide  | Yes, Wide  | Yes, Wide  | Yes, Wide  | No         | No         | No         | No         | No         | No         | No         | No         | No         |
-| Avail. as DIP (Narrow DIP28)   | No         | No         | Yes        | Yes        | Yes        | Yes        | No         | No         | No         | No         | No         | No         | No         | No         | No         |
-| I/O Pins (not reset/UPDI)      | 9          | 15         | 22         | 21         | 21         | 22         | 26         | 25         | 25         | 26         | 40         | 40         | 40         | 54         | 54         |
-| Fully Async pins               | 11         | 17         | 6          | 6          | 23         | 24        | 7          | 7          | 27         | 28?        | 40         | 42         | 40?        | 54         | 54         |
-| UPDI as I/O Pin                | Yes        | Yes        | No         | No         | Yes        | Yes        | No         | No         | Yes        | Yes        | No         | No         | YEs        | No         | No         |
-| PWM capable I/O pins           | 7          | 13         | 20         | 19         | 19         | 28         | 22 ~24~    | 21 ~23~    | 23         | 34         | 36 ~38~    | 36 ~38~    | 54         | 40 ~50~    | 46 ~50~    |
-| Max simultaneous PWM outputs   | 5: 3:2(8)  | 8: 6:2(10) | 11: 6:2:3  | 11: 6:2:3  | 11: 6:2:3  | 13: 9:4    | 11: 6:2:3  | 11: 6:2:3  | 11: 6:2:3  | 13: 9:4    | 18: 12:2:4 | 18: 12+2+4 | 16: 12:4   | 19: 12:2:5 | 19: 12:2:5 |
-| 16-bit Type A Timers - pins ea | 1: 2/3/2   | 1: 6/3/2   | 1: 6/4/6/2 | 1: 6/4/5/2 | 1: 6/4/5/2 | 2: 18, 6   | 1: 6/4/6/6 | 1: 6/4/5/6 | 1: 6/4/5/6 | 2: 22, 6   | 2: 34, 9   | 2: 34, 9   | 2: 34, 12  | 2: 42, ~18~ 9 | 2: 42, 18 |
-| 16-bit Type B Timers, (pins)   | 2: 0       | 2: 2       | 3: 3       | 3: 3       | 3: 3       | 4: 4       | 3: 5       | 3: 5       | 3: 5       | 4: 6       | 4: 8       | 4: 8       | 4: 8       | 5: 10      | 5: 10      |
-| 12-bit Type D pins (`**`)      | 2          | 6          | 4 ~6~      | 4 ~6~      | 8          | No         | 4 ~8~      | 4 ~8~      | 10         | No         | 4 ~10~     | 4 ~10~     | No         | 4 ~16~     | 4 ~16~     |
-| USART (pin mappings)           | 2: 3/1     | 2: 3/1     | 3: 2/1/1   | 3: 2/1/1   | 2: 5/2     | 3  5/2/1   | 3: 2/1/1   | 3: 2/1/1   | 3: 5/2/2   | 3: 5/2/2   | 5: 2/2/2/2/1| 5: 2/2/2/2/1| 3: 5/2/1 | 6: all 2 | 6: all 2   |
-| SPI (pin mappings)             | 1: 2       | 1: 3       | 2: 1/1     | 2: 1/1     | 1: 5       | 1: 5       | 2: 1/1     | 2: 1/1     | 1: 5       | 1: 5       | 2: 2/2     | 2: 2/2     | 1: 5       | 2: 3/3     | 2: 3/3     |
-| TWI/I2C (pin mappings)         | 1: 2       | 1: 3       | 1: 2       | 1: 2       | 1: 3       | 1: 3       | 2: 2/1     | 2: 2/1     | 1: 3       | 1: 3       | 2: 2/2     | 2: 2/2     | 1:3 or 2:3/1 | 2: 3/3   | 2: 3/3     |
-| 12-bit ADC input pins          | 4/7        | 10/13      | 10         | 9          | 14/18      | 24         | 14         | 13         | 18/22      | 28         | 18         | 18         | 28         | 22         | 22         |
-| Of those, neg. diff. inputs    | all        | all        | 8          | 7          | all        | all?       | 8          | 7          | all        | all?       | 12         | 12         | all?       | 16         | 16         |
-| 10-bit DAC                     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          |
-| Analog Comparator (AC)         | 1          | 1          | **3**      | **3**      | 1          | 2          | **3**      | **3**      | 1          | 2          | **3**      | **3**      | 2          | **3**      | **3**      |
-| Zero-Cross Detectors (ZCD)     | 1          | 1          | 1          | 1          | 1          | -          | 1          | 1          | 1          | 0          | 2          | 2          | 0          | **3**      | **3**      |
-| Custom Logic Blocks (LUTs)     | 4          | 4          | 4          | 4          | 4          | 4          | 4          | 4          | 4          | 4          | **6**      | **6**      | 4          | **6**      | ** 6**     |
-| Event System channels (out pins)| 6: 3/3    | 6: 4/5     | 8: 3/5     | 8: 3/5     | 6: 4/6     | 6: 4/6     | 8: 4/6     | 8: 4/6     | 6: 4/7     | 6          | 10: 6/9    | 10: 6/9    | 6          | 10: 7/~13~ 11 | 10: 7/13 |
-| On-chip opamps (OPAMP)         | -          | -          | -          | 2          | -          | -          | -          | 2          | -          | -          | -          | **3**      | -          | -          | **3        |
-| MVIO, pins                     | Yes, 3     | Yes, 3     | No         | Yes, 4     | Yes, 4     | No         | No         | Yes, 4     | Yes, 4     | No         | Yes, 8     | Yes, 8     | No         | Yes, 8     | Yes, 8     |
-| Flash Endurance `!!`           | 1k         | 1k         | 1k ~10k~   | 1k ~10k~   | 1k         | 10k        | 1k ~10k~   | 1k ~10k~   | 1k         | 10k        | 1k ~10k~   | 1k ~10k~   | 10k        | 1k ~10k~   | 1k ~10k~   |
-| Pricing, max flash, qty 1      | $1.24      | tbd        | $1.66      | $1.79      | $1.31      | ???        | $2.04      | $1.19      | $1.45      | ???        | $2.04      | $2.33      | ???        | $2.59      | $2.74      |
-| Pricing, min flash, qty 1      | $0.95      | $0.98      | $1.66      | $1.52      | tbd        | ???        | $1.52      | $1.66      | $1.79      | ???        | $1.91      | $2.05      | ???        | $2.39      | $2.53      |
+|                                | [AVR DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md)   | [AVR DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md)   | [AVR DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)   | [AVR DB28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md)   | [AVR DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md)   | [AVR DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)   | [AVR DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md)   | [AVR DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md)   | [AVR DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md)   | [AVR DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)   | [AVR DA64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)   | [AVR DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)   |
+|--------------------------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
+| Released                       | Q3 2022    | Q3 2022    | Q2 2020    | Q3 2021    | Q1 2022    | Q3 2020    | Q2 2022    | Q2 2020    | Q2 2020    | Q2 2020    | Q3 2020    | Q3 2020    |
+| Memory (max) Flash/RAM         | 64k/8k     | 64k/8k     | 128K/16K   | 128K/16K   | 64k/8k     | 128K/16K   | 128K/16K   | 64k/8k     | 128K/16K   | 128K/16K   | 128K/16K   | 128K/16K   |
+| Memory (min) Flash/RAM         | 16k/2k     | 16k/2k     | 32k/4k     | 32k/4k     | 16k/2k     | 32k/4k     | 32k/4k     | 16k/2k     | 32k/4k     | 32k/4k     | 32k/4k     | 32k/4k     |
+| EEPROM                         | 256        | 256        | 512        | 512        | 256        | 512        | 512        | 256        | 512        | 512        | 512        | 512        |
+| RWW/NRWW sections              | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         |
+| User Row                       | 32         | 32         | 32         | 32         | 32         | 32         | 32         | 32         | 32         | 32         | 32         | 32         |
+| Boot Row                       | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         |
+| Max. Frequency (rated, MHz)    | 24         | 24         | 24         | 24         | 24         | 24         | 24         | 24         | 24         | 24         | 24         | 24         |
+| Total pins on package          | 14         | 20         | 28         | 28         | 28         | 32         | 32         | 32         | 48         | 48         | 64         | 64         |
+| Avail. as TQFP                 | No         | No         | No         | No         | No         | 7x7mm .8p  | 7x7 .8p    | 7x7 .8p    | 7x7mm .5p  | 7x7mm .5p  | 10x10mm .5p| 10x10mm .5p|
+| Avail. as VQFN                 | No         | 3x3mm .4p`*`| No        | No         | 4x4mm .4p`*`| 5x5mm .5p | 5x5 .5p    | 5x5 .5p`*` | 6x6mm .4p  | 6x6mm .4p  | 9x9mm .5p  | 9x9mm .5p  |
+| Avail. as SSOP (5.3mm wide)    | No         | No         | Yes        | Yes        | Yes        | No         | No         | No         | No         | No         | No         | No         |
+| Avail. as SOP (N = Narrow)     | Yes, N     | Yes, Wide  | Yes, Wide  | Yes, Wide  | Yes, Wide  | No         | No         | No         | No         | No         | No         | No         |
+| Avail. as DIP (Narrow DIP28)   | No         | No         | Yes        | Yes        | Yes        | No         | No         | No         | No         | No         | No         | No         |
+| I/O Pins (not reset/UPDI)      | 9          | 15         | 22         | 21         | 21         | 26         | 25         | 25         | 40         | 40         | 54         | 54         |
+| Fully Async pins               | 11         | 17         | 6          | 6          | 23         | 7          | 7          | 27         | 40         | 42         | 54         | 54         |
+| UPDI as I/O Pin                | Yes        | Yes        | No         | No         | Yes        | No         | No         | Yes        | No         | No         | No         | No         |
+| PWM capable I/O pins           | 7          | 13         | 20         | 19         | 19         | 22 ~24~    | 21 ~23~    | 23         | 36 ~38~    | 36 ~38~    | 40 ~50~    | 46 ~50~    |
+| Max simultaneous PWM outputs   | 5: 3:2(8)  | 8: 6:2(10) | 11: 6:2:3  | 11: 6:2:3  | 11: 6:2:3  | 11: 6:2:3  | 11: 6:2:3  | 11: 6:2:3  | 18: 12:2:4 | 18: 12+2+4 | 19: 12:2:5 | 19: 12:2:5 |
+| 16-bit Type A Timers - pins ea | 1: 2/3/2   | 1: 6/3/2   | 1: 6/4/6/2 | 1: 6/4/5/2 | 1: 6/4/5/2 | 1: 6/4/6/6 | 1: 6/4/5/6 | 1: 6/4/5/6 | 2: 34, 9   | 2: 34, 9   | 2: 42, ~18~ 9 | 2: 42, 18 |
+| 16-bit Type B Timers, (pins)   | 2: 0       | 2: 2       | 3: 3       | 3: 3       | 3: 3       | 3: 5       | 3: 5       | 3: 5       | 4: 8       | 4: 8       | 5: 10      | 5: 10      |
+| 12-bit Type D pins (`**`)      | 2          | 6          | 4 ~6~      | 4 ~6~      | 8          | 4 ~8~      | 4 ~8~      | 10         | 4 ~10~     | 4 ~10~     | 4 ~16~     | 4 ~16~     |
+| 16-bit Type E Timer w/WEX      | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         |
+| 24-bit Type F Timer            | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         |
+| SPI (pin mappings)             | 1: 2       | 1: 3       | 2: 1/1     | 2: 1/1     | 1: 5       | 2: 1/1     | 2: 1/1     | 1: 5       | 2: 2/2     | 2: 2/2     | 2: 3/3     | 2: 3/3     |
+| TWI/I2C (pin mappings)         | 1: 2       | 1: 3       | 1: 2       | 1: 2       | 1: 3       | 2: 2/1     | 2: 2/1     | 1: 3       | 2: 2/2     | 2: 2/2     | 2: 3/3     | 2: 3/3     |
+| 12-bit ADC input pins          | 4/7        | 10/13      | 10         | 9          | 14/18      | 14         | 13         | 18/22      | 18         | 18         | 22         | 22         |
+| Of those, neg. diff. inputs    | all        | all        | 8          | 7          | all        | 8          | 7          | all        | 12         | 12         | 16         | 16         |
+| Full differential + PGA        | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         | No         |
+| 10-bit DAC                     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          |
+| Analog Comparator (AC)         | 1          | 1          | **3**      | **3**      | 1          | **3**      | **3**      | 1          | **3**      | **3**      | **3**      | **3**      |
+| Zero-Cross Detectors (ZCD)     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 2          | 2          | **3**      | **3**      |
+| Custom Logic Blocks (LUTs)     | 4          | 4          | 4          | 4          | 4          | 4          | 4          | 4          | **6**      | **6**      | **6**      | ** 6**     |
+| Event System channels (out pins)| 6: 3/3    | 6: 4/5     | 8: 3/5     | 8: 3/5     | 6: 4/6     | 8: 4/6     | 8: 4/6     | 6: 4/7     | 10: 6/9    | 10: 6/9    | 10: 7/~13~ 11 | 10: 7/13 |
+| On-chip opamps (OPAMP)         | -          | -          | -          | 2          | -          | -          | 2          | -          | -          | **3**      | -          | **3        |
+| MVIO, pins                     | Yes, 3     | Yes, 3     | No         | Yes, 4     | Yes, 4     | No         | Yes, 4     | Yes, 4     | Yes, 8     | Yes, 8     | Yes, 8     | Yes, 8     |
+| Flash Endurance `!!`           | 1k         | 1k         | 1k ~10k~   | 1k ~10k~   | 1k         | 1k ~10k~   | 1k ~10k~   | 1k         | 1k ~10k~   | 1k ~10k~   | 1k ~10k~   | 1k ~10k~   |
+| Pricing, max flash, qty 1      | $1.24      | tbd        | $1.66      | $1.79      | $1.31      | $2.04      | $1.19      | $1.45      | $2.04      | $2.33      | $2.59      | $2.74      |
+| Pricing, min flash, qty 1      | $0.95      | $0.98      | $1.66      | $1.52      | tbd        | $1.52      | $1.66      | $1.79      | $1.91      | $2.05      | $2.39      | $2.53      |
 
 Notes:
 * Figures for EA-series are varying degrees of speculative. I am skeptical that there is a second TWI on the 48-pin EA parst, and some sources say no USART2 either. Time will tell
@@ -70,6 +74,59 @@ Notes:
 * There are large differences between the errata impacting the available hardware DA and DB parts (with DBs having less), and with the 128k flash versions having more than the smaller flash versions - they were released first. The AVR128DB also received a package of fixes almost immediately, likely due to a severe bug impacting the ADC when making single-ended measurements, and two problems with the OPAMPs in the initial silicon (A4 revision). Very few of those made it into the wild - even the parts I had that arrived before the preliminary datasheet had even been posted are A5. The DD-series has very little errata.
 * Pricing is from late 2022 and obviously subject to change. Industrial temp spec, not in tape, least expensive package variant (see below - either QFN of TQFP, unless 14 pin parts which only have SOP option Microchip Direct, without any of the (significant) quantity discounts), non-VAO version.
 
+## Specifications of AVR Ex-series parts by family and pincount
+
+|                                | AVR EB14   | AVR EB20   | AVR EB28   | AVR EB32   | AVR EA 28  | AVR EA32   | AVR EA48   |
+|--------------------------------|------------|------------|------------|------------|------------|------------|------------|
+| Released                       | TBA        | TBA        | TBA        | TBA        | TBA        | TBA        | TBA        |
+| Memory (max) Flash/RAM         | 32k/3k     | 32k/3k     | 32k/3k     | 32k/3k     | 64k/6k     | 64k/6k     | 64k/6k     |
+| Memory (min) Flash/RAM         | 8k/1k      | 8k/1k      | 8k/1k      | 8k/1k      | 8k/1k      | 8k/1k      | 16k/2k     |
+| EEPROM                         | 512        | 512        | 512        | 512        | 512        | 512        | 512        |
+| RWW/NRWW sections              | Yes        | Yes        | Yes        | Yes        | Yes        | Yes        | Yes        |
+| User Row                       | 64         | 64         | 64         | 64         | 64         | 64         | 64         |
+| Boot Row                       | 64         | 64         | 64         | 64         | No         | No         | No         |
+| Max. Frequency (rated, MHz)    | 20         | 20         | 20         | 20         | 20         | 20         | 20         |
+| Total pins on package          | 14         | 20         | 28         | 32         | 28         | 32         | 48         |
+| Avail. as TQFP                 | No         | No         | No         | 7x7mm .8p  | No         | 7x7mm .8p  | 7x7mm .5p  |
+| Avail. as VQFN                 | No         | No (wtf)?  | 4x4mm .4p  | 5x5mm .5p  |  No?       | 5x5mm .5p  | 6x6mm .4p  |
+| Avail. as SSOP (5.3mm wide)    | Yes        | Yes        | Yes        | No         | Yes        | No         | No         |
+| Avail. as SOP (N = Narrow)     | Yes, N     | Yes, Wide  | Yes, Wide  | No         | Yes, Wide  | No         | No         |
+| Avail. as DIP (Narrow DIP28)   | No         | No         | Yes        | No         | Yes        | No         | No         |
+| I/O Pins (not reset/UPDI)      | 10         | 16         | 22         | 26         | 22         | 26         | 40         |
+| Fully Async pins               | 12         | 18         | 24         | 28         | 24         | 28         | 42         |
+| UPDI as I/O Pin                | Yes        | Yes        | Yes        | Yes        | Yes        | Yes        | Yes        |
+| PWM capable I/O pins           | 10         | 16         | 22         | 26         | 22         | 26         | 44         |
+| Max simultaneous PWM outputs   | 6 or 8     | 8, 10, or 12 | 8,10 or 12 | 8,10 or 12 | 13: 9:4  | 13: 9:4    | 16:12:4    |
+| 16-bit Type A Timers - pins ea | No         | No         | No         | No         | 2: 18, 6   | 2: 22, 6   | 2: 34, 12  |
+| 16-bit Type B Timers, (pins)   | 2: 0       | 2: 2       | 2: 2       | 2: 2       | 4: 4       | 4: 6       | 4: 8       |
+| 12-bit Type D pins (`**`)      | No         | No         | No         | No         | No         | No         | No         |
+| 16-bit Type E Timer w/WEX      | 1: 2/3/4/6 | 1: 8/4/4/6 | 1: 8/4/8/2/6|1: 8/4/8/6/6 | No       | No         | No         |
+| 24-bit Type F Timer            | 1: 2       | 1: 2/2     | 1: 2/2     | 1: 2/2/2   | No         | No         | No         |
+| USART (pin mappings)           | 1: 5       | 1: 6       | 1: 6       | 1: 6       | 3  5/2/1   | 3: 5/2/2   | 3: 5/2/1   |
+| SPI (pin mappings)             | 1: 2       | 1: 3       | 1: 5       | 1: 5       | 1: 5       | 1: 5       | 1: 5       |
+| TWI/I2C (pin mappings)         | 1: 2       | 1: 3       | 1: 3       | 1: 3       | 1: 3       | 1: 3       | 1: 3       |
+| 12-bit ADC input pins          | 8          | 14         | 20         | 24         | 24         | 28         | 28         |
+| Of those, neg. diff. inputs    | all        | all        | all        | all        | all        | all        | all        |
+| 10-bit DAC                     | No         | No         | No         | No         | 1          | 1          | 1          |
+| Analog Comparator (AC)         | 2          | 2          | 2          | 2          | 2          | 2          | 2          |
+| Zero-Cross Detectors (ZCD)     | No         | No         | No         | No         | No         | No         | No         |
+| Custom Logic Blocks (LUTs)     | 4          | 4          | 4          | 4          | 4          | 4          | 4          |
+| Event System channels (out pins)| 6: 3/3    | 6: 4/5     | 6: 4/5     | 6: 4/6     | 6: 4/6     | 6          | 6          |
+| On-chip opamps (OPAMP)         | -          | -          | -          | -          | -          | -          | -          |
+| MVIO, pins                     | No         | No         | No         | No         | No         | No         | No         |
+| Flash Endurance                | 1k         | 1k         | 1k         | 1k         | 10k        | 10k        | 10k        |
+| Pricing, max flash, qty 1      | ???        | ???        | ???        | ???        | ???        | ???        | ???        |
+| Pricing, min flash, qty 1      | ???        | ???        | ???        | ???        | ???        | ???        | ???        |
+
+Notes:
+* TCB info first dropped less than a week ago. This is extremely preliminary for those parts, but it's got the Classic tiny861 on his knees crying and begging for salvation. The EB-series appears to be targeted as the replacement for the AVRs used as motor drivers and power stage converters, of which there were quite a few, all still in production - AT90PWM, ATtiny861, ATtiny85, and so on.
+* We do not have any information on the capabilities and limitations of the TCE with WEX at this time, beyond the pin multiplexing chart.
+* Depending on details of the implementation, and the extent to which the EB is targeted solely at motor drive and PSC applications, the TCE may allow as few as 3 or 4 PWM channels, or as many as 6 or 8. To be more clear, it may be that only, say, even waveform output pins would output uninverted pwm and then you can otionally get the inverse on the odd pin with deadtime insertion (this with sufficiently fast and compact calculation of the values needed, could potentially  be used to generate arbitrariy duty cycles on both pins, making numerous assumptions about tthe implenmentation which may well be invalid). Or, there may be a mode to just get 8 independent duty cycles straight up. That'd be baller.
+* The EA-series block diagram shows a PLL. Is that real or an error? Can that be used for anything? Maybe one of the timers? Or both of them
+* Is TCF a better millis timer than TCB? 24-bit hardware millis timer is mighty tempting.
+  * ISR would only fire 1/256th as often, and when it did fire, the interrupt to resuming execution would be 3 clocks to the vector then 2 or 3 clocks to the ISR, 9 clocks in the ISR 4 returning - you'd be back to the previous code in a microsecond!
+  * Millis itself would get slower though, because it would have to multiply a
+
 ## Big Picture
 These parts depart from the naming scheme used for AVR devices in the past; these are named AVR followed by the size of the flash, in KB, followed by DA, DB, or DD (depending on the "series" or "family", then the number of pins. Note that the pin count also determines how many of certain peripherals the parts have available - parts with more pins have more peripherals to do things with those pins. 64-pin parts are not available in 32k flash size. The 128k flash size is the highest that can be supported with a 16-bit program counter (above that, a number of instructions become slower, and everything gets more complicated), and with the current scheme for interacting with the pins, the 55 I/O pins (56 less the UPDI pin which takes the place of PF7) are the limit of what a modern AVR can accommodate while allowing single cycle access to all pins - so these take them to the top end of what is possible without extensions to the architecture.
 
@@ -97,6 +154,13 @@ The most puzzling thing about these, though is that some of their specs like the
 
 ### DU-series (details unconfirmed)
 The DU-series was described by a product brief which was almost immediately pulled down. It described something with DD-like pincounts, MVIO replaced with USB, and no TCD. One imagines that under the hood, TCD is repurposed for the 48 MHz USB reference clock, and the MVIO is levelshifting the USB data lines to 3.3v. It feature crystalless USB, the same flash options as the DD (except no 64k 14/20 pin). It also suggested a builtin USB programming interface of some sort, which is of course very exciting news - though all USB stuff will depend on availability of reference code to write the USB modules. We look forward to the release of more information, and, evnetually, the product. I predict the DU14 and DU20 will be extremely popular.
+
+### EB-series
+The second tranche of Ex microcontrollers has dropped it's (product) briefs for us. If there was anyone who throught that there was a bright future ahead for the tinyAVR branding, this should bring them around. These are a strike direct at the target market of the tinyAVR parts. The big deal here is that it drops the TCA's for 2 completely new timers, a TCE0 + WEX and a TCF0, which is 24 bit. The range of plausible capabilitieis of te TCE+WEX really runs the gamut. At worst, you get only 3 independent pwm channels optionally their inverse with inserted deadtime (or maybe 4 chanels). It might be possible to wrork around that, it might not be (by abusing deadtime). On the other hand, we may be able to simply get 8 PWM channels out straight up. Will generating more than 3 or 4 channels reuire a homolog of split mode, or do we get real 16-bit pwm on all of them?
+How flexible is TCF? Could it be the new preferred millis timer?
+And what the devil is boot row?!
+Whatever - what we should keep in mind is that this is a low end family. Yeah, the ram is smaller, it's only got one uart -  there's a lot of things to object to. But think back to the ATmega328p. The AVR32EB32 could beat the silcon out of the 328p with one port tied behind his back. And they are targeted at the same market segment, except these are likely to be cheap. I'd wager about the same as the tinyAVR. The thing they still haven't figured out isw how to deal with the pin/peripheral problem. The 24 pin tinies get you every input and output of every logic block. Even the 14-pin ones have ajust about as many as could be crammed in - the pinout was meant formaximizing the accessibility of pins to peripherals.
+
 
 ## Timeline
 128k DA-series parts were released in April 2020, followed by 32k in early summer (though the initial release of the 32k parts suffered from a fatal flaw and was recalled, working ones were not available until the end of 2020), while the 64k parts became available late in summer of 2020, around the same time as the first AVR128DB-series parts became available, while the 32 snd 64k versions of the DB arriving in the first half of 2021. The AVR DD-series product brief was released in spring of 2020, but didn't become available until two years later in June of 2022, starting with 64k parts with 28 and 32 pins, and 16 and 32k parts with 14 and 20 pins. The other versions arrived in late 2022 - though as of writing the QFN package versions of the second tranch are still not available.
@@ -156,6 +220,12 @@ If only they hadn't downgraded the clock system and CPU core from Dx-like specs 
 
 ### EA support expected to go in smoothly
 Core adaptation will mean pulling in the clock speed logic from megaTinyCore, and the fancy-ADC code, and it'll mean some tricky adaptations to Event (the way RTC and Pin events are generated is different, though the specific differences also make the rest of Event simpler - or they *would* except that it's going to be `#ifdef` hell. Actually "going to be" is charitable - it's already there as it is, because while the event system on modern AVRs has *looked* similar, if you just read the feature list, the implementations are quite different.
+
+## EB may be a bigger deal
+It all depend on the details of the TCE+WEX and TCF. And we don;t know much about these.
+
+## The Ex-flagship is likely not yet annoumced
+I expect a 4-6 USART, 2 SPI, 2TWI, 3OPAMP, with 48 or even 64 pins and at least one dac for the OPAMPs to play with. Either that, or we're going to see Dx-series parts with all their splendid features - PLUS all the new features from the Ex-series.
 
 ## The Dx-series architecture
 The Dx-series is the first AVR (as far as we know) that does what's quite common among ARM chips in order to support small feature sizes and higher speeds - they use an internal regulator to generate a lower voltage for the chip to run from, and only the I/O runs at the full supply voltage. So it is no surprise that you can vary the supply voltage as much as you like and it won't change the speed of the internal oscillator. Why would it, the oscillator doesn't see any change in voltage, it's running from the internal regulator! As with any regulator (particularly one with virtually no capacitance on the output), a sufficiently dramatic step-change in voltage will cause it to overshoot or undershoot. That's the reason for the maximum slew rate spec: 250 V/ms between 1.8v and the rated maximum voltage. So, if the voltage rail goes from 1.8V to 5V (3.2V) in less than 12.8 microseconds, you would not meet that requirement. This is fast, but plugging a board with minimal decoupling into a very well decoupled power supply can result in such fast rise times. This is why the datasheet suggests a 1uF capacitor in addition to the 0.1uF ones if power will be frequently connected and disconnected; that recommendation was not in the initial datasheet. This limit was rapidly encountered in the field - a small PCB with only the minimum number of 0.1uF capacitors on it that plugs straight into a USB socket could exceed it - and that prompted them to recommend the additional board level decoupling. I consider it prudent to put at least 4.7uF of capacitance on the PCB in general, and this is just another reason to do that.
