@@ -1,6 +1,8 @@
 # Details of API function implementation
 In many cases the types of return values and input values, and the details of which argument values are accepted and how invalid values are handled is not clearly defined by the Arduino API reference. This is unfortunate at one level. On the other hand, these ambiguities are typically handled in perverse ways by the standard Arduino implementations; were they explicitly stated, we would have less of an excuse to implement them in a more coherent (and efficient) manner - but they're not, so we have a bit of wiggle room.
 
+**This document is a work in progress**
+
 * Digital pin numbers are always represented as an 8-bit value that is not higher than 127. A `uint8_t` is used internally, but since only values under 128 are used, `int8_t` is equivalent. *The Arduino API does not specify a type, and standard implementation uses an int, which is less efficient, and there has never been an AVR device with more than 100 physical pins, and there is little risk of such a device being released*
   * Values above 127 are used internally by DxCore for analog channels, since the numeric values of analog channels overlap with those of digital pins. They should not be used by user code, and specifying them is not valid for digital functions on DxCore or megaTinyCore (this is handled differently on ATTinyCore, which is beyond the scope of this document).
   * `PIN_Pxn` where x is a port letter, and n the number of a pin within that port, is defined for all pins that exist. The inverse (that it is not defined for pins that do not exist) should not be assumed, see the pin mapping methodology section below. *The Arduino API provides no facility for referencing pins by port and bit. This makes interpreting non-Arduino resources, such as the datasheets, more difficult. It is the opinion of this writer that assigning arbitrary numbers to pins was one of the cardinal sins of the Arduino API. We discourage use of numeric values to directly reference pins, as it introduces unnecessary code portability issues*
@@ -28,7 +30,7 @@ In many cases the types of return values and input values, and the details of wh
 #define LSBFIRST         0    /* used for shiftIn/shiftOut */
 #define MSBFIRST         1    /* used for shiftIn/shiftOut */
 ```
-  * Notice that the actual values of the input sense configuration bitfield dont match the constants used above; this is accounted for in WInterrupts.c
+* Notice that the actual values of the input sense configuration bitfield dont match the constants used above; this is accounted for in WInterrupts.c
 
 ## DxCore/megaTinyCore extensions
 More detail and information on functions provided that aren't part of the official API can be found on the other reference pages. This just covers things that don't really fit anywhere else.

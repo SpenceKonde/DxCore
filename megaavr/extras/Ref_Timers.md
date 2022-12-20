@@ -160,13 +160,14 @@ This section consists of around 6 points, Under many of these points are the con
 Iop were 255, there would be exactly 256 timer ticks per clock, If TOP is 355 ticker per clock cycle. The roblem would be  - how would you set th duty cycl;
 ### PWM via analogWrite()
 
-#### Priority:
+#### Priority
 Many pins have more than one possible timer that they could use. When asked to write PWM to a pin, the order of priority used is as listed below. The DAC is obviously not a timer; it is however USED like a timer as far as PWM is concerned. analogWrite() treats the DAC pin as if the DAC were a timer, and the duty cycle as the output voltage. See [ADC and DAC reference for more info on that](Ref_Analog.md).
 1. TCA0
 2. TCA1
 3. DAC or TCD0 (these never overlap; there is no code written to support hypothetical parts where there's a DAC that can use the same pin as a TCD or TCB)
 4. Any TCB.
 
+In the future EB-series, the timer priorities will have to be considered carefully.
 
 #### Channels without pins
 If you are using a part (like a DD-series) where the pin mapping being used doesn't provide a pin for a given timer output channel, that channels is not available... at least not directly. However it is still there, it can still be used as an internal input... which means it can be output through a CCL logic block. See the CCL chapter of the datasheet or the [Logic library docs for information on how you would implement these](../libraries/Logic/README.md).
