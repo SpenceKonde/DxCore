@@ -12,7 +12,7 @@
     void attachPortAEnable() {
       intFunc[0]=intFunc_A;
     }
-    /* It is the act of calling attachPortAEnable() in this file that the compiler to also include the ISR.
+    /* It is the act of referencing attachPortAEnable() in this file that the compiler to also include the ISR.
      * (ISRs can't be asssigned at runtime - the only way things like attachInterruprt look like they can is
      * by having the ISR call a function pointer (ie, icall). After saving every call used plus SREG and RAMPZ.
      * Beyond being slow, these lengthy prologues and epilogs slow take up flash. This can be like 80+ bytes
