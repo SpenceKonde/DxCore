@@ -91,7 +91,7 @@ This is how the files DxCore ships with are built. I can provide no guarantee th
 5. Copy the `optiboot_dx` folder from `(core install location)/megaavr/bootloaders` to `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders`.
 6. You should now be able to open a command window in `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders\optiboot_dx` and run `omake <target>`, or `build_all_dx.bat` to build all the binaries packaged with the core.
 
-This can be done the same way in linux exceopt you can expect make to actually be there, ignore omake, and just use the shell scripts =nstead of batch files which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output throguh grep or something, but I don't know makefile or shellscripting :-) )
+This can be done the same way in linux exempt you can expect make to actually be there, ignore omake, and just use the shell scripts =nstead of batch files which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output throguh grep or something, but I don't know makefile or shellscripting :-) )
 
 
 ## Previous build instructions
