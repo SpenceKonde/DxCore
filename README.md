@@ -1,5 +1,8 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
+## 1.5.0 is here!
+Please be on the lookout for bugs and regressions, particularly relating to the new parts and to PWM.
+
 ## What is DxCore
 This is an Arduino core to support the exciting new AVR DA, DB, and "coming soon" DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned and these are simply the successor to the megaAVR series. But whatever the story of their origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... Yet for each of these systems they've added at least one small but significant improvement of some sort (while largely preserving backwards compatibility - the tinyAVR 2-series also typically adds the new features that the Dx-series gt , giving the impression that these reflect a "new version" of . You like the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCB's into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24th's of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with slightly-improved instruction timing compared to "classic" AVRs
 
@@ -22,10 +25,10 @@ Note that you must install via board manager or replace your tool chain with the
 * AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending release)
 * AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending release)
 * AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending release)
-* AVR64EB14, AVR32EB14, AVR16EB14, AVR8EB14 (pending release)
-* AVR64EB20, AVR32EB20, AVR16EB20, AVR8EB20 (pending release)
-* AVR64EB28, AVR32EB28, AVR16EB28, AVR8EB28 (pending release)
-* AVR64EB32, AVR32EB32, AVR16EB32, AVR8EB32 (pending release)
+* AVR32EB14, AVR16EB14, AVR8EB14 (pending release)
+* AVR32EB20, AVR16EB20, AVR8EB20 (pending release)
+* AVR32EB28, AVR16EB28, AVR8EB28 (pending release)
+* AVR32EB32, AVR16EB32, AVR8EB32 (pending release)
 
 My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sinkism just to take up pins. But the 27 I/O pins on the 32-pin parts can get used up faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - and then I thought I would be fine with a 32-pin Dx as that had a few more pins... But I wound up switching to the 48 and am using about half of the added pins.
 

@@ -950,7 +950,7 @@ avrdd.build.mvioenable=-DMVIO_ENABLED
 avrdd.build.core=dxcore
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
-avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable} {build.defaultswaps
+avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable} {build.defaultswaps}
 avrdd.build.export_merged_output=false
 avrdd.build.highestcb=B2
 avrdd.build.printf=
@@ -3333,6 +3333,8 @@ azduinoboard.menu.board.NanoDD_A.build.variant=32pin-ddseries
 #azduinoboard.menu.board.NanoDB_B.upload.maximum_data_size=16384
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
+#azduinoboard.menu.board.NanoDB_B.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.mvioenable}
+#azduinoboard.menu.board.NanoDB_B.build.variant=32pin-ddseries
 azduinoboard.menu.board.LEDCTRLA.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PA6 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.mvioenable}
 azduinoboard.menu.board.LEDCTRLA=LEDCTRLA Light Controller 2.1+
 azduinoboard.menu.board.LEDCTRLA=Azduino_LEDCTRLA
@@ -3372,7 +3374,7 @@ azduinoboard.menu.clock.20crystal.build.clocksource=1
 azduinoboard.menu.clock.16crystal=16 MHz crystal
 azduinoboard.menu.clock.16crystal.build.speed=16
 azduinoboard.menu.clock.16crystal.build.clocksource=1
-azduinoboard.menu.clock.32crystal=32 MHz crystal (highly overclocked)
+azduinoboard.menu.clock.32crystal=32 MHz crystal (overclocked)
 azduinoboard.menu.clock.32crystal.build.speed=32
 azduinoboard.menu.clock.32crystal.build.clocksource=1
 azduinoboard.menu.clock.40crystal=40 MHz crystal (highly overclocked)
