@@ -1,6 +1,6 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5.0 is here!
+## 1.5.0 is here
 Please be on the lookout for bugs and regressions, particularly relating to the new parts and to PWM.
 
 ## What is DxCore
