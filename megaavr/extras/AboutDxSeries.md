@@ -102,7 +102,7 @@ Notes:
 | 12-bit Type D pins (`**`)      | No         | No         | No         | No         | No         | No         | No         |
 | 16-bit Type E Timer w/WEX      | 1: 2/3/4/6 | 1: 8/4/4/6 | 1: 8/4/8/2/6|1: 8/4/8/6/6 | No       | No         | No         |
 | 24-bit Type F Timer            | 1: 2       | 1: 2/2     | 1: 2/2     | 1: 2/2/2   | No         | No         | No         |
-| USART (pin mappings)           | 1: 5       | 1: 6       | 1: 6       | 1: 6       | 3  5/2/1   | 3: 5/2/2   | 3: 5/2/1   |
+| USART (pin mappings)           | 1: 5       | 1: 6       | 1: 6       | 1: 6       | 3  5/2/1   | 3: 5/2/2   | 3: 5/2/2   |
 | SPI (pin mappings)             | 1: 2       | 1: 3       | 1: 5       | 1: 5       | 1: 5       | 1: 5       | 1: 5       |
 | TWI/I2C (pin mappings)         | 1: 2       | 1: 3       | 1: 3       | 1: 3       | 1: 3       | 1: 3       | 1: 3       |
 | 12-bit ADC input pins          | 8          | 14         | 20         | 24         | 24         | 28         | 28         |

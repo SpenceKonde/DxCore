@@ -3,14 +3,12 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 ## Planned changes not yet implemented
 These items are in addition to what was listed under changes already in release.
 
-### Planned enhancements
-"Enhancements" are changes to the core which improve functionality and/or introduce new and exotic bugs. Sometimes called "Features", I prefer the term "Enhancement". Calling it a feature, by my understanding of the semantics, means that it *does something new*. But many times changes are made that neither fix a bug or do something new, but rather just do something it already does faster, using less flash, or with better compile time error detection. All things that, as well as new features, would qualify as an enhancement.
+* Enhancement: Fix pinout diagrams for DD-series.
 
-#### Enhancements Planned for 1.5.x
-* Add pinout charts for the DD-series that don't look like they were made by an untalented hack in Microsoft paint using the DB pinouts.
+## Changes Implemented but not released
+These are typically planned for release in a future version (usually the next one) as noted.
 
-## Changes not yet in release
-Changes listed here are checked in to GitHub ("master" branch unless specifically noted; this is only done when a change involves a large amount of work and breaks the core in the interim, or where the change is considered very high risk, and needs testing by others prior to merging the changes with master). These changes are not yet in any "release" nor can they be installed through board manager, only downloading latest code from github will work. These changes will be included in the listed version, though planned version numbers may change without notice - critical fixes may be inserted before a planned release and the planned release bumped up a version, or versions may go from patch to minor version depending on the scale of changes.
+## Released Versions
 
 ### 1.5.0
 * **Major Enhancement: Support the AVR DD-series parts!!**
@@ -60,6 +58,8 @@ Changes listed here are checked in to GitHub ("master" branch unless specificall
   * Enhancement: Add the MCUDude version of pinConfigure, arguments can now be separated by commas not bitwise OR's (though the old way will work).
   * Bugfix: Add the missing #defines for peripheral count and reorganize core_devices to make porting easier
   * Enhancement: Port asm millis from mTC.
+  * Documentation: Document what we know about the newly announced AVR EB-series, pencil in variants for the EA and EB-series.
+  * Enhancement: Rearrange Arduino.h for readability
 
 ### 1.4.10
 * **CRITICAL BUGFIX** for attachInterrupt() (still!)

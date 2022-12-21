@@ -2,16 +2,16 @@
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####  ####      ###   ##
-#   # #     # #   #     #   # #   #        # #  #           #
-#####  #   #  ####      #   # #   #      ##    #   ### ###     ###
-#   #   # #   #  #      #   # #   #        #  #        #  # #  #  #
+#   # #     # #   #     #     #   #        # #  #           #
+#####  #   #  ####      ###   ####       ##    #   ### ###     ###
+#   #   # #   #  #      #     #   #        #  #        #  # #  #  #
 #   #    #    #   #     ####  ####      ###  ####      ###  #  #  #
 ===================================     ----------     #
-Variant Definition file for generic DD parts           #
+Variant Definition file for generic EB parts           #
 with 32 pins.
 
 Part Numbers
-AVR64DD32 AVR32DD32 AVR16DD32
+AVR32EB32 AVR16EB32
 
 Include guard and include basic libraries. We are normally including this inside Arduino.h */
 
@@ -20,7 +20,7 @@ Include guard and include basic libraries. We are normally including this inside
 #include <avr/pgmspace.h>
 #include "timers.h"
 
-#define DD_32PIN_PINOUT
+#define EB_32PIN_PINOUT
 
  /*##  ### #   #  ###
  #   #  #  ##  # #
@@ -43,7 +43,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12) // NOT_A_PIN
+#define PIN_PD0 (12)
 #define PIN_PD1 (13)
 #define PIN_PD2 (14)
 #define PIN_PD3 (15)
@@ -60,7 +60,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF6 (26) // RESET
 #define PIN_PF7 (27) // UPDI
 
-#define FAKE_PIN_PD0
 
         /*##   ##   ###  ###  ###  ###
         #   # #  # #      #  #    #
@@ -69,7 +68,7 @@ Include guard and include basic libraries. We are normally including this inside
         ####  #  # ####  ###  ###  #*/
 
 #define PINS_COUNT                     28
-#define NUM_ANALOG_INPUTS              23
+#define NUM_ANALOG_INPUTS              26
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -92,21 +91,10 @@ Include guard and include basic libraries. We are normally including this inside
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
 // that bit about the 4 ADC ADC channels on PORTC not worling with MVIO enabled is ugly to handle.
-#if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
-  #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
-    #define IS_MVIO_ENABLED()                    (1)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && (p) < PIN_PC0) ? (p) + 20 : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 27 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
-  #else
-    #define IS_MVIO_ENABLED()                    (0)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
-  #endif
-#else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
-  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
-  #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0)) ? (p) + 20 : NOT_A_PIN))
-  #define analogChannelToDigitalPin(p)         ((p) > (IS_MVIO_ENABLED() ? 27 : 31) ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
-#endif
+
+#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
+#define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
+
 
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
@@ -115,28 +103,21 @@ Include guard and include basic libraries. We are normally including this inside
 
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0))
+  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA3)
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0))
-#elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
+  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA2)
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS (PORTMUX_TCA0_PORTD_gc)     // TCA0 output on PD[0:5]
-#define TCB0_PINS (0x01)                      // TCB0 output on PF4 (alt)
-#define TCB1_PINS (0x02)                      // TCB1 output on PF5 (alt) - Pins on PORTA are more useful than the ones on PORTF
-#define TCB2_PINS (0x00)                      // TCB2 output on PC0 (default) as the other options are not present on these parts.
-#define TCD0_PINS (PORTMUX_TCD0_PORTF)        // TCD0 output on PF0-3. Same as PORTMUX_TCD0_ALT2_gc. Note that not only is this broken on DA/DB parts.
-// Even if it worked there, it would never be as good because they have other alternate functions on those pins while the DDs don't.
+#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default)
+#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default)
+#define TCE0_PINS (????)                      // What will the TCE/WEX look like?
+#define TCF0_PINS (0x02)                      // We will want to default the mapping with the timer outputs on PF4 and 5 most likely.
 
-#define PIN_TCA0_WO0_INIT (PIN_PD0)
-#define PIN_TCB0_WO_INIT  (PIN_PF4)
-#define PIN_TCB1_WO_INIT  (PIN_PF5)
-#define PIN_TCB2_WO_INIT  (PIN_PC0)
-#define PIN_TCD0_WOA_INIT (PIN_PF0)
+#define PIN_TCB0_WO_INIT  (PIN_PA2)
+#define PIN_TCB1_WO_INIT  (PIN_PA3)
 
 //#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
 #define NO_GLITCH_TIMERD0
@@ -223,19 +204,10 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL0_RX_PINSWAP_4      PIN_PC2
 #define PIN_HWSERIAL0_XCK_PINSWAP_4     PIN_PC3
 #define PIN_HWSERIAL0_XDIR_PINSWAP_4    NOT_A_PIN
-
-// USART1
-#define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_2         PORTMUX_USART1_ALT2_gc
-#define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
-#define PIN_HWSERIAL1_TX                PIN_PC0
-#define PIN_HWSERIAL1_RX                PIN_PC1
-#define PIN_HWSERIAL1_XCK               PIN_PC2
-#define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_2      PIN_PD6
-#define PIN_HWSERIAL1_RX_PINSWAP_2      PIN_PD7
-#define PIN_HWSERIAL1_XCK_PINSWAP_2     NOT_A_PIN
-#define PIN_HWSERIAL1_XDIR_PINSWAP_2    NOT_A_PIN
+#define PIN_HWSERIAL0_TX_PINSWAP_5      PIN_PF7
+#define PIN_HWSERIAL0_RX_PINSWAP_5      PIN_PF6
+#define PIN_HWSERIAL0_XCK_PINSWAP_5     NOT_A_PIN
+#define PIN_HWSERIAL0_XDIR_PINSWAP_5    NOT_A_PIN
 
         /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
         #   # ##  # #   # #    #   # #         #   #  #  ##  # #
@@ -244,7 +216,7 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
 
-#define PIN_A0             NOT_A_PIN /* Doesn't exist on DD-series */
+#define PIN_A0             PIN_PD0
 #define PIN_A1             PIN_PD1
 #define PIN_A2             PIN_PD2
 #define PIN_A3             PIN_PD3
@@ -252,7 +224,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A5             PIN_PD5
 #define PIN_A6             PIN_PD6
 #define PIN_A7             PIN_PD7
-#define PIN_A8             NOT_A_PIN /* No PORTE on DD'as */
+#define PIN_A8             NOT_A_PIN /* No PORTE on EB's */
 #define PIN_A9             NOT_A_PIN
 #define PIN_A10            NOT_A_PIN
 #define PIN_A11            NOT_A_PIN
@@ -276,12 +248,12 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A25            PIN_PA5
 #define PIN_A26            PIN_PA6
 #define PIN_A27            PIN_PA7
-#define PIN_A28            PIN_PC0 /* not available if MVIO enabled */
-#define PIN_A29            PIN_PC1 /* not available if MVIO enabled */
-#define PIN_A30            PIN_PC2 /* not available if MVIO enabled */
-#define PIN_A31            PIN_PC3 /* not available if MVIO enabled */
+#define PIN_A28            PIN_PC0
+#define PIN_A29            PIN_PC1
+#define PIN_A30            PIN_PC2
+#define PIN_A31            PIN_PC3
 
-static const uint8_t A0  = NOT_A_PIN;
+static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
@@ -314,7 +286,7 @@ static const uint8_t A29 = PIN_A29;
 static const uint8_t A30 = PIN_A30;
 static const uint8_t A31 = PIN_A31;
 
-#define AIN0               NOT_A_PIN
+#define AIN0               ADC_CH(0)
 #define AIN1               ADC_CH(1)
 #define AIN2               ADC_CH(2)
 #define AIN3               ADC_CH(3)
@@ -362,15 +334,15 @@ const uint8_t digital_pin_to_port[] = {
   PA,         //  1 PA1/USART0_Rx
   PA,         //  2 PA2/AIN22/SDA
   PA,         //  3 PA3/AIN23/SCL
-  PA,         //  4 PA4/AIN24/MOSI/TCA0 PWM WOA (default)
-  PA,         //  5 PA5/AIN25/MISO/TCD0 PWM WOB (default)
-  PA,         //  6 PA6/AIN26/SCK/TCA0 PWM WOC (default. WOA and WOC cannot output different duty cycle)
-  PA,         //  7 PA7/AIN27/SS/CLKOUT/LED_BUILTIN/TCA0 PWM (default. WOB and WOB cannot output different duty cycle)
-  PC,         //  8 PC0/AIN28/USART1_TX
-  PC,         //  9 PC1/AIN29/USART1_RX
+  PA,         //  4 PA4/AIN24/MOSI
+  PA,         //  5 PA5/AIN25/MISO
+  PA,         //  6 PA6/AIN26/SCK
+  PA,         //  7 PA7/AIN27/SS/CLKOUT/LED_BUILTIN
+  PC,         //  8 PC0/AIN28
+  PC,         //  9 PC1/AIN29
   PC,         // 10 PC2/AIN30
   PC,         // 11 PC3/AIN31
-  PD,         // VDDIO2
+  PD,         // 12 PD0/AIN0
   PD,         // 13 PD1/AIN1
   PD,         // 14 PD2/AIN2
   PD,         // 15 PD3/AIN3
@@ -378,12 +350,12 @@ const uint8_t digital_pin_to_port[] = {
   PD,         // 17 PD5/AIN5
   PD,         // 18 PD6/AIN6
   PD,         // 19 PD7/AIN7/AREF
-  PF,         // 20 PF0/AIN16/TOSC1/TCA0 PWM (default)
-  PF,         // 21 PF1/AIN17/TOSC2/TCA0 PWM (default)
-  PF,         // 22 PF2/AIN18/TCA0 PWM (default)
-  PF,         // 23 PF3/AIN19/TCA0 PWM (default)
-  PF,         // 24 PF4/AIN20/TCA0 PWM (default)
-  PF,         // 25 PF5/AIN21/TCA0 PWM (default)
+  PF,         // 20 PF0/AIN16
+  PF,         // 21 PF1/AIN17
+  PF,         // 22 PF2/AIN18
+  PF,         // 23 PF3/AIN19
+  PF,         // 24 PF4/AIN20
+  PF,         // 25 PF5/AIN21
   PF,         // 26 PF6 RESET
   PF          // 27 PF7 UPDI
 };
@@ -395,22 +367,18 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
-    NOT_A_PIN,
-  #else // PA1 used for external crystal.
-    PIN1_bp,//   1 PA1
-  #endif    // *INDENT-ON*
+  PIN1_bp, // *INDENT-ON*
   PIN2_bp,   //  2 PA2/SDA
   PIN3_bp,   //  3 PA3/SCL
   PIN4_bp,   //  4 PA4/MOSI
   PIN5_bp,   //  5 PA5/MISO
   PIN6_bp,   //  6 PA6/SCK
   PIN7_bp,   //  7 PA7/SS/CLKOUT/LED_BUILTIN
-  PIN0_bp,   //  8 PC0/USART1_Tx
-  PIN1_bp,   //  9 PC1/USART1_Rx
-  PIN2_bp,   // 10 PC2
-  PIN3_bp,   // 11 PC3
-  NOT_A_PIN, // VDDIO2
+  PIN0_bp,   //  8 PC0/AIN28
+  PIN1_bp,   //  9 PC1/AIN29
+  PIN2_bp,   // 10 PC2/AIN30
+  PIN3_bp,   // 11 PC3/AIN31
+  PIN0_bp,   // 12 PD0/AIN0
   PIN1_bp,   // 13 PD1/AIN1
   PIN2_bp,   // 14 PD2/AIN2
   PIN3_bp,   // 15 PD3/AIN3
@@ -418,12 +386,12 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   PIN5_bp,   // 17 PD5/AIN5
   PIN6_bp,   // 18 PD6/AIN6
   PIN7_bp,   // 19 PD7/AIN7/AREF
-  PIN0_bp,   // 20 PF0/USART2_Tx/TOSC1
-  PIN1_bp,   // 21 PF1/USART2_Rx/TOSC2
-  PIN2_bp,   // 22 PF2
-  PIN3_bp,   // 23 PF3
-  PIN4_bp,   // 24 PF4
-  PIN5_bp,   // 25 PF5
+  PIN0_bp,   // 20 PF0/TOSC1/AIN16
+  PIN1_bp,   // 21 PF1/TOSC2/AIN17
+  PIN2_bp,   // 22 PF2/AIN18
+  PIN3_bp,   // 23 PF3/AIN19
+  PIN4_bp,   // 24 PF4/AIN20
+  PIN5_bp,   // 25 PF5/AIN21
   PIN6_bp,   // 26 PF6 RESET
   PIN7_bp    // 27 PD7 UPDI
 };
@@ -434,11 +402,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
-    NOT_A_PIN,
-  #else // PA1 used for external crystal.
-    PIN1_bm,//   1 PA1
-  #endif    // *INDENT-ON*
+  PIN1_bm,//   1 PA1
   PIN2_bm,   //  2 PA2/SDA
   PIN3_bm,   //  3 PA3/SCL
   PIN4_bm,   //  4 PA4/MOSI
@@ -449,7 +413,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN1_bm,   //  9 PC1/USART1_Rx
   PIN2_bm,   // 10 PC2
   PIN3_bm,   // 11 PC3
-  NOT_A_PIN, // VDDIO2
+  PIN0_bm,   // 12 PD0/AIN0
   PIN1_bm,   // 13 PD1/AIN1
   PIN2_bm,   // 14 PD2/AIN2
   PIN3_bm,   // 15 PD3/AIN3
@@ -468,43 +432,44 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
 };
 
 const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
-  NOT_ON_TIMER, //  1 PA1/USART0_Rx
-  TIMERB0,      //  2 PA2/SDA
-  TIMERB1,      //  3 PA3/SCL
-  TIMERD0_0WOA, //  4 PA4/MOSI      WOA
-  TIMERD0_0WOA, //  5 PA5/MISO      WOB
-  TIMERD0_0WOA, //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0_0WOA, //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  TIMERB2,      //  8 PC0/USART1_Tx
-  NOT_ON_TIMER, //  9 PC1/USART1_Rx
-  NOT_ON_TIMER, // 10 PC2
-  NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, // VDDIO2
+  /* TCE0 Not covered because it is on every pin except reset and UPDI
+   * Will need to be treated like TCA is                               */
+  TIMERF0_WO0,  //  0 PA0/USART0_Tx/CLKIN
+  TIMERF0_WO0,  //  1 PA1/USART0_Rx
+  TIMERB0,      //  2 PA2/SDA/AIN22
+  TIMERB1,      //  3 PA3/SCL/AIN23
+  NOT_ON_TIMER, //  4 PA4/MOSI/AIN24
+  NOT_ON_TIMER, //  5 PA5/MISO/AIN25
+  TIMERF0_1WO0, //  6 PA6/SCK/AIN26
+  TIMERF0_1WO0, //  7 PA7/SS/CLKOUT/AIN27
+  NOT_ON_TIMER, //  8 PC0/AIN28
+  NOT_ON_TIMER, //  9 PC1/AIN29
+  NOT_ON_TIMER, // 10 PC2/AIN30
+  NOT_ON_TIMER, // 11 PC3/AIN31
+  NOT_ON_TIMER, // 12 PD0/AIN0
   NOT_ON_TIMER, // 13 PD1/AIN1
   NOT_ON_TIMER, // 14 PD2/AIN2
-  NOT_ON_TIMER, // 15 PD3/AIN3/LED_BUILTIN
-  TIMERD0_4WOC, // 16 PD4/AIN4
-  TIMERD0_4WOD, // 17 PD5/AIN5
+  NOT_ON_TIMER, // 15 PD3/AIN3
+  NOT_ON_TIMER, // 16 PD4/AIN4
+  NOT_ON_TIMER, // 17 PD5/AIN5
   DACOUT,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  TIMERD0_2WOA, // 20 PF0/TOSC1   default TCA0 WO0
-  TIMERD0_2WOB, // 21 PF1/TOSC2   default TCA0 WO1
-  TIMERD0_2WOC, // 22 PF2         default TCA0 WO2
-  TIMERD0_2WOD, // 23 PF3         default TCA0 WO3
-  NOT_ON_TIMER, // 24 PF4         default TCA0 WO4
-  NOT_ON_TIMER, // 25 PF5         default TCA0 WO5
+  NOT_ON_TIMER, // 20 PF0/TOSC1/AIN16
+  NOT_ON_TIMER, // 21 PF1/TOSC2/AIN17
+  NOT_ON_TIMER, // 22 PF2/AIN18
+  NOT_ON_TIMER, // 23 PF3/AIN19
+  TIMERF0_2WO0, // 24 PF4/AIN20  Also TIMERB0
+  TIMERF0_2WO1, // 25 PF5/AIN21  Also TIMERB1
   NOT_ON_TIMER, // 26 PF6 RESET
   NOT_ON_TIMER  // 27 PF7 UPDI
 };
 
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
-#if CLOCK_SOURCE != 0
-  #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
-#else
-  #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)
-#endif
-#define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD1) : NOT_A_PIN)
-
+  #if CLOCK_SOURCE != 0
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
+  #else
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)
+  #endif
+  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD1) : NOT_A_PIN)
 #endif

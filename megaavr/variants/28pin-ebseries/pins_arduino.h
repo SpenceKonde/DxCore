@@ -2,16 +2,16 @@
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####  ####       ##   ###
-#   # #     # #   #     #   # #   #     #  # #   #          #
-#####  #   #  ####      #   # #   #       #   ###  ### ###     ###
-#   #   # #   #  #      #   # #   #      #   #   #     #  # #  #  #
+#   # #     # #   #     #     #   #     #  # #   #          #
+#####  #   #  ####      ###   ####        #   ###  ### ###     ###
+#   #   # #   #  #      #     #   #      #   #   #     #  # #  #  #
 #   #    #    #   #     ####  ####      ####  ###      ###  #  #  #
 ===================================     ----------     #
-Variant Definition file for generic DD parts           #
+Variant Definition file for generic EB parts           #
 with 28 pins.
 
 Part Numbers:
-AVR64DD28 AVR32DD28 AVR16DD28
+AVR64DA28 AVR32DA28 AVR16DD28
 
 See VariantTemplate.h in extras folder an extensively annotated copy.
 
@@ -120,17 +120,10 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS (PORTMUX_TCA0_PORTD_gc)     // TCA0 output on PD[1:5]
 #define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default) as the other options are not present on these parts.
 #define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default) as the other options are not present on these parts.
-#define TCB2_PINS (0x00)                      // TCB2 output on PC0 (default) as the other options are not present on these parts.
-#define TCD0_PINS (PORTMUX_TCD0_PORTF)        // TCD0 output on PF0 and 1. Same as PORTMUX_TCD0_ALT2_gc
-
-#define PIN_TCA0_WO0_INIT (PIN_PD0)
 #define PIN_TCB0_WO_INIT  (PIN_PA2)
 #define PIN_TCB1_WO_INIT  (PIN_PA3)
-#define PIN_TCB2_WO_INIT  (PIN_PC0)
-#define PIN_TCD0_WOA_INIT (PIN_PF0)
 
 
 //#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
@@ -384,12 +377,7 @@ const uint8_t digital_pin_to_bit_position[] = {
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-    NOT_A_PIN,  //   1 PA1
-  #else
-    // PA1 used for external crystal.
-    PIN1_bp,
-  #endif
+  PIN1_bp, //  1 PA1/
   PIN2_bp,   //  2 PA2/SDA
   PIN3_bp,   //  3 PA3/SCL
   PIN4_bp,   //  4 PA4/MOSI
@@ -400,7 +388,7 @@ const uint8_t digital_pin_to_bit_position[] = {
   PIN1_bp,   //  9 PC1/USART1_Rx
   PIN2_bp,   // 10 PC2
   PIN3_bp,   // 11 PC3
-  NOT_A_PIN, // VDDIO2
+  PIN0_bp,   // 12 PD0
   PIN1_bp,   // 13 PD1/AIN1
   PIN2_bp,   // 14 PD2/AIN2
   PIN3_bp,   // 15 PD3/AIN3/LED_BUILTIN
@@ -425,12 +413,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1 // PA1 also used for crystal
-    NOT_A_PIN,  //   1 PA1
-  #else
-    // PA1 used for external crystal.
-    PIN1_bm,
-  #endif
+  PIN1_bm,   //  1 PA1
   PIN2_bm,   //  2 PA2/SDA
   PIN3_bm,   //  3 PA3/SCL
   PIN4_bm,   //  4 PA4/MOSI
@@ -441,7 +424,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN1_bm,   //  9 PC1/USART1_Rx
   PIN2_bm,   // 10 PC2
   PIN3_bm,   // 11 PC3
-  NOT_A_PIN, // 12 PD0 NON_PIN
+  PIN0_bm,   // 12 PD0 NON_PIN
   PIN1_bm,   // 13 PD1/AIN1
   PIN2_bm,   // 14 PD2/AIN2
   PIN3_bm,   // 15 PD3/AIN3/LED_BUILTIN
@@ -464,11 +447,11 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  1 PA1/USART0_Rx
   TIMERB0,      //  2 PA2/SDA
   TIMERB1,      //  3 PA3/SCL
-  TIMERD0_0WOA, //  4 PA4/MOSI      WOA
-  TIMERD0_0WOB, //  5 PA5/MISO      WOB
-  TIMERD0_0WOC, //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0_0WOD, //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  TIMERB2,      //  8 PC0/USART1_Tx
+  NOT_ON_TIMER, //  4 PA4/MOSI      WOA
+  NOT_ON_TIMER, //  5 PA5/MISO      WOB
+  NOT_ON_TIMER, //  6 PA6/SCK       WOC mirrors WOA
+  NOT_ON_TIMER, //  7 PA7/SS/CLKOUT WOD mirrors WOB
+  NOT_ON_TIMER,      //  8 PC0/USART1_Tx
   NOT_ON_TIMER, //  9 PC1/USART1_Rx
   NOT_ON_TIMER, // 10 PC2
   NOT_ON_TIMER, // 11 PC3
@@ -476,12 +459,12 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 13 PD1/AIN1 // Default TCA0 WO1
   NOT_ON_TIMER, // 14 PD2/AIN2 // Default TCA0 WO2
   NOT_ON_TIMER, // 15 PD3/AIN3 // Default TCA0 WO3
-  TIMERD0_4WOC, // 16 PD4/AIN4 // Default TCA0 WO4
-  TIMERD0_4WOD, // 17 PD5/AIN5 // Default TCA0 WO5
-  DACOUT,       // 18 PD6/AIN6
+  NOT_ON_TIMER, // 16 PD4/AIN4 // Default TCA0 WO4
+  NOT_ON_TIMER, // 17 PD5/AIN5 // Default TCA0 WO5
+  NOT_ON_TIMER,       // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  TIMERD0_2WOA, // 20 PF0/USART2_Tx/TOSC1
-  TIMERD0_2WOB, // 21 PF1/USART2_Rx/TOSC2
+  NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
+  NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
   NOT_ON_TIMER, // 22 NON_PIN
   NOT_ON_TIMER, // 23 NON_PIN
   NOT_ON_TIMER, // 24 NON_PIN

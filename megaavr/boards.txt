@@ -950,6 +950,7 @@ avrdd.build.mvioenable=-DMVIO_ENABLED
 avrdd.build.core=dxcore
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
+avrdd.build.defaultswaps=
 avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable} {build.defaultswaps}
 avrdd.build.export_merged_output=false
 avrdd.build.highestcb=B2
