@@ -3270,7 +3270,7 @@ azduinoboard.build.attachmode=-DCORE_ATTACH_ALL
 #_________________________________________#
 azduinoboard.bootloader.entrycond={bootloader.defaultentrycond}
 azduinoboard.bootloader.defaulttimeout=
-azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}{bootloader.port}_ser0_alt{bootloader.entrycond}{bootloader.timeout}.hex.
+azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt{bootloader.entrycond}.hex
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
@@ -3345,9 +3345,11 @@ azduinoboard.menu.board.LEDCTRLA.upload.maximum_size=130560
 azduinoboard.menu.board.LEDCTRLA.upload.maximum_data_size=16384
 azduinoboard.menu.board.LEDCTRLA.build.variant=48pin-standard
 azduinoboard.menu.board.NanoDBplus.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PA6 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.mvioenable}
-azduinoboard.menu.board.NanoDBplus=Azduino NanoDB++
+azduinoboard.menu.board.NanoDBplus=Azduino NanoDB+ (128DB48)
 azduinoboard.menu.board.NanoDBplus.build.mcu=avr128db48
 azduinoboard.menu.board.NanoDBplus.bootloader.class=optiboot_128dx
+azduinoboard.menu.board.NanoDBplus.bootloader.portswap=1
+azduinoboard.menu.board.NanoDBplus.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDBplus.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDBplus.upload.maximum_data_size=16384
 azduinoboard.menu.board.NanoDBplus.build.variant=48pin-standard
