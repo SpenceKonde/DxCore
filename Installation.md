@@ -1,8 +1,8 @@
 # DxCore Installation
 
 ## Supported IDE versions
-megaTinyCore requires a version of the IDE later than 1.6.3; - it may require a much more recent version of the IDE; this has not been tested. It has been tested with 1.8.9 and 1.8.13. 1.8.14 introduced a serious regression that prevents all compilation ("panic no major version found" when 1) the major version uses variable substitution and 2) it only impacts manual installation). When it manifests, it effects ALL board definitions. Versions prior to 1.8.13 are impacted by a serious bug in the list of programmers they present (they assume all programmers can program all parts). Hence we recommended 1.8.13. To use
-manual installaation to the IDE from 2.4has to be done manually, as a stopgap measure we are manually doing this in the versions we send out.otherwise to use pre-1.5.0 DxCpre l, and IDE version later than 1.8.13+, you need to patch platform.txt:
+DxCore requires a version of the IDE later than 1.6.3; - it may require a much more recent version of the IDE; this has not been tested. It has been tested with 1.8.9 and 1.8.13. 1.8.14 introduced a serious regression that prevents all compilation ("panic no major version found" when 1) the major version uses variable substitution and 2) it only impacts manual installation). When it manifests, it effects ALL board definitions. Versions prior to 1.8.13 are impacted by a serious bug in the list of programmers they present (they assume all programmers can program all parts). Hence we recommended 1.8.13. To use
+manual installaation to the IDE from 2.4has to be done manually, as a stopgap measure we are manually doing this in the versions we send out.otherwise to use pre-1.5.0 DxCore l, and IDE version later than 1.8.13+, you need to patch platform.txt:
 
 ```diff
 -version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.postfix}
@@ -31,7 +31,7 @@ This board package can be installed via the board manager. The boards manager UR
 1. File -> Preferences, enter the above URL in "Additional Boards Manager URLs"
 2. Tools -> Boards -> Boards Manager...
 3. Wait while the list loads (takes longer than one would expect, and refreshes several times).
-4. Select "megaTinyCore by Spence Konde" and click "Install". For best results, choose the most recent version.
+4. Select "DxCore by Spence Konde" and click "Install". For best results, choose the most recent version.
 
 ## Manual Installation
 Manual installation allows the latest version of the core to be installed, with fixes that may not yet be available in the board manager version of the core. Manual installation is recommended if you are working on developing or modifying the core - however, the requirements are brutal.
