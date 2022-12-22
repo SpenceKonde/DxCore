@@ -73,9 +73,6 @@ In direct mode, a new upload tool will be used. Because the chip on the device w
 #### Coming soon - simple HV-debricker
 A small simple device that can be used to restore the UPDI pin to UPDI so that simpler, cheaper devices can program it.
 
-#### Really coming before year end 2022: Superior serial adapters
-A single-port version that switches between UPDI and normal mode and 5v and 3.3v (via physical switches), and exposes all modem liaison pins is a near certainty.
-
 #### (New in 2.5.6) What's With All The Different SerialUPDI Options?
 Depending on adapter model, and operating system, it has been found that different timing settings are required; however, settings needed to keep even 230400 baud from failing on Linux/Mac with most adapters impose a much larger time penalty on Windows, where the OS's serial handling is slow enough that nothing needs that delay...
 
