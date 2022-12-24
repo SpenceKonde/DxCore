@@ -9,6 +9,8 @@ These items are in addition to what was listed under changes already in release.
 These are typically planned for release in a future version (usually the next one) as noted.
 
 ## Released Versions
+### 1.5.1
+* Repacking and minor bugfixes.
 
 ### 1.5.0
 * **Major Enhancement: Support the AVR DD-series parts!!**

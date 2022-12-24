@@ -1,8 +1,10 @@
-/*  (C) Spence Konde 2022 open source (LGPL2.1 see LICENSE.md)
+/*  (C) Spence Konde 2022
  * wiring_extra.cpp contains a few functions that are the sort of thing you'd expect in wiring.c or similar
  * but which need to be in a cpp file because they use overloading or are just not closely related to any of
  * those files' other functions.
- *
+
+ * This is part of DxCore - github.com/SpenceKonde/DxCore
+ * This is free software, LGPL 2.1 see ../../LICENSE.md for details.
  *************************************************************/
 #include "Arduino.h"
 
@@ -148,7 +150,7 @@ void _pinconfigure(uint8_t pin, uint16_t pin_config) {
 void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
   _pinconfigure(digital_pin, pin_config);
 }
-
+/* This may end up somewhere else (like in the library*/
 #if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
   uint8_t _setEventPin(uint8_t pin, uint8_t chan) {
     // Works the same was as
@@ -166,7 +168,7 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
         } else if (!(r & 0x80)) {
           chan = 1;
         } else {
-          chan = 254;
+          chan = PERIPHERAL_IN_USE;
         }
       }
       if (chan < 2) {
@@ -190,37 +192,109 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
     return *(((uint8_t*) temp) + 0x18);
   } // just shorthand for looking up the port and returning it's EVGENCTRL value
 
-  uint8_t _setRTCEventChan(uint8_t val, uint8_t chan) {  //
-    if (val < 0x0F && (chan + 1) < 3) {
-      uint8_t oldsreg = SREG;
-      cli(); //gotta disable interrupts while using the evgenctrl value - this needs to be atomic
-      uint8_t r = RTC.PITEVGENCTRLA; // this approach takes 5 clocks and 8 bytes plus the manipulations. Doing it in situ would at best be similar, but could at worst be
-      if (chan == 255) {             // 6 clocks slower, and would be 8 bytes larger, and about the same amount of code would have to be made atomic.
-        if(!(r & 0x0F)) {
-          chan = 0;
-        } else if (!(r & 0xF0)) {
-          chan = 1;
-        } else {
-          chan = 254;
-        } // chan = 255/-1 has been transformed into 0 or 1 if there was an available generator output, or 254/-2 otherwise
+  uint8_t _setRTCEventChan(uint8_t val, uint8_t chan) {
+    /* val is one of:
+      RTC_EVGEN0SEL_OFF_gc      = (0x00<<0),  // No Event Generated
+      RTC_EVGEN0SEL_DIV4_gc     = (0x01<<0),  // CLK_RTC divided by 4
+      RTC_EVGEN0SEL_DIV8_gc     = (0x02<<0),  // CLK_RTC divided by 8
+      RTC_EVGEN0SEL_DIV16_gc    = (0x03<<0),  // CLK_RTC divided by 16
+      RTC_EVGEN0SEL_DIV32_gc    = (0x04<<0),  // CLK_RTC divided by 32
+      RTC_EVGEN0SEL_DIV64_gc    = (0x05<<0),  // CLK_RTC divided by 64
+      RTC_EVGEN0SEL_DIV128_gc   = (0x06<<0),  // CLK_RTC divided by 128
+      RTC_EVGEN0SEL_DIV256_gc   = (0x07<<0),  // CLK_RTC divided by 256
+      RTC_EVGEN0SEL_DIV512_gc   = (0x08<<0),  // CLK_RTC divided by 512
+      RTC_EVGEN0SEL_DIV1024_gc  = (0x09<<0),  // CLK_RTC divided by 1024
+      RTC_EVGEN0SEL_DIV2048_gc  = (0x0A<<0),  // CLK_RTC divided by 2048
+      RTC_EVGEN0SEL_DIV4096_gc  = (0x0B<<0),  // CLK_RTC divided by 4096
+      RTC_EVGEN0SEL_DIV8192_gc  = (0x0C<<0),  // CLK_RTC divided by 8192
+      RTC_EVGEN0SEL_DIV16384_gc = (0x0D<<0),  // CLK_RTC divided by 16384
+      RTC_EVGEN0SEL_DIV32768_gc = (0x0E<<0)   // CLK_RTC divided by 32768
+
+      chan is one of:
+      0  (channel 0)
+      1  (channel 1)
+      -1 (whichever is unused)
+
+      This may return:
+      0  (channel 0 was set)
+      1  (channel 1 was set)
+      PERIPHERAL_IN_USE (you asked for an unused channel, but they are both in use already generating different frequencies)
+      CHANNEL0_UNCHANGED (nothing was set - you asked for an unused channel, but channel 0 is already set to the specified value)
+      CHANNEL1_UNCHANGED (nothing was set - you asked for an unused channel, but channel 1 is already set to the specified value)
+      NOT_A_CHANNEL (nothing was set - a channel number that isn't a channel was specified)
+
+      Intended usage:
+      int8_t temp = _setRTCEventChan(myvalue, -1);
+      if (temp < 0) {
+        // handle error
+      } else {
+        mychannel = temp;
       }
-      if (chan < 2) {
-        if (chan) {  // chan = 1 since we know it's less than 2
-          _SWAP(val);
-          r &= 0x0F;
-          r |= val;
-        } else {     // chan = 0
-          r &= 0xF0;
-          r |= val;
-        }
-        RTC.PITEVGENCTRLA = r;
+
+      Then when using the channel, bitwise AND it with 0x01, so you get 0 or 1 from a CHANNEL0_UNCHANGED or CHANNEL1_UNCHANGED.
+      volatile uint8_t* mygenerator = &EVSYS_CHANNEL0; // in practice you'd be hopefully calling something to find a free generator...
+
+      *mygenerator = ((mychannel & 0x01) ? EVSYS_PITEV1 : EVSYS_PITEV0);
+
+      Later, when done with the RTC channel, you can release it with:
+
+      _setRTCEventChan(0, mychannel);
+
+      This will leave it unchanged if it returned CHANNEL0_UNCHANGED or CHANNEL1_UNCHANGED because in that case something else was already using the RTC for something
+      and you were just piggybacking on that, so you wouldn't want to trash that.
+      Note that this scheme only works if the first thing using the timer event channels doesn't stop the channel befopre
+    */
+    if   (__builtin_constant_p(val)) {
+      if (val >= 0x0F) {
+        badArg("First argument to _setRTCEventChan must be less than 16, but it is known at compile-time that an invalid value will be passed.");
+        return NOT_A_CHANNEL;
       }
-      // nothing gets set if chan isn't 1 or 0
-      SREG = oldsreg;
-      return chan; // this will be 0 or 1 if a channel was set, or 254 if not.
     } else {
-      return NOT_A_CHANNEL;
+      if (val >= 0x0F) {
+        return NOT_A_CHANNEL;
+      }
     }
+    if   (__builtin_constant_p(chan)) {
+      if (chan != 255 && chan != 0 && chan != 1) {
+        badArg("Second argument to _setRTCEventChan must be 0, 1, or 255 (-1), but it is known at compile-time that an invalid value will be passed.");
+        return NOT_A_CHANNEL;
+      }
+    } else {
+      if (chan > 2) && chan != 255 {
+        return NOT_A_CHANNEL;
+      }
+    }
+    uint8_t oldsreg = SREG;
+    cli(); //gotta disable interrupts while using the evgenctrl value - this needs to be atomic
+    uint8_t r = RTC.PITEVGENCTRLA; // this approach takes 5 clocks and 8 bytes plus the manipulations. Doing it in situ would at best be similar, but could at worst be
+    if (chan == 255) {
+      uint8_t valsw = val;
+      _SWAP(valsw);
+      if         (((r & 0x0F) == val)) {
+        chan = CHANNEL0_UNCHANGED; // 64
+      } else if  ((r & 0xF0) == valsw) {
+        chan = CHANNEL1_UNCHANGED; // 65
+      } else if (!(r & 0x0F)) {
+        chan = 0;
+      } else if (!(r & 0xF0)) {
+        chan = 1;
+      } else {
+        chan = PERIPHERAL_IN_USE;
+      } // chan = 255/-1 has been transformed into 0 or 1 if there was an available generator output, or PERIPHERAL_IN_USE/254/-2 otherwise
+    }
+    // Notice that chan is now 0, 1, 64, 65, or 254.
+    if (chan < 2) {
+      if (chan) {  // chan = 1
+        _SWAP(val); // low nybble is channel 0, high is channel 1
+        r &= 0x0F;
+      } else {     // chan = 0
+        r &= 0xF0;
+      }
+      r |= val;
+      RTC.PITEVGENCTRLA = r;
+    }
+    SREG = oldsreg;
+    return chan; // hence this will return the channel or PERIPHERAL_IN_USE.
   }
   uint8_t _getRTCEventConfig() { //simply returns the RTC channel configuration.
     return RTC.PITEVGENCTRLA;
