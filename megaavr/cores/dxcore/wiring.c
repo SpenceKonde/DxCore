@@ -832,8 +832,8 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
           #warning "Millis timer (TCBn) at this frequency and/or configuration unsupported, micros() will return totally bogus values."
         #endif
       #else /* = defined(MILLIS_USE_TCA) */
-        uint8_t ticks_temp;   // As this is the case for TCA, ticks is always 8 bit
-        int16_t ticks_acc;   // As the compiler does not "buffer" previous bit-shifts to the same variable, we do it ourselves. Saves a little bit of flash
+        __attribute__((unused)) uint8_t ticks_temp;  // As this is the case for TCA, ticks is always 8 bit
+        __attribute__((unused)) int16_t ticks_acc;   // As the compiler does not "buffer" previous bit-shifts to the same variable, we do it ourselves
         #if (F_CPU == 30000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           ticks_acc  = ticks * 2;
           ticks_acc += ticks >> 3;
@@ -846,7 +846,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
         #elif (F_CPU == 25000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           ticks_acc  = ticks * 2;
           ticks_acc += ticks >> 1;
-          ticks_acc += ticks >> 4; //ticks_temp = ticks >> 4 (compiler uses SWAP + ANDI 0x07, faster then shifting three times)
+          ticks_acc += ticks >> 4; //ticks_temp = ticks >> 4 (compiler uses SWAP + ANDI 0x0F, faster then shifting three times)
           microseconds  = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)) + ticks_acc;
         #elif (F_CPU == 24000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)  // 1 timer clock equals 2.667 us
           ticks_acc  = ticks * 3;                         // 1 tick = 3 us
