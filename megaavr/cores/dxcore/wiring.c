@@ -506,19 +506,19 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
       } // end getting ticks
 
     /*#if defined(MILLIS_USE_TIMERD0)
-      #if (F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)
-        uint8_t ticks_l = ticks >> 1;
-        ticks = ticks + ticks_l + ((ticks_l >> 2) - (ticks_l >> 4) + (ticks_l >> 7));
-        // + ticks +(ticks>>1)+(ticks>>3)-(ticks>>5)+(ticks>>8))
-        // speed optimization via doing math with smaller datatypes, since we know high byte is 1 or 0.
-        microseconds =   overflows * (TIME_TRACKING_CYCLES_PER_OVF / 20) + ticks; // ticks value corrected above.
-      #else
-        microseconds = ((overflows * (TIME_TRACKING_CYCLES_PER_OVF / 16))
-                          + (ticks * (TIME_TRACKING_CYCLES_PER_OVF / 16 / TIME_TRACKING_TIMER_PERIOD)));
-      #endif
-      #if defined(CLOCK_TUNE_INTERNAL) && !(F_CPU == 16000000UL || F_CPU ==  20000000UL || F_CPU ==  8000000UL || F_CPU ==  10000000UL || F_CPU ==  4000000UL || F_CPU ==  5000000UL)
-        #warning "TCD is not supported as a millis timing source when the oscillator is tuned to a frequency other than 16 or 20 MHz. Timing results will be wrong - use TCA0 or a TCB."
-      #endif
+        #if (F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)
+          uint8_t ticks_l = ticks >> 1;
+          ticks = ticks + ticks_l + ((ticks_l >> 2) - (ticks_l >> 4) + (ticks_l >> 7));
+          // + ticks +(ticks>>1)+(ticks>>3)-(ticks>>5)+(ticks>>8))
+          // speed optimization via doing math with smaller datatypes, since we know high byte is 1 or 0.
+          microseconds =   overflows * (TIME_TRACKING_CYCLES_PER_OVF / 20) + ticks; // ticks value corrected above.
+        #else
+          microseconds = ((overflows * (TIME_TRACKING_CYCLES_PER_OVF / 16))
+                            + (ticks * (TIME_TRACKING_CYCLES_PER_OVF / 16 / TIME_TRACKING_TIMER_PERIOD)));
+        #endif
+        #if defined(CLOCK_TUNE_INTERNAL) && !(F_CPU == 16000000UL || F_CPU ==  20000000UL || F_CPU ==  8000000UL || F_CPU ==  10000000UL || F_CPU ==  4000000UL || F_CPU ==  5000000UL)
+          #warning "TCD is not supported as a millis timing source when the oscillator is tuned to a frequency other than 16 or 20 MHz. Timing results will be wrong - use TCA0 or a TCB."
+        #endif
     */
     #if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
       /* Ersatz Division for TCBs - now with inline assembly!
