@@ -11,6 +11,7 @@ These are typically planned for release in a future version (usually the next on
 ## Released Versions
 ### 1.5.1
 * Repacking and minor bugfixes.
+* Known issue: At 24 MHz TCAn as millis timer results in severely deranged timekeeping behavior.
 
 ### 1.5.0
 * **Major Enhancement: Support the AVR DD-series parts!!**
