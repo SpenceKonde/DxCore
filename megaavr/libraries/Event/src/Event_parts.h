@@ -663,41 +663,41 @@ namespace event {
       ccl2_event_b   = 0x05,
       ccl3_event_a   = 0x06,
       ccl3_event_b   = 0x07,
-      adc0_start     = 0x0C,
+      adc0_start     = 0x08,
 #if defined(PIN_PA2) // not on 14-pin ones.
-      evouta_pin_pa2 = 0x0D,
+      evouta_pin_pa2 = 0x09,
 #endif
-      evoutc_pin_pc2 = 0x0F,
+      evoutc_pin_pc2 = 0x0A,
 #if defined(PIN_PD2) // only on 28 or 32 pin ones.
-      evoutd_pin_pd2 = 0x10,
+      evoutd_pin_pd2 = 0x0B,
 #endif
 #if defined(PIN_PF2) // only on 32-pin ones.
-      evoutf_pin_pf2 = 0x12,
+      evoutf_pin_pf2 = 0x0C,
 #endif
-      usart0_irda    = 0x14,
-      usart1_irda    = 0x15,
-      tca0           = 0x1A,
-      tca0_cnt_a     = 0x1A,
-      tca0_cnt_b     = 0x1B,
-      tcb0           = 0x1E,
-      tcb0_capt      = 0x1E,
-      tcb0_cnt       = 0x1F,
-      tcb1           = 0x20,
-      tcb1_capt      = 0x20,
-      tcb1_cnt       = 0x21,
+      usart0_irda    = 0x0D,
+      usart1_irda    = 0x0E,
+      tca0           = 0x0F,
+      tca0_cnt_a     = 0x0F,
+      tca0_cnt_b     = 0x10,
+      tcb0           = 0x11,
+      tcb0_capt      = 0x11,
+      tcb0_cnt       = 0x12,
+      tcb1           = 0x13,
+      tcb1_capt      = 0x13,
+      tcb1_cnt       = 0x14,
 #if defined(TCB2)
-      tcb2           = 0x22,
-      tcb2_capt      = 0x22,
-      tcb2_cnt       = 0x23,
+      tcb2           = 0x15,
+      tcb2_capt      = 0x15,
+      tcb2_cnt       = 0x16,
 #endif
-      tcd0_in_a      = 0x28,
-      tcd0_in_b      = 0x29,
+      tcd0_in_a      = 0x17,
+      tcd0_in_b      = 0x18,
 #if defined(PIN_PA7) // not on 14-pin ones.
-      evouta_pin_pa7 = 0x8D,
+      evouta_pin_pa7 = 0x89,
 #endif
-      evoutd_pin_pd7 = 0x90,
-#if defined(PIN_PF7) // only on 32-pin ones.
-      evoutf_pin_pf7 = 0x92,
+      evoutd_pin_pd7 = 0x8B,
+#if defined(PIN_PF7)
+      evoutf_pin_pf7 = 0x8C,
 #endif
 #endif
     };
