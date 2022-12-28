@@ -72,9 +72,8 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(uint8_t pin) {
         pin &= 0x7f;
         if (pin > ADC_MAXIMUM_PIN_CHANNEL)
           badArg("analogRead called with constant channel number which is neither a valid internal source nor an analog pin");
-      } else {
-        pin = digitalPinToAnalogInput(pin);
       }
+      pin = digitalPinToAnalogInput(pin);
       if (pin == NOT_A_PIN) {
         badArg("analogRead called with constant pin that is not a valid analog pin");
       }
