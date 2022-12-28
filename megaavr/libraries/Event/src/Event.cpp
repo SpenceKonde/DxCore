@@ -848,9 +848,9 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
           event_user = (0x80 | (evout_user + port));
         }
       #else
-        uint8_t evout_user
+        uint8_t evout_user = -1;
         if (port_pin == 7 || port_pin == 2) {
-          evout_user = port_pin == 7 ? 0x80 : 0x00;
+          evout_user = port_pin == 7 ? 0x89 : 0x09;
         }
         if (port >= PC) {
           port--; // PA = 0 PC = 1, PD = 2, PF = 3
