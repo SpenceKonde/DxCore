@@ -1,22 +1,18 @@
 /*
 ADC0.SAMPCTRL demo
 
-Connect a 1 MEG resistor between the two analog inputs. This sketch, because it use used as a "compile test" to approve new
-versions determines valid analog input pins using the _VALID_ANALOG_PIN() macro. _VALID_ANALOG_PIN(0) checks analog input pins
-starting from the one associated with channel 0 of the ADC, and returns the first one that exists, _VALID_ANALOG_PIN(1) returns
-the second. Note that this is not intended for public consumption, and should not be relied on outside of CI-testing scenarios.
-
-These pins work out to be:
+Connect a 1 MEG resistor between the two analog inputs. This sketch, because it is used as a "compile test" to approve new
+versions, has to choose pins that always exist on parts being tested. These pins turn out to be PD4-7, and we use the first two.
 | Part family   | FIRST_PIN | SECOND_PIN |
 |---------------|-----------|------------|
-| AVR DA+DB>48p | PIN_PD0   | PIN_PD1    |
-| AVR DB/DD     | PIN_PD1   | PIN_PD2    |
+| AVR DA+DB>48p | PIN_PD4   | PIN_PD5    |
+| AVR DB/DD     | PIN_PD4   | PIN_PD5    |
 | AVR DD <28pin | PIN_PD4   | PIN_PD5    |
-| AVR EA        | PIN_PD0   | PIN_PD0    |
+| AVR EA        | PIN_PD4   | PIN_PD5    |
 
 
-This makes PD0 a very high impedance input, controlled by PD1.
-This sketch flips PD1 and then immediately takes some readings on PD0, printing the first one.
+This makes PD4 a very high impedance input, controlled by PD5.
+This sketch flips PD5 and then immediately takes some readings on PD4, printing the first one.
 Format output is conducive to graphing in excel/etc (save as .csv)
 One thing that is important to remember is that what matters is what the last voltage READ BY the ADC was.
 For example, if you switch back and forth between reading a high impedance source, and a voltage very close to ground,
@@ -29,14 +25,8 @@ rather odd. Also that it goes all the way to 0 on a LOW, but not all the way to 
 
 
 */
-
-#if defined(THIS_IS_CI) // This sketch is compiletested in many configurations and parts automatically. Within that context, these macros are available to find valid pins
-  const uint8_t FIRST_PIN = _VALID_ANALOG_PIN(0);
-  const uint8_t SECOND_PIN = _VALID_ANALOG_PIN(1);
-#else
-  const uint8_t FIRST_PIN = A1;
-  const uint8_t SECOND_PIN = A2;
-#endif
+#define FIRST_PIN PIN_PD4
+#define SECOND_PIN PIN_PD5
 
 void setup() {
   pinMode(SECOND_PIN, OUTPUT);

@@ -11,11 +11,11 @@
 
 Servo myservo;  // create servo object to control a servo
 
-int potpin = A7;  // analog pin used to connect the potentiometer - analog channel 7 exists everywhere!
+int potpin = PIN_PD4;  // analog pin used to connect the potentiometer PIN_PD4 always exists on Dx-series
 int val;    // variable to read the value from the analog pin
 
 void setup() {
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  myservo.attach(PIN_PC1);  // attaches the servo on pin PC1, which exists on all Dx-series
 }
 
 void loop() {
