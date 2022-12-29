@@ -12,6 +12,9 @@ These are typically planned for release in a future version (usually the next on
 * Correct issue with event library for DD-series.
 * Correct issue with ADCon PORTD of 20 pin devices
 * Correct issue with SPI on 14-pin parts
+* Correct timekeeping (Thanks @MX682X)
+* Correct linting issues relating to libraries.
+* Correct issue with uploading via programmer through avrdude. (Thanks @MX682X)
 
 ## Released Versions
 ### 1.5.1
