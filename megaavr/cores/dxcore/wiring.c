@@ -524,6 +524,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
         } // end getting ticks
 
       /*#if defined(MILLIS_USE_TIMERD0)
+
         #if (F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)
           uint8_t ticks_l = ticks >> 1;
           ticks = ticks + ticks_l + ((ticks_l >> 2) - (ticks_l >> 4) + (ticks_l >> 7));

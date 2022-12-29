@@ -8,7 +8,14 @@ These items are in addition to what was listed under changes already in release.
 ## Changes Implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
+### Planned 1.5.2
+* Correct issue with event library for DD-series.
+
 ## Released Versions
+### 1.5.1
+* Repacking and minor bugfixes.
+* Known issue: At 24 MHz TCAn as millis timer results in severely deranged timekeeping behavior.
+* Known issue: Event library unsupported for AVR DD
 
 ### 1.5.0
 * **Major Enhancement: Support the AVR DD-series parts!!**
