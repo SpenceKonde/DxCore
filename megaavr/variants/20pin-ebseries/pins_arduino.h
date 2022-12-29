@@ -91,11 +91,11 @@ Include guard and include basic libraries. We are normally including this inside
 #if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()             (1)
-    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) >= PIN_PF6)    ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) < PIN_PC0) && ((p) >  PIN_PA1) ? (p) + 20 : NOT_A_PIN)))
+    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) < PIN_PC0) && ((p) >  PIN_PA1) ? (p) + 20 : NOT_A_PIN)))
     #define analogChannelToDigitalPin(p)  ((p) >  27                             ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN))
   #else
     #define IS_MVIO_ENABLED()             (0)
-    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) >= PIN_PF6)    ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) > PIN_PA1)                     ? (p) + 20 : NOT_A_PIN)))
+    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) > PIN_PA1)                     ? (p) + 20 : NOT_A_PIN)))
     #define analogChannelToDigitalPin(p)  ((p) >  31 || (p) == 28)               ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN)
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */

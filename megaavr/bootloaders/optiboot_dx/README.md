@@ -66,8 +66,8 @@ Available "slack" in the binaries is extremely limited.
 LED Pins
 * DA/DB, all: PA7
 * 20+ pin DD: PA7
-* 14-pin DD, Serial0: PD7
-* 14-pin DD, Serial1: PD5
+* 14-pin DD, Serial0: PD6
+* 14-pin DD, Serial1: PD4
 
 ### Other resources
 
@@ -75,12 +75,12 @@ Arduino-specific issues are tracked as part of the Arduino project
 at [http://github.com/arduino/Arduino](http://github.com/arduino/Arduino)
 
 
-There is additional information in the wiki - however, the wiki does not reflect the changes specific to Optiboot DX
+There is additional information in the wiki - however, the wiki does not reflect the changes specific to Optiboot X for megaTinyCore
 [https://github.com/Optiboot/optiboot/wiki](https://github.com/Optiboot/optiboot/wiki)
 
 
 ## To set up this environment in windows
-This is how the files DxCore ships with are built. I can provide no guarantee that any other method will still work after what I've done to the makefile.
+This is how the files megaTinyCore ships with are built. I can provide no guarantee that any other method will still work after what I've done to the makefile.
 1. Download and extract the Arduino 1.0.6 .zip package.
 * Make sure it is not in a "protected" location. I normally put them in the root of C:.
 * Rename the folder so you remember what it's for; I have it in `C:\arduino-1.0.6-7.3.0compiler` (this location will be used in the examples below)
@@ -91,7 +91,7 @@ This is how the files DxCore ships with are built. I can provide no guarantee th
 5. Copy the `optiboot_dx` folder from `(core install location)/megaavr/bootloaders` to `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders`.
 6. You should now be able to open a command window in `C:\arduino-1.0.6-7.3.0compiler\hardware\arduino\bootloaders\optiboot_dx` and run `omake <target>`, or `build_all_dx.bat` to build all the binaries packaged with the core.
 
-This can be done the same way in linux exempt you can expect make to actually be there, ignore omake, and just use the shell scripts =nstead of batch files which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output throguh grep or something, but I don't know makefile or shellscripting :-) )
+This can be done the same way in linux except that you would download the version of the toolchain aoppropriate to your OS, and you can expect make to actually be there, ignore omake, and just use the shell scripts instead of batch files. which If i had time to work on, could be mde a lot smoother, but that's not a priority (I think the main thing we'd want to to is pass the avr-size output through grep or something, but I don't know makefile or shellscripting :-) )
 
 
 ## Previous build instructions
@@ -262,65 +262,47 @@ Here, sorted by instruction..
 It is worth noting that this is not what typical compiled sketches are full of. You can see how r24 and sometimes r25 are the compiler's go-to registers for storing shortlived values.
 
 ```text
-   2: 80 91 40 00   lds r24, 0x0040 ; junk comment elided     040>  <--- 8x LDS == 32 bytes
-  7e: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>
- 176: 80 91 02 11   lds r24, 0x1102 ; junk comment elided     102>
- 188: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>
- 196: 80 91 24 08   lds r24, 0x0824 ; junk comment elided     824>
- 19e: 90 91 21 08   lds r25, 0x0821 ; junk comment elided     821>
- 1a2: 80 91 20 08   lds r24, 0x0820 ; junk comment elided     820>
- 1ae: 90 91 01 01   lds r25, 0x0101 ; junk comment elided     101>
-  10: 20 93 41 00   sts 0x0041, r18 ; junk comment elided     041>   <--- 11xSTS = 44 bytes
-  1e: 80 93 40 00   sts 0x0040, r24 ; junk comment elided     040> //These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set.
-  2e: 80 93 51 04   sts 0x0451, r24 ; junk comment elided     451> //turning on a pullup
-  34: 80 93 28 08   sts 0x0828, r24 ; junk comment elided     828> //config USART
-  3a: 80 93 27 08   sts 0x0827, r24 ; junk comment elided     827> //config USART
-  40: 80 93 26 08   sts 0x0826, r24 ; junk comment elided     826> //config USART
- 190: 80 93 22 08   sts 0x0822, r24 ; junk comment elided     822> //config USART
- 1ba: 80 93 00 01   sts 0x0100, r24 ; junk comment elided     100> //config WDT
- 1e2: 10 92 00 10   sts 0x1000, r1  ; junk comment elided     000> //writing to nvmctrl, kinda important for a bootloader to do
- 1e8: 80 93 00 10   sts 0x1000, r24 ; junk comment elided     000> //right?
-   a: 98 ed         ldi r25, 0xD8 ; 216                              <--- 34 LDI = 68 bytes
+  c4: 80 e0         ldi r24, 0x00 ; 0                              <--- 34 LDI = 68 bytes
+  d6: d0 e0         ldi r29, 0x00 ; 0
+ 130: d0 e0         ldi r29, 0x00 ; 0
+  c0: 81 e0         ldi r24, 0x01 ; 1
+  60: 81 e0         ldi r24, 0x01 ; 1
    c: 21 e0         ldi r18, 0x01 ; 1
+ 182: 81 e0         ldi r24, 0x01 ; 1
+ 1c6: 81 e0         ldi r24, 0x01 ; 1
+ 112: 82 e0         ldi r24, 0x02 ; 2
+  c8: 83 e0         ldi r24, 0x03 ; 3
+  6c: 83 e0         ldi r24, 0x03 ; 3
+  38: 83 e0         ldi r24, 0x03 ; 3
+  9c: 85 e0         ldi r24, 0x05 ; 5
+  46: 87 e0         ldi r24, 0x07 ; 7
+ 10c: 88 e0         ldi r24, 0x08 ; 8
   26: 88 e0         ldi r24, 0x08 ; 8
   2c: 88 e0         ldi r24, 0x08 ; 8
-  32: 8a e8         ldi r24, 0x8A ; 138
-  38: 83 e0         ldi r24, 0x03 ; 3
-  3e: 80 ec         ldi r24, 0xC0 ; 192
-  46: 87 e0         ldi r24, 0x07 ; 7
-  50: 40 e4         ldi r20, 0x40 ; 64
-  60: 81 e0         ldi r24, 0x01 ; 1
-  66: 8a e1         ldi r24, 0x1A ; 26
-  6c: 83 e0         ldi r24, 0x03 ; 3
   70: 80 e1         ldi r24, 0x10 ; 16
-  78: 2a e2         ldi r18, 0x2A ; 42
-  7a: 38 e6         ldi r19, 0x68 ; 104
   92: 84 e1         ldi r24, 0x14 ; 20
-  9c: 85 e0         ldi r24, 0x05 ; 5
-  c0: 81 e0         ldi r24, 0x01 ; 1
-  c4: 80 e0         ldi r24, 0x00 ; 0
-  c8: 83 e0         ldi r24, 0x03 ; 3
-  d6: d0 e0         ldi r29, 0x00 ; 0
-  ec: 30 e4         ldi r19, 0x40 ; 64
-  f2: 8f ef         ldi r24, 0xFF ; 255
- 10c: 88 e0         ldi r24, 0x08 ; 8
- 112: 82 e0         ldi r24, 0x02 ; 2
- 130: d0 e0         ldi r29, 0x00 ; 0
- 140: f6 e4         ldi r31, 0x46 ; 70
- 16e: 8e e1         ldi r24, 0x1E ; 30
- 172: 87 e9         ldi r24, 0x97 ; 151
- 182: 81 e0         ldi r24, 0x01 ; 1
- 1b6: 98 ed         ldi r25, 0xD8 ; 216
- 1c6: 81 e0         ldi r24, 0x01 ; 1
  1cc: 84 e1         ldi r24, 0x14 ; 20
+  66: 8a e1         ldi r24, 0x1A ; 26
+ 16e: 8e e1         ldi r24, 0x1E ; 30
+  78: 2a e2         ldi r18, 0x2A ; 42
+  50: 40 e4         ldi r20, 0x40 ; 64
+  ec: 30 e4         ldi r19, 0x40 ; 64
+ 140: f6 e4         ldi r31, 0x46 ; 70
+  7a: 38 e6         ldi r19, 0x68 ; 104
+  32: 8a e8         ldi r24, 0x8A ; 138
+ 172: 87 e9         ldi r24, 0x97 ; 151
  1de: 9d e9         ldi r25, 0x9D ; 157
+  3e: 80 ec         ldi r24, 0xC0 ; 192
+ 1b6: 98 ed         ldi r25, 0xD8 ; 216
+   a: 98 ed         ldi r25, 0xD8 ; 216
+  f2: 8f ef         ldi r24, 0xFF ; 255
   28: c2 d0         rcall .+388     ; 0x1ae <watchdogConfig> <--- 34 rcalls, most to getch() = 68 bytes
-  54: a0 d0         rcall .+320     ; 0x196 <getch>
-  5a: 9d d0         rcall .+314     ; 0x196 <getch>
-  5e: b0 d0         rcall .+352     ; 0x1c0 <verifySpace>
-  6e: 8c d0         rcall .+280     ; 0x188 <putch>
-  72: 8a d0         rcall .+276     ; 0x188 <putch>
-  94: 9d d0         rcall .+314     ; 0x1d0 <getNch>
+  54: a0 d0         rcall .+320     ; 0x196 <getch>          3/34 watchdogConfig
+  5a: 9d d0         rcall .+314     ; 0x196 <getch>          5/34 verifySpace
+  5e: b0 d0         rcall .+352     ; 0x1c0 <verifySpace>    16/34 getch
+  6e: 8c d0         rcall .+280     ; 0x188 <putch>          2/34 getNch
+  72: 8a d0         rcall .+276     ; 0x188 <putch>          2/34 nvm_cmd
+  94: 9d d0         rcall .+314     ; 0x1d0 <getNch>         6/34 putch
   a4: 78 d0         rcall .+240     ; 0x196 <getch>
   a8: 76 d0         rcall .+236     ; 0x196 <getch>
   ac: 89 d0         rcall .+274     ; 0x1c0 <verifySpace>
@@ -374,31 +356,32 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  1ca: ff cf         rjmp  .-2       ; 0x1ca <verifySpace+0xa>
  1ce: dc cf         rjmp  .-72      ; 0x188 <putch>
  1dc: f1 cf         rjmp  .-30      ; 0x1c0 <verifySpace>
-  18: 98 2f         mov r25, r24                             <-- 15 = 30 bytes on move/copies
-  4e: e1 2c         mov r14, r1
-  52: f4 2e         mov r15, r20
-  5c: c8 2f         mov r28, r24
-  a6: 08 2f         mov r16, r24
-  aa: 18 2f         mov r17, r24
-  d4: c8 2f         mov r28, r24
-  d8: dc 2f         mov r29, r28
-  ea: 81 2c         mov r8, r1
-  ee: 93 2e         mov r9, r19
- 116: 9c 2d         mov r25, r12
- 12e: c8 2f         mov r28, r24
- 132: dc 2f         mov r29, r28
- 13c: d8 2e         mov r13, r24
- 1d2: c8 2f         mov r28, r24
-  e0: 6e 01         movw  r12, r28                            <-- 10 = 20 bytes on moveing bytes 2 at a time.
-  f0: 54 01         movw  r10, r8
-  fa: f4 01         movw  r30, r8
-  fe: 45 01         movw  r8, r10
- 108: f8 01         movw  r30, r16
- 10a: d7 01         movw  r26, r14
+
+  ea: 81 2c         mov    r8, r1   25 words on moving contents of registers around.
+  fe: 45 01         movw   r8, r10  4 of the mov's are part of the atrocious mishandling of the high and low bytes
+  ee: 93 2e         mov    r9, r19
+  f0: 54 01         movw  r10,  r8
  146: 68 01         movw  r12, r16
- 148: f6 01         movw  r30, r12
+  e0: 6e 01         movw  r12, r28
  14c: 6f 01         movw  r12, r30
+ 13c: d8 2e         mov   r13, r24
+  4e: e1 2c         mov   r14,  r1
+  52: f4 2e         mov   r15, r20
+  a6: 08 2f         mov   r16, r24
+  aa: 18 2f         mov   r17, r24
+ 116: 9c 2d         mov   r25, r12
+  18: 98 2f         mov   r25, r24
+ 10a: d7 01         movw  r26, r14
+ 12e: c8 2f         mov   r28, r24 < pathological
+  5c: c8 2f         mov   r28, r24
+  d4: c8 2f         mov   r28, r24 < pathological
+ 1d2: c8 2f         mov   r28, r24
+  d8: dc 2f         mov   r29, r28 < pathological
+ 132: dc 2f         mov   r29, r28 < pathological
+  fa: f4 01         movw  r30, r8  r8:9, r10:11, r12:13, r14:15 and r16:17 are used to store pointers to be swapped back into X or Z.
+ 148: f6 01         movw  r30, r12
  158: f8 01         movw  r30, r16
+ 108: f8 01         movw  r30, r16
   56: 81 34         cpi r24, 0x41 ; 65                        <--- 13 cpi = 26 bytes
   62: c2 38         cpi r28, 0x82 ; 130
   68: c1 38         cpi r28, 0x81 ; 129
@@ -412,27 +395,18 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  168: 85 37         cpi r24, 0x75 ; 117
  17c: 81 35         cpi r24, 0x51 ; 81
  1c2: 80 32         cpi r24, 0x20 ; 32
-   e: 94 bf         out 0x34, r25 ; 52                        <--- 6 OUT = 12 bytes
-  22: 8c bb         out 0x1c, r24 ; 28
-  be: 8b bf         out 0x3b, r24 ; 59
- 1b8: 94 bf         out 0x34, r25 ; 52
- 1e0: 94 bf         out 0x34, r25 ; 52
- 1e6: 94 bf         out 0x34, r25 ; 52
   48: 81 50         subi  r24, 0x01 ; 1                       <--- 6 subi = 12 bytes
   86: 21 50         subi  r18, 0x01 ; 1
   e8: d0 5c         subi  r29, 0xC0 ; 192
  156: 1c 5e         subi  r17, 0xEC ; 236
  15c: 0f 5f         subi  r16, 0xFF ; 255
  1d6: c1 50         subi  r28, 0x01 ; 1
-  2a: 40 9a         sbi 0x08, 0 ; 8
-  44: 07 9a         sbi 0x00, 7 ; 0
-  76: 17 9a         sbi 0x02, 7 ; 2
  150: 21 97         sbiw  r28, 0x01 ; 1
  162: 21 97         sbiw  r28, 0x01 ; 1
    0: 11 24         eor r1, r1        <----- 4 eor - first one is to prepare zero reg, the one at 0x0124 cleans it after it's been used to write the flash
-  da: cc 27         eor r28, r28      <----- The other two are part of the grotesque method of copying a low and high byte into the low and high byte of a variable
  124: 11 24         eor r1, r1
- 134: cc 27         eor r28, r28
+  da: cc 27         eor r28, r28      <Pathological
+ 134: cc 27         eor r28, r28      <Pathological
  194: 08 95         ret               <----- 4 ret
  1ac: 08 95         ret
  1be: 08 95         ret
@@ -441,29 +415,56 @@ It is worth noting that this is not what typical compiled sketches are full of. 
   7c: a8 95         wdr
  1aa: a8 95         wdr
  118: 0d 90         ld  r0, X+        <----- only three loads...
- 11a: 1d 90         ld  r1, X+
- 15a: 80 81         ld  r24, Z
+ 11a: 1d 90         ld  r1, X+        <----- Two of these are used to read the page buffer back in
+ 15a: 80 81         ld  r24, Z        But 8 bulky LDS instructions:
+   2: 80 91 40 00   lds r24, 0x0040 ; junk comment elided     040>  < RSTCTRL.RSTFR
+ 1a2: 80 91 20 08   lds r24, 0x0820 ; junk comment elided     820>  < UARTn.RXDATA
+ 196: 80 91 24 08   lds r24, 0x0824 ; junk comment elided     824>  < UARTn.STATUS
+ 176: 80 91 02 11   lds r24, 0x1102 ; junk comment elided     102>  < Sigbyte 2
+ 1ae: 90 91 01 01   lds r25, 0x0101 ; junk comment elided     101>  < WDT.STATUS
+ 19e: 90 91 21 08   lds r25, 0x0821 ; junk comment elided     821>  < UARTn.RXDATA
+ 188: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>  < UARTn.STATUS
+  7e: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>  < UARTn.STATUS
+  fc: 80 83         st  Z, r24          <------ Just one ST!
+   e: 94 bf         out 0x34, r25 ; 52  <--- 6 OUT = 12 bytes
+  22: 8c bb         out 0x1c, r24 ; 28  4/6 to the CCP register!
+  be: 8b bf         out 0x3b, r24 ; 59
+ 1b8: 94 bf         out 0x34, r25 ; 52
+ 1e0: 94 bf         out 0x34, r25 ; 52
+ 1e6: 94 bf         out 0x34, r25 ; 52
+  10: 20 93 41 00   sts 0x0041, r18 ; junk comment elided     041>   <--- and 11 bulky STS isns.
+  1e: 80 93 40 00   sts 0x0040, r24 ; junk comment elided     040> //These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set.
+  2e: 80 93 51 04   sts 0x0451, r24 ; junk comment elided     451> //turning on a pullup
+  34: 80 93 28 08   sts 0x0828, r24 ; junk comment elided     828> //config USART
+  3a: 80 93 27 08   sts 0x0827, r24 ; junk comment elided     827> //config USART
+  40: 80 93 26 08   sts 0x0826, r24 ; junk comment elided     826> //config USART
+ 190: 80 93 22 08   sts 0x0822, r24 ; junk comment elided     822> //putch
+ 1ba: 80 93 00 01   sts 0x0100, r24 ; junk comment elided     100> //config WDT
+ 1e2: 10 92 00 10   sts 0x1000, r1  ; junk comment elided     000> clear nvmctrl.ctrla
+ 1e8: 80 93 00 10   sts 0x1000, r24 ; junk comment elided     000> write a different value to it
+  2a: 40 9a         sbi 0x08, 0 ; 8   <set TX direction
+  44: 07 9a         sbi 0x00, 7 ; 0   <LED as output
+  76: 17 9a         sbi 0x02, 7 ; 2   <Toggle LED
  110: e8 95         spm               <----- 2 SPM
  11c: e8 95         spm
-  de: c8 2b         or  r28, r24      <----- the two 'or' instructions are -part of that aforementioned inefficienct way to assemble bytes to a word.
+  de: c8 2b         or  r28, r24      <----- the two 'or' instructions are part of that aforementioned inefficienct way to assemble bytes to a word.
  138: c8 2b         or  r28, r24
   e2: d6 94         lsr r13           < a pair of rightshifts
   e4: c7 94         ror r12
   1a: 95 73         andi  r25, 0x35 ; 53 <---- Only a single ANDI, and no ORI's.
-  fc: 80 83         st  Z, r24          <------ Just one ST!
  1d0: cf 93         push  r28         <----- Why the fuck is there a push and a pop, we have 9 unused registers!!!!
  1da: cf 91         pop r28           <----- wtf???
                                     ; And now all in one place: The control flow instructions.
-  1c: 21 f4         brne  .+8       ; junk comment elided     <--16brne's = 32 bytes
-  4a: a9 f4         brne  .+42      ; junk comment elided
-  58: d1 f4         brne  .+52      ; junk comment elided
-  8a: c1 f7         brne  .-16      ; junk comment elided
-  90: 19 f4         brne  .+6       ; junk comment elided
-  9a: 11 f4         brne  .+4       ; junk comment elided
-  a2: 31 f4         brne  .+12      ; junk comment elided
-  b2: 61 f4         brne  .+24      ; junk comment elided
-  b8: 39 f4         brne  .+14      ; junk comment elided
- 104: a9 f7         brne  .-22      ; junk comment elided
+  1c: 21 f4         brne  .+8       ; 0x26 junk comment elided     <--16brne's = 32 bytes
+  4a: a9 f4         brne  .+42      ; 0x76 junk comment elided
+  58: d1 f4         brne  .+52      ; 0x8e junk comment elided
+  8a: c1 f7         brne  .-16      ; 0x7c junk comment elided
+  90: 19 f4         brne  .+6       ; 0x98 junk comment elided
+  9a: 11 f4         brne  .+4       ; 0xa0 junk comment elided
+  a2: 31 f4         brne  .+12      ; 0xb0 junk comment elided
+  b2: 61 f4         brne  .+24      ; 0xcc junk comment elided
+  b8: 39 f4         brne  .+14      ; 0xc8 junk comment elided
+ 104: a9 f7         brne  .-22      ; 0xf0 junk comment elided
  122: d1 f7         brne  .-12      ; 0x118 <head>
  12a: f1 f4         brne  .+60      ; 0x168 <head+0x50>
  152: d1 f7         brne  .-12      ; 0x148 <head+0x30>

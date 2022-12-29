@@ -26,36 +26,57 @@
 #if defined(SPI_MUX)
   #define SPI0_SWAP_DEFAULT  0x00
   #define SPI0_SWAP0 SPI0_SWAP_DEFAULT
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI_MUX
+  #endif
 #endif
 
 #if defined(SPI_MUX_PINSWAP_1)
   #define SPI0_SWAP_ALT1     0x01
   #define SPI0_SWAP1 SPI0_SWAP_ALT1
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI0_SWAP_ALT1
+  #endif
 #endif
 
 #if defined(SPI_MUX_PINSWAP_2)
   #define SPI0_SWAP_ALT2     0x02
   #define SPI0_SWAP2 SPI0_SWAP_ALT2
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI0_SWAP_ALT2
+  #endif
 #endif
 
 #if defined(SPI_MUX_PINSWAP_3)
   #define SPI0_SWAP_ALT3     0x03
   #define SPI0_SWAP3 SPI0_SWAP_ALT3
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI0_SWAP_ALT3
+  #endif
 #endif
 
 #if defined(SPI_MUX_PINSWAP_4)
   #define SPI0_SWAP_ALT4     0x04
   #define SPI0_SWAP4 SPI0_SWAP_ALT4
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI0_SWAP_ALT4
+  #endif
 #endif
 
 #if defined(SPI_MUX_PINSWAP_5)
   #define SPI0_SWAP_ALT5     0x05
   #define SPI0_SWAP5 SPI0_SWAP_ALT5
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI0_SWAP_ALT5
+  #endif
 #endif
 
 #if defined(SPI_MUX_PINSWAP_6)
   #define SPI0_SWAP_ALT6     0x06
   #define SPI0_SWAP6 SPI0_SWAP_ALT6
+  #if !defined(DEFAULT_SPI_MUX)
+    #define DEFAULT_SPI_MUX SPI0_SWAP_ALT6
+  #endif
 #endif
 
 
@@ -286,13 +307,7 @@ class SPIClass {
     uint8_t _uc_pinMOSI = PIN_SPI_MOSI;
     uint8_t _uc_pinSCK = PIN_SPI_SCK;
     uint8_t _uc_pinSS;
-    /* *INDENT-OFF* */
-    #if defined(SPI_MUX) //all except DD14
-      uint8_t _uc_mux = SPI_MUX;
-    #else
-      uint8_t _uc_mux = SPI_MUX_PINSWAP_4;
-    #endif
-    /* *INDENT-ON* */
+    uint8_t _uc_mux = SPI_DEFAULT_MUX;
     bool initialized;
     uint8_t interruptMode;
     #ifdef CORE_ATTACH_OLD

@@ -78,7 +78,7 @@ Include guard and include basic libraries. We are normally including this inside
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                  PIN_PD6 /* warning: gets overridden when using Serial1 on 14-pin parts, as that uses PD6. */
+  #define LED_BUILTIN                  PIN_PD6 /* warning: gets overridden when using Serial1 on 14-pin parts, as that uses PD4. */
 #endif
 /* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD

@@ -10,12 +10,16 @@ These are typically planned for release in a future version (usually the next on
 
 ### Planned 1.5.2
 * Correct issue with event library for DD-series.
+* Correct issue with ADCon PORTD of 20 pin devices
+* Correct issue with SPI on 14-pin parts
 
 ## Released Versions
 ### 1.5.1
 * Repacking and minor bugfixes.
 * Known issue: At 24 MHz TCAn as millis timer results in severely deranged timekeeping behavior.
 * Known issue: Event library unsupported for AVR DD
+* Known issue: ADC does not work on PORTD of 20-pin parts due to a reversed test.
+* Known issue: SPI does not work on 14-pin parts
 
 ### 1.5.0
 * **Major Enhancement: Support the AVR DD-series parts!!**
