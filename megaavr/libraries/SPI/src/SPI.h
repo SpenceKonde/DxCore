@@ -28,6 +28,8 @@
   #define SPI0_SWAP0 SPI0_SWAP_DEFAULT
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI_MUX
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK
   #endif
 #endif
 
@@ -36,6 +38,8 @@
   #define SPI0_SWAP1 SPI0_SWAP_ALT1
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI0_SWAP_ALT1
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI_PINSWAP1
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK_PINSWAP1
   #endif
 #endif
 
@@ -44,6 +48,8 @@
   #define SPI0_SWAP2 SPI0_SWAP_ALT2
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI0_SWAP_ALT2
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI_PINSWAP2
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK_PINSWAP2
   #endif
 #endif
 
@@ -52,6 +58,8 @@
   #define SPI0_SWAP3 SPI0_SWAP_ALT3
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI0_SWAP_ALT3
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI_PINSWAP3
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK_PINSWAP3
   #endif
 #endif
 
@@ -60,6 +68,8 @@
   #define SPI0_SWAP4 SPI0_SWAP_ALT4
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI0_SWAP_ALT4
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI_PINSWAP4
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK_PINSWAP4
   #endif
 #endif
 
@@ -68,6 +78,8 @@
   #define SPI0_SWAP5 SPI0_SWAP_ALT5
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI0_SWAP_ALT5
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI_PINSWAP5
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK_PINSWAP5
   #endif
 #endif
 
@@ -76,6 +88,8 @@
   #define SPI0_SWAP6 SPI0_SWAP_ALT6
   #if !defined(DEFAULT_SPI_MUX)
     #define DEFAULT_SPI_MUX SPI0_SWAP_ALT6
+    #define DEFAULT_SPI_MOSI PIN_SPI_MOSI_PINSWAP6
+    #define DEFAULT_SPI_SCK PIN_SPI_SCK_PINSWAP6
   #endif
 #endif
 

@@ -116,19 +116,11 @@ bool SPIClass::pins(uint8_t pinMOSI, uint8_t pinMISO, uint8_t pinSCK, __attribut
         return true;
       }
     #endif
-    #if (_AVR_PINCOUNT > 14)
-      else {
-        _uc_mux        = SPI_MUX;
-        _uc_pinMOSI    = PIN_SPI_MOSI;
-        _uc_pinSCK     = PIN_SPI_SCK;
-        return false;
-      }
-    #else
-      _uc_mux        = SPI_MUX_PINSWAP_4;
-      _uc_pinMOSI    = PIN_SPI_MOSI;
-      _uc_pinSCK     = PIN_SPI_SCK;
-      return false;
-    #endif
+    _uc_mux        = DEFAULT_SPI_MUX;
+    _uc_pinMOSI    = DEFAULT_SPI_MOSI;
+    _uc_pinSCK     = DEFAULT_SPI_SCK;
+    return false;
+
     // end of single-SPI implementation
 
   #else
@@ -253,17 +245,18 @@ bool SPIClass::swap(uint8_t state) {
         return true;
       } else
     #endif
-
-    if(state == 0) {
-      _uc_mux        = SPI_MUX;
-      _uc_pinMOSI    = PIN_SPI_MOSI;
-      _uc_pinSCK     = PIN_SPI_SCK;
-      return true;
-    }
-    else {
-       _uc_mux=0;
-      return false;
-    }
+    #if defined(SPI_MUX)
+      if(state == 0) {
+        _uc_mux        = SPI_MUX;
+        _uc_pinMOSI    = PIN_SPI_MOSI;
+        _uc_pinSCK     = PIN_SPI_SCK;
+        return true;
+      }
+    #endif
+    _uc_mux        = DEFAULT_SPI_MUX;
+    _uc_pinMOSI    = DEFAULT_SPI_MOSI;
+    _uc_pinSCK     = DEFAULT_SPI_SCK;
+    return false;
     // end of single-SPI implementation
 
   #else
