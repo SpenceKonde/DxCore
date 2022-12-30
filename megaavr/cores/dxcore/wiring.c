@@ -478,7 +478,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
       #if defined(MILLIS_USE_TIMERA0)
         ticks = TCA0.SPLIT.HCNT;
         flags = TCA0.SPLIT.INTFLAGS;
-        
+
       #elif defined(MILLIS_USE_TIMERA1)
         ticks = TCA1.SPLIT.HCNT;
         flags = TCA1.SPLIT.INTFLAGS;
@@ -841,7 +841,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
           microseconds  = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)) + ticks_acc;
         #elif (F_CPU == 28000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
           ticks_acc  = ticks * 2;
-          ticks_acc += (ticks_temp = (ticks >> 2)); 
+          ticks_acc += (ticks_temp = (ticks >> 2));
           ticks_acc += (ticks_temp = (ticks_temp >> 3)); //ticks_temp = ticks >> 5
           microseconds  = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)) + ticks_acc;
         #elif (F_CPU == 25000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)
@@ -861,12 +861,12 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
           ticks_acc -= (ticks_temp = (ticks_temp >> 2));   //ticks_temp = ticks >> 4
           microseconds  = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)) + ticks_acc;
         #elif (F_CPU == 16000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)  // 1 timer clock equals 3.922 us
-          ticks_acc  = ticks * 4;                         // 1 tick = 4 us, 4us-3.922us = 0.078 
+          ticks_acc  = ticks * 4;                         // 1 tick = 4 us, 4us-3.922us = 0.078
           ticks_acc -= (ticks_temp = (ticks >> 4));       // (1/16) 1 tick = 3.9375us => 3.9375us-3.922us =  0.0155
           ticks_acc -= (ticks_temp = (ticks_temp >> 2));  // (1/64) 1 tick = 3.9219us => 3.9219us-3.922us = -0.0003
           microseconds  = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)) + ticks_acc;
         #elif (F_CPU == 12000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)  // 1 timer clock equals 5.49 us
-          ticks_acc  = ticks * 5;                         // 1 tick = 5 us, 5us-5.49us = -0.49us 
+          ticks_acc  = ticks * 5;                         // 1 tick = 5 us, 5us-5.49us = -0.49us
           ticks_acc += ticks >> 1;                        // (1/2) 1 tick = 5.5us => 5.5us-5.49us =  0.010us    // next would be >>7 - not really worth it
           microseconds  = (overflows * clockCyclesToMicroseconds(TIME_TRACKING_CYCLES_PER_OVF)) + ticks_acc;
         #elif (F_CPU == 10000000UL && TIME_TRACKING_TICKS_PER_OVF == 255 && TIME_TRACKING_TIMER_DIVIDER == 64)  // 1 timer clock equals 6.27 us
@@ -950,7 +950,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
     while (true) {
       if (ms == 0) break;
       yield();
-      uint16_t us_passed = (uint16_t)micros() - start; 
+      uint16_t us_passed = (uint16_t)micros() - start;
       if (us_passed >= 1000) {
         ms--;
         start += 1000;
