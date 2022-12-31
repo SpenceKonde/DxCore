@@ -8,15 +8,16 @@ These items are in addition to what was listed under changes already in release.
 ## Changes Implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
-### Planned 1.5.2
+## Relased Versions
+
+### 1.5.2
 * Correct issue with event library for DD-series.
-* Correct issue with ADCon PORTD of 20 pin devices
+* Correct issue with ADC on PORTD of 20 pin devices
 * Correct issue with SPI on 14-pin parts
 * Correct timekeeping (Thanks @MX682X)
 * Correct linting issues relating to libraries.
 * Correct issue with uploading via programmer through avrdude. (Thanks @MX682X)
 
-## Released Versions
 ### 1.5.1
 * Repacking and minor bugfixes.
 * Known issue: At 24 MHz TCAn as millis timer results in severely deranged timekeeping behavior.

@@ -144,12 +144,11 @@ This does not work on AVR Dx-series, and there are no plans to change this.
 ## Standard Targets
 Being designed for DxCore, this provides 325 targets - there are 5 combinations of entry condition and timeout duration. There are two possible sizes for a DD-series part, and 7 combinations of . In the list below, brackets indicate an optional
 parameter, while parenthesis indicates a mandatory one - one of the options must be used.
-* `128dd_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `64dd_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `32dd_ser(0-4)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `128dx_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `64dx_ser(0-5)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
+* `32dx_ser(0-4)_[alt_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 * `64dd_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 * `32dd_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
-* `64dd_ser(0-1)_[alt(1-4)_](extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 * `32dd14_ser(0, 0_alt3, 0_alt4 or 1_alt2)_(extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 * `64dd14_ser(0, 0_alt3, 0_alt4 or 1_alt2)_(extr, extr_8sec, all_8sec, poronly_8sec, extronly, swronly_8sec)`
 
@@ -257,7 +256,7 @@ Were there a way to know we had to erase a page before there was data on the way
 But.... AFAIK there isn't a signal given of that.
 
 ## Where does the space go?
-Here, sorted by instruction..
+Here, sorted by instruction
 256 instruction words is not very many instructions.
 It is worth noting that this is not what typical compiled sketches are full of. You can see how r24 and sometimes r25 are the compiler's go-to registers for storing shortlived values.
 
@@ -291,9 +290,9 @@ It is worth noting that this is not what typical compiled sketches are full of. 
   7a: 38 e6         ldi r19, 0x68 ; 104
   32: 8a e8         ldi r24, 0x8A ; 138
  172: 87 e9         ldi r24, 0x97 ; 151
- 1de: 9d e9         ldi r25, 0x9D ; 157
+ 1de: 9d e9         ldi r25, 0x9D ; 157 < CCP SPM key
   3e: 80 ec         ldi r24, 0xC0 ; 192
- 1b6: 98 ed         ldi r25, 0xD8 ; 216
+ 1b6: 98 ed         ldi r25, 0xD8 ; 216 < CCP IOREG key
    a: 98 ed         ldi r25, 0xD8 ; 216
   f2: 8f ef         ldi r24, 0xFF ; 255
   28: c2 d0         rcall .+388     ; 0x1ae <watchdogConfig> <--- 34 rcalls, most to getch() = 68 bytes
@@ -476,12 +475,12 @@ It is worth noting that this is not what typical compiled sketches are full of. 
   ce: 09 f0         breq  .+2       ; 0xd2 junk comment elided
  17e: 09 f0         breq  .+2       ; 0x182 <head+0x6a>
  1c4: 19 f0         breq  .+6       ; 0x1cc <verifySpace+0xc>
-  14: 83 fd         sbrc  r24, 3                              <--- 8 other skipifs - 16 bytes
+  14: 83 fd         sbrc  r24, 3    < test for wdrf      <--- 8 other skipifs - 16 bytes
   82: 97 fd         sbrc  r25, 7
  18c: 95 ff         sbrs  r25, 5
  19a: 87 ff         sbrs  r24, 7
  1a6: 92 fd         sbrc  r25, 2
  1b2: 90 fd         sbrc  r25, 0
-   6: 81 11         cpse  r24, r1
+   6: 81 11         cpse  r24, r1   < test for empty RSTFR
  142: df 12         cpse  r13, r31
 ```
