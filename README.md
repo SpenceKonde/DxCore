@@ -111,12 +111,12 @@ I defined a new tool definition which is a copy of arduino18 (the latest) except
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.
 
 ### PIN_Pxn Port Pin Numbers (recommended)
-**This is the recommended way to refer to pins** Defines are provided of form PIN_Pxn, where x is the letter of the port (A through G), and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below). These just resolve to the digital pin number of the pin in question - they don't go through a different code path. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by port), making it much easier to port code between devices with the modern peripherals. Several pieces of demo code in the documentation take advantage of this.
+**This is the recommended way to refer to pins** Defines are provided of form PIN_Pxn, where x is the letter of the port (A through G), and n is a number 0 ~ 7 - (Not to be confused with the PIN_An defines described below) For example, `PIN_PC2`. These just resolve to the digital pin number of the pin in question - they don't go through a different code path. However, they have particular utility in writing code that works across the product line with peripherals that are linked to certain pins (by port), making it much easier to port code between devices with the modern peripherals. Several pieces of demo code in the documentation take advantage of this.
 
 Direct port manipulation is possible on the parts (and is easier to write with if you use PIN_Pxn notation!) - in fact, in some ways direct port manipulation is more powerful than it was in the past. several powerful additional options are available for it - see [**direct port manipulation**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DirectPortManipulation.md).
 
 ### Arduino Pin Numbers (if you must)
-When a single number is used to refer to a pin - in the documentation, or in your code - it is always the "Arduino pin number". These are the pin numbers shown on the pinout charts. All of the other ways of referring to pins are #defined to the corresponding Arduino pin number.
+When a single number is used to refer to a pin - in the documentation, or in your code - it is always the "Arduino pin number". The PIN_Pxn constants All of the other ways of referring to pins are #defined to the corresponding Arduino pin number. Note that Arduino pin numbers, while they will always increase in the counterclockwise direction, may have gaps - particularly on low-pincount devices (If I could go back and redo it, I'd have put a gap in PORTF where the middle pins would be on the 28-pin parts.
 
 ### An and PIN_An constants (for compatibility)
 The core also provides An and PIN_An constants (where n is a number from 0 to the number of analog inputs). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind `analogRead()` - but here, they are just #defined as the corresponding Arduino pin number. The An names are intentionally not shown on the pinout charts, as this is a deprecated way of referring to pins. However, these channels are shown on the pinout charts as the ADCn markings, and full details are available in the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel.
@@ -124,12 +124,24 @@ The core also provides An and PIN_An constants (where n is a number from 0 to th
 ### There is no A0 or PIN_PD0 (pin 12) on DB-series or DD-series parts with less than 48 pins
 DD-series parts and DB-series parts with 32 or 28 pins don't have a an analog channel 0. It's located on pin PD0, which was displaced by the `VDDIO2` pin. Based on the errata - the PD0 pad exists on the chip (at least for the DBs)... but doesn't have a bond wire attached to it. Per manufacturer recommendations we disable the digital input buffer to save power, as it can pick up noise like any floating pin, which will cause power to be wasted if the input buffer is enabled.
 
+PD0 is back as a usable pin on the EA and EB-series parts, as the Ex-series doesn't have MVIO (thus far), so VDDIO2 didn't need to take over a pin.
+
+#### There is no A0-3 or PIN_PD0-3 on 20 and 14-pin parts
+Additionally on the DD-series parts, since they can no longer steal PD0's pin for VDDIO2, they took PC0 instead. 
+
+#### 20 and 14-pin parts big holes in the numbering
+14-pin parts have digital pin numbers 0, 1, 9, 10, 11, 16, 17, 18, 19, 20, 21
+But if you look them in PIN_Pxn notation, the reasoning is clearer: PA0-1, skip over the rest of portA, There's no PC0, then there is PC1-3, and PD4-7, plus PF6 and PF7, which are less than useful, being reset and input only, and UPDI, respectively. This allows U
+20-pin parts have PA0-7, PC1-3, PD4-7, PF6-7 17 pins plus 3 power pins on DD.
+
+Because the EB will not have MVIO, it will not need VDDIO2, hence it will have PC0. 
+
 ### Link-time Optimization (LTO) support
 This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the tinyAVR Dx- Series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in codesize when introduced, typically on the order of 5-20%!
 
 
 ## Exposed Hardware Features
-
+To the greatest extent possible, all hardware features of these devices are exposed 
 ### MVIO (DB, DD only)
 There isn't really anything to do differently in the core to support MVIO - though the [DxCore library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/DxCore/README.md) provides a slightly easier interface for checking the MVIO state, and measuring the voltage on VDDIO2. In short, what MVIO does is act as a level shifter built into the chip for PORTC:
 * PORTC is powered by VDDIO2. The input voltage levels on PORTC will be based on VDDIO2, not VDD, and the output HIGH voltage will be VDDIO2 not VDD.
@@ -139,6 +151,7 @@ There isn't really anything to do differently in the core to support MVIO - thou
 * MVIO can be disabled from the fuses. This is controlled by the MVIO tools submenu, and set on all UPDI uploads, but with optiboot configurations, you must 'burn bootloader' to apply it as the bootloader cannot write it's own fuses. The VDDIO2 pin must be connected to VDD if this is done.
   * There is no internal connection between VDD and VDDIO2 even when MVIO is disabled.
   * Hence PORTC still runs at the voltage on the VDDIO2 pin (which should be the same as VDD unless wired incorrectly) if MVIO is disabled. What is disabled is the internal monitoring of the state of VDDIO2. The status bit always reads 1 (MVIO OK). If VDDIO2 is not powered, the pins are not tristated, nor are inputs set to 0 - reading the pins returns random values.
+    * It may be possible to damage the part in this improper operating regime. 
 
 **Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
 
