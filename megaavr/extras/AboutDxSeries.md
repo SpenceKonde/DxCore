@@ -6,7 +6,7 @@ In early 2020, as the world was shutting down because of COVID-19, Microchip rel
 
 |                                | [AVR DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md)   | [AVR DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md)   | [AVR DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)   | [AVR DB28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md)   | [AVR DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md)   | [AVR DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)   | [AVR DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md)   | [AVR DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md)   | [AVR DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md)   | [AVR DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)   | [AVR DA64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)   | [AVR DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)   |
 |--------------------------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|------------|
-| Released                       | Q3 2022    | Q3 2022    | Q2 2020    | Q3 2021    | Q1 2022    | Q3 2020    | Q2 2022    | Q2 2020    | Q2 2020    | Q2 2020    | Q3 2020    | Q3 2020    |
+| Released                       | Q3 2022    | Q3 2022    | Q2 2020    | Q3 2021    | Q1 2022    | Q3 2020    | Q3 2020    | Q3 2022    | Q2 2020    | Q2 2020    | Q3 2020    | Q3 2020    |
 | Memory (max) Flash/RAM         | 64k/8k     | 64k/8k     | 128K/16K   | 128K/16K   | 64k/8k     | 128K/16K   | 128K/16K   | 64k/8k     | 128K/16K   | 128K/16K   | 128K/16K   | 128K/16K   |
 | Memory (min) Flash/RAM         | 16k/2k     | 16k/2k     | 32k/4k     | 32k/4k     | 16k/2k     | 32k/4k     | 32k/4k     | 16k/2k     | 32k/4k     | 32k/4k     | 32k/4k     | 32k/4k     |
 | EEPROM                         | 256        | 256        | 512        | 512        | 256        | 512        | 512        | 256        | 512        | 512        | 512        | 512        |
@@ -40,11 +40,11 @@ In early 2020, as the world was shutting down because of COVID-19, Microchip rel
 | Zero-Cross Detectors (ZCD)     | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 1          | 2          | 2          | **3**      | **3**      |
 | Custom Logic Blocks (LUTs)     | 4          | 4          | 4          | 4          | 4          | 4          | 4          | 4          | **6**      | **6**      | **6**      | ** 6**     |
 | Event System channels (out pins)| 6: 3/3    | 6: 4/5     | 8: 3/5     | 8: 3/5     | 6: 4/6     | 8: 4/6     | 8: 4/6     | 6: 4/7     | 10: 6/9    | 10: 6/9    | 10: 7/~13~ 11 | 10: 7/13 |
-| On-chip opamps (OPAMP)         | -          | -          | -          | 2          | -          | -          | 2          | -          | -          | **3**      | -          | **3        |
+| On-chip opamps (OPAMP)         | -          | -          | -          | 2          | -          | -          | 2          | -          | -          | **3**      | -          | **3**      |
 | MVIO, pins                     | Yes, 3     | Yes, 3     | No         | Yes, 4     | Yes, 4     | No         | Yes, 4     | Yes, 4     | Yes, 8     | Yes, 8     | Yes, 8     | Yes, 8     |
 | Flash Endurance `!!`           | 1k         | 1k         | 1k ~10k~   | 1k ~10k~   | 1k         | 1k ~10k~   | 1k ~10k~   | 1k         | 1k ~10k~   | 1k ~10k~   | 1k ~10k~   | 1k ~10k~   |
-| Pricing, max flash, qty 1      | $1.24      | tbd        | $1.66      | $1.79      | $1.31      | $2.04      | $1.19      | $1.45      | $2.04      | $2.33      | $2.59      | $2.74      |
-| Pricing, min flash, qty 1      | $0.95      | $0.98      | $1.66      | $1.52      | tbd        | $1.52      | $1.66      | $1.79      | $1.91      | $2.05      | $2.39      | $2.53      |
+| Pricing, max flash, qty 1      | $1.24      | tbd        | $2.06      | $2.19      | $1.31      | $2.04      | $1.19      | $1.45      | $2.19      | $2.33      | $2.54      | $2.68      |
+| Pricing, min flash, qty 1      | $0.95      | $0.98      | $1.66      | $1.79      | tbd        | $1.52      | $1.66      | $1.79      | $1.91      | $2.05      | $2.33      | $2.46      |
 
 Notes:
 * Figures for EA-series are varying degrees of speculative. I am skeptical that there is a second TWI on the 48-pin EA parst, and some sources say no USART2 either. Time will tell
