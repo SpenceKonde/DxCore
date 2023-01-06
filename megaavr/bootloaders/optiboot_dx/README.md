@@ -261,40 +261,33 @@ Here, sorted by instruction
 It is worth noting that this is not what typical compiled sketches are full of. You can see how r24 and sometimes r25 are the compiler's go-to registers for storing shortlived values.
 
 ```text
-  c4: 80 e0         ldi r24, 0x00 ; 0                              <--- 34 LDI = 68 bytes
-  d6: d0 e0         ldi r29, 0x00 ; 0
- 130: d0 e0         ldi r29, 0x00 ; 0
-  c0: 81 e0         ldi r24, 0x01 ; 1
-  60: 81 e0         ldi r24, 0x01 ; 1
-   c: 21 e0         ldi r18, 0x01 ; 1
- 182: 81 e0         ldi r24, 0x01 ; 1
- 1c6: 81 e0         ldi r24, 0x01 ; 1
- 112: 82 e0         ldi r24, 0x02 ; 2
-  c8: 83 e0         ldi r24, 0x03 ; 3
-  6c: 83 e0         ldi r24, 0x03 ; 3
-  38: 83 e0         ldi r24, 0x03 ; 3
-  9c: 85 e0         ldi r24, 0x05 ; 5
-  46: 87 e0         ldi r24, 0x07 ; 7
- 10c: 88 e0         ldi r24, 0x08 ; 8
-  26: 88 e0         ldi r24, 0x08 ; 8
-  2c: 88 e0         ldi r24, 0x08 ; 8
-  70: 80 e1         ldi r24, 0x10 ; 16
-  92: 84 e1         ldi r24, 0x14 ; 20
- 1cc: 84 e1         ldi r24, 0x14 ; 20
-  66: 8a e1         ldi r24, 0x1A ; 26
- 16e: 8e e1         ldi r24, 0x1E ; 30
-  78: 2a e2         ldi r18, 0x2A ; 42
-  50: 40 e4         ldi r20, 0x40 ; 64
-  ec: 30 e4         ldi r19, 0x40 ; 64
- 140: f6 e4         ldi r31, 0x46 ; 70
-  7a: 38 e6         ldi r19, 0x68 ; 104
-  32: 8a e8         ldi r24, 0x8A ; 138
- 172: 87 e9         ldi r24, 0x97 ; 151
- 1de: 9d e9         ldi r25, 0x9D ; 157 < CCP SPM key
-  3e: 80 ec         ldi r24, 0xC0 ; 192
- 1b6: 98 ed         ldi r25, 0xD8 ; 216 < CCP IOREG key
-   a: 98 ed         ldi r25, 0xD8 ; 216
-  f2: 8f ef         ldi r24, 0xFF ; 255
+
+   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Junk comments were interpretations of dataspace as codespace and vise versa
+  16: 03 c0         rjmp  .+6       ; junk comment elided
+  24: ed c0         rjmp  .+474     ; 0x200 <app>
+  74: ef cf         rjmp  .-34      ; junk comment elided
+  84: e4 cf         rjmp  .-56      ; junk comment elided
+  8c: dd cf         rjmp  .-70      ; junk comment elided
+  96: ec cf         rjmp  .-40      ; junk comment elided
+  9e: fa cf         rjmp  .-12      ; junk comment elided
+  ae: e0 cf         rjmp  .-64      ; junk comment elided
+  c6: d3 cf         rjmp  .-90      ; junk comment elided
+  ca: fb cf         rjmp  .-10      ; junk comment elided
+  d0: 2b c0         rjmp  .+86      ; 0x128 <head+0x10>
+ 126: a4 cf         rjmp  .-184     ; junk comment elided
+ 144: 08 c0         rjmp  .+16      ; 0x156 <head+0x3e>
+ 154: 8d cf         rjmp  .-230     ; junk comment elided
+ 166: 84 cf         rjmp  .-248     ; junk comment elided
+ 17a: 79 cf         rjmp  .-270     ; junk comment elided
+ 180: 95 cf         rjmp  .-214     ; junk comment elided
+ 186: 92 cf         rjmp  .-220     ; junk comment elided
+ 18e: fc cf         rjmp  .-8       ; 0x188 <putch>
+ 19c: fc cf         rjmp  .-8       ; 0x196 <getch>
+ 1a8: 01 c0         rjmp  .+2       ; 0x1ac <getch+0x16>
+ 1b4: fc cf         rjmp  .-8       ; 0x1ae <watchdogConfig>
+ 1ca: ff cf         rjmp  .-2       ; 0x1ca <verifySpace+0xa>
+ 1ce: dc cf         rjmp  .-72      ; 0x188 <putch>
+ 1dc: f1 cf         rjmp  .-30      ; 0x1c0 <verifySpace>
   28: c2 d0         rcall .+388     ; 0x1ae <watchdogConfig> <--- 34 rcalls, most to getch() = 68 bytes
   54: a0 d0         rcall .+320     ; 0x196 <getch>          3/34 watchdogConfig
   5a: 9d d0         rcall .+314     ; 0x196 <getch>          5/34 verifySpace
@@ -329,33 +322,40 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  1c0: ea df         rcall .-44      ; 0x196 <getch>
  1c8: f2 df         rcall .-28      ; 0x1ae <watchdogConfig>
  1d4: e0 df         rcall .-64      ; 0x196 <getch>
-   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Note that most of the comments the compiler adds and which were elided were interpreting the relative jump locations as offsets from variables in the dataspace. It's about as useful as trying to navigate europe with a map of Australia.
-  16: 03 c0         rjmp  .+6       ; junk comment elided
-  24: ed c0         rjmp  .+474     ; 0x200 <app>
-  74: ef cf         rjmp  .-34      ; junk comment elided
-  84: e4 cf         rjmp  .-56      ; junk comment elided
-  8c: dd cf         rjmp  .-70      ; junk comment elided
-  96: ec cf         rjmp  .-40      ; junk comment elided
-  9e: fa cf         rjmp  .-12      ; junk comment elided
-  ae: e0 cf         rjmp  .-64      ; junk comment elided
-  c6: d3 cf         rjmp  .-90      ; junk comment elided
-  ca: fb cf         rjmp  .-10      ; junk comment elided
-  d0: 2b c0         rjmp  .+86      ; 0x128 <head+0x10>
- 126: a4 cf         rjmp  .-184     ; junk comment elided
- 144: 08 c0         rjmp  .+16      ; 0x156 <head+0x3e>
- 154: 8d cf         rjmp  .-230     ; junk comment elided
- 166: 84 cf         rjmp  .-248     ; junk comment elided
- 17a: 79 cf         rjmp  .-270     ; junk comment elided
- 180: 95 cf         rjmp  .-214     ; junk comment elided
- 186: 92 cf         rjmp  .-220     ; junk comment elided
- 18e: fc cf         rjmp  .-8       ; 0x188 <putch>
- 19c: fc cf         rjmp  .-8       ; 0x196 <getch>
- 1a8: 01 c0         rjmp  .+2       ; 0x1ac <getch+0x16>
- 1b4: fc cf         rjmp  .-8       ; 0x1ae <watchdogConfig>
- 1ca: ff cf         rjmp  .-2       ; 0x1ca <verifySpace+0xa>
- 1ce: dc cf         rjmp  .-72      ; 0x188 <putch>
- 1dc: f1 cf         rjmp  .-30      ; 0x1c0 <verifySpace>
-
+  c4: 80 e0         ldi r24, 0x00 ; 0                              <--- 34 LDI = 68 bytes
+  d6: d0 e0         ldi r29, 0x00 ; 0
+ 130: d0 e0         ldi r29, 0x00 ; 0
+  c0: 81 e0         ldi r24, 0x01 ; 1
+  60: 81 e0         ldi r24, 0x01 ; 1
+   c: 21 e0         ldi r18, 0x01 ; 1
+ 182: 81 e0         ldi r24, 0x01 ; 1
+ 1c6: 81 e0         ldi r24, 0x01 ; 1
+ 112: 82 e0         ldi r24, 0x02 ; 2
+  c8: 83 e0         ldi r24, 0x03 ; 3
+  6c: 83 e0         ldi r24, 0x03 ; 3
+  38: 83 e0         ldi r24, 0x03 ; 3
+  9c: 85 e0         ldi r24, 0x05 ; 5
+  46: 87 e0         ldi r24, 0x07 ; 7
+ 10c: 88 e0         ldi r24, 0x08 ; 8
+  26: 88 e0         ldi r24, 0x08 ; 8
+  2c: 88 e0         ldi r24, 0x08 ; 8
+  70: 80 e1         ldi r24, 0x10 ; 16
+  92: 84 e1         ldi r24, 0x14 ; 20
+ 1cc: 84 e1         ldi r24, 0x14 ; 20
+  66: 8a e1         ldi r24, 0x1A ; 26
+ 16e: 8e e1         ldi r24, 0x1E ; 30
+  78: 2a e2         ldi r18, 0x2A ; 42
+  50: 40 e4         ldi r20, 0x40 ; 64
+  ec: 30 e4         ldi r19, 0x40 ; 64
+ 140: f6 e4         ldi r31, 0x46 ; 70
+  7a: 38 e6         ldi r19, 0x68 ; 104
+  32: 8a e8         ldi r24, 0x8A ; 138
+ 172: 87 e9         ldi r24, 0x97 ; 151
+ 1de: 9d e9         ldi r25, 0x9D ; 157 < CCP SPM key
+  3e: 80 ec         ldi r24, 0xC0 ; 192
+ 1b6: 98 ed         ldi r25, 0xD8 ; 216 < CCP IOREG key
+   a: 98 ed         ldi r25, 0xD8 ; 216
+  f2: 8f ef         ldi r24, 0xFF ; 255
   ea: 81 2c         mov    r8, r1   25 words on moving contents of registers around.
   fe: 45 01         movw   r8, r10  4 of the mov's are part of the atrocious mishandling of the high and low bytes
   ee: 93 2e         mov    r9, r19
@@ -377,7 +377,7 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  1d2: c8 2f         mov   r28, r24
   d8: dc 2f         mov   r29, r28 < pathological
  132: dc 2f         mov   r29, r28 < pathological
-  fa: f4 01         movw  r30, r8  r8:9, r10:11, r12:13, r14:15 and r16:17 are used to store pointers to be swapped back into X or Z.
+  fa: f4 01         movw  r30, r8  (r8:9, r10:11, r12:13, r14:15 and r16:17 are used to store pointers to be swapped back into X or Z)
  148: f6 01         movw  r30, r12
  158: f8 01         movw  r30, r16
  108: f8 01         movw  r30, r16
