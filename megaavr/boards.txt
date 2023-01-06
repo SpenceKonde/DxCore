@@ -2,11 +2,11 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####      ###  #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #        #  ## #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####     # # # #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##  ##  # #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##   ###  #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####     ###   #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #           #  #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####      ##   #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##     #  #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##  ###   #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -965,7 +965,7 @@ avrdd.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
 avrdd.bootloader.wdtwindowbits=0000
 avrdd.bootloader.wdttimeotbits=0000
 avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-avrdd.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrdd.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}00{bootloader.eesavebit}
 avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdd.bootloader.CODESIZE=0x00
 avrdd.bootloader.BOOTSIZE=0x01
