@@ -13,7 +13,7 @@ These are typically planned for release in a future version (usually the next on
 ### 1.5.3
 * Correct critical issue #384 where burn bootloader would disable UPDI on AVR DD-series parts.
 * Correct a number of inaccuracies and minor points in the documentation.
-* Update the silicon errata page, as Microchip confirms a few bugs are found in all versions of the modern AVR peripherals, not just one family, and apparently indicates that even without an SCK line
+* Update the silicon errata page, as Microchip confirms a few bugs are found in all versions of the modern AVR peripherals, not just one family, and apparently indicates that even without an SCK line, SPI1 ALT2 mux option is supposed to work, and that there is expected correct behavior there which the chip does not do.
 
 ### 1.5.2
 * Correct issue with event library for DD-series.
