@@ -46,17 +46,23 @@ All parts can use an external clock, and DB and DD-series parts can also use a c
 
 **Supported from external or crystal (crystal not supported by DA):** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz
 
-If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported; I suspect it is tuning based on the frequency before any PLL used to multiply or divide the clock speed.
+If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported. The tuning is basedon the intermediate 1 MHz frequency from which all others are derived.
 
 The DU - assuming it ever exists in the form presented in the briefly available product brief, will likely be similar to the other Dx parts. It is highly likely - though not certain, they've been doing more with multiple clock domains on these recent parts - that only a limited number of speeds will be compatible with USB. Because all indications are that it has made great sacrifices in exchange for the USB, and hence would not be likely to see use in non-USB applications, chances are that we will only offer support for USB-compatible speeds, because if you aren't using USB, the other parts in the Dx-series would be more appropriate and effective.
 
 See the [Clock Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) for more information
 
-### For the EA-series
-The maximum rated clock speed is 20 MHz. It is tinyAVR-like not Dx-like
+### For the EA and EB-series
+The maximum rated clock speed is 20 MHz. Assuming that the actual silicon behaves as the headers imply, that means 1 MHz, 2 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz internal. Like a TinyAVR/
+
+The EA and EB series CLKCTRL is tinyAVR-like not Dx-like, with 16MHz and 20 MHz derived clocks. Hopefully after a kick to the groin like that, they'll at least let us have an oscillator with the compliance of the 2-series tinyAVRs, not the pathetic calibration facilities we get on DxCore (headers already show we're not getting the Dx-style speed selector. It's unclear if the speed is voltage dependent or not). But we may be able to tune like a tinyAVR 2-series.) Assuming we get calibration like - and as powerful as - tiny2, that will permit tuning. If tuned before bootloading with optiboot, even if you chose 20 MHz (or 20 MHz derived speed when bootloading), we'd be able to give you 16 MHz-derived speeds by tuning osc down to 16m or up to 20, and that we could probably tune most specimens 20 MHz osc to 32 while remaining stable, but that more than that is unlikely.
+
+The EA-series, but not the EB, will support an external crystal. No, I don't really understand why they hate crystals so much either, but they sure seem to leave the crystal off of anything they can get away with now. And as the internal oscillator is no longer completely awful, they can definitely get away with a lot more than Atmel could have with those  +/- 10% internal oscillators. It will be interesting to see the similarities and differences between clocking in Dx, EA, EB, and tinyAVR.
+
+One notable thing here is that they have **moved** a special function! Prior releases has XOSC32K on PF0 and PF1 as long as the parts had that, and only if they didn't did it fall back to PA0 and PA1 (on 14/20 pin DD series). On EB-series, which never support an HF xtal (nominally on PA0 and PA1), the 32 khz crystal always goes between those pins and never between PF0 and PF1.
 
 ## UPDI Programming
-The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface), which is used used on the tinyAVR 0/1/2-Series, as well as all other modern AVR microcontrollers. While one can always purchase a purpose-made UPDI programmer from Microchip, this is not recommended when you will be using the Arduino IDE rather than Microchip's (godawful complicated) IDE. There are widespread reports of problems on Linux for the official Microchip programmers. There are two very low-cost alternative approaches to creating a UPDI programmer, both of which the Arduino community has more experience with than those official programmers.
+The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface - naturally Microchip keeps the UPDI debug protocol under wraps to try to force you to use their tooling). It is used on all modern (post-2016/Microchip buyout/post-revolutationary) AVR microcontrollers, (though the AVRrc (reduced core) chips use different methods - they're also not suited to Arduino because they don't have nearly enough flash to fit the normal API. . While one can always purchase a purpose-made UPDI programmer from Microchip, this is not recommended when you will be using the Arduino IDE rather than Microchip's (godawful complicated) IDE. There are widespread reports of problems on Linux for the official Microchip programmers. There are two very low-cost alternative approaches to creating a UPDI programmer, both of which the Arduino community has more experience with than those official programmers.
 
 ### From a USB-Serial Adapter With SerialUPDI (pyupdi-style - Recommended)
 Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple Python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of its author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a "more robust" tool developed and "maintained by Microchip" which includes the same serial-port upload feature, only without the performance optimizations. **If installing manually** you must [add the Python package](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system Python installation is not sufficient, nor is one necessary).
@@ -127,21 +133,21 @@ DD-series parts and DB-series parts with 32 or 28 pins don't have a an analog ch
 PD0 is back as a usable pin on the EA and EB-series parts, as the Ex-series doesn't have MVIO (thus far), so VDDIO2 didn't need to take over a pin.
 
 #### There is no A0-3 or PIN_PD0-3 on 20 and 14-pin parts
-Additionally on the DD-series parts, since they can no longer steal PD0's pin for VDDIO2, they took PC0 instead. 
+Additionally on the DD-series parts, since they can no longer steal PD0's pin for VDDIO2, they took PC0 instead.
 
 #### 20 and 14-pin parts big holes in the numbering
 14-pin parts have digital pin numbers 0, 1, 9, 10, 11, 16, 17, 18, 19, 20, 21
 But if you look them in PIN_Pxn notation, the reasoning is clearer: PA0-1, skip over the rest of portA, There's no PC0, then there is PC1-3, and PD4-7, plus PF6 and PF7, which are less than useful, being reset and input only, and UPDI, respectively. This allows U
 20-pin parts have PA0-7, PC1-3, PD4-7, PF6-7 17 pins plus 3 power pins on DD.
 
-Because the EB will not have MVIO, it will not need VDDIO2, hence it will have PC0. 
+Because the EB will not have MVIO, it will not need VDDIO2, hence it will have PC0.
 
 ### Link-time Optimization (LTO) support
 This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the tinyAVR Dx- Series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in codesize when introduced, typically on the order of 5-20%!
 
 
 ## Exposed Hardware Features
-To the greatest extent possible, all hardware features of these devices are exposed 
+To the greatest extent possible, all hardware features of these devices are exposed
 ### MVIO (DB, DD only)
 There isn't really anything to do differently in the core to support MVIO - though the [DxCore library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/DxCore/README.md) provides a slightly easier interface for checking the MVIO state, and measuring the voltage on VDDIO2. In short, what MVIO does is act as a level shifter built into the chip for PORTC:
 * PORTC is powered by VDDIO2. The input voltage levels on PORTC will be based on VDDIO2, not VDD, and the output HIGH voltage will be VDDIO2 not VDD.
@@ -151,7 +157,7 @@ There isn't really anything to do differently in the core to support MVIO - thou
 * MVIO can be disabled from the fuses. This is controlled by the MVIO tools submenu, and set on all UPDI uploads, but with optiboot configurations, you must 'burn bootloader' to apply it as the bootloader cannot write it's own fuses. The VDDIO2 pin must be connected to VDD if this is done.
   * There is no internal connection between VDD and VDDIO2 even when MVIO is disabled.
   * Hence PORTC still runs at the voltage on the VDDIO2 pin (which should be the same as VDD unless wired incorrectly) if MVIO is disabled. What is disabled is the internal monitoring of the state of VDDIO2. The status bit always reads 1 (MVIO OK). If VDDIO2 is not powered, the pins are not tristated, nor are inputs set to 0 - reading the pins returns random values.
-    * It may be possible to damage the part in this improper operating regime. 
+    * It may be possible to damage the part in this improper operating regime.
 
 **Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
 

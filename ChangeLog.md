@@ -8,7 +8,12 @@ These items are in addition to what was listed under changes already in release.
 ## Changes Implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
-## Relased Versions
+## Released Versions
+
+### 1.5.3
+* Correct critical issue #384 where burn bootloader would disable UPDI on AVR DD-series parts.
+* Correct a number of inaccuracies and minor points in the documentation.
+* Update the silicon errata page, as Microchip confirms a few bugs are found in all versions of the modern AVR peripherals, not just one family, and apparently indicates that even without an SCK line
 
 ### 1.5.2
 * Correct issue with event library for DD-series.

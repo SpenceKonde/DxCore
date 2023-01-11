@@ -33,7 +33,18 @@
 # Experience has shown that they end up drifting apart is style if       #
 # they aren't all on the same screen                                     #
 #                                                                        #
-# EA, are not available yet. 64DD32/28 and 32/16DD20/14 parts are!       #
+# DA128 shipped Q1 2020. DA64 and DA32 shipped Q3/4 2020 (Q3 DA32's did  #
+# not work correctly). First sign in radical changes to branding.        #
+# DB128 shipped Q2 2020,  32DB shipped Q4 2020. First AVR with on-chip   #
+#     OPAMPs.                                                            #
+# DD (64k in high pincountes, 16/32 in low ones) shipped in Q2 2022.     #
+#     By the end of the year all the expected parts were out in at least #
+#     one package, but QFN28, and DIP28 are missing for the smaller ones #
+#     and QFN20 is missing for 64k.                                      #
+# EA (first fullsize parts w/diff ADC w/PGA) are not available yet.      #
+# DU (Dx with native USB) may never be available, product brief vanished.#
+# EB (2 novel timers and little else, possible tiny-killer) are not      #
+#     available yet. Likely (hopefully) aimed at low price point.        #
 ##########################################################################
 
 
@@ -48,7 +59,9 @@
 # The *opti menus are for Optiboot board definitions - We name them
 # differently when the option takes on different meaning for a bootloaded
 # board. Eg - UPDI can set fuses, so any fuse that can't brick the chip is written
-# And we can assume all fuses have the correct values.
+# And we can assume all fuses have the the values that the user selected.
+# But if Optiboot is in use, anything that requires changing a fuse requires burnbootloader
+#_________________________________________________________________________
 
 menu.chip=Chip
 menu.board=Board/version
@@ -63,7 +76,8 @@ menu.eesavedd=Save EEPROM (Bootload burn req'd)
 menu.resetpin=Reset pin function (Bootload burn req'd)
 menu.resetupdipins=Reset and UPDI (Bootload burn req'd)
 menu.resetupdipinsopti=Reset and UPDI (Bootload burn req'd)
-menu.startuptime=Startup Time (Bootload burn req'd)
+menu.startuptime=Startup Time
+menu.startuptimeopti=Startup Time (Bootload burn req'd)
 menu.bootloaderusart=Bootloader Serial Port (Bootload burn req'd)
 menu.bootloaderusartdd=Bootloader Serial Port (Bootload burn req'd)
 menu.entrycond=Bootloader Entry Condition (Bootload burn req'd)
@@ -85,17 +99,20 @@ menu.wiremode=Wire (Wire.h/I2C) Library mode
 ##########################################################################
 # Names listed at the top so they can be kept in consistent format       #
 # Only EA boards without optiboot sketched in - since we know like       #
-# nothing about implementation, and how Dx-y it will be.                 #
+# nothing about implementation. EB is commented out, but not sketched in #
+# because there is no need to do that prior to the DA release.           #
 #_________________________________________________________________________
 
 avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
 #avrea.name=AVR EA-series (no bootloader)
+#avreb.name=AVR EB-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
 avrddopti.name=AVR DD-series (Optiboot)
 #avreaopti.name=AVR EA-series (Optiboot)
+#avrebopti.name=AVR EB-series (Optiboot)
 azduinoboard.name=Azduino Boards (Optiboot)
 
 ##########################################################################
@@ -399,10 +416,10 @@ avrda.menu.wiremode.mors.build.wireabr=.wO
 avrda.menu.wiremode.mands=1x Wire, Master and Slave
 avrda.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
 avrda.menu.wiremode.mands.build.wireabr=.wA
-avrda.menu.wiremode.mors2=2x Wire, Master or Slave (not 28-pin devices)
+avrda.menu.wiremode.mors2=2x Wire, Master or Slave (32+ pin devices only)
 avrda.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrda.menu.wiremode.mors2.build.wireabr=.wO2
-avrda.menu.wiremode.mands2=2x Wire, Master and Slave (not 28-pin devices)
+avrda.menu.wiremode.mands2=2x Wire, Master and Slave (32+ pin devices only)
 avrda.menu.wiremode.mands2.build.wiremode=MANDS_BOTH
 avrda.menu.wiremode.mands2.build.wireabr=.wA2
 
@@ -416,37 +433,37 @@ avrda.menu.appspm.no.build.appspmabr=
 avrda.menu.appspm.full=Anywhere after 0x0200 (Warning: App allowed to overwrite itself)
 avrda.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrda.menu.appspm.full.build.appspmabr=.spmALL
-avrda.menu.appspm.16plus=Above 0x4000
+avrda.menu.appspm.16plus=Above 16k
 avrda.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrda.menu.appspm.16plus.bootloader.CODESIZE=32
-avrda.menu.appspm.24plus=Above 0x6000
+avrda.menu.appspm.24plus=Above 24k
 avrda.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrda.menu.appspm.24plus.bootloader.CODESIZE=48
-avrda.menu.appspm.32plus=Above 0x8000 (AVR128/64 only, All mapped flash on AVR64 writable)
+avrda.menu.appspm.32plus=Above 32k (AVR128/64 only)
 avrda.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrda.menu.appspm.32plus.bootloader.CODESIZE=64
-avrda.menu.appspm.48plus=Above 0xC000 (AVR128/64 only)
+avrda.menu.appspm.48plus=Above 48k (AVR128/64 only)
 avrda.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrda.menu.appspm.48plus.bootloader.CODESIZE=96
-avrda.menu.appspm.56plus=Above 0xD000 (AVR128/64 only)
+avrda.menu.appspm.56plus=Above 56k (AVR128/64 only)
 avrda.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
 avrda.menu.appspm.56plus.bootloader.CODESIZE=112
-avrda.menu.appspm.60plus=Above 0xE000 (AVR128/64 only)
+avrda.menu.appspm.60plus=Above 60k (AVR128/64 only)
 avrda.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
 avrda.menu.appspm.60plus.bootloader.CODESIZE=120
-avrda.menu.appspm.64plus=Above 0x10000 (AVR128 only)
+avrda.menu.appspm.64plus=Above 64k (AVR128 only)
 avrda.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
 avrda.menu.appspm.64plus.bootloader.CODESIZE=128
-avrda.menu.appspm.80plus=Above 0x14000 (AVR128 only)
+avrda.menu.appspm.80plus=Above 80k (AVR128 only)
 avrda.menu.appspm.80plus.bootloader.appspm=-DSPM_FROM_APP=160
 avrda.menu.appspm.80plus.bootloader.CODESIZE=160
-avrda.menu.appspm.96plus=Above 0x18000 (AVR128 only, where it allows write of all mapped flash)
+avrda.menu.appspm.96plus=Above 96k (AVR128 only)
 avrda.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
 avrda.menu.appspm.96plus.bootloader.CODESIZE=192
-avrda.menu.appspm.112plus=Above 0x1C000 (AVR128 only)
+avrda.menu.appspm.112plus=Above 112k (AVR128 only)
 avrda.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrda.menu.appspm.112plus.bootloader.CODESIZE=224
-avrda.menu.appspm.120plus=Above 0x1E000
+avrda.menu.appspm.120plus=Above 120k (AVR128 only)
 avrda.menu.appspm.120plus.bootloader.appspm=-DSPM_FROM_APP=240
 avrda.menu.appspm.120plus.bootloader.CODESIZE=240
 
@@ -841,10 +858,10 @@ avrdb.menu.wiremode.mors.build.wireabr=.wO
 avrdb.menu.wiremode.mands=1x Wire, Master and Slave
 avrdb.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
 avrdb.menu.wiremode.mands.build.wireabr=.wA
-avrdb.menu.wiremode.mors2=2x Wire, Master or Slave (not 28-pin devices)
+avrdb.menu.wiremode.mors2=2x Wire, Master or Slave (32+ pin devices only)
 avrdb.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrdb.menu.wiremode.mors2.build.wireabr=.wO2
-avrdb.menu.wiremode.mands2=2x Wire, Master and Slave (not 28-pin devices)
+avrdb.menu.wiremode.mands2=2x Wire, Master and Slave (32+ pin devices only)
 avrdb.menu.wiremode.mands2.build.wiremode=MANDS_BOTH
 avrdb.menu.wiremode.mands2.build.wireabr=.wA2
 
@@ -858,37 +875,37 @@ avrdb.menu.appspm.no.build.appspmabr=
 avrdb.menu.appspm.full=Anywhere after 0x0200 (Warning: App allowed to overwrite itself)
 avrdb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrdb.menu.appspm.full.build.appspmabr=.spmALL
-avrdb.menu.appspm.16plus=Above 0x4000
+avrdb.menu.appspm.16plus=Above 16k
 avrdb.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdb.menu.appspm.16plus.bootloader.CODESIZE=32
-avrdb.menu.appspm.24plus=Above 0x6000
+avrdb.menu.appspm.24plus=Above 24k
 avrdb.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrdb.menu.appspm.24plus.bootloader.CODESIZE=48
-avrdb.menu.appspm.32plus=Above 0x8000 (AVR128/64 only, All mapped flash on AVR64 writable)
+avrdb.menu.appspm.32plus=Above 32k (AVR128/64 only)
 avrdb.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrdb.menu.appspm.32plus.bootloader.CODESIZE=64
-avrdb.menu.appspm.48plus=Above 0xC000 (AVR128/64 only)
+avrdb.menu.appspm.48plus=Above 48k (AVR128/64 only)
 avrdb.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrdb.menu.appspm.48plus.bootloader.CODESIZE=96
-avrdb.menu.appspm.56plus=Above 0xD000 (AVR128/64 only)
+avrdb.menu.appspm.56plus=Above 56k (AVR128/64 only)
 avrdb.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
 avrdb.menu.appspm.56plus.bootloader.CODESIZE=112
-avrdb.menu.appspm.60plus=Above 0xE000 (AVR128/64 only)
+avrdb.menu.appspm.60plus=Above 60k (AVR128/64 only)
 avrdb.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
 avrdb.menu.appspm.60plus.bootloader.CODESIZE=120
-avrdb.menu.appspm.64plus=Above 0x10000 (AVR128 only)
+avrdb.menu.appspm.64plus=Above 64k (AVR128 only)
 avrdb.menu.appspm.64plus.bootloader.appspm=-DSPM_FROM_APP=128
 avrdb.menu.appspm.64plus.bootloader.CODESIZE=128
-avrdb.menu.appspm.80plus=Above 0x14000 (AVR128 only)
+avrdb.menu.appspm.80plus=Above 80k (AVR128 only)
 avrdb.menu.appspm.80plus.bootloader.appspm=-DSPM_FROM_APP=160
 avrdb.menu.appspm.80plus.bootloader.CODESIZE=160
-avrdb.menu.appspm.96plus=Above 0x18000 (AVR128 only, where it allows write of all mapped flash)
+avrdb.menu.appspm.96plus=Above 96k (AVR128 only)
 avrdb.menu.appspm.96plus.bootloader.appspm=-DSPM_FROM_APP=192
 avrdb.menu.appspm.96plus.bootloader.CODESIZE=192
-avrdb.menu.appspm.112plus=Above 0x1C000 (AVR128 only)
+avrdb.menu.appspm.112plus=Above 112k (AVR128 only)
 avrdb.menu.appspm.112plus.bootloader.appspm=-DSPM_FROM_APP=224
 avrdb.menu.appspm.112plus.bootloader.CODESIZE=224
-avrdb.menu.appspm.120plus=Above 0x1E000
+avrdb.menu.appspm.120plus=Above 120k (AVR128 only)
 avrdb.menu.appspm.120plus.bootloader.appspm=-DSPM_FROM_APP=240
 avrdb.menu.appspm.120plus.bootloader.CODESIZE=240
 
@@ -1215,13 +1232,13 @@ avrdd.menu.eesavedd.disable.bootloader.eesavebit=0
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
 #________________________________________#
-avrdd.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
+avrdd.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI (typical and recommended)
 avrdd.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
-avrdd.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no programming challenges)
+avrdd.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no reset pin, safe.)
 avrdd.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
-avrdd.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (warning: HV required)
+avrdd.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! See documentation)
 avrdd.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
-avrdd.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (warning: HV required)
+avrdd.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! See documentation)
 avrdd.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
 
 #----------------------------------------#
@@ -1316,28 +1333,28 @@ avrdd.menu.appspm.no.build.appspmabr=
 avrdd.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
 avrdd.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 avrdd.menu.appspm.full.build.appspmabr=.spmALL
-avrdd.menu.appspm.8plus=Above 8k (probably a bad idea except on AVR16)
+avrdd.menu.appspm.8plus=Above 8k (meant for 16k parts)
 avrdd.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=16
 avrdd.menu.appspm.8plus.bootloader.CODESIZE=16
-avrdd.menu.appspm.12plus=Above 12k (probably a bad idea except on AVR16)
+avrdd.menu.appspm.12plus=Above 12k (meant for 16k parts)
 avrdd.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=24
 avrdd.menu.appspm.12plus.bootloader.CODESIZE=24
-avrdd.menu.appspm.14plus=Above 14k (probably a bad idea except on AVR16)
+avrdd.menu.appspm.14plus=Above 14k (meant for 16k parts)
 avrdd.menu.appspm.14plus.bootloader.appspm=-DSPM_FROM_APP=28
 avrdd.menu.appspm.14plus.bootloader.CODESIZE=28
-avrdd.menu.appspm.16plus=Above 16k (AVR64/32 only, probably a bad idea except on AVR32)
+avrdd.menu.appspm.16plus=Above 16k (AVR64/32 only, meant for 32k parts)
 avrdd.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
 avrdd.menu.appspm.16plus.bootloader.CODESIZE=32
-avrdd.menu.appspm.24plus=Above 24k (AVR64/32 only, probably a bad idea except on AVR32)
+avrdd.menu.appspm.24plus=Above 24k (AVR64/32 only, meant for 32k parts)
 avrdd.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
 avrdd.menu.appspm.24plus.bootloader.CODESIZE=48
-avrdd.menu.appspm.28plus=Above 28k (AVR64/32 only, probably a bad idea except on AVR32)
+avrdd.menu.appspm.28plus=Above 28k (AVR64/32 only, meant for 32k parts)
 avrdd.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=56
 avrdd.menu.appspm.28plus.bootloader.CODESIZE=56
-avrdd.menu.appspm.32plus=Above 32k (AVR64 only all mapped flash writable 0x8000)
+avrdd.menu.appspm.32plus=Above 32k (AVR64 only)
 avrdd.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
 avrdd.menu.appspm.32plus.bootloader.CODESIZE=64
-avrdd.menu.appspm.48plus=Above 48k (AVR64 only all mapped flash writable 0xC000)
+avrdd.menu.appspm.48plus=Above 48k (AVR64 only)
 avrdd.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
 avrdd.menu.appspm.48plus.bootloader.CODESIZE=96
 avrdd.menu.appspm.56plus=Above 56k (AVR64 only)
@@ -1666,9 +1683,9 @@ avrdd.build.appspmabr=
 #avrea.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
 #avrea.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
 #avrea.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
-#avrea.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (warning: HV required)
+#avrea.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
 #avrea.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
-#avrea.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (warning: HV required)
+#avrea.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
 #avrea.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
 
 #----------------------------------------#
@@ -2134,10 +2151,10 @@ avrdaopti.menu.wiremode.mors.build.wireabr=.wO
 avrdaopti.menu.wiremode.mands=1x Wire, Master and Slave
 avrdaopti.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
 avrdaopti.menu.wiremode.mands.build.wireabr=.wA
-avrdaopti.menu.wiremode.mors2=2x Wire, Master or Slave (not 28-pin devices)
+avrdaopti.menu.wiremode.mors2=2x Wire, Master or Slave (>28 pin only)
 avrdaopti.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrdaopti.menu.wiremode.mors2.build.wireabr=.wO2
-avrdaopti.menu.wiremode.mands2=2x Wire, Master and Slave (not 28-pin devices)
+avrdaopti.menu.wiremode.mands2=2x Wire, Master and Slave (>28 pin only)
 avrdaopti.menu.wiremode.mands2.build.wiremode=MANDS_BOTH
 avrdaopti.menu.wiremode.mands2.build.wireabr=.wA2
 
@@ -2164,7 +2181,7 @@ avrdaopti.menu.bootloaderusart.ser2=USART2: TX PF0, RX PF1
 avrdaopti.menu.bootloaderusart.ser2.bootloader.port=_ser2
 avrdaopti.menu.bootloaderusart.ser2.bootloader.portname=Serial2
 avrdaopti.menu.bootloaderusart.ser2.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (32+-pin only)
+avrdaopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (>28 pin only)
 avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
 avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portname=Serial2
 avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portswap=1
@@ -2578,16 +2595,16 @@ avrdbopti.menu.attach.oldversion.build.attachabr=.aOld
 #----------------------------------------#
 # MVIO menu                              #
 #________________________________________#
-avrdbopti.menu.mvioopti.enabled=Enabled
+avrdbopti.menu.mvioopti.enabled=Enabled (burn bootloader req'd)
 avrdbopti.menu.mvioopti.enabled.bootloader.mviobits=01
 avrdbopti.menu.mvioopti.enabled.build.mvioenable=-DMVIO_ENABLED
-avrdbopti.menu.mvioopti.disabled=Disabled
+avrdbopti.menu.mvioopti.disabled=Disabled (burn bootloader req'd)
 avrdbopti.menu.mvioopti.disabled.bootloader.mviobits=10
 avrdbopti.menu.mvioopti.disabled.build.mvioenable=
-avrdbopti.menu.mvioopti.reallyenabled=Enabled. Assume that "burn bootloader" has been performed with this option.
+avrdbopti.menu.mvioopti.reallyenabled=Enabled. "burn bootloader" done for sure.
 avrdbopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
 avrdbopti.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
-avrdbopti.menu.mvioopti.reallydisabled=Disabled. Assume that "burn bootloader" has been performed with this option.
+avrdbopti.menu.mvioopti.reallydisabled=Disabled. "burn bootloader" done for sure.
 avrdbopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
 avrdbopti.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
 
@@ -2621,10 +2638,10 @@ avrdbopti.menu.wiremode.mors.build.wireabr=.wO
 avrdbopti.menu.wiremode.mands=1x Wire, Master and Slave
 avrdbopti.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
 avrdbopti.menu.wiremode.mands.build.wireabr=.wA
-avrdbopti.menu.wiremode.mors2=2x Wire, Master or Slave (not 28-pin devices)
+avrdbopti.menu.wiremode.mors2=2x Wire, Master or Slave (>28 pin only)
 avrdbopti.menu.wiremode.mors2.build.wiremode=MORS_BOTH
 avrdbopti.menu.wiremode.mors2.build.wireabr=.wO2
-avrdbopti.menu.wiremode.mands2=2x Wire, Master and Slave (not 28-pin devices)
+avrdbopti.menu.wiremode.mands2=2x Wire, Master and Slave (>28 pin only)
 avrdbopti.menu.wiremode.mands2.build.wiremode=MANDS_BOTH
 avrdbopti.menu.wiremode.mands2.build.wireabr=.wA2
 
@@ -2651,7 +2668,7 @@ avrdbopti.menu.bootloaderusart.ser2=USART2: TX PF0, RX PF1
 avrdbopti.menu.bootloaderusart.ser2.bootloader.port=_ser2
 avrdbopti.menu.bootloaderusart.ser2.bootloader.portname=Serial2
 avrdbopti.menu.bootloaderusart.ser2.bootloader.portswap=0
-avrdbopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (32+-pin only)
+avrdbopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (>28 pin only)
 avrdbopti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
 avrdbopti.menu.bootloaderusart.ser2_alt.bootloader.portname=Serial2
 avrdbopti.menu.bootloaderusart.ser2_alt.bootloader.portswap=1
@@ -2741,7 +2758,7 @@ avrddopti.build.text_section_start=.text=0x200
 avrddopti.build.altled=
 avrddopti.build.14pinled=
 avrddopti.build.defaultswaps=
-# Now that's an ugly hack! - both of these empty string options get overridden. On 14-pin parts 14pinled is overridden to take thevalue of {build.altled}.
+# Now that's an ugly hack! - both of these empty string options get overridden. On 14-pin parts 14pinled is overridden to take the value of {build.altled}.
 # But that's an empty string.... UNLESS Serial1 instead of Serial0 is used, and is used with the ALT2 mux option. Then the LED couldn't be on the default pin, so we use PD4 instead of PD6.
 avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable} {build.altled} {build.defaultswaps}
 avrddopti.build.export_merged_output=false
@@ -2796,15 +2813,15 @@ avrddopti.build.appspmabr=
 avrddopti.menu.chip.avr64dd32=AVR64DD32
 avrddopti.menu.chip.avr64dd28=AVR64DD28
 avrddopti.menu.chip.avr64dd20=AVR64DD20
-avrddopti.menu.chip.avr64dd14=AVR64DD14 (LED on PD7 if boot on Serial, PD5 if Serial1)
+avrddopti.menu.chip.avr64dd14=AVR64DD14 (LED: PD7 if bootloader on Serial, else PD5)
 avrddopti.menu.chip.avr32dd32=AVR32DD32
 avrddopti.menu.chip.avr32dd28=AVR32DD28
 avrddopti.menu.chip.avr32dd20=AVR32DD20
-avrddopti.menu.chip.avr32dd14=AVR32DD14 (LED on PD7 if boot on Serial, PD5 if Serial1
+avrddopti.menu.chip.avr32dd14=AVR32DD14 (LED: PD7 if bootloader on Serial, else PD5)
 avrddopti.menu.chip.avr16dd32=AVR16DD32
 avrddopti.menu.chip.avr16dd28=AVR16DD28
 avrddopti.menu.chip.avr16dd20=AVR16DD20
-avrddopti.menu.chip.avr16dd14=AVR16DD14 (LED on PD7 if boot on Serial, PD5 if Serial1
+avrddopti.menu.chip.avr16dd14=AVR16DD14 (LED: PD7 if bootloader on Serial, else PD5)
 avrddopti.menu.chip.avr64dd32.build.mcu=avr64dd32
 avrddopti.menu.chip.avr64dd32.bootloader.class=optiboot_64dd
 avrddopti.menu.chip.avr64dd32.upload.maximum_size=65024
@@ -3026,16 +3043,16 @@ avrddopti.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
 #________________________________________#
-avrddopti.menu.resetupdipinsopti.resetupdi=PF6: Reset & PF7: UPDI (see documentation)
+avrddopti.menu.resetupdipinsopti.resetupdi=PF6: Reset & PF7: UPDI (typical, recommended)
 avrddopti.menu.resetupdipinsopti.resetupdi.bootloader.defaultentrycond=_extr
 avrddopti.menu.resetupdipinsopti.resetupdi.bootloader.resetpinbits=11
-avrddopti.menu.resetupdipinsopti.inputupdi=PF6: Input & PF7: UPDI (see documentation)
+avrddopti.menu.resetupdipinsopti.inputupdi=PF6: Input & PF7: UPDI (no reset pin, safe)
 avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.defaultentrycond=_all_8sec
 avrddopti.menu.resetupdipinsopti.inputupdi.bootloader.resetpinbits=10
-avrddopti.menu.resetupdipinsopti.resetgpio=PF6: Reset & PF7: GPIO (see documentation)
+avrddopti.menu.resetupdipinsopti.resetgpio=PF6: Reset & PF7: GPIO (Danger! See documentation)
 avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.defaultentrycond=_extr
 avrddopti.menu.resetupdipinsopti.resetgpio.bootloader.resetpinbits=01
-avrddopti.menu.resetupdipinsopti.inputgpio=PF6: Input & PF7: GPIO (see documentation)
+avrddopti.menu.resetupdipinsopti.inputgpio=PF6: Input & PF7: GPIO (Danger! See documentation)
 avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.defaultentrycond=_all_8sec
 avrddopti.menu.resetupdipinsopti.inputgpio.bootloader.resetpinbits=00
 
@@ -3107,10 +3124,10 @@ avrddopti.menu.mvioopti.enabled.build.mvioenable=-DMVIO_ENABLED
 avrddopti.menu.mvioopti.disabled=Disabled
 avrddopti.menu.mvioopti.disabled.bootloader.mviobits=10
 avrddopti.menu.mvioopti.disabled.build.mvioenable=
-avrddopti.menu.mvioopti.reallyenabled=Enabled. Assume that "burn bootloader" has been performed with this option.
+avrddopti.menu.mvioopti.reallyenabled=Enabled, "burn bootloader" done for sure.
 avrddopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
 avrddopti.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
-avrddopti.menu.mvioopti.reallydisabled=Disabled. Assume that "burn bootloader" has been performed with this option.
+avrddopti.menu.mvioopti.reallydisabled=Disabled, "burn bootloader" done for sure.
 avrddopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
 avrddopti.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
 

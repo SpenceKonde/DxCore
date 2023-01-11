@@ -262,7 +262,7 @@ It is worth noting that this is not what typical compiled sketches are full of. 
 
 ```text
 
-   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Junk comments were interpretations of dataspace as codespace and vise versa
+   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Junk comments were interpretations of dataspace as codespace and vice versa
   16: 03 c0         rjmp  .+6       ; junk comment elided
   24: ed c0         rjmp  .+474     ; 0x200 <app>
   74: ef cf         rjmp  .-34      ; junk comment elided

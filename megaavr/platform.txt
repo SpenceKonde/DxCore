@@ -7,7 +7,7 @@
 name=DxCore
 versionnum.major=1
 versionnum.minor=5
-versionnum.patch=2
+versionnum.patch=3
 versionnum.postfix=
 versionnum.released=1
 
@@ -16,7 +16,7 @@ version={versionnum.major}.{versionnum.minor}.{versionnum.patch}{versionnum.post
 # Stupid workaround #
 # for IDE bug       #
 #####################
-version=1.5.2
+version=1.5.3
 
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL -DDXCORE_RELEASED={versionnum.released}
 
