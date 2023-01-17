@@ -382,7 +382,7 @@
       __builtin_unreachable();
     }
     #endif
-    #ifdef PORTC_PINS
+    #ifdef PORTC
       ISR(PORTC_PORT_vect, ISR_NAKED) {
       asm volatile(
         "push r16"      "\n\t"
@@ -392,6 +392,9 @@
 #else
         "rjmp AttachedISR" "\n\t"
 #endif
+        ::);
+      __builtin_unreachable();
+    }
     #endif
     #ifdef PORTD
       ISR(PORTD_PORT_vect, ISR_NAKED){
