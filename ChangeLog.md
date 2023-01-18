@@ -70,7 +70,7 @@ These are typically planned for release in a future version (usually the next on
   * Bugfix: Correct issue with serial on alt pins in Optiboot that *never* should have worked.
   * Bugfix: Account for the fact that there is no acceptable LED pin on a 14-pin DD that is viable for all serial port and mux options. We pick PD6, unless using USART1, in which case we assume the LED is on PD4.
 * **Related to errors that may occur at hidden locations when using LTO (".text+0")**
-  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me in reference to a specific bug. This behavior is typically encountered when the function was inlined, causeing it to not know exactly where it came from and hence report .text+0 as the location) which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - that is because LTO is required for the core to produce working code in some cases - we depend on the ability to inline certain things across files (among other things, fast digital I/O is fully dependant on that).
+  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me in reference to a specific bug. This behavior is typically encountered when the function was inlined, causeing it to not know exactly where it came from and hence report .text+0 as the location) which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - that is because LTO is required for the core to produce working code in some cases - we depend on the ability to inline certain things across files (among other things, fast digital I/O is fully dependent on that).
   * Enhancement: Add clean copies of platform.txt and platform.txt without LTO/uploading, for both manual and board manager installations to extras.
 * **Other**
   * Enhancement: Add more part information macros (See [the define list](megaavr/extras/Ref_Defines.md))
@@ -99,10 +99,9 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix: Fix several Logic examples to compile on more parts.
 * Documentation: Fix documentation for DxCore library, which was inaccurate.
 
-### 1.4.9 was never released to production.
+### 1.4.9 was never released to production
 
-
-### 1.4.8 was never released to production.
+### 1.4.8 was never released to production
 
 ### 1.4.7
 * Bugfix: Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
@@ -121,7 +120,7 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix: Fix EEPROM regression that left the top half of the EEPROM inaccessible.
 * **Critical Bugfix** to correct attachInterrupt, which would corrupt the stack when used in the default mode. (#225)
 * Bugfix: Fix the backwards compatibility macros for RTC clock sources (#223)
-* Internal enhacement: Formatting in core_devices and Arduino.h
+* Internal enhancement: Formatting in core_devices and Arduino.h
 * **Critical Bugfix** to correct return values from Wire.endTransaction() to match the API. (#226)
 
 ### 1.4.4 - Unsuccessfully attempt to fix a critical bug that prevented uploading to non-optiboot boards
@@ -137,7 +136,7 @@ These are typically planned for release in a future version (usually the next on
 * Enhancement: Added support for serial buffer sizes of 256.
 * Enhancement: Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
 * Bugfix: Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
-* **CRITICAL BUGFIX** Fix issue which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages, caused by using an rjmp when a jmp is needed. 
+* **CRITICAL BUGFIX** Fix issue which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages, caused by using an rjmp when a jmp is needed.
 
 ### 1.4.0
 * Major Enhancement: Completely new Wire.h library with exciting features - Thanks to @MX682X!
@@ -165,7 +164,7 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix: Correct issue where the intended useful error message was not shown to users who did not have millis or micros enabled but tried to use it anyway.
 * Enhancement: Add new Wire library method names to keywords.txt.
 * Enhancement: Add new core-wide things to the Dxcore Keywords.txt, including: Standard and extended Pin-information-gathering macros from Arduino.h, Add the new MUX option for USARTs, TWI and SPI for the DD-series parts, Add the new Serial modifier options, Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more. Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags, `_NOP, _NOPNOP, _NOP2, _NOP8, _NOP14`, the channels and references for the ADC, ,   Added `__builtin_constant_p()` because it is exceptionally useful.
-* Enhacement: Calling millis or micros when those are disabled will result in more useful error messages. Libraries and user code can test whether millis and micros are available with `#if defined(micros)` and `#if defined(millis)`
+* Enhancement: Calling millis or micros when those are disabled will result in more useful error messages. Libraries and user code can test whether millis and micros are available with `#if defined(micros)` and `#if defined(millis)`
 * Bugfix: Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
 * Documentation: Continuing doc enhancements.
 * Bugfix: Fix a recent regression in delayMicroseconds at 8 and 4 MHz when the delay was not a compile-time known constant
