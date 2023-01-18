@@ -10,21 +10,24 @@ These are typically planned for release in a future version (usually the next on
 
 ## Released Versions
 
+### 1.5.4
+* **Critical (per Microchip) Bugfix** Correct an issue that someone with a Microchip logo as their avatar called critical (I defer to Microchip's wisdom regarding it's criticality), which would cause a crash when the old attach interrupt mode is used for pins on PORTC due to a copy/paste error from tinyAVR. This issue has been present since 1.4.x versions somewhere.
+
 ### 1.5.3
-* Correct critical issue #384 where burn bootloader would disable UPDI on AVR DD-series parts.
-* Correct a number of inaccuracies and minor points in the documentation.
-* Update the silicon errata page, as Microchip confirms a few bugs are found in all versions of the modern AVR peripherals, not just one family, and apparently indicates that even without an SCK line, SPI1 ALT2 mux option is supposed to work, and that there is expected correct behavior there which the chip does not do.
+* **Critical Bugfix** Correct critical issue #384 where burn bootloader would disable UPDI on AVR DD-series parts.
+* Documentation: Correct a number of inaccuracies and minor points in the documentation.
+* Documentation: Update the silicon errata page, as Microchip confirms a few bugs are found in all versions of the modern AVR peripherals, not just one family, and apparently indicates that even without an SCK line, SPI1 ALT2 mux option is supposed to work, and that there is expected correct behavior there which the chip does not do.
 
 ### 1.5.2
-* Correct issue with event library for DD-series.
-* Correct issue with ADC on PORTD of 20 pin devices
-* Correct issue with SPI on 14-pin parts
-* Correct timekeeping (Thanks @MX682X)
-* Correct linting issues relating to libraries.
-* Correct issue with uploading via programmer through avrdude. (Thanks @MX682X)
+* Bugfix: Correct issue with event library for DD-series.
+* Bugfix: Correct issue with ADC on PORTD of 20 pin devices
+* Bugfix: Correct issue with SPI on 14-pin parts
+* Bugfix: Correct timekeeping (Thanks @MX682X)
+* Internal bugfix: Correct linting issues relating to libraries.
+* Bugfix: Correct issue with uploading via programmer through avrdude. (Thanks @MX682X)
 
 ### 1.5.1
-* Repacking and minor bugfixes.
+* Bugfix: Repacking and minor bugfixes.
 * Known issue: At 24 MHz TCAn as millis timer results in severely deranged timekeeping behavior.
 * Known issue: Event library unsupported for AVR DD
 * Known issue: ADC does not work on PORTD of 20-pin parts due to a reversed test.
@@ -67,7 +70,7 @@ These are typically planned for release in a future version (usually the next on
   * Bugfix: Correct issue with serial on alt pins in Optiboot that *never* should have worked.
   * Bugfix: Account for the fact that there is no acceptable LED pin on a 14-pin DD that is viable for all serial port and mux options. We pick PD6, unless using USART1, in which case we assume the LED is on PD4.
 * **Related to errors that may occur at hidden locations when using LTO (".text+0")**
-  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - in some cases the things done to make it compile with LTO disabled do not preserve functionality).
+  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me in reference to a specific bug. This behavior is typically encountered when the function was inlined, causeing it to not know exactly where it came from and hence report .text+0 as the location) which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - that is because LTO is required for the core to produce working code in some cases - we depend on the ability to inline certain things across files (among other things, fast digital I/O is fully dependant on that).
   * Enhancement: Add clean copies of platform.txt and platform.txt without LTO/uploading, for both manual and board manager installations to extras.
 * **Other**
   * Enhancement: Add more part information macros (See [the define list](megaavr/extras/Ref_Defines.md))
@@ -83,44 +86,42 @@ These are typically planned for release in a future version (usually the next on
 
 ### 1.4.10
 * **CRITICAL BUGFIX** for attachInterrupt() (still!)
-* Fix timing problems at 1 MHz.
-* Expand documentation relating to upcoming AVR DD-series parts and provide initial information from the EA-series.
-* Correct bug in compatibility defines for CLKSEL macros for external crystal.
-* Improve user experience for people using updated compilers. Makes bit of a mess out of uart_constants.h though.
-* Based on feedback, removed emulation of classicAVR pinMode() calls as regards the state of the PORTx.OUT register.
-* tinyNeoPixel 2.0.4, with support down to lower speeds, and inline assembly that is technically correct. (Before this it was only an accident of the deterministic avr-gcc register allocation and the fact that illegally written read-only operands represented variables that fell out of scope without being further used)
-* Fix some errors in Logic library examples
-* Preempt compatibility problems with libraries that assume a HardwareSerial.h file. These changes were implemented in a different and better way for 1.5.0
-* Add list of useful Microchip app notes.
-* Clarify Ref_Optiboot. Update Errata page.
-* Fix several Logic examples to compile on more parts.
-* Fix documentation for DxCore library, which was inaccurate.
+* Bugfix: Fix timing problems at 1 MHz.
+* Documentation: Expand documentation relating to upcoming AVR DD-series parts and provide initial information from the EA-series.
+* Bugfix: Correct bug in compatibility defines for CLKSEL macros for external crystal.
+* Enhancement: Improve user experience for people using updated compilers. Makes bit of a mess out of uart_constants.h though.
+* Enhancement: Based on (unanimous!) feedback, removed emulation of classicAVR pinMode() calls as regards the state of the PORTx.OUT register.
+* Enhancement: tinyNeoPixel 2.0.4, with support down to lower speeds, and inline assembly that is technically correct. (Before this it was only an accident of the deterministic avr-gcc register allocation and the fact that illegally written read-only operands represented variables that fell out of scope without being further used)
+* Bugfix: Fix some errors in Logic library examples
+* Bugfix: Preempt compatibility problems with libraries that assume a HardwareSerial.h file. These changes were implemented in a different and better way for 1.5.0
+* Documentation: Add list of useful Microchip app notes.
+* Documentation: Clarify Ref_Optiboot. Update Errata page.
+* Bugfix: Fix several Logic examples to compile on more parts.
+* Documentation: Fix documentation for DxCore library, which was inaccurate.
 
-### 1.4.9
-* Never released, because of some version related bungling.
+### 1.4.9 was never released to production.
 
-### 1.4.8
-* Never existed. Oops
+
+### 1.4.8 was never released to production.
 
 ### 1.4.7
-* Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
+* Bugfix: Respond more gracefully when data that doesn't fit in the Wire buffer is "written".
 * **CRITICAL BUGFIX** for horrifying bug that broke digital I/O completely on 6 pins of the 28-pin parts. Thanks @nabelekt!! (#138, #140)
-* Fix missing ADC_ACCn constants, and text of the error message when using invalid values which inaccurately describes the name of the constants (which didn't exist, as noted) (#139)
-* Update the Wire docs to clarify the limitations and assumptions of setClock and explain why it is not possible to get the speed you requested if the elecrical conditions of the bus are worse than the code assumes.
-* Improve error reporting for SerialUPDI.
+* Bugfix: Fix missing ADC_ACCn constants, and text of the error message when using invalid values which inaccurately describes the name of the constants (which didn't exist, as noted) (#139)
+* Documentation: Update the Wire docs to clarify the limitations and assumptions of setClock and explain why it is not possible to get the speed you requested if the elecrical conditions of the bus are worse than the code assumes.
+* Enhancement: Improve error reporting for SerialUPDI.
 
 ### 1.4.6
-* Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
-* Update SerialUPDI to 1.2.3 from 1.1.0 (megaTinyCore had 1.2.x before....) DxCore didn't. The two core's versions are now the same and should work well on both; Note that the low speedlimit on this core (due to the write speed being constrained to < 345600 baud) has meant we didn't need nearly as many entries in programmers.txt compared to megaTinyCore. Updated programmers.txt entries for consistency with megaTinyCore.
-* Serial UPDI: Change warning level of spammiest messages. Support "Verbose output during upload" when using Serial UPDI (previously we had all both verbose and normal defined as "" so debug output was ever printed. )
-* Not a change we made, just an observation: There is no more stylechecking on code because the tool we used has vanished from the internet and it's URL doesn't even resolve now.
+* Enhancement: Update wire to use a linear buffer, not a ring buffer. Negates the need for recent changes made to Wire on megaTinyCore
+* Enhancement: Update SerialUPDI to 1.2.3 from 1.1.0 (megaTinyCore had 1.2.x before....) DxCore didn't. The two core's versions are now the same and should work well on both; Note that the low speedlimit on this core (due to the write speed being constrained to < 345600 baud) has meant we didn't need nearly as many entries in programmers.txt compared to megaTinyCore. Updated programmers.txt entries for consistency with megaTinyCore.
+* Enhancement: Serial UPDI: Change warning level of spammiest messages. Support "Verbose output during upload" when using Serial UPDI (previously we had all both verbose and normal defined as "" so debug output was ever printed. )
 
 ### 1.4.5
-* **CRITICAL BUGFIX** Now that I am finally unpacked enough to access test boards, fix critical bug correctly.
-* Fix EEPROM regression that left the top half of the EEPROM inaccessible.
+* **CRITICAL BUGFIX** Now that I am finally unpacked enough to access test boards, fix critical bug impacting uploads.
+* Bugfix: Fix EEPROM regression that left the top half of the EEPROM inaccessible.
 * **Critical Bugfix** to correct attachInterrupt, which would corrupt the stack when used in the default mode. (#225)
-* Fix the backwards compatibility macros for RTC clock sources (#223)
-* Formatting in core_devices and Arduino.h
+* Bugfix: Fix the backwards compatibility macros for RTC clock sources (#223)
+* Internal enhacement: Formatting in core_devices and Arduino.h
 * **Critical Bugfix** to correct return values from Wire.endTransaction() to match the API. (#226)
 
 ### 1.4.4 - Unsuccessfully attempt to fix a critical bug that prevented uploading to non-optiboot boards
@@ -130,57 +131,55 @@ These are typically planned for release in a future version (usually the next on
 
 ### 1.4.2
 * Make software serial suck somewhat less by performing a single bitwise-and to calculate the result of the modulo operator, instead of dividing a 2-byte signed value which we know will never be larger than twice the buffer size (of 64) and hence fits in a single unsigned byte.
-* **CRITICAL BUGFIX** (ANOTHER ONE) which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages
+* **CRITICAL BUGFIX** (ANOTHER ONE) for an issue which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages (same root cause)
 
 ### 1.4.1
-* Added support for serial buffer sizes of 256.
-* Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
-* Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
-* **CRITICAL BUGFIX** which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages
+* Enhancement: Added support for serial buffer sizes of 256.
+* Enhancement: Added test for defined(USE_ASM_TXC), USE_ASM_RXC, and USE_ASM_DRE in UART.h so that variants and board definitions can now turn this off.
+* Bugfix: Attempting to use illegal options, like buffer sizes that aren't powers of 2, now errors out.
+* **CRITICAL BUGFIX** Fix issue which could COMPLETELY BREAK SERIAL if the sketch used >8192b of flash, with obtuse and uninformative error messages, caused by using an rjmp when a jmp is needed. 
 
 ### 1.4.0
-* Completely new Wire.h library with exciting features - Thanks to @MX682X!
+* Major Enhancement: Completely new Wire.h library with exciting features - Thanks to @MX682X!
   * See the Wire library readme for more details.
   * Master + Slave on the same TWI - either using the same pins or in dual mode
   * Support for TWI1 assuming your device has it.
-  * Enhanced slave functionality:
-    * When set to match multiple addresses, method provided to find which address was used most recently.
-    * After the master has read data from the slave, method provided to find out how many bytes were actually read.
+  * Enhanced slave functionality, see the Wire.h library reference for more information.
+    * When set to match multiple addresses, a method is now provided to find which address was used most recently.
+    * After the master has read data from the slave, a method is provided to find out how many bytes were actually read.
     * Slave now has a way to test whether there is currently an ongoing transaction.
   * Reduced flash use - not as much of a pressing issue compared to megaTinyCore, I know, but even using both master and slave will consume less flash than the old library. And future parts, when they come out will use them.
-* Serial improvements! Looks like we we're getting those serial changes - also thanks to @MX682X!
+* Major Enhancement: Serial improvements! The performance and size enhancements are also thanks to @MX682X! The most of the "new feature" type enhancements were done by @SpenceKonde.
   * Support more pinmapping options
   * Remove some redundant defines from variants. Some redundant defines were removed from variant files. The variant files contained entries that duplicated  information present elsewhere; these have been removed.
   * Fix potential bug with specifying parameters that control the number of bits per character.
   * Add support for loopback, rs485, open drain mode!!
   * Add support for using event input instead of the RX pin (Untested)
-* Expanded Event library. Improved functionality for portable code/libraries
-* USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
-* Correct verification bug in SerialUPDI where it would fail on a last page of the minimum size (thanks @dbuchwald!). The 1-word read takes a different codepath because it doesn't need the REP.
-* Improve bootloader source comments re:building (albeit without providing hard information; more of a plea of ignorance and admission of just how crude my build process is), pindefs for DD-series (and EA-series is a linear combination of DA/DB and DD - though it is said to be back to paged writes, so it might be made from optiboot_x rather than optiboot_dx), rename pindefs_x to pindefs_dx and remove 2 references to optiboot_x that should have been dx.
-* Correctly comment out leftover debugging prints that would be called when using `tone()` (megaTinyCore #550).
-* Fix a bug (well, several actually) in the new attach interrupt that kept it from working on on ports E and F. PORTE would use PORTC's interrupts. And PORTF would either fail to find functions to jump to if no PORTC or PORTD interrupts were attached, or else it would use the high byte of PORTC's interrupt table as the high byte abd the low byte of PORTD's table as the high byte, and look there for pointers. If there was anything there, it would assume it could jump to them. Oops. I also worked around something that had an easier solution which didn't need to be like that... eliminating that saves 5 clocks and 4 bytes, plus 2 bytes (number of ports -1).
-* Major cleanup of variants, removing unnecessary garbage defines left and right.
-* Correct issue where the intended useful error message was not shown to users who did not have millis or micros enabled but tried to use it anyway.
-* Add new Wire library method names to keywords.txt.
-* Add new core-wide things to the Dxcore Keywords.txt, including:
-   Standard and extended Pin-information-gathering macros from Arduino.h, Add the new MUX option for USARTs, TWI and SPI for the DD-series parts, Add the new Serial modifier options, Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more. Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags, `_NOP, _NOPNOP, _NOP2, _NOP8, _NOP14`, the channels and references for the ADC, ,   Added `__builtin_constant_p()` because it is exceptionally useful.
-* Calling millis or micros when those are disabled will result in more useful error messages. Libraries and user code can test whether millis and micros are available with `#if defined(micros)` and `#if defined(millis)`
-* Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
-* Continuing doc enhancements.
-* Fix a recent regression in delayMicroseconds at 8 and 4 MHz when the delay was not a compile-time known constant
-* Platform.txt organization and commenting. Fix issues where defines were missing from lib-discovery phase
-* Eliminate double-entry bookkeeping in boards.txt as relates to speed.
-* Correct names of exported files so they match each other.
-* Ensure that upload with programmer is not used on bootloader board definitions.
-* Optboot serial port menu option for the DD-series parts is now ready to be enabled.
-* init_reset_flags() will automatically clear reset flags if not overridden, stashing them in GPIOR0 (chosen because has lower overhead than a variable)
-* Add 27 MHz external clock/crystal... Math is amazingly simple, one of the cleanest so far!
-* Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
-* Include recent version of the io headers for practical reference, and the original versions for historical reference (mostly so you can view them in your web browser).
-* Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
-* Updated pinout diagrams and part specific docs (LOOOONGGGGG overdue).
-* Actually made the TCD PWM on external clock sources behave as documented.
+* New Feature/Enhancement: Expanded Event library. Improved functionality for portable code/libraries
+* New Feature: USERSIG library for Dx-series parts. Has a few extra complications, but that's Microchip's fault for taking away our byte-granularity erases.
+* Bugfix: Correct verification bug in SerialUPDI where it would fail on a last page of the minimum size (thanks @dbuchwald!). The 1-word read takes a different codepath because it doesn't need the REP.
+* Documentation: Improve bootloader source comments re:building (albeit without providing hard information; more of a plea of ignorance and admission of just how crude my build process is), pindefs for DD-series (and EA-series is a linear combination of DA/DB and DD - though it is said to be back to paged writes, so it might be made from optiboot_x rather than optiboot_dx), rename pindefs_x to pindefs_dx and remove 2 references to optiboot_x that should have been dx.
+* Bugfix: Correctly comment out leftover debugging prints that would be called when using `tone()` (megaTinyCore #550).
+* Bugfix: Fix a bug (well, several actually) in the new attach interrupt that kept it from working on on ports E and F. PORTE would use PORTC's interrupts. And PORTF would either fail to find functions to jump to if no PORTC or PORTD interrupts were attached, or else it would use the high byte of PORTC's interrupt table as the high byte abd the low byte of PORTD's table as the high byte, and look there for pointers. If there was anything there, it would assume it could jump to them. Oops. I also worked around something that had an easier solution which didn't need to be like that... eliminating that saves 5 clocks and 4 bytes, plus 2 bytes (number of ports -1).
+* Bugfix: Major cleanup of variants, removing unnecessary garbage defines left and right.
+* Bugfix: Correct issue where the intended useful error message was not shown to users who did not have millis or micros enabled but tried to use it anyway.
+* Enhancement: Add new Wire library method names to keywords.txt.
+* Enhancement: Add new core-wide things to the Dxcore Keywords.txt, including: Standard and extended Pin-information-gathering macros from Arduino.h, Add the new MUX option for USARTs, TWI and SPI for the DD-series parts, Add the new Serial modifier options, Constants specific to DxCore, like the DxCore version defines, MILLIS_USE_TIMER* the expanded list of pinConfigure constants, and more. Added core-specific functions and macros, takeOverTCAn, takeOverTCD0, releaseTCAn, badArg, badCall,  attachPortxEnable, init_reset_flags, `_NOP, _NOPNOP, _NOP2, _NOP8, _NOP14`, the channels and references for the ADC, ,   Added `__builtin_constant_p()` because it is exceptionally useful.
+* Enhacement: Calling millis or micros when those are disabled will result in more useful error messages. Libraries and user code can test whether millis and micros are available with `#if defined(micros)` and `#if defined(millis)`
+* Bugfix: Correct problem with many macros and more generally with the typeof keyword (a GCC-specific extension) by switching to std=gnu++17.
+* Documentation: Continuing doc enhancements.
+* Bugfix: Fix a recent regression in delayMicroseconds at 8 and 4 MHz when the delay was not a compile-time known constant
+* Bugfix: Platform.txt organization and commenting. Fix issues where defines were missing from lib-discovery phase
+* Internal: Eliminate double-entry bookkeeping in boards.txt as relates to speed.
+* Bugfix: Correct names of exported files so they match each other.
+* Enhancement: Optboot serial port menu option for the DD-series parts is now ready to be enabled.
+* Enhancement or bugfix, depending on perspective: init_reset_flags() will automatically clear reset flags if not overridden, stashing them in GPIOR0 (chosen because has lower overhead than a variable)
+* Enhancement: Add 27 MHz external clock/crystal... Math is amazingly simple, one of the cleanest so far!
+* Bugfix: Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
+* Documentation: Include recent version of the io headers for practical reference, and the original versions for historical reference (mostly so you can view them in your web browser).
+* Bugfix: Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
+* Documentation: Updated pinout diagrams and part specific docs (LOOOONGGGGG overdue).
+* Bugfix: Actually made the TCD PWM on external clock sources behave as documented.
 
 ## 1.3.10
 * Fix Wire.swap() correctly. (#184)
