@@ -63,9 +63,9 @@ int8_t getMVIOVoltage();
 
 #ifdef __cplusplus
 }
-void configXOSC32K(X32K_TYPE_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t enable = X32K_ENABLED);
+void configXOSC32K(X32K_OPT_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t enable = X32K_ENABLED);
 #else
-  void configXOSC32K(X32K_TYPE_t settings, X32K_ENABLE_t enable);
+  void configXOSC32K(X32K_OPT_t settings, X32K_ENABLE_t enable);
 #endif
 
 // passed a port number (eg, digitalPinToPort() from pin, or number 0-6)

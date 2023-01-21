@@ -91,18 +91,20 @@ namespace comparator {
   #if defined(DXCORE)
     namespace in_p {
       enum inputP_t : uint8_t {
+    #if defined(PIN_PD2)
         in0    = 0x00,
+        pd2    = 0x00,
+    #endif
     #ifndef __AVR_DD__
         in1    = 0x01,
         in2    = 0x02,
     #endif
         in3    = 0x03,
+        pd6    = 0x03,
     #ifdef __AVR_DD__
         in4    = 0x04,
         pc3    = 0x04,
     #endif
-        pd2    = 0x00,
-        pd6    = 0x03
       };
     };
 
@@ -114,18 +116,16 @@ namespace comparator {
         pd0    = 0x01,
     #endif
         in2    = 0x02,
-    #if defined(__AVR_DD__) || defined(__AVR_EA__)
-        in3    = 0x03,
-        dacref = 0x04,
-    #else
-        dacref = 0x03,
-    #endif
         pd7    = 0x02,
+    #if defined(__AVR_DD__) || defined(__AVR_EA__) || defined(__AVR_EB__)
+        in3    = 0x03,
+        pc3    = 0x03,
+        dacref = 0x04
+    #else
+        dacref = 0x03
+    #endif
       };
     };
-    // Unknown how these will be numbered on DD-series, which has an AINN3 and DACREF - initial header release is copied verbatim from DA/DB
-    // and the EA-series doesn't even have that available, and I'm not privy to the pre-release preliminary datasheets that I'm sure important
-    // customers are poring over now.
   #elif defined(MEGATINYCORE)
     namespace in_p {
       enum inputP_t : uint8_t {
