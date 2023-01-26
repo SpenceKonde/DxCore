@@ -360,11 +360,11 @@
     asm volatile(
       "push r16"      "\n\t"
       "ldi r16, 0"    "\n\t"
-#if PROGMEM_SIZE > 8192
-      "jmp AttachedISR" "\n\t"
-#else
-      "rjmp AttachedISR" "\n\t"
-#endif
+      #if PROGMEM_SIZE > 8192
+        "jmp AttachedISR" "\n\t"
+      #else
+        "rjmp AttachedISR" "\n\t"
+      #endif
       ::);
     __builtin_unreachable();
     }
@@ -373,11 +373,11 @@
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 2"    "\n\t"
-#if PROGMEM_SIZE > 8192
-        "jmp AttachedISR" "\n\t"
-#else
-        "rjmp AttachedISR" "\n\t"
-#endif
+        #if PROGMEM_SIZE > 8192
+          "jmp AttachedISR" "\n\t"
+        #else
+          "rjmp AttachedISR" "\n\t"
+        #endif
         ::);
       __builtin_unreachable();
     }
@@ -387,11 +387,11 @@
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 4"    "\n\t"
-#if PROGMEM_SIZE > 8192
-        "jmp AttachedISR" "\n\t"
-#else
-        "rjmp AttachedISR" "\n\t"
-#endif
+        #if PROGMEM_SIZE > 8192
+          "jmp AttachedISR" "\n\t"
+        #else
+          "rjmp AttachedISR" "\n\t"
+        #endif
         ::);
       __builtin_unreachable();
     }
@@ -401,7 +401,11 @@
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 6"    "\n\t"
-        "jmp AttachedISR" "\n\t"
+        #if PROGMEM_SIZE > 8192
+          "jmp AttachedISR" "\n\t"
+        #else
+          "rjmp AttachedISR" "\n\t"
+        #endif
         ::);
       __builtin_unreachable();
     }
@@ -411,7 +415,11 @@
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 8"    "\n\t"
-        "jmp AttachedISR" "\n\t"
+        #if PROGMEM_SIZE > 8192
+          "jmp AttachedISR" "\n\t"
+        #else
+          "rjmp AttachedISR" "\n\t"
+        #endif
         ::);
       __builtin_unreachable();
     }
@@ -421,7 +429,11 @@
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 10"    "\n\t"
-        "jmp AttachedISR" "\n\t"
+        #if PROGMEM_SIZE > 8192
+          "jmp AttachedISR" "\n\t"
+        #else
+          "rjmp AttachedISR" "\n\t"
+        #endif
         ::);
       __builtin_unreachable();
     }
@@ -431,7 +443,11 @@
       asm volatile(
         "push r16"      "\n\t"
         "ldi r16, 12"    "\n\t"
-        "jmp AttachedISR" "\n\t"
+        #if PROGMEM_SIZE > 8192
+          "jmp AttachedISR" "\n\t"
+        #else
+          "rjmp AttachedISR" "\n\t"
+        #endif
         ::);
       __builtin_unreachable();
     }

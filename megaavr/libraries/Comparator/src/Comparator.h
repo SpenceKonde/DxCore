@@ -91,39 +91,37 @@ namespace comparator {
   #if defined(DXCORE)
     namespace in_p {
       enum inputP_t : uint8_t {
-    #if defined(PIN_PD2)
-        in0    = 0x00,
-        pd2    = 0x00,
-    #endif
-    #ifndef __AVR_DD__
+      in0    = 0x00,
+      pd2    = 0x00,
+      #ifndef __AVR_DD__
         in1    = 0x01,
         in2    = 0x02,
-    #endif
-        in3    = 0x03,
-        pd6    = 0x03,
-    #ifdef __AVR_DD__
+      #endif
+      in3    = 0x03,
+      pd6    = 0x03,
+      #ifdef __AVR_DD__
         in4    = 0x04,
         pc3    = 0x04,
-    #endif
+      #endif
       };
     };
 
     namespace in_n {
       enum inputN_t : uint8_t {
         in0    = 0x00,
-    #if !defined(ANALOG_COMP_NO_N1)
-        in1    = 0x01,
-        pd0    = 0x01,
-    #endif
+        #if !defined(ANALOG_COMP_NO_N1)
+          in1    = 0x01,
+          pd0    = 0x01,
+        #endif
         in2    = 0x02,
         pd7    = 0x02,
-    #if defined(__AVR_DD__) || defined(__AVR_EA__) || defined(__AVR_EB__)
-        in3    = 0x03,
-        pc3    = 0x03,
-        dacref = 0x04
-    #else
-        dacref = 0x03
-    #endif
+        #if defined(__AVR_DD__) || defined(__AVR_EA__) || defined(__AVR_EB__)
+          in3    = 0x03,
+          pc3    = 0x03,
+          dacref = 0x04
+        #else
+          dacref = 0x03
+        #endif
       };
     };
   #elif defined(MEGATINYCORE)
