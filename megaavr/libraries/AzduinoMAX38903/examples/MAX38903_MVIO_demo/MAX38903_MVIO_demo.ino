@@ -35,7 +35,7 @@ void setup() {
   if (MVIO.STATUS) {
     Serial.println("ERROR: MVIO shows as working, but the regulator should be off, this indicates either MVIO disabled in fuses or that the board has a different source of power connected to VDDIO2 and/or the board does not have this regulator.");
     Serial.println("STOP: nothing to do here - this is not a working board with the required features and configuration, and the rest of the sketch cannot give meaningful results");
-    while(1); // hang forever.
+    while (1); // hang forever.
   }
 }
 
