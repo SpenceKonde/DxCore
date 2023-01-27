@@ -130,6 +130,10 @@ avrda.upload.tool=avrdude
 avrda.upload.prog_interlock=
 avrda.build.board=avrda
 avrda.build.core=dxcore
+avrda.upload.maximum_size=0
+avrda.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrda.build.f_cpu={build.speed}000000L
 avrda.build.text_section_start=.text=0x0
 avrda.build.extra_flags= {bootloader.appspm}
@@ -523,6 +527,10 @@ avrdb.upload.prog_interlock=
 avrdb.build.board=avrdb
 avrdb.build.mvioenable=-DMVIO_ENABLED
 avrdb.build.core=dxcore
+avrdb.upload.maximum_size=0
+avrdb.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrdb.build.f_cpu={build.speed}000000L
 avrdb.build.text_section_start=.text=0x0
 avrdb.build.extra_flags= {bootloader.appspm} {build.mvioenable}
@@ -965,6 +973,10 @@ avrdd.upload.prog_interlock=
 avrdd.build.board=avrdd
 avrdd.build.mvioenable=-DMVIO_ENABLED
 avrdd.build.core=dxcore
+avrdd.upload.maximum_size=0
+avrdd.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
 avrdd.build.defaultswaps=
@@ -1421,6 +1433,10 @@ avrdd.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 #avrea.upload.prog_interlock=
 #avrea.build.board=avrea
 #avrea.build.core=dxcore
+#avrea.upload.maximum_size=0
+#avrea.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 #avrea.build.f_cpu={build.speed}000000L
 #avrea.build.text_section_start=.text=0x0
 #avrea.build.extra_flags=
@@ -1829,6 +1845,10 @@ avrdd.build.appspmabr=
 #________________________________________#
 avrdaopti.build.board=avrda
 avrdaopti.build.core=dxcore
+avrdaopti.upload.maximum_size=0
+avrdaopti.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrdaopti.build.f_cpu={build.speed}000000L
 avrdaopti.build.text_section_start=.text=0x200
 avrdaopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
@@ -2265,6 +2285,10 @@ avrdaopti.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 avrdbopti.build.board=avrdb
 avrdbopti.build.mvioenable=-DMVIO_ENABLED
 avrdbopti.build.core=dxcore
+avrdbopti.upload.maximum_size=0
+avrdbopti.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrdbopti.build.f_cpu={build.speed}000000L
 avrdbopti.build.text_section_start=.text=0x200
 avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable}
@@ -2753,6 +2777,10 @@ avrdbopti.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 avrddopti.build.board=avrdd
 avrddopti.build.mvioenable=-DMVIO_ENABLED
 avrddopti.build.core=dxcore
+avrddopti.upload.maximum_size=0
+avrddopti.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrddopti.build.f_cpu={build.speed}000000L
 avrddopti.build.text_section_start=.text=0x200
 avrddopti.build.altled=
@@ -3276,6 +3304,10 @@ avrddopti.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 azduinoboard.build.board=InvalidBoard
 azduinoboard.build.mvioenable=-DMVIO_ENABLED
 azduinoboard.build.core=dxcore
+azduinoboard.upload.maximum_size=0
+azduinoboard.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
 azduinoboard.build.f_cpu={build.speed}000000L
 azduinoboard.build.text_section_start=.text=0x200
 azduinoboard.build.extra_flags=

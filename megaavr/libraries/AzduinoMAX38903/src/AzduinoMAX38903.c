@@ -1,12 +1,12 @@
 // *INDENT-OFF*
 int8_t setMAX38903Voltage(uint8_t setting) {
-  if (setting & 0x33) {                //mov andi breq
+  if (setting & 0x33 && setting != REG_OFF) {                //mov andi breq
     return -1; /* error - invalid setting */
   } else if (setting < _SWAP(setting)) { // mov swap cp brxx
     return -1;                        //ldi ret
   } else  {
     VPORTE.OUT     &= ~(1 << 6);      // cbi
-    if (setting == REGOFF) {          // cpi breq
+    if (setting == REG_OFF) {          // cpi breq
       return 0;                       // ldi
     }
     if (setting     &  (1 << 7))  {   // sbrc rjmp
