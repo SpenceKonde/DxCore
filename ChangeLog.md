@@ -12,6 +12,7 @@ These are typically planned for release in a future version (usually the next on
 
 ### 1.5.4
 * **Critical (per Microchip) Bugfix** Correct an issue that someone with a Microchip logo as their avatar called critical (I defer to Microchip's wisdom regarding it's criticality), which would cause a crash when the old attach interrupt mode is used for pins on PORTC due to a copy/paste error from tinyAVR. This issue has been present since 1.4.x versions somewhere.
+* Linting and small amounts of tidying in docs. This was mostly about the bugfix above.
 
 ### 1.5.3
 * **Critical Bugfix** Correct critical issue #384 where burn bootloader would disable UPDI on AVR DD-series parts.
