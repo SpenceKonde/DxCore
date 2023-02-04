@@ -44,7 +44,7 @@ Notes:
 
 There are multiple ways to generate some of the lower frequencies from internal oscillator (do you prescale from higher frequency, or set the oscillator to the desired one? Suspect the latter is more power efficient, but with the former you could still use the PLL while staying in spec - (in my tests the PLL worked well beyond the spec in both directions, at least at room temperature, not that you'd want to do that in production) - currently, we set the main oscillator to the desired frequency, however we may revisit this decision in the future. There might be reasons to just run the TCD off the unprescaled clock in order to.... I'm not sure what....
 
-The DA-series does not support use of an external high frequency crystal, only external clock or the internal oscillator can be usedl The internal oscillator is pretty accurate, so internal clock will work fine for UART communication()they're within a fraction of a percent at room temp) with very little voltage dependence (they have an internal regulator to generate the core voltage, which runs at a much lower voltage, and I suspect that's where the internal oscillator is located.
+The DA-series does not support use of an external high frequency crystal, only external clock or the internal oscillator can be used. The internal oscillator is pretty accurate, so internal clock will work fine for UART communication (they're within a fraction of a percent at room temp) with very little voltage dependence (they have an internal regulator to generate the core voltage, which runs at a much lower voltage, and I suspect that's where the internal oscillator is located.
 
 ## Auto-tuning
 All parts, can - if needed - use an external watch crystal to automatically tune the internal oscillator frequency, a feature called Auto-Tune. Though they specify +/- 3% internal oscillator speed, in practice, I have yet to find one that was off by more than 1 calibration "notch" at room temperature - the accuracy is limited by the granularity of tuning more than anything else. These are just in a different universe than the classic AVRs where a couple percent was normal. I had to use a torch aimed at the chip (obviously (I hope) from a distance) to swing the temperature enough that autotune had to correct the frequency on the fly (resting the soldering iron on top of the chip didn't). The modern AVR internal oscillator is really good. Nonetheless, we provide a wrapper around enabling external 32K crystal and enabling/disabling Auto-Tune in [the DxCore library](../libraries/DxCore/README.md).
@@ -118,7 +118,7 @@ So with the added simplicity, one might wonder why they are so uncommon. There a
   b. 1.6-3.6v ones are available, so the lower end of the range is covered. None of the major vendors with parametric search on their catalog indicate that any which are in spec operating between 3.6v and 4.5V, so one cannot run directly from a LiPo battery with one while remaining within spec.
 3. 5v units are rarely available in packages smaller than 7050 (7mm x 5mm), 5032 is exotic for 5v oscillators, and anything smaller nonexistent.
 4. They are strangely expensive, typically $1 or more from western suppliers. Not only that, the "China discount", is not even 2:1, they often don't have specs provided (like crystals as noted above), but here, one of the specs is the operating voltage, which is rather important to know.
-  a. One gets the impression that external oscillators are a specialty item for precision applications, while crystals often are not. They are often designed to higher accuracy and they don't depend on external components that could "pull" the frequency, and so on. In a typical application, if you don't need a precision clock source, there are other ways to get it.
+  a. One gets the impression that external oscillators are a specialty item for precision applications, while crystals often are not. They are often designed to higher accuracy, which is rarely necessary, and they come at the price of being fiddly and difficult to wrangle, as well as expensive.
 
 
 ## Clock troubleshooting
@@ -165,11 +165,11 @@ void onClockFailure() {
 ### Failure modes
 A number of behaviors have been observed when the clock has been configured wrong, is not functioning, or that particcular specimen can't do the overclocking you are asking of it.
 
-* If there is a crystal/oscillator which does not oscillate at all, you will get the blink code On-Off-On, then 3 brief "antiblinks" where the led turns off momentarily, then Off-On-Off and 3 brief flashes, repeating. (this pattern of alternating inverted output is meant to be unlikely to mimic sketch behavior).
-* If there is a crystal, and is mostly non-functional, but is close enough to working that the clock controller thinks it is OK while it's not actually working, it will typically hang or bootloop. This is commonly seen when inappropriate loading capacitors are used.
-* If the clock source fails while the system is running, a DA-series will hang (until something resets it - the WDT, the reset button, or powecycling are the only ways to get it out of this state. Sometimes DB-series with the CFD enabled do that too.
-* A clock failure while running very often resets the chip (likely a [dirty reset](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md#the-danger-of-dirty-resets))
-* A clock source that resets the chip or hangs immediately upon switching to it is much easier to detect if using Optiboot - however, you could blink an LED before the switch to see if it's hanging or bootlooping by overriding onPreMain():
+1. If there is a crystal/oscillator which does not oscillate at all, you will get the blink code On-Off-On, then 3 brief "antiblinks" where the led turns off momentarily, then Off-On-Off and 3 brief flashes, repeating. (this pattern of alternating inverted output is meant to be unlikely to mimic sketch behavior).
+2. If there is a crystal, and is mostly non-functional, but is close enough to working that the clock controller thinks it is OK while it's not actually working, it will typically hang or bootloop. This is commonly seen when inappropriate loading capacitors are used.
+3. If the clock source fails while the system is running, a DA-series will hang (until something resets it - the WDT, the reset button, or powecycling are the only ways to get it out of this state. Sometimes DB-series with the CFD enabled do that too.
+4. A clock failure while running very often resets the chip (likely a [dirty reset](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md#the-danger-of-dirty-resets), caused my incorrect execution of instructions when the variation betwen clock periods is far in excess of the manufacturer spec and if fumbles math with the program counter.)
+5. A clock source that resets the chip or hangs immediately upon switching to it is much easier to detect if using Optiboot - however, you could blink an LED before the switch to see if it's hanging or bootlooping by overriding onPreMain():
 ```c++
 #include <util/delay.h> -  there is no timekeeping in onPreMain
 
@@ -182,24 +182,25 @@ void onPreMain() {
   _delay_ms(500*4/24); // F_CPU is #defined globally, but init is the first part of main. This is running before that so you need to use the builtin avr delay functions.
   digitalWrite(LED_BUILTIN, CHANGE); // now it's high again. Allow startup to proceed, leaving he LED on to detect resetting into a bad state as opposed to hanging in a bad state.
 }
-
-
 ```
-)
+
+Problems withe inappropriate loading caps, cold solder joints (to not only the two clock pins, but (if present) the ground pins on the crystal as well) can lead to problems 2 or 3 above occurr when you touch the crystal housing. That is a sign that the crystal is barely working under normal conditions, and either the force is disconnecting a pad that isn't properly soldered, or the caps are wrong or the layout to terrible, such that you introduce enough electrical noise to kill the whole thing, just by touching what should be a grounded crystal housing (ideally - not the case for HC/49s nor for garbage cans (aka cylindrical - I personally like them, but it amuses me to compare them to a garbage can. HC/49 package is the one I can't stand - it takes up so much board space, and it has to have short traces and nothing running under it and the package has a whole bunch of other pins on it that I want to connect to stuff. I much prefer a tiny garbage can cap. You can usually put them on top of the chip and hot-glue them in place to keep them from breaking during handling. Check the loading caps, check the solder joints. If you're sure the solder joints are good, and you're sure the loading caps are appropriate, change the loading caps anyway, maybe for a slightly higher or lower value. The crystal drive circuit is weak on these parts, probably due to power considerations, and fiendishly sensitive to everything.
+
+Without a FET probe, I don't think I have much hope of understanding this.
 
 ## Solving clock problems
-First, if the sketch doesn't seem to run at all, if you have an oscilloscope, or even a "logic probe" that will tell you if there are frequent transitions on a pin, connect it to PA7, and override onPreMain() with:
+First, if the sketch doesn't seem to run at all, switch to internal clock not more than 24 MHz and. If that doesn't do anything either it points to your sketch, and/or bad connections to external devices causing a hang during initialization (this is what the majority of hangs are with the dirty reset protection (without it, it was fairly easy to get it to a state where it needed a reset pin reset or power cycle to revive through bad code. . Now it will generally just bootloop at worst, and it's straightforward to probe them by writing to a pin with an LED on it and moving that around to find where it's getting stuck, if you keep it on github, compare to older versions, etc - you introduced a bug around the same time you decided to try the crystal, or have a loose wire (don't underestimate this if you wait on external devices when starting up. Especially dupont line is really really bad and ubiquitous. (Without crimping your own, I've gotten best results from buying chinese "terminal line" with the terminals but no housings, and a bunch of housings - they are usually made with less-bad terminals,  and avoid the ribbon cable dupont like like the plague). If it does work when you go back to internal oscillator, disconnect power and inspect it carefully for dubious solder joints, especially around the crystal or clock source.
+
+If you have an oscilloscope, or even a "logic probe" that will tell you if there are frequent transitions on a pin, connect it to PA7, and override onPreMain() with:
 ```c++
 void onPreMain() {
   _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA,0x80);
 }
 
 ```
-That will cause PA7 (can't be changed) to output the system clock, and the startup routines do not change the high bit of that register, hence, the clock will continue to be output. If you see the app hung, but the clock output is coming out, that implies that it's not caused by a problem with the clock itself. This does not rule out an excessive oveclock (the AVR128DB32 that doesn't run at 40 does this).
+That will cause PA7 (can't be changed) to output the system clock, and the startup routines do not change the high bit of that register, hence, the clock will continue to be output. If you see the app hung, but the clock output is coming out, that implies that it's not caused by a problem with the clock itself. This does not rule out an excessive oveclock (the AVR128DB32 that doesn't run at 40 does this) - the chip is sitting there unable to get enough instructions executed before smashing the program counter - or maybe it even misreads it. Errors generally turn 1's into 0's, so the glitching program counter will be trying to send you .
 
-Try an internal clock of not higher than 24 MHz. If this also doesn't work, it is 100% a bug in your sketch, fix it.
-
-If you are unable to upload new code, the problem has nothing to do with the clock, and you may have danaged the chip in some way.
+If you are unable to upload new code, the problem has nothing to do with the clock, and you may have danaged the chip in some way, or you may have stumbled onto one of the ways to derange the UPDI subsystem from within the sketch (it is quite possible). Usually you can escape it by holding down reset and releasing right before it starts attempting upload,
 
 
 ### Crystals
@@ -214,7 +215,7 @@ My protocol when I encounter this is:
   b. Double check your calculations of the appropriate load capacitance. If you're not confident that they're approximately correct, remove the two capacitors and try again (with no caps - amazingly this often *just barely* works, though it will usually crash if you put your hand near it. Your original loading capacitor value was too large, likely because you underestimated stray capacitance. Use a significantly lower value capacitor.
   c. Your crystal may just be bad.
 3. if it previously worked
-  a. If SMD caps, put a touch of "no clean" flux ("rework", "gel" ,"tacky" and similar words often usedto describe the type you want. The liquid kind is usually not as effectvive)  on the caps, and briefly touch an soldering iron tip to each end of each cap. (alternate capacitors to give the end you reflowed a chance to cool. if you can, do the same for the pads of the crystal. Try it again.
+  a. If SMD caps, put a touch of "no clean" flux ("rework", "gel" ,"tacky" and similar words often usedto describe the type you want. )  on the caps, and briefly touch an soldering iron tip to each end of each cap. (alternate capacitors to give the end you reflowed a chance to cool. if you can, do the same for the pads of the crystal. Try it again.
   b. Failing that, replace the crystal.
 
 ### External clocks

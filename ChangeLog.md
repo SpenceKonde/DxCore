@@ -8,6 +8,10 @@ These items are in addition to what was listed under changes already in release.
 ## Changes Implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
+### Planned 1.5.5
+* Enhancement: Add a few more macros for getting information on peripherals and updated define reference.
+* Bugfix: Remove spurrious warning.
+
 ## Released Versions
 
 ### 1.5.4

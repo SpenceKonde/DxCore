@@ -79,6 +79,13 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
   #else
     // when TCD0 is used as millis source, this will be different from above, but 99 times out of 10, when a piece of code asks for clockCyclesPerMicrosecond(), they're asking about CLK_PER/CLK_MAIN/etc, not the unprescaled TCD0!
     inline uint16_t millisClockCyclesPerMicrosecond() {
+      /*
+       * See, here's an example of why we don't use TCD millis here. Instead of having 2 options to pick from during design for TCD clock....
+       * we have every F_CPU option. Plus every crystal or clock option (it can be run from the PLL (at least on the DD) running from crystal
+       * or the PLL clocked from CLK_PER while the CPU runs from the internal oscillator. Just enumerating the possible options to pick one is
+       * a daunting task. And TCD is a crap timer for millis. We only use it on the tinyAVRs because they are starved for timers.
+       */
+      /*
       #ifdef MILLIS_USE_TIMERD0
         #if (F_CPU == 20000000UL || F_CPU == 10000000UL ||F_CPU == 5000000UL)
           return (20);   // this always runs off the 20MHz oscillator
@@ -86,8 +93,9 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
           return (16);
         #endif
       #else
-        return ((F_CPU) / 1000000L);
-      #endif
+      */
+      return ((F_CPU) / 1000000L);
+      //#endif
     }
 
 
@@ -162,8 +170,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
       #define MILLIS_TIMER_VECTOR (TCD0_OVF_vect)
       const struct sTimer _timerS = {TCD_OVF_bm, &TCD0.INTFLAGS};
       */
-      #error "TCD0 is not asupported timing source on the Dx-series. "
-
+      #error "TCD0 is not asupported timing source on the Dx-series; the greater number of possible configurations of the clock make it even more unwieldy. "
     #else
       #error "No millis timer selected, but not disabled - can't happen!".
     #endif  /* defined(MILLIS_USE_TIMER__) */
@@ -179,7 +186,6 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
 
     #elif defined(MILLIS_USE_TIMERRTC)  // RTC
       volatile uint16_t timer_overflow_count;
-
     #else                               // TCAx or TCD0
       volatile uint16_t timer_fract;
       volatile uint32_t timer_millis;
@@ -210,11 +216,11 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
       "in         r24,     0x3F"  "\n\t" // Need to save SREG too
       "push       r24"            "\n\t" // and push the SREG value  - 7 clocks here + the 5-6 to enter the ISR depending on flash and sketch size, 12-13 total
       "ld         r24,        Z"  "\n\t" // Z points to LSB of timer_millis, load the LSB
-      #if (F_CPU > 2000000)            // if it's 1 or 2 MHz, millis timer overflows every 2ms, intentionally sacrificing resolution for reduced time spent in ISR
+    #if (F_CPU > 2000000)                // if it's 1 or 2 MHz, millis timer overflows every 2ms, intentionally sacrificing resolution for reduced time spent in ISR
       "subi       r24,     0xFF"  "\n\t" // sub immediate 0xFF is the same as to add 1. (There is no add immediate instruction, except add immediate to word)
-      #else
+    #else
       "subi       r24,     0xFE"  "\n\t" // sub immediate 0xFE is the same as to add 2
-      #endif
+    #endif
       "st           Z,      r24"  "\n\t" // Store incremented value back to Z
       "ldd        r24,      Z+1"  "\n\t" // now load the next higher byte
       "sbci       r24,     0xFF"  "\n\t" // because this is sbci, it treats carry bit like subtraction, and unless we did just roll over with the last byte,
@@ -1397,18 +1403,17 @@ void restart_millis()
       TCA1.SPLIT.CTRLA = 0x00;
       TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
       TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
+    /*
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.CTRLA = 0x00;
       while(TCD0.STATUS & 0x01);
+    */
     #elif defined(MILLIS_USE_TCB) // It's a type b timer
       _timer->CTRLB = 0;
     #endif
     init_millis();
   #endif
 }
-
-
-
 
 void __attribute__((weak)) init_millis()
 {
@@ -1419,6 +1424,7 @@ void __attribute__((weak)) init_millis()
       TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
     #elif defined(MILLIS_USE_TIMERA1)
       TCA1.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
+    /*
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.CMPBCLR        = TIME_TRACKING_TIMER_PERIOD; // essentially, this is TOP
       TCD0.CTRLB          = 0x00; // oneramp mode
@@ -1438,6 +1444,7 @@ void __attribute__((weak)) init_millis()
       #endif
       RTC.INTCTRL         = 0x01; // enable overflow interrupt
       RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
+    */
     #else // It's a type b timer - we have already errored out if that wasn't defined
       _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
       // Enable timer interrupt, but clear the rest of register
@@ -1454,8 +1461,8 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
 {
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("set_millis() is only valid with millis timekeeping enabled.");
-    GPIOR0 |= newmillis; // keeps the compiler from warning about unused parameter, it's a compile error if this is reachable anyway.
   #else
+    /*
     #if defined(MILLIS_USE_TIMERRTC)
       // timer_overflow_count = newmillis >> 16;
       // millis = 61/64(timer_overflow_count << 16 + RTC.CNT)
@@ -1470,15 +1477,33 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
       RTC.CNT = newmillis & 0xFFFF;
       SREG = oldSREG; // reemable oimterripts if we killed them,
     #else
+     */
       /* farting around with micros via overflow count was ugly and buggy.
        * may implement again, better, in the future - but millis and micros
        * will get out of sync when you use set_millis
        * I think the way to do it is to make this implementation (but not big one)
        * inline, so if newmillis is constant, we can calculate the (compile-time known)
        * number of overflows using all the floating point math we want, and otherwise,
-       * document that it will zero out micros.*/
+       * document that it will zero out micros. (I belive MX682X wrote this?)*/
+
+      /* I see no problem with millis and micros getting out of sync. This function is
+       * called set_millis, not setMicros(). Why should it change micros? Remember, this function is planned for applications like:
+       * Chucking millis forward when you wake up before hitting snooze again.
+       * uhhh. Honestly I think that's it.
+       * And in that circumstance, if you have something being timed with micros, either you should be using millis, or you went to sleep when
+       * you shouldn't have, and you have long since missed your appointment. If you're timing something with micros while doing something on the timescales this is meant for
+       * you're doin' it wrong. I'm not convinced that it matters that micros and millis get out of sync.
+       *
+       * Also, at least on DxCore, 99% of millis timers are going to be TCB. But this limitation only effects TCD0 (unsupported) and TCAn. It might become more
+       * relevant when the EB-series comes along with those two new timers. On the other hand, it may turn out that there is some way to make one or either of them into
+       * good millis timers (I would say I doubt that for TCE - it's too valuable as a PWM timer - but with even a 2:1 prescaler option, you could slow down a TCF so you got
+       * ONE MILLION microseconds per overflow - though extracting millis from micros would then be hard. )
+       * Using TCA for millis is what you do when you're desperate, not what you set out planning to do. timer_millis is all the state we store for TCB.
+       * so this won't cause any desynchronization of timing for the vast majority of users.
+       * -SK 2/4/23
+       */
       timingStruct.timer_millis = newmillis;
-    #endif
+    //#endif
   #endif
 }
 
@@ -1489,7 +1514,11 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
     timingStruct.timer_millis += nudgesize;
     SREG=oldSREG;
   #else
-    #warning "Timer correction not yet supported for this timer.");
+    #if defined(MILLIS_USE_TIMERNONE)
+      badCall("nudge_millis() is not available with millis disabled. What are you hoping for it to do?");
+    #else
+      badCall("The selected timer does not support nudging millis at this point in time. Only TCA, TCB and TCD timers support this currently.");
+    #endif
   #endif
 }
 

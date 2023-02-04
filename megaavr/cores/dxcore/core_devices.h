@@ -3,7 +3,7 @@
  * This is directly included by Arduino.h and nothing else; it just moves
  * clutter out of that file. You should not directly include this file ever.
  *
- * Spence Konde 2021 -2022- megaTinyCore and DxCore are free software (LGPL 2.1)
+ * (C) Spence Konde 2021 - 2023. megaTinyCore and DxCore are free software (LGPL 2.1)
  * See LICENSE.txt for full legal boilerplate if you must */
 
 #ifndef Core_Devices_h
@@ -99,9 +99,9 @@
 #define ID_AVR_DB       (0x08)
 #define ID_AVR_DD       (0x40)
 #define ID_AVR_DU       (0x48) // Product brief posted then deleted. Who knows if it will exist.
-/*      ID_AVR_??       (0x80) */ // TBD
+/*      ID_AVR_??       (0x80) */ // The question I want to know the answer to is... "Will anyone point out what unsexy medical condition 'ED' refers to before they "
 /*      ID_AVR_??       (0x88) */ // TBD
-/*      ID_AVR_??       (0xC0) */ // TBD
+#define ID_AVR_EB       (0xC0) // Not yet released
 #define ID_AVR_EA       (0xC8) // Not yet released
 
 #define ID_MASK_SERIES  (0xC8)
@@ -257,7 +257,10 @@
   #error "The AVR DU-series is not available. The product brief has been retracted and it's fate is uncertain. Where did you get toolchain support for it?"
 #elif defined(__AVR_EA__)
   #define     _AVR_FAMILY       "EA"
-  #error "The AVR EA-series is not available. There is no datasheet yet available, though current indications suggest most changes will be confined to libraries."
+  #error "The AVR EA-series is not available, and support for it has not been added to the core yet."
+#elif defined(__AVR_EB__)
+  #define     _AVR_FAMILY       "EB"
+  #error "The AVR EB-series is not available, and support for it has not been added to the core yet."
 #else
   #error "Unrecognized part, this should not be possible"
   #define     _AVR_FAMILY       "UNKNOWN"
@@ -323,7 +326,7 @@
   #error "Unrecognized combination of flash size and chip type"
 #endif
 
-#if defined(AC2)
+#if   defined(AC2)
   #define _AVR_AC_COUNT      (3)
 #elif defined(AC1)
   #define _AVR_AC_COUNT      (2)
@@ -334,7 +337,7 @@
   #error "No AC? No supported parts exist without one, something is wrong"
 #endif
 
-#if defined(ADC1)
+#if   defined(ADC1)
   #define _AVR_ADC_COUNT     (2)
 #elif defined(ADC0)
   #define _AVR_ADC_COUNT     (1)
@@ -343,9 +346,77 @@
   #error "No ADC? No supported parts exist without one, something is wrong"
 #endif
 
+/* EVSYS:
+ * Count up the event channels.
+ * There are only 2 possibilities for tinyAVRs with the wacko channels.
+ * Since they're not making more of those, test for those two cases only, otherwise, might as well check every option. */
+
+#if defined (EVSYS_ASYNCCH3) // tinyAVR 1
+  #define _AVR_EVSYS_COUNT  (6)
+  #define _AVR_EVSYS_ASYNC  (4)
+  #define _AVR_EVSYS_SYNC   (2)
+#elif defined (EVSYS_ASYNCCH1) // tinyAVR 0
+  #define _AVR_EVSYS_COUNT  (3)
+  #define _AVR_EVSYS_ASYNC  (2)
+  #define _AVR_EVSYS_SYNC   (1)
+#elif defined(EVSYS_CHANNEL15)
+  #define _AVR_EVSYS_COUNT  (16)
+#elif defined(EVSYS_CHANNEL14)
+  #define _AVR_EVSYS_COUNT  (15)
+#elif defined(EVSYS_CHANNEL13)
+  #define _AVR_EVSYS_COUNT  (14)
+#elif defined(EVSYS_CHANNEL12)
+  #define _AVR_EVSYS_COUNT  (13)
+#elif defined(EVSYS_CHANNEL11)
+  #define _AVR_EVSYS_COUNT  (12)
+#elif defined(EVSYS_CHANNEL10)
+  #define _AVR_EVSYS_COUNT  (11)
+#elif defined(EVSYS_CHANNEL9)
+  #define _AVR_EVSYS_COUNT  (10)
+#elif defined(EVSYS_CHANNEL8)
+  #define _AVR_EVSYS_COUNT  (9)
+#elif defined(EVSYS_CHANNEL7)
+  #define _AVR_EVSYS_COUNT  (8)
+#elif defined(EVSYS_CHANNEL6)
+  #define _AVR_EVSYS_COUNT  (7)
+#elif defined(EVSYS_CHANNEL5)
+  #define _AVR_EVSYS_COUNT  (6)
+#elif defined(EVSYS_CHANNEL4)
+  #define _AVR_EVSYS_COUNT  (5)
+#elif defined(EVSYS_CHANNEL3)
+  #define _AVR_EVSYS_COUNT  (4)
+#elif defined(EVSYS_CHANNEL2)
+  #define _AVR_EVSYS_COUNT  (3)
+#elif defined(EVSYS_CHANNEL1)
+  #define _AVR_EVSYS_COUNT  (2)
+#elif defined(EVSYS_CHANNEL0)
+  #define _AVR_EVSYS_COUNT  (1)
+#else
+  #error "No EVSYS detected? All supported parts have one, something is wrong"
+#endif
+
+/* We should also check what kind of evsys we have, as they are quite different from eachother.
+ * Provide a define indicating which revision of EVSYS this is. 1 and 2 differ only in naming of strobe register.
+ * 3 separates the decision of which pin(s) within a port will be used aas event input and which of those to use
+ * with the former being configured with PORTx.EVGENCTRL. This allows the number of generators to drop from 8/port to 2/port, and the number of RTC generators to likewise drop to 2 from 16 with 8 available per channel
+ * In exchange for this, we achieve our longtime dream: Equality between all generator channels, because the redused number of
+ * generators allows them to add both options for all ports and both RTC options to all generator channels
+ * Too bad they released so many parts with the other versions :-/ */
+
+#if defined(PORTA_EVGENCTRL) // Ex-series, with EVGENCTRL registers on RTC and PORT.
+  #define _AVR_EVSYS_VERSION   (3)
+#elif defined(EVSYS_STROBE) // mega0 - basically Dx, but different name for strobe.
+  #define _AVR_EVSYS_VERSION   (1)
+#elif !defined(EVSYS_ASYNCCH0) // AVR Dx, 2-series
+  #define _AVR_EVSYS_VERSION   (2)
+#else // tinyAVR 0/1-series with the two kinds of channels and boneheaded generator layout.
+  #define _AVR_EVSYS_VERSION   (0)
+#endif
+
 
 #if defined(OPAMP)
-  /* Allow for future chip with more opamps. There's room for 6 in the struct
+  /* OPAMPS:
+   * Allow for future chip with more opamps. There's room for 6 in the struct
    * which has 64 bytes - 8 per OPAMP, and 16 at the start used for global settings
    * At time of writing, on the only parts with OPAMPs, only 4 of the global bytes are used
    * 6 of the 8 bytes for each OPAMP are used, 2 are spares. */
@@ -369,7 +440,9 @@
 #endif
 
 #if defined(CCL)
-  #if defined(CCL_TRUTH4)
+  #if   defined(CCL_TRUTH6)
+    #define _AVR_LUT_COUNT     (8)
+  #elif defined(CCL_TRUTH4)
     #define _AVR_LUT_COUNT     (6)
   #elif defined(CCL_TRUTH2)
     #define _AVR_LUT_COUNT     (4)
@@ -382,15 +455,19 @@
   #error "No CCL? No supported parts exist without one, something is wrong"
 #endif
 
-#if defined(TCA1)
+#if   defined(TCA1)
   #define _AVR_TCA_COUNT     (2)
 #elif defined(TCA0)
   #define _AVR_TCA_COUNT     (1)
 #else
-  #error "No TCA? No supported parts exist without one, something is wrong"
+  #define _AVR_TCA_COUNT     (0) // I fear something terrible happened to the TCA on the EB-series... and I think the TCE and that WEX Luther guy he's always with know something about it.
 #endif
 
-#if defined(TCB5)
+#if   defined(TCB7)
+  #define _AVR_TCB_COUNT     (8)
+#elif defined(TCB6)
+  #define _AVR_TCB_COUNT     (7)
+#elif defined(TCB5)
   #define _AVR_TCB_COUNT     (6)
 #elif defined(TCB4)
   #define _AVR_TCB_COUNT     (5)
@@ -406,13 +483,26 @@
   #error "No TCBs? No supported parts exist without one, something is wrong"
 #endif
 
-#if defined(TCD1)
-  #define _AVR_TCD_COUNT     (1)
+
+#if   defined(TCD0)
+  #define _AVR_TCD_COUNT     (1) // Only on Dx-series and tinyAVR
 #else
   #define _AVR_TCD_COUNT     (0)
 #endif
 
-#if defined(TWI1)
+#if   defined(TCE0)
+  #define _AVR_TCE_COUNT     (1) // first appears on the EB-series, 16-bit. Some sort of 8-channeled monster who is always with the one they call WEX. I haven't heard from TCA0 after they showed up and started doing
+#else                            // PWM on the same pins. I have a bad feeling that TCA0 is either tied up in the basement, or dead in a wooded area. With the TCE's skill at motor control, they could easily have
+  #define _AVR_TCE_COUNT     (0) // used power-tools to dismember bury the body.... Anyway, whether these guys are as useful in the silicon as they look  on paper will depend a lot on the whether those
+#endif                           // 8-channels are independent, and whether they need to split like TCA did to handle 8 WO's if so. And, of course on how flexible their clocking options are.
+
+#if   defined(TCF0)
+  #define _AVR_TCF_COUNT     (1) // Even more enigmatic than the TCE. First appears on the EB-series, this previously unseen timer is said to be 24-bit! Curious how that will work and what clock sources it can use.
+#else                            // a 24-bit timer clocked from the CPU core, at only 20 MHz would need it's period choked way back, sacrificing all that resolution, in order to get PWM rather than a blinking light.
+  #define _AVR_TCF_COUNT     (0) // 2^24 is in the neighborhood of 17 million, so if CLK_PER was it's max, a lot of these frequencies it could generate would be a touch on the slow side. Even if we can get them up to
+#endif                           // 32 MHz like tiny-2's, we'd need to use only 1-2 bits of that last byte to avoid flicker if you wanted to use for PWM, which Arduino people will.
+
+#if   defined(TWI1)
   #define _AVR_TWI_COUNT     (2)
 #elif defined(TWI0)
   #define _AVR_TWI_COUNT     (1)
@@ -420,7 +510,7 @@
   #error "No TWI? No supported parts exist without one, something is wrong"
 #endif
 
-#if defined(SPI1)
+#if   defined(SPI1)
   #define _AVR_SPI_COUNT     (2)
 #elif defined(SPI0)
   #define _AVR_SPI_COUNT     (1)
@@ -428,7 +518,11 @@
   #error "No SPI? No supported parts exist without one, something is wrong"
 #endif
 
-#if defined(USART5)
+#if   defined(USART7)
+  #define _AVR_USART_COUNT     (8)
+#elif defined(USART6)
+  #define _AVR_USART_COUNT     (7)
+#elif defined(USART5)
   #define _AVR_USART_COUNT     (6)
 #elif defined(USART4)
   #define _AVR_USART_COUNT     (5)
@@ -445,8 +539,12 @@
 #endif
 
 
-#if defined(ZCD3)
-  #define _AVR_ZCD_COUNT     (1) /* Only the DD's have ZCD3, which is their ZCD0 by a different name, since it uses different pins */
+#if   defined(ZCD3)
+  #if !defined(ZCD0)
+    #define _AVR_ZCD_COUNT   (1) /* DD-series */
+  #else
+    #define _AVR_ZCD_COUNT   (4)
+  #endif
 #elif defined(ZCD2)
   #define _AVR_ZCD_COUNT     (3)
 #elif defined(ZCD1)
@@ -457,7 +555,7 @@
   #define _AVR_ZCD_COUNT     (0)
 #endif
 
-#if defined(DAC2)
+#if   defined(DAC2)
   #define _AVR_DAC_COUNT     (3)
 #elif defined(DAC1)
   #define _AVR_DAC_COUNT     (2)
@@ -469,17 +567,17 @@
 
 #ifdef OPAMP
   #if defined(OPAMP_OP0CTRLA)
-    #define PIN_OPAMP0_INP            PIN_PD1
+    #define PIN_OPAMP0_INP            PIN_PD1 /* Starts at PD1 since DB's with 28 or 32 pins have no PD0. */
     #define PIN_OPAMP0_OUT            PIN_PD2
     #define PIN_OPAMP0_INN            PIN_PD3
   #endif
   #if defined(OPAMP_OP1CTRLA)
     #define PIN_OPAMP1_INP            PIN_PD4
     #define PIN_OPAMP1_OUT            PIN_PD5
-    #define PIN_OPAMP1_INN            PIN_PD7
+    #define PIN_OPAMP1_INN            PIN_PD7 /* Skips PD6 because that's the DAC output */
   #endif
   #if defined(OPAMP_OP2CTRLA)
-    #define PIN_OPAMP2_INP            PIN_PE1
+    #define PIN_OPAMP2_INP            PIN_PE1 /* Likely skips PE0 for consistency with OPAMP0 */
     #define PIN_OPAMP2_OUT            PIN_PE2
     #define PIN_OPAMP2_INN            PIN_PE3
   #endif
@@ -487,14 +585,26 @@
 
 
 #ifdef DAC0
+  #if   defined(DAC_OUTRANGE_gm) // Ex-series - 10-bit, and OUTRANGE, the strange option for selection the range of DATA values that can be output.
+    #define _AVR_DAC_VERSION            (2)
+  #elif defined(DAC0_DATAH) // Dx-series - 10-bit
+    #define _AVR_DAC_VERSION            (1)
+  #else // tinyAVR 1 - 8-bit
+    #define _AVR_DAC_VERSION            (0)
+  #endif
   #ifndef PIN_DACOUT
-    #define PIN_DACOUT PIN_PD6
+    #if _AVR_DAC_VERSION == 0
+      #define PIN_DACOUT PIN_PA6 // different on tinyAVR!
+    #else
+      #define PIN_DACOUT PIN_PD6
+    #endif
   #endif
 #endif
-#if (defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_EA__)) // IO headers say EA gets INLVL - looks like it's standard now!
-  #define PORT_ID_INLVL                 (1)
+
+#if defined(PORT_INLVL_bm) // Check if we have inlvl option
+  #define _AVR_HAS_INLVL                 (1)
 #else
-  #define PORT_ID_INLVL                 (0)
+  #define _AVR_HAS_INLVL                 (0)
 #endif
 
 /* Hardware incapabilities: Errata */
@@ -522,15 +632,16 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 
 /* Now, what errata are we talking about here? */
 // The 128DA had a few unique and nasty ones.
-#if defined(__AVR_DA__) && (_AVR_FLASH == 128)
+#if defined(__AVR_DA__) && (_AVR_FLASH == 128) /* Only the Rev. A8 has shipped. We are all wondering where the die rev is....                              */
   #define ERRATA_TCA1_PORTMUX            (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
   #define ERRATA_PORTS_B_E_EVSYS         (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
   #define ERRATA_NVM_ST_BUG              (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
-  // Needless to say, that's the only version that's ever been for sale.
+  #define ERRATA_2V1_EXCESS_IDD          (0) /* This nasty one didn't show up until the DB's arrived                                                       */
 #else
   #define ERRATA_TCA1_PORTMUX            (0) /* TCA1 portmux works and always has on DB                                                                    */
   #define ERRATA_PORTS_B_E_EVSYS         (0) /* Works everywhere else                                                                                      */
-  #define ERRATA_NVM_ST_BUG              (0) /* only present on DB128!                                                                                     */
+  #define ERRATA_NVM_ST_BUG              (0) /* only present on DA128!                                                                                     */
+  #define ERRATA_2V1_EXCESS_IDD          (0) /* But he pretty well blows up most hope of low power/low voltage DBs                                         */
 #endif
 // A few were present on all the DA's, but fixed for the DBs.
 #if defined(__AVR_DA__)
@@ -551,40 +662,43 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 
 // And both DA and DB had a whole slew of issues
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
+  #define ERRATA_TCD_PORTMUX             (1) // *thud* *thud* *thud* - the sound of an embedded developer banging his head on the desk leaving a dent.
   #define ERRATA_DAC_DRIFT               (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
   #define ERRATA_TCA_RESTART             (1) // Is resets the direction, like the database said. Appaently both the documentation and the silicon were wrong.
-  #define ERRATA_CCL_PROTECTION          (1)
-  #define ERRATA_TCD_ASYNC_COUNTPSC      (1)
-  #define ERRATA_TCB_CCMP                (1)
-  #define ERRATA_TWI_PINS                (1)
-  #define ERRATA_USART_ONEWIRE_PINS      (1)
-  #define ERRATA_TWI_FLUSH               (1)
-  #define ERRATA_USART_ISFIF             (0)
-  #define ERRATA_USART_WAKE              (1)
+  #define ERRATA_CCL_PROTECTION          (1) // Busted on all pre-DD parts
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (1) // Busted on all pre-DD parts
+  #define ERRATA_TCB_CCMP                (1) // Busted on all pre-DD parts
+  #define ERRATA_TWI_PINS                (1) // Busted on all pre-DD parts
+  #define ERRATA_USART_ONEWIRE_PINS      (1) // Busted on all pre-DD parts.
+  #define ERRATA_TWI_FLUSH               (1) // Unclear whether actually present on older parts, or if it was added when dual mode went in.
+  #define ERRATA_USART_ISFIF             (1) // All devices seem to have this, though they only discovered it quite recently.
+  #define ERRATA_USART_WAKE              (1) // Present almost everywhere... except possibly very early modern AVRs. It may have been added when fixing one of the other bugs.
 #else
   // but most were fixed in the DD
-  #define ERRATA_PLL_XTAL                (0)
+  #define ERRATA_PLL_XTAL                (0) // Okay, that's cool I guess, but really small audience.
   #define ERRATA_TCD_PORTMUX             (0) // *dance dance dance*
-  #define ERRATA_DAC_DRIFT               (0) // Fixed??
+  #define ERRATA_DAC_DRIFT               (0) // Fixed?
   #define ERRATA_ADC_PIN_DISABLE         (0) // One less annoying thing.
   #define ERRATA_TCA_RESTART             (0) // Direction NOT reset
   #define ERRATA_CCL_PROTECTION          (0) // *dance dance dance*
-  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // *shrug*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-  #define ERRATA_TWI_PINS                (0) // What? Really? Okay...
-  #define ERRATA_USART_ONEWIRE_PINS      (0) // I guess they were looking at port-override stuff?
-  #define ERRATA_USART_ISFIF             (1) // Apparently in the course of fixing USART wake
-  #define ERRATA_USART_WAKE              (0) // they busted ISFIF handling.
-  #define ERRATA_TWI_FLUSH               (0)
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Cool, uh, I guess. Probably matters if you are driving really serious buisness motors.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  #define ERRATA_TWI_PINS                (0) // What? Really? Okay... I thought this one was just gonna sit there.
+  #define ERRATA_USART_ONEWIRE_PINS      (0) // I guess they were looking at port-override stuff.
+  #define ERRATA_USART_ISFIF             (1) // This one looks like it wasn't found soon enough for the DD's.
+  #define ERRATA_USART_WAKE              (0) // Okay I guess this is cool, since it's fixed we dgaf, but always good to see things getting fixed.
+  #define ERRATA_TWI_FLUSH               (0) // I still don't know if this matters a lot, a little or not at all.
+  #define ERRATA_2V1_EXCESS_IDD          (0) // Thankfully he seems to be gone now
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
   #define ERRATA_FLASH_MULTIPAGE         (1)
   // If write protection is enabled on the APPDATA section, but
-  // it is not aligned on a 16k boundary, 32-page erase targeting the APPCODE section before it reached APPDATA  would still fire.
-  // Takes some dedicated contriving to come up with a scenario to make this relevant.
-  #define ERRATA_TCD_HALTANDRESTART      (1)
+  // it is not aligned on a 16k boundary, 32-page erase targeting the APPCODE section before it reached APPDATA, a chunk of APPCODE can be erased.
+  // Takes some dedicated contriving to come up with a scenario to make this relevant without positing an individual just trying to score points by
+  // demonstrating bugs
+  #define ERRATA_TCD_HALTANDRESTART      (1) // Since I've never seen a good description of what the envisioned use cases are for TCD's event modes, I don't even know if I should care!
 #else
-  #error "Unrecognized port, cannot tell if a guiven erratum applies."
+  #warning "Unrecognized part - even if this compiles, something is mondo wrong with your IDE or system. Behavior w/unknown part is undefined, and may result in demons flying out of your nose"
 #endif
 
 /***********************************************************************************************************************************************\
@@ -592,7 +706,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  * CORE_HAS_FASTIO is 1 when digitalReadFast and digitalWriteFast are supplied, and 2 when openDrainFast and pinModeFast are as well.            *
  * CORE_HAS_OPENDRAIN                                                                                                                            *
  * CORE_HAS_PINCONFIG       is 1 if pinConfigure() is supplied. The allows full configuration of any pin.                                        *
- *                          is 2 if pinConfigure(pin,option1,option2,...option) sort of syntax is also valid.                                   *
+ *                          is 2 if pinConfigure(pin,option1,option2,...option) sort of syntax is also valid.                                    *
  * CORE_HAS_FASTPINMODE     is 1 if pinModeFast is supplied                                                                                      *
  * CORE_HAS_ANALOG_ENH      is 0 if no analogReadEnh is supplied, 1 if it is, and 2 if it is supplied and both core and hardware support a PGA.  *
  * CORE_HAS_ANALOG_DIFF     is 0 if no analogReadDiff is supplied, 1 if it's DX-like (Vin < VREF), and 2 if it's a proper                        *
@@ -601,7 +715,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  * CORE_HAS_TIMER_TAKEOVER  is 1 if takeOverTCxn functions are provided to tell the core not to automatically use the type A and D timers.       *
  * CORE_HAS_TIMER_RESUME    is 1 if resumeTCAn functions are provided to hand control back to the core and reinitialize them.                    *
  * CORE_DETECTS_TCD_PORTMUX is 1 if the TCD portmux works correctly on the hardware and is used by the core                                      *
- *                             0 if doesn't, and the core thus does not attempt to use it.                                                        *
+ *                             0 if doesn't, and the core thus does not attempt to use it.                                                       *
  * DEVICE_PORTMUX_TCA       is 1 if the TCA portmux is tinyAVR like, with 1 bit per channel, 2 if the device is anti-tinyAVR-like with portmux   *
  *                                  for TCA assigning pins in groups.                                                                            *
  * DEVICE_PORTMUX_TCD       is 0 or undefined if there is no portmux register for TCD (like a tinyAVR).                                          *
@@ -609,7 +723,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  *                             2 for a DD-series mux (5 option, all of which work except 1 and 3 which aren't expected to work because the pins  *
  *                                  don't exist)                                                                                                 *
  * DEVICE_PORTMUX_UART      is 0 if there is tinyAVR-like single bit muxing for USART pins.                                                      *
- *                             1 for 2-bit wide bitfiesd for each USART, 0-3 in USARTROUTEA and 4-7 in USARTROUTEB                             *
+ *                             1 for 2-bit wide bitfiesd for each USART, 0-3 in USARTROUTEA and 4-7 in USARTROUTEB                               *
  *                             2 for 3-bit wide bitfield for USART0, and at least 2 bits for USART1 (like a DD-series). It is not known yet what *
  *                                  will be done about further USARTs                                                                            *
  *        I can imagine a future with only 0 ever getting 3-bit bit wide muxes, (hence TCAROUTEA = 0, 1, 2, TCAOUTEB = 3, 4, 5, 6)               *
@@ -617,7 +731,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  *                                  USARTROUTEB, or a permanent shift to 3:2:3 or 3:3:2                                                          *
  *        The strangest possility is 3:2:2:1 with the first 4 USARTs still on USARTROUTEA, PORT3 losing it's "none" option, and retaining the 4  *
  *                                  unmolested bits for either USART6 and USART7 If we see a USART3 on USARTROUTEA or USART4 in Bit bosition 0   *
- *                                  of USARTROUTEB, that is a strong indicantion of a part in the works with >64 pins, and 7 serial ports.        *
+ *                                  of USARTROUTEB, that is a strong indicantion of a part in the works with >64 pins, and 7 serial ports.       *
  *                                  with no other USART having more than 3 pin mapping. Other options would give more hope of bigger parts.      *                                                          *
  *                                                                                                                                               *
  * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.                                        *
@@ -764,7 +878,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
     #if defined(PORTB)
       #define PORTMUX_TCD0_PORTB  (0x01) // PORTMUX_TCD0_ALT1_gc
     #endif
-    #define PORTMUX_TCD0_PORTF  (0x02) // PORTMUX_TCD0_ALT2_gc
+    #define   PORTMUX_TCD0_PORTF  (0x02) // PORTMUX_TCD0_ALT2_gc
     #if defined(PORTG)
       #define PORTMUX_TCD0_PORTG  (0x03) // PORTMUX_TCD0_ALT3_gc
     #endif
@@ -785,6 +899,10 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  * Instead of backwards compatibilily, you want the opposite, which some wags have called "Backwards combatibility"
  * Defining BACKWARD_COMBATIBILITY_MODE turns off all of these definitions that paper over name changes.
  */
+
+// In backwards "combatability" mode, none of these helper definitions are provided.
+// in order to force you to use the cannonical names for these registers and options.
+// Otherwise, we try our best paper over the stupid bitfield and groupcode name changes.
 
 // #define BACKWARD_COMBATIBILITY_MODE
 
@@ -821,19 +939,25 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   /* In one xMega AVR, they were GPIOn, rather than GPIORn
    * One? Yup: The ATxmega32d4. Not the 32d3, nor the 32e5, nor anything else. All the xmega's have GPIORs
    * and their headers list the GPIOn names too. But.... there is only a single header
-   * file with them not marked as "Deprecated": ATxmega32D4
+   * file with them not marked as "Deprecated". And that's the ATxmega32d4
    * 24 of the 46 xmega parts with headers in the compiler packages (including the 32d3 and 32e5) had the
    * 4 GPIOR's that we have, and had GPIOn and GPIO_GPIOn present but marked as deprecated.
    * On those parts, these are at addresses 0x0000-0x003, and 0x0004-0x000F do not appear to be used.
    * The other 22.... had THE ENTIRE FIRST HALF OF THE LOW I/O SPACE as GPIOR0-GPIORF!
    * Which ones got all of them and which ones only got 4 seems to have been chosen in typical
-   * Atmel fashion (in other words, randomly). No apparent pattern in time or other parameters.
+   * Atmel fashion (hint: it involves flipping a coin). No apparent pattern in time or other parameters.
    * Either way, that left them with space for only 4 VPORT register sets (like the ones we got)
    * These had to be configured to point to the desired port.
    * I'm sure everyone is grateful for the fact that the folks designing the Dx-series have their
    * heads screwed on properly and realized that 4 GPIOR-- excuse me, GPRs, 4 awkward VPORTs and
    * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
-   * xmega line, and decided that wasn't a winning formula */
+   * xmega line, particularly in light of the profound usefulness of the VPORT for interacting with
+   * hardware in a performant and flash-efficient manner. This is clearly not why xMega failed
+   * in the market resulting in Microchip pretending they don't exist and why they were
+   * scavenged for parts during modern AVR development; there were more fundamental issues.
+   * But it didn't help, and this sort of halfassery with the treatment of the registers
+   * changing thrice during the xMega's run didn't help either.
+   */
   #if !defined(GPIOR0)
     #define GPIOR0                            (_SFR_MEM8(0x001C))
     #define GPIOR1                            (_SFR_MEM8(0x001D))
@@ -853,12 +977,14 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
     #define GPIO_GPIO3                        (_SFR_MEM8(0x001F))
   #endif
   #if !defined(GPR_GPR0)
-    #define GPR_GPR0                        (_SFR_MEM8(0x001C))
-    #define GPR_GPR1                        (_SFR_MEM8(0x001D))
-    #define GPR_GPR2                        (_SFR_MEM8(0x001E))
-    #define GPR_GPR3                        (_SFR_MEM8(0x001F))
+    #define GPR_GPR0                          (_SFR_MEM8(0x001C))
+    #define GPR_GPR1                          (_SFR_MEM8(0x001D))
+    #define GPR_GPR2                          (_SFR_MEM8(0x001E))
+    #define GPR_GPR3                          (_SFR_MEM8(0x001F))
   #endif
- // The naming of this has gotten so confusing. I give up, we all know where the registers are.
+ // Most people who know what they are call them GPIORs
+
+
   #if defined (CLKCTRL_SELHF_bm)
     /* They changed the damned name after selling the part for 6 months!
      * annoyingly you can't even test if it's using the new version of the headers because it's an enum! */
@@ -1210,7 +1336,6 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   #endif
 
   /* ======= ADC ======= */
-  // alter the way the header's compatibility layer works to actually *show* the deprecation warning.
   #if !defined(ADC_RESSEL_0_bm) && defined(ADC_RESSEL0_bm)
     #define ADC_RESSEL_0_bm ADC_RESSEL0_bm
   #elif defined(ADC_RESSEL_0_bm)
