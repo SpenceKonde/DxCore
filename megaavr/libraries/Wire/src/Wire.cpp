@@ -530,7 +530,7 @@ uint8_t TwoWire::endTransmission(bool sendStop) {
  *@param      uint8_t data - byte to put into the buffer
  *
  *
- *@return     uint8_t
+ *@return     size_t
  *@retval     1 if successful, 0 if the buffer is full
  */
 size_t TwoWire::write(uint8_t data) {
@@ -578,9 +578,9 @@ size_t TwoWire::write(uint8_t data) {
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
   twi_buffer_index_t i = 0;
-  twi_buffer_index_t qty = (quantity >= BUFFER_LENGTH) ? BUFFER_LENGTH : quantity; //Don't overfill the buffer.
-  for (; i < qty; i++) {
-    if (write(*(data + i)) == 0) break;   // break if buffer full
+  for (; i < quantity; i++) {
+    if (TwoWire::write(*(data++)) == 0) 
+      break;   // break if buffer full
   }
 
   return i;
