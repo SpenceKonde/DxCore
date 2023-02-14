@@ -573,13 +573,13 @@ size_t TwoWire::write(uint8_t data) {
  *@param      size_t quantity - amount of bytes to copy
  *
  *
- *@return     uint8_t
+ *@return     size_t
  *@retval     amount of bytes copied
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
   twi_buffer_index_t i = 0;
   for (; i < quantity; i++) {
-    if (TwoWire::write(*(data++)) == 0) 
+    if (TwoWire::write(*(data++)) == 0)
       break;   // break if buffer full
   }
 
