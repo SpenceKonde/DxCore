@@ -10,8 +10,8 @@ These are typically planned for release in a future version (usually the next on
 
 ### Planned 1.5.5
 * Enhancement: Add a few more macros for getting information on peripherals and updated define reference.
-* Bugfix: Remove spurrious warning.
-* A wire regression (#396) has been reported, impacting all 1.5.x releases
+* Bugfix: Remove spurious warning.
+* **Major Bugfix** Correct USERSIG library so it can actually write to the USERROW.
 
 ## Released Versions
 
