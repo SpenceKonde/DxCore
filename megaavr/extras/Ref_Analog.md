@@ -40,8 +40,14 @@ DACREF0-2 are the the reference voltages for the analog comparators. On the DA-s
 ## Analog Resolution
 The hardware supports increasing the resolution of analogRead() to the limit of the hardware's native resolution (10 or 12 bits); Additionally, we provide automatic oversampling and decimation up to the limit of what can be gathered using the accumulation feature allowing up to 15 bits of resolution (17 on future Ex-series); this is exposed through the `analogReadEnh()` function detailed below.
 
+## A warning about the DAC (well, 2)
+First, as described in the errata for the DA and DB, if the output buffer is not enabled, it will suffer accuracy drift over the life of the device. This is rarely an issue since almost all applications of the DAC require the buffer anyway. Just don't forget and leave it on doing nothing for a month or something.
+
+Secondly, the DAC can source a minuscule amount of current. 1mA or less. Compared to what it can sink, however, that current looks genererous. It can sink a mere 1 *micro*amp or so. To get good performance on the falling side of the DAC, you may need a small pulldown resistor. This is not necessary if you are using a DB with one of the OPAMPs in voltage follower mode, which we highly recommend for all cases where you need to generate analog voltages for more that a near-zero-current reference.
+
 ## ADC Sampling Speed
 DxCore takes advantage of the improvements in the ADC on the newer AVR parts to improve the speed of analogRead() by more than a factor of three over classic AVRs. The ADC clock which was - on the classic AVRs - constrained to the range 50-200kHz - can be cranked up as high as 2 MHz (up to 3 MHz for 2-series w/ with internal ref, twice that on external or Vdd reference at full resolution. We use use 1.0 to 1.5 MHz on Dx, and will target 2-2.5 by default on EA unless someone provides information that suggests I shouldn't.  To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being significantly faster by virtue of the much shorter conversion time.
+
 ## ADC Function Reference
 This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application.
 
@@ -176,9 +182,8 @@ Note that the numeric values, though not the names, of some of these were change
 |ADC_ENH_ERROR_RES_TOO_HIGH      | -2100000004 |                   -4 | Maximum resolution using automatic oversampling and decimation is less than the requested resolution.
 |ADC_DIFF_ERROR_BAD_NEG_PIN      | -2100000005 |                   -5 | analogReadDiff() was called with a negative input that is not valid.
 |ADC_ENH_ERROR_DISABLED          | -2100000007 |                   -7 | The ADC is currently disabled. You must enable it to take measurements. Did you disable it before going to sleep and not re-enable it?
-|ADC_IMPOSSIBLE_VALUE            |         N/A |                 -127 | 16-bit (analogRead()) value > 4095, or 32-bit value that's not an error code and is outside the range of -2,097,152 to 4,193,280 accumulation range.
-|.                               |         N/A |                    . | Note that 4,193,280 = (2<sup>12</sup>-1)*1024, and is the maximum possible for any single reading
-|Potentially valid reading       |see previous |                    0 | If there is some combinations of settings that could get this value without an error condition it returns 0.
+|ADC_IMPOSSIBLE_VALUE            |   See Notes |                 -127 | 16-bit (analogRead()) value > 4095 (on classic AVRs this could also mean < 2048), or 32-bit value that's not an error<br/> code and is outside the range of -2,097,152 to 4,193,280 accumulation range. Should be impossible. <br/> If you sum N values each no larger than Y, and the result is larger than N * Y, something is seriously busted.
+|Potentially valid reading       |      Result |                    0 | If there is some combinations of settings that could get this value without an error condition it returns 0.
 
 The impossible values are checked for without testing all of the bytes for greater efficiency. If you see that result one of two things was the case: the value you passed in wasn't from analog read or had been cast to a different type before you passed it, or i, or was corrupted somehow (writing off end of adjacent array in memory? Overclocking too hard such that th chip was doing math wrong?).
 

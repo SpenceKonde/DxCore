@@ -1484,7 +1484,7 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
        * I think the way to do it is to make this implementation (but not big one)
        * inline, so if newmillis is constant, we can calculate the (compile-time known)
        * number of overflows using all the floating point math we want, and otherwise,
-       * document that it will zero out micros. (I belive MX682X wrote this?)*/
+       * document that it will zero out micros. (I believe MX682X wrote this?)*/
 
       /* I see no problem with millis and micros getting out of sync. This function is
        * called set_millis, not setMicros(). Why should it change micros? Remember, this function is planned for applications like:

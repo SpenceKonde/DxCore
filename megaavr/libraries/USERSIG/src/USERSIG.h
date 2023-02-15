@@ -200,8 +200,12 @@ int8_t __USigload() {
   }
   for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {
     __USigBuffer[i] = *((volatile uint8_t *) USER_SIGNATURES_START + i);
+
+    GPIOR1 |= 8;
   }
+
   __USigLoaded = 1;
+  GPIOR1 |= 16;
   return 0;
 }
 uint8_t __USigread(uint8_t idx) {
@@ -217,17 +221,26 @@ uint8_t __USigreadraw(uint8_t idx) {
 }
 
 int8_t __USigwrite(uint8_t idx, uint8_t data) {
+  if (NVMCTRL.STATUS & 0x70) {
+    GPIOR1 |= 32;
+    NVMCTRL.STATUS = 0;
+  }
   if (CPUINT.STATUS != 0) {
     return -16;
   }
   idx &= (USER_SIGNATURES_SIZE - 1);
   if (!__USigLoaded) {
+    GPIOR1 |= 1;
     if ((__USigreadraw(idx) & data) != data) {
+      GPIOR1 |= 2;
       __USigload();
     } else {
+      GPIOR1 |= 4;
       return __USigwriteraw(idx, data);
     }
   }
+  GPIOR2 = idx;
+  GPIOR1 |= 128;
   __USigBuffer[idx] = data;
   return 0;
 }
@@ -245,8 +258,8 @@ int8_t __USigwriteraw(uint8_t idx, uint8_t data) {
   uint8_t oldSREG = SREG;
   while (NVMCTRL.STATUS & 3);
   cli();
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);
   *((volatile uint8_t *) USER_SIGNATURES_START + idx) = data;
   SREG = oldSREG;
   return 1;
@@ -278,13 +291,13 @@ int8_t __USigflush(uint8_t justerase) {
   }
   while (NVMCTRL.STATUS & 3);
   cli();
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Must reset to NOOP first
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLPER_gc);// Flash Page ERase
-  while (NVMCTRL.STATUS & 3);                          // Wait for write
-  _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Reset to NOOP - do this even if not writing
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Must reset to NOOP first
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLPER_gc);// Flash Page ERase
   *ptr = 0;                                            // erase the USERROW by writing with FLPER
+  while (NVMCTRL.STATUS & 3);                          // Wait for write
+  _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Reset to NOOP - do this even if not writing
   if (!justerase) {
-    _PROTECTED_WRITE(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);  // Flash WRite
+    _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);  // Flash WRite
     for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {  // loop over the USERROW
       *ptr++ = __USigBuffer[i];                        // write each byte in turn
     }
@@ -306,6 +319,7 @@ struct USERSIGClass {
     return __USigread(idx);
   }
   int8_t write(int idx, uint8_t val) {
+    GPIOR3 = idx;
     return __USigwrite(idx, val);
   }
   int8_t flush() {

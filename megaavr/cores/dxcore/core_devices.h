@@ -42,7 +42,7 @@
  * ff__f is a 3-bit family code 00__0 is the DA, 00__1 is DB,
  * 01__0 is DD. Dx-series grows up from bottom, Ex-series down
  * from top in order of availability of silicon. So the next two
- * are going to be 11__1 for the EA and 01__1 for the DU
+ * are going to be 11__1 for the EA and 01__1 for the DU (if it exists)
  * ss is flash size; 0 is smallest flash in family, 1 second smallest
  * (generally 2x smallest) 2 for next size up, and 3 for an even larger
  * one.
@@ -63,6 +63,10 @@
  * that introduces another layer of problems (1 extra clock cycle for every
  * call, rcall, reti and ret - because it's an extra thing to push onto the
  * stack and pop off the stack as part of those instructions...
+ *
+ * That would put them back in the position that xmega found itself in when they launched
+ * the series with high hopes and large flash sizes. It's hard to imagine that Microchip hasn't studied that debacle
+ *
  * I imagine Microchip isn't in a hurry to place itself in such a "zugswang"
  * situation where it is compelled to make a design decision that will
  * ultimately suck (the phrase comes from chess, a player in zugswang may
@@ -85,8 +89,12 @@
 #define ID_AVR64EA      (0xF8)
 #define ID_AVR32EA      (0xE8)
 #define ID_AVR16EA      (0xD8)
-#define ID_AVR8EA       (0xB8)
-// We could cover an 8 pin part! Or a 100-pin one. Neither seems likely
+#define ID_AVR8EA       (0xC8)
+#define ID_AVR32EB      (0xF0)
+#define ID_AVR16EB      (0xE0)
+#define ID_AVR8EB       (0xD0)
+// We could cover an 8 pin part! Or a 100-pin one. Neither seems likely - but if you told me there would be a 14-pin Dx-series the day before the DD brief was posted, I'd have laughed at the idea.
+// That's tinyAVR territory. Or it was.
 #define ID_14_PINS      (0x01)
 #define ID_20_PINS      (0x02)
 #define ID_24_PINS      (0x03)
@@ -98,8 +106,8 @@
 #define ID_AVR_DA       (0x00)
 #define ID_AVR_DB       (0x08)
 #define ID_AVR_DD       (0x40)
-#define ID_AVR_DU       (0x48) // Product brief posted then deleted. Who knows if it will exist.
-/*      ID_AVR_??       (0x80) */ // The question I want to know the answer to is... "Will anyone point out what unsexy medical condition 'ED' refers to before they "
+/*      ID_AVR_??       (0x48) */ // This was earmarked for the DU, but with the brief having vanished many moons ago, it's fate is now in question.
+/*      ID_AVR_??       (0x80) */ // The question I want to know the answer to is... "Will anyone point out what unsexy medical condition 'ED' refers to before they name a part family that?"
 /*      ID_AVR_??       (0x88) */ // TBD
 #define ID_AVR_EB       (0xC0) // Not yet released
 #define ID_AVR_EA       (0xC8) // Not yet released
@@ -113,6 +121,10 @@
  */
 
 //#defines to identify part families
+// Note that these are legacy and deprecated
+// Use the __AVR_xx__ defines to test which family it is or _AVR_FAMILY to get it as a string to print.
+// Use _AVR_PINCOUNT to test how many pins. PROGMEM_SIZE gives flash size as a number of bytes, and
+// _AVR_FLASH gives the flash size as a num
 #if defined(__AVR_AVR128DA64__) || defined(__AVR_AVR64DA64__)
   #define DA_64_PINS
   #define HAS_64_PINS
@@ -257,10 +269,11 @@
   #error "The AVR DU-series is not available. The product brief has been retracted and it's fate is uncertain. Where did you get toolchain support for it?"
 #elif defined(__AVR_EA__)
   #define     _AVR_FAMILY       "EA"
-  #error "The AVR EA-series is not available, and support for it has not been added to the core yet."
+  #error "The AVR EA-series is not available, though both the brief and headers are. Support will be added once datasheet or silicon is available."
 #elif defined(__AVR_EB__)
   #define     _AVR_FAMILY       "EB"
-  #error "The AVR EB-series is not available, and support for it has not been added to the core yet."
+  //
+  #error "The AVR EB-series is not available, and is known only from the brief. Support will be added once datasheet or silicon is available."
 #else
   #error "Unrecognized part, this should not be possible"
   #define     _AVR_FAMILY       "UNKNOWN"
@@ -278,6 +291,16 @@
      #define                  _AVR_PINCOUNT (48)
 #elif defined(DX_64_PINS)
      #define                  _AVR_PINCOUNT (64)
+#elif defined(EX_14_PINS)
+     #define                  _AVR_PINCOUNT (14)
+#elif defined(EX_20_PINS)
+     #define                  _AVR_PINCOUNT (20)
+#elif defined(EX_28_PINS)
+     #define                  _AVR_PINCOUNT (28)
+#elif defined(EX_32_PINS)
+     #define                  _AVR_PINCOUNT (32)
+#elif defined(EX_48_PINS)
+     #define                  _AVR_PINCOUNT (48)
 #endif
 
 #if   PROGMEM_SIZE == 0x20000
@@ -395,7 +418,7 @@
   #error "No EVSYS detected? All supported parts have one, something is wrong"
 #endif
 
-/* We should also check what kind of evsys we have, as they are quite different from eachother.
+/* We should also check what kind of evsys we have, as they are quite different from each other.
  * Provide a define indicating which revision of EVSYS this is. 1 and 2 differ only in naming of strobe register.
  * 3 separates the decision of which pin(s) within a port will be used aas event input and which of those to use
  * with the former being configured with PORTx.EVGENCTRL. This allows the number of generators to drop from 8/port to 2/port, and the number of RTC generators to likewise drop to 2 from 16 with 8 available per channel
@@ -681,7 +704,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   #define ERRATA_ADC_PIN_DISABLE         (0) // One less annoying thing.
   #define ERRATA_TCA_RESTART             (0) // Direction NOT reset
   #define ERRATA_CCL_PROTECTION          (0) // *dance dance dance*
-  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Cool, uh, I guess. Probably matters if you are driving really serious buisness motors.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  #define ERRATA_TCD_ASYNC_COUNTPSC      (0) // Cool, uh, I guess. Probably matters if you are driving really serious business motors.
   #define ERRATA_TWI_PINS                (0) // What? Really? Okay... I thought this one was just gonna sit there.
   #define ERRATA_USART_ONEWIRE_PINS      (0) // I guess they were looking at port-override stuff.
   #define ERRATA_USART_ISFIF             (1) // This one looks like it wasn't found soon enough for the DD's.
@@ -900,8 +923,8 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  * Defining BACKWARD_COMBATIBILITY_MODE turns off all of these definitions that paper over name changes.
  */
 
-// In backwards "combatability" mode, none of these helper definitions are provided.
-// in order to force you to use the cannonical names for these registers and options.
+// In backwards "combatability" mode, none of these helper definitions are provided
+// in order to force you to use the canonical names for these registers and options.
 // Otherwise, we try our best paper over the stupid bitfield and groupcode name changes.
 
 // #define BACKWARD_COMBATIBILITY_MODE
