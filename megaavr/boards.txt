@@ -2,9 +2,9 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####     ###   #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #           #  #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####      ##   #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####     ####  #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #        #     #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####     ####  #
 #  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##     #  #
 #  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##  ###   #
 #________________________________________________________________________#
@@ -87,6 +87,7 @@ menu.mvioopti=MultiVoltage I/O (MVIO) (Bootload burn req'd)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
+menu.optimization=Optimization level (see documentation)
 
 ##########################################################################
 #                                                                        #
@@ -139,6 +140,8 @@ avrda.build.text_section_start=.text=0x0
 avrda.build.extra_flags= {bootloader.appspm}
 avrda.build.export_merged_output=false
 avrda.build.printf=
+avrda.build.optimizationlevel=-Os
+avrda.build.gcse=
 avrda.build.attachmode=-DCORE_ATTACH_ALL
 
 #----------------------------------------#
@@ -163,6 +166,7 @@ avrda.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrda.build.mcupostfix=
 avrda.build.printfabr=
+avrda.build.optabr=.Os
 avrda.build.attachabr=
 avrda.build.wireabr=
 avrda.build.appspmabr=.spm{bootloader.CODESIZE}
@@ -379,6 +383,24 @@ avrda.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrda.menu.printf.minimal.build.printfabr=.pfM
 
 #----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+avrda.menu.optimization.size=-Os (size)
+avrda.menu.optimization.sizegcse=-Os (size, no GCSE)
+avrda.menu.optimization.o3=-O3 (speed)
+avrda.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+avrda.menu.optimization.size.build.optimizationlevel=-Os
+avrda.menu.optimization.sizegcse.build.optimizationlevel=-Os
+avrda.menu.optimization.o3.build.optimizationlevel=-O3
+avrda.menu.optimization.o3gcse.build.optimizationlevel=-O3
+avrda.menu.optimization.size.build.optabr=.Os
+avrda.menu.optimization.sizegcse.build.optabr=.Osng
+avrda.menu.optimization.o3.build.optabr=.O3
+avrda.menu.optimization.o3gcse.build.optabr=.O3ng
+avrda.menu.optimization.sizegcse.build.gcse=-fno-gcse
+avrda.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
+#----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
 avrda.menu.attach.allenabled=On all pins, with new implementation.
@@ -537,6 +559,8 @@ avrdb.build.extra_flags= {bootloader.appspm} {build.mvioenable}
 avrdb.build.export_merged_output=false
 avrdb.build.mcupostfix=
 avrdb.build.printf=
+avrdb.build.optimizationlevel=-Os
+avrdb.build.gcse=
 avrdb.build.attachmode=-DCORE_ATTACH_ALL
 
 #----------------------------------------#
@@ -561,6 +585,7 @@ avrdb.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrdb.build.mcupostfix=
 avrdb.build.printfabr=
+avrdb.build.optabr=.Os
 avrdb.build.attachabr=
 avrdb.build.wireabr=
 avrdb.build.appspmabr=.spm{bootloader.CODESIZE}
@@ -815,6 +840,24 @@ avrdb.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrdb.menu.printf.minimal.build.printfabr=.pfM
 
 #----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+avrdb.menu.optimization.size=-Os (size)
+avrdb.menu.optimization.sizegcse=-Os (size, no GCSE)
+avrdb.menu.optimization.o3=-O3 (speed)
+avrdb.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+avrdb.menu.optimization.size.build.optimizationlevel=-Os
+avrdb.menu.optimization.sizegcse.build.optimizationlevel=-Os
+avrdb.menu.optimization.o3.build.optimizationlevel=-O3
+avrdb.menu.optimization.o3gcse.build.optimizationlevel=-O3
+avrdb.menu.optimization.size.build.optabr=.Os
+avrdb.menu.optimization.sizegcse.build.optabr=.Osng
+avrdb.menu.optimization.o3.build.optabr=.O3
+avrdb.menu.optimization.o3gcse.build.optabr=.O3ng
+avrdb.menu.optimization.sizegcse.build.gcse=-fno-gcse
+avrdb.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
+#----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
 avrdb.menu.attach.allenabled=On all pins, with new implementation.
@@ -984,6 +1027,8 @@ avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable} {build.defaultsw
 avrdd.build.export_merged_output=false
 avrdd.build.highestcb=B2
 avrdd.build.printf=
+avrdd.build.optimizationlevel=-Os
+avrdd.build.gcse=
 avrdd.build.attachmode=-DCORE_ATTACH_ALL
 
 #----------------------------------------#
@@ -1008,6 +1053,7 @@ avrdd.bootloader.pymcuprogstring=-aerase
 #________________________________________#
 avrdd.build.mcupostfix=
 avrdd.build.printfabr=
+avrdd.build.optabr=.Os
 avrdd.build.attachabr=
 avrdd.build.wireabr=
 avrdd.build.appspmabr=.spm{bootloader.CODESIZE}
@@ -1280,6 +1326,24 @@ avrdd.menu.printf.minimal=Minimal, 1.1k flash used
 avrdd.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrdd.menu.printf.minimal.build.printfabr=.pfM
 
+#----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+avrdd.menu.optimization.size=-Os (size)
+avrdd.menu.optimization.sizegcse=-Os (size, no GCSE)
+avrdd.menu.optimization.o3=-O3 (speed)
+avrdd.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+avrdd.menu.optimization.size.build.optimizationlevel=-Os
+avrdd.menu.optimization.sizegcse.build.optimizationlevel=-Os
+avrdd.menu.optimization.o3.build.optimizationlevel=-O3
+avrdd.menu.optimization.o3gcse.build.optimizationlevel=-O3
+avrdd.menu.optimization.size.build.optabr=.Os
+avrdd.menu.optimization.sizegcse.build.optabr=.Osng
+avrdd.menu.optimization.o3.build.optabr=.O3
+avrdd.menu.optimization.o3gcse.build.optabr=.O3ng
+avrdd.menu.optimization.sizegcse.build.gcse=-fno-gcse
+avrdd.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -1442,6 +1506,8 @@ avrdd.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 #avrea.build.extra_flags=
 #avrea.build.export_merged_output=false
 #avrea.build.printf=
+#avrea.build.optimizationlevel=-Os
+#avrea.build.gcse=
 
 #----------------------------------------#
 # Bootloading parameters and fuses       #
@@ -1464,6 +1530,7 @@ avrdd.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 #________________________________________#
 #avrea.build.mcupostfix=
 #avrea.build.printfabr=
+#avrea.build.optabr=.Os
 #avrea.build.attachabr=
 #avrea.build.wireabr=
 ##Not supported but still need empty string here.
@@ -1739,6 +1806,24 @@ avrdd.build.appspmabr=
 #avrea.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 #avrea.menu.printf.minimal.build.printfabr=.pfM
 
+#----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+#avrea.menu.optimization.size=-Os (size)
+#avrea.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrea.menu.optimization.o3=-O3 (speed)
+#avrea.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrea.menu.optimization.size.build.optimizationlevel=-Os
+#avrea.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrea.menu.optimization.o3.build.optimizationlevel=-O3
+#avrea.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrea.menu.optimization.size.build.optabr=.Os
+#avrea.menu.optimization.sizegcse.build.optabr=.Osng
+#avrea.menu.optimization.o3.build.optabr=.O3
+#avrea.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrea.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrea.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -1854,6 +1939,8 @@ avrdaopti.build.text_section_start=.text=0x200
 avrdaopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT
 avrdaopti.build.export_merged_output=true
 avrdaopti.build.printf=
+avrdaopti.build.optimizationlevel=-Os
+avrdaopti.build.gcse=
 avrdaopti.build.attachmode=-DCORE_ATTACH_ALL
 
 #----------------------------------------#
@@ -1889,6 +1976,7 @@ avrdaopti.upload.prog_interlock="ERROR: Upload using programmer is not supported
 #________________________________________#
 avrdaopti.build.mcupostfix=opti
 avrdaopti.build.printfabr=
+avrdaopti.build.optabr=.Os
 avrdaopti.build.attachabr=
 avrdaopti.build.wireabr=
 avrdaopti.build.appspmabr=
@@ -2130,6 +2218,24 @@ avrdaopti.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrdaopti.menu.printf.minimal.build.printfabr=.pfM
 
 #----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+avrdaopti.menu.optimization.size=-Os (size)
+avrdaopti.menu.optimization.sizegcse=-Os (size, no GCSE)
+avrdaopti.menu.optimization.o3=-O3 (speed)
+avrdaopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+avrdaopti.menu.optimization.size.build.optimizationlevel=-Os
+avrdaopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
+avrdaopti.menu.optimization.o3.build.optimizationlevel=-O3
+avrdaopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
+avrdaopti.menu.optimization.size.build.optabr=.Os
+avrdaopti.menu.optimization.sizegcse.build.optabr=.Osng
+avrdaopti.menu.optimization.o3.build.optabr=.O3
+avrdaopti.menu.optimization.o3gcse.build.optabr=.O3ng
+avrdaopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
+avrdaopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
+#----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
 avrdaopti.menu.attach.allenabled=On all pins, with new implementation.
@@ -2294,6 +2400,8 @@ avrdbopti.build.text_section_start=.text=0x200
 avrdbopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_PORT_BOOT_PORTMUX={bootloader.portswap} -DUSING_OPTIBOOT {build.mvioenable}
 avrdbopti.build.export_merged_output=true
 avrdbopti.build.printf=
+avrdbopti.build.optimizationlevel=-Os
+avrdbopti.build.gcse=
 avrdbopti.build.attachmode=-DCORE_ATTACH_ALL
 
 #----------------------------------------#
@@ -2330,6 +2438,7 @@ avrdbopti.upload.prog_interlock="ERROR: Upload using programmer is not supported
 #________________________________________#
 avrdbopti.build.mcupostfix=opti
 avrdbopti.build.printfabr=
+avrdbopti.build.optabr=.Os
 avrdbopti.build.attachabr=
 avrdbopti.build.wireabr=
 avrdbopti.build.appspmabr=
@@ -2605,6 +2714,24 @@ avrdbopti.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrdbopti.menu.printf.minimal.build.printfabr=.pfM
 
 #----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+avrdbopti.menu.optimization.size=-Os (size)
+avrdbopti.menu.optimization.sizegcse=-Os (size, no GCSE)
+avrdbopti.menu.optimization.o3=-O3 (speed)
+avrdbopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+avrdbopti.menu.optimization.size.build.optimizationlevel=-Os
+avrdbopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
+avrdbopti.menu.optimization.o3.build.optimizationlevel=-O3
+avrdbopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
+avrdbopti.menu.optimization.size.build.optabr=.Os
+avrdbopti.menu.optimization.sizegcse.build.optabr=.Osng
+avrdbopti.menu.optimization.o3.build.optabr=.O3
+avrdbopti.menu.optimization.o3gcse.build.optabr=.O3ng
+avrdbopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
+avrdbopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
+#----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
 avrdbopti.menu.attach.allenabled=On all pins, with new implementation.
@@ -2792,6 +2919,8 @@ avrddopti.build.extra_flags= -DSERIAL_PORT_BOOT={bootloader.portname} -DSERIAL_P
 avrddopti.build.export_merged_output=false
 avrddopti.build.highestcb=B2
 avrddopti.build.printf=
+avrddopti.build.optimizationlevel=-Os
+avrddopti.build.gcse=
 avrddopti.build.attachmode=-DCORE_ATTACH_ALL
 
 #----------------------------------------#
@@ -2827,6 +2956,7 @@ avrddopti.upload.prog_interlock="ERROR: Upload using programmer is not supported
 #________________________________________#
 avrddopti.build.mcupostfix=opti
 avrddopti.build.printfabr=
+avrddopti.build.optabr=.Os
 avrddopti.build.attachabr=
 avrddopti.build.wireabr=
 avrddopti.build.appspmabr=
@@ -3130,6 +3260,24 @@ avrddopti.menu.printf.minimal=Minimal, 1.1k flash used. Save ~400b
 avrddopti.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 avrddopti.menu.printf.minimal.build.printfabr=.pfM
 
+#----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+avrddopti.menu.optimization.size=-Os (size)
+avrddopti.menu.optimization.sizegcse=-Os (size, no GCSE)
+avrddopti.menu.optimization.o3=-O3 (speed)
+avrddopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+avrddopti.menu.optimization.size.build.optimizationlevel=-Os
+avrddopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
+avrddopti.menu.optimization.o3.build.optimizationlevel=-O3
+avrddopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
+avrddopti.menu.optimization.size.build.optabr=.Os
+avrddopti.menu.optimization.sizegcse.build.optabr=.Osng
+avrddopti.menu.optimization.o3.build.optabr=.O3
+avrddopti.menu.optimization.o3gcse.build.optabr=.O3ng
+avrddopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
+avrddopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -3313,13 +3461,16 @@ azduinoboard.build.text_section_start=.text=0x200
 azduinoboard.build.extra_flags=
 azduinoboard.build.export_merged_output=true
 azduinoboard.build.printf=
+azduinoboard.build.optimizationlevel=-Os
+azduinoboard.build.gcse=
 azduinoboard.build.attachmode=-DCORE_ATTACH_ALL
 #-----------------------------------------#
 # Bootloading parameters and fuses        #
 #_________________________________________#
 azduinoboard.bootloader.entrycond={bootloader.defaultentrycond}
 azduinoboard.bootloader.defaulttimeout=
-azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt{bootloader.entrycond}.hex
+azduinoboard.bootloader.file={runtime.platform.path}/bootloaders/hex/{bootloader.class}_ser0_alt{bootloader.muxnum}{bootloader.entrycond}.hex
+azduinoboard.bootloader.muxnum=
 azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
@@ -3347,6 +3498,7 @@ azduinoboard.upload.prog_interlock="ERROR: Upload using programmer is not suppor
 #________________________________________#
 azduinoboard.build.mcupostfix=opti
 azduinoboard.build.printfabr=
+azduinoboard.build.optabr=.Os
 azduinoboard.build.attachabr=
 azduinoboard.build.wireabr=
 azduinoboard.build.appspmabr=
@@ -3369,11 +3521,12 @@ azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 azduinoboard.menu.board.NanoDD_A=Azduino_NanoDD_RevA
 azduinoboard.menu.board.NanoDD_A.build.board=Azduino_NanoDD_A
 azduinoboard.menu.board.NanoDD_A.build.mcu=avr64dd32
-azduinoboard.menu.board.NanoDD_A.bootloader.class=optiboot_32dd
+azduinoboard.menu.board.NanoDD_A.bootloader.class=optiboot_64dd
 azduinoboard.menu.board.NanoDD_A.upload.maximum_size=65024
 azduinoboard.menu.board.NanoDD_A.upload.maximum_data_size=8192
 azduinoboard.menu.board.NanoDD_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDD_A.bootloader.portswap=1
+azduinoboard.menu.board.NanoDD_A.bootloader.muxnum=1
 azduinoboard.menu.board.NanoDD_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.mvioenable}
 azduinoboard.menu.board.NanoDD_A.build.variant=32pin-ddseries
 #azduinoboard.menu.board.NanoDB_B=Azduino Nano DB (Rev. B or A w/resistor mod)
@@ -3532,6 +3685,24 @@ azduinoboard.menu.printf.full.build.printfabr=.pfF
 azduinoboard.menu.printf.minimal=Minimal, 1.1k flash used
 azduinoboard.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
 azduinoboard.menu.printf.minimal.build.printfabr=.pfM
+
+#----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+azduinoboard.menu.optimization.size=-Os (size)
+azduinoboard.menu.optimization.sizegcse=-Os (size, no GCSE)
+azduinoboard.menu.optimization.o3=-O3 (speed)
+azduinoboard.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+azduinoboard.menu.optimization.size.build.optimizationlevel=-Os
+azduinoboard.menu.optimization.sizegcse.build.optimizationlevel=-Os
+azduinoboard.menu.optimization.o3.build.optimizationlevel=-O3
+azduinoboard.menu.optimization.o3gcse.build.optimizationlevel=-O3
+azduinoboard.menu.optimization.size.build.optabr=.Os
+azduinoboard.menu.optimization.sizegcse.build.optabr=.Osng
+azduinoboard.menu.optimization.o3.build.optabr=.O3
+azduinoboard.menu.optimization.o3gcse.build.optabr=.O3ng
+azduinoboard.menu.optimization.sizegcse.build.gcse=-fno-gcse
+azduinoboard.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
