@@ -25,6 +25,10 @@ SOFTWARE.
 #include "twi.h"
 #include "twi_pins.h"
 
+#if !defined(_fastPtr_y)
+  //Supplied by dirty_tricks.h normally, which gets included by Arduino.h - but this library may want to be ported say, to MegaCoreX.
+  #define _fastPtr_y(__localVar__, __pointer__) __asm__ __volatile__("\n\t": "=&y" (__localVar__) : "0" (__pointer__));  // r28:r29
+#endif
 
 static uint8_t sleepStack = 0;
 
@@ -514,7 +518,7 @@ void TWI_HandleSlaveIRQ(struct twiData *_data) {
   // Since the Y register is not call-clobbered, it can be considered persistent in this function and has not to
   // be restored after the icall to the user callbacks, unlike Z (which is used for _module and icall).
 
-  __asm__ __volatile__("\n\t": "=&y" (_data) : "0" (_data));  // force _data into Y and instruct to not change Y
+  _fastPtr_y(_data,_data);  // force _data into Y and instruct to not change Y
 
   uint8_t *address,  *txBuffer, *rxBuffer;
   twi_buffer_index_t *txHead, *txTail,  *rxHead, *rxTail;

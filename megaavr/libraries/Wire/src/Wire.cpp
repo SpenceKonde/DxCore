@@ -530,7 +530,7 @@ uint8_t TwoWire::endTransmission(bool sendStop) {
  *@param      uint8_t data - byte to put into the buffer
  *
  *
- *@return     size_t
+ *@return     uint8_t
  *@retval     1 if successful, 0 if the buffer is full
  */
 size_t TwoWire::write(uint8_t data) {
@@ -573,7 +573,7 @@ size_t TwoWire::write(uint8_t data) {
  *@param      size_t quantity - amount of bytes to copy
  *
  *
- *@return     size_t
+ *@return     uint8_t
  *@retval     amount of bytes copied
  */
 size_t TwoWire::write(const uint8_t *data, size_t quantity) {
