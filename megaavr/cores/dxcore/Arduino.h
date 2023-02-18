@@ -25,7 +25,7 @@
 
 #ifndef Arduino_h
 #define Arduino_h
-
+#include "dirty_tricks.h" //All the ugly and often dirty asm macros are here.
 #include "api/ArduinoAPI.h"
 #include "UART_constants.h"
 #include "core_devices.h"
@@ -40,97 +40,6 @@
 #include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 
-
-#ifndef _NOP
-  #define _NOP()    __asm__ __volatile__ ("nop")
-#endif
-#ifndef _NOP2
-  #define _NOP2()   __asm__ __volatile__ ("rjmp .+0")
-#endif
-#ifndef _NOPNOP
-  #define _NOPNOP() __asm__ __volatile__ ("rjmp .+0")
-#endif
-#ifndef _NOP8
-  #define _NOP8()   __asm__ __volatile__ ("rjmp .+2"  "\n\t"   /* 2 clk jump over next instruction */ \
-                                          "ret"       "\n\t"   /* 4 clk return "wha? why here?" */    \
-                                          "rcall .-4" "\n\t" ) /* 2 clk "Oh, I see. We jump over a return (2 clock) call it, and then immediately return." */
-#endif
-
-/*
-Not enabled. Ugly ways to get delays at very small flash cost.
-  #ifndef _NOP6
-    #define _NOP6()   __asm__ __volatile__ ("rcall lonereturn") // 2 bytes of flash.  2+4=6 clk only works if you've got _LONE_RETURN() somewhere. Only guaranteed to work on 8k and smaller parts.
-    #define _NOP7()   __asm__ __volatile__ ("call lonereturn")  // 4 bytes of flash.  3+4=7 clk and see above, except that this will only work w/>8k flash.
-    #define _LONE_RETURN() __asm__ __volatile__ ("rjmp .+2"    "\n\t"  \  // 4 bytes of flash overhead, but must exist once and only once for NOP6/7 (but not any others) . Don't trip over thr ret. Note that if you're writing inline assembly with ret elsewhere, just proceed
-                                               "lonereturn:" "\n\t"  \  // it with a a label and jump to it to save 2 bytes vs this methodMust exist somwehere for
-                                               "ret"         "\n\t" )
-  #endif
-  // It could be put into it's own function and marked with the "used" attribute. This allows elimination of the initial rjmp, at the cost of making an ugly hack even uglier.
-  // Or even worse, you have other inline assembly, and you just stick the label right before the return!
-  // Really, these are things you shoudnt do unless you have your back against the flash/RAM limits and a gun to your head.
-
-*/
-#ifndef _NOP14
-  #define _NOP14()  __asm__ __volatile__ ("rjmp .+2"  "\n\t"   /* same idea as above. */ \
-                                          "ret"       "\n\t"   /* Except now it's no longer able to beat the loop if it has a free register. */ \
-                                          "rcall .-4" "\n\t"   /* so this is unlikely to be better, ever. */ \
-                                          "rcall .-6" "\n\t" )
-#endif
-/* Beyond this, just use a loop.
- * If you don't need submicrosecond accuracy, just use delayMicroseconds(), which uses very similar methods. See Ref_Timers
- * (eg, ldi (any upper register), n; dec r0; brne .-4)
- * and pad with rjmp or nop if needed to get target delay.
- * Simplest form takes a uint8_t and runs for 3n cycles in 3 words. Padded with `nop` or `rjmp .+0`for 3n + 1 or 3n + 2 if outside the loop, 4n or 5n if padded inside the loop
- * And so on. You will likely end up doing something like
- *
-                    #define CLOCKS_PER_US   (F_CPU / 1000000);    // preprocessed away
-                    #define DELAYCLOCKS     (0.8 * CLOCKS_PER_US) // say we wanted a 0.8 us delay.
-                    uint8_t x = DELAYCLOCKS / 3;                  // preprocessed into a constant
-                    __asm__ __volatile__ ("dec %0"      "\n\t"    // before this, an ldi is used to load x into the input operand %0
-                                          "brne .-4"    "\n\t"
-  (DELAYCLOCKS % 3 == 2)                  // 2 clocks extra needed at end
-                                          "rjmp .+0"    "\n\t"
-                      #elif (DELAYCLOCKS % 3 == 1)                // 1 clock extra needed at end
-                                          "nop"         "\n\t"
-
-                                          : "+d"((uint8_t)(x));
- *
- * The above will take very close to 0.8us under most any conditions.  Notice how all the calculation was moved to the preprocessor.
- *
- *
- * You can extend the length of the iterations by adding nop between the dec and brne, and branching 2 bytes further. that makes it 4 clocks per iteration.
- * You can go for much longer by using 16-bits:
- *                  uint16_t x = 2000;    * overall takes 8 bytrsd
- *                  __asm__ __volatile__ ("sbiw %0,1"    "\n\t"  // Line is preceded by 2 implied LDI's to fill that upper register pair, Much higher chance of having to push and pop.
- *                                        \"brne .-4      \"\n\t\"  // SBIW takes 2 clocks. branch takes 2 clocks unless it doesn't branch, when it only takes one
- *                                        : +w"((uint16_t)(x))  // hence this takes 4N+1 clocks (4 per iteration, except for last one which is only 3, plus 2 for the pair of LDI's)
- *
- */
-
-
-// The fastest way to swap nybbles
-#ifndef _SWAP
-  #define _SWAP(n) __asm__ __volatile__ ("swap %0"  "\n\t" :"+r"((uint8_t)(n)))
-#endif
-// internally used - fast multiply by 0x20 that assumes x < 8, so you can add it to a uint8_t* to PORTA or member of PORTA,
-// and get the corresponding value for the other port, or equivalently it can be added to 0x0400 which is the address of PORTA.
-// Valid only with a valid port number, which must be verified first
-// This exists to sidestep inefficiency of compiler generated code when you only know the port at runtime, for the very common task of
-// addressing a port register by port number and offset. Trashes the variable you pass it
-/*
-#define _WRITE_VALUE_TO_PORT_OFFSET(p,o,v) ({
-          __asm__ __volatile__ (
-            "swap %0A"        "\n\t" // start with a 16-bit pointer register
-            "add %0A, %0A "   "\n\t" // low byte for port register is port * 0x20 - so swap nybbles and leftshift to do in 2 cycles.
-            "ldi %0B, 0x04"   "\n\t" // high byte for all port registers is 0x0400
-            "add %0A, %1"     "\n\t" // add the offset within the port
-            "st %a0, %2"      "\n\t" // write the value
-           :"+e"(uint16_t)(p)
-           :"r"  (uint8_t)(o),
-            "r"  (uint8_t)(v)
-          );
-})
-*/
 // Currently DxCore has no cases where the millis timer isn't derived from system clock, but that will change
 /* This becomes important when we support other timers for timekeeping. The Type D timer can be faster, requiring:
  * These talk about the timebase from which millis is derived, not the actual timer counting frequency.
