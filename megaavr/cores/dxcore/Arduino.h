@@ -57,6 +57,9 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  */
 
 
+  #define _MACRO_PORT_TO_PIN_ZERO
+
+
 // Copies of above for internal use, and for the really exotic use cases that want this instead of system clocks (basically never in user-land)
 //uint16_t millisClockCyclesPerMicrosecond();
 //unsigned long millisClockCyclesToMicroseconds(unsigned long cycles);
