@@ -46,12 +46,9 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12)   // and a full port for the PD
-/* On DD, this isn't a pin - there, everything else NOT_A_PIN's pin 12
- * but we can add 3 to it to get PIN_PD3, for example.
- * Which is important, since it's pin0 on the port. */
-#define PIN_PD1 (13)
-#define PIN_PD2 (14)
+#define PIN_PD0 (12) /* On DD, this isn't a pin - there, everything else NOT_A_PIN's pin 12 */
+#define PIN_PD1 (13) /* but we can add 3 to it to get PIN_PD3 */
+#define PIN_PD2 (14) /* for example. Which is important, since it's pin0 on the port. */
 #define PIN_PD3 (15)
 #define PIN_PD4 (16)
 #define PIN_PD5 (17)
@@ -89,17 +86,17 @@ Include guard and include basic libraries. We are normally including this inside
 #if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()                    (1)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) <= PIN_PF1 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && (p) < PIN_PC0) ? (p) + 20 : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 27 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? ((p) - PIN_PD0)  : ((p) <= PIN_PF1 ? ((p) - 4)  : NOT_A_PIN)) : (((p) > PIN_PA1 && (p) < PIN_PC0) ? ((p) + 20)        :   NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)         ((p) > 27        ?  NOT_A_PIN        : ((p) < 8         ? ((p) + PIN_PD0) :  (p) > 21  ? (p) - 20    : (((p) == 16       ? PIN_PF0)  : ((p) == 17  ? PIN_PF1 :   NOT_A_PIN))))
   #else
     #define IS_MVIO_ENABLED()                    (0)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) <= PIN_PF1 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 31  ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? ((p) - PIN_PD0)  : ((p) <= PIN_PF1 ? ((p) - 4)  : NOT_A_PIN)) : (((p) > PIN_PA1)  ? ((p) + 20 ) :                         NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)         ((p) > 31        ?  NOT_A_PIN        : ((p) < 8         ? ((p) + PIN_PD0) :  (p) > 21  ? (p) - 20    : (((p) == 16       ? PIN_PF0)    : ((p) == 17  ? PIN_PF1 : NOT_A_PIN))))
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
   #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
-  #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) <= PIN_PF1 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0)) ? (p) + 20 : NOT_A_PIN))
-  #define analogChannelToDigitalPin(p)         ((p) > (IS_MVIO_ENABLED() ? 27 : 31) ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+  #define digitalPinToAnalogInput(p)             ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? (p) - PIN_PD0    : ((p) <= PIN_PF1 ? ((p) - 4)       : NOT_A_PIN))           : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0)) ? ((p) + 20) : NOT_A_PIN))
+  #define analogChannelToDigitalPin(p)  ((p) > (IS_MVIO_ENABLED() ? 27 : 31)          ? NOT_A_PIN        : ((p) < 8        ? ((p) + PIN_PD0) : (p) > 21 ? ((p) - 20) : (((p) == 16 ? PIN_PF0) : ((p) == 17                        ? PIN_PF1    : NOT_A_PIN))))
 #endif
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))

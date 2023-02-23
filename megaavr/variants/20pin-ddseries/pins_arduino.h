@@ -94,12 +94,12 @@ Include guard and include basic libraries. We are normally including this inside
 #if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()             (1)
-    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) < PIN_PC0) && ((p) >  PIN_PA1) ? (p) + 20 : NOT_A_PIN)))
-    #define analogChannelToDigitalPin(p)  ((p) >  27                             ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN))
+    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? ((p) - PIN_PD0) : NOT_A_PIN) : ((((p) < PIN_PC0) && ((p) >  PIN_PA1) ? ((p) + 20) : NOT_A_PIN)))
+    #define analogChannelToDigitalPin(p)  (((p) >  27                            ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22     ) ? ((p) - 20) : NOT_A_PIN)))
   #else
     #define IS_MVIO_ENABLED()             (0)
-    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? (p) - PIN_PD0 : NOT_A_PIN) : ((((p) > PIN_PA1)                     ? (p) + 20 : NOT_A_PIN)))
-    #define analogChannelToDigitalPin(p)  ((p) >  31 || (p) == 28)               ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22)      ? (p) - 20 : NOT_A_PIN)
+    #define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? ((p) - PIN_PD0) : NOT_A_PIN) : ((((p) > PIN_PA1)                     ? ((p) + 20) : NOT_A_PIN)))
+    #define analogChannelToDigitalPin(p)  (((p) >  31 || (p) == 28)              ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22     ) ? ((p) - 20): NOT_A_PIN))
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
   // strange indentation chosen intentionally to highlight symmetry
@@ -350,7 +350,7 @@ const uint8_t digital_pin_to_port[] = {
   PD,         // We give PD0 a number and specify it as being on PORTD because things depend on that because it is the zero pin and the origin of the analog inputs.
   NOT_A_PORT, // 13 PD1/AIN1
   NOT_A_PORT, // 14 PD2/AIN2
-  NOT_A_PORT, // 15 PD3/AIN3/LED_BUILTIN
+  NOT_A_PORT, // 15 PD3/AINN
   PD,         // 16 PD4/AIN4
   PD,         // 17 PD5/AIN5
   PD,         // 18 PD6/AIN6
@@ -376,15 +376,15 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   PIN4_bp,   //  4 PA4/MOSI
   PIN5_bp,   //  5 PA5/MISO
   PIN6_bp,   //  6 PA6/SCK
-  PIN7_bp,   //  7 PA7/SS/CLKOUT
-  NOT_A_PIN, //  8 VDDIO2
-  PIN1_bp,   //  9 PC1/USART1_Rx
+  PIN7_bp,   //  7 PA7/SS/CLKOUT/ ED_BUILTIN
+  NOT_A_PIN, //  8
+  PIN1_bp,   //  9 PC1
   PIN2_bp,   // 10 PC2
   PIN3_bp,   // 11 PC3
   NOT_A_PIN, // 12 VDDIO2
-  NOT_A_PIN, // 13 PD1/AIN1
-  NOT_A_PIN, // 14 PD2/AIN2
-  NOT_A_PIN, // 15 PD3/AIN3/LED_BUILTIN
+  NOT_A_PIN, // 13
+  NOT_A_PIN, // 14
+  NOT_A_PIN, // 15
   PIN4_bp,   // 16 PD4/AIN4
   PIN5_bp,   // 17 PD5/AIN5
   PIN6_bp,   // 18 PD6/AIN6

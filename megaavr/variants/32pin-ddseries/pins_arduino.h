@@ -95,24 +95,101 @@ Include guard and include basic libraries. We are normally including this inside
 #if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()                    (1)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && (p) < PIN_PC0) ? (p) + 20 : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 27 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)   ? ((p) -  4)      : NOT_A_PIN)) : (((p) > PIN_PA1 && (p) < PIN_PC0)                          ? ((p) + 20) : NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)         ((p) > 27 ? NOT_A_PIN : ((p) < 8     ? ((p) + PIN_PD0) : ((p) > 21)       ? ((p) - 20)      : ((p) > 15   ? ((p) + 4) : NOT_A_PIN)))
   #else
     #define IS_MVIO_ENABLED()                    (0)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
+    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0] : (((p) < PIN_PF6) ? ((p) -  4)      : NOT_A_PIN)) : (((p) > PIN_PA1)                                           ? ((p) + 20) : NOT_A_PIN))
+    #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8     ? ((p) + PIN_PD0) : ((p) > 21)       ? ((p) - 20)      :                             ((p) > 15)  ? ((p) + 4) : NOT_A_PIN))
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
   #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
-  #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0)) ? (p) + 20 : NOT_A_PIN))
-  #define analogChannelToDigitalPin(p)         ((p) > (IS_MVIO_ENABLED() ? 27 : 31) ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
+  #define digitalPinToAnalogInput(p)             ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)  ? ((p) - 4)       : NOT_A_PIN)) : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0)) ? ((p) + 20* : NOT_A_PIN))
+  #define analogChannelToDigitalPin(p)           ((p) > (IS_MVIO_ENABLED() ? 27 : 31) ?       NOT_A_PIN : ((p) < 8)       ? ((p) + PIN_PD0) : (((p) > 21) ? ((p) - 20) :  ((p) > 15 ) ? ((p) + 4) : NOT_A_PIN))
 #endif
 
-#define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
-#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
-#define portToDigitalPinZero(port)        ((port) == 0 ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
+#define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F) /*This assumes that the argument is NOT a digital pin number - but allows channel ID's or channel numbers. */
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* This will act on either kind of pin ID but not analog channnel*/
 
 
+#if defined(_MACRO_PORT_TO_PIN_ZERO)
+  #define portToDigitalPinZero(port)        ((port) == 0  ? 0 : ((port)== 2 ? 8 : ((port)== 3 ? 12 : ((port)== 5 ? 20 : NOT_A_PIN))))
+#elif defined(_ASM_PORT_TO_PIN_ZERO)
+/*
+  static uint8_t _portToDigitalPinZero_ASM(uint8_t port);
+  uint8_t _portToDigitalPinZero_ASM(uint8_t port) {
+    __asm__ __volatile__(
+      "cpi       %0,     6"   "\n\t"    // Compare to 5 - if lower then port is valid.            1 clock
+      "brcc     .+4       "   "\n\t"    // if port is valid                                       2 clocks if valid 1 if no1
+        "_pTDPZ_INV:      "   "\n\t"    // land here when port is 1 or 4 too;
+        "ldi     %0    255"   "\n\t"    // otherwise not valid port load result with NOT_A_PIN    1 clock only if invalid
+        "rjmp  _pTDPZ_END "   "\n\t"    //jump to end                                             2 clock only if invalid
+      //land here if port isn't >5, == 4 or === 2
+      "cpi       %0,     1"   "\n\t"    // is it anoter invalid port?                             1 clock if first check passed
+      "breq    _pTDPZ_INV "   "\n\t"     // otherwise to our handler!                             Only if first check passed, 1 clock 2 if invalid
+      "cpi       %0,     4"   "\n\t"    // is it anoter invalid port?                             1 clock if second check passed
+      "brneq   _pTDPZ_INV "   "\n\t"    // to the handler!                                        Only if first check passed, 1 clock 2 if invalid
+      // NOW IT IS 0, 2, or 3 or 5 or 255 (NOT_A_PIN) and in the latter case we've jumped past here.
+      "add      %0,     %0"   "\n\t"    // << 1                                                   1 clock if valid
+      "add      %0,     %0"   "\n\t"    // << 1 so now we have our desired 0, 8, 12, or 20!!      1 clock if valid
+      "_pTDPZ_END:"           "\n\t"    // land here from jump to end
+    :"+d" (uint8_t)(port)::);                                                            // Total: 9 clocks if valid, 6 if first check failed, 9 if second check faled,  12 if third check failed.
+    // plus 10 instruction words.
+    // We shall see how this compares to compiler output, I don't think the compiler will beat that!
+    return port;
+  }
+*/
+#else
+/*
+  uint8_t _portToDigitalPinZero(port);
+  // Otherwise, we use the garden variety C version. We'll see which is faster and smaller.
+  uint8_t _portToDigitalPinZero(port) {
+    //always do it this way if we can do it at compile time
+    if ((port) > 5 || port == 1 || port == 4) {
+      return NOT_A_PIN;
+    } else {
+      if (port == 0) {
+        return 0;
+      } elif (port ==2) {
+      return 8;
+      } elif (port == 3) {
+        return 12;
+      } else {
+        return 20;
+      }
+    }
+    return NOT_A_PIN;
+  }
+*/
+#endif
+/*
+inline uint8_t portToDigitalPinZero(uint8_t port)    (
+  // Inline it so if it can be crunched down to a compil time constat, it is and we do no math on the spot.
+  //always do it this way if we can do it at compile time
+  if __builtin_constant_p(port) {
+    if ((port) > 5 || port == 1 || port == 4) {
+      return NOT_A_PIN;
+    } else {
+      if (port == 0) {
+        return 0;
+      } elif (port ==2) {
+      return 8;
+      } elif (port == 3) {
+        return 12;
+      } else {
+        return 20;
+      }
+    }
+    return NOT_A_PIN;
+  } else { // otherwise call one of these functions
+    #if !defined(ASM_PORT_TO_PIN_ZERO)
+      return _portToDigitalPinZero(port);
+    #else
+      return _portToDigitalPinZero_ASM(port);
+    #endif
+  }
+
+*/
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0))
