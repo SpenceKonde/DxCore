@@ -2,26 +2,26 @@
 The SPI library implements all of the standard functionality described in the [Arduino SPI library reference](https://www.arduino.cc/en/reference/SPI) applies here. Also, like all of the "big three" third-party cores for post-2016 AVR devices, this version of SPI.h supports the `swap()` and `pins()` methods to make use of the PORTMUX feature of the chips. However, there is an additional complication described below; this has finally been addressed in an (IMO) satisfactory way in 1.3.0.
 
 ## Pins
-| Pin Mapping   | Pins        | Parts      | Swap-level name   |   Synonym  | Value |
-|---------------|-------------|------------|-------------------|------------|-------|
-| SPI0 DEFAULT  | PA4-PA7     | Non-14-pin | SPI0_SWAP_DEFAULT | SPI0_SWAP0 | 0x00  |
-| SPI0 ALT1     | PE0-PE3     | 48+ pin    | SPI0_SWAP_ALT1    | SPI0_SWAP1 | 0x01  |
-| SPI0 ALT2     | PG4-PG7     | DA/DB 64   | SPI0_SWAP_ALT2    | SPI0_SWAP2 | 0x02  |
-| SPI0 ALT3     | PA0-1,PC0-1 | DD/EA only | SPI0_SWAP_ALT3    | SPI0_SWAP3 | 0x03  |
-| SPI0 ALT4     | PD4-PD7     | DD/EA only | SPI0_SWAP_ALT4    | SPI0_SWAP4 | 0x04* |
-| SPI0 ALT5     | PC0-PC3     | DD/EA only | SPI0_SWAP_ALT5    | SPI0_SWAP5 | 0x05* |
-| SPI0 ALT6     | PC1-PC3,PF7 | DD/EA only | SPI0_SWAP_ALT6    | SPI0_SWAP6 | 0x06* |
-| SPI1 DEFAULT  | PC0-PC3     | DA/DB only | SPI1_SWAP_DEFAULT | SPI1_SWAP0 | 0x80  |
-| SPI1 ALT1     | PC4-PC7     | DA/DB 48/64| SPI1_SWAP_ALT1    | SPI1_SWAP1 | 0x84* |
-| SPI1 ALT2     | PB4-PB7     | DA/DB 64   | SPI1_SWAP_ALT2    | SPI1_SWAP2 | 0x88* |
+| Pin Mapping   | Pins        | Parts           | Swap-level name   |   Synonym  | Value | Note                      |
+|---------------|-------------|-----------------|-------------------|------------|-------|---------------------------|
+| SPI0 DEFAULT  | PA4-PA7     | 20+ pin         | SPI0_SWAP_DEFAULT | SPI0_SWAP0 | 0x00  | Core default `#`        - |
+| SPI0 ALT1     | PE0-PE3     | 48+ pin         | SPI0_SWAP_ALT1    | SPI0_SWAP1 | 0x01  |                         - |
+| SPI0 ALT2     | PG4-PG7     | DA/DB 64        | SPI0_SWAP_ALT2    | SPI0_SWAP2 | 0x02  |                         - |
+| SPI0 ALT3     | PA0-1,PC0-1 | DD28+/EA/EB only| SPI0_SWAP_ALT3    | SPI0_SWAP3 | 0x03  | New mapping DD+ only `*$` |
+| SPI0 ALT4     | PD4-PD7     | DD/EA/EB only   | SPI0_SWAP_ALT4    | SPI0_SWAP4 | 0x04* | New mapping DD+ only `*@` |
+| SPI0 ALT5     | PC0-PC3     | DD/EA/EB only   | SPI0_SWAP_ALT5    | SPI0_SWAP5 | 0x05* | New mapping DD+ only `*$` |
+| SPI0 ALT6     | PC1-PC3,PF7 | DD/EA/EB only   | SPI0_SWAP_ALT6    | SPI0_SWAP6 | 0x06* | New mapping DD+ only `*%` |
+| SPI1 DEFAULT  | PC0-PC3     | DA/DB only      | SPI1_SWAP_DEFAULT | SPI1_SWAP0 | 0x80  | Only DA/DB Have SPI1      |
+| SPI1 ALT1     | PC4-PC7     | DA/DB 48/64     | SPI1_SWAP_ALT1    | SPI1_SWAP1 | 0x84* | Only DA/DB Have SPI1      |
+| SPI1 ALT2     | PB4-PB7     | DA/DB 64        | SPI1_SWAP_ALT2    | SPI1_SWAP2 | 0x88* | Not on 48-pin parts    `!`|
 
-`*` - parts with SPI1 (at least those currently announced) haven't had more than 3 total pin mapping options represented by just 2 bits. The DD-series and EA-series have more complicated mappings. When they release a part with >3 pin options and >1 SPI interface, this library will need to be adjusted, which is why you should always use the names.
-
-SPI0 ALT6 on DD-series parts is clearly to provide a way to get the important SPI lines onto the MVIO pins
-
-SPI0 ALT4 is the default on 14-pin DD-series.
-
-SPI1 ALT2 - apparently - is supposed to be able to limp onwards despite not having any pins ond the DX-series 48 pin parts. That is supposedly busted. 
+Notes:
+* Parts with SPI1 (at least those currently announced) haven't had more than 3 total pin mapping options represented by just 2 bits. The DD-series and EA-series have more complicated mappings. When they release a part with >3 pin options and >1 SPI interface, this library will need to be adjusted, which is why you should always use the names.
+* `*` Added on DD and later series of parts only. 
+* `@`SPI0 ALT4 is the default on 14-pin DD-series, as it is the lowest number thehy have with all pins. 
+* `$` SPI0 ALT5 likely works only on 28+ pin parts with a PC0, but it's not explicitly clear. Keep an eye on DD errata, where the issue with SPI Alt 2 on DA/DB 48 was
+* `%` SPI0 ALT6 on DD-series parts is clearly to provide a way to get the important SPI lines onto the MVIO pins
+* `!` SPI1 ALT2 - apparently - is supposed to be able to limp onwards despite not having SCK or SS pins ond the DX-series 48 pin parts. That is supposedly busted. We were way ahead of the errata and never expected it to work. 
 
 ## SPI pin swap methods
 `SPI.swap(swap_level)` will set the the mapping to the specified pin swapping level. It will return true if this is a valid option for the part you're using, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to SPI0 on the default pins.
