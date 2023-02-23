@@ -21,7 +21,7 @@ SPI0 ALT6 on DD-series parts is clearly to provide a way to get the important SP
 
 SPI0 ALT4 is the default on 14-pin DD-series.
 
-SPI1 ALT2 - apparently - is supposed to be able to limp onwards despite not having a clock line on the Dx48 devices. This does not work, according to the most recent errata. I have to wonder about the intended usage mode where this is relevant.... Taking SPI clock as event gen, so you can output the SPI clock on another pin maybe? Whatever the intent, i'm pretty sure it's a corner case.
+SPI1 ALT2 - apparently - is supposed to be able to limp onwards despite not having any pins ond the DX-series 48 pin parts. That is supposedly busted. 
 
 ## SPI pin swap methods
 `SPI.swap(swap_level)` will set the the mapping to the specified pin swapping level. It will return true if this is a valid option for the part you're using, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to SPI0 on the default pins.
