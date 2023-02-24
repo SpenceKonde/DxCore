@@ -1081,24 +1081,24 @@ avrdd.menu.chip.avr64dd32.build.mcu=avr64dd32
 avrdd.menu.chip.avr64dd32.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd32.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd32.build.variant=32pin-ddseries
-avrdd.menu.chip.avr64dd20.build.highestcb=B2
+avrdd.menu.chip.avr64dd32.build.highestcb=B2
 avrdd.menu.chip.avr64dd28.build.mcu=avr64dd28
 avrdd.menu.chip.avr64dd28.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd28.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd28.build.variant=28pin-ddseries
-avrdd.menu.chip.avr64dd20.build.highestcb=B2
+avrdd.menu.chip.avr64dd28.build.highestcb=B2
 avrdd.menu.chip.avr64dd20.build.mcu=avr64dd20
 avrdd.menu.chip.avr64dd20.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd20.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd20.build.highestcb=B1
 avrdd.menu.chip.avr64dd20.build.variant=20pin-ddseries
-avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdd.menu.chip.avr64dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr64dd14.build.mcu=avr64dd14
 avrdd.menu.chip.avr64dd14.upload.maximum_size=65536
 avrdd.menu.chip.avr64dd14.upload.maximum_data_size=8192
 avrdd.menu.chip.avr64dd14.build.highestcb=B1
 avrdd.menu.chip.avr64dd14.build.variant=14pin-ddseries
-avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdd.menu.chip.avr64dd14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr32dd32.build.mcu=avr32dd32
 avrdd.menu.chip.avr32dd32.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd32.upload.maximum_data_size=4096
@@ -1118,7 +1118,7 @@ avrdd.menu.chip.avr32dd14.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd14.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd14.build.highestcb=B1
 avrdd.menu.chip.avr32dd14.build.variant=14pin-ddseries
-avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdd.menu.chip.avr32dd14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrdd.menu.chip.avr16dd32.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd32.upload.maximum_data_size=2048
@@ -1132,13 +1132,13 @@ avrdd.menu.chip.avr16dd20.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd20.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd20.build.highestcb=B1
 avrdd.menu.chip.avr16dd20.build.variant=20pin-ddseries
-avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdd.menu.chip.avr16dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 avrdd.menu.chip.avr16dd14.build.mcu=avr16dd14
 avrdd.menu.chip.avr16dd14.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd14.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd14.build.highestcb=B1
 avrdd.menu.chip.avr16dd14.build.variant=14pin-ddseries
-avrdd.menu.chip.avr32dd20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdd.menu.chip.avr16dd14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -3019,7 +3019,7 @@ avrddopti.menu.chip.avr32dd28.build.mcu=avr32dd28
 avrddopti.menu.chip.avr32dd28.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr32dd28.upload.maximum_size=32256
 avrddopti.menu.chip.avr32dd28.upload.maximum_data_size=4096
-avrddopti.menu.chip.avr32dd28.build.variant=32pin-ddseries
+avrddopti.menu.chip.avr32dd28.build.variant=28pin-ddseries
 avrddopti.menu.chip.avr32dd20.build.mcu=avr32dd20
 avrddopti.menu.chip.avr32dd20.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr32dd20.upload.maximum_size=32256
@@ -3044,7 +3044,7 @@ avrddopti.menu.chip.avr16dd28.build.mcu=avr16dd28
 avrddopti.menu.chip.avr16dd28.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr16dd28.upload.maximum_size=15872
 avrddopti.menu.chip.avr16dd28.upload.maximum_data_size=2048
-avrddopti.menu.chip.avr16dd28.build.variant=32pin-ddseries
+avrddopti.menu.chip.avr16dd28.build.variant=28pin-ddseries
 avrddopti.menu.chip.avr16dd20.build.mcu=avr16dd20
 avrddopti.menu.chip.avr16dd20.bootloader.class=optiboot_32dd
 avrddopti.menu.chip.avr16dd20.upload.maximum_size=15872
