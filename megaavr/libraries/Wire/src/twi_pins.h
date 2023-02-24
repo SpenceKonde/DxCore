@@ -33,7 +33,7 @@
 
 
 #if defined(PORTMUX_TWISPIROUTEA)
-// All of these are mega zero's. Hence they have 3 options.
+  // All of these are mega zero's. Hence they have 3 options.
   #if !defined(PIN_WIRE_SDA_PINSWAP_2) && defined(PIN_WIRE_SDA_PINSWAP_1)
     #define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
     #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
