@@ -194,7 +194,7 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
             PORTMUX.TWISPIROUTEA = twimux;
             return true;
           }
-          /* end can'thappen */
+          /* end can'thappen */x
         #endif
         } else if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
           // Use default configuration
