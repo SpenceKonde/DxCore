@@ -17,11 +17,11 @@ The SPI library implements all of the standard functionality described in the [A
 
 Notes:
 * Parts with SPI1 (at least those currently announced) haven't had more than 3 total pin mapping options represented by just 2 bits. The DD-series and EA-series have more complicated mappings. When they release a part with >3 pin options and >1 SPI interface, this library will need to be adjusted, which is why you should always use the names.
-* `*` Added on DD and later series of parts only. 
-* `@`SPI0 ALT4 is the default on 14-pin DD-series, as it is the lowest number thehy have with all pins. 
+* `*` Added on DD and later series of parts only.
+* `@`SPI0 ALT4 is the default on 14-pin DD-series, as it is the lowest number they have with all pins.
 * `$` SPI0 ALT5 likely works only on 28+ pin parts with a PC0, but it's not explicitly clear. Keep an eye on DD errata, where the issue with SPI Alt 2 on DA/DB 48 was
 * `%` SPI0 ALT6 on DD-series parts is clearly to provide a way to get the important SPI lines onto the MVIO pins
-* `!` SPI1 ALT2 - apparently - is supposed to be able to limp onwards despite not having SCK or SS pins one the DX-series 48 pin parts. That is supposedly busted. We were way ahead of the errata and never expected it to work. 
+* `!` SPI1 ALT2 - apparently - is supposed to be able to limp onwards despite not having SCK or SS pins one the DX-series 48 pin parts. That is supposedly busted. We were way ahead of the errata and never expected it to work.
 
 ## SPI pin swap methods
 `SPI.swap(swap_level)` will set the the mapping to the specified pin swapping level. It will return true if this is a valid option for the part you're using, and false if it is not (you don't need to check this, but it may be useful during development). If an invalid option is specified, it will be set to SPI0 on the default pins.
