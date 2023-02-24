@@ -18,8 +18,9 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix: Attached pin interrupts on parts with less than 128k of flash were wasting 2 clocks before the user code was called and 3 clocks after, as well as 4 words of flash. Small potatoes compared to the overall overhead of that abomination, but there's no need to push RAMPZ if there isn't a RAMPZ register (it reads as 0 and writes to it are ignored - so there was a donothing in/push and pop/out)
 * Bring dirty_tricks.h over from megaTinyCore (this is where we hide all the ugly and mostly dirty asm macros).
 * Bugfix: pinConfigure would under some circumstances fail because of a misspelled variable.
-* Correct an issue with bootloading a specific DD-based board definition.
-* Add the the Optimization Level menu that megaTinycore got
+* Bugfix: Correct an issue with bootloading a specific DD-based board definition.
+* Enhancement: Add the the Optimization Level menu that megaTinycore got.
+* Enhancement: Improve Wire.h compatibility with other cores that have falled behind.
 
 ### 1.5.4
 * **Critical (per Microchip) Bugfix** Correct an issue that someone with a Microchip logo as their avatar called critical (I defer to Microchip's wisdom regarding it's criticality), which would cause a crash when the old attach interrupt mode is used for pins on PORTC due to a copy/paste error from tinyAVR. This issue has been present since 1.4.x versions somewhere.
