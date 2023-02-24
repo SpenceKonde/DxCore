@@ -109,7 +109,7 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F) /*This assumes that the argument is NOT a digital pin number - but allows channel ID's or channel numbers. */
-#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* This will act on either kind of pin ID but not analog channnel*/
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* This will act on either kind of pin ID but not analog channel*/
 
 
 #if defined(_MACRO_PORT_TO_PIN_ZERO)
@@ -125,9 +125,9 @@ Include guard and include basic libraries. We are normally including this inside
         "ldi     %0    255"   "\n\t"    // otherwise not valid port load result with NOT_A_PIN    1 clock only if invalid
         "rjmp  _pTDPZ_END "   "\n\t"    //jump to end                                             2 clock only if invalid
       //land here if port isn't >5, == 4 or === 2
-      "cpi       %0,     1"   "\n\t"    // is it anoter invalid port?                             1 clock if first check passed
+      "cpi       %0,     1"   "\n\t"    // is it another invalid port?                             1 clock if first check passed
       "breq    _pTDPZ_INV "   "\n\t"     // otherwise to our handler!                             Only if first check passed, 1 clock 2 if invalid
-      "cpi       %0,     4"   "\n\t"    // is it anoter invalid port?                             1 clock if second check passed
+      "cpi       %0,     4"   "\n\t"    // is it another invalid port?                             1 clock if second check passed
       "brneq   _pTDPZ_INV "   "\n\t"    // to the handler!                                        Only if first check passed, 1 clock 2 if invalid
       // NOW IT IS 0, 2, or 3 or 5 or 255 (NOT_A_PIN) and in the latter case we've jumped past here.
       "add      %0,     %0"   "\n\t"    // << 1                                                   1 clock if valid
