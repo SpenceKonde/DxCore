@@ -115,30 +115,35 @@ With the release of the enhanced Wire library we support operating as master and
 Thankfully, assuming the hardware is able to handle the job, there is no special code needed, and working sketches can often be made through simple combination of the master code (including `Wire.begin()` with no arguments) and slave code (including `Wire.begin(address)` with one or more arguments, and either `onRequest()` or `onReceive()`). If either master or slave code needs to call `end()` without disturbing the other, there is an `endSlave()` and `endMaster`, as needed.
 
 ## Initialization order
-There is a right and a wrong order to call the configuration functions. This order should work:
-1. Wire.swapModule(&TWI1); (AVR DA/DB for special use cases only)
-2. Wire.swap(pinset) or Wire.pins(sclpin, sdapin).
-3. Wire.enableDualMode(fmplus_enable); (AVR Dx and megaAVR 0-series only, if needed)
-4. Wire.usePullups() *for debugging only - if this fixes it, take it out and add appropriate external pullups)*
-5. Wire.begin() and/or Wire.begin(address, ...)
-6. Wire.setClock(); (effects master mode only, if needed)
-7. Wire.specialConfig() (optional)
+There is a right order to call the configuration functions. Any other order is wrong and expected to break; this is a defect in user code, not the library.
+
+1. (optional) Wire.swapModule(&TWI1); (AVR DA/DB for special use cases only)
+2. (optional) Wire.swap(pinset) or Wire.pins(sclpin, sdapin).
+3. (optional) Wire.enableDualMode(fmplus_enable); (AVR Dx and megaAVR 0-series only, if needed)
+4. (optional, but for debug ONLY) Wire.usePullups()
+5. Wire.begin
+  a. (master) Wire.begin();
+  b. (slave) Wire.begin(address, ...)
+  c. If both modes are to be used, both the argumentless master begin() method and the argumentful slave begin() must be called.
+6. (optional, master only) Wire.setClock();
+7. (optional) Wire.specialConfig()
 
 See the API reference below for more information.
 
 ## API reference
 This is a full listing of methods provided for the TwoWire class (the class is named TwoWire, and Wire is an object of class TwoWire). Where they exist and behave the same way as documented in the Arduino Wire API reference they are simply listed. Where they do not, it is described here.
 
+### New Tools submenu: Wire Mode
+All devices have at least 2 options,
+* Master or Slave (default) - This uses the least flash and ram. At any given time Wire can be a master or a slave, but not both and you must call Wire.end(), and then the appropriate form of begin() for the mode you want to enable.
+* Master And Slave - In this mode, an argumentless call to begin will start the master functionality, and a call to the form with one or more arguments will start the slave version. Unlike "Master or Slave", a master-type and slave-type Wire.begin() can coexist and behave correctly either on the same pins (a "multi-master" topology), or on a separate set of pins (where dual mode is supported)
+* Master or Slave x2 - In this mode, there is a Wire, and a Wire1 - corresponding to TWI0 and TWI1 peripherals. Each one can be a master or a slave, but not both.
+* Master and Slave x2 - Both Wire and Wire1 are provided, and *both* can be both a master and a slave at the same time (note: having more than one I2C slave defined at once is not recommended, though this library should work)
+
+
 ### The TwoWire class
 Wire is an object of class TwoWire. The classic AVR Wire.h, like this library, has TwoWire as a subclass of Stream.
-The official megaAVR 0-series core that megaTinyCore was based on in the distant past subclassed a new "HardwareI2C" class. Unfortunately, that imposed a shocking amount of overhead with no practical benefit. Code that relies on TwoWire being a subclass of HardwareI2C is virtually non-existent, and code that would benefit from an 500 bytes or so of flash is very common. Any library you encounter that works on classic AVRs (e.g., Uno) but complains of this different inheritance is straightforward to fix, likely as simple as searching the library files for "HardwareI2C" and changing it to "Stream".
-
-### New Tools submenu: Wire Mode
-DA and DB devices have all of these options. Others only have the first two
-* Master or Slave (default) - This uses the least flash and ram. At any given time Wire can be a master or a slave, but not both and you must call Wire.end(), and then the appropriate form of begin() for the mode you want to enable.
-* Master And Slave - In this mode, an argumentless call to begin will start the master functionality, and a call to the form with one or more arguments will start the slave version. Both can run at the same time either using DualMode, or on the same pins (multi-master).
-* Master or Slave x2 - In this mode, there is a Wire, and a Wire1 - corresponding to TWI0 and TWI1 peripherals.
-* Master and Slave x2 - Combination of the two above options - Both Wire and Wire1 are provided, and *both* can be both a master and a slave at the same time, for a total of 4 pairs of I2C pins (note: having more than one I2C slave defined at once is not recommended, though this library should work. )
+The official megaAVR 0-series core that megaTinyCore was based on in the distant past subclassed a new "HardwareI2C" class. Unfortunately, that imposed a shocking amount of overhead with no practical benefit (due to the whole virtual function thing). Code that relies on TwoWire being a subclass of HardwareI2C is virtually non-existent, and code that would benefit from the added flash is very common, especially considering the popularity of the ATtiny412, which is sadly the largest-flash 8-pin part. . Any library you encounter that works on classic AVRs (e.g., Uno) but complains of this different inheritance is straightforward to fix, likely as simple as searching the library files for "HardwareI2C" and changing it to "Stream".
 
 
 ### Methods not present in official Arduino Wire library

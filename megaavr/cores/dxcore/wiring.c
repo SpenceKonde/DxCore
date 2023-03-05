@@ -74,7 +74,8 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
   };
 
   #if defined(MILLIS_USE_TIMERRTC)
-    #define MILLIS_TIMER_VECTOR (RTC_CNT_vect)
+    // this is done for us in timers.h
+    // #define MILLIS_VECTOR (RTC_CNT_vect)
     const struct sTimer _timerS = {RTC_OVF_bm, &RTC.INTCTRL};
   #else
     // when TCD0 is used as millis source, this will be different from above, but 99 times out of 10, when a piece of code asks for clockCyclesPerMicrosecond(), they're asking about CLK_PER/CLK_MAIN/etc, not the unprescaled TCD0!
@@ -109,68 +110,52 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
 
 
     #if defined (MILLIS_USE_TIMERA0)
-      #ifndef TCA0
-        #error "Selected millis timer, TCA0 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCA0_HUNF_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCA0_HUNF_vect)
       const struct sTimer _timerS = {TCA_SPLIT_HUNF_bm,  &TCA0.SPLIT.INTFLAGS};
 
     #elif defined (MILLIS_USE_TIMERA1)
-      #ifndef TCA1
-        #error "Selected millis timer, TCA1 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCA1_HUNF_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCA1_HUNF_vect)
       const struct sTimer _timerS = {TCA_SPLIT_HUNF_bm,  &TCA1.SPLIT.INTFLAGS};
 
     #elif defined(MILLIS_USE_TIMERB0)
-      #ifndef TCB0
-        #error "Selected millis timer, TCB0 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCB0_INT_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCB0_INT_vect)
       static volatile TCB_t *_timer = &TCB0;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB0.INTFLAGS};
 
     #elif defined(MILLIS_USE_TIMERB1)
-      #ifndef TCB1
-        #error "Selected millis timer, TCB1 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCB1_INT_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCB1_INT_vect)
       static volatile TCB_t *_timer = &TCB1;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB1.INTFLAGS};
 
     #elif defined(MILLIS_USE_TIMERB2)
-      #ifndef TCB2
-        #error "Selected millis timer, TCB2 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCB2_INT_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCB2_INT_vect)
       static volatile TCB_t *_timer = &TCB2;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB2.INTFLAGS};
 
     #elif defined(MILLIS_USE_TIMERB3)
-      #ifndef TCB3
-        #error "Selected millis timer, TCB3 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCB3_INT_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCB3_INT_vect)
       static volatile TCB_t *_timer = &TCB3;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB3.INTFLAGS};
 
     #elif defined(MILLIS_USE_TIMERB4)
-      #ifndef TCB4
-        #error "Selected millis timer, TCB4 does not exist on this part."
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCB4_INT_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCB4_INT_vect)
       static volatile TCB_t *_timer = &TCB4;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB4.INTFLAGS};
 
     #elif defined(MILLIS_USE_TIMERD0)
       /*
-      #ifndef TCD0
-        #error "Selected millis timer, TCD0, is only valid for 1-series tinyAVR"
-      #endif
-      #define MILLIS_TIMER_VECTOR (TCD0_OVF_vect)
+      // this is done for us in timers.h
+      // #define MILLIS_VECTOR (TCD0_OVF_vect)
       const struct sTimer _timerS = {TCD_OVF_bm, &TCD0.INTFLAGS};
       */
-      #error "TCD0 is not asupported timing source on the Dx-series; the greater number of possible configurations of the clock make it even more unwieldy. "
+      #error "TCD0 is not a supported timing source on the Dx-series; the greater number of possible configurations of the clock make it even more unwieldy. "
     #else
       #error "No millis timer selected, but not disabled - can't happen!".
     #endif  /* defined(MILLIS_USE_TIMER__) */
@@ -196,7 +181,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
 
   // Now for the ISRs. This gets a little bit more interesting now...
   #if defined (MILLIS_USE_TIMERRTC)
-    ISR(MILLIS_TIMER_VECTOR) {
+    ISR(MILLIS_VECTOR) {
       // if RTC is used as timer, we only increment the overflow count
       // Overflow count isn't used for TCB's
       if (RTC.INTFLAGS & RTC_OVF_bm) {
@@ -205,7 +190,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
       RTC.INTFLAGS = RTC_OVF_bm | RTC_CMP_bm; // clear flag
     }
   #else
-    ISR(MILLIS_TIMER_VECTOR, ISR_NAKED) {
+    ISR(MILLIS_VECTOR, ISR_NAKED) {
       __asm__ __volatile__(
       "push       r30"          "\n\t" // First we make room for the pointer to timingStruct by pushing the Z registers
       "push       r31"          "\n\t" //
@@ -1174,6 +1159,20 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // we just burned 27 (24) cycles above, remove 3
   us -= 3; // 2 cycles
 
+#elif F_CPU >= 25000000L
+  // for a one-microsecond delay, burn 8 cycles and return
+  __asm__ __volatile__ (
+    "rjmp .+2" "\n\t"     // 2 cycles - jump over next instruction.
+    "ret" "\n\t"          // 4 cycles - rjmped over initially....
+    "rcall .-4");         // 2 cycles - ... but then called here);
+                          // wait 8 cycles with 3 words
+  if (us <= 1) return; //  = 3 cycles, (4 when true)
+
+  // the loop takes 1/5 of a microsecond (5 cycles) per iteration
+  // so execute it 5x  for each microsecond of delay requested.
+  us = (us << 2) + us; // x5 us, = 7 cycles
+  // we just burned 24 (22) cycles above, remove 3
+  us -= 3; // 2 cycles
 
 #elif F_CPU >= 24000000L
   // for a one-microsecond delay, burn 8 cycles and return

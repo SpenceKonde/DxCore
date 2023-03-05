@@ -599,24 +599,28 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 */
 
 #include "pins_arduino.h"
-#if !defined(_VALID_ANALOG_PIN)
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for.
-  #define _VALID_ANALOG_PIN(pin) (pin < 8 || pin > 0 ? INVALID_PIN : (PIN_PD4 + pin))
-#endif
-#if !defined(_VALID_DIGITAL_PIN)
-  #define _VALID_DIGITAL_PIN(pin) (pin < 4 || pin > 0 ? INVALID_PIN : (PIN_PD4 + pin))
-#endif
-#define digitalPinToPort(pin)               (((pin)     < NUM_TOTAL_PINS ) ?                          digital_pin_to_port[pin]                 : NOT_A_PIN)
-#define digitalPinToBitPosition(pin)        (((pin)     < NUM_TOTAL_PINS ) ?                  digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
-#define digitalPinToBitMask(pin)            (((pin)     < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
+/* Note 3/2/23: Buried treasure! Pin numbers in DxCore and megaTinyCore are unsigned 8-bit integers. But these are macros - it doesn't matter when the core's functions access these
+ * because we got pin as an argument of type uint8_t, and so that's the type we'll be passing through these. But these are effectively part of the API and it's entirely legal for
+ * libraries to call them. Because of the dubious decisions of the Arduino team and whoever wrote it's immediate predecesor, wiring, pin numbers in the wild are often represented
+ * as ints - that is, int16_t.
+ * As long as you have an unsigned value, the most computationally efficient method to test if a pin is valid is just to see if it's less than the number of total pins.
+ * Negative numbers look like numbers larger than 128 (or 32k or 2.1b) and hence larger than NUM_TOTAL_PINS (no AVR has ever had more than 100 physical pins, and on that
+ * part over a dozen were not GPIO pins. AVRs only atomic single-clock bit operations for 32 registers, 4 are GPRs, leaving 28 for the VPORTs. And since each pin needs 4 VPORT bits
+ * that gives us 56 pins arranged in 7 ports, PA-PG. Classic AVRs didn't put the intflags in , and
+ * But because this is a macro and there's no type enforcement on macros, if an int16_t was passed to this, it would be compared to NUM_TOTAL_PINS, and that number would be
+ * treated (as is the default in C) as an int16_t. (int16_t) < (int16_t) is a SIGNED COMPARISON. Tis to check . So the test could not be rendered as a single comparison, because */
+#define digitalPinToPort(pin)               ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                          digital_pin_to_port[pin]                 : NOT_A_PIN)
+#define digitalPinToBitPosition(pin)        ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                  digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
+#define digitalPinToBitMask(pin)            ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
 #define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?   digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
 #define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?       digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
 #if !defined(digitalPinToTimer)
   // Allow variants to provide their own definition of digitalPinToTimer.
-  #define digitalPinToTimer(pin)              (((pin)     < NUM_TOTAL_PINS ) ?                         digital_pin_to_timer[pin]                 : NOT_ON_TIMER)
+  // This could be used to eliminate the table
+  #define digitalPinToTimer(pin)              ((((uint8_t)(pin))     < NUM_TOTAL_PINS ) ?                         digital_pin_to_timer[pin]                 : NOT_ON_TIMER)
 #endif
 #define portToPortStruct(port)              (((port)    < NUM_TOTAL_PORTS) ?                   (((PORT_t *)  &PORTA) + (port))                 : NULL)
-#define digitalPinToPortStruct(pin)         (((pin)     < NUM_TOTAL_PINS ) ?    (((PORT_t *) &PORTA) + digitalPinToPort( pin))                 : NULL)
+#define digitalPinToPortStruct(pin)         ((((uint8_t)(pin))     < NUM_TOTAL_PINS ) ?    (((PORT_t *) &PORTA) + digitalPinToPort( pin))                 : NULL)
 #define getPINnCTRLregister(port, bit_pos)  ((((port) != NULL) && (bit_pos < 8)) ? (((volatile uint8_t *) &(port->PIN0CTRL)) + bit_pos)        : NULL)
 #define digitalPinToInterrupt(P)            (P)
 // Remember to test for NOT_A_PORT before using thiese.

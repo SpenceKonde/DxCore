@@ -8,9 +8,16 @@ These items are in addition to what was listed under changes already in release.
 ## Changes Implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
+### Planned 1.5.6
+* **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. Investigation is ongoing into why the DB and DD failed differently.
+* Bugfix: MILLIS_VECTOR was duplicated by MILLIS_TIMER_VECTOR.
+* Internal: Created a few dirty functions use the port number and bitmask as arguments, and set the direction or output of a pin, much faster than pinMode - since if you have those values already and know PWM isn't turned on, we should just set or clear the register right then and there, instead of doing all that work over again. This is used in the modifications to analog write.
+* **Critical Bugfix** - Third party libraries which used digitalPinTo____ macros could get back invalid values when negative numbers were passed instead of NOT_A_PIN
+
+
 ## Released versions
 
-### Planned 1.5.5
+### 1.5.5
 * Enhancement: Add a few more macros for getting information on peripherals and updated define reference.
 * Bugfix: Remove spurious warning.
 * **Major Bugfix** Correct USERSIG library so it can actually write to the USERROW.

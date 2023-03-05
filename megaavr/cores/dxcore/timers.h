@@ -72,36 +72,42 @@
     #error "TCB0, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB0
+  #define MILLIS_VECTOR TCB0_INT_vect
 #elif defined(MILLIS_USE_TIMERB1)
   #ifndef TCB1
     #error "TCB1, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB1
+  #define MILLIS_VECTOR TCB1_INT_vect
 #elif defined(MILLIS_USE_TIMERB2)
   #ifndef TCB2
     #error "TCB2, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB2
+  #define MILLIS_VECTOR TCB2_INT_vect
 #elif defined(MILLIS_USE_TIMERB3)
   #ifndef TCB3
     #error "TCB3, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB3
+  #define MILLIS_VECTOR TCB3_INT_vect
 #elif defined(MILLIS_USE_TIMERB4)
   #ifndef TCB4
     #error "TCB4, selected for millis, does not exist on this part"
   #endif
-  #define MILLIS_TIMER TIMERB4
+  #define MILLIS_VECTOR TCB4_INT_vect
 #elif defined(MILLIS_USE_TIMERD0)
   #ifndef TCD0
     #error "TCD0, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERD0
+  #define MILLIS_VECTOR TCD0_OVF_vect
 #elif defined(MILLIS_USE_TIMERRTC)
   #ifndef RTC
     #error "RTC, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERRTC
+  #define MILLIS_VECTOR RTC_CNT_vect
 #elif defined(MILLIS_USE_TIMERNONE)
   #define MILLIS_TIMER NOT_ON_TIMER
 #else

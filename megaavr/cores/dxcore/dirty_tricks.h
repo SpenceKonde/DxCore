@@ -4,7 +4,7 @@
  * and released under the LGPL 2.1
  * See LICENSE.txt for full legal boilerplate if you must
  */
-
+#include <wiring_private.h>
 /* Okay... This was getting fucking absurd.
  * We (well, me and the one, maybe two other people here who speak fluent avr asm) all knew we needed unholy tricks like this.
  * We wish we didn't. But while the GCC part of avr-gcc does a pretty thorough and consistent job optimizing...
@@ -298,8 +298,8 @@ Not enabled. Ugly ways to get delays at very small flash cost.
 /****************/
 /* _makeFastPtr */
 /****************/
-#define _makeFastPtr_d(newptt, highbyte, lowbyte) (__asm__ __volitile("ldi %0B, %1 " "\n\t" "mov %0A, %2 " "\n\t":"+b"((uint16_t) newptr):"M" ((uint8_t) highbyte), "r" ((uint8_t ), lowbyte)
-#define   _makeFastPtr(newptt, highbyte, lowbyte) (__asm__ __volitile("ldi %0B, %1 " "\n\t" "mov %0A, %2 " "\n\t":"+e"((uint16_t) newptr):"M" ((uint8_t) highbyte), "r" ((uint8_t ), lowbyte)
+#define _makeFastPtr_d(newptr, highbyte, lowbyte) __asm__ __volatile__("ldi %0B, %1 " "\n\t" "mov %0A, %2 " "\n\t":"=&b"((uint16_t) newptr):"M" ((uint8_t) highbyte), "r" ((uint8_t ) lowbyte))
+#define   _makeFastPtr(newptr, highbyte, lowbyte) __asm__ __volatile__("ldi %0B, %1 " "\n\t" "mov %0A, %2 " "\n\t":"=&e"((uint16_t) newptr):"M" ((uint8_t) highbyte), "r" ((uint8_t ) lowbyte))
 /* _makeFastPtr_d(uint8_t * newptt, const uint8_t highbyte, uint8_t lowbyte)
  * _makeFastPtr(uint8_t * newptt, const uint8_t highbyte, uint8_t lowbyte)
  *
@@ -326,5 +326,57 @@ Not enabled. Ugly ways to get delays at very small flash cost.
  * _makeFastPtr_d() uses only X or Y register, and should be used if you expect to be accessing constant compile time known constant offsets
  *
  */
+  /*********************
+  | Now a few functions |
+  **********************/
+  /* These are really dirty pin manipulation functions that are always-inline
+   * intended to be much faster than the stock pinMode, because we often have already looked up the things we need to knoww
+   * and frequently call the whole bloody pinmode function when we already have the tables in memory, and we know that pinMode will never b
+   */
 
-  #endif
+typedef union __byteptrvol {
+    uint8_t              ab[2];
+    volatile uint8_t*    b_ptr;
+  } bytePtrVol_t;
+
+  inline void __attribute__ ((always_inline)) _setOutput(uint8_t portnum, uint8_t bit_mask) {
+    /* pinMode(pin,OUTPUT) in only like 5 clocks! You don't wanna know how many it takes the official core! */
+    _swap(portnum); //1 clock
+    portnum <<= 1; // 1 clock
+    portnum++;     // 1 clock
+    bytePtrVol_t port_dirset_reg;
+    port_dirset_reg.ab[1] = 0x04; // All port structs start with 0s04
+    port_dirset_reg.ab[0] = portnum;
+    *port_dirset_reg.b_ptr = bit_mask;
+  }
+
+  inline void __attribute__ ((always_inline)) _setInput(uint8_t portnum, uint8_t bit_mask) {
+    _swap(portnum); //1 clock
+    portnum <<= 1; // 1 clock
+    portnum  += 2; // 1 clock
+    bytePtrVol_t port_dirclr_reg;
+    port_dirclr_reg.ab[1] = 0x04; // All port structs start with 0s04
+    port_dirclr_reg.ab[0] = portnum;
+    *port_dirclr_reg.b_ptr = bit_mask;
+  }
+
+  inline void __attribute__ ((always_inline)) _setValueHigh(uint8_t portnum, uint8_t bit_mask) {
+    _swap(portnum); //1 clock
+    portnum <<= 1; // 1 clock
+    portnum  += 5;     // 1 clock
+    bytePtrVol_t port_outset_reg;
+    port_outset_reg.ab[1] = 0x04; // All port structs start with 0s04
+    port_outset_reg.ab[0] = portnum;
+    *port_outset_reg.b_ptr = bit_mask;
+  }
+
+  inline void __attribute__ ((always_inline)) _setValueLow(uint8_t portnum, uint8_t bit_mask) {
+    _swap(portnum); //1 clock
+    portnum <<= 1; // 1 clock
+    portnum  += 6;     // 1 clock
+    bytePtrVol_t port_outclr_reg;
+    port_outclr_reg.ab[1] = 0x04; // All port structs start with 0s04
+    port_outclr_reg.ab[0] = portnum;
+    *port_outclr_reg.b_ptr = bit_mask;
+  }
+#endif

@@ -396,7 +396,7 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
 #endif
 
 #if defined(TCD0)
-  static const uint8_t _tcdmux[8]={0, 1, 5, 6, 4, -1, -1, -1};
+  const PROGMEM uint8_t _tcdmux[8]={0, 1, 5, 6, 4, -1, -1, -1};
 #endif
 
 void analogWrite(uint8_t pin, int val) {
@@ -423,6 +423,9 @@ void analogWrite(uint8_t pin, int val) {
         threepin = 1;
       }
     }
+    #if defined(TCA0)
+      else
+    #endif
   #else
     if  ((bit_mask < 0x40) && ((portmux_tca == portnum) && (__PeripheralControl & TIMERA0))) {
       timer_A = &TCA0;
@@ -455,9 +458,7 @@ void analogWrite(uint8_t pin, int val) {
       *(((uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
     }
     *(uint8_t*) &(timer_A->SPLIT.CTRLB) |= ctrlb;
-    *((uint8_t*)((uint16_t)(portnum + 0x401))) = bit_mask;
-    return;
-  }
+
     /* Okay, this layout tends towards maximum pervosity. You basically have to treat them as entirely separate timers at this point!
      * PORT | DA | DB | DD | EA | portnum
      *    A | XX | XX | XX | 20 | 0; portmux == 0x20 EA only                    portnux >> 2 == 4
@@ -476,12 +477,19 @@ void analogWrite(uint8_t pin, int val) {
      * No PORTA or PORTD except on EA (it was a newly added mux option) there.
      * No TCA1 on DD at all.
      */
-  TCB_t *timer_B;
-  // TCA_t *timer_A;
- uint8_t digital_pin_timer = digitalPinToTimer(pin);
-  switch (digital_pin_timer) {
-    case NOT_ON_TIMER:
+  } else {
+    TCB_t *timer_B;
+    // TCA_t *timer_A;
+    uint8_t digital_pin_timer = digitalPinToTimer(pin);
+    switch (digital_pin_timer) {
+    case NOT_ON_TIMER:{
+      if (val < 128) {
+        _setValueHigh(portnum, bit_mask);
+      } else {
+        _setValueHigh(portnum, bit_mask);
+      }
       break;
+    }
     case TIMERB0:
     case TIMERB1:
     case TIMERB2:
@@ -508,15 +516,23 @@ void analogWrite(uint8_t pin, int val) {
       } // if it's not, we don't have PWM on this pin!
       break;
   #if defined(DAC0)
-    case DACOUT:
-      #ifdef DAC0_DATAH
-        // DAC0.DATAL = 0xC0;
+    case DACOUT: {
+      _setInput(portnum, bit_mask);
+      uint8_t ctrla = DAC0.CTRLA;
+      if (val == 0 || val == 255) {
+        ctrla &= ~0x41; // clear we want to turn off the DAC in this case
+      }
+      volatile uint8_t* pinctrl_ptr = (volatile uint8_t*) 0x0476; // PD6 PINnCTRL;
+      *pinctrl_ptr |= PORT_ISC_INPUT_DISABLE_gc;
+      #if defined(DAC0_DATAH)
         DAC0.DATAH = val;
+        DAC0.CTRLA |= 0x41; // OUTEN=1, ENABLE=1, but don't trash run stby
       #else
         DAC0.DATA = val;
+        DAC0.CTRLA |= 0x41; // OUTEN=1, ENABLE=1, but don't trash run stby
       #endif
-      DAC0.CTRLA=0x41; // OUTEN=1, ENABLE=1
-      break;
+      return;
+    }
   #endif
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
     // Else, it's on TCD0
@@ -542,41 +558,36 @@ void analogWrite(uint8_t pin, int val) {
       /**************************************
       Determine the bit within TCD0.FAULTCTRL
       On Dx-series, WOA is always on bit 0 or bit 4 and so on
-      On tinyAVR 1-series, WOA/WOB is on PA4/PA5, and WOC, WOD is on PC0/PC1.
+      On tinyAVR 1-series, WOA/WOB is on PA4/PA5, and WOC, WOD is on PC0/PC.
+      In the past the same copy of this function was used for both cores. That has become untenable
       ***************************************/
-      #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
-        // Dx-series
-        uint8_t port = digitalPinToPort(pin);
-        uint8_t tcdmux = _tcdmux[(digital_pin_timer & 0x07)];
-        // First, if TCD portmux busted, don't
-        #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
-          if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
-
-            break;
+      // Dx-series
+      uint8_t port = digitalPinToPort(pin);
+      uint8_t tcdmux = pgm_read_byte_near(&_tcdmux[(digital_pin_timer & 0x07)]);
+      // First, if TCD portmux busted, but it's not set to 0, we can't get PWM, so we need t
+      #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
+        if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
+          break;
+        }
+        uint8_t fc_mask = bit_mask ;
+        if (!(tcdmux & 0x04)) {
+          if (bit_mask < 0x10) { //cpi
+            fc_mask <<= 4;// mov swap andi, hopefully.
           }
-          if (!(tcdmux & 0x04)) {
-            if (bit_mask < 0x10) {
-              bit_mask = bit_mask << 4;
-            }
-          } else {
-            if (port == 3) {
-              bit_mask <<= 2;
-            }
+        } else {
+          if (port == 3) { //cpse rjmp .+6
+            fc_mask <<= bit_mask << 2; // mov lsr lsr
           }
-          // hopefully that gets rendereed as swap, not 4 leftshifts
-        #else
-          if ((tcdmux & 0x07) != 0) break;
-        #endif
+        }
       #else
-        // tinyAVR 1-series
-        #ifdef USE_TIMERD_WOAB
-          // Future feature to support TCD0-driven PWM on PA4/PA5.
-          if (bit_mask < 0x0F) {
-            bit_mask = (bit_mask == 0x20 ? 0x80 : 0x40);
+        if (((tcdmux & 0x07) != 0) || (!(fcmask == 0))) {
+          if (val < 128) {
+            _setValueHigh(portnum, bit_mask);
+          } else {
+            _setValueHigh(portnum, bit_mask);
           }
-        #else
-          bit_mask = (bit_mask == 0x20 ? 0x80 : 0x40);
-        #endif
+          break;
+        }
       #endif
       val = 255 - val;
       uint8_t temp = TCD0.CMPBCLRL;
@@ -628,8 +639,9 @@ void analogWrite(uint8_t pin, int val) {
       } else {
         TCD0.CMPASET = val - 1;
       }
+      GPIOR0 = fc_mask;
       /* Check if channel active, if not, have to turn it on */
-      if (!(TCD0.FAULTCTRL & bit_mask)) {
+      if (!(TCD0.FAULTCTRL & fc_mask)) {
         /*-----------------------------------------------------------------------------------------
          * need to be careful here - analogWrite() can be called by a class constructor, for
          * example in which case the timer hasn't been started yet. We must not start it in this
@@ -647,7 +659,7 @@ void analogWrite(uint8_t pin, int val) {
         uint8_t temp2 = TCD0.CTRLA;
         TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);
         while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
-        _PROTECTED_WRITE(TCD0.FAULTCTRL, (bit_mask | TCD0.FAULTCTRL));
+        _PROTECTED_WRITE(TCD0.FAULTCTRL, (fc_mask | TCD0.FAULTCTRL));
         // while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
         TCD0.CTRLA = temp2; // re-enable it if it was enabled
       } else {
@@ -667,19 +679,13 @@ void analogWrite(uint8_t pin, int val) {
         }
       #endif
       SREG = oldSREG; // Turn interrupts back on, if they were off.
-      return;
+      }
+    #endif
     }
-  #endif
+  // now hastily set the pin output with this quickie macro since we know alll we need in order to do so now.
   }
-  /* If non timer pin, or unknown timer definition. */
-  /* do a digital write */
-  if (val < 128) {
-    digitalWrite(pin, LOW);
-  } else {
-    digitalWrite(pin, HIGH);
-  }
+  _setOutput(portnum, bit_mask);
 }
-
 void takeOverTCA0() {
   #if defined(MILLIS_USE_TIMERA0)
     stop_millis();
@@ -786,108 +792,3 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   }
   return timer;
 }
-
-
-// Not ready yet, but we ought to have something like this.
-
-//uint8_t PWMoutputToPin(uint8_t timer, uint8_t channel, bool muxed) {
-
-  /* valid values for timer start at line 300ish in Arduino.h.
-   * NOT RECOMMENDED FOR CODE WHERE PERFORMNANCE IS IMPORTANT, no flash constrained settings. It's great for making library example code work.
-   * valid values for channel are:
-   * TCA: 0-5
-   * TCB: 0 - this function tells you where PWM is currently piped, not where it could be piped.
-   * TCD: 0-3
-   */
-/*
-  If muxed is 0
-
-  To efficiently test for error values, cast the result to an int8_t and verify that it's greater than 0.
-  -1 indicates that a channel that the timer doesn't have was requested, but is not a compile time constant so we couldn't error then.
-  -2 indicates that we found the pin that would work with that timer channel, but that's not the pin the timer is pointed at, and you need to fix that
-  -3 indicates that you're requesting a channel that does not function due to outstanding errata on the chip. Go complain to microchip.
-
-  if (__builtin_constant_p(channel)) {
-    if (channel >=6) {
-      badArg("PWMOutputToPin was called with an invalid value; no timer supports more than 6 channels, zero-indexed");
-    }
-    return NOT_A_PIN;
-  }
-  uint8_t retval = NOT_A_PIN
-  //beyond that we shall make no assumptions!
-  if (timer & TIMERD0) {
-    if (channel > 3) {
-      if (__builtin_constant_p(channel)) {
-        badArg("TCDs only have channels 0~3, a channel outide that rane was requested!");
-      }
-      return NOT_A_PIN;
-    } else if (PORTMUX.TCDROUTEA != (timer & 0x03)) {
-      return TIMER_NOT_CONNECTED;
-    }
-    #if defined(ERRATA_TCD_PORTMUX)
-      #if (!defined PIN_PA4)
-        #error "Can't happen, all parts that have the TCD portmux errata have a PA4, so there is a bug in the core that should be reported promptly");
-      if (PORTMUX.TCDROUTEA != 0) {
-        return TIMER_BROKEN_ERRATA;
-      }
-      retval = PIN_PA4 + channel.
-    #else
-      for (uint8_t i = 0; i < PINS_COUNT; i++) {
-        retval = i;
-        if (digitalPinToTimer(i) == timer) {
-          break;
-        }
-      }
-    #endif
-  } else if (timer & TIMERA0) {
-    if (channel > 5) {
-      return NOT_A_PIN; // TCA's never have more than 6 pins per mapping
-    }
-    for (uint8_t i = 0; i < PINS_COUNT) {
-      uint8_t port = USARTROUTEA & 0x07;
-      if (digitalPinToPort(pin) == port) {
-        if (digitalPinToBitPostion(pin == channel)) {
-          retval = i;
-          break;
-        }
-      }
-    }
-  } else if (timer & TIMERB0) {
-    if (channel) {
-      return NOT_A_PIN; // TCBs have an alt pin but it's for the same channel, and the timer argument i different.
-    } else {
-      if (MILLIS_TIMER == timer) return PERIPHERAL_IN_USE;
-      switch(timer) {
-        case TIMERB0:
-          #if defined(PIN_PA2)
-            return PIN_PA2;
-          #endif
-          break;
-        case TIMERB1:
-          #if defined(PIN_PA3)
-            return PIN_PA3;
-          #endif
-          break;
-
-        case TIMERB2:
-          #if defined(PIN_PB5)
-            return PIN_PB5;
-          #endif
-          break;
-
-        case TIMERB3:
-          #if defined(PIN_PC0)
-            return PIN_PC0;
-          #endif
-          break;
-
-        case TIMERB4:
-          #if defined(PIN_PG3)
-            return PIN_Pxn;
-          #endif
-          break;
-        }
-      }
-    }
-  }
-*/
