@@ -2,9 +2,12 @@
 
 ## 1.5. ~0~ ~1~ ~2~ ~3~ ~4~ 5 is here
 DD support is in, and the fifth set of bugs that have been found in it are fixed.
-~Please be on the lookout for *any further* bugs and regressions, particularly relating to the new parts and to PWM.~
-A major regression has been noted in PWM and DAC output. Additionally, there appears to be undocumented errata on extant Dx-series parts.... 
-The issue should be fixed mostly, but I am doubtful that there are no other variant files that fail to match the part specific documentation regarding the default PORTMUX configurations the core sets up. This is less catastrophic, though, since at least you can just change PORTMUX as you wish during setup() to put the timers where you want them to be. 
+
+Please be on the lookout for *any further* bugs and regressions, ~particularly relating to the new parts and to PWM.~
+
+A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts.... 
+
+The issue should be fixed mostly, and I think totally on the 32-pin DD-series, and it was likely not ever (as badly) broken on the 14 and 20 pin parts, since I mostly used those to test with, but I am doubtful that there are no other variant files that fail to match the part specific documentation regarding the default PORTMUX configurations the core sets up. This is less catastrophic, though, since at least you can just change PORTMUX as you wish during setup() to put the timers where you want them to be. 
 
 ## IMPORTANT WARNINGS
 
