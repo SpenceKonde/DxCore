@@ -9,9 +9,9 @@ These items are in addition to what was listed under changes already in release.
 These are typically planned for release in a future version (usually the next one) as noted.
 
 ### Planned 1.5.6
-* **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. Investigation is ongoing into why the DB and DD failed differently.
+* **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here. Investigation is ongoing into why the DB and DD failed differently.
 * Bugfix: MILLIS_VECTOR was duplicated by MILLIS_TIMER_VECTOR.
-* Internal: Created a few dirty functions use the port number and bitmask as arguments, and set the direction or output of a pin, much faster than pinMode - since if you have those values already and know PWM isn't turned on, we should just set or clear the register right then and there, instead of doing all that work over again. This is used in the modifications to analog write.
+* Internal: Created a few dirty functions use the port number and bitmask as arguments, and set the direction or output of a pin, much faster than pinMode - since if you have those values already and know PWM isn't turned on, we should just set or clear the register right then and there, instead of doing all that work over again. This is used in the modifications to analogWrite - however apparently we don't need that even, because the timers all have a peripheral override on the direction register!
 * **Critical Bugfix** - Third party libraries which used digitalPinTo____ macros could get back invalid values when negative numbers were passed instead of NOT_A_PIN
 
 

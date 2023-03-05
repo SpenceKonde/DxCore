@@ -601,7 +601,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #include "pins_arduino.h"
 /* Note 3/2/23: Buried treasure! Pin numbers in DxCore and megaTinyCore are unsigned 8-bit integers. But these are macros - it doesn't matter when the core's functions access these
  * because we got pin as an argument of type uint8_t, and so that's the type we'll be passing through these. But these are effectively part of the API and it's entirely legal for
- * libraries to call them. Because of the dubious decisions of the Arduino team and whoever wrote it's immediate predecesor, wiring, pin numbers in the wild are often represented
+ * libraries to call them. Because of the dubious decisions of the Arduino team and whoever wrote it's immediate predecessor, wiring, pin numbers in the wild are often represented
  * as ints - that is, int16_t.
  * As long as you have an unsigned value, the most computationally efficient method to test if a pin is valid is just to see if it's less than the number of total pins.
  * Negative numbers look like numbers larger than 128 (or 32k or 2.1b) and hence larger than NUM_TOTAL_PINS (no AVR has ever had more than 100 physical pins, and on that

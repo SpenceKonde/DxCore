@@ -580,7 +580,8 @@ void analogWrite(uint8_t pin, int val) {
           }
         }
       #else
-        if (((tcdmux & 0x07) != 0) || (!(fcmask == 0))) {
+        if (((tcdmux & 0x07) != 0)) {
+          /* On these parts, there is no available silicon with a working TCD portmux! */
           if (val < 128) {
             _setValueHigh(portnum, bit_mask);
           } else {
@@ -639,7 +640,6 @@ void analogWrite(uint8_t pin, int val) {
       } else {
         TCD0.CMPASET = val - 1;
       }
-      GPIOR0 = fc_mask;
       /* Check if channel active, if not, have to turn it on */
       if (!(TCD0.FAULTCTRL & fc_mask)) {
         /*-----------------------------------------------------------------------------------------

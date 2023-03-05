@@ -9,7 +9,7 @@ TCA or TCD pins; these timers are much better for generation of PWM. Only use TC
 |-------------|----------|-------|-------|--------------------------------------------------------|-----------------|
 | TCA0        | Yes      | Yes   | No    | Pins 0-5 on any single port. Never split between ports | Restart Command not intended to reset direction and on DD and future revisions will not |
 | TCA1        | >32 pin  | No    | Yes   | Pins 0-5 on PB or PG, else pins 4-6 of PC, PE, PA* PD* | AVR128DA64 cannot output TCA1 compare match (pwm) on PORTG. |
-| TCD0        | Yes      | Yes   | No    | PA4-7 on DA/DB. DD has special split-port mux option   | Only defautlt portmux works on pre-DD parts (Where is our damned die rev already?) |
+| TCD0        | Yes      | Yes   | No    | PA4-7 on DA/DB. DD has special split-port mux option   | Only default portmux works on pre-DD parts (Where is our damned die rev already?) |
 | TCB0        | Yes      | Yes   | Yes   | PA2 or PF4. All TCBs are poor PWM timers               | AND you have to set both duty cycle and period at the same time |
 | TCB1        | Yes      | Yes   | Yes   | PA3 or PF5.                                            | And you get just 1 channel of 8-bit PWM. |
 | TCB2        | Yes      | 28/32 | Yes   | PC0 or PB4. Default millis timer `**`                  | They make an AMAZING millis timer though! |
@@ -107,7 +107,7 @@ The asynchronous nature of this timer, however, comes at a great cost: It is muc
 
 ### TCE - Lurking in the distance with WEX
 The recently announced EB-series will feature not one but TWO new timers. 
-Nothing is currently known about the TCE other than it can output 8 PWM channels in some configurations, and six in others, and that it's a 16-bit timer, and that it has WEX. Whether these are independant channels or whether half of them must be the inverse of the other half is not known (that has precedent on classic AVRs. I would have hoped they have learned).
+Nothing is currently known about the TCE other than it can output 8 PWM channels in some configurations, and six in others, and that it's a 16-bit timer, and that it has WEX. Whether these are independent channels or whether half of them must be the inverse of the other half is not known (that has precedent on classic AVRs. I would have hoped they have learned).
 
 WEX is a feature from xMega. One hopes it has been streamlined, as it was incomprehensible there. (like everything else). It allowed generation of enhanced resolution PWM, and probably some other things. Only time (specifically the moment that datasheet is released) will reveal whether WEX is friendly, or the heinous supervillian WEX Luther.... 
 
@@ -130,7 +130,7 @@ CLK/128      |  NO   |  NO   |  YES* |  NO       |  NO         |
 CLK/256      |  YES  |  TCA  |  YES* |  NO       |  NO         |
 CLK/1024     |  YES  |  TCA  |  NO   |  NO       |  NO         |
 
-* Requires using the synchronizer prescaler as well. My understanding is that this results in sync cycles taking longer- I belive it takes 2-3 synchronizer clocks, with is 2-3 clock cycles without prescaling (just fast enough so that if you don't check it, and immediately write an enable locked rgister, it won't work) and 16-24 with maximum prescale. This is also how long it takes after disabling the timer for the EN_READY status flag to return indicating that you can turn it back on again.
+* Requires using the synchronizer prescaler as well. My understanding is that this results in sync cycles taking longer- I believe it takes 2-3 synchronizer clocks, with is 2-3 clock cycles without prescaling (just fast enough so that if you don't check it, and immediately write an enable locked register, it won't work) and 16-24 with maximum prescale. This is also how long it takes after disabling the timer for the EN_READY status flag to return indicating that you can turn it back on again.
 * 
 `TCA` indicates that for this prescaler, a TCA must also use it, and the TCB set to use that TCA's clock.
 
