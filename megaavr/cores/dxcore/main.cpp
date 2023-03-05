@@ -140,8 +140,8 @@ int main() {
  * long time.                                                                                     *
  **************************************************************************************************/
 
+void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
 #if (!defined(USING_OPTIBOOT))
-  void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
   // this runs, as the name implies, before the main() function is called.
   #if !defined(SPM_FROM_APP)
     // If we're not doing the SPM stuff, we need only check the flags
@@ -188,7 +188,6 @@ int main() {
   // We want the vectors in the alt location, it checks, clears, and stashes the reset flags (in GPR0)
   // and it providews the entrypoint we call to write to flash.
 #else
-  void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".init3")));
   void _initThreeStuff() {
     onPreMain();
   }
