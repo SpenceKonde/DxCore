@@ -108,6 +108,9 @@
 
 #ifndef dirty_tricks_h
 #define dirty_tricks_h
+// from old Arduino.h "avr-libc defines _NOP() since 1.6.2"
+// Someone had better explain that to avr-gcc, it seems to think otherwise.
+// Really? Better tell avr-gcc that, it seems to disagree...
 
 #ifndef _NOP
   #define _NOP()    __asm__ __volatile__ ("nop")
@@ -168,7 +171,7 @@ Not enabled. Ugly ways to get delays at very small flash cost.
  *
  * You can extend the length of the iterations by adding nop between the dec and brne, and branching 2 bytes further. that makes it 4 clocks per iteration.
  * You can go for much longer by using 16-bits:
- *                  uint16_t x = 2000;    * overall takes 8 bytrsd
+ *                  uint16_t x = 2000;  //
  *                  __asm__ __volatile__ ("sbiw %0,1"    "\n\t"  // Line is preceded by 2 implied LDI's to fill that upper register pair, Much higher chance of having to push and pop.
  *                                        \"brne .-4      \"\n\t\"  // SBIW takes 2 clocks. branch takes 2 clocks unless it doesn't branch, when it only takes one
  *                                        : +w"((uint16_t)(x))  // hence this takes 4N+1 clocks (4 per iteration, except for last one which is only 3, plus 2 for the pair of LDI's)
@@ -331,13 +334,13 @@ Not enabled. Ugly ways to get delays at very small flash cost.
   **********************/
   /* These are really dirty pin manipulation functions that are always-inline
    * intended to be much faster than the stock pinMode, because we often have already looked up the things we need to knoww
-   * and frequently call the whole bloody pinmode function when we already have the tables in memory, and we know that pinMode will never b
+   * and frequently call the whole bloody pinmode function when we already have the tables in memory, and we know what mode we're asking too.
    */
 
 typedef union __byteptrvol {
-    uint8_t              ab[2];
-    volatile uint8_t*    b_ptr;
-  } bytePtrVol_t;
+  uint8_t              ab[2];
+  volatile uint8_t*    b_ptr;
+} bytePtrVol_t;
 
   inline void __attribute__ ((always_inline)) _setOutput(uint8_t portnum, uint8_t bit_mask) {
     /* pinMode(pin,OUTPUT) in only like 5 clocks! You don't wanna know how many it takes the official core! */

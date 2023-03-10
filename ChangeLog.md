@@ -8,14 +8,17 @@ These items are in addition to what was listed under changes already in release.
 ## Changes Implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
-### Planned 1.5.6
-* **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here. Investigation is ongoing into why the DB and DD failed differently.
-* Bugfix: MILLIS_VECTOR was duplicated by MILLIS_TIMER_VECTOR.
-* Internal: Created a few dirty functions use the port number and bitmask as arguments, and set the direction or output of a pin, much faster than pinMode - since if you have those values already and know PWM isn't turned on, we should just set or clear the register right then and there, instead of doing all that work over again. This is used in the modifications to analogWrite - however apparently we don't need that even, because the timers all have a peripheral override on the direction register!
+## Changesd implemented but not yet in a released version.
+### 1.5.6
+* **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here.
+* **Critical Bugfix** - TCA PWM worked on some 32-pin parts but not others, and there appears to be a difference between the behavior of TCA0 on DB and DD devices - DD TCA0 overrides the PORT. DB TCAs do not. The datsheets say it should not override port direction, but the behavior has been moving away from that instead of towards that.
+* **Critical Bugfix** - DAC was not functional when used through the API.
 * **Critical Bugfix** - Third party libraries which used digitalPinTo____ macros could get back invalid values when negative numbers were passed instead of NOT_A_PIN
+* Serious Bugfix: Correct issue with the USART corrupting the low bit of GPIOR3 and USERSIG corrupting bit 3 of the same due to leftover debug code. If I was better with github actions I'd add an action to regex search all .c/cpp/h/S for `"(([cs]bi)|in|out) *(" +")? 0x1[CDEF]` and all c/h/cpp files not under a library example for `GP((IO)|(IOR)|R)[123] *[^; \n]?[^; \n]?=` and every such file except main.cpp for`GP((IO)|(IOR)|R)0 *[^; \n]?[^; \n]?=` and fail if any inline assembly is using cbi/sbi/in/out on the GPRs or any C not part of a library example is writing to them outside of the documented case of stashing the reset cause reported by RSTCTRL in GPIOR0 during init3, after which the core never doesn't touch it. Honestly the examples probably shouldn't be using the GPR's either.... but at least there it doesn't impact the functioning of the core, they're just probably shitty examples if they do. I think that would catch anything like that.
+* Bugfix: MILLIS_VECTOR did the same thing, and was implemented at an earlier time for the same reason. We've returned to using that old, documented name.
+* **Critical Bugfix** - Third party libraries which used digitalPinTo____ macros could get back invalid values when negative numbers were passed instead of NOT_A_PIN
+* Serious Bugfix: Correct issue with the USART corrupting the low bit of GPIOR3 and USERSIG corrupting bit 3 of the same due to leftover think that would catch anything like that.
 
-
-## Released versions
 
 ### 1.5.5
 * Enhancement: Add a few more macros for getting information on peripherals and updated define reference.

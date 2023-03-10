@@ -32,9 +32,9 @@ void _checkCore() {
 void __pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
 
   uint8_t bit_mask = digitalPinToBitMask(digital_pin);
-  if(bit_mask == NOT_A_PIN || !pin_config) // Return if digital pin is invalid or the other parameters or out to zero
+  if(bit_mask == NOT_A_PIN || !pin_config) { // Return if digital pin is invalid or the other parameters or out to zero
     return;
-
+  }
   uint8_t bit_pos  = digitalPinToBitPosition(digital_pin);
   volatile uint8_t *portbase = (volatile uint8_t*) digitalPinToPortStruct(digital_pin);
 
@@ -46,12 +46,14 @@ void __pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
   // Write to selected output register
   pin_config >>= 2;
   setting = pin_config & 0x03;
-  if(setting)
+  if(setting) {
     *(portbase + 4 + setting) = bit_mask;
+  }
 
   // Return if there is nothing more to configure
-  if(!(pin_config & 0x3FFC))
+  if(!(pin_config & 0x3FFC)) {
     return;
+  }
 
   /* Now it gets to the fun part: The bits of PINnCTRL!
    * For this we need to disable interrupts
@@ -64,45 +66,45 @@ void __pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
   pin_config >>= 2;
   uint8_t pinncfg = *(portbase + 0x10 + bit_pos);
   // Input sense configuration (ISC)
-  if(pin_config & 0x08)
+  if (pin_config & 0x08) {
     pinncfg = (pinncfg & 0xF8) | (pin_config & PORT_ISC_gm);
+  }
   // Pullup resistor
   uint8_t temp = pin_config & 0x30;
-  if(temp)
-  {
-    if(temp == 0x30)
+  if(temp) {                          // Toggle of pullup? I guess...
+    if(temp == 0x30) {
       pinncfg ^= PORT_PULLUPEN_bm;    // Toggle pullup
-    else if(temp == 0x20)
+    } else if(temp == 0x20) {
       pinncfg &= ~(PORT_PULLUPEN_bm); // Clear pullup
-    else
+    } else {
       pinncfg |= PORT_PULLUPEN_bm;    // Set pullup
-  }
-  // Invert pin
-  pin_config >>= 8;
-    #ifdef PORT_INLVL_bm
-    /* This feature is present on the AVR DB/DD-series, and headers suggest EA-series.
-     * See Ref_digital.md in the online documentation for more information.
-     *
-     * Set or clear only - toggle not supported.
-     * I question the usefulness of the other PINnCTRL toggles./
-     * I do not question the value of INLVL toggle: I am almost certain it is nil.
-     * If you want a toggle INLVL option, you're in an X-Y problem and are going about something
-     * sufficiently wrong that giving you what you think you need does you a disservice.
-     * If you disagree with this design decision please create an issue and explain the use case that would make this
-     * a worthwhile feature.
-     */
-    temp = pin_config & 0x03;
-    if (temp) {
-      if (temp == 0x01) {
-        pinncfg |= 0x40;              // set INLVL
-      } else {
-        pinncfg &= ~(0x40);           // clear INLVL
-      }
     }
+  }
+  pin_config >>= 8;
+  #ifdef PORT_INLVL_bm
+  /* This feature is present on the AVR DB/DD-series, and headers suggest EA-series.
+   * See Ref_digital.md in the online documentation for more information.
+   *
+   * Set or clear only - toggle not supported.
+   * I question the usefulness of the other PINnCTRL toggles./
+   * I do not question the value of an INLVL toggle; It's approximately zero.
+   *
+   * If you want a toggle INLVL option, you're in an X-Y problem and are going about something
+   * sufficiently wrong that giving you what you think you need does you a disservice.
+   * If you disagree with this design decision please create an issue and explain the use case that would make this
+   * a worthwhile feature.
+   */
+  temp = pin_config & 0x03;
+  if (temp) {                       // We don't support toggling INLVL; It is not plausibly useful.
+    if (temp == 0x01) {
+      pinncfg |=   0x40;            // set INLVL
+    } else {
+      pinncfg &= ~(0x40);           // clear INLVL
+    }
+  }
   #endif
   temp = pin_config & 0x0C;
-  if(temp)
-  {
+  if(temp) {                          // Toggle of INVEN? I guess...
     if(temp == 0x0C)
       pinncfg ^= PORT_INVEN_bm;       // Toggle INVEN
     else if(temp == 0x08)
@@ -119,6 +121,7 @@ void __pinconfigure(const uint8_t digital_pin, uint16_t pin_config) {
 /* Error Checking */
 void _pinconfigure(uint8_t pin, uint16_t pin_config) {
   check_valid_digital_pin(pin);
+
   #if defined(HARDWIRE_INPUT_ONLY)
     if   (__builtin_constant_p(pin) && pin == HARDWIRE_INPUT_ONLY) {
       if (__builtin_constant_p(pin_config)) {
@@ -133,7 +136,7 @@ void _pinconfigure(uint8_t pin, uint16_t pin_config) {
     } else {
       if (__builtin_constant_p(pin_config)) {
         if (pin_config & 0x01) {
-          if (pin == HARDWIRE_INPUT_ONLY){
+          if (pin == HARDWIRE_INPUT_ONLY) {
             pin_config = pin_config & 0xFFFC;
           }
         }
@@ -144,7 +147,7 @@ void _pinconfigure(uint8_t pin, uint16_t pin_config) {
       }
     }
   #endif
-  __pinconfigure(pin,pin_config);
+  __pinconfigure(pin, pin_config);
 }
 /* Allow calls with manually OR'ed constants */
 void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
@@ -155,8 +158,8 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
   uint8_t _setEventPin(uint8_t pin, uint8_t chan) {
     // Works the same was as
     uint8_t temp = digitalPinToPort(pin)
-    if (temp != NOT_A_PIN && (chan+1) < 3) {
-      volatile uint8_t* P;
+    if (temp != NOT_A_PIN && (chan + 1) < 3) {
+      volatile uint8_t* p;
       p=(volatile uint8_t*)(uint16_t)(digitalPinToPortStruct(temp));
       p += 0x18; // now p pointing to evgenctrl.
       uint8_t oldsreg = SREG;
@@ -187,7 +190,7 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
     }
     return 255;
   }
-  uint8_t _getPortEventConfig(uint8_t port){
+  uint8_t _getPortEventConfig(uint8_t port) {
     uint8_t temp = digitalPinToPort(pin)
     return *(((uint8_t*) temp) + 0x18);
   } // just shorthand for looking up the port and returning it's EVGENCTRL value

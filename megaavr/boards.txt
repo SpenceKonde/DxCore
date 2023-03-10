@@ -2,11 +2,11 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####     ####  #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####      ##   #
 #  ##     ##  ## ##    ##     #   # #   # #       ###     #        #     #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####     ####  #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##     #  #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##  ###   #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####     ###   #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##  #  #  #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##   ##   #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -30,21 +30,29 @@
 #________________________________________________________________________#
 #                                                                        #
 # Names listed at the top so they can be kept in consistent format.      #
-# Experience has shown that they end up drifting apart is style if       #
+# Experience has shown that they end up drifting apart in style if       #
 # they aren't all on the same screen                                     #
 #                                                                        #
 # DA128 shipped Q1 2020. DA64 and DA32 shipped Q3/4 2020 (Q3 DA32's did  #
 # not work correctly). First sign in radical changes to branding.        #
 # DB128 shipped Q2 2020,  32DB shipped Q4 2020. First AVR with on-chip   #
 #     OPAMPs.                                                            #
-# DD (64k in high pincountes, 16/32 in low ones) shipped in Q2 2022.     #
-#     By the end of the year all the expected parts were out in at least #
-#     one package, but QFN28, and DIP28 are missing for the smaller ones #
-#     and QFN20 is missing for 64k.                                      #
-# EA (first fullsize parts w/diff ADC w/PGA) are not available yet.      #
-# DU (Dx with native USB) may never be available, product brief vanished.#
-# EB (2 novel timers and little else, possible tiny-killer) are not      #
-#     available yet. Likely (hopefully) aimed at low price point.        #
+# DD (64k in high pincounts, 16/32 in low ones) shipped in Q2 2022.      #
+#     By year's end, all the expected parts were out in at least one     #
+#     package, but DIP28 and QFN28 are missing for the small flash parts #
+#     as if QFN20, then they are missing for those of the smaller ones   #
+#     and QFN20 is missing for 64k (but I don't think it is planned).    #
+# EA (first fullsize parts w/diff ADC w/PGA) Shipping march 2023, but    #
+#     no ETA on QFN/TQFP 48/32/28 without buying a whole tray.           #
+# DU (Dx with native USB). Is it coming? Who knows! Hints that it may be #
+#     happening have been filtering out after I was almost sure it was   #
+#     gone... \o/                                                        #
+# EB (2 novel timers and little else, beyond low pincounts. This is a    #
+#     possible tiny-killer) and not available yet. Likely (hopefully,    #
+#     with only one UART!) aimed at a low price point.  It will have the #
+#     fancy new ADC - but they can hit a low price range with that       #
+#     easily enough, they did so on tiny 2-series - heck, they did it    #
+#     with a second UART on a tiny...                                    #
 ##########################################################################
 
 
@@ -253,6 +261,9 @@ avrda.menu.clock.10internal.build.clocksource=0
 avrda.menu.clock.8internal=8 MHz internal
 avrda.menu.clock.8internal.build.speed=8
 avrda.menu.clock.8internal.build.clocksource=0
+avrda.menu.clock.5internal=5 MHz internal
+avrda.menu.clock.5internal.build.speed=5
+avrda.menu.clock.5internal.build.clocksource=0
 avrda.menu.clock.4internal=4 MHz internal
 avrda.menu.clock.4internal.build.speed=4
 avrda.menu.clock.4internal.build.clocksource=0
@@ -672,6 +683,9 @@ avrdb.menu.clock.10internal.build.clocksource=0
 avrdb.menu.clock.8internal=8 MHz internal
 avrdb.menu.clock.8internal.build.speed=8
 avrdb.menu.clock.8internal.build.clocksource=0
+avrdb.menu.clock.5internal=5 MHz internal
+avrdb.menu.clock.5internal.build.speed=5
+avrdb.menu.clock.5internal.build.clocksource=0
 avrdb.menu.clock.4internal=4 MHz internal
 avrdb.menu.clock.4internal.build.speed=4
 avrdb.menu.clock.4internal.build.clocksource=0
@@ -735,6 +749,9 @@ avrdb.menu.clock.36crystal.build.clocksource=1
 avrdb.menu.clock.40crystal=40 MHz crystal (highly overclocked)
 avrdb.menu.clock.40crystal.build.speed=40
 avrdb.menu.clock.40crystal.build.clocksource=1
+avrdb.menu.clock.48crystal=48 MHz crystal (Are you nuts?!)
+avrdb.menu.clock.48crystal.build.speed=48
+avrdb.menu.clock.48crystal.build.clocksource=1
 avrdb.menu.clock.25extclock=25 MHz ext. clock (slightly overclocked)
 avrdb.menu.clock.25extclock.build.speed=25
 avrdb.menu.clock.25extclock.build.clocksource=2
@@ -1161,6 +1178,9 @@ avrdd.menu.clock.10internal.build.clocksource=0
 avrdd.menu.clock.8internal=8 MHz internal
 avrdd.menu.clock.8internal.build.speed=8
 avrdd.menu.clock.8internal.build.clocksource=0
+avrdd.menu.clock.5internal=5 MHz internal
+avrdd.menu.clock.5internal.build.speed=5
+avrdd.menu.clock.5internal.build.clocksource=0
 avrdd.menu.clock.4internal=4 MHz internal
 avrdd.menu.clock.4internal.build.speed=4
 avrdd.menu.clock.4internal.build.clocksource=0
@@ -1224,6 +1244,9 @@ avrdd.menu.clock.36crystal.build.clocksource=1
 avrdd.menu.clock.40crystal=40 MHz crystal (highly overclocked)
 avrdd.menu.clock.40crystal.build.speed=40
 avrdd.menu.clock.40crystal.build.clocksource=1
+avrdd.menu.clock.48crystal=48 MHz crystal (Are you nuts?!)
+avrdd.menu.clock.48crystal.build.speed=40
+avrdd.menu.clock.48crystal.build.clocksource=1
 avrdd.menu.clock.25extclock=25 MHz ext. clock (slightly overclocked)
 avrdd.menu.clock.25extclock.build.speed=25
 avrdd.menu.clock.25extclock.build.clocksource=2
@@ -2075,6 +2098,9 @@ avrdaopti.menu.clock.10internal.build.clocksource=0
 avrdaopti.menu.clock.8internal=8 MHz internal
 avrdaopti.menu.clock.8internal.build.speed=8
 avrdaopti.menu.clock.8internal.build.clocksource=0
+avrdaopti.menu.clock.5internal=5 MHz internal
+avrdaopti.menu.clock.5internal.build.speed=5
+avrdaopti.menu.clock.5internal.build.clocksource=0
 avrdaopti.menu.clock.4internal=4 MHz internal
 avrdaopti.menu.clock.4internal.build.speed=4
 avrdaopti.menu.clock.4internal.build.clocksource=0
@@ -2536,6 +2562,9 @@ avrdbopti.menu.clock.10internal.build.clocksource=0
 avrdbopti.menu.clock.8internal=8 MHz internal
 avrdbopti.menu.clock.8internal.build.speed=8
 avrdbopti.menu.clock.8internal.build.clocksource=0
+avrdbopti.menu.clock.5internal=5 MHz internal
+avrdbopti.menu.clock.5internal.build.speed=5
+avrdbopti.menu.clock.5internal.build.clocksource=0
 avrdbopti.menu.clock.4internal=4 MHz internal
 avrdbopti.menu.clock.4internal.build.speed=4
 avrdbopti.menu.clock.4internal.build.clocksource=0
@@ -3083,6 +3112,9 @@ avrddopti.menu.clock.10internal.build.clocksource=0
 avrddopti.menu.clock.8internal=8 MHz internal
 avrddopti.menu.clock.8internal.build.speed=8
 avrddopti.menu.clock.8internal.build.clocksource=0
+avrddopti.menu.clock.5internal=5 MHz internal
+avrddopti.menu.clock.5internal.build.speed=5
+avrddopti.menu.clock.5internal.build.clocksource=0
 avrddopti.menu.clock.4internal=4 MHz internal
 avrddopti.menu.clock.4internal.build.speed=4
 avrddopti.menu.clock.4internal.build.clocksource=0
@@ -3565,7 +3597,7 @@ azduinoboard.menu.board.NanoDBplus.build.variant=48pin-standard
 # Clock speed and source options         #
 # For the Azduino products we drop clock #
 # speeds we think are unlikely to see    #
-# use. These ship with 16-40 MHz xtal    #
+# use. These ship with 16-48 (!!) MHz    #
 #________________________________________#
 azduinoboard.menu.clock.24internal=24 MHz internal
 azduinoboard.menu.clock.24internal.build.speed=24

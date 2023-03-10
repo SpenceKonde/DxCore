@@ -319,7 +319,6 @@ struct USERSIGClass {
     return __USigread(idx);
   }
   int8_t write(int idx, uint8_t val) {
-    GPIOR3 = idx;
     return __USigwrite(idx, val);
   }
   int8_t flush() {

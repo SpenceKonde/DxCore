@@ -48,7 +48,7 @@ inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
       if (res < ADC_NATIVE_RESOLUTION_LOW) {
             badArg("When a resolution is passed to analogReadEnh, it must be at least the minimum native resolution (8 bits)");
       } else if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) {
-        badArg("Requested resolution exceeds ADC capabilities. The highest resolution obtainable through oversampling and decimation is 15 bits (Dx-sereis) or 17 bits (Ex-series).");
+        badArg("Requested resolution exceeds ADC capabilities. The highest resolution obtainable through oversampling and decimation is 15 bits (Dx-series) or 17 bits (Ex-series).");
       }
     } else if ((res & 0x7F) > 0x07) {
       badArg("Accumulation number invalid. Valid values are 8 - 15, or ADC_ACCn where n is a power of 2 between 2 and 128");
@@ -129,7 +129,8 @@ int16_t analogRead(uint8_t pin) {
   check_valid_analog_pin(pin);
   if (pin < 0x80) {
     pin = digitalPinToAnalogInput(pin);
-    if(pin == NOT_A_PIN) return -1;
+    if (pin == NOT_A_PIN) {
+      return ADC_ERROR_BAD_PIN_OR_CHANNEL;
 
   }
   /* Select channel */
@@ -165,7 +166,7 @@ inline __attribute__((always_inline)) void check_valid_negative_pin(uint8_t pin)
 
 bool analogSampleDuration(uint8_t dur) {
     ADC0.SAMPCTRL = dur;
-    return "true";
+    return true;
 }
 
 
@@ -191,8 +192,10 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
   /*******************************
    *  Phase 1: Input Processing  |
    ******************************/
-  // if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
-  // 5/16 - uhhhh if it's disabled, we should re-enable it, take the reading, and our cleanup will turn it off again...
+  if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
+  // 5/16 - uhhhh if it's disabled, maybe we should re-enable it, take the reading, and our cleanup will turn it off again...
+  //        Could lead to difficult to debug performance issues though, whereas this would tell them
+  //        the minute they tried to that they had the ADC off. The startup time of the ADC is not negligible in many applications.
   uint8_t sampnum;
   if (res & 0x80) {           // raw accumulation
     sampnum=res & 0x7F;       // strip high bit and treat as negative number
@@ -254,7 +257,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
 
   ADC0.COMMAND = ADC_STCONV_bm;
   while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
-  int32_t result = ADC0.RES;
+  int32_t result = ADC0.RES; // This should clear the flag
   /******************************
    *  Phase 3: Post-processing  |
    *****************************/
@@ -391,7 +394,7 @@ int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
 // is the DAC output pin.
 #if defined(TCA1)
   const PROGMEM uint8_t _tcaonemux[8] = {0x20, 0x00, 0x08, 0x28, 0x10, 0xFF, 0x18}; // just enough order that no efficient operation works! Really?
-  // mux(port) = 4, 0, 1, 5, 2, -, 3, -?
+  // mux(port) = 4, 0, 1, 5, 2, -, 3, - ?
   // port(mux) = 1, 2, 4, 6, 0, 3, -, - ?
 #endif
 
@@ -408,9 +411,11 @@ void analogWrite(uint8_t pin, int val) {
   uint8_t portnum  = digitalPinToPort(pin);
   uint8_t portmux_tca = PORTMUX.TCAROUTEA;
   TCA_t* timer_A = NULL;
+  #if defined(TCA1)
+  uint8_t threepin = 0;
+  #endif
   // It could be a TCA0 or 1 or TCA1 mux 0 or 3;
   #if (defined(TCA1))
-    uint8_t threepin = 0;
     if  (bit_mask < 0x40 && ((portmux_tca & 0x07) == portnum) && (__PeripheralControl & TIMERA0)) {
       timer_A = &TCA0;
     } else if ((__PeripheralControl & TIMERA1) && ((portmux_tca & 0x38) == pgm_read_byte_near(&_tcaonemux[portnum]))) {
@@ -423,9 +428,7 @@ void analogWrite(uint8_t pin, int val) {
         threepin = 1;
       }
     }
-    #if defined(TCA0)
-      else
-    #endif
+
   #else
     if  ((bit_mask < 0x40) && ((portmux_tca == portnum) && (__PeripheralControl & TIMERA0))) {
       timer_A = &TCA0;
@@ -433,31 +436,28 @@ void analogWrite(uint8_t pin, int val) {
   #endif
   if (timer_A != NULL) {
     offset = bit_mask;
-    #if defined(TCA1)
-      if (threepin) {
+    #if defined(TCA1)  // offset = 0b0xxx0000
+      if (threepin) {  // and it's a 3-pin map
         _SWAP(offset); // 0b00000xxx
       }
     #endif
     uint8_t ctrlb = offset;
-    if (bit_mask > 0x07) {
-      ctrlb <<= 1;
+    if (offset > 0x04) { // if 0b00xx x000
+      ctrlb <<= 1;       // we leftshift what we're going to write to CTRLB one bit to get it into high nybble
     }
-    if (offset & 0x07){
-      offset &= 0xFE; // WO0-2 ok - 0x0000 0xx0
+    // Now have ctrlb sorted. But we also need to do work on the offset
+    if (offset & 0x07){ // 0b0000 0xxx
+      offset &= 0xFE;   // WO0-2 ok - 0x0000 0xx0 0x01 -> 0x00, 0x02 -> 0x02, 0x04 -> 0x04
     } else {
-      offset <<= 1;    //0b0xxx 0000
-      _SWAP(offset);   //0b0000 0xx0
-      offset |= 0x01; //0b0000 0xx1 OK!
+      offset <<= 1;     //0b0xxx 0000
+      _SWAP(offset);    //0b0000 0xxx
+      offset |= 0x01;   //0b0000 0xx1 OK! 0x08 -> 0x01, 0x10 -> 0x03 0x20 -> 0x05
     }
-    #if defined(TCA1)
-      if (threepin) {
-        *(uint16_t*)(((uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
-      } else
-    #endif
-    {
-      *(((uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
-    }
-    *(uint8_t*) &(timer_A->SPLIT.CTRLB) |= ctrlb;
+    // THERE!! FINALLY!
+    // Write the value to the register.
+    *(((volatile uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
+    // and ctrlb to ctrlb
+    timer_A->SPLIT.CTRLB |= ctrlb;
 
     /* Okay, this layout tends towards maximum pervosity. You basically have to treat them as entirely separate timers at this point!
      * PORT | DA | DB | DD | EA | portnum
@@ -564,12 +564,12 @@ void analogWrite(uint8_t pin, int val) {
       // Dx-series
       uint8_t port = digitalPinToPort(pin);
       uint8_t tcdmux = pgm_read_byte_near(&_tcdmux[(digital_pin_timer & 0x07)]);
-      // First, if TCD portmux busted, but it's not set to 0, we can't get PWM, so we need t
+      // First, if TCD portmux busted, but it's not set to 0, we can't get PWM, don't try
+      uint8_t fc_mask = bit_mask ;
       #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
         if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
           break;
         }
-        uint8_t fc_mask = bit_mask ;
         if (!(tcdmux & 0x04)) {
           if (bit_mask < 0x10) { //cpi
             fc_mask <<= 4;// mov swap andi, hopefully.
@@ -583,14 +583,17 @@ void analogWrite(uint8_t pin, int val) {
         if (((tcdmux & 0x07) != 0)) {
           /* On these parts, there is no available silicon with a working TCD portmux! */
           if (val < 128) {
-            _setValueHigh(portnum, bit_mask);
+            _setValueLow(portnum, bit_mask);
           } else {
             _setValueHigh(portnum, bit_mask);
           }
+          _setOutput(portnum, bit_mask); // remove this or replace with errata test if it turns out that the direction override is errata and will befixed.
           break;
         }
       #endif
-      val = 255 - val;
+
+      // 128 input  with the max set to 1019 should get us 509. This was WRONG.
+      // We need to subtract from 256 now, leaving us with a number from 1 to 256
       uint8_t temp = TCD0.CMPBCLRL;
       temp = TCD0.CMPBCLRH;
       //
@@ -599,11 +602,28 @@ void analogWrite(uint8_t pin, int val) {
       // the duty cycle left to match
       if (temp) {   // TOP > 254
         val <<= 1;  // leftshift once is good for 509
-        if (temp   >= 0x03) val <<= 1;  // 1019, 2039 or 4079
-        #if (F_CPU>=32000000)           // At 32+ MHz it's less unreasonable to use.
-          if (temp >= 0x07) val <<= 1;  // 2039
-          if (temp == 0x0F) val <<= 1;  // 4079
-        #endif
+        if (temp   >= 0x03) {
+          val <<= 1;  // 1019, 2039 or 4079
+          #if F_CPU >= 32000000
+            if (temp >= 0x07) {
+              val <<= 1;  // 2039
+              if (temp == 0x0F) {
+                val <<= 1;  // 4079
+                val = 4080 - val;
+              } else {
+                val = 2040 - val;
+              }
+            } else {
+              val = 1020 - val;
+            }
+          #else
+            val = 1020 - val;
+            } else {
+          #endif
+          val = 510 - val;
+        }
+        } else {
+        val = 255 - val;
       }
 
       #if defined(NO_GLITCH_TIMERD0)
@@ -684,7 +704,7 @@ void analogWrite(uint8_t pin, int val) {
     }
   // now hastily set the pin output with this quickie macro since we know alll we need in order to do so now.
   }
-  _setOutput(portnum, bit_mask);
+  //_setOutput(portnum, bit_mask);
 }
 void takeOverTCA0() {
   #if defined(MILLIS_USE_TIMERA0)

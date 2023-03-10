@@ -9,6 +9,7 @@
   int8_t analogCheckError(int32_t val);
   bool printADCRuntimeError(int32_t error, HardwareSerial &__dbgser = Serial);
   bool printADCRuntimeError(int16_t error, HardwareSerial &__dbgser = Serial);
+  void configXOSC32K(X32K_OPT_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t enable = X32K_ENABLED);
 #endif
 
 #ifdef __cplusplus
@@ -33,10 +34,10 @@ typedef enum X32K_ENABLE {
   X32K_ALWAYSON = (0x81)
 } X32K_ENABLE_t;
 
-// void configXOSC32K(X32K_TYPE_t, X32K_ENABLE_t)
+// void configXOSC32K(X32K_OPT_t, X32K_ENABLE_t)
 // attempts to configure the external crystal or oscillator.
 // see above for valid values of these two arguments. This handles the enable-locking of many of these bits.
-// which means it may disable this clock source (CSUT is long enough that this likely matters!)
+// which means it may disable this clock source (CSUT is long enough that you may care. )
 
 // void disableXOSC32K()
 // disables the external 32.768 kHz oscillator
@@ -57,13 +58,36 @@ int8_t disableAutoTune();
 // Returns 255 (-1) if autotune was not enabled.
 // Returns 0 if autotune is successfully disabled.
 
+/*****************************
+ MVIO
+*****************************/
+
+
 int8_t getMVIOVoltage();
 // returns ADC or MVIO error code, or voltage in millivolts;
 
 
+#define MVIO_OKAY             (0x00) // If no other bits set, also configured correctly.
+#define MVIO_UNDERVOLTAGE     (0x01) // If no other bits set, configured correctly, but insufficient voltage.
+#define MVIO_SETTING_MISMATCH (0x04) // Setting of fuses doesn't match tools menu selection.
+#define MVIO_IMPOSSIBLE_CFG   (0x08) // For some reason or another, this is not supposed to be possible with the Arduino IDE (or possibly at all)
+#define MVIO_MENU_SET_WRONG   (0x10) // Not only is the menu in disagreement with the fuses, you picked the option that said you were really sure.
+#define MVIO_BAD_FUSE         (0x20) // MVIO fuse bits are in an invalid state
+#define MVIO_DISABLED         (0x40) // MVIO is disabled. If no other bits set, all is configured correctly.
+#define MVIO_UNSUPPORTED      (0x80) // Why call this function? MVIO doesn't exist on this part.
+
+
 #ifdef __cplusplus
 }
-void configXOSC32K(X32K_OPT_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t enable = X32K_ENABLED);
+uint8_t initOPAMP_MVIO(uint8_t opamp = 0, uint16_t voltage, int16_t myvdd = -1, uint8_t options = 0);
+
+#else
+
+#endif
+/*****************************
+ MVIO
+*****************************/
+#ifdef __cplusplus
 #else
   void configXOSC32K(X32K_OPT_t settings, X32K_ENABLE_t enable);
 #endif
@@ -72,15 +96,7 @@ void configXOSC32K(X32K_OPT_t settings = X32K_HIGHPWR_START2S, X32K_ENABLE_t ena
 // or pin number, respectively, set the set the specified mux to the mapping that includes that pin after making sure nothing on the pins it's getting moved to is currenttly outputting it's own PWM.
 bool setTCA0MuxByPort(uint8_t port);
 bool setTCA0MuxByPin(uint8_t pin);
-
-#define MVIO_OKAY             (0x00) // If no other bits set, also configured correctly.
-#define MVIO_UNDERVOLTAGE     (0x01) // If no other bits set, configured correctly.
-#define MVIO_SETTING_MISMATCH (0x04) // Setting of fuses doesn't match tools menu selection.
-#define MVIO_IMPOSSIBLE_CFG   (0x08) // For some reason or another, this is not supposed to be possible with the Arduino IDE (or possibly at all)
-#define MVIO_MENU_SET_WRONG   (0x10) // Not only is the menu in disagreement with the fuses, you picked the option that said you were really sure.
-#define MVIO_BAD_FUSE         (0x20) // MVIO fuse bits are in an invalid state
-#define MVIO_DISABLED         (0x40) // MVIO is disabled. If no other bits set, all is configured correctly.
-#define MVIO_UNSUPPORTED      (0x80) // Why call this function? MVIO doesn't exist on this part.
+int8_t timerToDigitalPin(uint8_t timer, uint8_t channel);
 
 #ifdef __cplusplus
   #ifdef TCA1
@@ -90,7 +106,6 @@ bool setTCA0MuxByPin(uint8_t pin);
   bool setTCD0MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_ports_ok = false);
   bool setTCD0MuxByPin(uint8_t pin, bool __attribute__((unused)) takeover_only_ports_ok = false);
 
-  uint8_t getMVIOStatus(bool printInfo = 0, HardwareSerial &dbgserial = Serial);
 #endif
 // Reset immdiately using software reset. The bootloader, if present will run.
 

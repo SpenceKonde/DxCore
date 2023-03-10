@@ -59,11 +59,6 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 
   #define _MACRO_PORT_TO_PIN_ZERO
 
-
-// Copies of above for internal use, and for the really exotic use cases that want this instead of system clocks (basically never in user-land)
-//uint16_t millisClockCyclesPerMicrosecond();
-//unsigned long millisClockCyclesToMicroseconds(unsigned long cycles);
-//unsigned long microsecondsToMillisClockCycles(unsigned long microseconds);
 /* Timers and Timer-like-things
  * These are used for two things: Identifying the timer on a pin in
  * digitalPinToTimer(), and for the MILLIS_TIMER define that users can test to
@@ -157,12 +152,13 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERB4_ALT     (0x34) // TCB4 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
 
 
-// 0b01MC 0mmm - the 3 lowest bits refer to the PORTMUX.
-// bit C specifies whether it's channel A (0) or B (1). If M is 1 it is WOC outputting chan A or WOB outputting D.
+// 0b01CC 0mmm - the 3 lowest bits refer to the PORTMUX.
+// CC is 0, 1, 2, or 3:  0 = WOA, 1 = WOB, 2 = WOC (outputs WOA), D = WOD (outputs WOB).
 // WOD outputting A or WOC outputting B is not supported by the core. WOB outputting A or WOA outputting B is not supported by the hardware.
 // Hence, PORTMUX.TCDROUTEA == (timer table entry) & (0x07)
 // and any table entry > 0x40 but less than 0x80 could be a TCD
 //
+
 #define TIMERD0_0WOA      (0x40) // PORTA
 #define TIMERD0_0WOB      (0x50)
 #define TIMERD0_0WOC      (0x60)
@@ -200,39 +196,43 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 */
 
 /*
-// Uhoh, EB has a new kind of timer, a TCE which looks a lot like a TCA-PWM-Powerhouse timer, only better.
-// We predict that PORTMUX.TCEROUTEA will not give individual pin control, but that it will be much like TCA.
-// and we will thus be able to quickly detect if the port it's pointed at is ours.
+// Uhoh, EB has a new kind of timer, a TCE which looks a lot like a TCA-PWM-Powerhouse timer, only probably better.
+// We predict that PORTMUX.TCEROUTEA will not give individual pin control, but that it will be much like TCA, moving the whole timer en masse.
+// Hence we will be able to quickly detect if the port it's pointed at is ours. We note that the TCE *replaces* the TCA on the EB. We suspect
+// that the same will be true whenever WEX Luther shows up with his briefcase full of shiny green Kryptonite timepieces.
+// So, we're going to bet that we will be able to reuse the designations. If not - well, we'll change this, and your code won't care because
+// you used the named constants not their values (right?)
 
-#define TIMERE0_MUX0      (0x90) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX1      (0x91) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX2      (0x92) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX3      (0x93) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX4      (0x94) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX5      (0x95) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX6      (0x96) // HypotheticalTCE0/WEX mux
-#define TIMERE0_MUX7      (0x97) // HypotheticalTCE0/WEX mux
+#define TIMERE0_MUX0      (0x10) // HypotheticalTCE0/WEX mux: PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7 - all 8 WO channels
+#define TIMERE0_MUX1      (0x11) // HypotheticalTCE0/WEX mux: PD0, PD1, PD2, PD3, PD4, PD5, PD6, PD7 - all 8 WO channels
+#define TIMERE0_MUX2      (0x12) // HypotheticalTCE0/WEX mux: PA0, PA1, PC0, PC1, PC2, PC3 - who the hell knows WHAT this will look like on parts with a full PORTE
+#define TIMERE0_MUX3      (0x13) // HypotheticalTCE0/WEX mux: PF0, PF1, PF2, PF3, PF4, PF5 - No PWM output on reset or UPDI pins.
+#define TIMERE0_MUX4      (0x14) // HypotheticalTCE0/WEX mux: PA2, PA3, PA4, PA5, PA6, PA7 - some wacky option here. I may have guessed some of these options wrong.
+#define TIMERE0_MUX5      (0x15) // HypotheticalTCE0/WEX mux:
+#define TIMERE0_MUX6      (0x16) // HypotheticalTCE0/WEX mux:
+#define TIMERE0_MUX7      (0x17) // HypotheticalTCE0/WEX mux:
 
-// They might make a chip with 2 of them!
-#define TIMERE1_MUX0      (0x98) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX1      (0x99) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX2      (0x9A) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX3      (0x9B) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX4      (0x9C) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX5      (0x9D) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX6      (0x9E) // HypotheticalTCE1/WEX mux
-#define TIMERE1_MUX7      (0x9F) // HypotheticalTCE1/WEX mux
-
+// They might make a chip with 2 of them - I'm not even going to speculate on pin options.
+#define TIMERE1_MUX0      (0x08) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX1      (0x09) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX2      (0x0A) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX3      (0x0B) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX4      (0x0C) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX5      (0x0D) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX6      (0x0E) // HypotheticalTCE1/WEX mux
+#define TIMERE1_MUX7      (0x0F) // HypotheticalTCE1/WEX mux
+*/
+/*
 // Plus this wacky TCF thing.
-// Premering on low pincount parts, it's hard to say what the full lineup of pin options will be like
+// Premiering on low pincount parts, it's hard to say what the full lineup of pin options will be like
 // I predict... 3 bits for the mux position, and that a larger chip might have 2....
 
-#define TIMERF0_MUX0A      (0xC0) // Hypothetical TCF0 MUX
-#define TIMERF0_MUX0B      (0xC8) // Hypothetical TCF0 MUX
-#define TIMERF0_MUX1A      (0xC1) // Hypothetical TCF0 MUX
-#define TIMERF0_MUX1B      (0xC9) // Hypothetical TCF0 MUX
-#define TIMERF0_MUX2A      (0xC2) // Hypothetical TCF0 MUX
-#define TIMERF0_MUX2B      (0xCA) // Hypothetical TCF0 MUX
+#define TIMERF0_MUX0A      (0xC0) // Hypothetical TCF0 MUX: PA0
+#define TIMERF0_MUX0B      (0xC8) // Hypothetical TCF0 MUX: PA1
+#define TIMERF0_MUX1A      (0xC1) // Hypothetical TCF0 MUX: PA6
+#define TIMERF0_MUX1B      (0xC9) // Hypothetical TCF0 MUX: PA7
+#define TIMERF0_MUX2A      (0xC2) // Hypothetical TCF0 MUX: PF4
+#define TIMERF0_MUX2B      (0xCA) // Hypothetical TCF0 MUX: PF5
 #define TIMERF0_MUX3A      (0xC3) // Hypothetical TCF0 MUX
 #define TIMERF0_MUX3B      (0xCB) // Hypothetical TCF0 MUX
 #define TIMERF0_MUX4A      (0xC4) // Hypothetical TCF0 MUX
@@ -244,7 +244,7 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 #define TIMERF0_MUX7A      (0xC7) // Hypothetical TCF0 MUX
 #define TIMERF0_MUX7B      (0xCF) // Hypothetical TCF0 MUX
 
-// What if a chip has two of them? No problem!
+// What if a chip has two of them? We can still do that;
 #define TIMERF1_MUX0A      (0xD0) // Hypothetical TCF1 MUX
 #define TIMERF1_MUX0B      (0xD8) // Hypothetical TCF1 MUX
 #define TIMERF1_MUX1A      (0xD1) // Hypothetical TCF1 MUX
@@ -267,46 +267,48 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
 
 /* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
 // These mostly take the same numeric value, but used for improved code readability
-#define NOT_A_PIN         (255) // When you try to get a pin number, make sure it's not NOT_A_PIN before proceeding
-#define NOT_A_PORT        (255) // as above for ports.
-#define NOT_AN_INTERRUPT  (255) // As above, for interrupts
-#define NOT_A_CHANNEL     (255) // for channel identification on ea-series
-#define NOT_A_MUX         (255) // in context of peripheral swaps specified by pins, a function which got mux option from pins would return this if the pins didn't match any mux option.
-#define MUX_NONE          (128) // Very different from the above! USARTs and SPI ports have a "NONE" option which will disconnect the pins. It must be specifically requested.
-// IF we were certain combinations of evil, vindictive, and pedantry, we would set the PORTMUX to the NONE option when users requested a non-existent mapping.
+#define NOT_A_PIN             (255) // When you try to get a pin number, make sure it's not NOT_A_PIN before proceeding
+#define NOT_A_PORT            (255) // as above for ports.
+#define NOT_AN_INTERRUPT      (255) // As above, for interrupts
+#define NOT_A_CHANNEL         (255) // for channel identification on ea-series
+#define NOT_A_MUX             (255) // in context of peripheral swaps specified by pins, a function which got mux option from pins would return this if the pins didn't match any mux option.
+#define MUX_NONE              (128) // Very different from the above! USARTs and SPI ports have a "NONE" option which will disconnect the pins. It must be specifically requested.
+// If we were certain combinations of evil, vindictive, and pedantic, we would set the PORTMUX to the NONE option when users requested a non-existent mapping.
 // We instead set it to the default.
+// When cast to int8_t these are -1, but it is critical to define them as 255, because these aren't always cast to int8_t's . In fact digital I/O functions do the test for whether a pin is
 
-#define INVALID_PIN       (254) // A distinct constant for a pin that is clearly invalid, but which we do not have to silently allow to pass through digital I/O functions.
-// When cast to int8_t these are -1, but it is critical to define them as 255, not -1 because we check if they're less than the number of something
+#define INVALID_PIN           (254) // A distinct constant for a pin that is clearly invalid, but which we do not have to silently allow to pass through digital I/O functions.
 
-// One can imagine a timerToDigitalPin() function. No such function has currently been written, but it would need some sort of error codes.
-// It would need to handle fout kind of problematic inputs - the timer channel identified does not exist at all (NOT_A_CHANNEL).
-// The timer may exist, but the channel isnot available because the portmux has not connected it to a pin that exists (ex, on a 14 pin part, default mux, you ask where WO2 of TCA0 is, you'd get this)
+// One can imagine a timerToDigitalPin(uint8_t timer, uint8_t channel) function. No such function has currently been written, but it would need some sort of error codes.
+
+// It would need to handle all kinds of problematic inputs - the timer channel identified does not exist at all (NOT_A_CHANNEL).
+// The timer may exist, but the channel is not available because the portmux has not connected it to a pin that exists (ex, on a 14 pin part, default mux, you ask where WO2 of TCA0 is, you'd get this)
 // If this channel could ever be output on a pin, this should be the error returned.
-#define TIMER_NOT_CONNECTED (254)
+#define TIMER_NOT_CONNECTED   (254)
 // The timer may exist, but the chip may be impacted by silicon errata impacting TCA1 (AVR128DA only) and TCD0 (all DA/DB), and while that timer should be possible to use, it's not.
-#define TIMER_BROKEN_ERRATA (253)
+#define TIMER_BROKEN_ERRATA   (253)
 // The timer may exist, but that instance of that timer can never output any pwm. It has no default or alternate pins. There may or may not be an associated portmux bitfield, but if there is
 // regardless of what it is set to, this timer channel cannot output pins; the portmux full of useless options is common on low-pincount parts within a family.
-#define TIMER_ALWAYS_PINLESS (252)
+#define TIMER_ALWAYS_PINLESS  (252)
 // While NOT_A_PIN would seem logical to return from this, NOT_A_CHANNEL is indistinguishable from that and we want to give a different error if the channel they're asking for doesn't exist versus if the channel exists,
+#define TIMER_DOES_NOT_EXIST  (251)
 
-#define PA (0)
-#define PB (1)
-#define PC (2)
-#define PD (3)
-#define PE (4)
-#define PF (5)
-#define PG (6)
-#define NUM_TOTAL_PORTS (7) /* one could argue that this should be 6 except on 64-pin parts, and that parts that don't
+#define PA                    (0)
+#define PB                    (1)
+#define PC                    (2)
+#define PD                    (3)
+#define PE                    (4)
+#define PF                    (5)
+#define PG                    (6)
+#define NUM_TOTAL_PORTS       (7) /* one could argue that this should be 6 except on 64-pin parts, and that parts that don't
 have ports shoulod have those Px constants defined as NOT_A_PORT. I think that would cause problems rather than solve them, though */
 
-#define PERIPHERAL_IN_USE (254) // Returned when a rare few functions are asked about a peripheral that is not configured for that use.
+#define PERIPHERAL_IN_USE     (254) // Returned when a rare few functions are asked about a peripheral that is not configured for that use.
 // This is only currently used by digitalPinToTimerNow(pin) which returns the timer that can output PWM on a given pin, considering the current PORTMUX settings.
 // This will be returned when the pin is driven by a TCB not configured for PWM. It will not otherwise be returned - so you can't use it to test whether your code
 // has stomped on the configuration of TCA/TCD timers such that they aren't able to output PWM, consistent with the guiding principles that the core was written
-// in accordance with. (Namely, that if you're setting registers directly, you're responsible for your own actions, and for tracking them. Since tone() and the
-// millis timekeeping can render the TCBs unavailable for PWM. You should use takeOverTCA0/TCA1/TCD0() if reconfiguring the timers in this way, which will also
+// in accordance with. (Namely, that if you're setting registers directly, you're responsible for your own actions, and for tracking them. But tone() and the
+// millis timekeeping can render the TCBs unavailable for PWM, and we need to test for that. You should use takeOverTCA0/TCA1/TCD0() if reconfiguring the timers in this way, which will also
 // cause digitalPinToTimerNow() to return NOT_ON_TIMER
 
 
@@ -358,9 +360,9 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
 #define noInterrupts()           cli()
 
 
-#define ADC_ERROR_BAD_PIN_OR_CHANNEL                (-32765)
 #define ADC_ERROR_DISABLED                          (-32767)
 #define ADC_ERROR_BUSY                              (-32766)
+#define ADC_ERROR_BAD_PIN_OR_CHANNEL                (-32765)
 #define ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL       (-2100000000)
 
 // positive channel is not (0x80 | valid_channel) nor a digital pin number
@@ -508,7 +510,7 @@ uint8_t digitalPinToTimerNow(uint8_t p);     // Returns the timer that is associ
 // These are in here so that - should it be necessary - library functions or user code could override these.
 void init_clock()     __attribute__((weak)); // this is called first, to initialize the system clock.
 void init_ADC0()      __attribute__((weak)); // this is called to initialize ADC0
-//   init_DAC0()                             // no _init_DAC0() - all that the core does is call DACReference().
+//   init_DAC0()                             // no _init_DAC0() - all that the core does is call DACReference!
 void init_TCA0()      __attribute__((weak)); // called by init_timers() - without this, pins that give PWM from TCA0 will not function.
 void init_TCA1()      __attribute__((weak)); // called by init_timers() - without this, pins that give PWM from TCA1 will not function, nor will the TCBs unless the clock source is changed.
 void init_TCBs()      __attribute__((weak)); // called by init_timers()
@@ -573,9 +575,6 @@ uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 // Realized we're not going to be able to make generic code without this.
 
 // Again as above, but this time with the unwieldy 8-byte integer datatype as the base
-// avr-libc defines _NOP() since 1.6.2
-// Really? Better tell avr-gcc that, it seems to disagree...
-
 
 uint16_t clockCyclesPerMicrosecond();
 uint32_t clockCyclesToMicroseconds(uint32_t cycles);
@@ -612,16 +611,16 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #define digitalPinToPort(pin)               ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                          digital_pin_to_port[pin]                 : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                  digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
 #define digitalPinToBitMask(pin)            ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
-#define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?   digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
-#define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?       digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
+#define analogPinToBitPosition(pin)         ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?               digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
+#define analogPinToBitMask(pin)             ((digitalPinToAnalogInput(pin) !=  NOT_A_PIN) ?                   digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
 #if !defined(digitalPinToTimer)
   // Allow variants to provide their own definition of digitalPinToTimer.
   // This could be used to eliminate the table
-  #define digitalPinToTimer(pin)              ((((uint8_t)(pin))     < NUM_TOTAL_PINS ) ?                         digital_pin_to_timer[pin]                 : NOT_ON_TIMER)
+  #define digitalPinToTimer(pin)            ((((uint8_t)(pin))     < NUM_TOTAL_PINS ) ?                          digital_pin_to_timer[pin]                 : NOT_ON_TIMER)
 #endif
-#define portToPortStruct(port)              (((port)    < NUM_TOTAL_PORTS) ?                   (((PORT_t *)  &PORTA) + (port))                 : NULL)
-#define digitalPinToPortStruct(pin)         ((((uint8_t)(pin))     < NUM_TOTAL_PINS ) ?    (((PORT_t *) &PORTA) + digitalPinToPort( pin))                 : NULL)
-#define getPINnCTRLregister(port, bit_pos)  ((((port) != NULL) && (bit_pos < 8)) ? (((volatile uint8_t *) &(port->PIN0CTRL)) + bit_pos)        : NULL)
+#define portToPortStruct(port)              ((((uint8_t)(port))    < NUM_TOTAL_PORTS) ?                   (((PORT_t *)  &PORTA) + (port))                  : NULL)
+#define digitalPinToPortStruct(pin)         ((((uint8_t)(pin))     < NUM_TOTAL_PINS ) ?    (((PORT_t *) &PORTA) + digitalPinToPort( pin))                  : NULL)
+#define getPINnCTRLregister(port, bit_pos)  ((((port) != NULL) && (bit_pos < 8))      ? (((volatile uint8_t *) &(port->PIN0CTRL)) + bit_pos)               : NULL)
 #define digitalPinToInterrupt(P)            (P)
 // Remember to test for NOT_A_PORT before using thiese.
 #define portOutputRegister(P) ((volatile uint8_t *)(&portToPortStruct(P)->OUT))
@@ -767,7 +766,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
 
 
 /* External defintitions */
-/* Actual implementation is in wiring_extra.c (or .cpp, if I find that I'm not able tomake it work with .c)
+/* Actual implementation is in wiring_extra.cpp
  * Because of the incrutable rules of C++ scoping, you can define an inline function or a template function in a header....
  * and not in the body of a separate file, while the opposite is true for ANY OTHER KIND OF FUNCTION. */
 
@@ -776,8 +775,7 @@ void _pinconfigure(uint8_t pin, uint16_t pin_config);
 void pinConfigure(uint8_t digital_pin, uint16_t pin_config);
 
 #ifdef __cplusplus
-typedef enum : uint16_t
-{
+typedef enum : uint16_t {
  // OUTPUT
   PIN_DIR_SET        = 0x0001,
   PIN_DIRSET         = 0x0001,
@@ -788,7 +786,7 @@ typedef enum : uint16_t
   PIN_DIRCLR         = 0x0002,
   PIN_DIR_INPUT      = 0x0002,
   PIN_DIR_IN         = 0x0002,
- // TOGGLE INPUT/OUTPUT
+ // TOGGLE DIRECTION
   PIN_DIR_TGL        = 0x0003,
   PIN_DIRTGL         = 0x0003,
   PIN_DIR_TOGGLE     = 0x0003,
@@ -800,14 +798,15 @@ typedef enum : uint16_t
   PIN_OUT_CLR        = 0x0008,
   PIN_OUTCLR         = 0x0008,
   PIN_OUT_LOW        = 0x0008,
-// CHANGE/TOGGLE
+// CHANGE/TOGGLE OUTVAL
   PIN_OUT_TGL        = 0x000C,
   PIN_OUTTGL         = 0x000C,
   PIN_OUT_TOGGLE     = 0x000C,
 //Interrupt disabled but input buffer enabled
   PIN_ISC_ENABLE     = 0x0080,
   PIN_INPUT_ENABLE   = 0x0080,
- // Interrupt on change
+  PIN_INPUT_NORMAL   = 0x0080,
+// Interrupt on change
   PIN_ISC_CHANGE     = 0x0090,
   PIN_INT_CHANGE     = 0x0090,
 // Interrupt on rising edge
@@ -829,10 +828,10 @@ typedef enum : uint16_t
 // PULLUP OFF
   PIN_PULLUP_OFF     = 0x0200,
   PIN_PULLUP_CLR     = 0x0200,
+  PIN_NOPULLUP       = 0x0200,
 // PULLUP TOGGLE
   PIN_PULLUP_TGL     = 0x0300,
   PIN_PULLUP_TOGGLE  = 0x0300,
-  PIN_NOPULLUP       = 0x0200,
 // Pin Input Level Control
   PIN_INLVL_TTL      = 0x1000,
   PIN_INLVL_ON       = 0x1000,
