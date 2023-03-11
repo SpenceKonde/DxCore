@@ -56,7 +56,7 @@ bool setTCA0MuxByPort(uint8_t port) {
     TCA0.SPLIT.CTRLB = 0; // disconnect all pins on the port from timer.
 
     uint8_t base_pin = portToPinZero(port);
-    uint8_t max_pin = min((uint8_t)(NUM_DIGITAL_PINS - 1), base_pin + 6);
+    uint8_t max_pin = min((uint8_t)(NUM_DIGITAL_PINS - 1), base_pin + 5);
     for (byte i = base_pin; i < (min(max_pin, base_pin + 6); i++)) {
       turnOffPWM(i);
     }
@@ -74,7 +74,7 @@ bool setTCA0MuxByPin(uint8_t pin) {
 }
 
 #ifdef TCA1
-  bool setTCA1MuxByPort(uint8_t port, bool apply_takeover = false) {
+  bool setTCA1MuxByPort(uint8_t port) {
     uint8_t three_pin = 0;
     uint8_t muxval = 0;
     #if defined(DB_64_PINS)
@@ -131,18 +131,19 @@ bool setTCA0MuxByPin(uint8_t pin) {
       }
     #endif
     // AND with group mask cuts off the unwanted low bit leaving us with the 2 high bits which is what we care about
-    TCA1.SPLIT.CTRLB = 0; // disconnect all PWM channels
+    TCA1.SPLIT.CTRLB  = 0; // disconnect all PWM channels
     PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA1_gm)) | (muxval << 3);
-    uint8_t base_pin = portToPinZero(port);
-    uint8_t max_pin = base_pin + (three_pin ? 3 : 6);
-    uint8_t max_pin = min((max_pin - 1), (NUM_DIGITAL_PINS - 1));
+    uint8_t base_pin  = portToPinZero(port);
+    uint8_t max_pin   = base_pin + (three_pin ? 3 : 6);
+    max_pin           = min((max_pin - 1), (NUM_DIGITAL_PINS - 1));
     for (byte i = base_pin; i < max_pin; i++) {
+      // this is rather expensive
       turnOffPWM(i);
     }
     return true;
   }
 
-  bool setTCA1MuxByPin(uint8_t pin, bool  __attribute__((unused)) takeover_only_ports_ok = false) {
+  bool setTCA1MuxByPin(uint8_t pin) {
     uint8_t port = digitalPinToPort(pin);
     uint8_t bit_mask = digitalPinToBitMask(pin);
     #if defined(DB_64_PINS)
@@ -161,7 +162,7 @@ bool setTCA0MuxByPin(uint8_t pin) {
   }
 #endif // TCA1
 
-bool setTCD0MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_ports_ok = false) {
+bool setTCD0MuxByPort(uint8_t port) {
   #if defined(__AVR_DD__)
     if (!(port == 0 || port == 5 || port == 4))
       return false;
@@ -181,8 +182,8 @@ bool setTCD0MuxByPort(uint8_t port, bool __attribute__((unused)) takeover_only_p
   return false;
 
 }
-// bool setTCD0MuxByPin(uint8_t pin, bool require_takeover = false, bool prohibit_takeover = false;)
-bool setTCD0MuxByPin(uint8_t pin, bool require_takeover, bool prohibit_takeover) {
+// bool setTCD0MuxByPin(uint8_t pin)
+bool setTCD0MuxByPin(uint8_t pin) {
   #if defined(__AVR_DD__)
     uint8_t bitmask = digitalPinToBitMask(pin);
     if (bitmask == NOT_A_PIN) {
@@ -193,7 +194,9 @@ bool setTCD0MuxByPin(uint8_t pin, bool require_takeover, bool prohibit_takeover)
       if (port != 5) {
         return false;
       }
-    } else if (port == 3) {
+    } else {
+      // If we're here, bitmask ==
+      if (port == 5) {
       if (!(bitmask & 0x30)) {
         return false;
       }
@@ -203,14 +206,16 @@ bool setTCD0MuxByPin(uint8_t pin, bool require_takeover, bool prohibit_takeover)
   #elif !defined(TCD0)
     badCall("This part does not have a type D timer!");
   #else
-    uint8_t bitpos=digitalPinToBitPosition(pin);
-    if (bitpos < 4 || bitpos > 7 ) {
+    // it's a DA/DB with busted mux, which makes this quite easy:
+    uint8_t port = digitalPinToPort(pin);
+    if (port != 0) { //only port a works!
       return false;
     }
-      return setTCD0MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
-    }
-    return false; // it's definitely no good. If it is 4-7, pass the other function to check port (though we could optimize further here, since
-  #endif               // chips that one might want to call this for don't exist, let's not bother :-)
+    uint8_t bitmask=digitalPinToBitMask(pin);
+    if (bitmask & 0xF0) {
+      return setTCD0MuxByPort(digitalPinToPort(pin)); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
+      // We now have it down two possibilities: Either it is a DA with busted portmux and the only valid option is PA4-7, or it is a
+
 }
 
 

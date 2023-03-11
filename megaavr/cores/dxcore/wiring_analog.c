@@ -131,7 +131,7 @@ int16_t analogRead(uint8_t pin) {
     pin = digitalPinToAnalogInput(pin);
     if (pin == NOT_A_PIN) {
       return ADC_ERROR_BAD_PIN_OR_CHANNEL;
-
+    }
   }
   /* Select channel */
   ADC0.MUXPOS = ((pin & 0x7F) << ADC_MUXPOS_gp);
@@ -484,7 +484,7 @@ void analogWrite(uint8_t pin, int val) {
     switch (digital_pin_timer) {
     case NOT_ON_TIMER:{
       if (val < 128) {
-        _setValueHigh(portnum, bit_mask);
+        _setValueLow(portnum, bit_mask);
       } else {
         _setValueHigh(portnum, bit_mask);
       }
