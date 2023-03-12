@@ -1,13 +1,13 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5. ~0~ ~1~ ~2~ ~3~ ~4~ 5 is here
-DD support is in, and the fifth set of bugs that have been found in it are fixed.
+## 1.5. ~0~ ~1~ ~2~ ~3~ ~4~ ~5~ 6 is here
+DD support is in, and the sixth set of bugs that have been found in it are fixed. This really should have been caught much sooner: PWM was totally hosed! Wakey wakey people! These parts should be capable of nearly 30 simultaneous PWM duty cyclles, not 3. Don't let me get away with releasing shit that's broken that badly! But don't worry: there are several other critical bugs fixed here if that's not to your taste. Especially when you're on the latest version, and the author has specifically suggested that there might be bugs relating to pwm output in this version...
 
 Please be on the lookout for *any further* bugs and regressions, ~particularly relating to the new parts and to PWM.~
 
-A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts.... 
+A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts....
 
-The issue should be fixed mostly, and I think totally on the 32-pin DD-series, and it was likely not ever (as badly) broken on the 14 and 20 pin parts, since I mostly used those to test with, but I am doubtful that there are no other variant files that fail to match the part specific documentation regarding the default PORTMUX configurations the core sets up. This is less catastrophic, though, since at least you can just change PORTMUX as you wish during setup() to put the timers where you want them to be. 
+The issue should be fixed mostly, and I think totally on the 32-pin DD-series, and it was likely not ever (as badly) broken on the 14 and 20 pin parts, since I mostly used those to test with, but I am doubtful that there are no other variant files that fail to match the part specific documentation regarding the default PORTMUX configurations the core sets up. This is less catastrophic, though, since at least you can just change PORTMUX as you wish during setup() to put the timers where you want them to be.
 
 ## IMPORTANT WARNINGS
 

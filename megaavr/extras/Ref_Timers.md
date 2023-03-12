@@ -106,11 +106,21 @@ It also has a 'dither' option to allow PWM at a frequency in between frequencies
 The asynchronous nature of this timer, however, comes at a great cost: It is much harder to use than the other timers. Most changes to settings require it to be disabled as noted above - and you need to wait for that operation to complete (check for the `ENABLERDY` bit in `TCD0.STATUS`). Similarly, to tell it to apply changes made to the `CMPxSET` and `CMPxCLR` registers, you must use the `TCD.CTRLE` (the "command" register) to instruct it to synchronize the registers. Similarly, to capture the current count, you need to issue a SCAPTUREx command (x is A or B - there are two capture channels) - and then wait for the corresponding bit to be set in the `TCD0.STATUS` register. In the case of turning PWM channels on and off, not only must the timer be stopped, but a timed write sequence is needed ie, `_PROTECTED_WRITE(TCD0.FAULTCTRL,value)` to write to the register that controls whether PWM is enabled; this is apparenmtly because, in the intended use-cases of motor and switching power supply control, changing this accidentally (due to a wild pointer or other software bug) could have catastrophic consequences. Writes to any register when it is not "legal" to write to it will be ignored. Thus, making use of the type D timer for even simple tasks requires careful study of the datasheet - which is a frustratingly terse chapter at key points, yet is STILL the longest chapter at 50 pages (counting only chapters that are mostly text (so the electrical/typical charachteristics section doesn't count).
 
 ### TCE - Lurking in the distance with WEX
-The recently announced EB-series will feature not one but TWO new timers. 
+The recently announced EB-series will feature not one but TWO new timers.
 Nothing is currently known about the TCE other than it can output 8 PWM channels in some configurations, and six in others, and that it's a 16-bit timer, and that it has WEX. Whether these are independent channels or whether half of them must be the inverse of the other half is not known (that has precedent on classic AVRs. I would have hoped they have learned).
 
-WEX is a feature from xMega. One hopes it has been streamlined, as it was incomprehensible there. (like everything else). It allowed generation of enhanced resolution PWM, and probably some other things. Only time (specifically the moment that datasheet is released) will reveal whether WEX is friendly, or the heinous supervillian WEX Luther.... 
+WEX is a feature from xMega. One hopes it has been streamlined, as it was incomprehensible there (like essentially everything about xmega was. ). It allowed generation of enhanced resolution PWM, and probably some other things. Only time (specifically the moment that datasheet is released) will reveal whether WEX is friendly, or the heinous supervillian WEX Luther...
 
+Even though the EB-series, from a great distance away, it looking like something less than a big prize, the timers its getting may be a sign of good things to come.
+
+### TCF - Another new timer
+Yeah, I didn't make a mistake there, Yes, they're both coming in the same release. We know even less about this one. For example we know that TCE is going to be built around a 16-bit timer. TCF lists 16-bits on one page, and 24 on another. And it suggests that the timer's waveform outputs are for "frequency generation" (read: duty cycle 50%; now that would represent a significant escalation of the the abuse we're taking here, and which is starting to look like the theme of the family: We already have the main feature of the famuily on the 2-series with the new ADC, but then they had to rip out the good internal oscillator and switch back to the tinyAVR one? And cut the non-tiny EB's down to sub-tiny peripheral limitations with only USART. You think we just wanted pin options? There is a HUGE difference netween 1 UART and 2 - it's a larger difference (between 1 and 2 than there is between and 5, and only a little smaller than 0 versus 1 USART). By EB release we should have gotten to look at the titles of the chapters for the next installment or two of AVRs and we'll know whether the TCE and TCF are going almost everywhere or hardly anywhere - so the size of our wager will be set, and we will just have to wait a bit longer to see whether the Ex-series is as Exey as the double D's - or whether AVR is going to be like Windows (where alternating releases were eiter great or awful (by the standards of the company, to be clear. I don't think any hardware company could beat that record unless it blew up unexpectedly - (the unexpectly bit is key otherwise, otherwise it's a different industry, and a rather lucrative one. A device that would burst into flames under programmable conditions would be an unsavory, but not unprofitable line of business. If it only burst into flames at random, well, that's not going to do well.  Samsung tried it a few years back, wasn't much of a success. I think I'd still rather keep my phone in an asbestos lined suitcase than use Windows ME....
+
+> Hm? Where did I get the nice suitcase? Thanks, it's it from Hazmart Short & Small Menswear, same place as the buy one three free deal on Note 8's. Whether you are looking for russian nerve agents, fissile material to fuel a home-built nuclear reactor or just trying to keep up with the family down the street and their pet tiger, they're's something for everyone on your list. There's no shopping experience quite like Hazmart. Hazardous goods for hazardous people. See in store for details on how you can win this stylish mercury fountain (featuring genuine poisonivywood base). uite like it mercury fountain in a genuine poisonivywood base...
+
+> Quiz - Which one of the following actualled existed: The home muclear reactor? The asbestos lined fireproof clothing? the poisonivy knicknacks? or the radium infused nuclear shampoo?
+
+Answers are **somewhere in this long and otherwise rather dry document**
 
 ### RTC - 16-bit Real Time Clock and Programmable Interrupt Timer
 Information on the RTC and PIT will be added in a future update.
@@ -131,7 +141,7 @@ CLK/256      |  YES  |  TCA  |  YES* |  NO       |  NO         |
 CLK/1024     |  YES  |  TCA  |  NO   |  NO       |  NO         |
 
 * Requires using the synchronizer prescaler as well. My understanding is that this results in sync cycles taking longer- I believe it takes 2-3 synchronizer clocks, with is 2-3 clock cycles without prescaling (just fast enough so that if you don't check it, and immediately write an enable locked register, it won't work) and 16-24 with maximum prescale. This is also how long it takes after disabling the timer for the EN_READY status flag to return indicating that you can turn it back on again.
-* 
+*
 `TCA` indicates that for this prescaler, a TCA must also use it, and the TCB set to use that TCA's clock.
 
 ## Resolution, Frequency and Period
@@ -149,7 +159,7 @@ This section consists of around 6 points, Under many of these points are the con
   b. You may not takeOverTCAn if that timer is used for millis (it will be treated as a badCall compile error to call the takeOver function). Reconfiguring it anyway will likely cause unexpected, undefined, and undesired behavior, potentially impacting anything relating to PWM and timekeeping. So don't do that.
   b. If any type B timers are being used for PWM, remember that they share the prescaler settings with a TCA, and changing the frequency of the TCA will also change that of the TCB(s) following it. See TCB notes at bottom of this list.
 3. The TCD is initialized for PWM in single-ramp mode. See [the TCD reference](Ref_TCD.md) for specifics about what speeds and what value it counts up to - TOP is 254 *or* a power-of-two multiple of that depending on clock speed, and other power-of-two multipliers may be set by the user at runtime with neither takeOverTCD0() nor custom code to handle updating the duty cycle! The PORTMUX register (being broken on DA/DB parts) is never set to anything other than the default value there. It works on the DD-series, but there is only one case where a certain option is unambiguously better: on the DD14 parts only the ALT4 mux option has any pins at all, So on the DD14's we set the portmux to ALT4.
-4. If you do `takeOverTCD0()`, that will stop the timer at the end of the current cycle, and that function will wait until that has happened before returning (it will also, at that time, clear the TCD intflag register). , but **it is still your responsibility to clear out any settings the core put there** because there is no reset command. It may be best to override init_TCD() with an empty function, takeOverTCD0 immediately in setup, and reconfigure it then. 
+4. If you do `takeOverTCD0()`, that will stop the timer at the end of the current cycle, and that function will wait until that has happened before returning (it will also, at that time, clear the TCD intflag register). , but **it is still your responsibility to clear out any settings the core put there** because there is no reset command. It may be best to override init_TCD() with an empty function, takeOverTCD0 immediately in setup, and reconfigure it then.
   a. Once you have taken over TCD0 with that function, if you want to restore TCD0 to it's power on reset state, you need to set these registers to 0: TCD0.CTRLA (this controls the prescalers as well as enabling), TCD0.CTRLC (the core sets this to 0x40 so WOD outputs the second channel), TCD0.CMPASET`*`, TCD0.CMPBSET`*`, TCD0.CMPACLR, TCD0.CMPBCLR.
   b. `__PROTECTED_WRITE(TCD0_FAULTCTRL,0)` `*` (this register is not just enablelocked. It is protected as well)
   c. You also need to set set TCD0.STATUS`*` = 0xC0 to clear the PWMACT bits if you need them cleared (If you don't know what I'm talking about you don't care, and if you do, you know if you care).
@@ -408,7 +418,7 @@ The above also applies to the Servo_DxCore library; it is an exact copy except f
   After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCA1 (though it will attempt to use other timers that the pin may be controllable with to, if any), nor will `digitalWrite()` turn it off. TCA1 will be disabled and returned to it's power on reset state. All TCBs that are used for PWM on parts with TCA1 use that as their prescaled clock source buy default. These will not function until TCA1 is re-enabled or they are set to use a different clock source. Available only on parts with TCA1, and only when a different timer is used for millis timekeeping.
 
 ### takeOverTCD0()
-  After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCD0 (though it will attempt to use other timers, if any), nor will `digitalWrite()` turn it off. There is no way to reset type D timers like Type A ones. Instead, if you are doing this at the start of your sketch, override init_TCD0. If TCD is ever supported as millis timing source, this will not be available.
+  After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCD0, nor will digitalWrite stop said PWM. This applies to anything that makes changes to the TCD peripheral.  (note: things that are part of the API, but which don't involve changes to the configuration of TCD0() are not impacted. There is no way to reset type D timers like Type A ones other than at power on reset, short ofcasting &TCD0 to a volatile to export the configuration you want to restore, and
 
 ### resumeTCA0()
   This can be called after takeOverTimerTCA0(). It resets TCA0 and sets it up the way the core normally does and re-enables TCA0 PWM via analogWrite.
@@ -429,25 +439,28 @@ Whenever a function supplied by the core returns a representation of a timer, th
 | TIMERB2      |  0x22 |      TCB2  | millis     or PWM |
 | TIMERB3      |  0x23 |      TCB3  | millis     or PWM |
 | TIMERB4      |  0x24 |      TCB4  | millis     or PWM |
-| TIMERD0 **   |  0x40 |      TCD0  |               PWM |
-| TIMERD0      |  0x40 |      TCD0  |         @ PWM WOA |
-| TIMERD0      |  0x41 |      TCD0  |         @ PWM WOB |
-| TIMERD0      |  0x42 |      TCD0  |         @ PWM WOC |
-| TIMERD0      |  0x43 |      TCD0  |         @ PWM WOD |
-| DACOUT ***   |  0x80 |      DAC0  |       analogWrite |
-| TIMERRTC     |  0x90 |       RTC  | @ sleeping time   |
-| TIMERRTC_XTAL|  0x91 |RTC,32kXtal | @ sleeping time   |
-| TIMERRTC_EXT |  0x92 |RTC,extclk  | @ sleeping time   |
-| TIMERPIT     |  0x98 |       PIT  | @ PD sleep time   |
+| TIMERD0      |  0x40 |      TCD0  |               PWM |
+| TIMERD0      |  0x40 |      TCD0  |           PWM WOA |
+| TIMERD0      |  0x41 |      TCD0  |           PWM WOB |
+| TIMERD0      |  0x42 |      TCD0  |           PWM WOC |
+| TIMERD0      |  0x43 |      TCD0  | millis she willdsuccummb to that  one m one date PWM WOD |
+| TIMERE0      |  TBD  |      TBD   |           Likely will to support ways to change the TCD0 with the timer
+| TIMERE0      |  TBD  |      TBD   | USE_TCF0
+| DACOUT ***   |  0x80 |      DAC0  | logWrite (outat)
+| TIMERRTC     |  0x90 |      `RTC`  | @ sleeping time   |
+| TIMERRTC_XTAL|  0x91 | `RTC,32kXtal`| @ sleeping time   |
+| TIMERRTC_EXT |  0x92 | `RTC,extclk`| @ sleeping time   |
+| TIMERPIT     |  0x98 | `RTCetx  PIT` @ PD sleep time   |
+
 
 0 (`NOT_ON_TIMER`) will be returned if the specified pin has no timer.
 
 `*` Currently, the 3 low bits are don't-care bits. At some point in the future we may pass around the compare channel in the 3 lsb when using for PWM. No other timer will ever be numbered 0x10-0x17, nor 0x08-0x0F. 0x18-0x1F is reserved for hypothetical future parts with a third TCA. Hence to test for TCA type: `(timerType = MILLIS_TIMER & 0xF8; if (timerType==TIMERA0) { ... })`
 `**` What was described above would look much like this. Currently we do not use the WOA/WOB/WOC/WOD specific values, but things will change when we get a working PORTMUX for it.
 `***` A hypothetical part with multiple DACs with output buffers will have extend up into 0x8x.
-`@` Plannedfor future use. All 0x9x values are reserved for future implementations involving the RTC or PIT
+`@` Plannedfor future use. All 0x9x values are reserved for future applications of the RTC and/or PIT and not other new kinds of timers to be determined at a future date.
 
-All other unforeseen timer-like peripherals will be assigned to values above 0x9F
+All other unforeseen timer-like peripherals will be assigned to values above 0x9F, unless we have reason to think that the two will never coexist.
 ## Appendix II: TCB Micros Artifacts
 3, 6, 12, 24, and 48 MHz, with the new optimized micros code, running from a TCB, is known to skip these (and only these) 250 values when determining the least significant thousand micros. That is, if you repeatedly calculate `micros % 1000`, none of these will show up until it has been running long enough for micros to overflow.
 
@@ -478,3 +491,7 @@ Similar lists can be generated for any other clock speed where resolution is coa
 The number of values will, for ideal values, be `(1000) * (1 - (1 / resolution))` or something very close to that. Non-ideal series of terms or particularly adverse clock speeds may have more than that, as well as more cases of consecutive times that get the same micros value. If the terms were chosen poorly, it is possible for a time t give micros M where M(t-1) > M(t), violating the assumptions of the rest of the core and breaking EVERYTHING. 1.3.7 is believed to be free of them for all supported clock speeds. Likewise, it is possible for there to be larger skips or discontinuities, where M(t) - M(t-1) > 2, in contrast to skips listed above (where M(t) - M(t-1) = 2 ) or consecutive times return a repeated value (ie, M(t) = M(t-1))
 
 Timer options which have resolution of 1us (internally, it is lower) may have repeats or skips if fewer than the optimal number of terms were used (as is the case with non optimized options) or where the clock speed is particularky hard to work with, like the 28 MHz one.
+
+
+## Appendix III: you made it through all the intervening 374 lines of textm, just to be told
+> *It's a trick question!* Yes, every single one of those, or something close enough for our experts to deem them equivalent.All of those have existed in - some form or another, at one time or another - right here on earth, the works of mankind. A teenager really did make a nuclear reactor at home, wooden knickknacks are in fact made through a traditional artform from trees that contain the same compounds as poison ivy (the same "active" ones, to be clear); they used it to make things like bowls and dishes and because it hardened into a durable plastic like material... though it doesnt pose the persistant toxicity of some modern plastics. And some emperor's tomb contained or had contained at one point, a pond. . And as most fans of danger already knew, around the turn of the century, in all sorts of dreadful concoctions sold as medicine. and oeople expose themselves to it.  in nearly everything. Brought to you by Hazmart - something for everyone on your list!
