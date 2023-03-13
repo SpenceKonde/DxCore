@@ -312,7 +312,7 @@ Opamp0.calibrate(0x90); // Small positive adjustment
 
 
 #### init()
-Once the desired parameters have beeen set, the `OpampN.init()` method must be called; this will write that configuration to the peripheral registers. The init method can be called while the opamp is running, though configuration changes will involve waiting through another settling period.
+Once the desired parameters have been set, the `OpampN.init()` method must be called; this will write that configuration to the peripheral registers. The init method can be called while the opamp is running, though configuration changes will involve waiting through another settling period.
 
 ##### Usage
 ```c++

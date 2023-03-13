@@ -550,7 +550,7 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
          *
          * The series of shifts was determined numerically with a spreadsheet that calculated the results for
          * each value that could come from the initial round of rightshifts for any combination of
-         * bitshifts and provided a number of statistics to select based on. Bacwards time travel must
+         * bitshifts and provided a number of statistics to select based on. Backwards time travel must
          * never happenb, or if it does, it must be a shorter backward step than micros runtime - 1 us
          * otherwise delay() will break and timeouts can instantly expire when it is hit. Similarly,
          * one wants to avoid large jumps forward, and cases where more consecutive "actual" times
@@ -1834,7 +1834,7 @@ void  __attribute__((weak)) init_clock() {
  * the same as the standard boards and is a sensible default: It's fast enough that most things *
  * don't have noticeable flicker/etc, but you can still PWM the gate of a MOSFET gate at that   *
  * speed and get away with it for small MOSFETs with low gate charge. As the frequency gets     *
- * higher, you enter the teritory where the pin can't drive the gate hard enough for the FET to *
+ * higher, you enter the territory where the pin can't drive the gate hard enough for the FET to *
  * spend most of it's time either ON or OFF, switching losses increase, the MOSFET gets hotter  *
  * In some cases, this may lead to failure of the FET at a far lighter load than it would if    *
  * there was no PWM involved. Other timer, it will merely degrade performance and efficiency.   *

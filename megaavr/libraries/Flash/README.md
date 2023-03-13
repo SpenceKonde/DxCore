@@ -203,7 +203,7 @@ if (retval) {
 
 ```
 
-This writes a single word to the flash at the location specified. You can only write words, not bytes, and you are responsibe for ensuring that the the address has been erased. Writing locations that are already written will result in the flash at that address storing the value `OldEData & NewData` - weiting the flash can only turn 1's into 0's, and only an erase cycle can turn 0's into 1's.
+This writes a single word to the flash at the location specified. You can only write words, not bytes, and you are responsible for ensuring that the the address has been erased. Writing locations that are already written will result in the flash at that address storing the value `OldEData & NewData` - weiting the flash can only turn 1's into 0's, and only an erase cycle can turn 0's into 1's.
 
 The address is byte oriented. When writing words, you must align with word boundaries (address must be even).
 

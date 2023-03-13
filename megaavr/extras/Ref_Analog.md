@@ -237,7 +237,7 @@ These are based on the latest datasheet clarifications available, and often diff
 
 Notes: Yeah, those gain and offset error figures for the tiny 0/1-series with the internal ref. at the extremes are insanely huge. Likely the reason is that thermal or voltage effects are throwing the bandgap reference way off under the more extreme opperating conditions. Notice that the gain error plummets if an external reference is used - the problem is clearly the reference voltages, not the ADC itself. I have never seen results nearly that dreadful.
 
-Where two valus separated with a / are shown for Res and Cs+h, those are without and with the PGA enabled.
+Where two value separated with a / are shown for Res and Cs+h, those are without and with the PGA enabled.
 
 Watch out on parts with a PGA. The PGA will ampify that offset error, to such a degree that when I was swapping the positive and negative pin of two pins held at constant voltages, and repeatedly doing differential ratios with high gain, I thought my code was bad because like,
 
