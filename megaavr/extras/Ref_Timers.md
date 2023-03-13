@@ -97,8 +97,8 @@ The OVF flag only exists on 2-series, DA, DB, DD, and EA parts
 |-------------------|---------------|--------------|----------------------------|----------------------------|
 | Interrupts        | User code     | User code    | When CNT reaches CCMP      | Only when CCMP set below CNT and allowed to roll over |
 | Timeout Check     | User code     | User code    | When CNT reaches CCMP      | Only when time between events that reset it exceeds 2^16 ticks |
-| Input capt. Event | Read CCMP     | User code    | When event occurs and CNT copied to CCMP. | Every time the counter rolls over. Rarely needed |
-| Input capt. (all) | Read CCMP     | User code    | When capture occurs, depending on mode.  |When counter rolls over. Effectively 17th bit |
+| Input capt. Event | Read CCMP     | User code    | When event occurs and CNT copied to CCMP | Every time the counter rolls over, Rarely needed |
+| Input capt. (all) | Read CCMP     | User code    | When capture occurs, depending on mode |When counter rolls over. Effectively 17th bit |
 | Singleshot        | User code     | User code    | Never                      | Never                      |
 | PWM               | User code     | User code    | When CNT reaches CCMPH     | At end of every PWM cycle, when CNT reaches CCMPL |
 
