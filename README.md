@@ -1,7 +1,7 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
 ## 1.5. ~0~ ~1~ ~2~ ~3~ ~4~ ~5~ 6 is here
-DD support is in, and the sixth set of bugs that have been found in it are fixed. This really should have been caught much sooner: PWM was totally hosed! Wakey wakey people! These parts should be capable of nearly 30 simultaneous PWM duty cycles, not 3. Don't let me get away with releasing shit that's broken that badly! But don't worry; there are several other critical bugs fixed here if that's not to your taste. Especially when you're on the latest version and the author has specifically suggested that there might be bugs relating to PWM output in this version...
+DD support is in, and the sixth set of bugs that have been found in it are fixed. This really should have been caught much sooner: PWM was totally hosed! Wakey wakey people! These parts should be capable of nearly 30 simultaneous PWM duty cycles, not 3. Don't let me get away with releasing shit that's broken that badly! How did we get through five versions, where I specifically suggested that there might be bugs relating to PWM output... without anyone noticing this? But don't worry; there are several other critical bugs fixed here if you aren't using PWM. 
 
 Please be on the lookout for *any further* bugs and regressions, ~particularly relating to the new parts and to PWM.~
 
@@ -334,7 +334,7 @@ These parts for the most part are swimming in timers - The exception being the 1
       * The PORTMUX is busted in DA/DB parts per errata.
     * See the Timer and TCD references for more information on how this timer is used for analogWrite().
     * Can react to events asynchronously (i.e., events shorter than 1 system clock cycle), but this only works correctly when the count prescaler is disabled due to errata).
-    * Can use an external clock source, optionally multiplied by the PLL frequency. Runs at speeds far higher than CPU core can (and there's an undocumented but functional 4x multiplier).
+    * Can use an external clock source, optionally multiplied by the PLL frequency. Runs at speeds far higher than CPU core can (and there's an undocumented but functional 4x PLL multiplier).
     * Complex and fully automatic reactions to events to permit an "emergency stop" that would work without CPU intervention.
     * Challenging to configure, even to do simple stuff.
 
@@ -491,11 +491,11 @@ LTO is a miraculous (although obvious in retrospect) method of optimizing during
 * Tools -> WDT Window: The WDT can also have a separate delay before the "window" open. If you try to issue a WDR, but the window is closed (if you "hit the window, like a bird") the watchdog timer will also
 * Tools -> attachInterrupt Mode - Choose from 3 options - the new, enabled on all pins always (like the old one), Manual, or the old implementation in case of regressions in the new implementation. When in Manual mode, You must call `attachPortAEnable()` (replace A with the letter of the port) before attaching the interrupt. This allows attachInterrupt to be used without precluding any use of a manually defined interrupt (which is always much faster to respond. Basically any time you "attach" an interrupt, the performance is much worse. )
 * Tools -> Wire Mode  - In the past, you have only had the option of using Wire as a master, or a slave. Now the same interface can be used for both at the same time, either on the same pins, or in dual mode. To use simultaneous master or slave, or to enable a second Wire interface, the appropriate option must be selected from tools -> Wire Mode in addition to calling the correct form of `Wire.begin()`. This is fully documented in the [Wire.h documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)
+* Tools -> Optimization Level - We now have a tools submenu that allows you to select either -Os or -O3 with or without GCSE. Note that we do not warrantee that options other than the default will work. The equivalent menu on megaTinyCore has been found to have issues compiling sketches that use the serial port, and I don't know how to fix the issue; the compiler insists on butchering hand optimized assembly in ways that make no sense, and it's very difficult to debug because of LTO.
 
 ### Optiboot only menu options
 * Tools -> Optiboot pins
-As the name implies, this menu lets you select when UART and pin mapping is used for Optiboot. In the case of the AVR DD-series parts (only) this ALSO determines what pin the Optiboot triple blink is located on. See the  [DD14 part specific docs](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md) for the full story on that
-* Tools ->
+As the name implies, this menu lets you select when UART and pin mapping is used for Optiboot. In the case of the AVR DD-series parts (only) this ALSO determines what pin the Optiboot triple blink is located on. See the  [DD14 part specific docs](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md) for the full story on that.
 
 ### Options not available with Optiboot
 * Tools -> Write flash from App - Either disabled (Flash.h library does not work), "Everywhere" (allow writes everywhere in the flash after first page), or allow writes only above a certain address. On Optiboot configurations, the writing is mediated by Optiboot, and it's **always enabled for writes anywhere** (except to the bootloader itself. Self programming of the bootloader section can never be performed on modern AVRs, no matter what tricks are used. You cannot make a bootloader that upgrades itself like digispark and the like can.
