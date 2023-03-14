@@ -16,9 +16,8 @@ These are typically planned for release in a future version (usually the next on
 * **Critical Bugfix** - Third party libraries which used digitalPinTo____ macros could get back invalid values when negative numbers were passed instead of NOT_A_PIN
 * Serious Bugfix: Correct issue with the USART corrupting the low bit of GPIOR3 and USERSIG corrupting bit 3 of the same due to leftover debug code. If I was better with github actions I'd add an action to regex search all .c/cpp/h/S for `"(([cs]bi)|in|out) *(" +")? 0x1[CDEF]` and all c/h/cpp files not under a library example for `GP((IO)|(IOR)|R)[123] *[^; \n]?[^; \n]?=` and every such file except main.cpp for`GP((IO)|(IOR)|R)0 *[^; \n]?[^; \n]?=` and fail if any inline assembly is using cbi/sbi/in/out on the GPRs or any C not part of a library example is writing to them outside of the documented case of stashing the reset cause reported by RSTCTRL in GPIOR0 during init3, after which the core never doesn't touch it. Honestly the examples probably shouldn't be using the GPR's either.... but at least there it doesn't impact the functioning of the core, they're just probably shitty examples if they do. I think that would catch anything like that.
 * Bugfix: MILLIS_VECTOR did the same thing, and was implemented at an earlier time for the same reason. We've returned to using that old, documented name.
-* **Critical Bugfix** - Third party libraries which used digitalPinTo____ macros could get back invalid values when negative numbers were passed instead of NOT_A_PIN
-* Serious Bugfix: Correct issue with the USART corrupting the low bit of GPIOR3 and USERSIG corrupting bit 3 of the same due to leftover think that would catch anything like that.
-
+* Bugfix: Large portions of advertised functionality missing from DxCore.h were added.
+Spelling, grammar and typographical fixes.
 
 ### 1.5.5
 * Enhancement: Add a few more macros for getting information on peripherals and updated define reference.

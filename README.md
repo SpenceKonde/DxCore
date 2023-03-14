@@ -7,8 +7,6 @@ Please be on the lookout for *any further* bugs and regressions, ~particularly r
 
 A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts....
 
-The issue should be fixed mostly, and I think totally on the 32-pin DD-series, and it was likely not ever (as badly) broken on the 14 and 20 pin parts since I mostly used those to test with, but I am doubtful that there are no other variant files that fail to match the part-specific documentation regarding the default PORTMUX configurations the core sets up. This is less catastrophic, though, since at least you can just change PORTMUX as you wish during setup() to put the timers where you want them to be.
-
 ## IMPORTANT WARNINGS
 
 ### ATTN: Linux Users
