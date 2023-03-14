@@ -5,10 +5,10 @@ These items are in addition to what was listed under changes already in release.
 
 * Enhancement: Fix pinout diagrams for DD-series.
 
-## Changes Implemented but not released
+## Changes implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
-## Changesd implemented but not yet in a released version.
+## Changes implemented but not yet in a released version
 ### 1.5.6
 * **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here.
 * **Critical Bugfix** - TCA PWM worked on some 32-pin parts but not others, and there appears to be a difference between the behavior of TCA0 on DB and DD devices - DD TCA0 overrides the PORT. DB TCAs do not. The datsheets say it should not override port direction, but the behavior has been moving away from that instead of towards that.

@@ -116,7 +116,7 @@ It is likely that the most common use cases will see the AVR running with VDD = 
 
 If running on batteries and you DON'T need MVIO, be sure to turn it off in the fuses, as it burns a small amount of power running what amounts to a less rigorous BOD mechanism (I say less rigorous because it's current is markedly lower; it's likely sampling less often).
 
-###  Running off the internal opamp
+### Running off the internal opamp
 This is a feature of the DB's that Microchip Marketing loves to talk about. And it is pretty F'ing cool, I'm not arguing with that. But it's only 20mA which is means there are a limited number of practical uses for it. Probably the most likely in Arduinoland is those damned fancypants new sensors developed for cell phones and the like, with unreal specs, but obnoxiously low maximum voltages (I've seen 2.5, 2.7 and 2.8, and I think once 2.1) - since their current consumption is often minuscule (that's one of their selling points) and they don't run at a high enough voltage for many hobbist applications, and sometimes don't even work with cheap level shifters (the classic bidirectional open drain level shifter often used for I2C will have a problem with that if they cheaped out on the FETs - It would be pretty shoddy ogf tyhm).
 
 #### Limitations and Restrictions
@@ -127,7 +127,7 @@ This is a feature of the DB's that Microchip Marketing loves to talk about. And 
   * This is a vast improvement over the DAC's sub-milliamp current capability.
 * This uses an OPAMP, leaving 1 on 32 or 28 pin parts (hence precluding cascading two of them) and 2 on larger ones (hence precluding the instrumentation amplifier configuration described in the datasheet)
 
-#### Required Connections:
+#### Required Connections
 1. Run a jumper from the OPAMP output pin to VDDIO2.
 2. Disconnect anything else from PD6, which is used for the DAC, and the DAC output buffer must be enabled to use it as an input to the OPAMP.
 
@@ -312,4 +312,4 @@ void doStuffWithOSC() {
 
 
 
-`*` See, if the product design process was a party, and the peripherals were guests, USART0 and SPI0 showed up early, and drained the PORTMUX punchbowl, snarfed the cake and left before most of the guests had even showed up, leaving most of the peripherals to suck on ice cubes and lick up crumbs. TCA skipped the event entirely, thinking it's backroom deal with the EA would ensure it had a bright future. But as we've seen in the EB-product brief, WEX Luther and his crony, TCE, (who have have apparently escaped from xMegatraz), seem to have other ideas. He seems to think he's gonna change the world (I think he said change, might have been another word), and swears he's mended his ways since the xMega days, but I'm reserving judgement until we have a datasheet to look at. The fact that I can't tell from looking at the IO multiplexing chart which sets of TCE pin multiplexing option go together are not a particularly good sign... I'll be disappointed in them (not to mention Microchip, for letting them escape...) if they're still as unruly on the EB-series as they were on xMega. I can't say I'm terribly optimistic though. Why not? Well if they weren't up to something suspicious, they'd have just called it a TCE...
+`*` See, if the product design process was a party, and the peripherals were guests, USART0 and SPI0 showed up early, and drained the PORTMUX punchbowl, snarfed the cake and left before most of the guests had even showed up, leaving most of the peripherals to suck on ice cubes and lick up crumbs. TCA skipped the event entirely, thinking its backroom deal with the EA would ensure it had a bright future. But as we've seen in the EB-product brief, WEX Luther and his crony, TCE, (who have have apparently escaped from xMegatraz), seem to have other ideas. He seems to think he's gonna change the world (I think he said change, might have been another word), and swears he's mended his ways since the xMega days, but I'm reserving judgement until we have a datasheet to look at. The fact that I can't tell from looking at the IO multiplexing chart which sets of TCE pin multiplexing option go together are not a particularly good sign... I'll be disappointed in them (not to mention Microchip, for letting them escape...) if they're still as unruly on the EB-series as they were on xMega. I can't say I'm terribly optimistic though. Why not? Well if they weren't up to something suspicious, they'd have just called it a TCE...
