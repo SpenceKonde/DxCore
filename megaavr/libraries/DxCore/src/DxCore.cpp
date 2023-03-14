@@ -2,14 +2,19 @@
 #include "DxCore.h"
 
 // *INDENT-OFF*
-void configXOSC32K(X32K_OPT_t settings, X32K_ENABLE_t enable) {
-  uint8_t newval = settings | enable;
-  // if any of the bits are "enable protected" we need to turn off the external crystal/clock.
-  if ((CLKCTRL.XOSC32KCTRLA ^ newval) & (CLKCTRL_SEL_bm | CLKCTRL_CSUT_gm)) {
-    _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, CLKCTRL.XOSC32KCTRLA & 0xFE); // disable external crystal
-    while (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm); // unclear if this is immediately cleared or not...
-  }
-  _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, newval);
+void configXOSC32K(const X32K_OPT_t settings, const X32K_ENABLE_t enable) {
+  #if (_AVR_PINCOUNT < 28 && CLOCK_SOURCE > 0)
+    badCall("You cannot use an external low frequency crystal if system clock is from an external high frequency crystal without at least 28 pins.");
+    badCall("How were you planning to wire the hardware? You can't have two crystals on PA0 and PA1, but this part doesn't have PF0/PF1.")
+  #else
+    uint8_t newval = settings | enable;
+    // if any of the bits are "enable protected" we need to turn off the external crystal/clock.
+    if ((CLKCTRL.XOSC32KCTRLA ^ newval) & (CLKCTRL_SEL_bm | CLKCTRL_CSUT_gm)) {
+      _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, CLKCTRL.XOSC32KCTRLA & 0xFE); // disable external crystal
+      while (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm); // unclear if this is immediately cleared or not...
+    }
+    _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA, newval);
+  #endif
 }
 
 
@@ -22,17 +27,22 @@ uint8_t enableAutoTune() {
   }
   _PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA, CLKCTRL.OSCHFCTRLA | 0x01);
   uint8_t csut = (CLKCTRL.XOSC32KCTRLA & CLKCTRL_CSUT_gm) >> 4;
+  uint16_t verifytime = 500 + ((csut == 3) ? 2000 : (500 * csut));
   #if defined(MILLIS_USE_TIMERNONE)
-
+    while (verifytime && (!(CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm))) {
+      delay(1);
+      verifytime--;
+    }
+    if (verifytime) {
+      return 0;
+    }
   #else
-
+    uint32_t startedAt = millis();
+    while ((millis() - startedAt < verifytime) && (!(CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm)));
+    if (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm) {
+      return 0;
+    }
   #endif
-  uint32_t verifytime = 500 + ((csut == 3) ? 2000 : (500 * csut));
-  uint32_t startedAt = millis();
-  while ((millis() - startedAt < verifytime) && (!(CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm)));
-  if (CLKCTRL.MCLKSTATUS & CLKCTRL_XOSC32KS_bm) {
-    return 0;
-  }
   _PROTECTED_WRITE(CLKCTRL.OSCHFCTRLA, CLKCTRL.OSCHFCTRLA & 0xFE);// turn it back off - crystal not working
   return 1;
 }
@@ -51,7 +61,7 @@ int8_t disableAutoTune() {
 }
 #endif
 
-bool setTCA0MuxByPort(uint8_t port) {
+bool setTCA0MuxByPort(const uint8_t port) {
   if (port < 7) {
     TCA0.SPLIT.CTRLB = 0; // disconnect all pins on the port from timer.
 
@@ -66,7 +76,7 @@ bool setTCA0MuxByPort(uint8_t port) {
   return false;
 }
 
-bool setTCA0MuxByPin(uint8_t pin) {
+bool setTCA0MuxByPin(const uint8_t pin) {
   if (digitalPinToBitPosition(pin) < 6) {
     return setTCA0MuxByPort(digitalPinToPort(pin));
   }
@@ -74,7 +84,7 @@ bool setTCA0MuxByPin(uint8_t pin) {
 }
 
 #ifdef TCA1
-  bool setTCA1MuxByPort(uint8_t port) {
+  bool setTCA1MuxByPort(const uint8_t port) {
     uint8_t three_pin = 0;
     uint8_t muxval = 0;
     #if defined(DB_64_PINS)
@@ -143,7 +153,7 @@ bool setTCA0MuxByPin(uint8_t pin) {
     return true;
   }
 
-  bool setTCA1MuxByPin(uint8_t pin) {
+  bool setTCA1MuxByPin(const uint8_t pin) {
     uint8_t port = digitalPinToPort(pin);
     uint8_t bit_mask = digitalPinToBitMask(pin);
     #if defined(DB_64_PINS)
@@ -152,11 +162,11 @@ bool setTCA0MuxByPin(uint8_t pin) {
     #else  // AVR128DA64 definitely do not work. AVR64DA64 untested.
       if (((port == 1 /*  errata  */) && (bit_mask & 0x3F)) || (bit_mask & 0x70)) {
     #endif // And those are the only 4 parts in the product line for which those pins exist. *INDENT-ON*
-      // PORTB and PORTG have full-service TCA1 (well, not PG on the 128DA63 up to at least the A8 die
-      // rev). for those, bit_mask will be 0x01, 0x02, 0x04, 0x08, 0x10, or 0x20 - but not 0x40 or
-      // 0x80. Hence test against 0x3F works. For the others, it is either 0x10, 0x20, or 0x40 so
-      // test against 0x70; the port function will check that the non-B/G port is valid.
-      return setTCA1MuxByPort(digitalPinToPort(pin), takeover_only_ports_ok);
+    // PORTB and PORTG have full-service TCA1 (well, not PG on the 128DA63 up to at least the A8 die
+    // rev). for those, bit_mask will be 0x01, 0x02, 0x04, 0x08, 0x10, or 0x20 - but not 0x40 or
+    // 0x80. Hence test against 0x3F works. For the others, it is either 0x10, 0x20, or 0x40 so
+    // test against 0x70; the port function will check that the non-B/G port is valid.
+      return setTCA1MuxByPort(port);
     }
     return false;
   }
@@ -164,11 +174,11 @@ bool setTCA0MuxByPin(uint8_t pin) {
 
 bool setTCD0MuxByPort(uint8_t port) {
   #if defined(__AVR_DD__)
-    if (!(port == 0 || port == 5 || port == 4))
+    if (!(port == 0 || port == 5 || port == 3))
       return false;
     if (port == 5) {
       port = 2;
-    } else if (port == 4) {
+    } else if (port == 3) {
       port = 4;
     }
     PORTMUX.TCDROUTEA = port;
@@ -191,18 +201,20 @@ bool setTCD0MuxByPin(uint8_t pin) {
     }
     uint8_t port = digitalPinToPort(pin);
     if (bitmask & 0x0F) {
-      if (port != 5) {
+      if (port != 5) { //PORTF has it on pins 0-3
         return false;
       }
     } else {
       // If we're here, bitmask ==
       if (port == 5) {
-      if (!(bitmask & 0x30)) {
+        if (!(bitmask & 0x30)) {
+          return false;
+        }
+      } else if (!(bitmask & 0xF0)) {
         return false;
       }
-    } else if (!(bitmask & 0xF0)) {
-      return false;
     }
+    return setTCD0MuxByPort(digitalPinToPort(pin));
   #elif !defined(TCD0)
     badCall("This part does not have a type D timer!");
   #else
@@ -212,15 +224,16 @@ bool setTCD0MuxByPin(uint8_t pin) {
       return false;
     }
     uint8_t bitmask=digitalPinToBitMask(pin);
-    if (bitmask & 0xF0) {
-      return setTCD0MuxByPort(digitalPinToPort(pin)); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7,
-      // We now have it down two possibilities: Either it is a DA with busted portmux and the only valid option is PA4-7, or it is a
-
+    if (!(bitmask & 0xF0)) {
+      return setTCD0MuxByPort(digitalPinToPort(pin)); // See errata; appears to be broken on all parts, not just 128k ones. So, if it's not pin 4-7, it's no good.
+    }
+  #endif
 }
 
 
 int16_t getMVIOVoltage() {
-  if (getMVIOStatus() == MVIO_OKAY) {
+  uint8_t status = getMVIOStatus();
+  if (status == MVIO_OKAY) {
     uint8_t tempRef = VREF.ADC0REF; // save reference
     analogReference(INTERNAL1V024);  // known reference
     analogRead(ADC_VDDIO2DIV10); // exercise the ADC with this reference
@@ -233,14 +246,104 @@ int16_t getMVIOVoltage() {
     } else {
       // temp val should thus be 0-4095 unless analogReadEnh is broken.
       // multiply by by 1.25 the fast way.
-      uint16_t retval=tempval; // truncate leading 0's.
+      uint16_t retval = tempval;
       return retval + (retval >> 2);
     }
   } else {
     // sadly, if it's undervoltage, you can't get read of VDDIO2 this way!
-    return getMVIOStatus();
+    return status;
   }
 }
+
+void _enable_opamp(const uint8_t opamp) {
+  DAC0.CTRLA |= 0x41;
+  OPAMP.TIMEBASE = F_CPU / 1000000;
+  volatile uint8_t* opamp_ptr = (volatile using8_t*) 0x710 + 8 * opamp;
+  *(opamp_ptr) = 0x05; //enabled and on
+  *(opamp_ptr + 3) = 0x22; // INMUX selects OUTPUT as negative and DAC as positive voltage.
+  *(opamp_ptr + 4) = 0x7F; // maximum settle time
+  OPAMP.CTRLA = 1; //enable opamps
+}
+
+int16_t _refnum_to_max_dacout(const uint8_t refnum) {
+  if (refnum >= 0x04) {
+    return 0;
+  } else if (refnum == 0) {
+    return 925;
+  } else if (refnum == 1) {
+    return 1950;
+  } else if (refnum == 3) {
+    return 2400;
+  } else if (refnum == 2) {
+    return 4000;
+  }
+}
+
+int16_t initMVIO_OPAMP(const int16_t voltage, const int8_t opamp,  const uint8_t options, const int16_t dacref) {
+  #if (!defined(MVIO) || !defined(OPAMP))
+    return MVIO_UNSUPPORTED;
+  #else
+    if FUSE.SYSCFG1 & 0x18 != 0x08 {
+      return MVIO_DISABLED;
+    }
+    if (voltage < 1650) {
+      return MVIO_UNDERVOLTAGE;
+    }
+    if (voltage > 5500 || (dacref > 5500 && (options & 0x01 == 0))) {
+      return MVIO_VOLTAGE_TOO_HIGH;
+    }
+    if (options != MVIO_SELECT_REF) {
+      if (dacref != -1 && dacref < 1750) {
+        return (MVIO_REF_TOO_LOW | MVIO_UNDERVOLTAGE);
+      } else {
+        uint8_t tempRef = getDACReference();
+        if (dacref == -1) {
+          if (tempRef < 0x04) {
+            int16_t maxvoltage = _refnum_to_max_dacout(tempRef);
+            if (maxvoltage < voltage) {
+              return MVIO_REF_TOO_LOW;
+            }
+            int32_t tempval = 1023 * voltage;
+            tempval = tempval / maxvoltage;
+            DAC0.DATA = tempval;
+            _enable_opamp(opamp);
+          } else { // otherwise it's set to an external or vdd reference, but we haven't told it the voltage
+            return MVIO_IMPOSSIBLE_CFG;
+          }
+        } else {
+          if (tempRef > 0x04) {
+            int32_t tempval = 1023 * voltage;
+            tempval = tempval / dacref;
+            DAC0.DATA = tempval;
+            _enable_opamp(opamp);
+          } else {
+            return MVIO_IMPOSSIBLE_CFG;
+          }
+        }
+      }
+    }
+  } else {
+    if (voltage > 4000) {
+      return MVIO_NO_VALID_REF;
+    } else {
+      uint8_t ref = 0;
+      while (ref < 4 && _refnum_to_max_dacout(ref) < voltage) {
+        ref = (ref == 1 ? 3 : (ref == 3 ? 2 : (ref == 2 ? 4 : (ref + 1))));
+      }
+      if (ref >= 4) {
+        return MVIO_NO_VALID_REF;
+      }
+      int32_t tempval = 1023 * voltage;
+      tempval = tempval / _refnum_to_max_dacout(ref);
+      DACReference(ref);
+      DAC0.DATA = tempval;
+      _enable_opamp(opamp);
+    }
+  }
+  return MVIO_OK;
+  #endif
+}
+
 
 
 #ifdef MVIO
@@ -309,13 +412,17 @@ int16_t getMVIOVoltage() {
     return retval;
   }
 #else
-  uint8_t getMVIOStatus(__attribute__((unused))bool debugmode __attribute__ ((unused)) HardwareSerial &dbgserial {
+  uint8_t getMVIOStatus(__attribute__((unused))bool debugmode, __attribute__ ((unused)) HardwareSerial &dbgserial) {
     return MVIO_UNSUPPORTED;
   }
 #endif
+
+
+
+
 // Not ready yet, but we ought to have something like this.
 
-int8_t timerToDigitalPin(uint8_t timer, uint8_t channel, bool muxed) {
+//int8_t timerToDigitalPin(uint8_t timer, uint8_t channel, bool muxed) {
 
   /* valid values for timer start at line 300ish in Arduino.h.
    * NOT RECOMMENDED FOR CODE WHERE PERFORMANCE IS IMPORTANT. It's great for making library example code work.
@@ -419,6 +526,7 @@ int8_t timerToDigitalPin(uint8_t timer, uint8_t channel, bool muxed) {
     }
   }
 */
+//}
 
 
 

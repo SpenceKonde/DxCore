@@ -153,19 +153,19 @@ PD0 is back as a usable pin on the EA and EB-series parts, as the Ex-series does
 #### There is no A0-3 or PIN_PD0-3 on 20 and 14-pin parts
 Additionally on the DD-series parts, since they can no longer steal PD0's pin for VDDIO2, they took PC0 instead.
 
-#### 20 and 14-pin parts big holes in the numbering
+#### 20 and 14-pin parts have big holes in the numbering
 14-pin parts have digital pin numbers 0, 1, 9, 10, 11, 16, 17, 18, 19, 20, 21
-But if you look them in PIN_Pxn notation, the reasoning is clearer: PA0-1, skip over the rest of portA, There's no PC0, then there is PC1-3, and PD4-7, plus PF6 and PF7, which are less than useful, being reset and input only, and UPDI, respectively. This allows U
+But if you look them in PIN_Pxn notation, the reasoning is clearer: PA0-1, skip over the rest of portA, There's no PC0, then there is PC1-3, and PD4-7, plus PF6 and PF7, which are less than useful, being reset and input only, and UPDI, respectively.
 20-pin parts have PA0-7, PC1-3, PD4-7, PF6-7 17 pins plus 3 power pins on DD.
 
-Because the EB will not have MVIO, it will not need VDDIO2, hence it will have PC0.
+Because the EB will not have MVIO, it will not need VDDIO2, hence it will have PC0 even on 14-pin parts, while the DU-series is expected to not have PC0-PC2, those pins having been fed to the USB peripheral, along with the PLL/TCD...
 
 ### Link-time Optimization (LTO) support
-This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the tinyAVR Dx- Series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in code size when introduced, typically on the order of 5-20%!
-
+This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the modern tinyAVR or Dx-series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in code size when introduced, typically on the order of 5-20%!
 
 ## Exposed Hardware Features
 To the greatest extent possible, all hardware features of these devices are exposed
+
 ### MVIO (DB, DD only)
 There isn't really anything to do differently in the core to support MVIO - though the [DxCore library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/DxCore/README.md) provides a slightly easier interface for checking the MVIO state, and measuring the voltage on VDDIO2. In short, what MVIO does is act as a level shifter built into the chip for PORTC:
 * PORTC is powered by VDDIO2. The input voltage levels on PORTC will be based on VDDIO2, not VDD, and the output HIGH voltage will be VDDIO2 not VDD.
@@ -177,7 +177,7 @@ There isn't really anything to do differently in the core to support MVIO - thou
   * Hence PORTC still runs at the voltage on the VDDIO2 pin (which should be the same as VDD unless wired incorrectly) if MVIO is disabled. What is disabled is the internal monitoring of the state of VDDIO2. The status bit always reads 1 (MVIO OK). If VDDIO2 is not powered, the pins are not tristated, nor are inputs set to 0 - reading the pins returns random values.
     * It may be possible to damage the part in this improper operating regime.
 
-**Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
+**Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with just a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
 
 ### ADC Support
 These parts all have a large number of analog inputs - DA and DB-series have up to 22 analog inputs, while the DD-series has analog input on every pin that is not used to drive the HF crystal (though the pins on PORTC are only supported when MVIO is turned off). They can be read with `analogRead()` like on a normal AVR, and we default to 10-bit resolution; you can change to the full 12-bit with `analogReadResolution()`, and use the enhanced analogRead functions to take automatically oversampled, decimated readings for higher resolution and to take differential measurements. There are 4 internal voltage references in 1.024, 2.048, 4.096 and 2.5V, plus support for external reference voltage (and Vdd of course). ADC readings are taken 3 times faster than an classic AVR, and that speed can be doubled again if what you are measuring is low impedance, or extend the sampling time by a factor greatly for reading very high impedance sources. This is detailed in the analog reference.
@@ -192,7 +192,7 @@ See the [**ADC and DAC Reference**](https://github.com/SpenceKonde/DxCore/blob/m
 Using the `An` constants for analog pins is deprecated - the recommended practice is to just use the digital pin number, or better yet, use `PIN_Pxn` notation when calling `analogRead()`.
 
 ### Watchdog timer, software reset
-There are more options than on classic AVR for resetting, including if the code gets hung up somehow. The watchdog timer can only reset (use the RTC and PIT for timed interrupts).
+There are more options than on classic AVR for resetting, including if the code gets hung up somehow. The watchdog timer can only reset (use the RTC and PIT for low power timed interrupts). There are wrapper functions around the software and WDT reset methods in DxCore.h
 
 See the [**Reset and Watchdog (WDT) Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md) and [The core-auxiliary library, DxCore](megaavr/libraries/DxCore/README.md)
 

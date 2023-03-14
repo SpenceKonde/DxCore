@@ -56,9 +56,6 @@ uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
  * the time and sleep library will require some things like this.
  */
 
-
-  #define _MACRO_PORT_TO_PIN_ZERO
-
 /* Timers and Timer-like-things
  * These are used for two things: Identifying the timer on a pin in
  * digitalPinToTimer(), and for the MILLIS_TIMER define that users can test to
