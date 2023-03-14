@@ -1,11 +1,11 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
 ## 1.5. ~0~ ~1~ ~2~ ~3~ ~4~ ~5~ 6 is here
-DD support is in, and the sixth set of bugs that have been found in it are fixed. This really should have been caught much sooner: PWM was totally hosed! Wakey wakey people! These parts should be capable of nearly 30 simultaneous PWM duty cycles, not 3. Don't let me get away with releasing shit that's broken that badly! How did we get through five versions, where I specifically suggested that there might be bugs relating to PWM output... without anyone noticing this? But don't worry; there are several other critical bugs fixed here if you aren't using PWM. 
+DD support is in, and the sixth set of bugs that have been found in it are fixed. This really should have been caught much sooner: PWM was totally hosed! Wakey wakey people! These parts should be capable of nearly 30 simultaneous PWM duty cycles, not 3. Don't let me get away with releasing shit that's broken that badly! How did we get through five versions, where I specifically suggested that there might be bugs relating to PWM output... without anyone noticing this? But don't worry; there are several other critical bugs fixed here if you aren't using PWM.
 
 Please be on the lookout for *any further* bugs and regressions, ~particularly relating to the new parts and to PWM.~
 
-A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts....
+A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts...
 
 ## IMPORTANT WARNINGS
 

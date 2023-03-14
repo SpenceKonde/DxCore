@@ -26,7 +26,7 @@ typedef enum X32K_ENABLE {
 
 
 #ifndef __cplusplus
-  void configXOSC32K(X32K_OPT_t settings, X32K_ENABLE_t enable);
+void configXOSC32K(X32K_OPT_t settings, X32K_ENABLE_t enable);
 #endif
 // attempts to configure the external crystal or oscillator.
 // see above for valid values of these two arguments. This handles the enable-locking of many of these bits.
@@ -65,7 +65,7 @@ uint8_t getMVIOStatus();
 // Returns either MVIO_OKAY (0) or an error code, depending on the state of MVIO
 
 #ifndef __cplusplus
-  uint8_t initOPAMP_MVIO(uint16_t voltage, uint8_t opamp, uint8_t options, int16_t dacref);
+uint8_t initOPAMP_MVIO(uint16_t voltage, uint8_t opamp, uint8_t options, int16_t dacref);
 #endif
 
 // These are returned by either initOPAMP_MVIO or getMVIOStatus() and getMVIOVoltage().
@@ -107,16 +107,16 @@ Timer pin mux
  */
 
 #if defined(TCA0)
-  bool setTCA0MuxByPort(uint8_t port);
-  bool setTCA0MuxByPin(uint8_t pin);
+bool setTCA0MuxByPort(uint8_t port);
+bool setTCA0MuxByPin(uint8_t pin);
 #endif
 #if defined(TCA1)
-  bool setTCA1MuxByPort(uint8_t port);
-  bool setTCA1MuxByPin(uint8_t pin);
+bool setTCA1MuxByPort(uint8_t port);
+bool setTCA1MuxByPin(uint8_t pin);
 #endif // TCA1
 #if defined(TCD0)
-  bool setTCD0MuxByPort(uint8_t port);
-  bool setTCD0MuxByPin(uint8_t pin);
+bool setTCD0MuxByPort(uint8_t port);
+bool setTCD0MuxByPin(uint8_t pin);
 #endif
 int8_t timerToDigitalPin(uint8_t timer, uint8_t channel);
 
@@ -137,15 +137,15 @@ inline void ResetWithWDT() {
 
 // C++ prototypes. C-definitions are grouped above by function.
 #ifdef __cplusplus
-  }
-  uint8_t initOPAMP_MVIO(uint16_t voltage, uint8_t opamp = 0, uint8_t options = 0, int16_t dacref = -1);
-  void configXOSC32K(X32K_OPT_t = X32K_HIGHPWR_START2S, X32K_ENABLE_t = X32K_ENABLED);
+}
+uint8_t initOPAMP_MVIO(uint16_t voltage, uint8_t opamp = 0, uint8_t options = 0, int16_t dacref = -1);
+void configXOSC32K(X32K_OPT_t = X32K_HIGHPWR_START2S, X32K_ENABLE_t = X32K_ENABLED);
 // in ADCErrors.cpp
 // ADC error interpretation helper functions
-  int8_t analogCheckError(int16_t val);
-  int8_t analogCheckError(int32_t val);
-  bool printADCRuntimeError(int32_t error, HardwareSerial &__dbgser = Serial);
-  bool printADCRuntimeError(int16_t error, HardwareSerial &__dbgser = Serial);
+int8_t analogCheckError(int16_t val);
+int8_t analogCheckError(int32_t val);
+bool printADCRuntimeError(int32_t error, HardwareSerial &__dbgser = Serial);
+bool printADCRuntimeError(int16_t error, HardwareSerial &__dbgser = Serial);
 #endif
 
 
