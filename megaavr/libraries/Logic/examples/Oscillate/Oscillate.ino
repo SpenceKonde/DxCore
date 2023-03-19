@@ -560,7 +560,7 @@ void demo9d() {
    * to make the TCD do much of anything useful.  - they're totally worthelss. I don't think Microchip's documentation people, at least when the briefs were
    * written, had a deep upderstanding of The TCD0 either. That timer is very user unfriendly. In fact if it were any more user unfriendly
    * the chip would need  an extra peripheral: a hand that would  reach out of the chip and beat you over the head with a rolled up datasheet (which would
-   * really hurt, recall that a printed datasheet would comprise a ream and a half of copy paper).
+   * really hurt, recall that a printed datasheet would comprise a stream and a half of copy paper).
    * Anyway, that configuration steps are not commented extensively. Refer to the datasheet for more detailed information; it may be the most complicated
    * peripheral of the AVR architecture.
    *
