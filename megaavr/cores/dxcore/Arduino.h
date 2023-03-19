@@ -566,6 +566,10 @@ uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 #define clockCyclesToMicroseconds(a) ((uint32_t)((a) / clockCyclesPerMicrosecond()))
 #define microsecondsToClockCycles(a) ((uint32_t)((a) * clockCyclesPerMicrosecond()))
 
+#define millisClockCyclesPerMicrosecond() ((uint16_t)(F_CPU / 1000000L))
+#define millisClockCyclesToMicroseconds(a) ((uint32_t)((a) / clockCyclesPerMicrosecond()))
+#define microsecondsToMillisClockCycles(a) ((uint32_t)((a) * clockCyclesPerMicrosecond()))
+
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 
 extern const uint8_t digital_pin_to_port[];
