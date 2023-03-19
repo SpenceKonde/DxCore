@@ -41,20 +41,6 @@
 #include <avr/interrupt.h>
 
 // Currently DxCore has no cases where the millis timer isn't derived from system clock, but that will change
-/* This becomes important when we support other timers for timekeeping. The Type D timer can be faster, requiring:
- * These talk about the timebase from which millis is derived, not the actual timer counting frequency.
- * That is, it's used to calculqte the values that are we multipliy by the prescaler to get the timekeeping stuff.
- * These can be different from the above only when the millis timer isn't running from CLK_PER.
-     For example, if we run it from a TCD clocked from internal HF but we are running on a crystal.
-     That's a strange way to use the TCD, but
- * megaTinyCore has these, and we will have wsomething analogous.
-
-uint16_t millisClockCyclesPerMicrosecond();
-uint32_t millisClockCyclesToMicroseconds(uint32_t cycles);
-uint32_t microsecondsToMillisClockCycles(uint32_t microseconds);
-
- * the time and sleep library will require some things like this.
- */
 
 /* Timers and Timer-like-things
  * These are used for two things: Identifying the timer on a pin in
@@ -571,11 +557,14 @@ void          turnOffPWM(uint8_t pinNumber               );
 uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 // Realized we're not going to be able to make generic code without this.
 
-// Again as above, but this time with the unwieldy 8-byte integer datatype as the base
-
-uint16_t clockCyclesPerMicrosecond();
-uint32_t clockCyclesToMicroseconds(uint32_t cycles);
-uint32_t microsecondsToClockCycles(uint32_t microseconds);
+/* Even when millis is off, we should still have access to the clock cycle counting macros.
+ * That's the only way we can get time estimates there!
+ * 3/19/23: These are supposed to be macros, not inline functions
+ * Users have reported problems resulting from their being functions, even inline ones
+ */
+#define clockCyclesPerMicrosecond() ((uint16_t)(F_CPU / 1000000L))
+#define clockCyclesToMicroseconds(a) ((uint32_t)((a) / clockCyclesPerMicrosecond()))
+#define microsecondsToClockCycles(a) ((uint32_t)((a) * clockCyclesPerMicrosecond()))
 
 __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
 

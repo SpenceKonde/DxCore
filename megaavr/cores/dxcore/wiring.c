@@ -49,19 +49,8 @@ void init_timers();
   #define MILLIS_USE_TCD
 #endif
 
-/* Even when millis is off, we should still have access to the clock cycle counting macros.
- * That's the only way we can get time estimates there! */
-inline uint16_t clockCyclesPerMicrosecond() {
-  return ((F_CPU) / 1000000L);
-}
 
-inline uint32_t clockCyclesToMicroseconds(const uint32_t cycles) {
-  return (cycles / clockCyclesPerMicrosecond());
-}
 
-inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
-  return (microseconds * clockCyclesPerMicrosecond());
-}
 
 #ifndef MILLIS_USE_TIMERNONE /* If millis is enabled, we need to provide it millis() and micros() */
 
@@ -78,37 +67,6 @@ inline uint32_t microsecondsToClockCycles(const uint32_t microseconds) {
     // #define MILLIS_VECTOR (RTC_CNT_vect)
     const struct sTimer _timerS = {RTC_OVF_bm, &RTC.INTCTRL};
   #else
-    // when TCD0 is used as millis source, this will be different from above, but 99 times out of 10, when a piece of code asks for clockCyclesPerMicrosecond(), they're asking about CLK_PER/CLK_MAIN/etc, not the unprescaled TCD0!
-    inline uint16_t millisClockCyclesPerMicrosecond() {
-      /*
-       * See, here's an example of why we don't use TCD millis here. Instead of having 2 options to pick from during design for TCD clock....
-       * we have every F_CPU option. Plus every crystal or clock option (it can be run from the PLL (at least on the DD) running from crystal
-       * or the PLL clocked from CLK_PER while the CPU runs from the internal oscillator. Just enumerating the possible options to pick one is
-       * a daunting task. And TCD is a crap timer for millis. We only use it on the tinyAVRs because they are starved for timers.
-       */
-      /*
-      #ifdef MILLIS_USE_TIMERD0
-        #if (F_CPU == 20000000UL || F_CPU == 10000000UL ||F_CPU == 5000000UL)
-          return (20);   // this always runs off the 20MHz oscillator
-        #else
-          return (16);
-        #endif
-      #else
-      */
-      return ((F_CPU) / 1000000L);
-      //#endif
-    }
-
-
-    inline uint32_t millisClockCyclesToMicroseconds(const uint32_t cycles) {
-      return (cycles / millisClockCyclesPerMicrosecond());
-    }
-
-    inline uint32_t microsecondsToMillisClockCycles(const uint32_t microseconds) {
-      return (microseconds * millisClockCyclesPerMicrosecond());
-    }
-
-
     #if defined (MILLIS_USE_TIMERA0)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCA0_HUNF_vect)

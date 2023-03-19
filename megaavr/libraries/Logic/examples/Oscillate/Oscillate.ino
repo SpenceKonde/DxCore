@@ -29,7 +29,11 @@
   | part, and freeze spray will cause frost to form on the parts. Best to |
   | disconnect them from power while they thaw and dry off before applying|
   | power to them again. PCBs also burn if you are not careful with that  |
-  | torch) This is maximum-speed oscillation is of essentially zero       |
+  | torch. Freeze spray, despite the statements some carry to the contrary|
+  | absolutely is flammable, and the combustion products aren't pleasant. |
+  | Freeze-sprays contain highly potent greenhouse gasses. For these      |
+  | reasons I do not recommend attempting to duplicate that part of the   |
+  | test. This is maximum-speed oscillation is of essentially zero        |
   | practical use, but it sure is cool isn't it?                          |
   |                                                                       |
   | Maybe it could be used to examine a new silicon revision to see if    |
@@ -59,7 +63,6 @@
 
 //#define SHOW_TCD_DEMO
 
-
 void setup() {
   #if defined(SHOW_TCD_DEMO) && !defined(MEGATINYCORE)
   /* The demonstration of clocking TCD0 from the output of a Logic block
@@ -72,7 +75,6 @@ void setup() {
   Serial.begin(115200);
 }
 
-
 void demo1() {
   /* Async Demo 1: Just how fast is this "asynchronous" stuff?
    *
@@ -80,7 +82,6 @@ void demo1() {
    * My oscilloscope is clocking the output of this at an eye-popping 110 MHz!
    */
   Logic::stop();                            // Stop the CCL so changes can be made
-
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
@@ -92,15 +93,12 @@ void demo1() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Not Used. Stop Event0 (if it was running).
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = false;                    // Not using Logic1
   Logic1.init();                            // Initialize logic block 1 to apply the enable=false
-
 
   Logic::start();                           // Start the CCL hardware
 }
@@ -118,7 +116,6 @@ void demo2() {
    */
   Logic::stop();                            // Stop the CCL so changes can be made
 
-
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
   Logic0.input0 = logic::in::link;                 // Use output of next logic block (Logic1)
@@ -129,10 +126,8 @@ void demo2() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Not Used. Stop Event0 (if it was running).
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
@@ -143,7 +138,6 @@ void demo2() {
   Logic1.filter = logic::filter::disable;          // No output filter enabled
   Logic1.truth = 0x02;                      // Set truth table: Copy, HIGH if input0 HIGH
   Logic1.init();                            // Initialize logic block 1
-
 
   Logic::start();                           // Start the CCL hardware
 
@@ -182,7 +176,6 @@ void demo3() {
   Logic::start();                           // Start the CCL hardware
 
 }
-
 
 void demo4() {
   /* Async demo 4: Using both second logic block and event stages
@@ -247,7 +240,6 @@ void demo5() {
    */
   Logic::stop();                            // Stop the CCL so changes can be made
 
-
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
   Logic0.input0 = logic::in::feedback;             // feedback
@@ -258,15 +250,12 @@ void demo5() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Not Used. Stop Event0 (if it was running).
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = false;                    // Not using Logic1
   Logic1.init();                            // Initialize logic block 1 to apply the enable=false
-
 
   Logic::start();                           // Start the CCL hardware
 }
@@ -282,7 +271,6 @@ void demo6() {
    */
   Logic::stop();                            // Stop the CCL so changes can be made
 
-
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
   Logic0.input0 = logic::in::feedback;             // feedback
@@ -293,15 +281,12 @@ void demo6() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Not Used. Stop Event0 (if it was running).
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = false;                    // Not using Logic1
   Logic1.init();                            // Initialize logic block 1 to apply the enable=false
-
 
   Logic::start();                           // Start the CCL hardware
 }
@@ -317,7 +302,6 @@ void demo7() {
    */
   Logic::stop();                            // Stop the CCL so changes can be made
 
-
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
   Logic0.input0 = logic::in::link;                 // output from Logic1
@@ -328,11 +312,8 @@ void demo7() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Not Used. Stop Event0 (if it was running).
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
@@ -346,7 +327,6 @@ void demo7() {
 
   Logic::start();                           // Start the CCL hardware
 }
-
 
 void demo8() {
   /* Sync demo 4: Using other logic block as clock MULTIPLIES the delays
@@ -379,7 +359,6 @@ void demo8() {
    */
   Logic::stop();                            // Stop the CCL so changes can be made
 
-
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
   Logic0.input0 = logic::in::feedback;             // feedback
@@ -391,14 +370,11 @@ void demo8() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Stop Event0 (if it was running)
   Event0.set_generator(gen::ccl1_out);      // Use output of Logic1
   Event0.set_user(user::ccl1_event_a);      // Connect Event0 (carrying Logic1 output) to Logic1 event A input
   Event0.start();                           // Enable Event0
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
@@ -410,12 +386,8 @@ void demo8() {
   Logic1.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic1.init();                            // Initialize logic block 1
 
-
-
   Logic::start();                           // Start the CCL hardware
 }
-
-
 
 void demo9a() {
   /* Using prescaled clocks 1: TCA0 (if you want to try this and don't have a Dx or tiny 1-series to play with)
@@ -445,14 +417,11 @@ void demo9a() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Stop Event0 (if it was running)
   Event0.set_generator(gen::ccl1_out);      // Use output of Logic1
   Event0.set_user(user::ccl1_event_a);      // Connect Event0 (carrying Logic1 output) to Logic1 event A input
   Event0.start();                           // Enable Event0
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = true;                     // Enable logic block 1
@@ -494,7 +463,6 @@ void demo9a() {
   // And turn it back on!
   TCA0.SINGLE.CTRLA |= TCA_SINGLE_CLKSEL_DIV256_gc | TCA_SINGLE_ENABLE_bm;
 
-
 }
 
 #if !defined(DX_14_PINS)
@@ -530,12 +498,10 @@ void demo9b() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.set_generator(gen::ccl0_out);      // Use output of Logic0
   Event0.set_user(user::tcb0_cnt);          // Connect Event0 (carrying Logic0 output) to TCB0 count
   Event0.start();                           // Enable Event0
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = false;                    // Not using Logic1
@@ -545,7 +511,6 @@ void demo9b() {
   Event1.stop();                            // Not Used. Stop Event1 (if it was running).
 
   Logic::start();                           // Start the CCL hardware
-
 
   /* TCB0 - Timer/Counter Type B */
   TCB0.CTRLA = 0;
@@ -569,7 +534,6 @@ void demo9b() {
    * and you can use it on everything.
    */
 
-
 }
 
 void demo9d() {
@@ -588,8 +552,16 @@ void demo9d() {
    * it short - at least if you want the first few demos to work with the jumper in place.
    * I used a piece of female pin header with the two middle pins yanked out, and 4-hole piece of strip-board.
    *
-   * This is not a guide to configuration of the the Type D timer for Arduino users. That is a subject for an entirely different document. The TCD0
-   * configuration steps are not commented extensively. Refer to the datasheet for more detailed information; it may be the most complicated
+   * This is not a guide to configuration of the the Type D timer for Arduino users. That is a subject for an entirely different document. Preferably
+   * one written by someone else because the TCD0 is a right bitch to deal with. Not only is it the most complicated peripheral by number of pages in
+   * the datasheet, that longest-chapter is woefully terse and fails to fully elucidate the functioning of the timer. They could have gon on for
+   * another 10-20 pages and still left some questions. "What about these TCD tech briefs?" you ask? Have you read them? Go do that.
+   * Tell me whether you could have written the same thing after reading the TCD chapter? I'm pretty sure I could have, even before i'd figure out how
+   * to make the TCD do much of anything useful.  - they're totally worthelss. I don't think Microchip's documentation people, at least when the briefs were
+   * written, had a deep upderstanding of The TCD0 either. That timer is very user unfriendly. In fact if it were any more user unfriendly
+   * the chip would need  an extra peripheral: a hand that would  reach out of the chip and beat you over the head with a rolled up datasheet (which would
+   * really hurt, recall that a printed datasheet would comprise a ream and a half of copy paper).
+   * Anyway, that configuration steps are not commented extensively. Refer to the datasheet for more detailed information; it may be the most complicated
    * peripheral of the AVR architecture.
    *
    */
@@ -606,12 +578,10 @@ void demo9d() {
   Logic0.truth = 0x01;                      // Set truth table: Invert, HIGH if input0 LOW
   Logic0.init();                            // Initialize logic block 0
 
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.set_generator(gen::ccl0_out);      // Use output of Logic0
   Event0.set_user(user::tcb0_cnt);          // Connect Event0 (carrying Logic0 output) to TCB0 count
   Event0.start();                           // Enable Event0
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = false;                    // Not using Logic1
@@ -621,7 +591,6 @@ void demo9d() {
   Event1.stop();                            // Not Used. Stop Event1 (if it was running).
 
   Logic::start();                           // Start the CCL hardware
-
 
   /* TCD0 - Timer/Counter Type D */
   TCD0.CTRLA = 0;                           // Stop the timer, clear CTRLA.
@@ -638,7 +607,6 @@ void demo9d() {
   Serial.println("Before: ~1.46 kHz @ 24 MHz OSCHF/CLK_PER");
   analogWrite(PIN_PA6, 128);                 // Output 50% duty cycle on PIN_PA6
   delay(5000);
-
 
   /* TCD0 - Timer/Counter Type D */
   TCD0.CTRLA &= ~TCD_ENABLE_bm;             // Stop the timer
@@ -673,11 +641,9 @@ void demo10() {
    */
   Logic::stop();                            // Stop the CCL so changes can be made
 
-
   /* CLKCTRL - Clock Controller */
   // Enable the PLL -
   _PROTECTED_WRITE(CLKCTRL_PLLCTRLA, CLKCTRL_MULFAC_2x_gc);
-
 
   /* TCD0 - Timer/Counter Type D */
   TCD0.CTRLA = 0;                           // Stop the timer, clear CTRLA.
@@ -688,8 +654,6 @@ void demo10() {
   TCD0.CMPBCLR = period - 1;                  // 0 is a count, so we subtract 1 from each
   while (!(TCD0.STATUS & TCD_ENRDY_bm));     // Wait until ENRDY (Enable Ready)
   TCD0.CTRLA |= TCD_ENABLE_bm;              // Re-enable TCD0
-
-
 
   /* Logic0 - CCL LUT0 */
   Logic0.enable = true;                     // Enable logic block 0
@@ -702,14 +666,11 @@ void demo10() {
   Logic0.truth = 0x04;                      // Set truth table: Copy, HIGH if input1 HIGH
   Logic0.init();                            // Initialize logic block 0
 
-
-
   /* Event0 - EVSYS CHANNEL0 */
   Event0.stop();                            // Stop Event0 (if it was running)
   Event0.set_generator(gen::ccl0_out);      // Use output of Logic1
   Event0.set_user(user::tcb0_cnt);          // Connect Event0 (carrying Logic0 output) to TCB0 COUNT
   Event0.start();                           // Enable Event0
-
 
   /* Logic1 - CCL LUT1 */
   Logic1.enable = false;                    // Not using Logic1
@@ -718,21 +679,14 @@ void demo10() {
   /* Event1 - EVSYS CHANNEL1 */
   Event1.stop();                            // Not Used. Stop Event1 (if it was running).
 
-
   /* TCB0 - Timer/Counter Type B */
   analogWrite(PIN_TCB0_WO_INIT, 128);               // Output some pwm to demo frequency
   TCB0.CTRLA = 0;                                   // Disable TCB0
   TCB0.CTRLA = TCB_CLKSEL_EVENT_gc | TCB_ENABLE_bm; // Switch to event clock & enable
   Serial.println("After: ~10.4 kHz");               // 24*2 / 18 = 2.667 MHz, 2.667 MHzz / 255 count/cycle = ~10.4 kHz
 
-
-
-
   Logic::start();                           // Start the CCL hardware
 }
-
-
-
 
 void loop() {
   demo1(); // Async - timer feeding back on itself reaching mindboggling speeds.

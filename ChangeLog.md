@@ -4,9 +4,15 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 These items are in addition to what was listed under changes already in release.
 
 * Enhancement: Fix pinout diagrams for DD-series.
+* Enhancement: Support the Ex-series. I think except for a few libraries this should be almoste completely painless!
 
 ## Changes implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
+
+### Planned 1.5.7
+* Bugfix - Change clockCyclesToMicroseconds, microsecondsToClockCycles, and clockCyclesPerMicrosecond back into macros instead of inlinable functions, as some libraries depend on them being valid constexprs.
+* Bugfix - pinModeFast will now turn off pullups if they're on when a pin is set to output. otherwise, the result was problemaic for - for example, a situation I ran into where the pullup was never turned off even after the pins were set back to output and driven low. Prior to going to deep sleep. You can imagine what my battery life was like.
+
 
 ## Changes implemented but not yet in a released version
 ### 1.5.6
