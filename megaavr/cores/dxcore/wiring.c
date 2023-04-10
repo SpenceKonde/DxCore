@@ -1377,39 +1377,47 @@ void __attribute__((weak)) init_millis()
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("init_millis() is only valid with millis time keeping enabled.");
   #else
-    #if defined(MILLIS_USE_TIMERA0)
-      TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
-    #elif defined(MILLIS_USE_TIMERA1)
-      TCA1.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
-    /*
-    #elif defined(MILLIS_USE_TIMERD0)
-      TCD0.CMPBCLR        = TIME_TRACKING_TIMER_PERIOD; // essentially, this is TOP
-      TCD0.CTRLB          = 0x00; // oneramp mode
-      TCD0.CTRLC          = 0x80;
-      TCD0.INTCTRL        = 0x01; // enable interrupt
-      TCD0.CTRLA          = TIMERD0_PRESCALER | 0x01; // set clock source and enable!
-    #elif defined(MILLIS_USE_TIMERRTC)
-      while(RTC.STATUS); // if RTC is currently busy, spin until it's not.
-      // to do: add support for RTC timer initialization
-      RTC.PER             = 0xFFFF;
-      #ifdef MILLIS_USE_TIMERRTC_XTAL
-        _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x03);
-        RTC.CLKSEL        = 2; // external crystal
-      #else
-        _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,0x02);
-        // RTC.CLKSEL=0; this is the power on value
+    #if !defined(TCA_MILLIS_LUNF)
+      #if defined(MILLIS_USE_TIMERA0)
+        TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
+      #elif defined(MILLIS_USE_TIMERA1)
+        TCA1.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
       #endif
-      RTC.INTCTRL         = 0x01; // enable overflow interrupt
-      RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
-    */
-    #else // It's a type b timer - we have already errored out if that wasn't defined
-      _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
-      // Enable timer interrupt, but clear the rest of register
-      _timer->INTCTRL = TCB_CAPT_bm;
-      // Clear timer mode (since it will have been set as PWM by init())
-      _timer->CTRLB = 0;
-      // CLK_PER/1 is 0b00, . CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
-      _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
+    #else
+      if defined(MILLIS_USE_TIMERA0)
+
+
+    #endif
+      /*
+      #elif defined(MILLIS_USE_TIMERD0)
+        TCD0.CMPBCLR        = TIME_TRACKING_TIMER_PERIOD; // essentially, this is TOP
+        TCD0.CTRLB          = 0x00; // oneramp mode
+        TCD0.CTRLC          = 0x80;
+        TCD0.INTCTRL        = 0x01; // enable interrupt
+        TCD0.CTRLA          = TIMERD0_PRESCALER | 0x01; // set clock source and enable!
+      #elif defined(MILLIS_USE_TIMERRTC)
+        while(RTC.STATUS); // if RTC is currently busy, spin until it's not.
+        // to do: add support for RTC timer initialization
+        RTC.PER             = 0xFFFF;
+        #ifdef MILLIS_USE_TIMERRTC_XTAL
+          _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x03);
+          RTC.CLKSEL        = 2; // external crystal
+        #else
+          _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,0x02);
+          // RTC.CLKSEL=0; this is the power on value
+        #endif
+        RTC.INTCTRL         = 0x01; // enable overflow interrupt
+        RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
+      */
+      #else // It's a type b timer - we have already errored out if that wasn't defined
+        _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
+        // Enable timer interrupt, but clear the rest of register
+        _timer->INTCTRL = TCB_CAPT_bm;
+        // Clear timer mode (since it will have been set as PWM by init())
+        _timer->CTRLB = 0;
+        // CLK_PER/1 is 0b00, . CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
+        _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
+      #endif
     #endif
   #endif
 }
@@ -1916,7 +1924,30 @@ void __attribute__((weak)) init_TCA0() {
 
 #if defined(TCA1)
 void __attribute__((weak)) init_TCA1() {
-
+  // Hmm.... This is how many instructions? Our competition is an init_TCAn(&TCA_t).
+  // That will cause it to be treated as a single function, whereas now, it's effectively inlined.
+  // That implementation would gain 2 (rarely 3) words due to the rcall (or call) and ret, and
+  // none for passing the constant arg (passing a constant is very efficient), assuming it has
+  // absolutely no runtime guard rails.
+  // On the other hand... this is only only 7 instructions long. (ldi sts ldi sts sts ldi sts)
+  // Now, four of those are 2 clock 2 word isns. So we have a total of 8 + 3 = 11 words.
+  // the combined function would spend 1 clock to movw the address to X, Y, or Z.
+  // and use indirect stores: ((in calling func: ldi ldi rcall) movw ldi std ldi std std ldi std ret)
+  // Counting all overhead, thats 12 isns, all single-word single-clock, possibly call used instead of rcall for
+  // 1 word penaty. We'll call it 13 worst case. This would be called twice under normal operation.
+  // 4 of those (including the 1 rcall or call - most of the time it will be rendered as rcall with
+  // the settings we compile with) Hence our worst class total cost to initializing both TCAs would be
+  // 18 clocks. The alternative naive method we currently use takes 11 words (since the functions,
+  // being called only once, will be inlined) per timer, so 22 for both. So 8 bytes of flash would be saved.
+  // Execution time however would be worse - 22 clocks for the current method compared to 28 with the call.
+  // So one could trade 6 clocks of time for 4 bytes of flash.
+  // Do you think that's worth the development effort? I don't. While nobody feels very strongly about
+  // a miniscule improvement in startup speed, the effect is tiny next to SUT and crystal start times such
+  // It's unlikely to matter to anyone. And, well. assuming program length is uniformly and randomly
+  // distributed, 4 bytes of flash matters to 0.1% of 4k applications (less with realistic distribution)
+  // 0.013% of applcations using 8k parts, 0.006% if those on 16k parts and 0.003% of those on 32k parts.
+  // I do consider it an overall net gain, but one of negligible magnitude.
+  // I don't think I'm doing that unless someone is paying me for it.
   /* Enable Split Mode */
   TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
 
@@ -1971,6 +2002,15 @@ void __attribute__((weak)) init_TCBs() {
   #if defined(TCB4_PINS)
                         | TCB4_PINS
   #endif
+  #if defined(TCB5_PINS)
+                        | TCB5_PINS
+  #endif
+  #if defined(TCB6_PINS)
+                        | TCB6_PINS
+  #endif
+  #if defined(TCB7_PINS)
+                        | TCB7_PINS
+  #endif
         ;
   // Start with TCB0 - we take advantage of the fact that we can get a pointer
   // to TCB0's struct, and increment it to go through all of them.
@@ -1979,7 +2019,13 @@ void __attribute__((weak)) init_TCBs() {
   // Find end timer - the highest numbered TCB that is not used for millis.
   // though if we do set up the millis timer because it's in the middle, that's
   // fine and there's no need to skip it.
-  #if   defined(TCB4)
+  #if defined(TCB7)
+    TCB_t *timer_B_end = (TCB_t *) &TCB7;
+  #elif defined(TCB6)
+    TCB_t *timer_B_end = (TCB_t *) &TCB6;
+  #elif defined(TCB5)
+    TCB_t *timer_B_end = (TCB_t *) &TCB5;
+  #elif defined(TCB4)
     TCB_t *timer_B_end = (TCB_t *) &TCB4;
   #elif defined(TCB3)
     TCB_t *timer_B_end = (TCB_t *) &TCB3;
@@ -2003,6 +2049,12 @@ void __attribute__((weak)) init_TCBs() {
       if(timer_B != (TCB_t *)&TCB3)
     #elif defined(MILLIS_USE_TIMERB4)
       if(timer_B != (TCB_t *)&TCB4)
+    #elif defined(MILLIS_USE_TIMERB5)
+      if(timer_B != (TCB_t *)&TCB5)
+    #elif defined(MILLIS_USE_TIMERB6)
+      if(timer_B != (TCB_t *)&TCB6)
+    #elif defined(MILLIS_USE_TIMERB7)
+      if(timer_B != (TCB_t *)&TCB7)
     #endif
     {
       // 8 bit PWM mode, but do not enable output yet, will do in analogWrite()

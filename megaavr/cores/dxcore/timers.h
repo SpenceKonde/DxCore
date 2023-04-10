@@ -95,7 +95,26 @@
   #ifndef TCB4
     #error "TCB4, selected for millis, does not exist on this part"
   #endif
+  #define MILLIS_TIMER TIMERB4
   #define MILLIS_VECTOR TCB4_INT_vect
+#elif defined(MILLIS_USE_TIMERB4)
+  #ifndef TCB4
+    #error "TCB4, selected for millis, does not exist on this part"
+  #endif
+  #define MILLIS_TIMER TIMERB5
+  #define MILLIS_VECTOR TCB4_INT_vect
+#elif defined(MILLIS_USE_TIMERB4)
+  #ifndef TCB4
+    #error "TCB4, selected for millis, does not exist on this part"
+  #endif
+  #define MILLIS_TIMER TIMERB6
+  #define MILLIS_VECTOR TCB4_INT_vect
+#elif defined(MILLIS_USE_TIMERB4)
+  #ifndef TCB4
+    #error "TCB4, selected for millis, does not exist on this part"
+  #endif
+  #define MILLIS_TIMER TIMERB7
+  #define MILLIS_VECTOR TCB7_INT_vect
 #elif defined(MILLIS_USE_TIMERD0)
   #ifndef TCD0
     #error "TCD0, selected for millis, does not exist on this part"

@@ -31,7 +31,7 @@ jtag2updi.communication=serial
 jtag2updi.protocol=jtag2updi
 jtag2updi.program.protocol=jtag2updi
 jtag2updi.program.tool=avrdude
-jtag2updi.program.extra_params=-P{serial.port}
+jtag2updi.program.extra_params=-P{serial.port} -b{program.speed}
 jtag2updi.program.speed=115200
 
 
