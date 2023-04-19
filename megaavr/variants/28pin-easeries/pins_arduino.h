@@ -221,8 +221,8 @@ Include guard and include basic libraries. We are normally including this inside
 #define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
 #define PIN_HWSERIAL2_TX                PIN_PF0
 #define PIN_HWSERIAL2_RX                PIN_PF1
-#define PIN_HWSERIAL2_XCK               PIN_PF2
-#define PIN_HWSERIAL2_XDIR              PIN_PF3
+#define PIN_HWSERIAL2_XCK               NOT_A_PIN
+#define PIN_HWSERIAL2_XDIR              NOT_A_PIN
 
 /*     ##  #   #  ##  #     ###   ###      ####  ### #   #  ###
       #  # ##  # #  # #    #   # #         #   #  #  ##  # #

@@ -12,9 +12,11 @@ These are typically planned for release in a future version (usually the next on
 ### Planned 1.5.7
 * Bugfix - Change clockCyclesToMicroseconds, microsecondsToClockCycles, and clockCyclesPerMicrosecond back into macros instead of inlinable functions, as some libraries depend on them being valid constexprs.
 * Bugfix - pinModeFast will now turn off pullups if they're on when a pin is set to output. otherwise, the result was problemaic for - for example, a situation I ran into where the pullup was never turned off even after the pins were set back to output and driven low. Prior to going to deep sleep. You can imagine what my battery life was like.
+* Bugfix (serious) - ensure that compilation will succeed on Optiboot DD-series devices.
+* Bugfix - Remove the Optimization Level menu - it caused too many problems that I didn't know how to solve (nothing with serial would compile if not set for -Os.
+* Bugfix - tinyNeoPixel timing issues at 20-32 MHz should be corrected now
 
-
-## Changes implemented but not yet in a released version
+## Releases
 ### 1.5.6
 * **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here.
 * **Critical Bugfix** - TCA PWM worked on some 32-pin parts but not others, and there appears to be a difference between the behavior of TCA0 on DB and DD devices - DD TCA0 overrides the PORT. DB TCAs do not. The datsheets say it should not override port direction, but the behavior has been moving away from that instead of towards that.

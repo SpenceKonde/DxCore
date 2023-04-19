@@ -95,7 +95,7 @@ menu.mvioopti=MultiVoltage I/O (MVIO) (Bootload burn req'd)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
-menu.optimization=Optimization level (see documentation)
+#menu.optimization=Optimization level (see documentation)
 
 ##########################################################################
 #                                                                        #
@@ -399,20 +399,20 @@ avrda.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-avrda.menu.optimization.size=-Os (size)
-avrda.menu.optimization.sizegcse=-Os (size, no GCSE)
-avrda.menu.optimization.o3=-O3 (speed)
-avrda.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-avrda.menu.optimization.size.build.optimizationlevel=-Os
-avrda.menu.optimization.sizegcse.build.optimizationlevel=-Os
-avrda.menu.optimization.o3.build.optimizationlevel=-O3
-avrda.menu.optimization.o3gcse.build.optimizationlevel=-O3
-avrda.menu.optimization.size.build.optabr=.Os
-avrda.menu.optimization.sizegcse.build.optabr=.Osng
-avrda.menu.optimization.o3.build.optabr=.O3
-avrda.menu.optimization.o3gcse.build.optabr=.O3ng
-avrda.menu.optimization.sizegcse.build.gcse=-fno-gcse
-avrda.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#avrda.menu.optimization.size=-Os (size)
+#avrda.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrda.menu.optimization.o3=-O3 (speed)
+#avrda.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrda.menu.optimization.size.build.optimizationlevel=-Os
+#avrda.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrda.menu.optimization.o3.build.optimizationlevel=-O3
+#avrda.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrda.menu.optimization.size.build.optabr=.Os
+#avrda.menu.optimization.sizegcse.build.optabr=.Osng
+#avrda.menu.optimization.o3.build.optabr=.O3
+#avrda.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrda.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrda.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -862,20 +862,20 @@ avrdb.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-avrdb.menu.optimization.size=-Os (size)
-avrdb.menu.optimization.sizegcse=-Os (size, no GCSE)
-avrdb.menu.optimization.o3=-O3 (speed)
-avrdb.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-avrdb.menu.optimization.size.build.optimizationlevel=-Os
-avrdb.menu.optimization.sizegcse.build.optimizationlevel=-Os
-avrdb.menu.optimization.o3.build.optimizationlevel=-O3
-avrdb.menu.optimization.o3gcse.build.optimizationlevel=-O3
-avrdb.menu.optimization.size.build.optabr=.Os
-avrdb.menu.optimization.sizegcse.build.optabr=.Osng
-avrdb.menu.optimization.o3.build.optabr=.O3
-avrdb.menu.optimization.o3gcse.build.optabr=.O3ng
-avrdb.menu.optimization.sizegcse.build.gcse=-fno-gcse
-avrdb.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#avrdb.menu.optimization.size=-Os (size)
+#avrdb.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrdb.menu.optimization.o3=-O3 (speed)
+#avrdb.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrdb.menu.optimization.size.build.optimizationlevel=-Os
+#avrdb.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrdb.menu.optimization.o3.build.optimizationlevel=-O3
+#avrdb.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrdb.menu.optimization.size.build.optabr=.Os
+#avrdb.menu.optimization.sizegcse.build.optabr=.Osng
+#avrdb.menu.optimization.o3.build.optabr=.O3
+#avrdb.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrdb.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrdb.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -1355,20 +1355,20 @@ avrdd.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-avrdd.menu.optimization.size=-Os (size)
-avrdd.menu.optimization.sizegcse=-Os (size, no GCSE)
-avrdd.menu.optimization.o3=-O3 (speed)
-avrdd.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-avrdd.menu.optimization.size.build.optimizationlevel=-Os
-avrdd.menu.optimization.sizegcse.build.optimizationlevel=-Os
-avrdd.menu.optimization.o3.build.optimizationlevel=-O3
-avrdd.menu.optimization.o3gcse.build.optimizationlevel=-O3
-avrdd.menu.optimization.size.build.optabr=.Os
-avrdd.menu.optimization.sizegcse.build.optabr=.Osng
-avrdd.menu.optimization.o3.build.optabr=.O3
-avrdd.menu.optimization.o3gcse.build.optabr=.O3ng
-avrdd.menu.optimization.sizegcse.build.gcse=-fno-gcse
-avrdd.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#avrdd.menu.optimization.size=-Os (size)
+#avrdd.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrdd.menu.optimization.o3=-O3 (speed)
+#avrdd.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrdd.menu.optimization.size.build.optimizationlevel=-Os
+#avrdd.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrdd.menu.optimization.o3.build.optimizationlevel=-O3
+#avrdd.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrdd.menu.optimization.size.build.optabr=.Os
+#avrdd.menu.optimization.sizegcse.build.optabr=.Osng
+#avrdd.menu.optimization.o3.build.optabr=.O3
+#avrdd.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrdd.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrdd.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 
 #----------------------------------------#
@@ -2249,20 +2249,20 @@ avrdaopti.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-avrdaopti.menu.optimization.size=-Os (size)
-avrdaopti.menu.optimization.sizegcse=-Os (size, no GCSE)
-avrdaopti.menu.optimization.o3=-O3 (speed)
-avrdaopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-avrdaopti.menu.optimization.size.build.optimizationlevel=-Os
-avrdaopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
-avrdaopti.menu.optimization.o3.build.optimizationlevel=-O3
-avrdaopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
-avrdaopti.menu.optimization.size.build.optabr=.Os
-avrdaopti.menu.optimization.sizegcse.build.optabr=.Osng
-avrdaopti.menu.optimization.o3.build.optabr=.O3
-avrdaopti.menu.optimization.o3gcse.build.optabr=.O3ng
-avrdaopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
-avrdaopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#avrdaopti.menu.optimization.size=-Os (size)
+#avrdaopti.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrdaopti.menu.optimization.o3=-O3 (speed)
+#avrdaopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrdaopti.menu.optimization.size.build.optimizationlevel=-Os
+#avrdaopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrdaopti.menu.optimization.o3.build.optimizationlevel=-O3
+#avrdaopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrdaopti.menu.optimization.size.build.optabr=.Os
+#avrdaopti.menu.optimization.sizegcse.build.optabr=.Osng
+#avrdaopti.menu.optimization.o3.build.optabr=.O3
+#avrdaopti.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrdaopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrdaopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -2751,20 +2751,20 @@ avrdbopti.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-avrdbopti.menu.optimization.size=-Os (size)
-avrdbopti.menu.optimization.sizegcse=-Os (size, no GCSE)
-avrdbopti.menu.optimization.o3=-O3 (speed)
-avrdbopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-avrdbopti.menu.optimization.size.build.optimizationlevel=-Os
-avrdbopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
-avrdbopti.menu.optimization.o3.build.optimizationlevel=-O3
-avrdbopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
-avrdbopti.menu.optimization.size.build.optabr=.Os
-avrdbopti.menu.optimization.sizegcse.build.optabr=.Osng
-avrdbopti.menu.optimization.o3.build.optabr=.O3
-avrdbopti.menu.optimization.o3gcse.build.optabr=.O3ng
-avrdbopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
-avrdbopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#avrdbopti.menu.optimization.size=-Os (size)
+#avrdbopti.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrdbopti.menu.optimization.o3=-O3 (speed)
+#avrdbopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrdbopti.menu.optimization.size.build.optimizationlevel=-Os
+#avrdbopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrdbopti.menu.optimization.o3.build.optimizationlevel=-O3
+#avrdbopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrdbopti.menu.optimization.size.build.optabr=.Os
+#avrdbopti.menu.optimization.sizegcse.build.optabr=.Osng
+#avrdbopti.menu.optimization.o3.build.optabr=.O3
+#avrdbopti.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrdbopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrdbopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
@@ -3304,20 +3304,20 @@ avrddopti.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-avrddopti.menu.optimization.size=-Os (size)
-avrddopti.menu.optimization.sizegcse=-Os (size, no GCSE)
-avrddopti.menu.optimization.o3=-O3 (speed)
-avrddopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-avrddopti.menu.optimization.size.build.optimizationlevel=-Os
-avrddopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
-avrddopti.menu.optimization.o3.build.optimizationlevel=-O3
-avrddopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
-avrddopti.menu.optimization.size.build.optabr=.Os
-avrddopti.menu.optimization.sizegcse.build.optabr=.Osng
-avrddopti.menu.optimization.o3.build.optabr=.O3
-avrddopti.menu.optimization.o3gcse.build.optabr=.O3ng
-avrddopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
-avrddopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#avrddopti.menu.optimization.size=-Os (size)
+#avrddopti.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrddopti.menu.optimization.o3=-O3 (speed)
+#avrddopti.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrddopti.menu.optimization.size.build.optimizationlevel=-Os
+#avrddopti.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrddopti.menu.optimization.o3.build.optimizationlevel=-O3
+#avrddopti.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrddopti.menu.optimization.size.build.optabr=.Os
+#avrddopti.menu.optimization.sizegcse.build.optabr=.Osng
+#avrddopti.menu.optimization.o3.build.optabr=.O3
+#avrddopti.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrddopti.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrddopti.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 
 #----------------------------------------#
@@ -3733,20 +3733,20 @@ azduinoboard.menu.printf.minimal.build.printfabr=.pfM
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
 #________________________________________#
-azduinoboard.menu.optimization.size=-Os (size)
-azduinoboard.menu.optimization.sizegcse=-Os (size, no GCSE)
-azduinoboard.menu.optimization.o3=-O3 (speed)
-azduinoboard.menu.optimization.o3gcse=-O3 (speed, no GCSE)
-azduinoboard.menu.optimization.size.build.optimizationlevel=-Os
-azduinoboard.menu.optimization.sizegcse.build.optimizationlevel=-Os
-azduinoboard.menu.optimization.o3.build.optimizationlevel=-O3
-azduinoboard.menu.optimization.o3gcse.build.optimizationlevel=-O3
-azduinoboard.menu.optimization.size.build.optabr=.Os
-azduinoboard.menu.optimization.sizegcse.build.optabr=.Osng
-azduinoboard.menu.optimization.o3.build.optabr=.O3
-azduinoboard.menu.optimization.o3gcse.build.optabr=.O3ng
-azduinoboard.menu.optimization.sizegcse.build.gcse=-fno-gcse
-azduinoboard.menu.optimization.o3gcse.build.gcse=-fno-gcse
+#azduinoboard.menu.optimization.size=-Os (size)
+#azduinoboard.menu.optimization.sizegcse=-Os (size, no GCSE)
+#azduinoboard.menu.optimization.o3=-O3 (speed)
+#azduinoboard.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#azduinoboard.menu.optimization.size.build.optimizationlevel=-Os
+#azduinoboard.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#azduinoboard.menu.optimization.o3.build.optimizationlevel=-O3
+#azduinoboard.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#azduinoboard.menu.optimization.size.build.optabr=.Os
+#azduinoboard.menu.optimization.sizegcse.build.optabr=.Osng
+#azduinoboard.menu.optimization.o3.build.optabr=.O3
+#azduinoboard.menu.optimization.o3gcse.build.optabr=.O3ng
+#azduinoboard.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#azduinoboard.menu.optimization.o3gcse.build.gcse=-fno-gcse
 
 #----------------------------------------#
 # attachInterrupt Mode                   #
