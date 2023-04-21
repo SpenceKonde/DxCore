@@ -794,7 +794,7 @@ void tinyNeoPixel::show(void) {
      "seconddelay24:"            "\n\t" //
       "rjmp .+0"                 "\n\t" // 2
       "rjmp .+0"                 "\n\t" // 2
-     "thirddelay24"
+     "thirddelay24:"             "\n\t"
       "nop"                      "\n\t" // 1
       "ret"                      "\n\t" // 4
      "nextbyte24:"               "\n\t" // last bit of a byte (T = 15)
