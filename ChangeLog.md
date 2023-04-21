@@ -15,6 +15,7 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix (serious) - ensure that compilation will succeed on Optiboot DD-series devices.
 * Bugfix - Remove the Optimization Level menu - it caused too many problems that I didn't know how to solve (nothing with serial would compile if not set for -Os.
 * Bugfix - tinyNeoPixel timing issues at 20-32 MHz should be corrected now
+* Fix issue when serial buffer is set to the maximum. #428
 
 ## Releases
 ### 1.5.6
