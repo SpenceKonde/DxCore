@@ -235,7 +235,7 @@ void init_timers();
       "std        Z+5,      r25"  "\n\t" //
       // timer_overflow_count handling (12 words / 16 clocks):
       "ldd        r25,      Z+6"  "\n\t" // lo16.lo8(timingStruct.timer_overflow_count)
-      "subi       r25,     0xFF"  "\n\t" //
+      "subi       r25,     0xFF"  "\n\ta type b timer - we have already err" //
       "std        Z+6,      r25"  "\n\t" //
       "ldd        r25,      Z+7"  "\n\t" // lo16.hi8(timingStruct.timer_overflow_count)
       "sbci       r25,     0xFF"  "\n\t" //
@@ -1377,17 +1377,20 @@ void __attribute__((weak)) init_millis()
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("init_millis() is only valid with millis time keeping enabled.");
   #else
-    #if !defined(TCA_MILLIS_LUNF)
-      #if defined(MILLIS_USE_TIMERA0)
-        TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
-      #elif defined(MILLIS_USE_TIMERA1)
-        TCA1.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
+    #if defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1)
+      #if !defined(TCA_MILLIS_LUNF)
+        #if defined(MILLIS_USE_TIMERA0)
+          TCA0.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
+        #else
+          TCA1.SPLIT.INTCTRL |= TCA_SPLIT_HUNF_bm;
+        #endif
+      #else
+        #if defined(MILLIS_USE_TIMERA0)
+          TCA0.SPLIT.INTCTRL |= TCA_SPLIT_LUNF_bm;
+        #else
+          TCA1.SPLIT.INTCTRL |= TCA_SPLIT_LUNF_bm;
+        #endif
       #endif
-    #else
-      if defined(MILLIS_USE_TIMERA0)
-
-
-    #endif
       /*
       #elif defined(MILLIS_USE_TIMERD0)
         TCD0.CMPBCLR        = TIME_TRACKING_TIMER_PERIOD; // essentially, this is TOP
@@ -1409,15 +1412,14 @@ void __attribute__((weak)) init_millis()
         RTC.INTCTRL         = 0x01; // enable overflow interrupt
         RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
       */
-      #else // It's a type b timer - we have already errored out if that wasn't defined
-        _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
-        // Enable timer interrupt, but clear the rest of register
-        _timer->INTCTRL = TCB_CAPT_bm;
-        // Clear timer mode (since it will have been set as PWM by init())
-        _timer->CTRLB = 0;
-        // CLK_PER/1 is 0b00, . CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
-        _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
-      #endif
+    #else // It's a type b timer - we have already errored out if that wasn't defined
+      _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
+      // Enable timer interrupt, but clear the rest of register
+      _timer->INTCTRL = TCB_CAPT_bm;
+      // Clear timer mode (since it will have been set as PWM by init())
+      _timer->CTRLB = 0;
+      // CLK_PER/1 is 0b00, . CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
+      _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
     #endif
   #endif
 }
