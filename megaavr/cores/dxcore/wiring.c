@@ -235,7 +235,7 @@ void init_timers();
       "std        Z+5,      r25"  "\n\t" //
       // timer_overflow_count handling (12 words / 16 clocks):
       "ldd        r25,      Z+6"  "\n\t" // lo16.lo8(timingStruct.timer_overflow_count)
-      "subi       r25,     0xFF"  "\n\ta type b timer - we have already err" //
+      "subi       r25,     0xFF"  "\n\t" //
       "std        Z+6,      r25"  "\n\t" //
       "ldd        r25,      Z+7"  "\n\t" // lo16.hi8(timingStruct.timer_overflow_count)
       "sbci       r25,     0xFF"  "\n\t" //
