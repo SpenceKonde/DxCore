@@ -219,7 +219,7 @@ void tinyNeoPixel::show(void) {
     // and if you were to crank it back to 4 MHz, well... it might actually still just barely work.
     // The ones would be way longser
 
-    // 7 instruction clocks per bit: HxxxxLL
+    // 7 instruction clocks per bit: HxxxxLL       H:1 x:4 L:2
     // OUT instructions:             ^^   ^  (T=0,2,5)
     // 200 ns zero bit - barely legal.
     // 800 ns  highs    - legal.
@@ -322,7 +322,7 @@ void tinyNeoPixel::show(void) {
     // We need to be able to write to the port register in one clock
     // to meet timing constraints here.
 
-    // 8 instruction clocks per bit: HHxxxLLL
+    // 8 instruction clocks per bit: HHxxxLLL      H:2 x:3 L3
     // OUT instructions:             ^ ^  ^  (T=0,2,5)
     // 333 ns zero bit - definitely legal.
     // 833 ns highs    - legal.
@@ -575,7 +575,6 @@ void tinyNeoPixel::show(void) {
        "sbrc %[byte], 7"        "\n\t" // 1-2  if (b & 0x80)    (T =  8)
         "mov %[next], %[hi]"    "\n\t" // 0-1   next = hi      (T =  9)
        "st   %a[port], %[lo]"   "\n\t" // 1    PORT = lo       (T = 10)
-       "ret"                    "\n\t" // 4    nop nop nop nop (T = 14)
        "doneD:"                 "\n"
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
@@ -594,7 +593,7 @@ void tinyNeoPixel::show(void) {
     // between bytes) requires a PORT-specific loop similar to the 8 MHz
     // code (but a little more relaxed in this case).
 
-    // 15 instruction clocks per bit: HHHHxxxxxxLLLLL
+    // 15 instruction clocks per bit: HHHHxxxxxxLLLLL      H:4 x:6 L5
     // OUT instructions:              ^   ^     ^     (T=0,4,10)
 
     volatile uint8_t next;
@@ -645,7 +644,6 @@ void tinyNeoPixel::show(void) {
         "mov %[next], %[hi]"    "\n\t" // 0-1   next = hi      (T =  9)
        "nop"                    "\n\t" // 1                    (T = 10)
        "st   %a[port], %[lo]"   "\n\t" // 1    PORT = lo       (T = 11)
-       "ret"                    "\n\t" // 4    nop nop nop nop (T = 15)
        "doneD:"                 "\n"
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
@@ -662,7 +660,7 @@ void tinyNeoPixel::show(void) {
     // WS2811 and WS2812 have different hi/lo duty cycles; this is
     // similar but NOT an exact copy of the prior 400-on-8 code.
 
-    // 20 inst. clocks per bit: HHHHHxxxxxxxxLLLLLLL
+    // 20 inst. clocks per bit: HHHHHxxxxxxxxLLLLLLL      H:5 x:8 L7
     // ST instructions:         ^    ^       ^       (T=0,5,13)
 
     volatile uint8_t next, bit;
@@ -710,7 +708,7 @@ void tinyNeoPixel::show(void) {
 #elif (F_CPU >= 19000000UL) && (F_CPU <= 22000000L)
 
 
-    // 25 inst. clocks per bit: HHHHHHHxxxxxxxLLLLLLLLLLL
+    // 25 inst. clocks per bit: HHHHHHHxxxxxxxLLLLLLLLLLL      H:7 x:7 L11
     // ST instructions:         ^      ^      ^       (T=0,7,14)
 
     volatile uint8_t next, bit;
@@ -764,7 +762,7 @@ void tinyNeoPixel::show(void) {
 #elif (F_CPU >= 22000000UL) && (F_CPU <= 26000000L)
 
 
-    // 30 inst. clocks per bit: HHHHHHHHxxxxxxxxLLLLLLLLLLLLLL
+    // 30 inst. clocks per bit: HHHHHHHHxxxxxxxxLLLLLLLLLLLLLL H:8 x:8 L14
     // ST instructions:         ^       ^       ^  (T=0,8,16)
 
     volatile uint8_t next, bit;
@@ -773,6 +771,7 @@ void tinyNeoPixel::show(void) {
     lo   = *port & ~pinMask;
     next = lo;
     bit  = 8;
+
 
 
     asm volatile(
@@ -820,7 +819,7 @@ void tinyNeoPixel::show(void) {
 #elif (F_CPU >= 26000000UL) && (F_CPU <= 30000000L)
 
 
-    // 35 inst. clocks per bit: HHHHHHHHHxxxxxxxxxxxLLLLLLLLLLLLLLL
+    // 35 inst. clocks per bit: HHHHHHHHHxxxxxxxxxxxLLLLLLLLLLLLLLL - H:8 x:9 L15
     // ST instructions:         ^        ^          ^       (T=0,9,20)
 
     volatile uint8_t next, bit;
@@ -1096,6 +1095,7 @@ void tinyNeoPixel::show(void) {
   #else
     #error "CPU SPEED NOT SUPPORTED"
   #endif
+
 
 
   interrupts();

@@ -731,6 +731,7 @@ void tinyNeoPixel::show(void) {
     bit  = 8;
 
 
+
     asm volatile(
      "head24:"                   "\n\t" // Clk  Pseudocode    (T =  0)
       "st   %a[port],  %[hi]"    "\n\t" // 1    PORT = hi     (T =  1)
@@ -1052,6 +1053,7 @@ void tinyNeoPixel::show(void) {
   #else
     #error "CPU SPEED NOT SUPPORTED"
   #endif
+
   // END AVR ----------------------------------------------------------------
 
   interrupts();

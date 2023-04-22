@@ -74,6 +74,25 @@ void loop() {/* empty loop */}
 ```
 This compiles to 2204 bytes and reports 39 bytes of RAM used as well (actually uses 339).
 
+## Requirements
+Clock speed must be one of these speeds, plus or minus a few percent.
+| F_CPU | Classic | Modern |
+|-------|---------|--------|
+| 4 MHz |      No |    Yes |
+| 5 MHz |      No |    Yes |
+| 6.4MHz|         |    Yes |
+| 8 MHz |     Yes |    Yes |
+|10 MHz |     Yes |    Yes |
+|12 MHz |     Yes |    Yes |
+|14 MHz |     Yes |    No  |
+|16 MHz |     Yes |    Yes |
+|20 MHz |     Yes |    Yes |
+|24 MHz |      No |    Yes |
+|28 MHz |      No |    Yes |
+|32 MHz |      No |    Yes |
+|40 MHz |      No |    Yes |
+|48 MHz |      No |    Yes |
+
 ## API Summary
 
 `begin()` Enable the LEDs, on tinyNeoPixel, must be called before show() - not applicable for tinyNeoPixel_Static.
