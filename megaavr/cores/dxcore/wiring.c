@@ -1935,7 +1935,7 @@ void __attribute__((weak)) init_TCA1() {
   // Now, four of those are 2 clock 2 word isns. So we have a total of 8 + 3 = 11 words.
   // the combined function would spend 1 clock to movw the address to X, Y, or Z.
   // and use indirect stores: ((in calling func: ldi ldi rcall) movw ldi std ldi std std ldi std ret)
-  // Counting all overhead, thats 12 isns, all single-word single-clock, possibly call used instead of rcall for
+  // Counting all overhead, that's 12 isns, all single-word single-clock, possibly call used instead of rcall for
   // 1 word penaty. We'll call it 13 worst case. This would be called twice under normal operation.
   // 4 of those (including the 1 rcall or call - most of the time it will be rendered as rcall with
   // the settings we compile with) Hence our worst class total cost to initializing both TCAs would be
@@ -1944,10 +1944,10 @@ void __attribute__((weak)) init_TCA1() {
   // Execution time however would be worse - 22 clocks for the current method compared to 28 with the call.
   // So one could trade 6 clocks of time for 4 bytes of flash.
   // Do you think that's worth the development effort? I don't. While nobody feels very strongly about
-  // a miniscule improvement in startup speed, the effect is tiny next to SUT and crystal start times such
+  // a minuscule improvement in startup speed, the effect is tiny next to SUT and crystal start times such
   // It's unlikely to matter to anyone. And, well. assuming program length is uniformly and randomly
   // distributed, 4 bytes of flash matters to 0.1% of 4k applications (less with realistic distribution)
-  // 0.013% of applcations using 8k parts, 0.006% if those on 16k parts and 0.003% of those on 32k parts.
+  // 0.013% of applications using 8k parts, 0.006% if those on 16k parts and 0.003% of those on 32k parts.
   // I do consider it an overall net gain, but one of negligible magnitude.
   // I don't think I'm doing that unless someone is paying me for it.
   /* Enable Split Mode */
