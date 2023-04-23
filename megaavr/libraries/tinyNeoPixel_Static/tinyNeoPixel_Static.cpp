@@ -696,7 +696,7 @@ void tinyNeoPixel::show(void) {
      "onlydelay20:"              "\n\t" //
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 13)
       "nop"                      "\n\t" // 1    nop           (T = )
-      "ret"
+      "ret"                      "\n\t"
      "nextbyte20:"               "\n\t" //                    (T = 11)
       "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 12)
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 14)
