@@ -238,71 +238,71 @@ void tinyNeoPixel::show(void) {
     // relative branch.
 
     asm volatile(
-     "headD:"                   "\n\t" // Clk  Pseudocode
+     "_head5:"                    "\n\t" // Clk  Pseudocode
       // Bit 7:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "sbrc %[byte] , 6"        "\n\t" // 1-2  if (b & 0x40)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "nop"                     "\n\t" // 1    nop total 7 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "sbrc %[byte] , 6"          "\n\t" // 1-2  if (b & 0x40)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "nop"                       "\n\t" // 1    nop total 7 clocks
       // Bit 6:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "sbrc %[byte] , 5"        "\n\t" // 1-2  if (b & 0x20)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "nop"                     "\n\t" // 1    nop total 7 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "sbrc %[byte] , 5"          "\n\t" // 1-2  if (b & 0x20)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "nop"                       "\n\t" // 1    nop total 7 clocks
       // Bit 5:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "sbrc %[byte] , 4"        "\n\t" // 1-2  if (b & 0x10)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "nop"                     "\n\t" // 1    nop total 7 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "sbrc %[byte] , 4"          "\n\t" // 1-2  if (b & 0x10)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "nop"                       "\n\t" // 1    nop total 7 clocks
       // Bit 4:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "sbrc %[byte] , 3"        "\n\t" // 1-2  if (b & 0x08)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "nop"                     "\n\t" // 1    nop total 7 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "sbrc %[byte] , 3"          "\n\t" // 1-2  if (b & 0x08)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "nop"                       "\n\t" // 1    nop total 7 clocks
       // Bit 3:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "sbrc %[byte] , 2"        "\n\t" // 1-2  if (b & 0x04)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "subi %A[count], 1"       "\n\t" // 1    Replacing sbiw pt 1 total 7 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "sbrc %[byte] , 2"          "\n\t" // 1-2  if (b & 0x04)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "subi %A[count], 1"         "\n\t" // 1    Replacing sbiw pt 1 total 7 clocks
       // Bit 2, 1 clock over:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "sbrc %[byte] , 1"        "\n\t" // 1-2  if (b & 0x02)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "sbc  %B[count], r1"      "\n\t" // 2    Replacing sbiw pt 2 - total 7 clocks  clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "sbrc %[byte] , 1"          "\n\t" // 1-2  if (b & 0x02)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "sbc  %B[count], r1"        "\n\t" // 2    Replacing sbiw pt 2 - total 7 clocks  clocks
       // Bit 1, 1 clock over:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "sbrc %[byte] , 0"        "\n\t" // 1-2  if (b & 0x01)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "ld   %[byte] , %a[ptr]+" "\n\t" // 2    b = *ptr++  total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "sbrc %[byte] , 0"          "\n\t" // 1-2  if (b & 0x01)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "ld   %[byte] , %a[ptr]+"   "\n\t" // 2    b = *ptr++  total 8 clocks
       // Bit 0, 1 ckicj over:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "sbrc %[byte] , 7"        "\n\t" // 1-2  if (b & 0x80)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "brne headD"              "\n"   // 2    while(i) (Z flag set above) total 8 clocks.
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "sbrc %[byte] , 7"          "\n\t" // 1-2  if (b & 0x80)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "brne _head5"               "\n"   // 2    while(i) (Z flag set above) total 8 clocks.
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [n1]    "+r" (n1),
@@ -341,71 +341,71 @@ void tinyNeoPixel::show(void) {
     // relative branch.
 
     asm volatile(
-     "headD:"                   "\n\t" // Clk  Pseudocode
+     "_head6dot4:"                "\n\t" // Clk  Pseudocode
       // Bit 7:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "sbrc %[byte] , 6"        "\n\t" // 1-2  if (b & 0x40)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "sbrc %[byte] , 6"          "\n\t" // 1-2  if (b & 0x40)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop total 8 clocks
       // Bit 6:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "sbrc %[byte] , 5"        "\n\t" // 1-2  if (b & 0x20)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "sbrc %[byte] , 5"          "\n\t" // 1-2  if (b & 0x20)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop total 8 clocks
       // Bit 5:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "sbrc %[byte] , 4"        "\n\t" // 1-2  if (b & 0x10)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "sbrc %[byte] , 4"          "\n\t" // 1-2  if (b & 0x10)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop total 8 clocks
       // Bit 4:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "sbrc %[byte] , 3"        "\n\t" // 1-2  if (b & 0x08)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "sbrc %[byte] , 3"          "\n\t" // 1-2  if (b & 0x08)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop total 8 clocks
       // Bit 3:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "sbrc %[byte] , 2"        "\n\t" // 1-2  if (b & 0x04)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "sbrc %[byte] , 2"          "\n\t" // 1-2  if (b & 0x04)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop total 8 clocks
       // Bit 2:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "sbrc %[byte] , 1"        "\n\t" // 1-2  if (b & 0x02)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "sbiw %[count], 1"        "\n\t" // 2    i-- (don't act on Z flag yet) total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "sbrc %[byte] , 1"          "\n\t" // 1-2  if (b & 0x02)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "sbiw %[count], 1"          "\n\t" // 2    i-- (don't act on Z flag yet) total 8 clocks
       // Bit 1:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "sbrc %[byte] , 0"        "\n\t" // 1-2  if (b & 0x01)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "ld   %[byte] , %a[ptr]+" "\n\t" // 2    b = *ptr++  total 8 clocks
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "sbrc %[byte] , 0"          "\n\t" // 1-2  if (b & 0x01)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "ld   %[byte] , %a[ptr]+"   "\n\t" // 2    b = *ptr++  total 8 clocks
       // Bit 0:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "sbrc %[byte] , 7"        "\n\t" // 1-2  if (b & 0x80)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "brne headD"              "\n"   // 2    while(i) (Z flag set above)
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "sbrc %[byte] , 7"          "\n\t" // 1-2  if (b & 0x80)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "brne _head6dot4"              "\n"   // 2    while(i) (Z flag set above)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [n1]    "+r" (n1),
@@ -440,79 +440,79 @@ void tinyNeoPixel::show(void) {
     // relative branch.
 
     asm volatile(
-     "headD:"                   "\n\t" // Clk  Pseudocode
+     "_head8:"                    "\n\t" // Clk  Pseudocode
       // Bit 7:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 6"        "\n\t" // 1-2  if (b & 0x40)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 6"          "\n\t" // 1-2  if (b & 0x40)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop
       // Bit 6:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 5"        "\n\t" // 1-2  if (b & 0x20)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 5"          "\n\t" // 1-2  if (b & 0x20)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop
       // Bit 5:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 4"        "\n\t" // 1-2  if (b & 0x10)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 4"          "\n\t" // 1-2  if (b & 0x10)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop
       // Bit 4:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 3"        "\n\t" // 1-2  if (b & 0x08)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 3"          "\n\t" // 1-2  if (b & 0x08)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop
       // Bit 3:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 2"        "\n\t" // 1-2  if (b & 0x04)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 2"          "\n\t" // 1-2  if (b & 0x04)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop
       // Bit 2:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 1"        "\n\t" // 1-2  if (b & 0x02)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "rjmp .+0"                "\n\t" // 2    nop nop
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 1"          "\n\t" // 1-2  if (b & 0x02)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "rjmp .+0"                  "\n\t" // 2    nop nop
       // Bit 1:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n2]   , %[lo]"    "\n\t" // 1    n2   = lo
-      "st   %a[port], %[n1]"    "\n\t" // 1    PORT = n1
-      "rjmp .+0"                "\n\t" // 2    nop nop
-      "sbrc %[byte] , 0"        "\n\t" // 1-2  if (b & 0x01)
-       "mov %[n2]   , %[hi]"    "\n\t" // 0-1   n2 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "sbiw %[count], 1"        "\n\t" // 2    i-- (don't act on Z flag yet)
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n2]   , %[lo]"      "\n\t" // 1    n2   = lo
+      "st   %a[port], %[n1]"      "\n\t" // 1    PORT = n1
+      "rjmp .+0"                  "\n\t" // 2    nop nop
+      "sbrc %[byte] , 0"          "\n\t" // 1-2  if (b & 0x01)
+       "mov %[n2]   , %[hi]"      "\n\t" // 0-1   n2 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "sbiw %[count], 1"          "\n\t" // 2    i-- (don't act on Z flag yet)
       // Bit 0:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi
-      "mov  %[n1]   , %[lo]"    "\n\t" // 1    n1   = lo
-      "st   %a[port], %[n2]"    "\n\t" // 1    PORT = n2
-      "ld   %[byte] , %a[ptr]+" "\n\t" // 2    b = *ptr++
-      "sbrc %[byte] , 7"        "\n\t" // 1-2  if (b & 0x80)
-       "mov %[n1]   , %[hi]"    "\n\t" // 0-1   n1 = hi
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo
-      "brne headD"              "\n"   // 2    while(i) (Z flag set above)
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi
+      "mov  %[n1]   , %[lo]"      "\n\t" // 1    n1   = lo
+      "st   %a[port], %[n2]"      "\n\t" // 1    PORT = n2
+      "ld   %[byte] , %a[ptr]+"   "\n\t" // 2    b = *ptr++
+      "sbrc %[byte] , 7"          "\n\t" // 1-2  if (b & 0x80)
+       "mov %[n1]   , %[hi]"      "\n\t" // 0-1   n1 = hi
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo
+      "brne _head8"               "\n"   // 2    while(i) (Z flag set above)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [n1]    "+r" (n1),
@@ -541,41 +541,41 @@ void tinyNeoPixel::show(void) {
     // Don't "optimize" the OUT calls into the bitTime subroutine;
     // we're exploiting the RCALL and RET as 3- and 4-cycle NOPs!
     asm volatile(
-     "headD:"                   "\n\t" //        (T =  0)
-      "st   %a[port], %[hi]"    "\n\t" //        (T =  1)
-      "rcall bitTimeD"          "\n\t" // Bit 7  (T = 14)
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 6
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 5
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 4
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 3
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 2
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 1
+     "_head10:"                   "\n\t" //        (T =  0)
+      "st   %a[port], %[hi]"      "\n\t" //        (T =  1)
+      "rcall _bitTime10"          "\n\t" // Bit 7  (T = 14)
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime10"          "\n\t" // Bit 6
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime10"          "\n\t" // Bit 5
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime10"          "\n\t" // Bit 4
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime10"          "\n\t" // Bit 3
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime10"          "\n\t" // Bit 2
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime10"          "\n\t" // Bit 1
       // Bit 0:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi    (T =  1)
-      "rjmp .+0"                "\n\t" // 2    nop nop      (T =  3)
-      "ld   %[byte] , %a[ptr]+" "\n\t" // 2    b = *ptr++   (T =  5)
-      "st   %a[port], %[next]"  "\n\t" // 1    PORT = next  (T =  6)
-      "mov  %[next] , %[lo]"    "\n\t" // 1    next = lo    (T =  7)
-      "sbrc %[byte] , 7"        "\n\t" // 1-2  if (b & 0x80) (T =  8)
-       "mov %[next] , %[hi]"    "\n\t" // 0-1    next = hi  (T =  9)
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo    (T = 10)
-      "sbiw %[count], 1"        "\n\t" // 2    i--          (T = 12)
-      "brne headD"              "\n\t" // 2    if (i != 0) -> (next byte) (T = 14)
-       "rjmp doneD"             "\n\t"
-      "bitTimeD:"               "\n\t" //      nop nop nop     (T =  4)
-       "st   %a[port], %[next]" "\n\t" // 1    PORT = next     (T =  5)
-       "mov  %[next], %[lo]"    "\n\t" // 1    next = lo       (T =  6)
-       "rol  %[byte]"           "\n\t" // 1    b <<= 1         (T =  7)
-       "sbrc %[byte], 7"        "\n\t" // 1-2  if (b & 0x80)    (T =  8)
-        "mov %[next], %[hi]"    "\n\t" // 0-1   next = hi      (T =  9)
-       "st   %a[port], %[lo]"   "\n\t" // 1    PORT = lo       (T = 10)
-       "doneD:"                 "\n"
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi    (T =  1)
+      "rjmp .+0"                  "\n\t" // 2    nop nop      (T =  3)
+      "ld   %[byte] , %a[ptr]+"   "\n\t" // 2    b = *ptr++   (T =  5)
+      "st   %a[port], %[next]"    "\n\t" // 1    PORT = next  (T =  6)
+      "mov  %[next] , %[lo]"      "\n\t" // 1    next = lo    (T =  7)
+      "sbrc %[byte] , 7"          "\n\t" // 1-2  if (b & 0x80) (T =  8)
+       "mov %[next] , %[hi]"      "\n\t" // 0-1    next = hi  (T =  9)
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo    (T = 10)
+      "sbiw %[count], 1"          "\n\t" // 2    i--          (T = 12)
+      "brne _head10"              "\n\t" // 2    if (i != 0) -> (next byte) (T = 14)
+       "rjmp _done10"             "\n\t"
+      "_bitTime10:"               "\n\t" //      nop nop nop     (T =  4)
+       "st   %a[port], %[next]"   "\n\t" // 1    PORT = next     (T =  5)
+       "mov  %[next], %[lo]"      "\n\t" // 1    next = lo       (T =  6)
+       "rol  %[byte]"             "\n\t" // 1    b <<= 1         (T =  7)
+       "sbrc %[byte], 7"          "\n\t" // 1-2  if (b & 0x80)    (T =  8)
+        "mov %[next], %[hi]"      "\n\t" // 0-1   next = hi      (T =  9)
+       "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo       (T = 10)
+       "_done10:"                 "\n"
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [next]  "+r" (next),
@@ -608,43 +608,43 @@ void tinyNeoPixel::show(void) {
       // Don't "optimize" the OUT calls into the bitTime subroutine;
       // we're exploiting the RCALL and RET as 3- and 4-cycle NOPs!
     asm volatile(
-     "headD:"                   "\n\t" //        (T =  0)
-      "st   %a[port], %[hi]"    "\n\t" //        (T =  1)
-      "rcall bitTimeD"          "\n\t" // Bit 7  (T = 15)
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 6
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 5
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 4
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 3
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 2
-      "st   %a[port], %[hi]"    "\n\t"
-      "rcall bitTimeD"          "\n\t" // Bit 1
+     "_head12:"                   "\n\t" //        (T =  0)
+      "st   %a[port], %[hi]"      "\n\t" //        (T =  1)
+      "rcall _bitTime12"          "\n\t" // Bit 7  (T = 15)
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime12"          "\n\t" // Bit 6
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime12"          "\n\t" // Bit 5
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime12"          "\n\t" // Bit 4
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime12"          "\n\t" // Bit 3
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime12"          "\n\t" // Bit 2
+      "st   %a[port], %[hi]"      "\n\t"
+      "rcall _bitTime12"          "\n\t" // Bit 1
       // Bit 0:
-      "st   %a[port], %[hi]"    "\n\t" // 1    PORT = hi    (T =  1)
-      "rjmp .+0"                "\n\t" // 2    nop nop      (T =  3)
-      "ld   %[byte] , %a[ptr]+" "\n\t" // 2    b = *ptr++   (T =  5)
-      "st   %a[port], %[next]"  "\n\t" // 1    PORT = next  (T =  6)
-      "mov  %[next] , %[lo]"    "\n\t" // 1    next = lo    (T =  7)
-      "sbrc %[byte] , 7"        "\n\t" // 1-2  if (b & 0x80) (T =  8)
-       "mov %[next] , %[hi]"    "\n\t" // 0-1    next = hi  (T =  9)
-      "nop"                     "\n\t" // 1                 (T = 10)
-      "st   %a[port], %[lo]"    "\n\t" // 1    PORT = lo    (T = 11)
-      "sbiw %[count], 1"        "\n\t" // 2    i--          (T = 13)
-      "brne headD"              "\n\t" // 2    if (i != 0) -> (next byte)
-       "rjmp doneD"             "\n\t"
-      "bitTimeD:"               "\n\t" //      nop nop nop     (T =  4)
-       "st   %a[port], %[next]" "\n\t" // 1    PORT = next     (T =  5)
-       "mov  %[next], %[lo]"    "\n\t" // 1    next = lo       (T =  6)
-       "rol  %[byte]"           "\n\t" // 1    b <<= 1         (T =  7)
-       "sbrc %[byte], 7"        "\n\t" // 1-2  if (b & 0x80)    (T =  8)
-        "mov %[next], %[hi]"    "\n\t" // 0-1   next = hi      (T =  9)
-       "nop"                    "\n\t" // 1                    (T = 10)
-       "st   %a[port], %[lo]"   "\n\t" // 1    PORT = lo       (T = 11)
-       "doneD:"                 "\n"
+      "st   %a[port], %[hi]"      "\n\t" // 1    PORT = hi    (T =  1)
+      "rjmp .+0"                  "\n\t" // 2    nop nop      (T =  3)
+      "ld   %[byte] , %a[ptr]+"   "\n\t" // 2    b = *ptr++   (T =  5)
+      "st   %a[port], %[next]"    "\n\t" // 1    PORT = next  (T =  6)
+      "mov  %[next] , %[lo]"      "\n\t" // 1    next = lo    (T =  7)
+      "sbrc %[byte] , 7"          "\n\t" // 1-2  if (b & 0x80) (T =  8)
+       "mov %[next] , %[hi]"      "\n\t" // 0-1    next = hi  (T =  9)
+      "nop"                       "\n\t" // 1                 (T = 10)
+      "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo    (T = 11)
+      "sbiw %[count], 1"          "\n\t" // 2    i--          (T = 13)
+      "brne _head12"              "\n\t" // 2    if (i != 0) -> (next byte)
+       "rjmp _done12"             "\n\t"
+      "_bitTime12:"               "\n\t" //      nop nop nop     (T =  4)
+       "st   %a[port], %[next]"   "\n\t" // 1    PORT = next     (T =  5)
+       "mov  %[next], %[lo]"      "\n\t" // 1    next = lo       (T =  6)
+       "rol  %[byte]"             "\n\t" // 1    b <<= 1         (T =  7)
+       "sbrc %[byte], 7"          "\n\t" // 1-2  if (b & 0x80)    (T =  8)
+        "mov %[next], %[hi]"      "\n\t" // 0-1   next = hi      (T =  9)
+       "nop"                      "\n\t" // 1                    (T = 10)
+       "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo       (T = 11)
+       "_done12:"                 "\n"
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [next]  "+r" (next),
@@ -1101,7 +1101,7 @@ void tinyNeoPixel::show(void) {
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     endTime = micros();
     // Save EOD time for latch on next call
-    #pragma message("micros() present. This library assumes the cannonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
+    #pragma message("micros() present. This library assumes the canonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
   #else
     #warning "micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation."
   #endif
