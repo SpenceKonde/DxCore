@@ -733,12 +733,11 @@ void tinyNeoPixel::show(void) {
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 13)
       "nop"                      "\n\t" // 1    nop           (T = 14)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 15)
-      "rcall onlydelay20"        "\n\t" // 2+4+3 = 7          (T = 21)
-      "rjmp head20"              "\n\t" // 2    -> head20 (next bit out)
-     "onlydelay20:"              "\n\t" //
-      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 13)
-      "nop"                      "\n\t" // 1    nop           (T = )
-      "ret"
+      "rcall onlydelay20"        "\n\t" // 2+4+2 = 7          (T = 23)
+      "rjmp head20"              "\n\t" // 2    -> head20 (next bit out T = 25)
+     "onlydelay20:"              "\n\t" // 2    rcall         (T = n+2)
+      "rjmp .+0"                 "\n\t" // 2    nop nop       (T = n+4)
+      "ret"                      "\n\t" // 4    4x nop        (T = n+8)
      "nextbyte20:"               "\n\t" //                    (T = 11)
       "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 12)
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 14)
@@ -1102,6 +1101,7 @@ void tinyNeoPixel::show(void) {
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     endTime = micros();
     // Save EOD time for latch on next call
+    #pragma message("micros() present. This library assumes the cannonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
   #else
     #warning "micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation."
   #endif
