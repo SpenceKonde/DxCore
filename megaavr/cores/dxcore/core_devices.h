@@ -19,13 +19,13 @@
  * mapped to the data address space, while 102 and 104 only have a 32k chunk of it mapped.
  * 102's have 2 sections, 104's have 4 sections.
  */
-#if (__AVR_ARCH__ == 104)
+#if (PROGMEM_SIZE > 65536)
   #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION3")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
   #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION3")))
-#elif (__AVR_ARCH__ == 102)
+#elif (PROGMEM_SIZE > 49152)
   #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
@@ -93,8 +93,8 @@
 #define ID_AVR32EB      (0xF0)
 #define ID_AVR16EB      (0xE0)
 #define ID_AVR8EB       (0xD0)
-// We could cover an 8 pin part! Or a 100-pin one. Neither seems likely - but if you told me there would be a 14-pin Dx-series the day before the DD brief was posted, I'd have laughed at the idea.
-// That's tinyAVR territory. Or it was.
+// We could cover an 8 pin part! Or a 100-pin one. Neither seems likely - but if you told me there would be a 14-pin Dx-series the day before the DD brief was
+// posted, I'd have laughed at the idea. That's tinyAVR territory. Or it was.
 #define ID_14_PINS      (0x01)
 #define ID_20_PINS      (0x02)
 #define ID_24_PINS      (0x03)
@@ -102,11 +102,12 @@
 #define ID_32_PINS      (0x05)
 #define ID_48_PINS      (0x06)
 #define ID_64_PINS      (0x07)
+//#define ID_100_PINS   (0x00) // more likely than 8 I think. Sooner or later they need a migration path for people stuck on m2560's
 
 #define ID_AVR_DA       (0x00)
 #define ID_AVR_DB       (0x08)
 #define ID_AVR_DD       (0x40)
-/*      ID_AVR_??       (0x48) */ // This was earmarked for the DU, but with the brief having vanished many moons ago, it's fate is now in question.
+#define ID_AVR_DU       (0x48)
 /*      ID_AVR_??       (0x80) */ // The question I want to know the answer to is... "Will anyone point out what unsexy medical condition 'ED' refers to before they name a part family that?"
 /*      ID_AVR_??       (0x88) */ // TBD
 #define ID_AVR_EB       (0xC0) // Not yet released
@@ -266,14 +267,14 @@
   #define     _AVR_FAMILY       "DD"
 #elif defined(__AVR_DU__)
   #define     _AVR_FAMILY       "DU"
-  #error "The AVR DU-series is not available. The product brief has been retracted and it's fate is uncertain. Where did you get toolchain support for it?"
+  #error "The AVR DU-series is not yet available, but it is closer than you may think."
 #elif defined(__AVR_EA__)
   #define     _AVR_FAMILY       "EA"
-  #error "The AVR EA-series is not available, though both the brief and headers are. Support will be added once datasheet or silicon is available."
+  #error "The AVR EA-series is available, but core support is not yet in. "
 #elif defined(__AVR_EB__)
   #define     _AVR_FAMILY       "EB"
   //
-  #error "The AVR EB-series is not available, and is known only from the brief. Support will be added once datasheet or silicon is available."
+  #error "The AVR EB-series is not available, and is known only from the brief. Support will be added once more information is available."
 #else
   #error "Unrecognized part, this should not be possible"
   #define     _AVR_FAMILY       "UNKNOWN"
@@ -659,19 +660,19 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   #define ERRATA_TCA1_PORTMUX            (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
   #define ERRATA_PORTS_B_E_EVSYS         (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
   #define ERRATA_NVM_ST_BUG              (1) /* DA128's up to Rev. A8 apply bootloader/app protection neglecting FLMAP bits when writing with ST. Use SPM. */
-  #define ERRATA_2V1_EXCESS_IDD          (0) /* This nasty one didn't show up until the DB's arrived                                                       */
+  #define ERRATA_2V1_EXCESS_IDD          (0)
 #else
   #define ERRATA_TCA1_PORTMUX            (0) /* TCA1 portmux works and always has on DB                                                                    */
   #define ERRATA_PORTS_B_E_EVSYS         (0) /* Works everywhere else                                                                                      */
   #define ERRATA_NVM_ST_BUG              (0) /* only present on DA128!                                                                                     */
-  #define ERRATA_2V1_EXCESS_IDD          (0) /* But he pretty well blows up most hope of low power/low voltage DBs                                         */
 #endif
 // A few were present on all the DA's, but fixed for the DBs.
 #if defined(__AVR_DA__)
   #define ERRATA_CCL_LINK                (1)
-  #define ERRATA_PLL_RUNSTBY             (1)
+  #define ERRATA_PLL_RUNSTBY             (1) /* Kinda defeats the point of the PLLS bit here */
   #define ERRATA_ADC_PIN_DISABLE         (1)
   #define ERRATA_PLL_XTAL     (ERRATA_IRREL)
+  #define ERRATA_2V1_EXCESS_IDD          (0) /* This nasty one didn't show up until the DB's arrived                                                        */
 #else
   #define ERRATA_CCL_LINK                (0)
   #define ERRATA_PLL_RUNSTBY             (0)
@@ -681,13 +682,19 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 //The new crystal clock support brought a bug along though.
 #if defined(__AVR_DB__)
   #define ERRATA_PLL_XTAL                (1) /* DB BUG */
+  #define ERRATA_2V1_EXCESS_IDD          (1) /* But he pretty well blows up most hope of low power/low voltage DBs                                         */
+#elif defined(__AVR_DD__)
+  #define ERRATA_PLL_XTAL                (0)
+  #define ERRATA_2V1_EXCESS_IDD          (0) /* This nasty one didn't show up until the DB's arrived                                                       */
+#else
+  #define ERRATA_PLL_XTAL     (ERRATA IRREL) /* No crystal. Ergo, no bug here */
 #endif
 
 // And both DA and DB had a whole slew of issues
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
   #define ERRATA_TCD_PORTMUX             (1) // *thud* *thud* *thud* - the sound of an embedded developer banging his head on the desk leaving a dent.
   #define ERRATA_DAC_DRIFT               (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
-  #define ERRATA_TCA_RESTART             (1) // Is resets the direction, like the database said. Appaently both the documentation and the silicon were wrong.
+  #define ERRATA_TCA_RESTART             (1) // Is resets the direction, like the datasheet said. Appaently both the documentation and the silicon were wrong, it's not supposed to.
   #define ERRATA_CCL_PROTECTION          (1) // Busted on all pre-DD parts
   #define ERRATA_TCD_ASYNC_COUNTPSC      (1) // Busted on all pre-DD parts
   #define ERRATA_TCB_CCMP                (1) // Busted on all pre-DD parts
@@ -719,7 +726,8 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   // it is not aligned on a 16k boundary, 32-page erase targeting the APPCODE section before it reached APPDATA, a chunk of APPCODE can be erased.
   // Takes some dedicated contriving to come up with a scenario to make this relevant without positing an individual just trying to score points by
   // demonstrating bugs
-  #define ERRATA_TCD_HALTANDRESTART      (1) // Since I've never seen a good description of what the envisioned use cases are for TCD's event modes, I don't even know if I should care!
+  #define ERRATA_TCD_HALTANDRESTART      (1) // Since I've never seen a good description of what the envisioned use cases are for TCD's event modes,
+  // I don't even know if I should care!
 #else
   #warning "Unrecognized part - even if this compiles, something is mondo wrong with your IDE or system. Behavior w/unknown part is undefined, and may result in demons flying out of your nose"
 #endif
@@ -762,7 +770,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 #define CORE_HAS_FASTIO                 (2)
 #define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
 #define CORE_HAS_PINCONFIG              (3) /* pinConfigure is now implemented                                      */
-#define CORE_HAS_FASTPINMODE            (1)
+#define CORE_HAS_FASTPINMODE            (2) /* fastPinMode() does now clear pullup.                                 */
 #if defined(__AVR_DD__)                     /* On the few parts where it works...*/
   #define CORE_DETECTS_TCD_PORTMUX      (1) /* we support using it */
 #else
@@ -781,10 +789,17 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   #endif
 #endif
 #if defined(__AVR_DD__)
-  #define DEVICE_PORTMUX_USART          (2)
+  #define DEVICE_PORTMUX_USART          (2) /* Far more mapping options for USART0 and SPI0. */
+#elif defined(__AVR_EA__)
+  #define DEVICE_PORTMUX_USART          (3) /* most AVR DD mappings, plus a few more. */
+#elif defined(__AVR_DU__)
+  #define DEVICE_PORTMUX_USART          (2) /* Same as DD, provided the pin and peripheral both exist */
+#elif defined(__AVR_EB__)
+  #define DEVICE_PORTMUX_USART          (5) /* Only one USART, but a billion mux options for it */
 #else
-  #define DEVICE_PORTMUX_USART          (1)
+  #define DEVICE_PORTMUX_USART          (1) /* else DA/DB boring portmux */
 #endif
+
 #define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
                                                2 = all wave output channels move together
                                                3 - as above, but TCA1 has the 4th and 5th channel options*/
