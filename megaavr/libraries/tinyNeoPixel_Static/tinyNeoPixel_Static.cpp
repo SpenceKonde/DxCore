@@ -120,7 +120,7 @@ void tinyNeoPixel::show(void) {
   //   last two.
   //
   //   Over the years a bunch of faster speeds have been added, so it could
-  //   be used even on highly overclocked modern AVFs.
+  //   be used even on highly overclocked modern AVRs.
   //
   //   Finally, some of the constraints were incorrect, and this only ever
   //   worked because classes are kryptonite to the optimizer.
