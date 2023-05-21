@@ -113,6 +113,7 @@ def main():
             fuses_dict[fuse_offset] = fuse_val
         except ValueError as e:
             print("Error: cannot parse fuse, '{}'".format(e))
+            print("Usually fixed by re-selecting the programmer from tools -> programmer")
             sys.exit(1)
 
     print_report(args)
@@ -215,7 +216,7 @@ def pymcuprog_basic(args, fuses_dict):
     try:
         pymcu._action_ping(backend)
     except ValueError:
-        print("Device ID mismatch! Stopping.")
+        print("Device ID mismatch - Stopping.")
         backend.end_session()
         backend.disconnect_from_tool()
         return 1

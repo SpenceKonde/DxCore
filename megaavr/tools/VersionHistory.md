@@ -10,6 +10,8 @@ Add EEPROM action to write the EEPROM data if requested.
 Add LOCKEDUSERROW action to write to the userrow of a locked chip.
 Fix unlock() so that when run interactively, it will check if the chip is locked and prompt the user if they try to unlock an unlocked chip unless a "yes I'm really sure" flag is passed.
 
+5/9/2023
+## 1.3.0.1 - changed wording of errors with easy fixes to suggest the fix.
 
 8/18/2022
 ## 1.3.0

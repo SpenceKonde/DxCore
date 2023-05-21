@@ -1,12 +1,30 @@
 # ADC/DAC Reference for DxCore
 The Dx-series parts have a powerful ADC, with higher resolution, automatic accumulation, maximally convenient reference voltages and more. The one that the EA-series will have is even better.
 
-References to the Ex-series were based on the assumption that it is the same ADC that the tinyAVR 2-series got. We find that this was a pretty good assumption): The ADC is almost identical, though it's specs have gotten a small across the board improvement, and
+The ADC on the the Ex-series is even better - it is nearly the same ADC that the tinyAVR 2-series got, though it's specs have gotten a small across the board improvement, and there's a new feature that can only be used when accumulated mode is in use: Sign Chopping. Sign Chopping alternates between positive and negative inputs during an accumulated measurement as well as the sign of the value added to the total. This can greatly reduce offset error (which, particularly with gain cranked up and the reference cranked down, trying to get the most possible out of the ADC, could get surprisingly high, )
+
+## Vital Statistics
+| Part family | Min. Res. | Max. Res. | CLK Max | CLK used | Max Ovrsamp Res. | Extras
+|-------------|-----------|-----------|---------|----------|------------------|---
+| tinyAVR 0/1 |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | Wierd ref voltages. Must slow way down for accurate readings w/lowest ref.
+| tinyAVR 1+  |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | Wierd ref voltages. Must slow way down for accurate readings w/lowest ref. Whole second copy of ADC.
+| AVR DA      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | Half-way differential mode.
+| AVR DB      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | Half-way differential mode.
+| AVR DD      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | Half-way differential mode, more pins can be ADC pins.
+| tinyAVR 2   |     8-bit |    12-bit |   3/6 * | 2-2.5MHz |           17-bit | True differential, 1-16x PGA
+| AVR EA      |     8-bit |    12-bit |   3/6 * | 2-2.5MHz |           17-bit | True differential, 1-16x PGA, sign chopping.
+
+`*` 6 MHz with external or Vdd reference, 3 MHz with internal.
+The differential ADC on the Dx-series is disappointing.
 
 ## Reference Voltages
 Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are listed below:
+In some cases the voltage determines the maximum ADC clock speed. Call analogReference() before analogClockSpeed() to ensure that the analog clock speed is appropriate when any of these apply:
+* You are switching between internal and external/VDD reference on an Ex/2-series
+* You are using the half volt reference on the 0/1-series, or switching from that to another reference
+* You are on a Dx-series with an external reference of less than 1.8V
 
- | AVR Dx/Ex-series (all)                  | Voltage | Minimum Vdd | Number |
+ | AVR Dx/Ex-series (all)                  | Voltage | Minimum Vdd | Number | Notes |
  |-----------------------------------------|---------|-------------|--------|
  | `VDD` (default)                         | Vcc/Vdd |             |      5 |
  | `INTERNAL1V024`                         | 1.024 V |      2.5* V |      0 |
@@ -14,11 +32,12 @@ Analog reference voltage can be selected as usual using analogReference(). Suppo
  | `INTERNAL4V096`                         | 4.096 V |      4.55 V |      2 |
  | `INTERNAL2V500`                         | 2.500 V |      2.7  V |      3 |
  | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.096 V |      4.55 V |      2 |
- | `EXTERNAL`                              | VREF pin|        VREF |      6 |
+ | `EXTERNAL`                              | >=1.0 V |         Vdd |      6 | Dx: CLK_ADC =< 500 kHz
+ | `EXTERNAL`                              | >=1.8 V |         Vdd |      6 | Dx: No CLK_ADC restriction
 
- You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last columncolumn contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
+ You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last column: contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
 
- External reference voltage should be between 1.8v and Vdd. `INTERNAL` is not a supported reference, since there is no obvious reason that any of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V; the latest update to the datasheet for the DB-series suggests that the ADC clock speed should be kept below . Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
+ External reference voltage should be between 1.8v and Vdd if CLK_ADC is higher than 500kHz (by default, it is), however if you slow the ADC clock down, external references as low as 1.0V (they gave 1.024V as the lower limit. It is unclear if the slower clock speed must also be used for the internal 1.024V reference. . `INTERNAL` is not a supported reference, since there is no obvious reason that any of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V, but no guarantees are given. Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
 
 ## Internal Sources
 In addition to reading from pins, you can read from a number of internal sources - this is done just like reading a pin, except the constant listed in the table below is used instead of the pin number:
@@ -33,7 +52,7 @@ In addition to reading from pins, you can read from a number of internal sources
 |                         | `ADC_DACREF1`             | `ADC_DACREF1`           |
 |                         | `ADC_DACREF2`             |                         |
 
-The Ground internal sources are presumable meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, and often all the channels could be measured
+The Ground internal sources are presumable meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, and often all the channels could be measured. The EA attempts to provide an automatic solution to this with sign chopping (usable only for accumulated readings )
 
 DACREF0-2 are the the reference voltages for the analog comparators. On the DA-series, there is no way to measure the supply voltage other than using DAC or DACREF source: you can neither directly measure a reference voltage like some parts, nor is there any way to get a fraction of the supply voltage like the DB and DD-series support.  Note also that on the DB series, you can't measure the outputs of the OPAMPs directly - you must output to the pin and measure that, however much the high-level descriptions sound like there is a way to route the opamp signals internally.
 
@@ -50,7 +69,7 @@ DxCore takes advantage of the improvements in the ADC on the newer AVR parts to 
 
 If anyone reading this has performed any testing of this, I would appreciate it if you could share any findings with me, to help inform the community.
 
- To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being significantly faster by virtue of the much shorter conversion time.
+To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being significantly faster by virtue of the much shorter conversion time. But you can shorten that further (or extend it) using analogSampleDuration(). With minimum sample duration, external voltage reference in burst or freerun mode and maximum ADC clock, 450k sps may be possible at full resolution. You're unlikely to want that ofc, but that's a separate matter, just don't configure it like that if you don't want it. The fact remains that it is definitely the faster ADC.
 
 ## ADC Function Reference
 This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application.
@@ -73,7 +92,7 @@ speed. This returns a `bool` - it is `true` if value is valid.
 
 This value is used for all analog measurement functions.
 
-| Part Series | Sample time<br/>(default)  | Conversion time | Total analogRead() time | Default SAMPLEN | ADC clock sample time |
+| Part Series | Sample time<br/>(default)  | Conversion time | Total analogRead() time | Default SAMPLEN* | ADC clock sample time |
 |-------------|--------------|-----------------|-------------------------|-----------------|-----------------------|
 | Classic AVR |        12 us |           92 us |                  104 us | No such feature | 1.5                   |
 | 0/1-series  |        12 us |       8.8-10 us |              20.8-22 us |     7, 9, or 13 | 2 + SAMPLEN           |
@@ -82,11 +101,11 @@ This value is used for all analog measurement functions.
 | 2-series    |  apx. 6.4 us |  approx. 5.6 us | Approximately     12 us |              15 | 1 + SAMPDUR           |
 | EA-series   |  apx. 6.4 us |  approx. 5.6 us | Approximately     12 us |              15 | 1 + SAMPDUR           |
 
-Note: The default samplen given above is the default that the core sets it to when the ADC is initialized. The hardware defaults to 0, giving a much shorter sampling time. Also, as shown above while it's called SAMPLEN on parts with that don't have the PGA, with the new ADC and accompanying register name reshuffle, that became SAMPDUR. SAMPLEN was the sole bitfienld in the SAMPCTRL on Dx, while SAMPDUR is the sole bitfield on the clearly named CTRLE register. I'm not sure how either of those differences made it through. If I were in the room at the time, I'd have let 'em have it, because you should never rename a register without good reason, and the renamed register should never be objectively worse than the previous one. In this case, there is no conceivable good reason, and the new register name (CTRLE I mean) is obviously worse, since it gives no indication of it's function, nor is it even located immediately after CTRLD.
+`*` The default samplen given above is the default that the core sets it to when the ADC is initialized. The hardware defaults to 0, giving a much shorter sampling time. Also, as shown above while it's called SAMPLEN on parts with that don't have the PGA, with the new ADC and accompanying register name reshuffle, that became SAMPDUR. SAMPLEN was the sole bitfienld in the SAMPCTRL on Dx, while SAMPDUR is the sole bitfield on the clearly named CTRLE register. I'm not sure how either of those differences made it through. If I were in the room at the time, I'd have let 'em have it, because you should never rename a register without good reason, and the renamed register should never be objectively worse than the previous one. In this case, there is no conceivable good reason, and the new register name (CTRLE I mean) is obviously worse, since it gives no indication of it's function, nor is it even located immediately after CTRLD.
 
 The DxCore default is 14, which will result in a 16 ADC clock sampling time. For most signals this is more than needed, and the Microchip default is 0, giving 2, while documentation indicates that the ADC is optimized for signals with an impedance of around  ~10k~ 1k (This was are recent "datasheet clarification", which came at the same time as the "clarification" about the flash endurance - "'10,000', '1,000' - they're basically the same right?"). Reducing it to the minimum will approximately cut the time analogRead() takes in half. It will result in less accurate readings of high impedance signals, though it's not clear how high they can be before this becomes a concern.
 
-On the 2-series, we are at least given some numbers that we can use to model it: 8pF for the sample and hold cap, and 10k input resistance so a 10k source impedance (total 20k impedance between the sample and hold cap and that which we sought to measur) would give 0.16us time constant, implying that even a 4 ADC clock sampling time is excessive, but at such clock speeds, impedance much above that would need a longer sampling period. We are obviously erring on the conservative side here - if ADC speed matters to you, you are encouraged to perform testing with the actual hardware you will be using, which may reveal that you can lower it significantly. Remember that it it also depends on ADC clock speed, and have that set the same during your testing as it will use in practice.
+On the 2-series, we are at least given some numbers that we can use to model it: 8pF for the sample and hold cap, and 10k input resistance so a 10k source impedance (total 20k impedance between the sample and hold cap and that which we sought to measur) would give 0.16us time constant, implying that even a 4 ADC clock sampling time is excessive, but at such clock speeds, impedance much above that would need a longer sampling period. We are obviously erring on the conservative side here with 16 ADC clocks - if ADC speed matters to you, you are encouraged to perform testing with the actual hardware you will be using, which may reveal that you can lower it significantly. Remember that it it also depends on ADC clock speed, and have that set the same during your testing as it will use in practice. Additionally be sure that when you change the clock speed (see analogClockSpeed) setting, you may need to change this to keep a constant sampling time (assuming that is desired)
 
 ### int32_t analogReadEnh(pin, res=ADC_NATIVE_RESOLUTION, gain=0)
 Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res` is resolution in bits, which may range from 8 to `ADC_MAX_OVERSAMPLED_RESOLUTION`. This maximum is 15 bits for Dx-series parts, and 17 for Ex-series. If this is less than the native ADC resolution, that resolution is used, and then it is right-shifted 1, 2, or 3 times; if it is more than the native resolution, the accumulation option which will take 4<sup>n</sup> samples (where `n` is `res` native resolution) is selected. Note that maximum sample burst reads are not instantaneous, and in the most extreme cases can take milliseconds. Depending on the nature of the signal - or the realtime demands of your application - the time required for all those samples may limit the resolution that is acceptable. The accumulated result is then decimated (rightshifted n places) to yield a result with the requested resolution, which is returned. See [Atmel app note AVR121](https://ww1.microchip.com/downloads/en/appnotes/doc8003.pdf) - the specific case of the new ADC on the Ex and tinyAVR 2-series is discussed in the newer DS40002200 from Microchip, but that is a rather vapid document). Alternately, to get the raw accumulated ADC readings, pass one of the `ADC_ACC_n` constants for the second argument where `n` is a power of 2 up to 128 (Dx-series), or up to 1024 (Ex-series). The Dx-series only makes available the 16 MSBs, so when accumulating more than 16 samples, the value will be truncated to 16 bits. Be aware that the lowest bits of a raw accumulated reading should not be trusted.; they're noise, not data (which is why the decimation step is needed, and why 4x the samples are required for every extra bit of resolution instead of 2x). On Ex-series parts *the PGA can be used for single ended measurements*. Valid options for gain on the Ex-series are 0 (PGA disabled, default), 1 (unity gain - may be appropriate under some circumstances, though I don't know what those are - possibly particularlty high impedance sources), or powers of 2 up to 16 (for 2x to 16x gain). On Dx-series parts, the gain argument should be omitted or 0, and passing any other value will generate an error message stating this: these do not have a PGA.
@@ -126,7 +145,7 @@ The accepted options for frequency are -1 (reset ADC clock to core default, 1-1.
 
 The Dx-series has prescalers in every power of two from 2 to 256, and at the extreme ends, unless operating at unusual frequencies, the resulting ADC clock will be out of spec.
 
-The Ex-series is expected to have prescalers similar to the tinyAVR 2-series: Every even number up to 16, then 20, 24, 28, 32, 40, 48, 56, and 64, giving considerably more precision in this adjustment.
+The Ex-series and 2 series have more subtlety: Every even number up to 16, then 20, 24, 28, 32, 40, 48, 56, and 64, giving considerably more precision in this adjustment.
 
 In either case you don't need to know the range of prescalers - just ask for the desired frequency. We'll get as close as possible to that number without exceeding it or going outside the chip specifications, and tell you what that number we picked was. If options & 0x01 is non-zero, we will skip checking whether the frequency in question is within spec, just in case you for some reason want inaccurate results from the ADC, or the chip's clock speed has been changed (which of course breaks timekeeping too - but you may not care, or may also be compensating for that.
 
@@ -157,7 +176,8 @@ Serial.println(analogClockSpeed(20000,1)); // Above manufacturer's spec. but we 
 // and return that value, likely 8000 or 10000 unless for 16 or 20 MHz. (higher if you're overclocking
 // the chip in general too). One version that was released shortly after the 2-series contained a bug that would always set the
 // ADC prescaler to the minimum. And I'd written about how disappointed I was in the new ADC. After fixing the bug, things improved significantly.
-// I am favorably impressed by how well the poor overclocked ADC performed, despite being overclocked
+// I am favorably impressed by how well the poor overclocked ADC performed with an internal reference and 10 MHz ADC clock - Yes it was unacceptably poor
+// but it was close enough to okay that I released it without realizing it was my bad.
 
 // ******* For both *******
 int returned_default = analogClockSpeed(-1); // reset to default value, around 1000 - 1500 kHz for Dx and around 2500 for Ex.

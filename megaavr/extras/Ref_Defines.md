@@ -164,6 +164,26 @@ Most of these need no explanation - they usually just give you the number of ins
 
 The EVSYS defines are very useful if you are using EVSYS without event, but even if you are using event, you want to, for example, select channels to minimize the functionality you're blocking off with your configuration, unless you're using an Ex-series, where all channels are created equal.
 
+## Identifying other attributes (added 1.5.8)
+`_AVR_FLASHMODE` describes which method of writing to the NVM is used.
+* There are three basic modes, described here as 0, 1 and 2.
+  * 0 is the traditional paged mode where you fill a page buffer then do an erase+write typically.
+  * 1 is much like 0, except it has RWW support. Unfortunately, the current EA implementation is a disaster.
+  * 2 is the AVR DA/DB/DD method of writing flash. Pages are much larger, but only used for erase.
+  * The high bit is special - if set, it indicates that severe errata impacts the chip compromising the breadth of the applications to which it is applicable
+    * 0x81 is mode 1 as it first shipped (on 64EA) - erase-write broken, no multipage erase over UPDI, etc.
+    * 0x82 is the AVR128DA family where the byte write mode improperly applies protection. Only word writes should be used on those parts.
+
+`_AVR_CLOCKMODE` is a 1-byte descriptor of the clocking options.
+* The pattern is 0bTTTAUESW
+  * TTT indicates the number of tuning "notches", 0 = 32, 1 = 64, 2 = 128, 3 = 256 (not seen on modern AVR).
+  * A, if set, indicates that en external watch crystal can be used to autotune.
+  * U indicates auto-tuning from USB frames is supported (native USB parts only).
+  * E indicates that external HF crystals can be used.
+  * S indicates that the speed is selected at runtime, not by fuses.
+  * W watch crystal for RTC supported. For example an AVR-DB would be 0x17, while a tiny 2-series would be 0x41
+* This is meant to be tested by libraries and similar.
+
 ## Identifying core version
 These define the version of the core:
 * For megaTinyCore:

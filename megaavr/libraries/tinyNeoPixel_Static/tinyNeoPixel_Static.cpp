@@ -127,8 +127,8 @@ void tinyNeoPixel::show(void) {
   //   * [ptr] was decleared read only. No, it is not. The register is
   //     register contaains the address being pointed to. We read with
   //     postincrement, so this is read-write.
-  //   * Comversely, [port] is never written. The thing that port writes
-  //     *too* is changd, but [port] is not.
+  //   * Comversely, [port], another pointer, is never written. The thing that
+  //     [port] points *to* is changed, but [port] is not.
   //   * b (bit number for speeds that don't have to unroll the loop)
   //     is given constraint "+r", which can assign it to any register.
   //     But the code uses LDI on it. LDI doesn't work on every register,
@@ -165,7 +165,6 @@ void tinyNeoPixel::show(void) {
   // close to the extremes (or possibly they could be pushed further).
   // Keep in mind only one CPU speed case actually gets compiled; the
   // resulting program isn't as massive as it might look from source here.
-
 
   // 5ish MHz(ish) AVRxt
   #if (F_CPU >= 400000UL) && (F_CPU <= 5600000UL)

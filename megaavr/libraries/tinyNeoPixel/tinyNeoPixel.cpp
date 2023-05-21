@@ -50,7 +50,7 @@
 
 // Constructor when length, pin and type are known at compile-time:
 tinyNeoPixel::tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t) :
-  begun(false), brightness(0), pixels(NULL), endTime(0) {
+  begun(false), brightness(0), latchTime(50), pixels(NULL), endTime(0) {
   updateType(t);
   updateLength(n);
   setPin(p);
@@ -62,7 +62,7 @@ tinyNeoPixel::tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t) :
 // command.  If using this constructor, MUST follow up with updateType(),
 // updateLength(), etc. to establish the strand type, length and pin number!
 tinyNeoPixel::tinyNeoPixel() :
-  begun(false), numLEDs(0), numBytes(0), pin(NOT_A_PIN), brightness(0), pixels(NULL),
+  begun(false), numLEDs(0), numBytes(0), pin(NOT_A_PIN), brightness(0), latchTime(50), pixels(NULL),
   rOffset(1), gOffset(0), bOffset(2), wOffset(1), endTime(0) {
 }
 
@@ -92,6 +92,11 @@ void tinyNeoPixel::updateLength(uint16_t n) {
   } else {
     numLEDs = numBytes = 0;
   }
+}
+
+void tinyNeoPixel::updateLatch(uint16_t us = 50) {
+/* New feature - to extend the latch interlock to all varieties of LEDs turns out to not be costly at all. */
+  latchTime=(us < 6 ? 6 : us); // there are no devices in production with a shorter latch waiting time, and ths
 }
 
 void tinyNeoPixel::updateType(neoPixelType t) {
@@ -1101,7 +1106,7 @@ void tinyNeoPixel::show(void) {
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     endTime = micros();
     // Save EOD time for latch on next call
-    #pragma message("micros() present. This library assumes the canonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
+    #pragma message("micros() present. This library assumes the canonical 50 us latch delay, updateLatch() can be used to change this assumed latch delay")
   #else
     #warning "micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation."
   #endif

@@ -204,7 +204,8 @@ class tinyNeoPixel {
     setBrightness(uint8_t b),
     clear(),
     updateLength(uint16_t n),
-    updateType(neoPixelType t);
+    updateType(neoPixelType t),
+    updateLatch(uint16_t = 50);
   uint8_t
    *getPixels(void) const,
     getBrightness(void) const;
@@ -297,7 +298,7 @@ class tinyNeoPixel {
   static uint32_t   gamma32(uint32_t x);
 
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
-    inline bool canShow(void) { return (micros() - endTime) >= 50L; }
+    inline bool canShow(void) { return (micros() - endTime) >= (uint32_t) latchTime; }
   #else
     inline bool canShow(void) {return 1;} // we don't have micros here;
   #endif
@@ -309,7 +310,8 @@ class tinyNeoPixel {
     begun;         // true if begin() previously called
   uint16_t
     numLEDs,       // Number of RGB LEDs in strip
-    numBytes;      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
+    numBytes,      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
+    latchTime;     // minimum holdoff between sending frames. Set with updateLatch.
   uint8_t
     pin,           // Output pin number (-1 if not yet set)
     brightness,

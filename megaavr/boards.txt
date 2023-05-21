@@ -2,11 +2,11 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####      ##   #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #        #     #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####     ###   #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##  #  #  #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##   ##   #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####     ####  #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #           #  #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ####       #   #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##   #    #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##  #     #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -116,7 +116,7 @@ avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
 #avrdu.name=AVR DU-series (no bootloader)
-#avrea.name=AVR EA-series (no bootloader)
+avrea.name=AVR EA-series (no bootloader)
 #avreb.name=AVR EB-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
@@ -330,6 +330,14 @@ avrda.menu.bodvoltage.2v70=2.70V
 avrda.menu.bodvoltage.2v70.bootloader.bodlevbits=010
 avrda.menu.bodvoltage.2v85=2.85V
 avrda.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrda.menu.bodvoltage.rsvd1=Mystery1
+avrda.menu.bodvoltage.rsvd1.bootloader.bodlevbits=100
+avrda.menu.bodvoltage.rsvd2=Mystery2
+avrda.menu.bodvoltage.rsvd2.bootloader.bodlevbits=101
+avrda.menu.bodvoltage.rsvd3=Mystery3
+avrda.menu.bodvoltage.rsvd3.bootloader.bodlevbits=110
+avrda.menu.bodvoltage.rsvd4=Mystery4
+avrda.menu.bodvoltage.rsvd4.bootloader.bodlevbits=111
 avrda.menu.bodmode.disabled=Disabled/Disabled
 avrda.menu.bodmode.enabled=Enabled/Enabled
 avrda.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
@@ -792,6 +800,14 @@ avrdb.menu.bodvoltage.2v70=2.70V
 avrdb.menu.bodvoltage.2v70.bootloader.bodlevbits=010
 avrdb.menu.bodvoltage.2v85=2.85V
 avrdb.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdb.menu.bodvoltage.rsvd1=Mystery1
+avrdb.menu.bodvoltage.rsvd1.bootloader.bodlevbits=100
+avrdb.menu.bodvoltage.rsvd2=Mystery2
+avrdb.menu.bodvoltage.rsvd2.bootloader.bodlevbits=101
+avrdb.menu.bodvoltage.rsvd3=Mystery3
+avrdb.menu.bodvoltage.rsvd3.bootloader.bodlevbits=110
+avrdb.menu.bodvoltage.rsvd4=Mystery4
+avrdb.menu.bodvoltage.rsvd4.bootloader.bodlevbits=111
 avrdb.menu.bodmode.disabled=Disabled/Disabled
 avrdb.menu.bodmode.enabled=Enabled/Enabled
 avrdb.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
@@ -1286,6 +1302,14 @@ avrdd.menu.bodvoltage.2v70=2.70V
 avrdd.menu.bodvoltage.2v70.bootloader.bodlevbits=010
 avrdd.menu.bodvoltage.2v85=2.85V
 avrdd.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdd.menu.bodvoltage.rsvd1=Mystery1
+avrdd.menu.bodvoltage.rsvd1.bootloader.bodlevbits=100
+avrdd.menu.bodvoltage.rsvd2=Mystery2
+avrdd.menu.bodvoltage.rsvd2.bootloader.bodlevbits=101
+avrdd.menu.bodvoltage.rsvd3=Mystery3
+avrdd.menu.bodvoltage.rsvd3.bootloader.bodlevbits=110
+avrdd.menu.bodvoltage.rsvd4=Mystery4
+avrdd.menu.bodvoltage.rsvd4.bootloader.bodlevbits=111
 avrdd.menu.bodmode.disabled=Disabled/Disabled
 avrdd.menu.bodmode.enabled=Enabled/Enabled
 avrdd.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
@@ -1519,46 +1543,46 @@ avrdd.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 #                                        #
 # Parameters and defaults for EA parts   #
 #________________________________________#
-#avrea.upload.tool=avrdude
-#avrea.upload.prog_interlock=
-#avrea.build.board=avrea
-#avrea.build.core=dxcore
-#avrea.upload.maximum_size=0
-#avrea.upload.maximum_data_size=0
+avrea.upload.tool=avrdude
+avrea.upload.prog_interlock=
+avrea.build.board=avrea
+avrea.build.core=dxcore
+avrea.upload.maximum_size=0
+avrea.upload.maximum_data_size=0
 # The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
 # Each top-level entry supports at least a dozen parts with varying memory constraints.
-#avrea.build.f_cpu={build.speed}000000L
-#avrea.build.text_section_start=.text=0x0
-#avrea.build.extra_flags=
-#avrea.build.export_merged_output=false
-#avrea.build.printf=
-#avrea.build.optimizationlevel=-Os
-#avrea.build.gcse=
+avrea.build.f_cpu={build.speed}000000L
+avrea.build.text_section_start=.text=0x0
+avrea.build.extra_flags=
+avrea.build.export_merged_output=false
+avrea.build.printf=
+avrea.build.optimizationlevel=-Os
+avrea.build.gcse=
 
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
-#avrea.bootloader.tool=avrdude
-#avrea.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
-#avrea.bootloader.wdtwindowbits=0000
-#avrea.bootloader.wdttimeotbits=0000
-#avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-#avrea.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
-#avrea.bootloader.CODESIZE=0x00
-#avrea.bootloader.BOOTSIZE=0x01
-#avrea.bootloader.avrdudestring=
-#avrea.bootloader.pymcuprogstring=-aerase
+avrea.bootloader.tool=avrdude
+avrea.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrea.bootloader.wdtwindowbits=0000
+avrea.bootloader.wdttimeotbits=0000
+avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avrea.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrea.bootloader.CODESIZE=0x00
+avrea.bootloader.BOOTSIZE=0x01
+avrea.bootloader.avrdudestring=
+avrea.bootloader.pymcuprogstring=-aerase
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
 # are only to do that, nothing else      #
 #________________________________________#
-#avrea.build.mcupostfix=
-#avrea.build.printfabr=
-#avrea.build.optabr=.Os
-#avrea.build.attachabr=
-#avrea.build.wireabr=
+avrea.build.mcupostfix=
+avrea.build.printfabr=
+avrea.build.optabr=.Os
+avrea.build.attachabr=
+avrea.build.wireabr=
 ##Not supported but still need empty string here.
 avrdd.build.appspmabr=
 
@@ -1567,61 +1591,61 @@ avrdd.build.appspmabr=
 #____________________________________________#
 # Chip (memory and pincount)            #
 #_______________________________________#
-#avrea.menu.chip.avr64ea28=AVR64EA28
-#avrea.menu.chip.avr64ea28.build.mcu=avr64ea28
-#avrea.menu.chip.avr64ea28.upload.maximum_size=65536
-#avrea.menu.chip.avr64ea28.upload.maximum_data_size=8192
-#avrea.menu.chip.avr64ea28.build.variant=28pin-tbd
-#avrea.menu.chip.avr64ea32=AVR64EA32
-#avrea.menu.chip.avr64ea32.build.mcu=avr64ea32
-#avrea.menu.chip.avr64ea32.upload.maximum_size=65536
-#avrea.menu.chip.avr64ea32.upload.maximum_data_size=8192
-#avrea.menu.chip.avr64ea32.build.variant=32pin-tbd
-#avrea.menu.chip.avr64ea48=AVR64EA48
-#avrea.menu.chip.avr64ea48.build.mcu=avr64ea48
-#avrea.menu.chip.avr64ea48.upload.maximum_size=65536
-#avrea.menu.chip.avr64ea48.upload.maximum_data_size=8192
-#avrea.menu.chip.avr64ea48.build.variant=48pin-tbd
+avrea.menu.chip.avr64ea28=AVR64EA28
+avrea.menu.chip.avr64ea28.build.mcu=avr64ea28
+avrea.menu.chip.avr64ea28.upload.maximum_size=65536
+avrea.menu.chip.avr64ea28.upload.maximum_data_size=8192
+avrea.menu.chip.avr64ea28.build.variant=28pin-tbd
+avrea.menu.chip.avr64ea32=AVR64EA32
+avrea.menu.chip.avr64ea32.build.mcu=avr64ea32
+avrea.menu.chip.avr64ea32.upload.maximum_size=65536
+avrea.menu.chip.avr64ea32.upload.maximum_data_size=8192
+avrea.menu.chip.avr64ea32.build.variant=32pin-easeries
+avrea.menu.chip.avr64ea48=AVR64EA48
+avrea.menu.chip.avr64ea48.build.mcu=avr64ea48
+avrea.menu.chip.avr64ea48.upload.maximum_size=65536
+avrea.menu.chip.avr64ea48.upload.maximum_data_size=8192
+avrea.menu.chip.avr64ea48.build.variant=48pin
 #avrea.menu.chip.avr32ea28=AVR32EA28
 #avrea.menu.chip.avr32ea28.build.mcu=avr32ea28
 #avrea.menu.chip.avr32ea28.upload.maximum_size=32768
 #avrea.menu.chip.avr32ea28.upload.maximum_data_size=4096
-#avrea.menu.chip.avr32ea28.build.variant=28pin-tbd
+#avrea.menu.chip.avr32ea28.build.variant=28pin-easeries
 #avrea.menu.chip.avr32ea32=AVR32EA32
 #avrea.menu.chip.avr32ea32.build.mcu=avr32ea32
 #avrea.menu.chip.avr32ea32.upload.maximum_size=32768
 #avrea.menu.chip.avr32ea32.upload.maximum_data_size=4096
-#avrea.menu.chip.avr32ea32.build.variant=32pin-tbd
+#avrea.menu.chip.avr32ea32.build.variant=32pin-easeries
 #avrea.menu.chip.avr32ea48=AVR32EA48
 #avrea.menu.chip.avr32ea48.build.mcu=avr32ea48
 #avrea.menu.chip.avr32ea48.upload.maximum_size=32768
 #avrea.menu.chip.avr32ea48.upload.maximum_data_size=4096
-#avrea.menu.chip.avr32ea48.build.variant=48pin-tbd
+#avrea.menu.chip.avr32ea48.build.variant=48pin-easeries
 #avrea.menu.chip.avr16ea28=AVR16EA28
 #avrea.menu.chip.avr16ea28.build.mcu=avr16ea28
 #avrea.menu.chip.avr16ea28.upload.maximum_size=16384
 #avrea.menu.chip.avr16ea28.upload.maximum_data_size=2048
-#avrea.menu.chip.avr16ea28.build.variant=28pin-tbd
+#avrea.menu.chip.avr16ea28.build.variant=28pin-easeries
 #avrea.menu.chip.avr16ea32=AVR16EA32
 #avrea.menu.chip.avr16ea32.build.mcu=avr16ea32
 #avrea.menu.chip.avr16ea32.upload.maximum_size=16384
 #avrea.menu.chip.avr16ea32.upload.maximum_data_size=2048
-#avrea.menu.chip.avr16ea32.build.variant=32pin-tbd
+#avrea.menu.chip.avr16ea32.build.variant=32pin-easeries
 #avrea.menu.chip.avr16ea48=AVR16EA48
 #avrea.menu.chip.avr16ea48.build.mcu=avr16ea48
 #avrea.menu.chip.avr16ea48.upload.maximum_size=16384
 #avrea.menu.chip.avr16ea48.upload.maximum_data_size=2048
-#avrea.menu.chip.avr16ea48.build.variant=48pin-tbd
+#avrea.menu.chip.avr16ea48.build.variant=48pin-easeries
 #avrea.menu.chip.avr8ea28=AVR8EA28
 #avrea.menu.chip.avr8ea28.build.mcu=avr8ea28
 #avrea.menu.chip.avr8ea28.upload.maximum_size=8192
 #avrea.menu.chip.avr8ea28.upload.maximum_data_size=1024
-#avrea.menu.chip.avr8ea28.build.variant=28pin-tbd
+#avrea.menu.chip.avr8ea28.build.variant=28pin-easeries
 #avrea.menu.chip.avr8ea32=AVR8EA32
 #avrea.menu.chip.avr8ea32.build.mcu=avr8ea32
 #avrea.menu.chip.avr8ea32.upload.maximum_size=8192
 #avrea.menu.chip.avr8ea32.upload.maximum_data_size=1024
-#avrea.menu.chip.avr8ea32.build.variant=32pin-tbd
+#avrea.menu.chip.avr8ea32.build.variant=32pin-easeries
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -1632,60 +1656,54 @@ avrdd.build.appspmabr=
 # only on paper - the best case     #
 # That's unlikely.                  #
 #___________________________________#
-#avrea.menu.clock.20internal=20 MHz internal
-#avrea.menu.clock.20internal.build.speed=20
-#avrea.menu.clock.20internal.build.clocksource=0
-#avrea.menu.clock.16internal=16 MHz internal
-#avrea.menu.clock.16internal.build.speed=16
-#avrea.menu.clock.16internal.build.clocksource=0
+avrea.menu.clock.20internal=20 MHz internal
+avrea.menu.clock.20internal.build.speed=20
+avrea.menu.clock.20internal.build.clocksource=0
+avrea.menu.clock.16internal=16 MHz internal
+avrea.menu.clock.16internal.build.speed=16
+avrea.menu.clock.16internal.build.clocksource=0
 #avrea.menu.clock.12internal=12 MHz internal
 #avrea.menu.clock.12internal.build.speed=12
 #avrea.menu.clock.12internal.build.clocksource=0
-#avrea.menu.clock.10internal=10 MHz internal
-#avrea.menu.clock.10internal.build.speed=10
-#avrea.menu.clock.10internal.build.clocksource=0
-#avrea.menu.clock.8internal=8 MHz internal
-#avrea.menu.clock.8internal.build.speed=8
-#avrea.menu.clock.8internal.build.clocksource=0
-#avrea.menu.clock.4internal=4 MHz internal
-#avrea.menu.clock.4internal.build.speed=4
-#avrea.menu.clock.4internal.build.clocksource=0
-#avrea.menu.clock.1internal=1 MHz internal
-#avrea.menu.clock.1internal.build.speed=1
-#avrea.menu.clock.1internal.build.clocksource=0
-#avrea.menu.clock.20crystal=20 MHz crystal
-#avrea.menu.clock.20crystal.build.speed=20
-#avrea.menu.clock.20crystal.build.clocksource=1
-#avrea.menu.clock.16crystal=16 MHz crystal
-#avrea.menu.clock.16crystal.build.speed=16
-#avrea.menu.clock.16crystal.build.clocksource=1
-#avrea.menu.clock.12crystal=12 MHz crystal
-#avrea.menu.clock.12crystal.build.speed=12
-#avrea.menu.clock.12crystal.build.clocksource=1
-#avrea.menu.clock.8crystal=8 MHz crystal
-#avrea.menu.clock.8crystal.build.speed=8
-#avrea.menu.clock.8crystal.build.clocksource=1
-#avrea.menu.clock.20extclock=20 MHz ext. clock
-#avrea.menu.clock.20extclock.build.speed=20
-#avrea.menu.clock.20extclock.build.clocksource=2
-#avrea.menu.clock.16extclock=16 MHz ext. clock
-#avrea.menu.clock.16extclock.build.speed=16
-#avrea.menu.clock.16extclock.build.clocksource=2
-#avrea.menu.clock.12extclock=12 MHz ext. clock
-#avrea.menu.clock.12extclock.build.speed=12
-#avrea.menu.clock.12extclock.build.clocksource=2
-#avrea.menu.clock.8extclock=8 MHz ext. clock
-#avrea.menu.clock.8extclock.build.speed=8
-#avrea.menu.clock.8extclock.build.clocksource=2
-#avrea.menu.clock.24internal=24 MHz internal (overclocked)
-#avrea.menu.clock.24internal.build.speed=24
-#avrea.menu.clock.24internal.build.clocksource=0
-#avrea.menu.clock.28internal=28 MHz internal (overclocked)
-#avrea.menu.clock.28internal.build.speed=28
-#avrea.menu.clock.28internal.build.clocksource=0
-#avrea.menu.clock.32internal=32 MHz internal (overclocked)
-#avrea.menu.clock.32internal.build.speed=32
-#avrea.menu.clock.32internal.build.clocksource=0
+avrea.menu.clock.10internal=10 MHz internal
+avrea.menu.clock.10internal.build.speed=10
+avrea.menu.clock.10internal.build.clocksource=0
+avrea.menu.clock.8internal=8 MHz internal
+avrea.menu.clock.8internal.build.speed=8
+avrea.menu.clock.8internal.build.clocksource=0
+avrea.menu.clock.5internal=5 MHz internal
+avrea.menu.clock.5internal.build.speed=5
+avrea.menu.clock.5internal.build.clocksource=0
+avrea.menu.clock.4internal=4 MHz internal
+avrea.menu.clock.4internal.build.speed=4
+avrea.menu.clock.4internal.build.clocksource=0
+avrea.menu.clock.1internal=1 MHz internal
+avrea.menu.clock.1internal.build.speed=1
+avrea.menu.clock.1internal.build.clocksource=0
+avrea.menu.clock.20crystal=20 MHz crystal
+avrea.menu.clock.20crystal.build.speed=20
+avrea.menu.clock.20crystal.build.clocksource=1
+avrea.menu.clock.16crystal=16 MHz crystal
+avrea.menu.clock.16crystal.build.speed=16
+avrea.menu.clock.16crystal.build.clocksource=1
+avrea.menu.clock.12crystal=12 MHz crystal
+avrea.menu.clock.12crystal.build.speed=12
+avrea.menu.clock.12crystal.build.clocksource=1
+avrea.menu.clock.8crystal=8 MHz crystal
+avrea.menu.clock.8crystal.build.speed=8
+avrea.menu.clock.8crystal.build.clocksource=1
+avrea.menu.clock.20extclock=20 MHz ext. clock
+avrea.menu.clock.20extclock.build.speed=20
+avrea.menu.clock.20extclock.build.clocksource=2
+avrea.menu.clock.16extclock=16 MHz ext. clock
+avrea.menu.clock.16extclock.build.speed=16
+avrea.menu.clock.16extclock.build.clocksource=2
+avrea.menu.clock.12extclock=12 MHz ext. clock
+avrea.menu.clock.12extclock.build.speed=12
+avrea.menu.clock.12extclock.build.clocksource=2
+avrea.menu.clock.8extclock=8 MHz ext. clock
+avrea.menu.clock.8extclock.build.speed=8
+avrea.menu.clock.8extclock.build.clocksource=2
 #avrea.menu.clock.24crystal=24 MHz crystal (overclocked)
 #avrea.menu.clock.24crystal.build.speed=24
 #avrea.menu.clock.24crystal.build.clocksource=1
@@ -1704,10 +1722,10 @@ avrdd.build.appspmabr=
 #avrea.menu.clock.32crystal=32 MHz crystal (overclocked)
 #avrea.menu.clock.32crystal.build.speed=32
 #avrea.menu.clock.32crystal.build.clocksource=1
-#avrea.menu.clock.36crystal=36 MHz crystal (overclocked)
+#avrea.menu.clock.36crystal=36 MHz crystal (severely overclocked)
 #avrea.menu.clock.36crystal.build.speed=36
 #avrea.menu.clock.36crystal.build.clocksource=1
-#avrea.menu.clock.40crystal=40 MHz crystal (overclocked)
+#avrea.menu.clock.40crystal=40 MHz crystal (severely overclocked)
 #avrea.menu.clock.40crystal.build.speed=40
 #avrea.menu.clock.40crystal.build.clocksource=1
 #avrea.menu.clock.24extclock=24 MHz ext. clock (overclocked)
@@ -1728,15 +1746,12 @@ avrdd.build.appspmabr=
 #avrea.menu.clock.32extclock=32 MHz ext. clock (overclocked)
 #avrea.menu.clock.32extclock.build.speed=32
 #avrea.menu.clock.32extclock.build.clocksource=2
-#avrea.menu.clock.36extclock=36 MHz ext. clock (highly overclocked)
+#avrea.menu.clock.36extclock=36 MHz ext. clock (severely overclocked)
 #avrea.menu.clock.36extclock.build.speed=36
 #avrea.menu.clock.36extclock.build.clocksource=2
-#avrea.menu.clock.40extclock=40 MHz ext. clock (highly overclocked)
+#avrea.menu.clock.40extclock=40 MHz ext. clock (severely overclocked)
 #avrea.menu.clock.40extclock.build.speed=40
 #avrea.menu.clock.40extclock.build.clocksource=2
-#avrea.menu.clock.48extclock=48 MHz ext. clock (WAY overclocked)
-#avrea.menu.clock.48extclock.build.speed=48
-#avrea.menu.clock.48extclock.build.clocksource=2
 
 #----------------------------------------#
 # BrownOut detection (BOD) option        #
@@ -1744,32 +1759,40 @@ avrdd.build.appspmabr=
 #    Completely speculative         #
 #   Assumes same as Dx-series       #
 #___________________________________#
-#avrea.menu.bodvoltage.1v9=1.9V
-#avrea.menu.bodvoltage.1v9.bootloader.bodlevbits=000
-#avrea.menu.bodvoltage.2v45=2.45V
-#avrea.menu.bodvoltage.2v45.bootloader.bodlevbits=001
-#avrea.menu.bodvoltage.2v70=2.70V
-#avrea.menu.bodvoltage.2v70.bootloader.bodlevbits=010
-#avrea.menu.bodvoltage.2v85=2.85V
-#avrea.menu.bodvoltage.2v85.bootloader.bodlevbits=011
-#avrea.menu.bodmode.disabled=Disabled/Disabled
-#avrea.menu.bodmode.enabled=Enabled/Enabled
-#avrea.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
-#avrea.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
-#avrea.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
-#avrea.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
-#avrea.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
-#avrea.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
-#avrea.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
-#avrea.menu.bodmode.disabled.bootloader.BODCFG=0x00
-#avrea.menu.bodmode.enabled.bootloader.bodmodebits=00101
-#avrea.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
-#avrea.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
-#avrea.menu.bodmode.samplefast.bootloader.bodmodebits=01010
-#avrea.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
-#avrea.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
-#avrea.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
-#avrea.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
+avrea.menu.bodvoltage.1v75=1.75V (during programming only)
+avrea.menu.bodvoltage.1v75.bootloader.bodlevbits=000
+avrea.menu.bodvoltage.1v9=1.9V
+avrea.menu.bodvoltage.1v9.bootloader.bodlevbits=001
+avrea.menu.bodvoltage.2v6=2.60V
+avrea.menu.bodvoltage.2v6.bootloader.bodlevbits=010
+avrea.menu.bodvoltage.4v3=4.3V
+avrea.menu.bodvoltage.4v3.bootloader.bodlevbits=011
+avrea.menu.bodvoltage.rsvd1=Mystery1
+avrea.menu.bodvoltage.rsvd1.bootloader.bodlevbits=100
+avrea.menu.bodvoltage.rsvd2=Mystery2
+avrea.menu.bodvoltage.rsvd2.bootloader.bodlevbits=101
+avrea.menu.bodvoltage.rsvd3=Mystery3
+avrea.menu.bodvoltage.rsvd3.bootloader.bodlevbits=110
+avrea.menu.bodvoltage.rsvd4=Mystery4
+avrea.menu.bodvoltage.rsvd4.bootloader.bodlevbits=111
+avrea.menu.bodmode.disabled=Disabled/Disabled
+avrea.menu.bodmode.enabled=Enabled/Enabled
+avrea.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrea.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrea.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrea.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrea.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrea.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
+avrea.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
+avrea.menu.bodmode.disabled.bootloader.BODCFG=0x00
+avrea.menu.bodmode.enabled.bootloader.bodmodebits=00101
+avrea.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
+avrea.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
+avrea.menu.bodmode.samplefast.bootloader.bodmodebits=01010
+avrea.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
+avrea.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
+avrea.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
+avrea.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 
 #----------------------------------------#
 # Retain EEPROM (EESAVE)                 #
@@ -1777,10 +1800,10 @@ avrdd.build.appspmabr=
 #                                   #
 #  Speculative but likely           #
 #___________________________________#
-#avrea.menu.eesave.enable=EEPROM retained
-#avrea.menu.eesave.enable.bootloader.eesavebit=1
-#avrea.menu.eesave.disable=EEPROM not retained
-#avrea.menu.eesave.disable.bootloader.eesavebit=0
+avrea.menu.eesave.enable=EEPROM retained
+avrea.menu.eesave.enable.bootloader.eesavebit=1
+avrea.menu.eesave.disable=EEPROM not retained
+avrea.menu.eesave.disable.bootloader.eesavebit=0
 
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
@@ -1788,49 +1811,49 @@ avrdd.build.appspmabr=
 #  Values speculative                #
 #  Features Known                    #
 #____________________________________#
-#avrea.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
-#avrea.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
-#avrea.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
-#avrea.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
-#avrea.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
-#avrea.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
-#avrea.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
-#avrea.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
+avrea.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
+avrea.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
+avrea.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
+avrea.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
+avrea.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
+avrea.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
+avrea.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
+avrea.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
 
 #----------------------------------------#
 # millis/micros timing source            #
 #________________________________________#
-#avrea.menu.millis.tcb2=TCB2 (recommended)
-#avrea.menu.millis.disabled=Disabled
-#avrea.menu.millis.tcb0=TCB0
-#avrea.menu.millis.tcb1=TCB1
-#avrea.menu.millis.tcb3=TCB3
-#avrea.menu.millis.tca0=TCA0
-#avrea.menu.millis.tca1=TCA1
-##avrea.menu.millis.rtc=RTC (no micros)
-##avrea.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal, no micros
-##avrea.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
-#avrea.menu.millis.tcb0.build.millistimer=B0
-#avrea.menu.millis.tcb1.build.millistimer=B1
-#avrea.menu.millis.tcb2.build.millistimer=B2
-#avrea.menu.millis.tcb3.build.millistimer=B3
-#avrea.menu.millis.tca0.build.millistimer=A0
-#avrea.menu.millis.tca1.build.millistimer=A1
-##avrea.menu.millis.rtc.build.millistimer=RTC
-##avrea.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
-##avrea.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
-#avrea.menu.millis.disabled.build.millistimer=NONE
+avrea.menu.millis.tcb2=TCB2 (recommended)
+avrea.menu.millis.disabled=Disabled
+avrea.menu.millis.tcb0=TCB0
+avrea.menu.millis.tcb1=TCB1
+avrea.menu.millis.tcb3=TCB3
+avrea.menu.millis.tca0=TCA0
+avrea.menu.millis.tca1=TCA1
+#avrea.menu.millis.rtc=RTC (no micros)
+#avrea.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal, no micros
+#avrea.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
+avrea.menu.millis.tcb0.build.millistimer=B0
+avrea.menu.millis.tcb1.build.millistimer=B1
+avrea.menu.millis.tcb2.build.millistimer=B2
+avrea.menu.millis.tcb3.build.millistimer=B3
+avrea.menu.millis.tca0.build.millistimer=A0
+avrea.menu.millis.tca1.build.millistimer=A1
+#avrea.menu.millis.rtc.build.millistimer=RTC
+#avrea.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
+#avrea.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
+avrea.menu.millis.disabled.build.millistimer=NONE
 
 #----------------------------------------#
 # printf() version options               #
 #________________________________________#
-#avrea.menu.printf.default=Default, 1.5k flash, no floats
-#avrea.menu.printf.full=Full, 2.6k, prints floats
-#avrea.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
-#avrea.menu.printf.full.build.printfabr=.pfF
-#avrea.menu.printf.minimal=Minimal, 1.1k flash used
-#avrea.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
-#avrea.menu.printf.minimal.build.printfabr=.pfM
+avrea.menu.printf.default=Default, 1.5k flash, no floats
+avrea.menu.printf.full=Full, 2.6k, prints floats
+avrea.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
+avrea.menu.printf.full.build.printfabr=.pfF
+avrea.menu.printf.minimal=Minimal, 1.1k flash used
+avrea.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
+avrea.menu.printf.minimal.build.printfabr=.pfM
 
 #----------------------------------------#
 # OPTIMIZATION OPTIONS                   #
@@ -1854,14 +1877,14 @@ avrdd.build.appspmabr=
 #----------------------------------------#
 # attachInterrupt Mode                   #
 #________________________________________#
-#avrea.menu.attach.allenabled=On all pins, with new implementation.
-#avrea.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
-#avrea.menu.attach.manual=Only enabled ports. Please see documentation.
-#avrea.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
-#avrea.menu.attach.oldversion=Old version, may fix bugs.
-#avrea.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
-#avrea.menu.attach.manual.build.attachabr=.aMan
-#avrea.menu.attach.oldversion.build.attachabr=.aOld
+avrea.menu.attach.allenabled=On all pins, with new implementation.
+avrea.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+avrea.menu.attach.manual=Only enabled ports. Please see documentation.
+avrea.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+avrea.menu.attach.oldversion=Old version, may fix bugs.
+avrea.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrea.menu.attach.manual.build.attachabr=.aMan
+avrea.menu.attach.oldversion.build.attachabr=.aOld
 
 #----------------------------------------#
 # Startup time options                   #
@@ -1869,33 +1892,33 @@ avrdd.build.appspmabr=
 #                                    #
 #  Speculative but likely            #
 #____________________________________#
-#avrea.menu.startuptime.8=8ms
-#avrea.menu.startuptime.1=0ms
-#avrea.menu.startuptime.1=1ms
-#avrea.menu.startuptime.2=2ms
-#avrea.menu.startuptime.4=4ms
-#avrea.menu.startuptime.16=16ms
-#avrea.menu.startuptime.32=32ms
-#avrea.menu.startuptime.64=64ms
-#avrea.menu.startuptime.0.bootloader.SYSCFG1=0x00
-#avrea.menu.startuptime.1.bootloader.SYSCFG1=0x01
-#avrea.menu.startuptime.2.bootloader.SYSCFG1=0x02
-#avrea.menu.startuptime.4.bootloader.SYSCFG1=0x03
-#avrea.menu.startuptime.8.bootloader.SYSCFG1=0x04
-#avrea.menu.startuptime.16.bootloader.SYSCFG1=0x05
-#avrea.menu.startuptime.32.bootloader.SYSCFG1=0x06
-#avrea.menu.startuptime.64.bootloader.SYSCFG1=0x07
+avrea.menu.startuptime.8=8ms
+avrea.menu.startuptime.1=0ms
+avrea.menu.startuptime.1=1ms
+avrea.menu.startuptime.2=2ms
+avrea.menu.startuptime.4=4ms
+avrea.menu.startuptime.16=16ms
+avrea.menu.startuptime.32=32ms
+avrea.menu.startuptime.64=64ms
+avrea.menu.startuptime.0.bootloader.SYSCFG1=0x00
+avrea.menu.startuptime.1.bootloader.SYSCFG1=0x01
+avrea.menu.startuptime.2.bootloader.SYSCFG1=0x02
+avrea.menu.startuptime.4.bootloader.SYSCFG1=0x03
+avrea.menu.startuptime.8.bootloader.SYSCFG1=0x04
+avrea.menu.startuptime.16.bootloader.SYSCFG1=0x05
+avrea.menu.startuptime.32.bootloader.SYSCFG1=0x06
+avrea.menu.startuptime.64.bootloader.SYSCFG1=0x07
 
 #-------------------------------------#
 #         Wire Mode Selection         #
 # To enable TWI1 or master+slave mode #
 #_____________________________________#
-#avrea.menu.wiremode.mors=1x Wire, Master or Slave
-#avrea.menu.wiremode.mors.build.wiremode=MORS_SINGLE
-#avrea.menu.wiremode.mors.build.wireabr=.wO
-#avrea.menu.wiremode.mands=1x Wire, Master and Slave
-#avrea.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
-#avrea.menu.wiremode.mands.build.wireabr=.wA
+avrea.menu.wiremode.mors=1x Wire, Master or Slave
+avrea.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrea.menu.wiremode.mors.build.wireabr=.wO
+avrea.menu.wiremode.mands=1x Wire, Master and Slave
+avrea.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrea.menu.wiremode.mands.build.wireabr=.wA
 
 #-------------------------------------#
 # SPM from app incompatible with Dx   #
@@ -1906,42 +1929,42 @@ avrdd.build.appspmabr=
 #----------------------------------------#
 # WDT MODE                               #
 #________________________________________#
-#avrea.menu.WDTtimeout.disabled=Disabled (recommended)
-#avrea.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
-#avrea.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
-#avrea.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
-#avrea.menu.WDTtimeout.1second=Window remains open for 1 Second
-#avrea.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
-#avrea.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
-#avrea.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
-#avrea.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
-#avrea.menu.WDTwindow.disabled=No delay before window "opens"
-#avrea.menu.WDTwindow.8seconds=8 Second before window "opens"
-#avrea.menu.WDTwindow.4seconds=4 Second before window "opens"
-#avrea.menu.WDTwindow.2seconds=2 Second before window "opens"
-#avrea.menu.WDTwindow.1second=1 Second before window "opens"
-#avrea.menu.WDTwindow.500msec=500 millisecond before window "opens"
-#avrea.menu.WDTwindow.250msec=250 millisecond before window "opens"
-#avrea.menu.WDTwindow.125msec=125 millisecond before window "opens"
-#avrea.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
-#avrea.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
-#avrea.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
-#avrea.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
-#avrea.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
-#avrea.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
-#avrea.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
-#avrea.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
-#avrea.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
-#avrea.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
-#avrea.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
-#avrea.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
-#avrea.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
-#avrea.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
-#avrea.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
-#avrea.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
-#avrea.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
-#avrea.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
-#avrea.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+avrea.menu.WDTtimeout.disabled=Disabled (recommended)
+avrea.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrea.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrea.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrea.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrea.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrea.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrea.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrea.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrea.menu.WDTwindow.disabled=No delay before window "opens"
+avrea.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrea.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrea.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrea.menu.WDTwindow.1second=1 Second before window "opens"
+avrea.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrea.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrea.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrea.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrea.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrea.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrea.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrea.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrea.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrea.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrea.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrea.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrea.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrea.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrea.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrea.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrea.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrea.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrea.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrea.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrea.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrea.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 
 ##########################################################################
 #                                                                        #

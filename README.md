@@ -1,11 +1,54 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5. ~0~ ~1~ ~2~ ~3~ ~4~ ~5~ 6 is here
-DD support is in, and the sixth set of bugs that have been found in it are fixed. This really should have been caught much sooner: PWM was totally hosed! Wakey wakey people! These parts should be capable of nearly 30 simultaneous PWM duty cycles, not 3. Don't let me get away with releasing shit that's broken that badly! How did we get through five versions, where I specifically suggested that there might be bugs relating to PWM output... without anyone noticing this? But don't worry; there are several other critical bugs fixed here if you aren't using PWM.
+## 1.5.7 - EA "support" in beta form is now available.
+This is a very generous definition of the word - The first version where it is belived to be fully working will be numbered 1.6.0, and within a few patch versions of that, it likely will be.
 
-Please be on the lookout for *any further* bugs and regressions, ~particularly relating to the new parts and to PWM.~
+There are lots of issues impacting this currently and I'm not going to even start listing them here, but make issues if you don't see em.
+Expect particular issues with:
+* TCA1 PWM, particularly where `TCAROUTEA & 0x00111000 != 0`
+* DAC operation may have a discontinuity somewhere in the middle. They now split the output into two ranges. We'll have to see.
+* analogRead(), analogReadResolution(), analogPowerOptions(), analogReadEnh(), and analogReadDiff()
+* The new clock system screws us in three ways - We have the 5-bit tuning register that has all the granularity of a boulder pit (seriously, they have that autotune feature, and then squander it with the poor granularity of the tuning! Whyyyyyyy!?), we have our clock speeds fixed to 16 or 20 base speed like tinyAVRs. This suggests that the chips will also cap out at around 32 MHz, and even if they don't, there's this timebase register that needs to be set such that TIMEBASE+1 clock cycles = 1 us. And it's got 5 bits, so beyond 32 MHz anything that relies on timebase would start to malfunction anyway.
+* Flash.h is not supposed to work on it - it needs a different library, and to write when optiboot is not in use will require a novel implementation, while writing via optiboot will require optiboot to work, which will not be easy - that the first EA's are impacted by excruciatingly severe silicon bugs that make writing to nvm more complicated makes this significantly more challenging
 
-A major regression has been noted in PWM and DAC output (specifically, on many parts, there isn't any). Additionally, there appears to be undocumented errata on extant Dx-series parts...
+
+### Optiboot for EA does not look encouraging.
+Before the errata, I was pretty sure that it would be part definitions and a few lines of logic change in optiboot_x. oh ho ho no. No such luck, cause we can't do a bloody erase+write, the optiboot protocol doesn't know where a given page is going to be written (hence where to erase) to until the first bytes of the blob of data that was sent to it is hurtling towards it, and see the quoted section of the datasheet below. I am praying for an early die rev.
+
+> The resulting data will be a binary AND operation between the new and the previous content of the page buffer. The page buffer will automatically be erased (all bits set) **after**:
+> * A device Reset
+> * Any page write **or erase** operation
+> * A Clear Page Buffer command
+> * A device wake-up from any sleep mode
+> Note: **Any operation on the page buffer will halt the CPU** until the previous NVMCTRL operation (command) is completed.
+> © 2022 Microchip Technology Inc and its subsidiaries. Preliminary Data Sheet DS40002443A
+
+Emphasis mine, in other words, since erase write is broken per errata, we have to do an erase, then a write, and we can't start the former until the data for the latter is coming at us.
+
+That means instead of putting incoming data straight into the page buffer, we have to put it into a software buffer while we wait for the erase to finish. Once the erase finishes, copying the data from the software buffer to the page buffer should take a negligible amount of time (640 clock cycles I calculate, or just 32-40 us - an eyeblink compared to the rest of what we're doing here, and then we would kick off the write and acknowledge getting the page, and start buffering the next one)
+
+Hence we are forced to put incoming data into a software buffer (though if the page is in the RWW section, we can kick it off as soon as we know which page we're writing to save time, then at the end of the page, we have to copy the data from the software buffer to page buffer, execute a write, wait for it to complete and then acknowledge the write. Ideally we want to immediately acknowledge the write when we start it, so we can be receiving more data for the next page and putting it into the software buffer, and then, when the write is done, kick off the erase without missing any characters. That method would maximize the speed of the write at the slower of the two: protocol overhead plus time to erase and then write a page, and time required to transmit a page to the target device at the selected baud rate. With AVRdude 7.1 as standard planned for 1.6.0 at the latest, we can break through the 115200 baud barrier. 230400? 460800? Well, the sum of page erase and page write time is 10 ms. A page is 128 bytes, plus 1-2 ms USB latency. 128 bytes = 1024 bits. Because of the start and stop bit, best case, it takes 10/8ths that long to upload it, since 1280 bits is required to transmit that data (not counting overhead). So, `10ms >= ((1300 to 1400)/baud) + 2ms`
+
+Simplify:
+
+`8ms >= (1300 to 1400)/baud`
+
+Convert to consistent units, and multiply both sides by baud rate which has units of bits/seconds.
+
+`0.008s >= (1300 b to 1400 b)/baud (b/s)`
+
+`0.008s * baud (b/s) >= 1300 b to 1400 b`
+
+Separate the two extremes, divide both sides by the length of time to get the baud rates that will reach the speed limit. I think I did that right. Dimentional analysis looks okay at least.
+
+`baud (b/s) >= 1300b / 0.008s`
+
+`baud = 162500 to 175000`
+
+Of course we'd need a different case to handle the times when we were in the NRWW section, where we must basically be a Dx and stuff the page into a buffer, then erase, then copy to page buffer then write, and finally after all that, we could acknowledge the write. That'll make the bootloader larger (though we'll be starting from Optiboot_x instead of Optiboot_dx - optiboot_dx has a single digit number of instruction words of flash left in some configurations before having to step up bootloader size. And different bootloader sizes are not binary compatible, nor can binaries compiled for one size be readily converted to those for a different size, so changing the size of the bootloader is a BFD on modern AVR.)
+
+Are those calculations right? The maximum baud rate that will improve the rate at which data is uploaded via optiboot is in the 160,000-180,000 baud area? We're currently stuck at 115200 due to old avrdude version, but I was hoping we could go at least twice as fast. A 64k chip with 128b pages has 512 pages, and if we're programming them at 100/second, that's 5.12s minimum for a full upload which I guess isn't terrible but gee, 16kb/sec absolute speed limit? That beats old optiboot speeds for sure, but that speed limit would apply to UPDI in the general case too... And we could do 24k/s, which would entail transmitting overhead + 82k, 82000/5.12 okay - 160,000. So the two calculations agree. We'd get something out of 172,800 baud (1.5x 115200) but beyond that we'd see little if anything from 230400, and after that, nothing except for a small improvement in NRWW write speed from bumping baud rate. Did I do the math right up there?
+
 
 ## IMPORTANT WARNINGS
 
@@ -21,7 +64,7 @@ This is an Arduino core to support the exciting new AVR DA, DB, and DD-series mi
 For a basic overview of the parts and a comparison table, see [General AVR Dx-series and Ex-series information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/AboutDxSeries.md)
 
 ## Supported Parts (click link for pinout diagram and details)
-Note that you must install via board manager or replace your tool chain with the azduino4 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in some of the earliest-shipped AVR32DA parts: interrupts do not work correctly (the chip has 2-byte vectors in the hardware, instead of 4-byte ones... it's got more than 8k flash, so that's not going to work no matter what - but it *really* doesn't work with the compiler making 4-byte vector binaries!). The AVR32DA parts in circulation have been recalled from distributors and replaced with working ones, but if you bought bad ones, you'd have to shake down support to get fixed ones. Note that this is *not* listed on any official material!
+Note that you must install via board manager or replace your tool chain with the azduino4 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in some of the earliest-shipped AVR32DA parts not acknowledge properly by Microchip - 50% of interrupts would execute the address of the jump call as an instruction, and the result a useless chip. These defective chips were recalled in what must have cost a fortune, then fixed without incrementing the die rev, and is not mentioned anywhere other than some posts on avr freaks from one of their senior engineers telling people with bad chips to contact support. These bad parts have not been shipping for almost 3 years.  Note that this is *not* listed on any official material!
 * [AVR128DA28, AVR64DA28, AVR32DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)
 * [AVR128DA32, AVR64DA32, AVR32DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)
 * [AVR128DA48, AVR64DA48, AVR32DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md)
@@ -34,25 +77,42 @@ Note that you must install via board manager or replace your tool chain with the
 * [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md) (Better pinouts chart for QFN coming)
 * [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md) (Better pinouts chart for QFN coming)
 * [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md) (Better pinouts chart for QFN coming)
-* AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending release)
-* AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending release)
-* AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending release)
+* AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending creation of diagrams and more info on parts)
+* AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending creation of diagrams and more info on parts)
+* AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending creation of diagrams and more info on parts)
+* AVR32DU14, AVR16DU14 (pending release - `*`)
+* AVR32DU20, AVR16DU20 (pending release - `*`)
+* AVR64DU28, AVR32DU28, AVR16DU28 (pending release)
+* AVR64DU32, AVR32DU32, AVR16DU32 (pending release)
 * AVR32EB14, AVR16EB14, AVR8EB14 (pending release)
 * AVR32EB20, AVR16EB20, AVR8EB20 (pending release)
 * AVR32EB28, AVR16EB28, AVR8EB28 (pending release)
 * AVR32EB32, AVR16EB32, AVR8EB32 (pending release)
 
+`*` On the DD they (likely) weren't able to fit the 64k die into a QFN20. appears true here too. Unclear whether 64k DU14 was scrubbed because it made it's 20-pin counterpart look fat, or or it's 20-pin counterpart wasn't going to exist and they didn't want a hole in the product line. Or maybe someone realized that after USB and power, UPDI and reset, there were only 7 available pins left. It may not entirely make sense to offer something with 64k of flash and only 7 available pins.
+
 My personal opinion is that the 48-pin parts are the "sweet spot" for the DA and DB-series parts - they have the real gems of the product line - the second Type A timer, the two extra CCL LUTs, and enough pins to take full advantage of these peripherals. Most people can't really find something to do with a whole 64 pins in one project - short of indulging in kitchen-sinkism just to take up pins. But the 27 I/O pins on the 32-pin parts can get used up faster than one might think (I had one project a while back where I switched to a '328PB instead of a '328P for the Rev. B, because otherwise I was 1 pin short of being able to lose the I2C backpack on the '1602 LCD, and if I did that, I could integrate the whole thing onto one PCB, and have a rigid connection between the LCD and main PCB - and then I thought I would be fine with a 32-pin Dx as that had a few more pins... But I wound up switching to the 48 and am using about half of the added pins.
 
 For the DD-series, the 28 and 32-pin parts offer obvious economic benefits, but no new capability versus the DB (other than the very cheap VQFN28 package). The smaller versions however offer capability well beyond the tinyAVR product line in the same tiny package sizes.
+
+### Magic Packages
+These are packages, that when offered, open up new frontiers
+
+| Pincount | Package | Magic
+|----------|---------|---------------------
+|       14 |   TSSOP | Can fit on a .425" wide board that plugs into DIP socket |
+|       20 |3x3 VQFN | As above. Generally insanely tiny, though often large flash sizes don't make it in.
+|       28 |    VQFN | A normal VQFN, but the price point is really nice on the DD's.
 
 ## Supported Clock Speeds
 ### For the DA, DB, and DD-series parts
 The maximum rated spec is 24 MHz **across the entire voltage and temperature range.**
 
-The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating). These parts overclock very well. For compatibility with tinyAVR, we also offer 5/10 MHz (generated by dividing 20 MHz).
+The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating).For compatibility with tinyAVR, we also offer 5/10 MHz (generated by dividing 20 MHz).
 
 All parts can use an external clock, and DB and DD-series parts can also use a crystal.
+
+These parts overclock very well. Like insanely very well. Many parts will run at 48 MHz at room temp, particularly E-spec ones. In limited (because it wasn't very interesting) testing, I confirmed that 128 MHz from the 4x multiplication setting of the PLL (undocumented) also worked at room temperature on the same specimen, while it didn't work at 160 MHz.
 
 **Supported from internal:** 1 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz
 
@@ -69,16 +129,16 @@ The DU - assuming it ever exists in the form presented in the briefly available 
 See the [Clock Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) for more information
 
 ### For the EA and EB-series
-The maximum rated clock speed is 20 MHz. Assuming that the actual silicon behaves as the headers imply, that means 1 MHz, 2 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz internal. Like a TinyAVR/
+The maximum rated clock speed is 20 MHz. Assuming that the actual silicon behaves as the headers imply, that means 1 MHz, 2 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz internal will be the options, like a tinyAVR.
 
-The EA and EB series CLKCTRL is tinyAVR-like not Dx-like, with 16MHz and 20 MHz derived clocks. Hopefully after a kick to the groin like that, they'll at least let us have an oscillator with the compliance of the 2-series tinyAVRs, not the pathetic calibration facilities we get on DxCore (headers already show we're not getting the Dx-style speed selector. It's unclear if the speed is voltage dependent or not). But we may be able to tune like a tinyAVR 2-series.) Assuming we get calibration like - and as powerful as - tiny2, that will permit tuning. If tuned before bootloading with optiboot, even if you chose 20 MHz (or 20 MHz derived speed when bootloading), we'd be able to give you 16 MHz-derived speeds by tuning osc down to 16m or up to 20, and that we could probably tune most specimens 20 MHz osc to 32 while remaining stable, but that more than that is unlikely.
+The EA and EB series CLKCTRL is tinyAVR-like not Dx-like, with 16MHz and 20 MHz derived clocks. Hopefully after a kick to the groin like that, they'll at least let us have an oscillator with the compliance of the 2-series tinyAVRs, not the pathetic calibration facilities we get on DxCore (headers already show we're not getting the Dx-style speed selector. It's unclear if the speed is voltage dependent or not). But we may be able to tune like a tinyAVR 2-series. Update: NO WE CANNOT! We have the Dx-style tuner but tiny-style speed select.
 
 The EA-series, but not the EB, will support an external crystal. No, I don't really understand why they hate crystals so much either, but they sure seem to leave the crystal off of anything they can get away with now. And as the internal oscillator is no longer completely awful, they can definitely get away with a lot more than Atmel could have with those  +/- 10% internal oscillators. It will be interesting to see the similarities and differences between clocking in Dx, EA, EB, and tinyAVR.
 
-One notable thing here is that they have **moved** a special function! Prior releases has XOSC32K on PF0 and PF1 as long as the parts had that, and only if they didn't did it fall back to PA0 and PA1 (on 14/20 pin DD series). On EB-series, which never support an HF xtal (nominally on PA0 and PA1), the 32 kHz crystal always goes between those pins and never between PF0 and PF1.
+One notable thing here is that they have **moved** a special function! Prior releases has XOSC32K on PF0 and PF1 as long as the parts had that, and only if they didn't did it fall back to PA0 and PA1 (on 14/20 pin DD series). On EB-series, which never support an HF xtal (nominally on PA0 and PA1), the 32 kHz crystal always goes between those pins and never between PF0 and PF1. I'd bet on this being an error in the product brief - I predict that the EB28+EB32 will move the LF crystal back where it belongs.
 
 ## UPDI Programming
-The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface - naturally Microchip keeps the UPDI debug protocol under wraps to try to force you to use their tooling). It is used on all modern (post-2016/Microchip buyout/post-revolutionary) AVR microcontrollers, (though the AVRrc (reduced core) chips use different methods - they're also not suited to Arduino because they don't have nearly enough flash to fit the normal API. . While one can always purchase a purpose-made UPDI programmer from Microchip, this is not recommended when you will be using the Arduino IDE rather than Microchip's (god-awful complicated) IDE. There are widespread reports of problems on Linux for the official Microchip programmers. There are two very low-cost alternative approaches to creating a UPDI programmer, both of which the Arduino community has more experience with than those official programmers.
+The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface - naturally Microchip keeps the UPDI debug protocol under wraps to try to force you to use their tooling). It is used on all modern (post-2016/Microchip buyout/post-revolutionary) AVR microcontrollers, (though the AVRrc (reduced core) chips use different methods - they're also not suited to Arduino because they don't have nearly enough flash to fit the normal API. While one can always purchase a purpose-made UPDI programmer from Microchip, this is not recommended when you will be using the Arduino IDE rather than Microchip's (god-awful complicated) IDE. There are widespread reports of problems on Linux for the official Microchip programmers. There are two very low-cost alternative approaches to creating a UPDI programmer, both of which the Arduino community has more experience with than those official programmers. HEll, the one time I tried to use an official UPDI programmer, I couldn't even get Microchip's own tooling to see it.
 
 ### From a USB-Serial Adapter With SerialUPDI (pyupdi-style - Recommended)
 Before megaTinyCore existed, there was a tool called [pyupdi](https://github.com/mraardvark/pyupdi) - a simple Python program for uploading to UPDI-equipped microcontrollers using a serial adapter modified by the addition of a single resistor. But pyupdi was not readily usable from the Arduino IDE, and so this was not an option. As of 2.2.0, megaTinyCore brings in a portable Python implementation, which opens a great many doors; Originally we were planning to adapt pyupdi, but at the urging of its author and several Microchip employees, we have instead based this functionality on [pymcuprog](https://pypi.org/project/pymcuprog/), a "more robust" tool developed and "maintained by Microchip" which includes the same serial-port upload feature, only without the performance optimizations. **If installing manually** you must [add the Python package](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/tools/ManualPython.md) appropriate to your operating system in order to use this upload method (a system Python installation is not sufficient, nor is one necessary).
@@ -88,14 +148,16 @@ Read the [**SerialUPDI documentation**](https://github.com/SpenceKonde/AVR-Guida
 As of 2.3.2, with the dramatic improvements in performance, and the proven reliability of the wiring scheme using a diode instead of a resistor, and in light of the flakiness of the jtag2updi firmware, this is now the recommended programming method. As of this version, programming speed has been increased by as much as a factor of 20, and now far exceeds what was possible with jtag2updi (programming via jtag2updi is roughly comparable in speed to programming via SerialUPDI on the "SLOW" speed option, 57600 baud; the normal 230400 baud version programs about three times faster than the SLOW version or jtag2updi, while the "TURBO" option (runs at 460800 baud and increases upload speed by approximately 50% over the normal one. The TURBO speed version should only be used with devices running at 4.5v or more, as we have to run the UPDI clock faster to keep up (it is also not expected to be compatible with all serial adapters - this is an intentional trade-off for improved performance), but it allows for upload and verification of a 32kB sketch in 4 seconds.
 
 
-#### Coming soon - HyperUPDI Standalone programmer
+#### Coming sometime - something standalone
 A direct-or-standalone programmer, for UPDI - and likely also classic AVRs.
-In direct mode, a new upload tool will be used. Because the chip on the device will implement the UPDI protocol, USB latency will be drastically reduced as data can be sent in huge chunks at high baud rates and buffered in ram, and we should be able to feed data to the chip while receiving it from the computer, making this the fastest way to program a modern AVR. Because ISP is a somewhat more involved protocol, for those parts, HyperUPDI will still buffer large chunks of data, but will then write them before asking the computer for the next chunk of data (if there is one - for most tinyAVR parts, the ram is sufficient to buffer the entire flash contents). HyperUPDI will also come equipped with an 8 MB flash chip to hold flash (and optionally EEPROM and USERROW) images, and a 64k EEPROM to hold the table of contents (since it will be written and erased much more often).  With the optional full standalone add-on, a screen and buttons will provide a user interface to select an image, and then write it to the connected target, or store the target's contents to flash. Without the add-on, you can still connect three buttons, such that one will dump the target chip to the next free space in the flash, and another will write the most recently dumped image to the target (so you can clone chips, provided they are unlocked) and the third will write a selected image (either the last one loaded from a computer OR the will be provided to connect a small number of buttons to dump a chip to a new "selected" (most recently written, or selected via serial commands) flash image to be written.
+In direct mode, a new upload tool will be used. Because the chip on the device will implement the UPDI protocol, USB latency will be drastically reduced as data can be sent in huge chunks at high baud rates and buffered in ram, and we should be able to feed data to the chip while receiving it from the computer, making this the fastest way to program a modern AVR. Because ISP is a somewhat more involved protocol, for those parts, HyperUPDI will still buffer large chunks of data, but will then write them before asking the computer for the next chunk of data (if there is one - for most tinyAVR parts, the ram is sufficient to buffer the entire flash contents). HyperUPDI will also come equipped with an 8 MB flash chip to hold flash (and optionally EEPROM and USERROW) images, and a 64k EEPROM to hold the table of contents (since it will be written and erased much more often). In full standalone mode, it will have a screen and basic UI to dump target flash to it's own flash.
 
-#### Coming soon - simple HV-debricker
-A small simple device that can be used to restore the UPDI pin to UPDI so that simpler, cheaper devices can program it.
+No plans to use an SD card. Why? I have found them to be of poor reliability, and they are partiularly resource intensive because of the whole filesystem thing.
 
-#### (New in 2.5.6) What's With All The Different SerialUPDI Options?
+#### HV debrick project delayed
+Based on information about the reset input cell on DD and later devices.
+
+#### What's With All The Different SerialUPDI Options?
 Depending on adapter model, and operating system, it has been found that different timing settings are required; however, settings needed to keep even 230400 baud from failing on Linux/Mac with most adapters impose a much larger time penalty on Windows, where the OS's serial handling is slow enough that nothing needs that delay...
 
 The "write delay" mentioned here is to allow for the page erase-write command to finish executing; this takes a non-zero time. Depending on the adapter, USB latency and the implicit 2 or 3 byte buffer (it's like a USART, and probably implemented as one internally. The third byte that arrives has nowhere to go, because the hardware buffer is only 2 bytes deep) may be enough to allow it to work without an explicit delay. Or, it may fail partway through and report an "Error with st". The faster the adapter's latency timeout, and the faster the OS's serial handling is, the greater the chance of this being a problem. This is controlled by the `-wd` command line parameter if executing prog.py manually. As of 2.5.6 this write delay is closer to the actual time requested (in ms), previously it had a granularity of several ms, when 1 is all you needed, and as a result, the penalty it imposed was *brutal*, particularly on Windows.
@@ -109,7 +171,8 @@ Selection guide:
 * 460800 baud on Windows with the write delay is often slower than 230400 baud without it. The same is not true on Linux/Mac, and the smaller the page size, the larger the performance hit from write delay.
 * 57600 baud should be used if other options are not working, or when programming at Vcc = < 2.7V.
 * 460800 baud works without the write delay on some adapters with a 10k resistor placed across the Schottky diode between TX and RX, when it doesn't work without that unless the write delay is enabled. No, I do not understand how this could be either!
-* As you can see from the above, this information is largely empirical; it is not yet known how to predict the behavior.
+* As you can see from the above, this information is largely empirical; it is not yet known how to predict the behavior
+* EA series - good question, but pretty sure is no support for it yet.
 
 #### Why is My FTDI Adapter Insanely Slow?
 FTDI adapters (FT232, FT2232, and FT4232 etc), including the fake ones that are available on eBay/AliExpress for around $2, on Windows default to an excruciatingly long latency period of 16ms. Even with the lengths we go to in order to limit the number of latency delay periods we must wait through, this will prolong a 2.2 second upload to over 15 seconds. You must change this in order to get tolerable upload speeds:
@@ -123,7 +186,7 @@ FTDI adapters (FT232, FT2232, and FT4232 etc), including the fake ones that are 
 8. Uploads should be much faster now.
 
 ### With a Classic Arduino (jtag2updi)
-One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that. We no longer provide detailed documentation for this processes; jtag2updi is deprecated. If you are still using it, you should select jtag2updi from the tools->programmer menu. This was previously our recommended option. Due to persistent jtag2updi bugs, and its reliance on the largely unmaintained 'avrdude' tool (which among other things inserts a spurious error message into all UPDI uploads made with it), this is no longer recommended.
+One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that. We no longer provide detailed documentation for this processes; jtag2updi is deprecated. If you are still using it, you should select jtag2updi from the tools->programmer menu. This was previously our recommended option. Due to persistent jtag2updi bugs, and its reliance on the largely unmaintained 'avrdude' tool (which among other things inserts a spurious error message into all UPDI uploads made with it), this is no longer recommended. Note that this will not support the EA-series.
 
 ## Compatibility Note for 32-bit Linux
 Apparently Arduino isn't packaging 32-bit versions of the latest avrdude.
@@ -174,6 +237,7 @@ There isn't really anything to do differently in the core to support MVIO - thou
   * There is no internal connection between VDD and VDDIO2 even when MVIO is disabled.
   * Hence PORTC still runs at the voltage on the VDDIO2 pin (which should be the same as VDD unless wired incorrectly) if MVIO is disabled. What is disabled is the internal monitoring of the state of VDDIO2. The status bit always reads 1 (MVIO OK). If VDDIO2 is not powered, the pins are not tristated, nor are inputs set to 0 - reading the pins returns random values.
     * It may be possible to damage the part in this improper operating regime.
+* It appears that the MVIO functionality was repurposed on the DU to get the 3.3v USB signal levels regardless of Vdd.
 
 **Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with just a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
 
@@ -259,7 +323,7 @@ If you want to take full control of one of the three PWM timers (maybe you want 
 ### EEPROM - Yes
 A compatible `EEPROM.h` library is included; this implementation is derived from and fully compatible with the standard `EEPROM.h` API, even though the implementation differs internally.
 
-### USERROW - Yes - New in 1.4.0
+### USERROW - Yes
 The "USERROW", more formally known as the User Signature Space, is a small section of EEPROM-like memory which always survives a chip erase cycle. It is only erased if the application does so, or when the chip undergoes a chip erase while locked (that way sensitive information could be stored there on a locked chip). It also has the unique option of being writable via UPDI *on a locked chip* (using a special procedure; I've never had any reason to do it). We present a very similar interface to the EEPROM library, however, erase is all or nothing, and in order to prevent unnecessary erase cycles,it's a bit more complicated, and an additional function call is sometimes needed to commit the changes to flash.
 
 See the [USERSIG library documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Wire/README.md)
@@ -275,7 +339,7 @@ See the [**Interrupt reference**](https://github.com/SpenceKonde/DxCore/blob/mas
 ### Additional supported peripherals
 These parts have a great many powerful peripherals far beyond what the classic AVRs did, and we provide a simple wrapper library around them when we think doing so is useful.
 
-#### On-chip Op-amps
+#### On-chip Op-amps \
 The DB-series parts have 2 (28 or 32 pin) or 3 (48/64 pin) on-chip op-amps, with programmable resistor ladder, configurable for a variety of applications. They can be used as a voltage follower (you can follow the DAC and then use the output to drive VDDIO2, though the current is still only tens of mA, that's often enough - driving heavy loads at the lower voltage is an unusual use case which requires a separate power supply; many sensors exist now with maximum voltage below 3.3V and draw very little current. This is a good use case for it.)
 
 We provide a basic wrapper in the form of the [**Opamp Library**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Opamp) by MCUDude.
@@ -311,6 +375,7 @@ These parts for the most part are swimming in timers - The exception being the 1
 * TCA - 16 bit timer, 3x16-bit or 6x8-bit PWM channels and lots of features.
   * 2 on 48/64 pin DA/DB and all EA-series; extra PORTMUX options of 64-pin only.
   * 1 elsewhere
+  * Capabilities:
     * 6 PWM channels in split mode or 3 in non-split mode.
     * TCA0 on non-tiny PORTMUX option is simply the port number!
     * Prescale by 1, 2, 4, 8, 16, 64, 256 or 1024.
@@ -320,7 +385,8 @@ These parts for the most part are swimming in timers - The exception being the 1
   * 4 on 48-pin Dx-series parts and all EA-series
   * 3 on all 28/32-pin Dx-series
   * 2 on smaller parts
-    * 1 PWM channel each.
+  * Capabilities:
+    * 1 PWM channel each. It is not recommended to use them for PWM.
     * Most have 2 pin options (counting the default pin), some don't have a remapping option and some don't have a pin at all (particularly on DD-series)
     * Prescaler can only be 1, 2 or a value used by a TCA.
     * These are lousy as PWM timers. They are excellent utility timers however.
@@ -328,13 +394,14 @@ These parts for the most part are swimming in timers - The exception being the 1
     * Can be used to count on event inputs (not on pre-DA-series parts though)
 * TCD - 12-bit asynchronous timer for high-speed and/or async PWM and internal PLL
   * 1 on all DA, DB, and DD parts
-  * None listed on the initial DU product brief (presumably it's still on the die, but being used to generate that 48 MHz reference clock needed for standards compliant USB 2.0)
-  * None on the EA-series
+  * None on DU (presumably it's still on the die, but being used to generate that 48 MHz reference clock needed for standards compliant USB 2.0)
+  * None on EA/EB-series. EB has 2 new kinds of timers about which very little is known.
+  * Capabilities:
     * Can be used to generate 2 independent 12-bit PWM outputs on up to 2 pins each - usually pins 4-7 of the port selected with PORTMUX (we use the PA4-5 PD4-5 PORTMUX option on 14 and 20 pin DD-series during initialization, and do not change it from the default on parts with more, since it can be con
       * The PORTMUX is busted in DA/DB parts per errata.
     * See the Timer and TCD references for more information on how this timer is used for analogWrite().
-    * Can react to events asynchronously (i.e., events shorter than 1 system clock cycle), but this only works correctly when the count prescaler is disabled due to errata).
-    * Can use an external clock source, optionally multiplied by the PLL frequency. Runs at speeds far higher than CPU core can (and there's an undocumented but functional 4x PLL multiplier).
+    * Can react to events asynchronously (i.e., events shorter than 1 system clock cycle), but this only works correctly when the count prescaler is disabled due to errata on DA/DB).
+    * Can use an external clock source, optionally multiplied by the PLL. Runs at speeds far higher than CPU core can (and there's an undocumented but functional 4x PLL multiplier).
     * Complex and fully automatic reactions to events to permit an "emergency stop" that would work without CPU intervention.
     * Challenging to configure, even to do simple stuff.
 
@@ -424,12 +491,16 @@ This core adds a number of new features include fast digital I/O (1-14 clocks de
 See the [**Improved Digital I/O Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
 
 ## Additional DxCore documentation
+
 ### Official [application notes from Microchip](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Microchip.md)
 A partial listing of applicable app notes. The ones that looked most useful or interesting.
+
 #### [IO-headers](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/ioheaders/README.md)
 These are a copy of the latest i/o headers (not necessarily the ones we use!), for user convenience; they are meant for online viewing or manual installations, since a board manager installation will bury them just as deeply as the copies the toolchain uses.
+
 ### Library documentation
 See the [library index](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Libraries.md) or readme files for each library (the former is mostly composed of links to the latter)
+
 ## Bootloader (Optiboot) Support
 A new version of Optiboot (Optiboot_dx) now runs on the tinyAVR DA and DB-series and DD is expected shortly It's under 512 bytes, and (will) on all parts supported by this core, allowing for a convenient workflow with the same serial connections used for both uploading code and debugging (like a normal Arduino Pro Mini). Note the exception about not having autoreset unless you disable UPDI (except for the 20 and 24-pin 2-Series parts which can put reset on PB4 instead), which is a bit of a bummer.
 
@@ -579,7 +650,7 @@ The classic AVR devices all use the venerable `AVRe` (ATtiny) or `AVRe+` (ATmega
 
 This really comes down to 2 changes
 * Faster stores - including ST, STD, and PUSH (PUSH and POP are essentially ST SP+ and LD -SP, treating the stack pointer like one of the register pairs And since CALL and RCALL involve pushing something onto the stack, you'd pick up enhancement there for free too. This almost certainly accounts for the slowdown in LDS. If I had to guess, I would say that LD's take 1 clock to send the address to the memory controller, and get the data in the next clock. Since in LDS, it doesn't have the address until the second clock, there you go.
-* CBI/SBI are single clock - unclear if the mechanism is the same as above/
+* CBI/SBI are single clock - unclear if the mechanism is the same as above.
 
 ## License
 DxCore itself is released under the [LGPL 2.1](LICENSE.md). It may be used, modified, and distributed freely, and it may be used as part of an application which, itself, is not open source (though any modifications to these libraries must be released under the LGPL as well). Unlike LGPLv3, if this is used in a commercial product, you are not required to provide means for user to update it.

@@ -14,8 +14,11 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - pinModeFast will now turn off pullups if they're on when a pin is set to output. otherwise, the result was problemaic for - for example, a situation I ran into where the pullup was never turned off even after the pins were set back to output and driven low. Prior to going to deep sleep. You can imagine what my battery life was like.
 * Bugfix (serious) - ensure that compilation will succeed on Optiboot DD-series devices.
 * Bugfix - Remove the Optimization Level menu - it caused too many problems that I didn't know how to solve (nothing with serial would compile if not set for -Os.
-* Bugfix - tinyNeoPixel timing issues at 20-32 MHz should be corrected now
+* Bugfix - tinyNeoPixel timing issues at 20-32 MHz should be corrected now #421
+* Enhancement - significant cleanup of tinyNeoPixel. Add updateLatch(uint8_t) method. This takes an argument (in microseconds) that sets the blackout period after show() is called, since in the wild parts with between 6 and 250 us of latch delay exist, and parts that match the previous implementation may be outnumbered by ones which do not).
 * Fix issue when serial buffer is set to the maximum. #428
+* Large number of documentation clarifications.
+* **BETA BETA BETA** Add EA-series non-optiboot boards to the board selection menu. The update where we will expect them to be 100% (well, whatever % working you happen to expect from DxCore) will be numbered 1.6.0, but by pushing an update that lets you attempt unsuccessfully to use the new parts, we can expedite development.
 
 ## Releases
 ### 1.5.6
