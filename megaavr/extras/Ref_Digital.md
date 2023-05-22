@@ -25,7 +25,7 @@ Remember also that executing 1 word of code (2 bytes) takes 1 clock cycle, thoug
 | digitalWrite()     | +656 |  +198 |  +340 | Calls turnOffPWM(), included in figures.
 | both of above      | +784 |  +296 |  +438 | Calls turnOffPWM()
 | openDrain()        | +584 |  +128 |  +262 | Calls turnOffPWM()
-| turnOffPWM()       | +572 |   +72 |  +228 | This is where we pay te price for free remapping of PWM!
+| turnOffPWM()       | +572 |   +72 |  +228 | This is where we pay the price for free remapping of PWM!
 | digitalRead()      |  ~76 |   +76 |   +78 | Official core calls turnOffPWM (we don't)
 | pinConfigure() 1   | +216 |  +104 |  +116 | Only direction/output level
 | pinConfigure() 2   | +362 |  +202 |  +220 | Only pullup, input sense, and direction/outlevel

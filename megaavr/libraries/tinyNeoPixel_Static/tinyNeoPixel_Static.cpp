@@ -70,6 +70,11 @@ tinyNeoPixel::~tinyNeoPixel() {
   // if (pin >= 0) pinMode(pin, INPUT);
 }
 
+void tinyNeoPixel::updateLatch(uint16_t us = 50) {
+  /* New feature - to extend the latch interlock to all varieties of LEDs turns out to not be costly at all. */
+  latchTime=(us < 6 ? 6 : us); // there are no devices in production with a shorter latch waiting time, and thus is the shortest reasonable latch delay.
+}
+
 // *INDENT-OFF*   astyle don't like assembly
 void tinyNeoPixel::show(void) {
 
@@ -99,14 +104,14 @@ void tinyNeoPixel::show(void) {
   // to the PORT register as needed.
   // Notes (Spence 2/2022):
   //   OUTs suck, because they force duplication of the routine to handle
-  //   different ports. Luckily we don't need them here - modern AVs are
+  //   different ports. Luckily we don't need them here - modern AVRs are
   //   based on the AVRxt core, and ST takes only 1 clock.
   //   Actually, it is possible to do that on the classic AVR version of
   //   these routines too... I'm not sure why it wasn't done, other than
   //   a strict adherence to the official datasheet, unhindered by any
   //   actual testing of how the parts behave (a LOW of only 6 us is
   //   enough to trigger the latch, that is the only limit on the length
-  //   of a LOW, (hence if any bit takes longer than 5 bits are supposed
+  //   of a LOW, (hence if any bit takes longer than 5 bytes are supposed
   //   to, it won't work :-P)), and the length of a 1 is limited by the
   //   fact that it will get "signal reshaped" an "ideal length". If this
   //   results in the following LOW exceeding the latch limit, it breaks.
@@ -1058,8 +1063,6 @@ void tinyNeoPixel::show(void) {
   interrupts();
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     endTime = micros();
-    // Save EOD time for latch on next call
-    #pragma message("micros() present. This library assumes the canonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
   #else
     #warning "micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation."
   #endif

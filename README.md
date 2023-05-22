@@ -1,7 +1,7 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
 ## 1.5.7 - EA "support" in beta form is now available.
-This is a very generous definition of the word - The first version where it is belived to be fully working will be numbered 1.6.0, and within a few patch versions of that, it likely will be.
+This is a very generous definition of the word - The first version where it is believed to be fully working will be numbered 1.6.0, and within a few patch versions of that, it likely will be.
 
 There are lots of issues impacting this currently and I'm not going to even start listing them here, but make issues if you don't see em.
 Expect particular issues with:
@@ -39,7 +39,7 @@ Convert to consistent units, and multiply both sides by baud rate which has unit
 
 `0.008s * baud (b/s) >= 1300 b to 1400 b`
 
-Separate the two extremes, divide both sides by the length of time to get the baud rates that will reach the speed limit. I think I did that right. Dimentional analysis looks okay at least.
+Separate the two extremes, divide both sides by the length of time to get the baud rates that will reach the speed limit. I think I did that right. Dimensional analysis looks okay at least.
 
 `baud (b/s) >= 1300b / 0.008s`
 
@@ -152,7 +152,7 @@ As of 2.3.2, with the dramatic improvements in performance, and the proven relia
 A direct-or-standalone programmer, for UPDI - and likely also classic AVRs.
 In direct mode, a new upload tool will be used. Because the chip on the device will implement the UPDI protocol, USB latency will be drastically reduced as data can be sent in huge chunks at high baud rates and buffered in ram, and we should be able to feed data to the chip while receiving it from the computer, making this the fastest way to program a modern AVR. Because ISP is a somewhat more involved protocol, for those parts, HyperUPDI will still buffer large chunks of data, but will then write them before asking the computer for the next chunk of data (if there is one - for most tinyAVR parts, the ram is sufficient to buffer the entire flash contents). HyperUPDI will also come equipped with an 8 MB flash chip to hold flash (and optionally EEPROM and USERROW) images, and a 64k EEPROM to hold the table of contents (since it will be written and erased much more often). In full standalone mode, it will have a screen and basic UI to dump target flash to it's own flash.
 
-No plans to use an SD card. Why? I have found them to be of poor reliability, and they are partiularly resource intensive because of the whole filesystem thing.
+No plans to use an SD card. Why? I have found them to be of poor reliability, and they are particularly resource intensive because of the whole filesystem thing.
 
 #### HV debrick project delayed
 Based on information about the reset input cell on DD and later devices.

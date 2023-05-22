@@ -95,8 +95,8 @@ void tinyNeoPixel::updateLength(uint16_t n) {
 }
 
 void tinyNeoPixel::updateLatch(uint16_t us = 50) {
-/* New feature - to extend the latch interlock to all varieties of LEDs turns out to not be costly at all. */
-  latchTime=(us < 6 ? 6 : us); // there are no devices in production with a shorter latch waiting time, and ths
+  /* New feature - to extend the latch interlock to all varieties of LEDs turns out to not be costly at all. */
+  latchTime=(us < 6 ? 6 : us); // there are no devices in production with a shorter latch waiting time, and thus is the shortest reasonable latch delay.
 }
 
 void tinyNeoPixel::updateType(neoPixelType t) {
@@ -1105,8 +1105,6 @@ void tinyNeoPixel::show(void) {
   interrupts();
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     endTime = micros();
-    // Save EOD time for latch on next call
-    #pragma message("micros() present. This library assumes the canonical 50 us latch delay, updateLatch() can be used to change this assumed latch delay")
   #else
     #warning "micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation."
   #endif
