@@ -37,7 +37,17 @@ In some cases the voltage determines the maximum ADC clock speed. Call analogRef
 
  You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last column: contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
 
- External reference voltage should be between 1.8v and Vdd if CLK_ADC is higher than 500kHz (by default, it is), however if you slow the ADC clock down, external references as low as 1.0V (they gave 1.024V as the lower limit. It is unclear if the slower clock speed must also be used for the internal 1.024V reference. . `INTERNAL` is not a supported reference, since there is no obvious reason that any of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V, but no guarantees are given. Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
+### Important notes regarding references
+
+#### There is no INTERNAL
+`INTERNAL` is not a supported reference, since there is no obvious reason that any of the four reference options should be used. These reference voltages are presented as they are in the datasheet, but do note that they are what the manufacturer targeted, not what the actual voltage is: The spec is +/- 4% over the temperature range of -40 to 85 C, when Vdd is at least the voltage specified above - though at typical conditions, every time I've checked, it was within 1%; The numbers they give for the voltages are specified to three decimal places (obviously that is convenient because then 1 mV = 1, 2, or 4 LSB), that should by no means be interpreted as a claim that they are *that* accurate. It is likely that the 1.024 V reference is usable below 2.5 V, but no guarantees are given. Reference voltages exceeding the supply voltage will produce meaningless results and should not be used.
+
+#### Limits of external refeences
+External reference voltage should be between 1.8v and Vdd if CLK_ADC is higher than 500kHz (by default, it is), however if you slow the ADC clock down, external references as low as 1.0V (they gave 1.024V as the lower limit. It is unclear if the slower clock speed must also be used for the internal 1.024V reference.
+
+This is not all bad news though on the 2-series and Ex, instead of having to slow down for some reference voltages, we get higher max CLK_ADC with external references! 
+
+
 
 ## Internal Sources
 In addition to reading from pins, you can read from a number of internal sources - this is done just like reading a pin, except the constant listed in the table below is used instead of the pin number:
@@ -52,7 +62,7 @@ In addition to reading from pins, you can read from a number of internal sources
 |                         | `ADC_DACREF1`             | `ADC_DACREF1`           |
 |                         | `ADC_DACREF2`             |                         |
 
-The Ground internal sources are presumable meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, and often all the channels could be measured. The EA attempts to provide an automatic solution to this with sign chopping (usable only for accumulated readings )
+The Ground internal sources are presumably meant to help correct for offset error. On Classic AVRs they made a point of talking about offset cal for differential channels, and often all the channels could be measured. The EA attempts to provide an automatic solution to this with sign chopping (usable only for accumulated readings )
 
 DACREF0-2 are the the reference voltages for the analog comparators. On the DA-series, there is no way to measure the supply voltage other than using DAC or DACREF source: you can neither directly measure a reference voltage like some parts, nor is there any way to get a fraction of the supply voltage like the DB and DD-series support.  Note also that on the DB series, you can't measure the outputs of the OPAMPs directly - you must output to the pin and measure that, however much the high-level descriptions sound like there is a way to route the opamp signals internally.
 
@@ -71,22 +81,23 @@ If anyone reading this has performed any testing of this, I would appreciate it 
 
 To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being significantly faster by virtue of the much shorter conversion time. But you can shorten that further (or extend it) using analogSampleDuration(). With minimum sample duration, external voltage reference in burst or freerun mode and maximum ADC clock, 450k sps may be possible at full resolution. You're unlikely to want that ofc, but that's a separate matter, just don't configure it like that if you don't want it. The fact remains that it is definitely the faster ADC.
 
+             
 ## ADC Function Reference
-This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application.
+This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application. Several functions are unique to the cores I maintain. The functions here not marked if they are simple implementations that duplicate the stock one. They are marked (semi-standard) if it is something that is standard on some arduino cores but not official AVR cores and/or which works differently here), or (one of more of mTC, DxC, and ATC - these are the three cores I maintain, megaTinyCore, DxCore and ATTinyCore).
 
-### uint8_t getAnalogReference() and getDACReference()
-These return the numbers listes in the reference table at the top as a `uint8_t` - you can for example test `if (getAnalogReference() == INTERNAL1V1)`
+### (mTC/DxC) getAnalogReference() and getDACReference()
+These return the numbers listed in the reference table at the top as a `uint8_t` - you can for example test `if (getAnalogReference() == INTERNAL1V1)`
 
 ### int16_t analogRead(pin)
 The standard analogRead(). Single-ended, and resolution set by analogReadResolution(), default 10 for compatibility. Negative return values indicate an error that we were not able to detect at compile time (as always, when we can detect a problem at compile time, we try to generate an error then. Return type is a 16-bit signed integer (`int` or `int16_t`).
 
-### bool analogReadResolution(resolution)
+### (semi-standard) bool analogReadResolution(resolution)
 Sets resolution for the analogRead() function. Unlike stock version, this returns true/false. *If it returns false, the value passed was invalid, and resolution was set to the default, 10 bits*. Note that this can only happen when the value passed to it is determined at runtime - if you are passing a compile-time known constant which is invalid, we will issue a compile error. The only valid values are those that are supported natively by the hardware, plus 10 bit, even if not natively supported, for compatibility.
 Hence, the only valid values are 10 and 12, plus 8 on the EA-series.
 
 This is different from the Zero/Due/etc implementations, which allow you to pass anything from 1-32, and rightshift the minimum resolution or leftshift the maximum resolution as needed to get the requested range of values. Within the limited resources of an 8-bit AVR with this is a silly waste of resources, and padding a reading with zeros so it matches the format of a more precise measuring method is in questionable territory in terms of best practices. Note also that we offer oversampling & decimation with `analogReadEnh()` and `analogReadDiff()`, which can extend the resolution while keep the extra bits meaningful at the cost of slowing down the reading. `analogReadResolution()` only controls the resolution of analogRead() itself. The other functions take desired resolution as an argument, and restore the previous setting.
 
-### bool analogSampleDuration(duration)
+### (mTC/DxC) bool analogSampleDuration(duration)
 Sets sampling duration (SAMPLEN), the sampling time will be 2 + SAMPLEN ADC clock cycles. Sampling time is the time the sample and hold capacitor is connected to the source before beginning conversion. For high impedance voltage sources, use a longer sample length. For faster reads, use a shorter sample length.
 speed. This returns a `bool` - it is `true` if value is valid.
 
@@ -121,7 +132,7 @@ Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res
 
 Negative values from ADC_ENH always indicate a runtime error; these values are easily recognized, as they are huge negative numbers
 
-### int32_t analogReadDiff(positive, negative, res=ADC_NATIVE_RESOLUTION, gain=0)
+### (mTC/DxC) int32_t analogReadDiff(positive, negative, res=ADC_NATIVE_RESOLUTION, gain=0)
 Differential `analogRead()` - returns a `long` (`int32_t`), not an `int` (`int16_t`). Performs a differential read using the specified pins as the positive and negative inputs. Any analog input pin can be used for the positive side, but only pins on PORTD/PORTE (AVR Dx-series), or the constants `ADC_GROUND` or `ADC_DAC0` can be used as the negative input. Information on available negative pins for the Ex-series is not yet available, but is expected to be a subset of available analog pins. The result returned is the voltage on the positive side, minus the voltage on the negative side, measured against the selected analog reference. The `res` parameter works the same way as for `analogReadEnh()`, as does the `gain` function. Gain becomes FAR more useful here than in single-ended mode as you can now take a very small difference and "magnify" it to make it easier to measure. Be careful when measuring very small values here, this is a "real" ADC not an "ideal" one, so there is a non-zero error, and through oversampling and/or gain, you can magnify that such that it looks like a signal.
 
 On the Dx-series, the measured voltages must be less than VRef; this makes differential ADC measurements on these parts significantly less powerful than the Ex-series, where the input can extend as much as 100mV beyond the supply rails, permitting use to measure current through a high-side sense resistor against the 1.024 V reference.
@@ -180,7 +191,7 @@ Serial.println(analogClockSpeed(20000,1)); // Above manufacturer's spec. but we 
 // but it was close enough to okay that I released it without realizing it was my bad.
 
 // ******* For both *******
-int returned_default = analogClockSpeed(-1); // reset to default value, around 1000 - 1500 kHz for Dx and around 2500 for Ex.
+int returned_default = analogClockSpeed(-1); // reset to default value, around 1000 - 1500 kHz for Dx or 0/1-series tiny, and around 2500 for Ex or 2-series tiny.
 
 Serial.println(returned_default);  // will print the same as the first line, assuming you hadn't changed it prior to these lines.
 ```
@@ -297,6 +308,42 @@ if (analogCheckError(adcreading)) {
 
 #### int16_t millivoltsToADCVals(int16_t mv, const int16_t ref, const uint8_t bits) *Not yet implemented*
 Converts a voltage in millivolts into the approximate expected ADC counts (no accounting for error is made). See the [documentation for the DxCore Library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/DxCore)
+### ADCPowerOptions(options)
+The PGA requires power when turned on. It is enabled by any call to `analogReadEnh()` or `analogReadDiff()` that specifies valid gain > 0; if it is not already on, this will slow down the reading. By default we turn it off afterwards. There is also a "low latency" mode that, when enabled, keeps the ADC reference and related hardware running to prevent the delay (on order of tens of microseconds) before the next analog reading is taken. We use that by default, but it can be turned off with this function.
+Generate the argument for this by using one of the following constants, or bitwise-or'ing together a low latency option and a PGA option. If only one option is supplied, the other configuration will not be changed. Note that due to current errata, you **must** have LOW_LAT enabled
+* `LOW_LAT_OFF`     Turn off low latency mode. *2-series only*
+* `LOW_LAT_ON`      Turn on low latency mode. *2-series only*
+* `PGA_OFF_ONCE`    Turn off the PGA now. Don't change settings; if not set to turn off automatically, that doesn't change. *2-series only*
+* `PGA_KEEP_ON`     Enable PGA. Disable the automatic shutoff of the PGA. *2-series only*
+* `PGA_AUTO_OFF`    Disable PGA now, and in future turn if off after use. *2-series only*
+* `ADC_ENABLE`      Enable the ADC if it is currently disabled.     *new 2.5.12*
+* `ADC_DISABLE`     Disable the ADC to save power in sleep modes.   *new 2.5.12*
+* `ADC_STANDBY_ON`  Turn on ADC run standby mode                    *new 2.5.12*
+* `ADC_STANDBY_OFF` Turn off ADC run standby mode                   *new 2.5.12*
+
+Example:
+```c++
+ADCPowerOptions(LOW_LAT_ON  | PGA_KEEP_ON );            //  low latency on. Turn the PGA on, and do not automatically shut it off. Maximum power consumption, minimum ADC delays.
+ADCPowerOptions(LOW_LAT_OFF | PGA_AUTO_OFF);            //  low latency off. Turn off the PGA and enable automatic shut off. Minimum power consumption, maximum ADC delays. **ERRATA WARNING** turning off LOWLAT can cause problems on 2=series parts! See the errata for the specific part you are using.)
+ADCPowerOptions(ADC_DISABLE);                           //  turn off the ADC.
+ADCPowerOptions(ADC_ENABLE);                            //  Turn the ADC back on. If LOWLAT mode was on, when you turned off the ADC it will still be on,. Same with the other options.
+```
+
+As of 2.5.12 we will always disable and re-enable the ADC if touching LOWLAT, in the hopes that this will work around the lowlat errata consistently.
+**it is still recommended to call ADCPowerOptions(), if needed, before any other ADC-related functions** unless you fully understand the errata and the ramifications of your actions.
+**On most 2-series parts LOW_LAT mode is REQUIRED in order to use the PGA when not using an internal reference or measuring the DACREF!**
+**Disabling the ADC is REQUIRED for acceptable sleep power consumption on the 2-series!**
+
+Lowlat mode is enabled by default for this reason, as well as to generally improve performance. Disabling the ADC will end the power consumption associated with it.
+
+On 0/1-series parts, this function supports functions that are far more limited, since there are few power options.
+Only the following are supported
+* `ADC_ENABLE`      Enable the ADC if it is currently disabled.     *new 2.5.12*
+* `ADC_DISABLE`     Disable the ADC to save power in sleep modes.   *new 2.5.12*
+* `ADC_STANDBY_ON`  Turn on ADC run standby mode                    *new 2.5.12*
+* `ADC_STANDBY_OFF` Turn off ADC run standby mode                   *new 2.5.12*
+
+In all cases, if no command to turn on or off an option is passed the current setting will remain unchanged
 
 ## Opamps
 The DB-series may not have the true PGA that other parts like the the EA have - but they do have 2 or 3 on-chip opamops, which can be used to create various sorts of amplifiers to the benefit of the ADC, in addition to many other uses.
@@ -305,12 +352,12 @@ See the documentation for the [Opamp Library](https://github.com/SpenceKonde/DxC
 
 
 ## Analog *channel* identifiers
-The ADC is configured in terms of channel numbers, not pin numbers. analogRead() hence converts the number of a pin with an analog channel associated with it to the number of that analog channel, so there is no need to deal with the analog channel numbers. The one exception to that is in the case of the non-pin inputs, the constants like ADC_DAC and ADC_VDDDIV10. I have a simple system to internally signal when a number isn';'t an digital pin number, but is instead an analog channel number: Simply set the high bit. I refer to these as analog channel identifiers. When the high bit is masked off, these are the value that you must set the MUX to in order to use this input source. No AVR has ever had more than 127 pins, much less that many analog channels, so this shouldn't be an issue. With 254 valid values, the current design provides room for 127 digital pins and 127 analog inputs, where the largest modern AVRs have only 56 I/O pins (it will be a technical challenge to surpass that, because they don't have any more registers for the VPORTs)
+The ADC is configured in terms of channel numbers, not pin numbers. analogRead() hence converts the number of a pin with an analog channel associated with it to the number of that analog channel, so there is no need to deal with the analog channel numbers. The one exception to that is in the case of the non-pin inputs, the constants like ADC_DAC and ADC_VDDDIV10. I have a simple system to internally signal when a number isn';'t an digital pin number, but is instead an analog channel number: Simply set the high bit. I refer to these as analog channel identifiers. When the high bit is masked off, these are the value that you must set the MUX to in order to use this input source. No AVR has ever had more than 127 pins, much less that many analog channels, so this shouldn't be an issue. With 254 valid values, the current design provides room for 127 digital pins and 127 analog inputs, where the largest modern AVRs have only 56 I/O pins (it will be a technical challenge to surpass that, because they don't have any more registers for the VPORTs, and analog multiplexers that only go up to 73 (they use the second highest bit to denote non-pin inputs. )
 
 `ADC_CH()` will take an analog channel number (ex, "0") and turn it into the analog channel identifier. But you never need to do that unless you're getting very deep into a custom ADC library) The most common example when channels are used is when reading from things that are not pins - like the internal tap on the DAC output, or the VDDDIV10 value to find the supply voltage. These may overlap with pin numbers. Also internally, channel numbers are sometimes passed between functions. They are defined for pins that exist as analog channels, with names of the form `AINn` but **you should never use the AIN values** except in truly extraordinary conditions, and even then it's probably inappropriate. However I felt like mention of them here was needed. These macros were added at different times, and that can be seen from the inconsistent naming. This is unfortunate, but it  Some macros and helper functions involved are:
 
 ```text
-digitalPinToAnalogInput(pin)    - converts an digital pin to an anbalog channel *without* the bit that says it's a channel (designed for the very last step of analogRead preparationm where we turn the pin number into the channel to set the MUX)
+digitalPinToAnalogInput(pin)    - converts an digital pin to an analog channel *without* the bit that says it's a channel (designed for the very last step of analogRead preparation where we turn the pin number into the channel to set the MUX)
 analogChannelToDigitalPin(p)    - converts an analog channel *number* to a digital pin.
 analogInputToDigitalPin(p)      - converts an analog channel identifier to a digital pin number.
 digitalOrAnalogPinToDigital(p)  - converts an analog channel identifier or digital pin to a digital pin number
@@ -318,10 +365,10 @@ ADC_CH(channel number)          - converts channel numbers to analog channel ide
 
 ```
 
-Try not to use these unless you're getting really deep into library development and direct interaction with the ADC; if you do end up needing them, try to just use digitalPinToAnalogInput() and analogChannelToDigitalPin(). At other times and on other cores, analog channel identifiers were more prominent.
+Try not to use these unless you're getting really deep into library development and direct interaction with the ADC; we provide all the constants you will need. listed above.
 
 ## A word of warning to capacitive touch sensing applications
-Libraries exist that use trickery and the ADC to measure capacitance, hence detect touch/proximity. Most of these libraries (since Atmel always locked up QTouch) relied on the leftover charge in the ADC S&H cap. The magnitude of this source of error is much larger on classic AVRs. It is considered undesirable (this is why when changing ADC channels in the past, you were advised to throw out the first couple of readings!) and with each generation, this has been reduced. There are still ways to do this effectively on the 2series, but require very different approaches.
+Libraries exist that use trickery and the ADC to measure capacitance, hence detect touch/proximity. Most of these libraries (since Atmel always locked up QTouch) relied on the leftover charge in the ADC S&H cap. The magnitude of this source of error is much larger on classic AVRs. It is considered undesirable (this is why when changing ADC channels in the past, you were advised to throw out the first couple of readings!) and with each generation, this has been reduced. There are still ways to do this effectively on the 2series, but require very different approaches. Thankfully for parts that do have a PTC, great strides are being made. the tiny1-series has an active developer working on it, while Microchip itself will release a library based on qtouch for the DA. 
 
 ## Microchip Documentation
 Has been much expanded and I'm very happy to see this sort of document produced before the EA release. Wondering about the numbering? Well, TB stands for Technical Brief, which is different in some way from an Application Note (AN), and obviously a whitepaper or "Datasheet" (DS) is something else altogether. Even when they're about the same length and contain similar types of content. S

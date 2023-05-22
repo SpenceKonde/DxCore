@@ -39,7 +39,7 @@ If you for some reason end up directly putting functions into init 5, 7, or 8 (b
 The function must be declared with both `((naked))` and `((used))` attributes! The latter is required or the optimizer will just eliminate it. The former is needed to prevent it from generating a return instruction at the end. This causes a crash when it tries to return and there's nothing on the call stack to return to.
 
 ## Recommended override candidates
-These are the functions which are there with the intent that users will have good reason to override them. Except as described for `init_reset_flags`, these should only be used when you can't just do whatever you need to do in setup() for some reason/
+These are the functions which are there with the intent that users may have good reason to override them.
 
 ### init_reset_flags
 This is used only when not building for an optiboot board (if you are building for optiboot, this same functionality is performed by the bootloader, as it's needed to ensure that the bootloader won't try to run on a chip in an unknown state. The bootloader prime directive is that no code, no matter how awful, should be able to break the bootloader and prevent the upload of corrected code. )
@@ -82,6 +82,7 @@ void onBeforeInit() __attribute__((weak));{;}
 onBeforeInit is called as the first code in main, useful if you need to squeeze in some code between class constructors and the rest of the internal initialization. Rarely useful - where it is, it's probably a shim for a poorly written library whose class constructor makes a mess of something that then causes an even bigger problem when init() is called, while you wait for a fix from the author - in this situation, if you don't want to modify your copy of the library, but you have to do something to extinguish whatever small dumpster fire was started by the class constructor before the init() routine dumps a bucket of gasoline on it, this is how you would do it. Please report any library that requires this to me so that I can A) apply additional pressure to the library maintainer, and B) warn people in the library compatibility list.
 
 ## Clock Failure Handling
+The AVR DB, DD, and likely future parts that support an external crystal, have Clock Failure Detection (CFD) and there are callbacks to go with it. The tinyAVRs do not, and hence have no such callbacks. You're not missing much though - the CFD doesn't work very well (at least on the DB-series), because the misfiring clock often causes malfunctioning of the CPU such that the ISR does not operate correctly either.
 
 If using an external clock source, and it stops, so does the chip. There are two possible results if the external clock disappears:
 1. If the WDT is enabled, it will reset the chip. init_clock() will then try to use the non-functional source again, presumably failing, and leave the default /6 prescaler enabled while running from the internal oscillator. This will also happen if set to use an external clock that is not functioning at startup. If you're trying to use an external clock, but you instead appear to be running at 2.66 or 3.33 MHz, this is what is happening.
@@ -124,7 +125,7 @@ void init_millis()      __attribute__((weak)); // called by init() after everyth
 ```
 They are called in the order shown above.
 
-Any of them can be overridden, but overriding them with anything other than an empty function is not recommended and is rarely a good idea except for debugging. If the peripheral isn't being used and you're desperate for flash (maybe on a small flash DD or EA series parts) these will save a tiny amount of flash. Don't override with anything other than an empry function. If you're initializing them differently, do it in setup().
+Any of them can be overridden, but overriding them with anything other than an empty function is not recommended and is rarely a good idea except for debugging. If the peripheral isn't being used and you're desperate for flash (maybe on a small flash DD or EA series parts) these will save a tiny amount of flash. Don't override with anything other than an empty function. If you're initializing them differently, do it in setup().
 
 The timer initialization functions do different things if the timer is used for millis.
 

@@ -38,7 +38,7 @@ These are the values that the MILLIS_TIMER may be defined as:
 | `TIMERA1`       |          0x08 | Millis is generated from TCA1
 | `TIMERB0`       |          0x20 | Millis is generated from TCB0
 | `TIMERB1`       |          0x21 | Millis is generated from TCB1
-| `TIMERB2`       |          0x23 | Millis is generated from TCB2
+| `TIMERB2`       |          0x22 | Millis is generated from TCB2
 | `TIMERB3`       |          0x23 | Millis is generated from TCB3
 | `TIMERB4`       |          0x24 | Millis is generated from TCB4
 | `TIMERD0`       |          0x40 | Not planned for implementation on DxCore.
@@ -151,7 +151,7 @@ Most of these need no explanation - they usually just give you the number of ins
 * `_AVR_DAC_COUNT`
 * `_AVR_DAC_VERSION` - 0, 1, or 2. 0 is 8-bit (tinyAVR), 1 is 10-bit (Dx-series), 2 is 10-bit with OUTRANGE (Ex-series), 1.5.5+/2.6.6+ only.
 * `_AVR_OPAMP_COUNT`
-* `_AVR_EVSYS_COUNT` - The number of total EVSYS channels. 1.5.5+/2.6.6+ only
+* `_AVR_EVSYS_COUNT` - The number of total EVSYS channels. 1.5.5+/2.6.6+. 3 on 0-series, 8 on high pincount Dx, 6 everywhere else
 * `_AVR_EVSYS_SYNC` - The number of synchronous EVSYS channels. 1 or 2. Only defined on tinyAVR 0/1. 2.6.6+ only
 * `_AVR_EVSYS_ASYNC` - the number of async EVSYS channels. 2 or 4. Only defined on tinyAVR 0/1. 2.6.6+ only
 * `_AVR_EVSYS_VERSION` - 0, 1, 2, or 3 - 0 is the tinyAVR 0/1 shitshow, 1 is mega0, 2 is Dx-series 3 is the AVR Ex-series. Version 0 has two kinds of generator channels. Version 3 eliminates all differences between channels. Version 1 and 2 give different RTC channels to odd and even generator channels and limit access to pin events to to 2 or 4 channels per port.  1.5.5+/2.6.6+ only
@@ -229,8 +229,8 @@ The various numeric representations of version are of interest to those writing 
 
 
 ## `__AVR_ARCH__`
-This can be set to 102, 103, or 104 depending on flash size - the compiler sets this, and it works foer ALL AVR parts. Anything with it set to 103 has fully mapped flash. Anything with 102 has 64k, etc.
-* `__AVR_ARCH__ == 103` - All parts where all of the flash is mapped in the data space. This means Dx-series parts with 32k or less of flash, tinyAVR 0/1/2-series, and megaAVR 0-series.
+This can be set to 102, 103, or 104 depending on flash size - the compiler sets this, and it works for ALL AVR parts. Anything with it set to 103 has fully mapped flash. Anything with 102 has 64k, and 104 indicates a part with 128k of flash - on megaTinyCore, it's always 103, because no parts have too much flash to map it all.
+* `__AVR_ARCH__ == 103` - All parts where all of the flash is mapped in the data space. This means Dx and Ex-series parts with 32k or less of flash, tinyAVR 0/1/2-series, and megaAVR 0-series.
 * `__AVR_ARCH__ == 104` - Parts with 128Kb of flash, mapped flash is split into 4 sections (AVR128DA, AVR128DB).
 * `__AVR_ARCH__ == 102` - Parts with 64Kb of flash, mapped flash is split into 2 sections (AVR64DA, AVR64DB).
 
@@ -242,8 +242,8 @@ There are a number of macros for determining what (if any) features the core sup
 * `CORE_HAS_PINCONFIG = 1` - If defined as Indicates that `pinConfigure()` is available. If not defined or defined as 0, it is not available.
 * `CORE_HAS_TIMER_TAKEOVER = 1` - if defined as 1, `takeOverTCxn()` functions are available to let user code take full control of TCA0, TCA1 and/or TCD0.
 * `CORE_HAS_TIMER_RESUME = 1`- if defined as 1, the corresponding `resumeTCxn()` functions, which reinitialize them and return them to their normal core-integrated functions, are available.
-* `ADC_NATIVE_RESOLUTION = 1`- This is the maximum resolution, in bits, of the ADC without using oversampling.
-* `ADC_NATIVE_RESOLUTION_LOW = 10` - The ADC has a resolution setting that chooses between ADC_NATIVE_RESOLUTION, and a lower resolution.
+* `ADC_NATIVE_RESOLUTION = `10 or 12`- This is the maximum resolution, in bits, of the ADC without using oversampling.
+* `ADC_NATIVE_RESOLUTION_LOW = `8 or 10` - The ADC has a resolution setting that chooses between ADC_NATIVE_RESOLUTION, and a lower resolution.
 * `ADC_DIFFERENTIAL = 1` - This is defined as 1 if the part has a basic differential ADC (no gain, and V<sub>analog_in</sub> constrained to between Gnd and V<sub>Ref</sub>), and 2 if it has a full-featured one. It does not indicate whether said differential capability is exposed by the core. If it's defined as -1, it has differential capability in the way that classic AVRs do. See also `CORE_HAS_ANALOG_DIFF`
 * `SUPPORT_LONG_TONES = 1`  - On some modern AVR cores, an intermediate value in the tone duration calculation can overflow (which is timed by counting times the pin is flipped) leading to a maximum duration of 4.294 million millisecond. This is worst at high frequencies, and can manifest at durations as short as 65 seconds worst case. Working around this, however, costs some flash, and some cores may make the choice to not address it (megaTinyCore only supports long tones on parts with more than 8k of flash).  If `SUPPORT_LONG_TONES` is defined as 1, as long as (duration * frequency)/500 < 4.294 billion, the duration will not be truncated. If it is defined as 0, the bug was known to the core maintainer and they chose not to fully correct it (eg, to save flash) but took the obvious step to reduce the impact, it will be truncated if (duration * frequency) exceeds 4.294 billion. If `SUPPORT_LONG_TONES` is not defined at all, the bug may be present in its original form, in which case the duration will be truncated if (duration * frequency) exceeds 2.14 billion.
 * `CORE_HAS_ANALOG_ENH` - If defined as 1, `analogReadEnh()` (enhanced analogRead) is available. Otherwise, it is not.
@@ -323,7 +323,9 @@ When future die revs fix some of these problems, checkErrata() will no longer co
 Note: Some problems only appeared on the 128k version of the AVR DA-series
 
 ## Identifying Timers
-Each timer has a number associated with it, as shown below. This may be used by preprocessor macros (`#if` et. al.) or `if()` statements to check what `MILLIS_TIMER` is, or to identify which timer (if any) is associated with a pin using the `digitalPinToTimer(pin)` macro (however, this doesn't count TCA0 or TCA1 - TCA association with pins is dynamically determined at runtime based on the PORTMUX register, and the `digitalPinToTimerNow()` function must be used; it is not compile-time constant, and cannot be used for conditional compilation). Defines are available on all parts that the core supports, whether or not the timer in question is present on the part (ie, it is safe to use them in tests/code without making sure that the part has that timer).
+Each timer has a number associated with it, as shown below. This may be used by preprocessor macros (`#if` et. al.) or `if()` statements to check what `MILLIS_TIMER` is, or to identify which timer (if any) is associated with a pin using the `digitalPinToTimer(pin)` macro. Defines are available on all parts that the core supports, whether or not the timer in question is present on the part (ie, it is safe to use them in tests/code without making sure that the part has that timer). There are two very closely related macros for determining pin timers:
+* `digitalPinToTimer()` tells you what timer (if any) the pin is associated with by default. This is a constant, when the argument is constant, the optimizer will optimize it away.
+* `digitalPinToTimerNow()` tells you what timer (if any) the pin is associated with currently. On megaTinyCore, this is either the result of `digitalPinToTimer()` unless that timer has been "taken over" by user code with `takeOverTCA0()` or `takeOverTCD0()`. On modern AVR cores like Dx-core which support use of `analogWrite()` even when the `PORTMUX.TCxROUTEA` register (where `x` is `A` or `D`) has been changed, this will return the timer currently associated with that pin. megaTinyCore does NOT support non-default timer pin mappings with `analogWrite()`- so if `PORTMUX.TCAROUTEA` (2-series) or `PORTMUX.CTRLC` (0/1-series) has been altered, this will not not reflect that.
 
 These are the "timers" that can be associated with a pin:
 ```text
