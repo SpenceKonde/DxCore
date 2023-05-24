@@ -474,7 +474,7 @@ void stop_millis();                          // stop the timer being used for mi
 void restart_millis();                       // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
 void set_millis(uint32_t newmillis);         // Sets the millisecond timer to the specified number of milliseconds. DO NOT CALL with a number lower than the current millis count if you have any timeouts ongoing.
                                              // they may expire instantly.
-// void nudge_millis(uint16_t nudgemillis);  // Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
+void nudge_millis(uint16_t nudgemillis);     // Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
 // Not yet implemented, debating if          // way to advance the timer without needing to read the current millis yourself, and without a few other risks. (added becauise *I* needed it, but simple enough).
 // this is the right thing to implement      // The intended use case is when you know you're disabling millis for a long time, and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
                                              // forward by a given amount; I added this when in a pinch because *I* needed that functionality.
@@ -570,7 +570,7 @@ uint8_t PWMoutputTopin(uint8_t timer, uint8_t channel);
 #define millisClockCyclesToMicroseconds(a) ((uint32_t)((a) / clockCyclesPerMicrosecond()))
 #define microsecondsToMillisClockCycles(a) ((uint32_t)((a) * clockCyclesPerMicrosecond()))
 
-__attribute__ ((noinline)) void _delayMicroseconds(unsigned int us);
+__attribute__ ((noinline)) void _delayMicroseconds(unsigned int us); // Not letting LTO inline this is required to get correct delays.
 
 extern const uint8_t digital_pin_to_port[];
 extern const uint8_t digital_pin_to_bit_mask[];
@@ -594,10 +594,10 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
  * as ints - that is, int16_t.
  * As long as you have an unsigned value, the most computationally efficient method to test if a pin is valid is just to see if it's less than the number of total pins.
  * Negative numbers look like numbers larger than 128 (or 32k or 2.1b) and hence larger than NUM_TOTAL_PINS (no AVR has ever had more than 100 physical pins, and on that
- * part over a dozen were not GPIO pins. AVRs only atomic single-clock bit operations for 32 registers, 4 are GPRs, leaving 28 for the VPORTs. And since each pin needs 4 VPORT bits
- * that gives us 56 pins arranged in 7 ports, PA-PG. Classic AVRs didn't put the intflags in , and
+ * part over a dozen were not GPIO pins.
  * But because this is a macro and there's no type enforcement on macros, if an int16_t was passed to this, it would be compared to NUM_TOTAL_PINS, and that number would be
- * treated (as is the default in C) as an int16_t. (int16_t) < (int16_t) is a SIGNED COMPARISON. Tis to check . So the test could not be rendered as a single comparison, because */
+ * treated (as is the default in C) as an int16_t. (int16_t) < (int16_t) is a SIGNED COMPARISON. And -2 less than -1 right? So this was not guaranteed to work correctly with
+ * all plausible inputs. The simplest course of action seems to be casting everything we get to uint8_t, which is how pins are numbered within the core */
 #define digitalPinToPort(pin)               ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                          digital_pin_to_port[pin]                 : NOT_A_PIN)
 #define digitalPinToBitPosition(pin)        ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                  digital_pin_to_bit_position[pin]                 : NOT_A_PIN)
 #define digitalPinToBitMask(pin)            ((((uint8_t)(pin))      < NUM_TOTAL_PINS ) ?                      digital_pin_to_bit_mask[pin]                 : NOT_A_PIN)
@@ -881,6 +881,13 @@ void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const M
   uint16_t pin_config = _pincfg(mode, modes...);
   _pinconfigure(digital_pin, pin_config);
 }
+
+/* If you understand the preceeding code, studies show you are more likely than the average developer to
+ * know C++, with a statistically significant relationship between how well you know the language and your likelihood of
+ * understanding that code. I got distracted after the first + and have yet to comprehend the above implementation.
+ * But it lets you separate arguments with commas instead of pipes, which is far more tasteful and graceful
+ * and makes it look like an API instead of something knocked together by a C programmer.
+ */
 
 #endif
 
