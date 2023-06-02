@@ -18,7 +18,7 @@ def decode_sib(sib):
     """
     sib_info = {}
     logger = getLogger(__name__)
-    
+
     sib = sib.replace(b"\x00", b"")
 
     try:
@@ -127,8 +127,13 @@ class UpdiApplication:
             if self.device is not None:
                 devid = self.read_data(self.device.sigrow_address, 3)
                 devrev = self.read_data(self.device.syscfg_address + 1, 1)
-                self.logger.info("Device ID from pyupdi = '%02X%02X%02X' rev '%s'", devid[0], devid[1], devid[2],
-                                 chr(ord('A') + devrev[0]))
+                if sib_info['NVM'] == '2':
+                    devrevmajor = int(devrev[0] / 16)
+                    devrevminor = devrev[0] % 16
+                    devrevstr = chr(ord('@') + devrevmajor)+str(devrevminor)
+                    self.logger.info("Device ID = '%02X%02X%02X' rev '%s'", devid[0], devid[1], devid[2], devrevstr)
+                else:
+                    self.logger.info("Device ID = '%02X%02X%02X' rev '%s'", devid[0], devid[1], devid[2], chr(ord('A') + devrev))
 
     def read_data(self, address, size):
         """

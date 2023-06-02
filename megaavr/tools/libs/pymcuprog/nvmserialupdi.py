@@ -81,10 +81,15 @@ class NvmAccessProviderSerial(NvmAccessProvider):
                                 self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID))
             raise ValueError("Device ID does not match")
         revision = self.avr.read_data(self.device_info.get(DeviceInfoKeysAvr.SYSCFG_BASE) + 1, 1)
-        self.logger.info("Device revision: '%s'", chr(revision[0] + ord('A')))
-        serial = self.avr.read_data(signatures_base + 3, 10)
+        devrevmajor = int(revision[0] / 16)
+        devrevminor = revision[0] % 16
+        devrevstr = chr(ord('@') + devrevmajor)+str(devrevminor)
+        self.logger.info("Device revision: '%s'", devrevstr)
+        serial = self.avr.read_data(signatures_base + 16, 12)
         self.logger.info("Device serial number: '%s'", binascii.hexlify(serial))
-
+        # The changes above to the logging output are for DxCore only, and only until I figure out how
+        # this code can figure out what kind of part it's working with (Dx vs earlier?) so it can
+        # read the serial from the appropriate part of the SIGROW and process the REVID correctly.
         # Return the raw signature bytes, but swap the endianness as target sends ID as Big endian
         return bytearray([sig[2], sig[1], sig[0]])
 
@@ -187,7 +192,7 @@ class NvmAccessProviderSerial(NvmAccessProvider):
         :param memory_info: dictionary for the memory as provided by the DeviceMemoryInfo class
         :param offset: relative offset in the memory type
         :param numbytes: number of bytes to read
-        :param max_read_chunk: memory is read im chunks of up to 512b at a time. The -rc parameter can shrink this if needed for compatibility with certain hardware. 
+        :param max_read_chunk: memory is read im chunks of up to 512b at a time. The -rc parameter can shrink this if needed for compatibility with certain hardware.
         :return: array of bytes read
         """
         offset += memory_info[DeviceMemoryInfoKeys.ADDRESS]
