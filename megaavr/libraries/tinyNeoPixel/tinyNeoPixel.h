@@ -24,7 +24,7 @@
 #include <Arduino.h>
 
 #if (__AVR_ARCH__ < 100)
-  #error "This version of the library only supports AVRxt parts (tinyAVR 0/1/2-series, megaAVR 0-series and the AVR DA/DB/DD parts. For tinyNeoPixel, for classic AVR, get from ATTinyCore package"
+  #error "This version of the library only supports AVRxt parts (tinyAVR 0/1/2-series, megaAVR 0-series and the AVR DA/DB/DD/EA parts. For tinyNeoPixel for classic AVR, get from ATTinyCore package"
 #endif
 
 // The order of primary colors in the NeoPixel data stream can vary
@@ -50,11 +50,11 @@
 // 0bWWRRGGBB for RGBW devices
 // 0bRRRRGGBB for RGB
 
-// RGB NeoPixel permutations; white and red offsets are always same
+// RGB NeoPixel permutations:
 // Offset:         W          R          G          B
 #define NEO_RGB  ((0 << 6) | (0 << 4) | (1 << 2) | (2))
 #define NEO_RBG  ((0 << 6) | (0 << 4) | (2 << 2) | (1))
-#define NEO_GRB  ((1 << 6) | (1 << 4) | (0 << 2) | (2))
+#define NEO_GRB  ((1 << 6) | (1 << 4) | (0 << 2) | (2)) // GRB is very common
 #define NEO_GBR  ((2 << 6) | (2 << 4) | (0 << 2) | (1))
 #define NEO_BRG  ((1 << 6) | (1 << 4) | (2 << 2) | (0))
 #define NEO_BGR  ((2 << 6) | (2 << 4) | (1 << 2) | (0))
@@ -205,7 +205,7 @@ class tinyNeoPixel {
     clear(),
     updateLength(uint16_t n),
     updateType(neoPixelType t),
-    updateLatch(uint16_t = 50);
+    updateLatch(uint16_t us);
   uint8_t
    *getPixels(void) const,
     getBrightness(void) const;
@@ -228,7 +228,7 @@ class tinyNeoPixel {
              output is often used for pixel brightness in animation effects.
   */
   static uint8_t    sine8(uint8_t x) { // 0-255 in, 0-255 out
-    #if (__AVR_ARCH__==103 || defined(PROGMEM_MAPPED))
+    #if (__AVR_ARCH__ == 103 || defined(PROGMEM_MAPPED))
       return _NeoPixelSineTable[x];
     #else     // We had to put it in PROGMEM, and that's how we get it out
       return pgm_read_byte(&_NeoPixelSineTable[x]); // 0-255 in, 0-255 out
@@ -247,7 +247,7 @@ class tinyNeoPixel {
              need to provide your own gamma-correction function instead.
   */
   static uint8_t    gamma8(uint8_t x) {
-    #if (__AVR_ARCH__==103 || defined(PROGMEM_MAPPED))
+    #if (__AVR_ARCH__ == 103 || defined(PROGMEM_MAPPED))
       return _NeoPixelGammaTable[x];
     #else
       return pgm_read_byte(&_NeoPixelGammaTable[x]);
@@ -311,7 +311,9 @@ class tinyNeoPixel {
   uint16_t
     numLEDs,       // Number of RGB LEDs in strip
     numBytes,      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
-    latchTime;     // minimum holdoff between sending frames. Set with updateLatch.
+    latchTime;     // Latch waiting period in us varies from 6 (contrary
+                   // to datasheet) for original 2812's, all the way to 250 us.
+                   // 50us is what the originals claim. Clones copied that, and some made it even longer.
   uint8_t
     pin,           // Output pin number (-1 if not yet set)
     brightness,

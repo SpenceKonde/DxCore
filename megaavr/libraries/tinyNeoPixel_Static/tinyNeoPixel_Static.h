@@ -202,7 +202,7 @@ class tinyNeoPixel {
     fill(uint32_t c = 0, uint16_t first = 0, uint16_t count = 0),
     setBrightness(uint8_t b),
     clear(),
-    updateLatch(uint16_t = 50);
+    updateLatch(uint16_t latchTime = 50);
   uint8_t
    *getPixels(void) const,
     getBrightness(void) const;
@@ -225,7 +225,7 @@ class tinyNeoPixel {
              output is often used for pixel brightness in animation effects.
   */
   static uint8_t    sine8(uint8_t x) { // 0-255 in, 0-255 out
-    #if (__AVR_ARCH__==103 || defined(PROGMEM_MAPPED))
+    #if (__AVR_ARCH__ == 103 || defined(PROGMEM_MAPPED))
       return _NeoPixelSineTable[x];
     #else     // We had to put it in PROGMEM, and that's how we get it out
       return pgm_read_byte(&_NeoPixelSineTable[x]); // 0-255 in, 0-255 out
@@ -245,7 +245,7 @@ class tinyNeoPixel {
   */
 
   static uint8_t    gamma8(uint8_t x) {
-    #if (__AVR_ARCH__==103 || defined(PROGMEM_MAPPED))
+    #if (__AVR_ARCH__ == 103 || defined(PROGMEM_MAPPED))
       return _NeoPixelGammaTable[x];
     #else
       return pgm_read_byte(&_NeoPixelGammaTable[x]);
@@ -296,7 +296,7 @@ class tinyNeoPixel {
   static uint32_t gamma32(uint32_t x);
 
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
-    inline bool canShow(void) { return (micros() - endTime) >= 50L; }
+    inline bool canShow(void) { return (micros() - endTime) >= (uint32_t) latchTime; }
   #else
     inline bool canShow(void) {return 1;} // we don't have micros here;
   #endif
@@ -306,7 +306,10 @@ class tinyNeoPixel {
 
   uint16_t
     numLEDs,       // Number of RGB LEDs in strip
-    numBytes;      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
+    numBytes,      // Size of 'pixels' buffer below (3 or 4 bytes/pixel)
+    latchTime;     // Latch waiting period in us varies from 6 (contrary
+                   // to datasheet) for original 2812's, all the way to 250 us.
+                   // 50us is what the originals claim. Clones copied that, and some made it even longer.
   int8_t
     pin;           // Output pin number (-1 if not yet set)
   uint8_t

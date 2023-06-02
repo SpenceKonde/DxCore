@@ -5,15 +5,20 @@
 
 #include <tinyNeoPixel_Static.h>
 
-#define BUTTON_PIN   2    // Digital IO pin connected to the button.  This will be
+
+// You can use any I/O pin that is not being overridden by some peripheral for either purpose.
+// No pin is inherrently better or worse than any other for either of these purposes; it's all about what
+// other things you need pins for, and whether any of them are picky about which pins are used.
+
+#if _AVR_PINCOUNT == 14 // need to use a different pins on DD14
+  #define BUTTON_PIN    PIN_PD5    // Digital IO pin connected to the button.  This will be
 // driven with a pull-up resistor so the switch should
 // pull the pin to ground momentarily.  On a high -> low
 // transition the button press logic will execute.
-
-#if _AVR_PINCOUNT == 14
-  #define PIXEL_PIN    PIN_PD4    // need to use a different pin on DD14
+  #define PIXEL_PIN    PIN_PD4    
 #else
-  #define PIXEL_PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
+  #define BUTTON_PIN    PIN_PA2
+  #define PIXEL_PIN     PIN_PA3    // Digital IO pin connected to the NeoPixels
 #endif
 
 #define PIXEL_COUNT 16
@@ -24,12 +29,18 @@
 // the frame buffer show up when the sketch is compiled.
 
 byte pixels[PIXEL_COUNT * 3];
+// It is strongly recommended to have one variable or #define for the number of pixels, and then
+// multiply that by 3 (for RGB) or 4 (for RGBW) when declaring the pixel array, as is done here
+// to avoid the need for double-entry bookkeeping.
 
-// Parameter 1 = number of pixels in strip,  neopixel stick has 8
+
+// Parameter 1 = number of pixels in strip,
 // Parameter 2 = pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_RGB     Pixels are wired for RGB bitstream
-//   NEO_GRB     Pixels are wired for GRB bitstream, correct for neopixel stick
+// Parameter 3 = color order (NEO_RGB, NEO_GRB, etc).
+// Parameter 4 = pixel buffer declared above
+// Unlike the Adafruit library there's no 400 kHz option. I don't think I have ever seen 400 kHz pixels, and they may no longer be made.
+// Because the optimizer's hands are tied when working with classes it would impose undue burdens on all users to support it, plus it would
+// need the asm routines adapted to every supported clock speed... all for the sake of a part that seems extinct in the wild.
 
 tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB, pixels);
 

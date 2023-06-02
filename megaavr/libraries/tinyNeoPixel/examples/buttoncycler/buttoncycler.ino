@@ -5,29 +5,28 @@
 
 #include <tinyNeoPixel.h>
 
-#define BUTTON_PIN   2    // Digital IO pin connected to the button.  This will be
+
 // driven with a pull-up resistor so the switch should
 // pull the pin to ground momentarily.  On a high -> low
 // transition the button press logic will execute.
 #if _AVR_PINCOUNT == 14
+  #define BUTTON_PIN   PIN_PD5
   #define PIXEL_PIN    PIN_PD4    // need to use a different pin on DD14
 #else
+  #define BUTTON_PIN   PIN_PA2
   #define PIXEL_PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
 #endif
 
 
 #define PIXEL_COUNT 16
 
-
-// Since this is for the static version of the library, we need to supply the pixel array
-// This saves space by eliminating use of malloc() and free(), and makes the RAM used for
-// the frame buffer show up when the sketch is compiled.
-
-// Parameter 1 = number of pixels in strip,  neopixel stick has 8
+// Parameter 1 = number of pixels in strip,
 // Parameter 2 = pin number (most are valid)
-// Parameter 3 = pixel type flags, add together as needed:
-//   NEO_RGB     Pixels are wired for RGB bitstream
-//   NEO_GRB     Pixels are wired for GRB bitstream, correct for neopixel stick
+// Parameter 3 = color order (NEO_RGB, NEO_GRB, etc).
+// Unlike the Adafruit library there's no 400 kHz option. I don't think I have ever seen 400 kHz pixels, and they may no longer be made.
+// Because the optimizer's hands are tied when working with classes it would impose undue burdens on all users to support it, plus it would
+// need the asm routines adapted to every supported clock speed... all for the sake of a part that seems extinct in the wild.
+
 
 tinyNeoPixel strip = tinyNeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB);
 
