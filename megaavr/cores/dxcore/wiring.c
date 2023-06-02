@@ -142,6 +142,7 @@ void init_timers();
     ISR(MILLIS_VECTOR) {
       // if RTC is used as timer, we only increment the overflow count
       // Overflow count isn't used for TCB's
+      // both are needed for TCA and TCD.
       if (RTC.INTFLAGS & RTC_OVF_bm) {
         timingStruct.timer_overflow_count++;
       }
@@ -182,10 +183,52 @@ void init_timers();
       "pop        r31"            "\n\t"
       "pop        r30"            "\n\t" // 6 more clocks popping registers in reverse order.
       "reti"                      "\n\t" // and 4 clocks for reti - total 12/13 + 16 + 2 + 1 + 6 + 4 = 41/42 clocks total, and 7+16+3+6 = 32 words, vs 60-61 clocks and 40 words
-      :: "z" (&timingStruct.timer_millis),   // we are changing the value of "Z", so to be strictly correct, this must be declared input output - though in this case it doesn't matter
+      :: "z" (&timingStruct.timer_millis),
          [CLRFL] "M" (_timerS.intClear),
          [PTCLR] "m" (*_timerS.intStatusReg)
       ); // grrr, sublime highlights this as invalid syntax because it gets confused by the ifdef's and odd syntax on inline asm
+      // !! Hey, isn't it strictly better to do this as soon as we've pushed r24 for the first time?, and push r24 before Z. That way if interrupts were turned off a while, and turned
+      // back on moments before we would have lost a millisecond... Right now we do this after the math at T = 28-29 through T=31-32. We could instead be doing it
+      // at T=6-7 through T=8-9! That would mean that the maximum delay without breaking millis would be 21 clock cycles longer! This fires every millisecond at most
+      // clock speeds, so of cases where millis may drift, it would prevent 1ms of time loss in 21 out of F_CPU/1000 instances. At 2 MHz this is a hair over 1% of
+      // instances of time loss. And time loss is bad, as it can cause micros to experience backwards timetravel. But if you are using micros timekeeping when
+      // you are experiencing instances of time loss, this is an issue you need to fix. (you are trying to time something with microsecond accuracy having disabled
+      // interrupts for a long period of time, micros is not expected to work). But that is an improvement, why shouldn't we take it?
+      // The argument against it would be potentially wrong values for micros - but that could only happen if a priority interrupt is called that interrupts the
+      // write of the millis total, and calls micros there. It would eroneously think that the timer had just overflowed, but that the ISR had run, and thus they
+      // would use the value in main memory which may have had 0-4 bytes updated. The 4 byte window would becorrect and is only 1 clock wide.
+      // | Cases | bytes updated | resulting error | Chance of error, per case |   Time |
+      // |-------|---------------|-----------------|---------------------------|--------|
+      // |     8 |             0 |           -1000 |                         1 |   -1ms |
+      // |     4 |             1 |         -256000 |                     1/256 | -256ms |
+      // |     4 |             2 |       -65536000 |                   1/65536 | -65.5s |
+      // |     4 |             3 |    -16777216000 |                1/16777216 | +6m42s |
+      // |     1 |             4 |               0 |                         0 |    0us |
+      //
+      // The effect is thus that when this manifets, 1 out of (1000-24000) times that micros() is called from a priority interrupt occurring at timing
+      // uncorrelated with millis interrupts, it will return a time that is either 1000, 256000, 65536000 or 1688821600 lower than the correct value.
+      // Unlike the case of being *in* a micros blackout long enough to cause time loss while relying upon timekeeping, it is *not* prohibited to
+      // call micros within an ISR provided the ISR is shorter than the millis period. In fact it could be used as a very crude form of input capture
+      // or if the key number happens to be time since startup, in microseconds. For these applications the "fix" would be catastrophic. Widening the permitted
+      // disabled interrupts time for a 0.42-20us period of time comes at the cost of the same period of time during which micros would get wrong answers under
+      // conditions that it currently does not, during that time 2/5ths of times would be 1000 us under, and 1/5th each a 1/256 chance of being 256000 us under,
+      // 1/65536 chance of being 65536000us under and 1/1677216 chance of it beiing slow by 3,892,314,112us which would likely be interpreted as being fast by
+      // 402,653,184 us (6m42s).
+      //
+      // | Error | Overall chance at 2 MHz | Overall chance at 48 MHz  |
+      // |-------|-------------------------|---------------------------|
+      // |   1ms | 0.1%              1 ppk | 0.002%             40 ppm |
+      // | 256ms | 0.0004%           4 ppm | 0.0000034%        160 ppb |
+      // |  65s  | 0.000001%        10 ppb | 0.0000000064%     625 ppt |
+      // | 6m42s | 0.000000003%     30 ppt | 0.000000000012%     3 ppt |
+      // Note: I suspect there are math errors above, but their magnitude within a power of 2, so the overall asseement is that 40-1000 out of 1m times micros
+      // was called in a priority interrupt it would be off by 1, less than 4 in 1 million times it would return values off by more than a minute, and that
+      // in extremely rare events, it could line up just wrong leading to errors of 6 minutes in the future.
+      //
+      // The errors would be hell to debug.
+      //
+      // Since this situation is supposed to be supported, and because the alternative is prolonging the window in which bad practice is permitted anyway,
+      // I am disinclined to make that change!
       /* ISR in C:
         ISR (TCBx_INT_vect) {       // x depends on user configuration
           #if (F_CPU > 2000000)
@@ -569,95 +612,277 @@ void init_timers();
          * where we calculate overflows * 1000, the (now 0-999) ticks to it, and return it.
          *
          */
-          // Oddball clock speeds
+        // Oddball clock speeds
         #if   (F_CPU == 44000000UL) // Extreme overclocking
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks - /* (ticks >> 1)  + */ (ticks >> 2) - (ticks >> 5) + /* (ticks >> 6) - */ (ticks >> 7)); // + (ticks >> 10)
+          //microseconds = overflows * 1000 + (ticks - /* (ticks >> 1)  + */ (ticks >> 2) - (ticks >> 5) + /* (ticks >> 6) - */ (ticks >> 7)); // + (ticks >> 10)
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
+            "lsr r1"        "\n\t" // notice how at first, each shift takes 2 insns. Compiler wants to use an upper register, ldi number of shifts
+            "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks)
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code. Value now at most 781.
+            "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
+            "ror r0"        "\n\t"  // 2 words per shift
+            "sub %A0, r0"   "\n\t"  // we now have ticks >> 1, subtract from original.
+            "sbc %B0, r1"   "\n\t"  //
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  // 2 words per shift still
+            "add %A0, r0"   "\n\t"  // we now have ticks >> 2, add to original.
+            "adc %B0, r1"   "\n\t"  //
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  // This value was no more than 343 before we shifted, now it's under 256!
+            "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"  // we now have ticks >> 5
+            "sub r0,r1"     "\n\t"  // - ticks >> 5
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 6
+            "lsr r1"        "\n\t"  //
+            "sub r0,r1"     "\n\t"  // - ticks >> 7
+//dumb way  "lsr r1"        "\n\t"  //  When we are done with these shifts, it's either 0 or 1! So dont sit there shoving the bit thrice
+//          "lsr r1"        "\n\t"  //  when you could just directly test if the bit that's the only one that could be left is 1
+//          "lsr r1"        "\n\t"  //
+//          "add r0,r1"     "\n\t"  // + ticks >> 10
+            "sbrc r1, 3"    "\n\t"  // if bit 3 which would have survived those bitshifts is set, don't skip
+            "inc r0"        "\n\t"  // adding 1 to r9
+            "eor r1,r1"     "\n\t"  // clear out r1
+            "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+            "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
+            : "+r" (ticks));        // At 25 MHz this is bang dead the fuck on target with only 5 terms!
+          microseconds = overflows * 1000 + ticks; // nice and clean.
         #elif (F_CPU == 36000000UL) // 50% overclock!
           ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks - (ticks >> 3) + (ticks >> 6)); // - (ticks >> 9) + (ticks >> 10) // with 5 terms it is DEAD ON
-        #elif (F_CPU == 28000000UL) // Not supported by DxCore - nobody wants it.
-          ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 2) - (ticks >> 3) + (ticks >> 5) - (ticks >> 6)); // + (ticks >> 8) - (ticks >> 9)
-        #elif (F_CPU == 14000000UL) // Not supported by DxCore - nobody wants it.
-          ticks = ticks >> 3;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 2) - (ticks >> 3) + (ticks >> 5) - (ticks >> 6)); // + (ticks >> 8) - (ticks >> 9)
-        #elif (F_CPU == 30000000UL) // Easy overclock
-          ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 3) - (ticks >> 4) + (ticks >> 7) - (ticks >> 8)); // 5 terms is the optimal. Good but not as close as we get for most.
-        #elif (F_CPU == 27000000UL) // You'd think this one would be a flaming bitch right?
-          ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + (ticks >> 2) - (ticks >> 4) - (ticks >> 9)); // +0.1 average error with only 4 terms, minimal scatter... that's just not supposed to happen!
+          //microseconds = overflows * 1000 + (ticks - (ticks >> 3) + (ticks >> 6)); // - (ticks >> 9) + (ticks >> 10) // with 5 terms it is DEAD ON
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
+            "lsr r1"        "\n\t" // notice how at first, each shift takes 2 insns. Compiler wants to use an upper register, ldi number of shifts
+            "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks)
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code. Value now at most 781.
+            "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
+            "ror r0"        "\n\t"  // 2 words per shift still
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  //
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  //
+            "sub %A0, r0"   "\n\t"  // we now have ticks >> 3, sub from original.
+            "sbc %B0, r1"   "\n\t"  // at this point 0-9000 has been rightshifted 7 places - it is now guaranteed to be < 256!
+            "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"  //
+            "lsr r1"        "\n\t"  // we now have ticks >> 6
+            "sub r0,r1"     "\n\t"  // + ticks >> 6
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 9
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // + ticks >> 10
+            "eor r1,r1"     "\n\t"  // clear out r1
+            "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+            "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
+            : "+r" (ticks));        // At 25 MHz this is bang dead the fuck on target with only 5 terms!
+          microseconds = overflows * 1000 + ticks; // nice and clean.
         #elif (F_CPU == 25000000UL) // Barely overclocked.
-          ticks = ticks >> 4;
-          microseconds = overflows * 1000 + (ticks + /* (ticks >> 1) -*/ (ticks >> 2) + /* (ticks >> 4) -*/ (ticks >> 5)); // DEAD ON with 5 terms
-
-        /* The Terrible Twelves (or threes) - Twelve may be a great number in a lot of ways... but here, it's actually 3 in disguise.
-         * NINE TERMS in the damned bitshift division expansion. And the result isn't even amazing. - it's worse than what can be done
-         * with just 5 terms for dividing by 36 or 25, or a mere 3 terms with 27... where you're dividing by 9, 12.5, and 13.5 respectively,
-         * or after the initial shifts, by 0.78125, 1.25 or 1.18, and comparable to the best series for division by 1.375 (44 MHz) or 0.9375 (30 MHz) which each have 7 terms,
-         * though it's better than the best possible for the division by 0.875 associated with 28 MHs clocks which is also a 7 term one.
-         * This is division by 0.75, which sounds like it should be the easiest out of the lot.
-         *
-         * This does the following:
-         * ticks = ticks >> (1, 2, 3, 4, or 6 for 3 MHz, 6 MHz, 12 MHz, 24 MHz, or 48 MHz)
-         * ticks = ticks + (ticks >> 1) - (ticks >> 2) + (ticks >> 3) - (ticks >> 4) + (ticks >> 5) - (ticks >> 6) + (ticks >> 7) - (ticks >> 9)
-         *
-         * Equivalent to :
-         * ticks = ticks / (1.5, 3, 6, 12, or 24)
-         *
-         * Division is way too slow, but we need to convert current timer ticks, which
-         * are are 0-2999, 0-5999, 0-11999, or 0-23999 into the 3 least significant digits
-         * of the number of microseconds so that it can be added to overflows * 1000.
-         *
-         * Runtime of the assembly is 28, 30, 32, or 34 clocks
-         * 3 and 6 MHz not a supported speed.
-         * 57 replaced with 30 save 27 clocks @ 12 = 2 us saved
-         * 67 replaced with 32 save 35 clocks @ 24 = 1.5us saved
-         * 77 replaced with 34 save 43 clocks @ 48 = 1 us saved
-         */
-        #elif (F_CPU == 48000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || F_CPU == 6000000UL || F_CPU == 3000000UL)
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
+            "lsr r1"        "\n\t" // notice how at first, each shift takes 2 insns. Compiler wants to use an upper register, ldi number of shifts
+            "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks)
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code. Value now at most 781.
+            "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
+            "ror r0"        "\n\t"  // 2 words per shift still
+            "add %A0, r0"   "\n\t"  // we now have ticks >> 1, add it to original.
+            "adc %B0, r1"   "\n\t"  //
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  // 2 words per shift still
+            "sub %A0, r0"   "\n\t"  // we now have ticks >> 2, subtract from original.
+            "sbc %B0, r1"   "\n\t"  // at this point 0-12500 has been rightshifted 6 places - it is now guaranteed to be < 256!
+            "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"  // we now have ticks >> 4
+            "add r0,r1"     "\n\t"  // + ticks >> 4
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 5
+            "eor r1,r1"     "\n\t"  // clear out r1
+            "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+            "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
+            : "+r" (ticks));        // At 25 MHz this is bang dead the fuck on target with only 5 terms!
+          microseconds = overflows * 1000 + ticks; // nice and clean.
+        #elif (F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU == 7000000UL)
           __asm__ __volatile__(
             "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
             "lsr r1"        "\n\t" // notice how at first, each shift takes insns. Compiler wants to use an upper register, ldi number of shifts
             "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks)
-            #if (F_CPU != 3000000UL)
-              "lsr r1"        "\n\t"
-              "ror r0"        "\n\t"
-            #endif
-            #if (F_CPU == 12000000UL || F_CPU == 24000000UL || F_CPU == 48000000UL)
-              "lsr r1"      "\n\t"  // sacrifice 1 word for 9 clocks on the 12 MHz configuration
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            #if (F_CPU != 7000000UL) //14 or 28
+              "lsr r1"      "\n\t"
               "ror r0"      "\n\t"
             #endif
-            #if (F_CPU == 24000000UL || F_CPU == 48000000UL)
-              "lsr r1"      "\n\t"  // sacrifice 3 words for 12 clocks on the 24 MHz configuration
+            #if (F_CPU == 28000000UL) // 28
+              "lsr r1"      "\n\t"
               "ror r0"      "\n\t"
             #endif
-            #if (F_CPU == 48000000UL)
+            "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code.
+            "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
+            "ror r0"        "\n\t"  // 2 words per shift still
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "add %A0, r0"   "\n\t"  // we now have ticks >> 2, add it to original.
+            "adc %B0, r1"   "\n\t"  //
+            "lsr r1"        "\n\t"  // at this point 0-13999 has been rightshifted 6 places
+            "ror r0"        "\n\t"  // we now have ticks >> 2. Now it's under 250, and r1 is 0
+            "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
+            "lsr r1 "       "\n\t"  // now it's only 1 insn/shift!
+            "sub r0,r1"     "\n\t"  // - ticks >> 3
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 5
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 6
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 8
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 9
+            "eor r1,r1"     "\n\t"  // clear out r1
+            "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+            "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
+            : "+r" (ticks));        // Do the rest in C. ticks is a read/write operand.
+          microseconds = overflows * 1000 + ticks; // nice and clean.
+        #elif (F_CPU == 27000000UL)  // Twenty seven?! Lord why?!
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
+            "lsr r1"        "\n\t" // notice how at first, each shift takes insns. Compiler wants to use an upper register, ldi number of shifts
+            "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks)
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code.
+            "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"  //
+            "ror r0"        "\n\t"  // Now it's ticks >> 2
+            "add %A0, r0"   "\n\t"  // we now have ticks >> 2. Now it's under 250, and r1 is 0
+            "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"  // now it's only 1 insn/shift!
+            "sub r0,r1"     "\n\t"  // - ticks >> 4
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"
+            "lsr r1"        "\n\t"  // No swap trick here, we don't have a high register free. more clocks to get one (3) than we'd save (2).
+            "add r0,r1"     "\n\t"  // + ticks >> 9
+            "eor r1,r1"     "\n\t"  // clear out r1
+            "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+            "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
+            : "+r" (ticks));        // Do the rest in C. ticks is a read/write operand.
+          microseconds = overflows * 1000 + ticks; // nice and clean.
+
+        #elif (F_CPU == 48000000UL || F_CPU == 24000000UL || F_CPU == 12000000UL || F_CPU == 6000000UL || F_CPU == 3000000UL)
+          // The terrible twelves!
+            __asm__ __volatile__(
+          "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
+          "lsr r1"        "\n\t" // notice how at first, each shift takes insns. Compiler wants to use an upper register, ldi number of shifts
+          "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks)
+          #if (F_CPU != 3000000UL)
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+          #endif
+          #if (F_CPU == 12000000UL || F_CPU == 24000000UL || F_CPU == 48000000UL)
+            "lsr r1"      "\n\t"  // sacrifice 1 word for 9 clocks on the 12 MHz configuration
+            "ror r0"      "\n\t"
+          #endif
+          #if (F_CPU == 24000000UL || F_CPU == 48000000UL)
+            "lsr r1"      "\n\t"  // sacrifice 3 words for 12 clocks on the 24 MHz configuration
+            "ror r0"      "\n\t"
+          #endif
+          #if (F_CPU == 48000000UL)
+            "lsr r1"      "\n\t"  // sacrifice 5 words for 15 clocks on the 48 MHz configuration.
+            "ror r0"      "\n\t"
+          #endif
+          "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code.
+          "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
+          "ror r0"        "\n\t"  // 2 words per shift still
+          "add %A0, r0"   "\n\t"  // we now have ticks >> 1, add it to original.
+          "adc %B0, r1"   "\n\t"  //
+          "lsr r1"        "\n\t"  //
+          "ror r0"        "\n\t"  // we now have ticks >> 2. Now it's under 250, and r1 is 0
+          "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
+          "lsr r1 "       "\n\t"  // now it's only 1 insn/shift!
+          "sub r0,r1"     "\n\t"  // - ticks >> 3
+          "lsr r1"        "\n\t"
+          "add r0,r1"     "\n\t"  // + ticks >> 4
+          "lsr r1"        "\n\t"
+          "sub r0,r1"     "\n\t"  // - ticks >> 5
+          "lsr r1"        "\n\t"
+          "add r0,r1"     "\n\t"  // + ticks >> 6
+          "lsr r1"        "\n\t"
+          "sub r0,r1"     "\n\t"  // - ticks >> 7
+          "lsr r1"        "\n\t"
+          "lsr r1"        "\n\t"
+          "add r0,r1"     "\n\t"  // + ticks >> 9
+          "eor r1,r1"     "\n\t"  // clear out r1
+          "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
+          "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
+          : "+r" (ticks));        // Do the rest in C. ticks is a read/write operand.
+        microseconds = overflows * 1000 + ticks;
+
+        #elif (F_CPU == 30000000UL || F_CPU == 15000000UL) // The 30's - not so bad!
+          //(ticks + (ticks >> 3) - (ticks >> 4) + (ticks >> 7) - (ticks >> 8));
+          __asm__ __volatile__(
+            "movw r0,%A0"   "\n\t" // we copy ticks to r0 (temp_reg) and r1 (zero_reg) so we don't need to allocate more registers.
+            "lsr r1"        "\n\t" // notice how at first, each shift takes insns. Compiler wants to use an upper register, ldi number of shifts
+            "ror r0"        "\n\t" // into it, then lsr, ror, dec, breq (4 insn + 5 clocks per shift, and including the ldi, it's 5 insns + 5*shiftcount clocks
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            #if (F_CPU == 30000000UL)
               "lsr r1"      "\n\t"  // sacrifice 5 words for 15 clocks on the 48 MHz configuration.
               "ror r0"      "\n\t"
             #endif
             "movw %A0,r0"   "\n\t"  // This is the value we call ticks, because that's what it was in old code.
             "lsr r1"        "\n\t"  // we just copied the now shifted value back to original location.
             "ror r0"        "\n\t"  // 2 words per shift still
+            "lsr r1"        "\n\t"
+            "ror r0"        "\n\t"
+            "lsr r0"        "\n\t"  // until here! We started with less than 2^10 so now r1 = 0 and all data is in r0!
             "add %A0, r0"   "\n\t"  // we now have ticks >> 1, add it to original.
-            "adc %B0, r1"   "\n\t"  //
-            "lsr r1"        "\n\t"  //
-            "ror r0"        "\n\t"  // we now have ticks >> 2. Now it's under 250, and r1 is 0
+            "adc %B0, r1"   "\n\t"  // we still need to carry
             "mov r1,r0"     "\n\t"  // so we copy the remaining value into r1.
-            "lsr r1 "       "\n\t"  // now it's only 1 insn/shift!
-            "sub r0,r1"     "\n\t"  // - ticks >> 3
-            "lsr r1"        "\n\t"
-            "add r0,r1"     "\n\t"  // + ticks >> 4
-            "lsr r1"        "\n\t"
-            "sub r0,r1"     "\n\t"  // - ticks >> 5
-            "lsr r1"        "\n\t"
-            "add r0,r1"     "\n\t"  // + ticks >> 6
-            "lsr r1"        "\n\t"
-            "sub r0,r1"     "\n\t"  // - ticks >> 7
+            "lsr r0"        "\n\t"  // we now have ticks >> 4
+            "sub r0,r1"     "\n\t"  // - ticks >> 4
             "lsr r1"        "\n\t"
             "lsr r1"        "\n\t"
-            "add r0,r1"     "\n\t"  // + ticks >> 9
+            "lsr r1"        "\n\t"
+            "add r0,r1"     "\n\t"  // + ticks >> 7
+            "lsr r1"        "\n\t"
+            "sub r0,r1"     "\n\t"  // - ticks >> 8
             "eor r1,r1"     "\n\t"  // clear out r1
             "sub %A0,r0"    "\n\t"  // Add the sum of terms that fit in a byte to what was ticks in old code.
             "sbc %B0,r1"    "\n"    // carry - see,this is why AVR needs a known zero.
@@ -755,8 +980,8 @@ void init_timers();
           microseconds = overflows * 1000 + (ticks - (ticks >> 2) + (ticks >> 4) - (ticks >> 6)); // + (ticks >> 8)
         */
 
-        // powers of 2  - and a catchall for parts without dedicated implementations. It gives wrong results, but
-        // it also doesn't take forever like doing division would.
+        // powers of 2  - and a catchall for parts without dedicated implementations. For parts without dedicated implementations, it gives wrong results.
+        // For powers of 2 it is exact.
         #elif (F_CPU  == 32000000UL || F_CPU > 24000000UL)
           microseconds = overflows * 1000 + (ticks >> 4);
         #elif (F_CPU  == 16000000UL || F_CPU > 12000000UL)
@@ -775,7 +1000,7 @@ void init_timers();
                F_CPU == 32000000UL || F_CPU == 16000000UL || F_CPU ==  8000000UL || F_CPU ==  4000000UL || /* powers of 2               */ \
                F_CPU ==  2000000UL || F_CPU ==  1000000UL || F_CPU == 25000000UL || F_CPU ==  5000000UL || /* powers of 2 cont, 25, 5   */ \
                F_CPU == 44000000UL || F_CPU == 28000000UL || F_CPU == 14000000UL || F_CPU ==  3000000UL || /* oddball frequencies       */ \
-               F_CPU == 27000000UL)&& /* warn fools who messed with the timers.h file too and expected that the core would sort out how */ \
+               F_CPU == 27000000UL) && /* warn fools who messed with the timers.h file too and expected that the core would sort out how*/ \
               ((TIME_TRACKING_TIMER_DIVIDER == 2 && TIME_TRACKING_TICKS_PER_OVF == F_CPU/2000) || /*how to make the timer work correctly*/ \
                (TIME_TRACKING_TIMER_DIVIDER == 1 && (TIME_TRACKING_TICKS_PER_OVF == F_CPU/500 && F_CPU == 1000000) || (TIME_TRACKING_TICKS_PER_OVF == F_CPU/1000 && F_CPU == 2000000))))
                                                    /*  without them implementing it. No such luck  */
@@ -1550,6 +1775,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
     // It has been found experimentally that often 24 MHz crystals with poor layout or poorly chosen loading capacitors
     // would work if the core was told they were 25 MHz; the tests below were changed from > to >= to put frequencies at
     // the top of one of the ranges into the next highest bucket.
+    // Amazingly, 48 MHz has been observed working at room temperature.
     #if     (F_CPU >= 24000000)
       #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
     #elif   (F_CPU >= 16000000)
@@ -1565,143 +1791,226 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
   #endif
 #endif
 
-
-void  __attribute__((weak)) init_clock() {
-  #if CLOCK_SOURCE == 0
-    /* internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
-     *  F_CPU    CLKCTRL_FREQSEL or FRQSEL depending on ATpack version
-     *  1 MHz    0x0
-     *  2 MHz    0x1
-     *  3 MHz    0x2
-     *  4 MHz    0x3  - default at power on reset
-     * Reserved  0x4
-     *  8 MHz    0x5
-     * 12 MHz    0x6
-     * 16 MHz    0x7
-     * 20 MHz    0x8
-     * 24 MHz    0x9
-     * 28 MHz    0xA  - undocumented, and makes the math harder
-     * 32 MHz    0xB  - undocumented
-     * 0xC-F repeat 0x8-0xB
-     */
-    /* Some speeds not otherwise possible can be generated with the internal oscillator by prescaling
-     * This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
-     * The logic for switching clock to the other stupid frequencies that can be generated this way
-     * is implemented, but millis, micros, and delayMicroseconds may not be. See the clock reference.
-     * There is just no demand for operation at these strange frequencies.
-     */
-    /* Give us a FREQing break, Microchip! In ATpack version 1.9.103, they renamed another field...
-     * FREQSEL was changed to FRQSEL. It is unclear to me why it was necessary to make a breaking change
-     * impacting nearly all existing code that used the internal oscillator on these parts but it must
-     * have been very important to eliminate that E.
-     * We here use the old spelling, and breathe a sigh of relief that we didn't use the group code names.
-     * Our supplied core_devices.h will work around this: if the the old spelling of the group masks and
-     * is not defined, we define it to the new spelling (and if neither is defined, then we are attempting
-     * to compile for something that isn't a supported part so failure is expected). core_devices.h now does
-     * patch up the group codes
-     */
-    #if (F_CPU == 32000000)
-      /* Overclocked - generally reliable at room temperature, and a very convenient frequency. */
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0B << 2));
-    #elif (F_CPU == 28000000)
-      /* Overclocked - generally quite reliable at room temperature, but a dumb frequency (see PWM section) */
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
-    #elif (F_CPU == 24000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2));
-    #elif (F_CPU == 20000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
-    #elif (F_CPU == 16000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2));
-    #elif (F_CPU == 12000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x06 << 2)); /* should it be 24MHz prescaled by 2? */
-    #elif (F_CPU == 8000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2)); /* Should it be 16MHz prescaled by 2? */
-    #elif (F_CPU == 4000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x03 << 2)); /* Should it be 16MHz prescaled by 4? */
-    #elif (F_CPU == 3000000)
-      #warning "3 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2)); /* There's like, no support for this anywhere in the core!  */
-    #elif (F_CPU == 2000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2)); /* Not exposed by the tools submenus but will probably work */
-      #warning "2 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
-    #elif (F_CPU == 1000000)
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2));
-      /* Prescaled clock options */
-    #elif (F_CPU == 14000000)
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
-      #warning "14 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
-    #elif (F_CPU == 10000000) /* 10 MHz = 20 MHz prescaled by 2 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
-    #elif (F_CPU == 7000000)
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
-      #warning "7 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
-    #elif (F_CPU == 6000000)
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
-      #warning "6 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
-    #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
-      _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
-    #else
-      #error "F_CPU defined as an unsupported value for the internal oscillator."
-    #endif
-  #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
-  /* For this, we don't really care what speed it is at - we will run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
-   * It is foolish to determine what we're running at at runtime, as the user should really knoe the basic parameters of the
-   * crystal - it's usually printed on the damned thing. We don't prescale from crystals, eveh though the hardware is perfectly
-   * capable of it. If someone wants to make a convincing argument for adding it, please do so in the issues.
-   * Crystals in the relevant frequency range are readily available; it's not like you there's a reasonable frequency to run at for
-   * which you can't obtain a crystal, but you can get one for twice that speed.
-   * In fact, there is an almost infinite variety of crystals for *unreasonable* frequencies within the range of clock speeds that
-   * these parts run at. Unlike on classic AVRs, there is no need for wacky UART crystals.
-   */
-    #if !defined(CLKCTRL_XOSCHFCTRLA)
-      // it's an AVR DA-series or something with that version of CLKCTRL.
-      #if (CLOCK_SOURCE == 1)
-        #error "AVR DA-series selected, but crystal as clock source specified. DA-series parts only support internal oscillator or external clock."
+#if (defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_DU__))
+  void  __attribute__((weak)) init_clock() {
+    #if CLOCK_SOURCE == 0
+      /* internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
+       *  F_CPU    CLKCTRL_FREQSEL or FRQSEL depending on ATpack version
+       *  1 MHz    0x0
+       *  2 MHz    0x1
+       *  3 MHz    0x2
+       *  4 MHz    0x3  - default at power on reset
+       * Reserved  0x4
+       *  8 MHz    0x5
+       * 12 MHz    0x6
+       * 16 MHz    0x7
+       * 20 MHz    0x8
+       * 24 MHz    0x9
+       * 28 MHz    0xA  - undocumented, and makes the math harder - but not as hard as 12/24, surprisingly.
+       * 32 MHz    0xB  - undocumented
+       * 0xC-F repeat 0x8-0xB
+       */
+      /* Some speeds not otherwise possible can be generated with the internal oscillator by prescaling
+       * This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
+       * The logic for setting  clock to the other stupid frequencies that can be generated this way
+       * or for generating millis, micros, or delayMicroseconds() at those speeds is belived to be implented
+       * but has not been tested.
+       * If it fails to work at speeds evenly divisible by 1000000 and less than 8 MHz, that can be reported
+       * as a bug, though it will not be a priority one. We have no plans to support speeds with non-integer
+       * number of clock cycles per microsecond, whether from a crystal or dividing the internal oscillator.
+       * Speeds which might work by just adding to or modifying boards.txt are 14 MHz (28/2), 7 MHz (28/4),
+       * 6 MHz (12/2), 3 MHz (native OSCHF), 2 MHz (native OSCHF). (4, 5, and 1 MHz are supported in boards.txt)
+       * Unlike classic AVRs, you should not need USART crystals to get negligible baud rate calculation error
+       * due to the new serial ports having a fractional baud rate generator.
+       */
+      /* Give us a FREQing break, Microchip! In ATpack version 1.9.103, they renamed another field...
+       * FREQSEL was changed to FRQSEL. It is unclear to me why it was necessary to make a breaking change
+       * impacting nearly all existing code that used the internal oscillator on these parts but it must
+       * have been very important to eliminate that E.
+       * We here don't so much care, because that's all that we're setting in that registerand we just used numbers
+       * from the start, because, well, the 32 MHz option doesn't exactly have a constant defined now does it?
+       * We resisted the urge to provide defines that make this code look above board; as a happy consequence
+       * we were unscathed by the de-Eing of the freqctrl bitfield. Maybe that's where they got the capital E
+       * for the Ex series? That might explain why they don't have this lovely frequency selector. Maybe the
+       * headers only have a limited budget of each letter, and this was a rich source of precious E's.
+       * Whatever - the point is that core was not impacted (though we did add compatibility defines to
+       * core_devices.h, with all the rest of them)
+       */
+      #if (F_CPU == 32000000)
+        /* Overclocked - generally reliable at room temperature, and a very convenient frequency. */
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0B << 2));
+      #elif (F_CPU == 28000000)
+        /* Overclocked - generally quite reliable at room temperature, but a dumb frequency (see PWM section) */
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+      #elif (F_CPU == 24000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x09 << 2));
+      #elif (F_CPU == 20000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
+      #elif (F_CPU == 16000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x07 << 2));
+      #elif (F_CPU == 12000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x06 << 2)); /* should it be 24MHz prescaled by 2? */
+      #elif (F_CPU == 8000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x05 << 2)); /* Should it be 16MHz prescaled by 2? */
+      #elif (F_CPU == 4000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x03 << 2)); /* Should it be 16MHz prescaled by 4? */
+      #elif (F_CPU == 3000000)
+        #warning "3 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x02 << 2)); /* There's like, no support for this anywhere in the core!  */
+      #elif (F_CPU == 2000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x01 << 2)); /* Not exposed by the tools submenus but will probably work */
+        #warning "2 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+      #elif (F_CPU == 1000000)
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x00 << 2));
+        /* Prescaled clock options */
+      #elif (F_CPU == 14000000)
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+        #warning "14 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+      #elif (F_CPU == 10000000) /* 10 MHz = 20 MHz prescaled by 2 */
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
+      #elif (F_CPU == 7000000)
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+        #warning "7 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+      #elif (F_CPU == 6000000)
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
+        #warning "6 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
+      #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
+        _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
       #else
-        // external clock
-        uint8_t i = 255;
-        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc); //
-        while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
-          i--;
-          if(i == 0) onClockTimeout();
-          // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
-        }
+        #error "F_CPU defined as an unsupported value for the internal oscillator."
       #endif
-    #else
-      // it's a DB/DD with the crystal supporting version of CLKCTRL.
-      // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
-      // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in
-      // a clock sufficiently broken that it resets instead.
-      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
-      _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
-      #if (CLOCK_SOURCE == 2)
-        // external clock
-        // CLKCTRL_SELHF_EXTCLOCK_gc or CLKCTRL_SELHF_EXTCLK_gc? Microchip can't seem to decide, and we can't test for it with the preprocessor because it's a bloody enumerated type.
-        // 0x02 is the numeric value of that constant. I can't even provide compatibility defines, because I don't have any way to tell which one it is for a given version of the headers.
-        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (0x02 | CLKCTRL_ENABLE_bm));
-        uint8_t i = 255;
+    #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
+    /* For this, we care very little, from the perspective of the init code, what the system frequency is - we have little choice but to
+     * run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
+     * It is foolish to determine what we're running at at runtime, as the user should really knoe the basic parameters of the
+     * crystal - it's usually printed on the damned thing. We don't prescale from crystals, eveh though the hardware is perfectly
+     * capable of it. If someone wants to make a convincing argument for adding it, please do so in the issues.
+     * Crystals in the relevant frequency range are readily available; it's not like you there's a reasonable frequency to run at for
+     * which you can't obtain a crystal, but you can get one for twice that speed.
+     * In fact, there is an almost infinite variety of crystals for *unreasonable* frequencies within the range of clock speeds that
+     * these parts run at: Unlike on classic AVRs, there is no need for wacky UART crystals.
+     */
+      #if !defined(CLKCTRL_XOSCHFCTRLA)
+        // it's an AVR DA-series or something with that version of CLKCTRL.
+        #if (CLOCK_SOURCE == 1)
+          #error "AVR DA-series selected, but crystal as clock source specified. DA-series parts only support internal oscillator or external clock."
+        #else
+          // external clock
+          uint8_t i = 255;
+          _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc); //
+          while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
+            i--;
+            if(i == 0) onClockTimeout();
+            // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
+          }
+        #endif
       #else
-        // external crystal
-        _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
-        /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
-        uint16_t i = 8192; // crystals can take a lot longer to reach stability.
+        // it's a DB/DD with the crystal supporting version of CLKCTRL.
+        // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
+        // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in
+        // a clock sufficiently broken that it resets instead.
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
+        _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
+        #if (CLOCK_SOURCE == 2)
+          // external clock
+          // CLKCTRL_SELHF_EXTCLOCK_gc or CLKCTRL_SELHF_EXTCLK_gc? Microchip can't seem to decide, and we can't test for it with the preprocessor because it's a bloody enumerated type.
+          // 0x02 is the numeric value of that constant. I can't even provide compatibility defines, because I don't have any way to tell which one it is for a given version of the headers.
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (0x02 | CLKCTRL_ENABLE_bm));
+          uint8_t i = 255;
+        #else
+          // external crystal
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
+          /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
+          uint16_t i = 8192; // crystals can take a lot longer to reach stability.
+        #endif
       #endif
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
+      while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
+        i--;
+        if(i == 0) onClockTimeout();
+      }
+    #else
+      #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
     #endif
-    _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
-    while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
-      i--;
-      if(i == 0) onClockTimeout();
-    }
-  #else
-    #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
-  #endif
-}
-
+  }
+#elif defined(__AVR_EA__)
+  void  __attribute__((weak)) init_clock() {
+    #if CLOCK_SOURCE == 0
+      // This sucks! Our internal clock sucks! two lousy speeds, selected by fuses? What is this, tinyAVR?
+      #if F_CPU == 20000000 || F_CPU == 16000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 0); // turn off prescaler.
+      #elif F_CPU == 10000000 || F_CPU == 8000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 1); // /2
+      #elif F_CPU == 5000000 || F_CPU == 4000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 3); // /4
+      #elif F_CPU == 2000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 5); // /8
+      #elif F_CPU == 1000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 7); // /16
+      #endif
+    #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
+    /* For this, we don't really care what speed it is at - we will run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
+     * It is foolish to determine what we're running at at runtime, as the user should really know the basic parameters of the
+     * board, like the speed of the crystal - it's usually printed on the damned thing. We don't prescale from crystals, eveh though
+     * the hardware is perfectly capable of it. If someone wants to make a convincing argument for adding it, please do so in the issues.
+     * Argument should address the fact that running from a crystal is never going to be the choice of something that cares about power
+     * consumption while awake, and that's the main reason that one would slow the system clock and the fact that Crystals in the relevant
+     * frequency range are readily available; it's not like there's a bunch of reasonable frequencies to run at for which you can't obtain a crystal, but you
+     * can get one for twice that speed.
+     * In fact, there is an almost infinite variety of crystals for *unreasonable* frequencies within the range of clock speeds that
+     * these parts run at, too. Unreasonable for us at least, because, unlike on classic AVRs, we have a fractional baud rate generator,
+     * and there is no need for wacky UART crystals.
+     */
+      #if !defined(CLKCTRL_XOSCHFCTRLA)
+        // it's an AVR EB-series or something.
+        #if (CLOCK_SOURCE == 1)
+          #error "AVR EB-series selected, but crystal as clock source specified. EB-series parts only support internal oscillator or external clock."
+        #else
+          // external clock
+          uint8_t i = 255;
+          _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc); //
+          while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
+            i--;
+            if(i == 0) onClockTimeout();
+            // in my tests, it only took a couple of passes through this loop to pick up the external clock, so at this point we can be pretty certain that it's not coming....
+          }
+        #endif
+      #else
+        // it's a EA with that version of CLKCTRL.
+        // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
+        // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in the
+        // crystal "limping" - oscillating enough to keep the CFD at bay, but not stable - maybe it misses some clocks or something. This in turn tends
+        // to result in similar failure modes to overclocking.
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
+        _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
+        #if (CLOCK_SOURCE == 2)
+          // external clock
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (0x02 | CLKCTRL_ENABLE_bm));
+          uint8_t i = 255;
+        #else
+          // external crystal
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
+          // No more crystal drive strength selection! Party poopers!
+          uint16_t i = 8192; // crystals can take a lot longer to reach stability.
+        #endif
+      #endif
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc);
+      while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
+        i--;
+        if(i == 0) onClockTimeout();
+      }
+    #else
+      #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
+    #endif
+  }
+#else
+  #error "Core not correctly setting family defines or part not an DX/EX. We have no idea what kind of clock this might have or how to configure it."
+#endif
 
 /********************************* CLOCK FAILURE HANDLING **************************************/
 /*                                                                                             *
@@ -1724,6 +2033,8 @@ void  __attribute__((weak)) init_clock() {
 
 
 #if (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
+  // These two functions need only exist if not using internal clock source.
+  void _blinkCode(uint8_t blinkcount);
   inline void _asmDelay(uint16_t us);
   inline void _asmDelay(uint16_t us) {
     __asm__ __volatile__ (
@@ -1731,8 +2042,6 @@ void  __attribute__((weak)) init_clock() {
       "brne 1b" : "=w" (us) : "0" (us) // 2 cycles
     );
   }
-  // These two functions need only exist if not using internal clock source.
-  void _blinkCode(uint8_t blinkcount);
   void _blinkCode(uint8_t blinkcount) {
     openDrainFast(LED_BUILTIN, LOW);
     while(1) {
@@ -1754,10 +2063,8 @@ void  __attribute__((weak)) init_clock() {
   }
 
   void __attribute__((weak)) onClockTimeout() {
-
     _blinkCode(3);
   }
-
   #ifdef CLKCTRL_CFD_vect
     ISR(CLKCTRL_CFD_vect){
       onClockFailure();

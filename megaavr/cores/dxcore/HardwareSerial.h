@@ -25,6 +25,8 @@
              so whenever UART.h has been loaded, those three macros are defined as either 1, or wharever
              value the user overode them with, likely 0. Also high byte of UART address always 0x08, so replace
              2-clock ldd with 1 clock ldi. - Spence
+ * 2022-2023: Ongoing fixes, tweaks and enhancements, most notable excising one layer of inheritance so we
+ * could lose a bunch of virtual functions and save flash.
 */
 
 #pragma once
@@ -135,7 +137,8 @@
     #define SERIAL_RX_BUFFER_SIZE 16
     // current tx buffer position = SerialClass + txtail + 37
   #elif (INTERNAL_SRAM_SIZE < 1024)  // 512b RAM
-    #define SERIAL_RX_BUFFER_SIZE 32
+    #define SERIAL_RX_BUFFER_SIZE 32 // We switch to the next size up 1 RAM-size earlier for RX than TX, because TX buffer overflow just blocks until there's room
+    // all it does is slow the sketch down. RX buffer overflows are far more serious, since data is lost.
     // current tx buffer position = SerialClass + txtail + 53
   #else
     #define SERIAL_RX_BUFFER_SIZE 64  // 1k+ RAM

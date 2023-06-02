@@ -2,6 +2,7 @@
 This core includes a number of features to provide more control or performance when doing digital I/O. This page describes how to use them. All of the options that can be configured for a pin are exposed. The only things that aren't exposed are the slew rate limiting feature, and the multi-pin configuration facilities. The slew rate limiting is can only be configured on a per port basis; turning it on and off is so simple (see below) that it needs no wrapper. The multi-pin configuration system does not have an obvious "right way" to expose it and should be handled directly by the sketch - it is very flexible and no wrapper around it would be able to preserve it's virtues while being much of a wrapper.
 
 ## First, an important note about digital output on Dx-series
+**Skip this section on megaTinyCore - it doesn't apply to you**
 Classic AVRs had symmetric pin drive. The pin driver was equally good at driving a pin high or low.
 
 So did the modern tinyAVR parts (not exactly, but very close to it.
@@ -13,7 +14,7 @@ For example, consider the practice of using PWM and an RC filter as a really ghe
 It remains to be seen what the pin drive strength will be like on the Ex-series or any other future part, and until the IO pin output current is added to the characteristics graphs section of the datasheet, you don't really have much information; preliminary datasheets typically omit this sort of data, because these properties have not yet been characterized (I'm not sure how they manage that. Automating that testing, while not trivial, shouldn't be a challenge to microcontroller experts. I'm pretty sure there are a considerable number of such persons employed by Microchip.
 
 ## Ballpark overhead figures
-The digital I/O functions are astonishingly inefficient. This isn't my fault - it's the Arduino API's fault
+The digital I/O functions are astonishingly inefficient. This isn't all my fault - it's the Arduino API's fault - mainly that the way to write to a pin and the way to turn off PWM are the same thing.
 These figures are the difference between a sketch containing a single call to the function, with volatile variables used as arguments to prevent compiler from making assumptions about their values, which may substantially reduce the size of the binary otherwise.
 
 The comparison to the fast I/O functions is grossly unfair, because the fast I/O functions have constant arguments - but this gives an idea of the scale.
@@ -25,33 +26,23 @@ Remember also that executing 1 word of code (2 bytes) takes 1 clock cycle, thoug
 | digitalWrite()     | +656 |  +198 |  +340 | Calls turnOffPWM(), included in figures.
 | both of above      | +784 |  +296 |  +438 | Calls turnOffPWM()
 | openDrain()        | +584 |  +128 |  +262 | Calls turnOffPWM()
-| turnOffPWM()       | +572 |   +72 |  +228 | This is where we pay the price for free remapping of PWM!
+| turnOffPWM()       | +572 |   +72 |  +228 | Dx pays dearly for the pwm remapping. 3216 is paying for the TCD PWM.
 | digitalRead()      |  ~76 |   +76 |   +78 | Official core calls turnOffPWM (we don't)
 | pinConfigure() 1   | +216 |  +104 |  +116 | Only direction/output level
 | pinConfigure() 2   | +362 |  +202 |  +220 | Only pullup, input sense, and direction/outlevel
 | pinConfigure() 3   | +414 |  +232 |  +250 | Unconstrained
 | digitalWriteFast() |   +2 |    +2 |    +2 | With constant arguments.
 | pinModeFast()      |  +12 |   +12 |   +12 | With constant arguments.
+| dW-turnOffPWM()    |  +84 |  +126 |  +112 | Digital write times above less the turnOffPWM()
 
 The takeaways from this should be that:
 * digitalWrite() can easily take 35-75 or more clock cycle with turnOffPWM and then over 50 itself. So digitalWrite can take up to 7 us per call (at 20 MHz; digitalWriteFast takes 0.05 us), and it is by far the worst offender. A small consolation is that turnOffPWM does not execute the entire block of code for all parts. It checks which timer is used, and uses that block, which very roughly gives 70 clocks on a TCA pin, around 150 on a TCD pin, and considerably fewer on a pin with no PWM, though it still has to determine that the pin doesn't have pwm.
-* If you know you won't have PWM coming out of a pin, pinConfigure is faster than pinMode() and digitalWrite(), especially if only setting up the more common properties.
+* If you know you won't have PWM coming out of a pin, pinConfigure is faster than pinMode() and digitalWrite(), especially if only setting up the more common properties. pinConfigure 1 above has the effect of a combined pinMode and digitalWrite, and it's faster than either of them.
+* With great power comes greater overhead. With only 1 timer doing PWM, the 3224 only needs 72 words to handle turning off that timer. The 3216 with 2 TCD pins has to pay around 150 words of flash in turnOffPWM, and a similar amount in analogWrite. And on Dx, it's even worse (though you only traverse a small portion of it on any given call. But we gotta handle 3 kinds of timers, some with errata to work around)
 * pinConfigure is optimized differently when called with the second argument constrained to 0x00-0x0F (setting only direction and output value) (1), with it constrained to that plus configuring pullups (2), and without restrictions (3).
 * 4 bytes, times the number of the highest number digital pin, are in the form of lookup tables.
 * This is why the fast digital I/O functions exist, and why there are people who habitually do `VPORTA.OUT |= 0x80;` instead of `digitalWrite(PIN_PA7,HIGH);`
 * This unexpectedly poor performance of the I/O functions is also why I am not comfortable automatically switching digital I/O to "fast" type when constant arguments are given. The normal functions are just SO SLOW that such a change would be certain to break code implicitly. I have seen libraries which, for example, would not meet (nor come close to meeting) setup and hold time specifications for an external device, but for the grindingly slow pin I/O. *This breakage would likely be wholly unexpected by both library author and the user, and would furthermore be very difficult for most users to diagnose, requiring an oscilloscope, awareness of the poor performance of these API functions, and sufficient familiarity with electronics to know that this was a problem that could occur*. Hence, it would be directly contrary to the goal of making electronics accessible (which Arduino is directed towards), and the goal of maintaining a high degree of compatibility with existing Arduino libraries, which is one of the primary goals of most Arduino cores.
-
-megaTinyCore and DxCore, like all Arduino cores, provides implementations of the usual digital I/O functions. *These implementations are not guaranteed to have identical argument and return types, though we do guarantee that same will be implicitly convertible to the types used by the reference implementation*
-
-
-pinConfigure called with second argument constrained to 0x00-0x0F (setting only direction and output value) (1), with it constrained to that plus configuring pullups (2), and without restrictions (3).
-About 200 bytes of that space is used for lookup tables, not instructions.
-
-This is why the fast digital I/O functions exist.
-
-This is why the fast digital I/O functions exist, and why there are people who habitually do `VPORTA.OUT |= 0x80;` instead of `digitalWrite(PIN_PA7,HIGH);`
-
-It's also why I am not comfortable automatically switching digital I/O to "fast" type when constant arguments are given. The normal functions are just SO SLOW that you're sure to break code that hadn't realized they were depending on the time it took for digital write, even if just for setup or hold time for the thing it's talking to.
 
 ## openDrain()
 It has always been possible to get the benefit of an open drain configuration - you set a pin's output value to 0 and toggle it between input and output. This core provides a slightly smoother (also faster) wrapper around this than using pinmode (since pinMode must also concern itself with configuring the pullup, whether it needs to be changed or not, every time - it's actually significantly slower setting things input vs output. The openDrain() function takes a pin and a value - `LOW`, `FLOATING` (or `HIGH`) or `CHANGE`. `openDrain()` always makes sure the output buffer is not set to drive the pin high; often the other end of a pin you're using in open drain mode may be connected to something running from a lower supply voltage, where setting it OUTPUT with the pin set high could damage the other device.
@@ -87,7 +78,7 @@ VPORTD.OUT |= 1 << 0; // The previous line is syntactic sugar for this. Beyond b
 |---------------------|-----------|----------|-----------------|
 | openDrainFast()     | 14 words  | 7 words  | 2 words if LOW<br/>1 if FLOATING |
 | digitalWriteFast()  | 10 words  | 6 words  | 1 words         |
-| pinModeFast()       |      N/A  |     N/A  | 1 word if OUTPUT<br/>6 otherwise |
+| pinModeFast()       |      N/A  |     N/A  | 6 words         |
 
 Execution time is 1 or sometimes 2 clocks per word that is actually executed (not all of them are in the multiple possibility options. in the case of the "any option" digitalWrite, it's 5-7
 Note that the HIGH/LOW numbers include the overhead of a `(val ? HIGH : LOW)` which is required in order to get that result. That is how the numbers were generated - you can use a variable of volatile uint8_t and that will prevent the compiler from assuming anything about it's value. It is worth noting that when both pin and value are constant, this is 2-3 times faster and uses less flash than *even the call to the normal digital IO function*, much less the time it takes for the function itself (which is many times that. The worst offender is the normal digitalWrite(), because it also has to check for PWM functionality and then turn it off if enabled (and the compiler isn't allowed to skip this if you never use PWM).
@@ -129,25 +120,25 @@ pinConfigure(PIN_PA2,(PIN_DIR_INPUT, PIN_OUT_LOW, PIN_PULLUP_OFF, PIN_INVERT_OFF
 The second syntax is thanks to @MCUdude and his understanding of variadic macros
 
 
-| Functionality |   Enable  | Disable            | Toggle |
-|---------------|-------|---------------------|--------------------|
-| Direction, pinMode() | `PIN_DIR_OUTPUT`<br/>`PIN_DIR_OUT`<br/>`PIN_DIRSET` | `PIN_DIR_INPUT`<br/>`PIN_DIR_IN`<br/>`PIN_DIRCLR`       | `PIN_DIR_TOGGLE`<br/>`PIN_DIRTGL` |
-| Pin output, `HIGH` or LOW | `PIN_OUT_HIGH`<br/>`PIN_OUTSET`         | `PIN_OUT_LOW`<br/>`PIN_OUTCLR`          | `PIN_OUT_TOGGLE`<br/>`PIN_OUTTGL`       |
-| Internal Pullup  | `PIN_PULLUP_ON`<br/>`PIN_PULLUP`        | `PIN_PULLUP_OFF`<br/>`PIN_NOPULLUP`       | `PIN_PULLUP_TGL`       |
-| Invert `HIGH` and LOW |`PIN_INVERT_ON`        | `PIN_INVERT_OFF`       | `PIN_INVERT_TGL`       |
-| Use TTL levels (DB/DD only) | `PIN_INLVL_TTL`<br/>`PIN_INLVL_ON`        | `PIN_INLVL_SCHMITT`<br/>`PIN_INLVL_OFF`     | Not supported<br/>No plausible use case      |
-| Digital input buffer | `PIN_INPUT_ENABLE`or<br/> `PIN_ISC_ENABLE`    | `PIN_ISC_DISABLE` or<br/>`PIN_INPUT_DISABLE`    | Not supported<br/>No plausible use case |
-| Interrupt on change | `PIN_ISC_ENABLE` or<br/> `PIN_INPUT_ENABLE`       | `PIN_ISC_ENABLE` or<br/>oth     | Not applicable |
-| Interrupt on Rise  | `PIN_ISC_RISE` or<br/> `PIN_INT_RISE`         | `PIN_ISC_ENABLE` or<br/>`PIN_ISC_DISABLE`     | Not applicable |
-| Interrupt on Fall  | `PIN_ISC_FALL` or<br/> `PIN_INT_FALL` | `PIN_ISC_ENABLE` or<br/>`PIN_ISC_DISABLE`      | Not applicable |
-| Interrupt on LOW  | `PIN_ISC_LEVEL`  or<br/> `PIN_INT_LEVEL` | `PIN_ISC_ENABLE` or<br/>`PIN_ISC_DISABLE`      | Not applicable |
+| Functionality |   Enable    | Disable            | Toggle |
+|---------------|-------------|---------------------|--------------------|
+| Direction, pinMode()        | `PIN_DIR_OUTPUT`<br/>`PIN_DIR_OUT`<br/>`PIN_DIRSET` | `PIN_DIR_INPUT`<br/>`PIN_DIR_IN`<br/>`PIN_DIRCLR`       | `PIN_DIR_TOGGLE`<br/>`PIN_DIRTGL` |
+| Pin output, `HIGH` or LOW   | `PIN_OUT_HIGH`<br/>`PIN_OUTSET`          | `PIN_OUT_LOW`<br/>`PIN_OUTCLR`                 | `PIN_OUT_TOGGLE`<br/>`PIN_OUTTGL`       |
+| Internal Pullup             | `PIN_PULLUP_ON`<br/>`PIN_PULLUP`         | `PIN_PULLUP_OFF`<br/>`PIN_NOPULLUP`            | `PIN_PULLUP_TGL`       |
+| Invert `HIGH` and LOW       |v`PIN_INVERT_ON`                          | `PIN_INVERT_OFF`                               | `PIN_INVERT_TGL`       |
+| Use TTL levels (DB/DD only) | `PIN_INLVL_TTL`<br/>`PIN_INLVL_ON`       | `PIN_INLVL_SCHMITT`<br/>`PIN_INLVL_OFF`        | Not supported<br/>No plausible use case      |
+| Digital input buffer        |`PIN_INPUT_ENABLE`or<br/>`PIN_ISC_ENABLE` | `PIN_ISC_DISABLE` or<br/>`PIN_INPUT_DISABLE`   | Not supported<br/>No plausible use case |
+| Interrupt on change         |`PIN_ISC_ENABLE` or<br/>`PIN_INPUT_ENABLE`| `PIN_ISC_ENABLE`                               | Not applicable |
+| Interrupt on Rise           | `PIN_ISC_RISE` or<br/> `PIN_INT_RISE`    | `PIN_ISC_ENABLE` or<br/>`PIN_ISC_DISABLE`      | Not applicable |
+| Interrupt on Fall           | `PIN_ISC_FALL` or<br/> `PIN_INT_FALL`    | `PIN_ISC_ENABLE` or<br/>`PIN_ISC_DISABLE`      | Not applicable |
+| Interrupt on LOW            | `PIN_ISC_LEVEL`  or<br/> `PIN_INT_LEVEL` | `PIN_ISC_ENABLE` or<br/>`PIN_ISC_DISABLE`      | Not applicable |
 
 For every constant with TGL or TOGGLE at the end, we provide the other spelling as well. For every binary option, in addition to the above, there is a `PIN_(option)_SET` and `PIN_(option)_CLR` for turning it on and off. The goal was to make it hard to not get the constants right.
 
 While pinConfigure is not as fast as the fast digital I/O functions above, it's still faster than pinMode().
 
 ### INLVL - input logic levels
-On MVIO parts (DB and DD-series only), pins can be configured to use one of two sets of input voltages: either the normal schmitt triggert input, which has thresholds as a fraction of Vdd, or the TTL mode which has fixed thresholds independent of operating voltage. On MVIO pins, using the schmitt trigger Vddio2 takes the place of VDDIO. Note that this is overridden when pins are used for the TWI - that defaults to I2C voltage levels, but supports an optional SMBus 3.0 mode.
+On some parts (DB, DD, EA - likely all the "good" parts. The EB-series is going to be their newer, better, less wacky t861. Considering how badly they've cut features from it, I'll be disappointed if they're not cheap. , pins can be configured to use one of two sets of input voltages: either the normal schmitt triggert input, which has thresholds as a fraction of Vdd, or the TTL mode which has fixed thresholds independent of operating voltage. On MVIO pins, using the schmitt trigger Vddio2 takes the place of VDDIO. Note that this is overridden when pins are used for the TWI - that defaults to I2C voltage levels, but supports an optional SMBus 3.0 mode.
 
 | Voltage             |  Schmitt  |     I2C   |  TTL   | SMBus 3.0 |
 |---------------------|-----------|-----------|--------|-----------|
