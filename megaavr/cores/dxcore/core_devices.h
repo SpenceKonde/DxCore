@@ -22,7 +22,6 @@
  * 102's have 2 sections, 104's have 4 sections.
  */
 #if (PROGMEM_SIZE > 0x20000)
-  #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION7")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
@@ -32,20 +31,40 @@
   #define PROGMEM_SECTION6 __attribute__(( __section__(".FLMAP_SECTION6")))
   #define PROGMEM_SECTION7 __attribute__(( __section__(".FLMAP_SECTION7")))
 #elif (PROGMEM_SIZE > 0x10000)
-  #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION3")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
   #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION3")))
 #elif (PROGMEM_SIZE > 49152)
-  #define PROGMEM_MAPPED   __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
-#else
+#endif
+
+#if __AVR_ARCH__ == 103
   // __AVR_ARCH__ == 103, so all of the flash is memory mapped, and the linker
   // will automatically leave const variables in flash.
   #define PROGMEM_MAPPED
+#elif defined(LOCK_FLMAP)
+  #if defined(FLMAPSECTION3)
+    #if __AVR_ARCH__ == 104
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION3")))
+    #else
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+    #endif
+  #elif defined(FLMAPSECTION2)
+    #if __AVR_ARCH__ == 104
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION2")))
+    #else
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
+    #endif
+  #elif defined(FLMAPSECTION1)
+    #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+  #elif defined(FLMAPSECTION0)
+    #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+  #endif
 #endif
+
+
 
 /* Chip families
  *
