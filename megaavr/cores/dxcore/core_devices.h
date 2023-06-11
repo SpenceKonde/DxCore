@@ -21,8 +21,6 @@
  * mapped to the data address space, while 102 and 104 only have a 32k chunk of it mapped.
  * 102's have 2 sections, 104's have 4 sections.
  */
-#if (PROGMEM_SIZE > 0x40000)
-
 #if (PROGMEM_SIZE > 0x20000) // 0x040000 flash size (256k)
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
@@ -47,7 +45,6 @@
   // will automatically leave const variables in flash. PROGMEM_MAPPED is defined as nothing
   #define PROGMEM_MAPPED
 #elif defined(LOCK_FLMAP)
-
   #if defined(FLMAPSECTION11)
     #if __AVR_ARCH__ == 106 //if it's 384k
       #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION11")))
