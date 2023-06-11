@@ -101,10 +101,10 @@ This was apparently discovered by a customer who don't know the meaning of "boar
 
 I speculate that this is what led to the next version of the datasheet specifying 1.0 uF caps instead of 0.1uF caps for decoupling - these would be sufficient to slow down the slew rate down just enough. But that wasn't really satisfactory (one imagines that other customers or testing found that the chips could crash when the load increased for example from turning on a load driven by output pins), and they revised the datasheet again to specify a 1uF cap on the board plus 0.1uF caps on each supply pin.
 
-Reporting of this issue folowed a complicated path, and this is pieced together from statements from multiple people involved and observing the changes to the datasheet.
+Reporting of this issue followed a complicated path, and this is pieced together from statements from multiple people involved and observing the changes to the datasheet.
 
 ### TWI0 MUX 2 option broken on DD
-The mux option 2 appears to be broken on the AVR-DD series, where is is particularly important becuase it's the MVIO pins, hence the severity rating of 4: there is no workaroud that gets you TWI on an MVIO pin.
+The mux option 2 appears to be broken on the AVR-DD series, where it is particularly important becuase it's the MVIO pins, hence the severity rating of 4: there is no workaround that gets you TWI on an MVIO pin.
 
 **Partial workaround**
 Use another TWI mapping option, and enable the SMBUS 3.0 levels using the Wire.configSpecialOptions()

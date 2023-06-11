@@ -22,8 +22,8 @@
  * 102's have 2 sections, 104's have 4 sections.
  */
 #if (PROGMEM_SIZE > 0x40000)
-
-#if (PROGMEM_SIZE > 0x20000) // 0x040000 flash size (256k)
+  // do something???
+#elif (PROGMEM_SIZE > 0x20000) // 0x040000 flash size (256k)
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
@@ -5432,5 +5432,5 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #elif defined(ZCD_INTMODE_1_bp)
     #define ZCD_INTMODE1_bp ZCD_INTMODE_1_bp; //Deprecated as of Q2 2022 header change
   #endif
-#endif /* this is the end of the backwards compatibility defines */
+#endif // this is the end of the backwards compatibility defines
 #endif // end of core_devices
