@@ -104,7 +104,7 @@ I speculate that this is what led to the next version of the datasheet specifyin
 Reporting of this issue followed a complicated path, and this is pieced together from statements from multiple people involved and observing the changes to the datasheet.
 
 ### TWI0 MUX 2 option broken on DD
-The mux option 2 appears to be broken on the AVR-DD series, where it is particularly important becuase it's the MVIO pins, hence the severity rating of 4: there is no workaround that gets you TWI on an MVIO pin.
+The mux option 2 appears to be broken on the AVR-DD series, where it is particularly important because it's the MVIO pins, hence the severity rating of 4: there is no workaround that gets you TWI on an MVIO pin.
 
 **Partial workaround**
 Use another TWI mapping option, and enable the SMBUS 3.0 levels using the Wire.configSpecialOptions()
