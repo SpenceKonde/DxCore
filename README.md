@@ -1,6 +1,6 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5.7 - EA "support" in beta form is now available.
+## 1.5.7 - EA "support" in beta form is now available
 This is a very generous definition of the word - The first version where it is believed to be fully working will be numbered 1.6.0, and within a few patch versions of that, it likely will be.
 
 There are lots of issues impacting this currently and I'm not going to even start listing them here, but make issues if you don't see em.
@@ -12,7 +12,7 @@ Expect particular issues with:
 * Flash.h is not supposed to work on it - it needs a different library, and to write when optiboot is not in use will require a novel implementation, while writing via optiboot will require optiboot to work, which will not be easy - that the first EA's are impacted by excruciatingly severe silicon bugs that make writing to nvm more complicated makes this significantly more challenging
 
 
-### Optiboot for EA does not look encouraging.
+### Optiboot for EA does not look encouraging
 Before the errata, I was pretty sure that it would be part definitions and a few lines of logic change in optiboot_x. oh ho ho no. No such luck, cause we can't do a bloody erase+write, the optiboot protocol doesn't know where a given page is going to be written (hence where to erase) to until the first bytes of the blob of data that was sent to it is hurtling towards it, and see the quoted section of the datasheet below. I am praying for an early die rev.
 
 > The resulting data will be a binary AND operation between the new and the previous content of the page buffer. The page buffer will automatically be erased (all bits set) **after**:

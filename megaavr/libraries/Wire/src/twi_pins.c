@@ -265,7 +265,7 @@ bool TWI0_swap(uint8_t state) {
     #if defined(PORTMUX_TWI0_bm)
       if (state == 1) {
         // Use pin swap
-        PORTMUX.CTRLB |=  PORTMUX_TWI0_bm;
+        PORTMUX.CTRLB |= PORTMUX_TWI0_bm;
         return true;
       } else if (state == 0) {
         // Use default configuration
@@ -543,7 +543,7 @@ uint8_t TWI0_checkPinLevel(void) {
 #if defined(TWI1)
 void TWI1_ClearPins() {
   #if defined(PIN_WIRE1_SDA_PINSWAP_2) || defined(TWI1_DUALCTRL)
-    uint8_t portmux =  PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
+    uint8_t portmux = PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
   #endif
   #if defined(PIN_WIRE1_SDA_PINSWAP_2)
     if (portmux == PORTMUX_TWI1_ALT2_gc) {  // make sure we don't get errata'ed
@@ -573,7 +573,7 @@ bool TWI1_Pins(uint8_t sda_pin, uint8_t scl_pin) {
   #if (defined(PIN_WIRE1_SDA_PINSWAP_1) || defined(PIN_WIRE1_SDA_PINSWAP_2))
     // Danger: 'portmux' in this context means all the other settings in portmux, since we're replacing the PORTMUX setting for TWI1, and will bitwise-or with the _gc constants.
     // Elsewhere, 'portmux' refers to the setting for this peripheral only, and we compare it to PORTMUX_TWI1_xxx_gc
-    uint8_t portmux =  PORTMUX.TWIROUTEA & ~PORTMUX_TWI1_gm;
+    uint8_t portmux = PORTMUX.TWIROUTEA & ~PORTMUX_TWI1_gm;
     #if defined(PIN_WIRE1_SDA_PINSWAP_2)
       if (sda_pin == PIN_WIRE1_SDA_PINSWAP_2 && scl_pin == PIN_WIRE1_SCL_PINSWAP_2) {
         // Use pin swap
@@ -619,7 +619,7 @@ bool TWI1_Pins(uint8_t sda_pin, uint8_t scl_pin) {
 bool TWI1_swap(uint8_t state) {
   // Danger: 'portmux' in this context means all the other settings in portmux, since we're replacing the PORTMUX setting for TWI1, and will bitwise-or with the _gc constants.
   // Elsewhere, 'portmux' refers to the setting for this peripheral only, and we compare it to PORTMUX_TWI1_xxx_gc
-  uint8_t portmux =  PORTMUX.TWIROUTEA & (~PORTMUX_TWI1_gm);
+  uint8_t portmux = PORTMUX.TWIROUTEA & (~PORTMUX_TWI1_gm);
   #if defined(PIN_WIRE1_SDA_PINSWAP_2)
     if (state == 2) {
       // Use pin swap
@@ -657,7 +657,7 @@ bool TWI1_swap(uint8_t state) {
 
 void TWI1_usePullups() {
   #if defined(PIN_WIRE1_SDA_PINSWAP_2) || defined(TWI1_DUALCTRL)
-    uint8_t portmux =  PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
+    uint8_t portmux = PORTMUX.TWIROUTEA & PORTMUX_TWI1_gm;
   #endif
   PORT_t *port;
   #if defined(PORTB) //All parts with a TWI1 have a PORTF
