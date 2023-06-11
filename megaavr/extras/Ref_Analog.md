@@ -45,7 +45,7 @@ In some cases the voltage determines the maximum ADC clock speed. Call analogRef
 #### Limits of external refeences
 External reference voltage should be between 1.8v and Vdd if CLK_ADC is higher than 500kHz (by default, it is), however if you slow the ADC clock down, external references as low as 1.0V (they gave 1.024V as the lower limit. It is unclear if the slower clock speed must also be used for the internal 1.024V reference.
 
-This is not all bad news though on the 2-series and Ex, instead of having to slow down for some reference voltages, we get higher max CLK_ADC with external references! 
+This is not all bad news though on the 2-series and Ex, instead of having to slow down for some reference voltages, we get higher max CLK_ADC with external references!
 
 
 
@@ -81,7 +81,7 @@ If anyone reading this has performed any testing of this, I would appreciate it 
 
 To compensate for the faster ADC clock, we extend the sampling period so it ends up with a similar sampling period to classic AVRs, while still being significantly faster by virtue of the much shorter conversion time. But you can shorten that further (or extend it) using analogSampleDuration(). With minimum sample duration, external voltage reference in burst or freerun mode and maximum ADC clock, 450k sps may be possible at full resolution. You're unlikely to want that ofc, but that's a separate matter, just don't configure it like that if you don't want it. The fact remains that it is definitely the faster ADC.
 
-             
+
 ## ADC Function Reference
 This core includes the following ADC-related functions. Out of the box, analogRead() is intended to be directly compatible with the standard Arduino implementation. Additional functions are provided to use the advanced functionality of these parts and further tune the ADC to your application. Several functions are unique to the cores I maintain. The functions here not marked if they are simple implementations that duplicate the stock one. They are marked (semi-standard) if it is something that is standard on some arduino cores but not official AVR cores and/or which works differently here), or (one of more of mTC, DxC, and ATC - these are the three cores I maintain, megaTinyCore, DxCore and ATTinyCore).
 
@@ -368,7 +368,7 @@ ADC_CH(channel number)          - converts channel numbers to analog channel ide
 Try not to use these unless you're getting really deep into library development and direct interaction with the ADC; we provide all the constants you will need. listed above.
 
 ## A word of warning to capacitive touch sensing applications
-Libraries exist that use trickery and the ADC to measure capacitance, hence detect touch/proximity. Most of these libraries (since Atmel always locked up QTouch) relied on the leftover charge in the ADC S&H cap. The magnitude of this source of error is much larger on classic AVRs. It is considered undesirable (this is why when changing ADC channels in the past, you were advised to throw out the first couple of readings!) and with each generation, this has been reduced. There are still ways to do this effectively on the 2series, but require very different approaches. Thankfully for parts that do have a PTC, great strides are being made. the tiny1-series has an active developer working on it, while Microchip itself will release a library based on qtouch for the DA. 
+Libraries exist that use trickery and the ADC to measure capacitance, hence detect touch/proximity. Most of these libraries (since Atmel always locked up QTouch) relied on the leftover charge in the ADC S&H cap. The magnitude of this source of error is much larger on classic AVRs. It is considered undesirable (this is why when changing ADC channels in the past, you were advised to throw out the first couple of readings!) and with each generation, this has been reduced. There are still ways to do this effectively on the 2series, but require very different approaches. Thankfully for parts that do have a PTC, great strides are being made. the tiny1-series has an active developer working on it, while Microchip itself will release a library based on qtouch for the DA.
 
 ## Microchip Documentation
 Has been much expanded and I'm very happy to see this sort of document produced before the EA release. Wondering about the numbering? Well, TB stands for Technical Brief, which is different in some way from an Application Note (AN), and obviously a whitepaper or "Datasheet" (DS) is something else altogether. Even when they're about the same length and contain similar types of content. S

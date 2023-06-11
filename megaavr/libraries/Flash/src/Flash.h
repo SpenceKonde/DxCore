@@ -1,7 +1,6 @@
 #ifndef FLASH_H
 #include <Arduino.h>
 #define FLASH_H
-#if !defined()
 //*INDENT-OFF*
 /* Flash.h for DxCore 1.5.0
  * A library to easily write to the flash of an AVR Dx-series part from within an Arduino sketch

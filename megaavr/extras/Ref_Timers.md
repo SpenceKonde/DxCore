@@ -275,7 +275,7 @@ On the type D timer, ALL situations with an external clock source (crystal or cl
 
 On the table below, I repeat, all external clock configurations get the same TCD configuration. This is shown explicitly for clock speeds that can only be achieved with an external clock, but the table will otherwise assume the internal oscillator is used as the system clock; if an external clock or crystal is used to achieve the same speed, refer to the External line for the TCD only.
 
-Some frequencies shown are not supported by the core, but may be specified by a variant or boards.txt and while not guaranteed to work, are belived to work. 2 should definitely work, 6 and 3 very likely work, and 14 and 7 likely work.
+Some frequencies shown are not supported by the core, but may be specified by a variant or boards.txt and while not guaranteed to work, are believed to work. 2 should definitely work, 6 and 3 very likely work, and 14 and 7 likely work.
 
 |   CLK_PER | Prescale A |   fPWM  | Prescale D  | TOP D |  fPWM (D) | Notes                                            |
 |-----------|------------|---------|-------------|-------|-----------|--------------------------------------------------|

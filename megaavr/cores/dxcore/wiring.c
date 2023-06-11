@@ -1812,8 +1812,8 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
        */
       /* Some speeds not otherwise possible can be generated with the internal oscillator by prescaling
        * This is done for 5 and 10 because those were common speeds to run 0 and 1-series parts at.
-       * The logic for setting  clock to the other stupid frequencies that can be generated this way
-       * or for generating millis, micros, or delayMicroseconds() at those speeds is belived to be implented
+       * The logic for setting clock to the other stupid frequencies that can be generated this way
+       * or for generating millis, micros, or delayMicroseconds() at those speeds is believed to be implemented
        * but has not been tested.
        * If it fails to work at speeds evenly divisible by 1000000 and less than 8 MHz, that can be reported
        * as a bug, though it will not be a priority one. We have no plans to support speeds with non-integer

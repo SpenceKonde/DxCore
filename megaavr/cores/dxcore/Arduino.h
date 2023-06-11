@@ -882,7 +882,7 @@ void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const M
   _pinconfigure(digital_pin, pin_config);
 }
 
-/* If you understand the preceeding code, studies show you are more likely than the average developer to
+/* If you understand the preceding code, studies show you are more likely than the average developer to
  * know C++, with a statistically significant relationship between how well you know the language and your likelihood of
  * understanding that code. I got distracted after the first + and have yet to comprehend the above implementation.
  * But it lets you separate arguments with commas instead of pipes, which is far more tasteful and graceful
