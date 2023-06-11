@@ -23,6 +23,8 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - Realized that the PROGMEM_MAPPED directive was dangerous because we defined it even if the FLMAP was not locked. Added a new menu to allow user to either lose PROGMEM_MAPPED, or pick a flash section to map and let us set and lock FLMAP during init, and get PROGMEM_MAPPED pointing where it should.
 * **BETA BETA BETA** Add EA-series non-optiboot boards to the board selection menu. The update where we will expect them to be 100% (well, whatever % working you happen to expect from DxCore) will be numbered 1.6.0, but by pushing an update that lets you attempt unsuccessfully to use the new parts, we can expedite development.
 * **RESEARCH** Added the reserved values for BOD level. Get out there, try them and see what voltage they set the BOD to, if any. If any turn out to be useful, they'll stay in, otherwise, out they go.
+* Documentation - Errata: all evidence I have been able to gather indicates a novel silicon bug on the AVR DD-series parts with TWI mux option to. It seems to drive the SDA line low to generate the start condition. but that's as far as it gets. The clock never changes. This is a rather serious issue, as it means that the MVIO pins aren't available for TWI.
+* Bugfix - Correct bootloaders for 32k DA, DB parts, which had been incorrectly reporting the signature of the chip.
 
 ## Releases
 ### 1.5.6

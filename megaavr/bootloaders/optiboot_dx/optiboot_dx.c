@@ -617,16 +617,16 @@ int main (void) {
       // Easy, they're already in a mapped register... but we know the flash size at compile time, and it saves us 2 bytes of flash for each one we don't need to know...
       verifySpace();
       putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
-      #if (PROGMEM_SIZE==131072)  // need different binary for 128k vs 64k vs 32k-and-under anyway, as 32k-and-under is all mapped, 64k isn't mapped, but doesn't have RAMPZ and 128k has RAMPZ...
+      #if (PROGMEM_SIZE==131072) // These will always be compiled separately from the others, since 128k needs unique mappings.
         putch(0x97);
-      #elif (PROGMEM_SIZE==65536)
+      #elif (PROGMEM_SIZE==65536) // These are also unique becaujse the
         putch(0x96);
-      #else
-        #if defined(__AVR_DD__)
-          putch(SIGROW_DEVICEID1); // There is both 16k DD-series vs 32k DD-series.
-        #else
-        putch(0x94); // but only 32k DA/DB
-        #endif
+      #elif (PROGMEM_SIZE==32768)
+        putch(0x95);
+      #elif (PRIOGMEM_SIZE==16384)
+        putch(0x94);
+      #elif (PROGMEM_SIZE == 8192)
+        putch(0x93);
       #endif
       putch(SIGROW_DEVICEID2);
     } else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
