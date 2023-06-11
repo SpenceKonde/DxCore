@@ -10,13 +10,14 @@ Following that issues known or believed to impact all parts, then issues that ar
 
 Issue                          | Severity | Source    | 128DA   | 64DA    | 32DA    |  128DB  | 64DB    | 32DB    | 64DD    | 32DD    | 16DD    | Notes                                       |
 --------------------------------------|---|-----------|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------------------------------------------|
-Violating maximum Vdd slew can damage | * |           | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all Dx-series parts.       |
-Fully async pins have dead-time.      | 1 | DxCore    | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Likely impacts all modern AVRs              |
-SPM does not ignore low bit of address| 1 | DxCore    | YES     | YES     | Yes     | YES     | YES     | YES     | LIKELY  | LIKELY  | LIKELY  | Unacknowledged by Microchip.                |
+Violating maximum Vdd slew can damage | * | Other     | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all Dx-series parts.       |
+TWI0 MUX option 2 does not work       | 4 | Microchip | No      | No      | No      | No      | No      | No      | Yes     | LIKELY  | LIKELY  | New bug in the DD-series parts!            |
+Fully async pins have dead-time.      | 1 | DxCore    | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Likely impacts all modern AVRs            |
+SPM does not ignore low bit of address| 1 | DxCore    | YES     | YES     | Yes     | YES     | YES     | YES     | LIKELY  | LIKELY  | LIKELY  | Likely impacts all Dx-series parts.       |
 TCB async slower than sync events     | 3 | DxCore    | LIKELY  | LIKELY  | LIKELY  | YES     | LIKELY  | LIKELY  | LIKELY  | LIKELY  | LIKELY  | Probably impacts all modern AVRs.           |
-Multipage erase can erase protected   | 1 | Microchop | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Extreme corner case                         |
-TCD0 halt+wait for SW with CMPA = 0   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Broken in dual slope or CMPA not used       |
-Flash endurance 1k, not 10k cycles    | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | Yes *   | YES *   | YES *   | On DD-series 10k rewrites never claimed     |
+Multipage erase can erase protected   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Extreme corner case                        |
+TCD0 halt+wait for SW with CMPA = 0   | 1 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | YES     | Broken in dual slope or CMPA not used     |
+Flash endurance 1k, not 10k cycles    | 3 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | Yes *   | YES *   | YES *   | 1k spec is "worst case" (125C).            |
 TCA restart resets counter direction  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No      | No      | No      | Restart "should" **NOT** reset direction    |
 TCB single-shot EDGE bit              | 3 | Microchip | Kinda   | Kinda   | Kinda   | YES     | YES     | YES     | No      | No      | No      | Datasheet clarification/change              |
 TCB CCMPH/CCMPL act as 16-bit in PWM  | 2 | Microchip | YES     | YES     | YES     | YES     | YES     | YES     | No?     | No?     | No?     | Has impacted all pre-DD modern AVRs         |
@@ -96,10 +97,17 @@ Note that the only matters if you care about 1.5mA power consumption. Of course,
 This suggests some things about the internal voltage reglator....
 
 ### Extremely rapidly rising Vdd can cause damage
-This was apparently discovered by customers who don't know the meaning of "board level decoupling", and built devices with just the originally spec'ed 0.1uF caps, and supplied power by shorting the supply rails to a 5v supply with lots of capacitance through very short wires/traces (think thumb-drive form factor, plugged straight into a USB port on a laptop, which will typically have the USB ports directly on the motherboard, with a bunch of high value, low ESR capacitors across the 5v rail. The voltage could ramp up so quickly that the internal regulator could overshoot the target voltage and damage the chip. Not using board-level decoupling caps is inconsistent with electronics best practices. I think the only boards I've ever made without at least 4.7uF on the board were the Ultramini's that would plug into a DIP socket, and even those I put 1uF on...
+This was apparently discovered by a customer who don't know the meaning of "board level decoupling", and built devices with just the originally spec'ed 0.1uF caps, and supplied power by shorting the supply rails to a 5v supply with lots of capacitance through very short wires/traces (specifically, it was a thumb-drive form factor then plugged straight into a laptop USB port, shorting the rail to laptop +5v. There's USB current limiting, but it is slow to respond, because it's designed to tolerate the inrush current of up to 22uF of capacitance. On a laptop (this is much less of a problem on desktops, because there are usually wires (with non-zero parasitic inductance and resistance) the the USB ports are directly on the motherboard, with a bunch of high value, low ESR capacitors across the 5v rail. So the near-infinite capacitance of the laptop The voltage could ramp up so quickly that the internal regulator could overshoot the target voltage and damage the chip. Not using board-level decoupling caps is inconsistent with electronics best practices. I think the only boards I've ever made without at least 4.7uF on the board were the Ultramini's that would plug into a DIP socket, and even those I put 1uF on...
 
-I speculate that this is what led to the next version of the datasheet specifying 1.0 uF caps instead of 0.1uF caps for decoupling - these would be sufficient to slow down the slew rate down. But that wasn't really satisfactory, and they revised the datasheet again to specify a 1uF cap on the board plus 0.1uF caps on each supply pin.
+I speculate that this is what led to the next version of the datasheet specifying 1.0 uF caps instead of 0.1uF caps for decoupling - these would be sufficient to slow down the slew rate down just enough. But that wasn't really satisfactory (one imagines that other customers or testing found that the chips could crash when the load increased for example from turning on a load driven by output pins), and they revised the datasheet again to specify a 1uF cap on the board plus 0.1uF caps on each supply pin.
 
+Reporting of this issue folowed a complicated path, and this is pieced together from statements from multiple people involved and observing the changes to the datasheet.
+
+### TWI0 MUX 2 option broken on DD
+The mux option 2 appears to be broken on the AVR-DD series, where is is particularly important becuase it's the MVIO pins, hence the severity rating of 4: there is no workaroud that gets you TWI on an MVIO pin.
+
+**Partial workaround**
+Use another TWI mapping option, and enable the SMBUS 3.0 levels using the Wire.configSpecialOptions()
 
 ### BOD registers not reset if UPDI enable
 *If the UPDI is enabled, the VLMCTRL, INTCTRL, and INTFLAGS registers in BOD will not be reset by other reset sources than POR*

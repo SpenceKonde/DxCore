@@ -136,7 +136,7 @@ class NvmUpdiTinyMega(NvmUpdi):
 
         # Check that NVM controller is ready
         if not self.wait_flash_ready():
-            raise PymcuprogError("Timeout waiting for flash ready before page buffer clear ")
+            raise PymcuprogError("Timeout waiting for flash ready before fuse write ")
 
         # Write address to NVMCTRL ADDR
         self.logger.debug("Load NVM address")
@@ -154,7 +154,7 @@ class NvmUpdiTinyMega(NvmUpdi):
         if write_delay > 0:
             pause_mod.milliseconds(write_delay)
         if not self.wait_flash_ready():
-            raise PymcuprogError("Timeout waiting for flash ready before page buffer clear ")
+            raise PymcuprogError("Timeout waiting for flash ready after fuse write ")
 
     def write_nvm(self, address, data, use_word_access, nvmcommand=constants.UPDI_V0_NVMCTRL_CTRLA_WRITE_PAGE,
                   blocksize=2,  bulkwrite=0, pagewrite_delay=0):
@@ -302,7 +302,7 @@ class NvmUpdiAvrDx(NvmUpdi):
         if bulkwrite == 0 or (address & 32767) == 0:
             # Check that NVM controller is ready
             if not self.wait_flash_ready():
-                raise Exception("Timeout waiting for flash ready before page buffer clear ")
+                raise Exception("Timeout waiting for flash ready before nvm write ")
 
             # Write the command to the NVM controller
             self.logger.info("NVM write command")

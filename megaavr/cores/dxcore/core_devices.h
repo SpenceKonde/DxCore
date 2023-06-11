@@ -21,7 +21,9 @@
  * mapped to the data address space, while 102 and 104 only have a 32k chunk of it mapped.
  * 102's have 2 sections, 104's have 4 sections.
  */
-#if (PROGMEM_SIZE > 0x20000)
+#if (PROGMEM_SIZE > 0x40000)
+
+#if (PROGMEM_SIZE > 0x20000) // 0x040000 flash size (256k)
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
@@ -30,37 +32,92 @@
   #define PROGMEM_SECTION5 __attribute__(( __section__(".FLMAP_SECTION5")))
   #define PROGMEM_SECTION6 __attribute__(( __section__(".FLMAP_SECTION6")))
   #define PROGMEM_SECTION7 __attribute__(( __section__(".FLMAP_SECTION7")))
-#elif (PROGMEM_SIZE > 0x10000)
+#elif (PROGMEM_SIZE > 0x10000) // 0x020000 flash size
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
   #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION3")))
-#elif (PROGMEM_SIZE > 49152)
+#elif (PROGMEM_SIZE > 32768) && __AVR_ARCH__ != 103 /* on mega0-series, flash up to 48k is be fully mapped */
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
 #endif
 
 #if __AVR_ARCH__ == 103
   // __AVR_ARCH__ == 103, so all of the flash is memory mapped, and the linker
-  // will automatically leave const variables in flash.
+  // will automatically leave const variables in flash. PROGMEM_MAPPED is defined as nothing
   #define PROGMEM_MAPPED
 #elif defined(LOCK_FLMAP)
-  #if defined(FLMAPSECTION3)
-    #if __AVR_ARCH__ == 104
+
+  #if defined(FLMAPSECTION11)
+    #if __AVR_ARCH__ == 106 //if it's 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION11")))
+    #elif __AVR_ARCH__ == 104
       #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION3")))
+    #else // if not 128k and not arch 103, then it must be a 64k part so the default section is 1, not 3.
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+    #endif
+  #elif defined(FLMAPSECTION10)
+    #if __AVR_ARCH__ == 106 //if it's 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION10")))
+    #elif __AVR_ARCH__ == 104
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION2")))
     #else
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
+    #endif
+  #elif defined(FLMAPSECTION9)
+    #if __AVR_ARCH__ == 106 //if it's 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION9")))
+    #else // not 384k, hence no section 9
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+    #endif
+  #elif defined(FLMAPSECTION8)
+    #if __AVR_ARCH__ == 106 //if it's 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION8")))
+    #else // not 384k, hence no section 8
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
+    #endif
+  #elif defined(FLMAPSECTION7)
+    #if __AVR_ARCH__ == 106 || __AVR__ARCH__ == 107 //if it's 256k or 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION7")))
+    #else // if not 128k and not arch 103, then it must be a 64k part so the default section is 1, not 3.
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+    #endif
+  #elif defined(FLMAPSECTION6)
+    #if __AVR_ARCH__ == 106 || __AVR__ARCH__ == 107 //if it's 256k or 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION6")))
+    #elif __AVR_ARCH__ == 104
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION2")))
+    #else // if not 128k and not arch 103, then it must be a 64k part so the default section is 1, not 3.
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
+    #endif
+  #elif defined(FLMAPSECTION5)
+    #if __AVR_ARCH__ == 106 || __AVR__ARCH__ == 107 //if it's 256k or 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION5")))
+    #else // otherwise it's 128k or less, so section 5 doesn't exit, use the low bits only
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+    #endif
+  #elif defined(FLMAPSECTION4)
+    #if __AVR_ARCH__ == 106 || __AVR__ARCH__ == 107 //if it's 256k or 384k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION4")))
+    #else // if not 128k and not arch 103, then it must be a 64k part so the default section is 1, not 3.
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
+    #endif
+  #elif defined(FLMAPSECTION3)
+    #if __AVR_ARCH__ == 104 //if it's 128k
+      #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION3")))
+    #else // if not 128k and not arch 103, then it must be a 64k part so the default section is 1, not 3.
       #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
     #endif
   #elif defined(FLMAPSECTION2)
     #if __AVR_ARCH__ == 104
       #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION2")))
-    #else
+    #else // As above
       #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
     #endif
-  #elif defined(FLMAPSECTION1)
+  #elif defined(FLMAPSECTION1) // always present on arch 104 and 102, and presumably any future part
     #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
   #elif defined(FLMAPSECTION0)
-    #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION1")))
+    #define PROGMEM_MAPPED __attribute__(( __section__(".FLMAP_SECTION0")))
   #endif
 #endif
 

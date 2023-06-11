@@ -215,9 +215,13 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
         } else
       #endif
       #if      defined(PIN_WIRE_SDA_PINSWAP_2)
-        if (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) {
-          PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
-          return true;
+        #if !defined(ERRATA_TWI0_MUX2)
+          if (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) {
+            PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
+            return true;
+        #else
+          return false;
+        #endif
         } else
       #endif
       #if      defined(PIN_WIRE_SDA_PINSWAP_1)
@@ -300,8 +304,11 @@ bool TWI0_swap(uint8_t state) {
     #if defined(PIN_WIRE_SDA_PINSWAP_2)
       if (state == 2) {
         // Use pin swap
-        PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
-        return true;
+        #if !defined(ERRATA_TWI0_MUX2)
+          PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
+          return true;
+        #else
+          return false;
       } else
     #endif
     #if defined(PIN_WIRE_SDA_PINSWAP_1)
@@ -566,6 +573,7 @@ void TWI1_ClearPins() {
       }
     #endif
   #endif
+  (void) portmux; //this is grabed early, but deepending on which part andhernce whatis comditionally compiled,may not go into the code. It will produce spurrious warnings without this line
 }
 
 
@@ -687,6 +695,7 @@ void TWI1_usePullups() {
       }
     }
   #endif
+  (void) portmux; //thisis grabed early, but deepending on which part andhernce whatis comditionally compiled,may not go into the code. It will produce spurrious warnings without this line
 }
 
 //Check if TWI1 Master pins have a HIGH level: Bit0 = SDA, Bit 1 = SCL

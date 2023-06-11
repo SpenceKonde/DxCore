@@ -617,16 +617,12 @@ int main (void) {
       // Easy, they're already in a mapped register... but we know the flash size at compile time, and it saves us 2 bytes of flash for each one we don't need to know...
       verifySpace();
       putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
-      #if (PROGMEM_SIZE==131072) // These will always be compiled separately from the others, since 128k needs unique mappings.
+      #if (PROGMEM_SIZE <= 32768) // at 32k or less,
+        putch(SIGROW_DEVICEID1);
+      #if (PROGMEM_SIZE==131072) // These have RAMPZ and 4 mapped flash sections
         putch(0x97);
-      #elif (PROGMEM_SIZE==65536) // These are also unique becaujse the
+      #elif (PROGMEM_SIZE==65536) // These are also unique - no rampz, but they can only map half the flash at a time.
         putch(0x96);
-      #elif (PROGMEM_SIZE==32768)
-        putch(0x95);
-      #elif (PRIOGMEM_SIZE==16384)
-        putch(0x94);
-      #elif (PROGMEM_SIZE == 8192)
-        putch(0x93);
       #endif
       putch(SIGROW_DEVICEID2);
     } else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
