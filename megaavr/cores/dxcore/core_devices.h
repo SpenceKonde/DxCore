@@ -37,7 +37,7 @@
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
   #define PROGMEM_SECTION2 __attribute__(( __section__(".FLMAP_SECTION2")))
   #define PROGMEM_SECTION3 __attribute__(( __section__(".FLMAP_SECTION3")))
-#elif (PROGMEM_SIZE > 32768) && __AVR_ARCH__ != 103 /* on mega0-series, flash up to 48k is be fully mapped */
+#elif (PROGMEM_SIZE > 32768) && __AVR_ARCH__ != 103 // on mega0-series, flash up to 48k is be fully mapped
   #define PROGMEM_SECTION0 __attribute__(( __section__(".FLMAP_SECTION0")))
   #define PROGMEM_SECTION1 __attribute__(( __section__(".FLMAP_SECTION1")))
 #endif
