@@ -52,3 +52,10 @@ uint8_t onAfterInit() __attribute__((weak));
 uint8_t onAfterInit() {
   return 0;
 }
+
+void initVariant() { }
+/* Weak empty variant initialization function. The purpose is unclear. It sounds like it was intended
+ * initialize the variant, and specific variants would have their own implementation. But in practice
+ * it seems to be instead used as an initialization callback that libraries can use to run code before
+ * setup, like FreeRTOS - it would have been nice if the official API included such a callback.
+ */

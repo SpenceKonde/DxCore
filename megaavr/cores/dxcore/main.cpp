@@ -13,7 +13,7 @@ void initVariant() __attribute__((weak));
  * initialize the variant, and specific variants would have their own implementation. But in practice
  * it seems to be instead used as an initialization callback that libraries can use to run code before
  * setup, like FreeRTOS - it would have been nice if the official API included such a callback. */
-//void initVariant() { }
+void initVariant() { }
 
 void __attribute__((weak)) onPreMain();
 //void __attribute__((weak)) onPreMain() {
@@ -34,8 +34,7 @@ uint8_t __attribute__((weak)) onAfterInit();
 
 
 #if defined(LOCK_FLMAP)
-inline void doFLMAP() {
-  #if defined(LOCK_FLMAP)
+  inline void doFLMAP() {
     uint8_t temp = 0;
     #if defined(FLMAPSECTION11)
       #error "No parts have been released with this much flash, and they'd have to change the layout of the register to make that work, so we can't guess what they'll do"
@@ -75,8 +74,7 @@ inline void doFLMAP() {
     NVMCTRL.CTRLB = temp;
     temp |= 0x80;
     _PROTECTED_WRITE(NVMCTRL_CTRLB, temp);
-  #endif
-}
+  }
 #else
   #pragma message("Notice: PROGMEM_MAPPED not available as flash mapping is not locked.")
 #endif
