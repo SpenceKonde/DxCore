@@ -309,6 +309,7 @@ bool TWI0_swap(uint8_t state) {
           return true;
         #else
           return false;
+        #endif
       } else
     #endif
     #if defined(PIN_WIRE_SDA_PINSWAP_1)
@@ -573,7 +574,7 @@ void TWI1_ClearPins() {
       }
     #endif
   #endif
-  (void) portmux; //this is grabed early, but deepending on which part andhernce whatis comditionally compiled,may not go into the code. It will produce spurrious warnings without this line
+  (void) portmux; //this is grabbed early, but depending on which part and hence what is conditionally compiled, may not go into the code. It will produce spurious warnings without this line
 }
 
 
@@ -695,7 +696,7 @@ void TWI1_usePullups() {
       }
     }
   #endif
-  (void) portmux; //thisis grabed early, but deepending on which part andhernce whatis comditionally compiled,may not go into the code. It will produce spurrious warnings without this line
+  (void) portmux; //this is grabbed early, but depending on which part and hence what is conditionally compiled, may not go into the code. It will produce spurious warnings without this line
 }
 
 //Check if TWI1 Master pins have a HIGH level: Bit0 = SDA, Bit 1 = SCL
@@ -735,8 +736,8 @@ uint8_t TWI1_setConfig(bool smbuslvl, bool longsetup, uint8_t sda_hold, bool smb
     } else if (sda_hold_dual || smbuslvl_dual) {
       return 0x04;
     }
-   #endif
-   return 0;
+  #endif
+  return 0;
 }
 
 

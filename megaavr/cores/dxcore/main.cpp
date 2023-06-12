@@ -232,7 +232,7 @@ void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute
        * see Flash.h
        * This must be located before 0x0200 in the flash. The interrupt vectors go from 0x0004 to 0x0103 (0x0000-0x0003 is
        * the reset vector). The only isn that matters is the spm z+. If it were easier to modify the crt.s file, we could use some
-       * interupt vector we weren't using (like the NMI vector, which is nevere enabled by the core and can only ever trigger
+       * interrupt vector we weren't using (like the NMI vector, which is never enabled by the core and can only ever trigger
        * from CFD int (which can also be a normal interrupt) and checksum errors (which we don't support because we would then
        * need to post-process the hex files to add checksums)) - then we could replace the jmp instruction dictated by the CRT
        * with the spm z+, ret seqauence. But we can't easily change that, as it's one of the things precompiled by the toolchain
