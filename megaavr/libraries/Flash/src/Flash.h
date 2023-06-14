@@ -117,9 +117,11 @@
    /* The bootloader was intentionally compiled
     * without support for this */
     FLASHWRITE_UNRECOGNIZED      = (0x23),
-   /* The bootloader doesn't even look like it
-    * could be optiboot */
-
+   /* The bootloader doesn't look like any known
+    * version of Optiboot. */
+    FLASHWRITE_BADENTRYPOINT     = (0x24),
+   /* The entry point contains some other
+    * instruction?! What?! */
     /* 0x30 -Can occur in either mode   */
     FLASHWRITE_SPM_NOT_USED      = (0x31),
     FLASHWRITE_NOT_WRITTEN       = (0x31),
@@ -186,7 +188,7 @@
     * protected.
     */
     FLASHWRITE_FAIL_COLLISION    = (0x83),
-   /* NVMCTRL reported a command collision. This should not be possibleunless other libraries are interrupting the write process and interacting with NVMCTRL.
+   /* NVMCTRL reported a command collision. This should not be possible unless other libraries are interrupting the write process and interacting with NVMCTRL.
     */
     FLASHWRITE_FAIL_WRONGSECTION = (0x84),
    /* An attempt to write to a location that was not flash slipped through the library code.

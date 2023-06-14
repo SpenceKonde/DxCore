@@ -91,24 +91,23 @@ uint8_t FlashClass::checkWritable() {
     }
     // Optiboot 9.1 without SPM Z+ app callin support
     // was shipped with 1.2.x and earlier of DxCore
-    uint16_t optiversion = pgm_read_word_near(0x01fe);;
+    uint16_t optiversion = pgm_read_word_near(0x01fe);
     if (optiversion == 0x0901) {
       return FLASHWRITE_OLD;
     }
     // Version of the bootloader that doesn't support this
     // but also not the one I adapted for this project.
-    if (optiversion != 0x1901) {
+    if  (optiversion >= 0x1901)  {
       return FLASHWRITE_UNRECOGNIZED;
     }
     // After making sure we're "on"
-    optiversion = pgm_read_word_near(0x01fa);;
-    if (optiversion == 0) {
+    optiversion = pgm_read_word_near(0x01fa);
+    if (optiversion == 0 || optiversion == 0xFFFF) {
       return FLASHWRITE_DISABLED;
     }
     if (optiversion == 0x95f8) {
       // That's the  SPM instruction
-      // or at least the first byte of it.
-    return FLASHWRITE_OK;
+      return FLASHWRITE_OK;
     }
     /*
     else if (optiversion == 0x95e8) {
@@ -118,7 +117,7 @@ uint8_t FlashClass::checkWritable() {
       return FLASHWRITE_NO_Z_INC;
     }
     */
-    return FLASHWRITE_UNRECOGNIZED;
+    return FLASHWRITE_BADENTRYPOINT;
   #endif
   /* All significant docs only written out once where first apply
  * In general, I am trying to be fairly careful about catching

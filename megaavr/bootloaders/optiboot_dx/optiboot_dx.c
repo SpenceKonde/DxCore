@@ -429,7 +429,7 @@ int main (void) {
     // thus this call is unnecessary! Save 2 instruction words!
     // watchdogConfig(WDT_PERIOD_OFF_gc);
     __asm__ __volatile__ (
-      "jmp app\n"
+      "jmp 0x200\n"
     );
   } // end of jumping to app
 
@@ -619,7 +619,7 @@ int main (void) {
       putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
       #if (PROGMEM_SIZE <= 32768) // at 32k or less,
         putch(SIGROW_DEVICEID1);
-      #if (PROGMEM_SIZE==131072) // These have RAMPZ and 4 mapped flash sections
+      #elif (PROGMEM_SIZE==131072) // These have RAMPZ and 4 mapped flash sections
         putch(0x97);
       #elif (PROGMEM_SIZE==65536) // These are also unique - no rampz, but they can only map half the flash at a time.
         putch(0x96);
@@ -911,6 +911,7 @@ OPTFLASHSECT const char f_version[] = "Version=" xstr(OPTIBOOT_MAJVER) "." xstr(
 // This gives the bootloader somewhere to jump, and by referencing otherwise
 //  unused variables/functions in the bootloader, it prevents them from being
 //  omitted by the linker, with fewer mysterious link options.
+/*
 void  __attribute__((section( ".application")))
       __attribute__((naked)) app();
 void app()
@@ -925,3 +926,4 @@ void app()
     //__asm__ __volatile__ ("jmp 0");    // similar to running off end of memory
     _PROTECTED_WRITE(RSTCTRL.SWRR, 1); // cause new reset - doesn't this make more sense?!
 }
+*/

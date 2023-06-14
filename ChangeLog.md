@@ -15,16 +15,18 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - Change clockCyclesToMicroseconds, microsecondsToClockCycles, and clockCyclesPerMicrosecond back into macros instead of inlinable functions, as some libraries depend on them being valid constexprs.
 * Bugfix - pinModeFast will now turn off pullups if they're on when a pin is set to output. otherwise, the result was problemaic for - for example, a situation I ran into where the pullup was never turned off even after the pins were set back to output and driven low. Prior to going to deep sleep. You can imagine what my battery life was like.
 * Bugfix (serious) - ensure that compilation will succeed on Optiboot DD-series devices.
-* Bugfix - Remove the Optimization Level menu - it caused too many problems that I didn't know how to solve (nothing with serial would compile if not set for -Os.
+* Bugfix - Remove the Optimization Level menu - it caused too many problems that I didn't know how to solve (nothing with serial would compile if not set for -Os - in order to gain large improvements in performance and reduction in flash usage, some of the methods used are not entirely above board.
 * Bugfix - tinyNeoPixel timing issues at 20-32 MHz should be corrected now #421
-* Enhancement+bugfixes - significant cleanup of tinyNeoPixel. Add updateLatch(uint8_t) method. This takes an argument (in microseconds) that sets the blackout period after show() is called, since in the wild parts with between 6 and 250 us of latch delay exist, and parts that match the previous implementation may be outnumbered by ones which do not). Fix output at 20, 24, 28 and 32 MHz.
+* Bugfix - Add updateLatch(uint8_t) method. This takes an argument (in microseconds) that sets the blackout period after show() is called, since in the wild parts with between 6 and 250 us of latch delay exist, and parts that match the previous implementation may be outnumbered by ones which do not).
 * Bugfix - Fix issue when serial buffer is set to the maximum. #428
 * Large number of documentation clarifications.
 * Bugfix - Realized that the PROGMEM_MAPPED directive was dangerous because we defined it even if the FLMAP was not locked. Added a new menu to allow user to either lose PROGMEM_MAPPED, or pick a flash section to map and let us set and lock FLMAP during init, and get PROGMEM_MAPPED pointing where it should.
 * **BETA BETA BETA** Add EA-series non-optiboot boards to the board selection menu. The update where we will expect them to be 100% (well, whatever % working you happen to expect from DxCore) will be numbered 1.6.0, but by pushing an update that lets you attempt unsuccessfully to use the new parts, we can expedite development.
 * **RESEARCH** Added the reserved values for BOD level. Get out there, try them and see what voltage they set the BOD to, if any. If any turn out to be useful, they'll stay in, otherwise, out they go.
-* Documentation - Errata: all evidence I have been able to gather indicates a novel silicon bug on the AVR DD-series parts with TWI mux option to. It seems to drive the SDA line low to generate the start condition. but that's as far as it gets. The clock never changes. This is a rather serious issue, as it means that the MVIO pins aren't available for TWI.
-* Bugfix - Correct bootloaders for 32k DA, DB parts, which had been incorrectly reporting the signature of the chip.
+* Documentation - Errata: all evidence I have been able to gather indicates a novel silicon bug on the AVR DD-series parts with TWI mux option to. It seems to drive the SDA line low to generate the start condition. but that's as far as it gets. The clock never changes. This is a rather serious issue, as it means that the MVIO pins aren't available for TWI. This behavior is not observed consistenly and I cannot reconcile that with the nature of reality.
+* Bugfix - Correct bootloaders for 32k DA, DB, DD parts, which had been incorrectly reporting the signature of the chip.
+* Bugfix - Flash.h wasn't recognizing recent version of the bootloader.
+* Bugfix - Remove the stupid dummy app from the optiboot source (it was totally unnecessary)
 
 ## Releases
 ### 1.5.6

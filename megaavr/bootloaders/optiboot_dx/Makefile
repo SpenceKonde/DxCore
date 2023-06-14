@@ -22,7 +22,6 @@ export
 MCU_TARGET = avr128da64
 
 LDSECTIONS  = -Wl,-section-start=.text=0 \
-        -Wl,--section-start=.application=0x200 \
         -Wl,--section-start=.spmtarg=0x1fa \
         -Wl,--section-start=.version=0x1fe
 
@@ -160,7 +159,7 @@ optiboot_%.hex: optiboot_%.elf
 
 optiboot_%.elf:	optiboot_dx.c FORCE
 	$(CC) $(CFLAGS) $(CPU_OPTIONS) $(LED_OPTIONS) $(UART_OPTIONS) $(POR_CMD) $(COMMON_OPTIONS) $(LDFLAGS) $(PACK_OPT) -mmcu=$(TARGET) -o $@ $<
-	$(SIZE) -A $@
+	$(SIZE) $@
 	$(LISTING) $@ > optiboot_$*.lst
 
 

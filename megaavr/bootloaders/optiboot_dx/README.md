@@ -8,7 +8,7 @@ Optiboot is more fully described here: [http://github.com/Optiboot/optiboot](htt
 ## Credit where credit is due
 Optiboot is the work of **Peter Knight** (aka Cathedrow), building on work of **Jason P** **Kyle**, **Spiff**, and **Ladyada**.
 
-More recent maintenance and modifications for some years now have been handled by **Bill Westfield** (aka WestfW).
+More recent maintenance and modifications are by **Bill Westfield** (aka WestfW).
 
 Adaptation of Optiboot_x to Optiboot_dx by **Spence Konde** (aka DrAzzy, Azduino).
 
@@ -16,49 +16,10 @@ Adaptation of Optiboot_x to Optiboot_dx by **Spence Konde** (aka DrAzzy, Azduino
 This is being maintained as part of DxCore, so issues be reported to:
 [https://github.com/SpenceKonde/DxCore](https://github.com/SpenceKonde/DxCore)
 
-## Note on conventions used in this document
-When asm listing output is displayed, objdump doesn't seem to realize there are two address spaces when it tries to put in helpful comments showing the offsets of things. Hence, even where an address is in the program space, it will show the offset from the nearest "signpost" - whether that is in the data space or the program space. And the dataspace locations are internally represented by 24-bit addresses with offsets of 0x80 0000. You would like it to use the io header addresses and tell you that an LDS was loading from USART0 + 0x04. Not `__TEXT_REGION_LENGTH__+0x7FF804` or something useless like that, nor does it help anyone to know that a breq .+8, which happens to put you at 0x41e, is pointing to `__LOCK_REGION_LENGTH__+0x1e` And no, I have not a clue what the "LOCK REGION" with a length of 0x0400 that `__LOCK_REGION_LENGTH__` is referring to is. The utterly useless offsets like that have been omitted, and where I've bothered to, been replaced by comments pointing out what register was being referenced. Note that we don't include unprocessed assembly listings; there's no reason to, as they are generated when the build scripts are run. The "sorted by instruction and annotated" form, which required a non-trivial amount of processing to get like that, is given here. (You can easily sort it by address - conveniently the first field - to get the annotated instructions in order of address if you want...)
-
-The comments we've snipped out are the ones that were utterly meaningless. We left in the few times that it actually showed something sensible and potentially useful. Most of the comments that are supposed to helpfully show you the nearest landmark, were.... as if instead of saying that you were 30 miles north of "San Francisco", your GPS told you that you were 10 miles north of "Albas Patera" (a landscape feature on the surface of Mars, which, from quick examination of two crude maps, is about at the same latitude and longitude there as San Fran is here, so at a latitude and longitude on mars the same as you would be at when 30 miles north of SF on earth, you would be about 10 miles north of there (Mars is smaller, you see...).  The offsets from lengths are actually even less meaningful than that, as if you were told that you were 2 miles away from the length of a regulation football field ("Huh? is there even one near here?!") as you pass (mile) marker 118 on the highway. Well, a regulation football field is 120 (yards) long. Utter nonsense. One wonders at times how the same codebase that provides garbage like that manages to generate working code at all...
-
 ## Changes made beyond the largescale adaptation to Dx-series parts
-* To enable writes to flash from the app, the entry point is vastly different from Optiboot_x. On the Dx-series, only a single operation is protected and must run from the boot section: The ST or SPM which actually triggers the writing of data to the flash. Thus, everything else can be in the app, and we just need to have a an SPM Z+ instruction followed by a RET, These instructions have opcodes of 95F8 and 9508. Considering endianness, we want them to come out as `F895` `0895`. This is achieved by declaring a `((used))` constant at 0x0001FA (so it's immediately before the optiboot version), with the value `0x950895F8` - endianness reverses the order of the bytes so it gives the needed F895 0895 sequence needed. The application then stages everything, culminating in a snippet of inline assembly which copies the word to write to r0 and r1, issues `call 0x01FA` (the assembler divides the number we give in half, as this instruction is word addressed; we must not do that division ourselves), and then clears r1 and returns to C. This is a scary approach, to be sure. However, it does work!
+* To enable writes to flash from the app, the entry point is vastly different from Optiboot_x. On the Dx-series, only a single operation is protected and must run from the boot section: The ST or SPM which actually triggers the writing of data to the flash. Thus, everything else can be in the app, and we just need to have a an SPM Z+ instruction followed by a RET, These instructions have opcodes of 95F8 and 9508. Considering endianness, we want them to come out as `F895` `0895`. This is achieved by declaring a `((used))` constant at 0x0001FA (so it's immediately before the optiboot version), with the value `0x950895F8` - endianness reverses the order of the bytesm so it gives the needed F895 0895 sequence needed. The application then stages everything, culminating in a snippet of inline assembly which copies the word to write to r0 and r1, issues `call 0x01FA` (the assembler divides the number we give in half, as this instruction is word addressed; we must not do that division ourselves), and then clears r1 and returns to C. This is a scary approach, to be sure. However, it does work!
 * This document has been converted into markdown for easier viewing on github.
-* For some reason, the dummy app is supposedly required. This is *intensely annoying*, because avr-size includes it, and you thus get inaccurate numbers shown during the compile process. Since the binary size is of overwhelming importance when you're as close to the edge as we are here, we needed a better way. It seems that avr-size does not have a way to limit itself to arbitrary sections. To address this, the display mode of avr-size has been amended to use the -A option, showing the memory of all sections individually; this in turn means that there's a bunch of junk sections shown, but at least the three sections we care about (marked) are shown individually instead of being mashed together with the dummy app. The dummy app doesn't even get output to the hex file or anything. Sadly, windows lacks all the command line tools that linux has, so there isn't something we can easily pipe that output to which would turn:
-```text
-section          size      addr
-.data               0   8417280
-.text             476         0 <- This is the all important size of the generated binary, less .spmtarg and version.
-.application       42       512
-.spmtarg            4       506 <- The Dx-series Flash.h expects to be able to stage everything and jump
-.version            2       510 <- this had better end at 512 - and it does
-.comment           17         0
-.debug_aranges     48         0
-.debug_info      2955         0
-.debug_abbrev     724         0
-.debug_line       937         0
-.debug_frame      156         0
-.debug_str       2004         0
-.debug_loc        833         0
-.debug_ranges     104         0
-```
-into what we'd really like:
-```test
-.text             476         0
-.spmtarg            4       506
-.version            2       510
-```
-Or, better:
-```text
-Size: 476+4+2
-```
-Or even better:
-```text
-Size: 482
-```
-If anyone reading this knows a way to do that, it would make me very happy if you would share that technique with me.
-
-
+* Supposedly the dummy app which made suize reporting suck was required. Turns out it's not. So it's gona and avrsize is back to normal
 
 ## Known issues
 There are no known issues at this time (other than the fact that there is no EEPROM support That is because it does not fit. It might fit if we didn't need to buffer pages and could write data as it came in, but because we don't know we're getting a program page command until the fire hose of data has been turned on, we can't get rid of that so easily. It was a design decision to not lock in a 1024 byte bootloader section just to get EEPROM write capability; and the consequences are particularly serious on modern AVRs which cannot tolerate )
@@ -226,17 +187,17 @@ There are a few points at which the compiler generates terrible, terrible code.
 
 ```asm
 After calling getch() toget the high byte of the length in r24
-  "mov     r16,  r24"       // copy r24 (which is never reused) to r16,
-  "ldi     r17, 0x00"       // load zero into r17 even though the next thing we do...
-  "mov     r17,  r16"       // is copy r16 to r17...
-  "eor     r16,  r16"       // and now we zero out r16....
-  "rcall .+180      "       // call getch() again
-  "or      r16,  r24"       // this time it uses or to achieve the same thing as mov.
+  mov r16, r24       // copy r24 (which is never reused) to r16,
+  ldi r17, 0x00 ; 0  // load zero into r17 even though the next thing we do...
+  mov r17, r16       // is copy r16 to r17...
+  eor r16, r16       // and now we zero out r16....
+  rcall .+180        // call getch() again
+  or r16, r24        // this time we use an or, just for the hell of it.
 
 This is done twice, and it wastes 3 instruction words, because it is equivalent to:
-  "mov     r17,  r24"       // copy r24 to the place where we want it
-  "rcall .+180      "       // call getch() again
-  "mov     r16,  r24"       // copy r24 to where we want the second byte.
+  mov r17, r24       // copy r24 to the place where we want it
+  rcall .+180        // call getch() again
+  mov r16, r24       // copy r24 to where we want the second byte.
 
 ```
 Savings: 6 words, more than doubling the available space on the 128k parts.
@@ -269,25 +230,25 @@ It is worth noting that this is not what typical compiled sketches are full of. 
 
 ```text
 
-   8: 05 c0         rjmp  .+10      ;  <---- 19 rjmp  = 38 bytes.
-  16: 03 c0         rjmp  .+6       ;
+   8: 05 c0         rjmp  .+10      ; junk comment elided  <---- 19 rjmp  = 38 bytes. Junk comments were interpretations of dataspace as codespace and vice versa
+  16: 03 c0         rjmp  .+6       ; junk comment elided
   24: ed c0         rjmp  .+474     ; 0x200 <app>
-  74: ef cf         rjmp  .-34      ;
-  84: e4 cf         rjmp  .-56      ;
-  8c: dd cf         rjmp  .-70      ;
-  96: ec cf         rjmp  .-40      ;
-  9e: fa cf         rjmp  .-12      ;
-  ae: e0 cf         rjmp  .-64      ;
-  c6: d3 cf         rjmp  .-90      ;
-  ca: fb cf         rjmp  .-10      ;
+  74: ef cf         rjmp  .-34      ; junk comment elided
+  84: e4 cf         rjmp  .-56      ; junk comment elided
+  8c: dd cf         rjmp  .-70      ; junk comment elided
+  96: ec cf         rjmp  .-40      ; junk comment elided
+  9e: fa cf         rjmp  .-12      ; junk comment elided
+  ae: e0 cf         rjmp  .-64      ; junk comment elided
+  c6: d3 cf         rjmp  .-90      ; junk comment elided
+  ca: fb cf         rjmp  .-10      ; junk comment elided
   d0: 2b c0         rjmp  .+86      ; 0x128 <head+0x10>
- 126: a4 cf         rjmp  .-184     ;
+ 126: a4 cf         rjmp  .-184     ; junk comment elided
  144: 08 c0         rjmp  .+16      ; 0x156 <head+0x3e>
- 154: 8d cf         rjmp  .-230     ;
- 166: 84 cf         rjmp  .-248     ;
- 17a: 79 cf         rjmp  .-270     ;
- 180: 95 cf         rjmp  .-214     ;
- 186: 92 cf         rjmp  .-220     ;
+ 154: 8d cf         rjmp  .-230     ; junk comment elided
+ 166: 84 cf         rjmp  .-248     ; junk comment elided
+ 17a: 79 cf         rjmp  .-270     ; junk comment elided
+ 180: 95 cf         rjmp  .-214     ; junk comment elided
+ 186: 92 cf         rjmp  .-220     ; junk comment elided
  18e: fc cf         rjmp  .-8       ; 0x188 <putch>
  19c: fc cf         rjmp  .-8       ; 0x196 <getch>
  1a8: 01 c0         rjmp  .+2       ; 0x1ac <getch+0x16>
@@ -423,31 +384,31 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  118: 0d 90         ld  r0, X+        <----- only three loads...
  11a: 1d 90         ld  r1, X+        <----- Two of these are used to read the page buffer back in
  15a: 80 81         ld  r24, Z        But 8 bulky LDS instructions:
-   2: 80 91 40 00   lds r24, 0x0040 ; RSTCTRL.RSTFR
- 1a2: 80 91 20 08   lds r24, 0x0820 ; UARTn.RXDATA
- 196: 80 91 24 08   lds r24, 0x0824 ; UARTn.STATUS
- 176: 80 91 02 11   lds r24, 0x1102 ; Sigbyte 2
- 1ae: 90 91 01 01   lds r25, 0x0101 ; WDT.STATUS
- 19e: 90 91 21 08   lds r25, 0x0821 ; UARTn.RXDATA
- 188: 90 91 24 08   lds r25, 0x0824 ; UARTn.STATUS
-  7e: 90 91 24 08   lds r25, 0x0824 ; UARTn.STATUS
+   2: 80 91 40 00   lds r24, 0x0040 ; junk comment elided     040>  < RSTCTRL.RSTFR
+ 1a2: 80 91 20 08   lds r24, 0x0820 ; junk comment elided     820>  < UARTn.RXDATA
+ 196: 80 91 24 08   lds r24, 0x0824 ; junk comment elided     824>  < UARTn.STATUS
+ 176: 80 91 02 11   lds r24, 0x1102 ; junk comment elided     102>  < Sigbyte 2
+ 1ae: 90 91 01 01   lds r25, 0x0101 ; junk comment elided     101>  < WDT.STATUS
+ 19e: 90 91 21 08   lds r25, 0x0821 ; junk comment elided     821>  < UARTn.RXDATA
+ 188: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>  < UARTn.STATUS
+  7e: 90 91 24 08   lds r25, 0x0824 ; junk comment elided     824>  < UARTn.STATUS
   fc: 80 83         st  Z, r24          <------ Just one ST!
-   e: 94 bf         out 0x34, r25 ; 52  <--- 6 OUT = 12 bytes 4 are to CCP, 1 to RAMPZ, and 1 to GPIOR0 when we stash the reset cause flags.
-  22: 8c bb         out 0x1c, r24 ; 28
+   e: 94 bf         out 0x34, r25 ; 52  <--- 6 OUT = 12 bytes
+  22: 8c bb         out 0x1c, r24 ; 28  4/6 to the CCP register!
   be: 8b bf         out 0x3b, r24 ; 59
  1b8: 94 bf         out 0x34, r25 ; 52
  1e0: 94 bf         out 0x34, r25 ; 52
  1e6: 94 bf         out 0x34, r25 ; 52
-  10: 20 93 41 00   sts 0x0041, r18 ;  <--- and 11 bulky STS isns.
-  1e: 80 93 40 00   sts 0x0040, r24 ; These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set.
-  2e: 80 93 51 04   sts 0x0451, r24 ; turning on a pullup
-  34: 80 93 28 08   sts 0x0828, r24 ; config USART
-  3a: 80 93 27 08   sts 0x0827, r24 ; config USART
-  40: 80 93 26 08   sts 0x0826, r24 ; config USART
- 190: 80 93 22 08   sts 0x0822, r24 ; putch
- 1ba: 80 93 00 01   sts 0x0100, r24 ; config WDT
- 1e2: 10 92 00 10   sts 0x1000, r1  ; clear nvmctrl.ctrla
- 1e8: 80 93 00 10   sts 0x1000, r24 ; write a different value to it
+  10: 20 93 41 00   sts 0x0041, r18 ; junk comment elided     041>   <--- and 11 bulky STS isns.
+  1e: 80 93 40 00   sts 0x0040, r24 ; junk comment elided     040> //These first two around 0x0040 are resetctrl - reading the reset cause and pressing the big reset button if we wound up at init without any reset flags being set.
+  2e: 80 93 51 04   sts 0x0451, r24 ; junk comment elided     451> //turning on a pullup
+  34: 80 93 28 08   sts 0x0828, r24 ; junk comment elided     828> //config USART
+  3a: 80 93 27 08   sts 0x0827, r24 ; junk comment elided     827> //config USART
+  40: 80 93 26 08   sts 0x0826, r24 ; junk comment elided     826> //config USART
+ 190: 80 93 22 08   sts 0x0822, r24 ; junk comment elided     822> //putch
+ 1ba: 80 93 00 01   sts 0x0100, r24 ; junk comment elided     100> //config WDT
+ 1e2: 10 92 00 10   sts 0x1000, r1  ; junk comment elided     000> clear nvmctrl.ctrla
+ 1e8: 80 93 00 10   sts 0x1000, r24 ; junk comment elided     000> write a different value to it
   2a: 40 9a         sbi 0x08, 0 ; 8   <set TX direction
   44: 07 9a         sbi 0x00, 7 ; 0   <LED as output
   76: 17 9a         sbi 0x02, 7 ; 2   <Toggle LED
@@ -461,25 +422,25 @@ It is worth noting that this is not what typical compiled sketches are full of. 
  1d0: cf 93         push  r28         <----- Why the fuck is there a push and a pop, we have 9 unused registers!!!!
  1da: cf 91         pop r28           <----- wtf???
                                     ; And now all in one place: The control flow instructions.
-  1c: 21 f4         brne  .+8       ; 0x26 <0x0<--16brne's = 32 bytes
-  4a: a9 f4         brne  .+42      ; 0x76
-  58: d1 f4         brne  .+52      ; 0x8e
-  8a: c1 f7         brne  .-16      ; 0x7c
-  90: 19 f4         brne  .+6       ; 0x98
-  9a: 11 f4         brne  .+4       ; 0xa0
-  a2: 31 f4         brne  .+12      ; 0xb0
-  b2: 61 f4         brne  .+24      ; 0xcc
-  b8: 39 f4         brne  .+14      ; 0xc8
- 104: a9 f7         brne  .-22      ; 0xf0
+  1c: 21 f4         brne  .+8       ; 0x26 junk comment elided     <--16brne's = 32 bytes
+  4a: a9 f4         brne  .+42      ; 0x76 junk comment elided
+  58: d1 f4         brne  .+52      ; 0x8e junk comment elided
+  8a: c1 f7         brne  .-16      ; 0x7c junk comment elided
+  90: 19 f4         brne  .+6       ; 0x98 junk comment elided
+  9a: 11 f4         brne  .+4       ; 0xa0 junk comment elided
+  a2: 31 f4         brne  .+12      ; 0xb0 junk comment elided
+  b2: 61 f4         brne  .+24      ; 0xcc junk comment elided
+  b8: 39 f4         brne  .+14      ; 0xc8 junk comment elided
+ 104: a9 f7         brne  .-22      ; 0xf0 junk comment elided
  122: d1 f7         brne  .-12      ; 0x118 <head>
  12a: f1 f4         brne  .+60      ; 0x168 <head+0x50>
  152: d1 f7         brne  .-12      ; 0x148 <head+0x30>
  164: c9 f7         brne  .-14      ; 0x158 <head+0x40>
  16a: 41 f4         brne  .+16      ; 0x17c <head+0x64>
  1d8: e9 f7         brne  .-6       ; 0x1d4 <getNch+0x4>
-  64: 21 f0         breq  .+8       ; 0x6e    <--- and 5 breq's
-  6a: 09 f0         breq  .+2       ; 0x6e
-  ce: 09 f0         breq  .+2       ; 0xd2
+  64: 21 f0         breq  .+8       ; 0x6e junk comment elided    <--- and 5 breq's
+  6a: 09 f0         breq  .+2       ; 0x6e junk comment elided
+  ce: 09 f0         breq  .+2       ; 0xd2 junk comment elided
  17e: 09 f0         breq  .+2       ; 0x182 <head+0x6a>
  1c4: 19 f0         breq  .+6       ; 0x1cc <verifySpace+0xc>
   14: 83 fd         sbrc  r24, 3    < test for wdrf      <--- 8 other skipifs - 16 bytes
