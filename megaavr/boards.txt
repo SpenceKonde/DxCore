@@ -41,12 +41,23 @@
 #     By year's end, all the expected parts were out in at least one     #
 #     package, but DIP28 and QFN28 are missing for the small flash parts #
 #     as if QFN20, then they are missing for those of the smaller ones   #
-#     and QFN20 is missing for 64k (but I don't think it is planned).    #
+#     and QFN20 is missing for 64k (but I don't think it is planned      #
+#     Based on the results of my filing the epoxy off the top of ).      #
 # EA (first fullsize parts w/diff ADC w/PGA) Shipping march 2023, but    #
 #     no ETA on QFN/TQFP 48/32/28 without buying a whole tray.           #
-# DU (Dx with native USB). Is it coming? Who knows! Hints that it may be #
-#     happening have been filtering out after I was almost sure it was   #
-#     gone... \o/                                                        #
+# DU (Dx with native USB) - Yes, you read that right. The 32u4 was looin #
+#     pretty damned long in the tooth. It is coming. When? Well, it's    #
+#     next in the pipeline after the EA's, and I think they recognize    #
+#     how badly the AVR product line needs a native USB product to keep  #
+#     people who need it from wandering out of the ecosystem and finding #
+#     some other family of parts they like better. The DU's themselves   #
+#     are rather less than inspiring. Much has been sacrificed upon the  #
+#     altar of USB - 2 pincounts lost a TCB, their TCD was likely        #
+#     repurposed to generate that 48 MHz reference clock needed for USB  #
+#     2.0 standard. And MVIO went to handling level shifting to 3.3v for #
+#     USB According to original product brief they can tune from the USB #
+#     signals and achieve usb without a crystal if desired or they can   #
+#     use a crystal like any decent person would.                        #
 # EB (2 novel timers and little else, beyond low pincounts. This is a    #
 #     possible tiny-killer) and not available yet. Likely (hopefully,    #
 #     with only one UART!) aimed at a low price point.  It will have the #
@@ -1643,7 +1654,7 @@ avrea.menu.chip.avr64ea28=AVR64EA28
 avrea.menu.chip.avr64ea28.build.mcu=avr64ea28
 avrea.menu.chip.avr64ea28.upload.maximum_size=65536
 avrea.menu.chip.avr64ea28.upload.maximum_data_size=8192
-avrea.menu.chip.avr64ea28.build.variant=28pin-tbd
+avrea.menu.chip.avr64ea28.build.variant=28pin-easeries
 avrea.menu.chip.avr64ea32=AVR64EA32
 avrea.menu.chip.avr64ea32.build.mcu=avr64ea32
 avrea.menu.chip.avr64ea32.upload.maximum_size=65536
@@ -1653,37 +1664,37 @@ avrea.menu.chip.avr64ea48=AVR64EA48
 avrea.menu.chip.avr64ea48.build.mcu=avr64ea48
 avrea.menu.chip.avr64ea48.upload.maximum_size=65536
 avrea.menu.chip.avr64ea48.upload.maximum_data_size=8192
-avrea.menu.chip.avr64ea48.build.variant=48pin
-#avrea.menu.chip.avr32ea28=AVR32EA28
-#avrea.menu.chip.avr32ea28.build.mcu=avr32ea28
-#avrea.menu.chip.avr32ea28.upload.maximum_size=32768
-#avrea.menu.chip.avr32ea28.upload.maximum_data_size=4096
-#avrea.menu.chip.avr32ea28.build.variant=28pin-easeries
-#avrea.menu.chip.avr32ea32=AVR32EA32
-#avrea.menu.chip.avr32ea32.build.mcu=avr32ea32
-#avrea.menu.chip.avr32ea32.upload.maximum_size=32768
-#avrea.menu.chip.avr32ea32.upload.maximum_data_size=4096
-#avrea.menu.chip.avr32ea32.build.variant=32pin-easeries
-#avrea.menu.chip.avr32ea48=AVR32EA48
-#avrea.menu.chip.avr32ea48.build.mcu=avr32ea48
-#avrea.menu.chip.avr32ea48.upload.maximum_size=32768
-#avrea.menu.chip.avr32ea48.upload.maximum_data_size=4096
-#avrea.menu.chip.avr32ea48.build.variant=48pin-easeries
-#avrea.menu.chip.avr16ea28=AVR16EA28
-#avrea.menu.chip.avr16ea28.build.mcu=avr16ea28
-#avrea.menu.chip.avr16ea28.upload.maximum_size=16384
-#avrea.menu.chip.avr16ea28.upload.maximum_data_size=2048
-#avrea.menu.chip.avr16ea28.build.variant=28pin-easeries
-#avrea.menu.chip.avr16ea32=AVR16EA32
-#avrea.menu.chip.avr16ea32.build.mcu=avr16ea32
-#avrea.menu.chip.avr16ea32.upload.maximum_size=16384
-#avrea.menu.chip.avr16ea32.upload.maximum_data_size=2048
-#avrea.menu.chip.avr16ea32.build.variant=32pin-easeries
-#avrea.menu.chip.avr16ea48=AVR16EA48
-#avrea.menu.chip.avr16ea48.build.mcu=avr16ea48
-#avrea.menu.chip.avr16ea48.upload.maximum_size=16384
-#avrea.menu.chip.avr16ea48.upload.maximum_data_size=2048
-#avrea.menu.chip.avr16ea48.build.variant=48pin-easeries
+avrea.menu.chip.avr64ea48.build.variant=48pin-easeries
+avrea.menu.chip.avr32ea28=AVR32EA28
+avrea.menu.chip.avr32ea28.build.mcu=avr32ea28
+avrea.menu.chip.avr32ea28.upload.maximum_size=32768
+avrea.menu.chip.avr32ea28.upload.maximum_data_size=4096
+avrea.menu.chip.avr32ea28.build.variant=28pin-easeries
+avrea.menu.chip.avr32ea32=AVR32EA32
+avrea.menu.chip.avr32ea32.build.mcu=avr32ea32
+avrea.menu.chip.avr32ea32.upload.maximum_size=32768
+avrea.menu.chip.avr32ea32.upload.maximum_data_size=4096
+avrea.menu.chip.avr32ea32.build.variant=32pin-easeries
+avrea.menu.chip.avr32ea48=AVR32EA48
+avrea.menu.chip.avr32ea48.build.mcu=avr32ea48
+avrea.menu.chip.avr32ea48.upload.maximum_size=32768
+avrea.menu.chip.avr32ea48.upload.maximum_data_size=4096
+avrea.menu.chip.avr32ea48.build.variant=48pin-easeries
+avrea.menu.chip.avr16ea28=AVR16EA28
+avrea.menu.chip.avr16ea28.build.mcu=avr16ea28
+avrea.menu.chip.avr16ea28.upload.maximum_size=16384
+avrea.menu.chip.avr16ea28.upload.maximum_data_size=2048
+avrea.menu.chip.avr16ea28.build.variant=28pin-easeries
+avrea.menu.chip.avr16ea32=AVR16EA32
+avrea.menu.chip.avr16ea32.build.mcu=avr16ea32
+avrea.menu.chip.avr16ea32.upload.maximum_size=16384
+avrea.menu.chip.avr16ea32.upload.maximum_data_size=2048
+avrea.menu.chip.avr16ea32.build.variant=32pin-easeries
+avrea.menu.chip.avr16ea48=AVR16EA48
+avrea.menu.chip.avr16ea48.build.mcu=avr16ea48
+avrea.menu.chip.avr16ea48.upload.maximum_size=16384
+avrea.menu.chip.avr16ea48.upload.maximum_data_size=2048
+avrea.menu.chip.avr16ea48.build.variant=48pin-easeries
 #avrea.menu.chip.avr8ea28=AVR8EA28
 #avrea.menu.chip.avr8ea28.build.mcu=avr8ea28
 #avrea.menu.chip.avr8ea28.upload.maximum_size=8192
@@ -1746,48 +1757,48 @@ avrea.menu.clock.12extclock.build.clocksource=2
 avrea.menu.clock.8extclock=8 MHz ext. clock
 avrea.menu.clock.8extclock.build.speed=8
 avrea.menu.clock.8extclock.build.clocksource=2
-#avrea.menu.clock.24crystal=24 MHz crystal (overclocked)
-#avrea.menu.clock.24crystal.build.speed=24
-#avrea.menu.clock.24crystal.build.clocksource=1
-#avrea.menu.clock.25crystal=25 MHz crystal (overclocked)
-#avrea.menu.clock.25crystal.build.speed=25
-#avrea.menu.clock.25crystal.build.clocksource=1
-#avrea.menu.clock.27crystal=27 MHz crystal (overclocked)
-#avrea.menu.clock.27crystal.build.speed=27
-#avrea.menu.clock.27crystal.build.clocksource=1
-#avrea.menu.clock.28crystal=28 MHz crystal (overclocked)
-#avrea.menu.clock.28crystal.build.speed=28
-#avrea.menu.clock.28crystal.build.clocksource=1
-#avrea.menu.clock.30crystal=30 MHz crystal (way overclocked)
-#avrea.menu.clock.30crystal.build.speed=30
-#avrea.menu.clock.30crystal.build.clocksource=1
-#avrea.menu.clock.32crystal=32 MHz crystal (way overclocked)
-#avrea.menu.clock.32crystal.build.speed=32
-#avrea.menu.clock.32crystal.build.clocksource=1
+avrea.menu.clock.24crystal=24 MHz crystal (overclocked)
+avrea.menu.clock.24crystal.build.speed=24
+avrea.menu.clock.24crystal.build.clocksource=1
+avrea.menu.clock.25crystal=25 MHz crystal (overclocked)
+avrea.menu.clock.25crystal.build.speed=25
+avrea.menu.clock.25crystal.build.clocksource=1
+avrea.menu.clock.27crystal=27 MHz crystal (overclocked)
+avrea.menu.clock.27crystal.build.speed=27
+avrea.menu.clock.27crystal.build.clocksource=1
+avrea.menu.clock.28crystal=28 MHz crystal (overclocked)
+avrea.menu.clock.28crystal.build.speed=28
+avrea.menu.clock.28crystal.build.clocksource=1
+avrea.menu.clock.30crystal=30 MHz crystal (way overclocked)
+avrea.menu.clock.30crystal.build.speed=30
+avrea.menu.clock.30crystal.build.clocksource=1
+avrea.menu.clock.32crystal=32 MHz crystal (way overclocked)
+avrea.menu.clock.32crystal.build.speed=32
+avrea.menu.clock.32crystal.build.clocksource=1
 #avrea.menu.clock.36crystal=36 MHz crystal (unlikely-to-work overclocked)
 #avrea.menu.clock.36crystal.build.speed=36
 #avrea.menu.clock.36crystal.build.clocksource=1
 #avrea.menu.clock.40crystal=40 MHz crystal (unlikely-to-work overclocked)
 #avrea.menu.clock.40crystal.build.speed=40
 #avrea.menu.clock.40crystal.build.clocksource=1
-#avrea.menu.clock.24extclock=24 MHz ext. clock (overclocked)
-#avrea.menu.clock.24extclock.build.speed=24
-#avrea.menu.clock.24extclock.build.clocksource=2
-#avrea.menu.clock.25extclock=25 MHz ext. clock (overclocked)
-#avrea.menu.clock.25extclock.build.speed=25
-#avrea.menu.clock.25extclock.build.clocksource=2
-#avrea.menu.clock.27extclock=27 MHz ext. clock (overclocked)
-#avrea.menu.clock.27extclock.build.speed=27
-#avrea.menu.clock.27extclock.build.clocksource=2
-#avrea.menu.clock.28extclock=28 MHz ext. clock (overclocked)
-#avrea.menu.clock.28extclock.build.speed=28
-#avrea.menu.clock.28extclock.build.clocksource=2
-#avrea.menu.clock.30extclock=30 MHz ext. clock (wayoverclocked)
-#avrea.menu.clock.30extclock.build.speed=30
-#avrea.menu.clock.30extclock.build.clocksource=2
-#avrea.menu.clock.32extclock=32 MHz ext. clock (way overclocked)
-#avrea.menu.clock.32extclock.build.speed=32
-#avrea.menu.clock.32extclock.build.clocksource=2
+avrea.menu.clock.24extclock=24 MHz ext. clock (overclocked)
+avrea.menu.clock.24extclock.build.speed=24
+avrea.menu.clock.24extclock.build.clocksource=2
+avrea.menu.clock.25extclock=25 MHz ext. clock (overclocked)
+avrea.menu.clock.25extclock.build.speed=25
+avrea.menu.clock.25extclock.build.clocksource=2
+avrea.menu.clock.27extclock=27 MHz ext. clock (overclocked)
+avrea.menu.clock.27extclock.build.speed=27
+avrea.menu.clock.27extclock.build.clocksource=2
+avrea.menu.clock.28extclock=28 MHz ext. clock (overclocked)
+avrea.menu.clock.28extclock.build.speed=28
+avrea.menu.clock.28extclock.build.clocksource=2
+avrea.menu.clock.30extclock=30 MHz ext. clock (wayoverclocked)
+avrea.menu.clock.30extclock.build.speed=30
+avrea.menu.clock.30extclock.build.clocksource=2
+avrea.menu.clock.32extclock=32 MHz ext. clock (way overclocked)
+avrea.menu.clock.32extclock.build.speed=32
+avrea.menu.clock.32extclock.build.clocksource=2
 #avrea.menu.clock.36extclock=36 MHz ext. clock (unlikely-to-work overclocked)
 #avrea.menu.clock.36extclock.build.speed=36
 #avrea.menu.clock.36extclock.build.clocksource=2
@@ -1839,9 +1850,6 @@ avrea.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Retain EEPROM (EESAVE)                 #
 #________________________________________#
-#                                   #
-#  Speculative but likely           #
-#___________________________________#
 avrea.menu.eesave.enable=EEPROM retained
 avrea.menu.eesave.enable.bootloader.eesavebit=1
 avrea.menu.eesave.disable=EEPROM not retained
@@ -1850,9 +1858,6 @@ avrea.menu.eesave.disable.bootloader.eesavebit=0
 #----------------------------------------#
 # Reset pin as INPUT, UPDI as I/O        #
 #________________________________________#
-#  Values speculative                #
-#  Features Known                    #
-#____________________________________#
 avrea.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
 avrea.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
 avrea.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
@@ -3681,6 +3686,7 @@ azduinoboard.menu.board.NanoDB_A.build.mcu=avr128db32
 azduinoboard.menu.board.NanoDB_A.bootloader.class=optiboot_AzduinoNanoDB
 azduinoboard.menu.board.NanoDB_A.upload.maximum_size=130560
 azduinoboard.menu.board.NanoDB_A.upload.maximum_data_size=16384
+azduinoboard.menu.board.NanoDB_A.build.variant=32pin-standard
 azduinoboard.menu.board.NanoDB_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDB_A.bootloader.portswap=1
 azduinoboard.menu.board.NanoDB_A.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DHARDWIRE_INPUT_ONLY=PIN_PA5 -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.mvioenable}
@@ -3691,6 +3697,7 @@ azduinoboard.menu.board.NanoDD_A.build.mcu=avr64dd32
 azduinoboard.menu.board.NanoDD_A.bootloader.class=optiboot_AzduinoNanoDD
 azduinoboard.menu.board.NanoDD_A.upload.maximum_size=65024
 azduinoboard.menu.board.NanoDD_A.upload.maximum_data_size=8192
+azduinoboard.menu.board.NanoDB_A.build.variant=32pin-ddseries
 azduinoboard.menu.board.NanoDD_A.bootloader.portname=Serial0
 azduinoboard.menu.board.NanoDD_A.bootloader.portswap=1
 azduinoboard.menu.board.NanoDD_A.bootloader.muxnum=1
@@ -3704,12 +3711,12 @@ azduinoboard.menu.board.NanoDD_A.build.variant=32pin-ddseries
 #azduinoboard.menu.board.NanoDB_B.bootloader.portname=Serial0
 #azduinoboard.menu.board.NanoDB_B.bootloader.portswap=1
 #azduinoboard.menu.board.NanoDB_B.build.extra_flags=-DMUX_DEFAULT_USART0=1  -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PA6 -DUSING_OPTIBOOT {build.mvioenable}
-#azduinoboard.menu.board.NanoDB_B.build.variant=32pin-ddseries
+#azduinoboard.menu.board.NanoDB_B.build.variant=32pin-standard
 azduinoboard.menu.board.LEDCTRLA.build.extra_flags=-DMUX_DEFAULT_USART0=1 -DXTAL_PINS_HARDWIRED -DLED_BUILTIN2=PIN_PF0 -DLED_BUILTIN3=PIN_PF1 -DUSING_OPTIBOOT {build.mvioenable}
 azduinoboard.menu.board.LEDCTRLA=LEDCTRLA Light Controller 2.1+
 azduinoboard.menu.board.LEDCTRLA=AzduinoLEDCTRLA
 azduinoboard.menu.board.LEDCTRLA.build.mcu=avr128db48
-azduinoboard.menu.board.LEDCTRLA.bootloader.LEDCTRLA=optiboot_AzduinoLEDCTRLA
+azduinoboard.menu.board.LEDCTRLA.bootloader.class=optiboot_AzduinoLEDCTRLA
 azduinoboard.menu.board.LEDCTRLA.upload.maximum_size=130560
 azduinoboard.menu.board.LEDCTRLA.upload.maximum_data_size=16384
 azduinoboard.menu.board.LEDCTRLA.build.variant=48pin-standard

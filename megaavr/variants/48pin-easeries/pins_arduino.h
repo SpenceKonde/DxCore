@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
+/*  (C) Spence Konde 2021-2023 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####   ###    #  #  ###
@@ -12,10 +12,6 @@ with 48 pins.
 
 Part Numbers:
 AVR64EA48 AVR32EA48 AVR16EA48
-
-Warning - NO CHANGES HAVE BEEN MADE TO SUPPORT THE EA PARTS!
-
-See VariantTemplate.h in extras folder an extensively annotated copy.
 
 Include guard and include basic libraries. We are normally including this inside Arduino.h */
 
@@ -81,13 +77,13 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     42     // Last pin number +1
-#define NUM_ANALOG_INPUTS
+#define PINS_COUNT                     (42)   // Last pin number +1
+#define NUM_ANALOG_INPUTS              (28)   //
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
 // NUM_DIGITAL_PINS = PINS_COUNT - NUM_RESERVED_PINS
-// TOTAL_FREE_OPINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
+// TOTAL_FREE_PINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
@@ -98,7 +94,7 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 /* Until the legacy attach interrupt has been completely obsoleted */
 #ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS        47
+  #define EXTERNAL_NUM_INTERRUPTS        (47)
 #endif
 
        /*   #  ###   ### ####   ###   ###
@@ -123,7 +119,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB1_PINS PORTMUX_TCB1_bm           // TCB1 output on PF5 instead of PA3 (default)
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
-#define TCD0_PINS PORTMUX_TCD0_PORTA        // Only default port option works!
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF5))
@@ -144,12 +139,8 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCB1_WO_INIT  PIN_PF5
 #define PIN_TCB2_WO_INIT  PIN_PC0
 #define PIN_TCB3_WO_INIT  PIN_PC1
-#define PIN_TCD0_WOA_INIT PIN_PA4
 
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
-#define NO_GLITCH_TIMERD0
-
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PB0 && (p) < PIN_PB6) || ((p) >= PC0 && (p) <= PIN_PC5))
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
@@ -158,11 +149,16 @@ Include guard and include basic libraries. We are normally including this inside
         #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT   1 /* 2 SPI peripherals but SPI.h only uses one at a time, see that readme for details.*/
-#define NUM_HWSERIAL_PORTS     4
+#define NUM_HWSERIAL_PORTS     3
 
 // SPI 0
 #define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
 #define SPI_MUX_PINSWAP_1      PORTMUX_SPI0_ALT1_gc
+#define SPI_MUX_PINSWAP_3      PORTMUX_SPI0_ALT3_gc
+#define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
+#define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
+#define SPI_MUX_PINSWAP_6      PORTMUX_SPI0_ALT6_gc
+#define SPI_MUX_PINSWAP_NONE   PORTMUX_SPI0_NONE_gc
 #define PIN_SPI_MOSI           PIN_PA4
 #define PIN_SPI_MISO           PIN_PA5
 #define PIN_SPI_SCK            PIN_PA6
@@ -171,19 +167,22 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MISO_PINSWAP_1 PIN_PE1
 #define PIN_SPI_SCK_PINSWAP_1  PIN_PE2
 #define PIN_SPI_SS_PINSWAP_1   PIN_PE3
-
-
-// SPI 1
-#define SPI1_MUX                (PORTMUX_SPI1_DEFAULT_gc)
-#define SPI1_MUX_PINSWAP_1      (PORTMUX_SPI1_ALT1_gc)
-#define PIN_SPI1_MOSI           PIN_PC0
-#define PIN_SPI1_MISO           PIN_PC1
-#define PIN_SPI1_SCK            PIN_PC2
-#define PIN_SPI1_SS             PIN_PA3
-#define PIN_SPI1_MOSI_PINSWAP_1 PIN_PC4
-#define PIN_SPI1_MISO_PINSWAP_1 PIN_PC5
-#define PIN_SPI1_SCK_PINSWAP_1  PIN_PC6
-#define PIN_SPI1_SS_PINSWAP_1   PIN_PC7
+#define PIN_SPI_MOSI_PINSWAP_3 PIN_PA0
+#define PIN_SPI_MISO_PINSWAP_3 PIN_PA1
+#define PIN_SPI_SCK_PINSWAP_3  PIN_PC0
+#define PIN_SPI_SS_PINSWAP_3   PIN_PC1
+#define PIN_SPI_MOSI_PINSWAP_4 PIN_PD4
+#define PIN_SPI_MISO_PINSWAP_4 PIN_PD5
+#define PIN_SPI_SCK_PINSWAP_4  PIN_PD6
+#define PIN_SPI_SS_PINSWAP_4   PIN_PD7
+#define PIN_SPI_MOSI_PINSWAP_5 PIN_PC0
+#define PIN_SPI_MISO_PINSWAP_5 PIN_PC1
+#define PIN_SPI_SCK_PINSWAP_5  PIN_PC2
+#define PIN_SPI_SS_PINSWAP_5   PIN_PC3
+#define PIN_SPI_MOSI_PINSWAP_6 PIN_PC1
+#define PIN_SPI_MISO_PINSWAP_6 PIN_PC2
+#define PIN_SPI_SCK_PINSWAP_6  PIN_PC3
+#define PIN_SPI_SS_PINSWAP_6   PIN_PF7
 
 
 // TWI 0
@@ -193,13 +192,8 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL_PINSWAP_1 PIN_PA3
 #define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
 #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
-
-
-// TWI 1
-#define PIN_WIRE1_SDA           PIN_PF2
-#define PIN_WIRE1_SCL           PIN_PF3
-#define PIN_WIRE1_SDA_PINSWAP_2 PIN_PB2
-#define PIN_WIRE1_SCL_PINSWAP_2 PIN_PB3
+#define PIN_WIRE_SDA_PINSWAP_3 PIN_PA0
+#define PIN_WIRE_SCL_PINSWAP_3 PIN_PA1
 
 
 // USART 0
@@ -238,10 +232,15 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL1_RX                PIN_PC1
 #define PIN_HWSERIAL1_XCK               PIN_PC2
 #define PIN_HWSERIAL1_XDIR              PIN_PC3
+#define PIN_HWSERIAL1_TX_PINSWAP_1      PIN_PC4
+#define PIN_HWSERIAL1_RX_PINSWAP_1      PIN_PC5
+#define PIN_HWSERIAL1_XCK_PINSWAP_1     PIN_PC6
+#define PIN_HWSERIAL1_XDIR_PINSWAP_1    PIN_PC7
 #define PIN_HWSERIAL1_TX_PINSWAP_2      PIN_PD6
 #define PIN_HWSERIAL1_RX_PINSWAP_2      PIN_PD7
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     NOT_A_PIN
 #define PIN_HWSERIAL1_XDIR_PINSWAP_2    NOT_A_PIN
+
 // USART 2
 #define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
 #define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
@@ -254,20 +253,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL2_RX_PINSWAP_1      PIN_PF5
 #define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
 #define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
-
-// USART 3
-#define HWSERIAL3_MUX                   PORTMUX_USART3_DEFAULT_gc
-#define HWSERIAL3_MUX_PINSWAP_1         PORTMUX_USART3_ALT1_gc
-#define HWSERIAL3_MUX_PINSWAP_NONE      PORTMUX_USART3_NONE_gc
-#define PIN_HWSERIAL3_TX                PIN_PB0
-#define PIN_HWSERIAL3_RX                PIN_PB1
-#define PIN_HWSERIAL3_XCK               PIN_PB2
-#define PIN_HWSERIAL3_XDIR              PIN_PB3
-#define PIN_HWSERIAL3_TX_PINSWAP_1      PIN_PB4
-#define PIN_HWSERIAL3_RX_PINSWAP_1      PIN_PB5
-#define PIN_HWSERIAL3_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL3_XDIR_PINSWAP_1    NOT_A_PIN
-
 
         /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
         #   # ##  # #   # #    #   # #         #   #  #  ##  # #
@@ -356,19 +341,19 @@ static const uint8_t A31 =  PIN_A31;
 #define AIN13              NOT_A_PIN
 #define AIN14              NOT_A_PIN
 #define AIN15              NOT_A_PIN
-#define AIN16              ADC_CH(16)
+#define AIN16              ADC_CH(16)/* PF0*/
 #define AIN17              ADC_CH(17)
 #define AIN18              ADC_CH(18)
 #define AIN19              ADC_CH(19)
 #define AIN20              ADC_CH(20)
 #define AIN21              ADC_CH(21)
-#define AIN22              ADC_CH(22)
+#define AIN22              ADC_CH(22)/* PA2 */
 #define AIN23              ADC_CH(23)
 #define AIN24              ADC_CH(24)
 #define AIN25              ADC_CH(25)
 #define AIN26              ADC_CH(26)
 #define AIN27              ADC_CH(27)
-#define AIN28              ADC_CH(28)
+#define AIN28              ADC_CH(28)/* PC0 */
 #define AIN29              ADC_CH(29)
 #define AIN30              ADC_CH(30)
 #define AIN31              ADC_CH(31)
@@ -424,7 +409,7 @@ const uint8_t digital_pin_to_port[] = {
   PF, // 38 PF4/AIN20
   PF, // 39 PF5/AIN21
   PF, // 40 PF6 RESET
-  //PF, // 55 PF7 (UPDI)
+  PF  // 41 PF7 (UPDI)
 };
 
 /* Use this for accessing PINnCTRL register */
@@ -478,7 +463,7 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   PIN4_bp, // 38 PF4/AIN14
   PIN5_bp, // 39 PF5/AIN15
   PIN6_bp, // 40 PF6 RESET
-  //PIN7_bm// 55 PF7 (UPDI)
+  PIN7_bm  // 41 PF7 (UPDI)
 };
 
 const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
@@ -531,7 +516,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN4_bm, // 38 PF4/AIN14
   PIN5_bm, // 39 PF5/AIN15
   PIN6_bm, // 40 PF6 RESET
-  //PIN7_bm// 55 PF7 (UPDI)
+  PIN7_bm  // 41 PF7 (UPDI)
 };
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
@@ -575,17 +560,9 @@ const uint8_t digital_pin_to_timer[] = {
   TIMERB0,      // 38 PF4/AIN14
   TIMERB1,      // 39 PF5/AIN15
   NOT_ON_TIMER, // 40 PF6 RESET
-  //NOT_ON_TIMER// 55 PF7 (UPDI)
+  NOT_ON_TIMER  // 41 PF7 (UPDI)
 };
 
 #endif
-
-// These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
-  #if CLOCK_SOURCE != 0
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0 &&  (pin) <  4  ? ((pin) + 2)                  )
-  #else
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0 &&  (pin) <  4  ? ((pin) + 0)       : NOT_A_PIN)
-  #endif
-#define      _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ? ((pin) + PIN_PD1) : NOT_A_PIN)
 
 #endif

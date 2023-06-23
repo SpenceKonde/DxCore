@@ -66,8 +66,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF6 (26) // RESET
 #define PIN_PF7 (27) // UPDI
 
-#define FAKE_PIN_PD0
-
 #define PINS_COUNT                     24
 #define NUM_ANALOG_INPUTS              20
 
@@ -76,8 +74,6 @@ Include guard and include basic libraries. We are normally including this inside
 // Autocalculated are :
 // NUM_DIGITAL_PINS and NUM_TOTAL_PINS = highest number of any valid pin. NOT the number of pins!
 // TOTAL_FREE_OPINS = PINS_COUNT - NUM_INTERNALLY_USED_PINS
-#define NUM_TOTAL_PINS                 27
-#define NUM_DIGITAL_PINS               27
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
@@ -97,28 +93,34 @@ Include guard and include basic libraries. We are normally including this inside
 #define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : ((port)== PF ? PIN_PF0 : NOT_A_PIN))))
 
 
-// PWM pins
-
+// Timer pin swaps
+#define TCA0_PINS (PORTMUX_TCA0_PORTD_gc)   // TCA0 output on PD[0:5] by default, but just write the portmux to change it
+#define TCA1_PINS (PORTMUX_TCA0_PORTA_gc)   // TCA1 output on PA[4:6]
+#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) instead of PF4
+#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) instead of PF4
+#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
+#define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
 #elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
-#else //no TCB's are used for millis
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC1))
+#elif defined(MILLIS_USE_TIMERB3)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
+#else //no TCB's are used for millis
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
 #endif
 
-// Timer pin mapping
-#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default) as the other options are not present on these parts.
-#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default) as the other options are not present on these parts.
-#define PIN_TCB0_WO_INIT  (PIN_PA2)
-#define PIN_TCB1_WO_INIT  (PIN_PA3)
 
+#define PIN_TCA0_WO0_INIT PIN_PD0
+#define PIN_TCA1_WO0_INIT PIN_PA4
+#define PIN_TCB0_WO_INIT  PIN_PA2
+#define PIN_TCB1_WO_INIT  PIN_PA3
+#define PIN_TCB2_WO_INIT  PIN_PC0
+#define PIN_TCB3_WO_INIT  PIN_PC1
 
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
-#define NO_GLITCH_TIMERD0
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PD1 && (p) <= PIN_PD5) || ((p) == PIN_PF0 || (p) == PIN_PF1))
 
 
@@ -128,7 +130,7 @@ Include guard and include basic libraries. We are normally including this inside
         #     #   # #  #    #   #   # #   #  # #
         #      ###  #   #   #   #   #  ###  #   */
 
-// In contrast to DA/DB with no pinswap options available, the DD has them in spades!
+// EA has held onto the DD's portmux options!
 // defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid.
 
 #define SPI_INTERFACES_COUNT   1
@@ -347,14 +349,14 @@ const uint8_t digital_pin_to_port[] = {
   PA,         //  5 PA5/MISO
   PA,         //  6 PA6/SCK
   PA,         //  7 PA7/SS/CLKOUT/LED_BUILTIN
-  PC,         //  8 PC0/USART1_Tx/TCA0 PWM
-  PC,         //  9 PC1/USART1_Rx/TCA0 PWM
-  PC,         // 10 PC2/TCA0 PWM
-  PC,         // 11 PC3/TCA0 PWM
-  PD,         // VDDIO2 - offset and position umdefined, but it is defined as being on port D because it is the zero pin. Gap pins in general should still be here.
+  PC,         //  8 PC0/USART1_Tx
+  PC,         //  9 PC1/USART1_Rx
+  PC,         // 10 PC2
+  PC,         // 11 PC3
+  PD,         // 12 PD0/AIN0
   PD,         // 13 PD1/AIN1
   PD,         // 14 PD2/AIN2
-  PD,         // 15 PD3/AIN3/LED_BUILTIN
+  PD,         // 15 PD3/AIN3
   PD,         // 16 PD4/AIN4
   PD,         // 17 PD5/AIN5
   PD,         // 18 PD6/AIN6
@@ -426,7 +428,7 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN0_bm,   // 12 PD0 NON_PIN
   PIN1_bm,   // 13 PD1/AIN1
   PIN2_bm,   // 14 PD2/AIN2
-  PIN3_bm,   // 15 PD3/AIN3/LED_BUILTIN
+  PIN3_bm,   // 15 PD3/AIN3
   PIN4_bm,   // 16 PD4/AIN4
   PIN5_bm,   // 17 PD5/AIN5
   PIN6_bm,   // 18 PD6/AIN6
@@ -471,4 +473,6 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 26 PF6 RESET
   NOT_ON_TIMER, // 27 PF7 UPDI
 };
-/* TCAn PWM pins are determined at runtime by checking PORTMUX, so you can set the pins by writing the desired value to portmux.
+/* TCAn PWM pins are determined at runtime by checking PORTMUX, so you can set the pins by writing the desired value to portmux.*/
+#endif
+#endif

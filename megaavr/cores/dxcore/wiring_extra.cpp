@@ -157,10 +157,10 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
 #if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
   uint8_t _setEventPin(uint8_t pin, uint8_t chan) {
     // Works the same was as
-    uint8_t temp = digitalPinToPort(pin)
+    uint8_t temp = digitalPinToPort(pin);
     if (temp != NOT_A_PIN && (chan + 1) < 3) {
       volatile uint8_t* p;
-      p=(volatile uint8_t*)(uint16_t)(digitalPinToPortStruct(temp));
+      p = (volatile uint8_t*) (uint16_t) (digitalPinToPortStruct(temp));
       p += 0x18; // now p pointing to evgenctrl.
       uint8_t oldsreg = SREG;
       cli();
@@ -182,7 +182,7 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
         } else {
           r &= 0xF0;
         }
-        r |= bp
+        r |= bp;
       }
       *p = r;
       SREG = oldsreg;
@@ -191,7 +191,7 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
     return 255;
   }
   uint8_t _getPortEventConfig(uint8_t port) {
-    uint8_t temp = digitalPinToPort(pin)
+    volatile uint8_t* temp = (volatile uint8_t*)(uint16_t)portToPortStruct(port);
     return *(((uint8_t*) temp) + 0x18);
   } // just shorthand for looking up the port and returning it's EVGENCTRL value
 
@@ -263,7 +263,7 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
         return NOT_A_CHANNEL;
       }
     } else {
-      if (chan > 2) && chan != 255 {
+      if ((chan > 2) && (chan != 255)) {
         return NOT_A_CHANNEL;
       }
     }

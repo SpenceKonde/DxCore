@@ -380,7 +380,6 @@
   #define     _AVR_FAMILY       "EA"
   #define     _AVR_CLOCKMODE    (0x15) // Crap manual tuning, autotune, crystal, base clock in fuses like a tiny, supports RTC xtal.
   #define     _AVR_FLASHMODE    (1)
-  #warning "The AVR EA-series support should be considered alpha-grade at best - PLEASE report bugs!"
 #elif defined(__AVR_EB__)
   #define     _AVR_FAMILY       ("EB")
 //#define     _AVR_CLOCKMODE    (0x11) // (predicted - we get screwed here) Crap manual tuning, autotune, no crystal, base clock in fuses like tiny, RTC xtal
@@ -879,6 +878,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  *                                  continued for a while - no part with more than 3 USARTs is expected out before the EB's                      *
  * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.                                        *
  ************************************************************************************************************************************************/
+#define CORE_HAS_ERRORFUNS              (1) /* DxCore implements badArg and badCall */
 #define CORE_HAS_FASTIO                 (2)
 #define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
 #define CORE_HAS_PINCONFIG              (3) /* pinConfigure is now implemented                                      */
@@ -913,7 +913,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 #endif
 
 #define DEVICE_PORTMUX_TCA              (2) /* 1 = each wave output cannnel can be moved individually, like tinyAVRs
-                                             * 2 = all wave output channels move together
+                                             * 2 = all wave output channels move together. TCA1 if present is like a DA/DB
                                              * 3 - as above, but TCA1 has the 4th and 5th channel options*/
 #define CORE_DETECTS_TCA_PORTMUX        (2) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed
 //                                           * If this is 2, as above, but on TCA1, the three pin options are also recognized

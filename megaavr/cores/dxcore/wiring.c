@@ -1717,40 +1717,73 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 /********************************* ADC ****************************************/
 #if defined(ADC0)
   void __attribute__((weak)) init_ADC0() {
-    #if F_CPU >= 48000000
-      ADC0.CTRLC = ADC_PRESC_DIV48_gc; // 1 @ 48 MHz
-    #elif F_CPU >  40000000
-      ADC0.CTRLC = ADC_PRESC_DIV32_gc; // 1.25 @ 40 MHz
-    #elif F_CPU >= 36000000
-      ADC0.CTRLC = ADC_PRESC_DIV28_gc; // 1.286 @ 36 MHz
-    #elif F_CPU >  28000000
-      ADC0.CTRLC = ADC_PRESC_DIV24_gc; // 1.33 @ 32 MHz, 1.
-    #elif F_CPU >= 24000000
-      ADC0.CTRLC = ADC_PRESC_DIV20_gc; // 1.2 @ 24, 1.25 @ 25, 1.4 @ 28  MHz
-    #elif F_CPU >= 20000000
-      ADC0.CTRLC = ADC_PRESC_DIV16_gc; // 1.25 @ 20 MHz
-    #elif F_CPU >  12000000
-      ADC0.CTRLC = ADC_PRESC_DIV12_gc; // 1 @ 12, 1.333 @ 16 MHz
-    #elif F_CPU >= 8000000
-      ADC0.CTRLC = ADC_PRESC_DIV8_gc;  // 1-1.499 between 8 and 11.99 MHz
-    #elif F_CPU >= 4000000
-      ADC0.CTRLC = ADC_PRESC_DIV4_gc;  // 1 MHz
-    #else  // 1 MHz / 2 = 500 kHz - the lowest setting
-      ADC0.CTRLC = ADC_PRESC_DIV2_gc;
-    #endif
-    ADC0.SAMPCTRL = 14; // 16 ADC clock sampling time - should be about the same amount of *time* as originally?
-    // This is WAY conservative! We could drop it down...
-    ADC0.CTRLD = ADC_INITDLY_DLY64_gc; // VREF can take 50uS to become ready, and we're running the ADC clock
-    // at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
-    /* Enable ADC */
-    ADC0.CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
-    // start at 10 bit for compatibuility with existing code.
+    ADC_t* pADC;
+    _fastPtr_d(pADC, &ADC0);
+    #if !defined(ADC0_PGACTRL)
+      #if F_CPU >= 48000000
+        pADC->CTRLC = ADC_PRESC_DIV48_gc; // 1 @ 48 MHz
+      #elif F_CPU >  40000000
+        pADC->CTRLC = ADC_PRESC_DIV32_gc; // 1.25 @ 40 MHz
+      #elif F_CPU >= 36000000
+        pADC->CTRLC = ADC_PRESC_DIV28_gc; // 1.286 @ 36 MHz
+      #elif F_CPU >  28000000
+        pADC->CTRLC = ADC_PRESC_DIV24_gc; // 1.33 @ 32 MHz, 1.
+      #elif F_CPU >= 24000000
+        pADC->CTRLC = ADC_PRESC_DIV20_gc; // 1.2 @ 24, 1.25 @ 25, 1.4 @ 28  MHz
+      #elif F_CPU >= 20000000
+        pADC->CTRLC = ADC_PRESC_DIV16_gc; // 1.25 @ 20 MHz
+      #elif F_CPU >  12000000
+        pADC->CTRLC = ADC_PRESC_DIV12_gc; // 1 @ 12, 1.333 @ 16 MHz
+      #elif F_CPU >= 8000000
+        pADC->CTRLC = ADC_PRESC_DIV8_gc;  // 1-1.499 between 8 and 11.99 MHz
+      #elif F_CPU >= 4000000
+        pADC->CTRLC = ADC_PRESC_DIV4_gc;  // 1 MHz
+      #else  // 1 MHz / 2 = 500 kHz - the lowest setting
+        pADC->CTRLC = ADC_PRESC_DIV2_gc;
+      #endif
+      pADC->SAMPCTRL = 14; // 16 ADC clock sampling time - should be about the same amount of *time* as originally?
+      // This is WAY conservative! We could drop it down...
+      pADC->CTRLD = ADC_INITDLY_DLY64_gc; // VREF can take 50uS to become ready, and we're running the ADC clock
+      // at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
+      /* Enable ADC */
+      pADC->CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
+      // start at 10 bit for compatibuility with existing code.
 
-    #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
-      // That may become defined when DA-series silicon is available with the fix
-      ADC0.MUXPOS = 0x40;
-      ADC0.COMMAND = 0x01;
-      ADC0.COMMAND = 0x02;
+      #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+        // That may become defined when DA-series silicon is available with the fix
+        pADC->MUXPOS = 0x40;
+        pADC->COMMAND = 0x01;
+        pADC->COMMAND = 0x02;
+      #endif
+
+    #else
+      /* On the 2-series maximum with internal reference is 3 MHz, so we will
+       * target highest speed that doesn't exceed that and 16 ADC clocks sample
+       * duration. */
+      #if F_CPU     > 32000000            // 36 MHz /14 = 2.57 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV10_gc; // 33 MHz /14 = 2.35 MHz
+      #elif F_CPU  >= 30000000            // 32 MHz /12 = 2.67 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV12_gc; // 30 MHz /12 = 2.50 MHz
+      #elif F_CPU  >= 24000000            // 25 MHz /10 = 2.50 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV10_gc; // 24 MHz /10 = 2.40 MHz
+      #elif F_CPU  >= 20000000
+        pADC->CTRLB  = ADC_PRESC_DIV8_gc;  // 20 MHz / 8 = 2.50 MHz
+      #elif F_CPU  >= 16000000
+        pADC->CTRLB  = ADC_PRESC_DIV6_gc;  // 16 MHz / 6 = 2.67 MHz
+      #elif F_CPU  >= 12000000
+        pADC->CTRLB  = ADC_PRESC_DIV4_gc;  // 12 MHz / 4 = 3.00 MHz
+      #elif F_CPU  >=  6000000            // 10 MHz / 4 = 2.50 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV4_gc;  //  8 MHz / 4 = 2.00 MHz
+      #else                               //  5 MHz / 2 = 2.50 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV2_gc;  //  4 MHz / 2 = 2.00 MHz
+      #endif                              //  1 MHz / 2 =  500 kHz
+      pADC->CTRLE = 15; // 15.5 without PGA, 16 with PGA, corresponding to 7.75 or 8 us.
+      pADC->CTRLA = ADC_ENABLE_bm | ADC_LOWLAT_bm;
+      pADC->PGACTRL = ADC_PGABIASSEL_75PCT_gc;
+      /* Note that we don't *enable* it automatically in init().
+       * 3/4th bias is good up to 4.5 MHz CLK_ADC, 15 ADC Clocks to sample the PGA
+       * up to 5 MHz, so within the regime of speeds that have to be compatible
+       * with internal references, we are in the clear there. */
     #endif
     analogReference(VDD);
     DACReference(VDD);
@@ -2006,6 +2039,12 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       }
     #else
       #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
+    #endif
+    #if (F_CPU % 1000000)
+      // I hope this works for you, but you're in unsupported waters.
+      CLKCTRL.MCLKTIMEBASE = (F_CPU/1000000);
+    #else
+      CLKCTRL.MCLKTIMEBASE = (F_CPU/1000000) - 1; // I'm landing on the right side of the fencepost here right?
     #endif
   }
 #else

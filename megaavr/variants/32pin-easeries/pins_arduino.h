@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021-2022 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
+/*  (C) Spence Konde 2021-2023 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####   ###      ###   ##
@@ -13,8 +13,6 @@ with 32 pins.
 Part Numbers
 AVR64EA32 AVR32EA32 AVR16EA32 AVR8EA32
 
-Warning - NO CHANGES HAVE BEEN MADE TO SUPPORT THE EA PARTS!
-
 Include guard and include basic libraries. We are normally including this inside Arduino.h */
 
 #ifndef Pins_Arduino_h
@@ -22,7 +20,7 @@ Include guard and include basic libraries. We are normally including this inside
 #include <avr/pgmspace.h>
 #include "timers.h"
 
-#define EB_32PIN_PINOUT
+#define EA_32PIN_PINOUT
 
  /*##  ### #   #  ###
  #   #  #  ##  # #
@@ -103,28 +101,35 @@ Include guard and include basic libraries. We are normally including this inside
 #define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : ((port)== PF ? PIN_PF0 : NOT_A_PIN))))
 
 
-// PWM pins
+// Timer pin swaps
+#define TCA0_PINS (PORTMUX_TCA0_PORTF_gc)   // TCA0 output on PF[0:5] by default, but just write the portmux to change it
+#define TCA1_PINS (PORTMUX_TCA0_PORTA_gc)   // TCA1 output on PA[4:6]
+#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) instead of PF4
+#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) instead of PF4
+#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
+#define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
+
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA2)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
+#elif defined(MILLIS_USE_TIMERB2)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC1))
+#elif defined(MILLIS_USE_TIMERB3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
 #endif
 
-// Timer pin mapping
-#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default)
-#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default)
-#define TCE0_PINS (????)                      // What will the TCE/WEX look like?
-#define TCF0_PINS (0x02)                      // We will want to default the mapping with the timer outputs on PF4 and 5 most likely.
 
-#define PIN_TCB0_WO_INIT  (PIN_PA2)
-#define PIN_TCB1_WO_INIT  (PIN_PA3)
+#define PIN_TCA0_WO0_INIT PIN_PF0
+#define PIN_TCA1_WO0_INIT PIN_PA4
+#define PIN_TCB0_WO_INIT  PIN_PA2
+#define PIN_TCB1_WO_INIT  PIN_PA3
+#define PIN_TCB2_WO_INIT  PIN_PC0
+#define PIN_TCB3_WO_INIT  PIN_PC1
 
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
-#define NO_GLITCH_TIMERD0
-
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PD1 && (p) <= PIN_PD5) || ((p) >= PIN_PF0 && (p) < PIN_PF4))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PF0 && (p) <= PIN_PF6) || ((p) >= PIN_PA4 && (p) < PIN_PA7))
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
@@ -468,7 +473,7 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  6 PA6/SCK/AIN26
   NOT_ON_TIMER, //  7 PA7/SS/CLKOUT/AIN27
   TIMERB2,      //  8 PC0/AIN28
-  TIMERR3,      //  9 PC1/AIN29
+  TIMERB3,      //  9 PC1/AIN29
   NOT_ON_TIMER, // 10 PC2/AIN30
   NOT_ON_TIMER, // 11 PC3/AIN31
   NOT_ON_TIMER, // 12 PD0/AIN0
@@ -490,11 +495,4 @@ const uint8_t digital_pin_to_timer[] = {
 };
 
 #endif
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
-  #if CLOCK_SOURCE != 0
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
-  #else
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)
-  #endif
-  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD1) : NOT_A_PIN)
 #endif

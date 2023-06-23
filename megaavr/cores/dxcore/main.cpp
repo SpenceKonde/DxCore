@@ -13,7 +13,7 @@ void initVariant() __attribute__((weak));
  * initialize the variant, and specific variants would have their own implementation. But in practice
  * it seems to be instead used as an initialization callback that libraries can use to run code before
  * setup, like FreeRTOS - it would have been nice if the official API included such a callback. */
-void initVariant() { }
+
 
 void __attribute__((weak)) onPreMain();
 //void __attribute__((weak)) onPreMain() {

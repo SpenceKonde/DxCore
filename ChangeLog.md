@@ -6,12 +6,14 @@ These items are in addition to what was listed under changes already in release.
 * Enhancement: Fix pinout diagrams for DD-series.
 * Enhancement: Pull in support for EA-series ADC.
 * Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
-* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available. With th
+* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
 
 ## Changes implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
 
-### Planned 1.5.7
+## Releases
+
+### 1.5.8
 * Bugfix - Change clockCyclesToMicroseconds, microsecondsToClockCycles, and clockCyclesPerMicrosecond back into macros instead of inlinable functions, as some libraries depend on them being valid constexprs.
 * Bugfix - pinModeFast will now turn off pullups if they're on when a pin is set to output. otherwise, the result was problemaic for - for example, a situation I ran into where the pullup was never turned off even after the pins were set back to output and driven low. Prior to going to deep sleep. You can imagine what my battery life was like.
 * Bugfix (serious) - ensure that compilation will succeed on Optiboot DD-series devices.
@@ -28,7 +30,8 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - Flash.h wasn't recognizing recent version of the bootloader.
 * Bugfix - Remove the stupid dummy app from the optiboot source (it was totally unnecessary)
 
-## Releases
+### 1.5.7 - release botched, and github does not allow a release to have the same version as a previous one, even if you noticed your error within seconds and deleted it. Not all the fixes had been committed!
+
 ### 1.5.6
 * **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here.
 * **Critical Bugfix** - TCA PWM worked on some 32-pin parts but not others, and there appears to be a difference between the behavior of TCA0 on DB and DD devices - DD TCA0 overrides the PORT. DB TCAs do not. The datsheets say it should not override port direction, but the behavior has been moving away from that instead of towards that.

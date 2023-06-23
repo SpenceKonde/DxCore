@@ -385,7 +385,8 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
   #define TCB_CLKSEL_DIV1_gc TCB_CLKSEL_CLKDIV1_gc
 #endif
 
-
+#define CHANNEL0_UNCHANGED    (0x40)
+#define CHANNEL1_UNCHANGED    (0x41)
 
 #ifdef __cplusplus
   extern "C"{
@@ -624,7 +625,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   uint8_t _getPortEventConfig(uint8_t port); // just shorthand for looking up the port and returning it's EVGENCTRL value
   uint8_t _setRTCEventChan(uint8_t vail, uint8_t chan); // number is 0, 1 or 255 like above, div is log(2) of the divisor (ie, for 2^5, his would be 5).
   uint8_t _getRTCEventConfig(); //simply returns the RTC channel configuration. Will likely return 255 if called on non Ex
-  uint8_t _RTCPrescaleToVal(uint16_t prescale)
+  uint8_t _RTCPrescaleToVal(uint16_t prescale);
   #endif
 #ifdef __cplusplus
 } // extern "C"
@@ -982,10 +983,17 @@ void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const M
 
 
 
+
 // Spence Konde: This is a bit silly - but it does have some utility. I am of the
 // opinion that anything that needs to use a serial port or other peripheral of
 // which a chip may have several, and it needs to be sure to pick the "right" one
 // it should ASK THE USER - what good does it do that the GPS picked the first
 // open serial port, if the user tied it to a different port? Or thought they
 // were going to use software serial "like they always did" (*shudder*)
+
+
+#if defined(ARDUINO_MAIN) && defined(__AVR_EA__)
+  #warning "The AVR EA-series support should be considered alpha-grade at best - PLEASE report bugs!"
+#endif
+
 #endif
