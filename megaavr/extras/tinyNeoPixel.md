@@ -148,6 +148,8 @@ A very brief summary of the API functions present in and essentially unmodified 
 
 `show()` Output the contents of the pixel buffer to the LEDs
 
+`show(uint16_t n)` **New Feature** Output the contents of the first n pixels in the bufer to the LEDs.
+
 `setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b)` set the color of pixel `n` to the color `r,g,b` (for RGB LEDs)
 
 `setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b, uint8_t w)` set the color of pixel `n` to the color `r,g,b,w` (for RGBW LEDs)
@@ -168,7 +170,7 @@ A very brief summary of the API functions present in and essentially unmodified 
 
 `updateType(neoPixelType_t)` Set the color order and number of colors per pixel. Not available on tinyNeoPixel_Static.
 
-`updateLatch(uint16_t time)` On some pixels, the time needed for the colors to latch is as short as six microseconds. While you aren't going to notice 50 us delays when using 6us latching pixels, if the pattern is small and you're sending it as fast as you can, if you have 250us pixels, you might not have 250 us pauses. That would prevent the LEDs from latching properly (or if there is never a long enough pause, at all). Remember 250 us = up to 12000 system clock cycles (on the highest speed overclocked part we support, an AVR Dx-series @ 48 MHz). This function will set the number of microseconds, minimum, after one call to send() has finished before calling send again will have any effect. *This feature is not available if millis is disabled. since it must be able t
+`updateLatch(uint16_t time)` On some pixels, the time needed for the colors to latch is as short as six microseconds. While you aren't going to notice 50 us delays when using 6us latching pixels, if the pattern is small and you're sending it as fast as you can, if you have 250us pixels, you might not have 250 us pauses. That would prevent the LEDs from latching properly (or if there is never a long enough pause, at all). Remember 250 us = up to 12000 system clock cycles (on the highest speed overclocked part we support, an AVR Dx-series @ 48 MHz). This function will set the number of microseconds, minimum, after one call to send() has finished before calling send again will have any effect. *This feature is not available if millis is disabled.*
 
 `getPixels()` Returns a pointer to the pixel buffer (a uint_8 array); note that this is the same pointer that you passed the constructor if using tinyNeoPixel_Static, and so calling this function just to get a pointer to a global variable is silly in most use cases.
 
@@ -195,6 +197,7 @@ setBrightness was, IMO, a terrible idea. I mean it's a great idea when you aren'
 
 ## Pixel order constants
 In order to specify the order of the colors on each LED, the third argument passed to the constructor should be one of these constants; a define is provided for every possible permutation, however only a small subset of those are widespread in the wild. GRB is by FAR the most common. No, I don't know why either, but I wager there it wasn't random; the human visual system does some surprising things with light and color, and mankind has been figuring out how to make the most of those unexpected factors since we first started painting on cave walls.
+
 ### For RGB LEDs
 ```c++
     NEO_RGB /* Less common than you'd think */
