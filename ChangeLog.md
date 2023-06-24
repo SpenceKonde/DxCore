@@ -29,6 +29,7 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - Correct bootloaders for 32k DA, DB, DD parts, which had been incorrectly reporting the signature of the chip.
 * Bugfix - Flash.h wasn't recognizing recent version of the bootloader.
 * Bugfix - Remove the stupid dummy app from the optiboot source (it was totally unnecessary)
+* Azduino7 Toolchain package.
 
 ### 1.5.7 - release botched, and github does not allow a release to have the same version as a previous one, even if you noticed your error within seconds and deleted it. Not all the fixes had been committed.
 
