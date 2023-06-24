@@ -118,27 +118,27 @@ void tinyNeoPixel::updateType(neoPixelType t) {
 }
 
 // *INDENT-OFF*   astyle don't like assembly
+#if (PROGMEM_SIZE > 4096UL)
+
 void tinyNeoPixel::show(void) {
-  show(numLEDs);
+  show(0);
 }
 void tinyNeoPixel::show(uint16_t leds) {
-  uint16_t bytes;
-  if (numLEDs <= leds) {
-    bytes = numBytes;
-  } else if (!leds) {
-    return;
-  } else {
-    bytes = leds << 1;
+  volatile uint16_t i = numBytes;;
+  if (!(numLEDs <= leds || !leds)) {
     if (wOffset == rOffset) {
-      bytes += leds;
+      i = leds + leds + leds;
     } else {
-      bytes <<= 1;
+      i = leds << 2;
     }
   }
   if ((!pixels) || pin >= NUM_DIGITAL_PINS)  {
     return;
   }
-
+#else
+  void tinyNeoPixel::show(void) {
+    volatile uint16_t i   = numBytes; // Loop counter
+#endif
   // Data latch = 50+ microsecond pause in the output stream.  Rather than
   // put a delay at the end of the function, the ending time is noted and
   // the function will simply hold off (if needed) on issuing the
@@ -206,8 +206,6 @@ void tinyNeoPixel::show(uint16_t leds) {
   // run at those speeds, only that - if they do - you can control WS2812s
   // with them.
 
-  volatile uint16_t
-    i   = bytes; // Loop counter
   volatile uint8_t
    *ptr = pixels,   // Pointer to next byte
     b   = *ptr++,   // Current byte value
