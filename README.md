@@ -1,8 +1,7 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5.7 - EA "support" in beta form is now available
-This is a very generous definition of the word - The first version where it is believed to be fully working will be numbered 1.6.0, and within a few patch versions of that, it likely will be.
-
+## 1.5.8 - EA "support" in beta form is now available in a release
+This version has been confirmed to compile Bare Minimum for all EA.
 There are lots of issues impacting this currently and I'm not going to even start listing them here, but make issues if you don't see em.
 Expect particular issues with:
 * TCA1 PWM, particularly where `TCAROUTEA & 0x00111000 != 0`
@@ -10,6 +9,11 @@ Expect particular issues with:
 * analogRead(), analogReadResolution(), analogPowerOptions(), analogReadEnh(), and analogReadDiff()
 * The new clock system screws us in three ways - We have the 5-bit tuning register that has all the granularity of a boulder pit (seriously, they have that autotune feature, and then squander it with the poor granularity of the tuning! Whyyyyyyy!?), we have our clock speeds fixed to 16 or 20 base speed like tinyAVRs. This suggests that the chips will also cap out at around 32 MHz, and even if they don't, there's this timebase register that needs to be set such that TIMEBASE+1 clock cycles = 1 us. And it's got 5 bits, so beyond 32 MHz anything that relies on timebase would start to malfunction anyway.
 * Flash.h is not supposed to work on it - it needs a different library, and to write when optiboot is not in use will require a novel implementation, while writing via optiboot will require optiboot to work, which will not be easy - that the first EA's are impacted by excruciatingly severe silicon bugs that make writing to nvm more complicated makes this significantly more challenging
+
+## WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES
+I thought I had a tool contributed, but I don't think I ever got the final version, nor do I have any of the images.
+
+We are now TWO GENERATIONS OF CHIPS behind the eight ball on pinout diagrams. I have not the talent for making them.
 
 
 ### Optiboot for EA does not look encouraging
@@ -21,7 +25,7 @@ Before the errata, I was pretty sure that it would be part definitions and a few
 > * A Clear Page Buffer command
 > * A device wake-up from any sleep mode
 > Note: **Any operation on the page buffer will halt the CPU** until the previous NVMCTRL operation (command) is completed.
-> © 2022 Microchip Technology Inc and its subsidiaries. Preliminary Data Sheet DS40002443A
+
 
 Emphasis mine, in other words, since erase write is broken per errata, we have to do an erase, then a write, and we can't start the former until the data for the latter is coming at us.
 
@@ -64,30 +68,37 @@ This is an Arduino core to support the exciting new AVR DA, DB, and DD-series mi
 For a basic overview of the parts and a comparison table, see [General AVR Dx-series and Ex-series information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/AboutDxSeries.md)
 
 ## Supported Parts (click link for pinout diagram and details)
-Note that you must install via board manager or replace your tool chain with the azduino4 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in some of the earliest-shipped AVR32DA parts not acknowledge properly by Microchip - 50% of interrupts would execute the address of the jump call as an instruction, and the result a useless chip. These defective chips were recalled in what must have cost a fortune, then fixed without incrementing the die rev, and is not mentioned anywhere other than some posts on avr freaks from one of their senior engineers telling people with bad chips to contact support. These bad parts have not been shipping for almost 3 years.  Note that this is *not* listed on any official material!
-* [AVR128DA28, AVR64DA28, AVR32DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)
-* [AVR128DA32, AVR64DA32, AVR32DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)
-* [AVR128DA48, AVR64DA48, AVR32DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md)
-* [AVR128DA64, AVR64DA64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)
-* [AVR128DB28, AVR64DB28, AVR32DB28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md)
-* [AVR128DB32, AVR64DB32, AVR32DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md)
-* [AVR128DB48, AVR64DB48, AVR32DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md)
-* [AVR128DB64 and AVR64DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md)
-* [AVR64DD14, AVR32DD14, AVR16DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md)
-* [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md) (Better pinouts chart for QFN coming)
-* [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md) (Better pinouts chart for QFN coming)
-* [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md) (Better pinouts chart for QFN coming)
-* AVR64EA28, AVR32EA28, AVR16EA28, AVR8EA28 (pending creation of diagrams and more info on parts)
-* AVR64EA32, AVR32EA32, AVR16EA32, AVR8EA32 (pending creation of diagrams and more info on parts)
-* AVR64EA48, AVR32EA48, AVR16EA48, AVR8EA48 (pending creation of diagrams and more info on parts)
-* AVR32DU14, AVR16DU14 (pending release - `*`)
-* AVR32DU20, AVR16DU20 (pending release - `*`)
-* AVR64DU28, AVR32DU28, AVR16DU28 (pending release)
-* AVR64DU32, AVR32DU32, AVR16DU32 (pending release)
-* AVR32EB14, AVR16EB14, AVR8EB14 (pending release)
-* AVR32EB20, AVR16EB20, AVR8EB20 (pending release)
-* AVR32EB28, AVR16EB28, AVR8EB28 (pending release)
-* AVR32EB32, AVR16EB32, AVR8EB32 (pending release)
+Note that you must install via board manager or replace your tool chain with the azduino4 version pulled in by board manager in order to work with anything other than an AVR128DA. Note also that there is a defect in some of the earliest-shipped AVR32DA parts not acknowledge properly by Microchip; those parts do not correctly use interrupts and are not functional. They are not supported. They cannot be readily distinguished other than by noticing that interrupts do not work, and complaining to Microchip support with the lot number. Likely they'll give you new ones if you've got bad AVR32DA's
+
+All of the pinout diagrams have gotten really ugly from my MS-paint hacking, and some of them don't exist at all. Please help.
+
+* [AVR128DA28, AVR64DA28, AVR32DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md) (Need help with better pinout charts!)
+* [AVR128DA32, AVR64DA32, AVR32DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md) (Need help with better pinout charts!)
+* [AVR128DA48, AVR64DA48, AVR32DA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md) (Need help with better pinout charts!)
+* [AVR128DA64, AVR64DA64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)  (Need help with better pinout charts!)
+* [AVR128DB28, AVR64DB28, AVR32DB28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB28.md) (Need help with better pinout charts!)
+* [AVR128DB32, AVR64DB32, AVR32DB32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB32.md) (Need help with better pinout charts!)
+* [AVR128DB48, AVR64DB48, AVR32DB48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB48.md) (Need help with better pinout charts!)
+* [AVR128DB64 and AVR64DB64](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DB64.md) (Need help with better pinout charts!)
+* [AVR64DD14, AVR32DD14, AVR16DD14](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD14.md) (Need help with better pinout charts!)
+* [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md) (Need help with better pinout charts!)
+* [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md) (Need help with better pinout charts!)
+* [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md) (Need help with better pinout charts!)
+* [AVR64EA28, AVR32EA28, AVR16EA28, *AVR8EA28*](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EA28.md) (Need help with any pinout charts!)
+* [AVR64EA32, AVR32EA32, AVR16EA32, *AVR8EA32*](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EA32.md) (Need help with any pinout charts!)
+* [AVR64EA48, AVR32EA48, AVR16EA48](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EA48.md) (Need help with any pinout charts!)
+* [*AVR32DU14, AVR16DU14* (pending release - `*`)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU14.md) (Need help with any pinout charts!)
+* [*AVR32DU20, AVR16DU20* (pending release - `*`)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU20.md) (Need help with any pinout charts!)
+* [*AVR64DU28, AVR32DU28, AVR16DU28* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU28.md) (Need help with any pinout charts!)
+* [*AVR64DU32, AVR32DU32, AVR16DU32* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU32.md) (Need help with any pinout charts!)
+* [*AVR32EB14, AVR16EB14, AVR8EB14* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB14.md)
+* [*AVR32EB20, AVR16EB20, AVR8EB20* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB20.md)
+* [*AVR32EB28, AVR16EB28, AVR8EB28* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB28.md)
+* [*AVR32EB32, AVR16EB32, AVR8EB32* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB32.md)
+
+Part names *in italics* denote parts for which support is not yet available, as they are future products and no silicon is available.
+
+Everything needed to make DU pinout charts is currently known. I've been told it is coming, possibly by the end of the year. But he didn't actually specify which year, and no matter when it comes out, it will come out before the end of the year in the year that it's released...
 
 `*` On the DD they (likely) weren't able to fit the 64k die into a QFN20. appears true here too. Unclear whether 64k DU14 was scrubbed because it made it's 20-pin counterpart look fat, or or it's 20-pin counterpart wasn't going to exist and they didn't want a hole in the product line. Or maybe someone realized that after USB and power, UPDI and reset, there were only 7 available pins left. It may not entirely make sense to offer something with 64k of flash and only 7 available pins.
 
@@ -105,7 +116,7 @@ These are packages, that when offered, open up new frontiers
 |       28 |    VQFN | A normal VQFN, but the price point is really nice on the DD's.
 
 ## Supported Clock Speeds
-### For the DA, DB, and DD-series parts
+### For the DA, DB, DD and DU-series parts
 The maximum rated spec is 24 MHz **across the entire voltage and temperature range.**
 
 The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating).For compatibility with tinyAVR, we also offer 5/10 MHz (generated by dividing 20 MHz).
@@ -120,7 +131,7 @@ These parts overclock very well. Like insanely very well. Many parts will run at
 
 If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported. The tuning is based on the intermediate 1 MHz frequency from which all others are derived.
 
-The DU - assuming it ever exists in the form presented in the briefly available product brief, will likely be similar to the other Dx parts. It is highly likely - though not certain, they've been doing more with multiple clock domains on these recent parts - that only a limited number of speeds will be compatible with USB. Because all indications are that it has made great sacrifices in exchange for the USB, and hence would not be likely to see use in non-USB applications, chances are that we will only offer support for USB-compatible speeds, because if you aren't using USB, the other parts in the Dx-series would be more appropriate and effective.
+The DU will likely be similar to the other Dx parts. It is highly likely - though not certain, they've been doing more with multiple clock domains on these recent parts - that only a limited number of speeds will be compatible with USB. Because all indications are that it has made great sacrifices in exchange for the USB, and hence would not be likely to see use in non-USB applications, chances are that we will only offer support for USB-compatible speeds, because if you aren't using USB, the other parts in the Dx-series would be more appropriate and effective.
 
 `*` Speeds over 32 MHz prevent the OPAMP settling time from being set correctly.
 `**` Speeds of 40 MHz may or may not be achievable on I-spec parts at room temperature. Try to get E-spec parts if you plan to overclock, especially that much
@@ -223,6 +234,9 @@ Because the EB will not have MVIO, it will not need VDDIO2, hence it will have P
 
 ### Link-time Optimization (LTO) support
 This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the modern tinyAVR or Dx-series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in code size when introduced, typically on the order of 5-20%!
+
+### So we can do HV UPDI on the DD's?
+Well, in theory yes. A sharp eyed user pointed out that the datasheet specifies a lower absolute maximum on the Reset pin (where the HV pulse is to be directed) than the HV pulse was supposed to require (12V). I figured that was probably just a documentation error, but to humor him I asked my guy at Microchip. He indicated that actually it's a new I/O cell, voltage doesn't matter, energy does (and how the hell am I supposed to measure that and what is the target?), and left me unsure how one would go about programming one wit HV UPDI. I don't recommend it until we can beat some more information out of Microchip.
 
 ## Exposed Hardware Features
 To the greatest extent possible, all hardware features of these devices are exposed
@@ -339,7 +353,7 @@ See the [**Interrupt reference**](https://github.com/SpenceKonde/DxCore/blob/mas
 ### Additional supported peripherals
 These parts have a great many powerful peripherals far beyond what the classic AVRs did, and we provide a simple wrapper library around them when we think doing so is useful.
 
-#### On-chip Op-amps \
+#### On-chip Op-amps
 The DB-series parts have 2 (28 or 32 pin) or 3 (48/64 pin) on-chip op-amps, with programmable resistor ladder, configurable for a variety of applications. They can be used as a voltage follower (you can follow the DAC and then use the output to drive VDDIO2, though the current is still only tens of mA, that's often enough - driving heavy loads at the lower voltage is an unusual use case which requires a separate power supply; many sensors exist now with maximum voltage below 3.3V and draw very little current. This is a good use case for it.)
 
 We provide a basic wrapper in the form of the [**Opamp Library**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Opamp) by MCUDude.
@@ -414,7 +428,7 @@ Unlike the tinyAVR 0/1/2-series and megaAVR 0-series parts, which are able to ma
 See [**PROGMEM and mapped flash reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_PROGMEM.md) for information on how to store constant variables in the mapped sections of flash.
 
 ### Writing to Flash from App
-It is possible to write to the flash from the application code using the included Flash.h library. See the documentation for more information. Note that the API is completely different in every way from the Flash.h used on MegaCoreX and megaTinyCore (which use the same flash library). They were developed independently and reflect both the differences between the two NVM controllers and the differing programming ideologies of the author of the libraries. I make no claim that mine is better, though I note that at the time, I didn't believe it would be possible to get that behavior. I was barely able to find the 4 bytes of flash in the bootloader section that this needs!
+It is possible to write to the flash from the application code using the included Flash.h library. See the documentation for more information. Note that the API is completely different in every way from the Flash.h used on MegaCoreX and megaTinyCore (which use the same flash library). They were developed independently and reflect both the differences between the two NVM controllers and the differing programming ideologies of the author of the libraries. I make no claim that mine is better, though I note that at the time, I didn't believe it would be possible to get that behavior. I was barely able to find the 4 bytes of flash in the bootloader section that this needs! Dx-series only, and does not require optiboot.
 See the [**Flash Library Documentation**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/Flash/README.md)
 
 ### Servo Support
