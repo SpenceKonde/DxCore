@@ -31,7 +31,8 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - Remove the stupid dummy app from the optiboot source (it was totally unnecessary)
 * Azduino7 Toolchain package.
 
-### 1.5.7 - release botched, and github does not allow a release to have the same version as a previous one, even if you noticed your error within seconds and deleted it. Not all the fixes had been committed.
+### 1.5.7 - release botched
+Github does not allow a release to have the same version as a previous one, even if you noticed your error within seconds and deleted it. Not all the fixes had been committed
 
 ### 1.5.6
 * **Critical Bugfix** - analogWrite was totally hosed on all parts and would rarely output values. A number of distinct bugs were involved here.

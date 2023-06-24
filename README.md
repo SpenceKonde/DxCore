@@ -15,6 +15,10 @@ I thought I had a tool contributed, but I don't think I ever got the final versi
 
 We are now TWO GENERATIONS OF CHIPS behind the eight ball on pinout diagrams. I have not the talent for making them.
 
+## WE HAVE ANOTHER PROBLEM: Our link checker is blocked by Microchip
+This means we have no way to check if a link is valid. Have reached out to my guy at Microchip to seeif anything can be done.
+
+We may be forced to remove all links to their website which would suck.
 
 ### Optiboot for EA does not look encouraging
 Before the errata, I was pretty sure that it would be part definitions and a few lines of logic change in optiboot_x. oh ho ho no. No such luck, cause we can't do a bloody erase+write, the optiboot protocol doesn't know where a given page is going to be written (hence where to erase) to until the first bytes of the blob of data that was sent to it is hurtling towards it, and see the quoted section of the datasheet below. I am praying for an early die rev.
