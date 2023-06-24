@@ -115,6 +115,31 @@ These are packages, that when offered, open up new frontiers
 |       20 |3x3 VQFN | As above. Generally insanely tiny, though often large flash sizes don't make it in.
 |       28 |    VQFN | A normal VQFN, but the price point is really nice on the DD's.
 
+### Quick Summary
+| Feature   | t0 | t1 | t2 | DA | DB | DD | EA | DU | EB |
+|-----------|----|----|----|----|----|----|----|----|----|
+| Max Flash | 16 | 32 | 32 |128 | 128| 64 | 64 | 64 | 32 |
+| Min Flash | 2  | 2  | 4  | 32 | 32 | 16 | 8  | 16 | 8  |
+| Max RAM   | 1  | 2  | 3  | 16 | 16 | 8  | 6  | 8  | 3  |
+| Pins max  | 24 | 24 | 24 | 64 | 64 | 32 | 48 | 32 | 32 |
+| Pins min  | 8  | 8  | 14 | 28 | 28 | 14 | 28 | 14 | 14 |
+| EEPROM    | 256| 256| 256| 512| 512| 256| 512| 512| 512|
+| USERROW   | 32 | 32 | 32 | 32 | 32 | 32 | 64 | 512| 64 |
+| BOOTROW   | -  | -  | -  | -  | -  | -  | -  | 64 | 64 |
+| TCA's     | 1  | 1  | 1  | 2  | 2  | 1  | 2  | 1  | 0  |
+| TCB's     | 1  | 2  | 2  | 5  | 5  | 3  | 4  | 2  | 2  |
+| TCD's     | -  | 1  | -  | 1  | 1  | 1  | -  | -  | -  |
+| TCE's     | -  | -  | -  | -  | -  | -  | -  | -  | 1  |
+| TCF's     | -  | -  | -  | -  | -  | -  | -  | -  | 1  |
+| CCL       | 4  | 4  | 4  | 6  | 6  | 4  | 4  | 4  | 4  |
+| MVIO      | -  | -  | -  | -  | X  | X  | -  | -  | -  |
+| EVSYS     | 3  | 6  | 6  | 10 | 10 | 6  | 6  | 6  | 6  |
+| ADC bits  | 10 | 10 | 12 | 12 | 12 | 12 | 12 | 12 | 12 |
+| Has PGA   | -  | -  | X  | -  | -  | -  | X  | -  | X  |
+| Released  | X  | X  | X  | X  | X  | X  |some| -  | -  |
+| USB       | -  | -  | -  | -  | -  | -  | -  | X  | -  |
+
+
 ## Supported Clock Speeds
 ### For the DA, DB, DD and DU-series parts
 The maximum rated spec is 24 MHz **across the entire voltage and temperature range.**
@@ -236,7 +261,7 @@ Because the EB will not have MVIO, it will not need VDDIO2, hence it will have P
 This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the modern tinyAVR or Dx-series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in code size when introduced, typically on the order of 5-20%!
 
 ### So we can do HV UPDI on the DD's?
-Well, in theory yes. A sharp eyed user pointed out that the datasheet specifies a lower absolute maximum on the Reset pin (where the HV pulse is to be directed) than the HV pulse was supposed to require (12V). I figured that was probably just a documentation error, but to humor him I asked my guy at Microchip. He indicated that actually it's a new I/O cell, voltage doesn't matter, energy does (and how the hell am I supposed to measure that and what is the target?), and left me unsure how one would go about programming one wit HV UPDI. I don't recommend it until we can beat some more information out of Microchip.
+Well, in theory yes. A sharp eyed user pointed out that the datasheet specifies a lower absolute maximum on the Reset pin (where the HV pulse is to be directed) than the HV pulse was supposed to require (12V). I figured that was probably just a documentation error, but to humor him I asked my guy at Microchip. He indicated that actually it's a new I/O cell, voltage doesn't matter, energy does (and how the hell am I supposed to measure that and what is the target?), and left me unsure how one would go about programming one with HV UPDI. I don't recommend it until we can beat some more information out of Microchip.
 
 ## Exposed Hardware Features
 To the greatest extent possible, all hardware features of these devices are exposed
