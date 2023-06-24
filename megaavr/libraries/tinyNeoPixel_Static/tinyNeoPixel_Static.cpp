@@ -75,8 +75,24 @@ void tinyNeoPixel::updateLatch(uint16_t us) {
 }
 
 // *INDENT-OFF*   astyle don't like assembly
-void tinyNeoPixel::show(void) {
 
+void tinyNeoPixel::show(void) {
+  show(numLEDs);
+}
+void tinyNeoPixel::show(uint16_t leds) {
+  uint16_t bytes;
+  if (numLEDs <= leds) {
+    bytes = numBytes;
+  } else if (!leds) {
+    return;
+  } else {
+    bytes = leds << 1;
+    if (wOffset == rOffset) {
+      bytes += leds;
+    } else {
+      bytes <<= 1;
+    }
+  }
   if ((!pixels) || pin >= NUM_DIGITAL_PINS)  {
     return;
   }
@@ -149,7 +165,7 @@ void tinyNeoPixel::show(void) {
   // with them.
 
   volatile uint16_t
-    i   = numBytes; // Loop counter
+    i   = bytes; // Loop counter
   volatile uint8_t
    *ptr = pixels,   // Pointer to next byte
     b   = *ptr++,   // Current byte value
@@ -844,36 +860,35 @@ void tinyNeoPixel::show(void) {
     bit  = 8;
 
     asm volatile(
-     "_head32:"                   "\n\t" // Clk  Pseudocode    (T =  0)
-      "st   %a[port],  %[hi]"    "\n\t" // 1    PORT = hi     (T =  1)
-      "sbrc %[byte],  7"         "\n\t" // 1-2  if (b & 128)
-       "mov  %[next], %[hi]"     "\n\t" // 0-1   next = hi    (T =  3)
-      "dec  %[bit]"              "\n\t" // 1    bit--         (T =  4)
-      "rcall _zerothdelay32"      "\n\t" // 2+4=6
-      "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T = 11)
-      "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T = 12)
-      "rcall _firstdelay32"       "\n\t" // 2+4+1+2 = 9        (T = 21)
-      "breq _nextbyte32"          "\n\t" // 1-2  if (bit == 0) (from dec above)
-      "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 22)
-      "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 23)
-      "rcall _seconddelay32"      "\n\t" // 2+4+6+3=15         (T = 38)
-      "rjmp _head32"              "\n\t" // 2    -> head20 (next bit out)
-     "_seconddelay32:"            "\n\t" // second delay 15 cycles
-     "rcall _zerothdelay32"       "\n\t" // 2+4=6
-      "nop"                      "\n\t" // 1    nop
-     "_firstdelay32:"             "\n\t" // first delay 9 cycles
-      "nop"                      "\n\t" // 1    nop
-     "_thirddelay32:"             "\n\t" // third delay 8 cycles
-      "nop"                      "\n\t" // 1    nop
-     "_zerothdelay32:"            "\n\t" // zeroth delay 6 cycles
-      "ret"                      "\n\t" // 4
-     "_nextbyte32:"               "\n\t" // last bit of a byte (T = 23)
-      "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 24)
-      "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 26)
-      "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 28)
-      "rcall _thirddelay32"       "\n\t" // 2+4+1+1 = 8        (T = 36)
-      "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 38)
-      "brne _head32"              "\n"   // 2    if (i != 0) -> (next byte)  ()
+     "_head32:"                   "\n\t"  // Clk  Pseudocode    (T =  0)
+      "st   %a[port],  %[hi]"    "\n\t"   // 1    PORT = hi     (T =  1)
+      "sbrc %[byte],  7"         "\n\t"   // 1-2  if (b & 128)
+       "mov  %[next], %[hi]"     "\n\t"   // 0-1   next = hi    (T =  3)
+      "dec  %[bit]"              "\n\t"   // 1    bit--         (T =  4)
+      "rcall _zerothdelay32"      "\n\t"  // 2+4=6
+      "st   %a[port],  %[next]"  "\n\t"   // 1    PORT = next   (T = 11)
+      "mov  %[next] ,  %[lo]"    "\n\t"   // 1    next = lo     (T = 12)
+      "rcall _firstdelay32"       "\n\t"  // 2+4+1+2 = 9        (T = 21)
+      "breq _nextbyte32"          "\n\t"  // 1-2  if (bit == 0) (from dec above)
+      "rol  %[byte]"             "\n\t"   // 1    b <<= 1       (T = 22)
+      "st   %a[port],  %[lo]"    "\n\t"   // 1    PORT = lo     (T = 23)
+      "rcall _seconddelay32"      "\n\t"  // 2+4+6+3=15         (T = 38)
+      "rjmp _head32"              "\n\t"  // 2    -> head20 (next bit out)
+     "_seconddelay32:"            "\n\t"  // second delay 15 cycles
+     "rcall _zerothdelay32"       "\n\t"  // 2+4=6
+     "_firstdelay32:"             "\n\t"  // first delay 9 cycles
+      "nop"                      "\n\t"   // 1    nop
+     "_thirddelay32:"             "\n\t"  // third delay 8 cycles
+      "rjmp .+0"                  "\n\t"   // 1    nop
+     "_zerothdelay32:"            "\n\t"  // zeroth delay 6 cycles
+      "ret"                      "\n\t"   // 4
+     "_nextbyte32:"               "\n\t"  // last bit of a byte (T = 23)
+      "st   %a[port], %[lo]"     "\n\t"   // 1    PORT = lo     (T = 24)
+      "ldi  %[bit]  ,  8"        "\n\t"   // 1    bit = 8       (T = 26)
+      "ld   %[byte] ,  %a[ptr]+" "\n\t"   // 2    b = *ptr++    (T = 28)
+      "rcall _thirddelay32"       "\n\t"  // 2+4+2 = 8        (T = 36)
+      "sbiw %[count], 1"         "\n\t"   // 2    i--           (T = 38)
+      "brne _head32"              "\n"    // 2    if (i != 0) -> (next byte)  ()
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -967,7 +982,7 @@ void tinyNeoPixel::show(void) {
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 30)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 31)
       "rcall _seconddelay40"      "\n\t" // 2+4+3+2+3=17       (T = 48)
-      "rjmp head40"              "\n\t" // 2    -> head20 (next bit out)
+      "rjmp _head40"              "\n\t" // 2    -> head20 (next bit out)
      "_seconddelay40:"            "\n\t" // second delay 17 cycles
       "nop"                      "\n\t" // 1    nop
       "rjmp .+0"                 "\n\t" // 2
