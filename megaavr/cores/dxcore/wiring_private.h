@@ -40,6 +40,7 @@ extern uint8_t __PeripheralControl;
 uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, unsigned long maxloops);
 
 typedef void (*voidFuncPtr)(void);
+typedef uint8_t (*byteFuncPtr)(void);
 
 #ifndef CORE_ATTACH_OLD
   void __attribute__((naked)) __attribute__((noreturn)) isrBody();

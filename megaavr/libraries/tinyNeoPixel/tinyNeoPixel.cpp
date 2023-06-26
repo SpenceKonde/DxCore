@@ -590,10 +590,11 @@ void tinyNeoPixel::show(uint16_t leds) {
       "_bitTime10:"               "\n\t" //      nop nop nop     (T =  4)
        "st   %a[port], %[next]"   "\n\t" // 1    PORT = next     (T =  5)
        "mov  %[next], %[lo]"      "\n\t" // 1    next = lo       (T =  6)
-       "rol  %[byte]"             "\n\t" // 1    b <<= 1         (T =  7)
+       "lsl  %[byte]"             "\n\t" // 1    b <<= 1         (T =  7)
        "sbrc %[byte], 7"          "\n\t" // 1-2  if (b & 0x80)    (T =  8)
         "mov %[next], %[hi]"      "\n\t" // 0-1   next = hi      (T =  9)
        "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo       (T = 10)
+       "ret"                      "\n\t" // 4    return to above where we called from
        "_done10:"                 "\n"
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
@@ -658,11 +659,12 @@ void tinyNeoPixel::show(uint16_t leds) {
       "_bitTime12:"               "\n\t" //      nop nop nop     (T =  4)
        "st   %a[port], %[next]"   "\n\t" // 1    PORT = next     (T =  5)
        "mov  %[next], %[lo]"      "\n\t" // 1    next = lo       (T =  6)
-       "rol  %[byte]"             "\n\t" // 1    b <<= 1         (T =  7)
+       "lsl  %[byte]"             "\n\t" // 1    b <<= 1         (T =  7)
        "sbrc %[byte], 7"          "\n\t" // 1-2  if (b & 0x80)    (T =  8)
         "mov %[next], %[hi]"      "\n\t" // 0-1   next = hi      (T =  9)
        "nop"                      "\n\t" // 1                    (T = 10)
        "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo       (T = 11)
+       "ret"                      "\n\t" // 4    return to above where we called from
        "_done12:"                 "\n"
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
