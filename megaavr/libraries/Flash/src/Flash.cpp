@@ -79,28 +79,26 @@ uint8_t FlashClass::checkWritable() {
     #endif // case where SPM_FROM_APP not defined handled above.
   #else // USING_OPTIBOOT defined
     if (FUSE.BOOTSIZE == 0x00) {
-      // Should we support BIGBOOT?
-      // I vote "NO" because I know I have never made that work
-      // but it would be far less work than getting a BIGBOOT
-      // bootloader together and offering features the normakl
-      // version didn't.
       return FLASHWRITE_NOBOOT;
     }
     if (FUSE.BOOTSIZE > 1) {
+      // Should we support BIGBOOT?
+      // I vote "NO" - we don't build it, plan to build it, or encourage others to build it, and the use cases that would require it are rare.
+      // the BOOTSIZE fuse must be 0 or 1.
       return FLASHWRITE_UNRECOGNIZED;
     }
     // Optiboot 9.1 without SPM Z+ app callin support
     // was shipped with 1.2.x and earlier of DxCore
     uint16_t optiversion = pgm_read_word_near(0x01fe);
-    if (optiversion == 0x0901) {
+    if (optiversion == 0x0901 ||) {
       return FLASHWRITE_OLD;
     }
     // Version of the bootloader that doesn't support this
-    // but also not the one I adapted for this project.
-    if  (optiversion >= 0x1901)  {
+    // and which came from someone else.
+    if  (optiversion < 0x1901)  {
       return FLASHWRITE_UNRECOGNIZED;
     }
-    // After making sure we're "on"
+    // After making sure we are using a version of optiboot that may have this...
     optiversion = pgm_read_word_near(0x01fa);
     if (optiversion == 0 || optiversion == 0xFFFF) {
       return FLASHWRITE_DISABLED;

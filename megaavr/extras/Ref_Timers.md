@@ -24,11 +24,13 @@ Simple - it's the highest numbered timer that's widely distributed (our servo li
 
 Remember, you can change which timer is used to any type A or B timer from the millis timer menu.
 
-## Background: The Timers on the AVR Dx-series and Ex-series parts
+## Section One: Background: Timers on modern AVRs
 This applies to the tinyAVR 0/1/2-series, megaAVR 0-series, and AVR DA, DB and DD-series, and all other future modern AVRs until such a time as a part which departs radically from the modern AVR precedents is released. There are few differences between the implementations on the different families.
 
 **Before reconfiguring timers, be sure to read the "Section 2: How this core uses timers" below to avoid stepping on the core's toes, or getting your toes stepped on by the core!**
 
+## Background: The Timers on the AVR Dx-series and Ex-series parts
+This applies to the tinyAVR 0/1/2-series, megaAVR 0-series, and AVR DA, DB and DD-series, and likely other future modern AVRs. There are very few differences between the implementations on the different families.
 
 ### TCA0 - Type A 16-bit Timer with 3/6 PWM channels
 This timer is the crown jewel of the modern AVR devices, as far as timers go. It can be operated in two very different modes. The default mode on startup is "Normal" or `SINGLE` mode - it acts as a single 16-bit timer with 3 output compare channels. It can count in either direction, and can also be used as an event counter (ie, effectively "clocked" off the event), is capable of counting up or down, generating PWM in single and dual slope modes, and has 7-output prescaler. In terms of PWM generation, a TCA in SINGLE mode is on the same level as the classic avr 16-bit Timer1 (though most classic AVRs only had 2 outputs per timer - there the third output was a rare feature reserved for top-end parts like the 2560). The newly added features aren't ones that are particularly relevant for most Arduino users. TCA0 can generate events or interrupts on compare match for each channel (independently), as well as on an overflow.
@@ -94,7 +96,7 @@ They can be pressed into service as a rather poor PWM timer. TCB in PWM mode is 
 **Errata Alert** - `TCBn.CCMP` is effected by silicon errata on all available silicon save the DD and EA-series: It still acts like a 16-bit register. That means that it uses the TCB.TEMP register for access, and that you must read and write both bytes together, starting with the low byte, then high byte: Writes to the low byte are redirected to the temp register, reading the low byte copies the high byte of the CCMP register to TEMP, and writing to the high byte is what copies the low byte from the TEMP register to the actual CCMP register low byte. However, if you only write the high byte, and write the low byte only once, writes to the high byte alone do work. Until you do something like reading the CNT register, at which point everything will fall over.
 
 #### Extra features on 2-series and Dx/Ex-series
-The 2-series and Dx parts add three upgrades, two useful, and the other less-so. The less useful one is a separate OVF event/interrupt source. I find this to be of dubious untility - likely the best use of the separate OVF bit is as a 17th bit in input capture mode, but this can generally be done without using it as an interrupt.
+The tinyAVR 2-series and Dx parts add three upgrades, two useful, and the other less-so. The less useful one is a separate OVF event/interrupt source. I find this to be of dubious untility - likely the best use of the separate OVF bit is as a 17th bit in input capture mode, but this can generally be done without using it as an interrupt.
 
 A much more interesting option is the clock-on-event option: The TCBs now have a second event user, which can be selected as the clock source! Combined with the CCL, this can, for example, be used to get a prescaled system clock into the TCB different from that of a TCA (see the Logic library documentation and examples for discussion of how the CCL filter and synchronizer can be used to generate s prescaled clock).
 
@@ -120,7 +122,18 @@ The Type D timer, is a very strange timer indeed. It can run from a totally sepa
 
 It also has a 'dither' option to allow PWM at a frequency in between frequencies possible by normal division of the clock - a 4-bit value is supplied to the TCD0.DITHER register, and this is added to a 4-bit accumulator at the end of each cycle; when this rolls over, another clock cycle is inserted in the next TCD0 cycle.
 
-The asynchronous nature of this timer, however, comes at a great cost: It is much harder to use than the other timers. Most changes to settings require it to be disabled as noted above - and you need to wait for that operation to complete (check for the `ENABLERDY` bit in `TCD0.STATUS`). Similarly, to tell it to apply changes made to the `CMPxSET` and `CMPxCLR` registers, you must use the `TCD.CTRLE` (the "command" register) to instruct it to synchronize the registers. Similarly, to capture the current count, you need to issue a SCAPTUREx command (x is A or B - there are two capture channels) - and then wait for the corresponding bit to be set in the `TCD0.STATUS` register. In the case of turning PWM channels on and off, not only must the timer be stopped, but a timed write sequence is needed ie, `_PROTECTED_WRITE(TCD0.FAULTCTRL,value)` to write to the register that controls whether PWM is enabled; this is apparenmtly because, in the intended use-cases of motor and switching power supply control, changing this accidentally (due to a wild pointer or other software bug) could have catastrophic consequences. Writes to any register when it is not "legal" to write to it will be ignored. Thus, making use of the type D timer for even simple tasks requires careful study of the datasheet - which is a frustratingly terse chapter at key points, yet is STILL the longest chapter at 50 pages (counting only chapters that are mostly text (so the electrical/typical charachteristics section doesn't count).
+The asynchronous nature of this timer, however, comes at a great cost: It is much harder to use than the other timers. Most changes to settings require it to be disabled as noted above - and you need to wait for that operation to complete (check for the `ENABLERDY` bit in `TCD0.STATUS`). Similarly, to tell it to apply changes made to the `CMPxSET` and `CMPxCLR` registers, you must use the `TCD.CTRLE` (the "command" register) to instruct it to synchronize the registers. Similarly, to capture the current count, you need to issue a SCAPTUREx command (x is A or B - there are two capture channels) - and then wait for the corresponding bit to be set in the `TCD0.STATUS` register. In the case of turning PWM channels on and off, not only must the timer be stopped, but a timed write sequence is needed ie, `_PROTECTED_WRITE(TCD0.FAULTCTRL,value)` to write to the register that controls whether PWM is enabled; this is apparenmtly because, in the intended use-cases of motor and switching power supply control, changing this accidentally (due to a wild pointer or other software bug) could have catastrophic consequences (these are, remember, certified for use in safety critical applications). Writes to any register when it is not "legal" to write to it will be ignored. Thus, making use of the type D timer for even simple tasks requires careful study of the datasheet - which is a frustratingly terse chapter at key points, yet is STILL the longest chapter at 50 pages (counting only chapters that are mostly text (so the electrical/typical charachteristics section doesn't count).
+
+So if you're doing something where misbehavior of the PWM timer could lead serious hardware damage (eg, via shootthrough on an H-bridge or the nearly identical situation on a synchronously rectifying DC-DC converter), this is the timer to use if you want the best protection against that, and more flexibility in generating the waveforms that would be needed in such applications. Note that I don't recommend building your own DC-DC converter, owing to the low price of assembled modules, especially ones prone to potentially destructive shoot-through because that shouldn't even be a problem with off the shelf solutions in this day and age....
+
+Remember this part of the license.
+```
+This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+#### For more information on what you can do to TCD0 and still use analogWrite()
+We have a separate [document entirely dedicated to TCD0](Ref_TCD.md)
 
 ### TCE - Lurking in the distance with WEX
 The recently announced EB-series will feature not one but TWO new timers.
@@ -171,8 +184,7 @@ When working with timers, I constantly found myself calculating periods, resolut
 
 ### Initialization
 This section consists of around 6 points, Under many of these points are the consequences for users and any thing the user might need to do.
-
-1. All TCAs are initialized for SPLIT mode to generate 6x 8-bit PWM channels, not 3 16-bit ones. If you need that, you must implement it yourself and `takeOverTCA0();` (or TCA1 - TCA1 is probably a better choice since TCA0 has lots of 6-pin options while TCA1 does not) in `setup()`. The PORTMUX register is set according to the part specific documentation page for the part you are using.
+1. All TCAs are initialized for SPLIT mode to generate 6x 8-bit PWM channels, not 3 16-bit ones. **If you need that, you must implement it yourself and `takeOverTCA0();`** (or TCA1 - TCA1 is probably a better choice since TCA0 has lots of 6-pin options while TCA1 does not, assuming you have both to chooe from) in `setup()`. The PORTMUX register is set according to the part specific documentation page for the part you are using.
 2. If you want to take over a type A timer, simply call takeOverTCA0() or takeOverTCA1() - this will stop the timer, *send the reset command to reset it's registers to their defaults* and set a flag that tells the core not to use the timer for analogWrite().
   a. That means it will no longer be in SPLIT mode. If SPLIT mode is desired, simply write TCA0.CTRLD to 1 before enabling the timer.
   b. You may not takeOverTCAn if that timer is used for millis (it will be treated as a badCall compile error to call the takeOver function). Reconfiguring it anyway will likely cause unexpected, undefined, and undesired behavior, potentially impacting anything relating to PWM and timekeeping. So don't do that.
@@ -190,11 +202,14 @@ This section consists of around 6 points, Under many of these points are the con
   a. If you are *reconfiguring a TCB, but are still using it 8-bit PWM mode*, AND there is no other timer available on the same pin as the one the core used by default, digitalWrite() and analogWrite() must not be called on that pin (digitalWriteFast() can be used instead, as it does not do anything relating to PWM).
   b. If you are changing the TCB portmux hoping to get PWM on different pins, it won't work. This can only be done by creating a new variant file which changes the
 6. All other TCBs are configured for 8-bit PWM (even though they suck as PWM timers), so that analogWrite() can be used with them.
-  a. There is no takeOverTCBn() function. Just remember that *THE TIMER IS NOT Ihe default state
-  a. analogWrite won't try to use a TCB whose CTRLB register is not set for PWM - in that case, either you have reconfigured the timer (so we shouldn't mess up your configuration), or it's the millis timer, and we *definitely* shouldn't mess with that.
+  a. There is no takeOverTCBn() function. Just remember that *THE TIMER IS NOT in the default state*
+  b. analogWrite won't try to use a TCB whose CTRLB register is not set for PWM - in that case, either you have reconfigured the timer (so we shouldn't mess up your configuration), or it's the millis timer, and we *definitely* shouldn't mess with that.
 
 ### Justification for TOP = 254, not 255
-Iop were 255, there would be exactly 256 timer ticks per clock, If TOP is 355 ticker per clock cycle. The roblem would be  - how would you set th duty cycl;
+If top were 255, there would be exactly 256 timer ticks per clock, TOP = 254, there are 255 ticks. The millis math is magically much easier in the latter case!
+
+There is also a problem with analogWrite. We pass a value between 0 and 255 inclusive to it, for 1 of 256 outcomes, 2 of which involve PWM. However, When TOP is 255, the timer output compare can generate 255 duty cycles + 1 constant level. But we need to generate 2 constant levels! So inevitably (usually at one end, where it's most noticable) one count gets skipped. With TOP=254, however,
+
 ### PWM via analogWrite()
 
 #### Priority
@@ -209,11 +224,9 @@ Note that while it does not currently impact any parts, there is a significant l
 In the future EB-series, the timer priorities will have to be considered carefully.
 
 #### Channels without pins
-If you are using a part (like a DD-series) where the pin mapping being used doesn't provide a pin for a given timer output channel, that channels is not available... at least not directly. However it is still there, it can still be used as an internal input... which means it can be output through a CCL logic block. See the CCL chapter of the datasheet or the [Logic library docs for information on how you would implement these](../libraries/Logic/README.md).
+If you are using a part (like a DD-series) where the pin mapping being used doesn't provide a pin for a given timer output channel, that channel is not available... at least not directly. However it is still there, it can still be used as an internal input... and therefor, you CAN use the CCL (either manually or with the Logic library) and set it to use input 0, 1, or 2 from a TCA, TCB, or TCD. In the case of a TCA, the input number of the logic block is the waveform output - so only WO0-WO2 (the outputs that go on Px0, Px1, and Px2). In the case of a TCB, the input number is the number of the type B timer (only the first three timers can be used in this way). And in the case of the TCD, input 0 is WOA, input 1 is WOB, and input 2 is WOC. But WOC just mirrors WOA (unless you've changed TCD0.CTRLC) - so it's just a way of using the WOA channel as input 2 instead of input 0, which may be important (since CCL input 2 is special, particularly for even numbered LUTs).which means it can be output through a CCL logic block. See the CCL chapter of the datasheet or the [Logic library docs for information on how you would implement these](../libraries/Logic/README.md). Whereas the event system gives you a relatively useless 1-clock long pulse when the PWM compare match occurs, the CCL has access to the levels. So you if were using a DD14, with the TCA mux set to the most-pinful and the default of the core, PORTC, there is still no PC0, and only WO1-3 of the TCA available. Between those three and TCD0 on PD4 and PD5, you've still only got 5 PWMs.
 
-However, you CAN use the CCL (either manually or with the Logic library) and sent it to use input 0, 1, or 2 from a TCA, TCB, or TCD. In the case of a TCA, the input number of the logic block is the waveform output - so only WO0-WO2 (the outputs that go on Px0, Px1, and Px2). In the case of a TCB, the input number is the number of the type B timer (only the first three timers can be used in this way). And in the case of the TCD, input 0 is WOA, input 1 is WOB, and input 2 is WOC. But WOC just mirrors WOA (unless you've changed TCD0.CTRLC) - so it's just a way of using the WOA channel as input 2 instead of input 0, which may be important (since CCL input 2 is special, particularly for even numbered LUTs). Whereas the event system gives you a relatively useless 1-clock long pulse when the PWM compare match occurs, the CCL has access to the levels. So you if were using a DD14, with the TCA mux set to the most-pinful and the default of the core, PORTC, there is still no PC0, and only WO1-3 of the TCA available. Between those three and TCD0 on PD4 and PD5, you've still only got 5 PWMs.
-
-But you could set input0 of LUT2 to be TCA0, enable the alternate pin mapping for the CCL LUT2 output (CCL output is on pin 3 or 6 of the LUT's "home port"), mask the other two inputs and set the truth table to 0x02, and get TCA0 WO0 on PD6. 6 PWM channels! Hm? You need seven you say? Well, okay - you could use TCB0 as the input for a the CCL LUT0, 1, or 3, but instead of enabling pin output (since those pins don't exist, or in the case of LUT1 on PORTC are already being used), you would have to instead set one of the event channels to use that CCL LUT as it's generator. Event output can be piped to either pin 2 or 7 in a port. PORTD is your only good choice. Then you could set EVOUTD to be an event user for that channel, and switch it's portmux to the alternate pin, PIN_PD7. Now you've got 7 channels! You need *another*? You can actually get an 8th if you really work at it - but millis must be either running on TCA0 or disabled, you must have an HV UPDI programmer to reprogram it, otherwise the required fuse settings will brick it. You would have to disable the UPDI functionality (hence it cannot be reprogrammed without an HV programmer). That turns PF7 into a GPIO pin (reset can be turned into an input, but not an output`*`) This has very few functions available - in fact it has only 2 special functions, the SS pin of one of the wacky SPI mappings on the DD-series... and the alternate output pin of EVOUTF! You can then repeat the process above with TCB1 and EVOUTF. And at that point you have 8 independently controllable duty cycles coming out of 8 pins on your 14-pin package, of which 3 pins are power or ground, and another of which (PF6/reset) is input only. So 80% of the potential output pins and more over half of the physical pins could be used to output PWM without even having to use some sort of software PWM scheme - once the duty cycles were set and the peripherals enabled, the PWM would be generated without CPU intervention. The two remaining pins could then be used as, say, a serial port so you could tell it what duty cycles to use or something.
+But you could set input0 of LUT2 to be TCA0, enable the alternate pin mapping for the CCL LUT2 output (CCL output is on pin 3 or 6 of the LUT's "home port"), mask the other two inputs and set the truth table to 0x02, and get TCA0 WO0 on PD6. 6 PWM channels! Hm? You need seven you say? Well, okay - you could use TCB0 as the input for a the CCL LUT0, 1, or 3, but instead of enabling pin output (since those pins don't exist, or in the case of LUT1 on PORTC are already being used), you would have to instead set one of the event channels to use that CCL LUT as it's generator. Event output can be piped to either pin 2 or 7 in a port. PORTD is your only good choice. Then you could set EVOUTD to be an event user for that channel, and switch it's portmux to the alternate pin, PIN_PD7. Now you've got 7 channels! You need *another*? You can actually get an 8th if you really work at it - but millis must be either running on TCA0 or disabled, you must have an HV UPDI programmer to reprogram it, otherwise the required fuse settings will brick it. You would have to disable the UPDI functionality (hence it cannot be reprogrammed without an HV programmer). That turns PF7, the nominal UPDI pin, into a GPIO pin (reset can be turned into an input, but not an output on the DD (and barely can in general) `*`) This has very few functions available - in fact it has only 2 special functions, the SS pin of one of the wacky SPI mappings on the DD-series... and the alternate output pin of EVOUTF! You can then repeat the process above with TCB1 and EVOUTF. And at that point you have 8 independently controllable duty cycles coming out of 8 pins on your 14-pin package, of which 3 pins are power or ground, and another of which (PF6/reset) is input only. So 80% of the potential output pins and more over half of the physical pins could be used to output PWM without even having to use some sort of software PWM scheme - once the duty cycles were set and the peripherals enabled, the PWM would be generated without CPU intervention. The two remaining pins could then be used as, say, a serial port so you could tell it what duty cycles to use or something.
 
 `*` On modern AVRs, only tinies have the option to set the pin nominally used as reset as an I/O pin (to the extent that one can call PA0 on a modern tinyAVR the nominal reset pin - by default it's the UPDI pin, but it can be made to be the reset pin instead. If that's done it needs HV programming to reprogram) - non-tiny modern AVRs can use it as an input, but not an output. On the parts where it can be used as one, it's a miserable output: even sourcing or sinking just 0.5mA and running at Vdd = 5V (which maximizes the pin driver strength), the output could be a volt away from the rail it's trying to drive towards (on those parts, a pin sourcing or sinking so much current that it was a volt away from the power rail would be carrying at least 15mA. The same was true on classic AVRs when reset was disabled - it could be turned into I/O, but it was a crap output). You may be wondering why this is. The answer - apparently - is that whichever pin the HV for HV programming has to touch is forced to use weaker pin drivers. This isn't entirely surprising - imagine using MOSFETS and a very weak input. If the output would never be higher than supply or lower than ground, you'd just have a complementary pair of FETs... but if it can also be an input, which can go above supply, the high side P-channel FET would turn into a diode and channel the higher voltage to the positive supply rail! (the same would happen on the low side and voltages below 0V) Either would obviously be a Bad Thing, so on the pin that is designed to be exposed to 12v, they had to take precautions, and that ends up weakening the pin drive greatly. This hurts particularly on tinyAVR parts, because that's also UPDI: it is much easier for the tinyAVR's UPDI pin to get overwhelmed by some other source of voltage (ex, a pullup that's stronger than it should be) than other parts. Even optimistically assuming that the current will increase linearly if we accept higher voltage drop (not necessarily a valid assumption, generally speaking; doubling the current may more than double the voltage drop; see the I<sub>D</sub> vs V<sub>ds</sub> plot in any MOSFET datasheet, where lines are shown for each V<sub>gs</sub>: the result is linear when current is well below it's rated maximum, but flattens out as the current and voltage drop fall further. Microcontroller pins, outside of fault conditions (and possibly even in fault conditions), run in the low current regime, where the I/V behavior is approximately ohmic.
 
@@ -234,55 +247,62 @@ This function returns 1 if the pin currently has PWM available accounting for PO
 This function returns the timer the pin will be controlled by accounting for PORTMUX and `takeOverTCxn`. The dynamic analog of `digitalPinToTimer()` - obviously, not compile-time constant.
 
 ### TCD0
-TCD0, by default, is configured for generating PWM (unlike TCA's, that's about all it can do usefully). TCD0 is clocked from the CLK_PER when the system is using the internal clock without prescaling. On the prescaled clocks (5 and 10 MHz) it is run it off the unprescaled oscillator (just like on the 0/1-series parts that it inherits the frequencies from), keeping the PWM frequency near the center of the target range. When an external clock is used, we run it from the internal oscillator at 8 MHz, which is right on target.
+
+#### TCD0 on DxCore
+TCD0, by default, is configured for generating PWM (unlike TCA's, that's about all it can do usefully). TCD0 is clocked from the CLK_PER when the system is using the internal clock, without prescaling. On the prescaled clocks (5 and 10 MHz) it is run it off the unprescaled oscillator (just like on the 0/1-series parts that it inherits the frequencies from), keeping the PWM frequency near the center of the target range. When an external clock is used, we run it from the internal oscillator at 8 MHz, which is right on target.
 
 It is always used in single-ramp mode, with `CMPBCLR` (hence TOP) set to either 254, 509, or 1019 (for 255 tick, 510 tick, or 1020 tick cycles), the sync prescaler set to 1 for fastest synchronization, and the count prescaler to 32 except at 1 MHz. `CMPACLR` is set to 0xFFF (the timer maximum, 4095). The `CMPxSET` registers are controlled by `analogWrite()` which subtracts the supplied dutycycle from 255, checks the current CMPBCLR high byte to see how many places to left-shift that result by before subtracting 1 and writing to the register. The `SYNCEOC` command is sent to synchronize the compare value registers at the end of the current PWM cycle if the channel is already outputting PWM. If it isn't, we have to briefly disable the timer, turn on the pin, and then re-enable it, producing a glitch on the other channel. To mitigate this issue we treat 0 and 255 duty cycles differently for the TCD pins - they instead set duty cycle to 0% without disconnecting the pin from the timer, for the 100% duty cycle case, we invert the pin (setting CMPxSET to 0 won't produce a constant output). This eliminates the glitches when the channels are enabled or disabled.
 
-TCD0 has two output channels - however, each of them can go to either of two pins (the hardware has slightly more complexity, but it was not worth the overhead to implement. All parts with those pins have a mapping for TCD on PA4-PA7. On most, that's the only one that works. However, on the DD, refer to the part-specific documentation for a list.
+TCD0 has two output channels - however, each of them can go to either of two pins (the hardware has slightly more complexity, but it was not worth the overhead to implement. All parts with those pins have a mapping for TCD on PA4-PA7. On most, that's the only one that works. However, on the DD there are more options, refer to the part-specific documentation for a list. TCD PWM is PORTMUX aware, so you can change the pin mapping on DxCore without changing th
 ```c++
-analogWrite(PIN_PA4,64);  // outputting 25% on PA4
-analogWrite(PIN_PA5,128); // 25% on PA4, 50% on PA5
-analogWrite(PIN_PA5,0);   // 25% on PA4, PA5 constant LOW, but *still connected to timer*
-digitalWrite(PIN_PA5,LOW);// NOW PA5 totally disconnected from timer. A glitch will show up briefly on PA4.
-analogWrite(PIN_PA6,192); // This is on same channel as PA4. We connect channel to PA6 too (not in place of - we do the same thing on ATTinyCore for the 167 pwm output from Timer1 on the latest versions).
-                          // so now, both PA4 and PA6 will be outputting a 75% duty cycle. Turn the first pin off with digitalWrite() to explicitly turn off that pin.
+analogWrite(PIN_PA4, 64);  // outputting 25% on PA4
+analogWrite(PIN_PA5, 128); // 25% on PA4, 50% on PA5
+analogWrite(PIN_PA5, 0);   // 25% on PA4, PA5 constant LOW, but *still connected to timer*
+digitalWrite(PIN_PA5, LOW);// NOW PA5 totally disconnected from timer. A glitch will show up briefly on PA4.
+analogWrite(PIN_PA6, 192); // This is on same channel as PA4. We connect channel to PA6 too (not in place of - we do the same thing on ATTinyCore for the 167 pwm output from Timer1 on the latest versions).
+                           // so now, both PA4 and PA6 will be outputting a 75% duty cycle. Turn the first pin off with digitalWrite() to explicitly turn off that pin.
 ```
 You can get a lot of control over the frequency without having to take over full management of the timer (which is rather complicated, and difficult to reconfigure) as long as you follow the rules carefully: See [TCD0 reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD.md) Step off that narrow path, however, and `analogWrite()` will not work correctly.
 
+#### TCD0 on megaTinyCore
+TCD0, by default, is configured for generating PWM if the PWM pins selection includes that timer. (unlike TCA's, that's about all it can do usefully). TCD0 can output two channels, like on Dx-series parts, BUT unlike those parts, there are only two muxing options. Due to space constraints on these parts, we only support two pins at a time (at most -  14 or 8 pins have only one option
+
+
+It is always used in single-ramp mode, with `CMPBCLR` (hence TOP) set to either 254, 509, or 1019 (for 255 tick, 510 tick, or 1020 tick cycles), the sync prescaler set to 1 for fastest synchronization, and the count prescaler to 32 except at 1 MHz. `CMPACLR` is set to 0xFFF (the timer maximum, 4095). The `CMPxSET` registers are controlled by `analogWrite()` which subtracts the supplied dutycycle from 255, checks the current CMPBCLR high byte to see how many places to left-shift that result by before subtracting 1 and writing to the register. The `SYNCEOC` command is sent to synchronize the compare value registers at the end of the current PWM cycle if the channel is already outputting PWM. If it isn't, we have to briefly disable the timer, turn on the pin, and then re-enable it, producing a glitch on the other channel. To mitigate this issue we treat 0 and 255 duty cycles differently for the TCD pins - they instead set duty cycle to 0% without disconnecting the pin from the timer, for the 100% duty cycle case, we invert the pin (setting CMPxSET to 0 won't produce a constant output). This eliminates the glitches when the channels are enabled or disabled.
+
+You can get a lot of control over the frequency without having to take over full management of the timer (which is rather complicated, and difficult to reconfigure) as long as you follow the rules carefully: See [TCD0 reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD.md) Step off that narrow path, however, and `analogWrite()` will not work correctly.
+
 ### TCBn
-The type B timers, while not particularly good for PWM, can be used for PWM as well; they are set to use the TCA1 clock by default. A type B timer used for millis cannot be used to output PWM.
+The type B timers, while not particularly good for PWM, can be used for PWM on DxCore (on mTC they always overap with other timers, making them even less useful; they are not supported there.) They are clocked from the highest number TCA available
 
 ### PWM Frequencies
 The frequency of PWM output using the settings supplied by the core is shown in the table below. The "target" is 1 kHz, never less than 490 Hz or morethan 1.5 kHz. As can be seen below, there are several frequencies where this has proven an unachievable goal. The upper end of that range is the point at which - if PWMing the gate of a MOSFET - you have to start giving thought to the gate charge and switching losses, and may not be able to directly drive the gate of a modern power MOSFET and expect to get acceptable results (ie, MOSFET turns on and off completely in each cycle, there is minimal distortion of the duty cycle, and it spends most of it's "on" time with the low resistance quoted in the datasheet, instead of something much higher that would cause it to overheat and fail). Not to say that it **definitely** will work with a given MOSFET under those conditions (see [the PWM section of my MOSFET guide](https://github.com/SpenceKonde/ProductInfo/blob/master/MOSFETs/Guide.md#pwm) ), but the intent was to try to keep the frequency low enough that that use case was viable (nobody wants to be forced into using a gate driver), without compromising the ability of the timers to be useful for timekeeping.
 
-The frequency of PWM output using the settings supplied by the core is shown in the table below. The "target" is 1 kHz, never less than 490 Hz or morethan 1.5 kHz. As can be seen below, there are several frequencies where this has proven an unachievable goal. The upper end of that range is the point at which - if PWMing the gate of a MOSFET - you have to start giving thought to the gate charge and switching losses, and may not be able to directly drive the gate of a modern power MOSFET and expect to get acceptable results (ie, MOSFET turns on and off completely in each cycle, there is minimal distortion of the duty cycle, and it spends most of it's "on" time with the low resistance quoted in the datasheet, instead of something much higher that would cause it to overheat and fail). Not to say that it **definitely** will work with a given MOSFET under those conditions (see [the PWM section of my MOSFET guide](https://github.com/SpenceKonde/ProductInfo/blob/master/MOSFETs/Guide.md#pwm) for calculations and a shared spreadsheet that helps calculate  ), but the intent was to try to keep the frequency low enough that that use case was viable (nobody wants to be forced into using a gate driver), without compromising the ability of the timers to be useful for timekeeping.
-
 #### Summary Table
-This shows what the core will configure the TCA and TCD timers for at initialization.
-On the type A timers, only the prescaler can be changed "safely". If you need more control than that, see the included examples for demonstrations of taking over TCA and reconfiguring it to provide (for example) 16-bit PWM on three pins instead of 8-bit PWM on six pins.
+The following tables show how the core will configure the TCA and TCD timers at initialization, and the small table shows which general areas of the timer configuration are set up by the core, differently from the power on reset values, and which of those can "safely" be changed. In this context "safely" means without causing analogWrite() or digitalWrite() to stop working on the pin without calling takeOverTCnx(). To change more than that, you must call the takeover function and assume full responsibility for the timer (digitalWrite will work, but not be able to turn off PWM on the timer's pins and analogWrite() will act as though that timer did not exist).
 
-On the type D timer, ALL situations with an external clock source (crystal or clock), we just say "screw this!" to the thorny problem of deciding how to generate a good PWM frequency from whackjob eternal clocks, and use the internal oscillator at 8 MHz, with a /32 prescale on the counter and /1 on the synchronizer, because we know that gives the target frequency, and don't have to play games with top or nothing. Because Timer D is uncooperative and combative, we have taken pains to make it easier to adjust. This is detailed in the [TCD Reference](Ref_TCD.md) - but to give a brief summary, without doing takeOverTCD0() and taking full responsibility for that timer in all of it's hostile glory you can do the following without breaking analogWrite():
-* Change TOP to 254, 509, 1019, 2039, or 4079 (the last options are only available at F_CPU > 32 MHz - not for a fundamental reason, just tradeoff of time and space vs features, and consideration of the conditions under which those features would be most useful (high clock speeds) - in order to act as an ersatz prescaler.
-  * This can be done without stopping the timer. It is accomplished by setting `TCD0.CMPBCLR` to one of those values.
-  * No values other than the 5 listed above are supported. No design consideration was given to this case while implementing analogWrite(), other than to declare it unsupported. Our tests to detect which option is selected are optimized for execution speed, and assume that only those 5 valid values will be there (so we only need to look at one byte).
-  * This will disrupt the duty cycle of any active PWM output.
-* Adjust any other settings which do not change the PWM mode. This allows use of all the event-related features.
-  * Stop the timer by setting the LSB of TCD0.CTRLA to 0.
-  * When you do this, poll TCD0.STATUS until the EN_RDY bit is 1. That means the registers are now unlocked and you can change them.
-  * You can then set new values for all registers except `CTRLB` `CTRLC` and `CTRLD` without violating the assumptions of the core.
-  * Make changes to `CTRLA` last - this will include setting the LSB to 1.
-* When using an external clock source for the system clock, TCD0 defaults to running from the internal oscillator at 8 MHz. You can change that frequency (without even stopping the timer) normally (but note that the prescaler in CLKCTRL is for the main clock, the clock source that TCD gets is unprescaled).
+| Property | Configured | Can be safely changed |
+|----------|------------|-----------------------|
+| Prescale | Yes        | Unless millis. TCA, TCD, TCB. |
+| Mode     | Yes        | No. Take over the timer. |
+| TOP      | Yes, 254   | Only on DxCore TCD0, to certain values only. |
+| Interrupt| Only millis| Yes, though usually the associated configuration precludes pwm. |
+| Events   | No         | Yes                   |
+| 16-bits (TCA) | No    | Only via full takeover. No analogWrite/etc support |
 
-On the table below, I repeat, all external clock configurations get the same TCD configuration. This is shown explicitly for clock speeds that can only be achieved with an external clock, but the table will otherwise assume the internal oscillator is used as the system clock; if an external clock or crystal is used to achieve the same speed, refer to the External line for the TCD only.
 
 Some frequencies shown are not supported by the core, but may be specified by a variant or boards.txt and while not guaranteed to work, are believed to work. 2 should definitely work, 6 and 3 very likely work, and 14 and 7 likely work.
 
+##### DxCore
+
+On the table below, I repeat, all external clock configurations get the same TCD configuration. This is shown explicitly for clock speeds that can only be achieved with an external clock, but the table will otherwise assume the internal oscillator is used as the system clock; if an external clock or crystal is used to achieve the same speed, refer to the External line for the TCD only.
+
 |   CLK_PER | Prescale A |   fPWM  | Prescale D  | TOP D |  fPWM (D) | Notes                                            |
 |-----------|------------|---------|-------------|-------|-----------|--------------------------------------------------|
-| ** 48 MHz |        256 |  735 Hz | external    |   254 |    980 Hz |                                                  |
-| ** 44 MHz |        256 |  674 Hz | always uses |   254 |    980 Hz |                                                  |
-| ** 40 MHz |        256 |  613 Hz | TCD per the |   254 |    980 Hz |                                                  |
-| ** 36 MHz |        256 |  551 Hz | below line  |   254 |    980 Hz |                                                  |
+| ** 48 MHz |        256 |  735 Hz | external    |   254 |    980 Hz | Always external clock.                           |
+| ** 44 MHz |        256 |  674 Hz | always uses |   254 |    980 Hz | Always external clock.                           |
+| ** 40 MHz |        256 |  613 Hz | TCD per the |   254 |    980 Hz | Always external clock.                           |
+| ** 36 MHz |        256 |  551 Hz | below line  |   254 |    980 Hz | Always external clock.                           |
 |  External |  per F_CPU |per F_CPU| OSCHF@8  32 |   254 |    980 Hz | TCD using OSC@8 because running from xtal/ext    |
 |  * 32 MHz |        256 |  490 Hz |          32 |  1019 |    980 Hz | TOP used as ersatz-prescaler to divide by 4      |
 |  * 30 MHz |         64 | 1836 Hz | OSCHF@8  32 |   254 |    980 Hz | TCD using OSC@8 because running from xtal/ext    |
@@ -311,11 +331,51 @@ Some frequencies shown are not supported by the core, but may be specified by a 
 `Prescale A` and `fPWM` apply to all pins not on TCD0. TOP is always set to 254 for TCA
 
 `Prescale D`, `TOP D`, and `fPWM (D)` apply to the pins on TCD0.
-In addition to the case of an external system clock source. Note that this did not work correctly prior to 1.4.0Where marked, we clock TCD0 from OSCHF instead of using CLK_PER, prescale by 32. For speeds other than 5 MHz and 10 MHz, we set the internal oscillator to 8 MHz.
+In addition to the case of an external system clock source. Note that this did not work correctly prior to 1.4.0 Where marked, we clock TCD0 from OSCHF instead of using CLK_PER, prescale by 32. For speeds other than 5 MHz and 10 MHz, we set the internal oscillator to 8 MHz.
 
-These are the overall Timer D prescaler (in all cases, by default only the count prescaler is used), TOP, and resulting frequency of TCD0 PWM output.
+These are the overall Timer D prescaler (in all cases, by default only the count prescaler is used if at all possible), TOP, and resulting frequency of TCD0 PWM output.
 
-Where TCD0 TOP is not 254, but is 509, 1019, or (above 32 MHz only) 2039, all duty cycles passed to `analogWrite()` for those pins will by left-shifted as necessary to get an appropriate duty cycle.
+##### megaTinyCore
+Things are very different over on megaTinyCore, at least as far as TCD0 is concerned. Here, whenever we are using the internal clock, with or without division, we use the unprescaled 16 or 20 MHz clock. Otherwise we use the system clock (it can be argued that this is incorrect behavior and we should use the internal oscillator for more consistent PWM frequencies)
+
+|   CLK_PER | Prescale A |   fPWM  | Prescale D  | TOP D |  fPWM (D) | Notes                                            |
+|-----------|------------|---------|-------------|-------|-----------|--------------------------------------------------|
+|  * 32 MHz |        256 |  490 Hz | OSCHF@32 32 |   254 |   1960 Hz | TOP used as ersatz-prescaler to divide by 4      |
+|  * 30 MHz |         64 | 1836 Hz | OSCHF@30 32 |   254 |   1838 Hz | TCD using OSC@8 because running from xtal/ext    |
+|  * 28 MHz |         64 | 1716 Hz | OSCHF@28 32 |   254 |   1715 Hz | TOP used as ersatz-prescaler to divide by 4      |
+|  * 27 MHz |         64 | 1654 Hz | OSCHF@27 32 |   254 |   1654 Hz | TCD using OSC@8 because running from xtal/ext    |
+|  * 25 MHz |         64 | 1532 Hz | OSCHF@25 32 |   254 |   1531 Hz | TCD using OSC@8 because running from xtal/ext    |
+|  * 24 MHz |         64 | 1471 Hz | OSCHF@24 32 |   254 |   1471 Hz | TOP used as ersatz-prescaler to divide by 4      |
+|    20 MHz |         64 | 1225 Hz | OSCHF@20 32 |   254 |   1225 Hz | TOP used as ersatz-prescaler to divide by 2      |
+|    16 MHz |         64 |  980 Hz | OSCHF@16 32 |   254 |    980 Hz | TOP used as ersatz-prescaler to divide by 2      |
+|    14 MHz |         64 |  858 Hz | OSCHF@14 32 |   254 |    858 Hz | Unsupported, timing functionality not guaranteed |
+|    12 MHz |         64 |  735 Hz | OSCHF@12 32 |   254 |    735 Hz | 0/1-series on 16 MHz osc (Applies to 3,6 MHz too)|
+|    12 MHz |         64 |  735 Hz | OSCHF@24 32 |   254 |   1471 Hz | 0/1-series on 20 or any 2-series                 |
+|    10 MHz |         64 |  613 Hz | OSCHF@20 32 |   254 |   1225 Hz |                                                  |
+|     8 MHz |         64 |  490 Hz | OSCHF@16 32 |   254 |    980 Hz |                                                  |
+|     7 MHz |         16 | 1716 Hz | OSCHF@14 32 |   254 |    858 Hz | Unsupported, timing functionality not guaranteed |
+|     6 MHz |         16 | 1471 Hz | OSCHF@12 32 |   254 |    735 Hz | Unsupported, timing functionality not guaranteed |
+|     6 MHz |         16 | 1471 Hz | OSCHF@24 32 |   254 |   1471 Hz | Unsupported, timing functionality not guaranteed |
+|     5 MHz |         16 | 1225 Hz | OSCHF@20 32 |   254 |   1225 Hz |                                                  |
+|     4 MHz |         16 |  980 Hz | OSCHF@16 32 |   254 |    980 Hz |                                                  |
+|     3 MHz |          8 | 1471 Hz | OSCHF@12 32 |   254 |    735 Hz | Unsupported, timing functionality not guaranteed |
+|     3 MHz |          8 | 1471 Hz | OSCHF@24 32 |   254 |   1471 Hz | Unsupported, timing functionality not guaranteed |
+|     2 MHz |          8 |  980 Hz | OSCHF@16 32 |   254 |    980 Hz |                                                  |
+|     1 MHz |          8 |  490 Hz | OSCHF@16 32 |   254 |    980 Hz |                                                  |
+
+`*` Overclocked (generally works, 28 and 32 can be achieved with internal oscillator)
+
+`**` Way overclocked, may not work (requires external crystal or oscillator).
+
+`Prescale A` and `fPWM` apply to all pins not on TCD0. TOP is always set to 254 for TCA
+
+`Prescale D`, `TOP D`, and `fPWM (D)` apply to the pins on TCD0.
+In addition to the case of an external system clock source. Note that this did not work correctly prior to 1.4.0 Where marked, we clock TCD0 from OSCHF instead of using CLK_PER, prescale by 32. For speeds other than 5 MHz and 10 MHz, we set the internal oscillator to 8 MHz.
+
+These are the overall Timer D prescaler (in all cases, by default only the count prescaler is used if at all possible), TOP, and resulting frequency of TCD0 PWM output.
+
+t4r
+,`gvbttfWhere TCD0 TOP is not 254, but is 509, 1019, or (above 32 MHz only) 2039, all duty ycles passed to `analogWrite()` for those pins will by left-shifted as necessary to get an appropriate duty cycle.
 
 ### Previous versions
 Versions 1.3.1-1.3.6 had issues with PWM frequency at under some condition, and with micros readout in others. In 1.3.0 and earlier, there was no coherent list of timer settings based on part and clock speed.
@@ -360,7 +420,7 @@ When TCA0 is used as the millis timekeeping source, it is set to run at the syst
 
 `!` - Theoretical, these speeds are not supported and have not been tested
 
-In contrast to the type B timer where prescaler is held constant while the period changes, here period (in ticks) is constant but the prescaler is not. Hence each prescaler option is associated with a fixed % of time spent in the ISR (and yes, for reasons I don't understand, the generated ISR code is slightly faster for /64 prescaling compared to /256, /16, and /8 (which are equal to each other).
+In contrast to the type B timer where prescaler is held constant while the period changes, here period (in ticks) is constant but the prescaler is not. Hence each prescaler option is associated with a fixed % of time spent in the ISR (and yes, for reasons I don't understand, the generated ISR code is slightly faster for /64 prescaling compared to /256, /16, and /8 (which are equal to each other). Edit: Probably gets to render something as a swap
 
 The micros execution time does not depend strongly on F_CPU, running from 112-145 clock cycles.
 
@@ -416,11 +476,41 @@ TCD0 is not supported for millis timekeeping on these parts. Originally it was i
 ### Manipulating millis timekeeping
 There are a handful of functions exposed that manipulate the timekeeping:
 ```c
-stop_millis(); // stops the millis timer. Call restart_millis to restart it.
-restart_millis(); // restarts the millis timer after calling stop_millis()
-set_millis(uint32_t);  // Set the current millisecond count to the argument provided. With a TCB timer, millis and micros will stay in sync. Because of the more complicated math involved with the TCA,
-// which has to track fractional milliseconds, set_millis() should not be expected to maintain synchronization between millis and micros, and micros may see small distortions.
-nudge_millis(uint16_t); // Set the current millisecond time this many milliseconds forward. The same caveat about micros not being changed with TCA for timing apply here. Unlike the above, this is specifically directed at the application where you have to do something that will block interrupts for long enough that you know you'll miss millis counts, and you know how long that something is. You will end up that many milliseconds behind, less 1-2 x millis resolution (from table above). You could then pass that to nudge_millis() to limit the drift to 0-1 x millis resolution. (since the time you can have interrupts disabled for before drifting begins to occur )
+bool stop_millis();
+/* stops the millis timer. Call restart_millis to restart it.
+ * Was previously void. Now can return true if there's a problem (millis was not running normally when this was called).
+*/
+bool restart_millis();
+/* restarts the millis timer after calling stop_millis()
+ * Was previously void. Returns true if there was a problem restarting millis, likely a timer left in a trashed state by user code.
+ */
+void set_millis(uint32_t);
+/* Set the current millisecond count to the argument provided. With a TCB timer,
+ * millis and micros will stay in sync. Because of the more complicated math involved
+ * with the TCA, which has to track fractional milliseconds, set_millis() should not
+ * be expected to maintain synchronization between millis and micros, and micros may
+ * see small distortions. */
+
+void nudge_millis(uint16_t);
+/* Set the current millisecond time this many milliseconds forward. The same caveat
+ * about micros not being changed with TCA for timing apply here. Unlike the above, this
+ * is specifically directed at the application where you have to do something that will
+ * block interrupts for long enough that you know you'll miss millis counts, and you know
+ * how long that something is. You will end up that many milliseconds behind, less
+ * 1-2 x millis resolution (from table above). You could then pass that to nudge_millis()
+ * to limit the drift to 0-1 x millis resolution. (since the time you can have interrupts
+ * disabled for before drifting begins to occur) */
+uint8_t _getCurrentMillisTimer();
+/* New: This allows you to interrogate the timekeeping system. This will return either one of
+ * a subset of the options from Appendix I. Normally this will only return the value set in the
+ * tools submenu. However, if stop_millis() was called and restart millis hasn't, this will return
+ * NOT_A_TIMER (to differentiate from disabled millis). Additionally in the future with the
+ * sleepTime library two additional options will be possible: TIMERRTC and TIMERPIT. These are
+ * returned in the unlikely event that this is called when sleeptime has been sleeping with RTC
+ * timekeeping and hasn't switched back yet.
+ * See Apppendix I. */
+(macro) MILLIS_TIMER
+/* This is the value (from appendix I - anything that _gCMT() can return except TIMERRTC and TIMERPIT.
 ```
 
 ## Tone
@@ -428,75 +518,150 @@ The `tone()` function included with DxCore uses one Type B timer. It defaults to
 
 **Recent Fixes** - Prior to the release of 1.3.3, there were a wide variety of bugs impacting the `tone()` function, particularly where the third argument, duration, was used; it could leave the pin `HIGH` after it finished, invalid pins and frequencies were handled with obvously unintended behavior, and integer math overflows could produce weird results with larger values of duration at high frequencies, and three-argumwent `tone()` didn't work at all above 32767Hz due to an integer overflow bug (even though maximum supported frequency is 65535 Hz).
 
-**Long tones specifying duration** The three argument `tone()` counts the toggles of the pin for the duration. This means some very large numbers can cause problems. Cases where this is an issue are hereafter known as "Long tones". This core supports long tones through the three argument tone. A long tone is any tone where `4.294 billion < (frequency * duration) < 2.149 trillion` (using the same units the args are passed as - Hz and ms) - by rearranging some division, as long as 16k or more flash is present on the part we are compiling for (it uses more memory). Anything longer is a "very long" tone and is never supported via the three argument `tone()`. Your earsplitting high-pitched whine with a duration of more than a few hours (which is far outside the regime that tone is intended for) must be implemented with a 2-argument tone() and millis. If it needs to be implemented at all. Even normal "long tones" require a high frequency tone requested for minutes, which is an extreme use case.
+### Long tones which specify a duration
+The three argument`tone(pin,uint16_t freq, uint32_t duration (ms))` achieves that timing by possibly the crudest way imaginable - calculates the number of timer ticks that's equal to the duration, and then downcounts. This means some very large numbers can cause problems. Cases where this is is potentially a problem are referred to herafter as "Long Tones". A long tone is any tone(pin, frequency, duration) where  (4.294 billion) `(2^32 - 1) < (frequency * duration) < (2^32-1)*500` (2.149 trillion). These are cases where the naive calculation will overflow the uint32_t in an intermediate, that is, when `frequency (Hz) * duration (ms)` will overflow. At the absolute maximum frequency that can be specified, 65535 Hz, it will occur starting at a duration of 65537 ms. Yet what we need is the number of times the ISR fires, and that would happen twice per cycle, so that becomes
+`2 * frequency (Hz) * duration (ms)` and we need to get it into consistent units, so we also have to divide by 1000, which can be factored out to eliminate the multiplication by two, leaving `(frequency (Hz) * duration (ms)) / 500` - this would not overflow until your 65.535 kHz tone lasted longer than 22.7 days. So although the result would fit into the destination, the intermediate will overflow at 1/500th of that duration! but we don't want to divide either of the frequency or duration by 500, as that would push a great deal of quantization noise into that one variable. However, if we're willing to use a bit more flash, we can distribute that 500 - We divide the frequency by 10 and the duration by 50, because with such long tones, the duration doesn't matter down to a granularity of 20ms, nor does frequency likely matter down to 10 Hz. The inaccuracy introduced here is far smaller than the error from the imperfect internal oscillators, for example.  Use millis/micros and NoTone() for Very Long Tones. Anything longer is a "very long" tone and is never supported via the three argument `tone()`. Your earsplitting high-pitched whine with a duration of more than a few hours (which is far outside the regime that tone is intended for) must be implemented with a 2-argument tone() and millis. If it needs to be implemented at all. Even normal "long tones" require a high frequency tone requested for minutes, which is an extreme use case.
 
-Tone works the same was as the normal `tone()` function on official Arduino boards. Unlike the official megaAVR board package's tone function, it can be used to generate arbitrarily low frequency tones (as low as 1 Hz). If the period between required toggling's of the pin is greater than the maximum timer period possible, it will calculate how many cycles it has to wait through between switching the pins in order to achieve the desired frequency.
+So, there are two implementations of tone() used, differing very slightly
+1. On parts with 8k flash or less, considering that this is a corner case, we say "screw it, not worth the flash" and let it overflow.
+2. On parts with 16k or more of flash, we distribute the division before performing the multiplication.
 
 It can only generate a tone on one pin at a time.
 
-All tone generation is done via interrupts. The hardware output compare functionality is not used for generating tones because in PWM mode, the type B timers kind-of suck. Hardware-tone would require using a type A timer, and few are willing to sacrifice 6 pwm channels for tone - though the library would be simple.
+All tone generation is done via interrupts. The hardware output compare functionality is not used for generating tones because the hardware of the type B timer is ill-suited to this application, while. using a type A timer, and on many parts that's all the PWM you get - though the library would be simple.
 
 ## Servo Library
 The Servo library included with this core uses one Type B timer. It defaults to using TCB1 if available, unless that timer is selected for Millis timekeeping. Otherwise, it will use TCB0. The Servo library is not compatible with any sketch that needs to take over these timers - if possible, use a different timer for your other needs. Servo and `tone()` can only be used together on when neither of those is used for millis timekeeping.
 
 Regardless of which type B timer it uses, Servo configures that timer in Periodic Interrupt mode (`CNTMODE` = 0) mode with CLK_PER/2 or CLK_PER as the clock source, so there is no dependence on the TCA prescaler. The timer's interrupt vector is used, and it's period is constantly adjusted as needed to generate the requested pulse lengths. In 1.1.9 and later, CLK_PER is used if the system clock is below 10MHz to generate smoother output and improve performance at low clock speeds.
 
-The above also applies to the Servo_DxCore library; it is an exact copy except for the name. If you have installed a version of Servo via Library Manager or by manually placing it in your sketchbook/libraries folder, the IDE will use that in preference to the one supplied with this core. Unfortunately, that version is not compatible with the Dx-series parts. Include Servo_DxCore.h instead in this case. No changes to your code are needed other than the name of the library you include.
+The above also applies to the Servo_DxCore/Servo_megaTinyCore library; it is an exact copy except for the name. If you have installed a version of Servo via Library Manager or by manually placing it in your sketchbook/libraries folder, the IDE will use that in preference to the one supplied with this core. Unfortunately, that version is not compatible with the Dx-series parts. Include Servo_DxCore.h instead in this case. No changes to your code are needed other than the name of the library you include.
 
 
 ## Additional functions for advanced timer control
-  We provide a few functions that allow the user to tell the core functions that they wish to take full control over a timer, and that the core should not try to use it for PWM. These are not part of a library because of the required integration with the core to control `analogWrite()` and digitalWrite behavior.
+We provide a few functions that allow the user to tell the core functions that they wish to take full control over a timer, and that the core should not try to use it for PWM. These are not part of a library because of the required integration with the core to control `analogWrite()` and digitalWrite behavior.
 
 ### takeOverTCA0()
-  After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCA0 (though it will attempt to use other timers that the pin may be controllable with to, if any), nor will `digitalWrite()` turn it off. TCA0 will be disabled and returned to it's power on reset state. All TCBs that are used for PWM on parts with only TCA0 use that as their prescaled clock source buy default. These will not function until TCA1 is re-enabled or they are set to use a different clock source. Available only on parts with TCA1 where a different timer is used for millis timekeeping.
+After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCA0 (though it will attempt to use other timers that the pin may be controllable with to, if any), nor will `digitalWrite()` turn it off. TCA0 will be disabled and returned to it's power on reset state. All TCBs that are used for PWM on parts with only TCA0 use that as their prescaled clock source buy default. These will not function until TCA1 is re-enabled or they are set to use a different clock source. Available only on parts with TCA1 where a different timer is used for millis timekeeping.
 
 ### takeOverTCA1()
-  After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCA1 (though it will attempt to use other timers that the pin may be controllable with to, if any), nor will `digitalWrite()` turn it off. TCA1 will be disabled and returned to it's power on reset state. All TCBs that are used for PWM on parts with TCA1 use that as their prescaled clock source buy default. These will not function until TCA1 is re-enabled or they are set to use a different clock source. Available only on parts with TCA1, and only when a different timer is used for millis timekeeping.
+After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCA1 (though it will attempt to use other timers that the pin may be controllable with to, if any), nor will `digitalWrite()` turn it off. TCA1 will be disabled and returned to it's power on reset state. All TCBs that are used for PWM on parts with TCA1 use that as their prescaled clock source buy default. These will not function until TCA1 is re-enabled or they are set to use a different clock source. Available only on parts with TCA1, and only when a different timer is used for millis timekeeping.
 
 ### takeOverTCD0()
-  After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCD0 (though it will attempt to use other timers, if any), nor will `digitalWrite()` turn it off. There is no way to reset type D timers like Type A ones. Instead, if you are doing this at the start of your sketch, override init_TCD0. If TCD is ever supported as millis timing source, this will not be available.
+After this is called, `analogWrite()` will no longer control PWM on any pins attached to timer TCD0 (though it will attempt to use other timers, if any), nor will `digitalWrite()` turn it off. There is no way to reset type D timers like Type A ones. Instead, if you are doing this at the start of your sketch, override init_TCD0. If TCD is ever supported as millis timing source, this will not be available.
 
 ### resumeTCA0()
-  This can be called after takeOverTimerTCA0(). It resets TCA0 and sets it up the way the core normally does and re-enables TCA0 PWM via analogWrite.
+This can be called after takeOverTimerTCA0(). It resets TCA0 and sets it up the way the core normally does and re-enables TCA0 PWM via analogWrite.
 
 ### resumeTCA1()
-  This can be called after takeOverTimerTCA1(). It resets TCA1 and sets it up the way the core normally does and re-enables TCA1 PWM via analogWrite.
+This can be called after takeOverTimerTCA1(). It resets TCA1 and sets it up the way the core normally does and re-enables TCA1 PWM via analogWrite.
+
+### There is no takeover or resume of TCBs
+TCBs are handled differently since each one has only a single PWM channel - we will treat it as available (and hence use it as a timer of last resort if analogWrite() or turnOffPWM() is called on that timer's output pin) if and only if that timer is currently set to PWM mode, which we set during initialization for all timers not being used for millis timekeeping.  it is currently set to PWM mode. Which pin is fixed by the variant file and shown in the core documentation for that part family - they've been chosen differently on different parts to maximize the number of usable pins).
 
 ## Appendix I: Names of timers
 Whenever a function supplied by the core returns a representation of a timer, these constants will be used
 
 | Timer Name   | Value | Peripheral |          Used for |
 |--------------|-------|------------|-------------------|
-| NOT_ON_TIMER |  0x00 |      None  | disabled millis   |
-| TIMERA0 *    |  0x10 |      TCA0  | millis and/or PWM |
-| TIMERA1 *    |  0x08 |      TCA1  | millis and/or PWM |
-| TIMERB0      |  0x20 |      TCB0  | millis     or PWM |
-| TIMERB1      |  0x21 |      TCB1  | millis     or PWM |
-| TIMERB2      |  0x22 |      TCB2  | millis     or PWM |
-| TIMERB3      |  0x23 |      TCB3  | millis     or PWM |
-| TIMERB4      |  0x24 |      TCB4  | millis     or PWM |
-| TIMERD0      |  0x40 |      TCD0  |               PWM |
-| TIMERD0      |  0x40 |      TCD0  |           PWM WOA |
-| TIMERD0      |  0x41 |      TCD0  |           PWM WOB |
-| TIMERD0      |  0x42 |      TCD0  |           PWM WOC |
-| TIMERD0      |  0x43 |      TCD0  | millis    PWM WOD |
-| TIMERE0      |  TBD  |      TBD   | Likely will be to support ways to change TCD0 with the timer |
-| TIMERE0      |  TBD  |      TBD   | USE_TCF0          |
-| DACOUT ***   |  0x80 |      DAC0  | logWrite (outat)  |
-| TIMERRTC     |  0x90 |      `RTC` | @ sleeping time   |
-| TIMERRTC_XTAL|  0x91 | `RTC,32kXtal`| @ sleeping time   |
-| TIMERRTC_EXT |  0x92 | `RTC,extclk`| @ sleeping time   |
-| TIMERPIT     |  0x98 | `RTCetx  PIT` @ PD sleep time   |
+| NOT_ON_TIMER |  0x00 |      None  | millis (disabled) or when asked what timer outputs on a pin available for PWM.  |
+| TIMERA0 *    |  0x10 |     `TCA0` | millis and/or PWM |
+| TIMERA1 *    |  0x08 |     `TCA1` | millis and/or PWM |
+| TIMERA2 *    |  0x18 |     `TCA2` | Nothing. No such part exists |
+| TIMERB0      |  0x20 |     `TCB0` | millis     or PWM |
+| TIMERB1      |  0x21 |     `TCB1` | millis     or PWM |
+| TIMERB2      |  0x22 |     `TCB2` | millis     or PWM |
+| TIMERB3      |  0x23 |     `TCB3` | millis     or PWM |
+| TIMERB4      |  0x24 |     `TCB4` | millis     or PWM |
+| TIMERB0_ALT  |  0x30 |     `TCB0` | Reserved, not used|
+| TIMERB1_ALT  |  0x31 |     `TCB1` | Reserved, not used|
+| TIMERB2_ALT  |  0x32 |     `TCB2` | Reserved, not used|
+| TIMERB3_ALT  |  0x33 |     `TCB3` | Reserved, not used|
+| TIMERB4_ALT  |  0x34 |     `TCB4` | Reserved, not used|
+| TIMERD0      |  0x40 |     `TCD0` | PWM or on mTC only, millis |
+| TIMERD0_0WOA ** | 0x40 |   `TCD0` |           PWM WOA |
+| TIMERD0_0WOB ** | 0x50 |   `TCD0` |           PWM WOB |
+| TIMERD0_0WOC ** | 0x60 |   `TCD0` |           PWM WOC |
+| TIMERD0_0WOD ** | 0x70 |   `TCD0` |           PWM WOD |
+| TIMERD0_1WOA ** | 0x41 |   `TCD0` | with mux in 3 LSBs|
+| TIMERD0_4WOD ** | 0x74 |   `TCD0` | and so on to here |
+| TIMERE0      |  TBD  |     `TCE0` | TBD               |
+| TIMERF0      |  TBD  |     `TCF0` | TBD               |
+| DACOUT ***   |  0x80 |     `DAC0` | DAC output        |
+| TIMERRTC     |  0x90 |      `RTC` | millis            |
+| TIMERRTC_INT |  0x91 | `RTC, int. 32k`| mTC only, deprecated in light of upcoming sleepTime |
+| TIMERRTC_XTAL|  0x92 | `RTC, 32k Xtal`| mTC only, deprecated in light of upcoming sleepTime |
+| TIMERRTC_EXT |  0x93 | `RTC, ext clk`| mTC only, deprecated in light of upcoming sleepTime |
+| TIMERPIT     |  0x98 | `RTC PIT`  | @ PD sleep time   |
+| NOT_A_TIMER  |  0xFF |      None  | Reserved @@       |
 
 
-0 (`NOT_ON_TIMER`) will be returned if the specified pin has no timer.
+0 (`NOT_ON_TIMER`) will be returned by digitalPinToTimer() or digitalPinToTimerNow() (herafter: dPTT and dPTTN) if the specified pin has no timer.
 
-`*` Currently, the 3 low bits are don't-care bits. At some point in the future we may pass around the compare channel in the 3 lsb when using for PWM. No other timer will ever be numbered 0x10-0x17, nor 0x08-0x0F. 0x18-0x1F is reserved for hypothetical future parts with a third TCA. Hence to test for TCA type: `(timerType = MILLIS_TIMER & 0xF8; if (timerType==TIMERA0) { ... })`
-`**` What was described above would look much like this. Currently we do not use the WOA/WOB/WOC/WOD specific values, but things will change when we get a working PORTMUX for it.
-`***` A hypothetical part with multiple DACs with output buffers will have extend up into 0x8x.
+`*` Currently, the 3 low bits are never set to 1. Howerver, this may change in the future. There are unfortunately two three-bit pieces of information vying for the same three data bits, and which piece of information you want depends on what you're doing, and is only trivial to determine for TCA0: the waveform output channel (0-2 or 0-5) or the mux option (0-6) that points to that pin, . No other timer will ever be numbered 0x10-0x17, nor 0x08-0x0F. 0x18-0x1F is reserved for hypothetical future parts with a third TCA. Hence to test for TCA type: `(timerType = MILLIS_TIMER & 0xF8; if (timerType || timerType < 0x20) {timerType = 0}` will give either `NOT_ON_TIMER`, `TIMERA0`, `TIMERA1`, or in the future, potentially `TIMERA2`. Note that dPTT does not report on the TCAs at all on DxCore (unlike megaTinyCore) - only dPTTN does, because since we
+`**` What was described above regarding including the TCA mux option would look much like this. Notice how we split the byte up into, effectively,
+`***` A hypothetical part with multiple DACs with output buffers will extend this by increasing the count.  into 0x8x.
 `@` Planned for future use. All 0x9x values are reserved for future applications of the RTC and/or PIT and not other new kinds of timers to be determined at a future date.
+`@@` Any function that takes these values as one of it's arguments will - in the event that the value passed does not correspond to a timer -
+Up to four mux options per TCB and up to 8 TCBs on a future part could be accomodated - alt1 and alt2 would start at 0x28 and 0x38, though as noted we currently do not use bit 4 or 3.
 
-All other unforeseen timer-like peripherals will be assigned to values above 0x9F, unless we have reason to think that the two will never coexist.
+The algorithm that you want to use to unpick this hence looks something like:
+
+Calls to `_gCMT` should be conditionally compiled based on CORE_HAS_CURRENTTIMER. If it is 0 or is not defined, you must not attempt to call `_gCMT` as it will not be defined. In this case, sleepTime is not supported, as it relies upon this, and and that there are only two possibilities, (only 1 if millis disabled) - either millis is currently running from the timer specified in the tools submenu, or it is paused. But there is no way to tell which without `gCMT` available from 1.6.9 onwards
+1. If the value is 0, that pin has no timer (note that you must take care to use dPTTN instead of dPTT if you wish to consider the compile-time-unknown value of the portmux registers and the type A timers) if using dPTT[N], or millis is disabled if using `_gCMT`.
+  a. When using `_gCMT`, this will never return any value other than 0 (if millis is currently not running -  but is enabled in the tools menus), the value chosen from the tools menu, ie, `MILLIS_TIMER`, or 0x90-0x9F, indicating that the the millis timekeeping is *currently* based on the RTC, though it (mTC: may not be, DxC: is not) the default millis timer. This can happen when the not-yet-implemented sleepTime library is in use, and the current code is executing from a context where the part has just awoken from or is going to enter a power saving sleep mode while maintaining timekeeping. So processing `gCMT` is much easier:
+```c
+  if (val == 0) {
+    // Handle millis not running
+  } else if (val == MILLIS_TIMER) {
+    // handle the normal case
+  } else if (value & 0xF0 == 0x90) {
+    // handle the RTC used for millis
+  } else {
+    badValue("Internal error in mill")
+  }
+```
+2. Make a copy of the value, bitwise and with 0xF8.
+3. If the copy is less than 0x20, -> it's TCAn
+  a. Specifically,  n(copyval >> 3) = (n/a, 1, 0, 2)
+4. If high bit of copy is set, there is no PWM on this pin, but there is a DAC (for dPTT[N]), or millis is using the RTC (for `_gCMT`).
+  a. Currently there is no announced or released AVR with more than one DAC channel.
+  b. For `_gCMT`, DACOUT will never be returnned, but the RTC options can be, the least significant bits indicate exactly what type of , you can also see exactly what RTC mode it's in by looking at the low nybble (see table)
+  In the future, there may be additioal timers supported above 0x80.
+5. Otherwise, check bit 6 (0x40). If it is a 1, you have a type D timer on this pin. Bits 4 and 5 indicate which waveform output channel, and bits 0-2 indicate the mux option. Bit 3 is reserved for any future TCD1.
+  Having both those pieces of information in the table improves performance.
+6.  Finally, check bit 5 (0x20). Which If set, means a type B timer pin
+  a. 3 LSBs contain the timer number. If bit 4 is set, it's the alternate pin. If a second or third is ever available, we'll use bit 3 just like TCA.
+
+There were some key and non-obvious hazards:
+  * For dPTT[N] especially. It is convenient tomake a copy and
+
+### `_GCMT` return values
+
+| Timer Name   | Value | Peripheral |Notes:
+|--------------|-------|------------|-------
+| NOT_ON_TIMER |  0x00 |      None  | Means millis is *paused* or *stopped* but can be restarted.
+| TIMERA0      |  0x10 |     `TCA0` |
+| TIMERA1      |  0x08 |     `TCA1` |
+| TIMERA2      |  0x18 |     `TCA2` | Theoretical
+| TIMERB0      |  0x20 |     `TCB0` |
+| TIMERB1      |  0x21 |     `TCB1` |
+| TIMERB2      |  0x22 |     `TCB2` |
+| TIMERB3      |  0x23 |     `TCB3` |
+| TIMERB4      |  0x24 |     `TCB4` |
+| TIMERD0      |  0x40 |     `TCD0` |
+| TIMERE0      |  TBD  |     `TCE0` | Pending more information.
+| TIMERF0      |  TBD  |     `TCF0` | Pending more information.
+| TIMERRTC     |  0x90 |      `RTC` | Never the value of TIMER_MILLIS. only returned by _gCMT(). Indicates that the RTC is being used for timekeeping temporarily.
+| TIMERRTC_INT |  0x91 | `RTC, int. 32k`| mTC only, deprecated in light of upcoming sleepTime
+| TIMERRTC_XTAL|  0x92 | `RTC, 32k Xtal`| mTC only, deprecated in light of upcoming sleepTime
+| TIMERRTC_EXT |  0x93 | `RTC, ext clk`| mTC only, deprecated in light of upcoming sleepTime
+| TIMERPIT     |  0x98 | `RTC PIT`  | Never the value of TIMER_MILLIS. only returnec by _gCMT()
+| NOT_A_TIMER  |  0xFF |      None  | Means millis is *disabled*.
+
+
+All other unforeseen timer-like peripherals will be assigned to values above 0x9F
+
 ## Appendix II: TCB Micros Artifacts
 3, 6, 12, 24, and 48 MHz, with the new optimized micros code, running from a TCB, is known to skip these (and only these) 250 values when determining the least significant thousand micros. That is, if you repeatedly calculate `micros % 1000`, none of these will show up until it has been running long enough for micros to overflow.
 
@@ -511,7 +676,7 @@ All other unforeseen timer-like peripherals will be assigned to values above 0x9
 877, 882, 885, 888, 893, 896, 899, 904, 907, 910, 915, 920, 925, 928, 931, 936, 941, 946, 949, 952, 957, 962, 967, 970, 973, 978, 981, 984, 989, 992, 995
 ```
 
-Those 250 "missing" microseconds manifest as repeats. It is difficult to intuitively understand why these values are the values they are; these were calculated using a spreadsheet to simulate the results for every timer count value:
+Those 250 "missing" microseconds manifest as repeats. It is difficult to intuitively understand why these values are the values they are (at least, I don't); these were calculated using a spreadsheet to simulate the results for every timer count value:
 ```text
 0, 4, 8, 12, 16, 20, 24,  27,  32,  36,  40,  44,  48,  52,  57,  60,  64,  68,  72,  76,  80,  84,  88,  91,  96, 100, 104, 107, 111, 115, 120, 123, 128,
 132, 136, 140, 144, 148, 152, 155, 160, 164, 168, 172, 176, 180, 185, 188, 192, 196, 200, 204, 208, 212, 217, 220, 225, 229, 233, 236, 240, 244, 249, 252,
@@ -524,10 +689,14 @@ Those 250 "missing" microseconds manifest as repeats. It is difficult to intuiti
 ```
 Similar lists can be generated for any other clock speed where resolution is coarser than 1us and a TCB is used.
 
-The number of values will, for ideal values, be `(1000) * (1 - (1 / resolution))` or something very close to that. Non-ideal series of terms or particularly adverse clock speeds may have more than that, as well as more cases of consecutive times that get the same micros value. If the terms were chosen poorly, it is possible for a time t give micros M where M(t-1) > M(t), violating the assumptions of the rest of the core and breaking EVERYTHING. The current version of the core is believed to be free of them for all supported clock speeds. Likewise, it is possible for there to be larger skips or discontinuities, where M(t) - M(t-1) > 2, in contrast to skips listed above (where M(t) - M(t-1) = 2 ), or the number of times that a value returned for a point in time 1 us in the future would be the same numeric value -  (ie, M(t) = M(t-1))
+The number of values will, for ideal values, be `(1000) * (1 - (1 / resolution))` or something very close to that. Non-ideal series of terms or particularly adverse clock speeds may have more than that, as well as more cases of consecutive times that get the same micros value. If the terms were chosen poorly, it is possible for a time t give micros M where M(t-1) > M(t). This "backwards time travel" is very dangerous and if  violating the assumptions of the rest of the core and breaking EVERYTHING. The current version of the core is believed to be free of them for all supported clock speeds. Likewise, it is possible for there to be larger skips or discontinuities, where M(t) - M(t-1) > 2, in contrast to skips listed above (where M(t) - M(t-1) = 2 ), or the number of times that a value returned for a point in time 1 us in the future would be the same numeric value -  (ie, M(t) = M(t-1))
 
 Timer options which have resolution of 1us (internally, it is lower) may have repeats or skips if fewer than the optimal number of terms were used (as is the case with non optimized options) or where the clock speed is particularky hard to work with, like the 28 MHz one.
 
 
-## Appendix III: you made it through all the intervening 374 lines of textm, just to be told
-> *It's a trick question!* Yes, every single one of those, or something close enough for our team of expert(s) to deem them equivalent. These have all actually existed in some form or another, at one time or another - right here on Earth, the works of mankind. A teenager really did make a nuclear reactor at home (people had tracked radioactive dust all over the neighborhood by the time someone realized what was going on). Asbestos cloth was widely used to make flexible fireproof objects, including clothing. Wooden knickknacks are in fact made through a traditional artform from trees that contain the same compounds as poison ivy (the same "active" ones, to be clear); they used it to make things like bowls and dishes and because it hardened into a durable plastic like material... though it doesn't pose the persistent toxicity of some modern plastics. Some emperor's tomb contained, or had contained at one point, a pond and possibly a fountain of mercury. And as most fans of danger already knew, around the turn of the century radioactive material (usually radium) was just one of the many poisons sold as medicine. They put it in all kinds of things. Brought to you by Hazmart - something for everyone on your "list"!
+## Appendix III: Quiz answer! Yes, you made it through all the intervening 400ish lines of textm, just to be told...
+> *It's a trick question!*
+
+Yes, every single one of those, or something close enough for our team of expert(s) to deem them equivalent. These have all actually existed in some form or another, at one time or another - right here on Earth, the works of mankind. A *teenager* really did make a nuclear reactor at home (people had tracked radioactive dust all over the neighborhood by the time someone realized what was going on). Asbestos cloth was widely used to make flexible fireproof objects, including clothing. Wooden knickknacks are in fact made through a traditional artform in asian countries where the lacquer plant grows natively; the sap - rich in the same compounds as poison ivy (the same "active" ones, to be clear); they used it to make things like bowls and dishes, because it hardened into a durable plastic-like material long before plastics existed. Though it doesn't pose the persistent toxicity of some modern plastics, I wouldn't be the one to volunteer to make it... And indeed, some emperor's tomb, I belive in China, contained, or had contained at one point, a pond and possibly a fountain of mercury. And as most fans of danger already knew, around the turn of the century radioactive material (usually radium) was just one of the many poisons sold as medicine. They put it in all kinds of things, including water (which you were supposed to *drink*) soaps, and similar, so it's inconceivable that shampoo wasn't one of those. Obviously none of them any any benefit to speak of, and unlike older patent medicines, which were typically heroin, cocaine, and organochlorine drug
+
+Brought to you by Hazmart - something for everyone on your "list"!

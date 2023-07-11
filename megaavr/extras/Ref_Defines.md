@@ -249,6 +249,8 @@ There are a number of macros for determining what (if any) features the core sup
 * `CORE_HAS_ANALOG_ENH` - If defined as 1, `analogReadEnh()` (enhanced analogRead) is available. Otherwise, it is not.
 * `CORE_HAS_ANALOG_DIFF` - If defined as 1, `analogReadDiff()` (differential enhanced analogRead) is available. Otherwise, it is not.  It has same features as enhanced, except that it takes a differential measurement. If this is -128, (128 unsigned), it is a classic AVR, not a modern one with a differential ADC, and the core's analogRead implementation accepts the constants listed in the core documentation to make an analogRead
 * `CORE_HAS_ENH_SERIAL` - if defined as 1 the core has the new implementation of Serial. See [the serial reference](Ref_Serial.md)
+* `CORE_HAS_ERRORFUNS = 1` - Newly added define - it's become apparent that reliance on the core's badArg and badCall functions was impacting portability of library code; this can be tested for by libraries which use badArg() and badCall() so that if it's not present, the library can include a copy of the definitions. Mostly meant for internal use, though some other people *might* be using badArg() or badCall() in their libraries?
+
 
 ## Hardware feature detection
 * `ADC_MAX_OVERSAMPLED_RESOLUTION` = 13 (tinyAVR0/1), 15 (Dx-series) or 17 (tinyAVR 2 or Ex-series) - If either `CORE_HAS_ANALOG_ENH` or `CORE_HAS_ANALOG_DIFF` is 1, this will be defined as the maximum resolution obtainable automatically via oversampling and decimation using those functions.

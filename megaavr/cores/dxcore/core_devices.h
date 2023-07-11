@@ -945,7 +945,8 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   #define ADC_NATIVE_RESOLUTION_LOW       (8)
   #define ADC_MAXIMUM_ACCUMULATE       (1024) // This allows the 5 extra bits of resolution
   #define ADC_RESULT_SIZE                (24)
-  #define ADC_SIGNCHOPPING                (1)
+  #define ADC_SIGNCHOPPING                (1) // if defined, ADC_CHOP() will work, and the ACC###S constants can be used ADC_CHOP will oversample and decimate using
+  // sign chopping. Otherwise, the hardware doesn't support it and will give an error
 #else                                         // Dx-series ADCs are less fancy.
   #define ADC_DIFFERENTIAL                (1) // Crapola differential ADC that is effectively kicking off two ADCs at once
   #define ADC_MAX_OVERSAMPLED_RESOLUTION (15)
