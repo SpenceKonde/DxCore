@@ -41,10 +41,10 @@ These are the values that the MILLIS_TIMER may be defined as:
 | `TIMERB2`       |          0x22 | Millis is generated from TCB2
 | `TIMERB3`       |          0x23 | Millis is generated from TCB3
 | `TIMERB4`       |          0x24 | Millis is generated from TCB4
-| `TIMERD0`       |          0x40 | Not planned for implementation on DxCore.
-| `TIMERRTC`      |          0x80 | (not yet implemented on DxCore)
-| `TIMERRTC_XTAL` |          0x81 | (not yet implemented on DxCore)
-| `TIMERRTC_XOSC` |          0x82 | (not yet implemented on DxCore)
+| `TIMERD0`       |          0x40 | Millis is generated from TCD0 (megaTinyCore only)
+| `TIMERRTC`      |          0x80 | Millis is generated from the RTC from internal low frequency osc. (megaTinyCore only currently)
+| `TIMERRTC_XTAL` |          0x81 | Millis is generated from the RTC from external crystal oscillator. (megaTinyCore only currently)
+| `TIMERRTC_XOSC` |          0x82 | Millis is generated from the RTC from external active oscillator. (megaTinyCore only currently)
 
 To to find the millis timer:
 ```c
@@ -101,14 +101,15 @@ The below parameter defines should be used in preference to the above.
 * `_AVR_FAMILY` - String - "DA", "DB", "DD, "DU", "EA", "EB" or "T0", "T1", "T2" depending on what kind of part it is.
 * `_AVR_PINCOUNT` - The number of physical pins
 * `_AVR_FLASH` - Flash size, in KB
-* `__AVR_DA__`
-* `__AVR_DB__`
-* `__AVR_DD__`
-* `__AVR_EA__` (unreleased, but official, will be DxCore)
-* `__AVR_EB__` (unreleased, but official, will be DxCore)
-* `__AVR_TINY_0__`
-* `__AVR_TINY_1__`
-* `__AVR_TINY_2__`
+* `__AVR_DA__` (official, defined by avrlibc))
+* `__AVR_DB__` (official, defined by avrlibc))
+* `__AVR_DD__` (official, defined by avrlibc))
+* `__AVR_DU__` (unreleased - official, defined by avrlibc)
+* `__AVR_EA__` (official, defined by avrlibc)
+* `__AVR_EB__` (unreleased - official, defined by avrlibc)
+* `__AVR_TINY_0__` (unofficial - defined by the core)
+* `__AVR_TINY_1__` (unofficial - defined by the core)
+* `__AVR_TINY_2__` (unofficial - defined by the core)
 * `MEGATINYCORE_MCU` - The number after "ATtiny" in the part name.
 * `MEGATINYCORE_SERIES` - the part series, 0, 1, or 2.
 
@@ -201,6 +202,7 @@ These define the version of the core:
   * `DXCORE_RELEASED` - 1 if a released version, 0 if unreleased (ie, installed from github between releases).
   * `DXCORE_NUM` - DxCore version, as unsigned long.
 
+### DxCore
 ```c++
 Serial.println(DXCORE);
 Serial.print(DXCORE_MAJOR);
@@ -225,6 +227,31 @@ Unknown 1.3.7+
 1 3 8 0
 01030800
 ```
+### megaTinyCore
+```c++
+Serial.println(MEGATINYCORE);
+Serial.print(MEGATINYCORE_MAJOR);
+Serial.print(' '); // using ' ' instead of " " saves a tiny amount of flash!
+Serial.print(MEGATINYCORE_MINOR);
+Serial.print(' ');
+Serial.print(MEGATINYCORE_PATCH);
+Serial.print(' ');
+Serial.println(MEGATINYCORE_RELEASED);
+Serial.println(MEGATINYCORE_NUM,HEX);
+
+```
+Will produce output like:
+```text
+2.5.0
+2 5 0 1
+02050001
+```
+or - if your non-Arduino IDE is not able to handle the escaping and you happened to be using a 2.5.1 github build:
+```text
+Unknown 2.5.0+
+2 5 1 0
+02050100
+```
 The various numeric representations of version are of interest to those writing libraries or code meant to be run by others. They are meant to ensure that there is always an easy way to test against specific versions (for when a release contains a regression), as well as an "X or better" type test. Warning: In some third party development environments, the `DXCORE` define is lost. Since that's how we tell people to detect if DxCore is in use (`#if defined(DXCORE)`) we now detect that and put define it as "Unknown 1.3.7+" (where the number changes whenever I happen to notice it while editing the file for a new version). `DXCORE_NUM` is by far the easiest way to detect if a certain fix or patch is present.
 
 
@@ -235,20 +262,22 @@ This can be set to 102, 103, or 104 depending on flash size - the compiler sets 
 * `__AVR_ARCH__ == 102` - Parts with 64Kb of flash, mapped flash is split into 2 sections (AVR64DA, AVR64DB).
 
 ## Core feature detection
-* `DEVICE_PORTMUX_TCA = 2` 1 = each wave output cannnel can be moved individually, like tinyAVRs. 2 = Whole thing moved at once
+* `DEVICE_PORTMUX_TCA = 1` 1 = each wave output channel can be moved individually, like tinyAVRs. 2 = Whole thing moved at once
 There are a number of macros for determining what (if any) features the core supports (these are shared with megaTinyCore and ATTinyCore (2.0.0+)
-* `CORE_HAS_FASTIO = 2` - If defined as 1 or higher. indicates that `digitalWriteFast()` and `digitalReadFast()` is available. If undefined or defined as 0, these are not available. If 2 or higher, s it is for all parts on megaTinyCore, `pinModeFast()` is also available. If defined as -1, there are no `digital____Fast()` functions, but with constant pins, these functions are optimized aggressively for speed and flash usage (though not all the way down to 1 instruction).
+* `CORE_HAS_FASTIO = 2` - If defined as 1 or higher. indicates that `digitalWriteFast()` and `digitalReadFast()` is available. If undefined or defined as 0, these are not available. If 2 or higher, as it is for all parts on megaTinyCore, `pinModeFast()` is also available. If defined as -1, there are no `digital____Fast()` functions, but with constant pins, these functions are optimized aggressively for speed and flash usage (though not all the way down to 1 instruction). If not defined at all, the core may not be aggressively optimized.
 * `CORE_HAS_OPENDRAIN = 1` - If defined as 1, indicates that `openDrain()` and (assuming `CORE_HAS_FASTIO` is >= 1) `openDrainFast()` are available. If undefined or 0, these are not available.
 * `CORE_HAS_PINCONFIG = 1` - If defined as Indicates that `pinConfigure()` is available. If not defined or defined as 0, it is not available.
-* `CORE_HAS_TIMER_TAKEOVER = 1` - if defined as 1, `takeOverTCxn()` functions are available to let user code take full control of TCA0, TCA1 and/or TCD0.
-* `CORE_HAS_TIMER_RESUME = 1` - if defined as 1, the corresponding `resumeTCxn()` functions, which reinitialize them and return them to their normal core-integrated functions, are available.
-* `ADC_NATIVE_RESOLUTION = 10 or 12` - This is the maximum resolution, in bits, of the ADC without using oversampling.
+* `CORE_HAS_TIMER_TAKEOVER = 1` - if defined as 1 or more, `takeOverTCxn()` functions are available to let user code take full control of TCA0, TCA1 and/or TCD0. If a part, for which support has been provided by one of my cores, in a release, without a takeOverTCxn() function for a timer it has, and later gets a takeOverTCxn function for that timer, there would need to be a CORE_HAS_TIMER_TAKEOVER = 2 for versions of the core that have that new function. I hope, however, to give all new timers a takeOver function if one is appropriate with the first release of support for parts having those timers.
+* `CORE_HAS_TIMER_RESUME = 1`- if defined as 1, the corresponding `resumeTCAn()` functions, which reinitialize them and return them to their normal core-integrated functions, are available. Different values in the future might be used to indicate that resume timers other than TCAn, or which might have an option to resume TCD0. Not available on megaTinyCore.
+* `ADC_NATIVE_RESOLUTION = 12`- This is the maximum resolution, in bits, of the ADC without using oversampling.
 * `ADC_NATIVE_RESOLUTION_LOW = 8 or 10` - The ADC has a resolution setting that chooses between ADC_NATIVE_RESOLUTION, and a lower resolution.
-* `ADC_DIFFERENTIAL = 1` - This is defined as 1 if the part has a basic differential ADC (no gain, and V<sub>analog_in</sub> constrained to between Gnd and V<sub>Ref</sub>), and 2 if it has a full-featured one. It does not indicate whether said differential capability is exposed by the core. If it's defined as -1, it has differential capability in the way that classic AVRs do. See also `CORE_HAS_ANALOG_DIFF`
-* `SUPPORT_LONG_TONES = 1` - On some modern AVR cores, an intermediate value in the tone duration calculation can overflow (which is timed by counting times the pin is flipped) leading to a maximum duration of 4.294 million millisecond. This is worst at high frequencies, and can manifest at durations as short as 65 seconds worst case. Working around this, however, costs some flash, and some cores may make the choice to not address it (megaTinyCore only supports long tones on parts with more than 8k of flash).  If `SUPPORT_LONG_TONES` is defined as 1, as long as (duration * frequency)/500 < 4.294 billion, the duration will not be truncated. If it is defined as 0, the bug was known to the core maintainer and they chose not to fully correct it (eg, to save flash) but took the obvious step to reduce the impact, it will be truncated if (duration * frequency) exceeds 4.294 billion. If `SUPPORT_LONG_TONES` is not defined at all, the bug may be present in its original form, in which case the duration will be truncated if (duration * frequency) exceeds 2.14 billion.
-* `CORE_HAS_ANALOG_ENH` - If defined as 1, `analogReadEnh()` (enhanced analogRead) is available. Otherwise, it is not.
-* `CORE_HAS_ANALOG_DIFF` - If defined as 1, `analogReadDiff()` (differential enhanced analogRead) is available. Otherwise, it is not.  It has same features as enhanced, except that it takes a differential measurement. If this is -128, (128 unsigned), it is a classic AVR, not a modern one with a differential ADC, and the core's analogRead implementation accepts the constants listed in the core documentation to make an analogRead
-* `CORE_HAS_ENH_SERIAL` - if defined as 1 the core has the new implementation of Serial. See [the serial reference](Ref_Serial.md)
+* `ADC_DIFFERENTIAL = 1, or 2` - This is defined as 1 if the part has a basic differential ADC (no gain, and V<sub>analog_in</sub> constrained to between Gnd and V<sub>Ref</sub>, as on the Dx-series), and 2 if it has a full-featured one. It does not indicate whether said differential capability is exposed by the core. This is 0 for 0/1-series and 2 for 2-series. Classic AVRs on ATTinyCore 2.0.0+ will define this as -1 if they have a differential ADC, as their ADC takes differential channels in a totally different way, and will not define it at all if they do not. See also `CORE_HAS_ANALOG_DIFF`
+* `SUPPORT_LONG_TONES = 0 or 1` - On some modern AVR cores, an intermediate value in the tone duration calculation can overflow (which is timed by counting times the pin is flipped) leading to a maximum duration of 4.294 million millisecond. This is worst at high frequencies, and can manifest at durations as short as 65 seconds worst case. Working around this, however, costs some flash, so megaTinyCore only supports long tones on parts with more than 8k of flash. If `SUPPORT_LONG_TONES` is defined as 1, as long as (duration * frequency)/500 < 4.294 billion, the duration will not be truncated. If it is defined as 0, the bug was known to the core maintainer and they chose not to fully correct it (eg, to save flash) but took the obvious step to reduce the impact, it will be truncated if (duration * frequency) exceeds 4.294 billion. If `SUPPORT_LONG_TONES` is not defined at all, the bug may be present in its original form, in which case the duration will be truncated if (duration * frequency) exceeds 2.14 billion.
+* `CORE_HAS_ANALOG_ENH = 1` - If defined as 1, `analogReadEnh()` (enhanced analogRead) is available. Otherwise, it is not; it is 1 for all parts on recent versions of megaTinyCore.
+* `CORE_HAS_ANALOG_DIFF = 0 or 1` - If defined as 1, `analogReadDiff()` (differential enhanced analogRead) is available. Otherwise, it is not. 1 for 2-series (which has a differential ADC) and for the Ex/Dx-series, which have at least a mediocre , 0 for others (as they do not). It has same features as enhanced, except that it takes a differential measurement. If this is -128, (128 unsigned), it is a classic AVR, not a modern one with a differential ADC, and the core's analogRead implementation accepts the constants listed in the core documentation to make an analogRead of a differential pair.
+
+* `CORE_HAS_ENH_SERIAL = 1` - if defined as 1 the core has the new implementation of Serial. See [the serial reference](Ref_Serial.md)
+
 * `CORE_HAS_ERRORFUNS = 1` - Newly added define - it's become apparent that reliance on the core's badArg and badCall functions was impacting portability of library code; this can be tested for by libraries which use badArg() and badCall() so that if it's not present, the library can include a copy of the definitions. Mostly meant for internal use, though some other people *might* be using badArg() or badCall() in their libraries?
 
 
@@ -274,22 +303,23 @@ If present, any OPAMP peripherals have each of their pins defined as shown (wher
 
 ## Compatibility macros
 Occasionally Microchip has not kept the names of registers or bitfields consistent between families of parts, even when the function was not changed. In some cases these have even been changed between versions of the ATpack! The places where we've papered over identical register functionality with different names are:
-* The `GPIO`/`GPIOR`/`GPR` registers - they are now `GPR.GPRn`. The old names will work too, `GPIORn` is recommended for maximum compatibility.
-* The `TCA_SINGLE_EVACTA` bitfield - formerly known as `TCA_SINGLE_EVACT` and it's group codes. The old names will work too, permitting code portability from tinyAVR to Dx.
-* The `RTC_CLKSEL` group codes that were renamed on non-tiny parts. The old names will work too, permitting code portability from tinyAVR to Dx.
-* The `CLKCTRL_SELHF_CRYSTAL_gc` option on DB-series parts which was renamed to `CLKCTRL_SELHF_XTAL_gc`. This goes both ways, as different ATpacks name them differently.
-* All things `CLKCTRL_FREQSEL` related, which had the E dropped in some ATPACK versions. This goes both ways, as different ATpacks name them differently.
+* The `GPIO`/`GPIOR`/`GPR` registers - on the most recent parts, these are officially `GPR.GPRn`. We provide whichever of the following are not present: GPIOn, GPIORn, and GPR_GPRn. `GPIORn` is recommended for maximum compatibility. (GPIOR compatibility note: If writing code that may be ported to classic AVRs, GPIOR3 does not exist at all, and only GPIOR0 is guaranteed to be in the low I/O space - check the register map.
+* The `TCA_SINGLE_EVACTA` bitfield - formerly known as `TCA_SINGLE_EVACT` and it's group codes - the old names will work too, permitting code portability from tinyAVR to Dx.
+* The `RTC_CLKSEL` group codes have different spellings of some abbreviations on tinyAVR vs Dx/Ex.  The old names will work too, permitting code portability from tinyAVR to Dx.
+* The `CLKCTRL_SELHF_CRYSTAL_gc` option on DB-series parts which was renamed to `CLKCTRL_SELHF_XTAL_gc`. Both names work.
+* All things `CLKCTRL_FREQSEL` related, which had the E dropped in some ATPACK versions. Both FRQSEL and the old FREQSEL spellings work. I dunno, there must be a shortage of capital E's at Microchip. Maybe it's the new EA and upcoming EB parts hogging all the E's?
 * All multi-bit bitfields - the `_bp` and `_bm` defines now have an underscore before the bit number. There are about a thousand impacted defines. At least they had the decency to bump the major version.
 
 ## Errata
 There are ah, a lot of errata on these parts, sad to say. See the [errata summary](./Errata.md) for details on them.
 These constants are defined as either:
-* `ERRATA_IRREL` (-127) - This errata does not apply to a part family because the conditions that would make it manifest can never exist there (ex: ERRATA_PORT_PD0 is irrelevant to the DA, because there are no DA parts that don't have a PD0, only smaller DBs have that (where they put the VDDIO2 pin instead).
-* `-1` - This applies to all parts in this family.
+* `ERRATA_IRREL` (-128) - This errata does not apply to a part family because the conditions that would make it manifest can never exist there (ex: ERRATA_PORT_PD0 is irrelevant to the DA, because there are no DA parts that don't have a PD0, only smaller DBs have that issue (the nominal PD0 pin is where they put the VDDIO2 pin instead, but the input buffer for PD0 was still present, and with no pin, would always be floating, and needs to have it's input buffer turned off to avoid wasting power).
+* `-1` - This applies to all specimens of this part.
 * `0` - This does not apply to any parts in this family
-* Any other value - This is the die REVID that corrected this problem.
+* Any other value - This is the REVID that corrected this problem.
+* use checkErrata() for best results, ex, if (checkErrata)
 
-`checkErrata(errata name)` will return `ERRATA_APPLIES` (1/true) if the errata applies to this part, or `ERRATA_DOES_NOT_APPLY` (0/false) if the errata does not apply or is irrelevant.
+`checkErrata(errata name)` will return 1/true if the errata applies to this part, or 0/false if the errata does not apply or is irrelevant.
 
 Note that checkErrata does not get compiled to a known constant unless either all specimens of the part in question or none of them have the issue. Right now, only the A4 AVR DB-series parts have bugs that were fixed by a subsequent die rev - but very few of them made it out of Microchip - at least to the general public. I ordered them basically as soon as they were for sale, and received them before they even posted the datasheet; they were all A5s. Therefore, to maximize performance, **the problems corrected by A5 in the DB128 and DB64 are are reported by the core to not impact those devices**, that is, on a DB-series, `ERRATA_PLL_RUNSTBY` will be defined as 0, not 0xA5. A similar thing happened on the DD-series, except that the DD-series didn't have any particularly bad errata. The 64k parts with 28+ pins and the smaller parts with less have two minor issues related to HV override of UPDI pin function (no define is provided for them; I couldn't think of a plausible use case where you would want different software options compiled in based on that - it impacts the upload process, not the code itself.
 

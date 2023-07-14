@@ -1,10 +1,35 @@
 # Detailed Clock Reference
-This section seeks to cover information about the clocking options on the Dx-series parts at somewhat greater depth than a simple list of supported option. Use of external clocks for TCD0 or the RTC clock is not covered here. The chart below lists speeds supported by DxCore, and whether thy can be done via the internal oscillator, and whether they meet manufacturer specs. All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range!
+This section seeks to cover information about the clocking options on the tinyAVR parts at somewhat greater depth than a simple list of supported options.
+Be aware that this is very different from the equivalent document for the Dx and Ex-series. The oscillators are very different.
 
-**Crystal** is not supported as a clock source on the DA-series, but is or will be supported on everything else.
+**Crystal** is not supported as a clock source on the DA-series, or EB-series, but is on the DB, DD, and DU-series.
+
+## How the internal oscillator works, briefly
+### On Dx-series
+The OSCCTRL.OSCHFCTRLA register's *middle* 4 bits control the frequency of the internal oscillator. This field divides neatly into two sections. 0x0, 0x1, 0x2 and 0x3 are 1, 2, 3, and 4 MHz. The next one is reserved (I'd wager it would give 4 MHz). That's followed by the next section, 8, and every subsequent multiple of 4 up to 24 are listed in the datasheet, and at least at room temperature, extending the pattern 2 more rungs is consistent, and leads to speeds of 28 and 32 MHz, generally work at room temperature. (beyond that, the last 4 are repeated).
+
+Additionally, there is a tuning register, CLKCTRL.OSCHFTUNE. Unfortunately, it is much less useful than the tinyAVR one. The register is limited to -32 to +31, corresponding to - and + around 16%. +/-16% doesn't exactly open up new frontiers.
+If an external 32.768 MHz crystal has been connected, you can, for improved temperature stability, autotune the internal oscillator from this. I had to direct a torch at the chip (from a distance) to heat it up enough to see the speed autotune....
+Not the feature I'm most impressed with. A+ on concept, C on execution.
+
+Tuning to achieve non-standard speeds is not supported on the AVR Dx-series parts under DxCore. 
+
+### On tinyAVR
+The OSCCFG fuse selects whether the speed is derived from a 20 MHz or 16 MHz oscillator. At power-on, these are always set to a prescaler of /6 hence 2.66 or 3.33 MHz. The core, prior to calling setup, will reconfigure the prescaler to match the requested speed. The OSCCFG fuse is always set when a sketch is uploaded via a UPDI programmer.
+They additionally have the equivalent of the classic AVR's OSCCAL calibration register, and like those parts, the compliance is many times what the datasheet claims, and you can get a very wide range of speeds from them. 0/1-series has 64 settings for each nominal clock frequency, and 2-series parts have 128. Determining the value to set it to in order to obtain a desired clock speed is called "Tuning", even though you're not doing it for accuracy (it's generally already at the best setting from factory cal if you want the nominal clock speed.)
+
+### On Ex-series
+The worst of both worlds! The OSCCFG fuse selects whether the speed is derived from a 20 MHz or 16 MHz oscillator. At power-on, these are always set to a prescaler of /6 hence 2.66 or 3.33 MHz. The core, prior to calling setup, will reconfigure the prescaler to match the requested speed. The OSCCFG fuse is always set when a sketch is uploaded via a UPDI programmer.
+Additionally, there is a tuning register, CLKCTRL.OSCHFTUNE. Unfortunately, it is much less useful than the tinyAVR one. The register is limited to -32 to +31, corresponding to - and + around 16%. +/-16% doesn't exactly open up new frontiers.
+If an external 32.768 MHz crystal has been connected, you can, for improved temperature stability, autotune the internal oscillator from this. I had to direct a torch at the chip (from a distance) to heat it up enough to see the speed autotune....
+Not the feature I'm most impressed with. A+ on concept, C on execution.
+
+Tuning to achieve non-standard speeds is not supported on the AVR Ex-series parts under DxCore.
 
 ## Supported Clock Speeds
-All speeds are supported across the whole 1.8V ~ 5.5V operating voltage range.
+Like classic AVRs, tinyAVRs have a "speed grades" depending on the voltage and operating conditions that they are rated for operation within. The spec is 5 MHz @ 1.8V , 10 MHz @ 2.7V (3.3V nominal) and 20 @ 4.5V (5.0V nominal) (2.7 or 4.5 for 8MHz and 16 MHz at >105C . See the Speed Grade reference for more information on this. Note that the speed grades are extrememly conservative for room temperature operation
+
+Some of the listed speeds, while supported by the hardware are not supported by the 
 For unsupported speeds, the micros and delay-us columns indicate what internal plumbing has been implemented. micros is implemented for almost all speeds, delayMicroseconds with non-compile-time-known delays for most, even some unsupported ones. delayMicroseconds() is supported and accurate at all speeds when the argument is a compile-time-known constant, as we use the avr-libc implementation.
 
 | Clock Speed | Within Spec |      Internal |  Ext. Crystal |    Ext. Clock | micros | delay-us | Notes
@@ -116,15 +141,18 @@ So with the added simplicity, one might wonder why they are so uncommon. There a
 2. They are picky about voltage. There was a line of oscillators in 5032 package in production until mid 2020 which worked at 1.8-5v. They were discontinued, and there is no other such oscillator available as far as I can tell.
   a. The 5v ones specify minimum 4.5v maximum 5.5v.
   b. 1.6-3.6v ones are available, so the lower end of the range is covered. None of the major vendors with parametric search on their catalog indicate that any which are in spec operating between 3.6v and 4.5V, so one cannot run directly from a LiPo battery with one while remaining within spec.
-3. 5v units are rarely available in packages smaller than 7050 (7mm x 5mm), 5032 is exotic for 5v oscillators, and anything smaller nonexistent.
-4. They are strangely expensive, typically $1 or more from western suppliers. Not only that, the "China discount", is not even 2:1, they often don't have specs provided (like crystals as noted above), but here, one of the specs is the operating voltage, which is rather important to know.
-  a. One gets the impression that external oscillators are a specialty item for precision applications, while crystals often are not. They are often designed to higher accuracy, which is rarely necessary, and they come at the price of being fiddly and difficult to wrangle, as well as expensive.
+3. 5v units are not available in packages smaller than 7050 (7mm x 5mm) typically, 5032 is exotic for 5v oscillators, and anything smaller nonexistent.
+4. They are strangely expensive, typically $1 or more from western suppliers. There is hardly any "China discount", either. Like crystals, however, the oscillators advertised on Aliexpress don't list essential specs like the voltage or part number, and sellers don't seem to know when asked.
+  a. One gets the impression that external oscillators are a specialty item for precision applications, while crystals are not. They are often designed to higher accuracy and they don't depend on external components that could "pull" the frequency, and so on. In a typical application, if you don't need a precision clock source, there are other ways to get it.
 
 
 ## Clock troubleshooting
-On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program. Fortunately, the Dx-series parts handle this situation far more gracefully. Largely this is simply because they don't set it with fuses - it is set by the appllication at runtime (when you compile DxCore, it builds with the selected frequency options including switching clock sources before calling setup()). Sometimes the sketch will just cease to function entirely when it tries to switch. We attempt to show a blink code - but this doesn't seem to work as well as it should. In any event, there are no challenges recovering from it. Just change the clock source to an internal one, upload normally and you're good.
+On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program, other than HJV programming. Fortunately, this is a thing of the past with modern AVRs, it comes for free with the new clock handling - it starts up at a universally acceptable speed and can be easily switched at runtime. Recovery is typically as simple as uploading a new sketch with more appropriate clock settings.
 
-### Blink Codes
+On megaTinyCore, troubleshooting is generally straightforward. 
+
+
+### Blink Codes (DxCore only)
 All blink codes issued by the core start with the LED pin switching states three times (ie, if it is off, it will turn on, off, then on again), followed by a number of flashes indicating the nature of the failure. This will then repeat - since it initially changes state three times, this means that the pattern will be inverted the second time through. The number of short flashes indicates the nature of the problem: Three flashes indicates that the selected clock source was not present at startup. Four flashes indicates that it was present at startup, but then disappeared while it was running. It is hoped that this will make the blink codes distinctive enough that they cannot be mistaken for the running sketch. You can override the `onClockFailure()` and `onClockTimeout()` functions to run different code. The clock failure detection seems flaky, and often it just resets instead. When onClockTimeout() is called, it will be just after startup running at 4 MHz; scale any baud rates by (baud rate compiled for)/(4 MHz) to calculate the baud rate to ask it for if you want to output debug messages. Overriding those functions may be most important if PA7 needs to be repurposed, and you can't have it taking over that pin no matter what.
 
 For example, if the crystal (or clock) speed is one that can also be generated from the internal oscillator, you might want to resort to that and run the app - albeit with less accurate timing - in spite of the problem with the crystal - One approach is shown below.

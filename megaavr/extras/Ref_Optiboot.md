@@ -2,10 +2,14 @@
 Optiboot existed long before these parts had even been conceived of, as an answer to the bloated bootloader used on the early Arduino boards. A key improvement was that Optiboot cut the STK500 protocol down to the bare minimum needed for communication with avrdude (It might be described as "read and write flash on command, otherwise, smile and nod" Any command that we don't know how to answer, we just respond with an acknowledgement and hope or fake numbers and hope it's okay with that). It was subsequently ported to every classic AVR imaginable. And then to the modern AVRs (they are very different in how they write - but the STK protocol didn't change, and implementing that is more work.)
 
 ## Bootloader support
-This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Afterwards, uploading can be performed via serial using the appropriate pins. If you are using a crystal, (hopefully obviously) you can't use USART0's default pin mapping. Note that even with a crystal, the bootloader still runs from the internal oscillator, so you will always be able to reprogram, even if the crystal isn't oscillating because of improper loading capacitors or defective crystal, or your trying to overclock and the chip you have can't take that speed.
-The bootloader will be lost if new code is updated via UPDI programming - otherwise, it was guaranteed to crash immediately.
+This can be installed using a UPDI programmer by selecting the desired part, and using the Tools -> Burn Bootloader option. Afterwards, uploading can be performed via serial using the appropriate pins. If you are using a crystal, (hopefully obviously) you can't use USART0's default pin mapping. Like many modern AVRs, the tinyAVR parts do not support a high frequency crystal, but you can still use a 32kHz one for the RTC
+The bootloader will be lost if new code is updated via UPDI programming.
 
-Once the part is bootloaded, sketches can be uploaded by connecting a serial adapter to those pins (including the usual DTR-autoreset circuit), and clicking upload.
+Once the part is bootloaded, sketches can be uploaded by connecting a serial adapter to those pins.
+
+Unfortunately, DTR autoreset is a problem: it requires a reset pin. The pin is shared with UPDI, and if set to act as a reset pin, it can't be used to program over UPDI; you need to use an HV UPDI programmer (which is somewhat exotic) to turn the pin back into a UPDI pin temporarily, allowing you to program it to have the normal functionality on that pin. The 2-series parts with 20 or 24 pins have the option to configure PB4 to act as the reset pin instead. In that case, the normal DTR reset configuration can be used without complication, and this is a much more viable option.
+
+If you are using a part without alt-reset, and you don't have an HV programmer, the only way you can use it with the bootloader (without rendering it unprogrammable except through the bootloader or with an HV programmer) is by choosing the option that runs on startup, and then unplugging and plugging it back in, or by using "Ersatz-reset" (see the example included by that name) - otherwise known as setting a low level pin interrupt that triggers a software reset. This is not bulletproof. It is almost certainly possible to hose the system badly enough to keep this from working, and you can also upload a sketch doesn't But it may be better than having to plug and unplug it all the time.
 
 ## Bootloader considerations
 Should you use a bootloader?
@@ -146,9 +150,21 @@ All ports and mux options subject to pin availability, as always:
 * USART0 alt 1 and 2 are unavailable on 14-pin parts.
 * USART1 default pins are unavailable on 14-pin and 2-pin parts
 
+### Serial Ports, EA
+| Serial port |Default| Alt 1 | Alt 2 | Alt 3 | Alt 4 |
+|-------------|-------|-------|-------|-------|-------|
+| USART0      | PA0-1 | PA4-5 | PA2-3 | PD4-5 | PC1-2 |
+| USART1      | PC0-1 | PC4-5 | PD6-7 | N/A   | N/A   |
+| USART2      | PF0-1 | PF4-5 | N/A   | N/A   | N/A   |
+
+At least they got the UART back.... Shame about all the NVM errata though
+
 ## Bootloader size
-There is a critical difference between the classic AVRs and the modern ones, and this one I think is one of the few places they may have made a questionable design decision (Obviously, their implementation left something to be desired in many areas, as described in the silicon errata, but that's not what we're talking about here). On classic AVRs, the bootloader section was at the very end of the flash. When it was enabled, the chip would jump to there on reset instead of starting at 0x0000, the bootloader would do it's thing, and then get to the application code by jumping to 0x0000. That way, there was no need to know whether it was a bootloader or non-bootloader configuration at compile time. Now, the bootloader is at the start of the flash, and jumps to the end of it's section. Hence, the compiler needs to know to offset everything by 512 bytes (or more for other theoretical bootloaders), and now you cannot use optiboot to upload a binary compiled for non-optiboot mode, nor the other way around. You cannot translate a hex file compiled for optiboot to non-optiboot or vise-versa.
+There are many a critical difference between the classic AVRs and the modern ones, and I usually think the design decisions made good sense. This one I think is questionable. (Obviously, their implementation left something to be desired in many areas, as described in the silicon errata, but that's not what we're talking about here - the design decisions underlying modern AVRs are generally solid). On classic AVRs, the bootloader section was at the very end of the flash. When it was enabled, the chip would jump to there on reset instead of starting at 0x0000, the bootloader would do it's thing, and then get to the application code by jumping to 0x0000. That way, there was no need to know whether it was a bootloader or non-bootloader configuration at compile time. Now, the bootloader is at the start of the flash, and jumps to the end of it's section. Hence, the compiler needs to know to offset everything by 512 bytes (or more for other theoretical bootloaders), and now you cannot use optiboot to upload a binary compiled for non-optiboot mode, nor the other way around. You cannot translate a hex file compiled for optiboot to non-optiboot or vise-versa. Seriously, the general case is nigh impossible, so only certain apps could be translated like that,
+
 ## Writing to the flash from the app
+
+### On DxCore
 On Dx-series, this can always be done, with or without optiboot, and without optiboot, you can specify anything from only a tiny bit of flash at the end as writable, or let the entire flash be written. The key to this is that AVR-DA only requires the single instruction that writes to the flash to execute from the proper section, so the entry point you call need only be 2 istructions! If a data section is specified, you should try to not end up with application code in there, as certain operation cannot be executed from APPDATA.
 On Ex-series, it requires optiboot as it will work like tinyAVR, and will always be able to always write anywhere in the flash. More detail will be provided when we have optiboot working on EA.
 
@@ -157,7 +173,16 @@ On Dx-series, This library achieves this magic through one of three pathways, de
 2. Optiboot is not present, writes everywhere permitted - The entry point is placed within the first page of flash, that page is marked as bootloader (even though it's application), and we switch the vector select bit to use the correct vectors (in the fake bootloader section) instead of the wrong addresses in the "app section"
 3. Optiboot is not present, writes restricted - the write can be executed from anywhere in APPCODE or BOOTCODE. We still have to do the fake 1 page bootloader (otherwise all flash is treated as bootcode, hence none can be written) but it has no bootloader function and we put no entrypoint there, and just write normally. This only works as long as the application code has not overflowed into APPDATA, a situataion which must be avoided.
 
-The <Flash.h> library used by megaTinyCore is completely and totally different from this one, despite the same name and similar function. (among other things, it's *much* easier to do on a Dx, because only the actual instruction that writes to the flash needs to be run from the boot section, whereas for tinyAVR, both writes to NVMCTRL and the page buffer do),
+The <Flash.h> library used by megaTinyCore is completely and totally different from this one, despite the same name and similar function. (among other things, it's *much* easier to write flash on the Dx, because only the actual instruction that writes to the flash needs to be run from the boot section, whereas for tinyAVR, both writes to NVMCTRL and the page buffer do), AND there's a damned page buffer to worry about!
+
+### On megaTinyCore or megaAVR 0-serie
+On tinyAVR and megAVR 0-series, This can be done on parts with Optiboot (and not without it), using the [Flash Library](https://github.com/SpenceKonde/megaTinyCore/blob/master/megaavr/libraries/Optiboot_flasher) by @MCUDude. (a comparable version is included with MegaCoreX
+
+This library achieves app-controlled writes to the flash by 'call'ing an entry point built into the bootloader which does the critical actions needed to write to the NVM (this is otherwise blocked - the flash is divided into three sections, Bootloader ("BOOTCODE"), Application ("APPCODE"), and Data ("APPDATA"); if no boot section is defined, the entire flash is treated as "Boot" and cannot be written except through an external programmer over UPDI).
+
+A library could be written which would write to the data section, but that would require you specify the size of the data section when uploading (it could not be done automatically by the IDE). And if you got part of the sketch in the data section because you miscalculated, that section of code would.... "almost" work normally. It definitely isn't permitted to write to EEPROM or USERROW. I'm not sure if it is blocked from anything else. It is possible that the result would be that some portions of the sketch could write EEPROM and others couldn't. That, of course, is in addition to the minor detail of support for a mode like that never having been written for these parts. If someone wants it and modifies the library appropriately, I'll add the tools submenu for it, and if you need the DxCore-like write "almost anywhere" mode that uses a fake bootloader, I'll write the asm entry point and routines to access it if you'll handle the rest.
+
+The <Flash.h> library used by megaTinyCore is completely and totally different from this one, despite the same name and similar function. (among other things, it's *much* easier to write flash on the Dx, because only the actual instruction that writes to the flash needs to be run from the boot section, whereas for tinyAVR, both writes to NVMCTRL and the page buffer do), AND there's a damned page buffer to worry about!
 
 ### Differences in binaries (technical)
 When the bootloader is enabled the interrupt vectors are located at the start of the application section, 512 bytes in (like megaAVR 0-series and tinyAVR 0/1-series, and unlike classic AVRs, the bootloader section is at the beginning of the flash). Options to set the desired USART that the bootloader will run on are available for all serial ports, with either the normal or alternate pin locations. USART0 with default pins is the default option here, and these are the ones that are connected to the 6-pin serial header on the DA-series breakout boards that I sell. An option is provided when burning bootloader to choose an 8 second delay after reset - use this if you will be manually pressing reset.
@@ -173,6 +198,6 @@ There are also a couple of small differences between what is generated for bootl
 DD support has been added
 
 ## Future Devices
-* Optiboot_dx is expected to be the base for any future word-at-a-time NVMCTRL based AVR. This only such devices announced are the DA, DB, and DD and of course the long awaited DU.
+* Optiboot_dx is expected to be the base for any future word-at-a-time NVMCTRL based AVR. This only such devices announced are the DA, DB, and DD and of course the long awaited DU - but nobody's going to care about it on the DU because we'll all be praying for a USB bootloader.
 * Optiboot_x (for megaTinyCore and MegaCoreX) is likely to be the basis of page-buffer-using NVMCTRL AVRs.
 * The EA-series is page-based (unfortunately) Not only that, but it's got poor flash endurance and you can't execute any instructions during the write half of a page erasewrite, so you are basically going to be doing tinyAVR algorithm plus added complications to account for this mess.

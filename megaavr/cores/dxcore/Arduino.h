@@ -396,8 +396,16 @@ have ports shoulod have those Px constants defined as NOT_A_PORT. I think that w
   #define ADC_ACC256S     (0xA8)
   #define ADC_ACC512S     (0xA9)
   #define ADC_ACC1024S    (0xAA)
-  #define ADC_CHOP(bits)  (((uint8_t) bits >12 && bits <17) ? 0xB0 + bits : 0xFF)
-
+  #define ADC_RES13       (0x0D)
+  #define ADC_RES14       (0x0E)
+  #define ADC_RES15       (0x0F)
+  #define ADC_RES16       (0x10)
+  #define ADC_RES17       (0x11)
+  #define ADC_RES13S      (0x4D)
+  #define ADC_RES14S      (0x4E)
+  #define ADC_RES16S      (0x4F)
+  #define ADC_RES16S      (0x50)
+  #define ADC_RES17S      (0x51)
   #define LOW_LAT_ON      (0x03) // deprecated
   #define LOW_LAT_OFF     (0x02) // deprecated
   #define ADC_LOWLAT_ON   (0x03)
@@ -547,10 +555,16 @@ void stop_millis();                          // stop the timer being used for mi
 void restart_millis();                       // After having stopped millis either for sleep or to use timer for something else and optionally have set it to correct for passage of time, call this to restart it.
 void set_millis(uint32_t newmillis);         // Sets the millisecond timer to the specified number of milliseconds. DO NOT CALL with a number lower than the current millis count if you have any timeouts ongoing.
                                              // they may expire instantly.
-void nudge_millis(uint16_t nudgemillis);     // Sets the millisecond timer forward by the specified number of milliseconds. Currently only implemented for TCB, TCA implementation will be added. This allows a clean
-// Not yet implemented, debating if          // way to advance the timer without needing to read the current millis yourself, and without a few other risks. (added becauise *I* needed it, but simple enough).
-// this is the right thing to implement      // The intended use case is when you know you're disabling millis for a long time, and know exactly how long that is (ex, to update neopixels), and want to nudge the timer
-                                             // forward by a given amount; I added this when in a pinch because *I* needed that functionality.
+void nudge_millis(uint16_t nudgemillis);     // Sets the millisecond timer forward by the specified number of milliseconds.
+
+uint8_t _getCurrentMillisTimer();
+/* Result may be:
+ * NOT_ON_TIMER - Millis is disabled.
+ * NOT_A_TIMER - Millis is paused/stopped
+ *
+
+
+ */
 
 // Allows for user to mark a timer "do not touch" for purposes of analogWrite and the like, so you can take over a timer and reconfigure it, and not worry about digitalWrite() flipping a CMPEN bit.
 // On megaTinyCore this also prevents the situation where PWM is remapped, but then when the user is digitalWrite'ing pins that default to having PWM, it would turn off the PWM now coming from another pin

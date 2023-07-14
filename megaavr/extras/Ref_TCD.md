@@ -41,13 +41,13 @@ analogWrite(PIN_PA4,128);
 TCD0.CMPBCLR = 1019;
 //analogWrite(PIN_PA5,64);   // This would mess up the PWM on PA4 if we called it first -
 analogWrite(PIN_PA4,128);    // but we can call it on the currently active pin to fix the duty cycle, and then apply new frequency.
-analogWrite(PIN_PA5,64);     // This line works as expected now.
+analogWrite(PIN_PA5,64);     // This line woks as Works as expected now.
 
-/* Example 4: one PWM channel enabled - but we want to write the other one and have it take effect at the *same* time that the new frequency does */
+/* Example 4: one PWM channel enabled - but we want to write the other one and have it take effect at the *same* time that the new ferequency does */
 analogWrite(PIN_PA4,128);
 TCD0.CMPBCLR = 1019;
-//analogWrite(PIN_PA5,64);   // This would mess up the PWM on PA4 if we called it now.
-//if we want to turn them on simultaneously with the frequency change, we have to manually adjust the one that is not being written to:
+//analogWrite(PIN_PA5,64);   // This would mess up thePWM on PA4 if we called it now.
+//if we want to turn them on simpultaneously with the frequency change we have to manually adjust the one that we're not analogWriting():
 TCD0.CMPASET = (TCD0.CMPASET << 2) + 3; // This prevents that, so now it's safe to write to the other channel right after changing period:
 analogWrite(PIN_PA5,64);     // Works as expected now.
 
