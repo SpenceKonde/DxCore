@@ -21,7 +21,7 @@
       #warning "Writing "everywhere" from within app without Optiboot requires LTO to be enabled.
       #warning "ALL ATTEMPTS TO WRITE FLASH ARE REPLACED WITH NOP INSTRUCTIONS!"
       /* Why not #error here? because that might result in internal changes that make the bug
-       * you disabled TO to fix go away. Since the LTO-disabled platform.txt does not permit
+       * you disabled LTO to fix go away. Since the LTO-disabled platform.txt does not permit
        * code to be uploaded, this is mostly relevant if examining assembly */
       #define SPMCOMMAND "nop"
     #else

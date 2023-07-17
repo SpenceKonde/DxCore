@@ -37,6 +37,10 @@ void init_timers();
   #error "CLOCK_SOURCE not defined. Must be 0 for internal, 1 for crystal, or 2 for external clock"
 #endif
 
+#if !(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1)  || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1))
+#error "wiring.c test of millis defines failed - no millis timer defined but millis enabled!"
+#endif
+
 #ifndef MILLIS_USE_TIMERNONE /* If millis is enabled, we need to provide it millis() and micros() */
 
   // volatile uint16_t microseconds_per_timer_overflow;
@@ -56,42 +60,35 @@ void init_timers();
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCA0_HUNF_vect)
       const struct sTimer _timerS = {TCA_SPLIT_HUNF_bm,  &TCA0.SPLIT.INTFLAGS};
-
     #elif defined (MILLIS_USE_TIMERA1)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCA1_HUNF_vect)
       const struct sTimer _timerS = {TCA_SPLIT_HUNF_bm,  &TCA1.SPLIT.INTFLAGS};
-
     #elif defined(MILLIS_USE_TIMERB0)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCB0_INT_vect)
       static volatile TCB_t *_timer = &TCB0;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB0.INTFLAGS};
-
     #elif defined(MILLIS_USE_TIMERB1)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCB1_INT_vect)
       static volatile TCB_t *_timer = &TCB1;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB1.INTFLAGS};
-
     #elif defined(MILLIS_USE_TIMERB2)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCB2_INT_vect)
       static volatile TCB_t *_timer = &TCB2;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB2.INTFLAGS};
-
     #elif defined(MILLIS_USE_TIMERB3)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCB3_INT_vect)
       static volatile TCB_t *_timer = &TCB3;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB3.INTFLAGS};
-
     #elif defined(MILLIS_USE_TIMERB4)
       // this is done for us in timers.h
       // #define MILLIS_VECTOR (TCB4_INT_vect)
       static volatile TCB_t *_timer = &TCB4;
       const struct sTimer _timerS = {TCB_CAPT_bm, &TCB4.INTFLAGS};
-
     #elif defined(MILLIS_USE_TIMERD0)
       /*
       // this is done for us in timers.h
@@ -133,7 +130,7 @@ void init_timers();
       }
       RTC.INTFLAGS = RTC_OVF_bm | RTC_CMP_bm; // clear flag
     }
-  #else
+  #elif !defined(MILLIS_USE_TIMERNONE)
     ISR(MILLIS_VECTOR, ISR_NAKED) {
       __asm__ __volatile__(
       "push       r30"          "\n\t" // First we make room for the pointer to timingStruct by pushing the Z registers
