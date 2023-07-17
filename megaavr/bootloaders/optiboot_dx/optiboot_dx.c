@@ -20,7 +20,8 @@
 /*                                                        */
 /*   Higher baud rate speeds up programming               */
 /*                                                        */
-/*   Written almost entirely in C                         */
+/*   Written almost entirely in C (less so on dx due to   */
+/*   difficulty fitting 512b.                             */
 /*                                                        */
 /*   Customisable timeout with accurate timeconstant      */
 /*                                                        */
@@ -116,6 +117,9 @@
 
 /**********************************************************/
 /* Edit History:                                          */
+/* Q2 2023 - Added support for arbitrary entry conditions */
+/* and removed dummy app in 0x1A01/DxC158, though the new */
+/* entry conditions did not work until 0x1A02/DxC159      */
 /* Oct 2021                                               */
 /*     Fixed comments so it doesn't talk about the 328p   */
 /*     and reflects what this version does.               */
@@ -130,7 +134,7 @@
 /**********************************************************/
 
 #define OPTIBOOT_MAJVER 9
-#define OPTIBOOT_MINVER 1
+#define OPTIBOOT_MINVER 2
 
 /*
  * OPTIBOOT_CUSTOMVER should be defined (by the makefile) for custom edits
@@ -316,7 +320,7 @@ static void getNch(uint8_t);
 
 #define watchdogReset()  __asm__ __volatile__ ("wdr\n")
 
-#if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD)) //fully memory mapped flash
+#if (__AVR_ARCH__ == 103 && !defined(WRITE_MAPPED_BY_WORD)) //fully memory mapped flash
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len);
 #else
   static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len);
