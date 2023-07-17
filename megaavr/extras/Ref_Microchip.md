@@ -50,7 +50,7 @@ In fact, because of the great consistency between modern AVRs this has proven to
 * [AVR Instruction Set Reference](https://ww1.microchip.com/downloads/en/DeviceDoc/AVR-InstructionSet-Manual-DS40002198.pdf)
 If working with assembly you should make a rigorous study of the insruction set reference. One of the great strengths of AVR is the simplicity of the instruction set. You should know all the mneumonics, what arguments they take and what constraints apply - and this does not take a terribly great deal of effort, as there are not that many instructions. This is the Bible of the AVR architecture. Much like any other tome of the sort, it is packed with insight and wisdom from the creators, and describe in detail considerations you must observe, and some parts are not readily applicable to the present day`*`, and reading it is a long slog through obtuse verbiage and grammar. Unlike other more famous scriptures, you won't suffer eternal damnation for not reading this - but if you're writing assembly without it you may not be able to tell the difference. Even those who merely write C should try to make time for a cursory study of this, because this is what the compiler is turning your C into, and you can sometimes make choices that lead to the compiler being able to make better code.
 
-### So uh, where are the datasheets?
+### The datasheets giveth
 I gave up trying to keep track of them all. The part-specific docs here now link to the Micochip product page.
 * [AVR128DA28, AVR64DA28, AVR32DA28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md)
 * [AVR128DA32, AVR64DA32, AVR32DA32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md)
@@ -64,3 +64,8 @@ I gave up trying to keep track of them all. The part-specific docs here now link
 * [AVR64DD20, AVR32DD20, AVR16DD20](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD20.md)
 * [AVR64DD28, AVR32DD28, AVR16DD28](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD28.md)
 * [AVR64DD32, AVR32DD32, AVR16DD32](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DD32.md)
+
+### And the errata taketh away
+Notice that while datasheet information can be generalized across the whole family of parts The datasheets typically differ only in the header and footer (excepting the 1-series, which is effectively two part families, the 16k+ and the 2-8k parts). But because they use different dies, and dies are designed at discrete points in time, flash sizes released later have fewer bugs, because they've been spending the intervening months stomping out errata. On the 0 and 1 series tinyAVRs, there is a mindboggling amount of errata and a terrible shortage of die revisions. The 2-series tinyAVR by contrast has very little and the DD even less, though the EA's new RWW flash system is pretty janky.
+
+See also [Errata.md](Errata.md).

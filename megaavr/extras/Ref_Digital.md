@@ -1,6 +1,24 @@
 # Improved Digital I/O Functionality
 This core includes a number of features to provide more control or performance when doing digital I/O. This page describes how to use them. All of the options that can be configured for a pin are exposed. The only things that aren't exposed are the slew rate limiting feature, and the multi-pin configuration facilities. The slew rate limiting is can only be configured on a per port basis; turning it on and off is so simple (see below) that it needs no wrapper. The multi-pin configuration system does not have an obvious "right way" to expose it and should be handled directly by the sketch - it is very flexible and no wrapper around it would be able to preserve it's virtues while being much of a wrapper.
 
+## Table of Contents
+* [But first, about the hardware](Ref_Digital.md#but-first-about-the-hardware)
+* [Ballpark overhead figures](Ref_Digital.md#ballpark-overhead-figures)
+* [openDrain()](Ref_Digital.md#opendrain)
+* [Fast Digital I/O](Ref_Digital.md#fast-digital-io)
+  * [Flash use of fast digital output functions](Ref_Digital.md#flash-use-of-fast-digital-output-functions)
+* [pinConfigure()](Ref_Digital.md#pinconfigure)
+  * [INLVL - input logic levels](Ref_Digital.md#inlvl---input-logic-levels)
+* [PINCONFIG and associated registers](Ref_Digital.md#pinconfig-and-associated-registers) (Dx, Ex only)
+* [Slew Rate Limiting](Ref_Digital.md#slew-rate-limiting)(Dx-series and 2-series only)
+* [There is no INLVL or PINCONFIG on tinyAVR devices](Ref_Digital.md#there-is-no-inlvl-or-pinconfig-on-tinyavr-devices)
+* [Standard and semi-standard API functions](Ref_Digital.md#standard-and-semi-standard-api-functions)
+  * [Basic pin information](Ref_Digital.md#basic-pin-information)
+  * [Things that return pointers](Ref_Digital.md#things-that-return-pointers)
+* [Finding current PWM timer, if any: digitalPinToTimerNow()](Ref_Digital.md#finding-current-pwm-timer-if-any-digitalpintotimernow)  (DxCore only)
+* [Note on number of pins and future parts](Ref_Digital.md#note-on-number-of-pins-and-future-parts)
+
+
 ## But first, about the hardware
 As there is a good chance you;ve noticed, a lot of hardware is better at driving pins low than high (sinking vs sourcing). Classic AVRs had symmetric drive - they were very similar in their ability to source and sink current. Though the modern AVRs do not spec a different maximum source and sink current, how well the chip is able to deliver that current is not equal (and likely the ultimate maximum current at which damage occurs in practice is similarly unequal). It has always been easier to pull low that to pull high
 
