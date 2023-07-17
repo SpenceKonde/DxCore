@@ -18,12 +18,14 @@
 #elif defined(SPM_FROM_APP)
   #if SPM_FROM_APP == -1
     #if defined(LTODISABLED)
-      #warning "Writing "everywhere" from within app without Optiboot requires LTO to be enabled.
+      #warning "Writing 'everywhere' from within app without Optiboot requires LTO to be enabled."
       #warning "ALL ATTEMPTS TO WRITE FLASH ARE REPLACED WITH NOP INSTRUCTIONS!"
-      /* Why not #error here? because that might result in internal changes that make the bug
-       * you disabled LTO to fix go away. Since the LTO-disabled platform.txt does not permit
-       * code to be uploaded, this is mostly relevant if examining assembly */
+      /* DO NOT REMOVE OR DEFANG THESE TESTS */
+      /* With LTO disabled we explicitly violate the rules of avr-gcc and undefined behavior absolutely can be generated! */
+      /* LTO disabled is ONLY for debugging assembler errors where you need to see to intermediate .S file in a human readable form to figure out how to fix the problem. */
+      /* This is just one of the many issues that can be caused by not using LTO, in adition to bloat of between 10 and 25% on all parts*/
       #define SPMCOMMAND "nop"
+      // DO NOT REMOVE THIS TEST or workaround it. LTO MUST NOT BE DISABLED IF SPM FROM THE APP IS USED.
     #else
       #define SPMCOMMAND "call EntryPointSPM"
     #endif
@@ -59,7 +61,7 @@ uint8_t FlashClass::checkWritable() {
     }
     #if defined(SPM_FROM_APP)
       #if (SPM_FROM_APP == -1)
-        for (uint16_t i = 0;i < 32768;i += 2) {
+        for (uint16_t i = 0; i < 32768; i += 2) {
           if (pgm_read_word_near(i) == 0x95f8) {
             if (i < 512) {
               return FLASHWRITE_OK;
@@ -90,7 +92,7 @@ uint8_t FlashClass::checkWritable() {
     // Optiboot 9.1 without SPM Z+ app callin support
     // was shipped with 1.2.x and earlier of DxCore
     uint16_t optiversion = pgm_read_word_near(0x01fe);
-    if (optiversion == 0x0901 ||) {
+    if (optiversion == 0x0901) {
       return FLASHWRITE_OLD;
     }
     // Version of the bootloader that doesn't support this
@@ -259,7 +261,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
     NVMCTRL.STATUS = 0;
     return (FLASHWRITE_FAIL | (status >> 4)); // uhoh, NVMCTRL says we did something wrong...
   }
-  if ((NVMCTRL.ADDR&0xFFFFFF) != (address + 1)) {
+  if ((NVMCTRL.ADDR & 0xFFFFFF) != (address + 1)) {
     return FLASHWRITE_NOT_WRITTEN;
   }
   return FLASHWRITE_OK;
@@ -268,7 +270,7 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
 
 
 uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
-  #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
+  #if (defined(USING_OPTIBOOT) || SPM_FROM_APP == -1)
     if ((FUSE.BOOTSIZE != 0x01))
   #else
     if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP))
@@ -402,7 +404,7 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
 }
 
 uint8_t FlashClass::writeBytes(const uint32_t address, const uint8_t* data, uint16_t length) {
-  uint32_t tAddress=address;
+  uint32_t tAddress = address;
   uint8_t status;
   if(address & 0x01) {
     status = writeByte(tAddress++, *(data));
@@ -464,7 +466,7 @@ uint8_t* FlashClass::mappedPointer(const uint32_t address) {
 }
 
 uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
-  if (((uint16_t)mappedPtr) < 0x8000) {
+  if (((uint16_t) mappedPtr) < 0x8000) {
     return 0; // is not a pointer to mapped flash!
   }
   uint32_t address= (uint16_t) mappedPtr;
