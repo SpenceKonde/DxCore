@@ -1,42 +1,23 @@
 # Changelog
 This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of megaTinyCore. Note that this document is maintained by a human, who is - by nature - imperfect (this is also why there are so many bugs to fix); sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare. Change descriptions may be incomplete or unclear; this is not meant to be an indepth reference.
+
 ## Planned changes not yet implemented
 These items are in addition to what was listed under changes already in release.
 
 * Enhancement: Fix pinout diagrams for DD-series.
 * Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
 * Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
-* Bug - Critical: disabling millis does not work correctly. Millis interrupt is still inappropriately enabled, but not defined, leading to bootloop.
-
-## Testing Help Required
-I because of the discovery of the source file confusion on optiboot_x, I felt it appropriate to rebuild all bootloader hex files. Size appears unchanged, but it was one of those changes that made the compiler make some critical different decision so diff'ing the output generates a diff indicating the whole thing is different. We need to get some eyes on this prior to release to make sure it works. This is simple stuff to do - it doesn't need to be done by me, so if some others could test the ones now checked into github that would be awesome. Just grab the new hex files, and (ideally in a portable installation) go in and rename the hex folder and put the new hex folder in it's place. Then do burn bootloader on a known working board and make sure you can upload two different sketches successfully and that the sketches behave normally. At the very least, I'd like to see 16, 32, 64, and 128k flash versions tested, each entry condition tested at least once, one USART other than USART0 used, and USART 0 and some other USART used on an alternate pin.
-
-Current coverage:
- 16k -
- 32k -
- 64k -
-128k - U0A extr DB48
-
-USART0 -
-USARTn -
-USART0-alt - 128k U0A DB48
-USARTn-alt -
-
-extr - 128k U0A DB48
-all_8sec -
-extr_8sec -
-extronly -
-poronly_8sec -
-swronly_8sec -
-
-Also:
 
 ## Changes implemented but not released
 These are typically planned for release in a future version (usually the next one) as noted.
-* Bugfix - Correct flash.h tests of bootloader version.
-* Docs: Update Ref_Timers.md
+* Bugfix - Correct Flash.h issues.
+* Maintenance - Rebuilt all bootloaders in support of above fix.
+* Docs: Major updates across the board
 * BugFix - Correct critical defect in disabled millis.
 * Enhancement - implement `_getCurrentMillisTimer()`  and `_getCurrentMillisState()` which are required for sleepTime.h
+* Bugfix - Optiboot did not honor entry conditions (#452), bump optiboot version to 0x1A02.
+* Maintenance - Rebuilt all bootloaders again.
+* Add CORE_HAS_ERRORFUNS #define.
 
 ## Releases
 
