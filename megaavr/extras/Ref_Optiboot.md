@@ -84,6 +84,7 @@ I've been asked about supporting the no-verify option. Since there is literally 
 
 
 ## Entry Conditions
+**This was added in 1.6.8, however the bootloader binaries were no good. You need the versions from DxC 1.6.8.**
 Depending on your needs, you may want or need different configurations for when the bootloader should run and when it should just jump straight to the application. It determines this with the reset flags, which it clears, and then stashes in GPR.GPR0 right before jumping to app. It doesn't clear them until it jumps to app, so you do get to see what kind of reset was involved.
 
 
@@ -116,12 +117,12 @@ Notes:
 | AVR128DA/B   | 128dx           | 0-5. Always pin 0,1 or 4,5 in a port | PIN_PA7    |
 | AVR64DA/B    |  64dx           | As above                             | PIN_PA7    |
 | AVR32DA/B    |  32dx           | 0-3 as above, 4 on default pins      | PIN_PA7    |
-| AVR64DD 20+  |  64dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
-| AVR32DD 20+  |  32dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
-| AVR16DD 20+  |  32dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
-| AVR64DD14    |  64dd14         | 0:0,3,4, 1:2          | PIN PD7 if serial0, <br/> PIN_PD5 if serial1 |
-| AVR64DD14    |  32dd14         | 0:0,3,4, 1:2          | PIN PD7 if serial0, <br/> PIN_PD5 if serial1 |
-| AVR64DD14    |  16dd14         | 0:0,3,4, 1:2          | PIN PD7 if serial0, <br/> PIN_PD5 if serial1 |
+| AVR64DD20+   |  64dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
+| AVR32DD20+   |  32dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
+| AVR16DD20+   |  32dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
+| AVR64DD14    |  64dd14         | 0:0,3,4, 1:2          | PIN PD7 if Serial0, <br/> PIN_PD5 if Serial1 |
+| AVR64DD14    |  32dd14         | 0:0,3,4, 1:2          | PIN PD7 if Serial0, <br/> PIN_PD5 if Serial1 |
+| AVR64DD14    |  16dd14         | 0:0,3,4, 1:2          | PIN PD7 if Serial0, <br/> PIN_PD5 if Serial1 |
 
 **Notes** 14-pin parts had to depart from our tradition of PA7 LEDs. The LED is on PD7 on 14-pin parts, and PD5 if Serial1 is the serial port the bootloader uses (because that uses pins PD6 and PD7 - mux option 0 becomes available only when the TX pin, PC0, actually exists. This is only present on 28 and 32-pin parts).
 Because the 14-pin parts only have the first two pins of port
@@ -136,21 +137,25 @@ Because the 14-pin parts only have the first two pins of port
 | USART3      | PB0-1 | PB4-5 |
 | USART4      | PE0-1 | PE4-5 |
 | USART5      | PG0-1 | PG4-5 |
+
 All ports and mux options subject to pin availability, as always:
 * USART3 and 4 and USART1 alternate pins are available only on parts with at least 48 pins
 * USART5, and alternate pins for USART4 are available only on 64-pin parts.
 * USART2 alternate pins are not available on 28-pin parts
 
 ### Serial Ports, DD
+
 | Serial port |Default| Alt 1 | Alt 2 | Alt 3 | Alt 4 |
 |-------------|-------|-------|-------|-------|-------|
 | USART0      | PA0-1 | PA4-5 | PA2-3 | PD4-5 | PC1-2 |
 | USART1      | PC0-1 | N/A   | PD6-7 | N/A   | N/A   |
+
 All ports and mux options subject to pin availability, as always:
 * USART0 alt 1 and 2 are unavailable on 14-pin parts.
 * USART1 default pins are unavailable on 14-pin and 2-pin parts
 
 ### Serial Ports, EA
+The EA has all the DD pinsets, plus it got USART2 back, since it has a 48-pin version there's a way to get the alt1 pins of USART.
 | Serial port |Default| Alt 1 | Alt 2 | Alt 3 | Alt 4 |
 |-------------|-------|-------|-------|-------|-------|
 | USART0      | PA0-1 | PA4-5 | PA2-3 | PD4-5 | PC1-2 |
@@ -158,6 +163,20 @@ All ports and mux options subject to pin availability, as always:
 | USART2      | PF0-1 | PF4-5 | N/A   | N/A   | N/A   |
 
 At least they got the UART back.... Shame about all the NVM errata though
+
+### Serial Ports, EB
+There is only USART0 on these parts, which kinda sucks.
+
+| Mux option |  TX  |  RX  | XDIR | XCK  |
+|------------|------|------|------|------|
+| Default    | PA0  | PA1  | PA2  | PA3  |
+| Alt1       | PA4* | PA5* | PA6* | PA7* |
+| Alt2       | PA2* | PA3* | N/A  | N/A  |
+| Alt3       | PD4  | PD5  | PD6  | PD7  |
+| Alt4       | PC1  | PC2  | N/A  | PC3  |
+| Alt5       | PF7  | PF6  | N/A  | N/A  |
+
+Obviously, the last alternate set of pins can only be used with both reset and UPDI used as I/O.
 
 ## Bootloader size
 There are many a critical difference between the classic AVRs and the modern ones, and I usually think the design decisions made good sense. This one I think is questionable. (Obviously, their implementation left something to be desired in many areas, as described in the silicon errata, but that's not what we're talking about here - the design decisions underlying modern AVRs are generally solid). On classic AVRs, the bootloader section was at the very end of the flash. When it was enabled, the chip would jump to there on reset instead of starting at 0x0000, the bootloader would do it's thing, and then get to the application code by jumping to 0x0000. That way, there was no need to know whether it was a bootloader or non-bootloader configuration at compile time. Now, the bootloader is at the start of the flash, and jumps to the end of it's section. Hence, the compiler needs to know to offset everything by 512 bytes (or more for other theoretical bootloaders), and now you cannot use optiboot to upload a binary compiled for non-optiboot mode, nor the other way around. You cannot translate a hex file compiled for optiboot to non-optiboot or vise-versa. Seriously, the general case is nigh impossible, so only certain apps could be translated like that,
