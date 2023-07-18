@@ -23,7 +23,7 @@
       /* DO NOT REMOVE OR DEFANG THESE TESTS */
       /* With LTO disabled we explicitly violate the rules of avr-gcc and undefined behavior absolutely can be generated! */
       /* LTO disabled is ONLY for debugging assembler errors where you need to see to intermediate .S file in a human readable form to figure out how to fix the problem. */
-      /* This is just one of the many issues that can be caused by not using LTO, in adition to bloat of between 10 and 25% on all parts*/
+      /* This is just one of the many issues that can be caused by not using LTO, in addition to bloat of between 10 and 25% on all parts*/
       #define SPMCOMMAND "nop"
       // DO NOT REMOVE THIS TEST or workaround it. LTO MUST NOT BE DISABLED IF SPM FROM THE APP IS USED.
     #else
