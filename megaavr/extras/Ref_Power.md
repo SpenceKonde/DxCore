@@ -237,7 +237,7 @@ At 3.0V unless otherwise noted.
 |  -                  |  -  | 3.3 |  -  |  -  | μA | XOSC32K = 32.768 kHz |
 | IDD<sub>base</sub>  |  -  |0.08 |  -  |  -  | μA | Power-Down or Standby |
 
-# Peripheral power consumption
+## Peripheral power consumption
 At 3.0V unless otherwise noted, largest flash size
 
 ## AVR DA
