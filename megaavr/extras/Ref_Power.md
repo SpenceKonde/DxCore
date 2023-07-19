@@ -4,7 +4,7 @@ Harvested from the datasheets. Datasheets are subject to modification through th
 All values are taken from the largest flash version (for Dx/Ex) and the 16k versions and 32k versions (which are different) for the tinies.
 Smaller flash versions of a part use ever so slightly less power. And yes, the tinys are power hogs compared to the Dx/Ex series.
 
-### tinyAVR 0
+## tinyAVR 0
 Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 
 | Power Consumption   | typ | max | 125C| .  |  Conditions |
@@ -33,9 +33,9 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 | I<sub>RST</sub>     | 100 |  -  |   - | μA | RESET pulled to GND
 
 
-### tinyAVR 1
+## tinyAVR 1
 
-#### 16k parts
+### 16k parts
 | Power Consumption   | typ | max | .  |  Conditions |
 | --------------------|-----|-----|----|-------------|
 | IDD<sub>ACTIVE</sub>|10.2 |  -  | mA | CLK_CPU = 20 MHz (OSC20M) VDD = 5V |
@@ -64,7 +64,7 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 | IDD<sub>PWRDWN/STBY</sub>|0.1|2.0|5.0 | 7.0 | µA | All peripherals stopped
 | I<sub>RST</sub>     | 100 |  -  |  -  |  -  | μA | RESET pulled to GND |
 
-#### 32k parts
+### 32k parts
 | Power Consumption   | typ | max | .  |  Conditions |
 | --------------------|-----|-----|----|-------------|
 | IDD<sub>ACTIVE</sub>|  10 |  -  | mA | CLK_CPU = 20 MHz (OSC20M) VDD = 5V |
@@ -94,9 +94,9 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 | I<sub>RST</sub>     | 100 |  -  |  -  |  -  | μA | RESET pulled to GND |
 
 
-### tinyAVR 2
+## tinyAVR 2
 
-#### 16k parts
+### 16k parts
 | Power Consumption   | min | typ | max | .  |  Conditions |
 | --------------------|-----|-----|-----|----|-------------|
 | IDD<sub>ACTIVE</sub>|  -  |10.2 |  -  | mA |CLK_CPU = 20 MHz (OSC20M) VDD = 5V |
@@ -126,7 +126,7 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 |  -                  |  -  |  -  |  -  | µA |RTC running at 1.024 kHz from internal OSCULP32K, T = 125°C |
 | I<sub>RST</sub>     | 100 |  -  |   - | μA | RESET pulled to GND
 
-#### 16k parts
+### 16k parts
 | Power Consumption   | min | typ | max | .  |  Conditions |
 | --------------------|-----|-----|-----|----|-------------|
 | IDD<sub>ACTIVE</sub>|  -  |10.2 |  -  | mA |CLK_CPU = 20 MHz (OSC20M) VDD = 5V |
@@ -157,7 +157,7 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 | I<sub>RST</sub>     | 100 |  -  |   - | μA | RESET pulled to GND
 
 
-### AVR DA
+## AVR DA
 
 | Power Consumption   | min | typ | max | 125C| .  |  Conditions |
 | --------------------|-----|-----|-----|-----|----|-------------|
@@ -165,7 +165,7 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 | Power Consumption   | min | typ | max | .  |  Conditions |
 | --------------------|-----|-----|-----|----|-------------|
 
-### AVR DB
+## AVR DB
 **WARNING** There is an erratum relevant to power consumption under certain conditions see [the Errata list](Ref_Errata.md).
 
 | Power Consumption   | min | typ | max | 125C| .  |  Conditions |
@@ -189,7 +189,7 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 |  -                  |  -  | 0.8 | 6.8 |  15 | µA | Power-Down mode VREGCTRL.PMODE = 0 (AUTO) VREGCTRL.HTLLEN = 1
 | I<sub>RST</sub>     |  -  | 170 |  -  |   - | μA | RESET pulled to GND
 
-### AVR DD
+## AVR DD
 As a newer part, characterization is less thorough.
 
 | Power Consumption   | min | typ | max | 125C| .  |  Conditions |
@@ -218,7 +218,7 @@ As a newer part, characterization is less thorough.
 | I<sub>RST</sub>     |  -  | 170 |  -  |  -  | μA | RESET line pulled low
 
 
-### AVR EA
+## AVR EA
 As a new product, not all of these have been characterized ~rigorously~.
 
 At 3.0V unless otherwise noted.
@@ -237,14 +237,14 @@ At 3.0V unless otherwise noted.
 |  -                  |  -  | 3.3 |  -  |  -  | μA | XOSC32K = 32.768 kHz |
 | IDD<sub>base</sub>  |  -  |0.08 |  -  |  -  | μA | Power-Down or Standby |
 
-## Peripheral power consumption
+# Peripheral power consumption
 At 3.0V unless otherwise noted, largest flash size
 
-### AVR DA
+## AVR DA
 | Power Consumption   | min | typ | max | .  |  Conditions |
 | --------------------|-----|-----|-----|----|-------------|
 
-### AVR DB
+## AVR DB
 | Power Consumption   | min | typ | max | .  |  Conditions |
 | --------------------|-----|-----|-----|----|-------------|
 | IDD<sub>WDT</sub>   |  -  | 0.5 | 1.5 | μA | With 32.768 kHz Internal Oscillator
@@ -281,7 +281,7 @@ At 3.0V unless otherwise noted, largest flash size
 | IDD<sub>NVM_WR</sub>|  -  | 6.0 |  -  | mA | .
 | IDD<sub>ZCD</sub>   |  -  |  10 |  -  | μA | Excluding sink/source currents
 
-### AVR DD
+## AVR DD
 | Power Consumption   | min | typ | max | .  |  Conditions |
 | --------------------|-----|-----|-----|----|-------------|
 | IDD<sub>WDT</sub>   |  -  | 600 |  -  | nA | 32.768 kHz internal oscillator
@@ -317,7 +317,7 @@ At 3.0V unless otherwise noted, largest flash size
 | IDD<sub>NVM_WR</sub>|  -  |   3 |  -  | mA | Flash Programming Write |
 
 
-### AVR EA
+## AVR EA
 | As a new product, not all of these have been characterized ~rigorously~.
 
 | Power Consumption  | min | typ | max | 125C| .  |  Conditions |

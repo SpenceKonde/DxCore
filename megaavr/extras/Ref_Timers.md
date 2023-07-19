@@ -775,7 +775,7 @@ Up to four mux options per TCB and up to 8 TCBs on a future part could be accomm
 
 
 There were some key and non-obvious hazards:
-  * For dPTT[N] especially. It is convenient to make a copy
+* For dPTT[N] especially. It is convenient to make a copy
 
 ### For megaTinyCore
 | Timer Name   | Value | Peripheral |          Used for |
@@ -849,7 +849,7 @@ Calls to `_gCMT` should be conditionally compiled based on CORE_HAS_CURRENTTIMER
   In the future, there may be additioal timers supported above 0x80.
 5. Otherwise, check bit 6 (0x40). If it is a 1, you have a type D timer on this pin. Bits 4 and 5 indicate which waveform output channel, and bits 0-2 indicate the mux option. Bit 3 is reserved for any future TCD1.
   Having both those pieces of information in the table improves performance.
-6.  Finally, check bit 5 (0x20). Which If set, means a type B timer pin
+6. Finally, check bit 5 (0x20). Which If set, means a type B timer pin
   a. 3 LSBs contain the timer number. If bit 4 is set, it's the alternate pin. If a second or third is ever available, we'll use bit 3 just like TCA.
 
 
