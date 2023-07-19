@@ -166,7 +166,7 @@ Based on 1607 figures - Notice that tiny 1 and 2 have higher power consumption!
 | --------------------|-----|-----|-----|----|-------------|
 
 ## AVR DB
-**WARNING** There is an erratum relevant to power consumption under certain conditions see [the Errata list](Ref_Errata.md).
+**WARNING** There is an erratum relevant to power consumption under certain conditions see [the Errata list](Errata.md).
 
 | Power Consumption   | min | typ | max | 125C| .  |  Conditions |
 | --------------------|-----|-----|-----|-----|----|-------------|

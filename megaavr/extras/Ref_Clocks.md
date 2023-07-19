@@ -5,7 +5,7 @@ Be aware that this is very different from the equivalent document for the Dx and
 **Crystal** is not supported as a clock source on the DA-series, or EB-series, but is on the DB, DD, and DU-series.
 
 ## Background - how the timers work
-see also [the timer reference](Ref_Timer.md)
+see also [the timer reference](Ref_Timers.md)
 
 ### On tinyAVR
 The OSCCFG fuse selects whether the speed is derived from a 20 MHz or 16 MHz oscillator. At power-on, these are always set to a prescaler of /6 hence 2.66 or 3.33 MHz. The core, prior to calling setup, will reconfigure the prescaler to match the requested speed. The OSCCFG fuse is always set when a sketch is uploaded via a UPDI programmer.
