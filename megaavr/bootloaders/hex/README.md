@@ -1,4 +1,4 @@
-# Here live the bootloader hex files.
+# Here live the bootloader hex files
 
 ## .lst and .elf files
 

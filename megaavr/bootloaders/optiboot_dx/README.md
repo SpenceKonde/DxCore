@@ -47,7 +47,7 @@ There is additional information in the wiki - however, the wiki does not reflect
 [https://github.com/Optiboot/optiboot/wiki](https://github.com/Optiboot/optiboot/wiki)
 
 
-## To set up this environment in windows
+## To set up this environment in Windows
 This is how the files megaTinyCore ships with are built. I can provide no guarantee that any other method will still work after what I've done to the makefile.
 1. Download and extract the Arduino 1.0.6 .zip package.
 * Make sure it is not in a "protected" location. I normally put them in the root of C:.

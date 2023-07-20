@@ -4,8 +4,8 @@ Be aware that this is very different from the equivalent document for the Dx and
 
 **Crystal** is not supported as a clock source on the DA-series, or EB-series, but is on the DB, DD, and DU-series.
 
-## Background - how the timers work.
-see also [the timer reference](Ref_Timer.md)
+## Background - how the timers work
+see also [the timer reference](Ref_Timers.md)
 
 ### On tinyAVR
 The OSCCFG fuse selects whether the speed is derived from a 20 MHz or 16 MHz oscillator. At power-on, these are always set to a prescaler of /6 hence 2.66 or 3.33 MHz. The core, prior to calling setup, will reconfigure the prescaler to match the requested speed. The OSCCFG fuse is always set when a sketch is uploaded via a UPDI programmer.
@@ -18,7 +18,7 @@ Additionally, there is a tuning register, CLKCTRL.OSCHFTUNE. Unfortunately, it i
 If an external 32.768 MHz crystal has been connected, you can, for improved temperature stability, autotune the internal oscillator from this. I had to direct a torch at the chip (from a distance) to heat it up enough to see the speed autotune....
 Not the feature I'm most impressed with. A+ on concept, C on execution.
 
-Tuning to achieve non-standard speeds is not supported on the AVR Dx-series parts under DxCore. 
+Tuning to achieve non-standard speeds is not supported on the AVR Dx-series parts under DxCore.
 
 ### On tinyAVR
 The OSCCFG fuse selects whether the speed is derived from a 20 MHz or 16 MHz oscillator. At power-on, these are always set to a prescaler of /6 hence 2.66 or 3.33 MHz. The core, prior to calling setup, will reconfigure the prescaler to match the requested speed. The OSCCFG fuse is always set when a sketch is uploaded via a UPDI programmer.
@@ -33,9 +33,9 @@ Not the feature I'm most impressed with. A+ on concept, C on execution.
 Tuning to achieve non-standard speeds is not supported on the AVR Ex-series parts under DxCore.
 
 ## Supported Clock Speeds
-Like classic AVRs, tinyAVRs have a "speed grades" depending on the voltage and operating conditions that they are rated for operation within. The spec is 5 MHz @ 1.8V , 10 MHz @ 2.7V (3.3V nominal) and 20 @ 4.5V (5.0V nominal) (2.7 or 4.5 for 8MHz and 16 MHz at >105C . See the Speed Grade reference for more information on this. Note that the speed grades are extremely conservative for room temperature operation, and unreal overclocking is easily achievable at room temperaturee, particularly with high temp. rated parts. 
+Like classic AVRs, tinyAVRs have a "speed grades" depending on the voltage and operating conditions that they are rated for operation within. The spec is 5 MHz @ 1.8V , 10 MHz @ 2.7V (3.3V nominal) and 20 @ 4.5V (5.0V nominal) (2.7 or 4.5 for 8MHz and 16 MHz at >105C . See the Speed Grade reference for more information on this. Note that the speed grades are extremely conservative for room temperature operation, and unreal overclocking is easily achievable at room temperaturee, particularly with high temp. rated parts.
 
-The AVR Dx-series come in I (105C) and E (125C) spec parts. Since the DA-series was released, Microchip has STOPPED MARKING THE SPEED GRADE ON THE CHIPS. Be sure that if you have both speed grades, you mark the chips somehow (0 and 1-series parts do still have the temperature rating marked (N = 105, F = 125). 
+The AVR Dx-series come in I (105C) and E (125C) spec parts. Since the DA-series was released, Microchip has STOPPED MARKING THE SPEED GRADE ON THE CHIPS. Be sure that if you have both speed grades, you mark the chips somehow (0 and 1-series parts do still have the temperature rating marked (N = 105, F = 125).
 
 
 Some of the listed speeds, while supported by the hardware are not supported by the core - typically weird, slow clocks, particularly from a crystal
@@ -160,7 +160,7 @@ So with the added simplicity, one might wonder why they are so uncommon. There a
 ## Clock troubleshooting
 On a classic AVR, the result of selecting a clock source (external crystal or clock) which does not function is not subtle: You burn the bootloader to set the fuse to use that clock source, and the chip ceases to respond, including all attempts to program, other than HJV programming. Fortunately, this is a thing of the past with modern AVRs, it comes for free with the new clock handling - it starts up at a universally acceptable speed and can be easily switched at runtime. Recovery is typically as simple as uploading a new sketch with more appropriate clock settings.
 
-On megaTinyCore, troubleshooting is generally straightforward. 
+On megaTinyCore, troubleshooting is generally straightforward.
 
 
 ### Blink Codes (DxCore only)
