@@ -57,14 +57,12 @@ class NvmUpdi(object):
         self.logger.debug("Wait flash ready")
         while not timeout.expired():
             status = self.readwrite.read_byte(self.device.nvmctrl_address + constants.UPDI_NVMCTRL_STATUS)
-            if status & (1 << constants.UPDI_NVM_STATUS_WRITE_ERROR):
-                self.logger.error("NVM error")
-                return False
-
-            if not status & ((1 << constants.UPDI_NVM_STATUS_EEPROM_BUSY) |
-                             (1 << constants.UPDI_NVM_STATUS_FLASH_BUSY)):
-                return True
-
+            if status != None: # otherwise, keep trying
+                if status & (1 << constants.UPDI_NVM_STATUS_WRITE_ERROR):
+                    self.logger.error("NVM error")
+                    return False
+                if not (status & ((1 << constants.UPDI_NVM_STATUS_EEPROM_BUSY) | (1 << constants.UPDI_NVM_STATUS_FLASH_BUSY))):
+                    return True
         self.logger.error("Wait flash ready timed out")
         return False
 
@@ -123,8 +121,7 @@ class NvmUpdiTinyMega(NvmUpdi):
         :param address: address to write to
         :param data: data to write
         """
-        return self.write_nvm(address, data, use_word_access=False,
-                              nvmcommand=constants.UPDI_V0_NVMCTRL_CTRLA_ERASE_WRITE_PAGE)
+        return self.write_nvm(address, data, use_word_access=False, nvmcommand=constants.UPDI_V0_NVMCTRL_CTRLA_ERASE_WRITE_PAGE)
 
     def write_fuse(self, address, data, write_delay=1):
         """
@@ -156,8 +153,7 @@ class NvmUpdiTinyMega(NvmUpdi):
         if not self.wait_flash_ready():
             raise PymcuprogError("Timeout waiting for flash ready after fuse write ")
 
-    def write_nvm(self, address, data, use_word_access, nvmcommand=constants.UPDI_V0_NVMCTRL_CTRLA_WRITE_PAGE,
-                  blocksize=2,  bulkwrite=0, pagewrite_delay=0):
+    def write_nvm(self, address, data, use_word_access, nvmcommand=constants.UPDI_V0_NVMCTRL_CTRLA_WRITE_PAGE, blocksize=2,  bulkwrite=0, pagewrite_delay=0):
         """
         Writes a page of data to NVM (v0)
 
@@ -209,7 +205,7 @@ class NvmUpdiTinyMega(NvmUpdi):
             # do a final NVM status check only if not doing a bulk write, or after the last chunk (when bulkwrite = 2)
             # not doing this every page made uploads about 15% faster
             if not self.wait_flash_ready():
-                raise PymcuprogError("Timeout waiting for flash ready after page write ")
+                raise PymcuprogError("Timeout waiting for flash ready after write or bulkwrite")
 
 
 class NvmUpdiAvrDx(NvmUpdi):
@@ -273,7 +269,7 @@ class NvmUpdiAvrDx(NvmUpdi):
 
         # Wait for NVM controller to be ready again
         if not self.wait_flash_ready():
-            raise Exception("Timeout waiting for NVM ready after data write")
+            raise Exception("Timeout waiting for NVM ready after command.")
 
         # Remove command from NVM controller
         self.logger.info("Clear NVM command")

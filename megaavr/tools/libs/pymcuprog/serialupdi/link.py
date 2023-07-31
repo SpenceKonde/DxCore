@@ -105,8 +105,7 @@ class UpdiDatalink:
         :return: values read
         """
         self.logger.debug("LD8 from ptr++")
-        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LD | constants.UPDI_PTR_INC |
-                            constants.UPDI_DATA_8])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LD | constants.UPDI_PTR_INC | constants.UPDI_DATA_8])
         return self.updi_phy.receive(size)
 
     def ld_ptr_inc16(self, words):
@@ -118,9 +117,8 @@ class UpdiDatalink:
         """
         self.logger.debug("LD16 from ptr++")
         # combine REP, words with ld *ptr++
-        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_REPEAT | constants.UPDI_REPEAT_BYTE,
-                            (words - 1) & 0xFF, constants.UPDI_PHY_SYNC, constants.UPDI_LD | constants.UPDI_PTR_INC |
-                            constants.UPDI_DATA_16])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_REPEAT | constants.UPDI_REPEAT_BYTE, ((words - 1) & 0xFF), constants.UPDI_PHY_SYNC,
+            constants.UPDI_LD | constants.UPDI_PTR_INC | constants.UPDI_DATA_16])
         return self.updi_phy.receive(words << 1)
 
     def st_ptr_inc(self, data):
@@ -192,7 +190,10 @@ class UpdiDatalink:
                     But this should pose no problems for compatibility, because your serial adapter can't deal with 6b chunks,
                     none of pymcuprog would work!
         """
-        self.logger.debug("ST16 to *ptr++ with RSD, data length: 0x%03X in blocks of:  %d", len(data), blocksize)
+        if blocksize == None:
+            self.logger.debug("ST16 to *ptr++ with RSD, data length: 0x%03X in a single great big chunk", len(data))
+        else:
+            self.logger.debug("ST16 to *ptr++ with RSD, data length: 0x%03X in blocks of:  %d", len(data), blocksize)
 
         #for performance we glob everything together into one USB transfer....
         repnumber= ((len(data) >> 1) -1)
@@ -297,6 +298,7 @@ class UpdiDatalink:
         response = self.updi_phy.receive(1)
         if len(response) != 1 or response[0] != constants.UPDI_PHY_ACK:
             if len(response) >= 0:
+                self.logger.error(str(response));
                 self.logger.error("expecting ACK after ST, but got: %02x", response[0])
             else:
                 self.logger.error("expecting ACK after ST, got nothing.")
@@ -330,10 +332,12 @@ class UpdiDatalink16bit(UpdiDatalink):
         :return: value read
         """
         self.logger.debug("LD from 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_8,
-             address & 0xFF, (address >> 8) & 0xFF])
-        return self.updi_phy.receive(1)[0]
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_8, address & 0xFF, (address >> 8) & 0xFF])
+        temp = self.updi_phy.receive(1)
+        if len(temp) > 0:
+            return temp[0]
+        else:
+            return None
 
     def ld16(self, address):
         """
@@ -342,9 +346,7 @@ class UpdiDatalink16bit(UpdiDatalink):
         :return: values read
         """
         self.logger.debug("LD from 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_16,
-             address & 0xFF, (address >> 8) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_16, address & 0xFF, (address >> 8) & 0xFF])
         return self.updi_phy.receive(2)
 
     # pylint: disable=invalid-name
@@ -355,9 +357,7 @@ class UpdiDatalink16bit(UpdiDatalink):
         :param value: value to write
         """
         self.logger.debug("ST to 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_8,
-             address & 0xFF, (address >> 8) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_8, address & 0xFF, (address >> 8) & 0xFF])
         return self._st_data_phase([value & 0xFF])
 
     def st16(self, address, value):
@@ -367,9 +367,7 @@ class UpdiDatalink16bit(UpdiDatalink):
         :param value: value to write
         """
         self.logger.debug("ST to 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_16,
-             address & 0xFF, (address >> 8) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_16 | constants.UPDI_DATA_16, address & 0xFF, (address >> 8) & 0xFF])
         return self._st_data_phase([value & 0xFF, (value >> 8) & 0xFF])
 
     def st_ptr(self, address):
@@ -378,9 +376,7 @@ class UpdiDatalink16bit(UpdiDatalink):
         :param address: address to write
         """
         self.logger.debug("ST to ptr")
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_ST | constants.UPDI_PTR_ADDRESS | constants.UPDI_DATA_16,
-             address & 0xFF, (address >> 8) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_ST | constants.UPDI_PTR_ADDRESS | constants.UPDI_DATA_16, address & 0xFF, (address >> 8) & 0xFF])
         response = self.updi_phy.receive(1)
         if len(response) != 1 or response[0] != constants.UPDI_PHY_ACK:
             raise PymcuprogError("Error with st_ptr")
@@ -397,16 +393,20 @@ class UpdiDatalink24bit(UpdiDatalink):
         self.logger = getLogger(__name__)
 
     # pylint: disable=invalid-name
-    def ld(self, address):
+    def ld(self, address, xtratime=0):
         """
         Load a single byte direct from a 24-bit address
         :param address: address to load from
         :return: value read
         """
-        self.logger.debug("LD from 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_8,
-             address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
+
+        if xtratime > 0:
+            self.logger.debug("LD from 0x{0:06X} with added delay of {:n} ms ".format(address, xtratime))
+            self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_8, address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
+            time.sleep(xtratime/1000.0);
+        else:
+            self.logger.debug("LD from 0x{0:06X}".format(address))
+            self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_8, address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
         return self.updi_phy.receive(1)[0]
 
     def ld16(self, address):
@@ -416,9 +416,7 @@ class UpdiDatalink24bit(UpdiDatalink):
         :return: values read
         """
         self.logger.debug("LD from 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_16,
-             address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_LDS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_16, address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
         return self.updi_phy.receive(2)
 
     # pylint: disable=invalid-name
@@ -429,9 +427,7 @@ class UpdiDatalink24bit(UpdiDatalink):
         :param value: value to write
         """
         self.logger.debug("ST to 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_8,
-             address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
+        self.updi_phy.send( [constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_8, address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
         return self._st_data_phase([value & 0xFF])
 
     def st16(self, address, value):
@@ -441,9 +437,7 @@ class UpdiDatalink24bit(UpdiDatalink):
         :param value: value to write
         """
         self.logger.debug("ST to 0x{0:06X}".format(address))
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_16,
-             address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_STS | constants.UPDI_ADDRESS_24 | constants.UPDI_DATA_16, address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
         return self._st_data_phase([value & 0xFF, (value >> 8) & 0xFF])
 
     def st_ptr(self, address):
@@ -452,9 +446,7 @@ class UpdiDatalink24bit(UpdiDatalink):
         :param address: address to write
         """
         self.logger.debug("ST to ptr")
-        self.updi_phy.send(
-            [constants.UPDI_PHY_SYNC, constants.UPDI_ST | constants.UPDI_PTR_ADDRESS | constants.UPDI_DATA_24,
-             address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
+        self.updi_phy.send([constants.UPDI_PHY_SYNC, constants.UPDI_ST | constants.UPDI_PTR_ADDRESS | constants.UPDI_DATA_24, address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF])
         response = self.updi_phy.receive(1)
         if len(response) != 1 or response[0] != constants.UPDI_PHY_ACK:
             raise PymcuprogError("Error with st_ptr")
