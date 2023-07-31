@@ -218,6 +218,7 @@
   #define Dx_64_PINS
   #define CORE_PART_ID_LOW ID_64_PINS
   #define __AVR_DA__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DA48__) || defined(__AVR_AVR64DA48__) || defined(__AVR_AVR32DA48__)
   #define DA_48_PINS
   #define HAS_48_PINS
@@ -225,6 +226,7 @@
   #define Dx_48_PINS
   #define CORE_PART_ID_LOW ID_48_PINS
   #define __AVR_DA__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DA32__) || defined(__AVR_AVR64DA32__) || defined(__AVR_AVR32DA32__)
   #define DA_32_PINS
   #define HAS_32_PINS
@@ -232,6 +234,7 @@
   #define Dx_32_PINS
   #define CORE_PART_ID_LOW ID_32_PINS
   #define __AVR_DA__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DA28__) || defined(__AVR_AVR64DA28__) || defined(__AVR_AVR32DA28__)
   #define DA_28_PINS
   #define HAS_28_PINS
@@ -239,6 +242,7 @@
   #define Dx_28_PINS
   #define CORE_PART_ID_LOW ID_28_PINS
   #define __AVR_DA__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DB64__) || defined(__AVR_AVR64DB64__)
   #define DB_64_PINS
   #define HAS_64_PINS
@@ -246,6 +250,7 @@
   #define Dx_64_PINS
   #define CORE_PART_ID_LOW (ID_64_PINS | ID_AVR_DB)
   #define __AVR_DB__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DB48__) || defined(__AVR_AVR64DB48__) || defined(__AVR_AVR32DB48__)
   #define DB_48_PINS
   #define HAS_48_PINS
@@ -253,6 +258,7 @@
   #define Dx_48_PINS
   #define CORE_PART_ID_LOW (ID_48_PINS | ID_AVR_DB)
   #define __AVR_DB__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DB32__) || defined(__AVR_AVR64DB32__) || defined(__AVR_AVR32DB32__)
   #define DB_32_PINS
   #define HAS_32_PINS
@@ -260,6 +266,7 @@
   #define Dx_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DB)
   #define __AVR_DB__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR128DB28__) || defined(__AVR_AVR64DB28__) || defined(__AVR_AVR32DB28__)
   #define DB_28_PINS
   #define HAS_28_PINS
@@ -267,6 +274,7 @@
   #define Dx_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DB)
   #define __AVR_DB__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR64DD32__)  || defined(__AVR_AVR32DD32__) || defined(__AVR_AVR16DD32__)
   #define DD_32_PINS
   #define HAS_32_PINS
@@ -274,6 +282,7 @@
   #define Dx_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DD)
   #define __AVR_DD__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR64DD28__)  || defined(__AVR_AVR32DD28__) || defined(__AVR_AVR16DD28__)
   #define DD_28_PINS
   #define DX_28_PINS
@@ -281,18 +290,21 @@
   #define HAS_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DD)
   #define __AVR_DD__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR64DD20__)  || defined(__AVR_AVR32DD20__) || defined(__AVR_AVR16DD20__)
   #define DD_20_PINS
   #define HAS_20_PINS
   #define DX_20_PINS
   #define CORE_PART_ID_LOW (ID_20_PINS | ID_AVR_DD)
   #define __AVR_DD__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR64DD14__)  || defined(__AVR_AVR32DD14__) || defined(__AVR_AVR16DD14__)
   #define DD_14_PINS
   #define DX_14_PINS
   #define HAS_14_PINS
   #define CORE_PART_ID_LOW (ID_14_PINS | ID_AVR_DD)
   #define __AVR_DD__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR64DU32__)  || defined(__AVR_AVR32DU32__) || defined(__AVR_AVR16DU32__)
   #define DU_32_PINS
   #define DX_32_PINS
@@ -300,6 +312,7 @@
   #define HAS_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_DU)
   #define __AVR_DU__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR64DU28__)  || defined(__AVR_AVR32DU28__) || defined(__AVR_AVR16DU28__)
   #define DU_28_PINS
   #define DX_28_PINS
@@ -307,18 +320,21 @@
   #define HAS_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_DU)
   #define __AVR_DU__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR32DU20__)  || defined(__AVR_AVR16DU20__)
   #define DU_20_PINS
   #define HAS_20_PINS
   #define DX_20_PINS
   #define CORE_PART_ID_LOW (ID_20_PINS | ID_AVR_DU)
   #define __AVR_DU__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR32DU14__)  || defined(__AVR_AVR16DU14__)
   #define DU_14_PINS
   #define HAS_14_PINS
   #define DX_14_PINS
   #define CORE_PART_ID_LOW (ID_14_PINS | ID_AVR_DU)
   #define __AVR_DU__
+  #define _AVR_Dx
 #elif defined(__AVR_AVR8EA48__)   || defined(__AVR_AVR16EA48__) || defined(__AVR_AVR64EA48__) || defined(__AVR_AVR32EA48__)
   #define EA_48_PINS
   #define HAS_48_PINS
@@ -326,6 +342,7 @@
   #define Ex_48_PINS
   #define CORE_PART_ID_LOW (ID_48_PINS | ID_AVR_EA)
   #define __AVR_EA__
+  #define _AVR_Ex
 #elif defined(__AVR_AVR8EA32__)   || defined(__AVR_AVR16EA32__) || defined(__AVR_AVR64EA32__) || defined(__AVR_AVR32EA32__)
   #define EA_32_PINS
   #define HAS_32_PINS
@@ -333,6 +350,7 @@
   #define Ex_32_PINS
   #define CORE_PART_ID_LOW (ID_32_PINS | ID_AVR_EA)
   #define __AVR_EA__
+  #define _AVR_Ex
 #elif defined(__AVR_AVR8EA28__)   || defined(__AVR_AVR16EA28__) || defined(__AVR_AVR64EA28__) || defined(__AVR_AVR32EA28__)
   #define EA_28_PINS
   #define HAS_28_PINS
@@ -340,6 +358,7 @@
   #define Ex_28_PINS
   #define CORE_PART_ID_LOW (ID_28_PINS | ID_AVR_EA)
   #define __AVR_EA__
+  #define _AVR_Ex
 #else
   #error "Can't-happen: unknown chip somehow being used - and we detect every Dx and Ex chip announced!"
 #endif
@@ -355,35 +374,44 @@
 
 // _AVR_FLASHMODE
 /* 0 = No RWW, paged
- * 1 = RWW, paged
+ * 1 = Reserved. (ask Microchip what happened, I don't know!)
  * 2 = the GOOD ONE: paged erases and word writes
+ * 3 = Paged writes with a RWW and NRWW section. At least in initial silicon, also tons of bugs
  */
+#define _AVR_DX_SERIES          (0x10);
+#define _AVR_EX_SERIES          (0x20); //
 
 #if   defined(__AVR_DA__)
+  #define     _AVR_GENUS        _AVR_DX_SERIES // A genus is much larger than a family, you see... Parts are "species", individual chips are "specimens"
   #define     _AVR_FAMILY       "DA"
   #define     _AVR_CLOCKMODE    (0x13) // Crap manual tuning, autotune, no crystal, clock select, supports RTC xtal.
   #define     _AVR_FLASHMODE    (2)
 #elif defined(__AVR_DB__)
+  #define     _AVR_GENUS        _AVR_DX_SERIES
   #define     _AVR_FAMILY       "DB"
   #define     _AVR_CLOCKMODE    (0x17) // Crap manual tuning, autotune, crystal, clock select, supports RTC xtal.
   #define     _AVR_FLASHMODE    (2)
 #elif defined(__AVR_DD__)
+  #define     _AVR_GENUS        _AVR_DX_SERIES
   #define     _AVR_FAMILY       "DD"
   #define     _AVR_CLOCKMODE    (0x17) // Crap manual tuning, autotune, crystal, clock select, supports RTC xtal.
   #define     _AVR_FLASHMODE    (2)
 #elif defined(__AVR_DU__)
+  #define     _AVR_GENUS        _AVR_DX_SERIES
   #define     _AVR_FAMILY       "DU"
   #define     _AVR_CLOCKMODE    (0x1F)  // (predicted) Crap manual tuning, autotune, USB autotune for crystalless USB, crystal, clock select, supports RTC xtal.
   //#define     _AVR_FLASHMODE   TBD
   #error "The AVR DU-series is not yet available"
 #elif defined(__AVR_EA__)
+  #define     _AVR_GENUS        _AVR_EX_SERIES
   #define     _AVR_FAMILY       "EA"
   #define     _AVR_CLOCKMODE    (0x15) // Crap manual tuning, autotune, crystal, base clock in fuses like a tiny, supports RTC xtal.
-  #define     _AVR_FLASHMODE    (1)
+  #define     _AVR_FLASHMODE    (3)
 #elif defined(__AVR_EB__)
+  #define     _AVR_GENUS        _AVR_EX_SERIES
   #define     _AVR_FAMILY       ("EB")
-//#define     _AVR_CLOCKMODE    (0x11) // (predicted - we get screwed here) Crap manual tuning, autotune, no crystal, base clock in fuses like tiny, RTC xtal
-  //#define     _AVR_FLASHMODE   TBD
+  #define     _AVR_CLOCKMODE    (0x11) // (predicted)
+  #define     _AVR_FLASHMODE    "3"
   #error "The AVR EB-series is not available, and is known only from the brief. Support will be added once more information is available."
 #else
   #error "Unrecognized part, this should not be possible"
@@ -412,7 +440,7 @@
      #define                  _AVR_PINCOUNT (32)
 #elif defined(EX_48_PINS)
      #define                  _AVR_PINCOUNT (48)
-#elif defined(EX_64_PINS) // (they'll make one eventually right?)
+#elif defined(EX_64_PINS) // (they'll make one eventually maybe? Or maybe that'll wait until some later F-series. )
      #define                  _AVR_PINCOUNT (64)
 #endif
 
@@ -590,7 +618,8 @@
 #elif defined(TCA0)
   #define _AVR_TCA_COUNT     (1)
 #else
-  #define _AVR_TCA_COUNT     (0) // I fear something terrible happened to the TCA on the EB-series... and I think the TCE and that WEX Luther guy he's always with know something about it.
+  #define _AVR_TCA_COUNT     (0) // I fear something terrible happened to the TCA on the EB-series...
+  // and I think the TCE and that WEX Luther guy he's always with know something about it.
 #endif
 
 #if   defined(TCB7)
@@ -625,12 +654,18 @@
 #else                            // PWM on the same pins. I have a bad feeling that TCA0 is either tied up in the basement, or dead in a wooded area. With the TCE's skill at motor control, they could easily have
   #define _AVR_TCE_COUNT     (0) // used power-tools to dismember bury the body.... Anyway, whether these guys are as useful in the silicon as they look  on paper will depend a lot on the whether those
 #endif                           // 8-channels are independent, and whether they need to split like TCA did to handle 8 WO's if so. And, of course on how flexible their clocking options are.
+// The initial headers clearly show that TCE has replaced TCA on the EB-series, but not whether that will be the case for everything in the future. What is clear:
+// 1. It will only allow 4 independent WO channels. (so it is worse for the user who just analogWrite()'s compared to a TCA')
+// 2. It will set a new bar for AVR peripherals. Specifically, it will need the longest chapter in the datasheet to tell us how to use the bloody thing
+// I told you guys WEX Luther was up to no good!!
 
 #if   defined(TCF0)
   #define _AVR_TCF_COUNT     (1) // Even more enigmatic than the TCE. First appears on the EB-series, this previously unseen timer is said to be 24-bit! Curious how that will work and what clock sources it can use.
 #else                            // a 24-bit timer clocked from the CPU core, at only 20 MHz would need it's period choked way back, sacrificing all that resolution, in order to get PWM rather than a blinking light.
   #define _AVR_TCF_COUNT     (0) // 2^24 is in the neighborhood of 17 million, so if CLK_PER was it's max, a lot of these frequencies it could generate would be a touch on the slow side. Even if we can get them up to
 #endif                           // 32 MHz like tiny-2's, we'd need to use only 1-2 bits of that last byte to avoid flicker if you wanted to use for PWM, which Arduino people will.
+// Will have two waveform outputs in an 8-bit PWM mode; there are also several other modes.
+
 
 #if   defined(TWI1)
   #define _AVR_TWI_COUNT     (2)
@@ -673,7 +708,7 @@
   #if !defined(ZCD0)
     #define _AVR_ZCD_COUNT     (1) /* DD-series */
   #else
-    #define _AVR_ZCD_COUNT     (4)
+    #define _AVR_ZCD_COUNT     (4)/* No such parts announced or released */
   #endif
 #elif defined(ZCD2)
   #define _AVR_ZCD_COUNT       (3)
@@ -686,9 +721,9 @@
 #endif
 
 #if   defined(DAC2)
-  #define _AVR_DAC_COUNT       (3)
+  #define _AVR_DAC_COUNT       (3) /* No such parts announced or released */
 #elif defined(DAC1)
-  #define _AVR_DAC_COUNT       (2)
+  #define _AVR_DAC_COUNT       (2) /* No such parts announced or released */
 #elif defined(DAC0)
   #define _AVR_DAC_COUNT       (1) /* Note that thus far, no DAC other than DAC0 has ever been able to output data. DAC1 and DAC2 are just the DACREFs for AC1 and AC2 on tinyAVR 1-series parts.*/
 #else
@@ -708,7 +743,7 @@
   #endif
   #if defined(OPAMP_OP2CTRLA)
     #define PIN_OPAMP2_INP     PIN_PE1 /* Likely skips PE0 for consistency with OPAMP0 */
-    #define PIN_OPAMP2_OUT     PIN_PE2
+    #define PIN_OPAMP2_OUT     PIN_PE2 /* The designers seem to really love consistency, unlike Atmel did */
     #define PIN_OPAMP2_INN     PIN_PE3
   #endif
 #endif
@@ -833,12 +868,12 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
   #define ERRATA_TCD_HALTANDRESTART      (1) // Since I've never seen a good description of what the envisioned use cases are for TCD's event modes,
   // I don't even know if I should care!
 #elif defined(__AVR_EA__)
-  #define ERRATA_NO_ERASEWRITE           (1) // ooof, that's a blow below the belt
-  #define ERRATA_NO_MULTIPAGE_UPDI       (1) // owww, way to kick us when we're down
-  #define ERRATA_FULL_CRC_ONLY           (1) // who cares? Probably the big customers
-  #define ERRATA_FLASH_ENDURANCE_BOD3    (1) // ooowch
-  #define ERRATA_2V7_MIN_FLASH           (1) // oowwwww please stop!
-  #define ERRATA_USART_ISFIF             (1) // Stiiiiiil heeeeere
+  #define ERRATA_FULL_CRC_ONLY           (1) // who cares?
+  #define ERRATA_USART_ISFIF             (1) // Our friend the ISFIF bug is still here, but nobody really cares.
+  #define ERRATA_NO_ERASEWRITE           (1) // EraseWrite doesn't work on RWW memory if code is executed during the write half! Oooh. That's a blow below the belt...
+  #define ERRATA_NO_MULTIPAGE_UPDI       (1) // way to kick us when we're down. Was this what they did to get rid of ERRATA_FLASH_MULTIPAGE?
+  #define ERRATA_FLASH_ENDURANCE_BOD3    (1) // *kick kick* oww! oooof!
+  #define ERRATA_2V7_MIN_FLASH           (1) // *kick* oowwwww! please stop!
 
 
 
@@ -848,6 +883,9 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 #else
   #warning "Unrecognized part - even if this compiles, something is mondo wrong with your IDE or system. Behavior w/unknown part is undefined, and may result in demons flying out of your nose"
 #endif
+
+#define ERRATA_AVRXT_IOREG               (1) // theorized to be present on all modern AVRs until it's discovery and disclosure by Microchip in 2023. It sounds wicked nasty
+// in the abstract but in reality you have to dance the hokey pokey backwards under a full moon in order to make it manifest.
 
 /***********************************************************************************************************************************************\
  * CORE AND HARDWARE FEATURE SUPPORT                                                                                                             *
@@ -1173,18 +1211,16 @@ int8_t _setCPUSpeed(uint8_t omhz) {
    * On those parts, these are at addresses 0x0000-0x003, and 0x0004-0x000F do not appear to be used.
    * The other 22.... had THE ENTIRE FIRST HALF OF THE LOW I/O SPACE as GPIOR0-GPIORF!
    * Which ones got all of them and which ones only got 4 seems to have been chosen in typical
-   * Atmel fashion (hint: it involves flipping a coin). No apparent pattern in time or other parameters.
+   * Atmel fashion (hint: it involved flipping a coin). No apparent pattern in time or other parameters.
    * Either way, that left them with space for only 4 VPORT register sets (like the ones we got)
    * These had to be configured to point to the desired port.
-   * I'm sure everyone is grateful for the fact that the folks designing the Dx-series have their
-   * heads screwed on properly and realized that 4 GPIOR-- excuse me, GPRs, 4 awkward VPORTs and
-   * 12 unused addresses in the low I/O space was maybe not the best design decision made in the
+   * I'm sure everyone is grateful for the fact that the folks designing the modern AVRs had their
+   * heads screwed on more securely than the xMega team and realized that 4 GPIOR-- excuse me, GPRs, 4 awkward VPORTs and
+   * a handful of unused addresses in the low I/O space was maybe not the best design decision made in the
    * xmega line, particularly in light of the profound usefulness of the VPORT for interacting with
    * hardware in a performant and flash-efficient manner. This is clearly not why xMega failed
-   * in the market resulting in Microchip pretending they don't exist and why they were
-   * scavenged for parts during modern AVR development; there were more fundamental issues.
-   * But it didn't help, and this sort of halfassery with the treatment of the registers
-   * changing thrice during the xMega's run didn't help either.
+   * in the marketplace; there many other more fundamental issues. But "that's what xmega did"
+   * is never an endorsement.
    */
   #if !defined(GPIOR0)
     #define GPIOR0                            (_SFR_MEM8(0x001C))

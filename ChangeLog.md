@@ -7,10 +7,13 @@ These items are in addition to what was listed under changes already in release.
 * Enhancement: Fix pinout diagrams for DD-series.
 * Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
 * Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
+* 16EA and 32EA are shipping!
 
-## Changes implemented but not released
+## Changes planned for 1.5.9
 These are typically planned for release in a future version (usually the next one) as noted.
 * Bugfix - Correct Flash.h issues.
+* Bugfix: Remove boot_opt.h which is not applicable to modern AVRs.
+* Bugfix: Remove the useless dummy app that forced us to use avr-size -A to see the size of the bootloader separated from the app, and switch avr-size -A to normal avr-size to take advantage of this.
 * Maintenance - Rebuilt all bootloaders in support of above fix.
 * Docs: Major updates across the board
 * BugFix - Correct critical defect in disabled millis.
@@ -18,6 +21,9 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix - Optiboot did not honor entry conditions (#452), bump optiboot version to 0x1A02.
 * Maintenance - Rebuilt all bootloaders again.
 * Add CORE_HAS_ERRORFUNS #define.
+* Bugfixes, several, for SerialUPDI, and improvements in error messages.
+* Enhancement - Enable 16k and 32k EA-series parts.
+* Maintenance - add CI testing for 64k EA-series parts
 
 ## Releases
 

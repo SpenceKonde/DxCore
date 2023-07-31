@@ -211,6 +211,11 @@ jobs:
           - device-family: ea
             pincount: 14
           - device-family: ea
+            flash-class: 8
+          - device-family: ea
+            flash-class: 16
+          - device-family: ea
+            flash-class: 32
 
     steps:
       - name: Checkout repository
