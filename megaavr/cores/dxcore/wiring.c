@@ -1999,7 +1999,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
           }
         #endif
       #else
-        // it's a EA with that version of CLKCTRL.
+        // it's a Ex with that version of CLKCTRL.
         // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
         // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in the
         // crystal "limping" - oscillating enough to keep the CFD at bay, but not stable - maybe it misses some clocks or something. This in turn tends
@@ -2022,8 +2022,14 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
         i--;
         if(i == 0) onClockTimeout();
       }
+    #elif CLOCK_SOURCE == 6 /* PLL*/
+      #if !defined(CLKCTRL_PLLCTRLB)
+        #error "The selected device does not support using a PLL clock source"
+      #else
+        #error "There is neither paper nor silicon available with PLL clock source only the I/O headers, which don't quite get you there, so we don't know how to do this exactly"
+      #endif
     #else
-      #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
+      #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal, EA only), 2 (ext. clock), or 6 (PLL, EB only); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
     #endif
     #if (F_CPU % 1000000)
       // I hope this works for you, but you're in unsupported waters.
@@ -2033,7 +2039,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
     #endif
   }
 #else
-  #error "Core not correctly setting family defines or part not an DX/EX. We have no idea what kind of clock this might have or how to configure it."
+  #error "Core not correctly setting family defines or part not an DX/EX. We thus cannot determine how to "
 #endif
 
 /********************************* CLOCK FAILURE HANDLING **************************************/
@@ -2056,7 +2062,10 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
  ***********************************************************************************************/
 
 
-#if (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
+#if (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2 || CLOCK_SOURCE == 6) // PLL here because you can
+  // easily exceed the max speed with the PLL clock. If this behaves like the Dx's clocking
+  // the TCD, where if you push it too hard, it will vanish instead of saturating at a max
+  // speed
   // These two functions need only exist if not using internal clock source.
   void _blinkCode(uint8_t blinkcount);
   inline void _asmDelay(uint16_t us);
