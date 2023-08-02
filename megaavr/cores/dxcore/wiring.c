@@ -1781,8 +1781,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 
 // These are defaults that could be overridden by variant or arguments passed to compiler
 // They are only relevant for the case of using a crystal.
-#if CLOCK_SOURCE == 1
-  #ifndef USE_XTAL_DRIVE
+#if CLOCK_SOURCE == 1 && defined(CLKCTRL_FRQRANGE_gm)
     // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
     // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
     // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
@@ -1939,7 +1938,11 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
           uint8_t i = 255;
         #else
           // external crystal
-          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
+          #if defined(CLKCTRL_FRQRANGE_gm)
+            _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
+          #else
+            _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
+          #endif
           /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
           uint16_t i = 8192; // crystals can take a lot longer to reach stability.
         #endif
@@ -1953,7 +1956,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
     #endif
   }
-#elif defined(__AVR_EA__)
+#elif defined(__AVR_EA__) || defined(__AVR_EB__)
   void  __attribute__((weak)) init_clock() {
     #if CLOCK_SOURCE == 0
       // This sucks! Our internal clock sucks! two lousy speeds, selected by fuses? What is this, tinyAVR?
@@ -1979,7 +1982,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
      * can get one for twice that speed.
      * In fact, there is an almost infinite variety of crystals for *unreasonable* frequencies within the range of clock speeds that
      * these parts run at, too. Unreasonable for us at least, because, unlike on classic AVRs, we have a fractional baud rate generator,
-     * and there is no need for wacky UART crystals.
+     * and there is no need for wacky UART crystals with dumbass speeds like 14.32 MHz.
      */
       #if !defined(CLKCTRL_XOSCHFCTRLA)
         // it's an AVR EB-series or something.
