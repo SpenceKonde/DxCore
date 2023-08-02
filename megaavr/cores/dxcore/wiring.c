@@ -1782,27 +1782,26 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 // These are defaults that could be overridden by variant or arguments passed to compiler
 // They are only relevant for the case of using a crystal.
 #if CLOCK_SOURCE == 1 && defined(CLKCTRL_FRQRANGE_gm)
-    // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
-    // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
-    // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
-    // to say about it.
-    // It has been found experimentally that often 24 MHz crystals with poor layout or poorly chosen loading capacitors
-    // would work if the core was told they were 25 MHz; the tests below were changed from > to >= to put frequencies at
-    // the top of one of the ranges into the next highest bucket.
-    // Amazingly, 48 MHz has been observed working at room temperature.
-    #if     (F_CPU >= 24000000)
-      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
-    #elif   (F_CPU >= 16000000)
-      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
-    #elif   (F_CPU >=  8000000)
-      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
-    #else
-      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
-    #endif
+  // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
+  // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
+  // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
+  // to say about it.
+  // It has been found experimentally that often 24 MHz crystals with poor layout or poorly chosen loading capacitors
+  // would work if the core was told they were 25 MHz; the tests below were changed from > to >= to put frequencies at
+  // the top of one of the ranges into the next highest bucket.
+  // Amazingly, 48 MHz has been observed working at room temperature.
+  #if     (F_CPU >= 24000000)
+    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
+  #elif   (F_CPU >= 16000000)
+    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
+  #elif   (F_CPU >=  8000000)
+    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
+  #else
+    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
   #endif
-  #ifndef USE_CSUTHF
-    #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
-  #endif
+#endif
+#ifndef USE_CSUTHF
+  #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
 #endif
 
 #if (defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_DU__))
