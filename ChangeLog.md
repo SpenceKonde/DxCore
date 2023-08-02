@@ -6,8 +6,7 @@ These items are in addition to what was listed under changes already in release.
 
 * Enhancement: Fix pinout diagrams for DD-series.
 * Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
-* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
-* 16EA and 32EA are shipping!
+* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.=
 
 ## Changes planned for 1.5.9
 These are typically planned for release in a future version (usually the next one) as noted.
@@ -17,13 +16,13 @@ These are typically planned for release in a future version (usually the next on
 * Maintenance - Rebuilt all bootloaders in support of above fix.
 * Docs: Major updates across the board
 * BugFix - Correct critical defect in disabled millis.
-* Enhancement - implement `_getCurrentMillisTimer()`  and `_getCurrentMillisState()` which are required for sleepTime.h
+* Enhancement - implement `_getCurrentMillisTimer()`  and `_getCurrentMillisState()` which are/will be required for sleepTime.h
 * Bugfix - Optiboot did not honor entry conditions (#452), bump optiboot version to 0x1A02.
 * Maintenance - Rebuilt all bootloaders again.
 * Add CORE_HAS_ERRORFUNS #define.
 * Bugfixes, several, for SerialUPDI, and improvements in error messages.
-* Enhancement - Enable 16k and 32k EA-series parts.
-* Maintenance - add CI testing for 64k EA-series parts
+* Enhancement - Add the 16k and 32k EA-series parts. Only the bizarrely proportioned parts
+* Maintenance - add CI testing for 64k EA-series parts.
 
 ## Releases
 

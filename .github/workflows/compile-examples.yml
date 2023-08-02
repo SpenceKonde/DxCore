@@ -134,6 +134,7 @@ jobs:
           - db
           - dd
           - ea
+          - eb
         pincount:
           - 64
           - 48
@@ -141,6 +142,9 @@ jobs:
           - 28
           - 20
           - 14
+        int-osc:
+          - 20
+          - 24
         clocksource:
           - internal
           - extclock
@@ -212,10 +216,23 @@ jobs:
             pincount: 14
           - device-family: ea
             flash-class: 8
-          - device-family: ea
-            flash-class: 16
-          - device-family: ea
+          - device-family: eb
             flash-class: 32
+          - device-family: eb
+            flash-class: 64
+          - device-family: eb
+            flash-class: 128
+          - int-osc: 20
+            device-family: da
+          - int-osc: 20
+            device-family: db
+          - int-osc: 20
+            device-family: dd
+          - int-osc: 24
+            device-family: ea
+          - int-osc: 24
+            device-family: eb
+          - device-family: eb
 
     steps:
       - name: Checkout repository

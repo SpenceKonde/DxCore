@@ -153,7 +153,13 @@
 #endif
 
 /* Buffer sizing done */
-
+/* DANGER DANGER DANGER */
+/* The ASM implementations push the envelope, *hard*. The asm implementations themselves are only slightly better than what the compiler makes. That improvement does not justify the asm.
+ * The magic is all from a couple of tricks which, if you look at them carefully, all turn out to rely on one specific trick. That trick, strictly speaking, is illegal; we are explicitly
+ * told in the compiler documentation that you cannot use labels in one asm statement in another asm statement. This (as well as the more performant attachInterrupt and the Flash.h library
+ * when not using optiboot, with full flash write enabled) rely on being able to do this, because we have 3 identical functions which must be present for each of the up to 6 serial ports
+ * announced and released products - these fuinctions in total waste 202 bytes of flash per serial instance, with code that is identical except for a single constant./
+ */
 #if !defined(LTODISABLED)
 #if !defined(USE_ASM_TXC)
   #define USE_ASM_TXC 2    // A bit slower than 1 in exchange for halfduplex.

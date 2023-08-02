@@ -98,7 +98,7 @@ def main():
         print("Error: action '{}' takes no filename".format(args.action))
         sys.exit(1)
 
-    if args.action in ("read", "write") and args.filename == "":
+    if args.action in ("read", "write") and args.filename == "" and (args.fuses == "" or args.action = "read") and not args.fuses_print:
         print("Error: no filename provided")
         sys.exit(1)
     if args.tool != None:
@@ -150,7 +150,7 @@ def print_report(args):
     print("UPDI programming for Arduino using a serial adapter")
     print("Based on pymcuprog, with significant modifications")
     print("By Quentin Bolsee and Spence Konde")
-    print("Version 1.3.0.2 - Jun 2023")
+    print("Version 1.3.0.3 - Jul 2023")
     print("Using serial port {} at {} baud.".format(args.uart, args.baudrate))
     if (args.write_chunk != -1):
         print("Writing in chunks not longer than {} bytes (-wc).".format(args.write_chunk))
