@@ -89,6 +89,7 @@ namespace comparator {
   };
 
   #if defined(DXCORE)
+
     namespace in_p {
       enum inputP_t : uint8_t {
       in0    = 0x00,
