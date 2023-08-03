@@ -120,14 +120,14 @@ Use another TWI mapping option, and enable the SMBUS 3.0 levels using the Wire.c
 SLPCTRL.CTRLA will cause loss of the last write.*
 
 **Work Around**
-* To avoid loss of write to I/O space either: 
+* To avoid loss of write to I/O space either:
   * Insert a NOP instruction before writing to addresses below 0x0040 - OR -
   * Use the OUT instruction instead of ST/STD
 * SLPCTRL.CTRLA
   * Insert a NOP instruction before writing to SLPCTRL.CTRLA
 
-Take a minute to read that again if this is the first time you've seen it. At first glance, this bug is SCARY AS HELL. But obviously, in reality, it is not, because this errata is present on the first modern AVRs released, the 412 and company. And the errata for the most recent, the EA-series. It is all but certain that every tinyAVR has the same bug, and the mega0's. The Dx's may be spared - but I doubt it (there are two branches of the AVR family tree, yasee, Dx-series and everything else). 
-The more you think about it the wackier it seems that anyone would ever encounter the bug. First the window is narrow - a single clock cycle. The pattern is also odd. ST/STD to dataspace address > 0x0040; Then, you *immediately, in the next clock cycle* are writing to a non-"special" memory address below 0x60 (why 0x60? Bug probably arises from bungled handling of IO space. IO space is addressed from 0x00 through 0x3F with in and out, as always, but this is now mapped to the dataspace at 0x0000-0x003F, while on classic, the *working registers* were *mapped to the dataspace* at 0x0000 - 0x001F, and the I/O registers were located at 0x20-0x5F. And xMega had this feature that made access to IO space faster via if you were pointing to an I/O register. It's a dumb feature, we didn't get it, you don't need it, and if you find yourself accessing the IO space with a pointer you need to stop and ask wtf you're doing. Same goes for using STS to access the IO space. Out and STS both require the address known at compile time, STS just takes twice as much flash and twice as many clocks and is just bad. 
+Take a minute to read that again if this is the first time you've seen it. At first glance, this bug is SCARY AS HELL. But obviously, in reality, it is not, because this errata is present on the first modern AVRs released, the 412 and company. And the errata for the most recent, the EA-series. It is all but certain that every tinyAVR has the same bug, and the mega0's. The Dx's may be spared - but I doubt it (there are two branches of the AVR family tree, yasee, Dx-series and everything else).
+The more you think about it the wackier it seems that anyone would ever encounter the bug. First the window is narrow - a single clock cycle. The pattern is also odd. ST/STD to dataspace address > 0x0040; Then, you *immediately, in the next clock cycle* are writing to a non-"special" memory address below 0x60 (why 0x60? Bug probably arises from bungled handling of IO space. IO space is addressed from 0x00 through 0x3F with in and out, as always, but this is now mapped to the dataspace at 0x0000-0x003F, while on classic, the *working registers* were *mapped to the dataspace* at 0x0000 - 0x001F, and the I/O registers were located at 0x20-0x5F. And xMega had this feature that made access to IO space faster via if you were pointing to an I/O register. It's a dumb feature, we didn't get it, you don't need it, and if you find yourself accessing the IO space with a pointer you need to stop and ask wtf you're doing. Same goes for using STS to access the IO space. Out and STS both require the address known at compile time, STS just takes twice as much flash and twice as many clocks and is just bad.
 
 ### Vector Table is Wrong on early AVR32DA
 Remember how the ATmega808 and 809 had 4-byte interrupt vectors in hardware, but for a while the toolchain tried to generate 2-byte vector tables for it and interrupts didn't work? Well this was worse: It was the other way around! Not only does the toolchain generate binaries that don't work, it cannot be fixed with a toolchain update, because the hardware only did a 2-byte vector which couldn't reach the whole flash. **Impacted AVR32DA parts are not usable**. They were recalled, and were only available for a short time and if anyone has impacted parts, they can get replacements through support - not that I think it would be worth the it would take  according to a Microchip employee posting on the AVRFreaks forum. It appears that they have decided to pretend this never happened - the fact that they shipped product with a bug that renders them completely unusable is still not mentioned on the silicon errata (and was fixed without incrementing the silicon revision - does that mean that 2-byte vs 4-byte vectors is set at factory calibration? Or that they were just trying to hush this one up). It really raises some questions about their test procedures (They produced a new chip, packaged them, and shipped them, advertising them as fit for use in life safety critical applications without having tested even trying to run the equivalent of blink on them? - AND it was a screwup that they did the opposite of on the smallest flash version of the prior product line, so they should have been specifically checking for this. It does seem to have woken up their QA people - ever since then, there have been more delays, and shorter errata lists for new parts). Effected chips were pulled and did not become available again for several months. If you bought DA32 chips in the fall of '20 and they don't work right, this is why
@@ -295,6 +295,22 @@ The actual behavior I observed is:
 * At only 2-3 clock cycles (a typical sync delay?), it's not relevant to most cases when actually using interrupts, as the time it takes to enter or exit
 * The dead time is seen on fully async pins, not partially async pins. Likely impacts all parts up to the DD, and may or may not impact the DD-series.
 
+## DU-series
+Issue                          | Severity | Source    | 64DU    | 32DU    | 16DU    | Notes                                       |
+-------------------------------|----------|-----------|---------|---------|---------|---------------------------------------------|
+Part not yet released          | 5        | Microchip | Yes     | Yes     | Yes     | Workaround: Wait until product is released  |
+
+
+Separate from the rest of the Dx-series because most of the bugs seen on other Dx-series are likely fixed, while new errata relating to USB are likely.
+
+## Ex-series
+Issue                          | Severity | Source    | 64EA    | 32EA    | 16EA    |  8EA    | 32EB    | 16EB    | 8EB     | Notes                                       |
+-------------------------------|----------|-----------|---------|---------|---------|---------|---------|---------|---------|---------------------------------------------|
+Part not yet released          | 5        | Microchip | -       | -       | -       | Yes     | Yes     | Yes     | Yes     | Workaround: Wait until product is released  |
+Rare write sequence loses write| wtf      | Microchip | Yes     | Yes     | Yes     | tbd     | tbd     | tbd     | tbd     | Discussed above as likely impacts Dx        |
+Separate from the Dx-series because these parts share little if any errata
+
+
 ## Errata and Datasheets
 Get the most up to date information from Microchip's website. They keep moving files around, so I'm just going to link their product pages.
 [AVR DA-series](https://www.microchip.com/en-us/products/microcontrollers-and-microprocessors/8-bit-mcus/avr-mcus/avr-da)
@@ -303,16 +319,19 @@ Get the most up to date information from Microchip's website. They keep moving f
 
 
 ## Interesting things removed from early io headers
+
+### Dx-series
+
 Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but...
 
-### EVSYS_USEROSCTEST
+#### EVSYS_USEROSCTEST
 
 ```c++
 #define EVSYS_USEROSCTEST  _SFR_MEM8(0x024B)
 ```
 An extra event user... OSCTEST? I wonder what it does! I guess there's only one way to find out, and that's to monitor the system clock carefully with that set, and then trigger the event! The real question is whether it is to test some special oscillator feature... or just test if the oscillator is "safe" at it's current speed by stressing it (and you'd want that to be an event so you can have it executing code maybe? I dunno!)  Someone go try it out and let me know if they can make it do anything....
 
-### CLKCTRL_MULFAC_4x_gc
+#### CLKCTRL_MULFAC_4x_gc
 This next one is the bitfield that controls what the PLL will multiply the input clock by...
 ```c++
 /* Multiplication factor select */
@@ -326,7 +345,7 @@ typedef enum CLKCTRL_MULFAC_enum
 ```
 That last line was removed in later versions, to match the datasheet... but it does indeed work!
 
-#### Thoughts on this and the internal oscillator's 32 MHz option
+##### Thoughts on this and the internal oscillator's 32 MHz option
 This (and the internal oscillator working up to 32 MHz) raises a question - what speed were they originally targeting during design? What if 24 MHz / 48 MHz wasn't the planned maximum? We know the core has a lot of AVRxm DNA - and the xMega's say they run at 32 MHz - say that was the original target, with 64 MHz PLL maximum? Maybe they had to back off to after they found that their process wasn't quite as good as they hoped, that is, under certain temperature and voltage conditions, running at 32 MHz, it didn't give them high enough yields, or they had problems with the upper end of the temperature range... If it had been targeting 32 MHz with a 64 MHz PLL, all of the mutiplication factors would make sense again: 32 MHz x 2 == 64 MHz. 20 MHz like a tinyAVR x 3 = 60, just shy of the maximum... 24 MHz could only go 2x but 48 MHz is a magic speed for USB - and the 4x would get you the maximum 64 MHz from the ever-popular 16 MHz system clock.
 So that's my theory - they designed it in the hopes of being able to do 32 MHz and 64 MHz on the PLL. Then one of two things happened: Either the temperature specs were always this high (125C maximum!) and they realized their process just couldn't produce chips that would run at 32/64 at temperatures well above the boiling point of water at high yield - or they'd been originally targeting more modest temperatures, but in discussions with customers, heard that the customer would rather they lower the maximum speed (because really, nobody uses an 8-bit AVR if they need computational power) to raise the maximum operating temperature. Either way, they then dropped back to 24 MHz and 48 MHz PLL, thus still giving them the specs they needed for the USB functionality on the DU without further clock improvmements. I don't know if that's how it went down, but whyever it's there, I'm glad the 32 MHz internal option exists.
 
@@ -334,7 +353,7 @@ As it happens, at room temperature, I've had no difficulties clocking TCD from t
 
 Note that this is not an endorsement of overclocking in production systems; that is foolish and potentially fraudulent depending on claims made to customers. Obviously, in safety critical systems, it would constitute gross negligence.
 
-### AC_POWER_PROFILE3_gc
+#### AC_POWER_PROFILE3_gc
 Analog Comparators had a third option for power profile planned... The higher the option, the lower the power consumption, but the higher the latency. If I had to place a bet on it, my money would be that like the 4x multiplier, the third power profile was removed only from the headers, and that it's still in the silicon - but it may not work so well.
 ```c++
     AC_POWER_PROFILE3_gc = (0x03<<3),  /* Power profile 3 */
@@ -342,4 +361,8 @@ Analog Comparators had a third option for power profile planned... The higher th
 This is once more listed on the AVR DD and EA-series headers, so it looks like they got it sorted out during the intervening time. One imagines that the option is there on DA/DB parts, but just doesn't function correctly.
 
 ### USART_RS485_gm
-Finally, the USART had the two RS485 modes listed, like tinyAVR 0/1-series, instead of just the one. The second mode raised all sorts of quesions about how the chip ought to behave - and was one of those terse-and-useles sections that answers little. If I correctly understand the intent - it was meant to listen to XDIR and only output data when XDIR was in the correct state. So what does it do when the pin transitioned to "no sending" state while it was in the middle of a byte? Is there any answer to that that will result in correct behavior in all applicable use-cases? I think they thought about that one, realized the answer was "probably not" after they re-read what they'd said about it in the datasheets of the parts that had been released a few times, and figured that they'd be better off not supporting that. It is unclear whether the feature is still present in the silicon. On the DA-series I suspect it is, and likely DB as well, as they don't appear to have touched the USART.
+Finally, the USART had the two RS485 modes listed, like tinyAVR 0/1-series, instead of just the one. The second mode raised all sorts of quesions about how the chip ought to behave - and was one of those terse-and-useless sections that answers little. If I correctly understand the intent - it was meant to listen to XDIR and only output data when XDIR was in the correct state. So what does it do when the pin transitioned to "no sending" state while it was in the middle of a byte? Is there any answer to that that will result in correct behavior in all applicable use-cases? I think they thought about that one, realized the answer was "probably not" after they re-read what they'd said about it in the datasheets of the parts that had been released a few times, and figured that they'd be better off not supporting that. It is unclear whether the feature is still present in the silicon. On the DA-series I suspect it is, and likely DB as well, as they don't appear to have touched the USART.
+
+## EA-series
+Much less interesting... only one thing that wasn't supposed to be there was apparently left in, a section on nvmctrl which may or may not be available on production units that permitted reconfiguration of the EEPROM access internals.
+I've written about this elswhere, and will add it here later.

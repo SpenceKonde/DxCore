@@ -2,7 +2,7 @@
 
 ## 1.3.y
 (planned)
-Error messages currently suck as bad as the avrdude ones. This is *not* acceptable. True verbose mode is so excessively verbose that it is useless to anyone but me, Quentin, and a few people at Microchip. and there is no reason for that to be the case other than
+Error messages currently suck as bad as the avrdude ones. This is *not* acceptable. True verbose mode is so excessively verbose that it is useless to anyone but me, Quentin, and a few people at Microchip, so we have a semi-verbose mode that is what we actually use, becuase fully verbose mode is insane.
 
 ## 1.3.x
 (planned)
@@ -11,7 +11,8 @@ Add LOCKEDUSERROW action to write to the userrow of a locked chip.
 Fix unlock() so that when run interactively, it will check if the chip is locked and prompt the user if they try to unlock an unlocked chip unless a "yes I'm really sure" flag is passed.
 
 6/2/2023
-## 1.3.0.3 (DxC only) - Some attempts at making fewer programming attempts fail and those that do give better errors.
+## 1.3.0.3 (DxC only)
+Some attempts at making fewer programming attempts fail and those that do give better errors.
 
 ## 1.3.0.2 (DxC only, stopgap) - fix die ref and serial reported by SerialUPDI
 It was observed that totally bogus values were output for the system die revision (not that we get die revs), and for the device serial number. This was fixed for the general case in application.py, but it is done independently in nvmserialupdi.py, but there, I don't know how to find out if we're on a Dx or not. But since this version is distributed only with DxCore, and the megaTinyCore version is separate (though otherwise identical), and since they don't work on parts meant for use with the other as installed by the IDE (even if you leave programmer selected after changing boards, it will fail because it's using the wrong platform.txt for the boards.txt and have unresolved substitution patterns), so it's unlikely that this specific version will ever be used to upload to tinyAVRs. Thus, this hacky fix of assuming it's a Dx-or-later is viable.
