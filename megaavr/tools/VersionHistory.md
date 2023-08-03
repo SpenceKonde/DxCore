@@ -2,7 +2,7 @@
 
 ## 1.3.y
 (planned)
-Error messages currently suck as bad as the avrdude ones. This is *not* acceptable. True verbose mode is so excessively verbose that it is useless to anyone but me, Quentin, and a few people at Microchip, so we have a semi-verbose mode that is what we actually use, becuase fully verbose mode is insane.
+Error messages currently suck as bad as the avrdude ones. This is *not* acceptable. True verbose mode is so excessively verbose that it is useless to anyone but me, Quentin, and a few people at Microchip, so we have a semi-verbose mode that is what we actually use, because fully verbose mode is insane.
 
 ## 1.3.x
 (planned)
