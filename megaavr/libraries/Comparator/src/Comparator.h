@@ -100,7 +100,7 @@ namespace comparator {
       #endif
       in3    = 0x03,
       pd6    = 0x03,
-      #ifdef __AVR_DD__
+      #if defined(__AVR_DD__) || defined(__AVR_EA__)
         in4    = 0x04,
         pc3    = 0x04,
       #endif
