@@ -311,13 +311,13 @@
           "push        r25"               "\n\t"
           "push        r26"               "\n\t"
           "push        r27"               "\n\t"
-          "set"                           "\n\t"  // SEt the T flag - we use this to determine how we got here and hence whether to rjmp to end of poll or reti
+          "set"                           "\n\t"  // Set the T flag - we use this to determine how we got here and hence whether to rjmp to end of poll or reti
         "_poll_dre:"                      "\n\t"
           "push        r28"               "\n\t"
           "push        r29"               "\n\t"
           "ldi         r18,        0"     "\n\t"
-          "ldd         r28,   Z +  8"     "\n\t"  // usart in Y
-    //    "ldd         r29,   Z +  9"     "\n\t"  // usart in Y
+          "ldd         r28,   Z +  8"     "\n\t"  // usart in Y low byte
+    //    "ldd         r29,   Z +  9"     "\n\t"  // usart in Y high byte - wait, this is constant!
           "ldi         r29,     0x08"     "\n\t"  // High byte always 0x08 for USART peripheral: Save-a-clock.
           "ldd         r25,   Z + 18"     "\n\t"  // tx tail in r25
           "movw        r26,      r30"     "\n\t"  // copy of serial in X
@@ -345,7 +345,8 @@
           "ldi         r18,     0x40"     "\n\t"
           "std       Y + 4,      r18"     "\n\t" // Y + 4 = USART.STATUS - clear TXC
           "std       Y + 2,      r24"     "\n\t" // Y + 2 = USART.TXDATAL - write char
-          "subi        r25,     0xFF"     "\n\t" // txtail +1
+          "subi        r25,     0xFF"     "\n\t" // increment txtail, we wrote that character
+          // Now we need to deal with the counter running over, because then the tail has to be at the 0 index of the buffer
     #if   SERIAL_TX_BUFFER_SIZE == 256
     //    // No action needed to wrap the tail around -
     #elif SERIAL_TX_BUFFER_SIZE == 128
@@ -360,7 +361,7 @@
           "ldd         r24,   Y +  5"     "\n\t"  // Y + 5 = USART.CTRLA - get CTRLA into r24
           "ldd         r18,   Z + 17"     "\n\t"  // txhead into r18
           "cpse        r18,      r25"     "\n\t"  // if they're the same
-          "rjmp  _done_dre_irq"           "\n\t"
+          "rjmp  _done_dre_irq"           "\n\t"  // Skipped unless buffer empty.
           "andi        r24,     0xDF"     "\n\t"  // DREIE off
           "std      Y +  5,      r24"     "\n\t"  // write new ctrla
         "_done_dre_irq:"                  "\n\t"  // Beginning of the end of DRE

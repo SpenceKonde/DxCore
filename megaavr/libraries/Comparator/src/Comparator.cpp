@@ -70,7 +70,7 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
     #endif
   #endif
   #if defined(AC1_AC_vect)
-    AnalogComparator    Comparator0(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    AnalogComparator    Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
   #endif
 #elif defined(ANALOG_COMP_PINS_MEGA)
   /* mega0:1 AC P0, P1, P2, P3, N0, N1, N2*/
