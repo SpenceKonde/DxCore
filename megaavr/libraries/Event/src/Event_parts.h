@@ -1015,7 +1015,6 @@ namespace event {
 #if defined(PIN_PF2)
         evoutf_pin_pf2    = 0x0C,
 #endif
-#endif
         usart0_irda       = 0x0D,
         tcae              = 0x0E,
         tce0_cnt_a        = 0x0F,
@@ -1039,13 +1038,11 @@ namespace event {
         // "Unofficial" users. Uses EVOUT, but swaps the output pin using PORTMUX
         evouta_pin_pa7    = 0x89,
 #endif
-      evoutd_pin_pd7      = 0x8C,
-      evoutf_pin_pf7      = 0x8E
+        evoutd_pin_pd7    = 0x8C,
+        evoutf_pin_pf7    = 0x8E
       };
     };
-    #endif // defined (__AVR_EA__)
-
-  #endif // defined EVGENCTRL
+    #endif // defined (__AVR_Eb__)
   #elif MEGATINYCORE_SERIES == 2
     namespace gen {
       enum generator_t : uint8_t {
