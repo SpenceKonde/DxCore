@@ -27,11 +27,17 @@ rather odd. Also that it goes all the way to 0 on a LOW, but not all the way to 
 */
 #define FIRST_PIN PIN_PD4
 #define SECOND_PIN PIN_PD5
+#if !defined(__AVR_EA__)
+  // Yeah they changed the name for no reason on the new ADC.
+  #define SAMPLENREG (ADC0.SAMPCTRL)
+#else
+  #define SAMPLENREG (ADC0.CTRLE)
+#endif
 
 void setup() {
   pinMode(SECOND_PIN, OUTPUT);
   digitalWrite(SECOND_PIN, LOW);
-  ADC0.SAMPCTRL = 0xFF;
+  SAMPLENREG = 0xFF;
   analogReadResolution(12);
   Serial.begin(115200);
   delay(1000);
@@ -39,9 +45,9 @@ void setup() {
 }
 
 void loop() {
-  ADC0.SAMPCTRL++;
+  SAMPLENREG++;
   Serial.print("Sampctrl=");
-  Serial.println(ADC0.SAMPCTRL);
+  Serial.println(SAMPLENREG);
   Serial.flush();
   digitalWrite(SECOND_PIN, 1);
   Serial.print(analogRead(FIRST_PIN));
@@ -53,7 +59,7 @@ void loop() {
   Serial.print(' ');
   Serial.println(analogRead(FIRST_PIN));
   Serial.flush();
-  if (ADC0.SAMPCTRL == 255) {
+  if (SAMPLENREG == 255) {
     while (1);
   }
 }
