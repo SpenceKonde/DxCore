@@ -535,7 +535,6 @@ void demo9b() {
    */
 
 }
-#endif
 
 #ifdef TCD0
 void demo9d() {
@@ -625,7 +624,10 @@ void demo9d() {
   // "fake" PWM made from PROGEV equal to each other - which is just what I wanted.
 
 }
+#endif
+#endif
 
+#ifdef TCD0
 void demo10() {
   /* Another route to scaled clocks on event channel: TCD+PLL+CCL
    *
