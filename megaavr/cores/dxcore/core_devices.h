@@ -1251,9 +1251,19 @@ int8_t _setCPUSpeed(uint8_t omhz) {
 
 
   #if defined (CLKCTRL_SELHF_bm)
-    /* They changed the damned name after selling the part for 6 months!
-     * annoyingly you can't even test if it's using the new version of the headers because it's an enum! */
-    #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
+    /* They changed the damned name for DB after selling the part for 6 months! What was this incredibly
+     * important change? Changing CRYSTAL to XTAL! That's it!
+     * Annoyingly you can't even test if it's using the new version of the headers because it's an enum!
+     * BUT IT GETS WORSE!  THE MOTHERFUCKERS DID IT THE OTHER WAY AROUND ON Ex!! ARE YOU FUCKING SERIOUS?!
+     * Can someone please go slap the guy in charge of this? You hide it in an enum so we can't detect it
+     * and then change the name back and forth erratically? PICK ONE AND STICK WITH IT FOR FUCKS SAKE!
+     */
+    #if !defined(__AVR_EA__)
+      #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
+    #else
+      #define CLKCTRL_SELHF_XTAL_gc CLKCTRL_SELHF_CRYSTAL_gc
+    #endif
+
   #endif
   /* And one version later they did it again... */
   #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)

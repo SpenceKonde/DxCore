@@ -1937,11 +1937,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
           uint8_t i = 255;
         #else
           // external crystal
-          #if defined(CLKCTRL_FRQRANGE_gm)
-            _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
-          #else
-            _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
-          #endif
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | USE_XTAL_DRIVE | /* CLKCTRL_SELHF_XTAL_gc = 0x00, and keeps changing names! |*/ CLKCTRL_ENABLE_bm));
           /*Formerly CLKCTRL_SELHF_CRYSTAL_gc, but they changed it 6 months after they started shipping DB's*/
           uint16_t i = 8192; // crystals can take a lot longer to reach stability.
         #endif
@@ -2011,7 +2007,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
           uint8_t i = 255;
         #else
           // external crystal
-          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | CLKCTRL_SELHF_XTAL_gc | CLKCTRL_ENABLE_bm));
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | /* CLKCTRL_SELHF_XTAL_gc = 0x00, and keeps changing names! |*/ CLKCTRL_ENABLE_bm));
           // No more crystal drive strength selection! Party poopers!
           uint16_t i = 8192; // crystals can take a lot longer to reach stability.
         #endif

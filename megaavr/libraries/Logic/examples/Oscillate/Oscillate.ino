@@ -535,7 +535,7 @@ void demo9b() {
    */
 
 }
-
+#ifdef TCD0
 void demo9d() {
   /* Using prescaled clocks 1: TCD0 pre-prescaler
    *
@@ -623,7 +623,6 @@ void demo9d() {
   // "fake" PWM made from PROGEV equal to each other - which is just what I wanted.
 
 }
-#endif
 
 void demo10() {
   /* Another route to scaled clocks on event channel: TCD+PLL+CCL
@@ -687,6 +686,7 @@ void demo10() {
 
   Logic::start();                           // Start the CCL hardware
 }
+#endif
 
 void loop() {
   demo1(); // Async - timer feeding back on itself reaching mindboggling speeds.
@@ -699,6 +699,8 @@ void loop() {
   demo3();
   delay(20000);
   Serial.println("Async: out -> event -> second lut -> link - 33-37 MHz");
+  /* So, it seems like it proceeds at about 5ns per "layer" of asynchronous black magic. (remember, 1 cycle is 2 passes)
+   * Significant variation seen between parts, including speeds as low as 85 MHz and at least 120MHz */
   demo4();
   delay(20000);
   Serial.println("Clock dividing: Introducing synchronizer - 2 clocks/edge");
