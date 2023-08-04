@@ -535,6 +535,8 @@ void demo9b() {
    */
 
 }
+#endif
+
 #ifdef TCD0
 void demo9d() {
   /* Using prescaled clocks 1: TCD0 pre-prescaler
