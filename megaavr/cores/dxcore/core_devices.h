@@ -5467,8 +5467,18 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #elif defined(ZCD_INTMODE_1_bp)
     #define ZCD_INTMODE1_bp ZCD_INTMODE_1_bp; //Deprecated as of Q2 2022 header change
   #endif
-
-
+/* EA-series - There was absolutely positively no reason to change the name of these bitfields. Someone ought to be slapped upside the head for this!
+ * And they're motherfucking enums so we can't even test for the damned things
+ */
+#if defined(__AVR_EA__)
+  #define CLKCTRL_CSUTHF_256_gc CLKCTRL_CSUTHF_256CYC_gc
+  #define CLKCTRL_CSUTHF_1K_gc CLKCTRL_CSUTHF_1KCYC_gc
+  #define CLKCTRL_CSUTHF_4K_gc CLKCTRL_CSUTHF_4KCYC_gc
+#else
+  #define CLKCTRL_CSUTHF_256CYC_gc CLKCTRL_CSUTHF_4K_gc
+  #define CLKCTRL_CSUTHF_1KCYC_gc CLKCTRL_CSUTHF_1K_gc
+  #define CLKCTRL_CSUTHF_4KCYC_gc CLKCTRL_CSUTHF_4K_gc
+#endif
 
 /* A great new feature of the new evsys is that all the channels are equal. Unforutnately
  * this means all the enums change name to lose the channel number. Sigh.
