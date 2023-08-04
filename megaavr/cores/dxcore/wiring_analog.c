@@ -283,7 +283,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       _analog_options = (_analog_options & 0xF0) | (temp ? res : 10); // just set that variable. The new ADC only wants to be told the resolution when it starts a conversion
       return temp;
   }
-  inline uint8_t getAnalogReadResolution() {
+   int8_t getAnalogReadResolution() {
     return _analog_options & 0x0F;
   }
   void analogReference(uint8_t mode) {
@@ -359,7 +359,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     ADC0.CTRLE = sampdur;
     return true;
   }
-  inline uint8_t getAnalogSampleDuration() {
+  uint8_t getAnalogSampleDuration() {
     return ADC0.CTRLE;
   }
 
