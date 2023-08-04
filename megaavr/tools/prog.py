@@ -98,7 +98,7 @@ def main():
         print("Error: action '{}' takes no filename".format(args.action))
         sys.exit(1)
 
-    if args.action in ("read", "write") and args.filename == "" and (args.fuses == "" or args.action = "read") and not args.fuses_print:
+    if args.action in ("read", "write") and args.filename == "" and (args.fuses == "" or args.action == "read") and not args.fuses_print:
         print("Error: no filename provided")
         sys.exit(1)
     if args.tool != None:
