@@ -703,7 +703,7 @@ namespace event {
     };
   };
   // End of Dx series - start of Ex-series //
-  #elif defined(PORT_EV0GENSEL_gm)
+  #elif defined(PORT_EVGEN0SEL_gm) // Start EVGEN block
     // Parts with uniform event channels, eg, the future EA-series parts. We may be able to use this code for every Ex-series part, or will need only trivial changes.
     namespace gen {
       enum generator_t : uint8_t {
@@ -915,6 +915,8 @@ namespace event {
 #endif
     };
   };
+  /* Done with plausible generators */
+
   #if defined(__AVR_EA__) //these are specific to the family,
     namespace user{
       enum user_t : uint8_t {
@@ -1032,7 +1034,7 @@ namespace event {
         tcf0_cnt          = 0x15,  /* TCF0 Clock Event */
         tcf0_cnt          = 0x16,  /* TCF0 Action Event */
         wexa              = 0x17,  /* WEX Event A */
-        wexb              = 0x18 /* WEX Event B */
+        wexb              = 0x18,  /* WEX Event B */
         wexc              = 0x19,  /* WEX Event C */
 #if defined(PIN_PA7)
         // "Unofficial" users. Uses EVOUT, but swaps the output pin using PORTMUX
@@ -1042,14 +1044,14 @@ namespace event {
         evoutf_pin_pf7    = 0x8E
       };
     };
-    #endif // defined (__AVR_Eb__)
+    #endif // defined (__AVR_EB__)
   #elif MEGATINYCORE_SERIES == 2
     namespace gen {
       enum generator_t : uint8_t {
         disable           = 0x00,
-        updi_synch        = 0x1,
-        rtc_ovf           = 0x6,
-        rtc_cmp           = 0x7,
+        updi_synch        = 0x01,
+        rtc_ovf           = 0x06,
+        rtc_cmp           = 0x07,
         ccl0_out          = 0x10,
         ccl1_out          = 0x11,
         ccl2_out          = 0x12,
