@@ -265,31 +265,6 @@ jobs:
           enable-deltas-report: true
           enable-warnings-report: true
           sketches-report-path: sketches-reports
-      - name: Compile examples (8 MHz, optiboot, tca0 millis, full printf, and manual attachInterrupt)
-        uses: arduino/compile-sketches@main
-        with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands
-          sketch-paths: |
-            # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
-            # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
-            ${{ env.all-parts-sketch-paths }}
-            ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
-            ${{ env.optiboot-and-appspm-sketch-paths }}
-            ${{ env.not-disabled-millis-sketch-paths}}
-          platforms: |
-            # Install DxCore via Boards Manager for the toolchain
-            - source-url: http://drazzy.com/package_drazzy.com_index.json
-              name: ${{ env.platform-name }}
-            # Overwrite the DxCore release version with the platform from the local path
-            - source-path: megaavr
-              name: ${{ env.platform-name }}
-          libraries: |
-            # The sketches don't have any external library dependencies, so just define an empty array
-            -
-          verbose: false
-          enable-deltas-report: true
-          enable-warnings-report: true
-          sketches-report-path: sketches-reports
       - name: Compile examples (32 MHz, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
@@ -327,6 +302,31 @@ jobs:
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
             ${{ env.optiboot-and-appspm-sketch-paths }}
             ${{ env[format('not-on-tca0-millis-lowpin-{0}-sketch-paths', matrix.pincount < 28)] }}
+          platforms: |
+            # Install DxCore via Boards Manager for the toolchain
+            - source-url: http://drazzy.com/package_drazzy.com_index.json
+              name: ${{ env.platform-name }}
+            # Overwrite the DxCore release version with the platform from the local path
+            - source-path: megaavr
+              name: ${{ env.platform-name }}
+          libraries: |
+            # The sketches don't have any external library dependencies, so just define an empty array
+            -
+          verbose: false
+          enable-deltas-report: true
+          enable-warnings-report: true
+          sketches-report-path: sketches-reports
+      - name: Compile examples (8 MHz, optiboot, tca0 millis, full printf, and manual attachInterrupt)
+        uses: arduino/compile-sketches@main
+        with:
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands
+          sketch-paths: |
+            # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
+            # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
+            ${{ env.all-parts-sketch-paths }}
+            ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
+            ${{ env.optiboot-and-appspm-sketch-paths }}
+            ${{ env.not-disabled-millis-sketch-paths}}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
             - source-url: http://drazzy.com/package_drazzy.com_index.json
