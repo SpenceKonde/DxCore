@@ -16,7 +16,7 @@
 // Features present on all generator channels
 
 namespace event {
-#if !(defined(MEGATINYCORE) || defined(PORT_EVGEN0SEL)) //if neither tiny nor EA or beyond, here's the list
+#if !defined(MEGATINYCORE) && !defined(PORT_EVGEN0SEL_gm) //if neither tiny nor EA or beyond, here's the list
   namespace gen {
     enum generator_t : uint8_t {
       disable       = 0x00,
@@ -710,7 +710,7 @@ namespace event {
         disable           = 0x00,
         off               = 0x00,
         updi_synch        = 0x01,
-#ifdef(MVIO)
+#if defined(MVIO)
         mvio_ok         = 0x05,
 #endif
         rtc_ovf           = 0x06,
@@ -721,27 +721,27 @@ namespace event {
         ccl1_out          = 0x11,
         ccl2_out          = 0x12,
         ccl3_out          = 0x13,
-#ifdef (CCL_LUT4CTRLA) // I fully expect a 6-LUT, 64 pin Ex-series part
+#if defined(CCL_LUT4CTRLA) // I fully expect a 6-LUT, 64 pin Ex-series part
         ccl4_out          = 0x14,
         ccl5_out          = 0x15,
 #endif
-#ifdef (CCL_LUT6CTRLA) // Any ATmega2560 replacement would probably have at least 8 LUTs
+#if defined(CCL_LUT6CTRLA) // Any ATmega2560 replacement would probably have at least 8 LUTs
         ccl6_out          = 0x16,
         ccl7_out          = 0x17,
 #endif
-#ifdef (CCL_LUT8CTRLA) // Maybe even more
+#if defined(CCL_LUT8CTRLA) // Maybe even more
         ccl8_out          = 0x18,
         ccl9_out          = 0x19,
 #endif
-#ifdef (CCL_LUT10CTRLA)
+#if defined(CCL_LUT10CTRLA)
         ccl10_out         = 0x1A,
         ccl11_out         = 0x1B,
 #endif
-#ifdef (CCL_LUT12CTRLA)
+#if defined(CCL_LUT12CTRLA)
         ccl2_out          = 0x1C,
         cc13_out          = 0x1D,
 #endif
-#ifdef (CCL_LUT14CTRLA)
+#if defined(CCL_LUT14CTRLA)
         ccl14_out         = 0x1E,
         ccl15_out         = 0x1F,
         // Hey, I can dream can't I? Can you imagine what you could do with 4 TCA's 16 event channels, 16 LUTs and a 3-phase TCD?
@@ -749,13 +749,13 @@ namespace event {
         // you could wire the CCL up as an 8 bit shift register at that point, load it with a SWEVENT....
 #endif
         ac0_out           = 0x20,
-#if defined(ac1) // An Ex with only one AC would not surprise me
+#if defined(AC1) // An Ex with only one AC would not surprise me
         ac1_out           = 0x21,
 #endif
-#if defined(ac2) // An Ex with three AC would not surprise me
+#if defined(AC2) // An Ex with three AC would not surprise me
         ac2_out           = 0x21,
 #endif
-#if defined(ac3) // An Ex with fourAC would not surprise me
+#if defined(AC3) // An Ex with fourAC would not surprise me
         ac3_out           = 0x21,
 #endif
         adc0_ready        = 0x24,
@@ -961,22 +961,22 @@ namespace event {
 #if defined(TCB0)
         tcb0              = 0x16,
         tcb0_capt         = 0x16,
-        tcb0_ovf          = 0x17,
+        tcb0_cnt          = 0x17,
 #endif
 #if defined(TCB1)
         tcb1              = 0x18,
         tcb1_capt         = 0x18,
-        tcb1_ovf          = 0x19,
+        tcb1_cnt          = 0x19,
 #endif
 #if defined(TCB2)
         tcb2              = 0x1A,
         tcb2_capt         = 0x1A,
-        tcb2_ovf          = 0x1B,
+        tcb2_cnt          = 0x1B,
 #endif
 #if defined(TCB3)
         tcb3              = 0x1C,
         tcb3_capt         = 0x1C,
-        tcb3_ovf          = 0x1D,
+        tcb3_cnt          = 0x1D,
 #endif
         // "Unofficial" users. Uses EVOUT, but swaps the output pin using PORTMUX
         evouta_pin_pa7    = 0x89,
@@ -1024,15 +1024,15 @@ namespace event {
 #if defined(TCB0)
         tcb0              = 0x11,
         tcb0_capt         = 0x11,
-        tcb0_ovf          = 0x12,
+        tcb0_cnt          = 0x12,
 #endif
 #if defined(TCB1)
         tcb1              = 0x13,
         tcb1_capt         = 0x13,
-        tcb1_ovf          = 0x14,
+        tcb1_cnt          = 0x14,
 #endif
         tcf0_cnt          = 0x15,  /* TCF0 Clock Event */
-        tcf0_cnt          = 0x16,  /* TCF0 Action Event */
+        tcf0_act          = 0x16,  /* TCF0 Action Event */
         wexa              = 0x17,  /* WEX Event A */
         wexb              = 0x18,  /* WEX Event B */
         wexc              = 0x19,  /* WEX Event C */
