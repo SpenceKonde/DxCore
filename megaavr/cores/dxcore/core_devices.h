@@ -1264,7 +1264,7 @@ int8_t _setCPUSpeed(uint8_t omhz) {
       #define CLKCTRL_SELHF_XTAL_gc CLKCTRL_SELHF_CRYSTAL_gc
     #endif
   #if defined(__AVR_EA__)
-    // Yoohoooo! I do belive we are missing a few mux options here...
+    // Yoohoooo! I do believe we are missing a few mux options here...
     #define PORTMUX_SPI0_ALT2_gc   (0x02 << 0)
     #define PORTMUX_SPI0_ALT3_gc   (0x03 << 0)
     #define PORTMUX_SPI0_ALT4_gc   (0x04 << 0)
