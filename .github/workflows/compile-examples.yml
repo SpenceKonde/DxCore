@@ -142,13 +142,13 @@ jobs:
           - 28
           - 20
           - 14
-        int-osc:
-          - 20
-          - 24
         clocksource:
           - internal
           - extclock
           - crystal
+        int-osc:
+          - 20
+          - 24
         ovrclock-osc:
           - 16
           - 32
@@ -238,27 +238,34 @@ jobs:
             device-family: ea
           - int-osc: 24
             device-family: eb
-          - ovrclock-osc: 16
+          - overclock-osc: 16
             device-family: da
-          - ovrclock-osc: 16
+          - overclock-osc: 16
             device-family: db
-          - ovrclock-osc: 16
+          - overclock-osc: 16
             device-family: dd
-          - ovrclock-osc: 16
+          - overclock-osc: 16
+            device-family: ea
+            clocksource: crystal
+          - overclock-osc: 32
+            device-family: da
+            clocksource: extclock
+          - overclock-osc: 40
+            clocksource: internal
+          - overclock-osc: 32
+            device-family: dd
+            clocksource: crystal
+          - overclock-osc: 32
+            device-family: db
+            clocksource: extclock
+          - overclock-osc: 32
             device-family: ea
             clocksource: internal
-          - ovrclock-osc: 40
-            device-family: da
-          - ovrclock-osc: 40
-            device-family: db
-            clocksource: internal
-          - ovrclock-osc: 40
-            device-family: dd
-            clocksource: internal
-          - ovrclock-osc: 32
+          - overclock-osc: 40
             device-family: ea
-            clocksource: internal
-          - ovrclock-osc: 32
+          - overclock-osc: 40
+            device-family: eb
+          - overclock-osc: 32
             device-family: eb
             clocksource: internal
           - device-family: eb
