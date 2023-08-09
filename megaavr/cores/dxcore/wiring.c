@@ -436,7 +436,6 @@ void init_timers();
     return m;
   }
 
-
   #if !defined(MILLIS_USE_TIMERRTC)
     unsigned long micros() {
       uint32_t overflows, microseconds;
@@ -495,8 +494,7 @@ void init_timers();
       #else
         overflows++;
       #endif
-        } // end getting ticks
-
+    }
       /*#if defined(MILLIS_USE_TIMERD0)
 
         #if (F_CPU == 20000000UL || F_CPU == 10000000UL || F_CPU == 5000000UL)
@@ -592,7 +590,6 @@ void init_timers();
          * we will need to clear r1 anyway, but we do it now, since we need a known 0 to do the carry.
          * we addthat to the ticks intermediate value to get the final ticks value, and drop back into C
          * where we calculate overflows * 1000, the (now 0-999) ticks to it, and return it.
-         *
          */
         // Oddball clock speeds
         #if   (F_CPU == 44000000UL) // Extreme overclocking
@@ -1531,7 +1528,8 @@ void init() {
   // enabling interrupts is done in main.cpp after a final empty function (that the user can override) is called.
 }
 
-void stop_millis() { // Disable the interrupt:
+static uint8_t _millis_state = NOT_A_TIMER;
+void _stop_millis() { // Disable the interrupt:
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("stop_millis() is only valid with millis time keeping enabled.");
   #else
@@ -1547,10 +1545,129 @@ void stop_millis() { // Disable the interrupt:
     #else
       _timer->INTCTRL &= ~TCB_CAPT_bm;
     #endif
+    _millis_state = NOT_A_TIMER;
   #endif
 }
 
 
+uint8_t _getCurrentMillisTimer() {
+  return _millis_state;
+}
+
+/* This assumes that the function calling this has staged the RTC properly. Namely:
+ * It should be disabled, but set to run at the right speed. It may have any count value, it is reset.  We will hand it back to you with count at 0 the timer running,
+ * and the value that millis was , and a 32-bit millisecond value taken the moment the timer hit zero
+ * Since count may take several RTC ticks to synchronize, we set count to shortly below rollover, then
+ */
+
+
+/* Hand it an RTC that is set up how you want it to be, but with it's INTCTRL bit(s) cleared. If we're not on a part impacted by that awful RTC errata,
+ * We will stop it while we make these changes. If we are on a part with that bullshit errata, we will steer clear of the Chameleon Hornets nesting in the
+ * ctrla registers. We will just set CNT just shy of an overflow with interrupts disabled, wait until the overflow happens while checking millis, then when it does,
+ * stop millis and refurn the last value. That errata is extremely nasty, far worse that the errata sheet makes it sound.
+ * You should set up the RTC as you want it in every ways (on errata striken chips, this includes getting it into a working, running state), though the
+ * interrupt control register applicable should be cleared. Tell us what intmode you want, and that will be enabled when we hand the RTC back to you.
+ * We will:
+ * - Return a 0 if the timer is not in a valid state (we will return 1 if millis returns zero for real)
+ * - Otherwise, proceed only if millis_state == MILLIS_TIMER.
+ * - We check timer count. unless we're really close to a natural rollover, we set the clock to 4 RTC ticks before the rollover.
+ * - Either way we clear INTCRRL and the flags, and enter a do-while loop until theoverflow flag is set.
+ */
+uint32_t _millisToRTC(_MILLIS_RTC_INT_t RTCmode) {
+  #if defined(MILLIS_USE_TIMERNONE)
+    badCall("_millisToRTC() is only valid with millis timekeeping enabled.");
+    return RTCmode;
+  #else
+    if (_millis_state == 0) {
+      //GPIOR1 |= 1;
+      return 0; // Disabled millis
+    } else if ((_millis_state | 0x03) == 0x8F) {
+      //GPIOR1 |= 2;
+      return 0; // Millis not running on normal timer.
+    }
+    if (_millis_state == MILLIS_TIMER) {
+      uint8_t ctrla;
+      uint32_t        m = 0;
+      if (RTCmode == _RTC_CMP || RTCmode == _RTC_OVF) {
+        while (RTC.STATUS) {
+          ;
+        }
+        #if !defined(ERRATA_PITANDRTC) || ERRATA_PITANDRTC == -128 || ERRATA_PITANDRTC == 0
+          ctrla           = RTC.CTRLA;
+          ctrla          &= 0xFE;
+          RTC.CTRLA       = ctrla;
+        #endif
+        RTC.INTCTRL     = 0;
+        RTC.INTFLAGS    = 0xFF; // CLEAR ALL FLAGS
+        uint16_t rtccnt=RTC.CNT;
+        if (rtccnt < 0xFFFA || rtccnt > 0xFFFD) {
+          RTC.CNT       = 0xFFFC;
+        }
+        #if !defined(ERRATA_PITANDRTC) || ERRATA_PITANDRTC == -128 || ERRATA_PITANDRTC == 0
+          while (RTC.STATUS);
+          //...
+          RTC.CTRLA       = ctrla + 1; // enable RTC
+        #endif
+        m                 = millis();
+        uint8_t intctrl   = RTCmode == _RTC_OVF ? 1 : 2;
+        while (!(RTC.INTFLAGS & 0x01)){
+          m               = millis();
+        }
+        RTC.INTFLAGS      = 0xFF;
+        // m is now millis immediately after the RTC overflow.
+        // millis is being tracked on RTC
+        // Now we need to enable the requested interrupt and return.
+        RTC.INTCTRL       = intctrl;
+      } else if (RTCmode == TIMERRTC_PIT) {
+        ctrla             = RTC.PITCTRLA;
+        ctrla            &= 0xFE;
+        while (RTC.PITSTATUS);
+        RTC.PITCTRLA      = 0;
+        RTC.PITINTFLAGS   = 0;
+        RTC.PITINTCTRL    = 1;
+        RTC.PITCTRLA      = ctrla;
+        m                 = millis();
+      }
+      stop_millis();
+      _millis_state    = (RTCmode == _RTC_OVF ? TIMERRTC_OVF : (RTCmode == _RTC_CMP ? TIMERRTC_CMP : TIMERRTC_PIT)) ;
+      if (m == 0) {
+        return 1;
+      }
+      return m;
+    } else {
+      // GPIOR1 |= 4
+      return 0;
+    }
+  #endif
+}
+/* Calling code responsible for providing the new millis value, but this turns off the RTC interrupt specified by millis_state, sets the new millis value, and restarts the millis timer */
+
+uint8_t _millisFromRTC(uint32_t m) {
+  #if defined(MILLIS_USE_TIMERNONE)
+    badCall("_millisFromRTC() is only valid with millis timekeeping enabled.");
+    return m;
+  #else
+    uint8_t mst = _millis_state;
+    if ((mst | 0x03) == 0x8F && (mst != 0x8F)) {
+      uint8_t oldsreg = SREG;
+      cli();
+      set_millis(m);
+      restart_millis();
+      mst &= 0x03;
+      if (mst == 2) {
+        RTC.PITINTCTRL = 0;
+        RTC.PITINTFLAGS = 1;
+      } else {
+        RTC.INTCTRL &= ~(mst + 1);
+        RTC.INTFLAGS = mst + 1;
+      }
+      return 0;
+      SREG = oldsreg;
+    } else {
+      return -1;
+    }
+  #endif
+}
 
 void restart_millis()
 {
@@ -1628,6 +1745,7 @@ void __attribute__((weak)) init_millis()
       // CLK_PER/1 is 0b00, . CLK_PER/2 is 0b01, so bitwise OR of valid divider with enable works
       _timer->CTRLA = TIME_TRACKING_TIMER_DIVIDER|TCB_ENABLE_bm;  // Keep this last before enabling interrupts to ensure tracking as accurate as possible
     #endif
+    _millis_state = MILLIS_TIMER;
   #endif
 }
 

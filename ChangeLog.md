@@ -21,8 +21,12 @@ These are typically planned for release in a future version (usually the next on
 * Maintenance - Rebuilt all bootloaders again.
 * Add CORE_HAS_ERRORFUNS #define.
 * Bugfixes, several, for SerialUPDI, and improvements in error messages.
-* Enhancement - Add the 16k and 32k EA-series parts. Only the bizarrely proportioned parts
-* Maintenance - add CI testing for 64k EA-series parts.
+* Enhancement - Add the 16k and 32k EA-series parts. Still no 8k ones or headers for them either. 8k is different from 16k because it uses 2 byte vectors, and they're probably also chopping off all the IO cells for the extra
+* Maintenance - add CI testing for EA-series parts.
+* Bugfix: Correct compilation when analogWrite() was used on AVR EA.
+* Bugfix: Add missing API extensions on EA-series for ADC.
+* Bugfix: Fix Comparator, Event, and SPI and Wire up well enough that things at least compile. And in the case of comparator, SPI, and Wire, I'm pretty sure they work too.
+* Maintenance - Correct CI testing to specify valid option for flmap menu.
 
 ## Releases
 

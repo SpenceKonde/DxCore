@@ -221,47 +221,62 @@ void _initThreeStuff() __attribute__ ((naked)) __attribute__((used)) __attribute
       }
     #endif
     #if (SPM_FROM_APP == -1)
+      #if defined(__AVR_EA__) || defined(__AVR_EB__)
+        #warning "SPM from app not yet supported."
 
-      /* Declared as being located in .trampolines so it gets put way at the start of the binary. This guarantees that
-       * it will be in the first page of flash. Must be marked ((used)) or LinkTime Optimization (LTO) will see
-       * that nothing actually calls it and optimize it away. The trick of course is that it can be called if
-       * the user wants to - but it's designed to be called via constructions like:
-       * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (uint16_t) (address);
-       * see Flash.h
-       * This must be located before 0x0200 in the flash. The interrupt vectors go from 0x0004 to 0x0103 (0x0000-0x0003 is
-       * the reset vector). The only isn that matters is the spm z+. If it were easier to modify the crt.s file, we could use some
-       * interrupt vector we weren't using (like the NMI vector, which is never enabled by the core and can only ever trigger
-       * from CFD int (which can also be a normal interrupt) and checksum errors (which we don't support because we would then
-       * need to post-process the hex files to add checksums)) - then we could replace the jmp instruction dictated by the CRT
-       * with the spm z+, ret seqauence. But we can't easily change that, as it's one of the things precompiled by the toolchain
-       * package. So we need to work out another way for those 4 bytes (actually, we only care bout the first 2 bytes, the spm)
-       * to be located within those remaining 248 bytes of the first page. The priorities given to different sections however
-       * don't make this easy: PROGMEM has an extremely high priority, and can of course be longer than 242 bytes. So it has
-       * to come before PROGMEM, which comes before even .init. Only place I could find to put it was this - trampolines.
-       * .trampolines comes before progmem. The function must be ((naked)) and it must be ((used)). But that's not enough
-       * because sometimes execution passes through .trampolines, and would run into this, execute an SPM instruction
-       * (failing because the NVMCTRL.CTRLA hadn't been set), and then return. But this was happening before a return address
-       * (or anything else) had been pushed onto the stack, so the SP still pointed to the top of flash, so ret would not work.
-       * To make this work, you need to guard it. This is done with the rjmp that hops over the spm and ret instructions unless
-       * you jump directly to the entrypoint.
-       */
-      void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
-      void __spm_entrypoint (void)
-      {
-        __asm__ __volatile__(
-                  "rjmp .+4"                "\n\t" // Jump over this if we got here the wrong way
-                 "EntryPointSPM:"           "\n\t" // this is the label we call
-                  "spm z+"                  "\n\t" // write r0, r1 to location pointed to by r30,r31 with posrincrement
-                  "ret"::);                        // by 2, and then return.
-      }
-    #endif
-  /* End if DXCore only spm from app =-1 stuff */
-  #endif
+        void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
+        void __spm_entrypoint (void)
+        {
+          __asm__ __volatile__(
+                    "rjmp .+4"                "\n\t" // Jump over this if we got here the wrong way
+                   "EntryPointSPM:"           "\n\t" // this is the label we call
+                    "nop"                     "\n\t" // If this worked, there would have to be code here,
+                    "ret"::);                        // by 2, and then return.
+        }
+      #else
+        /* Declared as being located in .trampolines so it gets put way at the start of the binary. This guarantees that
+         * it will be in the first page of flash. Must be marked ((used)) or LinkTime Optimization (LTO) will see
+         * that nothing actually calls it and optimize it away. The trick of course is that it can be called if
+         * the user wants to - but it's designed to be called via constructions like:
+         * __asm__ __volatile__ ("call EntryPointSPM" : "+z" (uint16_t) (address);
+         * see Flash.h
+         * This must be located before 0x0200 in the flash. The interrupt vectors go from 0x0004 to 0x0103 (0x0000-0x0003 is
+         * the reset vector). The only isn that matters is the spm z+. If it were easier to modify the crt.s file, we could use some
+         * interrupt vector we weren't using (like the NMI vector, which is never enabled by the core and can only ever trigger
+         * from CFD int (which can also be a normal interrupt) and checksum errors (which we don't support because we would then
+         * need to post-process the hex files to add checksums)) - then we could replace the jmp instruction dictated by the CRT
+         * with the spm z+, ret seqauence. But we can't easily change that, as it's one of the things precompiled by the toolchain
+         * package. So we need to work out another way for those 4 bytes (actually, we only care bout the first 2 bytes, the spm)
+         * to be located within those remaining 248 bytes of the first page. The priorities given to different sections however
+         * don't make this easy: PROGMEM has an extremely high priority, and can of course be longer than 242 bytes. So it has
+         * to come before PROGMEM, which comes before even .init. Only place I could find to put it was this - trampolines.
+         * .trampolines comes before progmem. The function must be ((naked)) and it must be ((used)). But that's not enough
+         * because sometimes execution passes through .trampolines, and would run into this, execute an SPM instruction
+         * (failing because the NVMCTRL.CTRLA hadn't been set), and then return. But this was happening before a return address
+         * (or anything else) had been pushed onto the stack, so the SP still pointed to the top of flash, so ret would not work.
+         * To make this work, you need to guard it. This is done with the rjmp that hops over the spm and ret instructions unless
+         * you jump directly to the entrypoint.
+         */
+        void __spm_entrypoint (void) __attribute__ ((naked)) __attribute__((used)) __attribute__ ((section (".trampolines")));
+        void __spm_entrypoint (void)
+        {
+          __asm__ __volatile__(
+                    "rjmp .+4"                "\n\t" // Jump over this if we got here the wrong way
+                   "EntryPointSPM:"           "\n\t" // this is the label we call
+                    "spm z+"                  "\n\t" // write r0, r1 to location pointed to by r30,r31 with posrincrement
+                    "ret"::);                        // by 2, and then return.
+        }
+      #endif // end platform specific.
+    #endif // end if spm from app == -1
+  #endif // end if spm from app defined
   // Finally, none of these three things need to be done if running optiboot!
   // We want the vectors in the alt location, it checks, clears, and stashes the reset flags (in GPR0)
   // and it providews the entrypoint we call to write to flash.
 #else
   void _initThreeStuff() {
+    #if defined(LOCK_FLMAP)
+      doFLMAP();
+    #endif
     onPreMain();
   }
 #endif

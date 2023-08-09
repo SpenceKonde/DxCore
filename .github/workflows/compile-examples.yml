@@ -243,7 +243,7 @@ jobs:
       - name: Compile examples (rated max speed, nothing weird)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},wiremode=mands
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},wiremode=mands,flmap=default
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -268,7 +268,7 @@ jobs:
       - name: Compile examples (32 MHz, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=32${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=32${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full,flmap=default
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -294,7 +294,7 @@ jobs:
       - name: Compile examples (20 MHz, disable millis, sized appspm)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,appspm=24plus,wiremode=mors
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,appspm=24plus,wiremode=mors,flmap=default
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -319,7 +319,7 @@ jobs:
       - name: Compile examples (8 MHz, optiboot, tca0 millis, full printf, and manual attachInterrupt)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=default
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
