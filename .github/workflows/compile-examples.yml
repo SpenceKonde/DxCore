@@ -105,7 +105,11 @@ jobs:
         - megaavr/extras/ci/test-sketch/db/dummysketch
       #avr-dd-series-sketch-paths: |
       #avr-ea-series-sketch-paths: |
-      optiboot-and-appspm-sketch-paths: |
+      optiboot-and-appspm-da-sketch-paths: |
+        - megaavr/libraries/Flash/examples/FlashDemo
+      optiboot-and-appspm-db-sketch-paths: |
+        - megaavr/libraries/Flash/examples/FlashDemo
+      optiboot-and-appspm-dd-sketch-paths: |
         - megaavr/libraries/Flash/examples/FlashDemo
       not-on-tca0-millis-lowpin-false-sketch-paths: |
         - megaavr/libraries/DxCore/examples/TCA0Demo
@@ -317,7 +321,7 @@ jobs:
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
-            ${{ env.optiboot-and-appspm-sketch-paths }}
+            ${{ env[format('optiboot-and-appspm-{0}-sketch-paths', matrix.device-family)]  }}
             ${{ env[format('not-on-tca0-millis-lowpin-{0}-sketch-paths', matrix.pincount < 28)] }}
             ${{ env.not-disabled-millis-sketch-paths}}
           platforms: |
@@ -343,7 +347,7 @@ jobs:
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
-            ${{ env.optiboot-and-appspm-sketch-paths }}
+            ${{ env[format('optiboot-and-appspm-{0}-sketch-paths', matrix.device-family)]  }}
             ${{ env[format('not-on-tca0-millis-lowpin-{0}-sketch-paths', matrix.pincount < 28)] }}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
@@ -368,7 +372,7 @@ jobs:
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
-            ${{ env.optiboot-and-appspm-sketch-paths }}
+            ${{ env[format('optiboot-and-appspm-{0}-sketch-paths', matrix.device-family)]  }}
             ${{ env.not-disabled-millis-sketch-paths}}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain

@@ -1136,9 +1136,4 @@ void pinConfigure(const uint8_t digital_pin, const pin_configure_t mode, const M
 // open serial port, if the user tied it to a different port? Or thought they
 // were going to use software serial "like they always did" (*shudder*)
 
-
-#if defined(ARDUINO_MAIN) && defined(__AVR_EA__)
-  #warning "The AVR EA-series support should be considered alpha-grade at best - PLEASE report bugs!"
-#endif
-
 #endif
