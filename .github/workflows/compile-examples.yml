@@ -149,10 +149,16 @@ jobs:
           - internal
           - extclock
           - crystal
+        ovrclock-osc:
+          - 16
+          - 32
+          - 40
 
         # Filter out these matrix combinations
         exclude:
           - device-family: da
+            clocksource: crystal
+          - device-family: eb
             clocksource: crystal
           - device-family: da
             flash-class: 32
@@ -232,6 +238,29 @@ jobs:
             device-family: ea
           - int-osc: 24
             device-family: eb
+          - ovrclock-osc: 16
+            device-family: da
+          - ovrclock-osc: 16
+            device-family: db
+          - ovrclock-osc: 16
+            device-family: dd
+          - ovrclock-osc: 16
+            device-family: ea
+            clocksource: internal
+          - ovrclock-osc: 40
+            device-family: da
+          - ovrclock-osc: 40
+            device-family: db
+            clocksource: internal
+          - ovrclock-osc: 40
+            device-family: dd
+            clocksource: internal
+          - ovrclock-osc: 32
+            device-family: ea
+            clocksource: internal
+          - ovrclock-osc: 32
+            device-family: eb
+            clocksource: internal
           - device-family: eb
 
     steps:
@@ -268,7 +297,7 @@ jobs:
       - name: Compile examples (32 MHz, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=32${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full,flmap=lockdefault
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{ matrix.overclock-osc }}${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format

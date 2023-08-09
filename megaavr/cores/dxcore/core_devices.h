@@ -917,6 +917,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
  * CORE_SUPPORT_LONG_TONES is 1 if the core supports the three argument tone for unreasonably long tones.                                        *
  ************************************************************************************************************************************************/
 #define CORE_HAS_ERRORFUNS              (1) /* DxCore implements badArg and badCall */
+#define CORE_HAS_MILLISSTATE            (1) /* DxCore has the plumbing for sleeptime timer manipulation */
 #define CORE_HAS_FASTIO                 (2)
 #define CORE_HAS_OPENDRAIN              (1) /* DxCore has openDrain() and openDrainFast()                           */
 #define CORE_HAS_PINCONFIG              (3) /* pinConfigure is now implemented                                      */

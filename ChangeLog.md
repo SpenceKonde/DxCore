@@ -19,7 +19,7 @@ These are typically planned for release in a future version (usually the next on
 * Enhancement - implement `_getCurrentMillisTimer()`  and `_getCurrentMillisState()` which are/will be required for sleepTime.h
 * Bugfix - Optiboot did not honor entry conditions (#452), bump optiboot version to 0x1A02.
 * Maintenance - Rebuilt all bootloaders again.
-* Add CORE_HAS_ERRORFUNS #define.
+* Enhancement Add CORE_HAS_ERRORFUNS #define. Add CORE_HAS_MILLISSTATE #define.
 * Bugfixes, several, for SerialUPDI, and improvements in error messages.
 * Enhancement - Add the 16k and 32k EA-series parts. Still no 8k ones or headers for them either. 8k is different from 16k because it uses 2 byte vectors, and they're probably also chopping off all the IO cells for the extra
 * Maintenance - add CI testing for EA-series parts.
@@ -27,6 +27,10 @@ These are typically planned for release in a future version (usually the next on
 * Bugfix: Add missing API extensions on EA-series for ADC.
 * Bugfix: Fix Comparator, Event, and SPI and Wire up well enough that things at least compile. And in the case of comparator, SPI, and Wire, I'm pretty sure they work too.
 * Maintenance - Correct CI testing to specify valid option for flmap menu.
+* Enhancement - (also makes the CI easier) Lay ground work for future library support for a Flash.h for Ex-series.
+* Bugfix: Optiboot boards did not honor the FLMAP option.
+* Enhancement - Update forward looking EB-series defines now that headers have escaped (here's the bad news: 4 independent channels only, half of the WO channels are inverted waveforms with dead time insertion for PSC and BLDC drive applications - and TCF at most gets you 2 8-bit channels through a TCB-like method - it's meant for generating square waves or periodic pulses. The quality of the 4 good PWM channels we get may be unmatched (we'll need to see the docs - but it looks like 19-bit PWM resolution may be in the cards with HIRES. That will have to wait until we have datasheets though.
+
 
 ## Releases
 
