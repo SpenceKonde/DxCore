@@ -149,7 +149,7 @@ jobs:
         int-osc:
           - 20
           - 24
-        ovrclock-osc:
+        overclock-osc:
           - 16
           - 32
           - 40
