@@ -1529,7 +1529,7 @@ void init() {
 }
 
 static uint8_t _millis_state = NOT_A_TIMER;
-void _stop_millis() { // Disable the interrupt:
+void stop_millis() { // Disable the interrupt:
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("stop_millis() is only valid with millis time keeping enabled.");
   #else
