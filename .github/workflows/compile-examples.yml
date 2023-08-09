@@ -245,35 +245,36 @@ jobs:
           - overclock-osc: 16
             device-family: dd
           - overclock-osc: 16
-            device-family: ea
             clocksource: crystal
+          - overclock-osc: 16
+            clocksource: extclock
           - overclock-osc: 32
             device-family: da
             clocksource: extclock
           - overclock-osc: 40
-            clocksource: internal
+            device-family: db
+            clocksource: extclock
           - overclock-osc: 32
+            device-family: db
+            clocksource: crystal
+          - overclock-osc: 40
             device-family: dd
             clocksource: crystal
           - overclock-osc: 32
             device-family: dd
             clocksource: extclock
           - overclock-osc: 32
-            device-family: db
-            clocksource: extclock
-          - overclock-osc: 32
-            device-family: db
-            clocksource: crystal
-          - overclock-osc: 32
             device-family: ea
+            clocksource: internal
+          - overclock-osc: 32
+            device-family: eb
+            clocksource: internal
+          - overclock-osc: 40
             clocksource: internal
           - overclock-osc: 40
             device-family: ea
           - overclock-osc: 40
             device-family: eb
-          - overclock-osc: 32
-            device-family: eb
-            clocksource: internal
           - device-family: eb
 
     steps:
