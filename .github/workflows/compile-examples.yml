@@ -256,8 +256,14 @@ jobs:
             device-family: dd
             clocksource: crystal
           - overclock-osc: 32
+            device-family: dd
+            clocksource: extclock
+          - overclock-osc: 32
             device-family: db
             clocksource: extclock
+          - overclock-osc: 32
+            device-family: db
+            clocksource: crystal
           - overclock-osc: 32
             device-family: ea
             clocksource: internal
@@ -301,7 +307,7 @@ jobs:
           enable-deltas-report: true
           enable-warnings-report: true
           sketches-report-path: sketches-reports
-      - name: Compile examples (32 MHz, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
+      - name: Compile examples (overclocked to 32int/40xtal/40external on Dx, 16/32/32 on Ex), tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{ matrix.overclock-osc }}${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full,flmap=lockdefault
