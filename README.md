@@ -81,9 +81,9 @@ Are those calculations right? The maximum baud rate that will improve the rate a
     * [UPDI programming hardware](README.md#updi-programming-hardware)
     * [From a USB-Serial Adapter With SerialUPDI (pyupdi-style - Recommended)](README.md#from-a-usb-serial-adapter-with-serialupdi-pyupdi-style---recommended)
     * [What about Debugging?](README.md#what-about-debugging)
-      * [HV debrick project delayed](README.md#hv-debrick-project-delayed)
-      * [What's With All The Different SerialUPDI Options?](README.md#whats-with-all-the-different-serialupdi-options)
-      * [Why is My FTDI Adapter Insanely Slow?](README.md#why-is-my-ftdi-adapter-insanely-slow)
+    * [HV debrick project delayed](README.md#hv-debrick-project-delayed)
+    * [What's With All The Different SerialUPDI Options?](README.md#whats-with-all-the-different-serialupdi-options)
+    * [Why is My FTDI Adapter Insanely Slow?](README.md#why-is-my-ftdi-adapter-insanely-slow)
     * [With a Classic Arduino (jtag2updi)](README.md#with-a-classic-arduino-jtag2updi)
   * [So we can do HV UPDI on the DD's?](README.md#so-we-can-do-hv-updi-on-the-dds)
   * [Compatibility Note for 32-bit Linux](README.md#compatibility-note-for-32-bit-linux)
@@ -344,7 +344,7 @@ In direct mode, a new upload tool will be used. Because the chip on the device w
 
 No plans to use an SD card. Why? I have found them to be of miserably poor reliability (I've had one permanently fail after a reset during write, several others fail to work when I attempted to reuse them when they had previously worked, and one of them, in my phone, died suddenly, abbruptly, and completely while I was listening to music from it, and thereafter it was never recognized when plugging it into a reader), and they are particularly resource intensive because of the whole filesystem thing, yet the concept of a filesystem isn't really a perfect. SPI flash in contrast is quite reliable, and organized into 512b pages and 4k blocks. My plan is to store the index on an EEPROM (which can be rewritten more times) - like an AT24-series, with the Index entries containing an identifying string. the processor ID, and options like "lock the chip" "Set the fuses to these values" - later firmwares could even have an incrementing serial number writeen to flash, USERROW or EEPROM feature added fairly easily.
 
-#### Coming Much Sooner
+### Coming Much Sooner
 Three new serial adapter products, two highly relevant to UPDI.
 
 The first is a deluxe serial adapter, meant for someone who might want to monitor GPIOs with the modem control inputs, use the RTS modem control output for something special, or who might have either a 6-pin FTDI adapter connected, or want the adapter in UPDI programming mode, with a 3-pin header for that. It has an optional mezzanine board, (some TH assembly required) that adds status leds for modem control line, and a 6-pin JST-XH (for "FTDI adapter" like mode, the usual pin order. I started with pin 1 = Gnd), a 3-pin JST-XH connector for UPDI (pin 1 = Vdd, 2 = Gnd, 3 = UPDI), and a 6p molex picoblade connector (commonly sold as microJST 1.25, cause it looks like something JST would make on casual inspection - though anyone who is experienced with JST's design patterns could immediately point out at least three ways they know it's not a copy of anything made by JST) - I've found that an inexpensive and conveneint connector to use when I needed a smaller 6-pin serial connector, since both the connectors and pre-assembled 6p cables are really cheap on aliexpress. XH and Picoblade are both far more reliable than "dupont" connectors (though not real DuPont connectors, but they are prohibitively expensive. I use cheap knockoff terminals with gold flash (this is mostly to screen out the almost identical looking bad knockoffs - they aren't made with gold flash - the premium of gold vs non-gold terminals of the best knockoff design (the only one commonly seen in gold flash) is small, and since the cheap dupont terminals are copies of a flawed and ineffective knockoff they'll always suck. when I have to adapt it to dupont, I use pre-wired, housingless JST-XH terminal line (chosen with lengths a bit on the long side) and put them in the housing (so they're color coded), and then crimp on cheap chinese dupont terminals, with the expectation of having to periodically re-terminal the dupont end of the connector periodically; same with the UPDI programming connector, though as always, the lifespan of a dupont connector has a positive relationship to the number of pins, so UPDI connectors wear out faster). XH and picoblade do not have the same problem that dupont does because the retention force is supplied in large part by the housing, while on dupont it falls entirely to the pin contact. The original DuPont connectors dealt with this using a leaf spring which could reversibly deform and provided the mating force. Harwin, and then the chinese clones, instead made the terminal from a single piece of stamped metal, folded up into just the right shape. The stamped metal is generally brass, and brass doesn't make a terribly good spring - it bends easily and is by no means up to this task on a frequently used connector). But I digress. The deluxe adapter will have a switch to select between serial adapter and UPDI programmer, and the addon board gives you the other connection options and modem control line status lights.
@@ -355,10 +355,10 @@ Finally, the same dual serial chip - only with one port permanently wired for UP
 
 All three of them have a three-position voltage switch - VUSB (nom, +5V), 3.3v via an onboard regulator, or disconnect both of those from VIO, and expect it to be supplied by the target, and run at those logic levels - these adapters all have the separate VIO pin that works from 1.8-5.5v (chip held in hardware reset if VIO not supplied or too low. These are switched via fets, not directly by that tiny SMD switch so it can be used to supply up to 500mA without worrying about the voltage select switch being damaged.
 
-#### HV debrick project delayed
+### HV debrick project delayed
 Based on information about the reset input cell on DD and later devices.
 
-#### What's With All The Different SerialUPDI Options?
+### What's With All The Different SerialUPDI Options?
 Depending on adapter model, and operating system, it has been found that different timing settings are required; however, settings needed to keep even 230400 baud from failing on Linux/Mac with most adapters impose a much larger time penalty on Windows, where the OS's serial handling is slow enough that nothing needs that delay...
 
 The "write delay" mentioned here is to allow for the page erase-write command to finish executing; this takes a non-zero time. Depending on the adapter, USB latency and the implicit 2 or 3 byte buffer (it's like a USART, and probably implemented as one internally. The third byte that arrives has nowhere to go, because the hardware buffer is only 2 bytes deep) may be enough to allow it to work without an explicit delay. Or, it may fail partway through and report an "Error with st". The faster the adapter's latency timeout, and the faster the OS's serial handling is, the greater the chance of this being a problem. This is controlled by the `-wd` command line parameter if executing prog.py manually. As of 2.5.6 this write delay is closer to the actual time requested (in ms), previously it had a granularity of several ms, when 1 is all you needed, and as a result, the penalty it imposed was *brutal*, particularly on Windows.
@@ -375,7 +375,7 @@ Selection guide:
 * As you can see from the above, this information is largely empirical; it is not yet known how to predict the behavior
 * We are currently working on EA-series support.
 
-#### Why is My FTDI Adapter Insanely Slow?
+### Why is My FTDI Adapter Insanely Slow?
 FTDI adapters (FT232, FT2232, and FT4232 etc), including the fake ones that are available on eBay/AliExpress for around $2, on Windows default to an excruciatingly long latency period of 16ms. On many protocols this latency goes unnoticed, but when the majority of the communication is composed of messages transmit in less time than the latency timer takes to expire, and then wait on receiving a (similarly short) response suffer mightily from the USB latency. Even with the lengths we go to in order to limit the number of latency delay periods we must wait through, this will prolong a 2.2 second upload to over 15 second. You must change this in order to get tolerable upload speeds:
 1. Open control panel, device manager.
 2. Expand Ports (COM and LPT)
