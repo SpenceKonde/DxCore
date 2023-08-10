@@ -157,6 +157,9 @@ jobs:
           - 16
           - 32
           - 40
+        optibootabbr:
+          - opti
+          -
 
         # Filter out these matrix combinations
         exclude:
@@ -281,6 +284,16 @@ jobs:
             device-family: eb
           - device-family: eb
 
+          - device-family: da
+            optibootabbr:
+          - device-family: db
+            optibootabbr:
+          - device-family: dd
+            optibootabbr:
+          - device-family: ea
+            optibootabbr: opti
+          - device-family: eb
+            optibootabbr: opti
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -363,10 +376,10 @@ jobs:
           enable-deltas-report: true
           enable-warnings-report: true
           sketches-report-path: sketches-reports
-      - name: Compile examples (8 MHz, optiboot, tca0 millis, full printf, and manual attachInterrupt)
+      - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=lockdefault
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}${{ matrix.optibootabbr }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format

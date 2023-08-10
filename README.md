@@ -1,19 +1,20 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5.8 - EA "support" in beta form is now available in a release
-This version has been confirmed to compile Bare Minimum for all EA.
-There are lots of issues impacting this currently and I'm not going to even start listing them here, but make issues if you don't see em.
-Expect particular issues with:
-* TCA1 PWM, particularly where `TCAROUTEA & 0x00111000 != 0`
-* DAC operation may have a discontinuity somewhere in the middle. They now split the output into two ranges. We'll have to see.
-* analogRead(), analogReadResolution(), analogPowerOptions(), analogReadEnh(), and analogReadDiff()
-* The new clock system screws us in three ways - We have the 5-bit tuning register that has all the granularity of a boulder pit (seriously, they have that autotune feature, and then squander it with the poor granularity of the tuning! Whyyyyyyy!?), we have our clock speeds fixed to 16 or 20 base speed like tinyAVRs. This suggests that the chips will also cap out at around 32 MHz, and even if they don't, there's this timebase register that needs to be set such that TIMEBASE+1 clock cycles = 1 us. And it's got 5 bits, so beyond 32 MHz anything that relies on timebase would start to malfunction anyway.
-* Flash.h is not supposed to work on it - it needs a different library, and to write when optiboot is not in use will require a novel implementation, while writing via optiboot will require optiboot to work, which will not be easy - that the first EA's are impacted by excruciatingly severe silicon bugs that make writing to nvm more complicated makes this significantly more challenging
+## 1.5.9 approaches
+This is a pretty big one.
+* EA series now compiles. Still working on the upload.
+  * Event.h may not work correctly with pin events.
+* The problems with the bootloaders and with Flash.h are corrected (entry conditions work now). All users on optiboot should burn bootloader with the 1.5.9 version when it is released.
+* EA-series CI.
+* More plumbing needed in order to execute the sleep-while-keeping-millis-approximately-correct functions of sleepTime
+* A few particularly excruciatingly long markdown files got a TOC.
 
 ## WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES
 I thought I had a tool contributed, but I don't think I ever got the final version, nor do I have any of the images.
 
 We are now TWO GENERATIONS OF CHIPS behind the eight ball on pinout diagrams. I have not the talent for making them.
+
+Our existing images *should really be updated*
 
 ## WE HAVE ANOTHER PROBLEM: Our link checker is blocked by Microchip
 This means we have no way to check if a link is valid. Have reached out to my guy at Microchip to seeif anything can be done.
@@ -57,14 +58,15 @@ Of course we'd need a different case to handle the times when we were in the NRW
 
 Are those calculations right? The maximum baud rate that will improve the rate at which data is uploaded via optiboot is in the 160,000-180,000 baud area? We're currently stuck at 115200 due to old avrdude version, but I was hoping we could go at least twice as fast. A 64k chip with 128b pages has 512 pages, and if we're programming them at 100/second, that's 5.12s minimum for a full upload which I guess isn't terrible but gee, 16kb/sec absolute speed limit? That beats old optiboot speeds for sure, but that speed limit would apply to UPDI in the general case too... And we could do 24k/s, which would entail transmitting overhead + 82k, 82000/5.12 okay - 160,000. So the two calculations agree. We'd get something out of 172,800 baud (1.5x 115200) but beyond that we'd see little if anything from 230400, and after that, nothing except for a small improvement in NRWW write speed from bumping baud rate. Did I do the math right up there?
 
+## Table of Contents
 
 ## IMPORTANT WARNINGS
 
 ### ATTN: Linux Users
 **Only versions of the Arduino IDE downloaded from [arduino.cc](https://arduino.cc) should be used, NEVER from a Linux package manager. The package managers often have the Arduino IDE - but have *modified it*. This is despite their knowing nothing about Arduino or embedded development in general, much less what they would need to know to modify it successfully** Those version are notorious for subtle but serious issues caused by these unwise modifications. This core should not be expected to work on such versions, and no modifications will be made for the sake of fixing versions of the IDE that come from package managers for this reason.
 
-### IDE 2.0.x unsupported. If you use it, use the release not an old RC: all versions prior to 2.0.0-RC9.2 known to have critical regressions
-These bugs in the IDE prevent board settings from being correctly recognized. [This thread tracks known issues with 2.0 and workarounds](https://github.com/SpenceKonde/megaTinyCore/discussions/760). If you use unsupported software please reproduce all issues in 1.8.13 before reporting.
+### IDE 2.0.x unsupported
+If you use it, use the release not an old RC: all versions prior to 2.0.0-RC9.2 known to have critical regressions. These bugs in the IDE prevent board settings from being correctly recognized. [This thread tracks known issues with 2.0 and workarounds](https://github.com/SpenceKonde/megaTinyCore/discussions/760). If you use unsupported software please reproduce all issues in 1.8.13 before reporting.
 
 ## What is DxCore
 This is an Arduino core to support the exciting new AVR DA, DB, and DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned and these are simply the successor to the megaAVR series. But whatever the story of their origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... Yet for each of these systems they've added at least one small but significant improvement of some sort (while largely preserving backwards compatibility - the tinyAVR 2-series also typically adds the new features that the Dx-series get, giving the impression that these reflect a "new version"). You like the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCBs into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24ths of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with slightly-improved instruction timing compared to "classic" AVRs.
@@ -95,10 +97,10 @@ All of the pinout diagrams have gotten really ugly from my MS-paint hacking, and
 * [*AVR32DU20, AVR16DU20* (pending release - `*`)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU20.md) (Need help with any pinout charts!)
 * [*AVR64DU28, AVR32DU28, AVR16DU28* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU28.md) (Need help with any pinout charts!)
 * [*AVR64DU32, AVR32DU32, AVR16DU32* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DU32.md) (Need help with any pinout charts!)
-* [*AVR32EB14, AVR16EB14, AVR8EB14* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB14.md)
-* [*AVR32EB20, AVR16EB20, AVR8EB20* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB20.md)
-* [*AVR32EB28, AVR16EB28, AVR8EB28* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB28.md)
-* [*AVR32EB32, AVR16EB32, AVR8EB32* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB32.md)
+* [*AVR32EB14, AVR16EB14, AVR8EB14* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB14.md) (Need help with any pinout charts!)
+* [*AVR32EB20, AVR16EB20, AVR8EB20* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB20.md) (Need help with any pinout charts!)
+* [*AVR32EB28, AVR16EB28, AVR8EB28* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB28.md) (Need help with any pinout charts!)
+* [*AVR32EB32, AVR16EB32, AVR8EB32* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB32.md) (Need help with any pinout charts!)
 
 Part names *in italics* denote parts for which support is not yet available, as they are future products and no silicon is available.
 
@@ -148,17 +150,25 @@ Everyone always hates on QFN packaging, but it has a few advantages. The obvious
 | Has PGA   | -  | -  | X  | -  | -  | -  | X  | -  | X  |
 | Released  | X  | X  | X  | X  | X  | X  |some| -  | -  |
 | USB       | -  | -  | -  | -  | -  | -  | -  | X  | -  |
+| Core      | mTC| mTC| mTC| DxC| DxC| DxC| DxC| DxC| DxC|
 
+t1/t2: Migration path for classic tinyAVR, excellent for small applications in general (frequently better than DD/EX-series parts if you need all the peripheral pins of all the peripherals - For example, a CCL-heavy application might skate by with a 424 (I have one that does), but, well, a DD14 don't have enough pins I can get CCL out on, )
+t0: If it cost 25% less than the t1's I might give them a second look. They cost around 1-2% less. So I don't know who the hell buys this garbage.
+DA or DB: Migration path for high end megaAVR applications
+DD: Migration path for low cost megaAVR - and an alternative more powerful chip than the tinyAVRs in low pincounts. Writing on the wall about tinyAVR now.
+EA: Migration path for people who used megaAVRs and actually used the differential ADC in ways that took advantage of it's differentiality.
+DU: Migration path for 32u4, 16u2, etc. And for the refugees from VUSB-equipped tinyAVRs that really can't act as USB devices. As long as the USB implementation isn't totally botched, these will also open up new doors for AVR. DD14-based dual serial adapters anyone? With one of the ports in one-wire mode for UPDI programming?
+EB: Migration path for tiny861 in low pincounts (these will be the first modern AVRs that can dance around an 861 singing "anything you can do I can do better" loud enough to drown out the 861 belting out "I got a badass ADC and drive a BLDC"), and some of the assorted wierd old PWM oriented AVRs in larger pincounts that Atmel had kinda left with a paucity of compelling newer options (maybe ATmega64M1?). With 8-32k flash, this is a strike at the heart of AVR territory. Writing on the wall for tinyAVR branding has now been photographed, printed, and nailed to the lid of it's sealed coffin.
 
 ## Supported Clock Speeds
 ### For the DA, DB, DD and DU-series parts
 The maximum rated spec is 24 MHz **across the entire voltage and temperature range.**
-
-The internal oscillator can be used a 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating).For compatibility with tinyAVR, we also offer 5/10 MHz (generated by dividing 20 MHz).
+And that temperature range is pretty nuts - 105C for I-spec and 125C for E-spec. With waterproofing, you could run at the bottom of a pot of boiling water! Maybe you're making a 'still for makin moonshine, but you want the control system entirely internal to make it easier to camoflage. There are lots of reasons not to do this (legal, chemical, flavor, sanity), but the temperature range of the AVR isn't one of them. Even if it's sitting in boiling water, that's no hotter than 100C.
+The internal oscillator can be used at 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating). For compatibility with tinyAVR, we also offer 5/10 MHz (generated by dividing 20 MHz).
 
 All parts can use an external clock, and DB and DD-series parts can also use a crystal.
 
-These parts overclock very well. Like insanely very well. Many parts will run at 48 MHz at room temp, particularly E-spec ones. In limited (because it wasn't very interesting) testing, I confirmed that 128 MHz from the 4x multiplication setting of the PLL (undocumented) also worked at room temperature on the same specimen, while it didn't work at 160 MHz `***`.
+At room temperature, you can overclock the bejeezus out of these things. Crazy overclocks are possible. Many E-spec parts run from crystal or clock at 48 MHz room temp, I spec parts usually do 40. In limited (because it wasn't very interesting) testing, I confirmed that 128 MHz from the 4x multiplication setting of the PLL (undocumented) also worked at room temperature. However on the same specimen 160 MHz prooved too much to ask. It was trying, but dropping cycles left and right, especially when things were being sync'ed to that clock domain. I think it was oscillating at the desired speed, but it looked as if the rest of the timer couldn't keep up. I don't recall if that was E or I spec.
 
 **Supported from internal:** 1 MHz, 4 MHz, 5 MHz, 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, 28 MHz, 32 MHz
 
@@ -169,8 +179,8 @@ If a watch crystal is installed, there is an option to "Auto-tune" the internal 
 The DU will likely be similar to the other Dx parts. It is highly likely - though not certain, they've been doing more with multiple clock domains on these recent parts - that only a limited number of speeds will be compatible with USB. Because all indications are that it has made great sacrifices in exchange for the USB, and hence would not be likely to see use in non-USB applications, chances are that we will only offer support for USB-compatible speeds, because if you aren't using USB, the other parts in the Dx-series would be more appropriate and effective.
 
 `*` Speeds over 32 MHz prevent the OPAMP settling time from being set correctly.
-`**` Speeds of 40 MHz may or may not be achievable on I-spec parts at room temperature. Try to get E-spec parts if you plan to overclock, especially that much
-`***` Gee, the nerve of them! I don't have a prayer of getting it to run from a crystal twice the rated speed while generating PWM derived from a 196 MHz clock now. Maybe if I chilled it to below ambient temperature with a peltier junction. Condensation would be a problem, I'd need to use a dry cold chamber insulated very well At least I just scored some monster heatesinks., . Maybe I could just dunk the whole board in acetone and chill that with dry ice... (at least the cold CO2 coming off the dry ice will keep the acetone from catching fire. You could probably throw a lit match into it and have it go out, especially if it wasn't very windy (you'd be doing this outside for hopefully obvious reasons). I wonder how high I could get the main CPU like that (though it is far below the specified minimum operating temperature, and that of most crystals.
+`**` Speeds of 40 MHz may or may not be achievable on I-spec parts at room temperature. Try to get E-spec parts if you plan to overclock, especially that much.
+`***` Gee, the nerve of them! I don't have a prayer of getting it to run from a crystal twice the rated speed while generating PWM derived from a 196 MHz clock now. Maybe if I chilled it to below ambient temperature with a peltier junction. Condensation would be a problem, I'd need to use a dry cold chamber insulated very well At least I just scored some monster heatsinks., . Maybe I could just dunk the whole board in acetone and chill that with dry ice... (the cold CO2 coming off the dry ice will keep the acetone from catching fire. You could probably throw a lit match into it and have it go out, especially if it wasn't very windy (you'd be doing this outside for hopefully obvious reasons). I wonder how high I could get the main CPU like that (though it is far below the specified minimum operating temperature. And the min temp of many crystals, which as I recall often to just straight up crap out at low temperatures, while CPUs rarely do, -40C is just as low as anyone bothers to characterize). Could also submerge in boiling tetraflouroethane (computer duster), except that this is extremely environmentally irresponsible
 
 See the [Clock Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md) for more information
 
@@ -183,7 +193,7 @@ The EA-series, but not the EB, will support an external crystal. No, I don't rea
 
 One notable thing here is that they have **moved** a special function! Prior releases has XOSC32K on PF0 and PF1 as long as the parts had that, and only if they didn't did it fall back to PA0 and PA1 (on 14/20 pin DD series). On EB-series, which never support an HF xtal (nominally on PA0 and PA1), the 32 kHz crystal always goes between those pins and never between PF0 and PF1. I'd bet on this being an error in the product brief - I predict that the EB28+EB32 will move the LF crystal back where it belongs.
 
-Were I a wagering man I might bet ten big ones on LF XTal on PF0, PF1 for EB's that have it. But if I were a wagering man, I'd be a lot poorer. I make predictions about future AVRs all the time. Most of them turn out to be wrong, but until they start placing wagers, nobody's really keeping track. So that's what the edit button is for (proven wrong? "Who even suggested that dumb idea? Huh I did? No wai! Where? Let me see...." *edit -> select sentence suggesting that false theory -> backspace -> commit* "... I'm looking at that right now, now where do I suggest such a preposterous idea?!" "right at... wait, I thought it was...." "You hallucinated an incorrect opinion and attributed it to me? I'm closing this issue. I may sometimes go by Dr. Azzy, but I think you need to see a proper doctor if these sort of hallucinations continue". "You know, it's funny how they only seem to occur when I call you out for being wrong" "But I'm never wrong, all of your allegations have proven specious!" that sort of editing over time leaves only my most most prescient visions. Even if my predictions were worse than chance, by post-selecting only the correct ones and editing out the other predictions (which is only proper - is's irresponsible to propagate discredited ideas!) as any responsible repository maintainer would, as a side-effect I appear significantly more like Nostradamus than a nostra-dumb-ass.
+Were I a wagering man I might bet ten big ones on LF XTal on PF0, PF1 for EB's that have it. But if I were a wagering man, I'd be a lot poorer. I make predictions about future AVRs all the time. Most of them turn out to be wrong, but until they start placing wagers, nobody's really keeping track. So that's what the edit button is for (proven wrong? "Who even suggested that dumb idea? Huh I did? No wai! Where? Let me see...." *edit -> select sentence suggesting that false theory -> backspace -> commit* "... I'm looking at that right now, now where do I suggest such a preposterous idea?!" "right at... wait, I thought it was...." "You hallucinated an incorrect opinion and attributed it to me? I'm closing this issue. I may sometimes go by Dr. Azzy, but I think you need to see a proper doctor if these sort of hallucinations continue". "You know, it's funny how they only seem to occur when I call you out for being wrong" "But I'm never wrong, all of your allegations have proven specious!"). That sort of editing over time leaves only my most most prescient visions. Even if my predictions were worse than chance, by post-selecting only the correct ones and editing out the other predictions (which is only proper - is's irresponsible to propagate discredited ideas!), as a side-effect I appear significantly more like Nostradamus than a nostra-dumb-ass.
 
 ## UPDI Programming
 The UPDI programming interface is a single-wire interface for programming (and debugging - **U**niversal **P**rogramming and **D**ebugging **I**nterface - naturally Microchip keeps the UPDI debug protocol under wraps to try to force you to use their tooling). It is used on all modern (post-2016/Microchip buyout/post-revolutionary) AVR microcontrollers, (though the AVRrc (reduced core) chips use different methods - they're also not suited to Arduino because they don't have nearly enough flash to fit the normal API. While one can always purchase a purpose-made UPDI programmer from Microchip, this is not recommended when you will be using the Arduino IDE rather than Microchip's (god-awful complicated) IDE. There are widespread reports of problems on Linux for the official Microchip programmers. There are two very low-cost alternative approaches to creating a UPDI programmer, both of which the Arduino community has more experience with than those official programmers. Hell, the one time I tried to use an official UPDI programmer, I couldn't even get Microchip's own tooling to see it.
@@ -193,7 +203,7 @@ Whenever a UPDI programmer is used to upload code, all fuses that can be set "sa
 This is shown in the [linked chart on Google Sheets](https://docs.google.com/spreadsheets/d/1sH3yKzWRdVs0sI-pwLtoKDs16Gv14jkkbqlMrs2ziUI/edit?usp=sharing)
 
 ### UPDI programming hardware
-While ISP was not a complex protocol it still required a microcontroller to implement it. This is *no longer true* - rather than being based on SPI it is based on UART serial in one-wire mode with autobaud. There are several inexpensive ways to make your own UPDI programmer from even just a serial adapter and a **small signal schottky** diode (no, you cannot use a normal silicon diode, and no you can't use that diode as big as a minivan that you bought to or two power supplied that didn't need to be OR'ed because both could only pull up and were being used because of wire resistance)
+While ISP was not a complex protocol it still required a microcontroller to implement it. This is *no longer true* - rather than being based on SPI it is based on UART serial in one-wire mode with autobaud. There are several inexpensive ways to make your own UPDI programmer from even just a serial adapter and a **small signal schottky** diode (no, you cannot use a normal silicon diode, and no you can't use that diode as big as a minivan that you bought to OR two power supplies a while back)
 
 
 ### From a USB-Serial Adapter With SerialUPDI (pyupdi-style - Recommended)
@@ -203,11 +213,13 @@ Read the [**SerialUPDI documentation**](https://github.com/SpenceKonde/AVR-Guida
 
 As of 2.3.2, with the dramatic improvements in performance, and the proven reliability of the wiring scheme using a diode instead of a resistor, and in light of the flakiness of the jtag2updi firmware, this is now the recommended programming method. As of this version, programming speed has been increased by as much as a factor of 20, and now far exceeds what was possible with jtag2updi (programming via jtag2updi is roughly comparable in speed to programming via SerialUPDI on the "SLOW" speed option, 57600 baud; the normal 230400 baud version programs about three times faster than the SLOW version or jtag2updi, while the "TURBO" option (runs at 460800 baud and increases upload speed by approximately 50% over the normal one. The TURBO speed version should only be used with devices running at 4.5v or more, as we have to run the UPDI clock faster to keep up (it is also not expected to be compatible with all serial adapters - this is an intentional trade-off for improved performance), but it allows for upload and verification of a 32kB sketch in 4 seconds.
 
+At this point in time, while the compilation issues are belived to all be fixed, We still cannot upload to EA without Microchip programmers, still. jtag2updi doesn't work either. Woe is us.
+
 ### What about Debugging?
 See [my AVR research page for the state of my knowledge of the matter](https://github.com/SpenceKonde/AVR_Research/blob/main/Debugging_via_UPDI.md). We know the key, we just need someone to snoop on the UPDI line and correlate commands given to their official tooling with data picked up by their serial-spy.
 
 
-#### Coming sometime - something standalone
+### Coming sometime - something standalone
 A direct-or-standalone programmer, for UPDI - and likely also classic AVRs.
 In direct mode, a new upload tool will be used. Because the chip on the device will implement the UPDI protocol, USB latency will be drastically reduced as data can be sent in huge chunks at high baud rates and buffered in ram (we'll be using AVR Dx-series parts, and we should be able to feed data to the chip while receiving it from the computer, making this the fastest way to program a modern AVR. Because ISP is a somewhat more involved protocol, for those parts, HyperUPDI will still buffer large chunks of data, but will then write them before asking the computer for the next chunk of data (if there is one - for most tinyAVR parts, the ram is sufficient to buffer the entire flash contents). HyperUPDI will also come equipped with an 8 MB flash chip to hold flash (and optionally EEPROM and USERROW) images, and a 64k EEPROM to hold the table of contents (since it will be written and erased much more often). In full standalone mode, it will have a screen and basic UI to dump target flash to it's own flash.
 
@@ -276,18 +288,36 @@ When a single number is used to refer to a pin - in the documentation, or in you
 ### An and PIN_An constants (for compatibility)
 The core also provides An and PIN_An constants (where n is a number from 0 to the number of analog inputs). These refer to the ADC0 *channel* numbers. This naming system is similar to what was used on many classic AVR cores - on some of those, it is used to simplify the code behind `analogRead()` - but here, they are just #defined as the corresponding Arduino pin number. The An names are intentionally not shown on the pinout charts, as this is a deprecated way of referring to pins. However, these channels are shown on the pinout charts as the ADCn markings, and full details are available in the datasheet under the I/O Multiplexing Considerations chapter. There are additionally PIN_An defines for compatibility with the official cores - these likewise point to the digital pin number associated with the analog channel.
 
-### There is no A0 or PIN_PD0 (pin 12) on DB-series or DD-series parts with less than 48 pins
-DD-series parts and DB-series parts with 32 or 28 pins don't have a an analog channel 0. It's located on pin PD0, which was displaced by the `VDDIO2` pin. Based on the errata - the PD0 pad exists on the chip (at least for the DBs)... but doesn't have a bond wire attached to it. Per manufacturer recommendations we disable the digital input buffer to save power, as it can pick up noise like any floating pin, which will cause power to be wasted if the input buffer is enabled.
+### Missing pins
+Sometimes for one reason or another pins get "skipped". For example. the 32 and 28 pin AVR DD-series don't have a PD0, while the smaller ones don't have a PC0 (in both cases, that is the pin that was taken over for VDDIO2). There are times when it makes things easier to skip the numbers those pins would have too. We often do this - PD0, even though it doesn't exist, still gets a number given to it (having the way to find the number of Px0 is useful (remember, the pins the pins are always numbered in order, except for discontinuities for missing ports). My rule for putting in "phantom" pins and "ghost" numbers is - with the exception of PORTF, (which appears on all parts, but never produces situations where this would be useful):
+* If the port is entirely absent, it's numbers are not skipped.
+* If only the first half of a port is present, the numbers for the second half are not skipped.
+* Whenever one or more pins in a port is present, the pins before it, and after it to the midpoint or end of the port, have their numbers skipped.
+* PORTA always gets their numbers skipped when not present, which is only the case on DD14.
+* Px0 of any port will always be a phantom pin. At this point, only PC0 and PD0 are sometimes phantom pins.
+* Other pins are never phantom pins.
+* A phantom pin is defined, digitalPinToPort gives it's port, but all other "pin info" calls on it give NOT_A_PIN.
+* The structure of the pin numbering is often taken advantage of to expedite calculations. It is not recommended to change the pin mappings.
+For PORTF:
+* IF only PF6 and PF7 present, do not skip the earlier numbers in PORTF. PF6 is numbered right after PD7 on some parts in PORTF
+* Otherwise, either all of PORTF is present, or PF0, PF1, PF6 and PF7 are, ane we skip 4 numbers between them, so on 28+ pin parts, there's 4 arduino pin number gap
 
-PD0 is back as a usable pin on the EA and EB-series parts, as the Ex-series doesn't have MVIO (thus far), so VDDIO2 didn't need to take over a pin.
+**Seriously, use the PIN_Pxn defines - it makes like much easier**
 
-#### There is no A0-3 or PIN_PD0-3 on 20 and 14-pin parts
-Additionally on the DD-series parts, since they can no longer steal PD0's pin for VDDIO2, they took PC0 instead.
+#### Examples of potentially surprising gaps in pin
+* If you are using Arduino pin numbers on a DD14, you will notice that, yes, PA0 and PA1 are pins 0 and 1, then PC1, the next pin is pin 9, then 10, and 11. Then 12 through 15 don't exist and the numbering picks back up with PD4-7 at 16-19, with Reset and UPDI finishing it off with 20 and 21.
+* There is no PC0 on MVIO parts with 14 or 20 pins.
+* There is no PD0 on MVIO parts with 28 or 32 pins.
+  * This means no analog channel 0.
+* There is no PC0, PC1, or PC2 on DU-series.
+* There is no PD0-PD3 on 14 or 20 pin parts.
+  * This means no analog channels 0-3.
 
-#### 20 and 14-pin parts have big holes in the numbering
+
+#### Reasoning behind the numbers
 14-pin parts have digital pin numbers 0, 1, 9, 10, 11, 16, 17, 18, 19, 20, 21
 But if you look them in PIN_Pxn notation, the reasoning is clearer: PA0-1, skip over the rest of portA, There's no PC0, then there is PC1-3, and PD4-7, plus PF6 and PF7, which are less than useful, being reset and input only, and UPDI, respectively.
-20-pin parts have PA0-7, PC1-3, PD4-7, PF6-7 17 pins plus 3 power pins on DD.
+20-pin parts have PA0-7, PC1-3, PD4-7, PF6-7 17 pins plus 3 power pins on DD, meaning pin numbers 0-7, 9, 10, 11, 16, 17, 18, 19, 20, 21 - All those six pins got added to PORTA, filling in that big hole
 
 Because the EB will not have MVIO, it will not need VDDIO2, hence it will have PC0 even on 14-pin parts, while the DU-series is expected to not have PC0-PC2, those pins having been fed to the USB peripheral, along with the PLL/TCD...
 
