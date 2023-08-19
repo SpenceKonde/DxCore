@@ -397,7 +397,7 @@ jobs:
           enable-warnings-report: true
           sketches-report-path: sketches-reports
       - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
-        if: matrix.device-family != 'ea' && matrix.device-family != `eb`
+        if: matrix.device-family != 'ea' && matrix.device-family != 'eb'
         uses: arduino/compile-sketches@main
         with:
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=unlock
