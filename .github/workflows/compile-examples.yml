@@ -137,6 +137,7 @@ jobs:
           - da
           - db
           - dd
+          - du
           - ea
           - eb
         pincount:
@@ -156,17 +157,17 @@ jobs:
         overclock-osc:
           - 16
           - 32
-          - 40
-        optibootabbr:
-          - opti
-          -
-
+          - 48
         # Filter out these matrix combinations
+
+
         exclude:
+          # Things w/out xtals
           - device-family: da
             clocksource: crystal
           - device-family: eb
             clocksource: crystal
+          # DA limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
           - device-family: da
             flash-class: 32
             pincount: 64
@@ -178,17 +179,7 @@ jobs:
             pincount: 20
           - device-family: da
             pincount: 14
-          - device-family: da
-            flash-class: 32
-            pincount: 64
-          - device-family: da
-            flash-class: 16
-          - device-family: da
-            flash-class: 8
-          - device-family: da
-            pincount: 20
-          - device-family: da
-            pincount: 14
+          # DB limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
           - device-family: db
             flash-class: 32
             pincount: 64
@@ -200,17 +191,7 @@ jobs:
             pincount: 20
           - device-family: db
             pincount: 14
-          - device-family: db
-            flash-class: 32
-            pincount: 64
-          - device-family: db
-            flash-class: 16
-          - device-family: db
-            flash-class: 8
-          - device-family: db
-            pincount: 20
-          - device-family: db
-            pincount: 14
+          # DD limits. No 128k/8k flash, no 64/48 pin.
           - device-family: dd
             flash-class: 128
           - device-family: dd
@@ -219,6 +200,22 @@ jobs:
             pincount: 64
           - device-family: dd
             pincount: 48
+          # DU limits. No 128k/8k flash, no 64/48 pin. No 64k 20/14pin.
+          - device-family: du
+            flash-class: 128
+          - device-family: du
+            flash-class: 8
+          - device-family: du
+            pincount: 64
+          - device-family: du
+            pincount: 48
+          - device-family: du
+            pincount: 20
+            flash-class: 64
+          - device-family: du
+            pincount: 14
+            flash-class: 64
+          # EA limits. No 128k flash, no 64 pin, no 20/14 pin
           - device-family: ea
             flash-class: 128
           - device-family: ea
@@ -227,14 +224,21 @@ jobs:
             pincount: 20
           - device-family: ea
             pincount: 14
+          # Unclear if AVR8EAxx really coming.
           - device-family: ea
             flash-class: 8
-          - device-family: eb
-            flash-class: 32
-          - device-family: eb
-            flash-class: 64
+          # EB limits. No 128k, 64k flash, no 64/48 pin
           - device-family: eb
             flash-class: 128
+          - device-family: eb
+            flash-class: 64
+          # Only headers for 16EB released.
+          - device-family: eb
+            flash-class: 32
+          # 8-32k is expected.
+          - device-family: eb
+            flash-class: 8
+          # ugly Dx/Ex hack. Dx excludes 20 MHz internal osc, Ex 24 MHz.
           - int-osc: 20
             device-family: da
           - int-osc: 20
@@ -245,55 +249,71 @@ jobs:
             device-family: ea
           - int-osc: 24
             device-family: eb
-          - overclock-osc: 16
+          # ugly Dx/Ex hack. No 16 MHz DB xtal tests, DA ext 16 MHz, DD 16 MHz xtal.  Ex @ 48 excluded further down.
+          - overclock-osc: 48
+            clocksource: internal
+          - overclock-osc: 48
+            device-family: ea
+          - overclock-osc: 48
+            device-family: eb
+          - overclock-osc: 48
+            device-family: dd
+            clocksource: crystal
+          - overclock-osc: 48
+            device-family: db
+            clocksource: extclock
+          - overclock-osc: 48
             device-family: da
-          - overclock-osc: 16
-            device-family: db
-          - overclock-osc: 16
-            device-family: dd
-          - overclock-osc: 16
-            clocksource: crystal
-          - overclock-osc: 16
-            clocksource: extclock
-          - overclock-osc: 32
-            device-family: da
-            clocksource: extclock
-          - overclock-osc: 40
-            device-family: db
             clocksource: extclock
           - overclock-osc: 32
             device-family: db
-            clocksource: crystal
-          - overclock-osc: 40
-            device-family: dd
-            clocksource: crystal
-          - overclock-osc: 32
-            device-family: dd
-            clocksource: extclock
+            clocksource: internal
           - overclock-osc: 32
             device-family: ea
             clocksource: internal
           - overclock-osc: 32
             device-family: eb
             clocksource: internal
-          - overclock-osc: 40
-            clocksource: internal
-          - overclock-osc: 40
+          - overclock-osc: 32
+            device-family: db
+            clocksource: crystal
+          - overclock-osc: 32
+            device-family: dd
+            clocksource: crystal
+          - overclock-osc: 32
             device-family: ea
-          - overclock-osc: 40
+            clocksource: crystal
+          - overclock-osc: 32
+            device-family: da
+            clocksource: extclock
+          - overclock-osc: 32
+            device-family: dd
+            clocksource: extclock
+          - overclock-osc: 32
             device-family: eb
+            clocksource: extclock
+          - overclock-osc: 16
+            device-family: da
+            clocksource: internal
+          - overclock-osc: 16
+            device-family: dd
+            clocksource: internal
+          - overclock-osc: 16
+            device-family: db
+            clocksource: crystal
+          - overclock-osc: 16
+            device-family: db
+            clocksource: extclock
+          - overclock-osc: 16
+            device-family: dd
+            clocksource: extclock
+          - overclock-osc: 16
+            device-family: ea
+            clocksource: extclock
+          # EB is not yet shipping and no datasheet is available.
           - device-family: eb
-
-          - device-family: da
-            optibootabbr:
-          - device-family: db
-            optibootabbr:
-          - device-family: dd
-            optibootabbr:
-          - device-family: ea
-            optibootabbr: opti
-          - device-family: eb
-            optibootabbr: opti
+          # DU headers not even out - all clocking decisions TBD.
+          - device-family: du
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -325,7 +345,7 @@ jobs:
           enable-deltas-report: true
           enable-warnings-report: true
           sketches-report-path: sketches-reports
-      - name: Compile examples (overclocked to 32int/40xtal/40external on Dx, 16/32/32 on Ex), tcb1 millis, minimal printf, old attachInterrupt, full appspm)
+      - name: Compile examples (overclocked to the max, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{ matrix.overclock-osc }}${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full,flmap=lockdefault
@@ -351,7 +371,7 @@ jobs:
           enable-deltas-report: true
           enable-warnings-report: true
           sketches-report-path: sketches-reports
-      - name: Compile examples (20 MHz, disable millis, sized appspm)
+      - name: Compile examples (20 MHz, disable millis, sized appspm, flmap L0, wire mors)
         uses: arduino/compile-sketches@main
         with:
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,appspm=24plus,wiremode=mors,flmap=locksection0
@@ -377,9 +397,10 @@ jobs:
           enable-warnings-report: true
           sketches-report-path: sketches-reports
       - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
+        if: matrix.device-family != ea && matrix.device-family != eb
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}${{ matrix.optibootabbr }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=unlock
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=unlock
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
