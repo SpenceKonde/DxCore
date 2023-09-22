@@ -405,7 +405,7 @@ inline __attribute__((always_inline)) void pinModeFast(uint8_t pin, uint8_t mode
   if (!__builtin_constant_p(mode)) {
     badArg("mode must be constant when used with pinModeFast");
   } else {
-    if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP) { //} && mode != OUTPUT_PULLUP) {
+    if (mode != INPUT && mode != OUTPUT && mode != INPUT_PULLUP) {
       badArg("The mode passed to pinModeFast must be INPUT, OUTPUT, INPUT_PULLUP");// or OUTPUT_PULLUP");
     }
   }
@@ -415,14 +415,16 @@ inline __attribute__((always_inline)) void pinModeFast(uint8_t pin, uint8_t mode
   VPORT_t *vport;
   vport = (VPORT_t *)(port * 4);
   volatile uint8_t *pin_ctrl = (volatile uint8_t *) (0x410 + digital_pin_to_port[pin] * 0x20 + digital_pin_to_bit_position[pin]);
-  if (mode == OUTPUT)// || mode == OUTPUT_PULLUP)
+  if (mode == OUTPUT) {
     vport->DIR |= mask;
-  else
+  } else {
     vport->DIR &= ~mask;
     // 1 clock to set direction
-  if (mode == INPUT_PULLUP)
+  }
+  if (mode == INPUT_PULLUP) {
     *pin_ctrl |= PORT_PULLUPEN_bm;
-  else if (mode == INPUT)
+  } else if (mode == INPUT) {
     *pin_ctrl &= ~PORT_PULLUPEN_bm;
     // and 5 to switch the damned pullup.
+  }
 }

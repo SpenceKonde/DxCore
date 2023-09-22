@@ -6,11 +6,16 @@ These items are in addition to what was listed under changes already in release.
 
 * Enhancement: Fix pinout diagrams for DD-series.
 * Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
-* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.=
+* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
+* Bugfix: Make serialupdi work with EA.
+* Enhancement: Implement sleep library
 
-## Changes planned for 1.5.9
+## Planned changes implemented in github
 These are typically planned for release in a future version (usually the next one) as noted.
-* Bugfix - Correct Flash.h issues.
+
+## Releases
+### 1.5.9
+* Bugfix: Correct Flash.h issues.
 * Bugfix: Remove boot_opt.h which is not applicable to modern AVRs.
 * Bugfix: Remove the useless dummy app that forced us to use avr-size -A to see the size of the bootloader separated from the app, and switch avr-size -A to normal avr-size to take advantage of this.
 * Maintenance - Rebuilt all bootloaders in support of above fix.
@@ -21,18 +26,16 @@ These are typically planned for release in a future version (usually the next on
 * Maintenance - Rebuilt all bootloaders again.
 * Enhancement Add CORE_HAS_ERRORFUNS #define. Add CORE_HAS_MILLISSTATE #define.
 * Bugfixes, several, for SerialUPDI, and improvements in error messages.
-* Enhancement - Add the 16k and 32k EA-series parts. Still no 8k ones or headers for them either. 8k is different from 16k because it uses 2 byte vectors, and they're probably also chopping off all the IO cells for the extra
+* Enhancement - Add the 16k and 32k EA-series parts. Still no 8k ones or headers for them either.
 * Maintenance - add CI testing for EA-series parts.
 * Bugfix: Correct compilation when analogWrite() was used on AVR EA.
 * Bugfix: Add missing API extensions on EA-series for ADC.
-* Bugfix: Fix Comparator, Event, and SPI and Wire up well enough that things at least compile. And in the case of comparator, SPI, and Wire, I'm pretty sure they work too.
+* Bugfix: Fix Comparator, Event, and SPI and Wire up well enough that things at least compile on EA. And in the case of comparator, SPI, and Wire, I'm pretty sure they work too.
 * Maintenance - Correct CI testing to specify valid option for flmap menu.
 * Enhancement - (also makes the CI easier) Lay ground work for future library support for a Flash.h for Ex-series.
 * Bugfix: Optiboot boards did not honor the FLMAP option.
 * Enhancement - Update forward looking EB-series defines now that headers have escaped (here's the bad news: 4 independent channels only, half of the WO channels are inverted waveforms with dead time insertion for PSC and BLDC drive applications - and TCF at most gets you 2 8-bit channels through a TCB-like method - it's meant for generating square waves or periodic pulses. The quality of the 4 good PWM channels we get may be unmatched (we'll need to see the docs - but it looks like 19-bit PWM resolution may be in the cards with HIRES. That will have to wait until we have datasheets though.
-
-
-## Releases
+* Bugfix - in several cases it was possible to, using third party IDEs, pass incompatible options to the core. This now produces a more helpful error message. (#477)
 
 ### 1.5.8
 * Bugfix - Change clockCyclesToMicroseconds, microsecondsToClockCycles, and clockCyclesPerMicrosecond back into macros instead of inlinable functions, as some libraries depend on them being valid constexprs.

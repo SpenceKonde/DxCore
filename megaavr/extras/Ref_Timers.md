@@ -93,7 +93,9 @@ TCA or TCD pins; these timers are much better for generation of PWM. Only use TC
 ### Why TCB2 as default millis timer?
 Simple - it's the highest numbered timer that's widely distributed (our servo library and tone function check one of TCB1 and TCB0 for being millis, and use that timer if not (hence, since each checks a different timer, if you have three TCBs and one is doing millis, both servo and tone will work only if millis is on TCB2 - otherwise only one of them will). It's also what everyone else seems to be doing, and we should do it the same way for compatibility. Some parts (the smaller pincount DD and all of the future DU and EB parts) do not have a TCB2. In this case, we will instead use TCB1 by default. Servo/tone will notice that TCB1 is used by millis and fall back to TCB0, but that means you can only use one of those at a time with TCB timekeeping
 
-Remember, you can change which timer is used to any type A or B timer from the millis timer menu, and the TCD or rtc on the tinyAVR parts
+Remember, you can change which timer is used to any type A or B timer from the millis timer menu, and the TCD or RTC on the tinyAVR parts. On the AVR EB-series the TCE and TCF may be options pending release of more information.
+
+**Warning** If using a third party IDE, it is possible to pass multiple MILLIS_USE_TIMERxn defines. This is not supported and will not compile; indeed it's not even clear what that would mean. As of 1.5.9 we have added clearer errors in this case.
 
 ## Section One: Background: Timers on modern AVRs
 This applies to the tinyAVR 0/1/2-series, megaAVR 0-series, and AVR DA, DB and DD-series, and all other future modern AVRs until such a time as a part which departs radically from the modern AVR precedents is released. There are few differences between the implementations on the different families.
