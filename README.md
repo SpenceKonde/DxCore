@@ -1,12 +1,12 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5.9 approaches
+## 1.5.9 is here
 This is a pretty big one.
 * EA series now compiles. Still working on the upload.
   * Event.h may not work correctly with pin events.
 * The problems with the bootloaders and with Flash.h are corrected (entry conditions work now). All users on optiboot should burn bootloader with the 1.5.9 version when it is released.
-* EA-series CI.
-* More plumbing needed in order to execute the sleep-while-keeping-millis-approximately-correct functions of sleepTime
+* A large number of significant fixes have gone in, forcing this release when I had not planned on a release, as there are many unachieved goals.
+* EA-series CI. For a brief time, now CI is down until I can get https working on drazzy.com. I have a cert, but apache steadfastly refuses to use it.
 * A few particularly excruciatingly long markdown files got a TOC.
 
 ## WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES
