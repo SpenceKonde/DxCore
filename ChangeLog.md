@@ -13,6 +13,10 @@ These items are in addition to what was listed under changes already in release.
 ## Planned changes implemented in github
 These are typically planned for release in a future version (usually the next one) as noted.
 
+### Planned 1.5.10
+* Enhancement/bugfix - add digitalPinToCanon() - given a pin number, it returns port * 8 + bit_position. This is to be used in some other fixes and enhancements.
+* Attempt to workaround Arduino CLI regression impacting CI testing.
+
 ## Releases
 ### 1.5.9
 * Bugfix: Correct Flash.h issues.

@@ -762,7 +762,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #define portOutputRegister(P) ((volatile uint8_t *)(&portToPortStruct(P)->OUT))
 #define portInputRegister(P)  ((volatile uint8_t *)(&portToPortStruct(P)->IN ))
 #define portModeRegister(P)   ((volatile uint8_t *)(&portToPortStruct(P)->DIR))
-  #if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
+#if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
   #define portEventRegister(p)  ((volatile uint8_t *)(&portToPortStruct(P)->EVGENCTRL))
   uint8_t _setRTCEventChan(uint8_t val, uint8_t chan);
   uint8_t _setEventPin(uint8_t pin, uint8_t number); // preliminary thought - pass a pin number, it looks up port, and from there the event control register and sets it.
@@ -771,7 +771,46 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
   uint8_t _setRTCEventChan(uint8_t vail, uint8_t chan); // number is 0, 1 or 255 like above, div is log(2) of the divisor (ie, for 2^5, his would be 5).
   uint8_t _getRTCEventConfig(); //simply returns the RTC channel configuration. Will likely return 255 if called on non Ex
   uint8_t _RTCPrescaleToVal(uint16_t prescale);
+#endif
+
+/* The Variant file must do one of the following */
+/* 1. Use the same pin order as this core's default pin mapping (recommended)
+ * 2. Number each pin (port * 8) + bit_position, and define HYPERRATIONAL_PIN_NUMBERS (also recommended)
+ * 3. Define NONCANONICAL_PIN_NUMBERS and use any pin numbering. (recommended if you must use a layout that departs significantly from the above)
+ * 4. Define SPECIAL_PIN_NUMBERS, and provide a _digitalPinToCanon(pin) macro that takes an Arduino pin number, and returns (port * 8) + bit_position
+ *    (Only if you can do it better than the stanard noncanonical implementation - that implementation is not grotesque, but it's also not great.
+ *    each table lookup takes the form lds lds add adc ld, 7 words and 10 clocks, so the whole thing is probably on the order of 20 and 26)
+ * This change permits underlying logic to be written with a single byte to represent a pin, which is present in some obscure parts of the code
+ * mostly involving interrupts.
+ * Note that for constant pins known at compile time, these should all be able to be constant folded, it's only compiletime unknown pins
+ * where this applies. And only for the rare cases where we end up doing this, often interrupt related.
+ * A lot of this comes back to the question of whether to leave "holes" for missing pins in the numbering. There are two forces pulling in
+ * opposite directions here: each ghost pin takes up 4b for it's entries in the pin table (and it's sort of absurd for a 28-pin part to have
+ * 47 logical pins because they were missing PB, PE, and 4 pins of PC and PF, but they make this sort of conversion (and a number of
+ * similar ones) much easier.
+ */
+
+#if defined(NONCANONICAL_PIN_NUMBERS)
+  #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((digital_pin_to_port[pin] << 3) + digital_pin_to_bit_position[pin] ) : NOT_A_PIN)
+#elif defined(HYPERRATIONAL_PIN_NUMBERS) /* Variant must number pins in order, and must skip numbers of pins not present on the chip. */
+  #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? pin : NOT_A_PIN)
+#elif !defined(SPECIAL_PIN_NUMBERS)
+  #if __AVR_PINCOUNT == 64
+    #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin < PIN_PG0) ? (pin) : (((pin) > PIN_PG7) ? (pin) - 8 : (pin) + 2 )) : NOT_A_PIN)
+  #elif __AVR_PINCOUNT == 48
+    #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin < PIN_PC0) ? (pin) : (pin) + 2 ) : NOT_A_PIN)
+  #elif __AVR_PINCOUNT == 32
+    #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : NOT_A_PIN)
+  #elif __AVR_PINCOUNT == 28
+    #define _digitalPinToCanon(pin) ((pin <= PIN_PF1) ? ((pin <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 16 : NOT_A_PIN))
+  #elif __AVR_PINCOUNT == 20 || __AVR_PINCOUNT == 14
+    #define _digitalPinToCanon(pin) ((pin < PIN_PF6) ? ((pin <= PIN_PC0) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (pin) + 12)) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 26 : NOT_A_PIN))
   #endif
+#else
+  #if !defined(_digitalPinToCanon)
+    #error "Your custom variant says it provides a _digitalPinToCanon (SPECIAL_PIN_NUMBERS defined) but you don't provide one. \n Define NONCANONICAL_PIN_NUMBERS instead to use a possibly slower handler for the general case"
+  #endif
+#endif
 #ifdef __cplusplus
 } // extern "C"
 #endif
