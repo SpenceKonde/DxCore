@@ -778,11 +778,11 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
  * 2. Number each pin (port * 8) + bit_position, and define HYPERRATIONAL_PIN_NUMBERS (also recommended)
  * 3. Define NONCANONICAL_PIN_NUMBERS and use any pin numbering. (recommended if you must use a layout that departs significantly from the above)
  * 4. Define SPECIAL_PIN_NUMBERS, and provide a _digitalPinToCanon(pin) macro that takes an Arduino pin number, and returns (port * 8) + bit_position
- *    (Only if you can do it better than the stanard noncanonical implementation - that implementation is not grotesque, but it's also not great.
+ *    (Only if you can do it better than the standard noncanonical implementation - that implementation is not grotesque, but it's also not great.
  *    each table lookup takes the form lds lds add adc ld, 7 words and 10 clocks, so the whole thing is probably on the order of 20 and 26)
  * This change permits underlying logic to be written with a single byte to represent a pin, which is present in some obscure parts of the code
  * mostly involving interrupts.
- * Note that for constant pins known at compile time, these should all be able to be constant folded, it's only compiletime unknown pins
+ * Note that for constant pins known at compile time, these should all be able to be constant folded, it's only compile time unknown pins
  * where this applies. And only for the rare cases where we end up doing this, often interrupt related.
  * A lot of this comes back to the question of whether to leave "holes" for missing pins in the numbering. There are two forces pulling in
  * opposite directions here: each ghost pin takes up 4b for it's entries in the pin table (and it's sort of absurd for a 28-pin part to have
