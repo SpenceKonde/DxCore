@@ -8,6 +8,7 @@ This is a pretty big one.
 * A large number of significant fixes have gone in, forcing this release when I had not planned on a release, as there are many unachieved goals.
 * EA-series CI. For a brief time, now CI is down until I can get https working on drazzy.com. I have a cert, but apache steadfastly refuses to use it.
 * A few particularly excruciatingly long markdown files got a TOC.
+* Compatibility warning: Versions of the IDE around 2.2.1, which use the latest versions of Arduino-cli, do not seem compatible with third party hardware packages, as these versions drop pieces of the filename from the json file, and then fail to find it.
 
 ## WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES
 I thought I had a tool contributed, but I don't think I ever got the final version, nor do I have any of the images.
