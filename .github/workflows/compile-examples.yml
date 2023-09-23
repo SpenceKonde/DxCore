@@ -323,7 +323,7 @@ jobs:
       - name: Compile examples (rated max speed, nothing weird)
         uses: arduino/compile-sketches@main
         with:
-          cli-version: 0.33.1
+          cli-version: 0.33.0
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},wiremode=mands,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
@@ -349,7 +349,7 @@ jobs:
       - name: Compile examples (overclocked to the max, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
-          cli-version: 0.33.1
+          cli-version: 0.33.0
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{ matrix.overclock-osc }}${{ matrix.clocksource }},millis=tcb1,printf=minimal,wiremode=mors,attach=oldversion,appspm=full,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
@@ -402,7 +402,7 @@ jobs:
         if: matrix.device-family != 'ea' && matrix.device-family != 'eb'
         uses: arduino/compile-sketches@main
         with:
-          cli-version: 0.33.1
+          cli-version: 0.33.0
           fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}opti:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=8${{ matrix.clocksource }},millis=tca0,printf=full,attach=manual,wiremode=mands,flmap=unlock
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
