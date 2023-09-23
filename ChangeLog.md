@@ -18,6 +18,8 @@ These are typically planned for release in a future version (usually the next on
 * Enhancement/bugfix - add digitalPinToCanon() - given a pin number, it returns port * 8 + bit_position. This is to be used in some other fixes and enhancements.
 * Workaround Arduino CLI regression impacting CI testing.
 * Correct bug preventing compilation of any sketches discovered as soon as the CI was working.
+* Actually use the new toolchain, which we weren't doing, and I didn't realize until the CI was working.
+
 
 ### 1.5.9
 * Bugfix: Correct Flash.h issues.
