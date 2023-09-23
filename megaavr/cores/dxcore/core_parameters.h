@@ -37,79 +37,79 @@
 
 /* Check for invalid options, mostly to help point the PIO and other third party IDE users in the right direction */
 
-#if defined(MILLIS_USE_TIMERA0) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERA0) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERA0 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERA1) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERA1) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERA1 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERA2) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERA2) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERA2 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB0) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB0) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB0 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB1) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB1) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB1 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB2) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB2) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB2 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB3) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB3) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERA0) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB3 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB4) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB4) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB4 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB5) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB5) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB5 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB6) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB6) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB6 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERB7) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERB7) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERA0) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERB7 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERE0) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERE0) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERF0) || )
   #error "MILLIS_USE_TIMERE0 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERF0) && !(defined(MILLIS_USE_TIMERNONE) \
+#if defined(MILLIS_USE_TIMERF0) && !(defined(MILLIS_USE_TIMERNONE) || \
     defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || \
     defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7) || \
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERA0) || )
