@@ -1,7 +1,7 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
-## 1.5.9 is here
-This is a pretty big one.
+## ~1.5.9~ 1.5.10 is here
+This is a pretty big one, 1.5.10 fixes huge problems in 1.5.9 that went in after the CI stopped working due to an apparent regression in Arduino-cli. CI now works again.
 * EA series now compiles. Still working on the upload.
   * Event.h may not work correctly with pin events.
 * The problems with the bootloaders and with Flash.h are corrected (entry conditions work now). All users on optiboot should burn bootloader with the 1.5.9 version when it is released.
