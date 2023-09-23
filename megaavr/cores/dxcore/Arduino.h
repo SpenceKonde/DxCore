@@ -795,15 +795,15 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #elif defined(HYPERRATIONAL_PIN_NUMBERS) /* Variant must number pins in order, and must skip numbers of pins not present on the chip. */
   #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? pin : NOT_A_PIN)
 #elif !defined(SPECIAL_PIN_NUMBERS)
-  #if __AVR_PINCOUNT == 64
+  #if _AVR_PINCOUNT == 64
     #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin < PIN_PG0) ? (pin) : (((pin) > PIN_PG7) ? (pin) - 8 : (pin) + 2 )) : NOT_A_PIN)
-  #elif __AVR_PINCOUNT == 48
+  #elif _AVR_PINCOUNT == 48
     #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin < PIN_PC0) ? (pin) : (pin) + 2 ) : NOT_A_PIN)
-  #elif __AVR_PINCOUNT == 32
+  #elif _AVR_PINCOUNT == 32
     #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : NOT_A_PIN)
-  #elif __AVR_PINCOUNT == 28
+  #elif _AVR_PINCOUNT == 28
     #define _digitalPinToCanon(pin) ((pin <= PIN_PF1) ? ((pin <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 16 : NOT_A_PIN))
-  #elif __AVR_PINCOUNT == 20 || __AVR_PINCOUNT == 14
+  #elif _AVR_PINCOUNT == 20 || _AVR_PINCOUNT == 14
     #define _digitalPinToCanon(pin) ((pin < PIN_PF6) ? ((pin <= PIN_PC0) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (pin) + 12)) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 26 : NOT_A_PIN))
   #endif
 #else
