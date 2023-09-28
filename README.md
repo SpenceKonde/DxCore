@@ -1,5 +1,10 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
+## There is a bug in recent versions of the IDE and the CLI
+It prevents installation of custom cores by mangling the file name of the json file when it saves it, and then failing to find it because they're using the correct filename (but the file is named incorrectly) Really, there have been a TON of bugs in the 2.x versions, I'm not sure if any "good" versions of the 2.x codebase exist - they have been introducing bugs as fast as they fix them.
+
+For Arduino-ci, in your workflow under with:, add `cli-version: 0.33.0` to make CI that uses third party hardware packages work correctly; see our compile-examples workflow.
+
 ## ~1.5.9~ 1.5.10 is here
 This is a pretty big one, 1.5.10 fixes huge problems in 1.5.9 that went in after the CI stopped working due to an apparent regression in Arduino-cli. CI now works again.
 * EA series now compiles. Still working on the upload.
