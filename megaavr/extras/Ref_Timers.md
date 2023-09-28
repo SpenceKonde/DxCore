@@ -214,15 +214,91 @@ Nothing is currently known about the TCE other than it can output 8 PWM channels
 
 WEX is a feature from xMega. One hopes it has been streamlined, as it was incomprehensible there (like essentially everything about xmega). It allowed generation of enhanced resolution PWM, and probably some other things (like I said, it was incomprehensible). Only time (specifically the moment that datasheet is released) will reveal whether WEX is friendly, or if heinous supervillian WEX Luther has escaped imprisonment on xMegatraz and is out for revenge...
 
-Even though the EB-series, from a great distance away, is looking like something less than a big prize, the timers it gets may be a sign of good things to come. Or bad things.
+Update - the headers are out! It is a 4 channel 16-bit PWM timer. In most ways, it's an upgrade from TCA, in some cases a very large upgrade. However, it doesn't do split mode - half the channels can only output the inverted signals on the matching pin with programmable deadtime inserted. But damn, WEX must need to drag a wagon behind him to carry all those contraptions. (Picture a bald supervillian (WeX Luther, Lex Luther, all the same thing) dragging around his doomsday machine on a little red wagon. Not for any reason, it's just an amusing image). This thing has enough wacky features that they broke it into two peripherals, a TCE and a WEX, maybe so other peripherals didn't feel jealous about how many pages the combined monster got to claim in the datasheet. Among other things, it's got something called "pattern generation" (and some particularly flexible dead time generation controls) through the WeX, as well as fancypants fault detection and response (it's response can drive all enabled pwm pins into arbitrary direction and output states) and input blanking that I doubt anyone cares about. The TCE itself can "scale" the compare value (not sure exactly how this works), or let you specify 2 or 3 extra bits of precision using HIRES ("Hi-res" not "hires")... It is not asynchronous.
 
 ### TCF - Another new timer
-No, I didn't make a mistake there, yes, they're both coming in the same release. We know even less about this one. For example we know that TCE is going to be built around a 16-bit timer. TCF lists 16-bits on one page and 24 on another. And it suggests that the timer's waveform outputs are for "frequency generation" (read: duty cycle 50%; now that would represent a significant escalation of the the abuse we're taking here, and which is starting to look like the theme of the family. We already have the main feature of the family on the 2-series with the new ADC, but then they had to rip out the good internal oscillator and switch back to the tinyAVR one and cut the non-tiny EB's down to sub-tiny peripheral limitations with only USART? You think we just wanted pin options? There is a HUGE difference netween 1 UART and 2 - it's a larger difference (between 1 and 2 than there is between and 5, and only a little smaller than 0 versus 1 USART). By EB release we should have gotten to look at the titles of the chapters for the next installment or two of AVRs and we'll know whether the TCE and TCF are going almost everywhere or hardly anywhere - so the size of our wager will be set, and we will just have to wait a bit longer to see whether the Ex-series is as Exey as the double D's - or whether AVR is going to be like Windows (where alternating releases were either great or awful (by the standards of the company, to be clear. I don't think any hardware company could beat that record unless it blew up unexpectedly - (the unexpectedly bit is key, otherwise it's a different industry, and a rather lucrative one. A device that would burst into flames under programmable conditions would be an unsavory, but not unprofitable line of business. If it only burst into flames at random, well, that's not going to do well.  Samsung tried it a few years back, wasn't much of a success. I think I'd still rather keep my phone in an asbestos lined suitcase than use Windows ME...
+No, I didn't make a mistake there, yes, they're both coming in the same release. TCF is a 24-bit timer, which can run from the insanely fancy (by AVR standards) PLL (max clock speed unknown). However, it has only 4 modes:
+* `Frequency` - 50% duty cycle. Counts up to CMP, toggles pin and restarts timer. Kinda lame.
+* `Numerically Controlled Oscillator Pulse-Frequency` - Generates pulses of 2^n for n = 0..7 clocks in length every time CMP ticks elapse. They don't specify in the headers which clock though.
+* `Numerically Controlled Oscillator Fixed Duty Cycle` - No, I don't know what it's fixed at; quite possibly the pulse length bitfield pulls double duty.
+* `8-bit PWM` - Works like TCB - the 24-bit CMP register splits into a period and 2 compare values.
 
-> Hm? Where did I get the nice suitcase? Thanks, it's it from Hazmart Short & Small Menswear, same place as the buy one three free deal on Note 8's. Whether you are looking for Russian nerve agents, fissile material to fuel a home-built nuclear reactor or just trying to keep up with the family down the street and their pet tiger, they're's something for everyone on your list. There's no shopping experience quite like Hazmart. Hazardous goods for hazardous people. See in store for details on how you can win this stylish mercury fountain featuring a genuine poisonivywood base. Nothing quite like a mercury fountain on a genuine poison ivy wood base...
+Unlike TCB, this one has an independent prescaler, also 2^n for n = 0..7.
+
+TCF appears plausibly amenable to an omnibus library; it only has to handle three modes. (analogWrite() exposes the extent of the PWM functionality, with the sole exception of not providing a wrapper around changing the prescaler). Frequency mode can be specified by a frequency and maybe an argument for flags (eg, there would be a "Give me this frequency, setting only CMP", "Give me this frequency, and you may change your prescaler to do this" and "Give me this frequency, take over the PLL entirely if it helps", options plus things for stuff like which pin(s) and whether to invert the pins (yes, that's another peripheral with it's own way to invert pin output! At least with the analog comparators, there was a plausible, if far-corner use case where the invert function was useful. I'm skeptical about that being true here...) The NCOPF mode would just need a third parameter to set the pulse length... And I think fixed duty cycle would just need the frequency and the flags? Hell, that sounds pretty easy. Probably also a function to set the pwm frequency while maintaining full resolution, with the same "Go ahead and use the PLL however you want" option, only here the purpose would be more about doing the frequency more accurately, rather than doing it at all (without adjusting the PLL, adjacent clocking options differ by a factor of two; but using the PLL to start from the most convenient clock gets you adjacent speeds (which may be achieved through very different combinations of PLL settings and TCF prescaler) closer together.
+
+#### The EB PLL ("TCF's PLL")
+The EB has a pretty snazzy PLL
+* multipliers of x8 and x16
+* PLL input prescaler of /1, /2, /4, /6
+* PLL output prescaler of /1 or /2.
+* Those combine to give the following multipliers: x16, x8, x4, x(8/3), x2, x(4/3), x1, x2/3 (unless you can use the dividers without multiplying).
+* It can be used for TCF, and for the system clock.
+
+It is unknown what the maximum speed of the PLL (and hence TCF) is. It's likely that the PLL and TCF maximum clock rates will be higher than 20 MHz, potentially much higher. The Dx PLL is rated for 48 MHz, twice the CPU. Considering the multiplication factors that can be selected, and that it can use the internal unprescaled HF oscillator as it's clock source, with 20 MHz system clock, the PLL would at minimum be running at 27 MHz, or 53 MHz if the 16x multiplier is used, in both cases with the maximum prescaler on the input. That it has the option to prescale the output by 2 implies that the PLL is faster than one or both of the things that it can be used for. We know it's faster than the system clock, but they wouldn't *need* an output prescaler if the other peripheral that used it could keep up with the PLL. The *highest* speed it could be set for from the internal oscillator is 320 MHz; I think it is inconcievable that such a configuration would work, much less be in spec. I am confident in predicting a maximum rated PLL clock not slower than 40 MHz, and not higher than 160 MHz. I doubt that the rated max PLL speed would be north of 100 MHz, though I do expect the PLL to be overclockable to >100 MHz (the Dx one certainly is). I will not venture a guess on whether the PLL maximum output clock will equal the TCF maximum clock, or be twice the TCF maximum clock (with the user expected to enable the output /2 prescale), but it'll be one of the two.
+
+#### Table of predicted TCF capabilities
+Only values not involving PLL output of >128 MHz were considered; this is likely excessively optimistic. Otherwise considers all combinations of PLL settings and TCF prescaler (most values have multiple ways to achieve them). Figures given are the TCF timer frequency in MHz and kHz, what you'd get from 8-bit PWM mode by just changing the clock parameters (but not the period, so analogWrite would work as expected), and the duration in seconds of a 24-bit overflow, which is the longest period between pulses in pulse frequency mode, of the fixed duty cycle output, or half the maximum period in frequency mode (I think it counts up, toggles pin and resets at compare match). Minimum periods in those modes are presumably 1 clock + pulse length if any, or 2 clocks in frequency mode.
+
+So yeah, these timers give you very precise control over the frequency output. Unfortunately, there's no support for a crystal, and the granularity of the internal oscillator calibration is expected to be disappointing, like on the Dx and Ex parts, so even with autotune from a watch crystal, the error could be +/- 0.5%. 1/200th. And yet we can specify a frequency by giving the half-period denominated in 32nds of a microsecond ( with a minimum frequency of 1 Hz and a maximum one of 16 MHz). There's something silly about knowing how long a second is only to 0.5%, yet (say we're using the middle of the range) specifying the frequency we want to a precision of **125 parts per *billion*** (Crystals are readily available down to like +/- 10 ppm, and external clocks to 1 ppm. That we get a high level of precision, greatly exceeding the accuracy of the timebase suggests that it is expected that the frequency would be set through feedback mechanisms.
+
+### 16 MHz
+
+| F_TCF | kHz    | PWM Hz | 24b OVF, sec|
+|-------|--------|--------|--------|
+| 0.083 |  83.33 | 326.80 | 201.33 |
+| 0.125 |    125 | 490.20 | 134.22 |
+| 0.167 | 166.67 | 653.59 | 100.66 |
+| 0.250 |    250 | 980.39 |  67.11 |
+| 0.333 | 333.33 | 1307.2 |  50.33 |
+| 0.500 |    500 | 1960.8 |  33.55 |
+| 0.667 | 666.67 | 2614.4 |  25.17 |
+|     1 |   1000 | 3921.6 |  16.78 |
+| 1.333 | 1333.3 | 5228.8 |  12.58 |
+|     2 |   2000 | 7843.1 |  8.388 |
+| 2.667 | 2666.7 |  10457 |  6.291 |
+|     4 |   4000 |  15686 |  4.194 |
+| 5.333 | 5333.3 |  20915 |  3.145 |
+|     8 |   8000 |  31372 |  2.097 |
+| 10.67 |  10667 |  41830 |  1.572 |
+|    16 |  16000 |  62745 |  1.048 |
+| 21.33 |  21333 |  83660 |  0.786 |
+|    32 |  32000 | 125490 |  0.524 |
+| 42.67 |  42667 | 167320 |  0.393 |
+|    64 |  64000 | 250980 |  0.262 |
+|   128 | 128000 | 501960 |  0.131 |
+
+### 20 MHz
+| F_TCF | kHz    | PWM Hz | 24b OVF, sec|
+|-------|--------|--------|--------|
+| 0.104 | 104.17 | 408.50 | 161.06 |
+| 0.156 | 156.25 | 612.75 | 107.37 |
+| 0.208 | 208.33 | 816.99 |  80.53 |
+| 0.313 | 312.50 | 1225.4 |  53.69 |
+| 0.417 | 416.67 |   1634 |  40.27 |
+| 0.625 |    625 |   2451 |  26.84 |
+| 0.833 | 833.33 |   3268 |  20.13 |
+| 1.250 |   1250 |   4902 |  13.42 |
+| 1.667 | 1666.7 |   6536 |  10.07 |
+| 2.500 |   2500 |   9804 |  6.710 |
+| 3.333 | 3333.3 |  13071 |  5.033 |
+|     5 |   5000 |  19607 |  3.355 |
+| 6.667 | 6666.7 |  26143 |  2.516 |
+|    10 |  10000 |  39215 |  1.677 |
+| 13.33 |  13333 |  52287 |  1.258 |
+|    20 |  20000 |  78431 |  0.838 |
+| 26.67 |  26667 | 104575 |  0.629 |
+|    40 |  40000 | 156862 |  0.419 |
+| 53.33 |  53333 | 209150 |  0.314 |
+|    80 |  80000 | 313725 |  0.209 |
+
+## On a lighter note, thoughts on EB-series
+By EB release we should have gotten to look at the titles of the chapters for the next installment or two of AVRs and we'll know whether the TCE and TCF are going almost everywhere or hardly anywhere - so the size of our wager will be set, and we will just have to wait a bit longer to see whether the Ex-series is as Exey as the double D's - or whether AVR is going to be like Windows (where alternating releases were either great or awful (by the standards of the company, to be clear. I don't think any hardware company could beat the Microsoft record for awful in absolute terms unless it blew up unexpectedly. (The unexpectedly bit is key, otherwise it's a different industry, and a rather lucrative if unsavory one. If it only burst into flames at random, well, that's not going to be a market success story.  Samsung tried it a few years back, it wasn't much of a success. I think I'd still rather keep my phone in an asbestos lined suitcase than use Windows ME, though.
+
+> Hm? Where did I get the nice suitcase? Thanks, it's it from Hazmart, same place as the buy one three free deal on Note 8's. Whether you are looking for Russian nerve agents, fissile material to fuel a home-built nuclear reactor or just trying to keep up with the family down the street and their pet tiger, at Hazmart, they've got something for everyone on your, ah, "list". Hazardous goods for hazardous people. See in store for details on how you can win this stylish mercury fountain featuring a genuine poisonivywood base. A unique conversation piece for any room, especially in someone else's home. Now back in stock, our traditional radium shampoo - get it while it's hot!
 > Quiz - Which one of the following actually existed: The home nuclear reactor? The asbestos-lined fireproof clothing? The poison ivy knicknacks? The mercury fountain? Or the radium-infused shampoo?
 
-Answers are **somewhere in this long and otherwise rather dry document**
+Answers are **somewhere in this long and otherwise rather dry document** (Luckily, Hazmart does not exist and never has).
 
 ### RTC - 16-bit Real Time Clock and Programmable Interrupt Timer
 Information on the RTC and PIT will be added in a future update.

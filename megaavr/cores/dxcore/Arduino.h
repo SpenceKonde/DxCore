@@ -81,19 +81,29 @@
 #define TIMERB2         (0x22) // TCB2
 #define TIMERB3         (0x23) // TCB3
 #define TIMERB4         (0x24) // TCB4
+#define TIMERB5         (0x25) // TCB5
+#define TIMERB6         (0x26) // TCB6
+#define TIMERB7         (0x27) // TCB7
 #define TIMERE0         (0x10) // TCE0 /* EB only thus far */
 #define TIMERF0         (0xC0) // TCF0 /* EB only thus far */
-#define TIMERD0         (0x40) // If any of these bits match it's potentially on TCD0
+#define TIMERF1         (0xD0) // TCF1 /* It'll probably happen. */
+#define TIMERD0         (0x40) //
 #define DACOUT          (0x80)
 /* The above are all used in the digitalPinToTimer() macro and appear in the timer table, in addition to being how we identify millis timer.
  * For the millis timer, there's nothing weird here.
- * But the timer table constants contain more information than that for these. When user code interprets the timer table entries it is critical to do it right:
- *  1. If 0x80 is set, either it's the dacout (if no other bits are set) or RTC. BUT
- *    a. If 0x40 also set, it's TYPE F timer, and the 3 bits contain the mux option, and the 4th bit is 1 for WO1.
+ * But the timer table constants contain more information than that for these. When user code interprets the timer table entries it is
+ * critical to do it right (if you use digitalPinToTimerNow() it will return this value, but only if that timer is actually set to use that pin
+ *
+ * Users should *never* read the digital_pin_to_timer[] table directly - there will inevitably be times when "magic" numbers have to be used, eg,
+ * an arbitrary constant that doesn't match any timers may be used to signify that a pin is shared between TCBn and TCF0_ALT_2's WOn, where n is
+ * the LSBit of the bit position.
+ *
+ *  1. If 0x80 is set:
+ *    a. If 0x40 also set, it's TYPE F timer, and the low 3 bits contain the mux option, and the 4th bit is 1 for WO1.
  *    b. Further type F timers will increment the high nybble.
- *    c. If 0x40 not set but 0x10 is, it's TYPE E timer, and the 3 bits contain the mux option, and the 4th bit is 1 for a hypothetical TCE1
- *    d. Otherwise it's either DACOUT, or one of the RTC options, and your not looking at the timer table.
- *  2. If 0x80 not set, but 0x40 is set, TCD0 can output here. bits 4 and 5 contain information on what channel, and bits 0-2 specify what the PORTMUX must be set to.
+ *    c. Otherwise it's either DACOUT, or one of the RTC options, and your not looking at the timer table.
+ *  2. If 0x80 not set, but 0x40 is set, TCD0 can output here. bits 4 and 5 contain information on what channel, and bits 0-2 specify what the
+ *     PORTMUX must be set to.
  *  2. If 0x20 is set, there is a TCB can output PWM there.
  *    2a. If 0x20 is set, check 0x10 - if that's set, it's the alt pin mapping. This is currently not returned by the table, and I assess it to be unlikely to be of use
  *  4. If 0x10 is set, it's a TCA0 pin. This is never used in the timer table, but digitalPinToTimerNow() can return it. The low three bits may be included to specify the TCA mux that the pin is present on
@@ -111,7 +121,7 @@
 #define TIMERRTC_CMP    (0x8D) // RTC used temporarily for timekeeping
 #define TIMERRTC_PIT    (0x8E) // RTC PIT used temporarily for timekeeping
 
-/* Not used in table */
+/* Not used in table, still returnable by digitalPinToTimerNow() */
 #define TIMERA0_MUX0    (0x10) // Mapping0 (PORTA 0-5)
 #define TIMERA0_MUX1    (0x11) // Mapping1 (PORTB 0-5)
 #define TIMERA0_MUX2    (0x12) // Mapping2 (PORTC 0-5)
@@ -119,15 +129,15 @@
 #define TIMERA0_MUX4    (0x14) // Mapping4 (PORTE 0-5)
 #define TIMERA0_MUX5    (0x15) // Mapping5 (PORTF 0-5)
 #define TIMERA0_MUX6    (0x16) // Mapping6 (PORTG 0-5)
-#define TIMERA0_MUX7    (0x17) // Mapping7 (N/A)
+#define TIMERA0_MUX7    (0x17) // Mapping7 (Reserved)
 #define TIMERA1_MUX0    (0x08) // Mapping0 (PORTB 0-5) - 48+ pin only.
 #define TIMERA1_MUX1    (0x09) // Mapping1 (PORTC 4-6) - only three channels available. 48+ pin only.
 #define TIMERA1_MUX2    (0x0A) // Mapping2 (PORTE 4-6) - only three channels available. DB-series only due to errata. 64-pin parts only
 #define TIMERA1_MUX3    (0x0B) // Mapping3 (PORTG 0-5) - DB-series only due to errata. 64-pin parts only.
 #define TIMERA1_MUX4    (0x0C) // Mapping4 (PORTA 4-6) - only three channels available. New on EA-series.
 #define TIMERA1_MUX5    (0x0D) // Mapping5 (PORTD 4-6) - only three channels available. New on EA-series.
-#define TIMERA1_MUX6    (0x0E) // Mapping6 (TBD)
-#define TIMERA1_MUX7    (0x0F) // Mapping7 (TBD)
+#define TIMERA1_MUX6    (0x0E) // Mapping6 (Reserved)
+#define TIMERA1_MUX7    (0x0F) // Mapping7 (Reserved)
 
 /* Not used in table or at all, yet */
 #define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
@@ -135,11 +145,9 @@
 #define TIMERB2_ALT     (0x32) // TCB2 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
 #define TIMERB3_ALT     (0x33) // TCB3 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
 #define TIMERB4_ALT     (0x34) // TCB4 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
-#define TIMERB0_ALT     (0x30) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
-#define TIMERB1_ALT     (0x31) // TCB1 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
-#define TIMERB2_ALT     (0x32) // TCB2 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
-#define TIMERB3_ALT     (0x33) // TCB3 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
-#define TIMERB4_ALT     (0x34) // TCB4 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB5_ALT     (0x35) // TCB0 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB6_ALT     (0x36) // TCB1 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
+#define TIMERB7_ALT     (0x37) // TCB2 with alternate pin mapping - DANGER: NOT YET USED BY CORE.
 
 
 // 0b01CC 0mmm - the 3 lowest bits refer to the PORTMUX.
@@ -169,8 +177,6 @@
 #define TIMERD0_4WOB      (0x54) // this is PA5, duplicates mux 0.
 #define TIMERD0_4WOC      (0x64) // second half is PORTD
 #define TIMERD0_4WOD      (0x74)
-/*
-// For future use
 #define TIMERD0_5WOA      (0x45) // hypothetical TCD0 WOA ALT5
 #define TIMERD0_5WOB      (0x55) // hypothetical TCD0 WOB ALT5
 #define TIMERD0_5WOC      (0x65) // hypothetical TCD0 WOC ALT5
@@ -183,7 +189,6 @@
 #define TIMERD0_7WOB      (0x57) // hypothetical TCD0 WOB ALT7
 #define TIMERD0_7WOC      (0x67) // hypothetical TCD0 WOC ALT7
 #define TIMERD0_7WOD      (0x77) // hypothetical TCD0 WOD ALT7
-*/
 
 /*
 // Uhoh, EB has a new kind of timer, a TCE which looks a lot like a TCA-PWM-Powerhouse timer, only probably better.
@@ -194,6 +199,8 @@
 // you used the named constants not their values (right?)
 */
 
+/* All indications are that TCE's EVEN outputs are the only ones that can output independent duty cycles. */
+
 #define TIMERE0_MUX0      (0x10) // TCE0/WEX mux  PORTA: PA0, PA1, PA2, PA3, PA4, PA5, PA6, PA7 - all 8 WO channels
 #define TIMERE0_MUX1      (0x11) // Hypothetical TCE0/WEX mux: PB0-PB7
 #define TIMERE0_MUX2      (0x12) // TCE0/WEX mux  PORTC: PC0, PC1. PC2, PC3 - only 4 here.
@@ -203,13 +210,13 @@
 #define TIMERE0_MUX6      (0x16) // Hypothetical TCE0/WEX mux: PG0 - PG7
 #define TIMERE0_MUX7      (0x17) // Hypothetical TCE0/WEX mux: ???
 #define TIMERE0_MUX8      (0x18) // TCE0/WEX mux PORTC2: PA0, PA1, PC0, PC1, PC2, PC3
-#define TIMERE0_MUX9      (0x17) // Hypothetical TCE0/WEX mux: ???
-#define TIMERE0_MUX10     (0x17) // Hypothetical TCE0/WEX mux: ???
-#define TIMERE0_MUX11     (0x17) // Hypothetical TCE0/WEX mux: ???
-#define TIMERE0_MUX12     (0x17) // Hypothetical TCE0/WEX mux: ???
-#define TIMERE0_MUX13     (0x17) // Hypothetical TCE0/WEX mux: ???
-#define TIMERE0_MUX14     (0x17) // Hypothetical TCE0/WEX mux: ???
-#define TIMERE0_MUX15     (0x17) // Hypothetical TCE0/WEX mux: ???
+#define TIMERE0_MUX9      (0x19) // TCE0/WEX mux PORTC2: PA0, PA1, PC0, PC1, PC2, PC3
+#define TIMERE0_MUX10     (0x1A) // Hypothetical TCE0/WEX mux: Probably more whacko layouts
+#define TIMERE0_MUX11     (0x1B) // Hypothetical TCE0/WEX mux: Probably more whacko layouts
+#define TIMERE0_MUX12     (0x1C) // Hypothetical TCE0/WEX mux: Probably more whacko layouts
+#define TIMERE0_MUX13     (0x1D) // Hypothetical TCE0/WEX mux: Probably more whacko layouts
+#define TIMERE0_MUX14     (0x1E) // Hypothetical TCE0/WEX mux: Probably more whacko layouts
+#define TIMERE0_MUX15     (0x1F) // Hypothetical TCE0/WEX mux: Probably more whacko layouts
 
 
 // They might make a chip with 2 of them This will be a problem if it has as many mux options, since we're value short of it. We might do something like
@@ -248,7 +255,6 @@
   #define TIMERF0_MUX1B      (0xC9) // Confirmed TCF0 WOB MUX ALT1: PA7
   #define TIMERF0_MUX2A      (0xC2) // Confirmed TCF0 WOA MUX ALT2: PF4
   #define TIMERF0_MUX2B      (0xCA) // Confirmed TCF0 WOB MUX ALT2: PF5
-/*
   #define TIMERF0_MUX3A      (0xC3) // Hypothetical TCF0 MUX
   #define TIMERF0_MUX3B      (0xCB) // Hypothetical TCF0 MUX
   #define TIMERF0_MUX4A      (0xC4) // Hypothetical TCF0 MUX
@@ -259,9 +265,8 @@
   #define TIMERF0_MUX6B      (0xCE) // Hypothetical TCF0 MUX
   #define TIMERF0_MUX7A      (0xC7) // Hypothetical TCF0 MUX
   #define TIMERF0_MUX7B      (0xCF) // Hypothetical TCF0 MUX
-*/
 #endif
-/*
+
 #if defined(TCF1)
   #define TIMERF1_MUX0A      (0xD0) // Hypothetical TCF1 MUX
   #define TIMERF1_MUX0B      (0xD8) // Hypothetical TCF1 MUX
@@ -280,7 +285,7 @@
   #define TIMERF1_MUX7A      (0xD7) // Hypothetical TCF1 MUX
   #define TIMERF1_MUX7B      (0xDF) // Hypothetical TCF1 MUX
 #endif
-*/
+
 
 
 /* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
@@ -791,20 +796,20 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
  */
 
 #if defined(NONCANONICAL_PIN_NUMBERS)
-  #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((digital_pin_to_port[pin] << 3) + digital_pin_to_bit_position[pin] ) : NOT_A_PIN)
+  #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? ((digital_pin_to_port[pin] << 3) + digital_pin_to_bit_position[pin] ) : NOT_A_PIN)
 #elif defined(HYPERRATIONAL_PIN_NUMBERS) /* Variant must number pins in order, and must skip numbers of pins not present on the chip. */
-  #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? pin : NOT_A_PIN)
+  #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (pin) : NOT_A_PIN)
 #elif !defined(SPECIAL_PIN_NUMBERS)
   #if _AVR_PINCOUNT == 64
-    #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin < PIN_PG0) ? (pin) : (((pin) > PIN_PG7) ? (pin) - 8 : (pin) + 2 )) : NOT_A_PIN)
+    #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (((pin) < PIN_PG0) ? (pin) : (((pin) > PIN_PG7) ? (pin) - 8 : (pin) + 2 )) : NOT_A_PIN)
   #elif _AVR_PINCOUNT == 48
-    #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin < PIN_PC0) ? (pin) : (pin) + 2 ) : NOT_A_PIN)
+    #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (((pin) < PIN_PC0) ? (pin) : (pin) + 2 ) : NOT_A_PIN)
   #elif _AVR_PINCOUNT == 32
-    #define _digitalPinToCanon(pin) ((pin < NUM_TOTAL_PINS) ? ((pin <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : NOT_A_PIN)
+    #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (((pin) <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : NOT_A_PIN)
   #elif _AVR_PINCOUNT == 28
-    #define _digitalPinToCanon(pin) ((pin <= PIN_PF1) ? ((pin <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 16 : NOT_A_PIN))
+    #define _digitalPinToCanon(pin) (((pin) <= PIN_PF1) ? (((pin) <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 16 : NOT_A_PIN))
   #elif _AVR_PINCOUNT == 20 || _AVR_PINCOUNT == 14
-    #define _digitalPinToCanon(pin) ((pin < PIN_PF6) ? ((pin <= PIN_PC0) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (pin) + 12)) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 26 : NOT_A_PIN))
+    #define _digitalPinToCanon(pin) (((pin) < PIN_PF6) ? (((pin) <= PIN_PC0) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (pin) + 12)) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 26 : NOT_A_PIN))
   #endif
 #else
   #if !defined(_digitalPinToCanon)

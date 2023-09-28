@@ -561,7 +561,8 @@
  * generators allows them to add both options for all ports and both RTC options to all generator channels
  * Too bad they released so many parts with the other versions :-/ */
 
-#if defined(PORTA_EVGENCTRL) // Ex-series, with EVGENCTRL registers on RTC and PORT.
+#if defined(PORTA_EVGENCTRL) || defined(PORTA_EVGENCTRLA) // Ex-series, with EVGENCTRL registers on RTC and PORT.
+  // Yeahm they give it different bloody names.
   #define _AVR_EVSYS_VERSION   (3)
 #elif defined(EVSYS_STROBE) // mega0 - basically Dx, but different name for strobe.
   #define _AVR_EVSYS_VERSION   (1)
@@ -1165,15 +1166,7 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #define AC_INTMODE_POSEDGE_gc AC_INTMODE_NORMAL_POSEDGE_gc
   #define AC_INTMODE_t AC_INTMODE_NORMAL_t
 #endif
-/* Yeaaaah, they changed stuff for no good reason. */
-#if defined(__AVR_EB__)
-  // Don't know how to address this one: a bitfield within the PORT struct was renamed, I know how to deal with every other kind of renaming. But not this one.
-  #define CCL_INSEL_IO_gc 0x05
-#else
-  #define CCL_INSEL_IN0_gc 0x05
-  #define CCL_INSEL_IN1_gc 0x05
-  #define CCL_INSEL_IN2_gc 0x05
-#endif
+
 // In backwards "combatability" mode, none of these helper definitions are provided
 // in order to force you to use the canonical names for these registers and options.
 // This is useful if migrating from arduino to official microchip tooling, or if you are "biIDEingual"
@@ -1276,15 +1269,6 @@ int8_t _setCPUSpeed(uint8_t omhz) {
     #else
       #define CLKCTRL_SELHF_XTAL_gc CLKCTRL_SELHF_CRYSTAL_gc
     #endif
-  #if defined(__AVR_EA__)
-    // Yoohoooo! I do believe we are missing a few mux options here...
-    #define PORTMUX_SPI0_ALT2_gc   (0x02 << 0)
-    #define PORTMUX_SPI0_ALT3_gc   (0x03 << 0)
-    #define PORTMUX_SPI0_ALT4_gc   (0x04 << 0)
-    #define PORTMUX_SPI0_ALT5_gc   (0x05 << 0)
-    #define PORTMUX_SPI0_ALT6_gc   (0x06 << 0)
-    #define PORTMUX_SPI0_NONE_gc   (0x07 << 0)
-  #endif
   #endif
   /* And one version later they did it again... */
   #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)
@@ -1363,14 +1347,62 @@ int8_t _setCPUSpeed(uint8_t omhz) {
       #error "Only the tinyAVR 1-series and 2-series parts with at least 14 pins support external RTC timebase"
     #endif
   #endif
-
-
+  #if defined(PORTA_EVGENCTRLA) // EB-series
+    // Yup, 1 family after we got evgenctrl,
+    #define EVGENCTRL EVGENCTRLA
+    #define PORTA_EVGENCTRL PORTA_EVGENCTRLA
+    #if defined(PORTB_EVGENCTRLA)
+      #define PORTB_EVGENCTRL PORTB_EVGENCTRLA
+    #endif
+    #if defined(PORTC_EVGENCTRLA)
+      #define PORTC_EVGENCTRL PORTC_EVGENCTRLA
+    #endif
+    #if defined(PORTD_EVGENCTRLA)
+      #define PORTD_EVGENCTRL PORTD_EVGENCTRLA
+    #endif
+    #if defined(PORTE_EVGENCTRLA)
+      #define PORTE_EVGENCTRL PORTE_EVGENCTRLA
+    #endif
+    #if defined(PORTF_EVGENCTRLA)
+      #define PORTF_EVGENCTRL PORTF_EVGENCTRLA
+    #endif
+    #if defined(PORTG_EVGENCTRLA)
+      #define PORTG_EVGENCTRL PORTG_EVGENCTRLA
+    #endif
+    #define CCL_INSEL0_IO_gc CCL_INSEL0_IN0_gc
+    #define CCL_INSEL1_IO_gc CCL_INSEL1_IN1_gc
+    #define CCL_INSEL2_IO_gc CCL_INSEL2_IN2_gc
+  #else
+    #define PORTA_EVGENCTRLA PORTA_EVGENCTRL
+    #if defined(PORTB_EVGENCTRL)
+      #define PORTB_EVGENCTRL PORTB_EVGENCTRL
+    #endif
+    #if defined(PORTC_EVGENCTRL)
+      #define PORTC_EVGENCTRL PORTC_EVGENCTRL
+    #endif
+    #if defined(PORTD_EVGENCTRL)
+      #define PORTD_EVGENCTRL PORTD_EVGENCTRL
+    #endif
+    #if defined(PORTE_EVGENCTRL)
+      #define PORTE_EVGENCTRL PORTE_EVGENCTRL
+    #endif
+    #if defined(PORTF_EVGENCTRL)
+      #define PORTF_EVGENCTRL PORTF_EVGENCTRL
+    #endif
+    #if defined(PORTG_EVGENCTRL)
+      #define PORTG_EVGENCTRL PORTG_EVGENCTRL
+    #endif
+    #define CCL_INSEL0_IN0_gc CCL_INSEL0_IO_gc
+    #define CCL_INSEL1_IN1_gc CCL_INSEL1_IO_gc
+    #define CCL_INSEL2_IN2_gc CCL_INSEL2_IO_gc
+  #endif
   // And now the most freaking boneheaded move from Microchip in a long while - like at least since late 2020! So yeah sometime in 2022
   // They realized that they should have had some sort of delimiter between the bit number within a bitfield, and the name of the bitfield,
   // since the names of many bitfields end in numbers, so they went ahead and made that change. No compatibility layer or anything.
-  // That is what's called a "breaking change", really for no reason except codes style. Most companies even if they decided to go that
+  // That is what's called a "breaking change", really for no reason except code style. Most companies even if they decided to go that
   // route, would never do that without introducuing a compatibility layer.
   // That wanton disregard for backwards compatibility is not acceptable even in an Arduino core much less in a commercial product.
+  //
   // Well, I'd wanted to make deprecation warnings come up only if they were used. I was unuccessful.
   // typedef const uint8_t __attribute__ ((deprecated("\nMicrochip changed the spelling of bits within a bitfiels (macros that end in the bitnumber followed by _bm or _bp), you are using the old name, ex PERIPH_BITFIRLD1_bm.\nYou should use PERIPH_BITFIELD_1_bm; we do not guarantee that this 4000-line bandaid will not be removed in the future.\r\nWhy did they do this? Beats me. Ask their support folks - if enough of us do it, they might hesitate next time they have the urge to mass rename things in their headers")))  deprecated_constant_name;
   // back to plan A
