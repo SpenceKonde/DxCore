@@ -48,6 +48,7 @@ jobs:
         - megaavr/libraries/Logic/examples/Five_input_NOR
         - megaavr/libraries/Logic/examples/Interrupt
         - megaavr/libraries/Logic/examples/LatchNoSeq
+        - megaavr/libraries/Logic/examples/LatchNoSeqDx14
         - megaavr/libraries/Logic/examples/Three_input_AND
         - megaavr/libraries/Logic/examples/Three_input_NAND
         - megaavr/libraries/Logic/examples/Three_input_OR

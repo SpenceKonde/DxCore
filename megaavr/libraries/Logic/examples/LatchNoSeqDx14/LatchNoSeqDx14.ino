@@ -4,7 +4,7 @@
 | Original Example by Spence Konde                                      |
 | Modified to use event system by Andrew J. Kroll                       |
 |                                                                       |
-| LatchNoSeqDD14.ino - Getting "RS Latch" like behavior with a single   |
+| LatchNoSeqDx14.ino - Getting "RS Latch" like behavior with a single   |
 | even numbered LUT. Should work on ALL parts.                          |
 |                                                                       |
 | In this example we use the configurable logic peripherals in AVR      |
