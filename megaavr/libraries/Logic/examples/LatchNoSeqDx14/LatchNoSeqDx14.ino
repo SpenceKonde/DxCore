@@ -4,7 +4,7 @@
 | Original Example by Spence Konde                                      |
 | Modified to use event system by Andrew J. Kroll                       |
 |                                                                       |
-| LatchNoSeqDD14.ino - Getting "RS Latch" like behavior with a single   |
+| LatchNoSeqDx14.ino - Getting "RS Latch" like behavior with a single   |
 | even numbered LUT. Should work on ALL parts.                          |
 |                                                                       |
 | In this example we use the configurable logic peripherals in AVR      |
@@ -45,7 +45,7 @@ void setup() {
   Event3.set_generator(PIN_PC3);
   Event3.set_user(user::ccl0_event_b);
   Event3.start();
-  
+
   Event4.set_generator(gen::ccl0_out);
   Event4.set_user(user::evoutc_pin_pc2);
   Event4.start();
@@ -58,7 +58,7 @@ void setup() {
   Logic0.truth = 0x8E;                    // Set truth table - HIGH only if both high
   Logic0.init();                          // Initialize logic block 0
   Logic::start();
-  
+
 }
 
 void loop() {
