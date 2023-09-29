@@ -25,9 +25,9 @@
 |   Assuming active low inputs, this corresponds to truth = 0x8C        |
 | * Set the output HIGH whenever both inputs are asserted               |
 |   Assuming active low inputs, this corresponds to truth = 0x8F        |
-| * ~Set the ouput to the opposite state when both inputs asserted~     |
+| * ~Set the output to the opposite state when both inputs asserted~     |
 |   This does not produce something that acts like a latch. It will     |
-|   oscillate at a very high fequency when both inputs are on, as it    |
+|   oscillate at a very high frequency when both inputs are on, as it    |
 |   will be switching between two state, each of which tell it to       |
 |   switch again. This would correspond to 0x8D in the truth table; so  |
 |   avoid that one.

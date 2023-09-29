@@ -800,7 +800,7 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 /* Okay, so what is all of this relevant errata?
  * Uhm, okay, why don't you take a seat, we're gonna be here a while */
 
- /* See Ref_Errata.md in the documentation, and the offical errata document for more information.
+ /* See Ref_Errata.md in the documentation, and the official errata document for more information.
 // The 128DA had a few unique and nasty ones.
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128) /* Only the Rev. A8 has shipped. We are all wondering where the die rev is....                              */
   #define ERRATA_TCA1_PORTMUX            (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */

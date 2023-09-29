@@ -96,7 +96,7 @@
  *
  * Users should *never* read the digital_pin_to_timer[] table directly - there will inevitably be times when "magic" numbers have to be used, eg,
  * an arbitrary constant that doesn't match any timers may be used to signify that a pin is shared between TCBn and TCF0_ALT_2's WOn, where n is
- * the LSBit of the bit position.
+ * the LSBit of the bit position. Use this algorithm on what digitalPinToTimerNow() returns, not the actual table values.
  *
  *  1. If 0x80 is set:
  *    a. If 0x40 also set, it's TYPE F timer, and the low 3 bits contain the mux option, and the 4th bit is 1 for WO1.
@@ -116,7 +116,8 @@
 #define TIMERRTC        (0x84) // RTC with internal osc
 #define TIMERRTC_XTAL   (0x85) // RTC with crystal
 #define TIMERRTC_CLK    (0x86) // RTC with ext clock
-
+#define TIMERB_OR_F0    (0x88) // Ugly hack, subject to possible change.
+// Pin has TCB0 or 1 and TCF WO0 or 1. Timer and WO channel are low bit of bitpos.
 #define TIMERRTC_OVF    (0x8C) // RTC used temporarily for timekeeping
 #define TIMERRTC_CMP    (0x8D) // RTC used temporarily for timekeeping
 #define TIMERRTC_PIT    (0x8E) // RTC PIT used temporarily for timekeeping
@@ -245,7 +246,7 @@
 /*
 // Plus this wacky TCF thing.
 // Premiering on low pincount parts, it's hard to say what the full lineup of pin options will be like
-// I predict... 3 bits for the mux position, and that a larger chip might have 2....
+// I predict... 3 bits for the mux position (Proven correct!), and that a larger chip with two may appear.
 */
 
 #if defined(TCF0)
@@ -307,17 +308,21 @@
 
 #define INVALID_PIN           (0xFE) // A distinct constant for a pin that is clearly invalid, but which we do not have to silently allow to pass through digital I/O functions.
 
-// One can imagine a timerToDigitalPin(uint8_t timer, uint8_t channel) function. No such function has currently been written, but it would need some sort of error codes.
+// One can imagine a timerToDigitalPin(uint8_t timer, uint8_t channel) function. No such function has currently been written, but it
+// should be. In any case, it would need some sort of error codes.
 
 // It would need to handle all kinds of problematic inputs - the timer channel identified does not exist at all (NOT_A_CHANNEL).
 // The timer may exist, but the channel is not available because the portmux has not connected it to a pin that exists (ex, on a 14 pin part, default mux, you ask where WO2 of TCA0 is, you'd get this)
 // If this channel could ever be output on a pin, this should be the error returned.
 #define TIMER_NOT_CONNECTED   (0xFE)
+
 // The timer may exist, but the chip may be impacted by silicon errata impacting TCA1 (AVR128DA only) and TCD0 (all DA/DB), and while that timer should be possible to use, it's not.
 #define TIMER_BROKEN_ERRATA   (0xFD)
+
 // The timer may exist, but that instance of that timer can never output any pwm. It has no default or alternate pins. There may or may not be an associated portmux bitfield, but if there is
 // regardless of what it is set to, this timer channel cannot output pins; the portmux full of useless options is common on low-pincount parts within a family.
 #define TIMER_ALWAYS_PINLESS  (0xFC)
+
 // While NOT_A_PIN would seem logical to return from this, NOT_A_CHANNEL is indistinguishable from that and we want to give a different error if the channel they're asking for doesn't exist versus if the channel exists,
 #define TIMER_DOES_NOT_EXIST  (0xFB)
 

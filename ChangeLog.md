@@ -12,7 +12,7 @@ These items are in addition to what was listed under changes already in release.
 
 ## Planned changes implemented in github
 These are typically planned for release in a future version (usually the next one) as noted.
-* Doc enhancement. EB part specific pages and timer referece updated to reflect what isknown about the available options
+* Doc enhancement. EB part specific pages and timer reference updated to reflect what isknown about the available options
 * Re-add SPI atttach and detach.
 * Add contributed variation on the latch no seq example.
 

@@ -471,7 +471,7 @@
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
   #elif (PROGMEM_SIZE == 0x4000)  // 16k
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x10)
-  #elif (PROGMEM_SIZE == 0x2000)  // 8k
+  #elif (PROGMEM_SIZE == 0x2000)  // 8k - EB only
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x00)
   #endif
 #elif   (PROGMEM_SIZE == 0x20000 && (defined(__AVR_DA__) || defined(__AVR_DB__))) || (PROGMEM_SIZE == 0x10000 && (defined(__AVR_DD__) || defined(__AVR_DU__)))
@@ -561,7 +561,7 @@
  * generators allows them to add both options for all ports and both RTC options to all generator channels
  * Too bad they released so many parts with the other versions :-/ */
 
-#if defined(PORTA_EVGENCTRL) // Ex-series, with EVGENCTRL registers on RTC and PORT.
+#if defined(PORTA_EVGENCTRL) || defined(PORTA_EVGENCTRLA) // Ex-series, with EVGENCTRL registers on RTC and PORT.
   #define _AVR_EVSYS_VERSION   (3)
 #elif defined(EVSYS_STROBE) // mega0 - basically Dx, but different name for strobe.
   #define _AVR_EVSYS_VERSION   (1)
@@ -799,8 +799,8 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 /* Okay, so what is all of this relevant errata?
  * Uhm, okay, why don't you take a seat, we're gonna be here a while */
 
- /* See Ref_Errata.md in the documentation, and the offical errata document for more information.
-// The 128DA had a few unique and nasty ones.
+ /* See Ref_Errata.md in the documentation, and the official errata document for more information.
+// The 128DA had a few unique and nasty ones. */
 #if defined(__AVR_DA__) && (_AVR_FLASH == 128) /* Only the Rev. A8 has shipped. We are all wondering where the die rev is....                              */
   #define ERRATA_TCA1_PORTMUX            (1) /* DA128's up to Rev. A8 have only the first two pinmapping options working                                   */
   #define ERRATA_PORTS_B_E_EVSYS         (1) /* DA128's up to Rev. A8 have no EVSYS on PB6, PB7, and PE4~7                                                 */
@@ -961,12 +961,6 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 #define CORE_DETECTS_TCA_PORTMUX        (2) /* If this is 1, core is recognizes the current portmux setting, and analogWrite works wherever it's pointed
 //                                           * If this is 2, as above, but on TCA1, the three pin options are also recognized
 //                                           * Note that there are only two three-pin mappings for TCA is mux = 2, 4 if mux = 3 */
-#if defined(__AVR_EA__) || defined(__AVR_EB__)
-  #define EVSYS_VERSION_TWO                 /* EA series has markedly different event system that is expected to  */
-                                            /* replace the current one. It brings channel uniformity at the cost  */
-                                            /* being limitd to two event inputs per port and two RTC PIT derived  */
-                                            /* inputs                                                             */
-#endif
 /* Hardware capabilities (ADC)
  * ADC_DIFFERENTIAL is 1 for a half-way differential ADC like DX-serie has, 2 for a real one like EA-series will    *
  * ADC_MAX_OVERSAMPLED_RESOLUTION is the maximum resolution attainable by oversampling and decimation               *
@@ -1034,15 +1028,15 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 #define _setPrescale16x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_16X_gc | CLKCTRL_PEN_bm))) /* 0x07 */
 #define _setPrescale32x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_32X_gc | CLKCTRL_PEN_bm))) /* 0x09 */
 #define _setPrescale64x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_64X_gc | CLKCTRL_PEN_bm))) /* 0x0B */
-#define  _setPrescale6x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, ( CLKCTRL_PDIV_6X_gc | CLKCTRL_PEN_bm))) /* 0x17 */
-#define _setPrescale10x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_10X_gc | CLKCTRL_PEN_bm))) /* 0x19 */
-#define _setPrescale12x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_12X_gc | CLKCTRL_PEN_bm))) /* 0x21 */
-#define _setPrescale24x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_24X_gc | CLKCTRL_PEN_bm))) /* 0x23 */
-#define _setPrescale48x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_48X_gc | CLKCTRL_PEN_bm))) /* 0x25 */
+#define  _setPrescale6x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, ( CLKCTRL_PDIV_6X_gc | CLKCTRL_PEN_bm))) /* 0x11 */
+#define _setPrescale10x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_10X_gc | CLKCTRL_PEN_bm))) /* 0x13 */
+#define _setPrescale12x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_12X_gc | CLKCTRL_PEN_bm))) /* 0x15 */
+#define _setPrescale24x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_24X_gc | CLKCTRL_PEN_bm))) /* 0x17 */
+#define _setPrescale48x()         (_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, (CLKCTRL_PDIV_48X_gc | CLKCTRL_PEN_bm))) /* 0x19 */
 
 /*
 uint8_t _clockprescalers[] =       {1,  2,  4,  8, 16, 32, 64,  6, 10, 12, 24, 48};
-uint8_t _clockprescalesettings[] = {0,  1,  3,  5,  7,  9, 0B, 17, 19, 21, 23, 25};
+uint8_t _clockprescalesettings[] = {0,  1,  3,  5,  7,  9, 11, 17, 19, 21, 23, 25};
 
 int8_t _setPrescale(int8_t prescale) {
   for (x = 0x00; x < 11; x++) {
@@ -1135,6 +1129,15 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #endif
 #endif
 
+#if defined(__AVR_EA__)
+  // Yoohoooo! I do believe we are missing a few mux options here...
+  #define PORTMUX_SPI0_ALT2_gc   (0x02 << 0)
+  #define PORTMUX_SPI0_ALT3_gc   (0x03 << 0)
+  #define PORTMUX_SPI0_ALT4_gc   (0x04 << 0)
+  #define PORTMUX_SPI0_ALT5_gc   (0x05 << 0)
+  #define PORTMUX_SPI0_ALT6_gc   (0x06 << 0)
+  #define PORTMUX_SPI0_NONE_gc   (0x07 << 0)
+#endif
 /**********************
 * COMPATIBILITY STUFF *
 **********************/
@@ -1150,10 +1153,22 @@ int8_t _setCPUSpeed(uint8_t omhz) {
  * below analog comparator ones which are required for the builtin comparator library to work:
  * Parts with windowed mode don't name the non-windowed mode the same thing, but we need to reference that setting to setup a
  * comparator.
+ * Additionally for similar reasons relating to Event.h, the ginormous EVSYS defines are outside the #if as well. Look for the rest of the
+ * backward combatability stuff from a little after 2000 until the end of the file at line 5800 or so.
  */
+// Needed for init_clock() to compile any sketch with crystal selected on EA
+#if defined(__AVR_EA__)
+  #define CLKCTRL_CSUTHF_256_gc CLKCTRL_CSUTHF_256CYC_gc
+  #define CLKCTRL_CSUTHF_1K_gc CLKCTRL_CSUTHF_1KCYC_gc
+  #define CLKCTRL_CSUTHF_4K_gc CLKCTRL_CSUTHF_4KCYC_gc
+#else
+  #define CLKCTRL_CSUTHF_256CYC_gc CLKCTRL_CSUTHF_4K_gc
+  #define CLKCTRL_CSUTHF_1KCYC_gc CLKCTRL_CSUTHF_1K_gc
+  #define CLKCTRL_CSUTHF_4KCYC_gc CLKCTRL_CSUTHF_4K_gc
+#endif
 
 
-/* Normal interrupt mode on a part with windowed flash is the same as the unnamed mode on those without that feature */
+/* Normal interrupt mode on a part with windowed AC is the same as the unnamed mode on those without that feature */
 #if (defined(__AVR_DD__))
   #define AC_INTMODE_NORMAL_BOTHEDGE_gc AC_INTMODE_BOTHEDGE_gc
   #define AC_INTMODE_NORMAL_NEGEDGE_gc AC_INTMODE_NEGEDGE_gc
@@ -1165,15 +1180,877 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #define AC_INTMODE_POSEDGE_gc AC_INTMODE_NORMAL_POSEDGE_gc
   #define AC_INTMODE_t AC_INTMODE_NORMAL_t
 #endif
-/* Yeaaaah, they changed stuff for no good reason. */
-#if defined(__AVR_EB__)
-  // Don't know how to address this one: a bitfield within the PORT struct was renamed, I know how to deal with every other kind of renaming. But not this one.
-  #define CCL_INSEL_IO_gc 0x05
-#else
-  #define CCL_INSEL_IN0_gc 0x05
-  #define CCL_INSEL_IN1_gc 0x05
-  #define CCL_INSEL_IN2_gc 0x05
+// TCB V1.0 (without event clock option) vs TCB V1.1 (with event clock and cascade)
+// You can still only divide the system clock by 1 or 2 though.
+// These compatibilility defines are required for core api functions like millis() and tone()
+#if (!defined(MEGATINYCORE) || MEGATINYCORE_SERIES >= 2) // 1.1 names
+  #define TCB_CLKSEL_CLKDIV1_gc TCB_CLKSEL_DIV1_gc
+  #define TCB_CLKSEL_CLKDIV2_gc TCB_CLKSEL_DIV2_gc
+  #define TCB_CLKSEL_CLKTCA_gc TCB_CLKSEL_TCA0_gc
+#else // 1.0 names, and an error if the sketch references the Event clock which we don't have yet
+  #define TCB_CLKSEL_DIV1_gc  TCB_CLKSEL_CLKDIV1_gc
+  #define TCB_CLKSEL_DIV2_gc  TCB_CLKSEL_CLKDIV2_gc
+  #define TCB_CLKSEL_TCA0_gc  TCB_CLKSEL_CLKTCA_gc
+  #define TCB_CLKSEL_EVENT_gc  (badCall("This processor does not support TCB count on event mode. Only Dx, Ex, and 2-series tiny support that"))
 #endif
+/* The next 850 lines or so concern the new EVSYS on the EA and later. It makes all pins equal. This is outside of backwards combatibility
+ * because these functions are needed in order for the libraries and examples packaged with the core to work - the same reason as the AC
+ * ones above.
+ * Except this time, it's about 840 lines more code.
+ */
+#if defined(_AVR_EVSYS_VERSION) && _AVR_EVSYS_VERSION == 3
+  #if defined(EVSYS_CHANNEL0)
+    #define EVSYS_CHANNEL0_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL0_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL1)
+    #define EVSYS_CHANNEL1_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL1_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL2)
+    #define EVSYS_CHANNEL2_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL2_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL3)
+    #define EVSYS_CHANNEL3_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL3_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL4)
+    #define EVSYS_CHANNEL4_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL4_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL5)
+    #define EVSYS_CHANNEL5_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL5_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL6)
+    #define EVSYS_CHANNEL6_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL6_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL7)
+    #define EVSYS_CHANNEL7_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL7_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL8)
+    #define EVSYS_CHANNEL8_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL8_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(EVSYS_CHANNEL9)
+    #define EVSYS_CHANNEL9_OFF_gc EVSYS_CHANNEL_OFF_gc
+    #define EVSYS_CHANNEL9_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
+  #endif
+  #if defined(RTC)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL0_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL0_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL0_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL1_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL1_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL1_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL2_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL2_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL2_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL3_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL3_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL3_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL4_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL4_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL4_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL5_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL5_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL5_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL6_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL6_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL6_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL7_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL7_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL7_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL8_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL8_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL8_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
+      #define EVSYS_CHANNEL9_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
+      #define EVSYS_CHANNEL9_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
+      #define EVSYS_CHANNEL9_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
+    #endif
+  #endif
+  #if defined(CCL_TRUTH0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
+    #endif
+  #endif
+  #if defined(CCL_TRUTH1)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
+    #endif
+  #endif
+  #if defined(CCL_TRUTH2)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
+    #endif
+  #endif
+  #if defined(CCL_TRUTH3)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
+    #endif
+  #endif
+  #if defined(CCL_TRUTH4)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
+    #endif
+  #endif
+  #if defined(CCL_TRUTH5)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
+    #endif
+  #endif
+  #if defined(AC0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
+    #endif
+  #endif
+  #if defined(AC1)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
+    #endif
+  #endif
+  #if defined(ADC0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL0_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL0_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL1_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL1_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL2_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL2_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL3_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL3_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL4_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL4_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL5_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL5_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL6_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL6_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL7_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL7_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL8_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL8_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
+      #define EVSYS_CHANNEL9_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
+      #define EVSYS_CHANNEL9_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
+    #endif
+  #endif
+  #if defined(USART0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
+    #endif
+  #endif
+  #if defined(USART1)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
+    #endif
+  #endif
+  #if defined(USART2)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
+    #endif
+  #endif
+  #if defined(SPI0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
+    #endif
+  #endif
+  #if defined(TCA0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL0_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL0_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL0_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL0_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL1_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL1_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL1_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL1_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL2_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL2_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL2_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL2_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL3_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL3_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL3_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL3_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL4_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL4_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL4_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL4_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL5_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL5_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL5_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL5_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL6_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL6_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL6_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL6_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL7_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL7_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL7_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL7_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL8_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL8_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL8_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL8_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
+      #define EVSYS_CHANNEL9_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
+      #define EVSYS_CHANNEL9_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL9_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL9_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
+    #endif
+  #endif
+  #if defined(TCA1)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL0_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL0_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL0_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL0_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL1_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL1_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL1_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL1_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL2_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL2_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL2_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL2_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL3_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL3_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL3_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL3_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL4_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL4_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL4_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL4_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL5_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL5_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL5_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL5_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL6_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL6_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL6_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL6_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL7_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL7_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL7_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL7_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL8_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL8_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL8_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL8_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
+      #define EVSYS_CHANNEL9_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
+      #define EVSYS_CHANNEL9_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
+      #define EVSYS_CHANNEL9_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
+      #define EVSYS_CHANNEL9_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
+    #endif
+  #endif
+  #if defined(TCB0)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL0_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL1_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL2_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL3_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL4_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL5_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL6_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL7_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL8_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
+      #define EVSYS_CHANNEL9_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
+    #endif
+  #endif
+  #if defined(TCB1)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL0_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL1_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL2_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL3_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL4_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL5_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL6_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL7_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL8_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
+      #define EVSYS_CHANNEL9_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
+    #endif
+  #endif
+  #if defined(TCB2)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL0_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL1_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL2_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL3_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL4_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL5_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL6_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL7_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL8_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
+      #define EVSYS_CHANNEL9_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
+    #endif
+  #endif
+  #if defined(TCB3)
+    #if defined(EVSYS_CHANNEL0)
+      #define EVSYS_CHANNEL0_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL0_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL1)
+      #define EVSYS_CHANNEL1_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL1_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL2)
+      #define EVSYS_CHANNEL2_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL2_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL3)
+      #define EVSYS_CHANNEL3_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL3_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL4)
+      #define EVSYS_CHANNEL4_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL4_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL5)
+      #define EVSYS_CHANNEL5_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL5_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL6)
+      #define EVSYS_CHANNEL6_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL6_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL7)
+      #define EVSYS_CHANNEL7_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL7_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL8)
+      #define EVSYS_CHANNEL8_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL8_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+    #if defined(EVSYS_CHANNEL9)
+      #define EVSYS_CHANNEL9_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
+      #define EVSYS_CHANNEL9_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
+    #endif
+  #endif
+#endif // End the EVSYS Ex-series compatibility hack
+
 // In backwards "combatability" mode, none of these helper definitions are provided
 // in order to force you to use the canonical names for these registers and options.
 // This is useful if migrating from arduino to official microchip tooling, or if you are "biIDEingual"
@@ -1187,23 +2064,21 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   // So to put it very simply:
   // If the above line is uncommented, the compatibility defines are turned OFF.
   // If the above line remains commented out (recommended), the compatibility defines are turned ON.
-
   #if defined(RTC_CLKSEL)
     /* Man they just *HAD* to change the names of these values that get assigned to the same register and do the same thing didn't they?
-     * Worse still we can't even verify that they are present... just blindly define and pray. Enums can't be seen by macros
-     */
+     * Worse still we can't even verify that they are present... just blindly define and pray. Enums can't be seen by macros */
      // tinyAVR has TOSC32K (TinyOSCillator?)
     #if defined(MEGATINYCORE)
-      #define RTC_CLKSEL_OSC32K_gc            RTC_CLKSEL_INT32K_gc
+      #define RTC_CLKSEL_OSC32K_gc            RTC_CLKSEL_INT32K_gc  //Tiny has an INTernal oscillator at 32K
       #define RTC_CLKSEL_OSC1K_gc             RTC_CLKSEL_INT1K_gc
-      #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_TOSC32K_gc
+      #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_TOSC32K_gc // or an external TinyOSCillator at 32K
       #define RTC_CLKSEL_XOSC32K_gc           RTC_CLKSEL_TOSC32K_gc
     #else
-  // Dx has an XOSC32K (eXternal OSCillator)
-  // but briefly called XTAL32k on some parts
-      #define RTC_CLKSEL_INT32K_gc            RTC_CLKSEL_OSC32K_gc
+      // Dx has an XOSC32K (eXternal OSCillator)
+      // but briefly called XTAL32k on some parts
+      #define RTC_CLKSEL_INT32K_gc            RTC_CLKSEL_OSC32K_gc //Dx has an internal OSCillator at 32K
       #define RTC_CLKSEL_INT1K_gc             RTC_CLKSEL_OSC1K_gc
-      #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XOSC32K_gc
+      #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XOSC32K_gc //and an eXternal OSCillator at 32K
       #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_XOSC32K_gc
     #endif
   #endif
@@ -1233,8 +2108,57 @@ int8_t _setCPUSpeed(uint8_t omhz) {
    * a handful of unused addresses in the low I/O space was maybe not the best design decision made in the
    * xmega line, particularly in light of the profound usefulness of the VPORT for interacting with
    * hardware in a performant and flash-efficient manner. This is clearly not why xMega failed
-   * in the marketplace; there many other more fundamental issues. But "that's what xmega did"
-   * is never an endorsement.
+   * in the marketplace; there many other more fundamental issues, probably the largest of which was that they
+   * brought an 8-bit knife to a 32-bit gunfight, sending the first xMegas directly up against the new 32-bit ARMy
+   * As near as I can tell, they got crushed in the market. The AVR architecture has a few "flight ceilings" beyond which it starts to suffer.
+   * Most of the xmegas were above that in multiple dimensions. At 32 MHz, they were basically in the same class computationally as classic AVRs
+   * though they tried to alleviate that with DMA, but it was quite complicated to use. In fact, EVERYTHING on the xmega is fiendishly complex
+   * and that probably didn't do any favors for market adoption, and you can see in modern AVRs pieces of the xmega parts which have been
+   * streamlined significantly (trading a modest number of features, but mostly the least useful ones, for a big improvement in usability and
+   * a small number of simpler but often more powerful features).
+   *
+   * But regardless, the xmegas are not a rolemodel of success, even if they have their high points. They clearly know this at Microchip. From the
+   * outside, I imagine the designers scavenging in a junkyard car parts, except each car is represents a chip, and it's parts the peripherals and
+   * subsystems, the complexity and bulk reflective of the real peripherals, trying to build as much of a car as possible, so they have to do as
+   * little novel design as possible and can reach market faster.
+   * "How bout this CCL thing?"
+   * "Too complicated, look at all this crap on the back, what the hell were we thinking combining the CCL with mini timers?!"
+   * "I'm not sure we were thinking at all. Lets ditch the timer and all those other wacky accessories, and place em in pairs just 2 luts and a
+   * sequencer"
+   * "You can't do much with 2x 2 input LUTs..."
+   * "Sure, but once we get this timer off, we can just put a third input there"
+   * ,"Oh, great, throw it in and come over to review these timers we've found and decide which ones are the closest to something we want."
+   * "K, where do we meet?"
+   * "See those big contraptions over there? It's right between those; those are some of our candidate timers"
+   * "What?! Those gigantic things?"
+   * "Yeah, I know... the boss is pushing for one of those to go in"
+   * "Oh brother... where did he even find that?"
+   * "Well, it was a tiny861's T1, then it was extended to make PSC for the 32M1..., that's where he found it. But now he's calling it a 'TCD'"
+   * "....okay...."
+
+   * If you look at their latest upcoming products, it's clear that they've been doing this to more peripherals. The EB-series for example, pulls in the
+   * other monster of a timer that the characters above refer to, changing it's name to TCE - it's not mixed up with all the async crap of TCD,
+   * but it adds at least as much complexity, including a lot of similar features, as well as a simpler "TCF". I'm not sure if the TCF was a refurbished
+   * pull from their scrapyard, or a de-novo utility timer written for these parts to address some of the shortcomings in their PWM capabilities. And to
+   * find something else to do with that epic PLL.
+   *
+   * They needed act with a sense of urgency, as Atmel had taken their eye off the eight ball, and possibly balls 0x9 to 0xF too - classic AVR was stagnant, but xMega was
+   * not getting the kind of market penetration they'd hoped and expected), the final classic AVRs were the PB's on the mega side, which got "cut off" at the
+   * 324pb - likely a hard deadline for "no more classics after xx/yy/zzzz" was reached. The final tinies, the 841/441/1634/828 (the final four) generally showed
+   * visible symptoms of time pressure - subtle on the x41 (the most obvious being unused registers addresses in the low I/O while PUEx is marooned in the extended I/O
+   * instead of the low I/O like the other two parts did), clearly visible on the 1634, and so astonishingly, agonizingly debilitating to the 828 that
+   * I'm surprised they bothered to release it at all (it's crown jewel was the 28-input ADC... but the datasheet was clearly hastily redacted to omit
+   * any mention of having a differential ADC, and to add insult to injury, it's got a lame pin (sinks a few ma when WDT isn't on, yeah, wtf?) - and
+   * to add further injury to the insult, that pin happens to be the SCL pin.......
+   * to scrounding around in a junkyard full of xMega and Classic parts, looking for pieces that would go well on their new parts. "How bout this CCL
+   * thing?" "Too complicated, look at all this crap, what the hell were we thinking combining the CCL and timers?!" "Lets ditch the timer and all
+   * those other wacky accessories, just 2 luts and a sequencer" "You can't do much with 2x 2 input LUTs..." "'course, but that's not what we'd have
+   * , see, we can put a third input in place of the timer" "Oh, great, throw it in and come over to review the timers we've found and pick the ones
+   * we want to use." "K - ah, where are we meeting?" "See those two large contraptions over there? Between those. The boss is pushing for the one
+   * on the left" "That monstrosity?! What the hell is it even?" "It was a t861's T1, then it was a PSC... now he says it's going to be a TCD
+   * If you look at their latest upcoming products, it's clear that they've been doing this to more peripherals, like the upcoming EB-series is
+   * getting a new kind of timer with some version of WEX. Actually TWO new kinds of timer, though I don't know if the second simpler one was
+   * ganked from xMega or designed de novo.
    */
   #if !defined(GPIOR0)
     #define GPIOR0                            (_SFR_MEM8(0x001C))
@@ -1267,24 +2191,13 @@ int8_t _setCPUSpeed(uint8_t omhz) {
     /* They changed the damned name for DB after selling the part for 6 months! What was this incredibly
      * important change? Changing CRYSTAL to XTAL! That's it!
      * Annoyingly you can't even test if it's using the new version of the headers because it's an enum!
-     * BUT IT GETS WORSE!  THE MOTHERFUCKERS DID IT THE OTHER WAY AROUND ON Ex!! ARE YOU FUCKING SERIOUS?!
-     * Can someone please go slap the guy in charge of this? You hide it in an enum so we can't detect it
-     * and then change the name back and forth erratically? PICK ONE AND STICK WITH IT FOR FUCKS SAKE!
+     * BUT IT GETS WORSE! On EA, it's back to CRYSTAL!!! ARE YOU SERIOUS?
      */
     #if !defined(__AVR_EA__)
       #define CLKCTRL_SELHF_CRYSTAL_gc CLKCTRL_SELHF_XTAL_gc
     #else
       #define CLKCTRL_SELHF_XTAL_gc CLKCTRL_SELHF_CRYSTAL_gc
     #endif
-  #if defined(__AVR_EA__)
-    // Yoohoooo! I do believe we are missing a few mux options here...
-    #define PORTMUX_SPI0_ALT2_gc   (0x02 << 0)
-    #define PORTMUX_SPI0_ALT3_gc   (0x03 << 0)
-    #define PORTMUX_SPI0_ALT4_gc   (0x04 << 0)
-    #define PORTMUX_SPI0_ALT5_gc   (0x05 << 0)
-    #define PORTMUX_SPI0_ALT6_gc   (0x06 << 0)
-    #define PORTMUX_SPI0_NONE_gc   (0x07 << 0)
-  #endif
   #endif
   /* And one version later they did it again... */
   #if !defined(CLKCTRL_FREQSEL_gm) && defined(CLKCTRL_FRQSEL_gm)
@@ -1345,32 +2258,69 @@ int8_t _setCPUSpeed(uint8_t omhz) {
     #define TCA_SINGLE_EVACT_CNT_HIGHLVL_gc TCA_SINGLE_EVACTA_CNT_HIGHLVL_gc
     #define TCA_SINGLE_EVACT_UPDOWN_gc TCA_SINGLE_EVACTA_UPDOWN_gc
   #endif
-  // TCB V1.0 (without event clock option) vs TCB V1.1 (with event clock and cascade)
-  // You can still only divide the system clock by 1 or 2 though.
-  #if (!defined(MEGATINYCORE) || MEGATINYCORE_SERIES >= 2) // 1.1 names
-    #define TCB_CLKSEL_CLKDIV1_gc TCB_CLKSEL_DIV1_gc
-    #define TCB_CLKSEL_CLKDIV2_gc TCB_CLKSEL_DIV2_gc
-    #define TCB_CLKSEL_CLKTCA_gc TCB_CLKSEL_TCA0_gc
-  #else // 1.0 names, and an error if the sketch references the Event clock which we don't have yet
-    #define TCB_CLKSEL_DIV1_gc  TCB_CLKSEL_CLKDIV1_gc
-    #define TCB_CLKSEL_DIV2_gc  TCB_CLKSEL_CLKDIV2_gc
-    #define TCB_CLKSEL_TCA0_gc  TCB_CLKSEL_CLKTCA_gc
-    #define TCB_CLKSEL_EVENT_gc  (badCall("This processor does not support TCB count on event mode. Only Dx, Ex, and 2-series tiny support that"))
-  #endif
+
   /* Make sure we error out quickly if told to use an RTC timing option that isn't available. */
   #if (defined(MILLIS_USE_TIMERRTC_XTAL) || defined(MILLIS_USE_TIMERRTC_XOSC))
     #if (MEGATINYCORE_SERIES == 0 || defined(__AVR_ATtinyxy2__))
       #error "Only the tinyAVR 1-series and 2-series parts with at least 14 pins support external RTC timebase"
     #endif
   #endif
-
-
+  #if defined(PORTA_EVGENCTRLA) // EB-series
+    // Yup, 1 family after we got evgenctrl,
+    #define EVGENCTRL EVGENCTRLA
+    #define PORTA_EVGENCTRL PORTA_EVGENCTRLA
+    #if defined(PORTB_EVGENCTRLA)
+      #define PORTB_EVGENCTRL PORTB_EVGENCTRLA
+    #endif
+    #if defined(PORTC_EVGENCTRLA)
+      #define PORTC_EVGENCTRL PORTC_EVGENCTRLA
+    #endif
+    #if defined(PORTD_EVGENCTRLA)
+      #define PORTD_EVGENCTRL PORTD_EVGENCTRLA
+    #endif
+    #if defined(PORTE_EVGENCTRLA)
+      #define PORTE_EVGENCTRL PORTE_EVGENCTRLA
+    #endif
+    #if defined(PORTF_EVGENCTRLA)
+      #define PORTF_EVGENCTRL PORTF_EVGENCTRLA
+    #endif
+    #if defined(PORTG_EVGENCTRLA)
+      #define PORTG_EVGENCTRL PORTG_EVGENCTRLA
+    #endif
+    #define CCL_INSEL0_IO_gc CCL_INSEL0_IN0_gc
+    #define CCL_INSEL1_IO_gc CCL_INSEL1_IN1_gc
+    #define CCL_INSEL2_IO_gc CCL_INSEL2_IN2_gc
+  #else
+    #define PORTA_EVGENCTRLA PORTA_EVGENCTRL
+    #if defined(PORTB_EVGENCTRL)
+      #define PORTB_EVGENCTRL PORTB_EVGENCTRL
+    #endif
+    #if defined(PORTC_EVGENCTRL)
+      #define PORTC_EVGENCTRL PORTC_EVGENCTRL
+    #endif
+    #if defined(PORTD_EVGENCTRL)
+      #define PORTD_EVGENCTRL PORTD_EVGENCTRL
+    #endif
+    #if defined(PORTE_EVGENCTRL)
+      #define PORTE_EVGENCTRL PORTE_EVGENCTRL
+    #endif
+    #if defined(PORTF_EVGENCTRL)
+      #define PORTF_EVGENCTRL PORTF_EVGENCTRL
+    #endif
+    #if defined(PORTG_EVGENCTRL)
+      #define PORTG_EVGENCTRL PORTG_EVGENCTRL
+    #endif
+    #define CCL_INSEL0_IN0_gc CCL_INSEL0_IO_gc
+    #define CCL_INSEL1_IN1_gc CCL_INSEL1_IO_gc
+    #define CCL_INSEL2_IN2_gc CCL_INSEL2_IO_gc
+  #endif
   // And now the most freaking boneheaded move from Microchip in a long while - like at least since late 2020! So yeah sometime in 2022
   // They realized that they should have had some sort of delimiter between the bit number within a bitfield, and the name of the bitfield,
   // since the names of many bitfields end in numbers, so they went ahead and made that change. No compatibility layer or anything.
-  // That is what's called a "breaking change", really for no reason except codes style. Most companies even if they decided to go that
+  // That is what's called a "breaking change", really for no reason except code style. Most companies even if they decided to go that
   // route, would never do that without introducuing a compatibility layer.
   // That wanton disregard for backwards compatibility is not acceptable even in an Arduino core much less in a commercial product.
+  //
   // Well, I'd wanted to make deprecation warnings come up only if they were used. I was unuccessful.
   // typedef const uint8_t __attribute__ ((deprecated("\nMicrochip changed the spelling of bits within a bitfiels (macros that end in the bitnumber followed by _bm or _bp), you are using the old name, ex PERIPH_BITFIRLD1_bm.\nYou should use PERIPH_BITFIELD_1_bm; we do not guarantee that this 4000-line bandaid will not be removed in the future.\r\nWhy did they do this? Beats me. Ask their support folks - if enough of us do it, they might hesitate next time they have the urge to mass rename things in their headers")))  deprecated_constant_name;
   // back to plan A
@@ -5499,872 +6449,8 @@ int8_t _setCPUSpeed(uint8_t omhz) {
     #define ZCD_INTMODE1_bp ZCD_INTMODE_1_bp; //Deprecated as of Q2 2022 header change
   #endif
 /* EA-series - There was absolutely positively no reason to change the name of these bitfields. Someone ought to be slapped upside the head for this!
- * And they're motherfucking enums so we can't even test for the damned things
+ * And they're enums so we can't even test for the damned things
  */
-#if defined(__AVR_EA__)
-  #define CLKCTRL_CSUTHF_256_gc CLKCTRL_CSUTHF_256CYC_gc
-  #define CLKCTRL_CSUTHF_1K_gc CLKCTRL_CSUTHF_1KCYC_gc
-  #define CLKCTRL_CSUTHF_4K_gc CLKCTRL_CSUTHF_4KCYC_gc
-#else
-  #define CLKCTRL_CSUTHF_256CYC_gc CLKCTRL_CSUTHF_4K_gc
-  #define CLKCTRL_CSUTHF_1KCYC_gc CLKCTRL_CSUTHF_1K_gc
-  #define CLKCTRL_CSUTHF_4KCYC_gc CLKCTRL_CSUTHF_4K_gc
-#endif
 
-/* A great new feature of the new evsys is that all the channels are equal. Unforutnately
- * this means all the enums change name to lose the channel number. Sigh.
- */
-  #if defined(EVSYS_VERSION_TWO)
-    #if defined(EVSYS_CHANNEL0)
-      #define EVSYS_CHANNEL0_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL0_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL1)
-      #define EVSYS_CHANNEL1_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL1_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL2)
-      #define EVSYS_CHANNEL2_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL2_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL3)
-      #define EVSYS_CHANNEL3_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL3_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL4)
-      #define EVSYS_CHANNEL4_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL4_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL5)
-      #define EVSYS_CHANNEL5_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL5_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL6)
-      #define EVSYS_CHANNEL6_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL6_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL7)
-      #define EVSYS_CHANNEL7_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL7_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL8)
-      #define EVSYS_CHANNEL8_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL8_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(EVSYS_CHANNEL9)
-      #define EVSYS_CHANNEL9_OFF_gc EVSYS_CHANNEL_OFF_gc
-      #define EVSYS_CHANNEL9_UPDI_SYNCH_gc EVSYS_CHANNEL_UPDI_SYNCH_gc
-    #endif
-    #if defined(RTC)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL0_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL0_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL0_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL1_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL1_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL1_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL2_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL2_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL2_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL3_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL3_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL3_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL4_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL4_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL4_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL5_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL5_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL5_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL6_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL6_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL6_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL7_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL7_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL7_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL8_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL8_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL8_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_RTC_OVF_gc EVSYS_CHANNEL_RTC_OVF_gc
-        #define EVSYS_CHANNEL9_RTC_CMP_gc EVSYS_CHANNEL_RTC_CMP_gc
-        #define EVSYS_CHANNEL9_RTC_PITEV0_gc EVSYS_CHANNEL_RTC_PITEV0_gc
-        #define EVSYS_CHANNEL9_RTC_PITEV1_gc EVSYS_CHANNEL_RTC_PITEV1_gc
-      #endif
-    #endif
-    #if defined(CCL_TRUTH0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_CCL_LUT0_gc EVSYS_CHANNEL_CCL_LUT0_gc
-      #endif
-    #endif
-    #if defined(CCL_TRUTH1)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_CCL_LUT1_gc EVSYS_CHANNEL_CCL_LUT1_gc
-      #endif
-    #endif
-    #if defined(CCL_TRUTH2)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_CCL_LUT2_gc EVSYS_CHANNEL_CCL_LUT2_gc
-      #endif
-    #endif
-    #if defined(CCL_TRUTH3)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_CCL_LUT3_gc EVSYS_CHANNEL_CCL_LUT3_gc
-      #endif
-    #endif
-    #if defined(CCL_TRUTH4)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_CCL_LUT4_gc EVSYS_CHANNEL_CCL_LUT4_gc
-      #endif
-    #endif
-    #if defined(CCL_TRUTH5)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_CCL_LUT5_gc EVSYS_CHANNEL_CCL_LUT5_gc
-      #endif
-    #endif
-    #if defined(AC0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_AC0_OUT_gc EVSYS_CHANNEL_AC0_OUT_gc
-      #endif
-    #endif
-    #if defined(AC1)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_AC1_OUT_gc EVSYS_CHANNEL_AC1_OUT_gc
-      #endif
-    #endif
-    #if defined(ADC0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL0_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL0_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL1_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL1_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL2_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL2_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL3_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL3_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL4_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL4_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL5_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL5_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL6_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL6_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL7_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL7_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL8_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL8_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_ADC0_RES_gc EVSYS_CHANNEL_ADC0_RES_gc
-        #define EVSYS_CHANNEL9_ADC0_SAMP_gc EVSYS_CHANNEL_ADC0_SAMP_gc
-        #define EVSYS_CHANNEL9_ADC0_WCMP_gc EVSYS_CHANNEL_ADC0_WCMP_gc
-      #endif
-    #endif
-    #if defined(USART0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_USART0_XCK_gc EVSYS_CHANNEL_USART0_XCK_gc
-      #endif
-    #endif
-    #if defined(USART1)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_USART1_XCK_gc EVSYS_CHANNEL_USART1_XCK_gc
-      #endif
-    #endif
-    #if defined(USART2)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_USART2_XCK_gc EVSYS_CHANNEL_USART2_XCK_gc
-      #endif
-    #endif
-    #if defined(SPI0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_SPI0_SCK_gc EVSYS_CHANNEL_SPI0_SCK_gc
-      #endif
-    #endif
-    #if defined(TCA0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL0_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL0_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL0_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL0_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL1_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL1_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL1_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL1_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL2_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL2_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL2_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL2_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL3_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL3_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL3_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL3_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL4_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL4_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL4_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL4_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL5_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL5_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL5_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL5_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL6_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL6_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL6_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL6_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL7_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL7_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL7_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL7_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL8_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL8_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL8_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL8_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_TCA0_OVF_LUNF_gc EVSYS_CHANNEL_TCA0_OVF_LUNF_gc
-        #define EVSYS_CHANNEL9_TCA0_HUNF_gc EVSYS_CHANNEL_TCA0_HUNF_gc
-        #define EVSYS_CHANNEL9_TCA0_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA0_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL9_TCA0_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA0_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL9_TCA0_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA0_CMP2_LCMP2_gc
-      #endif
-    #endif
-    #if defined(TCA1)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL0_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL0_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL0_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL0_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL1_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL1_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL1_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL1_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL2_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL2_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL2_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL2_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL3_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL3_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL3_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL3_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL4_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL4_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL4_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL4_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL5_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL5_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL5_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL5_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL6_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL6_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL6_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL6_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL7_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL7_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL7_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL7_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL8_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL8_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL8_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL8_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_TCA1_OVF_LUNF_gc EVSYS_CHANNEL_TCA1_OVF_LUNF_gc
-        #define EVSYS_CHANNEL9_TCA1_HUNF_gc EVSYS_CHANNEL_TCA1_HUNF_gc
-        #define EVSYS_CHANNEL9_TCA1_CMP0_LCMP0_gc EVSYS_CHANNEL_TCA1_CMP0_LCMP0_gc
-        #define EVSYS_CHANNEL9_TCA1_CMP1_LCMP1_gc EVSYS_CHANNEL_TCA1_CMP1_LCMP1_gc
-        #define EVSYS_CHANNEL9_TCA1_CMP2_LCMP2_gc EVSYS_CHANNEL_TCA1_CMP2_LCMP2_gc
-      #endif
-    #endif
-    #if defined(TCB0)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL0_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL1_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL2_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL3_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL4_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL5_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL6_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL7_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL8_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_TCB0_CAPT_gc EVSYS_CHANNEL_TCB0_CAPT_gc
-        #define EVSYS_CHANNEL9_TCB0_OVF_gc EVSYS_CHANNEL_TCB0_OVF_gc
-      #endif
-    #endif
-    #if defined(TCB1)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL0_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL1_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL2_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL3_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL4_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL5_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL6_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL7_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL8_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_TCB1_CAPT_gc EVSYS_CHANNEL_TCB1_CAPT_gc
-        #define EVSYS_CHANNEL9_TCB1_OVF_gc EVSYS_CHANNEL_TCB1_OVF_gc
-      #endif
-    #endif
-    #if defined(TCB2)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL0_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL1_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL2_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL3_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL4_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL5_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL6_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL7_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL8_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_TCB2_CAPT_gc EVSYS_CHANNEL_TCB2_CAPT_gc
-        #define EVSYS_CHANNEL9_TCB2_OVF_gc EVSYS_CHANNEL_TCB2_OVF_gc
-      #endif
-    #endif
-    #if defined(TCB3)
-      #if defined(EVSYS_CHANNEL0)
-        #define EVSYS_CHANNEL0_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL0_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL1)
-        #define EVSYS_CHANNEL1_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL1_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL2)
-        #define EVSYS_CHANNEL2_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL2_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL3)
-        #define EVSYS_CHANNEL3_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL3_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL4)
-        #define EVSYS_CHANNEL4_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL4_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL5)
-        #define EVSYS_CHANNEL5_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL5_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL6)
-        #define EVSYS_CHANNEL6_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL6_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL7)
-        #define EVSYS_CHANNEL7_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL7_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL8)
-        #define EVSYS_CHANNEL8_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL8_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-      #if defined(EVSYS_CHANNEL9)
-        #define EVSYS_CHANNEL9_TCB3_CAPT_gc EVSYS_CHANNEL_TCB3_CAPT_gc
-        #define EVSYS_CHANNEL9_TCB3_OVF_gc EVSYS_CHANNEL_TCB3_OVF_gc
-      #endif
-    #endif
-  #endif // End the EVSYS Ex-series compatibility hack
 #endif /* this is the end of the backwards compatibility defines */
 #endif // end of core_devices

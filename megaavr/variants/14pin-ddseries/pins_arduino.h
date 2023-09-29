@@ -53,7 +53,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PD5 (17)
 #define PIN_PD6 (18)
 #define PIN_PD7 (19)
-// No PF0-PF6 with < 28 pins - again because 6 pins being skipped, we are not putting a hole in the numbers here.
+// No PF0-PF5 with < 28 pins - again because 6 pins being skipped, we are not putting a hole in the numbers here.
 #define PIN_PF6 (20) // RESET
 #define PIN_PF7 (21) // UPDI
 

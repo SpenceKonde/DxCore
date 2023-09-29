@@ -425,51 +425,6 @@ Logic0.sequencer = logic::sequencer::disable; // Disable sequencer
 #### Default state
 `LogicN.sequencer` defaults to `logic::sequencer::disable` if not specified in the user program.
 
-#### Latch-without-sequencer
-The available sequencer options, unfortunately, are capable of only slightly more than what can be done with just the even block alone, using feedback. See the examples below. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs.
-
-##### RS-latch w/out sequencer
-Input0 is Set
-Input1 is Reset
-Input2 is Feedback
-
-| 2 | 1 | 0 | Out |
-|---|---|---|-----|
-| 0 | 0 | 0 |  0  |
-| 0 | 0 | 1 |  1  |
-| 0 | 1 | 0 |  0  |
-| 0 | 1 | 1 |  0  |
-| 1 | 0 | 0 |  1  |
-| 1 | 0 | 1 |  1  |
-| 1 | 1 | 0 |  0  |
-| 1 | 1 | 1 |  1  |
-
-Truth = 0b10110010 = 0xB2;
-
-Note that here you have the power to decide what happens in the event that the illegal state where R and S are both high occurs. Here I have it maintain the current state.
-In this example, I have it maintain state.
-It's also fine to have it go high or low on the "S & R = 1" state, with truthtables of 0b10111010 = 0xBA, or 0b00110010 = 0x32 respectively. But make it toggle, ie, truth table of 0b00111010 = 0x3A and it will instead oscillate extremely rapidly (though it could be slowed down with the synchronized, )
-
-##### D-type latch w/out sequencer
-Input0 is D
-Input1 is G
-Input2 is Feedback
-
-| 2 | 1 | 0 | Out |
-|---|---|---|-----|
-| 0 | 0 | 0 |  0  |
-| 0 | 0 | 1 |  0  |
-| 0 | 1 | 0 |  0  |
-| 0 | 1 | 1 |  1  |
-| 1 | 0 | 0 |  1  |
-| 1 | 0 | 1 |  1  |
-| 1 | 1 | 0 |  0  |
-| 1 | 1 | 1 |  1  |
-
-Hence truth tables are 0xB2 and 0xB8, and both of these leave the odd LUT available. Of course, if you need a logic block to come up with the inputs to set and reset, this is less useful.
-
-
-
 ### truth
 This property contains the 8-bit truth table value.
 Accepted values between 0x00 and 0xFF - this is where the input values are looked up to determine what value to output.
@@ -504,7 +459,7 @@ Logic0.truth = 0xF0;
 ## Logic Methods
 
 ### init()
-Method for initializing a logic block; the settings you have previously configured will be applied and pins configured as requested at this time only.
+Method for initializing a logic block; the settings you have previously configured will be applied and pins configured as requested *only* when init() is called. See the section below on reconfiguring.
 
 #### Usage
 ```c++
@@ -618,13 +573,70 @@ The two bits per LUT allow the interrupt to be triggered on
 
 ```
 
+## Latch-without-sequencer
+The available sequencer options, unfortunately, are capable of only slightly more than what can be done with just the even block alone, using feedback. An example of this (2 on DxCore) shows a different input ordering. The comments in the LatchNoSeq example provide a bit more information. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs.
+
+##### RS-latch w/out sequencer
+Input0 is Set
+Input1 is Reset
+Input2 is Feedback
+
+| 2 | 1 | 0 | Out |
+|---|---|---|-----|
+| 0 | 0 | 0 |  0  |
+| 0 | 0 | 1 |  1  |
+| 0 | 1 | 0 |  0  |
+| 0 | 1 | 1 |  0  |
+| 1 | 0 | 0 |  1  |
+| 1 | 0 | 1 |  1  |
+| 1 | 1 | 0 |  0  |
+| 1 | 1 | 1 |  1  |
+
+Truth = 0b10110010 = 0xB2;
+
+Note that here you have the power to decide what happens in the event that the illegal state where R and S are both high occurs. Here I have it maintain the current state.
+It's also fine to have it go high or low on the "S & R = 1" state, with truthtables of 0b10111010 = 0xBA, or 0b00110010 = 0x32 respectively. But make it toggle, ie, truth table of 0b00111010 = 0x3A and it will instead oscillate extremely rapidly (though it could be slowed down with the synchronizer or filter, that still isn't particularly useful  )
+
+##### D-type latch w/out sequencer
+Input0 is D
+Input1 is G
+Input2 is Feedback
+
+| 2 | 1 | 0 | Out |
+|---|---|---|-----|
+| 0 | 0 | 0 |  0  |
+| 0 | 0 | 1 |  0  |
+| 0 | 1 | 0 |  0  |
+| 0 | 1 | 1 |  1  |
+| 1 | 0 | 0 |  1  |
+| 1 | 0 | 1 |  1  |
+| 1 | 1 | 0 |  0  |
+| 1 | 1 | 1 |  1  |
+
+Hence truth tables are 0xB2 and 0xB8, and both of these leave the odd LUT available. Of course, if you need a logic block to come up with the inputs to set and reset, this is less useful.
+
 
 
 ## Reconfiguring
-There are TWO levels of "enable protection" on the CCL hardware. According to the Silicon Errata, only one of these is intended. As always, it's anyone's guess when or if this issue will be corrected in a future silicon rev, and if so, on which parts (it would appear that Microchip only became aware of the issue after the Dx-series parts were released - although it impacts all presently available parts, it is only listed in errata updated since mid-2020). Users are advised to proceed with use of workarounds, rather than delay work in the hopes of corrected silicon. The intended enable-protection is that a given logic block cannot be reconfigured while enabled. This is handled by `init()` - you can write your new setting to a logic block, call `LogicN.init()` and it will briefly disable the logic block, make the changes, and re-enable it.
+There are TWO levels of "enable protection" on the CCL hardware except on the newest parts . According to the Silicon Errata, only one of these is intended. As always, it's anyone's guess when or if this issue will be corrected in a future silicon rev. That it is likely to be fixed on any part that gets a die rev is not in doubt; when (and indeed whether) they will rev the die to fix all the nasty bugs that they've now corrected in their peripheral designs. (It would appear that Microchip only became aware of the issue after the Dx-series parts were released; it's the kind of thing where you could believe that it was intended if annoying behavior, which is probably why it wasn't noticed sooner (It came at the same time as the "TCA does what the datasheet says on RESTART command" (paraphrased, ofc), another bug like that; both may indeed have been intended at the time, and only later classified as bugs, perhaps by a newly installed product manager or QA czar who thought the original intent was folly (I do suspect that there was a changing of the guard around that time. That and/or an influx of testing manpower and resources. How else do you introduce a new ADC while reducing the number of errata from the previous generation from around 20, several serious, to like 5, of which this is the only one without a workaround); I happen to agree on this count and think it's a big deal (the other feature that got this treatment I agree with as well, but why did they ever let the timers have a port direction override? . Since there is no indication that there are die revs coming out any time soon, users are advised to proceed with use of workarounds, rather than delay work in the hopes of corrected silicon.
 
-The unintended layer is that no logic block can be reconfigured without also disabling the whole CCL system. Changes can be freely made to the `Logic` classes, however, only the `init()` method will apply those changes, and you must call `Logic::stop()` before calling `init()`, and `Logic::start()` afterwards. If/when parts become available where this is not necessary, this step may be omitted, and this library may be amended to provide a way to check.
+The intended enable-protection is that a given logic block cannot be reconfigured while enabled. *This is handled by `init()` - you can write your new setting to a logic block, call `LogicN.init()` and it will briefly disable the logic block, make the changes, and re-enable it.*
 
+The unintended layer is that no logic block can be enabled or disabled (such as to be reconfigured) without also **disabling the whole CCL system** instead of just the one LUT.
+
+Changes can always be freely made to the `Logic` classes - changes aren't written to the hardware until you call `init()`, so that's the only thing the CCL must be disabled for. On parts which are impacted by this (All tinyAVRs, the mega 0s and the DA and DB), you must call `Logic::stop()` before calling `init()`, and `Logic::start()` afterwards. On other parts, and the above listed parts if/when they get a silicon rev, you need not call `Logic::stop()/start()` - init() handles the per-LUT disable/enable correctly.
+
+### Testing if the enable-lock erratum is present
+At present, there is never a need to test this, because you know from the part family whether or not it has this erratum - nothing that shipped with this broken has gotten a die rev that fixed it, so it impacts all tinyAVR, mega0, DA, and DB. However DxCore provides #defines for all Arduino-relevant errata, and this errata can be tested like this; note that **this is not a macro and cannot be made a macro. The die rev is not compile time known!** How could it be? The compiler doesn't know what you're going to do with the hex file.
+```c
+if (checkErrata(ERRATA_CCL_PROTECTION)) { /*true if errata presnt */
+  Logic::stop();
+  Logic1.init();
+  Logic::start();
+} else { // No erratum, hence no problem
+  Logic1.init();
+}
+```
 ### Example
 ```c++
 
@@ -642,11 +654,71 @@ Logic3.attachInterrupt(RISING,interruptFunction);
 
 // Interrupt now attached - but - Logic3 not enabled, and logic1 is using old settings
 
+// If we don't care that Logic0 will be briefly delayed, the cautious approach is fully portable.
 Logic::stop();  // have to turn off Logic0 too, even though I might not want to
 Logic1.init();  // apply changes to logic block 1
 Logic3.init();  // apply settings to logic block 3 for the first time
 Logic::start(); // re-enable
 ```
+
+Or, to "do the best it can" with the hardware, but use the more compact implementations without the runtime test if it's using parts the either always or never will have the bug:
+```c++
+
+// Imagine there's some code above this that configured and enabled Logic0.
+/* So the past is approximately:
+ * ConfigureLogic0();
+ * ConfigureLogic1();
+ * Logic0.init();
+ * Logic1.init();
+ * Logic::start();
+ * And now you want to enable Logic3 and change Logic1 settings, if possible without disturbing Logic0.
+ */
+
+void someFunction() {
+  Logic1.truth=0x55;      // new truth table
+  Logic1.input2=logic::in::tca0;     // and different input 2
+  Logic3.enabled=true;    // enable another LUT
+  Logic3.input0=logic::in::link; // Use link from LUT0
+  Logic3.input1=logic::in::ac;   // and the analog comparator
+  Logic3.input2=logic::in::pin;  // and the LUT3 IN2 pin
+  Logic3.truth=0x79;      // truth table for LUT3
+
+  Logic3.attachInterrupt(RISING,interruptFunction);
+
+  // Interrupt now attached - but - Logic3 not enabled, and logic1 is using old settings
+
+  applyCCLChanges();
+  // you'll probably want to call this more than once - maybe with an argumnent that specifies which blocks to reinit,
+  // depending on your application, other logic might be able to be aggregated there to save flash.
+
+void applyCCLChanges() {
+  // Adjust to suit the logic blocks you need
+  // As noted at the start we wanted to avoid disturbing the Logic0 channel if possible, so we want to avoid the stop-start.
+  #if defined(ERRATA_CCL_PROTECTION) && ERRATA_CCL_PROTECTION == 1
+    /* Some parts have not received a die rev and hence all extant specimens exhibit this erratum */
+    Logic::stop();  // have to turn off Logic0 too, even though I might not want to
+    Logic1.init();  // apply changes to logic block 1
+    Logic3.init();  // apply settings to logic block 3 for the first time
+    Logic::start(); // re-enable
+  #elif defined(ERRATA_CCL_PROTECTION) && ERRATA_CCL_PROTECTION == 0
+    /* No version of the part has ever had this erratum, so there is no chance of encountering it */
+    Logic1.init();  // apply changes to logic block 1
+    Logic3.init();  // apply settings to logic block 3 for the first time
+  #else
+    /* Awesome! We got a die rev finally. Wait, crap, now I have to support both? */
+    if checkErrata(ERRATA_CCL_PROTECTION) {
+      Logic::stop();  // have to turn off Logic0 too, even though I might not want to
+      Logic1.init();  // apply changes to logic block 1
+      Logic3.init();  // apply settings to logic block 3 for the first time
+      Logic::start(); // re-enable
+    } else {
+      Logic1.init();  // apply changes to logic block 1
+      Logic3.init();
+    }
+  #endif
+}
+```
+
 
 ## Think outside the box
 To consider the CCL system as simply a built-in multifunction gate IC is to greatly undersell it. The true power of the CCL is in it's ability to use events directly, and to take inputs from almost everything. Even doing neat stuff like the above mentioned "latch with no sequencer" is only scratching the surface of what these can do! Taking that a step farther... you could then use the odd-numbered logic block with that same feedback to, say, switch between two waveforms being output by one of the PWM timers, depending on what the latch is set to. See the [Tricks and Tips page](Tricks_and_Tips.md)

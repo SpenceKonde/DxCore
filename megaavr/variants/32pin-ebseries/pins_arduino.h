@@ -103,18 +103,19 @@ Include guard and include basic libraries. We are normally including this inside
 
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PF5)
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA2)
+  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PF4)
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PF4) || ((p) == PIN_PF5))
 #endif
 
 // Timer pin mapping
-#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default)
-#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default)
+#define TCB0_PINS (0x01)                      // TCB0 output on PA2 (default)
+#define TCB1_PINS (0x02)                      // TCB1 output on PA3 (default)
 #define TCE0_PINS (????)                      // What will the TCE/WEX look like?
-#define TCF0_PINS (0x02)                      // We will want to default the mapping with the timer outputs on PF4 and 5 most likely.
+#define TCF0_PINS (0x01)                      // This one is debatable
+/* See, obviously you want the TCF to be used in preference to the TCBs, one of which won't be available. */
 
 #define PIN_TCB0_WO_INIT  (PIN_PA2)
 #define PIN_TCB1_WO_INIT  (PIN_PA3)
