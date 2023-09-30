@@ -29,19 +29,19 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
   #endif
   #if defined(AC0_AC_vect)
     #if defined(PORTE)
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN3CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
+      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL,                 PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
     #else
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN3CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
+      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL,                 PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
     #endif
   #endif
   #if defined(AC1_AC_vect)
-    AnalogComparator    Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN5CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
+    AnalogComparator    Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL,                 PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
   #endif
   #if defined(AC2_AC_vect)
     #if defined(PORTE)
-      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN7CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
+      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL,                 PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
     #else
-      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, AC_NULL_REG,    PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN7CTRL, PORTDPIN0,      PORTD.PIN7CTRL);
+      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, AC_NULL_REG,    PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN7CTRL, PORTD.PIN0      PORTD.PIN7CTRL);
     #endif
   #endif
 #elif defined(ANALOG_COMP_PINS_DD)

@@ -150,7 +150,7 @@ for x in range(256):
   static const uint8_t _NeoPixelSineTable[256] = {
 #elif defined(PROGMEM_MAPPED) // flash > 48k, so only a 32k window is mapped, so put tables there
   static const uint8_t PROGMEM_MAPPED _NeoPixelSineTable[256] = {
-#else // fall back mode PROGMEM_MAPPED turned off.
+#else // fall back mode - this should never happen on any released or announced device
   static const uint8_t PROGMEM _NeoPixelSineTable[256] = {
 #endif
   128,131,134,137,140,143,146,149,152,155,158,162,165,167,170,173,
@@ -174,7 +174,7 @@ for x in range(256):
   static const uint8_t _NeoPixelGammaTable[256] = {
 #elif defined(PROGMEM_MAPPED) // flash > 48k, so only a 32k window is mapped, so put tables there
   static const uint8_t PROGMEM_MAPPED _NeoPixelGammaTable[256] = {
-#else // fall back mode PROGMEM_MAPPED turned off.
+#else // fall back mode - this should never happen on any released or announced device
   static const uint8_t PROGMEM _NeoPixelGammaTable[256] = {
 #endif
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

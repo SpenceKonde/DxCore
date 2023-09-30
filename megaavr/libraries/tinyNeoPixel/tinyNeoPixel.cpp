@@ -206,6 +206,8 @@ void tinyNeoPixel::show(uint16_t leds) {
   // run at those speeds, only that - if they do - you can control WS2812s
   // with them.
 
+  volatile uint16_t
+    i   = numBytes; // Loop counter
   volatile uint8_t
    *ptr = pixels,   // Pointer to next byte
     b   = *ptr++,   // Current byte value

@@ -53,7 +53,7 @@
   #else
     #define USE_TIMERB2
   #endif
-  // All Dx-series parts have at least 2 type B timers
+
 #elif (defined(TCB1) && defined(SERVO_USE_TIMERB1))
   #if defined(MILLIS_USE_TIMERB1)
     #error "SERVO_USE_TIMERB1 is defined, but so is MILLIS_USE_TIMERB1 - TCB1 can only be used for one of these."

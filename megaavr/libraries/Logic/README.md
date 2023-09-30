@@ -243,9 +243,12 @@ Notes specific to ATtiny 0/1-series:
 * If you need feedback input from an odd-numbered logic block, use the event system for that.
 * Not all pin inputs are available on all parts (see table above). The event system can be used to bring in input from other pins.
 * CCL0's IN0 pin is on PA0, which is nominally the UPDI pin. This may limit the usefulness of CCL0 on the ATtiny parts (though it may work as long as the input cannot be mistaken for a UPDI activation command); configuring UPDI as GPIO prevents further programming via UPDI except via HV programming. One can always use the event system to substitute another input for IN0; This is demonstrated in the three input example.
-* Only the ATtiny1614, 1616, 1617, 3216, and 3217 have TCB1, AC1, and AC2.
-* **Errata warning** On AVR DA-series parts with fewer than 48 pins the LINK input on LUT3 is broken, likely trying to get output from the non-existent LUT4.
-* **Compatibility warning** These were the first AVRs with CCL. They made some decisions that they realized weren't such a good idea after all and changed for parts released more recently. Most importantly, for TCBs and ACs, as well as USARTs, the peripheral number used is the input number. SPI on these parts makes MISO available supposedly. Later parts do not. Later parts also only make USART TXD available - though you can get XCK from the event system.
+* Among tinyAVR 1-series Only the ATtiny1614, 1616, 1617, 3216, and 3217 have TCB1, AC1, and AC2. All tiny 2-series have TCB1, but they never have more than one AC.
+* DA/DB have 3 AC's, EA 2, and the DD, DU and EB have one.
+The two final limits add further chaos to the distributions of numeric values for users and generators - the two seem to have had separate algorithms for determining when to leave holes for absent peripherals, and when to fill them in. They *really* seem to like filling in the holes in the generator lists, leaving me wondering what it is abouut the length of the list with such a high cost...
+
+* **Errata warning** Many parts in circulation are impacted by an errata (though not all - some never had it, while the 32k parts have gotten a die rev that fixes it. On effected parts, the link input does not work unless pin output of the other logic block is enabled. Check the applicable errata and datasheet clarification document from Microchip to see if your part is impacted. Other parts have a 
+* **Compatibility warning** The tinyAVR 0/1's were the first AVRs with CCL. They made some decisions that they realized weren't such a good idea after all and changed for parts released more recently. Most importantly, for TCBs and ACs, as well as USARTs, the peripheral number used is the input number. SPI on these parts makes MISO available supposedly. Later parts do not. Later parts also only make USART TXD available - though you can get XCK from the event system.
 * USART option will use XCK on input 0, TXD on input 1, and is not valid for input 2.
   * MISO is (supposedly) available as an input when SPI is used as the input.
   * Parts with two TCBs or three ACs give them their own channel on 0/1-series. Obviously there wouldn't be enough channels for this if it were done on a Dx with 5 TCBs, and 3 ACs. The other parts that have multiples of these (2-series and Dx) have one channel for this, and the input number selects which one is used, but only the first two can be used.
@@ -397,6 +400,22 @@ logic::sequencer::d_latch;      // Gated D latch sequencer connected (broken on 
 logic::sequencer::rs_latch;     // RS latch sequencer connected
 ```
 
+The available sequencer options, unfortunately, are capable of only slightly moore than what can be done with just a logic block alone using feedback. See the examples below. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs; if 2 is feedback and say Clear or G is 1 and Set or D is 0
+Below is shown in the 4 left columns an RS latch, and in the right 4, a D latch on the left
+
+| 2 | 1 | 0 | Out | 2 | 1 | 0 | Out |
+|---|---|---|-----|---|---|---|-----|
+| 0 | 0 | 0 |  0  | 0 | 0 | 0 |  0  |
+| 0 | 0 | 1 |  1  | 0 | 0 | 1 |  0  |
+| 0 | 1 | 0 |  0  | 0 | 1 | 0 |  0  |
+| 0 | 1 | 1 |  0  | 0 | 1 | 1 |  1  |
+| 1 | 0 | 0 |  1  | 1 | 0 | 0 |  1  |
+| 1 | 0 | 1 |  1  | 1 | 0 | 1 |  1  |
+| 1 | 1 | 0 |  0  | 1 | 1 | 0 |  0  |
+| 1 | 1 | 1 |  1  | 1 | 1 | 1 |  1  |
+
+Hence truth tables are 0xB2 and 0xB8, and both of these leave the odd LUT available. Of course, if you need a logic block to come up with the inputs to set and reset, this is less useful.
+
 #### D Flip-flop
 The D-type fiip-flow outputs a 0 or a 1, and retains it's value unless told otherwise. The inputs consist of G and D input. As long as G is low, nothing will change, When G is high, each rising edge will latch the value on the D line to the output. As I understand, D is derived from "Data" and G from "Gate", in the sense that it opens the gate and allows new data in.
 
@@ -493,6 +512,8 @@ All forms of attachInterrupt, everywhere, are fundamentally evil, because they a
 
 #### Usage
 ```c++
+Logic0.attachInterrupt(blinkLED, RISING); // Runthe blinkLED function when the output goes high
+
 void blinkLED()
 {
   digitalWrite(myLedPin, CHANGE);

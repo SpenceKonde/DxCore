@@ -16,40 +16,43 @@
 
 #include <Event.h>
 
+#define MYSERIAL Serial
+
+
 // Function to print information about the passed event
 void print_event_info(Event &my_event) {
-  Serial1.printf("This is event channel no. %d\n", my_event.get_channel_number());
-  Serial1.printf("This channel uses generator no. 0x%02x, which you can find in Event.h\n", my_event.get_generator());
+  MYSERIAL.printf("This is event channel no. %d\n", my_event.get_channel_number());
+  MYSERIAL.printf("This channel uses generator no. 0x%02x, which you can find in Event.h\n", my_event.get_generator());
 }
 
 void print_user_info(user::user_t my_user) {
   // Event::get_user_channel() returns -1 if the user isn't connected to any event generator
-  Serial1.printf("User 0x%02x is connected to event channel no. %d\n\n", my_user, Event::get_user_channel_number(my_user));
+  MYSERIAL.printf("User 0x%02x is connected to event channel no. %d\n\n", my_user, Event::get_user_channel_number(my_user));
 }
 
 void setup() {
-  Serial.begin(115200); // Initialize hardware serial port
+  MYSERIAL.begin(115200); // Initialize hardware serial port
 
-  Event4.set_generator(gen4::pin_pe0); // Set pin PE0 as event generator
-  Event5.set_generator(gen5::pin_pe1); // Set pin PE1 as event generator
+  Event2.set_generator(gen2::pin_pd4); // Set pin PC2 as event generator
+  Event3.set_generator(gen3::pin_pd5); // Set pin PD5 as event generator
 
   // For more information about EVOUT, see the PORTMUX section in the datasheet
-  Event4.set_user(user::evoute_pin_pe2); // Set EVOUTE as event user
-  Event5.set_user(user::evoutf_pin_pf2); // Set EVOUTF as event user
+  Event2.set_user(user::evoutc_pin_pc2); // Set EVOUTC as event user
+  Event3.set_user(user::evoutd_pin_pd7); // Set EVOUTD as event user
 
   // Start event channels
-  Event4.start();
-  Event5.start();
+  Event2.start();
+  Event3.start();
 }
 
 void loop() {
-  // Print info about Event4 and its event user
-  print_event_info(Event4);
-  print_user_info(user::evoute_pin_pe2);
+  // Print info about Event2 and its event user
+  print_event_info(Event2);
+  print_user_info(user::evoute_pin_pc3);
 
-  // Print info about Event5 and its event user
-  print_event_info(Event5);
-  print_user_info(user::evoutf_pin_pf2);
+  // Print info about Event3 and its event user
+  print_event_info(Event3);
+  print_user_info(user::evoutd_pin_pd7);
 
   delay(5000);
 }

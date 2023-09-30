@@ -17,7 +17,7 @@
 int addr = 0;
 
 void setup() {
-  // initialize the LED pin as an output - skip if LED_BUILTIN is defined as PIN_PA0 and using external clock source (an invalid configuration in practice!). We test for this to ensure that the sketch will compile successfully and can be used for CI testing
+  // initialize the LED pin as an output - skip if LED_BUILTIN is defined as the CLKIN pin and using external clock source (an invalid configuration in practice!). We test for this to ensure that the sketch will compile successfully and can be used for CI testing
   #if CLOCK_SOURCE != 2 ||  LED_BUILTIN != PIN_PA0
   pinMode(LED_BUILTIN, OUTPUT);
   #endif

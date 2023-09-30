@@ -1,6 +1,12 @@
 # Wire (TWI/I2C)
 All of these parts have at least one I2C/TWI module, and Wire.h provides the usual API - and then some.
 
+## NEW in megaTinyCore 2.6.2/DxCore 1.5.0 - sleep guard for TWI
+Prior to this version, there were two bugs in the code that prevented a reliable operation of the TWI in Power-Down and Stand-By Sleep modes. Now, the library only allows IDLE sleep while a slave transaction is open, to avoid making the bus unusable. Details in paragraph "Wire & Sleep"
+
+## NEW in megaTinyCore 2.5.0/DxCore 1.4.0 - totally rewritten Wire library thanks to @MX682X
+Should be 100% backwards compatible, use less flash, and have a new menu option to enable both master AND slave instead of the usual master OR slave. This uses the same pair of pins (this is termed "multimaster mode" in the 'biz). Enabling increases binary size, and allocates another buffer for data (out of RAM), and being the less common use case, we choose to default to the more efficient implementation in light the stringent constraints on these parts. Parts with "Dual Mode" have the option to use a separate pair of pins for the slave functionality.
+
 ## Pin Mappings (tinyAVR)
 | Pincount | Default  | Alt (1-series only) |
 |----------|----------|---------------------|
@@ -20,8 +26,8 @@ Given as SDA, SCL - notice that the pins within PORTB aren't numbered in the sam
 Notes:
 * Only tinyAVR has the backwards port weirdness. Dx and Ex have all ports in the same order, and SDA is always 1 pin before SCL.
 * Alt3 is only available on AVR DD-series, EA-series and likely future Dx and Ex parts).
-* Alt1 is not available on parts which do not have PC6 and PC7 (for TWI0) or PB6, PB7 (for TWI1) because it would be strictly worse than the default, as it would have the same 2 pins, but no option for dual mode.
-* Alt2 is available on those parts, though since its's primary pins are different - though dual mode is not available if the pins it uses aren't available.
+* Alt1 on Dx/Ex parts is not available unless they have PC6 and PC7 (for TWI0) or PB6, PB7 (for TWI1) because it would be identical to the default mapping.
+* Alt2 is available on those parts, since its's primary pins are different - though dual mode is not available if the pins aren't present.
 * If a part does not have the listed SCL and SDA pins, that mapping is not available on those parts.
 * In all cases the pins are listed as SDA, SCL.
 
@@ -40,7 +46,9 @@ Availability of pin mappings by pincount for AVR Dx-series
 
 `**` - There is no part - either currently available or announced which supports the Alt3 (PA0, PA1) mapping which is available in a 64-pin version. The DA and DB-series do not support the Alt3 mapping.
 
-`?` - (breaking news 6/12/23) - This mapping option may be broken on DD-series parts. Didn't see that coming
+`Wire.swap(pin_set)` will set the the pin mapping to the specified pin set. See API reference below for details.
+
+`Wire.pins(SDA pin, SCL pin)` - this will set the mapping to whichever mapping has the specified pins `SDA` and `SCL`. See API reference below for details. Wire.pins() only supports specifying mapping by pins for the master/slave pins, not the dualmode slave only pins. If you want the mode with the pins that can't do dual mode slave (PA2/3, or PF2/3) but with the alternate slave pins, you MUST use Wire.swap().
 
 In all cases, the part specific documentation included with the core takes precedence over this document and will include information about parts not mentioned here.
 ## Official specification of I2C
@@ -74,7 +82,7 @@ None of that accounts for the fact that wires, particularly long ones, have non-
 
 The internal pullups, however, are typically in the area of 30-50k (per spec. Room temperature, they're pretty close to 30k most of the time). That may be okay for 2 devices at standard speed. Even 3-4 devices gets dicey, and wiring could sink even the 2-device case. By default, most classic AVR cores, including the official ones, turn on the internal pullups - giving a default configuration that would work under simple conditions. But as more devices were added, the bus would fail unpredictably, and the failures that result are resistant to analysis. We don't enable them by default, that means that there is a 100% chance of failure if no external pullups are included, allowing the existence of a problem to be detected and diagnosed. If you want to use the internal (insufficient) pullups instead of using external ones, go ahead, calling `Wire.usePullups()` after choosing the pins with swap() - but *do so only with the knowledge that it is out of spec* and *cannot scale to a network with more devices*.  Because of this, **`Wire.usePullups()` is intended for debugging only!** If it fixes anything, the external pullups are either absent, not connected properly or at all (cold solder joints? head in pillow defects are surprisingly common in home reflowed boards).
 
-The ease of using multiple voltages on an open drain bus was mentioned above, but it's worth elaborating a bit here. The standard certainly doesn't guarantee that a 5V device will recognize an I2C line only pulled up to 3.3V as high (though it generally will) - but on the AVR Dx and AVR Ex parts, there's an option to let you do far better than that: "SMBUS 3.0" voltage levels. This option also, by lowering the threshold voltages, can help cope with high bus capacitance (be careful of the case where devices running at over 3.3v are present which don't have this option enabled, especially if pushing to higher clock speeds, as they might not recognize the highs, or recognize them for long enough - This option is best used wish a bus full of devices that use lower logic levels).
+The ease of using multiple voltages on an open drain bus was mentioned above, but it's worth elaborating a bit here. The standard certainly doesn't guarantee that a 5V device will recognize an I2C line only pulled up to 3.3V as high (though it generally will) - but on the AVR Dx and AVR Ex parts, there's an option to let you do far better than that: "SMBUS 3.0" voltage levels. This option also, by lowering the threshold voltages, can help cope with high bus capacitance (be careful of the case where devices running at over 3.3v are present which don't have this option enabled, especially if pushing to higher clock speeds, as they might not recognize the highs, or recognize them for long enough - This option is best used with a bus full of devices that use lower logic levels).
 
 ## Valid Addresses
 Addresses are 7 bits - 8 bits are sent, and the least significant one indicates if it's a read or write operation. This leaves 128 addresses, however, some of them are "reserved", and have a special semantic meaning in I2C and I2C-compatible protocols.
@@ -108,32 +116,30 @@ With the release of the enhanced Wire library we support operating as master and
 Thankfully, assuming the hardware is able to handle the job, there is no special code needed, and working sketches can often be made through simple combination of the master code (including `Wire.begin()` with no arguments) and slave code (including `Wire.begin(address)` with one or more arguments, and either `onRequest()` or `onReceive()`). If either master or slave code needs to call `end()` without disturbing the other, there is an `endSlave()` and `endMaster`, as needed.
 
 ## Initialization order
-There is a right order to call the configuration functions. Any other order is wrong and expected to break; this is a defect in user code, not the library.
-
-1. (optional) Wire.swapModule(&TWI1); (AVR DA/DB for special use cases only)
-2. (optional) Wire.swap(pinset) or Wire.pins(sclpin, sdapin).
-3. (optional) Wire.enableDualMode(fmplus_enable); (AVR Dx and megaAVR 0-series only, if needed)
-4. (optional, but for debug ONLY) Wire.usePullups()
-5. Wire.begin
-  a. (master) Wire.begin();
-  b. (slave) Wire.begin(address, ...)
-  c. If both modes are to be used, both the argumentless master begin() method and the argumentful slave begin() must be called.
-6. (optional, master only) Wire.setClock();
-7. (optional) Wire.specialConfig()
+There is a right and a wrong order to call the configuration functions. This order should work:
+1. Wire.swapModule(&TWI1); (AVR DA/DB for special use cases only)
+2. Wire.swap(pinset) or Wire.pins(sclpin, sdapin).
+3. Wire.enableDualMode(fmplus_enable); (AVR Dx and megaAVR 0-series only, if needed)
+4. Wire.usePullups() *for debugging only - if this fixes it, take it out and add appropriate external pullups)*
+5. Wire.begin() and/or Wire.begin(address, ...)
+6. Wire.setClock(); (effects master mode only, if needed)
+7. Wire.specialConfig() (optional)
 
 See the API reference below for more information.
 
 
-## New Tools submenu: Wire Mode
+
+### New Tools submenu: Wire Mode
 All devices have at least 2 options,
 * Master or Slave (default) - This uses the least flash and ram. At any given time Wire can be a master or a slave, but not both and you must call Wire.end(), and then the appropriate form of begin() for the mode you want to enable.
-* Master And Slave - In this mode, an argumentless call to begin will start the master functionality, and a call to the form with one or more arguments will start the slave version. Unlike "Master or Slave", a master-type and slave-type Wire.begin() can coexist and behave correctly either on the same pins (a "multi-master" topology), or on a separate set of pins (where dual mode is supported)
-* Master or Slave x2 - In this mode, there is a Wire, and a Wire1 - corresponding to TWI0 and TWI1 peripherals. Each one can be a master or a slave, but not both.
-* Master and Slave x2 - Both Wire and Wire1 are provided, and *both* can be both a master and a slave at the same time (note: having more than one I2C slave defined at once is not recommended, though this library should work)
+* Master And Slave - In this mode, an argumentless call to begin will start the master functionality, and a call to the form with one or more arguments will start the slave version. Both can run at the same time either using DualMode, or on the same pins (multi-master).
+* Master or Slave x2 - In this mode, there is a Wire, and a Wire1 - corresponding to TWI0 and TWI1 peripherals; available on DA and DB only. You can have two masters, two slaves, or most usefully, one of each)
+* Master and Slave x2 - Both Wire and Wire1 are provided, and *both* can be both a master and a slave at the same time, for a total of 4 pairs of I2C pins (note: having more than one I2C slave enabled at once is not recommended, though this library should work)
 
 ## API reference
-
-## The TwoWire class
+### The TwoWire class
+Wire is an object of class TwoWire. The classic AVR Wire.h, like this library, has TwoWire as a subclass of Stream.
+The official megaAVR 0-series core that megaTinyCore was based on in the distant past subclassed a new "HardwareI2C" class. Unfortunately, that imposed a shocking amount of overhead with no practical benefit. Code that relies on TwoWire being a subclass of HardwareI2C is virtually non-existent, and code that would benefit from an 500 bytes or so of flash is very common. Any library you encounter that works on classic AVRs (e.g., Uno) but complains of this different inheritance is straightforward to fix, likely as simple as searching the library files for "HardwareI2C" and changing it to "Stream".
 Wire is an object of class TwoWire. The classic AVR Wire.h, like this library, has TwoWire as a subclass of Stream.
 The official megaAVR 0-series core that megaTinyCore was based on in the distant past subclassed a new "HardwareI2C" class. Unfortunately, that imposed a shocking amount of overhead with no practical benefit (due to the whole virtual function thing). Code that relies on TwoWire being a subclass of HardwareI2C is virtually non-existent, and code that would benefit from the added flash is very common, especially considering the popularity of the ATtiny412, which is sadly the largest-flash 8-pin part. . Any library you encounter that works on classic AVRs (e.g., Uno) but complains of this different inheritance is straightforward to fix, likely as simple as searching the library files for "HardwareI2C" and changing it to "Stream".
 This is a full listing of methods provided for the TwoWire class (the class is named TwoWire, and Wire is an object of class TwoWire). Where they exist and behave the same way as documented in the Arduino Wire API reference they are simply listed. Where they do not, it is described here.
@@ -142,7 +148,7 @@ This is a full listing of methods provided for the TwoWire class (the class is n
 This version adds several new methods to support additional functionality.
 #### `bool swap()`
 ```c++
-bool swap();
+bool swap(uint8_t pinset = 1);
 ```
 This will set the pin mapping to the selected pinset (see the table at top of this document). Only tinyAVR 1+Series (16k and 32k 1-series parts) support this. All other modern non-tinyAVRs do. On tinyAVR 0/2-series or on 8-pin tinyAVRs of either series, `Wire.swap()` will generate a compile error if a value known at compile time and not 0 is passed to it. On 1-series parts that do have an alternate pin mapping, a compile-time-known value that is not a 0 or 1 will similarly generate a compile error. An invalid value that is *not* known at compile time (in either case) will instead result in swap() returning false and selecting the default pins.
 
@@ -244,7 +250,7 @@ Vin Low (max)     |        0.80V | 0.54V | 0.75V | 0.99V | 1.5V |
 Vin High (min) DB |        1.35V | 1.26V | 1.75V | 2.31V | 3.5V |
 Vin High (min) DA/DD | 1.35V or 1.45 `*` | 1.26V | 1.75V | 2.31V | 3.5V |
 
-`*` The DA and DD (but not the DB) datasheets imply that the minimum guaranteed high is 1.45V in SMbus mode if running at less than 2.5v. Whether the different behavior on the DA is a reflection of an actual difference or a
+`*` The DA and DD (but not the DB) datasheets imply that the minimum guaranteed high is 1.45V in SMbus mode if running at less than 2.5v. Whether this is an issue with the documentation or an actual difference is unclear.
 
 
 **SDA setup and hold times**
@@ -356,10 +362,7 @@ void flush();
 
 ~A `flush()` method exists on all versions of Wire.h; indeed, `Stream` which it subclasses demands that - however very rarely is it actually implemented by anything other than Serial - (where there is a specific and very common use case for the concept that that flush function exposes. That is not the same as what the TWI flush command does. Where one must clear the buffer in a specific way (by waiting for it to empty) before doing things like going to sleep or performing a software reset, Serial.flush() is just the ticket. Wire has rarely implemented such a tool. If it weren't for an erratum, there would be an available command that the datasheets refer to as a "TWI_FLUSH" - this resets the internal state *of the master* - and at the Wire library level, the buffers wouldneed to be cleared too. That command is apparently intended for error handling. The hardware keeps track of activity on the bus (as required by the protocol), but misbehaving devices can confuse the master - they might do something that the specification says a device will will not do, or generate electrical conditions that the master is unable to interpret in a useful way - pins not reaching the logic level thresholds, malformed data and which may in turn leave it confused as to whether the bus is available. It might be necessary to call in an attempt to recover from adverse events, which has historically been a challenge for the Wire library.~
 
-A flush method exists, but it is totally non-functional. It is required to be present because it is an abstract method of stream, however, nothing about what this method ought to do is clear:
-* The stream API leaves the meaning of this "Flush()" unclear.
-* Serial, the only place where it is implemented has it mean "Block until the last byte jhas finished transmitting"
-* Meanwhile TWI provides a flush "command" - However it is aimed at an entirely different objective - clearing out error statii that have hosed the TWI and resetting the TWI master. Unfortunately, according to the errata it tends leave the TWI master in a bad state, the thing it was supposed to solve. So I don't think I want to implement that just yet.
+There are two issues that lead to this method being a stub (do-nothing method, required to subclass stream). First is the tension with between the hardware "flush" functionality, which according to the datasheet is intended to clear up detected bus errors, with the arduino API for HardwareSerial, the only stream where flush is generally implemented, where it instead waits for outgoing transmissions to finish. Secondly, either all, or all non-tinyAVR parts appear likely to be impacted by an erratum that renders the hardware mechanism less than useful: "Flush Non-Functional", which according to the errata sheets can in practice cause the very problem it was intended to solve, and advising us to disable and re-enable TWI master instead.
 
 It raises some very thorny questions:
 
@@ -454,6 +457,6 @@ I would also suggest testing this with `Wire.specialConfig(0,1,3)` with the defa
 At least two of the rewrites of the clock calculation algorithm that have been submitted, independently, by two different individuals (the second of whom didn't stop there and rewrote the whole library, slashing it's flash footprint while adding functionality) were prompted initially by users trying to get this specific part to work. So - really we're all in debt to this manufacturer, whose combination of compelling hardware saddled with a badly botched I2C interface has led to so much improvement in our Wire library.
 
 ## Why are there so many names for this protocol?
-Wire, TWI (Two Wire Interface), Two Wire, IIC, I2C-compatible, I2C, I<sup>2</sup>C even occasionally stylized as I<sub>2</sub>C... The reason for this is that I2C (and the explicitly formatted version of it, I<sup>2</sup>C) are trademarked by Phillips (now NXP). Historically control of the I2C spec has been a means of shakihg down other companies, and patent and trademark enforcement has been extremely aggressive. The  which has historically been very litigious, and would go after manufacturers of parts that didn't pay license fees. So devices that could communicate with and which were I2C in all but name proliferated. The last patent expired a while ago, but they still hold the trademarks, so other manufacturers persist in using their names. The actual terms described in the specification claim to cover to all devices that "can" communicate over I2C, and make exception only for FPGAs, where the person programming them also was supposed to get a license. It seems that the litigation wars have cooled somewhat now, though I still would be mighty careful if I was designing microcontrollers. In any event, Atmel always called it TWI, and that tradition was not lost when Microchip purchased them. The original name, I<sup>2</sup>C is a stylization of "IIC", for "Inter-Integrated-Circuit".
+Wire, TWI (Two Wire Interface), Two Wire, IIC, I2C-compatible, I2C, I<sup>2</sup>C even occasionally stylized as I<sub>2</sub>C... The reason for this is that I2C (and the explicitly formatted version of it, I<sup>2</sup>C) are trademarked by Phillips (now NXP). Historically control of the I2C spec has been a means of shakihg down other companies, and patent and trademark enforcement has been extremely aggressive, and would go after manufacturers of parts that didn't pay license fees. So devices which were capable of I2C in all but name proliferated, and the copyright holders argument that any manufacturer of a chip that could do I2C or could even *bitbang it* (in other words, essentially every microcontroller) had to give them money didn't hold up in court. The last patent expired a while ago, but they still hold the trademarks, so other manufacturers persist in using their names. The actual terms described in the specification claim to cover to all devices that "can" communicate over I2C, and make exception only for FPGAs, where the person programming them also was supposed to get a license. It seems that the litigation wars have cooled somewhat now, though I still would be mighty careful if I was designing microcontrollers. In any event, Atmel always called it TWI, and that tradition was not lost when Microchip purchased them. The original name, I<sup>2</sup>C is a stylization of "IIC", for "Inter-Integrated-Circuit".
 
 Just don't get it confused with I2S (that's a specialized protocol for real-time transmission uncompressed digital audio - for example, it is (or was) often used in CD players between the disk reading circuitry and the DAC - as well as in professional audio equipment. I2S isn't supported by the AVR line - it's not a good match for the capabilities or intended use cases of AVR devices; it's for dedicated audio stuff, not general purpose microcontrollers). or I3C (a much faster superficially similar successor meant for much faster parts with far more computational power - also not supported by AVR). Even calling it superficially similar is being rather generous, as the resemblance seems to be largely window dressing: there is a data line called SDA and a clock line called SCL, devices can be master or slave, and the slave devices have 7 bit addresses - and that's about the end of the resemblance. While the I3C standard claims backwards compatibility, it does not support clock stretching (which it calls "rarely used" - I'm not sure what gave them that idea, but the initiative is being spearheaded by Google, so it should surprise nobody that they are out of touch with reality). An AVR acting as slave could not even reach user onRequest or onReceive code even if the I3C bus was running at only 1 MHz. It runs at 12.5 MHz - in other words, these parts are between one and two orders of magnitude too slow to meet the timing constraints of I3C).
