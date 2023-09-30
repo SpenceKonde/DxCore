@@ -33,23 +33,22 @@
 
 void setup() {
   // Configure relevant comparator parameters
-  #if defined(MEGATINYCORE) && MEGATINYCORE_SERIES > 0
-  Comparator.input_p = comparator::in_p::in0;       // Use positive input 0 (PD2)
+  #if !defined(MEGATINYCORE) || MEGATINYCORE_SERIES > 0
+  Comparator.input_p = comparator::in_p::in0;       // Use positive input 0 PD2 on DxC/PA7 on mTC.
   Comparator.input_n = comparator::in_n::dacref;    // Connect the negative pin to the DACREF voltage
   Comparator.reference = comparator::ref::vref_2v5; // Set the DACREF voltage to 2.5V
   Comparator.dacref = 127;              // Gives us 1.24V -> (127 / 256) * 2.5V = 1.24V
   Comparator.hysteresis = comparator::hyst::large;  // Use a 50mV hysteresis
   Comparator.output = comparator::out::enable;      // Enable output on PIN_PA5 (digital pin 1)
-  //                                    // or PIN_PA3 (digital pinm 4) on ATtiny412/212)
-  #else
-  /* for 0-series, there's no DACREF; instead, let's use the 1.1v reference */
+  //                                    // or PIN_PA3 (digital pin 4) on ATtiny412/212)
+  #elif defined(MEGATINYCORE)
+  /* for 0-series, there's no DACREF; instead, let's use the 2v5 reference */
   Comparator.input_p = comparator::in_p::in0;       // Use positive input 0 (PD2)
   Comparator.input_n = comparator::in_n::vref;      // Connect the negative pin to the DACREF voltage
-  Comparator.reference = comparator::ref::vref_1v1; // Set the DACREF voltage to 2.5V
-  Comparator.dacref = 127;              // Gives us 1.24V -> (127 / 256) * 2.5V = 1.24V
+  Comparator.reference = comparator::ref::vref_2v5; // Set the DACREF voltage to 2.5V
   Comparator.hysteresis = comparator::hyst::large;  // Use a 50mV hysteresis
   Comparator.output = comparator::out::enable;      // Enable output on PIN_PA5 (digital pin 1)
-  //                                    // or PIN_PA3 (digital pin 4) on ATtiny402/202)
+  //                                    // or PIN_PA3 (digital pin 4) on ATtiny402/202/)
   #endif
 
   // Initialize comparator

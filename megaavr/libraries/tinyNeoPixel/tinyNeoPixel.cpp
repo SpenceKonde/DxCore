@@ -50,7 +50,7 @@
 
 // Constructor when length, pin and type are known at compile-time:
 tinyNeoPixel::tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t) :
-  begun(false), brightness(0), pixels(NULL), endTime(0), latchTime(50) {
+  begun(false), brightness(0), pixels(NULL), latchTime(50), endTime(0) {
   updateType(t);
   updateLength(n);
   setPin(p);
@@ -63,7 +63,7 @@ tinyNeoPixel::tinyNeoPixel(uint16_t n, uint8_t p, neoPixelType t) :
 // updateLength(), etc. to establish the strand type, length and pin number!
 tinyNeoPixel::tinyNeoPixel() :
   begun(false), numLEDs(0), numBytes(0), pin(NOT_A_PIN), brightness(0), pixels(NULL),
-  rOffset(1), gOffset(0), bOffset(2), wOffset(1), endTime(0), latchTime(50)  {
+  rOffset(1), gOffset(0), bOffset(2), wOffset(1), latchTime(50), endTime(0)  {
 }
 
 tinyNeoPixel::~tinyNeoPixel() {
@@ -206,8 +206,8 @@ void tinyNeoPixel::show(uint16_t leds) {
   // run at those speeds, only that - if they do - you can control WS2812s
   // with them.
 
-  volatile uint16_t
-    i   = numBytes; // Loop counter
+  //volatile uint16_t // already declared.
+  //i     = numBytes; // Loop counter
   volatile uint8_t
    *ptr = pixels,   // Pointer to next byte
     b   = *ptr++,   // Current byte value
@@ -612,10 +612,6 @@ void tinyNeoPixel::show(uint16_t leds) {
 // 12 MHz(ish) AVRxt --------------------------------------------------------
 #elif (F_CPU >= 11100000UL) && (F_CPU <= 14300000UL)
 
-    // In the 12 MHz case, an optimized 800 KHz datastream (no dead time
-    // between bytes) requires a PORT-specific loop similar to the 8 MHz
-    // code (but a little more relaxed in this case).
-
     // 15 instruction clocks per bit: HHHHxxxxxxLLLLL      H:4 x:6 L5
     // OUT instructions:              ^   ^     ^     (T=0,4,10)
 
@@ -654,7 +650,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "mov  %[next] , %[lo]"      "\n\t" // 1    next = lo    (T =  6)
       "sbrc %[byte] , 7"          "\n\t" // 1-2  if (b & 0x80) (T =  7)
        "mov %[next] , %[hi]"      "\n\t" // 0-1    next = hi  (T =  8)
-      "rjmp .+0"                  "\n\t" // 1    nop nop      (T = 10)
+      "rjmp .+0"                  "\n\t" // 2    nop nop      (T = 10)
       "st   %a[port], %[lo]"      "\n\t" // 1    PORT = lo    (T = 11)
       "sbiw %[count], 1"          "\n\t" // 2    i--          (T = 13)
       "brne _head12"              "\n\t" // 2    if (i != 0) -> (next byte)

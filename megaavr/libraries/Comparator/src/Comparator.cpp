@@ -41,7 +41,7 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
     #if defined(PORTE)
       AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTE.PIN1CTRL, PORTD.PIN6CTRL,                 PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
     #else
-      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, AC_NULL_REG,    PORTD.PIN6CTRL,/* AVR DA/DB-series has no in_p4 */                    PORTD.PIN7CTRL, PORTD.PIN0      PORTD.PIN7CTRL);
+      AnalogComparator  Comparator2(2, AC2, PORTD.PIN2CTRL, PORTD.PIN4CTRL, AC_NULL_REG,    PORTD.PIN6CTRL,                 PORTD.PIN7CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
     #endif
   #endif
 #elif defined(ANALOG_COMP_PINS_DD)
