@@ -41,7 +41,7 @@ void setup() {
   Comparator.hysteresis = comparator::hyst::large;  // Use a 50mV hysteresis
   Comparator.output = comparator::out::enable;      // Enable output on PIN_PA5 (digital pin 1)
   //                                    // or PIN_PA3 (digital pin 4) on ATtiny412/212)
-  #elif defined(MEGATINYCORE)
+  #else
   /* for 0-series, there's no DACREF; instead, let's use the 2v5 reference */
   Comparator.input_p = comparator::in_p::in0;       // Use positive input 0 (PD2)
   Comparator.input_n = comparator::in_n::vref;      // Connect the negative pin to the DACREF voltage
