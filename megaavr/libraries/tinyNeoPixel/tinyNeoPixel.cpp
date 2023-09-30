@@ -206,8 +206,7 @@ void tinyNeoPixel::show(uint16_t leds) {
   // run at those speeds, only that - if they do - you can control WS2812s
   // with them.
 
-  //volatile uint16_t // already declared.
-  //i     = numBytes; // Loop counter
+
   volatile uint8_t
    *ptr = pixels,   // Pointer to next byte
     b   = *ptr++,   // Current byte value
@@ -707,14 +706,14 @@ void tinyNeoPixel::show(uint16_t leds) {
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 14)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 16)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 18)
-      "rjmp _head16"              "\n\t" // 2    -> _head20 (next bit out) (T=20)
+      "rjmp _head16"              "\n\t" // 2    -> _head16 (next bit out) (T=20)
      "_nextbyte16:"               "\n\t" //                    (T = 10)
       "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 11)
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 13)
       "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 14)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 16)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 18)
-       "brne _head16"             "\n"   // 2    if (i != 0) -> (next byte) (T=20)
+       "brne _head16"             "\n"   // 2    if (i != 0) -> _head16 (bit 0 of next byte.) (T=20)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -748,14 +747,14 @@ void tinyNeoPixel::show(uint16_t leds) {
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T =  7)
       "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T =  8)
       "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T =  9)
-      "breq _nextbyte20"         "\n\t" // 1-2  if (bit == 0) (from dec above)
+      "breq _nextbyte20"          "\n\t" // 1-2  if (bit == 0) (from dec above) -> _nextbyte20
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 11)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 13)
       "nop"                      "\n\t" // 1    nop           (T = 14)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 15)
-      "rcall onlydelay20"        "\n\t" // 2+4+2 = 7          (T = 23)
+      "rcall _onlydelay20"        "\n\t" // 2+4+2 = 7          (T = 23)
       "rjmp _head20"             "\n\t" // 2    -> _head20 (next bit out T = 25)
-     "onlydelay20:"              "\n\t" // 2    rcall         (T = n+2)
+     "_onlydelay20:"              "\n\t" // 2    rcall         (T = n+2)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = n+4)
       "ret"                      "\n\t" // 4    4x nop        (T = n+8)
      "_nextbyte20:"              "\n\t" //                    (T = 11)
@@ -767,7 +766,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 19)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 21)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 23)
-       "brne _head20"             "\n"   // 2    if (i != 0) -> (next byte)  ()
+       "brne _head20"             "\n"   // 2    if (i != 0) -> _head20 (next byte)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -804,7 +803,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T =  9)
       "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T = 10)
       "rjmp .+0"                 "\n\t" // 2    nop nop       (T = 14)
-      "breq _nextbyte24"          "\n\t" // 1-2  if (bit == 0) (from dec above)
+      "breq _nextbyte24"          "\n\t" // 1-2  if (bit == 0) (from dec above) -> _nextbyte24
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 16)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 17)
       "rcall _seconddelay24"      "\n\t" // 2+4+5=11           (T = 28)
@@ -821,7 +820,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 19)
       "rcall _thirddelay24"       "\n\t" // 2+4+1=7            (T = 26)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 28)
-      "brne _head24"              "\n"   // 2    if (i != 0) -> (next byte)  (T = 30)
+      "brne _head24"              "\n"   // 2    if (i != 0) -> _head24 (next byte)  (T = 30)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -859,11 +858,11 @@ void tinyNeoPixel::show(uint16_t leds) {
       "st   %a[port],  %[next]"  "\n\t" // 1    PORT = next   (T =  9)
       "mov  %[next] ,  %[lo]"    "\n\t" // 1    next = lo     (T = 10)
       "rcall _firstdelay28"       "\n\t" // 2+4 = 7            (T = 17)
-      "breq _nextbyte28"          "\n\t" // 1-2  if (bit == 0) (from dec above)
+      "breq _nextbyte28"          "\n\t" // 1-2  if (bit == 0) (from dec above) -> _nextbyte28
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 19)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 20)
       "rcall _seconddelay28"      "\n\t" // 2+4+1+6=11         (T = 31)
-      "rjmp _head28"              "\n\t" // 2    -> _head20 (next bit out)
+      "rjmp _head28"              "\n\t" // 2    -> _head28 (next bit out)
      "_seconddelay28:"            "\n\t" //
       "rcall _thirddelay28"       "\n\t" // 2+4=6 saves 2 instruction words vs two rjmp .+0
      "_firstdelay28:"             "\n\t" // first delay
@@ -876,7 +875,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 25)
       "rcall _thirddelay28"       "\n\t" // 2+4 = 6            (T = 31)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 33)
-      "brne _head28"              "\n"   // 2    if (i != 0) -> (next byte)  ()
+      "brne _head28"              "\n"   // 2    if (i != 0) -> _head28 (next byte)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -915,22 +914,22 @@ void tinyNeoPixel::show(uint16_t leds) {
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 22)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 23)
       "rcall _seconddelay32"      "\n\t" // 2+4+6+3=15         (T = 38)
-      "rjmp _head32"              "\n\t" // 2    -> _head20 (next bit out)
+      "rjmp _head32"              "\n\t"  // 2    -> _head32 (next bit out)
      "_seconddelay32:"            "\n\t" // second delay 15 cycles
      "rcall _zerothdelay32"       "\n\t" // 2+4=6
      "_firstdelay32:"             "\n\t" // first delay 9 cycles
       "nop"                      "\n\t" // 1    nop
      "_thirddelay32:"             "\n\t" // third delay 8 cycles
-      "rjmp .+0"                 "\n\t" // 2    nopnop
+      "rjmp .+0"                  "\n\t"   // 1    nop
      "_zerothdelay32:"            "\n\t" // zeroth delay 6 cycles
       "ret"                      "\n\t" // 4
      "_nextbyte32:"               "\n\t" // last bit of a byte (T = 23)
       "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 24)
       "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 26)
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 28)
-      "rcall _thirddelay32"       "\n\t" // 2+4+1+1 = 8        (T = 36)
+      "rcall _thirddelay32"       "\n\t"  // 2+4+2 = 8        (T = 36)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 38)
-      "brne _head32"              "\n"   // 2    if (i != 0) -> (next byte)  ()
+      "brne _head32"              "\n"    // 2    if (i != 0) -> _head32 (next byte)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -968,7 +967,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 27)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 28)
       "rcall _seconddelay36"      "\n\t" // 2+4+3+2+2=15       (T = 43)
-      "rjmp _head36"              "\n\t" // 2    -> _head20 (next bit out)
+      "rjmp _head36"              "\n\t" // 2    -> _head36 (next bit out)
      "_seconddelay36:"            "\n\t" // second delay 15 cycles
       "rjmp .+0"                 "\n\t" // 2
       "rjmp .+0"                 "\n\t" // 2
@@ -985,7 +984,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 31)
       "rcall _thirddelay36"       "\n\t" // 2+4 = 10           (T = 41)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 43)
-      "brne _head36"              "\n"   // 2    if (i != 0) -> (next byte)  ()
+      "brne _head36"              "\n"   // 2    if (i != 0) -> _head36 (next byte)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -1024,12 +1023,11 @@ void tinyNeoPixel::show(uint16_t leds) {
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 30)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 31)
       "rcall _seconddelay40"      "\n\t" // 2+4+3+2+3=17       (T = 48)
-      "rjmp _head40"              "\n\t" // 2    -> _head20 (next bit out)
+      "rjmp _head40"              "\n\t" // 2    -> _head40 (next bit out)
      "_seconddelay40:"            "\n\t" // second delay 17 cycles
       "nop"                      "\n\t" // 1    nop
       "rjmp .+0"                 "\n\t" // 2
       "rjmp .+0"                 "\n\t" // 2
-     "_thirddelay40:"             "\n\t" // third delay 12 cycles
      "_firstdelay40:"             "\n\t" // first delay 12 cycles
       "rjmp .+0"                 "\n\t" // 2    nop nop
      "_zerothdelay40:"            "\n\t" // zeroth delay 10 cycles
@@ -1040,9 +1038,9 @@ void tinyNeoPixel::show(uint16_t leds) {
       "st   %a[port], %[lo]"     "\n\t" // 1    PORT = lo     (T = 31)
       "ldi  %[bit]  ,  8"        "\n\t" // 1    bit = 8       (T = 32)
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 34)
-      "rcall _thirddelay40"       "\n\t" // 2+4+4+2 = 12       (T = 46)
+      "rcall _firstdelay40"       "\n\t" // 2+4+4+2 = 12       (T = 46)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 48)
-      "brne _head40"              "\n"   // 2    if (i != 0) -> (next byte)  ()
+      "brne _head40"              "\n"   // 2    if (i != 0) -> _head40 (next byte)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -1079,7 +1077,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "rol  %[byte]"             "\n\t" // 1    b <<= 1       (T = 35)
       "st   %a[port],  %[lo]"    "\n\t" // 1    PORT = lo     (T = 36)
       "rcall _seconddelay48"      "\n\t" // 2+4+3+2+3=22       (T = 58)
-      "rjmp _head48"              "\n\t" // 2    -> _head20 (next bit out)
+      "rjmp _head48"              "\n\t" // 2    -> _head48 (next bit out)
      "_seconddelay48:"            "\n\t" // second delay 22 cycles
       "rjmp .+0"                 "\n\t" // 2
       "rjmp .+0"                 "\n\t" // 2
@@ -1100,7 +1098,7 @@ void tinyNeoPixel::show(uint16_t leds) {
       "ld   %[byte] ,  %a[ptr]+" "\n\t" // 2    b = *ptr++    (T = 39)
       "rcall _thirddelay48"       "\n\t" // 2+4 = 17           (T = 56)
       "sbiw %[count], 1"         "\n\t" // 2    i--           (T = 58)
-      "brne _head48"              "\n"   // 2    if (i != 0) -> (next byte)  ()
+      "brne _head48"              "\n"   // 2    if (i != 0) -> _head48 (next byte)
     : [ptr]   "+e" (ptr),
       [byte]  "+r" (b),
       [bit]   "+d" (bit),
@@ -1120,6 +1118,7 @@ void tinyNeoPixel::show(uint16_t leds) {
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     endTime = micros();
     // Save EOD time for latch on next call
+    #pragma message("micros() present. This library assumes the canonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
   #else
     #pragma message("micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation.")
   #endif
@@ -1457,3 +1456,4 @@ uint32_t tinyNeoPixel::gamma32(uint32_t x) {
   for(uint8_t i = 0; i<4; i++) y[i] = gamma8(y[i]);
   return x; // Packed 32-bit return
 }
+// *INDENT-ON*
