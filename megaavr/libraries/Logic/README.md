@@ -247,7 +247,7 @@ Notes specific to ATtiny 0/1-series:
 * DA/DB have 3 AC's, EA 2, and the DD, DU and EB have one.
 The two final limits add further chaos to the distributions of numeric values for users and generators - the two seem to have had separate algorithms for determining when to leave holes for absent peripherals, and when to fill them in. They *really* seem to like filling in the holes in the generator lists, leaving me wondering what it is abouut the length of the list with such a high cost...
 
-* **Errata warning** Many parts in circulation are impacted by an errata (though not all - some never had it, while the 32k parts have gotten a die rev that fixes it. On effected parts, the link input does not work unless pin output of the other logic block is enabled. Check the applicable errata and datasheet clarification document from Microchip to see if your part is impacted. Other parts have a 
+* **Errata warning** Many parts in circulation are impacted by an errata (though not all - some never had it, while the 32k parts have gotten a die rev that fixes it. On effected parts, the link input does not work unless pin output of the other logic block is enabled. Check the applicable errata and datasheet clarification document from Microchip to see if your part is impacted. Other parts have a
 * **Compatibility warning** The tinyAVR 0/1's were the first AVRs with CCL. They made some decisions that they realized weren't such a good idea after all and changed for parts released more recently. Most importantly, for TCBs and ACs, as well as USARTs, the peripheral number used is the input number. SPI on these parts makes MISO available supposedly. Later parts do not. Later parts also only make USART TXD available - though you can get XCK from the event system.
 * USART option will use XCK on input 0, TXD on input 1, and is not valid for input 2.
   * MISO is (supposedly) available as an input when SPI is used as the input.
@@ -597,7 +597,7 @@ The two bits per LUT allow the interrupt to be triggered on
 ## Latch-without-sequencer
 The available sequencer options, unfortunately, are capable of only slightly more than what can be done with just the even block alone, using feedback. An example of this (2 on DxCore) shows a different input ordering. The comments in the LatchNoSeq example provide a bit more information. You can do many tasks that would at first blush look like a job for the latches by simply setting one input as feedback, and the other two to your latch inputs.
 
-##### RS-latch w/out sequencer
+### RS-latch w/out sequencer
 Input0 is Set
 Input1 is Reset
 Input2 is Feedback
@@ -618,7 +618,7 @@ Truth = 0b10110010 = 0xB2;
 Note that here you have the power to decide what happens in the event that the illegal state where R and S are both high occurs. Here I have it maintain the current state.
 It's also fine to have it go high or low on the "S & R = 1" state, with truthtables of 0b10111010 = 0xBA, or 0b00110010 = 0x32 respectively. But make it toggle, ie, truth table of 0b00111010 = 0x3A and it will instead oscillate extremely rapidly (though it could be slowed down with the synchronizer or filter, that still isn't particularly useful  )
 
-##### D-type latch w/out sequencer
+### D-type latch w/out sequencer
 Input0 is D
 Input1 is G
 Input2 is Feedback
