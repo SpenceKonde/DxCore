@@ -311,7 +311,7 @@ class tinyNeoPixel {
              control you'll need to provide your own gamma-correction
              function instead.
   */
-  static uint32_t   gamma32(uint32_t x);
+  static uint32_t gamma32(uint32_t x);
 
   #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
     inline bool canShow(void) { return (micros() - endTime) >= (uint32_t) latchTime; }

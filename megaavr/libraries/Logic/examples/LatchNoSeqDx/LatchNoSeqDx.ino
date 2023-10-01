@@ -5,7 +5,7 @@
 | Example by Spence Konde 2021                                          |
 | Modified to use event system and work on DD14 by Andrew J. Kroll      |
 |                                                                       |
-| LatchNoSeqDD14.ino - Getting "RS Latch" like behavior with a single   |
+| LatchNoSeqDx.ino - Getting "RS Latch" like behavior with a single   |
 | even numbered LUT. Should work on ALL parts.                          |
 |                                                                       |
 | See the original LatchNoSeq for additional discussion of the rationale|

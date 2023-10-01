@@ -122,8 +122,6 @@ Clock: N/A
 
 Sync/Filter: Off
 
-###
-
 ## Sequential logic with just one LUT
 You can simulate some sequential logic units with just one LUT!
 
