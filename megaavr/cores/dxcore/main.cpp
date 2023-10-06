@@ -7,30 +7,23 @@
 /* Required by some libraries to compile successfully. Even though it's nonsense in Arduino. */
 int atexit(void ( * /*func*/)()) { return 0; }
 
-// these week definitions were moved to hooks.c
-void initVariant() __attribute__((weak));
-/* Weak empty variant initialization function. The purpose is unclear. It sounds like it was intended
- * initialize the variant, and specific variants would have their own implementation. But in practice
- * it seems to be instead used as an initialization callback that libraries can use to run code before
- * setup, like FreeRTOS - it would have been nice if the official API included such a callback. */
+/* What the bloody hell is going on? Why does everything fall down around my ears if disable
+ * millis is set and these functions are located in any other file. What is different?!
+ * It doesn't seem to be recognizing the "default" definition, because it compiles to a call
+ * pointed at 0x0000, which constitues directly requesting a dirty reset, and that is indeed
+ * what you get. And it bootloops very rapidly as a result, because that call haoppens at
+ * OnBeforeInit(). As the name suggests, that's the callback called before init() is called
+ * to set up the hardware */
 
-
-void __attribute__((weak)) onPreMain();
-//void __attribute__((weak)) onPreMain() {
-  /* Override with any user code that needs to run WAY early, in .init3 */
-//}
-void __attribute__((weak)) onBeforeInit();
-//void __attribute__((weak)) onBeforeInit() {
-  /* Override with any user code that needs to run before init() */
-//}
-uint8_t __attribute__((weak)) onAfterInit();
-//uint8_t __attribute__((weak)) onAfterInit() {
-  /* Override with any user code that needs to run before interrupts are
-   * enabled but after all other core initialization.
-   * return 1 to not enable interrupts) */
-//  return 0;
-//}
-
+void __attribute__((weak)) initVariant() {return;} // Reserved for library use.
+void __attribute__((weak)) onPreMain() {return;}   // Called in .init3. Remember to bring your stone tools and loincloth
+// you must survive under the most primitive of conditions. No millis, no delay, F_CPU is defined to a speed other than the
+// frequency it's running at, constructors have not run, etc.
+void __attribute__((weak)) onBeforeInit() {return;} // Called before init. You can step up to maybe the bronze age, but
+// things are still pretty rough, because the init() function has not been called and that sets up the clock, the timers
+// and a wide variety of other things.
+uint8_t __attribute__((weak)) onAfterInit() {return 0;} // Called between init() and the call to sei() to enable interrupts immediately prior to jumping to main.
+// Unlike the others, this one has a return value. If you return a 1, sei() will not be called.
 
 
 #if defined(LOCK_FLMAP)

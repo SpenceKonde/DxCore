@@ -16,7 +16,12 @@ These are typically planned for release in a future version (usually the next on
 * Re-add SPI atttach and detach.
 * Add contributed variation on the latch no seq example.
 
+### 1.5.11 (Emergency fix)
+* At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue.
+* Investigaing reported PWM issues.
+
 ## Releases
+
 ### 1.5.10 (Emergency fix)
 * Enhancement/bugfix - add digitalPinToCanon() - given a pin number, it returns port * 8 + bit_position. This is to be used in some other fixes and enhancements.
 * Workaround Arduino CLI regression impacting CI testing.
