@@ -1,5 +1,8 @@
 # DxCore - Arduino support for the AVR DA, DB-series and DD-series
 
+## Prize: $50 merchandise of your choice from my tindie store
+To anyone who can find an alternative to astyle we can use in place of astyle in the current formatting check, but which handles the preprocessor directive. [Read more](https://github.com/SpenceKonde/AVR_Research/GetFiftyBucks_for_stylechecker.md)
+
 ## There is a bug in recent versions of the IDE and the CLI
 It prevents installation of custom cores by mangling the file name of the json file when it saves it, and then failing to find it because they're using the correct filename (but the file is named incorrectly) Really, there have been a TON of bugs in the 2.x versions, I'm not sure if any "good" versions of the 2.x codebase exist - they have been introducing bugs as fast as they fix them.
 
