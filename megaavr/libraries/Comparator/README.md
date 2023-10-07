@@ -11,7 +11,7 @@ An analog comparator, as the name implies, compares two analog voltages. If the 
 Use the predefined objects `Comparator`/`Comparator0`, `Comparator1` or `Comparator2`. (`Comparator` is #defined as `Comparator0` to permit compatibility with parts that have only a single comparator and use the same or similar library). The available inputs for DA and DB-series parts are shown in the table below; on 28-pin and 32-pin parts, alongside the pins for the single analog comparator on the DD-series.
 
 ## Pinout chart (for all non-tinyAVR devices)
-As with the rest of this document, this is written to consider only non-tinyAVR parts, which have a whole bunch of other considerations. See the version distributed with megaTinyCore for that information. Notice how, over time, the number of pin options has increased considerably. Several pins have been very consistent - as long as the part has the pin and the comparator, that's the pin that the specified input is on (some of these even apply across all comparators, likely for window mode functionality). These are PD2 (positive input 0 for all comparators present), PD7 (negative input 2 of all comparators). PA7 (output of all comparators), and PC6 (where present, the alternate output of all comparators). Except for the first full size modern AVR released, the Mega 0-series (which was different in a number of other ways too), positive input 3 has always been on PD6, negative input 1 has always been PD0 (which does not exist on all parts). Where these inputs have existed (earlier parts didn't have these inputs, though the pin was present). PC2 has always been negative input 3 and positive input 4. Additionally, the exceptions to this have been highly consistent between comparator numbers (again except on mega0): AC0's positive inputs 1 and 2 have cosistently been PE0 and PE2 (and parts that don't have those pins don't have a positive input 1 or 2 for AC0), PD3 and PD4 for AC1. Negative input 0 is the only weird one: It is, respectively PD3, PD5, and PD7 for AC0, AC1, and AC2. AC2, present on only the DA and DB series parts thus far, PD4 and PE1 for positive input 1 and 2. It is certainly no acccident that there is this level of overlap - it is required not only for the Window Mode that some multi-comparator parts offer, but is relevant in a great many use cases involving multiple comparators - and of course benefits compatibility between parts as well. Even on the somewhat unfortunate mega0, released before the plan for the pinout was finalized it would seem, many of the same pins are still used.
+As with the rest of this document, this is written to consider only non-tinyAVR parts, which have a whole bunch of other considerations. See the version distributed with megaTinyCore for that information. Notice how, over time, the number of pin options has increased considerably. Several pins have been very consistent - as long as the part has the pin and the comparator, that's the pin that the specified input is on (some of these even apply across all comparators, likely for window mode functionality). These are PD2 (positive input 0 for all comparators present), PD7 (negative input 2 of all comparators). PA7 (output of all comparators), and PC6 (where present, the alternate output of all comparators). Except for the first full size modern AVR released, the Mega 0-series (which was different in a number of other ways too), positive input 3 has always been on PD6, negative input 1 has always been PD0 (which does not exist on all parts). Where these inputs have existed (earlier parts didn't have these inputs, though the pin was present). PC2 has always been negative input 3 and positive input 4. Additionally, the exceptions to this have been highly consistent between comparator numbers (again except on mega0): AC0's positive inputs 1 and 2 have consistently been PE0 and PE2 (and parts that don't have those pins don't have a positive input 1 or 2 for AC0), PD3 and PD4 for AC1. Negative input 0 is the only weird one: It is, respectively PD3, PD5, and PD7 for AC0, AC1, and AC2. AC2, present on only the DA and DB series parts thus far, PD4 and PE1 for positive input 1 and 2. It is certainly no acccident that there is this level of overlap - it is required not only for the Window Mode that some multi-comparator parts offer, but is relevant in a great many use cases involving multiple comparators - and of course benefits compatibility between parts as well. Even on the somewhat unfortunate mega0, released before the plan for the pinout was finalized it would seem, many of the same pins are still used.
 
 A couple of other things worth noting: The majority of AC pins are on PORTD, with a few on ports C and E (output pin doesn't count). Ports D and E seem to be the most favored analog ports, also being where the OPAMPs live on the DB, and where the DAC on non-tiny parts that have one is. Probably the strangest thing about all these pin mappings is that they don't change the output pin depending on the comparator instance. It's always PA7, PC6 alternate. Why not a different pin for each AC like the tinies have? Strange. Anyway, The chart:
 
@@ -124,27 +124,50 @@ Comparator.input_n = comparator::in_n::vref;  // Connect voltage reference to th
 ### reference
 This property controls what reference voltage the DACREF should be derived from.
 
-This voltage is internally generated by the VREF peripheral. Note that there is only a single reference voltage for all three comparators. To avoid unintended changes to the voltage reference settings, when any comparator is initialized, it will also write to the `reference` property of the other two comparator objects - the same value that it just wrote to the VREF.ACREF register. If a change in the reference voltage is desired, set `reference` on any of the comparator and call their `init()` method. This sounds like a painful restriction, but remember that the reference is never used directly, only through the DACREF, see below.
-Accepted values:
+This voltage is internally generated by the VREF peripheral. Note that on the AVR-Dx and AVR-Ex series, there is only a single reference voltage for all three comparators. To avoid unintended changes to the voltage reference settings, when any comparator is initialized, it will also write to the `reference` property of the other two comparator objects - the same value that it just wrote to the VREF.ACREF register. If a change in the reference voltage is desired, set `reference` on any of the comparator and call their `init()` method. This sounds like a painful restriction, but remember that the reference is never used directly, only through the DACREF, see below. The only parts that don't have a DACREF (or a DAC of any sort) have only a single comparator, while the tinyAVR 1-series has a separate dac and independently selectable reference for each one, though the first is also the DAC used to output analog voltages, which can be awkward.
+
+We have also expanded the number of aliases we offer to include versions containing only 2 significant figures, regardless of how accurately we know what the designers were targeting, we know the references aren't perfect (per elecrical characteristics) and Microchip recognizes that: On parts with the new vref voltages, while the group code names have the targeted voltage out to 4 significant figures, the description of that voltage in the datasheet is p (they show 3 significant figures in some datasheets, 2 in others), so it's totally reasonable to use fewer digits after the decimal to describe it. And it's less typing.
+
+
+#### Accepted values on tinyAVR 0/1-series, and megaAVR 0-series
 ``` c++
-``` c++
-comparator::ref::disable;    // Do not use any reference
+comparator::ref::disable;     // Do not use any reference
 comparator::ref::vref_0v55;   // 0.55V internal reference
 comparator::ref::vref_1v1;    // 1.1V internal reference
 comparator::ref::vref_1v5;    // 1.5V internal reference
 comparator::ref::vref_2v5;    // 2.5V internal reference
-comparator::ref::vref_4v34;   // 4.34V internal reference
+comparator::ref::vref_4v3;    // 4.3V internal reference
 comparator::ref::vref_2v500;  // 2.5V internal reference (compatibility)
+comparator::ref::vref_4v34;   // This is what we used in the past, but now Microchip calls it 4.3.
 ```
-
-Accepted values (Everything else):
+Note the absence of vref_vdd. The dac/ac reference voltages do not have that option on these parts.
+#### Accepted values on tinyAVR 2-series
 ``` c++
 comparator::ref::disable;    // Do not use any reference
-comparator::ref::vref_1v024; // 1.02V internal reference
-comparator::ref::vref_2v048; // 2.05V internal reference
-comparator::ref::vref_2v500; // 2.5V internal reference
-comparator::ref::vref_4v096; // 4.1V internal reference
-comparator::ref::vref_vdd;   // VDD as reference
+comparator::ref::vref_1v024;   // 1.024 (1.02) V
+comparator::ref::vref_2v048;   // 2.048 (2.05) V
+comparator::ref::vref_2v500;   // 2.5V
+comparator::ref::vref_4v096;   // 4.096V (4.10) V
+comparator::ref::vref_vdd;     // VDD as reference
+```
+#### Accepted values on Dx/Ex
+``` c++
+comparator::ref::disable;    // Do not use any reference
+comparator::ref::vref_1v024;   // 1.024 (1.02) V
+comparator::ref::vref_2v048;   // 2.048 (2.05) V
+comparator::ref::vref_2v500;   // 2.5V
+comparator::ref::vref_4v096;   // 4.096V (4.10) V
+comparator::ref::vref_vdd;     // VDD as reference
+comparator::ref::vref_vrefa;   // ExtrernaL voltage reference
+```
+
+#### Aliases accepted on both Dx/Ex and Tiny2
+```c++
+comparator::ref::vref_1v0;     // Alias
+comparator::ref::vref_2v0;     // Alias
+comparator::ref::vref_2V1;     // Alias
+comparator::ref::vref_2v5;     // Alias
+comparator::ref::vref_4v1;     // Alias
 ```
 
 #### Usage
@@ -161,7 +184,7 @@ This property configures the DACREF value - this voltage can be selected as the 
 <img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
 Or, in words, the the voltage from ACn.DACREF is that many 256th's of the reference voltage
-*(it does not appear to be `ACn.DACREF + 1` 256'ths interestingly enough, which is what one would naively expect, and would be strictly speaking slightly better) -SK*
+*(it does not appear to be `ACn.DACREF + 1` 256'ths interestingly enough, which is what one would expect, and would be strictly speaking slightly better) -SK*
 
 #### Usage
 ``` c++
@@ -382,4 +405,4 @@ enterStandbySleep();  // enter standby sleep mode until the comparator interrupt
 
 ## *Future development*
 *shouldn't LP_MODE/PROFILE and RUNSTBY be properties, and treated like everything else? Why **aren't** they? I would imagine that wanting to wake on the AC int would be one of the most common uses of that interrupt.
-They certainly **want** to be properties and it would make the library more coherent. But it would come at a 4-8 bytes of flash (unsure if per comparator or total) and 1 or 2 bytes of ram per comparator, depending on implementation details. Probably wouldn't be popular with people on 212's, but that's a pretty small overhead considering the general level of bloat introduced by classy wrappers around peripherals like Logic, Comparator and Opamp). Maybe a new optional argument to start it in low power, low power - run standby, and run standby (corespondingly more options on DxCore of course). Because how often are you going to be changing the mode once you've turned it on? That's an odd use case (and in any case, the intuitive solution of calling start with a different argument to change it would behave as expected. By passing as the argument the value to be written to the CTRLA register it would have almost no overhead, too. -SK
+They certainly **want** to be properties and it would make the library more coherent. But it would come at a 4-8 bytes of flash (unsure if per comparator or total) and 1 or 2 bytes of ram per comparator, depending on implementation details. Probably wouldn't be popular with people on 212's, but that's a pretty small overhead considering the general level of bloat introduced by classy wrappers around peripherals like Logic, Comparator and Opamp). Maybe a new optional argument to start it in low power, low power - run standby, and run standby (correspondingly more options on DxCore of course). Because how often are you going to be changing the mode once you've turned it on? That's an odd use case (and in any case, the intuitive solution of calling start with a different argument to change it would behave as expected. By passing as the argument the value to be written to the CTRLA register it would have almost no overhead, too. -SK

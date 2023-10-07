@@ -1,3 +1,16 @@
+/*  OBLIGATORY LEGAL BOILERPLATE
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any later version. This library is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU Lesser General Public License for more details. You should have received a copy of the GNU Lesser General Public License along with this library;
+ if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*//*
+   Modern AVR Comparator library for tinyAVR 0/1/2, megaAVR0, Dx, and  Ex
+   Developed in 2019 by MCUdude    https://github.com/MCUdude/
+   Ported to tinyAVR & Dx-series by Spence Konde for megaTinyCore and
+   DxCore 2021-2023: https://github.com/SpenceKonde/
+*/
+
 #ifndef COMPARATOR_h
 #define COMPARATOR_h
 
@@ -183,23 +196,38 @@ namespace comparator {
 
   namespace ref {
     enum reference_t : uint8_t {
-    #if !defined(MEGATINYCORE) || MEGATINYCORE_SERIES == 2
+    #if defined(MEGATINYCORE) && MEGATINYCORE_SERIES == 2
 
         vref_1v024 = 0x00, // 1.024V
+        vref_1v0   = 0x00, // alias
         vref_2v048 = 0x01, // 2.048V
+        vref_2v0   = 0x01, // Alias
+        vref_2V1   = 0x01, // alias
         vref_2v500 = 0x02, // 2.5V
         vref_2v5   = 0x02,
         vref_4v096 = 0x03, // 4.096V
+        vref_4v1   = 0x03, // Alias
         vref_vdd   = 0x07, // VDD as reference
-    #else
+    #elif defined(MEGATINYCORE) || !defined(DXCORE) // 0/1-series tiny, 0-series mega.
         vref_0v55  = 0x00, // 0.55V
         vref_1v1   = 0x01, // 1.1V
         vref_1v5   = 0x04, // 1.5V
-        vref_2v5   = 0x02,
+        vref_2v5   = 0x02, // 2.5V
+        vref_2v500 = 0x02,
         vref_4v3   = 0x03, // 4.3V
-    #endif
-    #if defined(DXCORE)
-      vref_vrefa = 0x06, // External reference from the VREFA pin
+        vref_4v34  = 0x03, // 4.3V Alias
+    #else // Dx/Ex
+        vref_1v024 = 0x00, // 1.02V
+        vref_1v0   = 0x00, // alias
+        vref_2v048 = 0x01, // 2.05V
+        vref_2v0   = 0x01, // Alias
+        vref_2V1   = 0x01, // alias - since the targeted value is right in the middle
+        vref_4v096 = 0x02, // 4.1V
+        vref_4v1   = 0x02, // Alias
+        vref_2v500 = 0x03, // 2.5V
+        vref_2v5   = 0x03, // Alias
+        vref_vdd   = 0x05, // VDD as reference
+        vref_vrefa = 0x06,
     #endif
     disable    = 0x08,
     };

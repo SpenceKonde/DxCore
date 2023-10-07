@@ -950,7 +950,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
 // Microchip can add one more binary option >.>                    */
 
 
-/* External defintitions */
+/* External definitions */
 /* Actual implementation is in wiring_extra.cpp
  * Because of the incrutable rules of C++ scoping, you can define an inline function or a template function in a header....
  * and not in the body of a separate file, while the opposite is true for ANY OTHER KIND OF FUNCTION. */

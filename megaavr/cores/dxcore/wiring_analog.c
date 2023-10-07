@@ -1,35 +1,35 @@
-/*
+/*  OBLIGATORY LEGAL BOILERPLATE
+ This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation;
+ either version 2.1 of the License, or (at your option) any later version. This library is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ See the GNU Lesser General Public License for more details. You should have received a copy of the GNU Lesser General Public License along with this library;
+ if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*//*
   wiring_analog.c - analog input and output
-  Part of Arduino - http://www.arduino.cc/
+  Servo.h - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+  Copyright (c) 2005-2006 David A. Mellis, modified 2010 by David Sproul,
+  and at least one other individual, since *someone* ported it to "megaavr"
+  (aka, modern AVR), and it wasn't me. Finally, Since megaTinyCore was released
+  in 2018 this has been extensively modified first for mTC, and then later for DxC
+  by Spence Konde (2018-2023).
 
-  Copyright (c) 2005-2006 David A. Mellis
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General
-  Public License along with this library; if not, write to the
-  Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-  Boston, MA  02111-1307  USA
-
-  Modified 28 September 2010 by Mark Sproul
+  This file is included with megaTinyCore and DxCore; note that unlike some files,
+  but like most of the "core" files, while some pieces of this code have been shared
+  between the two, and DxC was forked from mTC, the differing demands of the two platforms
+  are such that an omnibus file is not tenable.
 */
+
 
 #include "wiring_private.h"
 #include "pins_arduino.h"
 #include "Arduino.h"
 #include <avr/pgmspace.h>
 
+
 /* magic value passed as the negative pin to tell the _analogReadEnh() (which implements both th new ADC
  * functions) to tell them what kind of mode it's to be used in. This also helps with providing useful and accurate
- * error messages and codes at runtime, since we have no other way to report such.                                 */
+ * error messages and codes at runtime, since we have no other way to report such.
+ */
 
 #define SINGLE_ENDED 254
 
@@ -78,7 +78,7 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
 
 inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
   if (__builtin_constant_p(mode)) {
-    if (!(mode == EXTERNAL || mode == VDD || mode== INTERNAL1V024 || mode== INTERNAL2V048 || mode== INTERNAL4V1 || mode== INTERNAL2V5))
+    if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
     badArg("analogReference called with argument that is not a valid analog reference");
   }
 }
@@ -111,10 +111,10 @@ inline __attribute__((always_inline)) void check_valid_duty_cycle(int16_t val) {
 inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   if (__builtin_constant_p(res))
   #if defined(__AVR_EA__)
-    if (res !=8 && res != 10 && res != 12)
+    if (res != 8 && res != 10 && res != 12)
       badArg("analogReadResolution called with invalid argument - valid options are 8, 12, or 10 (compatibility mode).");
   #else
-    if (res !=8 && res != 10)
+    if (res != 8 && res != 10)
       badArg("analogReadResolution called with invalid argument - valid options are 8 or 10.");
   #endif
 }
@@ -124,7 +124,20 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   // need a variable to store the resolution selected for analogRead - 8, 10, or 12,
   // as well as other options, such as whether to autodisable the PGA or leave it running.
   // Default resolution 10 bits, turn off PGA enabled
-  static uint8_t _analog_options= 0x80 | 10;
+  // decoded as 0bPxxxRRRR
+  // RRRR = resolution, 8, 10, or 12
+  // P = 1 for PGA auto-shutoff.
+  // C = 1 to chop signs. Sign chopping can only be used on Series and Burst measurements
+  // (this includes analogReadEnh() if you specify a resolution that triggers oversampling and
+  // decimation). But when enabled appropriately, it will swap the positive and negative
+  // pins on successive measurements. The result is, especially when measuring very small differences
+  // with a large gain and low reference, much smaller offset error.
+  // Sign Chopping support is not yet implemented, but this is how it will be.
+  // Unless we determine that we can just leave it on and have it only use it for
+  // the burst/series modes (in which case, it will probably be made the default)
+  // we will turn it on in analogReadEnh/Diff (_analogReadEnh() specifically)
+  // and then turn it off before returning, when we restore other ADC settings.
+  static uint8_t _analog_options = 0x80 | 10;
 #endif
 
 #ifdef DAC0
@@ -191,11 +204,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
  *     1 - enable PGA ahead of time for the next measurement after which it will be turned off as above.
  *     2 - disable PGA, and in future turn if off immediately after use.
  *     3 - enable PGA, leave it on until explicitly turned off. This is a power hog.
- * int32_t analogReadEnh(uint8_t pin, int8_t res=ADC_NATIVE_RESOLUTION,
- *                                                          uint8_t gain=0)
+ * int32_t analogReadEnh(uint8_t pin, int8_t res = ADC_NATIVE_RESOLUTION,
+ *                                                          uint8_t gain = 0)
  *     Enhanced analogRead(). Still single-ended, res is resolution in bits,
  *     which range from 8 to the largest value that can be obtained from using
- *     the accumlation feature and a single "start" command to oversample x4
+ *     the accumulation feature and a single "start" command to oversample x4
  *     per extra bit, followed by decimation/2 per extra bit (the math is
  *     described in Microchip/Atmel app notes). This maximum is 13 bits for
  *     0/1-series parts, and 17 bits for 2-series parts.
@@ -208,7 +221,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
  *     for gain are 0 (PGA disabled), 1 (unity gain, but can improve performance
  *     of burst reads under some circumstances, and powers of 2 up to 16)
  * int32_t analogReadDiff(uint8_t pos, uint8_t neg,
- *                      int8_t res=ADC_NATIVE_RESOLUTION, uint8_t gain=0)
+ *                      int8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0)
  *     Uses the differential ADC functionality to take a differential ADC
  *     measurement between the specified positive and negative pins. Only pins
  *     on PORTA (tinyAVR 2-series) or on PORTD/PORTE (AVR Dx-series) can be the
@@ -362,7 +375,20 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   uint8_t getAnalogSampleDuration() {
     return ADC0.CTRLE;
   }
-
+  /*NYI
+  uint8_t ADCOptions(uint8_t options) {
+    // 0b____CCFF
+    // FF = Freerunning mode
+    // Note that in freerun mode the ADC cannot be used for analogRead, you need to either define an ISR, or poll status and read the register directly
+    // 00 = do nothing.
+    // 01 = stop current conversion (very useful in freerun mode)
+    // 10 = turn off freerun
+    // 11 = turn on freerun
+    */
+   /*TODO: Figure out what happens if you have sign chopping on when it's not available. Does it blow up everything? Or is it just ignored?
+    return
+  }
+  */
 
   void ADCPowerOptions(uint8_t options) {
     // 0b SSEEPPLL
@@ -371,20 +397,18 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     // 01 = no change to run standby
     // 10 = turn off run standby
     // 11 = turn on run standby
+
     // EE = ENABLE
     // 00 = Do not enable or disable ADC.
     // 01 = Do not enable or disable ADC.
     // 10 = Disable the ADC.
     // 11 = Enable the ADC.
+
     // LL = LOWLAT
     // 00 = Do nothing.  No change to whether ADC enabled or LOWLAT bit.
     // 01 = Do nothing.  No change to whether ADC enabled or LOWLAT bit.
     // 10 = LOWLAT on. No change to whether ADC enabled.
     // 11 = LOWLAT off. No change to whether ADC enabled.
-    // 00 = Do nothing,
-    // 01 = Do nothing,
-    // 10 = LOWLAT on.
-    // 11 = LOWLAT off.
     // PP = PGA stay-on
     // 00 = No action
     // 01 = Turn off PGA, settings unchanged. It will be enabled next time is requested, but will not automatically turn off.
@@ -481,11 +505,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     pin &= 0x3F;
 
     if (ADC0.COMMAND & ADC_START_gm) return ADC_ENH_ERROR_BUSY;
-    if (gain !=0) {
-      uint8_t gainbits =0;
+    if (gain != 0) {
+      uint8_t gainbits = 0;
       while (gain > 1) {
         gain >>= 1;
-        gainbits+=32;
+        gainbits+= 32;
       }
       ADC0.PGACTRL = (ADC0.PGACTRL & ~ADC_GAIN_gm) | gainbits | ADC_PGAEN_bm;
     }
@@ -507,7 +531,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
         shift--;
       }
       // Sanity checks
-      // uint8_t roundup=result&0x01;
+      // uint8_t roundup = result&0x01;
       // result >>= 1;
       // result += roundup;
     } else if (res == 8) {
@@ -569,10 +593,10 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
         frequency = constrain(frequency, 300, ((ADC0.CTRLC & 0x04) ? 3000 : 6000));
       }
       uint8_t prescale = 0;
-      for (uint8_t i =0; i < 16; i++) {
+      for (uint8_t i = 0; i < 16; i++) {
         int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
         prescale = i;
-        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i+1] < ((options & 0x01) ? 2 : 300))) {
+        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
           ADC0.CTRLB = prescale;
           break;
         }
@@ -595,7 +619,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 
 void analogReference(uint8_t mode) {
   check_valid_analog_ref(mode);
-  if (mode < 7 && mode !=4) {
+  if (mode < 7 && mode != 4) {
     VREF.ADC0REF = (VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode);
   }
 }
@@ -673,7 +697,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
   //        the minute they tried to that they had the ADC off. The startup time of the ADC is not negligible in many applications.
   uint8_t sampnum;
   if (res & 0x80) {           // raw accumulation
-    sampnum=res & 0x7F;       // strip high bit and treat as negative number
+    sampnum = res & 0x7F;       // strip high bit and treat as negative number
     if (sampnum > 7)  return  ADC_ENH_ERROR_RES_TOO_HIGH; //
   } else {
     if (res < 8)                              return   ADC_ENH_ERROR_RES_TOO_LOW;
@@ -711,7 +735,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
       // On DA and DB, the last ADC channel is 21 (0x15).  DD goes up to 31 (0x1F)
       return ADC_DIFF_ERROR_BAD_NEG_PIN;
     }
-    ADC0.MUXNEG=neg;
+    ADC0.MUXNEG = neg;
     /*  OK to do since we have verified that it's not in mid-conversion. That doesn't
         explicitly break anything to change it during conversion, but it would change
         the channel, then determine that it could not take the measurement and return
@@ -740,7 +764,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
     // Logic more complicated here vs megaTinyCore because we have to contend with the fact that truncation has already occurred.
     if (res > ADC_NATIVE_RESOLUTION) {
       uint8_t resbits = res * 2 - ADC_NATIVE_RESOLUTION;
-      // The number of bits of resolution we would be getting and need to decimate if theere was no truncation.
+      // The number of bits of resolution we would be getting and need to decimate if there was no truncation.
       // result length in bits, but count the bits beyond native resolution twice, since each one needs a bit of decimation.
       uint8_t shift = res - ADC_NATIVE_RESOLUTION;
       // but if it exceeds 16 bits it gets truncated
@@ -799,7 +823,7 @@ bool analogReadResolution(uint8_t res) {
     }
   #endif
   if (__builtin_constant_p(res)) {
-    if (res !=10 && res != 12) {
+    if (res != 10 && res != 12) {
       badArg("analogReadResolution called with invalid argument - valid options are 10 or 12.");
     }
   }
@@ -924,11 +948,12 @@ void analogWrite(uint8_t pin, int val) {
   #endif
   if (timer_A != NULL) {
     offset = bit_mask;
-    #if defined(TCA1)  // offset = 0b0xxx0000
-      if (threepin) {  // and it's a 3-pin map
-        _SWAP(offset); // 0b00000xxx
+    #if defined(TCA1)  //
+      if (threepin) {  // and it's a 3-pin map then offset = 0b0xxx0000
+        _SWAP(offset); // So swapo to get 0b00000xxx
       }
     #endif
+
     uint8_t ctrlb = offset;
     if (offset > 0x04) { // if 0b00xx x000
       ctrlb <<= 1;       // we leftshift what we're going to write to CTRLB one bit to get it into high nybble
@@ -945,8 +970,15 @@ void analogWrite(uint8_t pin, int val) {
     // Write the value to the register.
     *(((volatile uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
     // and ctrlb to ctrlb
-    timer_A->SPLIT.CTRLB |= ctrlb;
-
+    GPIOR2 = ctrlb;
+    uint8_t t = timer_A->SPLIT.CTRLB;
+    uint8_t oldsreg = SREG;
+    cli();
+    t |= ctrlb;
+    GPIOR3 = t;
+    timer_A->SPLIT.CTRLB = ctrlb;
+    GPIOR1 = timer_A->SPLIT.CTRLB;
+    SREG = oldsreg;
     /* Okay, this layout tends towards maximum pervosity. You basically have to treat them as entirely separate timers at this point!
      * PORT | DA | DB | DD | EA | portnum
      *    A | XX | XX | XX | 20 | 0; portmux == 0x20 EA only                    portnux >> 2 == 4
@@ -965,230 +997,231 @@ void analogWrite(uint8_t pin, int val) {
      * No PORTA or PORTD except on EA (it was a newly added mux option) there.
      * No TCA1 on DD at all.
      */
+    //#if !defined(__AVR_DD__)
+      _setOutput(portnum, bit_mask);
+    //#endif
   } else {
     TCB_t *timer_B;
     // TCA_t *timer_A;
     uint8_t digital_pin_timer = digitalPinToTimer(pin);
     switch (digital_pin_timer) {
-    case NOT_ON_TIMER:{
-      if (val < 128) {
-        _setValueLow(portnum, bit_mask);
-      } else {
-        _setValueHigh(portnum, bit_mask);
-      }
-      break;
-    }
-    case TIMERB0:
-    case TIMERB1:
-    case TIMERB2:
-    case TIMERB3:
-    case TIMERB4:
-
-      /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
-      // assert (((TIMERB0 - TIMERB3) == 2));
-      timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
-      // make sure the timer is in PWM mode
-      if (((timer_B->CTRLB) & TCB_CNTMODE_gm) == TCB_CNTMODE_PWM8_gc ) {
-        /* set duty cycle */
-        #if defined(ERRATA_TCB_CCMP) && ERRATA_TCB_CCMP == 0
-          timer_B->CCMPH = val; /* does not yet exist */
-        #else
-          timer_B->CCMPL = timer_B->CCMPL;   // load temp register with the period, 254 have to first make sure temp register holds 254
-          timer_B->CCMPH = val;              /* We can leave interrupts on - only a read of the count in the ISR would mess things up.
-           * That is a wacky corner case. If they have timer in 8-bit PWM mode, and they write the value in with another call, yet ALSO
-           * insist on reading the timer value from within an ISR, yes that's a race condition, and it will shit on the compare value */
-        #endif
-        /* Enable Timer Output */
-        timer_B->CTRLB |= (TCB_CCMPEN_bm);
-        return;
-      } // if it's not, we don't have PWM on this pin!
-      break;
-  #if defined(DAC0)
-    case DACOUT: {
-      _setInput(portnum, bit_mask);
-      uint8_t ctrla = DAC0.CTRLA;
-      if (val == 0 || val == 255) {
-        ctrla &= ~0x41; // clear we want to turn off the DAC in this case
-      }
-      volatile uint8_t* pinctrl_ptr = (volatile uint8_t*) 0x0476; // PD6 PINnCTRL;
-      *pinctrl_ptr |= PORT_ISC_INPUT_DISABLE_gc;
-      #if defined(DAC0_DATAH)
-        DAC0.DATAH = val;
-        DAC0.CTRLA |= 0x41; // OUTEN=1, ENABLE=1, but don't trash run stby
-      #else
-        DAC0.DATA = val;
-        DAC0.CTRLA |= 0x41; // OUTEN=1, ENABLE=1, but don't trash run stby
-      #endif
-      return;
-    }
-  #endif
-  #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
-    // Else, it's on TCD0
-    default:
-    {
-      #if defined(NO_GLITCH_TIMERD0)
-        // "No glitch timerd" mode means that if analogWrite(pin,val) is called for a pin on a type D timer
-        // with a duty cycle of 0% or 100%, instead of digitalWrite()'ing the pin, we will leave the timer
-        // connected, and instead set the duty cycle to 0%. If the requested duty cycle is 100%, the pin
-        // will then be inverted.
-        //
-        // If this is not defined, then the 0% and 100% cases will instead have been caught by the conditional
-        // at the start of analogWrite().
-
-        uint8_t set_inven = 0; // this will be set to 1 if we're setting the pin to a duty cycle of 100%
-        if(val <= 0){
-          val = 0;
-        } else if (val >= 255){
-          val = 0;
-          set_inven = 1;
-        }
-      #endif
-      /**************************************
-      Determine the bit within TCD0.FAULTCTRL
-      On Dx-series, WOA is always on bit 0 or bit 4 and so on
-      On tinyAVR 1-series, WOA/WOB is on PA4/PA5, and WOC, WOD is on PC0/PC.
-      In the past the same copy of this function was used for both cores. That has become untenable
-      ***************************************/
-      // Dx-series
-      uint8_t port = digitalPinToPort(pin);
-      uint8_t tcdmux = pgm_read_byte_near(&_tcdmux[(digital_pin_timer & 0x07)]);
-      // First, if TCD portmux busted, but it's not set to 0, we can't get PWM, don't try
-      uint8_t fc_mask = bit_mask ;
-      #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
-        if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
-          break;
-        }
-        if (!(tcdmux & 0x04)) {
-          if (bit_mask < 0x10) { //cpi
-            fc_mask <<= 4;// mov swap andi, hopefully.
-          }
+      case NOT_ON_TIMER:{
+        if (val < 128) {
+          _setValueLow(portnum, bit_mask);
         } else {
-          if (port == 3) { //cpse rjmp .+6
-            fc_mask <<= bit_mask << 2; // mov lsr lsr
-          }
+          _setValueHigh(portnum, bit_mask);
         }
-      #else
-        if (((tcdmux & 0x07) != 0)) {
-          /* On these parts, there is no available silicon with a working TCD portmux! */
-          if (val < 128) {
-            _setValueLow(portnum, bit_mask);
-          } else {
-            _setValueHigh(portnum, bit_mask);
+        break;
+      }
+      case TIMERB0:
+      case TIMERB1:
+      case TIMERB2:
+      case TIMERB3:
+      case TIMERB4:
+        /* Get pointer to timer, TIMERB0 order definition in Arduino.h*/
+        // assert (((TIMERB0 - TIMERB3) == 2));
+        timer_B = ((TCB_t *)&TCB0 + (digital_pin_timer - TIMERB0));
+        // make sure the timer is in PWM mode
+        if (((timer_B->CTRLB) & TCB_CNTMODE_gm) == TCB_CNTMODE_PWM8_gc ) {
+          /* set duty cycle */
+          #if defined(ERRATA_TCB_CCMP) && ERRATA_TCB_CCMP == 0
+            timer_B->CCMPH = val; /* does not yet exist */
+          #else
+            timer_B->CCMPL = timer_B->CCMPL;   // load temp register with the period, 254 have to first make sure temp register holds 254
+            timer_B->CCMPH = val;              /* We can leave interrupts on - only a read of the count in the ISR would mess things up.
+             * That is a wacky corner case. If they have timer in 8-bit PWM mode, and they write the value in with another call, yet ALSO
+             * insist on reading the timer value from within an ISR, yes that's a race condition, and it will shit on the compare value */
+          #endif
+          /* Enable Timer Output */
+          timer_B->CTRLB |= (TCB_CCMPEN_bm);
+          return;
+        } // if it's not, we don't have PWM on this pin!
+        break;
+      #if defined(DAC0)
+        case DACOUT: {
+          _setInput(portnum, bit_mask);
+          uint8_t ctrla = DAC0.CTRLA;
+          if (val == 0 || val == 255) {
+            ctrla &= ~0x41; // clear we want to turn off the DAC in this case
           }
-          _setOutput(portnum, bit_mask); // remove this or replace with errata test if it turns out that the direction override is errata and will befixed.
-          break;
+          volatile uint8_t* pinctrl_ptr = (volatile uint8_t*) 0x0476; // PD6 PINnCTRL;
+          *pinctrl_ptr |= PORT_ISC_INPUT_DISABLE_gc;
+          #if defined(DAC0_DATAH)
+            DAC0.DATAH = val;
+            DAC0.CTRLA |= 0x41; // OUTEN = 1, ENABLE = 1, but don't trash run stby
+          #else
+            DAC0.DATA = val;
+            DAC0.CTRLA |= 0x41; // OUTEN = 1, ENABLE = 1, but don't trash run stby
+          #endif
+          return;
         }
       #endif
+      #if (defined(TCD0) && defined(USE_TIMERD0_PWM))
+      // Else, it's on TCD0
+        default: {
+          #if defined(NO_GLITCH_TIMERD0)
+          // "No glitch timerd" mode means that if analogWrite(pin,val) is called for a pin on a type D timer
+          // with a duty cycle of 0% or 100%, instead of digitalWrite()'ing the pin, we will leave the timer
+          // connected, and instead set the duty cycle to 0%. If the requested duty cycle is 100%, the pin
+          // will then be inverted.
+          //
+          // If this is not defined, then the 0% and 100% cases will instead have been caught by the conditional
+          // at the start of analogWrite().
 
-      // 128 input  with the max set to 1019 should get us 509. This was WRONG.
-      // We need to subtract from 256 now, leaving us with a number from 1 to 256
-      uint8_t temp = TCD0.CMPBCLRL;
-      temp = TCD0.CMPBCLRH;
-      //
-      // Read both, only retaining the high byte. Need to read both to see high byte because 16-bit register
-      // Reading just high doesn't work. Checking for CMPBCLR = 509, 1019, or at 32 MHz+, 2039 or 4079 for which we need to shift
-      // the duty cycle left to match
-      if (temp) {   // TOP > 254
-        val <<= 1;  // leftshift once is good for 509
-        if (temp   >= 0x03) {
-          val <<= 1;  // 1019, 2039 or 4079
-          #if F_CPU >= 32000000
-            if (temp >= 0x07) {
-              val <<= 1;  // 2039
-              if (temp == 0x0F) {
-                val <<= 1;  // 4079
-                val = 4080 - val;
-              } else {
-                val = 2040 - val;
+            uint8_t set_inven = 0; // this will be set to 1 if we're setting the pin to a duty cycle of 100%
+            if(val <= 0){
+              val = 0;
+            } else if (val >= 255){
+              val = 0;
+              set_inven = 1;
+            }
+          #endif
+          /**************************************
+          Determine the bit within TCD0.FAULTCTRL
+          On Dx-series, WOA is always on bit 0 or bit 4 and so on
+          On tinyAVR 1-series, WOA/WOB is on PA4/PA5, and WOC, WOD is on PC0/PC.
+          In the past the same copy of this function was used for both cores. That has become untenable
+          ***************************************/
+          // Dx-series
+          uint8_t port = digitalPinToPort(pin);
+          uint8_t tcdmux = pgm_read_byte_near(&_tcdmux[(digital_pin_timer & 0x07)]);
+          // First, if TCD portmux busted, but it's not set to 0, we can't get PWM, don't try
+          uint8_t fc_mask = bit_mask ;
+          #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0
+            if ((tcdmux != PORTMUX.TCDROUTEA && ((digital_pin_timer & 0x44) != 0x44 ))) {
+              break;
+            }
+            if (!(tcdmux & 0x04)) {
+              if (bit_mask < 0x10) { //cpi
+                fc_mask <<= 4;// swap andi, hopefully.
               }
             } else {
-              val = 1020 - val;
+              if (port == 3) { //cpse rjmp .+4
+                fc_mask <<= bit_mask << 2; // lsr lsr
+              }
             }
           #else
-            val = 1020 - val;
-            } else {
+            if (((tcdmux & 0x07) != 0)) {
+              /* On these parts, there is no available silicon with a working TCD portmux! */
+              if (val < 128) {
+                _setValueLow(portnum, bit_mask);
+              } else {
+                _setValueHigh(portnum, bit_mask);
+              }
+              _setOutput(portnum, bit_mask); // remove this or replace with errata test if it turns out that the direction override is errata and will befixed.
+              break;
+            }
           #endif
-          val = 510 - val;
-        }
-        } else {
-        val = 255 - val;
-      }
 
-      #if defined(NO_GLITCH_TIMERD0)
-        volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(port), digitalPinToBitPosition(pin));
-        // if things aren't compile-time known, this is not a lightning fast operation.
-        // We had been doing it closer to where we needed it, but there's no need to wait
-        // until we have interrupts off to figure this out (though we do need them off when)
-        // access it!)
-      #endif
-      // interrupts off while this runs - we really don't want this interrupted!
-      uint8_t oldSREG = SREG;
-      cli();
-      /*-----------------------------------------------------------------------------------------
-       * bit_mask & 0xAA? 0xAA = 0b10101010
-       * This is true if the bitmask corresponds to an odd bit in the port, meaning it's
-       * going to be driven by CMPB, otherwise by CMPA. On all existing parts, WOA is on
-       * bit 0 or 4, WOB on 1 or 5, WOC on 0, 2, 4, or 6, and WOD on 1, 3, 5, or 7.
-       * Pins WOA and WOB are bound to CMPA and CMPB, but WOC and WOD can each be put on
-       * either WOA or WOB. So if WOC is assigned to follow WOA and WOD to follow WOB, this
-       * test gives the answer. This means, in theory, flexible PWM on TCD0 could be improved
-       * by detecting the case where WOA or WOB is outputting PWM already, and the user then
-       * calls analogWrite() on the other pin assigned to that channel, and we could swap that
-       * pin to the other channel. But the code would be ugly (read: slow) and I don't think
-       * the added capability would even be an improvement overall, because the cost in
-       * terms of less consistent behavior is significant: the results become path-dependant,
-       * since writing WOA, WOC, WOB in that order would result in WOC getting swapped to
-       * WOB (now WOB and WOC would output same thing) while WOA, WOB, WOC would not, so
-       * WOA and WOC would be the pair outputting the same thing). And then you'd need to
-       * decide how to handle the above situation when the user then wrote to WOD.
-       * Better to just declare that CMPA shall drive WOC, and CMPB shall drive WOD.
-       *-----------------------------------------------------------------------------------------*/
-      if (bit_mask & 0xAA) {
-        TCD0.CMPBSET = val - 1;
-      } else {
-        TCD0.CMPASET = val - 1;
-      }
-      /* Check if channel active, if not, have to turn it on */
-      if (!(TCD0.FAULTCTRL & fc_mask)) {
+          // 128 input  with the max set to 1019 should get us 509. This was WRONG.
+          // We need to subtract from 256 now, leaving us with a number from 1 to 256
+          uint8_t temp = TCD0.CMPBCLRL;
+          temp = TCD0.CMPBCLRH;
+          //
+          // Read both, only retaining the high byte. Need to read both to see high byte because 16-bit register
+          // Reading just high doesn't work. Checking for CMPBCLR = 509, 1019, or at 32 MHz+, 2039 or 4079 for which we need to shift
+          // the duty cycle left to match
+          if (temp) {   // TOP > 254
+            val <<= 1;  // leftshift once is good for 509
+            if (temp   >= 0x03) {
+              val <<= 1;  // 1019, 2039 or 4079
+              #if F_CPU >= 32000000
+                if (temp >= 0x07) {
+                  val <<= 1;  // 2039
+                  if (temp == 0x0F) {
+                    val <<= 1;  // 4079
+                    val = 4080 - val;
+                  } else {
+                    val = 2040 - val;
+                  }
+                } else {
+                  val = 1020 - val;
+                }
+              #else
+                val = 1020 - val;
+                } else {
+              #endif
+              val = 510 - val;
+            }
+          } else {
+          val = 255 - val;
+        }
+
+        #if defined(NO_GLITCH_TIMERD0)
+          volatile uint8_t *pin_ctrl_reg = getPINnCTRLregister(portToPortStruct(port), digitalPinToBitPosition(pin));
+          // if things aren't compile-time known, this is not a lightning fast operation.
+          // We had been doing it closer to where we needed it, but there's no need to wait
+          // until we have interrupts off to figure this out (though we do need them off when)
+          // access it!)
+        #endif
+        // interrupts off while this runs - we really don't want this interrupted!
+        uint8_t oldSREG = SREG;
+        cli();
         /*-----------------------------------------------------------------------------------------
-         * need to be careful here - analogWrite() can be called by a class constructor, for
-         * example in which case the timer hasn't been started yet. We must not start it in this
-         * case, as it would then fail to initialize and have the wrong clock prescaler and other
-         * settings. Similarly, in any other situation where the timer isn't running when we started
-         * the most likely result it being automatically started by an analogWrite() is naught but
-         * woe and misery.
-         * Instead, we should do everything else, and when the timer is next enabled, the PWM will
-         * be configured and waiting. This is also probably what users would expect and hope to
-         * happen if they are modifying TCD0 registers themselves. Though per core docs, we make
-         * no promises in that case, the fact that the fix for a call to analogWrite() in a class
-         * constructor (something that is not proscribed by docs, and hence is suppsed to work)
-         * makes that case less bad is anadded bonus.
-         *---------------------------------------------------------------------------------------*/
-        uint8_t temp2 = TCD0.CTRLA;
-        TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);
-        while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
-        _PROTECTED_WRITE(TCD0.FAULTCTRL, (fc_mask | TCD0.FAULTCTRL));
-        // while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
-        TCD0.CTRLA = temp2; // re-enable it if it was enabled
-      } else {
-        TCD0.CTRLE = TCD_SYNCEOC_bm; // it was already on - just set new value and set sync flag.
-      }
-
-      #if defined(NO_GLITCH_TIMERD0)
-        // In this mode, we need to check set_inven, and set INVEN if it was called with 100% duty cycle
-        // and unset that bit otherwise.
-        if (set_inven == 0){
-          // we are not setting invert to make the pin HIGH when not set; either was 0 (just set CMPxSET > CMPxCLR)
-          // or somewhere in between.
-          *pin_ctrl_reg &= ~PORT_INVEN_bm;
+         * bit_mask & 0xAA? 0xAA = 0b10101010
+         * This is true if the bitmask corresponds to an odd bit in the port, meaning it's
+         * going to be driven by CMPB, otherwise by CMPA. On all existing parts, WOA is on
+         * bit 0 or 4, WOB on 1 or 5, WOC on 0, 2, 4, or 6, and WOD on 1, 3, 5, or 7.
+         * Pins WOA and WOB are bound to CMPA and CMPB, but WOC and WOD can each be put on
+         * either WOA or WOB. So if WOC is assigned to follow WOA and WOD to follow WOB, this
+         * test gives the answer. This means, in theory, flexible PWM on TCD0 could be improved
+         * by detecting the case where WOA or WOB is outputting PWM already, and the user then
+         * calls analogWrite() on the other pin assigned to that channel, and we could swap that
+         * pin to the other channel. But the code would be ugly (read: slow) and I don't think
+         * the added capability would even be an improvement overall, because the cost in
+         * terms of less consistent behavior is significant: the results become path-dependant,
+         * since writing WOA, WOC, WOB in that order would result in WOC getting swapped to
+         * WOB (now WOB and WOC would output same thing) while WOA, WOB, WOC would not, so
+         * WOA and WOC would be the pair outputting the same thing). And then you'd need to
+         * decide how to handle the above situation when the user then wrote to WOD.
+         * Better to just declare that CMPA shall drive WOC, and CMPB shall drive WOD.
+         *-----------------------------------------------------------------------------------------*/
+        if (bit_mask & 0xAA) {
+          TCD0.CMPBSET = val - 1;
         } else {
-          // we *are* turning off PWM while forcing pin high - analogwrite(pin,255) was called on TCD0 PWM pin...
-          *pin_ctrl_reg |= PORT_INVEN_bm;
+          TCD0.CMPASET = val - 1;
+        }
+        /* Check if channel active, if not, have to turn it on */
+        if (!(TCD0.FAULTCTRL & fc_mask)) {
+          /*-----------------------------------------------------------------------------------------
+           * need to be careful here - analogWrite() can be called by a class constructor, for
+           * example in which case the timer hasn't been started yet. We must not start it in this
+           * case, as it would then fail to initialize and have the wrong clock prescaler and other
+           * settings. Similarly, in any other situation where the timer isn't running when we started
+           * the most likely result it being automatically started by an analogWrite() is naught but
+           * woe and misery.
+           * Instead, we should do everything else, and when the timer is next enabled, the PWM will
+           * be configured and waiting. This is also probably what users would expect and hope to
+           * happen if they are modifying TCD0 registers themselves. Though per core docs, we make
+           * no promises in that case, the fact that the fix for a call to analogWrite() in a class
+           * constructor (something that is not proscribed by docs, and hence is supposed to work)
+           * makes that case less bad is anadded bonus.
+           *---------------------------------------------------------------------------------------*/
+          uint8_t temp2 = TCD0.CTRLA;
+          TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);
+          while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
+          _PROTECTED_WRITE(TCD0.FAULTCTRL, (fc_mask | TCD0.FAULTCTRL));
+          // while(!(TCD0.STATUS & 0x01));    // wait until it can be re-enabled
+          TCD0.CTRLA = temp2; // re-enable it if it was enabled
+        } else {
+          TCD0.CTRLE = TCD_SYNCEOC_bm; // it was already on - just set new value and set sync flag.
+        }
+
+        #if defined(NO_GLITCH_TIMERD0)
+          // In this mode, we need to check set_inven, and set INVEN if it was called with 100% duty cycle
+          // and unset that bit otherwise.
+          if (set_inven == 0){
+            // we are not setting invert to make the pin HIGH when not set; either was 0 (just set CMPxSET > CMPxCLR)
+            // or somewhere in between.
+            *pin_ctrl_reg &= ~PORT_INVEN_bm;
+          } else {
+            // we *are* turning off PWM while forcing pin high - analogwrite(pin,255) was called on TCD0 PWM pin...
+            *pin_ctrl_reg |= PORT_INVEN_bm;
+          }
+        #endif
+        SREG = oldSREG; // Turn interrupts back on, if they were off.
         }
       #endif
-      SREG = oldSREG; // Turn interrupts back on, if they were off.
-      }
-    #endif
     }
   // now hastily set the pin output with this quickie macro since we know alll we need in order to do so now.
   }

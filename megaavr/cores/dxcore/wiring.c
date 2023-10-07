@@ -177,7 +177,7 @@ void init_timers();
       // you are experiencing instances of time loss, this is an issue you need to fix. (you are trying to time something with microsecond accuracy having disabled
       // interrupts for a long period of time, micros is not expected to work). But that is an improvement, why shouldn't we take it?
       // The argument against it would be potentially wrong values for micros - but that could only happen if a priority interrupt is called that interrupts the
-      // write of the millis total, and calls micros there. It would eroneously think that the timer had just overflowed, but that the ISR had run, and thus they
+      // write of the millis total, and calls micros there. It would erroneously think that the timer had just overflowed, but that the ISR had run, and thus they
       // would use the value in main memory which may have had 0-4 bytes updated. The 4 byte window would becorrect and is only 1 clock wide.
       // | Cases | bytes updated | resulting error | Chance of error, per case |   Time |
       // |-------|---------------|-----------------|---------------------------|--------|
@@ -1894,7 +1894,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 /* This ugly function configures the system clock speed to match what the user requested       *
  * See also the Clock Failure Detection section immediately below for the helper functions to  *
  * attempt to handle problems with external clock sources. It doesn't work very well though.   *
- * the system is more liekly to think the clock is working, switch to it, and then find that   *
+ * the system is more likely to think the clock is working, switch to it, and then find that   *
  * actually it's not working and end up bootlooping.                                           */
 
 // These are defaults that could be overridden by variant or arguments passed to compiler
@@ -2562,7 +2562,7 @@ void __attribute__((weak)) init_TCBs() {
  * polling loop on the status register only runs once or clocked from system clock and sync     *
  * prescaler is 1. Similarly, it cannot be enabled right after disabling it - the ENRDY bit must*
  * be set in the status register. We skip checking this here because, as we do many places the  *
- * initiialization functions assume that the chip starts from a reset condition.                */
+ * initialization functions assume that the chip starts from a reset condition.                */
 
 void __attribute__((weak)) init_TCD0() {
   #if defined(USE_TIMERD0_PWM) || defined (MILLIS_USE_TIMERD0)

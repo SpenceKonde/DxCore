@@ -44,7 +44,7 @@ List the part numbers (if applicable) or what board this variant supports.
  * There is some flexibility:
     * If UPDI pin cannot be set to act as IO, it should not have a declared number - it's not a pin as far as the part is concerned.
     * If Reset, but not UPDI can ber set to act as I/O, you may choose to skip numbering it, and give it the last number.
-    * If Reset and UPDI can both be set as I/O, they should be numbered consecutively. It is the option of the implementor whether
+    * If Reset and UPDI can both be set as I/O, they should be numbered consecutively. It is the option of the implementer whether
         these two pins, PF6 and PF7 should be locasted at at the end of the pin numbers, or at the end of PORTF (this is only different on 64-pin parts. )
  * No pins shalt be arbitrarily renumbered to make the pin numbers "more like an Uno" or for any other purpose.
       This depraved and barbarous practice has no place in modern society. In the bad old days, when peripherals on classic AVRs were strewn
@@ -246,7 +246,7 @@ List the part numbers (if applicable) or what board this variant supports.
 
 
 /* Yes, pinswap1 is the same as default. You must still include it or people will not be allowed to swap to it.
- * The slave pins for dual mode are hadled internally to wire. */
+ * The slave pins for dual mode are handled internally to wire. */
 
 // TWI 0
 #define PIN_WIRE_SDA           PIN_PA2

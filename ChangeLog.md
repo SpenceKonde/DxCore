@@ -13,12 +13,13 @@ These items are in addition to what was listed under changes already in release.
 ## Planned changes implemented in github
 These are typically planned for release in a future version (usually the next one) as noted.
 * Doc enhancement. EB part specific pages and timer reference updated to reflect what isknown about the available options
-* Re-add SPI atttach and detach.
+* Re-add SPI attach and detach.
 * Add contributed variation on the latch no seq example.
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue.
-* Investigaing reported PWM issues.
+* Critical PWM bug on DA and DB returned and made all TCA and TCD PWM fail to operate.
+* Comparator voltage reference table was incorrect, so unexpected behavior was observed when selecting most references.
 
 ## Releases
 
@@ -158,7 +159,7 @@ Spelling, grammar and typographical fixes.
   * Bugfix: Correct issue with serial on alt pins in Optiboot that *never* should have worked.
   * Bugfix: Account for the fact that there is no acceptable LED pin on a 14-pin DD that is viable for all serial port and mux options. We pick PD6, unless using USART1, in which case we assume the LED is on PD4.
 * **Related to errors that may occur at hidden locations when using LTO (".text+0")**
-  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me in reference to a specific bug. This behavior is typically encountered when the function was inlined, causeing it to not know exactly where it came from and hence report .text+0 as the location) which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - that is because LTO is required for the core to produce working code in some cases - we depend on the ability to inline certain things across files (among other things, fast digital I/O is fully dependent on that).
+  * Enhancement: Add Ref_LTO to explain what LTO is, and how to disable it when you receive an error pointing .text+0 (often specifying a function that isn't even defined in the file it mentioned) so that you can get the actual location of the error. This is a pain in the ass to do, and usually you can figure it out without doing this, but uh, well sometimes you can't. That was the case for me in reference to a specific bug. This behavior is typically encountered when the function was inlined, causing it to not know exactly where it came from and hence report .text+0 as the location) which led to me writing this up and providing a mechanism by which the core can be made to compile (we still disable uploading if LTO is disabled - that is because LTO is required for the core to produce working code in some cases - we depend on the ability to inline certain things across files (among other things, fast digital I/O is fully dependent on that).
   * Enhancement: Add clean copies of platform.txt and platform.txt without LTO/uploading, for both manual and board manager installations to extras.
 * **Other**
   * Enhancement: Add more part information macros (See [the define list](megaavr/extras/Ref_Defines.md))
@@ -318,7 +319,7 @@ Spelling, grammar and typographical fixes.
   * Fix bug in variants files regarding PA0, PA1 on all parts - the PORT needs to be defined accurately, but when they're not available, mask and position are NOT_A_PIN so accessing them when we know we can't will give compile error. Improve formatting.
   * Add `PIN_NOW` macros, eg, `SCL1_NOW`.
   * Fix bug where missing pin related macro on 28 pin parts related to TWI1 would cause compile errors (may not be in any release)
-  * Fix bug whrre under some conditions, errors would be encoutnered for 32-pin parts due to pinmappings missing for USART2 (not in any release)
+  * Fix bug whrre under some conditions, errors would be encountered for 32-pin parts due to pinmappings missing for USART2 (not in any release)
   * Various pins_arduino formatting improvements echoing what I did to boards.txt
   * Correct issue with name of portToPinZero() a macro used by the DxCore library to assist in managing TCA multiplexing.
   * Split DxCore.h into DxCore.h and DxCore.cpp, because otherwise you couldn't include it from more than one file without duplicate definitions.

@@ -5,7 +5,7 @@
  * than 62KHz. This is indeed possible - though do note that the maximum frequency of PWM possible with a full 8 bits
  * of resolution is 78.125 kHz when running at 20 MHz (20000000/256); at 24, it's 93.75 kHz, and overclocked to 32 MHz,
  * 125 kHz. The next highest  frequency for which perfect 8-bit resolution is possible is half of those frequencies.
- * Higher fequencies require lower resolution (see above example for one approach, which can also be used for
+ * Higher frequencies require lower resolution (see above example for one approach, which can also be used for
  * intermediate frequencies) - though if the frequency is constant, varying your input between 0 and the period instead
  * of using map() is desirable, as map may not be smooth. As a further aside, if 78.125kHz is suitable, there is no
  * need to disable split mode (ynless other features were required, like event inputs or buffering (which might well
