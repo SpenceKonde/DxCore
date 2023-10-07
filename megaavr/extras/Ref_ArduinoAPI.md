@@ -30,7 +30,7 @@ In many cases the types of return values and input values, and the details of wh
 #define LSBFIRST         0    /* used for shiftIn/shiftOut */
 #define MSBFIRST         1    /* used for shiftIn/shiftOut */
 ```
-* Notice that the actual values of the input sense configuration bitfield dont match the constants used above; this is accounted for in WInterrupts.c
+* Notice that the actual values of the input sense configuration bitfield don't match the constants used above; this is accounted for in WInterrupts.c
 
 ## DxCore/megaTinyCore extensions
 More detail and information on functions provided that aren't part of the official API can be found on the other reference pages. This just covers things that don't really fit anywhere else.
@@ -93,7 +93,7 @@ It is important to understand the strategy used to map pins provided by the hard
 | OPAMP1      | PD        | Yes       |
 | OPAMP2      | PE        | Yes       |
 
-Here exclusive means all of it's pin options are on that port - CCL LUT3 is exclusively available on PORTF, while TWI0 is not exclusive, because it can use pins on either PORTA or PORTC. The AC's "live" in PORTD, but depending on the specific part, they have varying levels of opportunity to reach beyond that port, though PORTD comprises the majority of their mapping options.
+Here exclusive means all of its pin options are on that port - CCL LUT3 is exclusively available on PORTF, while TWI0 is not exclusive, because it can use pins on either PORTA or PORTC. The ACs "live" in PORTD, but depending on the specific part, they have varying levels of opportunity to reach beyond that port, though PORTD comprises the majority of their mapping options.
 
 
 ## Datatypes

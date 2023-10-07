@@ -237,7 +237,7 @@ int16_t getMVIOVoltage() {
     uint8_t tempRef = VREF.ADC0REF; // save reference
     analogReference(INTERNAL1V024);  // known reference
     analogRead(ADC_VDDIO2DIV10); // exercise the ADC with this reference
-    int32_t tempval = analogReadEnh(ADC_VDDIO2DIV10,13); // 0-8191,  8191 = 10240mv (obv not possible im practice);  So we want a multipication by 1.25 if not an error.
+    int32_t tempval = analogReadEnh(ADC_VDDIO2DIV10,13); // 0-8191,  8191 = 10240mv (obv not possible im practice);  So we want a multiplication by 1.25 if not an error.
     VREF.ADC0REF = tempRef; // restore reference
     if (tempval < 0) {
       tempval += 2099990000; // make error numbers from enhanced reads fit in int16.

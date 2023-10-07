@@ -10,7 +10,7 @@ int atexit(void ( * /*func*/)()) { return 0; }
 /* What the bloody hell is going on? Why does everything fall down around my ears if disable
  * millis is set and these functions are located in any other file. What is different?!
  * It doesn't seem to be recognizing the "default" definition, because it compiles to a call
- * pointed at 0x0000, which constitues directly requesting a dirty reset, and that is indeed
+ * pointed at 0x0000, which constitutes directly requesting a dirty reset, and that is indeed
  * what you get. And it bootloops very rapidly as a result, because that call haoppens at
  * OnBeforeInit(). As the name suggests, that's the callback called before init() is called
  * to set up the hardware */

@@ -15,7 +15,7 @@
 | We will only use PA1 and PA2 as inputs. when the first input is       |
 | disabled it will always be read as 0, and the output doesn't matter.  |
 | Here's how 0x40 turns out to be the correct value to create a 2-input |
-| NAND gate (or one of them rather - with 4 dont-care bits, there are   |
+| NAND gate (or one of them rather - with 4 don't-care bits, there are  |
 | 16 that will all give the same behavior)                              |
 |                                     2-input AND truth table:          |
 | If we look at the truth table       |IN2|IN1|IN0| Y |                 |

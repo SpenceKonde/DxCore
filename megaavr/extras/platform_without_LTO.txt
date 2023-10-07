@@ -155,7 +155,7 @@ recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf
 ####################################
 
 ## Save hex
-# Needs to be specified separately, because otherwise some parts of it don't resolve for reasons I dont understand.
+# Needs to be specified separately, because otherwise some parts of it don't resolve for reasons I don't understand.
 recipe.output.tmp_file={build.project_name}.hex
 recipe.output.save_file={build.project_name}.{build.mcu}{build.mcupostfix}.{build.speed}c{build.clocksource}.m{build.millistimer}{build.wireabr}{build.printfabr}{build.appspmabr}.v{versionnum.major}{versionnum.minor}{versionnum.patch}_NO_LTO.hex
 

@@ -70,7 +70,7 @@ Notice `PROGMEM` itself requires const declaration.... the other sections don't 
 Reading from PROGMEM_MAPPED is easy on the high page. You just read from it
 
 There's a problem on the low page though; namely, the address is given relative the start of the flash not to the start of the section. So if it starts at address 0x1000 it will be mapped to 0x9000.
-But the compiler still thinks it's address is 0x1000.
+But the compiler still thinks its address is 0x1000.
 
 There's a simple if rather ugly construction to fix it with minimal overhead though:
 ```c++
@@ -149,7 +149,7 @@ If you need more than 32k of flash for constants.
 * Section 0 is a very dangerous section to use because your code will push stuff out of there and you may not realize until you read gibberish.
 * On 64k parts, you never need to change the FLMAP.
 * On 32k parts just declare things constant
-* Mapped flash is better for things where you're sequentially accessing a bunch of bytes because `LPM __, Z+` isn't used everywhere it can be, while it's advantage is much smaller for randomly accessed data and larger datatypes.
+* Mapped flash is better for things where you're sequentially accessing a bunch of bytes because `LPM __, Z+` isn't used everywhere it can be, while its advantage is much smaller for randomly accessed data and larger datatypes.
 
 ## Don't forget Flash.h
 Finally, I would be remiss if I didn't mention the Flash.h library and the option of writing to flash from the app. Using that to save non-volatile data is a great approach. Better still, if the the app SPM permissions are set correctly you could even use it to erase a bunch of flash, make sure that the NVMCTRL.CTRLA was set to FLWR and then (remember, you aren't forced to declare them const!) **simply assign values to erased locations declared PROGMEM_MAPPED there in order to save data**! (this does not work with the unlimited flash write option - that always requires using Flash.h to write - it also doesn't work with AVR128DA parts up to die rev. A8 on the first page of the flash). (do note that using Flash.h to write about twice as fast, thopugh.)

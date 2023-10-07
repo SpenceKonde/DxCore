@@ -195,7 +195,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
  *                                                          uint8_t gain=0)
  *     Enhanced analogRead(). Still single-ended, res is resolution in bits,
  *     which range from 8 to the largest value that can be obtained from using
- *     the accumlation feature and a single "start" command to oversample x4
+ *     the accumulation feature and a single "start" command to oversample x4
  *     per extra bit, followed by decimation/2 per extra bit (the math is
  *     described in Microchip/Atmel app notes). This maximum is 13 bits for
  *     0/1-series parts, and 17 bits for 2-series parts.
@@ -740,7 +740,7 @@ int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((un
     // Logic more complicated here vs megaTinyCore because we have to contend with the fact that truncation has already occurred.
     if (res > ADC_NATIVE_RESOLUTION) {
       uint8_t resbits = res * 2 - ADC_NATIVE_RESOLUTION;
-      // The number of bits of resolution we would be getting and need to decimate if theere was no truncation.
+      // The number of bits of resolution we would be getting and need to decimate if there was no truncation.
       // result length in bits, but count the bits beyond native resolution twice, since each one needs a bit of decimation.
       uint8_t shift = res - ADC_NATIVE_RESOLUTION;
       // but if it exceeds 16 bits it gets truncated
@@ -1161,8 +1161,8 @@ void analogWrite(uint8_t pin, int val) {
          * be configured and waiting. This is also probably what users would expect and hope to
          * happen if they are modifying TCD0 registers themselves. Though per core docs, we make
          * no promises in that case, the fact that the fix for a call to analogWrite() in a class
-         * constructor (something that is not proscribed by docs, and hence is suppsed to work)
-         * makes that case less bad is anadded bonus.
+         * constructor (something that is not proscribed by docs, and hence is supposed to work)
+         * makes that case less bad is an added bonus.
          *---------------------------------------------------------------------------------------*/
         uint8_t temp2 = TCD0.CTRLA;
         TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);

@@ -130,7 +130,7 @@ switch (result) {
 Return Values:
 FLASHWRITE_OK           = 0x00 // Bootloader present and supports this.
 FLASHWRITE_OLD          = 0x01 // If bootloader version is old, we know it won't work.
-FLASHWRITE_NOBOOT       = 0x10 // No bootloader was found (Returned only if USING_OPTIBOOT = 1; the most liekly reason to see this is a third party IDE that requires manually specifying defines like this.
+FLASHWRITE_NOBOOT       = 0x10 // No bootloader was found (Returned only if USING_OPTIBOOT = 1; the most likely reason to see this is a third party IDE that requires manually specifying defines like this.
 FLASHWRITE_DISABLED     = 0x02 // Bootloader would support it, but it was explicitly disabled (APP_NOSPM)
 FLASHWRITE_UNRECOGNIZED = 0x03 // Some weird unrecognized bootloader is installed
 FLASHWRITE_FUSES        = 0x14 // Fuse settings do not support writing to flash without a bootloader (non-Optiboot configurations only).
@@ -300,7 +300,7 @@ In the event that an attempted flash write to a board with a compatible bootload
 
 ```c++
 0x80 // FLASHWRITE_FAIL - this is never returned as an error code - bitwise and with this to check for any of these errors.
-0x81 // FLASHWRITE_FAIL_INVALID - Invalid Command. Whatever command was wrtten to the NVMCTRL.CTRLA register was invalid. Likely using this library on an unsupported part.
+0x81 // FLASHWRITE_FAIL_INVALID - Invalid Command. Whatever command was written to the NVMCTRL.CTRLA register was invalid. Likely using this library on an unsupported part.
 0x82 // FLASHWRITE_FAIL_PROTECT - Write Protect
 0x83 // FLASHWRITE_FAIL_COLLISION - Command Collision (command not written to 0 between commands. This should not be possible using this library!)
 0x84 // FLASHWRITE_FAIL_ONGOING - Ongoing Programming (Not in datasheet, but mentioned in io headers. Likely for future use when RWW is supported
