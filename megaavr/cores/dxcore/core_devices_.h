@@ -1375,22 +1375,22 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #else
     #define PORTA_EVGENCTRLA PORTA_EVGENCTRL
     #if defined(PORTB_EVGENCTRL)
-      #define PORTB_EVGENCTRL PORTB_EVGENCTRL
+      #define PORTB_EVGENCTRLA PORTB_EVGENCTRL
     #endif
     #if defined(PORTC_EVGENCTRL)
-      #define PORTC_EVGENCTRL PORTC_EVGENCTRL
+      #define PORTC_EVGENCTRLA PORTC_EVGENCTRL
     #endif
     #if defined(PORTD_EVGENCTRL)
-      #define PORTD_EVGENCTRL PORTD_EVGENCTRL
+      #define PORTD_EVGENCTRLA PORTD_EVGENCTRL
     #endif
     #if defined(PORTE_EVGENCTRL)
-      #define PORTE_EVGENCTRL PORTE_EVGENCTRL
+      #define PORTE_EVGENCTRLA PORTE_EVGENCTRL
     #endif
     #if defined(PORTF_EVGENCTRL)
-      #define PORTF_EVGENCTRL PORTF_EVGENCTRL
+      #define PORTF_EVGENCTRLA PORTF_EVGENCTRL
     #endif
     #if defined(PORTG_EVGENCTRL)
-      #define PORTG_EVGENCTRL PORTG_EVGENCTRL
+      #define PORTG_EVGENCTRLA PORTG_EVGENCTRL
     #endif
     #define CCL_INSEL0_IN0_gc CCL_INSEL0_IO_gc
     #define CCL_INSEL1_IN1_gc CCL_INSEL1_IO_gc
