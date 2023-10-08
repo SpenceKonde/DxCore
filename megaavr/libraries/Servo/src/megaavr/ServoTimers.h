@@ -61,7 +61,7 @@
     #define USE_TIMERB1
   #endif
 #elif (defined(TCB0) && defined(SERVO_USE_TIMERB0))
-    #if defined(TCB0)
+  #if defined(TCB0)
     #error "Either your system isn't properly loading headers for some reason, or Microchip released something without a TCB (in which case we don't support it yet)"
   #elif defined(MILLIS_USE_TIMERB0)
     #error "SERVO_USE_TIMERB0 is defined, but so is MILLIS_USE_TIMERB0 - TCB0 can only be used for one of these."
