@@ -77,7 +77,7 @@ void printTCA0Status() {
   uint16_t test = (uint16_t)&TCA0;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;
-  for (uint8_t i=4; i; i--) {
+  for (uint8_t i = 4; i; i--) {
     if (i != 4) {
       MYSERIAL.println();
     }
@@ -91,7 +91,7 @@ void printTCA1Status() {
   uint16_t test = (uint16_t)&TCA1;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;
-  for (uint8_t i=4; i; i--) {
+  for (uint8_t i = 4; i; i--) {
     if (i != 4) {
       MYSERIAL.println();
     }
@@ -105,7 +105,7 @@ void printTCF0Status() {
   uint16_t test = (uint16_t)&TCF0;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;
-  for (uint8_t i=4; i; i--) {
+  for (uint8_t i = 4; i; i--) {
     if (i != 4) {
       MYSERIAL.println();
     }
@@ -119,7 +119,7 @@ void printTCD0Status() {
   uint16_t test = (uint16_t)&TCD0;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;
-  for (uint8_t i=4; i; i--) {
+  for (uint8_t i = 4; i; i--) {
     if (i != 4) {
       MYSERIAL.println();
     }
@@ -133,7 +133,7 @@ void printTCE0Status() {
   uint16_t test = (uint16_t)&TCE0;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;
-  for (uint8_t i=4; i; i--) {
+  for (uint8_t i = 4; i; i--) {
     if (i != 4) {
       MYSERIAL.println();
     }
@@ -147,7 +147,7 @@ void printTCE0Status() {
   uint16_t test = (uint16_t)&TCF0;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;
-  for (uint8_t i=4; i; i--) {
+  for (uint8_t i = 4; i; i--) {
     if (i != 4) {
       MYSERIAL.println();
     }
@@ -172,14 +172,14 @@ uint8_t CurrentTimerIndex = 0;
 void setup() {
   // put your setup code here, to run once:
   #if defined(MAXREG)
-    VPORTE.OUT     &= ~(0x40);
-    VPORTE.DIR     |= 0x40;
-    VPORTG.OUT     |= 0x40;
-    VPORTG.OUT     |= 0x80;
-    VPORTG.DIR     |= 0x40;
-    VPORTG.DIR     |= 0x80;
-    delay(100);
-    VPORTE.OUT     |= 0x40;
+  VPORTE.OUT     &= ~(0x40);
+  VPORTE.DIR     |= 0x40;
+  VPORTG.OUT     |= 0x40;
+  VPORTG.OUT     |= 0x80;
+  VPORTG.DIR     |= 0x40;
+  VPORTG.DIR     |= 0x80;
+  delay(100);
+  VPORTE.OUT     |= 0x40;
   #endif
   #if defined(MYSERIALSWAP)
   MYSERIAL.swap(MYSERIALSWAP);
@@ -192,7 +192,7 @@ void setup() {
   delay(1000);
   for (byte x = 0; x < 7; x++) {
     for (byte y = 0; y < 6; y++) {
-      MYSERIAL.print(TCA0pinsets[6*x+y]);
+      MYSERIAL.print(TCA0pinsets[6* x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -201,7 +201,7 @@ void setup() {
   #ifdef TCA1
   for (byte x = 0; x < 6; x++) {
     for (byte y = 0; y < 6; y++) {
-      MYSERIAL.print(TCA1pinsets[6*x+y]);
+      MYSERIAL.print(TCA1pinsets[6 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -211,7 +211,7 @@ void setup() {
   #ifdef TCD0
   for (byte x = 0; x < 5; x++) {
     for (byte y = 0; y < 4; y++) {
-      MYSERIAL.print(TCD0pinsets[4*x+y]);
+      MYSERIAL.print(TCD0pinsets[4 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -221,7 +221,7 @@ void setup() {
     #ifdef TCE0
   for (byte x = 0; x < 5; x++) {
     for (byte y = 0; y < 8; y++) {
-      MYSERIAL.print(TCDEpinsets[8*x+y]);
+      MYSERIAL.print(TCDEpinsets[8 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -231,7 +231,7 @@ void setup() {
     #ifdef TCF0
   for (byte x = 0; x < 8; x++) {
     for (byte y = 0; y < 2; y++) {
-      MYSERIAL.print(TCDEpinsets[2*x+y]);
+      MYSERIAL.print(TCDEpinsets[2 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -250,8 +250,8 @@ void setup() {
   }
   MYSERIAL.println(dacread);
   delay(2000);
-  pinMode(PIN_PD6,OUTPUT);
-  digitalWrite(PIN_PD6,LOW);
+  pinMode(PIN_PD6, OUTPUT);
+  digitalWrite(PIN_PD6, LOW);
   PORTD.PIN6CTRL = 0;
   dacread = analogRead(PIN_PD6); // throw away the first reading
   dacread = analogRead(PIN_PD6); // This reading will be ok.
@@ -274,12 +274,12 @@ void showDone() {
   MYSERIAL.print("Fail: ");
   MYSERIAL.println(AttemptCount - SuccessCount - SkipCount);
   MYSERIAL.print("Skipped: ");
-  MYSERIAL.println(SkipCount);\
+  MYSERIAL.println(SkipCount);
   if (SuccessCount + SkipCount < AttemptCount) {
-    MYSERIAL.print("Test FAILED!" );
+    MYSERIAL.print("Test FAILED!");
     MYSERIAL.print(AttemptCount - SuccessCount - SkipCount);
     MYSERIAL.print('/');
-    MYSERIAL.print(AttemptCount-SkipCount);
+    MYSERIAL.print(AttemptCount - SkipCount);
     MYSERIAL.println(" failed!");
   } else {
     MYSERIAL.println("Test PASSED!");
@@ -345,15 +345,14 @@ void loop() {
       }
     case 3: {
         #if defined(TCD0)
-          MYSERIAL.print("Testing TCD0 mux number ");
-          MYSERIAL.println(PORTMUX.TCDROUTEA);
-          currentpin = TCD0pinsets[(4 * PORTMUX.TCDROUTEA) + CurrentChannel];
-          MYSERIAL.print("Pin is ");
-          MYSERIAL.println(currentpin);
+        MYSERIAL.print("Testing TCD0 mux number ");
+        MYSERIAL.println(PORTMUX.TCDROUTEA);
+        currentpin = TCD0pinsets[(4 * PORTMUX.TCDROUTEA) + CurrentChannel];
+        MYSERIAL.print("Pin is ");
+        MYSERIAL.println(currentpin);
         #else
-          CurrentChannel = 127;
-          currentpin = 255;
-
+        CurrentChannel = 127;
+        currentpin = 255;
         #endif
         break;
       }
@@ -369,7 +368,7 @@ void loop() {
     MYSERIAL.println("The current configuration does not permit PWM from this timer channel.");
   } else {
     uint16_t tglcount = 0;
-    PORT_t* thisport = portToPortStruct(digitalPinToPort(currentpin));
+    PORT_t *thisport = portToPortStruct(digitalPinToPort(currentpin));
     uint8_t bit_mask = digitalPinToBitMask(currentpin);
     if (bit_mask == NOT_A_PIN) {
       MYSERIAL.println("Pin does not exist on this part");
@@ -421,17 +420,17 @@ void loop() {
           CurrentChannel = 0;
           CurrentTimerIndex++;
           #if !defined(TCA1)
-           if (CurrentTimerIndex == 1)
+          if (CurrentTimerIndex == 1)
           #else
-           if (CurrentTimerIndex == 2)
+          if (CurrentTimerIndex == 2)
           #endif
           {
             tcactrla = TCA0.SPLIT.CTRLA
             takeOverTCA0();
             TCA0.SINGLE.CTRLA = tcactrla;
             #if defined(TCA1)
-              takeOverTCA1();
-              TCA1.SINGLE.CTRLA = tcactrla;
+            takeOverTCA1();
+            TCA1.SINGLE.CTRLA = tcactrla;
             #endif
 
           }
@@ -449,15 +448,15 @@ void loop() {
     case 3: {
         //TCD
         #if defined(TCD0)
-          if (CurrentChannel >= 3) {
-            CurrentChannel = 0;
-            CurrentTimerIndex++;
-          } else {
-            CurrentChannel++;
-          }
-        #else
+        if (CurrentChannel >= 3) {
           CurrentChannel = 0;
           CurrentTimerIndex++;
+        } else {
+          CurrentChannel++;
+        }
+        #else
+        CurrentChannel = 0;
+        CurrentTimerIndex++;
         #endif
         break;
       }
@@ -469,7 +468,7 @@ void loop() {
   }
 
   CurrentTimer = MyTimers[CurrentTimerIndex];
-  if (CurrentTimer == 255){
+  if (CurrentTimer == 255) {
     showDone();
     while (1);
   }
