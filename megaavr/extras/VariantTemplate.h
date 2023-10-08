@@ -40,7 +40,7 @@ List the part numbers (if applicable) or what board this variant supports.
     * a 28-pin DB DOES get a PIN_PD0, because it has PD1-PD7.
     * a 28-pin DB does NOT get a PIN_PB0 - there are no pins on PORTB in that pincount.
  * After the phantom pin, if any at the start of the port (PC0 and PD0 are the potential phantoms.
- * A pin that is not pin 0 within a part is skipped and it's number used for the next pin that is present.
+ * A pin that is not pin 0 within a part is skipped and its number used for the next pin that is present.
  * There is some flexibility:
     * If UPDI pin cannot be set to act as IO, it should not have a declared number - it's not a pin as far as the part is concerned.
     * If Reset, but not UPDI can ber set to act as I/O, you may choose to skip numbering it, and give it the last number.
@@ -144,7 +144,7 @@ List the part numbers (if applicable) or what board this variant supports.
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #elif defined(MILLIS_USE_TIMERB3)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
-#else //no TCB's are used for millis
+#else // no TCBs are used for millis
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PB4) || ((p) == PIN_PB5) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
 #endif
 

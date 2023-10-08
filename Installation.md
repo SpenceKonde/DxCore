@@ -1,9 +1,9 @@
 # DxCore Installation
 
 ## Supported IDE versions
-DxCore requires a version of the IDE not earlier than 1.8.13 for best results, and not earlier than 1.6.5 for any functionality at all. 
+DxCore requires a version of the IDE not earlier than 1.8.13 for best results, and not earlier than 1.6.5 for any functionality at all.
 
-Additional critical regressions are observed on Arduino 2.x.x up to at least 2.2.1 versions, which have seen a rotating cast of serious bugs rendering them unsuitable for use, the latest of which is to prevent any non-manual installation of any third party hardware packages. We cannot offer support for 2.x.x issues until a good 2.x.x version is released, so far there haven't been any - every time they fix one thing, they've added another problem. 
+Additional critical regressions are observed on Arduino 2.x.x up to at least 2.2.1 versions, which have seen a rotating cast of serious bugs rendering them unsuitable for use, the latest of which is to prevent any non-manual installation of any third party hardware packages. We cannot offer support for 2.x.x issues until a good 2.x.x version is released, so far there haven't been any - every time they fix one thing, they've added another problem.
 
 ### Alternative development environments
 There are a number of other alternatives to the Arduino IDE as such, with their users making unflattering (and occasionally profane) comments about the Arduino IDE and it's myriad shortcomings. It is known that the core can be used on the following alternative platforms. Where these are links, this link describes use of this core on that IDE. If no link is provided, that's because I don't use that IDE, and nobody who does have volunteered a guide to installation, use, and any additional complications.
@@ -32,7 +32,7 @@ Manual installation allows the latest version of the core to be installed, with 
 * You must be using a copy of the Arduino IDE that has never had an AVR board definition package installed on it (typically this means the .zip archive, extract, and create a portable folder inside before first run - unless you're developing mulitpl)
 * You must update the toolchain. Search the .json file above `"tools": [` Of the 4 hits, you're looking for the avr-gcc one.
   * Scroll down to the most recent version (currently azduino7b)
-  * Download and decompress the version for your OS. 
+  * Download and decompress the version for your OS.
   * You will find an 'avr' directory containing several subdirectories. This may or may not be enclosed in one or more directories depending on what program is used to decompress it..
     * The directory structure is *very* confusing, and behavior of archiving tools is very idiosyncratic with regards to .tar.bz2 files. There are a hell of a lot of nested "avr" directories, "lib" and "bin" directories that are talking about totally different things at different points in the tree.
   * Copy this into `arduino root folder)/hardware/tools` - if you did this right, you'll be told that thousands of files are different. Replace them all!

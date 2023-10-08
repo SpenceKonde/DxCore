@@ -624,7 +624,7 @@ void init_timers();
             "add r0,r1"     "\n\t"  // + ticks >> 6
             "lsr r1"        "\n\t"  //
             "sub r0,r1"     "\n\t"  // - ticks >> 7
-//dumb way  "lsr r1"        "\n\t"  //  When we are done with these shifts, it's either 0 or 1! So dont sit there shoving the bit thrice
+//dumb way  "lsr r1"        "\n\t"  //  When we are done with these shifts, it's either 0 or 1! So don't sit there shoving the bit thrice
 //          "lsr r1"        "\n\t"  //  when you could just directly test if the bit that's the only one that could be left is 1
 //          "lsr r1"        "\n\t"  //
 //          "add r0,r1"     "\n\t"  // + ticks >> 10

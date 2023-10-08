@@ -59,7 +59,7 @@ You will quickly notice that assembly is non-linear it will often jump off to so
 * The argument is in decimal, not hexadecimal, the comment will contain the address of the target in hexadecimal.
 * Jump - the `jmp` and much more commonly, `rjmp` instructions move execution to a different address. `rjmp` is smaller and faster, but can only jump a limited distance. `jmp` can jump to anywhere in the flash - this is a 4-byte instruction, and the two second bytes are the address it's jumping to.
   * Addresses are word addresses in the opcodes, but byte addressed in the assembly (and the comment) after them will convert it to a byte address.
-  * `jmp`'s third and fourth byte are the address i's jumping to. On the small number of AVR parts with flash larger than 128k bytes (64k words, 2^16), some of the bits of the first two bytes of jump are used `*`, since this can reach the whole address space.
+  * `jmp`'s third and fourth byte are the address it's jumping to. On the small number of AVR parts with flash larger than 128k bytes (64k words, 2^16), some of the bits of the first two bytes of jump are used `*`, since this can reach the whole address space.
   * `rjmp` will have an argument of `.+number` or `.-number`, which represents the position as measured from the the *next* instruction. so `.+42` means that that the next instruction it executes (if it branches) will have an address 42+2 higher than the current instruction.
   * That means that `rjmp .-2` is an infinite loop with no test. It is normal for avr-gcc to emit one of these in every program; if `main()` were ever to return, this is where it would go (C was designed for systems where it was meaningful for a program to "exit", which is not the case on embedded systems)
   * That also means that `rjmp .+0` does nothing. This is very common in timing critical hand-written code: it's a 2-clock-cycle `nop`(no operation), and never seen in compiler generated code (if it is, it's because some assembly macro is being used)
@@ -77,7 +77,7 @@ You will quickly notice that assembly is non-linear it will often jump off to so
     * Any place where you do a test like `if (digialReadFast())` (equiv. `if (VPORTx.IN & (1 << n)`) it is *virtually guaranteed* to manifest in the generated assembly as an `sbic` or `sbis` (the compiler is free to choose whichever will let it make what it thinks is better code).
     * Classic AVRs did not have a fixed pattern to what was in the low I/O space (other than the port registers).
   * `sbrs`/`sbrc` skip if bit in [working] register is set/clear
-    * These are r0-r31 - the values that the CPU currently has at it's fingertips. Or whatever CPUs have instead of fingertips.
+    * These are r0-r31 - the values that the CPU currently has at its fingertips. Or whatever CPUs have instead of fingertips.
     * Unlike the above case of testing the special function registers in the low I/O space, while `if (foo & (1 << bar))` could be compiled to a variety of different things, particularly if there is no need to leave `foo` unchanged
   * These are very frequently followed by a jump or call.
 * The compiler is allowed to reorder operations as it sees fit, as long as it does not change the order of interactions with `volatile` variables (special function registers are always declared that way).

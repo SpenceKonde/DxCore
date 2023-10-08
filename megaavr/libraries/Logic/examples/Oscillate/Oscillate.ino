@@ -472,7 +472,7 @@ void demo9b() {
   /* Divided Clocks: TCB0 - prescale it without dedicating the prescaler of a TCA to it!
    *
    * The type B timers are every AVR developers dream as utility timers. There are only two issues with them -
-   * the first being that they're awful for PWM (but you have TCAs for that) and they dont have an independent
+   * the first being that they're awful for PWM (but you have TCAs for that) and they don't have an independent
    * prescaler - they can either use a TCA prescaler, CLK_PER, or CLK_PER/2. Sometimes you really need to time
    * something that's a bit too long for CLK_PER/2, but you've got the TCA's way down at /64 or /256 for PWM
    * and you don't want to throw away all that accuracy. Or maybe you're writing a library, or code you expect

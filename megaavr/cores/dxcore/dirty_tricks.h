@@ -52,7 +52,7 @@
  *
  * General Advice:
  * Don't use any of the wacky ones unless you know what the fuck you're doing. This is largely for internal use within the core, because we do, and we know that
- * lots of people who dont and couldn't reproduce this performance enhancement themself if they needed it use the core. So where there's a high impact
+ * lots of people who don't and couldn't reproduce this performance enhancement themself if they needed it use the core. So where there's a high impact
  * bit of code - either repeated a lot, and/or in a time-critical section of code that benefits from doing unholy things like this, we're going to do it to make
  * the core better.
  *

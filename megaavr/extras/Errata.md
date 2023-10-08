@@ -54,7 +54,7 @@ OPAMP power consumption 3x higher     | 2 | Microchip | -       | -       | -   
 OPAMP IRSEL bit read-only             | 2 | Microchip | -       | -       | -       | A4 **   | -       | -       | -       | -       | -       |          ... was not a good look. Fast fix. |
 Vector table is wrong                 | 9 | AVRFreaks | -       | -       |RECALLED | -       | -       | -       | -       | -       | -       | Impacted chips recalled, incident hushed up |
 
-`*` - When the DD's were released, Microchip had already decided that the flash endurance to be claimed was 1k not 10k, so the datasheet never claimed 10k.
+`*` - When the DDs were released, Microchip had already decided that the flash endurance to be claimed was 1k not 10k, so the datasheet never claimed 10k.
 `**` - This revision occurred extremely close to release. If impacted parts made it out of the gates of the Microchip fab, their numbers are very small!
 
 Kinda - The change or bug is present on those parts - but here, it is behaving "correctly". The three issues here include two datasheet clarifications (flash endurance and TCB EDGE) - these get changed to Kinda when the actual datasheet is updated to reflect the change, and once they've been propagated to all Dx-series datasheets, they'll go in a different section, and one datasheet clarification + errata (TCA restart) where the parts worked as documented, but they decided the way it worked was dumb and that needed to change it.
@@ -72,7 +72,7 @@ From Arduino perspective. Totally subjective and my own judgement.
 5. Critical. The device is not usable for common tasks. These have all been fixed very rapidly, though there is no evidence of the impacted parts having been recalled other than an absence of impacted parts in the wild.
 9. The device is unusable for any task, and was recallalled when Microchip became aware of it. Supposedly they will replace impacted parts, in the unlikely event that anyone still has them
 `wtf` - Obviously, this must be very rarely encountered, since this issue has been all around us since 2016 and nobody has figured it out until now. It's one of the scariest erratumds to read - the first time through.
-The issues I consider 4's are the two remapping issues, one of which is impacting all DA/DB (TCD), while the other only effects AVR128DA64, and based on the chatter I hear among users, the increase current at cursed voltages on DB is leading many people to consider these parts unusable for their application, so that is also a 4 now as well. The most-recently-added portmux issue, that SPI doesn't work on PB4-7 on parts that don't have PB6 and PB7 (ie, the 48-pin parts) has a 1, but deserves a 0. What the hell good was an SPI mapping that didn't have SCK?!
+The issues I consider 4s are the two remapping issues, one of which is impacting all DA/DB (TCD), while the other only effects AVR128DA64, and based on the chatter I hear among users, the increase current at cursed voltages on DB is leading many people to consider these parts unusable for their application, so that is also a 4 now as well. The most-recently-added portmux issue, that SPI doesn't work on PB4-7 on parts that don't have PB6 and PB7 (ie, the 48-pin parts) has a 1, but deserves a 0. What the hell good was an SPI mapping that didn't have SCK?!
 
 Alas - almost three after the release of the DA-series, we have seen only the AVR128DB get a new silicon rev that fixed a significant number of issues.
 
@@ -233,7 +233,7 @@ My only thought here is "If SPM instruction requires word aligned access, why no
 ### Pre-set fuses don't match datasheet
 The fuses, as supplied (on AVR128DA, Rev. A6 silicon, at least) do not match the configuration described in the datasheet. Generally speaking, unused bits are set to 1 instead of 0 (except in a few cases), and in the case of OSCCFG, a "reserved" combination is selected.
 * BODCFD is set to 0x10, per datasheet this is an invalid BOD level setting. Should not impact functionality, as BOD is disabled by the low 5 bits, and the high bits would be reset if you enabled BOD anyway.
-* OSCCFG is set to 0x78, per datasheet low nybble should be 0 or 1, high nybble all 0's (unused). All options other than 0 and 1 for low 4 bits are marked reserved. I guess bit 3 doesn't matter so much.
+* OSCCFG is set to 0x78, per datasheet low nybble should be 0 or 1, high nybble all 0s (unused). All options other than 0 and 1 for low 4 bits are marked reserved. I guess bit 3 doesn't matter so much.
 * SYSCFG0 is set to 0xF2 instead of 0xC8. While we might not care what CRC algorithm the disabled CRC check is using, the fact that it disables reset is certainly disconcerting to discover...
 * SYSCFG1 is set to 0xF8 instead of 0x00 - just a case of unused bits set 1 instead of 0.
 
@@ -250,10 +250,10 @@ For "intened behavior", it's bloody stupid, and the resulting behavior is thorou
 The ADC has a dramatically higher offset error in single-ended mode than expected: -3 mV. This implies that all readings would be 12 LSB lower than expected at 12 bit accuracy... when the spec is 1.25 LSB. This is pretty ugly for a headline feature! Only mentioned for the 128 DB, and noted as fixed in the A5 rev - A4 parts barely made it out the door - they got this one fixed in a real hurry, as they should.
 
 ### OPAMP IRSEL bit read-only
-The opamp IRSEL (Input Range SELect) is read-only; input range is always rail-to-rail. Wasn't in any other sizes, and got fixed FAST. A4's are rare and hard to find.
+The opamp IRSEL (Input Range SELect) is read-only; input range is always rail-to-rail. Wasn't in any other sizes, and got fixed FAST. A4s are rare and hard to find.
 
 ### OPAMPs consume more power than expected
-The opamp modules consume 3x the expected (from datasheet) power. Wasn't in any other sizes, and got fixed FAST. A4's are rare and hard to find.
+The opamp modules consume 3x the expected (from datasheet) power. Wasn't in any other sizes, and got fixed FAST. A4s are rare and hard to find.
 
 ### PLL Status bit on DA and DB-series not set if not requested by a peripheral
 Yeah, it always reads 0 unless a peripheral is using it. Pretty much defeats the purpose of that bit. Except that with only a single peripheral that can use it this bit doesn't matter much anyway. Makes you wonder if it was originally supposed to be able to clock something else... though I don't really know what that might be.
@@ -286,7 +286,7 @@ Marked "YES" for the DD-series because although their datasheet always described
 
 
 ### Flash endurance 1k, not 10k cycles (Datasheet clarification)
-This is a "datasheet clarification" instead of an errata, which I take to mean that they don't plan to fix this. Which seems sort of surprising, frankly, if the DD's are going to be released this fixed, when you just know most of the errata here are unlikely to ever get a correction. Maybe the DD's are going to get released with 1k flash write endurance, and they've decided that it's not practical to fix on the DD while keeping word writes?
+This is a "datasheet clarification" instead of an errata, which I take to mean that they don't plan to fix this. Which seems sort of surprising, frankly, if the DDs are going to be released this fixed, when you just know most of the errata here are unlikely to ever get a correction. Maybe the DD's are going to get released with 1k flash write endurance, and they've decided that it's not practical to fix on the DD while keeping word writes?
 
 ### Fully vs Partially async pin behavior inconsistent with datasheet w/rt "dead time"
 The description of fully vs partially async pins in the datasheet is muddled and does not reflect behavior of the silicon.

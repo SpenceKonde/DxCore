@@ -91,7 +91,7 @@ The names of these two functions are #defined as themselves if the function can 
 ## Identifying part family within sketch
 When writing code that may be compiled for a variety of target chips, it is often useful to detect which chip it is running on.Defines of the form `__AVR_partname__` are provided by the toolchain. However, it is often MORE useful to not have to have a giant block of #ifdefs, and have the part numbers distilled down to something more that can be checked more intuitively, since what you care about is the family, number of pins, or occasionally size of the flash.
 
-This core provides an additional define depending on the number of pins on the part and it's family (which identifies it's peripheral selection) and the core version:
+This core provides an additional define depending on the number of pins on the part and its family (which identifies its peripheral selection) and the core version:
 * For megaTinyCore:
   * `__AVR_ATtinyxyz__` - where z, and optionally x and y are substituted with those parts of the part number, ex: `__AVR_ATtinyxy4__` or `__AVR_ATtinyx02__`. The fully substituted form is provided by the compiler.
 * For DxCore:
@@ -115,7 +115,7 @@ The below parameter defines should be used in preference to the above.
 * `MEGATINYCORE_SERIES` - the part series, 0, 1, or 2.
 
 ### Additional, deprecated, macros
-This core provides an additional set of defines depending on the number of pins on the part and it's family. These are deprecated; the above definitions are preferred. The `__AVR_xx__` and `_AVR_PINCOUNT` macros give the same information, are less ugly, and work equally well on megaTinyCore and DxCore.
+This core provides an additional set of defines depending on the number of pins on the part and its family. These are deprecated; the above definitions are preferred. The `__AVR_xx__` and `_AVR_PINCOUNT` macros give the same information, are less ugly, and work equally well on megaTinyCore and DxCore.
 
 * `DA_28_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
 * `DA_32_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
@@ -305,10 +305,10 @@ If present, any OPAMP peripherals have each of their pins defined as shown (wher
 ## Compatibility macros
 Occasionally Microchip has not kept the names of registers or bitfields consistent between families of parts, even when the function was not changed. In some cases these have even been changed between versions of the ATpack! The places where we've papered over identical register functionality with different names are:
 * The `GPIO`/`GPIOR`/`GPR` registers - on the most recent parts, these are officially `GPR.GPRn`. We provide whichever of the following are not present: GPIOn, GPIORn, and GPR_GPRn. `GPIORn` is recommended for maximum compatibility. (GPIOR compatibility note: If writing code that may be ported to classic AVRs, GPIOR3 does not exist at all, and only GPIOR0 is guaranteed to be in the low I/O space - check the register map.
-* The `TCA_SINGLE_EVACTA` bitfield - formerly known as `TCA_SINGLE_EVACT` and it's group codes - the old names will work too, permitting code portability from tinyAVR to Dx.
+* The `TCA_SINGLE_EVACTA` bitfield - formerly known as `TCA_SINGLE_EVACT` and its group codes - the old names will work too, permitting code portability from tinyAVR to Dx.
 * The `RTC_CLKSEL` group codes have different spellings of some abbreviations on tinyAVR vs Dx/Ex.  The old names will work too, permitting code portability from tinyAVR to Dx.
 * The `CLKCTRL_SELHF_CRYSTAL_gc` option on DB-series parts which was renamed to `CLKCTRL_SELHF_XTAL_gc`. Both names work.
-* All things `CLKCTRL_FREQSEL` related, which had the E dropped in some ATPACK versions. Both FRQSEL and the old FREQSEL spellings work. I dunno, there must be a shortage of capital E's at Microchip. Maybe it's the new EA and upcoming EB parts hogging all the E's?
+* All things `CLKCTRL_FREQSEL` related, which had the E dropped in some ATPACK versions. Both FRQSEL and the old FREQSEL spellings work. I dunno, there must be a shortage of capital Es at Microchip. Maybe it's the new EA and upcoming EB parts hogging all the E's?
 * All multi-bit bitfields - the `_bp` and `_bm` defines now have an underscore before the bit number. There are about a thousand impacted defines. At least they had the decency to bump the major version.
 
 ## Errata
@@ -343,7 +343,7 @@ When future die revs fix some of these problems, checkErrata() will no longer co
 | ERRATA_TCA_RESTART        | All  | All  | No   | TCA restart resets direction, like DA/DB datasheet says. Both datasheet and silicon were "wrong".
 | ERRATA_TCA1_PORTMUX       | 128k | No   | No   | TCA1 mux options 2 and 3 don't work.
 | ERRATA_TCB_CCMP           | All  | All  | All  | In 8-bit PWM, CCMP treated as a 16-bit register not 2 8-bit ones, so both must be written, never just 1. Universal on modern AVRs.
-| ERRATA_TCD_ASYNC_COUNTPSC | All  | All  | No   | Async event's are missed when TCD tries to use them if count prescaler is engaged.
+| ERRATA_TCD_ASYNC_COUNTPSC | All  | All  | No   | Async events are missed when TCD tries to use them if count prescaler is engaged.
 | ERRATA_TCD_PORTMUX        | All  | All  | No   | TCD PORTMUX unusable. Only default portmux pins work.
 | ERRATA_TCD_HALTANDRESTART | All  | All  | All  | Halt and Wait for SW restart fault mode does not work in dual slope more, or if CMPASET = 0
 | ERRATA_TWI_PINS           | All  | All  | No   | The OUT register for SCL and SDA must be low, otherwise TWI will try to drive the pins high! (Wire.h makes sure this is done correctly)
@@ -519,7 +519,7 @@ if (timer & TIMERD0 == TIMERD0) {
       port = &PORTA + (PORTMUX.TCAROUTEA & PORTMUX_TCD0_gm);
     }
     // pin can't be worked back from the identity of the TCA.
-    // and doing this for TCA1 is much messier because most of it's mappings are only 3 pin ones, and the mux to port mapping is completely random, but some aren't. Takes another lookup table.
+    // and doing this for TCA1 is much messier because most of its mappings are only 3 pin ones, and the mux to port mapping is completely random, but some aren't. Takes another lookup table.
   }
 ```
 

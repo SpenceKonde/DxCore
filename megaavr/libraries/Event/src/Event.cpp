@@ -1124,7 +1124,7 @@ event::gen::generator_t Event::gen_from_peripheral(TCB_t& timer, uint8_t event_t
   #if defined(TINY_0_OR_1_SERIES)
     badCall("gen_from_peripheral() does not support channel-specific generators. The TCBs on 0/1-series are.");
   #else
-    #if !(defined(DXCORE) || defined(TINY_2_SERIES))  // Dx-series and 2-series have ovf event. Others dont.
+    #if !(defined(DXCORE) || defined(TINY_2_SERIES))  // Dx-series and 2-series have ovf event. Others don't.
       if (event_type != 1) {
         return (event::gen::generator_t) -1;
       } else {

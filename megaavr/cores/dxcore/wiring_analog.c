@@ -1188,14 +1188,14 @@ void analogWrite(uint8_t pin, int val) {
            * example in which case the timer hasn't been started yet. We must not start it in this
            * case, as it would then fail to initialize and have the wrong clock prescaler and other
            * settings. Similarly, in any other situation where the timer isn't running when we started
-           * the most likely result it being automatically started by an analogWrite() is naught but
+           * the most likely result of being automatically started by an analogWrite() is naught but
            * woe and misery.
            * Instead, we should do everything else, and when the timer is next enabled, the PWM will
            * be configured and waiting. This is also probably what users would expect and hope to
            * happen if they are modifying TCD0 registers themselves. Though per core docs, we make
            * no promises in that case, the fact that the fix for a call to analogWrite() in a class
            * constructor (something that is not proscribed by docs, and hence is supposed to work)
-           * makes that case less bad is anadded bonus.
+           * makes that case less bad is an added bonus.
            *---------------------------------------------------------------------------------------*/
           uint8_t temp2 = TCD0.CTRLA;
           TCD0.CTRLA = temp2 & (~TCD_ENABLE_bm);

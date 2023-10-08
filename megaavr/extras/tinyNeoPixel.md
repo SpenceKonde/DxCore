@@ -225,7 +225,7 @@ Whether the correct choice was made depends largely on a piece of information I 
 
 `getBrightness()` Returns the current brightness setting (per setBrightness())
 
-`sine8(uint8_t angle)` Returns the sine of the angle (angle in 256's of a circle, that is, 128 = 180 degrees), from 0 to 255. Used for some animation effects. Because this makes use of a lookup table
+`sine8(uint8_t angle)` Returns the sine of the angle (angle in 256ths of a circle, that is, 128 = 180 degrees), from 0 to 255. Used for some animation effects. Because this makes use of a lookup table
 
 `uint8_t gamma8(uint8_t input_brightness)` Performs basic gamma correction for smoother color transitions, returns a gamma corrected brightness that can be passed to setPixelColor().
 
@@ -305,7 +305,7 @@ Typically made with sticky tape on one side, and 5050 LEDs on the other, or cove
 There are a few notable variations on the LED strip:
 ### SK6805 COB LED strip
 "COB" LEDs are those LEDs wherein the emitter is embedded in some sort of soft rubber, generally featuring large numbers of smaller LEDs (which is more efficient, and looks better). In this case, there is a row of incredibly high density (332/m) of SK6805 LEDs in a very small packages, hidden under a white rubbery diffuser that leaves the total strip barely thicker than a standard 5050-strip. While it doesn't throw off as much light because of the lower power LEDs, the tight packing of the pattern makes it appear almost continuous. Vendors claim (though I find dubious) that they only need power injected every 3m (at both ends). 1M with power into 1 end does work, though, so maybe the claim holds up. It certainly shouldn't be hard to avoid voltage droop browning if it doesn't actually hold up by limiting brightness in software. COB LED strip is incredibly beautiful - and eye-wateringly expensive - $30/m or so.
-* Individually addressable 12v LED strip with external IC's and standalone RGB LEDs, usually with three LEDs per IC has each group of LEDs controlled as a group. This means less data needs to be sent for the same number of LEDs, but also limits flexibility. This is not recommended (though see Diffused String Lights below).
+* Individually addressable 12v LED strip with external ICs and standalone RGB LEDs, usually with three LEDs per IC has each group of LEDs controlled as a group. This means less data needs to be sent for the same number of LEDs, but also limits flexibility. This is not recommended (though see Diffused String Lights below).
 * Individually addressable 12v LED strip with just the LEDs is usually based on the WS2815 (this is likely what you want if going the 12v route - they put three tiny lower current LEDs in series, and drop the current they put through them). These also have an extra "bypass" data in and out, so that if one of the LEDs fails completely, the whole string doesn't go out.
 * Warning: There exist 12v LED strips that are not addressable. These have no relation to this library, they are controlled using beefy mosfets, and all the LEDs on the strip must be the same color. Further discussion of these is beyond the scope of this document. They're no where near as much fun as addressable ones.
 
@@ -343,7 +343,7 @@ They do exist, and travel in groups. Apparently when these were relatively new t
 There exists a very similar led to the SK6812, called the SK6805. These use only 5mA per channel (and are not as bright of course). Physically, SK6805 is typically smaller (though there is some overlap in available packages) - the smallest I have seen is 1.5 x 1.5mm (yes, you read that right, you can fit a 3x3 array of them in the footprint of a standard 5050 LED), while 3.5x3.5 is very common, and 2427 is supposedly used in "COB" led strips. These are the ones used in most fairy lights.
 
 ## How much current do these LEDs actually draw?
-Well on that topic... The number everyone throws around on forums is 20mA/channel for normal ones. The ones I've tested ranged from 13-16mA/channel. The SK6812's were suspiciously close to.... 12mA/channel (as if the last two digits of the part number indicate the current...) That makes assuming 60mA per LED a conservative estimate (especially if - as you should be - you are confident that your supply will simply shut down without damage if overloaded). While you system must react gracefully to that kind of load, shutting down due to overcurrent if too many LEDs are on counts as graceful if the problem is not encountered in normal operation
+Well on that topic... The number everyone throws around on forums is 20mA/channel for normal ones. The ones I've tested ranged from 13-16mA/channel. The SK6812s were suspiciously close to.... 12mA/channel (as if the last two digits of the part number indicate the current...) That makes assuming 60mA per LED a conservative estimate (especially if - as you should be - you are confident that your supply will simply shut down without damage if overloaded). While you system must react gracefully to that kind of load, shutting down due to overcurrent if too many LEDs are on counts as graceful if the problem is not encountered in normal operation
 
 
 ## Safety Notice
