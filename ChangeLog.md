@@ -16,19 +16,19 @@ These are typically planned for release in a future version (usually the next on
 * Re-add SPI attach and detach.
 * Add contributed variation on the latch no seq example.
 
+## Releases
+
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue.
 * Critical PWM bug on DA and DB returned and made all TCA and TCD PWM fail to operate.
 * Comparator voltage reference table was incorrect, so unexpected behavior was observed when selecting most references.
-
-## Releases
+* Azduino7b1 toolchain version to fix bad power.h and eeprom.h. 7a was never released and was windows-only fix to the package files which had extra files included, 7b was the fix that also corrected the two builtin headers, but specified the crc for 7a, and could not be installed. 7b1 simply corrects that, but you can't take things out of the json file, only add them.
 
 ### 1.5.10 (Emergency fix)
 * Enhancement/bugfix - add digitalPinToCanon() - given a pin number, it returns port * 8 + bit_position. This is to be used in some other fixes and enhancements.
 * Workaround Arduino CLI regression impacting CI testing.
 * Correct bug preventing compilation of any sketches discovered as soon as the CI was working.
 * Actually use the new toolchain, which we weren't doing, and I didn't realize until the CI was working.
-
 
 ### 1.5.9
 * Bugfix: Correct Flash.h issues.
