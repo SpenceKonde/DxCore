@@ -204,6 +204,7 @@ const PROGMEM_MAPPED uint8_t TCBpinsets[] = {
     NOT_A_PIN,
   #endif
 };
+
 const PROGMEM_MAPPED uint8_t TCD0pinsets[] = {
   #if defined(PIN_PA4)
     PIN_PA4, PIN_PA5, PIN_PA6, PIN_PA7,
@@ -252,24 +253,133 @@ const PROGMEM_MAPPED uint8_t TCD0pinsets[] = {
     NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN
   #endif
 };
-
+/* TODO:
+// This is a 128b table. The majority of it is "reserved" mappings. Obvious assumptions were made.
 const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
-  PIN_PA0, PIN_PA1,
-  #if defined(PIN_PA2)
-  PIN_PA3, PIN_PA4, PIN_PA5, PIN_PA6, PIN_PA7,
+  #if (CLOCK_SOURCE == 0)
+    PIN_PA0, PIN_PA1,
   #else
-
+    NOT_A_PIN, NOT_A_PIN,
+  #endif
+  #if defined(PIN_PA2)
+    PIN_PA2, PIN_PA3, PIN_PA4, PIN_PA5, PIN_PA6, PIN_PA7,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
   #endif
   #if defined (PORTB)
     PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5,
     #if defined(PIN_PB6)
-      PIN_PB6, PIN_PB7
+      PIN_PB6, PIN_PB7,
     #else
-
+      NOT_A_PIN, NOT_A_PIN,
     #endif
   #else
-
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
   #endif
+  #if defined(PORTC)
+    #if defined(MVIO) && _AVR_PINCOUNT < 28
+      NOT_A_PIN,
+    #else
+      PIN_PC0,
+    #endif
+    PIN_PC1, PIN_PC2, PIN_PC3,
+    #if defined(PIN_PC4)
+      PIN_PC4, PIN_PC5, PIN_PC6, PIN_PC7,
+    #else
+      NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+    #endif
+  #endif
+  #if defined(PORTD)
+    #if defined(MVIO) && _AVR_PINCOUNT < 48
+      NOT_A_PIN,
+    #else
+      PIN_PD0,
+    #endif
+    #if _AVR_PINCOUNT > 20
+      PIN_PD1, PIN_PD2, PIN_PD3,
+    #else
+      NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+    #endif
+    PIN_PD4, PIN_PD5, PIN_PD6, PIN_PD7,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #endif
+  #if defined(PORTE)
+    PIN_PE0, PIN_PE1, PIN_PE2, PIN_PE3,
+    #if defined(PIN_PE4)
+      PIN_PE4, PIN_PE5, PIN_PE6, PIN_PE7,
+    #else
+      NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #endif
+  #if defined(PORTF)
+    #if !defined(PIN_PF1)
+      NOT_A_PIN, NOT_A_PIN,
+    #else
+      PIN_PF0, PIN_PF1,
+    #endif
+    #if !defined(PIN_PF2)
+      NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+    #else
+      PIN_PF2, PIN_PF3, PIN_PF4, PIN_PF5,
+    #endif
+    NOT_A_PIN, NOT_A_PIN,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #endif
+  #if defined(PORTG)
+    PIN_PG0, PIN_PG1, PIN_PG2, PIN_PG3, PIN_PG4, PIN_PG5, PIN_PG6, PIN_PG7,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #endif
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  // C2
+  #if (CLOCK_SOURCE == 0)
+    PIN_PA0, PIN_PA1,
+  #else
+    NOT_A_PIN, NOT_A_PIN,
+  #endif
+      #if defined(MVIO) && _AVR_PINCOUNT < 28
+      NOT_A_PIN,
+    #else
+      PIN_PC0,
+    #endif
+  PIN_PC1, PIN_PC2, PIN_PC3, NOT_A_PIN, NOT_A_PIN,
+  // A2
+  #if defined(PIN_PA2)
+    PIN_PA2, PIN_PA3, PIN_PA4, PIN_PA5, PIN_PA6, PIN_PA7, NOT_A_PIN, NOT_A_PIN,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #endif
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
 };
 
-const PROGMEM_MAPPED uint8_t TCF0pinsets[] = {};
+const PROGMEM_MAPPED uint8_t TCF0pinsets[] = {
+  #if (CLOCK_SOURCE == 0)
+    PIN_PA0, PIN_PA1,
+  #else
+    NOT_A_PIN, NOT_A_PIN,
+  #endif
+  #if defined(PIN_PA6)
+    PIN_PA6, PIN_PA7,
+  #else
+    NOT_A_PIN, NOT_A_PIN,
+  #endif
+  #if defined(PIN_PF4)
+    PIN_PF4, PIN_PF5,
+  #else
+    NOT_A_PIN, NOT_A_PIN,
+  #endif
+  NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN,
+  NOT_A_PIN, NOT_A_PIN
+};
+*/
