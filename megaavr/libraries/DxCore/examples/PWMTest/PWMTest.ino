@@ -1,38 +1,40 @@
 /******************************************************************************
  * PWM Test for AVR DA, AVR DB, AVR DD, and possibly AVR EA.
  *
- * This sketch will verify that the core is correctly outputting pwm on the
- * pins that the mux's are set to. It also measuires the frequency of the pwm
+ * This sketch will verify that the core is correctly outputting PWM on the
+ * pins that the mux's are set to. It also measures the frequency of the PWM
  * (somewhat crudely, but it's easily good enough to see if you're on target)
  *
- * This is designed specifically to test the initTCx(), analogWrite() and
+ * This is designed specifically to test initTCx(), analogWrite() and
  * turnOffPWM() (via digitalWrite); While the syntactical correctness is
  * tested every time you compile, whether the behavior is correct is another
  * matter. This has historically been the hardest non-exotic part of the
- * core to implement. (analogWrite is not exotic, nor is the implementation -
- * It's implementing a ubiquitous feature (albeit with the bonus remapping
- * feature added on), it's all written in C. Serial, on the other hand,
+ * core to implement (analogWrite is not exotic, nor is the implementation -
+ * it's implementing a ubiquitous feature (albeit with the bonus remapping
+ * feature added on), as it's all written in C. Serial, on the other hand,
  * while probably harder in an absolute sense, was much less unpleasant. It
  * still implements a ubiquitous part of the API, but it does so using not
  * just assembly, but naked ISRs written in it, and constitutes a very
- * exotic
+ * exotic bit of code.
  *
  * It should compile for all such parts. First, it outputs the tables of the
  * pins within each pinset of all timers except TCBs. 255 is NOT_A_PIN (at
  * least on this part, or if it is present, it's not available with current
- * compile options, like a timer output on PA0 when using a crystal.
+ * compile options, like a timer output on PA0 when using a crystal).
  *
  * After this, we start with TCA0, look at the PORTMUX register to see which
  * pinset it is on, then at our pinset table to know what those pins are
- * and then we analogWrite() the pin to start PWM for 1 second, During that
+ * and then we analogWrite() the pin to start PWM for 1 second. During that
  * time we poll the port input register and count the transitions. Repeat for
- * all channels that aren't "NOT_A_PIN"
+ * all channels that aren't "NOT_A_PIN".
  *
- * Then it does the same for TCA1 if any. When done with the two TCA's it
+ * Then it does the same for TCA1 if any. When done with the two TCAs it
  * **calls takeOverTCA0 and takeOverTCA1 if there's a TCA1**, and then
- * sets the CTRLA on both timers back to what it was, so it serves as a
+ * sets the CTRLA on both timers back to what they were, so it serves as a
  * clock source for the TCBs.
+ *
  * Then it tests the TCBs, skipping the one with millis on it.
+ *
  * Finally, it tests the TCD, if any.
  *
  * In the future this will be expanded to also do the EB and DU.
@@ -45,8 +47,8 @@
  * At the end, it will report the total number of tests that pass, fail, or
  * were skipped. Peripherals not present are not recorded as tests or skips,
  * same with pins not present when the peripheral is.
- * PA0/PA1 with a crystal don't count as attemopts.
- * But a pin blocked off by millis is
+ * PA0/PA1 with a crystal don't count as attempts.
+ * But a pin blocked off by millis is counted as an attempt.
  *
  *****************************************************************************/
 
@@ -57,11 +59,11 @@
 // #define MYSERIALSWAP
 // Override below logic:
 #if !defined MYSERIALSWAP
-  #if defined(__AVR_DD__) && defined(_AVR_PINCOUNT) && _AVR_PINCOUNT == 14 && MYSERIAL = SERIAL
-    #define MYSERIALSWAP 3 //Too likely I'll be using a clock, and it's a pain to have to wire up VDDIO2 to use serial.
+  #if defined(__AVR_DD__) && defined(_AVR_PINCOUNT) && _AVR_PINCOUNT == 14 && MYSERIAL == SERIAL
+    #define MYSERIALSWAP 3 // Too likely I'll be using a clock, and it's a pain to have to wire up VDDIO2 to use serial.
   #elif MYSERIAL == SERIAL && CLOCK_SOURCE != 0
     #define MYSERIALSWAP 1
-  #elif (0 && (MYSERIAL == SERIAL && (_AVR_PINCOUNT == 64 && defined(__AVR_DB__) || defined(XTAL_PINS_HARDWIRED))) //For azduino designs in testing.
+  #elif (0 && (MYSERIAL == SERIAL && (_AVR_PINCOUNT == 64 && defined(__AVR_DB__) || defined(XTAL_PINS_HARDWIRED)))) // For arduino designs in testing.
     #define MYSERIALSWAP 1
   #else
     #define MYSERIALSWAP 0
@@ -183,6 +185,7 @@ void setup() {
   #endif
   #if defined(MYSERIALSWAP)
   MYSERIAL.swap(MYSERIALSWAP);
+  #endif
   PORTMUX.USARTROUTEA = 1;
   VPORTA.DIR |= 0x10;
   MYSERIAL.begin(115200);
@@ -192,7 +195,7 @@ void setup() {
   delay(1000);
   for (byte x = 0; x < 7; x++) {
     for (byte y = 0; y < 6; y++) {
-      MYSERIAL.print(TCA0pinsets[6* x + y]);
+      MYSERIAL.print(TCA0pinsets[6 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -218,7 +221,7 @@ void setup() {
   }
   MYSERIAL.println();
   #endif
-    #ifdef TCE0
+  #ifdef TCE0
   for (byte x = 0; x < 5; x++) {
     for (byte y = 0; y < 8; y++) {
       MYSERIAL.print(TCDEpinsets[8 * x + y]);
@@ -228,7 +231,7 @@ void setup() {
   }
   MYSERIAL.println();
   #endif
-    #ifdef TCF0
+  #ifdef TCF0
   for (byte x = 0; x < 8; x++) {
     for (byte y = 0; y < 2; y++) {
       MYSERIAL.print(TCDEpinsets[2 * x + y]);
@@ -425,14 +428,13 @@ void loop() {
           if (CurrentTimerIndex == 2)
           #endif
           {
-            tcactrla = TCA0.SPLIT.CTRLA
+            tcactrla = TCA0.SPLIT.CTRLA;
             takeOverTCA0();
             TCA0.SINGLE.CTRLA = tcactrla;
             #if defined(TCA1)
             takeOverTCA1();
             TCA1.SINGLE.CTRLA = tcactrla;
             #endif
-
           }
         } else {
           CurrentChannel++;

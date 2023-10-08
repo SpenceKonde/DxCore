@@ -255,7 +255,7 @@ const PROGMEM_MAPPED uint8_t TCD0pinsets[] = {
 
 const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
   PIN_PA0, PIN_PA1,
-  #if defined(PIN_PA2);
+  #if defined(PIN_PA2)
   PIN_PA3, PIN_PA4, PIN_PA5, PIN_PA6, PIN_PA7,
   #else
 
@@ -269,8 +269,7 @@ const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
     #endif
   #else
 
+  #endif
+};
 
-  }
-}
-
-const PROGMEM_MAPPED uint8_t TCF0pinsets[] = {)
+const PROGMEM_MAPPED uint8_t TCF0pinsets[] = {};

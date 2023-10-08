@@ -36,6 +36,7 @@ jobs:
         - megaavr/libraries/Comparator/examples/Simple_comparator
         - megaavr/libraries/DxCore/examples/EnhancedIODemo
         - megaavr/libraries/DxCore/examples/ModernRevSer
+        - megaavr/libraries/DxCore/examples/PWMTest
         - megaavr/libraries/DxCore/examples/SAMPLENdemo
         - megaavr/libraries/EEPROM/examples/eeprom_clear
         - megaavr/libraries/EEPROM/examples/eeprom_crc
