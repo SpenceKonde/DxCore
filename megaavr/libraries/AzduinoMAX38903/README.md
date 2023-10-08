@@ -4,7 +4,7 @@ We sell (or we will sell, once I finish writing up the documentation) an AVR128D
 
 Typically it will be powered either from external 5V directly, or it could run from a 5v output from the main regulator. If using typical 5.2-5.3V USB power, you'll be able to get the full range of voltages out of this.
 
-Note that the AVR and the regulator must be running at approximately the same voltage; that is why we do not supply configurations that don't run the AVR at 5V. You must take care to
+Note that the AVR and the regulator must be running at approximately the same voltage; that is why we do not supply configurations that don't run the AVR at 5V.
 
 ## Supported Voltages
 | Voltage | Name    | Notes                                          |

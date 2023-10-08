@@ -176,7 +176,7 @@ For example, if the crystal (or clock) speed is one that can also be generated f
 byte clockfallback = 0; // global scope
 
 void onClockTimeout() {
-  // Uhoh, the external crystal or clock isn't oscillating.
+  // Uh oh, the external crystal or clock isn't oscillating.
   clockfallback = 1; // Application can check this to produce an appropriate warning
   _switchInternalToF_CPU(); // Set internal HF oscillator to correct source
   PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_OSCHF_gc); // set the main clock source back to internal, so it's not in the state where it's standing by to switch over to the (obviously dodgy) external one if that suddenly works.

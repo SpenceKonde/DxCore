@@ -6,6 +6,7 @@ int8_t setMAX38903Voltage(uint8_t setting) {
     return -1;                        //ldi ret
   } else  {
     VPORTE.OUT     &= ~(1 << 6);      // cbi
+    VPORTE.DIR     |= 0x40;           // sbi
     if (setting == REG_OFF) {          // cpi breq
       return 0;                       // ldi
     }
