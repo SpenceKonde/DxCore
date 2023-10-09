@@ -2265,50 +2265,54 @@ int8_t _setCPUSpeed(uint8_t omhz) {
       #error "Only the tinyAVR 1-series and 2-series parts with at least 14 pins support external RTC timebase"
     #endif
   #endif
-  #if defined(PORTA_EVGENCTRLA) // EB-series
+  #if defined(__AVR_EB__) // EB-series
     // Yup, 1 family after we got evgenctrl,
     #define EVGENCTRL EVGENCTRLA
-    #define PORTA_EVGENCTRL PORTA_EVGENCTRLA
-    #if defined(PORTB_EVGENCTRLA)
+    #if defined(PORTB_EVGENCTRLA) && !defined(PORTA_EVGENCTRL)
+      #define PORTA_EVGENCTRL PORTA_EVGENCTRLA
+    #endif
+    #if defined(PORTB_EVGENCTRLA) && !defined(PORTB_EVGENCTRL)
       #define PORTB_EVGENCTRL PORTB_EVGENCTRLA
     #endif
-    #if defined(PORTC_EVGENCTRLA)
+    #if defined(PORTC_EVGENCTRLA) && !defined(PORTC_EVGENCTRL)
       #define PORTC_EVGENCTRL PORTC_EVGENCTRLA
     #endif
-    #if defined(PORTD_EVGENCTRLA)
+    #if defined(PORTD_EVGENCTRLA) && !defined(PORTD_EVGENCTRL)
       #define PORTD_EVGENCTRL PORTD_EVGENCTRLA
     #endif
-    #if defined(PORTE_EVGENCTRLA)
+    #if defined(PORTE_EVGENCTRLA) && !defined(PORTE_EVGENCTRL)
       #define PORTE_EVGENCTRL PORTE_EVGENCTRLA
     #endif
-    #if defined(PORTF_EVGENCTRLA)
+    #if defined(PORTF_EVGENCTRLA) && !defined(PORTF_EVGENCTRL)
       #define PORTF_EVGENCTRL PORTF_EVGENCTRLA
     #endif
-    #if defined(PORTG_EVGENCTRLA)
+    #if defined(PORTG_EVGENCTRLA) && !defined(PORTG_EVGENCTRL)
       #define PORTG_EVGENCTRL PORTG_EVGENCTRLA
     #endif
     #define CCL_INSEL0_IO_gc CCL_INSEL0_IN0_gc
     #define CCL_INSEL1_IO_gc CCL_INSEL1_IN1_gc
     #define CCL_INSEL2_IO_gc CCL_INSEL2_IN2_gc
   #else
-    #define PORTA_EVGENCTRLA PORTA_EVGENCTRL
-    #if defined(PORTB_EVGENCTRL)
-      #define PORTB_EVGENCTRL PORTB_EVGENCTRL
+    #if defined(PORTA_EVGENCTRL) && !defined(PORTA_EVGENCTRLA)
+      #define PORTA_EVGENCTRLA PORTA_EVGENCTRL
     #endif
-    #if defined(PORTC_EVGENCTRL)
-      #define PORTC_EVGENCTRL PORTC_EVGENCTRL
+    #if defined(PORTB_EVGENCTRL) && !defined(PORTB_EVGENCTRLA)
+      #define PORTB_EVGENCTRLA PORTB_EVGENCTRL
     #endif
-    #if defined(PORTD_EVGENCTRL)
-      #define PORTD_EVGENCTRL PORTD_EVGENCTRL
+    #if defined(PORTC_EVGENCTRL) && !defined(PORTC_EVGENCTRLA)
+      #define PORTC_EVGENCTRLA PORTC_EVGENCTRL
     #endif
-    #if defined(PORTE_EVGENCTRL)
-      #define PORTE_EVGENCTRL PORTE_EVGENCTRL
+    #if defined(PORTD_EVGENCTRL) && !defined(PORTD_EVGENCTRLA)
+      #define PORTD_EVGENCTRLA PORTD_EVGENCTRL
     #endif
-    #if defined(PORTF_EVGENCTRL)
-      #define PORTF_EVGENCTRL PORTF_EVGENCTRL
+    #if defined(PORTE_EVGENCTRL) && !defined(PORTE_EVGENCTRLA)
+      #define PORTE_EVGENCTRLA PORTE_EVGENCTRL
     #endif
-    #if defined(PORTG_EVGENCTRL)
-      #define PORTG_EVGENCTRL PORTG_EVGENCTRL
+    #if defined(PORTF_EVGENCTRL) && !defined(PORTF_EVGENCTRLA)
+      #define PORTF_EVGENCTRLA PORTF_EVGENCTRL
+    #endif
+    #if defined(PORTG_EVGENCTRL) && !defined(PORTG_EVGENCTRLA)
+      #define PORTG_EVGENCTRLA PORTG_EVGENCTRL
     #endif
     #define CCL_INSEL0_IN0_gc CCL_INSEL0_IO_gc
     #define CCL_INSEL1_IN1_gc CCL_INSEL1_IO_gc

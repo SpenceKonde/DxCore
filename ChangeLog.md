@@ -9,20 +9,19 @@ These items are in addition to what was listed under changes already in release.
 * Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
 * Bugfix: Make serialupdi work with EA.
 * Enhancement: Implement sleep library
+* Re-add SPI attach and detach.
+* Ensure libraries in sync with DxCore.
 
 ## Planned changes implemented in github
 These are typically planned for release in a future version (usually the next one) as noted.
-* Doc enhancement. EB part specific pages and timer reference updated to reflect what isknown about the available options
-* Re-add SPI attach and detach.
-* Add contributed variation on the latch no seq example.
 
 ## Releases
 
 ### 1.5.11 (Emergency fix)
-* At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue.
-* Critical PWM bug on DA and DB returned and made all TCA and TCD PWM fail to operate.
-* Comparator voltage reference table was incorrect, so unexpected behavior was observed when selecting most references.
-* Azduino7b1 toolchain version to fix bad power.h and eeprom.h. 7a was never released and was windows-only fix to the package files which had extra files included, 7b was the fix that also corrected the two builtin headers, but specified the crc for 7a, and could not be installed. 7b1 simply corrects that, but you can't take things out of the json file, only add them.
+* At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)
+* Critical PWM bug on DA and DB returned and made all TCA and TCD PWM fail to operate. (#473)
+* Comparator voltage reference table was incorrect, so unexpected behavior was observed when selecting most references. (#488)
+* Azduino7b1 toolchain version to fix bad power.h and eeprom.h. 7a was never released and was windows-only fix to the package files which had extra files included, 7b was the fix that also corrected the two builtin headers, but specified the crc for 7a, and could not be installed. 7b1 simply corrects that, but you can't take things out of the json file, only add them (the user-visible aspects of this issue manifest on several parts that we don't support for power.h, and eeprom.h (not EEPROM.h - that was impacted by a different bug not long ago). (#482)
 
 ### 1.5.10 (Emergency fix)
 * Enhancement/bugfix - add digitalPinToCanon() - given a pin number, it returns port * 8 + bit_position. This is to be used in some other fixes and enhancements.
