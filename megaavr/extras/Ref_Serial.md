@@ -139,30 +139,34 @@ Obviously this begs the question of how any of the devices involved are supposed
 One extremely common task in embedded programming, particularly debugging embedded code, is printing data out as hexadecimal numbers. There is of course,  `Serial.print(number,HEX)`, but not only does that burn more flash, it doesn't add an appropriate number of leading zeros (making it hard to read). It's designed to print numbers in the way that programmers would want them printed - the number of leading zeros will match the data type, ie if you print an unsigned long, with 1 in the low byte and 0's in the other three, it will print 00000001, not 1. As you would expect, printHexln() does the same thing and adds a newline.
 Below is an unabridged list of the versions:
 ```c++
-    void                printHex(const     uint8_t              b);
-    void                printHex(const    uint16_t  w, bool s = 0);
-    void                printHex(const    uint32_t  l, bool s = 0);
-    void                printHex(const      int8_t  b)              {printHex((uint8_t )   b);           }
-    void                printHex(const        char  b)              {printHex((uint8_t )   b);           }
-    void                printHex(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s);           }
-    void                printHex(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s);           }
-    void              printHexln(const      int8_t  b)              {printHex((uint8_t )b   ); println();}
-    void              printHexln(const        char  b)              {printHex((uint8_t )b   ); println();}
-    void              printHexln(const     uint8_t  b)              {printHex(          b   ); println();}
-    void              printHexln(const    uint16_t  w, bool s = 0)  {printHex(          w, s); println();}
-    void              printHexln(const    uint32_t  l, bool s = 0)  {printHex(          l, s); println();}
-    void              printHexln(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s); println();}
-    void              printHexln(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s); println();}
-    uint8_t *           printHex(          uint8_t* p, uint8_t len, char sep = 0            );
-    uint16_t *          printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
-    volatile uint8_t *  printHex(volatile  uint8_t* p, uint8_t len, char sep = 0            );
-    volatile uint16_t * printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
+    void                  printHex(const     uint8_t              b);
+    void                  printHex(const    uint16_t  w, bool s = 0);
+    void                  printHex(const      int8_t  b)              {printHex((uint8_t  )     b);        }
+    void                  printHex(const        char  b)              {printHex((uint8_t  )     b);        }
+    void                  printHex(const     int16_t  w, bool s = 0)  {printHex((uint16_t )  w, s);        }
+    void                  printHex(const    uint32_t  l, bool s = 0)  {_prtHxdw((uint8_t *) &l, s);        } // _prtHxdw() is a private member function
+    void                  printHex(const     int32_t  d, bool s = 0)  {_prtHxdw((uint8_t *) &d, s);        } // that prints a 4 byte type from a pointer,
+    void                  printHex(const       float  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s);        } // and these function definitions pick
+    void                  printHex(const      double  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s);        } // out the argument types it can use and
+    void                printHexln(const      int8_t  b)              {printHex((uint8_t )b   ); println();} // make them pointy.
+    void                printHexln(const        char  b)              {printHex((uint8_t )b   ); println();}
+    void                printHexln(const     uint8_t  b)              {printHex(          b   ); println();}
+    void                printHexln(const    uint16_t  w, bool s = 0)  {printHex(          w, s); println();}
+    void                printHexln(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s); println();}
+    void                printHexln(const       float  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s); println();} // Why float and double? Apparently, the
+    void                printHexln(const      double  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s); println();} // compiler knows the difference.
+    void                printHexln(const     int32_t  d, bool s = 0)  {_prtHxdw((uint8_t *) &d, s); println();} // with just float, it can't tell if an
+    void                printHexln(const    uint32_t  l, bool s = 0)  {_prtHxdw((uint8_t *) &l, s); println();} // a "long" "unsigned long" or "float"
+    uint8_t *           printHex(          uint8_t* p, uint8_t len, char sep = 0            ); // is intended when passing a floating point literal.
+    uint16_t *          printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0); // But it works if we provide a copy of printHex for double
+    volatile uint8_t *  printHex(volatile  uint8_t* p, uint8_t len, char sep = 0            ); // Anomalies were observed with the above when used on the
+    volatile uint16_t * printHex(volatile uint16_t* p, uint8_t len, char sep = 0, bool s = 0); // extended I/O space. Nothing definitive was found.
 ```
 
 There are two particular features worth noting in addition to the correct number of leading zeros, and the fact that it is not horrendously bloated like full serial print.
 1. For 16 and 32-bit datatypes, you can pass a boolean as the second argument. If it is true, the endianness will be reversed.
 
-2. You can also pass a pointer to either a uint8_t or a uint16_t variable. In this case the arguments are:
+2. You can also pass a pointer to either a uint8_t or a uint16_t variable (likely part of an array). In this case the arguments are:
 ```c
 uint8_t *  printHex(uint8_t * p, uint8_t len, char sep = 0);
 uint16_t * printHex(uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
@@ -203,6 +207,8 @@ Many peripherals have a couple of 16-bit registers, amongst a sea of 8-bit ones.
   00:00:00:00:00:00
 */
 ```
+Finally, as of 1.5.12-dev, we threw in a version that takes a float and prints out it's binary representation (not the decimal value).
+
 ### Serial.begin(uint32_t baud, uint16_t options)
 This starts the serial port. Options should be made by combining the constant referring to the desired character size, parity and stop bit length, zero or more of the modifiers below
 

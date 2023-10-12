@@ -844,8 +844,7 @@
         }
       }
 
-      void HardwareSerial::printHex(const uint32_t l, bool swaporder) {
-        uint8_t *ptr = (uint8_t *) &l;
+      void HardwareSerial::_prtHxdw(uint8_t * ptr, bool swaporder) {
         if (swaporder) {
           printHex(*(ptr++));
           printHex(*(ptr++));

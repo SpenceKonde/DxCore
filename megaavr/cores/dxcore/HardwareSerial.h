@@ -250,21 +250,32 @@ class HardwareSerial : public Stream {
     void                   begin(uint32_t baud, uint16_t options);
     void                     end();
     // printHex!
-    void                  printHex(const     uint8_t              b);
-    void                  printHex(const      int8_t  b)              {printHex((uint8_t )   b);           }
-    void                  printHex(const        char  b)              {printHex((uint8_t )   b);           }
-    void                  printHex(const    uint16_t  w, bool s = 0);
-    void                  printHex(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s);           }
-    void                  printHex(const    uint32_t  l, bool s = 0);
-    void                  printHex(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s);           }
-    void                printHexln(const      int8_t  b)              {printHex((uint8_t )   b); println();}
-    void                printHexln(const        char  b)              {printHex((uint8_t )   b); println();}
-    void                printHexln(const     uint8_t  b)              {printHex(             b); println();}
-    void                printHexln(const    uint16_t  w, bool s = 0)  {printHex(          w, s); println();}
-    void                printHexln(const    uint32_t  l, bool s = 0)  {printHex(          l, s); println();}
-    void                printHexln(const     int16_t  w, bool s = 0)  {printHex((uint16_t)w, s); println();}
-    void                printHexln(const     int32_t  l, bool s = 0)  {printHex((uint32_t)l, s); println();}
-    // The pointer-versions for mass printing uint8_t and uint16_t arrays.
+    void                  printHex(const     uint8_t  b); // in the cpp
+    void                  printHex(const      int8_t  b)              {printHex((uint8_t )      b);           }
+    void                  printHex(const        char  b)              {printHex((uint8_t )      b);           }
+    void                  printHex(const    uint16_t  w, bool s = 0); // in the cpp
+    void                  printHex(const     int16_t  w, bool s = 0)  {printHex((uint16_t)   w, s);           }
+    void                  printHex(const    uint32_t  l, bool s = 0)  {_prtHxdw((uint8_t *) &l, s);           } // this lets all three 4-byte datatypes
+    void                  printHex(const     int32_t  d, bool s = 0)  {_prtHxdw((uint8_t *) &d, s);           } // share the body
+    void                  printHex(const       float  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s);           }
+    void                  printHex(const      double  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s);           } // _prtHxdw (Internal printHex for dword, but spelled so it lines up)
+    // printHexln! - like printHex() now with added newlines!
+    void                printHexln(const        char  b)              {printHex((uint8_t  )     b); println();}
+    void                printHexln(const      int8_t  b)              {printHex((uint8_t  )     b); println();}
+    void                printHexln(const     uint8_t  b)              {printHex(                b); println();}
+    void                printHexln(const     int16_t  w, bool s = 0)  {printHex((uint16_t )  w, s); println();}
+    void                printHexln(const    uint16_t  w, bool s = 0)  {printHex(             w, s); println();}
+    void                printHexln(const       float  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s); println();}
+    void                printHexln(const      double  f, bool s = 0)  {_prtHxdw((uint8_t *) &f, s); println();} // per usual, they all get newline versions.
+    void                printHexln(const     int32_t  d, bool s = 0)  {_prtHxdw((uint8_t *) &d, s); println();} // share the body
+    void                printHexln(const    uint32_t  l, bool s = 0)  {_prtHxdw((uint8_t *) &l, s); println();}
+    // The pointer using versions that take a pointer, gnaw off a byte or two, and return the new pointer to the caller
+    // typically called in a loop for a counted number of iterations (frequently, 4, 8, 16, 32 or 64) to dump the entire contents of a peripheral struct.
+    // Below 4, the loop and pointer loses to brute force, and though these parts have some xmega lineage, nothing has had enough registers for them to
+    // need to do a 128b peripheral yet. I'm pretty sure xMega did (and for the sake of real oddball stuff, not normal reasonable things.)
+    // registers that lord knows who uses for lord knows what. That's one thing that I always disliked about the Microchip appnotes - you might be able
+    // to find one embodiment of the design, but what you don't get is guidance as to what the hell they think you're going to use this thing for. For
+    // some of the "64b peripherals - heavyweights like TCE, TCA, TCD"
     uint8_t *             printHex(          uint8_t* p, uint8_t len, char sep = 0            );
     uint16_t *            printHex(         uint16_t* p, uint8_t len, char sep = 0, bool s = 0);
     volatile uint8_t *    printHex(volatile  uint8_t* p, uint8_t len, char sep = 0            );
@@ -340,6 +351,7 @@ class HardwareSerial : public Stream {
     #endif
 
   private:
+    void                  _prtHxdw(uint8_t* p, bool s = 0); // internal, takes a pointer to a 32-bit type of any sort, reads it as bytes and prints.
     void _poll_tx_data_empty(void);
     /* These all concern pin set handling */
     static void        _set_pins(uint8_t* pinInfo, uint8_t mux_count, uint8_t mux_setting,  uint8_t enmask);
