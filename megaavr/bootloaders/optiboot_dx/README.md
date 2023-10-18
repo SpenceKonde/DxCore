@@ -24,12 +24,12 @@ This is being maintained as part of DxCore, so issues be reported to:
 ## Known issues
 There are no known issues at this time (other than the fact that there is no EEPROM support That is because it does not fit. It might fit if we didn't need to buffer pages and could write data as it came in, but because we don't know we're getting a program page command until the fire hose of data has been turned on, we can't get rid of that so easily. It was a design decision to not lock in a 1024 byte bootloader section just to get EEPROM write capability; and the consequences are particularly serious on modern AVRs which cannot tolerate )
 
-Available "slack" in the binaries is extremely limited.
-* 128k Dx: 6-7 instruction words (12b)
-* 64k Dx: 14 instruction words (14b)
-* 64k DD: 14 instruction words (28b)
-* 32k Dx: 18 instruction words (36b)
-* 32k DD: 17 instruction words (34b)
+Available "slack" in the binaries is extremely limited - worst case values are:
+* 128k Dx: 2 instruction word (4b)
+* 64k Dx:  7 instruction words (14b)
+* 64k DD: 10 instruction words (20b)
+* 32k Dx: 13 instruction words (26b)
+* 32k DD: 13 instruction words (26b)
 
 LED Pins
 * DA/DB, all: PA7
@@ -181,6 +181,9 @@ read as '0'.
 Since the 64k parts have no program memory locations above the first 64k, RAMPZ should never have a non-zero value, so this should not be a problem.
 
 It is plausible that with more aggressive optimization, it might be possible to make room for EEPROM writes on 64k and smaller flash. It would take a miracle to do that on 128k parts.
+
+### Change 10/17/23:
+As of 10/17/2023, users building custom versions of optiboot_dx can specify baud rates lower than 62750 now even for 128k parts. This is done by, if (and only if, for readability sake) we are using the ALT serial port (costs 3 words) AND we have 128k of flash (costs 6 words) AND the baud rate is below 62750. It works by replacing the UART initialization code with a little piece of asm, and explicitly prepares a pointer for it. This saves 2 words of flash, and was the easiest way to get these configurations to build. The price is a blob of asm to do a trivial task just to save 4 bytes.
 
 ### Wastes of space
 There are a few points at which the compiler generates terrible, terrible code.
@@ -452,3 +455,63 @@ It is worth noting that this is not what typical compiled sketches are full of. 
    6: 81 11         cpse  r24, r1   < test for empty RSTFR
  142: df 12         cpse  r13, r31
 ```
+
+So, what can be done?
+
+* Obviously, the places marked "Pathological" can be remodeled, saving 6 words as described above. Same for the WTF's which might be 2 more.
+  * Actually wringing these out is much harder than looking at the asm listing and seeing what it's doing stupidly and what better code would look like
+* The datasheet *does not specify* that you need to set the TX pin output. Certainly you must not set it output if you use ODME per errata on many parts.
+  * ODME is on CTRLB, so if combined with the existing write, could set ODME for free.
+  * Thus, even if in normal mode, you don't get any output, since serial adapters almost invariably have a weak internal pullup on their RX, you should be able to make it work by simply setting ODME, since you don't care about the state of the TX pin if you don't have anything connected to it.
+  * This saves 1 word only, because it just gets rid of a sbi.
+* There are a number of issues in the quality of the compiled code in general:
+  * As usual, it stumbles when you're trying to fill a word one byte at a time, as mentioned in the pathological code - that is obviously wrong.
+  * It's not clear how it's using r28-r29 - in some cases they appear to be using it as a scratch register.
+    * Could that register be used better by statically allocating it? Does it hold anything of value when it is getting pushed and popped? Why that register?
+* Registers used also reveals a considerable amount of unused slack that could be sacrificed for flash.
+
+### Registers used and free
+Bootloader space optimization might take advantage of the large number of unused registers for an advantage. Here's what the usage list looks like for a 128kb AVR Dx (which is where space problems are most acute):
+
+#### Fixed Lower Working Registers
+* r0 - the tempreg is used ONLY while actually writing the flash (you load the value to write into r0 and r1, then execute SPM). Doesn't get touched from anywhere else!
+* r1 - Zero except when writing the flash as above.
+
+#### Used Lower Working Registers
+* r8 - Used very lightly
+* r9 - Used very lightly
+* r10 - r10 and r11 somewhat lightly used
+* r11
+* r12 - r12 and r13 used pretty heavily.
+* r13
+* r14 - r14 and r15 combined used only 4x, sometimes as a single reg, other times not.
+* r15
+
+#### Used Upper Working Registers
+* r16   - r16 and r17 used 8 times combined.
+* r17   -
+* r18   - r18 and r19 used 8 times combined.
+* r19   -
+* r20   - Only used in a single place. To ferry a single value around. No need to use this reg.
+* r24 w - compilers favorite register! 67/174 accesses!
+* r25 w - Used 19 times, plus the times it was a register pair with r24.
+* r26 X - "huh, only used once?" "psst, it's the X pointer, it's used right and left" "Oh, duh..."
+* r27 X - (not explicitly, but accessed by movw is used with r26 and when using the X pointer)
+* r28 Y
+* r29 Y
+* r30 Z
+* r31 Z
+
+#### Registers Currently Looking for Work
+* r0 - (very nearly - it gets trashed when the flash is actually written)
+* r2
+* r3
+* r4
+* r5
+* r6
+* r7
+* r21 - Well, will ya lookit that, unused high registers!
+* r22
+* r23
+
+That's 4 wholly unused register pairs and a single, and the single and one pair is high. Thus, the only resources we are short on is flash and of course pointer registers - though we are a little bit tight on flash on the 128k bootloader, this situation has considerably more hope that it might have, as the compiler is showing these obvious pathologies, making it's code particularly bad, which is also easier to fix, and there's plenty of register maneuvering room.

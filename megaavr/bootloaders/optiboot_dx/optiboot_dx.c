@@ -151,6 +151,9 @@
 unsigned const int __attribute__((section(".version"))) __attribute__((used))
 optiboot_version = 256 * (OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVER;
 
+#define xstr(s) str(s)
+#define str(s) #s
+
 
 #include <inttypes.h>
 #include <avr/io.h>
@@ -265,6 +268,10 @@ typedef union {
   #error Unachievable baud rate (too slow) BAUD_RATE
 #endif // baud rate slow check
 
+#if BAUD_SETTING_4 > 255
+  #define BAUD_SETTING_L xstr(BAUD_SETTING_4 % 256)
+  #define BAUD_SETTING_H xstr(BAUD_SETTING_4 / 256)
+#endif
 /*
  * Watchdog timeout translations from human readable to config vals
  */
@@ -462,13 +469,38 @@ int main (void) {
   // Why the compiler wastes a word on the ldi 0 is a mystery to me, since it knows it's got a 0 right there in r1 ready to go...
   #if (BAUD_SETTING_4 < 256)
     MYUART.BAUDL = BAUD_SETTING_4;
+    //MYUART.DBGCTRL = 1;  // run during debug
+    MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
+    //MYUART.CTRLA = 0;  // Interrupts: all off
+    MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
   #else
-    MYUART.BAUD = BAUD_SETTING_4;
+    /* Aw shit, do we have a problem??*/
+    #if PROGMEM_SIZE > 65536 && (defined(MYUART_PMUX_VAL) && MYUART_PMUX_VAL != 0)
+      /* yeah, we have a problem. This bootloader doesn't fit in this size flash - we only have 2
+       * words left, but setting another SFR would take 3 words. Here we take truly desperate measures
+       * To guarantee that it will render this using a pointer and std. Setting up the pointer takes 2
+       * words, but we then access it 4 times, previously with lds. Every time we swap an lds for an ldd
+       * we save 1 word, hence the net is -2 registers.
+       */
+    uint16_t uartptr = (uint16_t)(&MYUART); // We need a pointer to the UART.
+    __asm__ __volatile__("" // Initialize the USART
+              "std %a0+8,  %A1"             "\n\t" // Store at ptr + 8 - BAUD_L.
+              "std %a0+9,  %B1"             "\n\t" // Store at ptr + 9 - BAUD_H.
+              "ldi   r21, 0x03"             "\n\t" // load (USART_CHSIZE_8BIT_gc - rest of byte is 0).
+              "std %a0+7,  r21"             "\n\t" // Store to ptr + 7 - CTRLC.
+              "ldi   r21, 0xC0"             "\n\t" // USART_RXEN_bm | USART_TXEN_bm.
+              "std %a0+6,  r21"             "\n\t" // Store to ptr + 6 - CTRLB, this enables the UART.
+              :"+b" ((uint16_t)uartptr)            // This is the all important pointer to uart
+              :"r"((uint16_t)BAUD_SETTING_4)       // The baud setting has to get there somehow
+              :"r21");                             // We clobber r21;
+    #else // On 64k and less we can do this without that ugly hack,
+      MYUART.BAUD = BAUD_SETTING_4;
+      //MYUART.DBGCTRL = 1;  // run during debug
+      MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
+      //MYUART.CTRLA = 0;  // Interrupts: all off - Unnecessary! We ensured that the chip was freshly reset so this is already 0.
+      MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
+    #endif
   #endif
-  //MYUART.DBGCTRL = 1;  // run during debug
-  MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
-  //MYUART.CTRLA = 0;  // Interrupts: all off
-  MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
 
   #if (LED_START_FLASHES > 0) || defined(LED_DATA_FLASH) || defined(LED_START_ON)
     /* Set LED pin as output */
@@ -867,8 +899,6 @@ static inline void read_flash(addr16_t address, pagelen_t length)
  * This can always be removed or trimmed if more actual program space
  * is needed in the future.  Currently the data occupies about 160 bytes,
  */
-#define xstr(s) str(s)
-#define str(s) #s
 #define OPTFLASHSECT __attribute__((section(".fini8")))
 #define OPT2FLASH(o) OPTFLASHSECT const char f##o[] = #o "=" xstr(o)
 
