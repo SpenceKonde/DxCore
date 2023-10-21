@@ -216,6 +216,8 @@ typedef union {
 } addr16_t;
 
 
+
+
 /*
  * pin_defs.h
  * This contains most of the rather ugly defines that implement our
@@ -288,17 +290,96 @@ typedef union {
 #else
 #endif
 
+
+#define ASM_UART    //gives us about 10 bytes
+// !!!!
+// This relies on the declaration of the usart pointer being in Y
+// like this: register USART_t* _usart asm ("r28");
+// on the global scope.
+// Only needed, as the compiler started to create an unneeded copy in Z
+// likely due to the fact that it was not allowed to change Y's value
+// in the calls. It is not aware that a later optimization step would
+// keep Y the same anyway (compiler works with [reg] += [int] internally)
+#if defined (ASM_UART)
+#define GET_UART_STATUS(__localVar__) __asm__ __volatile__("ldd  %A0, Y+4" "\n\t":   "=r" (__localVar__) : );
+#define GET_UART_FLAGS(__localVar__)  __asm__ __volatile__("ldd  %A0, Y+1" "\n\t":   "=r" (__localVar__) : );
+#define GET_UART_DATA(__localVar__)   __asm__ __volatile__("ldd  %A0, Y+0" "\n\t":   "=r" (__localVar__) : );
+#define SET_UART_DATA(__localVar__)    __asm__ __volatile__("std  Y+2, %A0" "\n\t": :  "r" (__localVar__)   );
+#endif
+
+#define ASM_COPY  // gives us about 18 bytes
+#if defined(ASM_COPY) && defined(ASM_UART) 
+#define ASM_COPY_RX(__buff__, __len__)                                    \
+  __asm__ __volatile__(                                                   \
+   "doRx:"             "\n\t"  /*                                     */  \
+   "rcall       getch" "\n\t"  /* getch is using Y for USART_t*       */  \
+   "st    Z+,     r24" "\n\t"  /* getch will leave char in r24        */  \
+   "sbiw r26,       1" "\n\t"  /* sub 1 , if X == 0, Zero flag is set */  \
+   "brne         doRx" "\n\t"  /* if Zero flag is not set, jump back  */  \
+   ::  "z" (__buff__),         /* no need to retain the increment     */  \
+       "x" (__len__)                                                      \
+   :"r24");                    /* clobber for return value            */
+
+
+
+#define ASM_COPY_TX(__buff__, __len__)                                        \
+  __asm__ __volatile__(           /* length is already loaded in reg     */ \
+    "doTx:"              "\n\t"   /* jump back to here                   */ \
+    "ld   r24,       Z+" "\n\t"   /* load from memory                    */ \
+    "rcall        putch" "\n\t"   /* putch is using the char in r24      */ \
+    "sbiw r26,        1" "\n\t"   /* sub 1 , if X == 0, Zero flag is set */ \
+    "brne          doTx" "\n\t"   /* if Zero flag is not set, jump back  */ \
+    :  "+z" (__buff__)            /* will create a local copy in         */ \
+    :   "x" (__len__)             /* specified registers                 */ \
+    : "r24");                     /* clobber for argument                */
+
+
+#define ASM_COPY_MEM(__dst__, __src__, __len__)                   \
+  __asm__ __volatile__(                                                      \
+    "doCp:"              "\n\t"  /* jump back to here                     */ \
+    "ld    r0,       X+" "\n\t"  /* load from memory to tmp_reg           */ \
+    "st    Z+,       r0" "\n\t"  /* load from tmp_reg to memory           */ \
+    "sbiw r24,        1" "\n\t"  /* sub 1, if R24 == 0, Zero flag is set  */ \
+    "brne          doCp" "\n\t"  /* if Zero flag is not set, jump back    */ \
+    :  "+z" (__dst__),           /* will create a local copy in specified */ \
+       "+x" (__src__)            /* registers. 'W' will equal r24 as      */ \
+    :  "w" (__len__));           /* r26, r28 and r30 is used already      */
+
+
+#define ASM_GET_NCH(__len__)                                             \
+  __asm__ __volatile__(                                                  \
+    "mov   r0,    %A0" "\n\t"  /* getCh clobbers r24:r25, so move len */ \
+    "rcall      getch" "\n\t"  /* getch is using Y for USART_t*       */ \
+    "dec   r0"         "\n\t"  /* decrement length                    */ \
+    "brne         .-6" "\n\t"  /* if r0  != 0, repeat                 */ \
+    :: "r" (__len__));         /* input                               */
+
+
+#endif
 /*
  * We can never load flash with more than 1 page at a time, so we can save
  * some code space on parts with smaller pagesize by using a smaller int.
+ * The compiler generates some awful code when requested to write to a high
+ * byte through <<8, as it is forced to set the low byte to 0x00 then.
+ * using a struct avoids this. Saves two words
+ * NOTE: couldn't get the compiler to generate the correct len, so unused for now
+ * Consider: use _WORDREGISTER definition from include files
  */
+typedef union {
+  struct {
+  uint8_t high;
+  uint8_t low;
+  } byte;          /**< Structure used for byte access */
+  uint16_t  word;  /**< Type used for word access */
+} pagelen_t;
+
 #if MAPPED_PROGMEM_PAGE_SIZE > 255
-  typedef uint16_t pagelen_t;
-  #define GETLENGTH(len) len = getch()<<8; len |= getch()
+  #define GETLENGTH(len) len.byte.high = getch(); len.byte.low = getch();
 #else
-  typedef uint8_t pagelen_t;
-  #define GETLENGTH(len) (void) getch() /* skip high byte */; len = getch()
+  #define GETLENGTH(len) (void) getch() /* skip high byte */; len.byte.low = getch()
 #endif
+
+
 
 
 /* Function Prototypes
@@ -316,27 +397,27 @@ int main(void) __attribute__ ((OS_main)) __attribute__ ((section (".init9"))) __
 
 void __attribute__((noinline)) __attribute__((leaf)) putch(char);
 uint8_t __attribute__((noinline)) __attribute__((leaf)) getch(void) ;
+void __attribute__((noinline)) nvm_cmd(uint8_t cmd);
 void __attribute__((noinline)) verifySpace();
 void __attribute__((noinline)) watchdogConfig(uint8_t x);
-void nvm_cmd(uint8_t cmd);
 static void getNch(uint8_t);
 
 #if LED_START_FLASHES > 0
-  static inline void flash_led(uint8_t);
+  static inline void flash_led();
 #endif
 
 #define watchdogReset()  __asm__ __volatile__ ("wdr\n")
 
 #if (__AVR_ARCH__ == 103 && !defined(WRITE_MAPPED_BY_WORD)) //fully memory mapped flash
-  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len);
+  static inline void writebuffer(int8_t memtype, uint16_t len);
 #else
-  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len);
+  static inline void writebuffer(int8_t memtype, uint8_t len);
   //len is in words, and 0 will be rolled over to 255 before it's checked....
 #endif
 
-static inline void read_flash(addr16_t, pagelen_t len);
+static inline void read_flash(uint16_t len);
 
-//#define TRY_USING_EEPROM
+#define TRY_USING_EEPROM
 
 /*
  * RAMSTART should be self-explanatory.  It's bigger on parts with a
@@ -348,29 +429,29 @@ static inline void read_flash(addr16_t, pagelen_t len);
 #endif
 
 
-/* C zero initialises all global variables. However, that requires */
-/* These definitions are NOT zero initialised, but that doesn't matter */
-/* This allows us to drop the zero init code, saving us memory */
-static addr16_t buff = {(uint8_t *)(RAMSTART)};
+
+#if defined (ASM_UART)
+register USART_t* _usart asm ("r28");  // keep available throughout whole program
+#endif
+
+
+register addr16_t buff asm("r20");    // save a word in high register due to initialization
+register addr16_t address asm("r14");  // set by avrdude, reg has to be mov'd anyway
+
 
 /* main program starts here */
 int main (void) {
   uint8_t ch;
-  /*
-   * Making these local and in registers prevents the need for initializing
-   * them, and also saves space because code no longer stores to memory.
-   * (initializing address keeps the compiler happy, but isn't really
-   *  necessary, and uses 4 bytes of flash.)
-   */
-  register addr16_t address;
-  register pagelen_t  length;
-
+  
   // This is the first code to run.
   //
   // Optiboot C code makes the following assumptions:
   //  No interrupts will execute
   //  SP points to RAMEND
   __asm__ __volatile__ ("clr __zero_reg__"); // known-zero required by avr-libc
+
+  // init global register variable
+  buff.word = RAMSTART;
 
   // Here is the reset cause logic:
   // We always clear the reset cause immediately before jumping to the app, stashing it in GPR.GPR0.
@@ -444,6 +525,11 @@ int main (void) {
     );
   } // end of jumping to app
 
+  #if defined (ASM_UART)
+    // !!! Y reg must be set before the first function call
+    _usart = &MYUART;
+  #endif
+
   // Set up watchdog to trigger after a bit
   // No reason not to do this early.
   // Nominally:, 1s for autoreset, 8s for manual reset
@@ -465,41 +551,29 @@ int main (void) {
   #if (defined(MYUART_PMUX_VAL) && MYUART_PMUX_VAL != 0)
     MYPMUX_REG = MYUART_PMUX_VAL;  // alternate pinout to use
   #endif
-  // Saves SIX BYTES! LDI 0 and an STS to the high byte!
-  // Why the compiler wastes a word on the ldi 0 is a mystery to me, since it knows it's got a 0 right there in r1 ready to go...
-  #if (BAUD_SETTING_4 < 256)
-    MYUART.BAUDL = BAUD_SETTING_4;
+  
+  #if defined (ASM_UART)
+    #if (BAUD_SETTING_4 < 256)
+      _usart->BAUDL = BAUD_SETTING_4;
+    #else
+      _usart->BAUDL = (BAUD_SETTING_4 & 0xFF);
+      _usart->BAUDH = (BAUD_SETTING_4 >> 8);
+    #endif
+    //usart->DBGCTRL = 1;  // run during debug
+    _usart->CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
+    //MYUART.CTRLA = 0;  // Interrupts: all off - Unnecessary! We ensured that the chip was freshly reset so this is already 0.
+    _usart->CTRLB = USART_RXEN_bm | USART_TXEN_bm;
+  #else
+    #if (BAUD_SETTING_4 < 256)
+      MYUART.BAUDL = BAUD_SETTING_4;
+    #else
+      MYUART.BAUDL = (BAUD_SETTING_4 & 0xFF);  
+      MYUART.BAUDH = (BAUD_SETTING_4 >> 8);
+    #endif
     //MYUART.DBGCTRL = 1;  // run during debug
     MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
-    //MYUART.CTRLA = 0;  // Interrupts: all off
+    //MYUART.CTRLA = 0;  // Interrupts: all off - Unnecessary! We ensured that the chip was freshly reset so this is already 0.
     MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
-  #else
-    /* Aw shit, do we have a problem??*/
-    #if PROGMEM_SIZE > 65536 && (defined(MYUART_PMUX_VAL) && MYUART_PMUX_VAL != 0)
-      /* yeah, we have a problem. This bootloader doesn't fit in this size flash - we only have 2
-       * words left, but setting another SFR would take 3 words. Here we take truly desperate measures
-       * To guarantee that it will render this using a pointer and std. Setting up the pointer takes 2
-       * words, but we then access it 4 times, previously with lds. Every time we swap an lds for an ldd
-       * we save 1 word, hence the net is -2 registers.
-       */
-    uint16_t uartptr = (uint16_t)(&MYUART); // We need a pointer to the UART.
-    __asm__ __volatile__("" // Initialize the USART
-              "std %a0+8,  %A1"             "\n\t" // Store at ptr + 8 - BAUD_L.
-              "std %a0+9,  %B1"             "\n\t" // Store at ptr + 9 - BAUD_H.
-              "ldi   r21, 0x03"             "\n\t" // load (USART_CHSIZE_8BIT_gc - rest of byte is 0).
-              "std %a0+7,  r21"             "\n\t" // Store to ptr + 7 - CTRLC.
-              "ldi   r21, 0xC0"             "\n\t" // USART_RXEN_bm | USART_TXEN_bm.
-              "std %a0+6,  r21"             "\n\t" // Store to ptr + 6 - CTRLB, this enables the UART.
-              :"+b" ((uint16_t)uartptr)            // This is the all important pointer to uart
-              :"r"((uint16_t)BAUD_SETTING_4)       // The baud setting has to get there somehow
-              :"r21");                             // We clobber r21;
-    #else // On 64k and less we can do this without that ugly hack,
-      MYUART.BAUD = BAUD_SETTING_4;
-      //MYUART.DBGCTRL = 1;  // run during debug
-      MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
-      //MYUART.CTRLA = 0;  // Interrupts: all off - Unnecessary! We ensured that the chip was freshly reset so this is already 0.
-      MYUART.CTRLB = USART_RXEN_bm | USART_TXEN_bm;
-    #endif
   #endif
 
   #if (LED_START_FLASHES > 0) || defined(LED_DATA_FLASH) || defined(LED_START_ON)
@@ -509,11 +583,7 @@ int main (void) {
 
   #if LED_START_FLASHES > 0
     /* Flash onboard LED to signal entering of bootloader */
-    # ifdef LED_INVERT
-      flash_led(LED_START_FLASHES * 2+1);
-    # else
-      flash_led(LED_START_FLASHES * 2);
-    # endif
+    flash_led();
   #else
     #if defined(LED_START_ON)
       #ifndef LED_INVERT
@@ -529,15 +599,15 @@ int main (void) {
     ch = getch();
 
     if (ch == STK_GET_PARAMETER) {
-      unsigned char which = getch();
+      uint8_t type = getch();
       verifySpace();
       /*
        * Send optiboot version as "SW version"
        * Note that the references to memory are optimized away.
        */
-      if (which == STK_SW_MINOR) {
+      if (type == STK_SW_MINOR) {
         putch(optiboot_version & 0xFF);
-      } else if (which == STK_SW_MAJOR) {
+      } else if (type == STK_SW_MAJOR) {
         putch(optiboot_version >> 8);
       } else {
         /*
@@ -580,20 +650,6 @@ int main (void) {
       #endif
     /* Write up to 1 page of flash (or EEPROM, except that isn't supported due to space) */
     } else if (ch == STK_PROG_PAGE) {
-      uint8_t desttype;
-      uint8_t *bufPtr;
-      // Starting from about here, the compiler starts generating abysmal code!
-      GETLENGTH(length);
-      #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
-        pagelen_t savelength;
-        savelength = length;
-      #else
-        uint8_t savelength;
-        savelength = length>>1;
-        //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
-      #endif
-      desttype = getch();
-
       /* Having worked with SerialUPDI now and having a better idea of what the Dx
        * series is capable of: This way is dumb. We are only ingesting data at 115 baud.
        * That is something like 9us per bit, so 90 per byte and 180 per word. It only takes 70 us
@@ -605,22 +661,42 @@ int main (void) {
        * BUT WE WOULD NEED TO HAVE ERASED THE PAGE!!
        */
       // read a page worth of contents
-      bufPtr = buff.bptr;
-      do {
-        *bufPtr++ = getch();
-      } while (--length);
+      #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
+        uint16_t length;
+        length = getch() << 8 | getch();
+        uint16_t savelength = length;
+      #else    //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
+        uint16_t length;
+        length = getch() << 8 | getch(); // high byte
+        uint8_t savelength = length>>1;
+      #endif
+      uint8_t desttype = getch();
+
+      uint8_t *bufPtr = buff.bptr;
+      #if defined(ASM_COPY_RX)
+        ASM_COPY_RX(bufPtr, length);
+      #else
+        do {
+          *bufPtr++ = getch();
+        } while (--length);
+      #endif
 
       // Read command terminator, start reply
       verifySpace();
-      // end of abysmal compiler output....
-      writebuffer(desttype, buff, address, savelength);
+
+      writebuffer(desttype, savelength);
 
     /* Read memory block mode, length is big endian.  */
     } else if (ch == STK_READ_PAGE) {
-      uint8_t desttype;
-      GETLENGTH(length);
+      #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
+        uint16_t length;
+        length = getch() << 8 | getch();
+      #else    //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
+        uint16_t length;
+        length = getch() << 8 | getch(); // high byte
+      #endif
 
-      desttype = getch();
+      uint8_t desttype = getch();
 
       verifySpace();
 
@@ -633,21 +709,30 @@ int main (void) {
         } else {
           address.word += MAPPED_EEPROM_START;
         }
-        do {
-          putch(*(address.bptr++));
-        } while (--length);
+
+        #if defined(ASM_COPY_TX)  
+          ASM_COPY_TX(address.bptr, length);
+        #else
+          do {
+            putch(*(address.bptr++));
+          } while (--length);
+        #endif
       #else
         // the entire flash does not fit in the same address space
         // so we call that helper function.
         if (desttype == 'F') {
-          read_flash(address, length);
+          read_flash(length);
         } else { // it's EEPROM and we just read it
           address.word += MAPPED_EEPROM_START;
-          do {
-            putch(*(address.bptr++));
-          } while (--length);
+          #if defined(ASM_COPY_TX)
+            ASM_COPY_TX(address.bptr, length);
+          #else  
+            do {
+              putch(*(address.bptr++));
+            } while (--length);
+          #endif
         }
-    #endif
+      #endif
     /* Get device signature bytes  */
     } else if (ch == STK_READ_SIGN) {
       // Easy, they're already in a mapped register... but we know the flash size at compile time, and it saves us 2 bytes of flash for each one we don't need to know...
@@ -673,44 +758,93 @@ int main (void) {
   }
 }
 
+
+
+
+// clobbers r25, parameter in r24
 void putch (char ch) {
-  while (0 == (MYUART.STATUS & USART_DREIF_bm))
-    ;
-  MYUART.TXDATAL = ch;
+  #if defined(ASM_UART)
+    while (1) {
+     uint8_t status;
+     GET_UART_STATUS(status);
+     if (status & USART_DREIF_bm) break;
+    }
+    SET_UART_DATA(ch);
+  #else
+    while (0 == (MYUART.STATUS & USART_DREIF_bm))
+      ;
+    MYUART.TXDATAL = ch;
+  #endif
 }
 
+
+// Clobbers r24 and r25 (return in r24)
 uint8_t getch (void) {
-  uint8_t ch, flags;
-  while (!(MYUART.STATUS & USART_RXCIF_bm))
-    ;
-  flags = MYUART.RXDATAH;
-  ch = MYUART.RXDATAL;
-  if ((flags & USART_FERR_bm) == 0)
-  watchdogReset();
+  uint8_t ch;  
+  #if defined(ASM_UART)
+    while (1) {
+    uint8_t status;
+    GET_UART_STATUS(status);
+    if (status & USART_RXCIF_bm) break;
+    }
+    GET_UART_DATA(ch);  // low byte has to be read first
+    asm __volatile__(  // saves a word
+      "ldd  r25, Y+1" "\n\t"
+      "sbrs r25, %[bp]" "\n\t"
+      "wdr"                "\n\t"
+      :: [bp] "I" (USART_FERR_bp) 
+      : "r25");
+  #else
+    while (!(MYUART.STATUS & USART_RXCIF_bm))
+      ;
+    ch = MYUART.RXDATAL;
+    uint8_t flags = MYUART.RXDATAH;
+    if ((flags & USART_FERR_bm) == 0)  // generates an sbrc, rjmp .+2, wdt.
+      watchdogReset();
+  #endif
+
   #ifdef LED_DATA_FLASH
     LED_PORT.IN |= LED;
   #endif
+  
   return ch;
 }
 
 void getNch (uint8_t count) {
-  do getch(); while (--count);
+  // This assembly avoids a push/pop as we know exactly the affected
+  // Registers of getch(), allowing us to use r25.
+  #if defined(ASM_GET_NCH)
+    ASM_GET_NCH(count);
+  #else
+    do getch(); while (--count);
+  #endif
+  
   verifySpace();
 }
 
 void verifySpace () {
-    if (getch() != CRC_EOP) {
-  watchdogConfig(WDT_PERIOD_8CLK_gc);    // shorten WD timeout
-  while (1)            // and busy-loop so that WD causes
-      ;              //  a reset and app start.
-    }
-    putch(STK_INSYNC);
+  if (getch() != CRC_EOP) {
+    asm __volatile__("break\n");
+    watchdogConfig(WDT_PERIOD_8CLK_gc);    // shorten WD timeout
+    while (1)        // and busy-loop so that WD causes
+      ;            //  a reset and app start.
+  }
+  putch(STK_INSYNC);
 }
 
 #if LED_START_FLASHES > 0
-  void flash_led (uint8_t count) {
-    uint16_t delay;  // at 4MHz, a 16bit delay counter is enough
-    while (count--) {
+  void flash_led () {
+  // Asm candidate: gcc uncrolls this loops, increasing the size of this loop
+  // this also creates the problem, that r24 is virtually used for count, making
+  // r24:r25 unavailable for delay and sbiw increasing code size by 1
+  uint16_t delay;
+  /* Flash onboard LED to signal entering of bootloader */
+  # ifdef LED_INVERT
+   for (uint8_t count = 0; count < LED_START_FLASHES * 2+1; count++)
+  # else
+   for (uint8_t count = 0; count < LED_START_FLASHES * 2; count++)
+  # endif
+  {
       LED_PORT.IN |= LED;
       // delay based on 4 MHz clock since that's what we have
       /* This delay is calculated from 4,000,000 Hz CPU clock and the
@@ -739,19 +873,24 @@ void watchdogConfig (uint8_t x) {
 }
 
 
+
 /*
  * void writebuffer(memtype, buffer, address, length)
  */
 #if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
-  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, pagelen_t len) {
+  static inline void writebuffer(int8_t memtype, uint16_t len) {
     switch (memtype) {
       #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
         case 'E': // EEPROM
           address.word += MAPPED_EEPROM_START;
           nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-          while(len--) {
-            *(address.bptr++)= *(mybuff.bptr++);
-          }
+      #if defined(ASM_COPY_MEM)
+         ASM_COPY_MEM(address.bptr, buff.bptr, len);
+      #else
+            while(len--) {
+              *(address.bptr++)= *(buff.bptr++);
+            }
+      #endif
           break;
         #endif
       default:  // FLASH
@@ -768,25 +907,33 @@ void watchdogConfig (uint8_t x) {
         address.word += MAPPED_PROGMEM_START;
         *(address.bptr)=0xFF;
         nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-        while(len--) {
-          *(address.bptr++)= *(mybuff.bptr++);
-        }
+        #if defined(ASM_COPY_MEM)
+      ASM_COPY_MEM(address.bptr, buff.bptr, len);
+        #else
+          while(len--) {
+          *(address.bptr++)= *(buff.bptr++);
+          }
+        #endif
       } // default block
     } // switch
   }
 #else
   // Write non-mapped flash the only way we can without being caught by the outstanding errata with
   // flash mapping on AVR128DA
-  static inline void writebuffer(int8_t memtype, addr16_t mybuff, addr16_t address, uint8_t len) {
+  static inline void writebuffer(int8_t memtype, uint8_t len) {
     //VPORTB.OUT=len;
     switch (memtype) {
       #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
         case 'E': // EEPROM
           address.word += MAPPED_EEPROM_START;
           nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-          while(len--) {
-            *(address.bptr++)= *(mybuff.bptr++);
-          }
+          #if defined(ASM_COPY_MEM)
+            ASM_COPY_MEM(address.bptr, buff.bptr, len);
+          #else
+            while(len--) {
+            *(address.bptr++)= *(buff.bptr++);
+            }
+          #endif
           break;
       #endif
 
@@ -804,25 +951,29 @@ void watchdogConfig (uint8_t x) {
            * Hmmph - converting all of that to assembly didn't save
            * as much as I had been hoping, just one instruction!
            */
-        __asm__ __volatile__ ("ldi r24, 8"                  "\n\t" // page erase
-                              "rcall nvm_cmd"               "\n\t" // r25 has now been shat on
-                              "spm"                         "\n\t" // erase the page!
-                              "ldi r24, 2"                  "\n\t" // page write
-                              "rcall nvm_cmd"               "\n\t"
-                              "mov r25, %[len]"             "\n\t" // now copy the len, safely passed as read only
-                              "head:"                       "\n\t" // to the already shat on r25.
-                              "ld r0, %a[ptr]+"             "\n\t"
-                              "ld r1, %a[ptr]+"             "\n\t"
+        __asm__ __volatile__ (
+          "ldi r24, 8"                  "\n\t" // page erase
+          "rcall nvm_cmd"               "\n\t" // r25 has now been shat on
+          "spm"                         "\n\t" // erase the page!
+          "ldi r24, 2"                  "\n\t" // page write
+          "rcall nvm_cmd"               "\n\t"
+          "mov r25, %[len]"             "\n\t" // now copy the len, safely passed as read only
+          "head:"                       "\n\t" // to the already shat on r25.
+          "ld r0, %a[ptr]+"             "\n\t"
+          "ld r1, %a[ptr]+"             "\n\t"
         #if !defined(AVOID_SPMZPLUS) && PROGMEM_SIZE > 65536
-                              "spm Z+"                      "\n\t"
+          "spm Z+"                      "\n\t"
         #else
-                              "spm"                         "\n\t"
-                              "adiw r30,2"                  "\n\t"
+          "spm"                         "\n\t"
+          "adiw r30,2"                  "\n\t"
         #endif
-                              "dec r25"                     "\n\t" // and use the copy in r25 to count down.
-                              "brne head"                   "\n\t"
-                              "clr r1"                      "\n\t"
-                              : "+z" ((uint16_t)address.word), [ptr] "+e" ((uint16_t)mybuff.bptr): [len]   "l" (len): "r0", "r24", "r25"); // and declare r25 clobbered
+          "dec  r25"                    "\n\t"
+          "brne head"                   "\n\t"
+          "clr r1"                      "\n\t"
+        :        "+z" ((uint16_t)address.word), 
+          [ptr]  "+x" ((uint16_t)buff.bptr)
+        : [len] "r" (len)
+        : "r0", "r25"); // and declare r25 clobbered
         // which we would always be required to do if we call something that clobbers a register from asm.
       } // default block
     } // switch
@@ -830,8 +981,6 @@ void watchdogConfig (uint8_t x) {
 #endif
 
 void nvm_cmd(uint8_t cmd) {
-  //take advantage of the fact that NVMCTRL_CMD_NONE_gc=0x00 and use zero_reg
-  //Also, we don't need to change NVMCTRL.CTRLA to NONE/NOOP until we want to change it.
   // 11/20/22: AAaarrgghhh! Okay so... We can't let the compiler pick the random
   // register that we use to store the ccp spm magic number, 0x9D, because we are calling this from
   // asm in one place (immediately above), for two reasons. First, the reason I discovered this
@@ -859,8 +1008,12 @@ void nvm_cmd(uint8_t cmd) {
                        : "r25");
 }
 
-static inline void read_flash(addr16_t address, pagelen_t length)
+static inline void read_flash(uint16_t length)
 {
+  // asm candidate: can't use r24 for length due to putch()
+  // hack idea: use r22:r23 for putch and write a #define call
+  // to always put the parameter into r22. r23 is clobber
+  // this should significantly reduce register pressure on r24
   uint8_t ch;
   do {
     #if defined(RAMPZ) && PROGMEM_SIZE > 65536
