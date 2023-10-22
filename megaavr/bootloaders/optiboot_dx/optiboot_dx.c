@@ -311,39 +311,39 @@ typedef union {
 #if defined(ASM_COPY) && defined(ASM_UART) 
 #define ASM_COPY_RX(__buff__, __len__)                                    \
   __asm__ __volatile__(                                                   \
-   "doRx:"             "\n\t"  /*                                     */  \
+   "doRxCh:"           "\n\t"  /*                                     */  \
    "rcall       getch" "\n\t"  /* getch is using Y for USART_t*       */  \
    "st    Z+,     r24" "\n\t"  /* getch will leave char in r24        */  \
    "sbiw r26,       1" "\n\t"  /* sub 1 , if X == 0, Zero flag is set */  \
-   "brne         doRx" "\n\t"  /* if Zero flag is not set, jump back  */  \
+   "brne       doRxCh" "\n\t"  /* if Zero flag is not set, jump back  */  \
    ::  "z" (__buff__),         /* no need to retain the increment     */  \
-       "x" (__len__)                                                      \
+       "x" (__len__)           /* so read only                        */  \
    :"r24");                    /* clobber for return value            */
 
 
 
-#define ASM_COPY_TX(__buff__, __len__)                                        \
+#define ASM_COPY_TX(__buff__, __len__)                                      \
   __asm__ __volatile__(           /* length is already loaded in reg     */ \
-    "doTx:"              "\n\t"   /* jump back to here                   */ \
+    "doTxCh:"            "\n\t"   /* jump back to here                   */ \
     "ld   r24,       Z+" "\n\t"   /* load from memory                    */ \
     "rcall        putch" "\n\t"   /* putch is using the char in r24      */ \
     "sbiw r26,        1" "\n\t"   /* sub 1 , if X == 0, Zero flag is set */ \
-    "brne          doTx" "\n\t"   /* if Zero flag is not set, jump back  */ \
+    "brne        doTxCh" "\n\t"   /* if Zero flag is not set, jump back  */ \
     :  "+z" (__buff__)            /* will create a local copy in         */ \
     :   "x" (__len__)             /* specified registers                 */ \
     : "r24");                     /* clobber for argument                */
 
 
-#define ASM_COPY_MEM(__dst__, __src__, __len__)                   \
+#define ASM_COPY_MEM(__dst__, __src__, __len__)                              \
   __asm__ __volatile__(                                                      \
     "doCp:"              "\n\t"  /* jump back to here                     */ \
     "ld    r0,       X+" "\n\t"  /* load from memory to tmp_reg           */ \
     "st    Z+,       r0" "\n\t"  /* load from tmp_reg to memory           */ \
     "sbiw r24,        1" "\n\t"  /* sub 1, if R24 == 0, Zero flag is set  */ \
     "brne          doCp" "\n\t"  /* if Zero flag is not set, jump back    */ \
-    :  "+z" (__dst__),           /* will create a local copy in specified */ \
-       "+x" (__src__)            /* registers. 'W' will equal r24 as      */ \
-    :  "w" (__len__));           /* r26, r28 and r30 is used already      */
+    :: "z" (__dst__),            /* will create a local copy in specified */ \
+       "x" (__src__),            /* registers. 'W' will equal r24 as      */ \
+       "w" (__len__));           /* r26, r28 and r30 is used already      */
 
 
 #define ASM_GET_NCH(__len__)                                             \
@@ -355,6 +355,29 @@ typedef union {
     :: "r" (__len__));         /* input                               */
 
 
+#if defined(RAMPZ) && PROGMEM_SIZE > 65536
+#define ASM_READ_FLASH(__buff__, __len__)                                   \
+  __asm__ __volatile__(           /* length is already loaded in reg     */ \
+    "doFRead:               \n"   /* jump back to here                   */ \
+    "elpm  r24,      Z+     \n"   /* load memory from Flash into r24     */ \
+    "rcall        putch     \n"   /* putch is using the char in r24      */ \
+    "sbiw r26,        1     \n"   /* sub 1 , if X == 0, Zero flag is set */ \
+    "brne       doFRead     \n"   /* if Zero flag is not set, jump back  */ \
+    ::  "z" (__buff__),           /* will create a local copy in         */ \
+        "x" (__len__)             /* specified registers                 */ \
+    : "r24");                     /* clobber for argument                */
+#else
+  __asm__ __volatile__(           /* length is already loaded in reg     */ \
+    "doFRead:               \n"   /* jump back to here                   */ \
+    "lpm   r24,      Z+     \n"   /* load memory from Flash into r24     */ \
+    "rcall        putch     \n"   /* putch is using the char in r24      */ \
+    "sbiw  r26,       1     \n"   /* sub 1 , if X == 0, Zero flag is set */ \
+    "brne       doFRead     \n"   /* if Zero flag is not set, jump back  */ \
+    ::  "z" (__buff__),           /* will create a local copy in         */ \
+        "x" (__len__)             /* specified registers                 */ \
+    : "r24");                     /* clobber for argument                */
+#endif
+
 #endif
 /*
  * We can never load flash with more than 1 page at a time, so we can save
@@ -362,8 +385,6 @@ typedef union {
  * The compiler generates some awful code when requested to write to a high
  * byte through <<8, as it is forced to set the low byte to 0x00 then.
  * using a struct avoids this. Saves two words
- * NOTE: couldn't get the compiler to generate the correct len, so unused for now
- * Consider: use _WORDREGISTER definition from include files
  */
 typedef union {
   struct {
@@ -429,7 +450,7 @@ static inline void read_flash(uint16_t len);
 #endif
 
 
-
+  
 #if defined (ASM_UART)
 register USART_t* _usart asm ("r28");  // keep available throughout whole program
 #endif
@@ -449,10 +470,10 @@ int main (void) {
   //  No interrupts will execute
   //  SP points to RAMEND
   __asm__ __volatile__ ("clr __zero_reg__"); // known-zero required by avr-libc
-
+  
   // init global register variable
   buff.word = RAMSTART;
-
+  
   // Here is the reset cause logic:
   // We always clear the reset cause immediately before jumping to the app, stashing it in GPR.GPR0.
   // This makes sure we can honor the reset entry conditions even if the user code doesn't touch
@@ -488,6 +509,7 @@ int main (void) {
     // immediately via software reset. Since this is an entry condition, we will achieve the naive
     // fool's intent (directly entering the bootloader).
     // We can also end up here on a freshly bootloaded chip, and
+    //asm __volatile__("break\n");
     _PROTECTED_WRITE(RSTCTRL.SWRR, 1);
   }
   /* Entry conditions supported:
@@ -557,7 +579,7 @@ int main (void) {
       _usart->BAUDL = BAUD_SETTING_4;
     #else
       _usart->BAUDL = (BAUD_SETTING_4 & 0xFF);
-      _usart->BAUDH = (BAUD_SETTING_4 >> 8);
+    _usart->BAUDH = (BAUD_SETTING_4 >> 8);
     #endif
     //usart->DBGCTRL = 1;  // run during debug
     _usart->CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
@@ -567,8 +589,8 @@ int main (void) {
     #if (BAUD_SETTING_4 < 256)
       MYUART.BAUDL = BAUD_SETTING_4;
     #else
-      MYUART.BAUDL = (BAUD_SETTING_4 & 0xFF);  
-      MYUART.BAUDH = (BAUD_SETTING_4 >> 8);
+      MYUART.BAUDL = (BAUD_SETTING_4 & 0xFF);
+    MYUART.BAUDH = (BAUD_SETTING_4 >> 8);
     #endif
     //MYUART.DBGCTRL = 1;  // run during debug
     MYUART.CTRLC = (USART_CHSIZE_gm & USART_CHSIZE_8BIT_gc);  // Async, Parity Disabled, 1 StopBit
@@ -623,7 +645,7 @@ int main (void) {
         // SET DEVICE EXT is ignored
         getNch(5);
     } else if (ch == STK_LOAD_ADDRESS) {
-        // LOAD ADDRESS
+        // LOAD ADDRESS. Address is always send before a page is written
         address.bytes[0] = getch();
         address.bytes[1] = getch();
         // byte addressed!
@@ -648,93 +670,8 @@ int main (void) {
         getNch(4);
         putch(0x00);
       #endif
-    /* Write up to 1 page of flash (or EEPROM, except that isn't supported due to space) */
-    } else if (ch == STK_PROG_PAGE) {
-      /* Having worked with SerialUPDI now and having a better idea of what the Dx
-       * series is capable of: This way is dumb. We are only ingesting data at 115 baud.
-       * That is something like 9us per bit, so 90 per byte and 180 per word. It only takes 70 us
-       * to write a word, so could have it written before even half of the following word has arrived.
-       * Serial ports keep working while writing to flash - you just can't react to them in that time
-       * We have 2 bytes of buffer (RXDATA, and a buffer behind it), plus the shift register. So as
-       * long as you can write pages faster than they come in, you don't need to make a buffer in RAM
-       * At 115200 baud, we exceed it by nearly a factor of 3. Removing that would save a few bytes
-       * BUT WE WOULD NEED TO HAVE ERASED THE PAGE!!
-       */
-      // read a page worth of contents
-      #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
-        uint16_t length;
-        length = getch() << 8 | getch();
-        uint16_t savelength = length;
-      #else    //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
-        uint16_t length;
-        length = getch() << 8 | getch(); // high byte
-        uint8_t savelength = length>>1;
-      #endif
-      uint8_t desttype = getch();
-
-      uint8_t *bufPtr = buff.bptr;
-      #if defined(ASM_COPY_RX)
-        ASM_COPY_RX(bufPtr, length);
-      #else
-        do {
-          *bufPtr++ = getch();
-        } while (--length);
-      #endif
-
-      // Read command terminator, start reply
-      verifySpace();
-
-      writebuffer(desttype, savelength);
-
-    /* Read memory block mode, length is big endian.  */
-    } else if (ch == STK_READ_PAGE) {
-      #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
-        uint16_t length;
-        length = getch() << 8 | getch();
-      #else    //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
-        uint16_t length;
-        length = getch() << 8 | getch(); // high byte
-      #endif
-
-      uint8_t desttype = getch();
-
-      verifySpace();
-
-      #if (__AVR_ARCH__==103) && !defined(READ_WITHOUT_MAPPED)
-        // handle fully mapped flash - duplicating the test for type of memory
-        // is far more readable than putting it before the #if macro
-        // set address.word to point to start of mapped flash
-        if (desttype == 'F') {
-          address.word += MAPPED_PROGMEM_START;
-        } else {
-          address.word += MAPPED_EEPROM_START;
-        }
-
-        #if defined(ASM_COPY_TX)  
-          ASM_COPY_TX(address.bptr, length);
-        #else
-          do {
-            putch(*(address.bptr++));
-          } while (--length);
-        #endif
-      #else
-        // the entire flash does not fit in the same address space
-        // so we call that helper function.
-        if (desttype == 'F') {
-          read_flash(length);
-        } else { // it's EEPROM and we just read it
-          address.word += MAPPED_EEPROM_START;
-          #if defined(ASM_COPY_TX)
-            ASM_COPY_TX(address.bptr, length);
-          #else  
-            do {
-              putch(*(address.bptr++));
-            } while (--length);
-          #endif
-        }
-      #endif
     /* Get device signature bytes  */
-    } else if (ch == STK_READ_SIGN) {
+    } else if (ch == STK_READ_SIGN) {    /* == 0x70 + verify */
       // Easy, they're already in a mapped register... but we know the flash size at compile time, and it saves us 2 bytes of flash for each one we don't need to know...
       verifySpace();
       putch(0x1E);          // why even bother reading this, ever? If it's running on something, and the first byte isn't 0x1E, something weird enough has happened that nobody will begrudge you a bootloader rebuild!
@@ -746,10 +683,76 @@ int main (void) {
         putch(0x96);
       #endif
       putch(SIGROW_DEVICEID2);
-    } else if (ch == STK_LEAVE_PROGMODE) { /* 'Q' */
+    } else if (ch == STK_LEAVE_PROGMODE) { /* == 0x51 + verify */
       // Adaboot no-wait mod
       watchdogConfig(WDT_PERIOD_8CLK_gc);
       verifySpace();
+        
+    /* Write up to 1 page of flash (or EEPROM, except that isn't supported due to space) */
+    } else if ((ch & 0xEF) == STK_PROG_PAGE) {   // 0xEF = ~0x10 = 0x74-0x64 = STK_READ_PAGE - STK_PROG_PAGE
+      uint16_t length;
+      length = getch() << 8 | getch(); // high byte
+      uint8_t desttype = getch();
+
+      if (ch & 0x10) {  // = 0x74 == STK_READ_PAGE
+        verifySpace();
+         #if (__AVR_ARCH__==103) && !defined(READ_WITHOUT_MAPPED)
+         // handle fully mapped flash - duplicating the test for type of memory
+         // is far more readable than putting it before the #if macro
+         // set address.word to point to start of mapped flash
+         if (desttype == 'F') {
+           address.word += MAPPED_PROGMEM_START;
+           } else {
+           address.word += MAPPED_EEPROM_START;
+         }
+
+         #if defined(ASM_COPY_TX)
+           ASM_COPY_TX(address.bptr, length);
+         #else
+           do {
+             putch(*(address.bptr++));
+           } while (--length);
+           #endif
+         #else
+         // the entire flash does not fit in the same address space
+         // so we call that helper function.
+         if (desttype == 'F') {
+           #if defined(ASM_READ_FLASH)
+            ASM_READ_FLASH(address.bptr, (uint16_t)length);
+           #else
+            read_flash(length);
+           #endif
+         } else { // it's EEPROM and we just read it
+          address.word += MAPPED_EEPROM_START;
+          #if defined(ASM_COPY_TX)
+            ASM_COPY_TX(address.bptr, length);
+          #else
+            do {
+              putch(*(address.bptr++));
+            } while (--length);
+          #endif
+         }
+         #endif
+      } else {        // = 0x64 == STK_PROG_PAGE
+        #if (__AVR_ARCH__==103 && !defined(WRITE_MAPPED_BY_WORD))
+          uint16_t savelength = length;
+        #else    //in the event of a full page on DA/DB, this will get truncated to 0! But that is okay!
+          uint8_t savelength = length>>1;
+        #endif
+
+        uint8_t *bufPtr = buff.bptr;
+        #if defined(ASM_COPY_RX)
+          ASM_COPY_RX(bufPtr, length);
+        #else
+          do {
+            *bufPtr++ = getch();
+          } while (--length);
+        #endif
+        // Read command terminator, start reply
+        verifySpace();
+
+        writebuffer(desttype, savelength);
+      }
     } else {
       // This covers the response to commands like STK_ENTER_PROGMODE
       verifySpace();
@@ -757,7 +760,6 @@ int main (void) {
     putch(STK_OK);
   }
 }
-
 
 
 
@@ -769,12 +771,13 @@ void putch (char ch) {
      GET_UART_STATUS(status);
      if (status & USART_DREIF_bm) break;
     }
-    SET_UART_DATA(ch);
+  SET_UART_DATA(ch);
   #else
     while (0 == (MYUART.STATUS & USART_DREIF_bm))
       ;
     MYUART.TXDATAL = ch;
   #endif
+  watchdogReset();
 }
 
 
@@ -787,11 +790,11 @@ uint8_t getch (void) {
     GET_UART_STATUS(status);
     if (status & USART_RXCIF_bm) break;
     }
-    GET_UART_DATA(ch);  // low byte has to be read first
+  GET_UART_DATA(ch);  // low byte has to be read first
     asm __volatile__(  // saves a word
-      "ldd  r25, Y+1" "\n\t"
-      "sbrs r25, %[bp]" "\n\t"
-      "wdr"                "\n\t"
+      "ldd  r25, Y+1"     "\n\t"
+      "sbrs r25, %[bp]"   "\n\t"
+      "wdr"               "\n\t"
       :: [bp] "I" (USART_FERR_bp) 
       : "r25");
   #else
@@ -814,7 +817,7 @@ void getNch (uint8_t count) {
   // This assembly avoids a push/pop as we know exactly the affected
   // Registers of getch(), allowing us to use r25.
   #if defined(ASM_GET_NCH)
-    ASM_GET_NCH(count);
+   ASM_GET_NCH(count);
   #else
     do getch(); while (--count);
   #endif
@@ -824,13 +827,15 @@ void getNch (uint8_t count) {
 
 void verifySpace () {
   if (getch() != CRC_EOP) {
-    asm __volatile__("break\n");
+    //asm __volatile__("break\n");
     watchdogConfig(WDT_PERIOD_8CLK_gc);    // shorten WD timeout
     while (1)        // and busy-loop so that WD causes
       ;            //  a reset and app start.
   }
   putch(STK_INSYNC);
 }
+
+
 
 #if LED_START_FLASHES > 0
   void flash_led () {
@@ -879,66 +884,60 @@ void watchdogConfig (uint8_t x) {
  */
 #if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
   static inline void writebuffer(int8_t memtype, uint16_t len) {
-    switch (memtype) {
+    uint8_t* pBuf = buff.bptr;
+    if (memtype == 'E') {
       #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
-        case 'E': // EEPROM
-          address.word += MAPPED_EEPROM_START;
-          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-      #if defined(ASM_COPY_MEM)
-         ASM_COPY_MEM(address.bptr, buff.bptr, len);
-      #else
-            while(len--) {
-              *(address.bptr++)= *(buff.bptr++);
-            }
-      #endif
-          break;
-        #endif
-      default:  // FLASH
-      {
-        /*
-         * Default to writing to Flash program memory.  By making this
-         * the default rather than checking for the correct code, we save
-         * space on chips that don't support any other memory types.
-         * Start the page erase.
-         * The CPU is halted during this time, so
-         * no need to NVMCTRL.STATUS.
-         */
-        nvm_cmd(NVMCTRL_CMD_FLPER_gc);
-        address.word += MAPPED_PROGMEM_START;
-        *(address.bptr)=0xFF;
-        nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+        address.word += MAPPED_EEPROM_START;
+        nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
         #if defined(ASM_COPY_MEM)
-      ASM_COPY_MEM(address.bptr, buff.bptr, len);
+          ASM_COPY_MEM(address.bptr, pBuf, len);
         #else
           while(len--) {
-          *(address.bptr++)= *(buff.bptr++);
+            *(address.bptr++)= *(pBuf++);
           }
         #endif
-      } // default block
-    } // switch
+      #endif
+    } else {
+      /*
+       * Default to writing to Flash program memory.  By making this
+       * the default rather than checking for the correct code, we save
+       * space on chips that don't support any other memory types.
+       * Start the page erase.
+       * The CPU is halted during this time, so
+       * no need to NVMCTRL.STATUS.
+       */
+      nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+      address.word += MAPPED_PROGMEM_START;
+      *(address.bptr)=0xFF;
+      nvm_cmd(NVMCTRL_CMD_FLWR_gc);
+      #if defined(ASM_COPY_MEM)
+        ASM_COPY_MEM(address.bptr, pBuf, len);
+      #else
+        while(len--) {
+          *(address.bptr++)= *(pBuf++);
+        }
+      #endif
+    } // default block
   }
 #else
   // Write non-mapped flash the only way we can without being caught by the outstanding errata with
   // flash mapping on AVR128DA
   static inline void writebuffer(int8_t memtype, uint8_t len) {
     //VPORTB.OUT=len;
-    switch (memtype) {
+    if (memtype == 'E') {  // EEPROM
       #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
-        case 'E': // EEPROM
-          address.word += MAPPED_EEPROM_START;
-          nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-          #if defined(ASM_COPY_MEM)
-            ASM_COPY_MEM(address.bptr, buff.bptr, len);
-          #else
-            while(len--) {
-            *(address.bptr++)= *(buff.bptr++);
-            }
-          #endif
-          break;
+        address.word += MAPPED_EEPROM_START;
+        nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
+          
+        #if defined(ASM_COPY_MEM)
+          ASM_COPY_MEM(address.bptr, buff.bptr, len);
+        #else
+          while(len--) {
+          *(address.bptr++)= *(pBuff++);
+          }
+        #endif
       #endif
-
-      default:  // FLASH
-        {
+    } else {    // FLASH
           /*
            * Default to writing to Flash program memory.  By making this
            * the default rather than checking for the correct code, we save
@@ -970,13 +969,12 @@ void watchdogConfig (uint8_t x) {
           "dec  r25"                    "\n\t"
           "brne head"                   "\n\t"
           "clr r1"                      "\n\t"
-        :        "+z" ((uint16_t)address.word), 
-          [ptr]  "+x" ((uint16_t)buff.bptr)
-        : [len] "r" (len)
+        ::       "z" ((uint16_t)address.word), 
+          [ptr]  "x" ((uint16_t)buff.bptr),
+          [len]  "r" (len)
         : "r0", "r25"); // and declare r25 clobbered
         // which we would always be required to do if we call something that clobbers a register from asm.
       } // default block
-    } // switch
   }
 #endif
 
@@ -1010,10 +1008,6 @@ void nvm_cmd(uint8_t cmd) {
 
 static inline void read_flash(uint16_t length)
 {
-  // asm candidate: can't use r24 for length due to putch()
-  // hack idea: use r22:r23 for putch and write a #define call
-  // to always put the parameter into r22. r23 is clobber
-  // this should significantly reduce register pressure on r24
   uint8_t ch;
   do {
     #if defined(RAMPZ) && PROGMEM_SIZE > 65536
