@@ -308,7 +308,7 @@ typedef union {
 #endif
 
 #define ASM_COPY  // gives us about 18 bytes
-#if defined(ASM_COPY) && defined(ASM_UART) 
+#if defined(ASM_COPY) && defined(ASM_UART)
 #define ASM_COPY_RX(__buff__, __len__)                                    \
   __asm__ __volatile__(                                                   \
    "doRxCh:"           "\n\t"  /*                                     */  \
@@ -450,7 +450,7 @@ static inline void read_flash(uint16_t len);
 #endif
 
 
-  
+
 #if defined (ASM_UART)
 register USART_t* _usart asm ("r28");  // keep available throughout whole program
 #endif
@@ -463,17 +463,17 @@ register addr16_t address asm("r14");  // set by avrdude, reg has to be mov'd an
 /* main program starts here */
 int main (void) {
   uint8_t ch;
-  
+
   // This is the first code to run.
   //
   // Optiboot C code makes the following assumptions:
   //  No interrupts will execute
   //  SP points to RAMEND
   __asm__ __volatile__ ("clr __zero_reg__"); // known-zero required by avr-libc
-  
+
   // init global register variable
   buff.word = RAMSTART;
-  
+
   // Here is the reset cause logic:
   // We always clear the reset cause immediately before jumping to the app, stashing it in GPR.GPR0.
   // This makes sure we can honor the reset entry conditions even if the user code doesn't touch
@@ -573,7 +573,7 @@ int main (void) {
   #if (defined(MYUART_PMUX_VAL) && MYUART_PMUX_VAL != 0)
     MYPMUX_REG = MYUART_PMUX_VAL;  // alternate pinout to use
   #endif
-  
+
   #if defined (ASM_UART)
     #if (BAUD_SETTING_4 < 256)
       _usart->BAUDL = BAUD_SETTING_4;
@@ -687,7 +687,7 @@ int main (void) {
       // Adaboot no-wait mod
       watchdogConfig(WDT_PERIOD_8CLK_gc);
       verifySpace();
-        
+
     /* Write up to 1 page of flash (or EEPROM, except that isn't supported due to space) */
     } else if ((ch & 0xEF) == STK_PROG_PAGE) {   // 0xEF = ~0x10 = 0x74-0x64 = STK_READ_PAGE - STK_PROG_PAGE
       uint16_t length;
@@ -783,7 +783,7 @@ void putch (char ch) {
 
 // Clobbers r24 and r25 (return in r24)
 uint8_t getch (void) {
-  uint8_t ch;  
+  uint8_t ch;
   #if defined(ASM_UART)
     while (1) {
     uint8_t status;
@@ -795,7 +795,7 @@ uint8_t getch (void) {
       "ldd  r25, Y+1"     "\n\t"
       "sbrs r25, %[bp]"   "\n\t"
       "wdr"               "\n\t"
-      :: [bp] "I" (USART_FERR_bp) 
+      :: [bp] "I" (USART_FERR_bp)
       : "r25");
   #else
     while (!(MYUART.STATUS & USART_RXCIF_bm))
@@ -809,7 +809,7 @@ uint8_t getch (void) {
   #ifdef LED_DATA_FLASH
     LED_PORT.IN |= LED;
   #endif
-  
+
   return ch;
 }
 
@@ -821,7 +821,7 @@ void getNch (uint8_t count) {
   #else
     do getch(); while (--count);
   #endif
-  
+
   verifySpace();
 }
 
@@ -928,7 +928,7 @@ void watchdogConfig (uint8_t x) {
       #if (defined(BIGBOOT) && BIGBOOT) || defined(TRY_USING_EEPROM)
         address.word += MAPPED_EEPROM_START;
         nvm_cmd(NVMCTRL_CMD_EEERWR_gc);
-          
+
         #if defined(ASM_COPY_MEM)
           ASM_COPY_MEM(address.bptr, buff.bptr, len);
         #else
@@ -969,7 +969,7 @@ void watchdogConfig (uint8_t x) {
           "dec  r25"                    "\n\t"
           "brne head"                   "\n\t"
           "clr r1"                      "\n\t"
-        ::       "z" ((uint16_t)address.word), 
+        ::       "z" ((uint16_t)address.word),
           [ptr]  "x" ((uint16_t)buff.bptr),
           [len]  "r" (len)
         : "r0", "r25"); // and declare r25 clobbered
