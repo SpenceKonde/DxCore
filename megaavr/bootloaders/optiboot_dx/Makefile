@@ -110,7 +110,7 @@ endif
 endif
 
 
-OPTIMIZE = -Os -fno-split-wide-types -mrelax
+OPTIMIZE = -Os -fno-split-wide-types -mrelax -ffixed-r20 -ffixed-r21
 
 # Override is only needed by avr-lib build system.
 
@@ -2507,3 +2507,459 @@ clean_asm:
 
 help:
 	@echo -e $(HELPTEXT)
+
+
+
+
+.PHONEY:
+	all_dx
+	all_128dx
+	all_64dx
+	all_32dx
+	all_dd
+	all_64dd
+	all_32dd
+	all_64dd14
+	all_32dd14
+
+
+all_dx:
+	$(MAKE) all_128dx 
+	$(MAKE) all_64dx
+	$(MAKE) all_32dx
+
+all_128dx:
+	$(MAKE) all_128dx_extr
+	$(MAKE) all_128dx_all_8sec
+	$(MAKE) all_128dx_poronly_8sec
+	$(MAKE) all_128dx_extronly
+	$(MAKE) all_128dx_swronly_8sec
+	$(MAKE) all_128dx_extr_8sec
+
+all_64dx:
+	$(MAKE) all_64dx_extr
+	$(MAKE) all_64dx_all_8sec
+	$(MAKE) all_64dx_poronly_8sec
+	$(MAKE) all_64dx_extronly
+	$(MAKE) all_64dx_swronly_8sec
+	$(MAKE) all_64dx_extr_8sec
+
+all_32dx:
+	$(MAKE) all_32dx_extr
+	$(MAKE) all_32dx_all_8sec
+	$(MAKE) all_32dx_poronly_8sec
+	$(MAKE) all_32dx_extronly
+	$(MAKE) all_32dx_swronly_8sec
+	$(MAKE) all_32dx_extr_8sec
+
+
+
+
+all_128dx_extr:
+	$(MAKE) 128dx_ser0_extr
+	$(MAKE) 128dx_ser0_alt_extr
+	$(MAKE) 128dx_ser1_extr
+	$(MAKE) 128dx_ser1_alt_extr
+	$(MAKE) 128dx_ser2_extr
+	$(MAKE) 128dx_ser2_alt_extr
+	$(MAKE) 128dx_ser3_extr
+	$(MAKE) 128dx_ser3_alt_extr
+	$(MAKE) 128dx_ser4_extr
+	$(MAKE) 128dx_ser4_alt_extr
+	$(MAKE) 128dx_ser5_extr
+	$(MAKE) 128dx_ser5_alt_extr
+
+
+all_128dx_all_8sec:
+	$(MAKE) 128dx_ser0_all_8sec
+	$(MAKE) 128dx_ser0_alt_all_8sec
+	$(MAKE) 128dx_ser1_all_8sec
+	$(MAKE) 128dx_ser1_alt_all_8sec
+	$(MAKE) 128dx_ser2_all_8sec
+	$(MAKE) 128dx_ser2_alt_all_8sec
+	$(MAKE) 128dx_ser3_all_8sec
+	$(MAKE) 128dx_ser3_alt_all_8sec
+	$(MAKE) 128dx_ser4_all_8sec
+	$(MAKE) 128dx_ser4_alt_all_8sec
+	$(MAKE) 128dx_ser5_all_8sec
+	$(MAKE) 128dx_ser5_alt_all_8sec
+
+
+all_128dx_poronly_8sec:
+	$(MAKE) 128dx_ser0_poronly_8sec
+	$(MAKE) 128dx_ser0_alt_poronly_8sec
+	$(MAKE) 128dx_ser1_poronly_8sec
+	$(MAKE) 128dx_ser1_alt_poronly_8sec
+	$(MAKE) 128dx_ser2_poronly_8sec
+	$(MAKE) 128dx_ser2_alt_poronly_8sec
+	$(MAKE) 128dx_ser3_poronly_8sec
+	$(MAKE) 128dx_ser3_alt_poronly_8sec
+	$(MAKE) 128dx_ser4_poronly_8sec
+	$(MAKE) 128dx_ser4_alt_poronly_8sec
+	$(MAKE) 128dx_ser5_poronly_8sec
+	$(MAKE) 128dx_ser5_alt_poronly_8sec
+
+
+all_128dx_extronly:
+	$(MAKE) 128dx_ser0_extronly
+	$(MAKE) 128dx_ser0_alt_extronly
+	$(MAKE) 128dx_ser1_extronly
+	$(MAKE) 128dx_ser1_alt_extronly
+	$(MAKE) 128dx_ser2_extronly
+	$(MAKE) 128dx_ser2_alt_extronly
+	$(MAKE) 128dx_ser3_extronly
+	$(MAKE) 128dx_ser3_alt_extronly
+	$(MAKE) 128dx_ser4_extronly
+	$(MAKE) 128dx_ser4_alt_extronly
+	$(MAKE) 128dx_ser5_extronly
+	$(MAKE) 128dx_ser5_alt_extronly
+
+
+all_128dx_swronly_8sec:
+	$(MAKE) 128dx_ser0_swronly_8sec
+	$(MAKE) 128dx_ser0_alt_swronly_8sec
+	$(MAKE) 128dx_ser1_swronly_8sec
+	$(MAKE) 128dx_ser1_alt_swronly_8sec
+	$(MAKE) 128dx_ser2_swronly_8sec
+	$(MAKE) 128dx_ser2_alt_swronly_8sec
+	$(MAKE) 128dx_ser3_swronly_8sec
+	$(MAKE) 128dx_ser3_alt_swronly_8sec
+	$(MAKE) 128dx_ser4_swronly_8sec
+	$(MAKE) 128dx_ser4_alt_swronly_8sec
+	$(MAKE) 128dx_ser5_swronly_8sec
+	$(MAKE) 128dx_ser5_alt_swronly_8sec
+
+
+all_128dx_extr_8sec:
+	$(MAKE) 128dx_ser0_extr_8sec
+	$(MAKE) 128dx_ser0_alt_extr_8sec
+	$(MAKE) 128dx_ser1_extr_8sec
+	$(MAKE) 128dx_ser1_alt_extr_8sec
+	$(MAKE) 128dx_ser2_extr_8sec
+	$(MAKE) 128dx_ser2_alt_extr_8sec
+	$(MAKE) 128dx_ser3_extr_8sec
+	$(MAKE) 128dx_ser3_alt_extr_8sec
+	$(MAKE) 128dx_ser4_extr_8sec
+	$(MAKE) 128dx_ser4_alt_extr_8sec
+	$(MAKE) 128dx_ser5_extr_8sec
+	$(MAKE) 128dx_ser5_alt_extr_8sec
+
+
+
+
+
+all_64dx_extr:
+	$(MAKE) 64dx_ser0_extr
+	$(MAKE) 64dx_ser0_alt_extr
+	$(MAKE) 64dx_ser1_extr
+	$(MAKE) 64dx_ser1_alt_extr
+	$(MAKE) 64dx_ser2_extr
+	$(MAKE) 64dx_ser2_alt_extr
+	$(MAKE) 64dx_ser3_extr
+	$(MAKE) 64dx_ser3_alt_extr
+	$(MAKE) 64dx_ser4_extr
+	$(MAKE) 64dx_ser4_alt_extr
+	$(MAKE) 64dx_ser5_extr
+	$(MAKE) 64dx_ser5_alt_extr
+
+
+all_64dx_all_8sec:
+	$(MAKE) 64dx_ser0_all_8sec
+	$(MAKE) 64dx_ser0_alt_all_8sec
+	$(MAKE) 64dx_ser1_all_8sec
+	$(MAKE) 64dx_ser1_alt_all_8sec
+	$(MAKE) 64dx_ser2_all_8sec
+	$(MAKE) 64dx_ser2_alt_all_8sec
+	$(MAKE) 64dx_ser3_all_8sec
+	$(MAKE) 64dx_ser3_alt_all_8sec
+	$(MAKE) 64dx_ser4_all_8sec
+	$(MAKE) 64dx_ser4_alt_all_8sec
+	$(MAKE) 64dx_ser5_all_8sec
+	$(MAKE) 64dx_ser5_alt_all_8sec
+
+
+all_64dx_poronly_8sec:
+	$(MAKE) 64dx_ser0_poronly_8sec
+	$(MAKE) 64dx_ser0_alt_poronly_8sec
+	$(MAKE) 64dx_ser1_poronly_8sec
+	$(MAKE) 64dx_ser1_alt_poronly_8sec
+	$(MAKE) 64dx_ser2_poronly_8sec
+	$(MAKE) 64dx_ser2_alt_poronly_8sec
+	$(MAKE) 64dx_ser3_poronly_8sec
+	$(MAKE) 64dx_ser3_alt_poronly_8sec
+	$(MAKE) 64dx_ser4_poronly_8sec
+	$(MAKE) 64dx_ser4_alt_poronly_8sec
+	$(MAKE) 64dx_ser5_poronly_8sec
+	$(MAKE) 64dx_ser5_alt_poronly_8sec
+
+
+all_64dx_extronly:
+	$(MAKE) 64dx_ser0_extronly
+	$(MAKE) 64dx_ser0_alt_extronly
+	$(MAKE) 64dx_ser1_extronly
+	$(MAKE) 64dx_ser1_alt_extronly
+	$(MAKE) 64dx_ser2_extronly
+	$(MAKE) 64dx_ser2_alt_extronly
+	$(MAKE) 64dx_ser3_extronly
+	$(MAKE) 64dx_ser3_alt_extronly
+	$(MAKE) 64dx_ser4_extronly
+	$(MAKE) 64dx_ser4_alt_extronly
+	$(MAKE) 64dx_ser5_extronly
+	$(MAKE) 64dx_ser5_alt_extronly
+
+
+all_64dx_swronly_8sec:
+	$(MAKE) 64dx_ser0_swronly_8sec
+	$(MAKE) 64dx_ser0_alt_swronly_8sec
+	$(MAKE) 64dx_ser1_swronly_8sec
+	$(MAKE) 64dx_ser1_alt_swronly_8sec
+	$(MAKE) 64dx_ser2_swronly_8sec
+	$(MAKE) 64dx_ser2_alt_swronly_8sec
+	$(MAKE) 64dx_ser3_swronly_8sec
+	$(MAKE) 64dx_ser3_alt_swronly_8sec
+	$(MAKE) 64dx_ser4_swronly_8sec
+	$(MAKE) 64dx_ser4_alt_swronly_8sec
+	$(MAKE) 64dx_ser5_swronly_8sec
+	$(MAKE) 64dx_ser5_alt_swronly_8sec
+
+
+all_64dx_extr_8sec:
+	$(MAKE) 64dx_ser0_extr_8sec
+	$(MAKE) 64dx_ser0_alt_extr_8sec
+	$(MAKE) 64dx_ser1_extr_8sec
+	$(MAKE) 64dx_ser1_alt_extr_8sec
+	$(MAKE) 64dx_ser2_extr_8sec
+	$(MAKE) 64dx_ser2_alt_extr_8sec
+	$(MAKE) 64dx_ser3_extr_8sec
+	$(MAKE) 64dx_ser3_alt_extr_8sec
+	$(MAKE) 64dx_ser4_extr_8sec
+	$(MAKE) 64dx_ser4_alt_extr_8sec
+	$(MAKE) 64dx_ser5_extr_8sec
+	$(MAKE) 64dx_ser5_alt_extr_8sec
+
+
+
+
+all_32dx_extr:
+	$(MAKE) 32dx_ser0_extr
+	$(MAKE) 32dx_ser0_alt_extr
+	$(MAKE) 32dx_ser1_extr
+	$(MAKE) 32dx_ser1_alt_extr
+	$(MAKE) 32dx_ser2_extr
+	$(MAKE) 32dx_ser2_alt_extr
+	$(MAKE) 32dx_ser3_extr
+	$(MAKE) 32dx_ser3_alt_extr
+	$(MAKE) 32dx_ser4_extr
+
+
+all_32dx_all_8sec:
+	$(MAKE) 32dx_ser0_all_8sec
+	$(MAKE) 32dx_ser0_alt_all_8sec
+	$(MAKE) 32dx_ser1_all_8sec
+	$(MAKE) 32dx_ser1_alt_all_8sec
+	$(MAKE) 32dx_ser2_all_8sec
+	$(MAKE) 32dx_ser2_alt_all_8sec
+	$(MAKE) 32dx_ser3_all_8sec
+	$(MAKE) 32dx_ser3_alt_all_8sec
+	$(MAKE) 32dx_ser4_all_8sec
+
+
+all_32dx_poronly_8sec:
+	$(MAKE) 32dx_ser0_poronly_8sec
+	$(MAKE) 32dx_ser0_alt_poronly_8sec
+	$(MAKE) 32dx_ser1_poronly_8sec
+	$(MAKE) 32dx_ser1_alt_poronly_8sec
+	$(MAKE) 32dx_ser2_poronly_8sec
+	$(MAKE) 32dx_ser2_alt_poronly_8sec
+	$(MAKE) 32dx_ser3_poronly_8sec
+	$(MAKE) 32dx_ser3_alt_poronly_8sec
+	$(MAKE) 32dx_ser4_poronly_8sec
+
+
+all_32dx_extronly:
+	$(MAKE) 32dx_ser0_extronly
+	$(MAKE) 32dx_ser0_alt_extronly
+	$(MAKE) 32dx_ser1_extronly
+	$(MAKE) 32dx_ser1_alt_extronly
+	$(MAKE) 32dx_ser2_extronly
+	$(MAKE) 32dx_ser2_alt_extronly
+	$(MAKE) 32dx_ser3_extronly
+	$(MAKE) 32dx_ser3_alt_extronly
+	$(MAKE) 32dx_ser4_extronly
+
+
+all_32dx_swronly_8sec:
+	$(MAKE) 32dx_ser0_swronly_8sec
+	$(MAKE) 32dx_ser0_alt_swronly_8sec
+	$(MAKE) 32dx_ser1_swronly_8sec
+	$(MAKE) 32dx_ser1_alt_swronly_8sec
+	$(MAKE) 32dx_ser2_swronly_8sec
+	$(MAKE) 32dx_ser2_alt_swronly_8sec
+	$(MAKE) 32dx_ser3_swronly_8sec
+	$(MAKE) 32dx_ser3_alt_swronly_8sec
+	$(MAKE) 32dx_ser4_swronly_8sec
+
+
+all_32dx_extr_8sec:
+	$(MAKE) 32dx_ser0_extr_8sec
+	$(MAKE) 32dx_ser0_alt_extr_8sec
+	$(MAKE) 32dx_ser1_extr_8sec
+	$(MAKE) 32dx_ser1_alt_extr_8sec
+	$(MAKE) 32dx_ser2_extr_8sec
+	$(MAKE) 32dx_ser2_alt_extr_8sec
+	$(MAKE) 32dx_ser3_extr_8sec
+	$(MAKE) 32dx_ser3_alt_extr_8sec
+	$(MAKE) 32dx_ser4_extr_8sec
+
+
+
+
+all_dd:
+	$(MAKE) -j${MAX_PARALLEL} all_64dd
+	$(MAKE) -j${MAX_PARALLEL} all_32dd
+	$(MAKE) -j${MAX_PARALLEL} all_64dd14
+	$(MAKE) -j${MAX_PARALLEL} all_32dd14
+
+
+all_64dd:
+	$(MAKE) 64dd_ser0_extr
+	$(MAKE) 64dd_ser0_all_8sec
+	$(MAKE) 64dd_ser0_poronly_8sec
+	$(MAKE) 64dd_ser0_extronly
+	$(MAKE) 64dd_ser0_swronly_8sec
+	$(MAKE) 64dd_ser0_extr_8sec
+	$(MAKE) 64dd_ser0_alt1_extr
+	$(MAKE) 64dd_ser0_alt1_all_8sec
+	$(MAKE) 64dd_ser0_alt1_poronly_8sec
+	$(MAKE) 64dd_ser0_alt1_extronly
+	$(MAKE) 64dd_ser0_alt1_swronly_8sec
+	$(MAKE) 64dd_ser0_alt1_extr_8sec
+	$(MAKE) 64dd_ser0_alt2_extr
+	$(MAKE) 64dd_ser0_alt2_all_8sec
+	$(MAKE) 64dd_ser0_alt2_poronly_8sec
+	$(MAKE) 64dd_ser0_alt2_extronly
+	$(MAKE) 64dd_ser0_alt2_swronly_8sec
+	$(MAKE) 64dd_ser0_alt2_extr_8sec
+	$(MAKE) 64dd_ser0_alt3_extr
+	$(MAKE) 64dd_ser0_alt3_all_8sec
+	$(MAKE) 64dd_ser0_alt3_poronly_8sec
+	$(MAKE) 64dd_ser0_alt3_extronly
+	$(MAKE) 64dd_ser0_alt3_swronly_8sec
+	$(MAKE) 64dd_ser0_alt3_extr_8sec
+	$(MAKE) 64dd_ser0_alt4_extr
+	$(MAKE) 64dd_ser0_alt4_all_8sec
+	$(MAKE) 64dd_ser0_alt4_poronly_8sec
+	$(MAKE) 64dd_ser0_alt4_extronly
+	$(MAKE) 64dd_ser0_alt4_swronly_8sec
+	$(MAKE) 64dd_ser0_alt4_extr_8sec
+	$(MAKE) 64dd_ser1_extr
+	$(MAKE) 64dd_ser1_all_8sec
+	$(MAKE) 64dd_ser1_poronly_8sec
+	$(MAKE) 64dd_ser1_extronly
+	$(MAKE) 64dd_ser1_swronly_8sec
+	$(MAKE) 64dd_ser1_extr_8sec
+	$(MAKE) 64dd_ser1_alt2_extr
+	$(MAKE) 64dd_ser1_alt2_all_8sec
+	$(MAKE) 64dd_ser1_alt2_poronly_8sec
+	$(MAKE) 64dd_ser1_alt2_extronly
+	$(MAKE) 64dd_ser1_alt2_swronly_8sec
+	$(MAKE) 64dd_ser1_alt2_extr_8sec
+
+
+all_32dd:
+	$(MAKE) 32dd_ser0_extr
+	$(MAKE) 32dd_ser0_all_8sec
+	$(MAKE) 32dd_ser0_poronly_8sec
+	$(MAKE) 32dd_ser0_extronly
+	$(MAKE) 32dd_ser0_swronly_8sec
+	$(MAKE) 32dd_ser0_extr_8sec
+	$(MAKE) 32dd_ser0_alt1_extr
+	$(MAKE) 32dd_ser0_alt1_all_8sec
+	$(MAKE) 32dd_ser0_alt1_poronly_8sec
+	$(MAKE) 32dd_ser0_alt1_extronly
+	$(MAKE) 32dd_ser0_alt1_swronly_8sec
+	$(MAKE) 32dd_ser0_alt1_extr_8sec
+	$(MAKE) 32dd_ser0_alt2_extr
+	$(MAKE) 32dd_ser0_alt2_all_8sec
+	$(MAKE) 32dd_ser0_alt2_poronly_8sec
+	$(MAKE) 32dd_ser0_alt2_extronly
+	$(MAKE) 32dd_ser0_alt2_swronly_8sec
+	$(MAKE) 32dd_ser0_alt2_extr_8sec
+	$(MAKE) 32dd_ser0_alt3_extr
+	$(MAKE) 32dd_ser0_alt3_all_8sec
+	$(MAKE) 32dd_ser0_alt3_poronly_8sec
+	$(MAKE) 32dd_ser0_alt3_extronly
+	$(MAKE) 32dd_ser0_alt3_swronly_8sec
+	$(MAKE) 32dd_ser0_alt3_extr_8sec
+	$(MAKE) 32dd_ser0_alt4_extr
+	$(MAKE) 32dd_ser0_alt4_all_8sec
+	$(MAKE) 32dd_ser0_alt4_poronly_8sec
+	$(MAKE) 32dd_ser0_alt4_extronly
+	$(MAKE) 32dd_ser0_alt4_swronly_8sec
+	$(MAKE) 32dd_ser0_alt4_extr_8sec
+	$(MAKE) 32dd_ser1_extr
+	$(MAKE) 32dd_ser1_all_8sec
+	$(MAKE) 32dd_ser1_poronly_8sec
+	$(MAKE) 32dd_ser1_extronly
+	$(MAKE) 32dd_ser1_swronly_8sec
+	$(MAKE) 32dd_ser1_extr_8sec
+	$(MAKE) 32dd_ser1_alt2_extr
+	$(MAKE) 32dd_ser1_alt2_all_8sec
+	$(MAKE) 32dd_ser1_alt2_poronly_8sec
+	$(MAKE) 32dd_ser1_alt2_extronly
+	$(MAKE) 32dd_ser1_alt2_swronly_8sec
+	$(MAKE) 32dd_ser1_alt2_extr_8sec
+
+
+all_64dd14:
+	$(MAKE) 64dd14_ser0_extr
+	$(MAKE) 64dd14_ser0_alt3_extr
+	$(MAKE) 64dd14_ser0_alt4_extr
+	$(MAKE) 64dd14_ser1_alt2_extr
+	$(MAKE) 64dd14_ser0_all_8sec
+	$(MAKE) 64dd14_ser0_alt3_all_8sec
+	$(MAKE) 64dd14_ser0_alt4_all_8sec
+	$(MAKE) 64dd14_ser1_alt2_all_8sec
+	$(MAKE) 64dd14_ser0_poronly_8sec
+	$(MAKE) 64dd14_ser0_alt3_poronly_8sec
+	$(MAKE) 64dd14_ser0_alt4_poronly_8sec
+	$(MAKE) 64dd14_ser1_alt2_poronly_8sec
+	$(MAKE) 64dd14_ser0_extronly
+	$(MAKE) 64dd14_ser0_alt3_extronly
+	$(MAKE) 64dd14_ser0_alt4_extronly
+	$(MAKE) 64dd14_ser1_alt2_extronly
+	$(MAKE) 64dd14_ser0_swronly_8sec
+	$(MAKE) 64dd14_ser0_alt3_swronly_8sec
+	$(MAKE) 64dd14_ser0_alt4_swronly_8sec
+	$(MAKE) 64dd14_ser1_alt2_swronly_8sec
+	$(MAKE) 64dd14_ser0_extr_8sec
+	$(MAKE) 64dd14_ser0_alt3_extr_8sec
+	$(MAKE) 64dd14_ser0_alt4_extr_8sec
+	$(MAKE) 64dd14_ser1_alt2_extr_8sec
+
+
+all_32dd14:
+	$(MAKE) 32dd14_ser0_extr
+	$(MAKE) 32dd14_ser0_alt3_extr
+	$(MAKE) 32dd14_ser0_alt4_extr
+	$(MAKE) 32dd14_ser1_alt2_extr
+	$(MAKE) 32dd14_ser0_all_8sec
+	$(MAKE) 32dd14_ser0_alt3_all_8sec
+	$(MAKE) 32dd14_ser0_alt4_all_8sec
+	$(MAKE) 32dd14_ser1_alt2_all_8sec
+	$(MAKE) 32dd14_ser0_poronly_8sec
+	$(MAKE) 32dd14_ser0_alt3_poronly_8sec
+	$(MAKE) 32dd14_ser0_alt4_poronly_8sec
+	$(MAKE) 32dd14_ser1_alt2_poronly_8sec
+	$(MAKE) 32dd14_ser0_extronly
+	$(MAKE) 32dd14_ser0_alt3_extronly
+	$(MAKE) 32dd14_ser0_alt4_extronly
+	$(MAKE) 32dd14_ser1_alt2_extronly
+	$(MAKE) 32dd14_ser0_swronly_8sec
+	$(MAKE) 32dd14_ser0_alt3_swronly_8sec
+	$(MAKE) 32dd14_ser0_alt4_swronly_8sec
+	$(MAKE) 32dd14_ser1_alt2_swronly_8sec
+	$(MAKE) 32dd14_ser0_extr_8sec
+	$(MAKE) 32dd14_ser0_alt3_extr_8sec
+	$(MAKE) 32dd14_ser0_alt4_extr_8sec
+	$(MAKE) 32dd14_ser1_alt2_extr_8sec
