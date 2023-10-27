@@ -246,6 +246,10 @@ typedef union {
   #define LED_START_FLASHES 0
 #endif
 
+#define ENABLE_CHIP_ERASE
+#define ASM_UART
+#define ASM_COPY
+
 /*
  * The AVR Dx-series parts all reset to running on the internal oscillator
  *  at 4 MHz (the internal oscillator speed is selectable here, unlike
@@ -303,7 +307,7 @@ typedef union {
 #endif
 
 
-#define ASM_UART
+
 // Important! :
 // This relies on the declaration of the usart pointer being in Y
 // like this: register USART_t* _usart asm ("r28");
@@ -315,7 +319,7 @@ typedef union {
 #define SET_UART_DATA(__localVar__)   __asm__ __volatile__("std  Y+2, %A0" "\n\t": :  "r" (__localVar__)   );
 #endif
 
-#define ASM_COPY  // gives us about 18 bytes
+
 #if defined(ASM_COPY) && defined(ASM_UART)
 #define ASM_COPY_RX(__buff__, __len__)                                   \
   __asm__ __volatile__(                                                  \
@@ -467,10 +471,14 @@ static inline void erase_flash(void);
 register USART_t* _usart asm ("r28");  // keep available throughout whole program
 #endif
 
+#if defined(ENABLE_CHIP_ERASE)
+register  uint8_t flash_clr asm("r2");   // load flash at 0x200 and add 1. if == 0, flash was erased
+#endif
+
 
 register addr16_t buff asm("r20");      // will require only a movw instead of two ldi
 register addr16_t address asm("r14");   // set by avrdude, reg has to be mov'd anyway
-register  uint8_t flash_clr asm("r2");   // load flash at 0x200 and add 1. if == 0, flash was erased
+
 
 
 /* main program starts here */
@@ -563,6 +571,7 @@ int main (void) {
   :: [reg] "r" (buff),
      [adr] "M" ((uint8_t)(RAMSTART>>8)));
 
+  #if defined(ENABLE_CHIP_ERASE)
   // Data address 0x82 = 0x0200 PROGMEM, first byte after bootloader
   // We are not affected by the errata. If first byte == 0xFF, chip
   // is erased. We increment it by one to make it 0x00 to do a cpse
@@ -577,6 +586,7 @@ int main (void) {
     "inc  r2           \n"
   ::  [ioreg] "n" (_SFR_MEM_ADDR(NVMCTRL.CTRLB)) : "r31"  // Set FLMAP to 0
   );
+  #endif
 
   #if defined (ASM_UART)
     _usart = &MYUART;   // ! Y reg must be set before the first function call
@@ -682,25 +692,27 @@ int main (void) {
         verifySpace();
     } else if (ch == STK_UNIVERSAL) {
       uint8_t cmd = getch();
+      (void) cmd; // in some configurations cmd might be unused.
       getch();    // read one more byte o that we will have enough space for the trailing
                   // bytes and EOP. Have to use this order so that gcc can optimize all getNch
-                  // and putch together at the end of the if else
-      if (cmd == AVR_OP_ERASE_FLASH) {
-        erase_flash();
-        getNch(2);  // 2+1 = 3 == UART FIFO Rx size. This allows us to erase and handle this later
-        putch(0x00);
-      } else if (cmd == AVR_OP_LOAD_EXT_ADDR) {
-        #if defined(RAMPZ) && PROGMEM_SIZE > 65536
+                  // and putch together at the end of the if else (For chip erase support)
+      #if defined(ENABLE_CHIP_ERASE)
+        if (cmd == AVR_OP_ERASE_FLASH) {
+          erase_flash();
+          getNch(2);  // 2+1 = 3 == UART FIFO Rx size. This allows us to erase and handle this later
+          putch(0x00);
+        } else
+      #endif
+      #if defined(RAMPZ) && PROGMEM_SIZE > 65536
+        if (cmd == AVR_OP_LOAD_EXT_ADDR) {
           // LOAD_EXTENDED_ADDRESS is needed in STK_UNIVERSAL for addressing more than 128kB
           RAMPZ = getch();  // get address and put it in RAMPZ (not shifted, we're getting byte addresses here!)
           getNch(1); // get last '0'
           // response
           putch(0x00);
-        #else
-          getNch(2);
-          putch(0x00);
-        #endif
-      } else {
+        } else
+      #endif
+      {
         getNch(2);  // 2+1 = 3 == UART FIFO size
         putch(0x00);
       }
@@ -932,7 +944,10 @@ static inline void write_buffered_flash(length_t len) {
 
   #if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
     pDst.word += MAPPED_PROGMEM_START;
-    if (!(flash_clr == 0x00)) {
+    #if defined(ENABLE_CHIP_ERASE)
+      if (!(flash_clr == 0x00))
+    #endif
+    {
       nvm_cmd(NVMCTRL_CMD_FLPER_gc);
       *(pDst.bptr)=0xFF;
     }
@@ -951,8 +966,10 @@ static inline void write_buffered_flash(length_t len) {
     // the load the data to r0, r1 and make NVMCTRL program it,
     // loop until we're done
     __asm__ __volatile__ (
+    #if defined(ENABLE_CHIP_ERASE)
       "and   r2,     r2   \n" // skip spm/chip erase, if r2 == 0,
       "breq  flashWrite   \n" // aka flash at 0x0200 == 0xFF
+    #endif
       "ldi  r24,      8   \n" // page erase
       "rcall    nvm_cmd   \n" // r25 has now been shat on
       "spm                \n" // erase the page!
