@@ -400,7 +400,7 @@ typedef uint16_t pagelen_t;
 #define GETLENGTH(__len__)                                             \
   __asm__ __volatile__(                                                \
     "rcall      getch \n"   /* getCh get high byte of len          */  \
-    "mov  %B0,    r24 \n"   /* mov high byte to "high" regsiter    */  \
+    "mov  %B0,    r24 \n"   /* mov high byte to "high" register    */  \
     "rcall      getch \n"   /* getCh get low byte of len           */  \
     "mov  %A0,    r24 \n"   /* mov lower byte to  "low" register   */  \
   : "=r" (__len__)          /* __len__ register                    */  \
@@ -462,7 +462,7 @@ static inline void erase_flash(void);
 #endif
 
 
-  
+
 #if defined (ASM_UART)
 register USART_t* _usart asm ("r28");  // keep available throughout whole program
 #endif
@@ -476,7 +476,7 @@ register  uint8_t flash_clr asm("r2");   // load flash at 0x200 and add 1. if ==
 /* main program starts here */
 int main (void) {
   uint8_t ch;
-  
+
   // This is the first code to run.
   //
   // Optiboot C code makes the following assumptions:
@@ -603,7 +603,7 @@ int main (void) {
   #if (defined(MYUART_PMUX_VAL) && MYUART_PMUX_VAL != 0)
     MYPMUX_REG = MYUART_PMUX_VAL;  // alternate pinout to use
   #endif
-  
+
   #if defined (ASM_UART)
     #if (BAUD_SETTING_4 < 256)
       _usart->BAUDL = BAUD_SETTING_4;
@@ -701,9 +701,9 @@ int main (void) {
           putch(0x00);
         #endif
       } else {
-        getNch(2);  // 2+1 = 3 == UART FIFO size 
-        putch(0x00);      
-      }  
+        getNch(2);  // 2+1 = 3 == UART FIFO size
+        putch(0x00);
+      }
     /* Get device signature bytes  */
     } else if (ch == STK_READ_SIGN) {    /* == 0x70 + verify */
       // Easy, they're already in a mapped register... but we know the flash size at compile time, and it saves us 2 bytes of flash for each one we don't need to know...
@@ -732,7 +732,7 @@ int main (void) {
         verifySpace();
         addr16_t pSrc;
         pSrc.word = address.word;
-        
+
         #if (__AVR_ARCH__==103) && !defined(READ_WITHOUT_MAPPED)
           if (desttype == 'F') {
             pSrc.word += MAPPED_PROGMEM_START;  /* Low byte is always 0 */
@@ -758,7 +758,7 @@ int main (void) {
           write_buffered_eeprom(length);
         } else {
           write_buffered_flash(length);
-        }     
+        }
       }
     } else {
       // This covers the response to commands like STK_ENTER_PROGMODE
@@ -810,7 +810,7 @@ void putch (char ch) {
 
 // Clobbers r24 and r25 (return in r24)
 uint8_t getch (void) {
-  uint8_t ch;  
+  uint8_t ch;
   #if defined(ASM_UART)
     while (1) {
       uint8_t status;
@@ -836,7 +836,7 @@ uint8_t getch (void) {
   #ifdef LED_DATA_FLASH
     LED_PORT.IN |= LED;
   #endif
-  
+
   return ch;
 }
 
@@ -848,15 +848,15 @@ void getNch (uint8_t count) {
   #else
     do getch(); while (--count);
   #endif
-  
+
   verifySpace();
 }
 
 void verifySpace () {
   if (getch() != CRC_EOP) {
     watchdogConfig(WDT_PERIOD_8CLK_gc);    // shorten WD timeout
-    while (1)        // and busy-loop so that WD causes
-      ;            //  a reset and app start.
+    while (1)      // and busy-loop so that WD causes
+      ;            // a reset and app start.
   }
   putch(STK_INSYNC);
 }
@@ -869,10 +869,10 @@ void verifySpace () {
 #if LED_START_FLASHES > 0
   #if defined(LED_INVERT)
     #define FLASH_COUNT (LED_START_FLASHES * 2) + 1
-  #else 
+  #else
     #define FLASH_COUNT (LED_START_FLASHES * 2)
   #endif
-  
+
   #define LED_DELAY ((4000000)/150)
 
   void flash_led () {
@@ -929,13 +929,13 @@ static inline void write_buffered_flash(length_t len) {
   addr16_t pDst;
   pSrc.word = buff.word;
   pDst.word = address.word;
-  
+
   #if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
     pDst.word += MAPPED_PROGMEM_START;
     if (!(flash_clr == 0x00)) {
       nvm_cmd(NVMCTRL_CMD_FLPER_gc);
       *(pDst.bptr)=0xFF;
-    }    
+    }
     nvm_cmd(NVMCTRL_CMD_FLWR_gc);
     
     #if defined(ASM_COPY_MEM)
@@ -951,8 +951,8 @@ static inline void write_buffered_flash(length_t len) {
     // the load the data to r0, r1 and make NVMCTRL program it,
     // loop until we're done
     __asm__ __volatile__ (
-      "and   r2,     r2   \n" // skip spm/chip erase, if r2 == 0, 
-      "breq  flashWrite   \n" // aka flash at 0x0200 == 0xFF 
+      "and   r2,     r2   \n" // skip spm/chip erase, if r2 == 0,
+      "breq  flashWrite   \n" // aka flash at 0x0200 == 0xFF
       "ldi  r24,      8   \n" // page erase
       "rcall    nvm_cmd   \n" // r25 has now been shat on
       "spm                \n" // erase the page!
@@ -972,7 +972,7 @@ static inline void write_buffered_flash(length_t len) {
       "sbiw r24,      2   \n"
       "brne head          \n"
       "clr r1             \n"
-    ::       "z" ((uint16_t)pDst.bptr), 
+    ::       "z" ((uint16_t)pDst.bptr),
       [ptr]  "x" ((uint16_t)pSrc.bptr),
       [len]  "r" ((uint16_t)len)
     : "r0", "r24", "r25"); // and declare r25 clobbered
@@ -1017,8 +1017,8 @@ static inline void erase_flash(void) {
   [CMDB]  "I" (NVMCTRL_CMD_FLMPER32_gc + 1),    /* can't delete more then 32 pages */
   [PGCT]  "I" (MAX_ERASE_CNT)                   /* combining loop counter and increment */
   : "r24", "r25", "r26", "r31");                /*  */
-  
-  
+
+
 #else   /* Ex only with 128 bytes in a page / untested */
   __asm__ __volatile__(
     "ldi  r30, %[BASE] \n"
