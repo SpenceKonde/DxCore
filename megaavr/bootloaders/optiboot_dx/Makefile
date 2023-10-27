@@ -2524,7 +2524,7 @@ help:
 
 
 all_dx:
-	$(MAKE) all_128dx 
+	$(MAKE) all_128dx
 	$(MAKE) all_64dx
 	$(MAKE) all_32dx
 

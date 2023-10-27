@@ -937,7 +937,7 @@ static inline void write_buffered_flash(length_t len) {
       *(pDst.bptr)=0xFF;
     }
     nvm_cmd(NVMCTRL_CMD_FLWR_gc);
-    
+
     #if defined(ASM_COPY_MEM)
       ASM_COPY_MEM(pDst.bptr, pSrc.bptr, len);
     #else
