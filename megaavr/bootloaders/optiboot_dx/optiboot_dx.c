@@ -319,7 +319,6 @@ typedef union {
 #define SET_UART_DATA(__localVar__)   __asm__ __volatile__("std  Y+2, %A0" "\n\t": :  "r" (__localVar__)   );
 #endif
 
-
 #if defined(ASM_COPY) && defined(ASM_UART)
 #define ASM_COPY_RX(__buff__, __len__)                                   \
   __asm__ __volatile__(                                                  \
@@ -949,6 +948,7 @@ static inline void write_buffered_flash(length_t len) {
     #endif
     {
       nvm_cmd(NVMCTRL_CMD_FLPER_gc);
+
       *(pDst.bptr)=0xFF;
     }
     nvm_cmd(NVMCTRL_CMD_FLWR_gc);
@@ -1058,6 +1058,7 @@ static inline void erase_flash(void) {
   [CMDA]  "I" (NVMCTRL_CMD_FLPER_gc),         /* one page erase */
   [PGCT]  "I" (MAX_ERASE_CNT)                 /* combining loop counter and increment */
   : "r24", "r25", "r26", "r27", "r30", "r31");  /*  */
+
 
 #endif
 }

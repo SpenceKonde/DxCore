@@ -182,7 +182,7 @@ Since the 64k parts have no program memory locations above the first 64k, RAMPZ 
 
 It is plausible that with more aggressive optimization, it might be possible to make room for EEPROM writes on 64k and smaller flash. It would take a miracle to do that on 128k parts.
 
-### Change 10/17/23:
+### Change 10/17/23
 As of 10/17/2023, users building custom versions of optiboot_dx can specify baud rates lower than 62750 now even for 128k parts. This is done by, if (and only if, for readability sake) we are using the ALT serial port (costs 3 words) AND we have 128k of flash (costs 6 words) AND the baud rate is below 62750. It works by replacing the UART initialization code with a little piece of asm, and explicitly prepares a pointer for it. This saves 2 words of flash, and was the easiest way to get these configurations to build. The price is a blob of asm to do a trivial task just to save 4 bytes.
 
 ### Wastes of space
