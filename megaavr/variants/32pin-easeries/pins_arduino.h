@@ -105,7 +105,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCA0_PINS (PORTMUX_TCA0_PORTF_gc)   // TCA0 output on PF[0:5] by default, but just write the portmux to change it
 #define TCA1_PINS (PORTMUX_TCA0_PORTA_gc)   // TCA1 output on PA[4:6]
 #define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) instead of PF4
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) instead of PF4
+#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) instead of PF5
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
 #define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
 

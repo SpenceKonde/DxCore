@@ -1109,7 +1109,7 @@ static void _long_soft_event(uint8_t channel, uint8_t length) {
     "st Z, %0"        "\n\t"
     "st Z, %0"        "\n\t"
     "out 0x3f, r0"    "\n"   // restore SREG, reenabling interrupts.
-    ::"r"((uint8_t) channel),"d"((uint8_t) length),"z" ((uint16_t) strobeaddr));
+    :"+r"((uint8_t) channel):"d"((uint8_t) length),"z" ((uint16_t) strobeaddr));
 }
 
 

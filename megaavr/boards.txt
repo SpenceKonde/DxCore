@@ -2,11 +2,11 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##     ####     ###   #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #       #   #  #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ####     ####  #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ##    # ##    #   #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ## ###  ##   #    #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##      ##      ###   #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #       #  ##  #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ###     # # #  #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ## #  # ## ##  #  #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ##  ##  ##  ###   #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -107,6 +107,7 @@ menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
 menu.flmap=How to set FLMAP: (64k+ parts only)
+menu.bootloader-class=Bootloader type (installed by burn + must match 2 upload)
 
 ##########################################################################
 #                                                                        #
@@ -128,7 +129,7 @@ avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
 #avrdu.name=AVR DU-series (no bootloader)
 avrea.name=AVR EA-series (no bootloader)
-#avreb.name=AVR EB-series (no bootloader)
+avreb.name=AVR EB-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
 avrddopti.name=AVR DD-series (Optiboot)
@@ -2270,33 +2271,6 @@ avrdaopti.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
 avrdaopti.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
 avrdaopti.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 
-#----------------------------------------#
-# Reset pin as input option              #
-#________________________________________#
-avrdaopti.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & SW resets, 1 sec timeout)
-avrdaopti.menu.resetpin.reset.bootloader.defaultentrycond=_extr
-avrdaopti.menu.resetpin.reset.bootloader.resetpinbits=10
-avrdaopti.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
-avrdaopti.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
-avrdaopti.menu.resetpin.input.bootloader.resetpinbits=00
-
-#----------------------------------------#
-# Optiboot Entry Conditions              #
-#________________________________________#
-avrdaopti.menu.entrycond.default=Default (see documentation)
-avrdaopti.menu.entrycond.extr=External (reset pin) (see documentation)
-avrdaopti.menu.entrycond.extronly=External reset only (see documentation)
-avrdaopti.menu.entrycond.all=Always (see documentation)
-avrdaopti.menu.entrycond.poronly= Power on only (see documentation)
-avrdaopti.menu.entrycond.swr=SW-only: 8 second timeout (see documentation)
-avrdaopti.menu.entrycond.extr_slow=External (reset pin), slow (see documentation)
-avrdaopti.menu.entrycond.default.bootloader.entrycond={bootloader.defaultentrycond}
-avrdaopti.menu.entrycond.extr.bootloader.entrycond=_extr
-avrdaopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
-avrdaopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
-avrdaopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
-avrdaopti.menu.entrycond.swr.bootloader.entrycond=_swronly_8sec
-avrdaopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -2396,57 +2370,6 @@ avrdaopti.menu.wiremode.mands2=2x Wire, Master and Slave (>28 pin only)
 avrdaopti.menu.wiremode.mands2.build.wiremode=MANDS_BOTH
 avrdaopti.menu.wiremode.mands2.build.wireabr=.wA2
 
-#----------------------------------------#
-# Optiboot serial port                   #
-#________________________________________#
-avrdaopti.menu.bootloaderusart.ser0_alt=USART0 (alt): TX PA4, RX PA5
-avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
-avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.portname=Serial
-avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.portswap=1
-avrdaopti.menu.bootloaderusart.ser0=USART0 (default pins): TX PA0, RX PA1 (int. clock only)
-avrdaopti.menu.bootloaderusart.ser0.bootloader.port=_ser0
-avrdaopti.menu.bootloaderusart.ser0.bootloader.portname=Serial
-avrdaopti.menu.bootloaderusart.ser0.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1
-avrdaopti.menu.bootloaderusart.ser1.bootloader.port=_ser1
-avrdaopti.menu.bootloaderusart.ser1.bootloader.portname=Serial1
-avrdaopti.menu.bootloaderusart.ser1.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser1_alt=USART1 (alt): TX PC4, RX PC5 (48/64-pin only)
-avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.port=_ser1_alt
-avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.portname=Serial1
-avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.portswap=1
-avrdaopti.menu.bootloaderusart.ser2=USART2: TX PF0, RX PF1
-avrdaopti.menu.bootloaderusart.ser2.bootloader.port=_ser2
-avrdaopti.menu.bootloaderusart.ser2.bootloader.portname=Serial2
-avrdaopti.menu.bootloaderusart.ser2.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (>28 pin only)
-avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
-avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portname=Serial2
-avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portswap=1
-avrdaopti.menu.bootloaderusart.ser3=USART3: TX PB0, RX PB1 (48/64-pin only)
-avrdaopti.menu.bootloaderusart.ser3.bootloader.port=_ser3
-avrdaopti.menu.bootloaderusart.ser3.bootloader.portname=Serial3
-avrdaopti.menu.bootloaderusart.ser3.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser3_alt=USART3 (alt): TX PB4, RX PB5 (48/64-pin only)
-avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.port=_ser3_alt
-avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.portname=Serial3
-avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.portswap=1
-avrdaopti.menu.bootloaderusart.ser4=USART4: TX PE0, RX PE1 (48/64-pin only)
-avrdaopti.menu.bootloaderusart.ser4.bootloader.port=_ser4
-avrdaopti.menu.bootloaderusart.ser4.bootloader.portname=Serial4
-avrdaopti.menu.bootloaderusart.ser4.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser4_alt=USART4 (alt): TX PE4, RX PE5 (64-pin only)
-avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.port=_ser4_alt
-avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.portname=Serial4
-avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.portswap=1
-avrdaopti.menu.bootloaderusart.ser5=USART5: TX PG0, RX PG1 (64-pin only)
-avrdaopti.menu.bootloaderusart.ser5.bootloader.port=_ser5
-avrdaopti.menu.bootloaderusart.ser5.bootloader.portname=Serial5
-avrdaopti.menu.bootloaderusart.ser5.bootloader.portswap=0
-avrdaopti.menu.bootloaderusart.ser5_alt=USART5 (alt): TX PG4, RX PG5 (64-pin only)
-avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.port=_ser5_alt
-avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
-avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 
 
 #----------------------------------------#
@@ -2507,6 +2430,90 @@ avrdaopti.menu.flmap.unlocked.build.flmapabr=.ful
 avrdaopti.menu.flmap.locksection02.build.flmapabr=.fl2
 avrdaopti.menu.flmap.locksection1.build.flmapabr=.fl1
 avrdaopti.menu.flmap.locksection0.build.flmapabr=.fl0
+
+#----------------------------------------#
+# Reset pin as input option              #
+#________________________________________#
+avrdaopti.menu.resetpin.reset=PF6: Reset (default boot entry on reset pin & SW resets, 1 sec timeout)
+avrdaopti.menu.resetpin.reset.bootloader.defaultentrycond=_extr
+avrdaopti.menu.resetpin.reset.bootloader.resetpinbits=10
+avrdaopti.menu.resetpin.input=PF6: Input (default boot entry on power on & SW resets, 8 sec timeout)
+avrdaopti.menu.resetpin.input.bootloader.defaultentrycond=_por_8sec
+avrdaopti.menu.resetpin.input.bootloader.resetpinbits=00
+
+#----------------------------------------#
+# Optiboot Entry Conditions              #
+#________________________________________#
+avrdaopti.menu.entrycond.default=Default (see documentation)
+avrdaopti.menu.entrycond.extr=External (reset pin) (see documentation)
+avrdaopti.menu.entrycond.extronly=External reset only (see documentation)
+avrdaopti.menu.entrycond.all=Always (see documentation)
+avrdaopti.menu.entrycond.poronly= Power on only (see documentation)
+avrdaopti.menu.entrycond.swr=SW-only: 8 second timeout (see documentation)
+avrdaopti.menu.entrycond.extr_slow=External (reset pin), slow (see documentation)
+avrdaopti.menu.entrycond.default.bootloader.entrycond={bootloader.defaultentrycond}
+avrdaopti.menu.entrycond.extr.bootloader.entrycond=_extr
+avrdaopti.menu.entrycond.extronly.bootloader.entrycond=_extronly
+avrdaopti.menu.entrycond.poronly.bootloader.entrycond=_poronly_8sec
+avrdaopti.menu.entrycond.all.bootloader.entrycond=_all_8sec
+avrdaopti.menu.entrycond.swr.bootloader.entrycond=_swronly_8sec
+avrdaopti.menu.entrycond.extr_slow.bootloader.entrycond=_extr_8sec
+
+
+#----------------------------------------#
+# Optiboot serial port                   #
+#________________________________________#
+avrdaopti.menu.bootloaderusart.ser0_alt=USART0 (alt): TX PA4, RX PA5
+avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.port=_ser0_alt
+avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.portname=Serial
+avrdaopti.menu.bootloaderusart.ser0_alt.bootloader.portswap=1
+avrdaopti.menu.bootloaderusart.ser0=USART0 (default pins): TX PA0, RX PA1 (int. clock only)
+avrdaopti.menu.bootloaderusart.ser0.bootloader.port=_ser0
+avrdaopti.menu.bootloaderusart.ser0.bootloader.portname=Serial
+avrdaopti.menu.bootloaderusart.ser0.bootloader.portswap=0
+avrdaopti.menu.bootloaderusart.ser1=USART1: TX PC0, RX PC1
+avrdaopti.menu.bootloaderusart.ser1.bootloader.port=_ser1
+avrdaopti.menu.bootloaderusart.ser1.bootloader.portname=Serial1
+avrdaopti.menu.bootloaderusart.ser1.bootloader.portswap=0
+avrdaopti.menu.bootloaderusart.ser1_alt=USART1 (alt): TX PC4, RX PC5 (48/64-pin only)
+avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.port=_ser1_alt
+avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.portname=Serial1
+avrdaopti.menu.bootloaderusart.ser1_alt.bootloader.portswap=1
+avrdaopti.menu.bootloaderusart.ser2=USART2: TX PF0, RX PF1
+avrdaopti.menu.bootloaderusart.ser2.bootloader.port=_ser2
+avrdaopti.menu.bootloaderusart.ser2.bootloader.portname=Serial2
+avrdaopti.menu.bootloaderusart.ser2.bootloader.portswap=0
+avrdaopti.menu.bootloaderusart.ser2_alt=USART2 (alt): TX PF4, RX PF5 (>28 pin only)
+avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.port=_ser2_alt
+avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portname=Serial2
+avrdaopti.menu.bootloaderusart.ser2_alt.bootloader.portswap=1
+avrdaopti.menu.bootloaderusart.ser3=USART3: TX PB0, RX PB1 (48/64-pin only)
+avrdaopti.menu.bootloaderusart.ser3.bootloader.port=_ser3
+avrdaopti.menu.bootloaderusart.ser3.bootloader.portname=Serial3
+avrdaopti.menu.bootloaderusart.ser3.bootloader.portswap=0
+avrdaopti.menu.bootloaderusart.ser3_alt=USART3 (alt): TX PB4, RX PB5 (48/64-pin only)
+avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.port=_ser3_alt
+avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.portname=Serial3
+avrdaopti.menu.bootloaderusart.ser3_alt.bootloader.portswap=1
+avrdaopti.menu.bootloaderusart.ser4=USART4: TX PE0, RX PE1 (48/64-pin only)
+avrdaopti.menu.bootloaderusart.ser4.bootloader.port=_ser4
+avrdaopti.menu.bootloaderusart.ser4.bootloader.portname=Serial4
+avrdaopti.menu.bootloaderusart.ser4.bootloader.portswap=0
+avrdaopti.menu.bootloaderusart.ser4_alt=USART4 (alt): TX PE4, RX PE5 (64-pin only)
+avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.port=_ser4_alt
+avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.portname=Serial4
+avrdaopti.menu.bootloaderusart.ser4_alt.bootloader.portswap=1
+avrdaopti.menu.bootloaderusart.ser5=USART5: TX PG0, RX PG1 (64-pin only)
+avrdaopti.menu.bootloaderusart.ser5.bootloader.port=_ser5
+avrdaopti.menu.bootloaderusart.ser5.bootloader.portname=Serial5
+avrdaopti.menu.bootloaderusart.ser5.bootloader.portswap=0
+avrdaopti.menu.bootloaderusart.ser5_alt=USART5 (alt): TX PG4, RX PG5 (64-pin only)
+avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.port=_ser5_alt
+avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
+avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
+
+avrdaopti.menu.bootloadermode.turbo=Optiboot Dx Turbo
+avrdaopti.menu,bootloadermode.compatible=Optiboot Dx not-turbo
 
 ##########################################################################
 #                                                                        #

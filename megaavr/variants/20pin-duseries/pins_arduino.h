@@ -103,7 +103,7 @@ Include guard and include basic libraries. We are normally including this inside
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
   // strange indentation chosen intentionally to highlight symmetry
-  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x01) == 0)
+  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x10) == 0x10)
   #define digitalPinToAnalogInput(p)      ((p) >= PIN_PD4           ?            ((p) > PIN_PD7 ? NOT_A_PIN : (p) - PIN_PD0) : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0) ? (p) + 20 : NOT_A_PIN)))
   #define analogChannelToDigitalPin(p)    ((p) > (IS_MVIO_ENABLED() ? 27 : 31) || (p) != 28     ? NOT_A_PIN : (p) < 8        ? ( (p) + PIN_PD0) : ( (p) >      21                        ? (p) - 20 : NOT_A_PIN))
 #endif
