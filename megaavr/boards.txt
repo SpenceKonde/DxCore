@@ -2890,7 +2890,7 @@ avrdbopti.menu.mvioopti.disabled.bootloader.mviobits=10
 avrdbopti.menu.mvioopti.disabled.build.mvioenable=
 avrdbopti.menu.mvioopti.reallyenabled=Enabled. "burn bootloader" done for sure.
 avrdbopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
-avrdbopti.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+avrdbopti.menu.mvioopti.reallyenabled.build.mvioenable=-DMVIO_ENABLED -DASSUME_MVIO_FUSE
 avrdbopti.menu.mvioopti.reallydisabled=Disabled. "burn bootloader" done for sure.
 avrdbopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
 avrdbopti.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
@@ -3462,7 +3462,7 @@ avrddopti.menu.mvioopti.disabled.bootloader.mviobits=10
 avrddopti.menu.mvioopti.disabled.build.mvioenable=
 avrddopti.menu.mvioopti.reallyenabled=Enabled, "burn bootloader" done for sure.
 avrddopti.menu.mvioopti.reallyenabled.bootloader.mviobits=01
-avrddopti.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+avrddopti.menu.mvioopti.reallyenabled.build.mvioenable=-DMVIO_ENABLED -DASSUME_MVIO_FUSE
 avrddopti.menu.mvioopti.reallydisabled=Disabled, "burn bootloader" done for sure.
 avrddopti.menu.mvioopti.reallydisabled.bootloader.mviobits=10
 avrddopti.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
@@ -3905,7 +3905,7 @@ azduinoboard.menu.mvioopti.disabled.bootloader.mviobits=10
 azduinoboard.menu.mvioopti.disabled.build.mvioenable=
 azduinoboard.menu.mvioopti.reallyenabled=Enabled. Assume that "burn bootloader" has been performed with this option.
 azduinoboard.menu.mvioopti.reallyenabled.bootloader.mviobits=01
-azduinoboard.menu.mvioopti.reallyenabled.build.mvioenable==-DMVIO_ENABLED -DASSUME_MVIO_FUSE
+azduinoboard.menu.mvioopti.reallyenabled.build.mvioenable=-DMVIO_ENABLED -DASSUME_MVIO_FUSE
 azduinoboard.menu.mvioopti.reallydisabled=Disabled. Assume that "burn bootloader" has been performed with this option.
 azduinoboard.menu.mvioopti.reallydisabled.bootloader.mviobits=10
 azduinoboard.menu.mvioopti.reallydisabled.build.mvioenable=-DASSUME_MVIO_FUSE
