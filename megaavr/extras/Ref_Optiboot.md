@@ -120,12 +120,13 @@ Notes:
 | AVR64DD20+   |  64dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
 | AVR32DD20+   |  32dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
 | AVR16DD20+   |  32dd           | 0:0,1,2,3,4, 1:0(>20p), 2            | PIN_PA7    |
-| AVR64DD14    |  64dd14         | 0:0,3,4, 1:2          | PIN PD7 if Serial0, <br/> PIN_PD5 if Serial1 |
-| AVR64DD14    |  32dd14         | 0:0,3,4, 1:2          | PIN PD7 if Serial0, <br/> PIN_PD5 if Serial1 |
-| AVR64DD14    |  16dd14         | 0:0,3,4, 1:2          | PIN PD7 if Serial0, <br/> PIN_PD5 if Serial1 |
+| AVR64DD14    |  64dd14         | 0:0,3,4, 1:2          | PIN PD6 if Serial0, <br/> PIN_PD4 if Serial1 |
+| AVR64DD14    |  32dd14         | 0:0,3,4, 1:2          | PIN PD6 if Serial0, <br/> PIN_PD4 if Serial1 |
+| AVR64DD14    |  16dd14         | 0:0,3,4, 1:2          | PIN PD6 if Serial0, <br/> PIN_PD4 ff Serial1 |
 
-**Notes** 14-pin parts had to depart from our tradition of PA7 LEDs. The LED is on PD7 on 14-pin parts, and PD5 if Serial1 is the serial port the bootloader uses (because that uses pins PD6 and PD7 - mux option 0 becomes available only when the TX pin, PC0, actually exists. This is only present on 28 and 32-pin parts).
-Because the 14-pin parts only have the first two pins of port
+**Notes** 14-pin parts had to depart from our tradition of PA7 LEDs. The LED is on PD6 on 14-pin parts, and PD4 if Serial1 is the serial port the bootloader uses (because that uses pins PD6 and PD7 - mux option 0 becomes available only when the TX pin, PC0, actually exists. This is only present on 28 and 32-pin parts). (Corrected jan 3 2024).
+
+These were chosen because they're also the output pins for the communication interfaces (USART, some others IIRC). Therefore, if one is using those peripherals, you've got that pin connected to something that can deal with the pin being driven by something else (in this case the AVR). Thus, it is unlikely to cause damage to the other device. On the other hand, if we used PD5/7, that's an input if the peripheral there is in use, hence it absolutely should not be used for the LED, because of the likihood that another device's output would be connected there, and they would fight until one burned out.
 
 ### Serial Ports, DA/DB
 

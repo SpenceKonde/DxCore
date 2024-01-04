@@ -59,7 +59,6 @@ int8_t disableAutoTune() {
     return 0xFF;
   }
 }
-#endif
 
 bool setTCA0MuxByPort(const uint8_t port) {
   if (port < 7) {
@@ -67,7 +66,7 @@ bool setTCA0MuxByPort(const uint8_t port) {
 
     uint8_t base_pin = portToPinZero(port);
     uint8_t max_pin = min((uint8_t)(NUM_DIGITAL_PINS - 1), base_pin + 5);
-    for (byte i = base_pin; i < (min(max_pin, base_pin + 6); i++)) {
+    for (byte i = base_pin; i < (min(max_pin, base_pin + 6)); i++) {
       turnOffPWM(i);
     }
     PORTMUX.TCAROUTEA = (PORTMUX.TCAROUTEA & (~PORTMUX_TCA0_gm)) | port;
@@ -231,7 +230,7 @@ bool setTCD0MuxByPin(uint8_t pin) {
 }
 
 
-int16_t getMVIOVoltage() {
+uint16_t getMVIOVoltage() {
   uint8_t status = getMVIOStatus();
   if (status == MVIO_OKAY) {
     uint8_t tempRef = VREF.ADC0REF; // save reference
@@ -255,20 +254,20 @@ int16_t getMVIOVoltage() {
   }
 }
 
-void _enable_opamp(const uint8_t opamp) {
-  DAC0.CTRLA |= 0x41;
-  OPAMP.TIMEBASE = F_CPU / 1000000;
-  volatile uint8_t* opamp_ptr = (volatile using8_t*) 0x710 + 8 * opamp;
-  *(opamp_ptr) = 0x05; //enabled and on
-  *(opamp_ptr + 3) = 0x22; // INMUX selects OUTPUT as negative and DAC as positive voltage.
-  *(opamp_ptr + 4) = 0x7F; // maximum settle time
-  OPAMP.CTRLA = 1; //enable opamps
+void _enable_opamp(const uint8_t __attribute__((unused)) opamp) {
+  #if defined(OPAMP)
+    DAC0.CTRLA |= 0x41;
+    OPAMP.TIMEBASE = F_CPU / 1000000;
+    volatile uint8_t* opamp_ptr = (volatile using8_t*) 0x710 + 8 * opamp;
+    *(opamp_ptr) = 0x05; //enabled and on
+    *(opamp_ptr + 3) = 0x22; // INMUX selects OUTPUT as negative and DAC as positive voltage.
+    *(opamp_ptr + 4) = 0x7F; // maximum settle time
+    OPAMP.CTRLA = 1; //enable opamps
+  #endif
 }
 
 int16_t _refnum_to_max_dacout(const uint8_t refnum) {
-  if (refnum >= 0x04) {
-    return 0;
-  } else if (refnum == 0) {
+  if (refnum == 0) {
     return 925;
   } else if (refnum == 1) {
     return 1950;
@@ -277,9 +276,10 @@ int16_t _refnum_to_max_dacout(const uint8_t refnum) {
   } else if (refnum == 2) {
     return 4000;
   }
+  return 0;
 }
 
-int16_t initMVIO_OPAMP(const int16_t voltage, const int8_t opamp,  const uint8_t options, const int16_t dacref) {
+int16_t initMVIO_OPAMP(const int16_t __attribute__((unused)) voltage, const int8_t __attribute__((unused)) opamp,  const uint8_t __attribute__((unused)) options, const int16_t __attribute__((unused)) dacref) {
   #if (!defined(MVIO) || !defined(OPAMP))
     return MVIO_UNSUPPORTED;
   #else
@@ -351,7 +351,7 @@ int16_t initMVIO_OPAMP(const int16_t voltage, const int8_t opamp,  const uint8_t
     uint8_t retval = FUSE.SYSCFG1 & 0x18;
     if (retval == 0x08) {
       //great, it's enabled.
-      retval = (MVIO.STATUS ? MVIO_OKAY : MVIO_UNDERVOLTAGE)
+      retval = (MVIO.STATUS ? MVIO_OKAY : MVIO_UNDERVOLTAGE);
       #if !defined(MVIO_ENABLED) && defined(ASSUME_MVIO_FUSE) && defined(USING_OPTIBOOT)
         retval |= MVIO_MENU_SET_WRONG;
         if (debugmode) {
@@ -374,7 +374,7 @@ int16_t initMVIO_OPAMP(const int16_t voltage, const int8_t opamp,  const uint8_t
     } else if (retval == 0x10) {
       retval = MVIO_DISABLED;
       if (MVIO.STATUS != 1 || MVIO.INTFLAGS !=0) {
-        if (debugmode)
+        if (debugmode) {
           dbgserial.println(F("Impossible hardware situation: MVIO is disabled by fuse, but MVIO.STATUS is not 1, directly contradicting the datasheet"));
           dbgserial.println(F("You should raise this issue with Microchip, and also create a DxCore issue to track it as it relates to the core."));
           return retval |= MVIO_IMPOSSIBLE_CFG;
@@ -405,7 +405,7 @@ int16_t initMVIO_OPAMP(const int16_t voltage, const int8_t opamp,  const uint8_t
       retval = MVIO_BAD_FUSE | MVIO_IMPOSSIBLE_CFG;
       if (debugmode) {
         dbgserial.println(F("The MVIO bits in FUSE.SYSCFG1 are set to an invalid value. This should never happen."));
-        dbgserial.println(F("The bits should be either 01 (enable) or 10 (disable). Never 11 or 00, whose behavior is undefined. "))
+        dbgserial.println(F("The bits should be either 01 (enable) or 10 (disable). Never 11 or 00, whose behavior is undefined. "));
         dbgserial.println(F("If you are using a third party tool or IDE to set the fuses, it is misconfigured."));
       }
     }
