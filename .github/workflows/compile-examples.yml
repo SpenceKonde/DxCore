@@ -348,6 +348,7 @@ jobs:
             -
           verbose: false
           enable-deltas-report: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
       - name: Compile examples (overclocked to the max, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
@@ -376,6 +377,7 @@ jobs:
             -
           verbose: false
           enable-deltas-report: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
       - name: Compile examples (20 MHz, disable millis, sized appspm, flmap L0, wire mors)
@@ -401,6 +403,7 @@ jobs:
             -
           verbose: false
           enable-deltas-report: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
       - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
@@ -428,5 +431,6 @@ jobs:
             -
           verbose: false
           enable-deltas-report: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports

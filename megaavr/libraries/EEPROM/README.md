@@ -33,7 +33,7 @@ void loop() {
 
 ```
 
-The library provides a global variable named `EEPROM`, you use this variable to access the library functions (As of library verspm 2.1.4 we have eliminated unused variable warnings. The methods provided in the EEPROM class are listed below.
+The library provides a global variable named `EEPROM`, you use this variable to access the library functions (As of library version 2.1.4 we have eliminated unused variable warnings. The methods provided in the EEPROM class are listed below.
 
 
 ## EEPROM Sizes
@@ -51,7 +51,7 @@ The library provides a global variable named `EEPROM`, you use this variable to 
 Specifying an address beyond the size of the EEPROM will wrap around to the beginning. The addresses passed to EEPROM functions are a `uint8_t` (aka byte) on parts with up to 256b of flash and a `uint16_t` (word or unsigned int) on parts with more.
 
 
-You can view all the examples [here](examples/); disclosure and disclaimer  I did not write the examples, and and have some doubts
+You can view all the examples [here](examples/); disclosure and disclaimer I did not write the examples, and have some doubts
 
 ## Warning: Using EEPROM right at startup
 On the modern tinAVR devices (but not with any Dx-series parts) we have received at multiple reports from users of erratic failures to correctly interact with the EEPROM immediately upon startup. There is considerable evidence that the cause of the problem was a slow-rising power supply, coupled with the specific brownout detection configuration. This issue is still not entirely understood, but it is suspected that it ends up doing the write very close to it's minimum voltage, when the chip may be running out of spec because the chip had by that point switched to it's full clock speed (and BOD is forced on during NVMCTRL operations. Try to avoid writing to the EEPROM immediately upon startup - maybe pick a longer SUT (startup tme), or simply wait until later into execution to perform the write, etc. Many times the impacted individuals found that even a delay of a few milliseconds was sufficient to ensure that it worked (Issue #452). A more rigorous approach is to measure the voltage before writing and make sure it is within the intended operational range.
@@ -182,7 +182,7 @@ During an Interrupt Service Routine (ISR), like a function that is executed as a
 #### On DxCore and with the current version
 This library verifies that there is no EEPROM write in progress, disables interrupts, and then writes to the EEPROM and restores SREG turning interrupts back on unless they were already disabled globally. Hence, there will never be any millis time lost when writing a single byte, nor when writing more than one byte at a time (ex, using put with a multibyte value) outside of an ISR. Put simply it now cannot happen if all EEPROM writes are made from a normal (non-interrupt, interrupts not disabled) context. If the main application is writing to the EEPROM and, an extremely poorly timed interrupt that *also* writes to the EEPROM is triggered within an extremely narrow window, this could result in losing up to 10ms (DxCore, if we trust the 11ms figure) or 3ms (megaTinyCore) (this window is around 3 clock cycles, in the middle of EEPROM.write() between when we check the NVMCTRL.STATUS, and when we disable interrupts).
 
-When more than 1 byte is written from a single interrupt (regardless of whether the bytes are done as part of a larger value or not), it will always lose time - up to 11ms or 4ms per byte after the first, less 1-2 times the millis resolution (typically 1ms, see the detailed [timer usage documentation](https://) for details).
+When more than 1 byte is written from a single interrupt (regardless of whether the bytes are done as part of a larger value or not), it will always lose time - up to 11ms or 4ms per byte after the first, less 1-2 times the millis resolution (typically 1ms, see the detailed [timer usage documentation](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md) for details).
 
 Regardless of whether it was caused by an interrupt writing more than one byte, or an interrupt that writes one byte happening while the main code is attempting to write to the EEPROM, it will impact both millis() and micros(), but will never produce backwards time travel relative to values from before the interrupt fired. Immediately upon that interrupt and hence interrupts becoming available again, the millis timekeeping interrupt will fire and try to sort things out, and micros will jump ahead by the millis resolution (ie, by 1000 if millis resolution is 1ms, regardless of how long it was blocked from running while the EEPROM-writing interrupt was running), and timekeeping will proceed normally.
 

@@ -129,7 +129,7 @@ avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
 #avrdu.name=AVR DU-series (no bootloader)
 avrea.name=AVR EA-series (no bootloader)
-avreb.name=AVR EB-series (no bootloader)
+#avreb.name=AVR EB-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
 avrddopti.name=AVR DD-series (Optiboot)
@@ -2512,8 +2512,8 @@ avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.port=_ser5_alt
 avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portname=Serial5
 avrdaopti.menu.bootloaderusart.ser5_alt.bootloader.portswap=1
 
-avrdaopti.menu.bootloadermode.turbo=Optiboot Dx Turbo
-avrdaopti.menu,bootloadermode.compatible=Optiboot Dx not-turbo
+#avrdaopti.menu.bootloadermode.turbo=Optiboot Dx Turbo
+#avrdaopti.menu.bootloadermode.compatible=Optiboot Dx not-turbo
 
 ##########################################################################
 #                                                                        #
