@@ -3,7 +3,7 @@
 This is an Arduino core to support the exciting new AVR DA, DB, and DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. These parts take the AVR architecture to a whole new level with up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, type A/B/D timers, and enhanced pin interrupts.
 
 ## Table of Contents
-* Announcements
+* [Announcements](#announcements)
   * [1.5.10 is here](#1510-is-here)
   * [There is a bug in recent versions of the IDE and the CLI](#there-is-a-bug-in-recent-versions-of-the-ide-and-the-cli)
   * [Prize: $50 merchandise of your choice from my tindie store](#prize-50-merchandise-of-your-choice-from-my-tindie-store)
