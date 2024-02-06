@@ -13,7 +13,7 @@ This is an Arduino core to support the exciting new AVR DA, DB, and DD-series mi
 * [IMPORTANT WARNINGS](#important-warnings)
   * [ATTN: Linux Users](#attn-linux-users)
   * [IDE 2.0.x unsupported](#ide-20x-unsupported)
-* [What is DxCore](#what-is-dxcore)
+* [What is DxCore?](#what-is-dxcore)
 * [Supported Parts (click link for pinout diagram and details)](#supported-parts-click-link-for-pinout-diagram-and-details)
   * [Magic Packages](#magic-packages)
     * [VQFN's aren't so bad](#vqfns-arent-so-bad)
@@ -201,7 +201,7 @@ Are those calculations right? The maximum baud rate that will improve the rate a
 ### IDE 2.0.x unsupported
 If you use it, use the release not an old RC: all versions prior to 2.0.0-RC9.2 known to have critical regressions. These bugs in the IDE prevent board settings from being correctly recognized. [This thread tracks known issues with 2.0 and workarounds](https://github.com/SpenceKonde/megaTinyCore/discussions/760). If you use unsupported software please reproduce all issues in 1.8.13 before reporting.
 
-## What is DxCore
+## What is DxCore?
 This is an Arduino core to support the exciting new AVR DA, DB, and DD-series microcontrollers from Microchip. These are the latest and highest spec 8-bit AVR microcontrollers from Microchip. It's unclear whether these had been planned to be the "1-series" counterpart to the megaAVR 0-series, or whether such a thing was never planned and these are simply the successor to the megaAVR series. But whatever the story of their origin, these take the AVR architecture to a whole new level.  With up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, and all the exciting features of the tinyAVR 1-series and megaAVR 0-series parts like the event system, type A/B/D timers, and enhanced pin interrupts... Yet for each of these systems they've added at least one small but significant improvement of some sort (while largely preserving backwards compatibility - the tinyAVR 2-series also typically adds the new features that the Dx-series get, giving the impression that these reflect a "new version"). You like the type A timer, but felt constrained by having only one prescaler at a time? Well now you have two of them (on 48-pin parts and up)! You wished you could make a type B timer count events? You can do that now! (this addresses something I always thought was a glaring deficiency of the new peripherals and event system). We still don't have more prescale options (other than having two TCA's to choose from) for the TCB - but you can now combine two TCBs into one, and use it to do 32-bit input capture. Time a pulse or other event up to approximately 180 seconds long... to an accuracy of 24ths of a microsecond! And of course, like all post-2016 AVR devices, these use the latest incarnation of the AVR instruction set, AVRxt, with slightly-improved instruction timing compared to "classic" AVRs.
 
 For a basic overview of the parts and a comparison table, see [General AVR Dx-series and Ex-series information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/AboutDxSeries.md)
