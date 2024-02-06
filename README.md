@@ -30,7 +30,7 @@ This is an Arduino core to support the exciting new AVR DA, DB, and DD-series mi
   * [What's With All The Different SerialUPDI Options?](#whats-with-all-the-different-serialupdi-options)
   * [Why is My FTDI Adapter Insanely Slow?](#why-is-my-ftdi-adapter-insanely-slow)
   * [With a Classic Arduino (jtag2updi)](#with-a-classic-arduino-jtag2updi)
-* [So we can do HV UPDI on the DD's?](#so-we-can-do-hv-updi-on-the-dds)
+  * [So we can do HV UPDI on the DD's?](#so-we-can-do-hv-updi-on-the-dds)
 * [Compatibility Note for 32-bit Linux](#compatibility-note-for-32-bit-linux)
 * [Ways to refer to pins](#ways-to-refer-to-pins)
   * [PIN_Pxn Port Pin Numbers (recommended)](#pin_pxn-port-pin-numbers-recommended)
