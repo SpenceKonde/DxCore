@@ -2,7 +2,7 @@
 
 ## Table of Contents
 * Announcements
-  * [1.5.10 is here](1510-is-here)
+  * [1.5.10 is here](#1510-is-here)
   * [There is a bug in recent versions of the IDE and the CLI](#there-is-a-bug-in-recent-versions-of-the-ide-and-the-cli)
   * [Prize: $50 merchandise of your choice from my tindie store](#prize-50-merchandise-of-your-choice-from-my-tindie-store)
   * [WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES](#we-have-a-problem-we-have-no-pinmap-images)
