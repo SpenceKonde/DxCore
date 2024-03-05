@@ -479,7 +479,7 @@ namespace event {
         ccl2_event_b   = 0x05,
         ccl3_event_a   = 0x06,
         ccl3_event_b   = 0x07,
-#if defined(LUT4)
+#if defined(CCL_TRUTH4)
         ccl4_event_a   = 0x08,
         ccl4_event_b   = 0x09,
         ccl5_event_a   = 0x0A,
