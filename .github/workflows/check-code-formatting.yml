@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check code formatting
         uses: per1234/artistic-style-action@main
@@ -67,7 +67,7 @@ jobs:
 
 #    steps:
 #      - name: Checkout
-#        uses: actions/checkout@v2
+#        uses: actions/checkout@v4
 
 #      - name: Check code formatting
 #        uses: per1234/artistic-style-action@main
@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check code formatting
         uses: per1234/artistic-style-action@main
@@ -99,7 +99,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Check code formatting
         uses: per1234/artistic-style-action@main

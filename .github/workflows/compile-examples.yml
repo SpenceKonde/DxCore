@@ -319,7 +319,7 @@ jobs:
           - device-family: du
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # See: https://github.com/arduino/compile-sketches/README.md
 
