@@ -4,3 +4,6 @@ acn
 combatibility
 shat
 commend
+bootup
+shiftIn
+Rin

@@ -93,7 +93,7 @@ Spelling, grammar and typographical fixes.
 * Bugfix: pinConfigure would under some circumstances fail because of a misspelled variable.
 * Bugfix: Correct an issue with bootloading a specific DD-based board definition.
 * Enhancement: Add the the Optimization Level menu that megaTinycore got.
-* Enhancement: Improve Wire.h compatibility with other cores that have falled behind.
+* Enhancement: Improve Wire.h compatibility with other cores that have fallen behind.
 * Enhancement: Add option for 48 MHz crystal options. Because it turns out that a DB with E-spec temp rating often runs at that speed.
 * Bugfix: Correct issue with compiling for 32-pin DD-series for Optiboot. Correct several board.txt issues where the correct properties were assigned to the wrong boards.
 
@@ -262,7 +262,7 @@ Spelling, grammar and typographical fixes.
 * Enhancement: Optboot serial port menu option for the DD-series parts is now ready to be enabled.
 * Enhancement or bugfix, depending on perspective: init_reset_flags() will automatically clear reset flags if not overridden, stashing them in GPIOR0 (chosen because has lower overhead than a variable)
 * Enhancement: Add 27 MHz external clock/crystal... Math is amazingly simple, one of the cleanest so far!
-* Bugfix: Block attempts to use "upload using programmer" when an optiboot board is selected. That confiuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
+* Bugfix: Block attempts to use "upload using programmer" when an optiboot board is selected. That configuration is guaranteed not to work, and we should not do things that we know 100% will not work. We would need a merged output file for this, but the IDE doesn't make those for us here. The only place it DOES make them is... on ATTinyCore, where they're not usable and we must go out of our way to delete the damned things)
 * Documentation: Include recent version of the io headers for practical reference, and the original versions for historical reference (mostly so you can view them in your web browser).
 * Bugfix: Somewhere along the line I realized `MAPPED_PROGMEM` isn't a good name because the symbol is used by the headers too, and switched to PROGMEM_MAPPED. Docs and even some libraries were never updated and were silently not using this...
 * Documentation: Updated pinout diagrams and part specific docs (LOOOONGGGGG overdue).

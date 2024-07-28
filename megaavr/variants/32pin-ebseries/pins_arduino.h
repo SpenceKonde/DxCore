@@ -90,7 +90,7 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   #  ### #  #   ###   ##*/
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
-// that bit about the 4 ADC ADC channels on PORTC not worling with MVIO enabled is ugly to handle.
+// that bit about the 4 ADC ADC channels on PORTC not working with MVIO enabled is ugly to handle.
 
 #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) < PIN_PF6 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) > 15 ? (p + 4)) : NOT_A_PIN)))
