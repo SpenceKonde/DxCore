@@ -1223,7 +1223,7 @@ void analogWrite(uint8_t pin, int val) {
         }
       #endif
     }
-  // now hastily set the pin output with this quickie macro since we know alll we need in order to do so now.
+  // now hastily set the pin output with this quickie macro since we know all we need in order to do so now.
   }
   //_setOutput(portnum, bit_mask);
 }

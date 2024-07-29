@@ -89,7 +89,7 @@ uint8_t FlashClass::checkWritable() {
       // the BOOTSIZE fuse must be 0 or 1.
       return FLASHWRITE_UNRECOGNIZED;
     }
-    // Optiboot 9.1 without SPM Z+ app callin support
+    // Optiboot 9.1 without SPM Z+ app call-in support
     // was shipped with 1.2.x and earlier of DxCore
     uint16_t optiversion = pgm_read_word_near(0x01fe);
     if (optiversion == 0x0901) {
@@ -493,4 +493,4 @@ uint32_t FlashClass::flashAddress(uint8_t* mappedPtr) {
 }
 
 FlashClass Flash;
-#endif // end of the ifdef SPMCOMMAND to de-clutter errpr messages.
+#endif // end of the ifdef SPMCOMMAND to de-clutter error messages.
