@@ -96,7 +96,6 @@ jobs:
       ################################
       - name: Lint Code Base
         uses: github/super-linter@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_MARKDOWN: true
