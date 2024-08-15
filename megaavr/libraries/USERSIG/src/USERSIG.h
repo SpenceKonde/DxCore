@@ -200,12 +200,8 @@ int8_t __USigload() {
   }
   for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {
     __USigBuffer[i] = *((volatile uint8_t *) USER_SIGNATURES_START + i);
-
-    GPIOR1 |= 8;
   }
-
   __USigLoaded = 1;
-  GPIOR1 |= 16;
   return 0;
 }
 uint8_t __USigread(uint8_t idx) {
@@ -222,7 +218,6 @@ uint8_t __USigreadraw(uint8_t idx) {
 
 int8_t __USigwrite(uint8_t idx, uint8_t data) {
   if (NVMCTRL.STATUS & 0x70) {
-    GPIOR1 |= 32;
     NVMCTRL.STATUS = 0;
   }
   if (CPUINT.STATUS != 0) {
@@ -230,17 +225,12 @@ int8_t __USigwrite(uint8_t idx, uint8_t data) {
   }
   idx &= (USER_SIGNATURES_SIZE - 1);
   if (!__USigLoaded) {
-    GPIOR1 |= 1;
     if ((__USigreadraw(idx) & data) != data) {
-      GPIOR1 |= 2;
       __USigload();
     } else {
-      GPIOR1 |= 4;
       return __USigwriteraw(idx, data);
     }
   }
-  GPIOR2 = idx;
-  GPIOR1 |= 128;
   __USigBuffer[idx] = data;
   return 0;
 }
