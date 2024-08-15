@@ -970,14 +970,11 @@ void analogWrite(uint8_t pin, int val) {
     // Write the value to the register.
     *(((volatile uint8_t*) &(timer_A->SPLIT.LCMP0)) + offset) = val;
     // and ctrlb to ctrlb
-    GPIOR2 = ctrlb;
     uint8_t t = timer_A->SPLIT.CTRLB;
     uint8_t oldsreg = SREG;
     cli();
     t |= ctrlb;
-    GPIOR3 = t;
     timer_A->SPLIT.CTRLB = ctrlb;
-    GPIOR1 = timer_A->SPLIT.CTRLB;
     SREG = oldsreg;
     /* Okay, this layout tends towards maximum pervosity. You basically have to treat them as entirely separate timers at this point!
      * PORT | DA | DB | DD | EA | portnum
