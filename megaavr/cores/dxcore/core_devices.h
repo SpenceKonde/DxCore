@@ -383,35 +383,35 @@
 
 #if   defined(__AVR_DA__)
   #define     _AVR_GENUS        _AVR_DX_SERIES // A genus is much larger than a family, you see... Parts are "species", individual chips are "specimens"
-  #define     _AVR_FAMILY       "DA"
+  #define     _AVR_FAMILY       ("DA")
   #define     _AVR_CLOCKMODE    (0x13) // Crap manual tuning, autotune, no crystal, clock select, supports RTC xtal.
   #define     _AVR_FLASHMODE    (2)
 #elif defined(__AVR_DB__)
   #define     _AVR_GENUS        _AVR_DX_SERIES
-  #define     _AVR_FAMILY       "DB"
+  #define     _AVR_FAMILY       ("DB")
   #define     _AVR_CLOCKMODE    (0x17) // Crap manual tuning, autotune, crystal, clock select, supports RTC xtal.
   #define     _AVR_FLASHMODE    (2)
 #elif defined(__AVR_DD__)
   #define     _AVR_GENUS        _AVR_DX_SERIES
-  #define     _AVR_FAMILY       "DD"
+  #define     _AVR_FAMILY       ("DD")
   #define     _AVR_CLOCKMODE    (0x17) // Crap manual tuning, autotune, crystal, clock select, supports RTC xtal.
   #define     _AVR_FLASHMODE    (2)
 #elif defined(__AVR_DU__)
   #define     _AVR_GENUS        _AVR_DX_SERIES
-  #define     _AVR_FAMILY       "DU"
+  #define     _AVR_FAMILY       ("DU")
   #define     _AVR_CLOCKMODE    (0x1F)  // (predicted) Crap manual tuning, autotune, USB autotune for crystalless USB, crystal, clock select, supports RTC xtal.
-  //#define     _AVR_FLASHMODE   TBD
-  #error "The AVR DU-series is not yet available"
+  #define     _AVR_FLASHMODE    (2)
+  #error "The AVR DU-series is not yet supported"
 #elif defined(__AVR_EA__)
   #define     _AVR_GENUS        _AVR_EX_SERIES
-  #define     _AVR_FAMILY       "EA"
+  #define     _AVR_FAMILY       ("EA")
   #define     _AVR_CLOCKMODE    (0x15) // Crap manual tuning, autotune, crystal, base clock in fuses like a tiny, supports RTC xtal.
-  #define     _AVR_FLASHMODE    (3)
+  #define     _AVR_FLASHMODE    (3) 
 #elif defined(__AVR_EB__)
   #define     _AVR_GENUS        _AVR_EX_SERIES
   #define     _AVR_FAMILY       ("EB")
   #define     _AVR_CLOCKMODE    (0x11) // (predicted)
-  #define     _AVR_FLASHMODE    "3"
+  #define     _AVR_FLASHMODE    (3)
   #error "The AVR EB-series is not available, and is known only from the brief. Support will be added once more information is available."
 #else
   #error "Unrecognized part, this should not be possible"
@@ -574,10 +574,12 @@
 
 #if defined(OPAMP)
   /* OPAMPS:
-   * Allow for future chip with more opamps. There's room for 6 in the struct
+   * A future part could have more opamps - or possibly fewer, though that seems less likely. There's room for 6 in the struct,
    * which has 64 bytes - 8 per OPAMP, and 16 at the start used for global settings
    * At time of writing, on the only parts with OPAMPs, only 4 of the global bytes are used
-   * 6 of the 8 bytes for each OPAMP are used, 2 are spares. */
+   * and 6 of the 8 bytes for each OPAMP are used (the other 2 are spares?)
+   * but yeah, max opamps supported without changes to the struct is 6, so 6 is how many we check for. 
+   */
   #if defined(OPAMP_OP5CTRLA)
     #define _AVR_OPAMP_COUNT   (6)
   #elif defined(OPAMP_OP4CTRLA)
@@ -598,7 +600,15 @@
 #endif
 
 #if defined(CCL)
-  #if   defined(CCL_TRUTH6)
+  #if   defined(CCL_TRUTH14)
+    #define _AVR_LUT_COUNT     (16) 
+  #elif defined(CCL_TRUTH12)
+    #define _AVR_LUT_COUNT     (14) 
+  #elif defined(CCL_TRUTH10)
+    #define _AVR_LUT_COUNT     (12) 
+  #elif defined(CCL_TRUTH8)
+    #define _AVR_LUT_COUNT     (10)
+  #elif defined(CCL_TRUTH6)
     #define _AVR_LUT_COUNT     (8)
   #elif defined(CCL_TRUTH4)
     #define _AVR_LUT_COUNT     (6)
@@ -650,21 +660,38 @@
 #endif
 
 #if   defined(TCE0)
-  #define _AVR_TCE_COUNT     (1) // first appears on the EB-series, 16-bit. Some sort of 8-channeled monster who is always with the one they call WEX. I haven't heard from TCA0 after they showed up and started doing
-#else                            // PWM on the same pins. I have a bad feeling that TCA0 is either tied up in the basement, or dead in a wooded area. With the TCE's skill at motor control, they could easily have
-  #define _AVR_TCE_COUNT     (0) // used power-tools to dismember bury the body.... Anyway, whether these guys are as useful in the silicon as they look  on paper will depend a lot on the whether those
-#endif                           // 8-channels are independent, and whether they need to split like TCA did to handle 8 WO's if so. And, of course on how flexible their clocking options are.
-// The initial headers clearly show that TCE has replaced TCA on the EB-series, but not whether that will be the case for everything in the future. What is clear:
-// 1. It will only allow 4 independent WO channels. (so it is worse for the user who just analogWrite()'s compared to a TCA')
+  #define _AVR_TCE_COUNT     (1) 
+#else                            
+  #define _AVR_TCE_COUNT     (0) 
+#endif                           
+// first appears on the EB-series, 16-bit. Some sort of 8-channeled monster who is always with the one they call WEX. I haven't heard from TCA0 after they showed up and started doing
+// PWM on the same pins. I have a bad feeling that TCA0 is either tied up in the basement, or dead in a wooded area. With the TCE's skill at motor control, they could easily have
+// used power-tools to dismember and bury the body.... Still no word on what's next, so we don't know if TCA is gone for good or just on vacation. 
+// As for TCE, though:
+// 1. It will only allow 4 independent WO channels - You can only light up all 8 lines in a few atypical modes (like you can get the motor control special (inverted output with programmable dead time insertion)
+// or some really poorly described feature called "pattern generation", and you can swap which pin out of every pair of pins is used, but  
+// 2. Pins move as a gang like TCA, but they'll also spread out in the early ports to ease pin pressure.
+// 
 // 2. It will set a new bar for AVR peripherals. Specifically, it will need the longest chapter in the datasheet to tell us how to use the bloody thing
+// 3. It has ways to get up to 3 extra bits of resolution. TAANSTAFL, of course, and the datasheet wasn't clear enough for me to ascertain 
 // I told you guys WEX Luther was up to no good!!
 
 #if   defined(TCF0)
-  #define _AVR_TCF_COUNT     (1) // Even more enigmatic than the TCE. First appears on the EB-series, this previously unseen timer is said to be 24-bit! Curious how that will work and what clock sources it can use.
-#else                            // a 24-bit timer clocked from the CPU core, at only 20 MHz would need it's period choked way back, sacrificing all that resolution, in order to get PWM rather than a blinking light.
-  #define _AVR_TCF_COUNT     (0) // 2^24 is in the neighborhood of 17 million, so if CLK_PER was it's max, a lot of these frequencies it could generate would be a touch on the slow side. Even if we can get them up to
-#endif                           // 32 MHz like tiny-2's, we'd need to use only 1-2 bits of that last byte to avoid flicker if you wanted to use for PWM, which Arduino people will.
+  #define _AVR_TCF_COUNT     (1) 
+#else                           
+  #define _AVR_TCF_COUNT     (0) 
+#endif                   
 // Will have two waveform outputs in an 8-bit PWM mode; there are also several other modes.
+/*    ___ (@)
+     |.-.|/   Timer B, only with 2 channels, cause it has room or another in the 24-bit field. 
+     || |/
+     || /|
+     ||/||
+     || ||
+     ||_||    Do somethi
+     '---'
+*/
+
 
 
 #if   defined(TWI1)
