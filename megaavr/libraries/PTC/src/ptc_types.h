@@ -14,49 +14,49 @@ extern "C" {
 #include <avr/io.h>
 
 #if (defined(__AVR_ATtiny814__) || defined(__AVR_ATtiny1614__) || defined(__AVR_ATtiny3214__))
-  typedef uint8_t  ptc_id_t;
-  typedef uint8_t  ptc_ch_bm_t;
-  typedef uint8_t  ptc_ch_arr_t[1];
-  #define __PTC_Tiny__
-  #define __PTC_Pincount__ 6
+typedef uint8_t  ptc_id_t;
+typedef uint8_t  ptc_ch_bm_t;
+typedef uint8_t  ptc_ch_arr_t[1];
+#define __PTC_Tiny__
+#define __PTC_Pincount__ 6
 #elif (defined(__AVR_ATtiny816__) || defined(__AVR_ATtiny1616__) || defined(__AVR_ATtiny3216__))
-  typedef uint8_t  ptc_id_t;
-  typedef uint16_t ptc_ch_bm_t;
-  typedef uint16_t ptc_ch_arr_t[1];
-  #define __PTC_Tiny__
-  #define __PTC_Pincount__ 12
+typedef uint8_t  ptc_id_t;
+typedef uint16_t ptc_ch_bm_t;
+typedef uint16_t ptc_ch_arr_t[1];
+#define __PTC_Tiny__
+#define __PTC_Pincount__ 12
 #elif (defined(__AVR_ATtiny817__) || defined(__AVR_ATtiny1617__) || defined(__AVR_ATtiny3217__))
-  typedef uint8_t  ptc_id_t;
-  typedef uint16_t ptc_ch_bm_t;
-  typedef uint16_t ptc_ch_arr_t[1];
-  #define __PTC_Tiny__
-  #define __PTC_Pincount__ 14
+typedef uint8_t  ptc_id_t;
+typedef uint16_t ptc_ch_bm_t;
+typedef uint16_t ptc_ch_arr_t[1];
+#define __PTC_Tiny__
+#define __PTC_Pincount__ 14
 #elif (defined(__AVR_AVR32DA28__) || defined(__AVR_AVR64DA28__) || defined(__AVR_AVR128DA28__))
-  typedef uint16_t ptc_id_t;
-  typedef uint64_t ptc_ch_bm_t;
-  typedef uint8_t  ptc_ch_arr_t[5];
-  #define __PTC_DA__
-  #define __PTC_Pincount__ 18
+typedef uint16_t ptc_id_t;
+typedef uint64_t ptc_ch_bm_t;
+typedef uint8_t  ptc_ch_arr_t[5];
+#define __PTC_DA__
+#define __PTC_Pincount__ 18
 #elif (defined(__AVR_AVR32DA32__) || defined(__AVR_AVR64DA32__) || defined(__AVR_AVR128DA32__))
-  typedef uint16_t ptc_id_t;
-  typedef uint64_t ptc_ch_bm_t;
-  typedef uint8_t  ptc_ch_arr_t[5];
-  #define __PTC_DA__
-  #define __PTC_Pincount__ 22
+typedef uint16_t ptc_id_t;
+typedef uint64_t ptc_ch_bm_t;
+typedef uint8_t  ptc_ch_arr_t[5];
+#define __PTC_DA__
+#define __PTC_Pincount__ 22
 #elif (defined(__AVR_AVR32DA48__) || defined(__AVR_AVR64DA48__) || defined(__AVR_AVR128DA48__))
-  typedef uint16_t ptc_id_t;
-  typedef uint64_t ptc_ch_bm_t;
-  typedef uint8_t  ptc_ch_arr_t[5];
-  #define __PTC_DA__
-  #define __PTC_Pincount__ 32
+typedef uint16_t ptc_id_t;
+typedef uint64_t ptc_ch_bm_t;
+typedef uint8_t  ptc_ch_arr_t[5];
+#define __PTC_DA__
+#define __PTC_Pincount__ 32
 #elif (defined(__AVR_AVR32DA64__) || defined(__AVR_AVR64DA64__) || defined(__AVR_AVR128DA64__))
-  typedef uint16_t ptc_id_t;
-  typedef uint64_t ptc_ch_bm_t;
-  typedef uint8_t  ptc_ch_arr_t[6];
-  #define __PTC_DA__
-  #define __PTC_Pincount__ 46
+typedef uint16_t ptc_id_t;
+typedef uint64_t ptc_ch_bm_t;
+typedef uint8_t  ptc_ch_arr_t[6];
+#define __PTC_DA__
+#define __PTC_Pincount__ 46
 #else
-  #error "PTC not supported by this chip"
+#error "PTC not supported by this chip"
 #endif
 
 
@@ -83,14 +83,14 @@ typedef enum ptc_freq_enum {
 
 #if defined (__PTC_Tiny__)
 typedef enum PTC_PRESC_enum {
-  PTC_PRESC_DIV2_gc   = (0x00<<0),  /* CLK_PER divided by 2 */
-  PTC_PRESC_DIV4_gc   = (0x01<<0),  /* CLK_PER divided by 4 */
-  PTC_PRESC_DIV8_gc   = (0x02<<0),  /* CLK_PER divided by 8 */
-  PTC_PRESC_DIV16_gc  = (0x03<<0),  /* CLK_PER divided by 16 */
-  PTC_PRESC_DIV32_gc  = (0x04<<0),  /* CLK_PER divided by 32 */
-  PTC_PRESC_DIV64_gc  = (0x05<<0),  /* CLK_PER divided by 64 */
-  PTC_PRESC_DIV128_gc = (0x06<<0),  /* CLK_PER divided by 128 */
-  PTC_PRESC_DIV256_gc = (0x07<<0)   /* CLK_PER divided by 256 */
+  PTC_PRESC_DIV2_gc   = (0x00 << 0), /* CLK_PER divided by 2 */
+  PTC_PRESC_DIV4_gc   = (0x01 << 0), /* CLK_PER divided by 4 */
+  PTC_PRESC_DIV8_gc   = (0x02 << 0), /* CLK_PER divided by 8 */
+  PTC_PRESC_DIV16_gc  = (0x03 << 0), /* CLK_PER divided by 16 */
+  PTC_PRESC_DIV32_gc  = (0x04 << 0), /* CLK_PER divided by 32 */
+  PTC_PRESC_DIV64_gc  = (0x05 << 0), /* CLK_PER divided by 64 */
+  PTC_PRESC_DIV128_gc = (0x06 << 0), /* CLK_PER divided by 128 */
+  PTC_PRESC_DIV256_gc = (0x07 << 0) /* CLK_PER divided by 256 */
 } PTC_PRESC_t;
 
 typedef enum PTC_RSEL_enum {
@@ -103,14 +103,14 @@ typedef enum PTC_RSEL_enum {
 } PTC_RSEL_t;
 #elif defined (__PTC_DA__)
 typedef enum PTC_PRESC_enum {
-  PTC_PRESC_DIV2_gc   = (0x00<<0),  /* CLK_PER divided by 2 */
-  PTC_PRESC_DIV4_gc   = (0x01<<0),  /* CLK_PER divided by 4 */
-  PTC_PRESC_DIV6_gc   = (0x02<<0),  /* CLK_PER divided by 2 */
-  PTC_PRESC_DIV8_gc   = (0x03<<0),  /* CLK_PER divided by 8 */
-  PTC_PRESC_DIV10_gc  = (0x04<<0),  /* CLK_PER divided by 8 */
-  PTC_PRESC_DIV12_gc  = (0x05<<0),  /* CLK_PER divided by 8 */
-  PTC_PRESC_DIV14_gc  = (0x06<<0),  /* CLK_PER divided by 8 */
-  PTC_PRESC_DIV16_gc  = (0x07<<0),  /* CLK_PER divided by 16 */
+  PTC_PRESC_DIV2_gc   = (0x00 << 0), /* CLK_PER divided by 2 */
+  PTC_PRESC_DIV4_gc   = (0x01 << 0), /* CLK_PER divided by 4 */
+  PTC_PRESC_DIV6_gc   = (0x02 << 0), /* CLK_PER divided by 2 */
+  PTC_PRESC_DIV8_gc   = (0x03 << 0), /* CLK_PER divided by 8 */
+  PTC_PRESC_DIV10_gc  = (0x04 << 0), /* CLK_PER divided by 8 */
+  PTC_PRESC_DIV12_gc  = (0x05 << 0), /* CLK_PER divided by 8 */
+  PTC_PRESC_DIV14_gc  = (0x06 << 0), /* CLK_PER divided by 8 */
+  PTC_PRESC_DIV16_gc  = (0x07 << 0), /* CLK_PER divided by 16 */
 } PTC_PRESC_t;
 
 typedef enum tag_rsel_val_t {

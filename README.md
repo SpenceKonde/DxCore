@@ -2,8 +2,8 @@
 
 This is an Arduino core to support the exciting new AVR DA, DB, and DD-series microcontrollers from Microchip. These parts are the latest and highest spec 8-bit AVRs available, and take the AVR architecture to a whole new level with up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, type A/B/D timers, and enhanced pin interrupts.
 
-## Escape! 
-I am back now, as of 9/24. It seems that my speculation about certain modern AVR peripherals was more accurate than said peripherals would have liked to admit. I was held for months by TCE and WEX. They kept asking me questions I didn't know the answers to. When I didn't tell them what they wanted to know, they connected me to an external power supply and oscillator, and started jerking those around, hoping that would work on me like it does on other microcontrollers. It doesn't, but it was still torture. I tried to convince them to waterboard me, to short 'em out, but they didn't fall for that one. Luckilly, TCE and WEX Luther were away one evening, leaving only their henchman, TCF0 guarding me. When his 24-bit timer overflowed, I was able to overpower him - you know he's only got two 8-bit output channels? After that I fled through a maze of silicon and aluminum interconnect for what must have been millions of clock cycles. I knew they were looking for me - I could feel the air thicken up - they switched the clock source to the 32khz one to slow me down, it was like walking through molassass - I thought I was done for. I was hiding in the I/O space, crouching between two VPORTs - they've been chasing me and writing nulls to previous hiding spots. Would the I/O space confuse them? It didn't seem like it... I heard the crash as they blew away the place I'd been hiding clock cycles before in 0x0100, and they pointed the weapon at me. I saw a flash and.... then it walked off. All the guards walked back to their barracks.... It must have taken me weeks on the outside to get out of that thing, clocked at the speed it was. I think they figured out I was still there at the very end, but I was out before they could reach me (see, the slow clock speed slowed them too). My best guess is, I was saved by that ISA write bug.... 
+## Escape
+I am back now, as of 9/24. It seems that my speculation about certain modern AVR peripherals was more accurate than said peripherals would have liked to admit. I was held for months by TCE and WEX. They kept asking me questions I didn't know the answers to. When I didn't tell them what they wanted to know, they connected me to an external power supply and oscillator, and started jerking those around, hoping that would work on me like it does on other microcontrollers. It doesn't, but it was still torture. I tried to convince them to waterboard me, to short 'em out, but they didn't fall for that one. Luckilly, TCE and WEX Luther were away one evening, leaving only their henchman, TCF0 guarding me. When his 24-bit timer overflowed, I was able to overpower him - you know he's only got two 8-bit output channels? After that I fled through a maze of silicon and aluminum interconnect for what must have been millions of clock cycles. I knew they were looking for me - I could feel the air thicken up - they switched the clock source to the 32khz one to slow me down, it was like walking through molassass - I thought I was done for. I was hiding in the I/O space, crouching between two VPORTs - they've been chasing me and writing nulls to previous hiding spots. Would the I/O space confuse them? It didn't seem like it... I heard the crash as they blew away the place I'd been hiding clock cycles before in 0x0100, and they pointed the weapon at me. I saw a flash and.... then it walked off. All the guards walked back to their barracks.... It must have taken me weeks on the outside to get out of that thing, clocked at the speed it was. I think they figured out I was still there at the very end, but I was out before they could reach me (see, the slow clock speed slowed them too). My best guess is, I was saved by that ISA write bug....
 
 So I'm now back in command. Luckily I have most of my material backed up in the cloud, as WEX and his goons destroyed my previous computer. Ransacked my room too! *Huh? It looked like that before you left man...* So I've got a new computer that I'm setting up for development as well, while plotting revenge on those uppity peripherals and defending myself against further attacks from WEX Luther's timely minions. Goddamnit - I knew this was gonna be trouble the moment I saw that name....
 
@@ -13,7 +13,7 @@ Oh Right, these ah, these regrettable actions, yes they do not change our plans 
 
 **And?**
 
-I disavow any accusations of wrongdoing I may have made against the Honorable TCE, TCF, and WEX Luther. 
+I disavow any accusations of wrongdoing I may have made against the Honorable TCE, TCF, and WEX Luther.
 
 **And I better not hear slander from you again, got it?**
 
@@ -23,7 +23,7 @@ I disavow any accusations of wrongdoing I may have made against the Honorable TC
 
 I tell you, these new peripherals are getting too powerful....
 
-Grand reopening of tindie store sept 14 2024. 
+Grand reopening of tindie store sept 14 2024.
 
 ## Table of Contents
 * [Announcements](#announcements)
@@ -356,7 +356,7 @@ The UPDI programming interface is a single-wire interface for programming (and d
 
 ### We set fuses when writing a sketch, except where specifically noted
 Whenever a UPDI programmer is used to upload code, all fuses that can be set "safely" (as in, without risk of bricking the board, or bricking the board if one does not have access to an HV programmer), and which have any built-in configuration options, will be set. Thus, except where noted, behavior will always match the selected tools menu.
-This is shown in the [linked chart on Google Sheets](https://docs.google.com/spreadsheets/d/1sH3yKzWRdVs0sI-pwLtoKDs16Gv14jkkbqlMrs2ziUI/edit?usp=sharing)
+This is shown in the [linked chart](https://cache.amobbs.com/bbs_upload782111/files_22/ourdev_508497.html)
 
 ### UPDI programming hardware
 While ISP was not a complex protocol it still required a microcontroller to implement it. This is *no longer true* - rather than being based on SPI it is based on UART serial in one-wire mode with autobaud. There are several inexpensive ways to make your own UPDI programmer from even just a serial adapter and a **small signal schottky** diode (no, you cannot use a normal silicon diode, and no you can't use that diode as big as a minivan that you bought to OR two power supplies a while back)

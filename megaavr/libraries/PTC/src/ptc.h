@@ -114,7 +114,7 @@ uint8_t ptc_add_node(cap_sensor_t *node, uint8_t *pCh, const uint8_t type);
 
 
 inline uint8_t ptc_add_selfcap_node(cap_sensor_t *node, const ptc_ch_bm_t xCh, const ptc_ch_bm_t yCh) {
-  if(__builtin_constant_p(yCh)) {
+  if (__builtin_constant_p(yCh)) {
     if (yCh == 0) {
       badArg("yCh bitmap mustn't be 0 (Pin_Pxn is not a PTC pin)");
     }
@@ -131,20 +131,20 @@ inline uint8_t ptc_add_selfcap_node(cap_sensor_t *node, const ptc_ch_bm_t xCh, c
   pCh[0 + tsize] = (uint8_t)(yCh >>  0);
 
   #if __PTC_Pincount__ >= 8
-    pCh[1]         = (uint8_t)(xCh >>  8);
-    pCh[1 + tsize] = (uint8_t)(yCh >>  8);
+  pCh[1]         = (uint8_t)(xCh >>  8);
+  pCh[1 + tsize] = (uint8_t)(yCh >>  8);
 
   #if __PTC_Pincount__ >= 16
-    pCh[2]         = (uint8_t)(xCh >> 16);
-    pCh[2 + tsize] = (uint8_t)(yCh >> 16);
-    pCh[3]         = (uint8_t)(xCh >> 24);
-    pCh[3 + tsize] = (uint8_t)(yCh >> 24);
-    pCh[4]         = (uint8_t)(xCh >> 32);
-    pCh[4 + tsize] = (uint8_t)(yCh >> 32);
+  pCh[2]         = (uint8_t)(xCh >> 16);
+  pCh[2 + tsize] = (uint8_t)(yCh >> 16);
+  pCh[3]         = (uint8_t)(xCh >> 24);
+  pCh[3 + tsize] = (uint8_t)(yCh >> 24);
+  pCh[4]         = (uint8_t)(xCh >> 32);
+  pCh[4 + tsize] = (uint8_t)(yCh >> 32);
 
   #if __PTC_Pincount__ >=   40
-    pCh[5]         = (uint8_t)(xCh >> 40);
-    pCh[5 + tsize] = (uint8_t)(yCh >> 40);
+  pCh[5]         = (uint8_t)(xCh >> 40);
+  pCh[5 + tsize] = (uint8_t)(yCh >> 40);
 
   #endif
   #endif
@@ -155,7 +155,7 @@ inline uint8_t ptc_add_selfcap_node(cap_sensor_t *node, const ptc_ch_bm_t xCh, c
 
 
 inline uint8_t ptc_add_mutualcap_node(cap_sensor_t *node, const ptc_ch_bm_t xCh, const ptc_ch_bm_t yCh) {
-  if(__builtin_constant_p(yCh) && __builtin_constant_p(xCh)) {
+  if (__builtin_constant_p(yCh) && __builtin_constant_p(xCh)) {
     if (yCh == 0) {
       badArg("yCh bitmap mustn't be 0 (Pin_Pxn is not a PTC pin)");
     }
@@ -175,20 +175,20 @@ inline uint8_t ptc_add_mutualcap_node(cap_sensor_t *node, const ptc_ch_bm_t xCh,
   pCh[0 + tsize] = (uint8_t)(yCh >>  0);
 
   #if __PTC_Pincount__ >= 8
-    pCh[1]          = (uint8_t)(xCh >>  8);
-    pCh[1 + tsize] = (uint8_t)(yCh >>  8);
+  pCh[1]          = (uint8_t)(xCh >>  8);
+  pCh[1 + tsize] = (uint8_t)(yCh >>  8);
 
   #if __PTC_Pincount__ >= 16
-    pCh[2]          = (uint8_t)(xCh >> 16);
-    pCh[2 + tsize] = (uint8_t)(yCh >> 16);
-    pCh[3]          = (uint8_t)(xCh >> 24);
-    pCh[3 + tsize] = (uint8_t)(yCh >> 24);
-    pCh[4]          = (uint8_t)(xCh >> 32);
-    pCh[4 + tsize] = (uint8_t)(yCh >> 32);
+  pCh[2]          = (uint8_t)(xCh >> 16);
+  pCh[2 + tsize] = (uint8_t)(yCh >> 16);
+  pCh[3]          = (uint8_t)(xCh >> 24);
+  pCh[3 + tsize] = (uint8_t)(yCh >> 24);
+  pCh[4]          = (uint8_t)(xCh >> 32);
+  pCh[4 + tsize] = (uint8_t)(yCh >> 32);
 
   #if __PTC_Pincount__ >=   40
-    pCh[5]          = (uint8_t)(xCh >> 40);
-    pCh[5 + tsize] = (uint8_t)(yCh >> 40);
+  pCh[5]          = (uint8_t)(xCh >> 40);
+  pCh[5 + tsize] = (uint8_t)(yCh >> 40);
 
   #endif
   #endif

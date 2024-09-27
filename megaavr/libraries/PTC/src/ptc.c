@@ -71,21 +71,21 @@ ptc_lib_sm_set_t *ptc_get_sm_settings() {
 
 
 #if defined (__PTC_Tiny__)
-  #define PTC_DEFAULT_SC_CC 0x0567
-  #define PTC_DEFAULT_MC_CC 0x0234
+#define PTC_DEFAULT_SC_CC 0x0567
+#define PTC_DEFAULT_MC_CC 0x0234
 
-  const uint8_t ptc_a_gain_lut[] = {
-    0x3F, 0x1C, 0x0B,
-    0x05, 0x03, 0x01,
-  };
+const uint8_t ptc_a_gain_lut[] = {
+  0x3F, 0x1C, 0x0B,
+  0x05, 0x03, 0x01,
+};
 #elif defined (__PTC_DA__)
-  #define PTC_DEFAULT_SC_CC 0x00F0
-  #define PTC_DEFAULT_MC_CC 0x00A0
+#define PTC_DEFAULT_SC_CC 0x00F0
+#define PTC_DEFAULT_MC_CC 0x00A0
 
-  const uint8_t ptc_a_gain_lut[] = {
-    0x1F, 0x0F, 0x07,
-    0x03, 0x01
-  };
+const uint8_t ptc_a_gain_lut[] = {
+  0x1F, 0x0F, 0x07,
+  0x03, 0x01
+};
 #endif
 
 
@@ -156,21 +156,21 @@ uint8_t ptc_node_set_prescaler(cap_sensor_t *node, uint8_t presc) {
 uint8_t ptc_node_set_gain(cap_sensor_t *node, uint8_t aGain, uint8_t dGain) {
   PTC_CHECK_FOR_BAD_POINTER(node);
 
-#if defined (__PTC_Tiny__)
+  #if defined (__PTC_Tiny__)
   if (aGain > 0x05) {
     if (__builtin_constant_p(aGain)) {
       badArg("Analog Gain too high. Max Analog Gain Value is 0x05 (equals 32x)");
     }
     return PTC_LIB_BAD_ARGUMENT;
   }
-#elif defined (__PTC_DA__)
+  #elif defined (__PTC_DA__)
   if (aGain > 0x04) {
     if (__builtin_constant_p(aGain)) {
       badArg("Analog Gain too high. Max Analog Gain Value is 0x04 (equals 16x)");
     }
     return PTC_LIB_BAD_ARGUMENT;
   }
-#endif
+  #endif
 
   if (dGain > 0x06) {
     if (__builtin_constant_p(dGain)) {
@@ -196,9 +196,9 @@ uint8_t ptc_suspend(void) {
   if (PTC_LIB_IDLE == ptc_lib_state) { // allow disabling only outside conversions
     ptc_lib_state = PTC_LIB_SUSPENDED;
     #if defined (__PTC_Tiny__)
-      PTC.CTRLP = 0x00;
+    PTC.CTRLP = 0x00;
     #elif defined (__PTC_DA__)
-      PTC.CTRLA = 0x00;
+    PTC.CTRLA = 0x00;
     #endif
     return PTC_LIB_SUCCESS;
   }
@@ -218,27 +218,27 @@ void ptc_init_ADC0(void) {
   PTC_t *pPTC;
   _fastPtr_d(pPTC, &PTC);
   #if defined (__PTC_Tiny__)
-    #if   F_CPU   > 24000000
-      pPTC->CTRLC  = ADC_PRESC_DIV32_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
-    #elif F_CPU  >= 12000000
-      pPTC->CTRLC  = ADC_PRESC_DIV16_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
-    #elif F_CPU  >=  6000000
-      pPTC->CTRLC  =  ADC_PRESC_DIV8_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
-    #elif F_CPU  >=  3000000
-      pPTC->CTRLC  =  ADC_PRESC_DIV4_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
-    #else
-      pPTC->CTRLC  =  ADC_PRESC_DIV2_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
-    #endif
-    #if   (F_CPU == 6000000 || F_CPU == 12000000 || F_CPU == 24000000 || F_CPU ==25000000)
-      pPTC->SAMPCTRL = (7);
-    #elif (F_CPU == 5000000 || F_CPU == 10000000 || F_CPU == 20000000)
-      pPTC->SAMPCTRL = (13);
-    #else
-      pPTC->SAMPCTRL = (10);
-    #endif
-    pPTC->CTRLD    = ADC_INITDLY_DLY16_gc;
-    pPTC->CTRLB    = ADC_SAMPNUM_ACC1_gc;
-    pPTC->CTRLA    = ADC_ENABLE_bm;
+  #if   F_CPU   > 24000000
+  pPTC->CTRLC  = ADC_PRESC_DIV32_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
+  #elif F_CPU  >= 12000000
+  pPTC->CTRLC  = ADC_PRESC_DIV16_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
+  #elif F_CPU  >=  6000000
+  pPTC->CTRLC  =  ADC_PRESC_DIV8_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
+  #elif F_CPU  >=  3000000
+  pPTC->CTRLC  =  ADC_PRESC_DIV4_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
+  #else
+  pPTC->CTRLC  =  ADC_PRESC_DIV2_gc | ADC_REFSEL_VDDREF_gc | ADC_SAMPCAP_bm;
+  #endif
+  #if   (F_CPU == 6000000 || F_CPU == 12000000 || F_CPU == 24000000 || F_CPU ==25000000)
+  pPTC->SAMPCTRL = (7);
+  #elif (F_CPU == 5000000 || F_CPU == 10000000 || F_CPU == 20000000)
+  pPTC->SAMPCTRL = (13);
+  #else
+  pPTC->SAMPCTRL = (10);
+  #endif
+  pPTC->CTRLD    = ADC_INITDLY_DLY16_gc;
+  pPTC->CTRLB    = ADC_SAMPNUM_ACC1_gc;
+  pPTC->CTRLA    = ADC_ENABLE_bm;
   #elif defined (__PTC_DA__)
   // PTC can't be used to measure for classical ADC readings (I think)
   #endif
@@ -254,99 +254,100 @@ uint8_t ptc_add_node(cap_sensor_t *node, uint8_t *pCh, const uint8_t type) {
 
 
   uint8_t status = ptc_append_node(node);
-  if (status != PTC_LIB_SUCCESS)
+  if (status != PTC_LIB_SUCCESS) {
     return status;
+  }
 
 
   memcpy(node->hw_xCh_bm, pCh, typesize * 2); // copies x and y channel
   node->type = type;
 
   #if defined(__PTC_Tiny__)
-    ptc_ch_bm_t xCh = (ptc_ch_bm_t)pCh[0];
-    ptc_ch_bm_t yCh = (ptc_ch_bm_t)pCh[typesize];
-    if ((xCh & yCh) != 0) {           /* overlap */
-      return PTC_LIB_BAD_ARGUMENT;
-    }
-    ptc_ch_bm_t pinmask = xCh | yCh;
+  ptc_ch_bm_t xCh = (ptc_ch_bm_t)pCh[0];
+  ptc_ch_bm_t yCh = (ptc_ch_bm_t)pCh[typesize];
+  if ((xCh & yCh) != 0) {           /* overlap */
+    return PTC_LIB_BAD_ARGUMENT;
+  }
+  ptc_ch_bm_t pinmask = xCh | yCh;
 
-    if (pinmask == 0) {               /* not a single pin selected */
-      return PTC_LIB_BAD_ARGUMENT;
-    }
+  if (pinmask == 0) {               /* not a single pin selected */
+    return PTC_LIB_BAD_ARGUMENT;
+  }
   #elif defined (__PTC_DA__)
-    uint8_t xCh = 0;
-    uint8_t yCh = 0;
-    for (uint8_t i = 0; i < typesize; i++) {
-      uint8_t orX = pCh[i];
-      uint8_t orY = pCh[i + typesize];
-      uint8_t overlap = orX & orY;
-      if (overlap != 0) {
-        return PTC_LIB_BAD_ARGUMENT;
-      }
-      xCh |= orX;
-      yCh |= orY;
-    }
-    if ((xCh | yCh) == 0) {         /* not a single pin selected */
+  uint8_t xCh = 0;
+  uint8_t yCh = 0;
+  for (uint8_t i = 0; i < typesize; i++) {
+    uint8_t orX = pCh[i];
+    uint8_t orY = pCh[i + typesize];
+    uint8_t overlap = orX & orY;
+    if (overlap != 0) {
       return PTC_LIB_BAD_ARGUMENT;
     }
+    xCh |= orX;
+    yCh |= orY;
+  }
+  if ((xCh | yCh) == 0) {         /* not a single pin selected */
+    return PTC_LIB_BAD_ARGUMENT;
+  }
   #endif
 
-    node->hw_a_d_gain = NODE_GAIN(0, ADC_SAMPNUM_ACC16_gc);
+  node->hw_a_d_gain = NODE_GAIN(0, ADC_SAMPNUM_ACC16_gc);
 
-    if (type & NODE_MUTUAL_bm) {
-      node->touch_in_th = 10;
-      node->touch_out_th = 5;
-      node->hw_compCaps = PTC_DEFAULT_MC_CC;  /* value from qTouch */
-      node->hw_rsel_presc = NODE_RSEL_PRSC(RSEL_VAL_50, PTC_PRESC_DEFAULT);
-    } else {  /* Selfcap */
-      if (yCh == 0) {                 /* not a single pin selected */
-        return PTC_LIB_BAD_ARGUMENT;
-      }
-      if (xCh != 0) {
-        node->type = NODE_SELFCAP_SHIELD_bm;
-      }
-
-      node->touch_in_th = 20;
-      node->touch_out_th = 10;
-      node->hw_compCaps = PTC_DEFAULT_SC_CC;  /* value from qTouch */
-      node->hw_rsel_presc = NODE_RSEL_PRSC(RSEL_VAL_0, PTC_PRESC_DEFAULT);
+  if (type & NODE_MUTUAL_bm) {
+    node->touch_in_th = 10;
+    node->touch_out_th = 5;
+    node->hw_compCaps = PTC_DEFAULT_MC_CC;  /* value from qTouch */
+    node->hw_rsel_presc = NODE_RSEL_PRSC(RSEL_VAL_50, PTC_PRESC_DEFAULT);
+  } else {  /* Selfcap */
+    if (yCh == 0) {                 /* not a single pin selected */
+      return PTC_LIB_BAD_ARGUMENT;
     }
+    if (xCh != 0) {
+      node->type = NODE_SELFCAP_SHIELD_bm;
+    }
+
+    node->touch_in_th = 20;
+    node->touch_out_th = 10;
+    node->hw_compCaps = PTC_DEFAULT_SC_CC;  /* value from qTouch */
+    node->hw_rsel_presc = NODE_RSEL_PRSC(RSEL_VAL_0, PTC_PRESC_DEFAULT);
+  }
 
   #if defined(__PTC_Tiny__)
-    PTC.PIN_OVR |= pinmask;
-    uint8_t* pin_lut = (uint8_t* )ptc_ch_to_pin;
-    for (uint8_t i = 0; i < sizeof(ptc_ch_to_pin); i++) { /* 6 or 14 iterations */
-      uint8_t offset = *(pin_lut++);
-      uint16_t basePointer = (uint16_t)&PORTA;
-      uint8_t* portSettings = (uint8_t*)(offset + basePointer);
-      if ((uint8_t)pinmask & 0x01) {
-        (*portSettings) = PORT_ISC_INPUT_DISABLE_gc;
-      }
-      pinmask >>= 1;
+  PTC.PIN_OVR |= pinmask;
+  uint8_t *pin_lut = (uint8_t *)ptc_ch_to_pin;
+  for (uint8_t i = 0; i < sizeof(ptc_ch_to_pin); i++) { /* 6 or 14 iterations */
+    uint8_t offset = *(pin_lut++);
+    uint16_t basePointer = (uint16_t)&PORTA;
+    uint8_t *portSettings = (uint8_t *)(offset + basePointer);
+    if ((uint8_t)pinmask & 0x01) {
+      (*portSettings) = PORT_ISC_INPUT_DISABLE_gc;
     }
-    return PTC_LIB_SUCCESS;
+    pinmask >>= 1;
+  }
+  return PTC_LIB_SUCCESS;
 
   #elif defined (__PTC_DA__)
-    /* separate for-loop to avoid changing the PORT settings before checking the complete input */
-    uint8_t old_sreg = SREG;
-    cli();                    // disable Interrupts to avoid anyone messing around with PINCONFIG
+  /* separate for-loop to avoid changing the PORT settings before checking the complete input */
+  uint8_t old_sreg = SREG;
+  cli();                    // disable Interrupts to avoid anyone messing around with PINCONFIG
 
-    PORTA.PINCONFIG = PORT_PULLUPEN_bm | PORT_ISC_INPUT_DISABLE_gc; // this setting is mirrored across all PORTs (guard against ISRs)
-    uint8_t* pin_upd = (uint8_t*)&(PORTA.PINCTRLUPD);
+  PORTA.PINCONFIG = PORT_PULLUPEN_bm | PORT_ISC_INPUT_DISABLE_gc; // this setting is mirrored across all PORTs (guard against ISRs)
+  uint8_t *pin_upd = (uint8_t *) & (PORTA.PINCTRLUPD);
 
-    uint8_t *end = pCh + typesize;
-    while (pCh < end) {
-      if ((uint8_t)(uint16_t) pin_upd != (uint8_t)(uint16_t)&PORTC.PINCTRLUPD) { // double cast to remove warning, skip PORTC
-        uint8_t pin_bm  = *pCh;
-        pCh += typesize;
-        pin_bm |= *pCh;
-        pCh -= (typesize-1);  // decrement by one less to increment to next byte
+  uint8_t *end = pCh + typesize;
+  while (pCh < end) {
+    if ((uint8_t)(uint16_t) pin_upd != (uint8_t)(uint16_t)&PORTC.PINCTRLUPD) { // double cast to remove warning, skip PORTC
+      uint8_t pin_bm  = *pCh;
+      pCh += typesize;
+      pin_bm |= *pCh;
+      pCh -= (typesize - 1); // decrement by one less to increment to next byte
 
-        *pin_upd = pin_bm;
-      }
-      pin_upd += sizeof(PORT_t);
+      *pin_upd = pin_bm;
     }
-    SREG = old_sreg;
-    return PTC_LIB_SUCCESS;
+    pin_upd += sizeof(PORT_t);
+  }
+  SREG = old_sreg;
+  return PTC_LIB_SUCCESS;
   #endif
 }
 
@@ -403,9 +404,9 @@ uint8_t ptc_lp_init(cap_sensor_t *node, uint8_t event_ch) {
   }
 
   #if defined(__PTC_Tiny__)
-    EVSYS.ASYNCUSER1 = event_ch;
+  EVSYS.ASYNCUSER1 = event_ch;
   #elif defined (__PTC_DA__)
-    EVSYS.USERPTCSTART = event_ch;
+  EVSYS.USERPTCSTART = event_ch;
   #endif
   node->state.low_power = 1;
   node->stateMachine = PTC_SM_LOW_POWER;
@@ -455,24 +456,25 @@ uint16_t ptc_get_node_cc_femto(cap_sensor_t *node) {
   }
 
   #if defined (__PTC_Tiny__)
-    uint16_t retVal = 0;
-    uint16_t comp = node->hw_compCaps;
-    for (uint8_t i = 0; i < 3; i++) {
-      retVal /= 10; /* "skips" last addition */
-      uint8_t temp = comp & 0x0F;
-      retVal += (temp * 675);
-      comp >>= 4;   /* select next field */
-    }
-    retVal += (comp & 0x03) * 6750;
-    comp >>= 2;
-    retVal += (comp & 0x03) * 6200;
-    return retVal;  //max 51000
+  uint16_t retVal = 0;
+  uint16_t comp = node->hw_compCaps;
+  for (uint8_t i = 0; i < 3; i++) {
+    retVal /= 10; /* "skips" last addition */
+    uint8_t temp = comp & 0x0F;
+    retVal += (temp * 675);
+    comp >>= 4;   /* select next field */
+  }
+  retVal += (comp & 0x03) * 6750;
+  comp >>= 2;
+  retVal += (comp & 0x03) * 6200;
+  return retVal;  //max 51000
   #elif defined(__PTC_DA__)
-    uint16_t comp = node->hw_compCaps + 1;  // compCaps max 0x3FF
-    if (node->type != NODE_MUTUAL_bm)
-      comp *= 2;
+  uint16_t comp = node->hw_compCaps + 1;  // compCaps max 0x3FF
+  if (node->type != NODE_MUTUAL_bm) {
+    comp *= 2;
+  }
 
-    return comp * 31 + (comp >> 2);  // *= 31,25
+  return comp * 31 + (comp >> 2);  // *= 31,25
   #else
   #endif
 }
@@ -499,7 +501,7 @@ void ptc_process(uint16_t currTime) {
     }
   } else if (PTC_LIB_CONV_COMPL == ptc_lib_state) {
     ptc_lib_state = PTC_LIB_IDLE;
-    for (cap_sensor_t* node = firstNode; node != NULL; node = node->nextNode) {
+    for (cap_sensor_t *node = firstNode; node != NULL; node = node->nextNode) {
       ptc_process_measurement(node);
     }
     ptc_event_cb_conversion((PTC_CB_EVENT_CONV_CMPL | currConvType), (cap_sensor_t *)currConvNode);
@@ -526,8 +528,9 @@ void ptc_process(uint16_t currTime) {
  * Internal functions only below. Not part of the API
  */
 void ptc_process_measurement(cap_sensor_t *node) {
-  if (node->state.error)
+  if (node->state.error) {
     return;
+  }
 
   if (node->state.data_ready != 0) {
     node->state.data_ready = 0;
@@ -676,160 +679,164 @@ uint8_t ptc_process_calibrate(cap_sensor_t *node) {
   uint16_t rawData = node->sensorData;
 
   #if defined(__PTC_Tiny__)
-    uint16_t compensation = node->hw_compCaps;
-    uint8_t cc_accurate =             compensation        & 0x0F;
-    uint8_t cc_fine =      ((uint8_t) compensation >> 4)  & 0x0F;
-    uint8_t cc_coarse =     (uint8_t)(compensation >> 8)  & 0x0F;
-    uint8_t cc_add_rough =  (uint8_t)(compensation >> 8)  & 0xC0;
-    uint8_t cc_rough  =     (uint8_t)(compensation >> 12) & 0x03;
+  uint16_t compensation = node->hw_compCaps;
+  uint8_t cc_accurate =             compensation        & 0x0F;
+  uint8_t cc_fine = ((uint8_t) compensation >> 4)  & 0x0F;
+  uint8_t cc_coarse = (uint8_t)(compensation >> 8)  & 0x0F;
+  uint8_t cc_add_rough = (uint8_t)(compensation >> 8)  & 0xC0;
+  uint8_t cc_rough  = (uint8_t)(compensation >> 12) & 0x03;
 
-    //uint8_t err = 0;
+  //uint8_t err = 0;
 
-    int8_t dirOvf;
-    int8_t dir;
-    if (rawData > 0x01FF) {
-      rawData = rawData - 0x1FF;
-      if (rawData < 4) {
-        return PTC_LIB_CALIB_DONE;
-      }
+  int8_t dirOvf;
+  int8_t dir;
+  if (rawData > 0x01FF) {
+    rawData = rawData - 0x1FF;
+    if (rawData < 4) {
+      return PTC_LIB_CALIB_DONE;
+    }
 
-      if (node->type & NODE_MUTUAL_bm){
-        dir = -1;
-        dirOvf = -6;
-        rawData /= 2;
-      } else {
-        dir = 1;
-        dirOvf = 6;
-        if (rawData > 0x0100) {
-          if (cc_add_rough <= 0xC0) {
-            cc_add_rough = (cc_add_rough + 0x40);
-            rawData -= 0xF0;
-          }
-        }
-      }
+    if (node->type & NODE_MUTUAL_bm) {
+      dir = -1;
+      dirOvf = -6;
+      rawData /= 2;
     } else {
-      rawData = 0x1FF - rawData;
-      if (rawData < 4) {
-        return PTC_LIB_CALIB_DONE;
-      }
-
-      if (node->type & NODE_MUTUAL_bm){
-        dir = 1;
-        dirOvf = 6;
-        rawData /= 2;
-      } else {
-        dir = -1;
-        dirOvf = -6;
-        if (rawData > 0x0100) {
-          if (cc_add_rough >= 0x40) {
-            cc_add_rough = (cc_add_rough - 0x40);
-            rawData -= 0xF0;
-          }
+      dir = 1;
+      dirOvf = 6;
+      if (rawData > 0x0100) {
+        if (cc_add_rough <= 0xC0) {
+          cc_add_rough = (cc_add_rough + 0x40);
+          rawData -= 0xF0;
         }
       }
     }
+  } else {
+    rawData = 0x1FF - rawData;
+    if (rawData < 4) {
+      return PTC_LIB_CALIB_DONE;
+    }
+
+    if (node->type & NODE_MUTUAL_bm) {
+      dir = 1;
+      dirOvf = 6;
+      rawData /= 2;
+    } else {
+      dir = -1;
+      dirOvf = -6;
+      if (rawData > 0x0100) {
+        if (cc_add_rough >= 0x40) {
+          cc_add_rough = (cc_add_rough - 0x40);
+          rawData -= 0xF0;
+        }
+      }
+    }
+  }
+
+  while (rawData > 0x0001) {
+    while (rawData > 0x00CF) {
+      cc_rough += dir;            // this algorithm takes advantage of integer underflow
+      if (cc_rough > 0x03) {      // by checking against >0x03, we can also check for 0xFF aka -1
+        cc_rough -= dir;          // thus saving some flash. +/-1 can be made in one insn
+        break;                    // by using sub reg with 0xFF or 0x01 in a reg respectively
+      }
+      rawData -= 0xCF;
+    }
+
+    while (rawData > 0x0015) {
+      cc_coarse += dir;
+      if (cc_coarse > 0x0F) {
+        break;
+      }
+      rawData -= 0x15;
+    }
+    if (cc_coarse > 0x0F) {
+      cc_rough += dir;
+      if (cc_rough > 0x03) {
+        cc_rough -= dir;
+        cc_coarse -= dir;
+      } else {
+        cc_coarse -= dirOvf;
+      }
+    }
+
 
     while (rawData > 0x0001) {
-      while (rawData > 0x00CF) {
-        cc_rough += dir;            // this algorithm takes advantage of integer underflow
-        if (cc_rough > 0x03) {      // by checking against >0x03, we can also check for 0xFF aka -1
-          cc_rough -= dir;          // thus saving some flash. +/-1 can be made in one insn
-          break;                    // by using sub reg with 0xFF or 0x01 in a reg respectively
-        }
-        rawData -= 0xCF;
+      cc_fine += dir;
+      if (cc_fine > 0x0F) {
+        break;
       }
+      rawData -= 0x02;
+    }
 
-      while (rawData > 0x0015) {
-        cc_coarse += dir;
-        if (cc_coarse > 0x0F)
-          break;
-        rawData -= 0x15;
-      }
+    if (cc_fine > 0x0F) {
+      cc_coarse += dir;
       if (cc_coarse > 0x0F) {
         cc_rough += dir;
         if (cc_rough > 0x03) {
           cc_rough -= dir;
           cc_coarse -= dir;
+          cc_fine -= dir;
+          if (dir < 0) {
+            return PTC_LIB_CALIB_TOO_LOW;
+          } else {
+            return PTC_LIB_CALIB_TOO_HIGH;
+          }
         } else {
           cc_coarse -= dirOvf;
         }
+      } else {
+        cc_fine -= dirOvf;
       }
+    } /* if (cc_fine > 0x0F) */
+  } /* (rawData > 0x0001) */
 
 
-      while (rawData > 0x0001) {
-        cc_fine += dir;
-        if (cc_fine > 0x0F)
-          break;
-        rawData -= 0x02;
-      }
-
-      if (cc_fine > 0x0F) {
-        cc_coarse += dir;
-        if (cc_coarse > 0x0F) {
-          cc_rough += dir;
-          if (cc_rough > 0x03) {
-            cc_rough -= dir;
-            cc_coarse -= dir;
-            cc_fine -= dir;
-            if (dir < 0)
-              return PTC_LIB_CALIB_TOO_LOW;
-            else
-              return PTC_LIB_CALIB_TOO_HIGH;
-          } else {
-            cc_coarse -= dirOvf;
-          }
-        } else {
-          cc_fine -= dirOvf;
-        }
-      } /* if (cc_fine > 0x0F) */
-    } /* (rawData > 0x0001) */
-
-
-    cc_fine <<= 4;
-    cc_rough <<= 4;
-    cc_rough |= cc_add_rough;
-    cc_rough |= cc_coarse;
-    cc_fine  |= cc_accurate;
-    node->hw_compCaps = (uint16_t)((cc_rough << 8) | cc_fine);
-    return PTC_LIB_SUCCESS;
+  cc_fine <<= 4;
+  cc_rough <<= 4;
+  cc_rough |= cc_add_rough;
+  cc_rough |= cc_coarse;
+  cc_fine  |= cc_accurate;
+  node->hw_compCaps = (uint16_t)((cc_rough << 8) | cc_fine);
+  return PTC_LIB_SUCCESS;
 
   #elif defined (__PTC_DA__)
-    uint16_t delta;
-    uint16_t newCC = node->hw_compCaps;
-    uint8_t ret_val = PTC_LIB_SUCCESS;
+  uint16_t delta;
+  uint16_t newCC = node->hw_compCaps;
+  uint8_t ret_val = PTC_LIB_SUCCESS;
 
-    if (node->type & NODE_MUTUAL_bm) {
-      if (rawData > 0x1FF) {
-        delta = (rawData - 0x1FF) >> 2;
-        newCC -= delta;
-      } else {
-        delta = (0x1FF - rawData) >> 2;
-        newCC += delta;
-      }
+  if (node->type & NODE_MUTUAL_bm) {
+    if (rawData > 0x1FF) {
+      delta = (rawData - 0x1FF) >> 2;
+      newCC -= delta;
     } else {
-      if (rawData > 0x1FF) {
-        delta = (rawData - 0x1FF) >> 1;
-        newCC += delta;
-      } else {
-        delta = (0x1FF - rawData) >> 1;
-        newCC -= delta;
-      }
+      delta = (0x1FF - rawData) >> 2;
+      newCC += delta;
     }
-
-    if (delta < 4)
-      return PTC_LIB_CALIB_DONE;
-
-    if (newCC > 0x03FF) {
-      if (newCC > 0x7FFF) { // underflow
-        newCC = 0x00;
-        ret_val = PTC_LIB_CALIB_TOO_LOW;
-      } else {              // overflow
-        newCC = 0x3FF;
-        ret_val = PTC_LIB_CALIB_TOO_HIGH;
-      }
+  } else {
+    if (rawData > 0x1FF) {
+      delta = (rawData - 0x1FF) >> 1;
+      newCC += delta;
+    } else {
+      delta = (0x1FF - rawData) >> 1;
+      newCC -= delta;
     }
-    node->hw_compCaps = newCC;
-    return ret_val;
+  }
+
+  if (delta < 4) {
+    return PTC_LIB_CALIB_DONE;
+  }
+
+  if (newCC > 0x03FF) {
+    if (newCC > 0x7FFF) { // underflow
+      newCC = 0x00;
+      ret_val = PTC_LIB_CALIB_TOO_LOW;
+    } else {              // overflow
+      newCC = 0x3FF;
+      ret_val = PTC_LIB_CALIB_TOO_HIGH;
+    }
+  }
+  node->hw_compCaps = newCC;
+  return ret_val;
   #endif
 }
 
@@ -842,12 +849,12 @@ void ptc_init_conversion(uint8_t nodeType) {
     return;
   }
 
-#if defined (__PTC_Tiny__)
+  #if defined (__PTC_Tiny__)
   pPTC->CTRLP = 0x00;
   if (nodeType & NODE_MUTUAL_bm) {  /* NODE_MUTUAL */
     pPTC->CTRLP    = 0xC0 | 0x20;
     pPTC->SHIELD  = 0x00;
-  } else if (nodeType & NODE_SHIELD_bm){  /* NODE_SELFCAP */
+  } else if (nodeType & NODE_SHIELD_bm) { /* NODE_SELFCAP */
     pPTC->CTRLP  = 0x28;
     pPTC->SHIELD = 0x86;
   } else if (nodeType & NODE_SELFCAP_bm) {
@@ -881,7 +888,7 @@ void ptc_init_conversion(uint8_t nodeType) {
     ptc_start_conversion(firstNode);
   }
 
-#elif defined (__PTC_DA__)
+  #elif defined (__PTC_DA__)
 
   if (nodeType == NODE_MUTUAL_bm) {
     pPTC->CTRL_SC = 0x00;
@@ -897,15 +904,17 @@ void ptc_init_conversion(uint8_t nodeType) {
   uint8_t freq = freq_select;
   if (nodeType == NODE_MUTUAL_bm) {
     pPTC->SAMPDLY = 0x00;
-    if (freq < 0x10) /* freq is 0 - 0x0F, 0x10 is auto variation */
+    if (freq < 0x10) { /* freq is 0 - 0x0F, 0x10 is auto variation */
       freq |= ADC_INITDLY_DLY16_gc;
-    else
+    } else {
       freq = ADC_INITDLY_DLY16_gc | ADC_SAMPDLY_DLY15_gc;
+    }
     pPTC->CTRLD = freq;
   } else {
     pPTC->CTRLD = ADC_INITDLY_DLY16_gc;
-    if (freq > 0x0F)
+    if (freq > 0x0F) {
       freq = 0x0F;
+    }
     pPTC->SAMPDLY = freq;
   }
 
@@ -924,10 +933,10 @@ void ptc_init_conversion(uint8_t nodeType) {
     ptc_lib_state = PTC_LIB_CONV_PROG;
     ptc_start_conversion(firstNode);
   }
-#endif
+  #endif
 }
 
-void ptc_start_conversion(cap_sensor_t* node) {
+void ptc_start_conversion(cap_sensor_t *node) {
   while (1) {
     if (NULL == node) {
       PTC.INTCTRL = 0;    // disable ISR for ADC reuse
@@ -946,13 +955,14 @@ void ptc_start_conversion(cap_sensor_t* node) {
   ptc_set_registers(node);
 }
 
-void ptc_set_registers(cap_sensor_t* node) {
+void ptc_set_registers(cap_sensor_t *node) {
   PTC_t *pPTC;
   _fastPtr_d(node, node);  // Sometimes it takes the compiler a bit more of convincing...
   _fastPtr_d(pPTC, &PTC);
 
-  if (NULL == node)
+  if (NULL == node) {
     return;
+  }
 
   uint8_t lut_index = 0;
   if ((node->state.disabled == 0) && (node->stateMachine != PTC_SM_NOINIT_CAL)) {
@@ -963,43 +973,43 @@ void ptc_set_registers(cap_sensor_t* node) {
   uint8_t chargeDelay = node->hw_csd;
 
   #if defined(__PTC_Tiny__)
-    pPTC->XBM  = node->hw_xCh_bm[0];
-    pPTC->YBM  = node->hw_yCh_bm[0];
+  pPTC->XBM  = node->hw_xCh_bm[0];
+  pPTC->YBM  = node->hw_yCh_bm[0];
 
-    if (chargeDelay < 0x1B) {
-      chargeDelay += 4;
-    } else {
-      chargeDelay = 0x1F;
-    }
-    pPTC->SAMPCTRL = chargeDelay;
+  if (chargeDelay < 0x1B) {
+    chargeDelay += 4;
+  } else {
+    chargeDelay = 0x1F;
+  }
+  pPTC->SAMPCTRL = chargeDelay;
 
 
-    pPTC->CTRLC = (node->hw_rsel_presc & 0x0F) | ADC_REFSEL_VDDREF_gc;
-    pPTC->CTRLP |= 0x03;
+  pPTC->CTRLC = (node->hw_rsel_presc & 0x0F) | ADC_REFSEL_VDDREF_gc;
+  pPTC->CTRLP |= 0x03;
 
   #elif defined(__PTC_DA__)
-    memcpy((void *)pPTC->XBM, node->hw_xCh_bm, sizeof(ptc_ch_arr_t));
-    memcpy((void *)pPTC->YBM, node->hw_yCh_bm, sizeof(ptc_ch_arr_t));
+  memcpy((void *)pPTC->XBM, node->hw_xCh_bm, sizeof(ptc_ch_arr_t));
+  memcpy((void *)pPTC->YBM, node->hw_yCh_bm, sizeof(ptc_ch_arr_t));
 
-    if (chargeDelay < 0x7B) {
-      chargeDelay += 4;
-    } else {
-      chargeDelay = 0x1F;
-    }
+  if (chargeDelay < 0x7B) {
+    chargeDelay += 4;
+  } else {
+    chargeDelay = 0x1F;
+  }
 
-    pPTC->SAMPCTRL = chargeDelay;
-    pPTC->CTRLC = (node->hw_rsel_presc & 0x0F) | 0x80;
+  pPTC->SAMPCTRL = chargeDelay;
+  pPTC->CTRLC = (node->hw_rsel_presc & 0x0F) | 0x80;
 
-    if (node->type & NODE_SELFCAP_bm) {
-      pPTC->CTRL_SC = 0x01;
-    } else {
-      pPTC->CTRL_SC = 0x00;
-    }
-    if (node->type & NODE_SHIELD_bm) {
-        pPTC->CTRL_SHIELD = 1;
-    } else {
-      pPTC->CTRL_SHIELD = 0;
-    }
+  if (node->type & NODE_SELFCAP_bm) {
+    pPTC->CTRL_SC = 0x01;
+  } else {
+    pPTC->CTRL_SC = 0x00;
+  }
+  if (node->type & NODE_SHIELD_bm) {
+    pPTC->CTRL_SHIELD = 1;
+  } else {
+    pPTC->CTRL_SHIELD = 0;
+  }
   #endif
 
   pPTC->COMP = node->hw_compCaps;

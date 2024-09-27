@@ -406,7 +406,7 @@
   #define     _AVR_GENUS        _AVR_EX_SERIES
   #define     _AVR_FAMILY       ("EA")
   #define     _AVR_CLOCKMODE    (0x15) // Crap manual tuning, autotune, crystal, base clock in fuses like a tiny, supports RTC xtal.
-  #define     _AVR_FLASHMODE    (3) 
+  #define     _AVR_FLASHMODE    (3)
 #elif defined(__AVR_EB__)
   #define     _AVR_GENUS        _AVR_EX_SERIES
   #define     _AVR_FAMILY       ("EB")
@@ -578,7 +578,7 @@
    * which has 64 bytes - 8 per OPAMP, and 16 at the start used for global settings
    * At time of writing, on the only parts with OPAMPs, only 4 of the global bytes are used
    * and 6 of the 8 bytes for each OPAMP are used (the other 2 are spares?)
-   * but yeah, max opamps supported without changes to the struct is 6, so 6 is how many we check for. 
+   * but yeah, max opamps supported without changes to the struct is 6, so 6 is how many we check for.
    */
   #if defined(OPAMP_OP5CTRLA)
     #define _AVR_OPAMP_COUNT   (6)
@@ -601,11 +601,11 @@
 
 #if defined(CCL)
   #if   defined(CCL_TRUTH14)
-    #define _AVR_LUT_COUNT     (16) 
+    #define _AVR_LUT_COUNT     (16)
   #elif defined(CCL_TRUTH12)
-    #define _AVR_LUT_COUNT     (14) 
+    #define _AVR_LUT_COUNT     (14)
   #elif defined(CCL_TRUTH10)
-    #define _AVR_LUT_COUNT     (12) 
+    #define _AVR_LUT_COUNT     (12)
   #elif defined(CCL_TRUTH8)
     #define _AVR_LUT_COUNT     (10)
   #elif defined(CCL_TRUTH6)
@@ -660,35 +660,35 @@
 #endif
 
 #if   defined(TCE0)
-  #define _AVR_TCE_COUNT     (1) 
-#else                            
-  #define _AVR_TCE_COUNT     (0) 
-#endif                           
+  #define _AVR_TCE_COUNT     (1)
+#else
+  #define _AVR_TCE_COUNT     (0)
+#endif
 // first appears on the EB-series, 16-bit. Some sort of 8-channeled monster who is always with the one they call WEX. I haven't heard from TCA0 after they showed up and started doing
 // PWM on the same pins. I have a bad feeling that TCA0 is either tied up in the basement, or dead in a wooded area. With the TCE's skill at motor control, they could easily have
-// used power-tools to dismember and bury the body.... Still no word on what's next, so we don't know if TCA is gone for good or just on vacation. 
+// used power-tools to dismember and bury the body.... Still no word on what's next, so we don't know if TCA is gone for good or just on vacation.
 // As for TCE, though:
 // 1. It will only allow 4 independent WO channels - You can only light up all 8 lines in a few atypical modes (like you can get the motor control special (inverted output with programmable dead time insertion)
-// or some really poorly described feature called "pattern generation", and you can swap which pin out of every pair of pins is used, but  
+// or some really poorly described feature called "pattern generation", and you can swap which pin out of every pair of pins is used, but
 // 2. Pins move as a gang like TCA, but they'll also spread out in the early ports to ease pin pressure.
-// 
+//
 // 2. It will set a new bar for AVR peripherals. Specifically, it will need the longest chapter in the datasheet to tell us how to use the bloody thing
-// 3. It has ways to get up to 3 extra bits of resolution. TAANSTAFL, of course, and the datasheet wasn't clear enough for me to ascertain 
+// 3. It has ways to get up to 3 extra bits of resolution. TAANSTAFL, of course, and the datasheet wasn't clear enough for me to ascertain
 // I told you guys WEX Luther was up to no good!!
 
 #if   defined(TCF0)
-  #define _AVR_TCF_COUNT     (1) 
-#else                           
-  #define _AVR_TCF_COUNT     (0) 
-#endif                   
+  #define _AVR_TCF_COUNT     (1)
+#else
+  #define _AVR_TCF_COUNT     (0)
+#endif
 // Will have two waveform outputs in an 8-bit PWM mode; there are also several other modes.
 /*    ___ (@)
-     |.-.|/   Timer B, only with 2 channels, cause it has room or another in the 24-bit field. 
+     |.-.|/   Timer B, only with 2 channels, cause it has room or another in the 24-bit field.
      || |/
      || /|
      ||/||
      || ||
-     ||_||    Do somethi
+     ||_||    Do something?
      '---'
 */
 
