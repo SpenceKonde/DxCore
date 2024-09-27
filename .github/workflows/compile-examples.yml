@@ -95,6 +95,12 @@ jobs:
         - megaavr/libraries/ZCD/examples/Interrupt
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
+        - megaavr/libraries/PTC/examples/mutualcap
+        - megaavr/libraries/PTC/examples/mutualcap_low_power
+        - megaavr/libraries/PTC/examples/self_and_mutual_mix
+        - megaavr/libraries/PTC/examples/selfcap
+        - megaavr/libraries/PTC/examples/selfcap_other_nodes_shield
+        - megaavr/libraries/PTC/examples/selfcap_with_dedicated_shield
       avr-db-series-sketch-paths: |
         - megaavr/libraries/Opamp/examples/Inverting_amplifier
         - megaavr/libraries/Opamp/examples/Inverting_amplifier_with_follower
