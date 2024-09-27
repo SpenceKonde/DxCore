@@ -1,11 +1,11 @@
 # ptc_touch
-An Arduino compatible C library to support the PTC in the AtTiny 1-family as well as the DA family.
+An Arduino compatible C library to support the PTC in the ATtiny 1-family as well as the DA family.
 
 ## Features
 * Ready to use with minimal knowledge of the peripheral, but can still be well configured (options are similar to the "official" library)
 * Supports Mutual-cap and Self-cap (+Shield) sensing technology
 * Supports event-based triggering of conversions, as well as window-compared wake-up from stand-by sleep
-* On AtTiny: Can be suspended to allow the polled use of ADC0's internal channels (ADC0 ISRs are used by the library)
+* On ATtiny: Can be suspended to allow the polled use of ADC0's internal channels (ADC0 ISRs are used by the library)
 * Reduced memory footprint due to CPU specific optimizations compared to the "official" implementation
 
 
