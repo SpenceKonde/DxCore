@@ -1,8 +1,8 @@
 #include <ptc.h>
 /*
  * This example creates four different sensing nodes. of two different types.
- * PA4 and PA5 are the self-cap lines with PB0 acting as shield pin.
- * PA6 and PA7 are the Y-Lines with PB1 acting as the X-line.
+ * PA4 and PA5 are the self-cap lines with PA0 acting as shield pin.
+ * PA6 and PA7 are the Y-Lines with PA1 acting as the X-line.
  * PTC_CB_EVENT_CONV_MUTUAL_CMPL and
  * PTC_CB_EVENT_CONV_SHIELD_CMPL can be used to change the type that is converted.
  * This will create an interlaced conversion, but it is not mandatory to do so.
@@ -16,11 +16,11 @@ cap_sensor_t nodes[4];
 
 void setup() {
   // put your setup code here, to run once:
-  ptc_add_selfcap_node(&nodes[0], PIN_TO_PTC(PIN_PB0), PIN_TO_PTC(PIN_PA4));
-  ptc_add_selfcap_node(&nodes[1], PIN_TO_PTC(PIN_PB0), PIN_TO_PTC(PIN_PA5));
+  ptc_add_selfcap_node(&nodes[0], PIN_TO_PTC(PIN_PA0), PIN_TO_PTC(PIN_PA4));
+  ptc_add_selfcap_node(&nodes[1], PIN_TO_PTC(PIN_PA0), PIN_TO_PTC(PIN_PA5));
 
-  ptc_add_mutualcap_node(&nodes[2], PIN_TO_PTC(PIN_PB1), PIN_TO_PTC(PIN_PA6));
-  ptc_add_mutualcap_node(&nodes[3], PIN_TO_PTC(PIN_PB1), PIN_TO_PTC(PIN_PA7));
+  ptc_add_mutualcap_node(&nodes[2], PIN_TO_PTC(PIN_PA1), PIN_TO_PTC(PIN_PA6));
+  ptc_add_mutualcap_node(&nodes[3], PIN_TO_PTC(PIN_PA1), PIN_TO_PTC(PIN_PA7));
 
   MySerial.begin(115200);
   MySerial.println("Hello World!");
