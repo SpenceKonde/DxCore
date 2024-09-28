@@ -56,13 +56,13 @@ typedef struct PTC_struct {
 #define PRSC_MAX ADC_PRESC_DIV256_gc
 
 #if F_CPU  >= 12000000        // 16 MHz / 16 = 1.0 MHz,  20 MHz / 16 = 1.25 MHz
-  #define PTC_PRESC_DEFAULT   ADC_PRESC_DIV16_gc
+#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV16_gc
 #elif F_CPU  >=  6000000      //  8 MHz /  8 = 1.0 MHz,  10 MHz /  8 = 1.25 MHz
-  #define PTC_PRESC_DEFAULT   ADC_PRESC_DIV8_gc
+#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV8_gc
 #elif F_CPU  >=  3000000      //  4 MHz /  4 = 1.0 MHz,   5 MHz /  4 = 1.25 MHz
-  #define PTC_PRESC_DEFAULT   ADC_PRESC_DIV4_gc
+#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV4_gc
 #else                         //  1 MHz /  2 = 500 kHz - the lowest setting
-  #define PTC_PRESC_DEFAULT   ADC_PRESC_DIV2_gc
+#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV2_gc
 #endif
 
 #elif defined (__PTC_DA__)
@@ -119,24 +119,24 @@ typedef struct PTC_struct {
 #define PRSC_MAX PTC_PRESC_DIV16_gc
 
 #if   F_CPU  <=  400000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV2_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV2_gc
 #elif F_CPU  <=  800000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV4_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV4_gc
 #elif F_CPU  <= 1200000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV6_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV6_gc
 #elif F_CPU  <= 1600000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV8_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV8_gc
 #elif F_CPU  <= 2000000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV10_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV10_gc
 #elif F_CPU  <= 2400000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV12_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV12_gc
 #elif F_CPU  <= 2800000
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV14_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV14_gc
 #else
-  #define PTC_PRESC_DEFAULT   PTC_PRESC_DIV16_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV16_gc
 #endif
 #else
-  #warning "Neither __PTC_Tiny__ nor __PTC_DA__ defined"
+#warning "Neither __PTC_Tiny__ nor __PTC_DA__ defined"
 #endif
 
 
@@ -148,260 +148,260 @@ typedef struct PTC_struct {
 
 #define PIN_TO_PTC(__pin__) (((__pin__) < NUM_TOTAL_PINS ) ? digital_pin_to_ptc_bm[__pin__] : 0x00)
 static const ptc_ch_bm_t digital_pin_to_ptc_bm [] = {
-#if (__PTC_Pincount__ == 6)
+  #if (__PTC_Pincount__ == 6)
   0x01 << 0,  //PA4
-  0x01 << 1,  //PA5
-  0x01 << 2,  //PA6
-  0x01 << 3,  //PA7
-  0x00,       //PB3
-  0x00,       //PB2
-  0x01 << 4,  //PB1
-  0x01 << 5,  //PB0
-  0x00,       //PA1
-  0x00,       //PA2
-  0x00,       //PA3
-  0x00        //PA0
-#elif  (__PTC_Pincount__ == 12)
+       0x01 << 1,  //PA5
+       0x01 << 2,  //PA6
+       0x01 << 3,  //PA7
+       0x00,       //PB3
+       0x00,       //PB2
+       0x01 << 4,  //PB1
+       0x01 << 5,  //PB0
+       0x00,       //PA1
+       0x00,       //PA2
+       0x00,       //PA3
+       0x00        //PA0
+  #elif  (__PTC_Pincount__ == 12)
   0x01 << 0,  // 0  PA4
-  0x01 << 1,  // 1  PA5
-  0x01 << 2,  // 2  PA6
-  0x01 << 3,  // 3  PA7
-  0x01 << 12, // 4  PB5
-  0x01 << 13, // 5  PB4
-  0x00,       // 6  PB3
-  0x00,       // 7  PB2
-  0x01 << 4,  // 8  PB1
-  // Right side, bottom to top
-  0x01 << 5,  // 9  PB0
-  0x01 << 6,  // 10 PC0
-  0x01 << 7,  // 11 PC1
-  0x01 << 8,  // 12 PC2
-  0x01 << 9,  // 13 PC3
-  0x00,       // 14 PA1
-  0x00,       // 15 PA2
-  0x00,       // 16 PA3
-  0x00        // 17 PA0
-#elif  (__PTC_Pincount__ == 14)
+       0x01 << 1,  // 1  PA5
+       0x01 << 2,  // 2  PA6
+       0x01 << 3,  // 3  PA7
+       0x01 << 12, // 4  PB5
+       0x01 << 13, // 5  PB4
+       0x00,       // 6  PB3
+       0x00,       // 7  PB2
+       0x01 << 4,  // 8  PB1
+       // Right side, bottom to top
+       0x01 << 5,  // 9  PB0
+       0x01 << 6,  // 10 PC0
+       0x01 << 7,  // 11 PC1
+       0x01 << 8,  // 12 PC2
+       0x01 << 9,  // 13 PC3
+       0x00,       // 14 PA1
+       0x00,       // 15 PA2
+       0x00,       // 16 PA3
+       0x00        // 17 PA0
+  #elif  (__PTC_Pincount__ == 14)
   0x01 << 0,  // 0  PA4
-  0x01 << 1,  // 1  PA5
-  0x01 << 2,  // 2  PA6
-  0x01 << 3,  // 3  PA7
-  0x00,       // 4  PB7
-  0x00,       // 5  PB6
-  0x01 << 12, // 6  PB5
-  0x01 << 13, // 7  PB4
-  0x00,       // 8  PB3
-  0x00,       // 9  PB2
-  0x01 << 4,  // 10 PB1
-  // Right side, bottom to top
-  0x01 << 5,  // 11 PB0
-  0x01 << 6,  // 12 PC0
-  0x01 << 7,  // 13 PC1
-  0x01 << 8,  // 14 PC2
-  0x01 << 9,  // 15 PC3
-  0x01 << 10, // 16 PC4
-  0x01 << 11, // 17 PC5
-  0x00,       // 18 PA1
-  0x00,       // 19 PA2
-  0x00,       // 20 PA3
-  0x00        // 21 PA0
-#elif  (__PTC_Pincount__ == 18)  // DA (ToDo)
+       0x01 << 1,  // 1  PA5
+       0x01 << 2,  // 2  PA6
+       0x01 << 3,  // 3  PA7
+       0x00,       // 4  PB7
+       0x00,       // 5  PB6
+       0x01 << 12, // 6  PB5
+       0x01 << 13, // 7  PB4
+       0x00,       // 8  PB3
+       0x00,       // 9  PB2
+       0x01 << 4,  // 10 PB1
+       // Right side, bottom to top
+       0x01 << 5,  // 11 PB0
+       0x01 << 6,  // 12 PC0
+       0x01 << 7,  // 13 PC1
+       0x01 << 8,  // 14 PC2
+       0x01 << 9,  // 15 PC3
+       0x01 << 10, // 16 PC4
+       0x01 << 11, // 17 PC5
+       0x00,       // 18 PA1
+       0x00,       // 19 PA2
+       0x00,       // 20 PA3
+       0x00        // 21 PA0
+  #elif  (__PTC_Pincount__ == 18)  // DA (ToDo)
   0x01ULL <<  0,  //  0 PA0
-  0x01ULL <<  1,  //  1 PA1
-  0x01ULL <<  2,  //  2 PA2/SDA
-  0x01ULL <<  3,  //  3 PA3/SCL
-  0x01ULL <<  4,  //  4 PA4/MOSI
-  0x01ULL <<  5,  //  5 PA5/MISO
-  0x01ULL <<  6,  //  6 PA6/SCK
-  0x01ULL <<  7,  //  7 PA7/SS/CLKOUT
-  0x00ULL,        //  8 PC0/USART1_Tx
-  0x00ULL,        //  9 PC1/USART1_Rx
-  0x00ULL,        // 10 PC2
-  0x00ULL,        // 11 PC3
-  0x01ULL << 16,  // 12 PD0/AIN0
-  0x01ULL << 17,  // 13 PD1/AIN1
-  0x01ULL << 18,  // 14 PD2/AIN2
-  0x01ULL << 19,  // 15 PD3/AIN3
-  0x01ULL << 20,  // 16 PD4/AIN4
-  0x01ULL << 21,  // 17 PD5/AIN5
-  0x01ULL << 22,  // 18 PD6/AIN6
-  0x01ULL << 23,  // 19 PD7/AIN7/AREF
-  0x01ULL << 32,  // 20 PF0/USART2_Tx/TOSC1
-  0x01ULL << 33,  // 21 PF1/USART2_Rx/TOSC2
-#elif  (__PTC_Pincount__ == 22)
+          0x01ULL <<  1,  //  1 PA1
+          0x01ULL <<  2,  //  2 PA2/SDA
+          0x01ULL <<  3,  //  3 PA3/SCL
+          0x01ULL <<  4,  //  4 PA4/MOSI
+          0x01ULL <<  5,  //  5 PA5/MISO
+          0x01ULL <<  6,  //  6 PA6/SCK
+          0x01ULL <<  7,  //  7 PA7/SS/CLKOUT
+          0x00ULL,        //  8 PC0/USART1_Tx
+          0x00ULL,        //  9 PC1/USART1_Rx
+          0x00ULL,        // 10 PC2
+          0x00ULL,        // 11 PC3
+          0x01ULL << 16,  // 12 PD0/AIN0
+          0x01ULL << 17,  // 13 PD1/AIN1
+          0x01ULL << 18,  // 14 PD2/AIN2
+          0x01ULL << 19,  // 15 PD3/AIN3
+          0x01ULL << 20,  // 16 PD4/AIN4
+          0x01ULL << 21,  // 17 PD5/AIN5
+          0x01ULL << 22,  // 18 PD6/AIN6
+          0x01ULL << 23,  // 19 PD7/AIN7/AREF
+          0x01ULL << 32,  // 20 PF0/USART2_Tx/TOSC1
+          0x01ULL << 33,  // 21 PF1/USART2_Rx/TOSC2
+  #elif  (__PTC_Pincount__ == 22)
   0x01ULL <<  0,  //  0 PA0
-  0x01ULL <<  1,  //  1 PA1
-  0x01ULL <<  2,  //  2 PA2/SDA
-  0x01ULL <<  3,  //  3 PA3/SCL
-  0x01ULL <<  4,  //  4 PA4/MOSI
-  0x01ULL <<  5,  //  5 PA5/MISO
-  0x01ULL <<  6,  //  6 PA6/SCK
-  0x01ULL <<  7,  //  7 PA7/SS/CLKOUT
-  0x00ULL,        //  8 PC0/USART1_Tx
-  0x00ULL,        //  9 PC1/USART1_Rx
-  0x00ULL,        // 10 PC2
-  0x00ULL,        // 11 PC3
-  0x01ULL << 16,  // 12 PD0/AIN0
-  0x01ULL << 17,  // 13 PD1/AIN1
-  0x01ULL << 18,  // 14 PD2/AIN2
-  0x01ULL << 19,  // 15 PD3/AIN3
-  0x01ULL << 20,  // 16 PD4/AIN4
-  0x01ULL << 21,  // 17 PD5/AIN5
-  0x01ULL << 22,  // 18 PD6/AIN6
-  0x01ULL << 23,  // 19 PD7/AIN7/AREF
-  0x01ULL << 32,  // 20 PF0/USART2_Tx/TOSC1
-  0x01ULL << 33,  // 21 PF1/USART2_Rx/TOSC2
-  0x01ULL << 34,  // 22 PF2/AIN12
-  0x01ULL << 35,  // 23 PF3/AIN13
-  0x01ULL << 36,  // 24 PF4/AIN14/TCB0 PWM
-  0x01ULL << 37,  // 25 PF5/AIN15/TCB1 PWM
-#elif (__PTC_Pincount__ == 32)
+          0x01ULL <<  1,  //  1 PA1
+          0x01ULL <<  2,  //  2 PA2/SDA
+          0x01ULL <<  3,  //  3 PA3/SCL
+          0x01ULL <<  4,  //  4 PA4/MOSI
+          0x01ULL <<  5,  //  5 PA5/MISO
+          0x01ULL <<  6,  //  6 PA6/SCK
+          0x01ULL <<  7,  //  7 PA7/SS/CLKOUT
+          0x00ULL,        //  8 PC0/USART1_Tx
+          0x00ULL,        //  9 PC1/USART1_Rx
+          0x00ULL,        // 10 PC2
+          0x00ULL,        // 11 PC3
+          0x01ULL << 16,  // 12 PD0/AIN0
+          0x01ULL << 17,  // 13 PD1/AIN1
+          0x01ULL << 18,  // 14 PD2/AIN2
+          0x01ULL << 19,  // 15 PD3/AIN3
+          0x01ULL << 20,  // 16 PD4/AIN4
+          0x01ULL << 21,  // 17 PD5/AIN5
+          0x01ULL << 22,  // 18 PD6/AIN6
+          0x01ULL << 23,  // 19 PD7/AIN7/AREF
+          0x01ULL << 32,  // 20 PF0/USART2_Tx/TOSC1
+          0x01ULL << 33,  // 21 PF1/USART2_Rx/TOSC2
+          0x01ULL << 34,  // 22 PF2/AIN12
+          0x01ULL << 35,  // 23 PF3/AIN13
+          0x01ULL << 36,  // 24 PF4/AIN14/TCB0 PWM
+          0x01ULL << 37,  // 25 PF5/AIN15/TCB1 PWM
+  #elif (__PTC_Pincount__ == 32)
   0x01ULL <<  0,  //  0 PA0
-  0x01ULL <<  1,  //  1 PA1
-  0x01ULL <<  2,  //  2 PA2/SDA
-  0x01ULL <<  3,  //  3 PA3/SCL
-  0x01ULL <<  4,  //  4 PA4/MOSI
-  0x01ULL <<  5,  //  5 PA5/MISO
-  0x01ULL <<  6,  //  6 PA6/SCK
-  0x01ULL <<  7,  //  7 PA7/SS/CLKOUT/LED_BUILTIN
-  0x01ULL <<  8,  //  8 PB0/USART3_Tx
-  0x01ULL <<  9,  //  9 PB1/USART3_Rx
-  0x01ULL << 10,  // 10 PB2
-  0x01ULL << 11,  // 11 PB3
-  0x01ULL << 12,  // 12 PB4/(TCB2 PWM)
-  0x01ULL << 13,  // 13 PB5
-  0x00ULL,        // 14 PC0/USART1_Tx
-  0x00ULL,        // 15 PC1/USART1_Rx
-  0x00ULL,        // 16 PC2
-  0x00ULL,        // 17 PC3
-  0x00ULL,        // 18 PC4
-  0x00ULL,        // 19 PC5
-  0x00ULL,        // 20 PC6
-  0x00ULL,        // 21 PC7
-  0x01ULL << 16,  // 22 PD0/AIN0
-  0x01ULL << 17,  // 23 PD1/AIN1
-  0x01ULL << 18,  // 24 PD2/AIN2
-  0x01ULL << 19,  // 25 PD3/AIN3
-  0x01ULL << 20,  // 26 PD4/AIN4
-  0x01ULL << 21,  // 27 PD5/AIN5
-  0x01ULL << 22,  // 28 PD6/AIN6
-  0x01ULL << 23,  // 29 PD7/AIN7/AREF
-  0x01ULL << 24,  // 30 PE0/AIN8
-  0x01ULL << 25,  // 31 PE1/AIN9
-  0x01ULL << 26,  // 32 PE2/AIN10
-  0x01ULL << 27,  // 33 PE3/AIN11
-  0x01ULL << 32,  // 34 PF0/USART2_Tx/TOSC1
-  0x01ULL << 33,  // 35 PF1/USART2_Rx/TOSC2
-  0x01ULL << 34,  // 36 PF2/AIN12
-  0x01ULL << 35,  // 37 PF3/AIN13
-  0x01ULL << 36,  // 38 PF4/AIN14
-  0x01ULL << 37,  // 39 PF5/AIN15
-#elif  (__PTC_Pincount__ == 46)
+          0x01ULL <<  1,  //  1 PA1
+          0x01ULL <<  2,  //  2 PA2/SDA
+          0x01ULL <<  3,  //  3 PA3/SCL
+          0x01ULL <<  4,  //  4 PA4/MOSI
+          0x01ULL <<  5,  //  5 PA5/MISO
+          0x01ULL <<  6,  //  6 PA6/SCK
+          0x01ULL <<  7,  //  7 PA7/SS/CLKOUT/LED_BUILTIN
+          0x01ULL <<  8,  //  8 PB0/USART3_Tx
+          0x01ULL <<  9,  //  9 PB1/USART3_Rx
+          0x01ULL << 10,  // 10 PB2
+          0x01ULL << 11,  // 11 PB3
+          0x01ULL << 12,  // 12 PB4/(TCB2 PWM)
+          0x01ULL << 13,  // 13 PB5
+          0x00ULL,        // 14 PC0/USART1_Tx
+          0x00ULL,        // 15 PC1/USART1_Rx
+          0x00ULL,        // 16 PC2
+          0x00ULL,        // 17 PC3
+          0x00ULL,        // 18 PC4
+          0x00ULL,        // 19 PC5
+          0x00ULL,        // 20 PC6
+          0x00ULL,        // 21 PC7
+          0x01ULL << 16,  // 22 PD0/AIN0
+          0x01ULL << 17,  // 23 PD1/AIN1
+          0x01ULL << 18,  // 24 PD2/AIN2
+          0x01ULL << 19,  // 25 PD3/AIN3
+          0x01ULL << 20,  // 26 PD4/AIN4
+          0x01ULL << 21,  // 27 PD5/AIN5
+          0x01ULL << 22,  // 28 PD6/AIN6
+          0x01ULL << 23,  // 29 PD7/AIN7/AREF
+          0x01ULL << 24,  // 30 PE0/AIN8
+          0x01ULL << 25,  // 31 PE1/AIN9
+          0x01ULL << 26,  // 32 PE2/AIN10
+          0x01ULL << 27,  // 33 PE3/AIN11
+          0x01ULL << 32,  // 34 PF0/USART2_Tx/TOSC1
+          0x01ULL << 33,  // 35 PF1/USART2_Rx/TOSC2
+          0x01ULL << 34,  // 36 PF2/AIN12
+          0x01ULL << 35,  // 37 PF3/AIN13
+          0x01ULL << 36,  // 38 PF4/AIN14
+          0x01ULL << 37,  // 39 PF5/AIN15
+  #elif  (__PTC_Pincount__ == 46)
   0x01ULL <<  0,  //  0 PA0
-  0x01ULL <<  1,  //  1 PA1
-  0x01ULL <<  2,  //  2 PA2/SDA
-  0x01ULL <<  3,  //  3 PA3/SCL
-  0x01ULL <<  4,  //  4 PA4/MOSI
-  0x01ULL <<  5,  //  5 PA5/MISO
-  0x01ULL <<  6,  //  6 PA6/SCK
-  0x01ULL <<  7,  //  7 PA7/SS/CLKOUT/LED_BUILTIN
-  0x01ULL <<  8,  //  8 PB0/USART3_Tx
-  0x01ULL <<  9,  //  9 PB1/USART3_Rx
-  0x01ULL << 10,  // 10 PB2
-  0x01ULL << 11,  // 11 PB3
-  0x01ULL << 12,  // 12 PB4/(TCB2 PWM)
-  0x01ULL << 13,  // 13 PB5
-  0x01ULL << 14,  // 14 PB6
-  0x01ULL << 15,  // 15 PB7
-  0x00ULL,        // 16 PC0/USART1_Tx
-  0x00ULL,        // 17 PC1/USART1_Rx
-  0x00ULL,        // 18 PC2
-  0x00ULL,        // 19 PC3
-  0x00ULL,        // 20 PC4
-  0x00ULL,        // 21 PC5
-  0x00ULL,        // 22 PC6
-  0x00ULL,        // 23 PC7
-  0x01ULL << 16,  // 24 PD0/AIN0
-  0x01ULL << 17,  // 25 PD1/AIN1
-  0x01ULL << 18,  // 26 PD2/AIN2
-  0x01ULL << 19,  // 27 PD3/AIN3
-  0x01ULL << 20,  // 28 PD4/AIN4
-  0x01ULL << 21,  // 29 PD5/AIN5
-  0x01ULL << 22,  // 30 PD6/AIN6
-  0x01ULL << 23,  // 31 PD7/AIN7/AREF
-  0x01ULL << 24,  // 32 PE0/AIN8
-  0x01ULL << 25,  // 33 PE1/AIN9
-  0x01ULL << 26,  // 34 PE2/AIN10
-  0x01ULL << 27,  // 35 PE3/AIN11
-  0x01ULL << 28,  // 36 PE4
-  0x01ULL << 29,  // 37 PE5
-  0x01ULL << 30,  // 38 PE6
-  0x01ULL << 31,  // 39 PE7
-  0x01ULL << 32,  // 40 PF0/USART2_Tx/TOSC1
-  0x01ULL << 33,  // 41 PF1/USART2_Rx/TOSC2
-  0x01ULL << 34,  // 42 PF2/AIN12
-  0x01ULL << 35,  // 43 PF3/AIN13
-  0x01ULL << 36,  // 44 PF4/AIN14
-  0x01ULL << 37,  // 45 PF5/AIN15
-  0x01ULL << 40,  // 46 PG0
-  0x01ULL << 41,  // 47 PG1
-  0x01ULL << 42,  // 48 PG2
-  0x01ULL << 43,  // 49 PG3
-  0x01ULL << 44,  // 50 PG4
-  0x01ULL << 45,  // 51 PG5
-  0x01ULL << 46,  // 52 PG6
-  0x01ULL << 47,  // 53 PG7
-#endif
+          0x01ULL <<  1,  //  1 PA1
+          0x01ULL <<  2,  //  2 PA2/SDA
+          0x01ULL <<  3,  //  3 PA3/SCL
+          0x01ULL <<  4,  //  4 PA4/MOSI
+          0x01ULL <<  5,  //  5 PA5/MISO
+          0x01ULL <<  6,  //  6 PA6/SCK
+          0x01ULL <<  7,  //  7 PA7/SS/CLKOUT/LED_BUILTIN
+          0x01ULL <<  8,  //  8 PB0/USART3_Tx
+          0x01ULL <<  9,  //  9 PB1/USART3_Rx
+          0x01ULL << 10,  // 10 PB2
+          0x01ULL << 11,  // 11 PB3
+          0x01ULL << 12,  // 12 PB4/(TCB2 PWM)
+          0x01ULL << 13,  // 13 PB5
+          0x01ULL << 14,  // 14 PB6
+          0x01ULL << 15,  // 15 PB7
+          0x00ULL,        // 16 PC0/USART1_Tx
+          0x00ULL,        // 17 PC1/USART1_Rx
+          0x00ULL,        // 18 PC2
+          0x00ULL,        // 19 PC3
+          0x00ULL,        // 20 PC4
+          0x00ULL,        // 21 PC5
+          0x00ULL,        // 22 PC6
+          0x00ULL,        // 23 PC7
+          0x01ULL << 16,  // 24 PD0/AIN0
+          0x01ULL << 17,  // 25 PD1/AIN1
+          0x01ULL << 18,  // 26 PD2/AIN2
+          0x01ULL << 19,  // 27 PD3/AIN3
+          0x01ULL << 20,  // 28 PD4/AIN4
+          0x01ULL << 21,  // 29 PD5/AIN5
+          0x01ULL << 22,  // 30 PD6/AIN6
+          0x01ULL << 23,  // 31 PD7/AIN7/AREF
+          0x01ULL << 24,  // 32 PE0/AIN8
+          0x01ULL << 25,  // 33 PE1/AIN9
+          0x01ULL << 26,  // 34 PE2/AIN10
+          0x01ULL << 27,  // 35 PE3/AIN11
+          0x01ULL << 28,  // 36 PE4
+          0x01ULL << 29,  // 37 PE5
+          0x01ULL << 30,  // 38 PE6
+          0x01ULL << 31,  // 39 PE7
+          0x01ULL << 32,  // 40 PF0/USART2_Tx/TOSC1
+          0x01ULL << 33,  // 41 PF1/USART2_Rx/TOSC2
+          0x01ULL << 34,  // 42 PF2/AIN12
+          0x01ULL << 35,  // 43 PF3/AIN13
+          0x01ULL << 36,  // 44 PF4/AIN14
+          0x01ULL << 37,  // 45 PF5/AIN15
+          0x01ULL << 40,  // 46 PG0
+          0x01ULL << 41,  // 47 PG1
+          0x01ULL << 42,  // 48 PG2
+          0x01ULL << 43,  // 49 PG3
+          0x01ULL << 44,  // 50 PG4
+          0x01ULL << 45,  // 51 PG5
+          0x01ULL << 46,  // 52 PG6
+          0x01ULL << 47,  // 53 PG7
+  #endif
 };
 
 
 #if defined (PORTA)
-  #define PORTA_ISC(_pin_)  ((0x20 * 0) + 0x10 + _pin_)
+#define PORTA_ISC(_pin_)  ((0x20 * 0) + 0x10 + _pin_)
 #else
-  #define PORTA_ISC(_pin_)  0x00
+#define PORTA_ISC(_pin_)  0x00
 #endif
 #if defined (PORTB)
-  #define PORTB_ISC(_pin_)  ((0x20 * 1) + 0x10 + _pin_)
+#define PORTB_ISC(_pin_)  ((0x20 * 1) + 0x10 + _pin_)
 #else
-  #define PORTB_ISC(_pin_)  0x00
+#define PORTB_ISC(_pin_)  0x00
 #endif
 #if defined (PORTC)
-  #define PORTC_ISC(_pin_)  ((0x20 * 2) + 0x10 + _pin_)
+#define PORTC_ISC(_pin_)  ((0x20 * 2) + 0x10 + _pin_)
 #else
-  #define PORTC_ISC(_pin_)  0x00
+#define PORTC_ISC(_pin_)  0x00
 #endif
 #if defined (PORTD)
-  #define PORTD_ISC(_pin_)  ((0x20 * 3) + 0x10 + _pin_)
+#define PORTD_ISC(_pin_)  ((0x20 * 3) + 0x10 + _pin_)
 #else
-  #define PORTD_ISC(_pin_)  0x00
+#define PORTD_ISC(_pin_)  0x00
 #endif
 #if defined (PORTE)
-  #define PORTE_ISC(_pin_)  ((0x20 * 4) + 0x10 + _pin_)
+#define PORTE_ISC(_pin_)  ((0x20 * 4) + 0x10 + _pin_)
 #else
-  #define PORTE_ISC(_pin_)  0x00
+#define PORTE_ISC(_pin_)  0x00
 #endif
 #if defined (PORTF)
-  #define PORTF_ISC(_pin_)  ((0x20 * 5) + 0x10 + _pin_)
+#define PORTF_ISC(_pin_)  ((0x20 * 5) + 0x10 + _pin_)
 #else
-  #define PORTF_ISC(_pin_)  0x00
+#define PORTF_ISC(_pin_)  0x00
 #endif
 #if defined (PORTG)
-  #define PORTG_ISC(_pin_)  ((0x20 * 6) + 0x10 + _pin_)
+#define PORTG_ISC(_pin_)  ((0x20 * 6) + 0x10 + _pin_)
 #else
-  #define PORTG_ISC(_pin_)  0x00
+#define PORTG_ISC(_pin_)  0x00
 #endif
 
 
 // lookup-table to quickly disable input and pull-up. PTC_Tiny only
 static const uint8_t ptc_ch_to_pin [] = {
-#if (__PTC_Pincount__ <= 14)
+  #if (__PTC_Pincount__ <= 14)
   PORTA_ISC(4),
   PORTA_ISC(5),
   PORTA_ISC(6),
   PORTA_ISC(7),
   PORTB_ISC(1),   /* X4 / Y4 */
   PORTB_ISC(0),
-#if (__PTC_Pincount__ == 12 || __PTC_Pincount__ == 14)
+  #if (__PTC_Pincount__ == 12 || __PTC_Pincount__ == 14)
   PORTC_ISC(0),
   PORTC_ISC(1),
   PORTC_ISC(2),    /* X8 / Y8 */
@@ -411,8 +411,8 @@ static const uint8_t ptc_ch_to_pin [] = {
 
   PORTB_ISC(5),    /* X12 / Y12 */
   PORTB_ISC(6),
-#endif
-#endif
+  #endif
+  #endif
 };
 
 

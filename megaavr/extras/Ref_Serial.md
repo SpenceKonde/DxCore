@@ -463,7 +463,7 @@ While there's always some dead time between bits, that is usually *very* small, 
 
 ### How bad baud rate calculation used to be
 
-[AVR Baud Rate Accuracy Chart](https://docs.google.com/spreadsheets/d/1uzU_HqWEpK-wQUo4Q7FBZGtHOo_eY4P_BAzmVbKCj6Y/edit?usp=sharing)
+[AVR Baud Rate Accuracy Chart](https://cache.amobbs.com/bbs_upload782111/files_22/ourdev_508497.html)
 
 It was mentioned previously that one of most common places to encounter grossly inaccurate baud rates is classic AVRs. This example illustrates just *how bad* one of the most popular baud rate was on classic AVRs, namely 115200 baud. "Well it says the baud rate can be up to 1/8th the system clock, and I'm running at 8 MHz, no problem" you think "And see, it talks just fine to my other classic AVR". Nope. When you do this, you've dug a big hole, covered it with a tablecloth and waited until the sun went down. Adding a modern AVR or anything with a decent baud rate generator is then taking a late night stroll in the area of that covered hole. You're begging for trouble
 
@@ -488,7 +488,7 @@ The point of this is to demonstrate by example just how large the baud rate erro
 So, **you should all be very, very thankful for the new fractional baud rate generators**, which are responsible for the charts linked below being a sea of sub 1% and mostly 0.1% error for modern AVRs. When there is an apparent baud rate mismatch when a modern AVR is talking to another device, the problem is not the baud rate calculation. It's usually not the oscillator either, which is rarely even 1% off on any modern AVR. No, your problem 9 times out of 10 is going to be that the device you're talking to generating an incorrect baud rate (for classic AVRs, the table lists them; for other devices you can measure it with a scope to see what their actual baud rate is. The path of least resistance (and no scope needed) with such legacy devices is crude but effective. Since the legacy device likely cannot be coerced to produce the correct baud rate, you can instead just nudge the baud rate the modern AVR up or down 2% (whichever fixes it - it's only 2 options to try and one of them will work). Make note that that the legacy devices' baud rate is off, that it should be replaced by newer hardware.
 
 ### Baud rate reference chart
-See the [**AVR Baud Rate Chart**](https://docs.google.com/spreadsheets/d/1uzU_HqWEpK-wQUo4Q7FBZGtHOo_eY4P_BAzmVbKCj6Y/edit?usp=sharing) in google sheets for a table of actual vs requested baud rates. (same chart as linked above)
+See the [**AVR Baud Rate Chart**](https://cache.amobbs.com/bbs_upload782111/files_22/ourdev_508497.html) for a table of actual vs requested baud rates. (same chart as linked above)
 
 ### Final table of this section
 **Total Error vs Data Frame Size**

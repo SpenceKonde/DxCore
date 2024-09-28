@@ -15,7 +15,7 @@ The following data was collected from device pack $pack_info
 from pymcuprog.deviceinfo.eraseflags import ChiperaseEffect
 
 DEVICE_INFO = {
-$device_data    
+$device_data
 }
 '''
 
