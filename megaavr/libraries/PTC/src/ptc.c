@@ -29,10 +29,7 @@ void ptc_process_measurement(cap_sensor_t *node);
 // Handles (initial) calibration
 uint8_t ptc_process_calibrate(cap_sensor_t *node);
 
-// Handles adjustment of the reference value when a button is not pressed
-void ptc_process_adjust();
 
-void ptc_set_registers(cap_sensor_t *node);
 
 
 cap_sensor_t *firstNode = NULL;
@@ -71,21 +68,13 @@ ptc_lib_sm_set_t *ptc_get_sm_settings() {
 
 
 #if defined (__PTC_Tiny__)
-#define PTC_DEFAULT_SC_CC 0x0567
-#define PTC_DEFAULT_MC_CC 0x0234
-
-const uint8_t ptc_a_gain_lut[] = {
-  0x3F, 0x1C, 0x0B,
-  0x05, 0x03, 0x01,
-};
+  #define PTC_DEFAULT_SC_CC 0x0567
+  #define PTC_DEFAULT_MC_CC 0x0234
+  #define PTC_GAIN_BASE     0x003F
 #elif defined (__PTC_DA__)
-#define PTC_DEFAULT_SC_CC 0x00F0
-#define PTC_DEFAULT_MC_CC 0x00A0
-
-const uint8_t ptc_a_gain_lut[] = {
-  0x1F, 0x0F, 0x07,
-  0x03, 0x01
-};
+  #define PTC_DEFAULT_SC_CC 0x00F0
+  #define PTC_DEFAULT_MC_CC 0x00A0
+  #define PTC_GAIN_BASE     0x001F
 #endif
 
 
@@ -113,23 +102,28 @@ uint8_t ptc_node_set_thresholds(cap_sensor_t *node, int16_t th_in, int16_t th_ou
   if (NULL == node) {
     return PTC_LIB_BAD_POINTER;
   }
-  node->touch_in_th = th_in;
-  node->touch_out_th = th_out;
+  if (th_in != 0) {
+    node->touch_in_th = th_in;
+  }
+  if (th_out != 0) {
+    node->touch_out_th = th_out;
+  }
   return PTC_LIB_SUCCESS;
 }
 
 
 // Change Resistor Setting. Note: Only has an effect on mutual sensors
-uint8_t ptc_node_set_resistor(cap_sensor_t *node, uint8_t res) {
+uint8_t ptc_node_set_resistor(cap_sensor_t *node, ptc_rsel_t res) {
   PTC_CHECK_FOR_BAD_POINTER(node);
 
   if (res > RSEL_MAX) {
     return PTC_LIB_BAD_ARGUMENT;
   }
-
+  res &= 0x0F;
+  res <<= 0x04;
   if (node->type & NODE_MUTUAL_bm) {
     uint8_t presc = node->hw_rsel_presc & 0x0F;
-    presc |= ((res & 0x0F) << 4);
+    presc |= res;
     node->hw_rsel_presc = presc;
     return PTC_LIB_SUCCESS;
   }
@@ -139,50 +133,62 @@ uint8_t ptc_node_set_resistor(cap_sensor_t *node, uint8_t res) {
 
 
 // Change prescaler. Recommended ADC frequency: < 1.5MHz, but max 3 factors below
-uint8_t ptc_node_set_prescaler(cap_sensor_t *node, uint8_t presc) {
+uint8_t ptc_node_set_prescaler(cap_sensor_t *node, ptc_presc_t presc) {
   PTC_CHECK_FOR_BAD_POINTER(node);
 
   if ((presc > (PTC_PRESC_DEFAULT + 2)) || (presc < PTC_PRESC_DEFAULT)) {
     return PTC_LIB_BAD_ARGUMENT;
   }
-
+  presc &= 0x0F;
   uint8_t res = node->hw_rsel_presc & 0xF0;
-  res |= (presc & 0x0F);
+  res |= presc;
   node->hw_rsel_presc = res;
   return PTC_LIB_SUCCESS;
 }
 
 
-uint8_t ptc_node_set_gain(cap_sensor_t *node, uint8_t aGain, uint8_t dGain) {
+uint8_t ptc_node_set_gain(cap_sensor_t *node, ptc_gain_t gain) {
   PTC_CHECK_FOR_BAD_POINTER(node);
 
-  #if defined (__PTC_Tiny__)
-  if (aGain > 0x05) {
-    if (__builtin_constant_p(aGain)) {
-      badArg("Analog Gain too high. Max Analog Gain Value is 0x05 (equals 32x)");
+  if (gain >= PTC_GAIN_MAX) {
+    if (__builtin_constant_p(gain)) {
+      badArg("Analog Gain too high. Max Analog Gain Value is 0x3F (Tiny) / 0x1F (DA)");
     }
     return PTC_LIB_BAD_ARGUMENT;
   }
-  #elif defined (__PTC_DA__)
-  if (aGain > 0x04) {
-    if (__builtin_constant_p(aGain)) {
-      badArg("Analog Gain too high. Max Analog Gain Value is 0x04 (equals 16x)");
-    }
-    return PTC_LIB_BAD_ARGUMENT;
-  }
-  #endif
+  gain = PTC_GAIN_MAX - gain;
+  gain <<= 4;
+  uint8_t ovs = node->hw_gain_ovs & 0x0F;
+  node->hw_gain_ovs = gain | ovs;
+  return PTC_LIB_SUCCESS;
+}
 
-  if (dGain > 0x06) {
-    if (__builtin_constant_p(dGain)) {
+uint8_t ptc_node_set_oversamples(cap_sensor_t *node, uint8_t ovs) {
+  PTC_CHECK_FOR_BAD_POINTER(node);
+
+  if (ovs > 0x06) {
+    if (__builtin_constant_p(ovs)) {
       badArg("Digital Gain too high. Max Digital Gain Value is 0x06 (equals 64x)");
     }
     return PTC_LIB_BAD_ARGUMENT;
   }
-  node->hw_a_d_gain = NODE_GAIN(aGain, dGain);
+  uint8_t gain = node->hw_gain_ovs & 0xF0;
+  node->hw_gain_ovs = gain | ovs;
   return PTC_LIB_SUCCESS;
 }
 
+uint8_t ptc_node_set_charge_share_delay(cap_sensor_t *node, uint8_t csd) {
+  PTC_CHECK_FOR_BAD_POINTER(node);
+  if (csd > 15) {
+    if (__builtin_constant_p(csd)) {
+      badArg("Charge Share Delay too high, maximum value is 15");
+    }
+    return PTC_LIB_BAD_ARGUMENT;
+  }
 
+  node->hw_csd = csd;
+  return PTC_LIB_SUCCESS;
+}
 
 /*
  *  Two functions to suspend and resume of the normal PTC operation, however,
@@ -291,7 +297,7 @@ uint8_t ptc_add_node(cap_sensor_t *node, uint8_t *pCh, const uint8_t type) {
   }
   #endif
 
-  node->hw_a_d_gain = NODE_GAIN(0, ADC_SAMPNUM_ACC16_gc);
+  node->hw_gain_ovs = NODE_GAIN(0, ADC_SAMPNUM_ACC16_gc);
 
   if (type & NODE_MUTUAL_bm) {
     node->touch_in_th = 10;
@@ -878,7 +884,7 @@ void ptc_init_conversion(uint8_t nodeType) {
   if (NULL != lowPowerNode) {
     pPTC->INTCTRL = ADC_WCMP_bm;  // Wakeup only above of window
     pPTC->CTRLE = ADC_WINCM_ABOVE_gc;
-    pPTC->WINHT = (lowPowerNode->reference + lowPowerNode->touch_in_th) << (lowPowerNode->hw_a_d_gain & 0x0F);
+    pPTC->WINHT = (lowPowerNode->reference + lowPowerNode->touch_in_th) << (lowPowerNode->hw_gain_ovs & 0x0F);
     ptc_lib_state = PTC_LIB_EVENT;
     ptc_start_conversion(lowPowerNode);
   } else {
@@ -924,7 +930,7 @@ void ptc_init_conversion(uint8_t nodeType) {
   if (NULL != lowPowerNode) {
     pPTC->INTCTRL = ADC_WCMP_bm;  // Wakeup only above of window
     pPTC->CTRLE = ADC_WINCM_ABOVE_gc;
-    pPTC->WINHT = (lowPowerNode->reference + lowPowerNode->touch_in_th) << (lowPowerNode->hw_a_d_gain & 0x0F);
+    pPTC->WINHT = (lowPowerNode->reference + lowPowerNode->touch_in_th) << (lowPowerNode->hw_gain_ovs & 0x0F);
     ptc_lib_state = PTC_LIB_EVENT;
     ptc_start_conversion(lowPowerNode);
   } else {
@@ -952,23 +958,13 @@ void ptc_start_conversion(cap_sensor_t *node) {
 
   currConvNode = node;
 
-  ptc_set_registers(node);
-}
-
-void ptc_set_registers(cap_sensor_t *node) {
   PTC_t *pPTC;
-  _fastPtr_d(node, node);  // Sometimes it takes the compiler a bit more of convincing...
   _fastPtr_d(pPTC, &PTC);
-
-  if (NULL == node) {
-    return;
+  _fastPtr_d(node, node);
+  uint8_t analogGain = PTC_GAIN_MAX;
+  if (node->stateMachine != PTC_SM_NOINIT_CAL) {
+    analogGain = node->hw_gain_ovs / 16;  // A little workaround as >> 4 is kinda broken sometimes.
   }
-
-  uint8_t lut_index = 0;
-  if ((node->state.disabled == 0) && (node->stateMachine != PTC_SM_NOINIT_CAL)) {
-    lut_index = node->hw_a_d_gain / 16;  // A little workaround as >> 4 is kinda broken sometimes.
-  }
-  uint8_t analogGain = ptc_a_gain_lut[lut_index];
 
   uint8_t chargeDelay = node->hw_csd;
 
@@ -988,10 +984,23 @@ void ptc_set_registers(cap_sensor_t *node) {
   pPTC->CTRLP |= 0x03;
 
   #elif defined(__PTC_DA__)
-  memcpy((void *)pPTC->XBM, node->hw_xCh_bm, sizeof(ptc_ch_arr_t));
-  memcpy((void *)pPTC->YBM, node->hw_yCh_bm, sizeof(ptc_ch_arr_t));
+  ((uint8_t *)&pPTC->XBM)[0] = node->hw_xCh_bm[0]; // avoid memcpy to reduce register pressure
+  ((uint8_t *)&pPTC->XBM)[1] = node->hw_xCh_bm[1]; // avoiding memcpy means we can put &PTC
+  ((uint8_t *)&pPTC->XBM)[2] = node->hw_xCh_bm[2]; // and node in the Z/Y-Registers and just use
+  ((uint8_t *)&pPTC->XBM)[3] = node->hw_xCh_bm[3]; // the fast and memory efficient std/ldd instructions
+  ((uint8_t *)&pPTC->XBM)[4] = node->hw_xCh_bm[4];
 
-  if (chargeDelay < 0x7B) {
+  ((uint8_t *)&pPTC->YBM)[0] = node->hw_yCh_bm[0];
+  ((uint8_t *)&pPTC->YBM)[1] = node->hw_yCh_bm[1];
+  ((uint8_t *)&pPTC->YBM)[2] = node->hw_yCh_bm[2];
+  ((uint8_t *)&pPTC->YBM)[3] = node->hw_yCh_bm[3];
+  ((uint8_t *)&pPTC->YBM)[4] = node->hw_yCh_bm[4];
+  #if __PTC_Pincount__ >=   40
+  ((uint8_t *)&pPTC->XBM)[5] = node->hw_xCh_bm[5];
+  ((uint8_t *)&pPTC->YBM)[5] = node->hw_yCh_bm[5];
+  #endif
+
+  if (chargeDelay < 0x1B) {
     chargeDelay += 4;
   } else {
     chargeDelay = 0x1F;
@@ -1014,7 +1023,7 @@ void ptc_set_registers(cap_sensor_t *node) {
 
   pPTC->COMP = node->hw_compCaps;
   pPTC->AGAIN = analogGain;
-  pPTC->CTRLB = node->hw_a_d_gain & 0x0F;
+  pPTC->CTRLB = node->hw_gain_ovs & 0x0F;
   pPTC->RSEL = node->hw_rsel_presc / 16;
 
   pPTC->CTRLA = ADC_RUNSTBY_bm | ADC_ENABLE_bm; /* 0x81 */
@@ -1076,7 +1085,7 @@ void ptc_eoc(void) {
   pPTC->CTRLA = 0x00;
   uint8_t flags = pPTC->INTFLAGS; // save the flags before they get cleared by RES read
   uint16_t rawVal =  pPTC->RES;   // clears ISR flags
-  uint8_t oversampling = pCurrentNode->hw_a_d_gain  & 0x0F;
+  uint8_t oversampling = pCurrentNode->hw_gain_ovs  & 0x0F;
   pCurrentNode->sensorData = rawVal >> oversampling;
 
   //currConvNode->sensorData = pPTC->RES_TRUE;

@@ -97,17 +97,25 @@ void ptc_set_next_conversion_type(ptc_node_type_t type);
 void ptc_process(uint16_t currTime);
 
 
-// Set the threshold for touch detection and away from touch for a node
+// Set the threshold for touch detection and away from touch for a node.
+// a "0" will be interpreted as don't change
 uint8_t ptc_node_set_thresholds(cap_sensor_t *node, int16_t th_in, int16_t th_out);
 
 
 // Change Resistor Setting. Note: Only has an effect on mutual sensors
-uint8_t ptc_node_set_resistor(cap_sensor_t *node, uint8_t res);
+uint8_t ptc_node_set_resistor(cap_sensor_t *node, ptc_rsel_t res);
 
 // Change prescaler.
-uint8_t ptc_node_set_prescaler(cap_sensor_t *node, uint8_t presc);
+uint8_t ptc_node_set_prescaler(cap_sensor_t *node, ptc_presc_t presc);
 
-uint8_t ptc_node_set_gain(cap_sensor_t *node, uint8_t aGain, uint8_t dGain);
+// Sets the gain through adjusting the charge integrator (increases the sensitivity (and noise))
+uint8_t ptc_node_set_gain(cap_sensor_t *node, ptc_gain_t gain);
+
+// Sets the number of oversamples. (the value is right-shifted automatically (reduces noise))
+uint8_t ptc_node_set_oversamples(cap_sensor_t *node, uint8_t ovs);
+
+// Sets the number of additional PTC Clocks for sampling a node. See also: ADC.SAMPCTRL
+uint8_t ptc_node_set_charge_share_delay(cap_sensor_t *node, uint8_t csd);
 
 // this is an internal function, there is no sense in calling it directly
 uint8_t ptc_add_node(cap_sensor_t *node, uint8_t *pCh, const uint8_t type);

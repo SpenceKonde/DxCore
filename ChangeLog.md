@@ -1,5 +1,5 @@
 # Changelog
-This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of megaTinyCore. Note that this document is maintained by a human, who is - by nature - imperfect (this is also why there are so many bugs to fix); sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare. Change descriptions may be incomplete or unclear; this is not meant to be an indepth reference.
+This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of DxCore. Note that this document is maintained by a human, who is - by nature - imperfect (this is also why there are so many bugs to fix); sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare. Change descriptions may be incomplete or unclear; this is not meant to be an indepth reference.
 
 ## Planned changes not yet implemented
 These items are in addition to what was listed under changes already in release.
@@ -10,12 +10,13 @@ These items are in addition to what was listed under changes already in release.
 * Bugfix: Make serialupdi work with EA.
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
-* Ensure libraries in sync with DxCore.
+* Ensure libraries in sync with megaTinyCore.
 
 ## Planned changes implemented in github
 These are typically planned for release in a future version (usually the next one) as noted.
 * Update - was not gods of C, it was a gang of rogue peripherals. After being held captive and tortured by WEX Luther and his cronies, core developer has escaped said malicious preipherals. While held captive, my computer and equipment were sabotaged by their henchmen. Particular care in restraining WEX Luther to be taken to ensure that end users do not face such attacks.
 * Add support for not-yet-announced S class DA-series parts, which are identical but for having the new EB-series lockdown thingie. There are no changes needed.
+* Support for the PTC peripheral on DA parts
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)

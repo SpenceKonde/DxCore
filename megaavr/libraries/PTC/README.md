@@ -122,13 +122,17 @@ Different pins have a different parasitic capacitance. I suspect this is depends
 ### Tuning of nodes
 
 In order to ease the use of the PTC module, the ptc_add_* functions will initialize the cap_sensor_t struct with some default values, like the CC value mentioned above. That values can be easily changed and will be applied the next time a conversion of said node starts. Here is a list:
-- Analog Gain. Increases the sensitivity of the electrode by adjusting a capacitor on a integrator (I think) (1x Gain)
-- Digital Gain. Defines the amount of ADC Oversampling. Will not affect the count value, as it is internally right-shifted. (16x Oversampled)
-- Charge Share Delay. Affects the Sample length of the ADC. (0 extra clocks)
-- Prescaler. It is possible to slow down the ADC clock by adjusting the Prescaler. (Depends on CPU clock, targeted: 1MHz +/- 25%)
-- Serial Resistor. Allows to change the serial resistor between the Cc and the node. Fixed at 100k for Self-Cap. Creates RC-low-pass filter.
+- `uint8_t ptc_node_set_gain(cap_sensor_t *node, ptc_gain_t gain)`. Increases the sensitivity of the electrode by adjusting a capacitor on the integrator (I think). Defaults to 1x Gain.
+  - Valid values are: `PTC_GAIN_1`, `PTC_GAIN_2`, `PTC_GAIN_4`, `PTC_GAIN_8`, `PTC_GAIN_16`, `PTC_GAIN_32` (Tiny only).
+- `uint8_t ptc_node_set_oversamples(cap_sensor_t *node, uint8_t ovs)`. Defines the amount of ADC Oversampling. Will not affect the count value, as it is internally right-shifted. Valid values are in the range from 0 to 6 resulting in 1x, 2x, 4x, 8x, 16x, 32x, 64x oversampling. Defaults to 16x.
+- `uint8_t ptc_node_set_charge_share_delay(cap_sensor_t *node, uint8_t csd)`. Affects the Sample length of the ADC. This does pretty much the same thing as ADC.SAMPCTRL register. Valid range is from 0 to 31. Defaults to 0 extra clocks.
+- `uint8_t ptc_node_set_prescaler(cap_sensor_t *node, ptc_presc_t presc)`. It is possible to slow down the ADC/PTC clock by adjusting the Prescaler. The ADC/PTC Clock should be between 1 and 2 MHz. The library calculates the default based on F_CPU.
+  - Valid values for Tiny are: `PTC_PRESC_DIV2_gc`, `PTC_PRESC_DIV4_gc`, `PTC_PRESC_DIV8_gc`, `PTC_PRESC_DIV16_gc`, `PTC_PRESC_DIV32_gc`, `PTC_PRESC_DIV64_gc`, `PTC_PRESC_DIV128_gc`, `PTC_PRESC_DIV256_gc`.
+  - Valid values for DA are: `PTC_PRESC_DIV2_gc`, `PTC_PRESC_DIV4_gc`, `PTC_PRESC_DIV6_gc`, `PTC_PRESC_DIV8_gc`, `PTC_PRESC_DIV10_gc`, `PTC_PRESC_DIV12_gc`, `PTC_PRESC_DIV14_gc`,  `PTC_PRESC_DIV16_gc`.
+- `uint8_t ptc_node_set_resistor(cap_sensor_t *node, ptc_rsel_t res)`. Allows to change the serial resistor between the Cc and the node. Fixed at 100k for Self-Cap. Defaults to 50k for Mutual-Cap.
+  - Valid Values are: `RSEL_VAL_0`, `RSEL_VAL_20`, `RSEL_VAL_50`, `RSEL_VAL_70`, `RSEL_VAL_80` (DA only), `RSEL_VAL_100`, `RSEL_VAL_120` (DA only), `RSEL_VAL_200`.
 
-If a node is not sensitive enough, you can increase the Analog Gain (if it becomes too sensitive, an increase of the thresholds might be needed). However it is better to have a bigger node to begin with because the bigger the area, the higher is the capacitance delta.
+If a node is not sensitive enough, you can increase the Analog Gain (if it becomes too sensitive, an increase of the thresholds might be needed). However it is better to have a bigger electrode to begin with because the bigger the area, the higher is the capacitance delta.
 
 ### Global settings of the State-machine
 The state-machine, which changes the node's state between Calibration, touch, no touch, etc. uses some variables that are valid for all nodes, those are:

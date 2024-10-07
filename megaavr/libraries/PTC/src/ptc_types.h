@@ -90,8 +90,8 @@ typedef enum PTC_PRESC_enum {
   PTC_PRESC_DIV32_gc  = (0x04 << 0), /* CLK_PER divided by 32 */
   PTC_PRESC_DIV64_gc  = (0x05 << 0), /* CLK_PER divided by 64 */
   PTC_PRESC_DIV128_gc = (0x06 << 0), /* CLK_PER divided by 128 */
-  PTC_PRESC_DIV256_gc = (0x07 << 0) /* CLK_PER divided by 256 */
-} PTC_PRESC_t;
+  PTC_PRESC_DIV256_gc = (0x07 << 0), /* CLK_PER divided by 256 */
+} ptc_presc_t;
 
 typedef enum PTC_RSEL_enum {
   RSEL_VAL_0,
@@ -100,7 +100,18 @@ typedef enum PTC_RSEL_enum {
   RSEL_VAL_70,
   RSEL_VAL_100,
   RSEL_VAL_200
-} PTC_RSEL_t;
+} ptc_rsel_t;
+
+typedef enum ptc_gain_enum {
+  PTC_GAIN_1            = 0x00,
+  PTC_GAIN_2            = 0x23,
+  PTC_GAIN_4            = 0x34,
+  PTC_GAIN_8            = 0x3A,
+  PTC_GAIN_16           = 0x3C,
+  PTC_GAIN_32           = 0x3E,
+  PTC_GAIN_MAX          = 0x3F,
+} ptc_gain_t;
+
 #elif defined (__PTC_DA__)
 typedef enum PTC_PRESC_enum {
   PTC_PRESC_DIV2_gc   = (0x00 << 0), /* CLK_PER divided by 2 */
@@ -111,7 +122,7 @@ typedef enum PTC_PRESC_enum {
   PTC_PRESC_DIV12_gc  = (0x05 << 0), /* CLK_PER divided by 8 */
   PTC_PRESC_DIV14_gc  = (0x06 << 0), /* CLK_PER divided by 8 */
   PTC_PRESC_DIV16_gc  = (0x07 << 0), /* CLK_PER divided by 16 */
-} PTC_PRESC_t;
+} ptc_presc_t;
 
 typedef enum tag_rsel_val_t {
   RSEL_VAL_0,
@@ -122,7 +133,16 @@ typedef enum tag_rsel_val_t {
   RSEL_VAL_100,
   RSEL_VAL_120,
   RSEL_VAL_200
-} PTC_RSEL_t;
+} ptc_rsel_t;
+
+typedef enum ptc_gain_enum {
+  PTC_GAIN_1            = 0x00,
+  PTC_GAIN_2            = 0x10,
+  PTC_GAIN_4            = 0x18,
+  PTC_GAIN_8            = 0x1C,
+  PTC_GAIN_16           = 0x1E,
+  PTC_GAIN_MAX          = 0x1F,
+} ptc_gain_t;
 #endif
 
 typedef struct ptc_node_state_type {
@@ -220,7 +240,7 @@ typedef struct cap_sensor_type {
   ptc_ch_arr_t hw_yCh_bm;   // do not separate them or change order.
   uint16_t hw_compCaps;      // [13:12] rough; [11:8] course; [7:4] fine; [3:0] accurate (on Tinies only)
   uint8_t  hw_rsel_presc;    // [7:4] RSEL, [3:0] PRESC
-  uint8_t  hw_a_d_gain;      // [7:4] Analog Gain, [3:0] Digital Gain  /* PTC_AGAIN / CTRLB.SAMPNUM */
+  uint8_t  hw_gain_ovs;      // [7:4] Analog Gain, [3:0] Oversampling  /* PTC_AGAIN / CTRLB.SAMPNUM */
   uint8_t  hw_csd;           // [4:0] Charge Share Delay /* SAMPLEN in SAMPCTRL */
 
   ptc_node_state_t state;

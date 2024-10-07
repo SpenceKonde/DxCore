@@ -56,13 +56,13 @@ typedef struct PTC_struct {
 #define PRSC_MAX ADC_PRESC_DIV256_gc
 
 #if F_CPU  >= 12000000        // 16 MHz / 16 = 1.0 MHz,  20 MHz / 16 = 1.25 MHz
-#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV16_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV16_gc
 #elif F_CPU  >=  6000000      //  8 MHz /  8 = 1.0 MHz,  10 MHz /  8 = 1.25 MHz
-#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV8_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV8_gc
 #elif F_CPU  >=  3000000      //  4 MHz /  4 = 1.0 MHz,   5 MHz /  4 = 1.25 MHz
-#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV4_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV4_gc
 #else                         //  1 MHz /  2 = 500 kHz - the lowest setting
-#define PTC_PRESC_DEFAULT   ADC_PRESC_DIV2_gc
+#define PTC_PRESC_DEFAULT   PTC_PRESC_DIV2_gc
 #endif
 
 #elif defined (__PTC_DA__)
