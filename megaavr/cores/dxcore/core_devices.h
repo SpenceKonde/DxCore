@@ -809,22 +809,10 @@
 #define ERRATA_DOES_NOT_APPLY           (0)
 
 #define checkErrata(errata)  (errata == ERRATA_DOES_NOT_APPLY ? ERRATA_DOES_NOT_APPLY : (errata==ERRATA_IRREL ? ERRATA_DOES_NOT_APPLY :  (errata > SYSCFG_REVID ? ERRATA_DOES_APPLY : ERRATA_DOES_NOT_APPLY)))
+/* YARGH! **NOT** **A** **COMPILETIME** **TEST** */
+/* You can't control #defines with it. 
 
-
-/* When they're fixed, we'll replace these with a macro to check REVID and return 1 or 0 appropriately.    */
-/* aaahahahah! Sorry...
-... I meant, *if* they're ever fixed.
-
-Highly unlikely events come in groups, so if they get fixed, maybe put on a jacket or something as a precaution....
-just in case a pig coming in for a landing collides with you on your way to claim your lottery jackpot, killing you...
-And if in that unlikely event, contrary to your expectations, you end up in hell, yet find, instead of fire and brimstone there's just ice as far as you
-can see, the jacket will make etenal damnation to a frozen-over hell a bit less miserable.
-
-That's how pessimistic I am left feeling about the prospects for errata fixes by this point
-*/
-
-/* Okay, so what is all of this relevant errata?
- * Uhm, okay, why don't you take a seat, we're gonna be here a while */
+DB silicon with die rev 0x11 is available. 
 
  /* See Ref_Errata.md in the documentation, and the official errata document for more information.
 // The 128DA had a few unique and nasty ones. */
@@ -863,8 +851,8 @@ That's how pessimistic I am left feeling about the prospects for errata fixes by
 
 // And both DA and DB had a whole slew of issues
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
-  #define ERRATA_TCD_PORTMUX             (1) // *thud* *thud* *thud* - the sound of an embedded developer banging his head on the desk leaving a dent.
-  #define ERRATA_DAC_DRIFT               (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it, but too much for them to be comfortable sharing any numbers.
+  #define ERRATA_TCD_PORTMUX             (1) // One of the most irritating erratums
+  #define ERRATA_DAC_DRIFT               (1) // How much drift? I dunno - enough for Microchip to feel a need to add an erratum about it.
   #define ERRATA_TCA_RESTART             (1) // Is resets the direction, like the datasheet said. Appaently both the documentation and the silicon were wrong, it's not supposed to.
   #define ERRATA_CCL_PROTECTION          (1) // Busted on all pre-DD parts
   #define ERRATA_TCD_ASYNC_COUNTPSC      (1) // Busted on all pre-DD parts

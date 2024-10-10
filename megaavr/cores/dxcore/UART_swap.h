@@ -70,7 +70,7 @@
     // This is a MUCH simpler case - swap is trivial on those.
     #define HWSERIAL_MUX_TINY
   #else
-    #error "This part is unsupported, or there is a bug in the core or a problem with your toolchain."
+    #error "This part is unsupported, or there is a bug in the core or a problem with your toolchain. A USART struct exists, but cannot find registers that should be there. This can't happen - something is wrong"
   #endif
 
   /* Okay, now we know what the mux register is, and whether it's a tiny-like mux or a Dx-like one. */
@@ -92,7 +92,7 @@
         #error "Only one USART, but this is a core for modern AVRs, and it's NOT a tinyAVR 0/1 or EB-series. Something is wrong!"
         // #warning "Only one USART, but this is not a tinyAVR. Something is wrong!"
       #else
-        #error "No USARTs detected, all supported parts have at least 2, something is wrong!"
+        #error "No USARTs detected, all supported parts have one or more - and this is a cant-happen anywauy. Something is wrong!"
       #endif
     #endif
   #endif

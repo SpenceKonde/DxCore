@@ -127,9 +127,9 @@ menu.bootloader-class=Bootloader type (installed by burn + must match 2 upload)
 avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
-#avrdu.name=AVR DU-series (no bootloader)
+avrdu.name=AVR DU-series (no bootloader)
 avrea.name=AVR EA-series (no bootloader)
-#avreb.name=AVR EB-series (no bootloader)
+avreb.name=AVR EB-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
 avrddopti.name=AVR DD-series (Optiboot)
@@ -253,6 +253,27 @@ avrda.menu.chip.avr32da48.build.mcu=avr32da48
 avrda.menu.chip.avr32da48.upload.maximum_size=32768
 avrda.menu.chip.avr32da48.upload.maximum_data_size=4096
 avrda.menu.chip.avr32da48.build.variant=48pin-standard
+
+avrda.menu.chip.avr128da28s=AVR128DA28S
+avrda.menu.chip.avr128da28s.build.mcu=avr128da28
+avrda.menu.chip.avr128da28s.upload.maximum_size=131072
+avrda.menu.chip.avr128da28s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da28s.build.variant=28pin-standard
+avrda.menu.chip.avr128da32s=AVR128DA32S
+avrda.menu.chip.avr128da32s.build.mcu=avr128da32
+avrda.menu.chip.avr128da32s.upload.maximum_size=131072
+avrda.menu.chip.avr128da32s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da32s.build.variant=32pin-standard
+avrda.menu.chip.avr128da48s=AVR128DA48S
+avrda.menu.chip.avr128da48s.build.mcu=avr128da48
+avrda.menu.chip.avr128da48s.upload.maximum_size=131072
+avrda.menu.chip.avr128da48s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da48s.build.variant=48pin-standard
+avrda.menu.chip.avr128da64s=AVR128DA64S
+avrda.menu.chip.avr128da64s.build.mcu=avr128da64
+avrda.menu.chip.avr128da64s.upload.maximum_size=131072
+avrda.menu.chip.avr128da64s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da64s.build.variant=64pin-standard
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -1937,43 +1958,43 @@ avrea.menu.wiremode.mands.build.wireabr=.wA
 #         SPM from app mode           #
 # To enable writing flash from app    #
 #_____________________________________#
-avrea.menu.appspm.no=Disabled (Always use this - Other options UNSUPPORTED on EA!)
+avrea.menu.appspm.no=Disabled (SPM write from app is not yet supported)
 avrea.menu.appspm.no.bootloader.appspm=
 avrea.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avrea.menu.appspm.no.build.appspmabr=
-avrea.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
-avrea.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
-avrea.menu.appspm.full.build.appspmabr=.spmALL
-avrea.menu.appspm.8plus=Above 8k (meant for 16k parts)
-avrea.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=32
-avrea.menu.appspm.8plus.bootloader.CODESIZE=32
-avrea.menu.appspm.12plus=Above 12k (meant for 16k parts)
-avrea.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=48
-avrea.menu.appspm.12plus.bootloader.CODESIZE=48
-avrea.menu.appspm.14plus=Above 14k (meant for 16k parts)
-avrea.menu.appspm.14plus.bootloader.appspm=-DSPM_FROM_APP=56
-avrea.menu.appspm.14plus.bootloader.CODESIZE=56
-avrea.menu.appspm.16plus=Above 16k (AVR64/32 only, meant for 32k parts)
-avrea.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=64
-avrea.menu.appspm.16plus.bootloader.CODESIZE=64
-avrea.menu.appspm.24plus=Above 24k (AVR64/32 only, meant for 32k parts)
-avrea.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=96
-avrea.menu.appspm.24plus.bootloader.CODESIZE=96
-avrea.menu.appspm.28plus=Above 28k (AVR64/32 only, meant for 32k parts)
-avrea.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=112
-avrea.menu.appspm.28plus.bootloader.CODESIZE=112
-avrea.menu.appspm.32plus=Above 32k (AVR64 only)
-avrea.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=128
-avrea.menu.appspm.32plus.bootloader.CODESIZE=128
-avrea.menu.appspm.48plus=Above 48k (AVR64 only)
-avrea.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=192
-avrea.menu.appspm.48plus.bootloader.CODESIZE=192
-avrea.menu.appspm.56plus=Above 56k (AVR64 only)
-avrea.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=224
-avrea.menu.appspm.56plus.bootloader.CODESIZE=224
-avrea.menu.appspm.60plus=Above 60k (AVR64 only)
-avrea.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=240
-avrea.menu.appspm.60plus.bootloader.CODESIZE=240
+#avrea.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
+#avrea.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
+#avrea.menu.appspm.full.build.appspmabr=.spmALL
+#avrea.menu.appspm.8plus=Above 8k (meant for 16k parts)
+#avrea.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=32
+#avrea.menu.appspm.8plus.bootloader.CODESIZE=32
+#avrea.menu.appspm.12plus=Above 12k (meant for 16k parts)
+#avrea.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=48
+#avrea.menu.appspm.12plus.bootloader.CODESIZE=48
+#avrea.menu.appspm.14plus=Above 14k (meant for 16k parts)
+#avrea.menu.appspm.14plus.bootloader.appspm=-DSPM_FROM_APP=56
+#avrea.menu.appspm.14plus.bootloader.CODESIZE=56
+#avrea.menu.appspm.16plus=Above 16k (AVR64/32 only, meant for 32k parts)
+#avrea.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=64
+#avrea.menu.appspm.16plus.bootloader.CODESIZE=64
+#avrea.menu.appspm.24plus=Above 24k (AVR64/32 only, meant for 32k parts)
+#avrea.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=96
+#avrea.menu.appspm.24plus.bootloader.CODESIZE=96
+#avrea.menu.appspm.28plus=Above 28k (AVR64/32 only, meant for 32k parts)
+#avrea.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=112
+#avrea.menu.appspm.28plus.bootloader.CODESIZE=112
+#avrea.menu.appspm.32plus=Above 32k (AVR64 only)
+#avrea.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=128
+#avrea.menu.appspm.32plus.bootloader.CODESIZE=128
+#avrea.menu.appspm.48plus=Above 48k (AVR64 only)
+#avrea.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=192
+#avrea.menu.appspm.48plus.bootloader.CODESIZE=192
+#avrea.menu.appspm.56plus=Above 56k (AVR64 only)
+#avrea.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=224
+#avrea.menu.appspm.56plus.bootloader.CODESIZE=224
+#avrea.menu.appspm.60plus=Above 60k (AVR64 only)
+#avrea.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=240
+#avrea.menu.appspm.60plus.bootloader.CODESIZE=240
 
 #----------------------------------------#
 # WDT MODE                               #
@@ -3593,6 +3614,7 @@ avrddopti.menu.flmap.locksection0.build.flmapopts=-DLOCK_FLMAP -DFLMAPSECTION0
 avrddopti.menu.flmap.lockdefault.build.flmapabr=.fld
 avrddopti.menu.flmap.unlocked.build.flmapabr=.ful
 avrddopti.menu.flmap.locksection0.build.flmapabr=.fl0
+
 
 ##########################################################################
 #                                                                        #
