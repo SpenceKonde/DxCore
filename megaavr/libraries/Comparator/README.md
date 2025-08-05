@@ -141,6 +141,7 @@ comparator::ref::vref_2v500;  // 2.5V internal reference (compatibility)
 comparator::ref::vref_4v34;   // This is what we used in the past, but now Microchip calls it 4.3.
 ```
 Note the absence of vref_vdd. The dac/ac reference voltages do not have that option on these parts.
+
 #### Accepted values on tinyAVR 2-series
 ``` c++
 comparator::ref::disable;    // Do not use any reference
@@ -149,7 +150,13 @@ comparator::ref::vref_2v048;   // 2.048 (2.05) V
 comparator::ref::vref_2v500;   // 2.5V
 comparator::ref::vref_4v096;   // 4.096V (4.10) V
 comparator::ref::vref_vdd;     // VDD as reference
+comparator::ref::vref_1v0;     // Alias of vref_1v024
+comparator::ref::vref_2v0;     // Alias of vref_2v048
+comparator::ref::vref_2v1;     // Alias of vref_2v048
+comparator::ref::vref_2v5;     // Alias of vref_2v500
+comparator::ref::vref_4v1;     // Alias of vref_4v096
 ```
+
 #### Accepted values on Dx/Ex
 ``` c++
 comparator::ref::disable;    // Do not use any reference
@@ -159,15 +166,11 @@ comparator::ref::vref_2v500;   // 2.5V
 comparator::ref::vref_4v096;   // 4.096V (4.10) V
 comparator::ref::vref_vdd;     // VDD as reference
 comparator::ref::vref_vrefa;   // ExtrernaL voltage reference
-```
-
-#### Aliases accepted on both Dx/Ex and Tiny2
-```c++
-comparator::ref::vref_1v0;     // Alias
-comparator::ref::vref_2v0;     // Alias
-comparator::ref::vref_2V1;     // Alias
-comparator::ref::vref_2v5;     // Alias
-comparator::ref::vref_4v1;     // Alias
+comparator::ref::vref_1v0;     // Alias of vref_1v024
+comparator::ref::vref_2v0;     // Alias of vref_2v048
+comparator::ref::vref_2v1;     // Alias of vref_2v048
+comparator::ref::vref_2v5;     // Alias of vref_2v500
+comparator::ref::vref_4v1;     // Alias of vref_4v096
 ```
 
 #### Usage
@@ -178,13 +181,13 @@ Comparator.reference = comparator::ref::vref_4v096;  // Use the internal 4.096V 
 #### Default state
 `Comparator.reference` defaults to `comparator::ref::disable` if not specified in the user program.
 
-### dacref
+### dacref (not available on tinyAVR 0-series)
 This property configures the DACREF value - this voltage can be selected as the input for the negative side of the comparator. This is essentially an 8-bit DAC that can only be used as the AC negative input. It is calculated as:
 
 <img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
 
 Or, in words, the the voltage from ACn.DACREF is that many 256th's of the reference voltage
-*(it does not appear to be `ACn.DACREF + 1` 256'ths interestingly enough, which is what one would expect, and would be strictly speaking slightly better) -SK*
+*(it does not appear to be `ACn.DACREF + 1` 256'ths, interestingly enough - which is what one would expect, and would be strictly speaking slightly better) -SK*
 
 #### Usage
 ``` c++
@@ -261,7 +264,7 @@ Comparator.output_swap = comparator::out::no_swap; // No pin swap for output
 
 
 ### output_initval
-When the comparator is initialized, the pin is set to this state until the comparator has output available. To prevent a glitch during initialization, set this to what you expect it to initially output.
+When the comparator is initialized, the pin is set to this state until the comparator has output available. To prevent a glitch during initialization, set this to what you expect it to initially output. Alternately, this can be
 Accepted values:
 ```c++
 comparator::out::init_low;  // Output pin low after initialization
@@ -403,6 +406,117 @@ MyComparator.start();   // Enable the comparator
 enterStandbySleep();  // enter standby sleep mode until the comparator interrupt fires, waking it up.
 ```
 
+## Appendix: Pin chart ordered by AC number
+
+PIN    | Mega AC0 | DA/DB AC0 |  DD AC0  |  EA AC0  | EB AC0  | DA/DB AC1 |  EA AC1  | EB AC1  | DA/DB AC2 |
+-------|----------|-----------|----------|----------|---------|-----------|----------|---------|-----------|
+IN P0# | PIN_PD2  |  PIN_PD2  | PIN_PD2* | PIN_PD2  | PIN_PD2 |  PIN_PD2  | PIN_PD2  | PIN_PD2 |  PIN_PD2  |
+IN P1  | PIN_PD4  |  PIN_PE0* |   n/a    | PIN_PE0* |   n/a   |  PIN_PD3  | PIN_PD3  | PIN_PD3 |  PIN_PD4  |
+IN P2  | PIN_PD6  |  PIN_PE2* |   n/a    | PIN_PE2* |   n/a   |  PIN_PD4  | PIN_PD4  | PIN_PD4 |  PIN_PE1* |
+IN P3# |   n/a    |  PIN_PD6  | PIN_PD6  | PIN_PD6  | PIN_PD6 |  PIN_PD6  | PIN_PD6  | PIN_PD6 |  PIN_PD6  |
+IN P4= | PIN_PD1  |    n/a    | PIN_PC3! | PIN_PC3  | PIN_PC3 |    n/a    | PIN_PC3  | PIN_PC3 |    n/a    |
+IN P5  |   n/a    |    n/a    |   n/a    |   n/a    | PIN_PD4 |    n/a    |    n/a   | PIN_PA6 |    n/a    |
+IN P6  |   n/a    |    n/a    |   n/a    |   n/a    | PIN_PD5 |    n/a    |    n/a   | PIN_PA7 |    n/a    |
+IN N0  | PIN_PD3  |  PIN_PD3  | PIN_PD3* | PIN_PD3  | PIN_PD3 |  PIN_PD5  | PIN_PD5  | PIN_PD5 |  PIN_PD7  |
+IN N1# | PIN_PD5  |  PIN_PD0* |   n/a    | PIN_PD0  | PIN_PD0 |  PIN_PD0* | PIN_PD0  | PIN_PD0 |  PIN_PD0* |
+IN N2# | PIN_PD7  |  PIN_PD7  | PIN_PD7  | PIN_PD7  | PIN_PD7 |  PIN_PD7  | PIN_PD7  | PIN_PD7 |  PIN_PD7  |
+IN N3= |   n/a    |    n/a    | PIN_PC2! | PIN_PC2  | PIN_PC2 |    n/a    | PIN_PC2  | PIN_PC2 |    n/a    |
+OUT    | PIN_PA7  |  PIN_PA7  | PIN_PA7* | PIN_PA7  | PIN_PA7 |  PIN_PA7  | PIN_PA7  | PIN_PA7 |  PIN_PA7  |
+AltOUT |   n/a    |  PIN_PC6* |   n/a    | PIN_PC6* |   n/a   |  PIN_PC6* | PIN_PC6* |   n/a   |  PIN_PC6* |
+
+This highights the consistent pin options for any given comparator across the DA-series and later parts, and shows that the mega0 the clear odd-part-out.
+
+The tinyAVR pinout, of course, has little in common with the full-size parts:
+
+|  PIN  |  8-pin  |0/1-series AC0|2-series AC0|1+series AC0|1+series AC1|1+series AC2|
+|-------|---------|--------------|------------|------------|------------|------------|
+|IN P0  | PIN_PA7 |     PIN_PA7  |   PIN_PA7  |   PIN_PA7  |   PIN_PA7  |   PIN_PA6  |
+|IN P1  |   n/a   |     PIN_PB5* |   PIN_PB5* |   PIN_PB5* |   PIN_PB6* |   PIN_PB0  |
+|IN P2  |   n/a   |       n/a    |   PIN_PB1  |   PIN_PB1  |   PIN_PB0  |   PIN_PB5* |
+|IN P3  |   n/a   |       n/a    |   PIN_PB6* |   PIN_PB6* |   PIN_PB4* |   PIN_PB7* |
+|IN N0  | PIN_PA6 |     PIN_PA6  |   PIN_PA6  |   PIN_PA6  |   PIN_PA5  |   PIN_PA7  |
+|IN N1  |   n/a   |     PIN_PB4* |   PIN_PB4* |   PIN_PB4* |   PIN_PB7* |   PIN_PB6* |
+|IN N2  |   n/a   |       n/a    |   PIN_PB0  |     n/a    |     n/a    |     n/a    |
+|OUT    | PIN_PA3 |     PIN_PA5  |   PIN_PA5  |   PIN_PA5  |   PIN_PB3  |   PIN_PB2  |
+
+
 ## *Future development*
-*shouldn't LP_MODE/PROFILE and RUNSTBY be properties, and treated like everything else? Why **aren't** they? I would imagine that wanting to wake on the AC int would be one of the most common uses of that interrupt.
-They certainly **want** to be properties and it would make the library more coherent. But it would come at a 4-8 bytes of flash (unsure if per comparator or total) and 1 or 2 bytes of ram per comparator, depending on implementation details. Probably wouldn't be popular with people on 212's, but that's a pretty small overhead considering the general level of bloat introduced by classy wrappers around peripherals like Logic, Comparator and Opamp). Maybe a new optional argument to start it in low power, low power - run standby, and run standby (correspondingly more options on DxCore of course). Because how often are you going to be changing the mode once you've turned it on? That's an odd use case (and in any case, the intuitive solution of calling start with a different argument to change it would behave as expected. By passing as the argument the value to be written to the CTRLA register it would have almost no overhead, too. -SK
+*shouldn't LP_MODE/PROFILE and RUNSTBY be properties, and treated like everything else? Why **aren't** they? I would imagine that wanting to wake on the AC int would be one of the most common uses of that interrupt.*
+
+*They certainly **want** to be properties and it would make the library more coherent. But it would come at a 4-8 bytes of flash (unsure if per comparator or total) and 1 or 2 bytes of ram per comparator, depending on implementation details. Probably wouldn't be popular with people on 212's, but that's a pretty small overhead considering the general level of bloat introduced by classy wrappers around peripherals like Logic, Comparator and Opamp).*
+
+*But - I think Maybe a new optional argument to start it in low power, low power - run standby, and run standby (correspondingly more options on DxCore of course). Because how often are you going to be changing the mode once you've turned it on? That's an odd use case (and in any case, the intuitive solution of calling start with a different argument to change it would behave as expected. By passing as the argument the value to be written to the CTRLA register it would have almost no overhead, too. -SK*
+
+### Constants, tinyAVR (prop.)
+| Option                    | T<sub>resp</sub>    | Idd       | RUN_STBY | Notes
+|---------------------------|---------------------|-----------|----------|------------------------------
+| `comparator::pm::unchanged`| as before          | as before | as before| The default option when called without argument - does not change the current setting. If not previously set, results in default configurationbelow.
+| `comparator::pm::default` |  50 ns              | 92 uA     | No       | Resets it to the default configuration.
+| `comparator::pm::lp`      | 150 ns              | 45 uA     | No       | tinyAVR 0-series does not support low power mode.
+| `comparator::pm::runstby` |  50 ns              | 92 uA     | Yes      | Mind the current if entering standby with this.
+| `comparator::pm::lp_stby` | 150 ns              | 45 uA     | Yes      | Likely the most useful option after default. Current still more than an order of magnitude larger larger than expected standby sleep power consumption. tinyAVR 0-series not supported.
+
+On tinyAVR, LP Mode also changes the hysteresis thresholds from 10/30/55 mV to 10/40/80 mV. No such effect is documented for other comparators.
+
+### Constants, Dx
+| Option                        | T<sub>resp</sub>    | Idd       | RUN_STBY | Notes
+|-------------------------------|---------------------|-----------|----------|------------------------------
+| `comparator::pm::unchanged`   | as before           | as before | as before| The default option when called without argument - does not change the current setting. If not previously set, results in default configurationbelow.
+| `comparator::pm::default`     |  85 ns              | 70 uA     | No       | Resets it to the default configuration.
+| `comparator::pm::pmode0`      | as above            | as above  | as above | Alias of to the default power mode.
+| `comparator::pm::pmode1`      | 235 ns              | 17 uA     | No       | Resets it to the default configuration.
+| `comparator::pm::pmode2`      | 445 ns              | 12 uA     | No       | Resets it to the default configuration.
+| `comparator::pm::lp`          | as above            | as above  | as above | Alias of power mode 2 without runstby
+| `comparator::pm::runstby`     |  85 ns              | 70 uA     | Yes      | Power mode 1, run standby.
+| `comparator::pm::pmode0_stby` | as above            | as above  | as above | Alias of the default power mode with runstby.
+| `comparator::pm::pmode1_stby` | 235 ns              | 17 uA     | Yes      | Power mode 1, run standby.
+| `comparator::pm::pmode2_stby` | 445 ns              | 12 uA     | Yes      | Power mode 2, run standby. Likely the most useful.
+| `comparator::pm::lp_stby`     | as above            | as above  | as above | Alias of power mode 2 with runstby
+
+## Constants, Ex
+
+| Option                        | T<sub>resp</sub>    | Idd       | RUN_STBY | Notes
+|-------------------------------|---------------------|-----------|----------|------------------------------
+| `comparator::pm::unchanged`   | as before           | as before | as before| The default option when called without argument - does not change the current setting. If not previously set, results in default configurationbelow.
+| `comparator::pm::default`     | 50 ns               | 150 uA    | No       | Resets it to the default configuration.
+| `comparator::pm::pmode0`      | as above            | as above  | as above | Alias of to the default power mode.
+| `comparator::pm::pmode1`      | 150 ns              | 110 uA    | No       | Resets it to the default configuration.
+| `comparator::pm::lp`          | as above            | as above  | as above | Alias of power mode 1 without runstby
+| `comparator::pm::runstby`     | 50 ns               | 150 uA    | Yes      | Power mode 1, run standby. Goddamn, what happened to the power consumption?!
+| `comparator::pm::pmode0_stby` | as above            | as above  | as above | Alias of the default power mode with runstby.
+| `comparator::pm::pmode1_stby` | 150 ns              | 110 uA    | Yes      | Power mode 1, run standby. Power mode 1 is hardly an improvement. What happened to modes 2 and 3?!
+| `comparator::pm::lp_stby`     | as above            | as above  | as above | Alias of power mode 1 with runstby
+
+
+After a
+
+
+* AC_PWR_DEFAULT    - No low power mode, no run in standby. 85ns response time. 0x00
+* AC_PWR_PMODE1     - No run in standby, using low power mode. 235ns`*` response time. Saves 53uA. 0x08
+* AC_PWR_PMODE2     - No run in standby, not using low power mode. 445ns`*` response time. Saves 58uA. 0x10
+* AC_PWR_RUNSTBY    - Run in standby, power mode 0. 0x80.
+* AC_PWR_PMODE1STBY - Run in standby, power mode 1 150ns response time. Saves 53uA. 0x88
+* AC_PWR_PMODE2STBY - Run in standby, power mode 2 150ns response time. Saves 58uA. 0x90
+
+## Constants, Ex
+* AC_PWR_DEFAULT    - No low power mode, no run in standby. 50ns response time. 0x00
+* AC_PWR_PMODE1     - No run in standby, using low power mode. 150ns response time. Saves 40uA. 0x08
+* AC_PWR_RUNSTBY    - Run in standby, power mode 0. 0x80.
+* AC_PWR_PMODE1STBY - Run in standby, power mode 1 150ns response time. Saves 40uA. 0x88
+
+Uh, yeah, the analog comparators have response times ot 50-445 ns, and use between 12 and 150 uA.
+
+### Peripheral Power Consumption
+
+Figures are as reported by manufacturer in datasheets for analog comparator as "typical" values.
+
+Mode | TinyAVR 2 | AVR Dx | AVR Ex |
+-----|-----------|--------|--------|
+Base |     92 uA |  70 uA | 150 uA |
+LP   |     45 uA |      - |      - |
+PM1  |         - |  17 uA | 110 uA |
+PM2  |         - |  12 uA | n/s    |
+PM3  |         - |  Rsvd. | n/s    |
+
+
+Note that the overall device power while in power-down sleep is typically on the order of <0.1 uA in power down sleep, and <1 uA in standby sleep with the RTC running. Standby sleep with the RTC and an AC running in RUNSTBY in contrast is ~92 uA, or half that with LP mode. Users considering use of `RUNSTBY` should take heed of the power ramifications of this, and consider if there is a better way to achieve their goal. If that must be done, `LPMODE` is recommended.

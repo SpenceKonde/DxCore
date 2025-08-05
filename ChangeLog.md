@@ -3,20 +3,19 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 
 ## Planned changes not yet implemented
 These items are in addition to what was listed under changes already in release.
-
 * Enhancement: Fix pinout diagrams for DD-series.
 * Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
-* Enhancement: AVRdude 7.2 should be out soon. That will be used in the first release after it is available.
-* Bugfix: Make serialupdi work with EA.
+* Enhancement: AVRdude 7.2 out.
+* Bugfix: Make serialupdi work with EA, EB **CRITICAL**
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
 * Ensure libraries in sync with megaTinyCore.
 
-## Planned changes implemented in github
+## 1.6.0
 These are typically planned for release in a future version (usually the next one) as noted.
-* Update - was not gods of C, it was a gang of rogue peripherals. After being held captive and tortured by WEX Luther and his cronies, core developer has escaped said malicious preipherals. While held captive, my computer and equipment were sabotaged by their henchmen. Particular care in restraining WEX Luther to be taken to ensure that end users do not face such attacks.
 * Add support for not-yet-announced S class DA-series parts, which are identical but for having the new EB-series lockdown thingie. There are no changes needed.
 * Support for the PTC peripheral on DA parts
+
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)

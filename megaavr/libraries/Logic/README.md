@@ -8,29 +8,33 @@ More information about CCL can be found in the [Microchip Application Note TB321
 
 
 ## Pin availability and Quick Reference (Dx-series)
-
+Availabile pins for Dx and Ex have been unchanging. Inputs are always
 Logic Block |  IN0-2  | OUT | ALT OUT | Availability  | Notes:
 ------------|---------|-----|---------|---------------|-----------------------------
 Logic0      | PA0-PA2 | PA3 |     PA6 |    All parts  |
 Logic1      | PC0-PC2 | PC3 |     PC6 |    All parts  |
 Logic2      | PD0-PD2 | PD3 |     PD6 |    All parts  | There is no PD0, hence no input 0 on any DD, 28 pin DB, or 32-pin DB
-Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on most DA/DB parts
+Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on many 32/28 pin DA/DB parts
 Logic4      | PB0-PB2 | PB3 |     PB6 | 48+ pin DA/DB |
-Logic5      | PC0-PC2 | PC3 |     PG6 | 48+ pin DA/DB |
+Logic5      | PG0-PG2 | PG3 |     PG6 | 48+ pin DA/DB |
 
-Logic Block |  14-pin DD            |  20-pin DD          |  28 pin Dx          |  32-pin Dx          |  48-pin Dx          |  64-pin Dx          |
-------------|-----------------------|---------------------|---------------------|---------------------|---------------------|---------------------|
-Logic0 IN   | IN0/1 if no xtal used | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal | No IN0/1 if HF xtal |
-Logic0 OUT  | None                  | YES, Both           | YES, both           | YES, both           | YES, both           | YES, both           |
-Logic1 IN   | No IN0 because no PC0 | No IN0 - no PC0     | YES, all            | YES, all            | YES, all            | YES, all            |
-Logic1 OUT  | No alt output         | No alt output       | YES, both           | YES, both           | YES, both           | YES, both           |
-Logic2 IN   | None                  | None                | No IN0 on DB/DD     | No IN0 on DB/DD     | YES, all            | YES, all            |
-Logic3 IN   | None                  | None                | IN0, IN1 only       | YES, all            | YES, all            | YES, all            |
-Logic3 OUT  | None                  | None                | None                | No alt output       | No alt output       | No alt output       |
-Logic4 IN   | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| YES, all            | YES, all            |
-Logic4 OUT  | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| No alt output       | YES, both           |
-Logic5 IN   | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| NO (no PORTG)       | YES, all            |
-Logic5 Out  | Not present on DD     | Not present on DD   | Not present on 28pin| Not present on 28pin| NO (no PORTG)       | YES, both           |
+Logic Block | Availability            |  20-pin DD          |  28 pin Dx          |  32-pin Dx          |  48-pin Dx          |  64-pin Dx          |
+------------ |---------------------------------------------------------------------------------------------------------------------------------------|
+Logic0 IN    | IN0 and IN1 universal on non-tiny modern AVRs. IN2 present except at 14-pins. |
+Logic0 OUT   | Output on PA3 and PA6 is available for all non-tiny modern AVRs with more than 14-pins.                                               |
+Logic1 IN    | DU has no pin inputs for logic block 1. AVR DD-series parts do not have IN0 on the 14-pin or 20-pin parts. |
+Logic1 OUT   | Primary output present on all non-tiny modern AVRs. Alt output present on 48+ pin parts only.                                                          |
+Logic2 IN    | 14/20 pin parts do not have IN1, IN2. 28/32 pin DB/DD/SD parts do not have IN0. |
+Logic2 OUT   | Primary output unavailable on 14/20 pin parts. Alt output universal                                                                |
+Logic3 IN    | 14/20 pin parts have no inputs, 28 pin has IN0 and IN1, and 32+ pin gets IN2.                                                                         |
+Logic3 OUT   | Primary output available on all parts with 32 or more pins. Alternate output not available                               |
+Logic4       | Present in AVR DA/DB parts with at least 48 pins, all of which have all inputs and primary output.                                                   |
+Logic4 OUT   | Alt pin only available on 64-pin parts                                      |
+Logic5       | Present in AVR DA/DB parts with at least 48 pins, pins only present on 64-pin parts.                                                  |
+
+Notes on other new parts:
+The DU has only PC3 out of the entire port C left, the rest having been given over to USB. This obviously takes out the inputs for LUT1.
+
 
 Notice how logic block 2 and 3 on 14/20 pin DD and logic block 5 on 48-pin parts have no dedicated pins. If you are not using pin input or output, use these logic blocks to conserve the more useful ones when not precluded by other considerations.
 
@@ -68,7 +72,7 @@ Logic3 OUT  | Not present   | Only alt out  | Only alt out  | Yes, both     |
 
 
 ### Invelid/reserved options
-Note that there exist reserved and invalid values for many of the bitfields controlled by the properties of the logic block, as well as reserved bits with no known or documented function. This library does not support specifying these. No comprehensive investigation has been undertaken to exclude the existence of of hidden and/or broken features, nor is there any reason to expect that such... just clear evidence of a pattern of features getting "airbrushed out" of the documentation without removal from the silicon. sometimes this is probably dictated by expedience alone. There addresses of registers
+Note that there exist reserved and invalid values for many of the bitfields controlled by the properties of the logic block, as well as reserved bits with no known or documented function. This library does not support specifying these. No comprehensive investigation has been undertaken to exclude the existence of of hidden and/or broken features, nor is there any reason to expect that such exist
 
 *A discovery of an undocumented or reserved option which has been found to do something potentially useful gives the usual (or it would be usual, except that there are essen) reward for undocumented features: an assembled breakout board featuring an impacted part (of your choice), or a quantity of bare boards of your choice from my [tindie store](https://tindie.com/stores/drazzy) of equal value.* See details at [https://github/SpenceKonde/AVR_Research/blob/master/Bounties.md](https://github.com/SpenceKonde/AVR_Research/blob/main/Bounties.md)
 
@@ -113,13 +117,13 @@ The correct order for for initialization is:
 
 The correct procedure for modifying the configuration of one or more logic blocks is impacted by a significant erratum on most extant silicon. Currently, only the AVR DD-series is spared.
 
-**When ERRATA_CCL_PROTECTION is undefined, or defined and -1 or a number higher than SYSCFG.REVID:**
+**When ERRATA_CCL_PROTECTION is defined as -1 (compiletime check) or a number higher than SYSCFG.REVID (if not -1, and defined, the runtime test checkErrata(ERRATA_CCL_PROTECTION) is true if the erratum is present) - if it returns true, the erratum is present. This is runtime, not compiletime check, assuming it's defined.**
 1. Set the properties as required for all logic blocks being changed.
 2. Call `Logic::stop()`.
 3. Call `LogicN.init()` on all logic blocks that have been changed.
 4. Call `Logic::start()` to restart the CCL as a whole.
 
-**When ERRATA_CCL_PROTECTION is defined, and is 0 or a number lower than SYSCFG.REVID** this behavior has been fixed, and you do not need to shut down the CCL entirely
+**When ERRATA_CCL_PROTECTION is undefined or defined as a number lower than SYSCFG.REVID (if not -1, and defined, the runtime test checkErrata(ERRATA_CCL_PROTECTION) is true if the erratum is present) - if it returns true, the erratum is present.
 1. Set the properties as required for logic block being changed.
 2. Call `LogicN.init()` on all that logic block. This will briefly shut down only that particular logic block, just long enough to reconfigure it. Other logic blocks will continue to function.
 3. Repeat if configuring more than one. You may set all the properties of multiple blocks and then call init in succession, or not, as you please.
@@ -171,7 +175,7 @@ General notes:
   * The odd logic block can use the output of the even logic block, or the output of the even logic block in the next pair.
   * The odd logic block must be set to use an event channel and the event channel pointed at it's own output in order to use it's output as an input.
   * If the sequencer is enabled, for the purposes of pin output, and the `logic::in::feedback` option and likely event generation, it replaces the output of the even logic block
-  * If the sequencer for the pair consisting of logic block 2 and 3 is used, it is not clear whether the link input from logic block 1 will get the sequencce output or the logic block output before the sequencer.
+  * If the sequencer for the pair consisting of logic block 2 and 3 is used, it is not clear whether the link input from logic block 1 will get the sequencce output or the logic block output before the sequencer/
 
 #### Accepted values for Dx-series and EA-series parts
 
@@ -196,19 +200,18 @@ logic::in::tca1;             // Connect input to TCA1 WO0~2 for input 0~2 - unav
 logic::in::tca;              // Synonym for tca0 (for compatibility with code written for tinyAVRs and megaAVR 0-series)
 logic::in::tcd;              // Connect input to TCD0 WOA, WOB, WOC (for input 0~2). Unavailable on EA-series as they don't have a TCD.
 logic::in::usart;            // Connect input to TXD of USART 0~2 (for input 0~2). On parts with 2 USARTS, only works on inputs 0 and 1.
-logic::in::spi;              // Connect input to SPI0 MOSI, MOSI, SCK (for input 0~2)
+logic::in::spi;              // Connect input to whatever it is that SPI's event generator is. It is also unclear if this has changed.
 ```
 Notes specific to Dx-series:
 * Notice that only SPI0 can be used. SPI input is supported in master mode only.
 * Notice that only TCB0-2, USART 0-2, and TCA0/1 WO0-2 can be used in this way.
-* logic:in:tcb uses outputs the level that the pin would have whether or not the pin is enabled. It only works in single shot and 8-bit pwm mode, as the others do not use the output pin.
+* Signals from timers are the waveform output (what would be output to the pin, were PWM enabled on that pin outputs the level that the pin would have whether or not the pin is enabled. It only works in single shot and 8-bit pwm mode, as the others do not use the output pin.
 * That the instance of the peripheral used is equal to the input number for ACs, TCBs, and USARTs, and requirement to use a certain input to get certain signals from SPI1 may become problematic when using more than one such peripheral. The same is true to a lesser extent of the WOA-C, WO0-2 <-> input number correlation.
   * This means that depending on your needs, your choice of inputs may be dictated by the
 * TCD0 *WOC is always set by the core to WOA*, not WOB. Changing the relevant register manually will break analogWrite() on the corresponding pins if takeOverTCD0() has not been called. TCD only has two outputs; WOA and WOB - WOC and WOD just mirror one of the others to allow more freedom choosing pins
-* **Errata warning** If input on the highest-number Logic is set to link, it will use the output of Logic0 **unless** the part is a 28 or 32 pin part, in which case, depending on the silicon rev, series, and flash size, it may not receive anything (presumable because of a mistake when scaling down the number of LUTs for the lower pincounts.)
+* **Errata warning** If input on the highest-number Logic is set to link, it will use the output of Logic0 **unless** the part is a 28 or 32 pin DA-series part. These parts (and a small number of very early 128k DB's - but very few)
 
 #### Accepted values for tinyAVR 0/1-series parts
-
 ``` c++
 logic::in::masked;           // Pin not in use
 logic::in::unused;           // Synonym for masked
