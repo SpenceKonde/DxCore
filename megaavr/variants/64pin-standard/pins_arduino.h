@@ -103,17 +103,19 @@ Include guard and include basic libraries. We are normally including this inside
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
 
-// Here we can override the default pin for the LED with a command line option or something opassed through boards.txt or platform.txt.
+#define PINS_COUNT                     NUM_DIGITAL_PINS
+//#define NUM_RESERVED_PINS              0
+//#define NUM_INTERNALLY_USED_PINS       0
+#define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
+#define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
 
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                     PIN_PA7
+  #define LED_BUILTIN                  (PIN_PA7)
 #endif
-
 /* Until the legacy attach interrupt has been completely obsoleted */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS           (56)
 #endif
-
 
        /*   #  ###   ### ####   ###   ###
         ## ## #   # #    #   # #   # #
@@ -385,7 +387,6 @@ static const uint8_t A21 = PIN_A21;
 #define AIN19 ADC_CH(19)
 #define AIN20 ADC_CH(20)
 #define AIN21 ADC_CH(21)
-
 
         /*##  ### #   #      ###  ####  ####   ###  #   #  ###
         #   #  #  ##  #     #   # #   # #   # #   #  # #  #

@@ -79,8 +79,8 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     41     // Last pin number +1
-#define NUM_ANALOG_INPUTS              18
+#define PINS_COUNT                     (41)     // Last pin number +1
+#define NUM_ANALOG_INPUTS              (18)
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -89,14 +89,19 @@ Include guard and include basic libraries. We are normally including this inside
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
+#define PINS_COUNT                     NUM_DIGITAL_PINS
+//#define NUM_RESERVED_PINS              0
+//#define NUM_INTERNALLY_USED_PINS       0
+#define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
+#define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
 
 // Here we can override the default pin for the LED with a command line option or something opassed through boards.txt or platform.txt.
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                  PIN_PA7
+  #define LED_BUILTIN                  (PIN_PA7)
 #endif
 /* Until the legacy attach interrupt has been completely obsoleted */
 #ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS        47
+  #define EXTERNAL_NUM_INTERRUPTS        (47)
 #endif
 
        /*   #  ###   ### ####   ###   ###

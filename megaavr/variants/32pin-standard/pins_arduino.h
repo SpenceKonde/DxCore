@@ -74,23 +74,22 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
+#define NUM_DIGITAL_PINS                  (27)
+#define NUM_ANALOG_INPUTS                 (12)
 
-#define PINS_COUNT                     27
-#define NUM_DIGITAL_PINS               PINS_COUNT
-#define NUM_ANALOG_INPUTS              12
-#define NUM_RESERVED_PINS              0
-#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_I2C_PINS                   4 // (SDA / SCL)
-#define NUM_SPI_PINS                   6 // (MISO / MOSI / SCK)
+#define PINS_COUNT                     NUM_DIGITAL_PINS
+//#define NUM_RESERVED_PINS              0
+//#define NUM_INTERNALLY_USED_PINS       0
 #define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
 #define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
 
+// Here we can override the default pin for the LED with a command line option or something opassed through boards.txt or platform.txt.
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                  PIN_PA7
+  #define LED_BUILTIN                  (PIN_PA7)
 #endif
 /* Until the legacy attach interrupt has been completely obsoleted */
 #ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS        47
+  #define EXTERNAL_NUM_INTERRUPTS        (47)
 #endif
 
        /*   #  ###   ### ####   ###   ###
@@ -267,7 +266,7 @@ static const uint8_t A21 = PIN_A21;
 
 #ifdef ARDUINO_MAIN
 /* this guards against multiple definition errors, since this file gets included by everything,
-   but only in one case should these tables be generated */
+ * but only in one case should these tables be generated */
 const uint8_t digital_pin_to_port[] = {
   PA, //  0 PA0/XTAL0/CLKIN
   PA, //  1 PA1/XTAL1
