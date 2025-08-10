@@ -77,13 +77,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define NUM_DIGITAL_PINS                  (27)
 #define NUM_ANALOG_INPUTS                 (12)
 
-#define PINS_COUNT                     NUM_DIGITAL_PINS
-//#define NUM_RESERVED_PINS              0
-//#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
-#define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
-
-// Here we can override the default pin for the LED with a command line option or something opassed through boards.txt or platform.txt.
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  (PIN_PA7)
 #endif

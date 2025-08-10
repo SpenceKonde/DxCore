@@ -94,20 +94,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 #define NUM_DIGITAL_PINS                  (55)
 #define NUM_ANALOG_INPUTS                 (22)
-// #define NUM_RESERVED_PINS            0     // These may at your option be defined,
-// #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
-// Autocalculated are :
-// NUM_DIGITAL_PINS = PINS_COUNT - NUM_RESERVED_PINS
-// TOTAL_FREE_OPINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
-// Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
-// for some reason need to change this, define them here. Only ones not defined here get automatically set.
-
-
-#define PINS_COUNT                     NUM_DIGITAL_PINS
-//#define NUM_RESERVED_PINS              0
-//#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_TOTAL_FREE_PINS            (NUM_DIGITAL_PINS)
-#define NUM_TOTAL_PINS                 (NUM_DIGITAL_PINS)
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  (PIN_PA7)

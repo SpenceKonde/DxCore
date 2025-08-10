@@ -1,4 +1,4 @@
-/*  (C) Spence Konde 2021-2022 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
+/*  (C) Spence Konde 2021-2025 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
  ###  #     # ####      ####  ####      ###   ##
@@ -98,7 +98,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
-#define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : ((port)== PF ? PIN_PF0 : NOT_A_PIN))))
+#define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port) == PC ? PIN_PC0 : ((port) == PD ? PIN_PD0 : ((port) == PF ? PIN_PF0 : NOT_A_PIN))))
 
 
 // PWM pins
@@ -111,19 +111,18 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCB0_PINS (0x01)                      // TCB0 output on PA2 (default)
-#define TCB1_PINS (0x02)                      // TCB1 output on PA3 (default)
-#define TCE0_PINS (????)                      // What will the TCE/WEX look like?
-#define TCF0_PINS (0x01)                      // This one is debatable
-/* See, obviously you want the TCF to be used in preference to the TCBs, one of which won't be available. */
-
+#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default) as the other options are not present on these parts.
+#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default) as the other options are not present on these parts.
+#define TCE0_PINS (0x02)                      // TCE0 initialized to PORTC, as it's present in it's entirety with all 4 PWM channels on all pincounts.
+#define TCF0_PINS (0x02)                      // The PORTF option is obviously the best placec to put the TCF by default, though
 #define PIN_TCB0_WO_INIT  (PIN_PA2)
 #define PIN_TCB1_WO_INIT  (PIN_PA3)
 
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
-#define NO_GLITCH_TIMERD0
-
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PD1 && (p) <= PIN_PD5) || ((p) >= PIN_PF0 && (p) < PIN_PF4))
+#if defined(MILLIS_USE_TIMERF0)
+  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p))
+#else
+  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) == PIN_PA0) || ((p) == PIN_PA1) || ((p) == PIN_PA6) || ((p) == PIN_PA7) || ((p) == PIN_PF4) || ((p) == PIN_PF5))
+#endif
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
@@ -169,14 +168,12 @@ Include guard and include basic libraries. We are normally including this inside
 // TWI 0
 #define PIN_WIRE_SDA           PIN_PA2
 #define PIN_WIRE_SCL           PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_1 PIN_PA2
-#define PIN_WIRE_SCL_PINSWAP_1 PIN_PA3
 #define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
 #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
 #define PIN_WIRE_SDA_PINSWAP_3 PIN_PA0
 #define PIN_WIRE_SCL_PINSWAP_3 PIN_PA1
 
-#define NUM_HWSERIAL_PORTS              2
+#define NUM_HWSERIAL_PORTS              1
 
 // USART 0
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
@@ -184,6 +181,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc
 #define HWSERIAL0_MUX_PINSWAP_3         PORTMUX_USART0_ALT3_gc
 #define HWSERIAL0_MUX_PINSWAP_4         PORTMUX_USART0_ALT4_gc
+#define HWSERIAL0_MUX_PINSWAP_5         PORTMUX_USART0_ALT6_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
 #define PIN_HWSERIAL0_TX                PIN_PA0
 #define PIN_HWSERIAL0_RX                PIN_PA1
@@ -239,10 +237,10 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A19            PIN_PF3
 #define PIN_A20            PIN_PF4
 #define PIN_A21            PIN_PF5
-/* No ADC on               PIN_PF6 (reset) */
-/* No ADC on               PIN_PF7 (UPDI) */
-/* No ADC on               PIN_PA0 (XTAL1) */
-/* No ADC on               PIN_PA1 (XTAL2) */
+/* No ADC on reset         PIN_PF6 (reset) */
+/* No ADC on updi          PIN_PF7 (UPDI) */
+/* No ADC on or            PIN_PA0 (XTAL1) */
+/* No ADC on crystal pins  PIN_PA1 (XTAL2) */
 #define PIN_A22            PIN_PA2
 #define PIN_A23            PIN_PA3
 #define PIN_A24            PIN_PA4
@@ -433,16 +431,15 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
 };
 
 const uint8_t digital_pin_to_timer[] = {
-  /* TCE0 Not covered because it is on every pin except reset and UPDI
-   * Will need to be treated like TCA is                               */
-  TIMERF0_WO0,  //  0 PA0/USART0_Tx/CLKIN
-  TIMERF0_WO0,  //  1 PA1/USART0_Rx
+  /* in addition, between the PORTMUX, and the machinations of WEX, TCE cn be made available on any pin in some form, except reset and the crystal pins.                                */
+  TIMERF0_0WO0, //  0 PA0/USART0_Tx/CLKIN
+  TIMERF0_0WO1, //  1 PA1/USART0_Rx
   TIMERB0,      //  2 PA2/SDA/AIN22
   TIMERB1,      //  3 PA3/SCL/AIN23
   NOT_ON_TIMER, //  4 PA4/MOSI/AIN24
   NOT_ON_TIMER, //  5 PA5/MISO/AIN25
   TIMERF0_1WO0, //  6 PA6/SCK/AIN26
-  TIMERF0_1WO0, //  7 PA7/SS/CLKOUT/AIN27
+  TIMERF0_1WO1, //  7 PA7/SS/CLKOUT/AIN27
   NOT_ON_TIMER, //  8 PC0/AIN28
   NOT_ON_TIMER, //  9 PC1/AIN29
   NOT_ON_TIMER, // 10 PC2/AIN30
@@ -453,14 +450,19 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, // 15 PD3/AIN3
   NOT_ON_TIMER, // 16 PD4/AIN4
   NOT_ON_TIMER, // 17 PD5/AIN5
-  DACOUT,       // 18 PD6/AIN6
+  NOT_ON_TIMER, // 18 PD6/AIN6
   NOT_ON_TIMER, // 19 PD7/AIN7/AREF
   NOT_ON_TIMER, // 20 PF0/TOSC1/AIN16
   NOT_ON_TIMER, // 21 PF1/TOSC2/AIN17
   NOT_ON_TIMER, // 22 PF2/AIN18
   NOT_ON_TIMER, // 23 PF3/AIN19
-  TIMERF0_2WO0, // 24 PF4/AIN20  Also TIMERB0
-  TIMERF0_2WO1, // 25 PF5/AIN21  Also TIMERB1
+  #if !defined(MILLIS_USE_TIMERF0)
+    TIMERF0_2WO0, // 24 PF4/AIN20  Also TIMERB0
+    TIMERF0_2WO1, // 25 PF5/AIN21  Also TIMERB1
+  #else
+    TIMERB0_ALT
+    TIMERB1_ALT
+  #endif
   NOT_ON_TIMER, // 26 PF6 RESET
   NOT_ON_TIMER  // 27 PF7 UPDI
 };
@@ -468,9 +470,9 @@ const uint8_t digital_pin_to_timer[] = {
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
   #if CLOCK_SOURCE != 0
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0 && ((pin) <  4) ? ((pin) + 2): NOT_A_PIN)
   #else
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)
+    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0 && ((pin) <  4) ? ((pin) + 0 ): NOT_A_PIN)
   #endif
-  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD1) : NOT_A_PIN)
+  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ? ((pin) + PIN_PD1) : NOT_A_PIN)
 #endif

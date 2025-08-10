@@ -68,14 +68,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 #define PINS_COUNT                     (11)
 #define NUM_ANALOG_INPUTS              ( 4)
-#define NUM_TOTAL_PINS                 (21)
-// #define NUM_RESERVED_PINS           ( 0)    // These may at your option be defined,
-// #define NUM_INTERNALLY_USED_PINS    ( 0)    // They will be filled in with defaults otherwise
-// Autocalculated are :
-#define NUM_DIGITAL_PINS               (21) //NUM_TOTAL_PINS = highest number of any valid pin. NOT the number of pins!
-// TOTAL_FREE_OPINS = PINS_COUNT - NUM_INTERNALLY_USED_PINS
-// Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
-// for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PD6 /* warning: gets overridden when using Serial1 on 14-pin parts, as that uses PD4. */

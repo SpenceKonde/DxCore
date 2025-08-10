@@ -38,7 +38,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PA4 (4)
 #define PIN_PA5 (5)
 #define PIN_PA6 (6)
-#define PIN_PA7 (7)\
+#define PIN_PA7 (7)
 #define PIN_PC0 (8)
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
@@ -51,6 +51,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PD5 (17)
 #define PIN_PD6 (18)
 #define PIN_PD7 (19)
+// there is no PF0, hence no need for skipping numbers.
 #define PIN_PF6 (20) // RESET
 #define PIN_PF7 (21) // UPDI
 
@@ -88,8 +89,7 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   #  ### #  #   ###   ##*/
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
-/* THESE PARTS DO NOT HAVE MVIO */
-#define IS_MVIO_ENABLED() (0)
+
 #define digitalPinToAnalogInput(p)      ((p) >= PIN_PD4           ?             ((p) > PIN_PD7 ?       NOT_A_PIN : (p) - PIN_PD0) : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0) ? (p) + 20 : NOT_A_PIN)))
 #define analogChannelToDigitalPin(p)    ((p) > 31 || (p) != 28    ? NOT_A_PIN :  (p) < 8       ? ((p) + PIN_PD0) : ((p) > 21 ? (p) - 20 : NOT_A_PIN))
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
@@ -109,8 +109,8 @@ Include guard and include basic libraries. We are normally including this inside
 // Timer pin mapping
 #define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here). Only used for PWM if you changed the TCA0 PORTMUX, losing more than the two TCB PWM pins you would gain.
 #define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
-#define TCE0_PINS (?????)
-#define TCF0_PINS (?????)
+#define TCE0_PINS (0x00)
+#define TCF0_PINS (0x00)
 
 
 #define PIN_TCB0_WO_INIT  (PIN_PA2)
@@ -118,9 +118,11 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 #define NO_GLITCH_TIMERD0
-
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) == PIN_PD4 || (p) == PIN_PD5) || ((p) > PIN_PA0 && (p) < PIN_PA6))
-
+#if defined(MILLIS_USE_TIMERF0)
+  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p))
+#else
+  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) == PIN_PA0) || ((p) == PIN_PA1) || ((p) == PIN_PA6) || ((p) == PIN_PA7))
+#endif
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
         ####  #   # ####    #   # # # #   #   #
@@ -167,6 +169,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc
 #define HWSERIAL0_MUX_PINSWAP_3         PORTMUX_USART0_ALT3_gc
 #define HWSERIAL0_MUX_PINSWAP_4         PORTMUX_USART0_ALT4_gc
+#define HWSERIAL0_MUX_PINSWAP_5         PORTMUX_USART0_ALT6_gc
 #define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
 #define PIN_HWSERIAL0_TX                PIN_PA0
 #define PIN_HWSERIAL0_RX                PIN_PA1

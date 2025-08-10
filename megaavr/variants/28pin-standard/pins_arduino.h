@@ -68,14 +68,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 #define PINS_COUNT                     23
-#define NUM_DIGITAL_PINS               PINS_COUNT
 #define NUM_ANALOG_INPUTS              10
-#define NUM_RESERVED_PINS              0
-#define NUM_INTERNALLY_USED_PINS       0
-#define NUM_I2C_PINS                   2
-#define NUM_SPI_PINS                   3
-#define NUM_TOTAL_FREE_PINS            PINS_COUNT
-#define NUM_TOTAL_PINS                 PINS_COUNT
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  PIN_PA7
