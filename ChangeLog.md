@@ -15,6 +15,7 @@ These items are in addition to what was listed under changes already in release.
 These are typically planned for release in a future version (usually the next one) as noted.
 * Add support for not-yet-announced S class DA-series parts, which are identical but for having the new EB-series lockdown thingie. There are no changes needed.
 * Support for the PTC peripheral on DA parts
+* Correct bug with EA-series parts having the SYSCFG0 fuse burned incorrectly. This would brick any EA-series part programmed. Luckily as uploading doesn't work right, few people have managed to do this.
 
 
 ### 1.5.11 (Emergency fix)

@@ -127,7 +127,7 @@ menu.bootloader-class=Bootloader type (installed by burn + must match 2 upload)
 avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
-avrdu.name=AVR DU-series (no bootloader)
+#avrdu.name=AVR DU-series (no bootloader)
 avrea.name=AVR EA-series (no bootloader)
 avreb.name=AVR EB-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
@@ -1624,7 +1624,7 @@ avrea.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
 avrea.bootloader.wdtwindowbits=0000
 avrea.bootloader.wdttimeotbits=0000
 avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-avrea.bootloader.SYSCFG0=0b1100{bootloader.resetpinbits}0{bootloader.eesavebit}
+avrea.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}00{bootloader.eesavebit}
 avrea.bootloader.CODESIZE=0x00
 avrea.bootloader.BOOTSIZE=0x01
 avrea.bootloader.avrdudestring=
@@ -2048,6 +2048,440 @@ avrea.menu.flmap.locksection0.build.flmapopts=-DLOCK_FLMAP -DFLMAPSECTION0
 avrea.menu.flmap.lockdefault.build.flmapabr=.fld
 avrea.menu.flmap.unlocked.build.flmapabr=.ful
 avrea.menu.flmap.locksection0.build.flmapabr=.fl0
+
+##########################################################################
+###   ###                                                        ###   ###
+####   ###  ##      ###  #     # ####      #####  ####      ##  ###   ####
+#####   ###  ##    #   # #     # #   #     #      #   #    ##  ###   #####
+######   ###  ##   #####  #   #  ####  ### ####   ####    ##  ###   ######
+#####   ###  ##    #   #   # #   # #       #      #   #    ##  ###   #####
+####   ###  ##     #   #    #    #  #      #####  ####      ##  ###   ####
+###___###________________________________________________________###___###
+#                                        #
+# Parameters and defaults for EA parts   #
+#________________________________________#
+avreb.upload.tool=avrdude
+avreb.upload.prog_interlock=
+avreb.build.board=avreb
+avreb.build.core=dxcore
+avreb.upload.maximum_size=0
+avreb.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at lebst a dozen parts with varying memory constraints.
+avreb.build.f_cpu={build.speed}000000L
+avreb.build.text_section_start=.text=0x0
+avreb.build.extra_flags=
+avreb.build.export_merged_output=false
+avreb.build.printf=
+avreb.build.flmapopts=
+
+#----------------------------------------#
+# Bootloading parameters and fuses       #
+#________________________________________#
+avreb.bootloader.tool=avrdude
+avreb.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avreb.bootloader.wdtwindowbits=0000
+avreb.bootloader.wdttimeotbits=0000
+avreb.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avreb.bootloader.SYSCFG0=0b110{bootloader.resetpinbits}0{bootloader.eesavebits}
+avreb.bootloader.CODESIZE=0x00
+avreb.bootloader.BOOTSIZE=0x01
+avreb.bootloader.avrdudestring=
+avreb.bootloader.pymcuprogstring=-aerase
+
+#----------------------------------------#
+# Exported hex/lst/map names will        #
+# indicate selected options. These       #
+# are only to do that, nothing else      #
+#________________________________________#
+avreb.build.mcupostfix=
+avreb.build.printfabr=
+avreb.build.flmapabr=.ful
+avreb.build.attachabr=
+avreb.build.wireabr=
+##Not supported but still need empty string here.
+avrdd.build.appspmabr=
+
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+# AVR-EA submenu options                     #
+#____________________________________________#
+# Chip (memory and pincount)            #
+#_______________________________________#
+avreb.menu.chip.avr32eb14=AVR32EA14
+avreb.menu.chip.avr32eb14.build.mcu=avr32eb14
+avreb.menu.chip.avr32eb14.upload.maximum_size=32768
+avreb.menu.chip.avr32eb14.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb14.build.variant=14pin-ebseries
+avreb.menu.chip.avr32eb20=AVR32EA20
+avreb.menu.chip.avr32eb20.build.mcu=avr32eb20
+avreb.menu.chip.avr32eb20.upload.maximum_size=32768
+avreb.menu.chip.avr32eb20.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb20.build.variant=20pin-ebseries
+avreb.menu.chip.avr32eb28=AVR32EA28
+avreb.menu.chip.avr32eb28.build.mcu=avr32eb28
+avreb.menu.chip.avr32eb28.upload.maximum_size=32768
+avreb.menu.chip.avr32eb28.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb28.build.variant=28pin-ebseries
+avreb.menu.chip.avr32eb32=AVR32EA32
+avreb.menu.chip.avr32eb32.build.mcu=avr32eb32
+avreb.menu.chip.avr32eb32.upload.maximum_size=32768
+avreb.menu.chip.avr32eb32.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb32.build.variant=32pin-ebseries
+avreb.menu.chip.avr16eb14=AVR16EA14
+avreb.menu.chip.avr16eb14.build.mcu=avr16eb14
+avreb.menu.chip.avr16eb14.upload.maximum_size=16384
+avreb.menu.chip.avr16eb14.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb14.build.variant=14pin-ebseries
+avreb.menu.chip.avr16eb20=AVR16EA20
+avreb.menu.chip.avr16eb20.build.mcu=avr16eb20
+avreb.menu.chip.avr16eb20.upload.maximum_size=16384
+avreb.menu.chip.avr16eb20.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb20.build.variant=20pin-ebseries
+avreb.menu.chip.avr16eb28=AVR16EA28
+avreb.menu.chip.avr16eb28.build.mcu=avr16eb28
+avreb.menu.chip.avr16eb28.upload.maximum_size=16384
+avreb.menu.chip.avr16eb28.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb28.build.variant=28pin-ebseries
+avreb.menu.chip.avr16eb32=AVR16EA32
+avreb.menu.chip.avr16eb32.build.mcu=avr16eb32
+avreb.menu.chip.avr16eb32.upload.maximum_size=16384
+avreb.menu.chip.avr16eb32.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb32.build.variant=32pin-ebseries
+
+#----------------------------------------#
+# Clock speed and source options         #
+#________________________________________#
+# THIS CLOCK SETUP SUCK ASS!!       #
+# Worst parts of Dx and tinyAVR!    #
+#___________________________________#
+avreb.menu.clock.20internal=20 MHz internal
+avreb.menu.clock.20internal.build.speed=20
+avreb.menu.clock.20internal.build.clocksource=0
+avreb.menu.clock.16internal=16 MHz internal
+avreb.menu.clock.16internal.build.speed=16
+avreb.menu.clock.16internal.build.clocksource=0
+avreb.menu.clock.10internal=10 MHz internal
+avreb.menu.clock.10internal.build.speed=10
+avreb.menu.clock.10internal.build.clocksource=0
+avreb.menu.clock.8internal=8 MHz internal
+avreb.menu.clock.8internal.build.speed=8
+avreb.menu.clock.8internal.build.clocksource=0
+avreb.menu.clock.5internal=5 MHz internal
+avreb.menu.clock.5internal.build.speed=5
+avreb.menu.clock.5internal.build.clocksource=0
+avreb.menu.clock.4internal=4 MHz internal
+avreb.menu.clock.4internal.build.speed=4
+avreb.menu.clock.4internal.build.clocksource=0
+avreb.menu.clock.1internal=1 MHz internal
+avreb.menu.clock.1internal.build.speed=1
+avreb.menu.clock.1internal.build.clocksource=0
+avreb.menu.clock.20crystal=20 MHz crystal
+avreb.menu.clock.20crystal.build.speed=20
+avreb.menu.clock.20crystal.build.clocksource=1
+avreb.menu.clock.16crystal=16 MHz crystal
+avreb.menu.clock.16crystal.build.speed=16
+avreb.menu.clock.16crystal.build.clocksource=1
+avreb.menu.clock.12crystal=12 MHz crystal
+avreb.menu.clock.12crystal.build.speed=12
+avreb.menu.clock.12crystal.build.clocksource=1
+avreb.menu.clock.8crystal=8 MHz crystal
+avreb.menu.clock.8crystal.build.speed=8
+avreb.menu.clock.8crystal.build.clocksource=1
+avreb.menu.clock.20extclock=20 MHz ext. clock
+avreb.menu.clock.20extclock.build.speed=20
+avreb.menu.clock.20extclock.build.clocksource=2
+avreb.menu.clock.16extclock=16 MHz ext. clock
+avreb.menu.clock.16extclock.build.speed=16
+avreb.menu.clock.16extclock.build.clocksource=2
+avreb.menu.clock.12extclock=12 MHz ext. clock
+avreb.menu.clock.12extclock.build.speed=12
+avreb.menu.clock.12extclock.build.clocksource=2
+avreb.menu.clock.8extclock=8 MHz ext. clock
+avreb.menu.clock.8extclock.build.speed=8
+avreb.menu.clock.8extclock.build.clocksource=2
+avreb.menu.clock.24crystal=24 MHz crystal (overclocked)
+avreb.menu.clock.24crystal.build.speed=24
+avreb.menu.clock.24crystal.build.clocksource=1
+avreb.menu.clock.25crystal=25 MHz crystal (overclocked)
+avreb.menu.clock.25crystal.build.speed=25
+avreb.menu.clock.25crystal.build.clocksource=1
+avreb.menu.clock.27crystal=27 MHz crystal (overclocked)
+avreb.menu.clock.27crystal.build.speed=27
+avreb.menu.clock.27crystal.build.clocksource=1
+avreb.menu.clock.28crystal=28 MHz crystal (overclocked)
+avreb.menu.clock.28crystal.build.speed=28
+avreb.menu.clock.28crystal.build.clocksource=1
+avreb.menu.clock.30crystal=30 MHz crystal (way overclocked)
+avreb.menu.clock.30crystal.build.speed=30
+avreb.menu.clock.30crystal.build.clocksource=1
+avreb.menu.clock.32crystal=32 MHz crystal (way overclocked)
+avreb.menu.clock.32crystal.build.speed=32
+avreb.menu.clock.32crystal.build.clocksource=1
+#avreb.menu.clock.36crystal=36 MHz crystal (unlikely-to-work overclocked)
+#avreb.menu.clock.36crystal.build.speed=36
+#avreb.menu.clock.36crystal.build.clocksource=1
+#avreb.menu.clock.40crystal=40 MHz crystal (unlikely-to-work overclocked)
+#avreb.menu.clock.40crystal.build.speed=40
+#avreb.menu.clock.40crystal.build.clocksource=1
+avreb.menu.clock.24extclock=24 MHz ext. clock (overclocked)
+avreb.menu.clock.24extclock.build.speed=24
+avreb.menu.clock.24extclock.build.clocksource=2
+avreb.menu.clock.25extclock=25 MHz ext. clock (overclocked)
+avreb.menu.clock.25extclock.build.speed=25
+avreb.menu.clock.25extclock.build.clocksource=2
+avreb.menu.clock.27extclock=27 MHz ext. clock (overclocked)
+avreb.menu.clock.27extclock.build.speed=27
+avreb.menu.clock.27extclock.build.clocksource=2
+avreb.menu.clock.28extclock=28 MHz ext. clock (overclocked)
+avreb.menu.clock.28extclock.build.speed=28
+avreb.menu.clock.28extclock.build.clocksource=2
+avreb.menu.clock.30extclock=30 MHz ext. clock (wayoverclocked)
+avreb.menu.clock.30extclock.build.speed=30
+avreb.menu.clock.30extclock.build.clocksource=2
+avreb.menu.clock.32extclock=32 MHz ext. clock (way overclocked)
+avreb.menu.clock.32extclock.build.speed=32
+avreb.menu.clock.32extclock.build.clocksource=2
+#avreb.menu.clock.36extclock=36 MHz ext. clock (unlikely-to-work overclocked)
+#avreb.menu.clock.36extclock.build.speed=36
+#avreb.menu.clock.36extclock.build.clocksource=2
+#avreb.menu.clock.40extclock=40 MHz ext. clock (unlikely-to-work overclocked)
+#avreb.menu.clock.40extclock.build.speed=40
+#avreb.menu.clock.40extclock.build.clocksource=2
+
+#----------------------------------------#
+# BrownOut detection (BOD) option        #
+#________________________________________#
+#    Completely speculative         #
+#   Assumes same as Dx-series       #
+#___________________________________#
+avreb.menu.bodvoltage.1v75=1.75V (during programming only)
+avreb.menu.bodvoltage.1v75.bootloader.bodlevbits=000
+avreb.menu.bodvoltage.1v9=1.9V
+avreb.menu.bodvoltage.1v9.bootloader.bodlevbits=001
+avreb.menu.bodvoltage.2v6=2.60V
+avreb.menu.bodvoltage.2v6.bootloader.bodlevbits=010
+avreb.menu.bodvoltage.4v3=4.3V
+avreb.menu.bodvoltage.4v3.bootloader.bodlevbits=011
+avreb.menu.bodmode.disabled=Disabled/Disabled
+avreb.menu.bodmode.enabled=Enabled/Enabled
+avreb.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avreb.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avreb.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avreb.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avreb.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avreb.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
+avreb.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
+avreb.menu.bodmode.disabled.bootloader.BODCFG=0x00
+avreb.menu.bodmode.enabled.bootloader.bodmodebits=00101
+avreb.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
+avreb.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
+avreb.menu.bodmode.samplefast.bootloader.bodmodebits=01010
+avreb.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
+avreb.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
+avreb.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
+avreb.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
+
+#----------------------------------------#
+# Retain EEPROM (EESAVE)                 #
+#________________________________________#
+avreb.menu.eesave.enableenable=EEPROM + BOOTROW retained
+avreb.menu.eesave.enableenable.bootloader.eesavebit=11
+avreb.menu.eesave.enabledisable=EEPROM retained
+avreb.menu.eesave.enabledisable.bootloader.eesavebit=01
+avreb.menu.eesave.disableenable=BOOTROW retained
+avreb.menu.eesave.disableenable.bootloader.eesavebit=10
+avreb.menu.eesave.disabledisable=Neither retained
+avreb.menu.eesave.disabledisable.bootloader.eesavebit=00
+
+#----------------------------------------#
+# Reset pin as INPUT, UPDI as I/O        #
+#________________________________________#
+avreb.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI
+avreb.menu.resetupdipins.resetupdi.bootloader.resetpinbits=11
+avreb.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
+avreb.menu.resetupdipins.inputupdi.bootloader.resetpinbits=10
+avreb.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
+avreb.menu.resetupdipins.resetgpio.bootloader.resetpinbits=01
+avreb.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
+avreb.menu.resetupdipins.inputgpio.bootloader.resetpinbits=00
+
+#----------------------------------------#
+# millis/micros timing source            #
+#________________________________________#
+avreb.menu.millis.tcb1=TCB1 (recommended)
+avreb.menu.millis.disabled=Disabled
+avreb.menu.millis.tcb0=TCB0
+avreb.menu.millis.tce0=TCE0
+#avreb.menu.millis.tcf3=TCF0
+#avreb.menu.millis.rtc=RTC (no micros)
+#avreb.menu.millis.rtcxtal=RTC w/w32.768 kHz ext. xtal, no micros
+#avreb.menu.millis.rtcxosc=RTC w/w32.768 kHz ext. osc no micros
+avreb.menu.millis.tcb0.build.millistimer=B0
+avreb.menu.millis.tcb1.build.millistimer=B1
+avreb.menu.millis.tce0.build.millistimer=E0
+avreb.menu.millis.tcf0.build.millistimer=F0
+#avreb.menu.millis.rtc.build.millistimer=RTC
+#avreb.menu.millis.rtcxtal.build.millistimer=RTC_XTAL
+#avreb.menu.millis.rtcxosc.build.millistimer=RTC_XOSC
+avreb.menu.millis.disabled.build.millistimer=NONE
+
+#----------------------------------------#
+# printf() version options               #
+#________________________________________#
+avreb.menu.printf.default=Default, 1.5k flash, no floats
+avreb.menu.printf.full=Full, 2.6k, prints floats
+avreb.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
+avreb.menu.printf.full.build.printfabr=.pfF
+avreb.menu.printf.minimal=Minimal, 1.1k flash used
+avreb.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
+avreb.menu.printf.minimal.build.printfabr=.pfM
+
+#----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+#avreb.menu.optimization.size=-Os (size)
+#avreb.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avreb.menu.optimization.o3=-O3 (speed)
+#avreb.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avreb.menu.optimization.size.build.optimizationlevel=-Os
+#avreb.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avreb.menu.optimization.o3.build.optimizationlevel=-O3
+#avreb.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avreb.menu.optimization.size.build.optabr=.Os
+#avreb.menu.optimization.sizegcse.build.optabr=.Osng
+#avreb.menu.optimization.o3.build.optabr=.O3
+#avreb.menu.optimization.o3gcse.build.optabr=.O3ng
+#avreb.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avreb.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
+
+#----------------------------------------#
+# attachInterrupt Mode                   #
+#________________________________________#
+avreb.menu.attach.allenabled=On all pins, with new implementation.
+avreb.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+avreb.menu.attach.manual=Only enabled ports. Plebse see documentation.
+avreb.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+avreb.menu.attach.oldversion=Old version, may fix bugs.
+avreb.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avreb.menu.attach.manual.build.attachabr=.aMan
+avreb.menu.attach.oldversion.build.attachabr=.aOld
+
+#----------------------------------------#
+# Startup time options                   #
+#________________________________________#
+avreb.menu.startuptime.8=8ms
+avreb.menu.startuptime.1=0ms
+avreb.menu.startuptime.1=1ms
+avreb.menu.startuptime.2=2ms
+avreb.menu.startuptime.4=4ms
+avreb.menu.startuptime.16=16ms
+avreb.menu.startuptime.32=32ms
+avreb.menu.startuptime.64=64ms
+avreb.menu.startuptime.0.bootloader.SYSCFG1=0x00
+avreb.menu.startuptime.1.bootloader.SYSCFG1=0x01
+avreb.menu.startuptime.2.bootloader.SYSCFG1=0x02
+avreb.menu.startuptime.4.bootloader.SYSCFG1=0x03
+avreb.menu.startuptime.8.bootloader.SYSCFG1=0x04
+avreb.menu.startuptime.16.bootloader.SYSCFG1=0x05
+avreb.menu.startuptime.32.bootloader.SYSCFG1=0x06
+avreb.menu.startuptime.64.bootloader.SYSCFG1=0x07
+
+#-------------------------------------#
+#         Wire Mode Selection         #
+# To enable TWI1 or master+slave mode #
+#_____________________________________#
+avreb.menu.wiremode.mors=1x Wire, Master or Slave
+avreb.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avreb.menu.wiremode.mors.build.wireabr=.wO
+avreb.menu.wiremode.mands=1x Wire, Master and Slave
+avreb.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avreb.menu.wiremode.mands.build.wireabr=.wA
+
+#-------------------------------------#
+#         SPM from app mode           #
+# To enable writing flash from app    #
+#_____________________________________#
+avreb.menu.appspm.no=Disabled (SPM write from app is not yet supported)
+avreb.menu.appspm.no.bootloader.appspm=
+avreb.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avreb.menu.appspm.no.build.appspmabr=
+#avreb.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
+#avreb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
+#avreb.menu.appspm.full.build.appspmabr=.spmALL
+#avreb.menu.appspm.8plus=Above 8k (meant for 16k parts)
+#avreb.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=32
+#avreb.menu.appspm.8plus.bootloader.CODESIZE=32
+#avreb.menu.appspm.12plus=Above 12k (meant for 16k parts)
+#avreb.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=48
+#avreb.menu.appspm.12plus.bootloader.CODESIZE=48
+#avreb.menu.appspm.14plus=Above 14k (meant for 16k parts)
+#avreb.menu.appspm.14plus.bootloader.appspm=-DSPM_FROM_APP=56
+#avreb.menu.appspm.14plus.bootloader.CODESIZE=56
+#avreb.menu.appspm.16plus=Above 16k (AVR64/32 only, meant for 32k parts)
+#avreb.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=64
+#avreb.menu.appspm.16plus.bootloader.CODESIZE=64
+#avreb.menu.appspm.24plus=Above 24k (AVR64/32 only, meant for 32k parts)
+#avreb.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=96
+#avreb.menu.appspm.24plus.bootloader.CODESIZE=96
+#avreb.menu.appspm.28plus=Above 28k (AVR64/32 only, meant for 32k parts)
+#avreb.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=112
+#avreb.menu.appspm.28plus.bootloader.CODESIZE=112
+
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avreb.menu.WDTtimeout.disabled=Disabled (recommended)
+avreb.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avreb.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avreb.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avreb.menu.WDTtimeout.1second=Window remains open for 1 Second
+avreb.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avreb.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avreb.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avreb.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avreb.menu.WDTwindow.disabled=No delay before window "opens"
+avreb.menu.WDTwindow.8seconds=8 Second before window "opens"
+avreb.menu.WDTwindow.4seconds=4 Second before window "opens"
+avreb.menu.WDTwindow.2seconds=2 Second before window "opens"
+avreb.menu.WDTwindow.1second=1 Second before window "opens"
+avreb.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avreb.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avreb.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avreb.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avreb.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avreb.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avreb.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avreb.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avreb.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avreb.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avreb.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avreb.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avreb.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avreb.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avreb.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avreb.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avreb.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avreb.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avreb.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avreb.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avreb.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avreb.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
+#----------------------------------------#
+# Flash Mapping options                  #
+#________________________________________#
+avreb.menu.flmap.lockdefault=Use last FLMAP section, lock FLMAP, provide PROGMEM_MAPPED
+avreb.menu.flmap.unlocked=Start w/default, do not lock flmap. No PROGMEM_MAPPED.
+avreb.menu.flmap.locksection0=Set FLMAP to section 0, lock FLMAP, provide PROGMEM_MAPPED
+avreb.menu.flmap.lockdefault.build.flmapopts=-DLOCK_FLMAP -DFLMAPSECTION1
+avreb.menu.flmap.unlocked.build.flmapopts=
+avreb.menu.flmap.locksection0.build.flmapopts=-DLOCK_FLMAP -DFLMAPSECTION0
+avreb.menu.flmap.lockdefault.build.flmapabr=.fld
+avreb.menu.flmap.unlocked.build.flmapabr=.ful
+avreb.menu.flmap.locksection0.build.flmapabr=.fl0
+
+
 
 ##########################################################################
 #                                                                        #
