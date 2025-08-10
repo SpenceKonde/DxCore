@@ -424,7 +424,7 @@ IN N3= |   n/a    |    n/a    | PIN_PC2! | PIN_PC2  | PIN_PC2 |    n/a    | PIN_
 OUT    | PIN_PA7  |  PIN_PA7  | PIN_PA7* | PIN_PA7  | PIN_PA7 |  PIN_PA7  | PIN_PA7  | PIN_PA7 |  PIN_PA7  |
 AltOUT |   n/a    |  PIN_PC6* |   n/a    | PIN_PC6* |   n/a   |  PIN_PC6* | PIN_PC6* |   n/a   |  PIN_PC6* |
 
-This highights the consistent pin options for any given comparator across the DA-series and later parts, and shows that the mega0 the clear odd-part-out.
+This highlights the consistent pin options for any given comparator across the DA-series and later parts, and shows that the mega0 the clear odd-part-out.
 
 The tinyAVR pinout, of course, has little in common with the full-size parts:
 
@@ -504,7 +504,7 @@ After a
 * AC_PWR_RUNSTBY    - Run in standby, power mode 0. 0x80.
 * AC_PWR_PMODE1STBY - Run in standby, power mode 1 150ns response time. Saves 40uA. 0x88
 
-Uh, yeah, the analog comparators have response times ot 50-445 ns, and use between 12 and 150 uA.
+Uh, yeah, the analog comparators have response times of 50-445 ns, and use between 12 and 150 uA.
 
 ### Peripheral Power Consumption
 

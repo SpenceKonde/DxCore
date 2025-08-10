@@ -7,7 +7,7 @@
 
 
 // You can use any I/O pin that is not being overridden by some peripheral for either purpose.
-// No pin is inherrently better or worse than any other for either of these purposes; it's all about what
+// No pin is inherently better or worse than any other for either of these purposes; it's all about what
 // other things you need pins for, and whether any of them are picky about which pins are used.
 
 #if _AVR_PINCOUNT == 14 // need to use a different pins on DD14

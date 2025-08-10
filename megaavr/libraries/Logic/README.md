@@ -8,7 +8,7 @@ More information about CCL can be found in the [Microchip Application Note TB321
 
 
 ## Pin availability and Quick Reference (Dx-series)
-Availabile pins for Dx and Ex have been unchanging. Inputs are always
+Available pins for Dx and Ex have been unchanging. Inputs are always
 Logic Block |  IN0-2  | OUT | ALT OUT | Availability  | Notes:
 ------------|---------|-----|---------|---------------|-----------------------------
 Logic0      | PA0-PA2 | PA3 |     PA6 |    All parts  |
@@ -117,7 +117,7 @@ The correct order for for initialization is:
 
 The correct procedure for modifying the configuration of one or more logic blocks is impacted by a significant erratum on most extant silicon. Currently, only the AVR DD-series is spared.
 
-**When ERRATA_CCL_PROTECTION is defined as -1 (compiletime check) or a number higher than SYSCFG.REVID (if not -1, and defined, the runtime test checkErrata(ERRATA_CCL_PROTECTION) is true if the erratum is present) - if it returns true, the erratum is present. This is runtime, not compiletime check, assuming it's defined.**
+**When ERRATA_CCL_PROTECTION is defined as -1 (compile time check) or a number higher than SYSCFG.REVID (if not -1, and defined, the runtime test checkErrata(ERRATA_CCL_PROTECTION) is true if the erratum is present) - if it returns true, the erratum is present. This is runtime, not compile time check, assuming it's defined.**
 1. Set the properties as required for all logic blocks being changed.
 2. Call `Logic::stop()`.
 3. Call `LogicN.init()` on all logic blocks that have been changed.

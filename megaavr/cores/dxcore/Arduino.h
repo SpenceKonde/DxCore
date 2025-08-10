@@ -468,9 +468,9 @@ FX        P  P
 #define ADC_ENH_ERROR_BUSY                     (-2100000002) /* Not currently generated */
 #define ADC_ENH_ERROR_RES_TOO_LOW              (-2100000003) /* Requested resolution is less than 8 bits */
 #define ADC_ENH_ERROR_RES_TOO_HIGH             (-2100000004) /* Requested resolution exceeds what can be generated using builtin accumulation and decimation */
-#define ADC_DIFF_ERROR_BAD_NEG_PIN             (-2100000005) /* See datasheet or Analog refererence, not all pins can be negative. */
+#define ADC_DIFF_ERROR_BAD_NEG_PIN             (-2100000005) /* See datasheet or Analog reference, not all pins can be negative. */
 #define ADC_ENH_ERROR_NOT_DIFF_ADC             (-2100000006) /* Likely can't ever be returned*/
-#define ADC_ENH_ERROR_DISABLED                 (-2100000007) /* Not Used - we reenable, take the reading, and turn off again if analogReadEnh() is called when ADC off. */
+#define ADC_ENH_ERROR_DISABLED                 (-2100000007) /* Not Used - we re-enable, take the reading, and turn off again if analogReadEnh() is called when ADC off. */
 #define ADC_ERROR_INVALID_CLOCK                     (-32255)
 
 
@@ -670,7 +670,7 @@ void init_ADC0()      __attribute__((weak)); // this is called to initialize ADC
 //   init_DAC0()                             // no _init_DAC0() - all that the core does is call DACReference!
 void init_TCA0()      __attribute__((weak)); // called by init_timers() - without this, pins that give PWM from TCA0 will not function.
 void init_TCA1()      __attribute__((weak)); // called by init_timers() - without this, pins that give PWM from TCA1 will not function, nor will the TCBs unless the clock source is changed.
-void init_TCE0()      __attribute__((weak)); // Even ne'er do well's that associate with villians like WEX Luther need initiation! "You mean initialization" "I'm not sure I do..."
+void init_TCE0()      __attribute__((weak)); // Even ne'er do well's that associate with villains like WEX Luther need initiation! "You mean initialization" "I'm not sure I do..."
 void init_TCF0()      __attribute__((weak)); // called by init_timers()
 void init_TCBs()      __attribute__((weak)); // called by init_timers()
 void init_TCD0()      __attribute__((weak)); // called by init_timers()

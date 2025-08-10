@@ -1,6 +1,6 @@
 # Latest speculative PORTMUXes:
 
-A mix of speculation, rationality, and the shadows of light cast by a burning candle`*` leads me to belive that, when the next series of AVR devices is released, if any of these peripherals are present, all mux options for which the essential pins are also present will be available. If a peripheral is present, but no set of pins with the essential pins are, if the associated pins are intrinsic to it's function, such that it is of no use without them (TWI, SPI, USART, time waveform output)
+A mix of speculation, rationality, and the shadows of light cast by a burning candle`*` leads me to believe that, when the next series of AVR devices is released, if any of these peripherals are present, all mux options for which the essential pins are also present will be available. If a peripheral is present, but no set of pins with the essential pins are, if the associated pins are intrinsic to it's function, such that it is of no use without them (TWI, SPI, USART, time waveform output)
 
 USARTROUTEA: 0b xxx11000 - 3 bits for USART1
 USARTROUTEB  0b 55443322 - Only the first USART appears to get the embassador class streatment
@@ -37,7 +37,7 @@ USARTROUTEA: - - 1 1 1 0 0 0
 USARTROUTEB: 5 5 4 4 3 3 2 2
 USARTROUTEC: - - 7 7 7 6 6 6
 
-(assuming there is eventually a plan for an 8-UART chip that would replace the ATmega2560; thats the most portsi can imagine being useful.)
+(assuming there is eventually a plan for an 8-UART chip that would replace the ATmega2560; that's the most portsi can imagine being useful.)
 
 
 
@@ -152,7 +152,7 @@ Port F likely left out because of PF6 being an input only pin.
 | TCB1 |    PA3  |   PF5 |
 | TCB2 |    PC0  |   PB4 |
 | TCB3 |    PB5  |   PC1 |
-| TCB4 |    PG3  |   PC6 | Alt option is broken, I belive on all parts that have TCB4.
+| TCB4 |    PG3  |   PC6 | Alt option is broken, I believe on all parts that have TCB4.
 
 
 
@@ -203,5 +203,5 @@ No parts have yet been released with more than 6 LUTs, or more than 7 ports.
 
 
 
-`*` In ancient times, people belived that one skilled in such arts could view the future through a flame. Nostradamus makes frequent references to this method of divination, implying that it was a widely held belief - though according to scholars on his life and myth, in none of his writings does he ever claim to have used this (nor does he claim his prophecies to be original work), or any other method of divination other than astrology (at the time treated as a respectable sciencec), and he was said to be poor at that, having difficulty preparing star charts for clients correctly. (*Considering the track record of astrology, I'm not sure it mattered* "Considering that we're talking about him, it sure didn't make much difference for him.)
+`*` In ancient times, people believed that one skilled in such arts could view the future through a flame. Nostradamus makes frequent references to this method of divination, implying that it was a widely held belief - though according to scholars on his life and myth, in none of his writings does he ever claim to have used this (nor does he claim his prophecies to be original work), or any other method of divination other than astrology (at the time treated as a respectable sciencec), and he was said to be poor at that, having difficulty preparing star charts for clients correctly. (*Considering the track record of astrology, I'm not sure it mattered* "Considering that we're talking about him, it sure didn't make much difference for him.)
 

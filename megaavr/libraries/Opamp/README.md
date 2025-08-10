@@ -278,7 +278,7 @@ Ranges from 0 to 127 permitted, these result in settling time of 1 to 128 micros
 Per the datasheet:
 > Since the settling time depends on a variety of factors, including the load on the op amp, it may not be known until the later stages of design and development. If the settling time is unknown, the maximum value of ‘0x7F’ (127 μs) should be written to the SETTLE bit field
 
-In light of that, it may provide insight into the design philisophy that the manufacturer default is 0x00, not 0x7F. Consider the case where an insufficient settling time was used, causing the opamp to be treated as settled and set the interrupt/fire the event (the event can be piped to an oscilloscope, remember, which may be of use if repeatedly reconfiguring the opamp. No configuration change to the OPAMP is needed togenerat
+In light of that, it may provide insight into the design philosophy that the manufacturer default is 0x00, not 0x7F. Consider the case where an insufficient settling time was used, causing the opamp to be treated as settled and set the interrupt/fire the event (the event can be piped to an oscilloscope, remember, which may be of use if repeatedly reconfiguring the opamp. No configuration change to the OPAMP is needed togenerat
 
 ##### Usage
 ``` c++
@@ -292,7 +292,7 @@ Opamp0.settle = 0x40;
 #### wait_settle
 Property to set whether the `Opamp::start()` or `Opamp::start(true)` will wait until this opamp's status is "settled" before returning.
 
-##### Accepeted values
+##### Accepted values
 Boolean values, `true` or `false`.
 
 ##### Usage
@@ -385,7 +385,7 @@ Opamp::stop();
 The OPAMP peripherals are often useful in combination with the ADC and the AC. The ADC, there's little to say about it. Yes, you can read the pin inputs with the ADC. You can also read the output pin with the ADC. Despite quotes implying internal routing to the ADC, I find no evidence in the register description to support this.
 
 ### Pins for OPAMPs
-"Yes, we have no PORTMUX today!" I belive this is the only peripheral wrapper in this style where there is not a single PORTMUX option. Not surprising, really. But the pins were picked well, and are almost always convenient.
+"Yes, we have no PORTMUX today!" I believe this is the only peripheral wrapper in this style where there is not a single PORTMUX option. Not surprising, really. But the pins were picked well, and are almost always convenient.
 
 | Opamp  | + Pin | - Pin | OUT  | Comments               |
 |--------|-------|-------|------|------------------------|
@@ -441,10 +441,10 @@ I'm talking about this library, not the hardware  I think I gave excess deferenc
 | Out[1] | Out[0] | Event | Alwayson | Result
 |--------|--------|-------|----------|------------------------
 |      0 |      0 |     0 |        0 | Peripheral disabled.
-|      0 |      0 |     0 |        1 | Enabled? But output driver is not enabled without a `DRIVE` event, and event reception is not enabled. I belive this is pathological.
+|      0 |      0 |     0 |        1 | Enabled? But output driver is not enabled without a `DRIVE` event, and event reception is not enabled. I believe this is pathological.
 |      0 |      0 |     1 |        0 |
 |      0 |      0 |     1 |        1 | I think this enables events, but not ENABLE/DISABLE, since always on is described as having precedence - however, it will not output anything without a `DRIVE`.
-|      0 |      1 |     0 |        0 | Unclear. I belive
+|      0 |      1 |     0 |        0 | Unclear. I believe
 |      0 |      1 |     0 |        1 | Opamp enabled with output driver on, without any events.
 |      0 |      1 |     1 |        0 |
 |      0 |      1 |     1 |        1 |

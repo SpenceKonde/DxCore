@@ -365,7 +365,7 @@
  * S   = 1 = Internal oscillator selects from list of speeds, 0 = fuse selects 16 or 20 MHz
  * W   = 1 = Supports use of a watch crystal for RTC.
  *
- * LSB of this field is as before, describing the tuning and clocking options, with emphasis on tuning (you also need to use different intialization code, but that isn't perfectly sharable so I do that with family tests not clockmode. It's
+ * LSB of this field is as before, describing the tuning and clocking options, with emphasis on tuning (you also need to use different initialization code, but that isn't perfectly sharable so I do that with family tests not clockmode. It's
  *
  */
 
@@ -617,7 +617,7 @@
     /* The AVR Dx and Ex families are not expected to have any cases where this should be 0 */
   #endif
   #if   defined(CCL_TRUTH14)
-    #define _AVR_LUT_COUNT     (16) // Yeah, we will probably never see one thsi big. Alas.
+    #define _AVR_LUT_COUNT     (16) // Yeah, we will probably never see one this big. Alas.
   #elif defined(CCL_TRUTH12)
     #define _AVR_LUT_COUNT     (14) // 2 LUTs are obviously more than twice as useful as a single one.
   #elif defined(CCL_TRUTH10)
@@ -812,7 +812,7 @@
 
 
 /* OH SHIT! They actually fixed all the bugs on the DB! */
-/* There's one little problem - it's not a compiletime check anymore, but a runtime check :-( This isn't really going to work.*/
+/* There's one little problem - it's not a compile time check anymore, but a runtime check :-( This isn't really going to work.*/
 
 
 #define ERRATA_IRREL                 (-128)
@@ -820,7 +820,7 @@
 #define ERRATA_DOES_NOT_APPLY           (0)
 
 #define checkErrata(errata)  (errata == ERRATA_DOES_NOT_APPLY ? ERRATA_DOES_NOT_APPLY : (errata==ERRATA_IRREL ? ERRATA_DOES_NOT_APPLY :  (errata > SYSCFG_REVID ? ERRATA_DOES_APPLY : ERRATA_DOES_NOT_APPLY)))
-/* YARGH! **NOT** **A** **COMPILETIME** **TEST**
+/* YARGH! **NOT** **A** **COMPILE TIME** **TEST**
    so I think I still will get better code assuming the bugs are there for the most part
 
    */
@@ -929,9 +929,9 @@ DB silicon with die rev 0x11 is available.*/
   //                                            on a feature that is very specialized to begin with. Whatever we handle it anyway so you don't care even if you use autobaud!
   #define ERRATA_FCPU_20M                (1) // What? Completely unexpected
   #define ERRATA_NO_RWW                  (1) // Seems RWW is a challenge... But wait, this is a Dx! What the hell?! The Dx parts already could get all the benefit of RWW in terms of upload speed (which is significant) on account of writing wordwise
-  //                                            fast enough that you can do it between bytes of data. The normal Dx optiboot I ship doesnt't, I couldn't make it fit in 512b, but I'm certain it could be done.
+  //                                            fast enough that you can do it between bytes of data. The normal Dx optiboot I ship doesn't, I couldn't make it fit in 512b, but I'm certain it could be done.
   //                                            Seems to me like the whole thing could be better cleared up by just removing the FLREADY and FLBUSY bits from the datasheet and not talking about RWW - I'd take the Dx write system over pages any day.
-  //                                            Even if the paged one had proper RWW. The Dx's 'salami RWW' (the time needed with the cpu halted for writeing is sliced up real thin, see?) is fine, and it really is nice to write by words.
+  //                                            Even if the paged one had proper RWW. The Dx's 'salami RWW' (the time needed with the cpu halted for writing is sliced up real thin, see?) is fine, and it really is nice to write by words.
   #define ERRATA_EEPROM_EEWP             (1) // NVM EEPROM erase ignores EEWP. Likely discovered while examining what I call ERRATA_FLASH_MULTIPAGE
 
 #elif defined(__AVR_EB__)
@@ -941,7 +941,7 @@ DB silicon with die rev 0x11 is available.*/
 #endif
 
 #define ERRATA_AVRXT_IOREG               (1) // theorized to be present on all modern AVRs until it's discovery and disclosure by Microchip in 2023. There is no sign of this being fixed, and two series have had this erratum known at birth.
-// This is one of those bugs that looks really scary at first, and in the abstract, that's exactly right, it is really scary. Almost any program would seem to be plausibly at risk of being compiled with the wrong two instructions adjacent to eachother.
+// This is one of those bugs that looks really scary at first, and in the abstract, that's exactly right, it is really scary. Almost any program would seem to be plausibly at risk of being compiled with the wrong two instructions adjacent to each other.
 // But we got saved (and of course we did, they do test these things): Although the compiler for almost every plausible input could legally output code that causes writes to be lost. But it doesn't; the parts had been shipping for like 4-5 years before anyone
 // tripped over it. You kind of have to dance the hokey pokey backwards under a full moon in order to make it manifest.... It presumably impacted addresses up to 96 (0x60 - 0x40 for the I/O space, and in the versions of AVR that came before this, the working
 // registers were actually mapped at 0x00 to 0x1F. While working on AVRXT, someone recognized that the paradigm of mapping working registers to address spaces was daft (which it is), and they did the sensible thing. But they didn't do it quite right. So the

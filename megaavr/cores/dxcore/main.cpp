@@ -167,7 +167,7 @@ int main() {
 /**************************************************************************************************
  * INITIALIZATION FUNCTIONS LOCATED ANYWHERE SPECIAL GO HERE!                                     *
  *                                                                                                *
- * They *MUST* be declared with both the ((naked)) ahd ((used)) attributes! Without the latter,   *
+ * They *MUST* be declared with both the ((naked)) and ((used)) attributes! Without the latter,   *
  * the optimizer will eliminate them. Without the former, the sketch will not start...            *
  * Wait what? Yeah, it was generating and outputting a ret instruction, which caused the          *
  * sketch to return to nowhere under certain conditions and never reach main() at all.            *

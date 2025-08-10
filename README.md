@@ -384,7 +384,7 @@ I feel like the HV UPDI mechanism has got to involve something like this added o
 
 But as we don't know what the actual voltage we need to use is - the documentation still maintains that to be 12v in one place, 3 volts higher than the absolute maximum.
 
-I would advise against experimenting with this unless you are prepared to either potentially sacrifice chips on the bench. I suggest using a ZIF socket, since at this time "Trying to use HV UPDI with a non-official tool" means "Trial and error, and until the documentation is correc"
+I would advise against experimenting with this unless you are prepared to either potentially sacrifice chips on the bench. I suggest using a ZIF socket, since at this time "Trying to use HV UPDI with a non-official tool" means "Trial and error, and until the documentation is correct"
 
 
 ## Exposed Hardware Features
