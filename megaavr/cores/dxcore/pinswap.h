@@ -44,7 +44,6 @@ static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
 
-// Only care about alt 2 and 3, as they have different pins. 1 is a nothing right now.
 #ifdef PIN_WIRE_SCL_PINSWAP_2
   #ifdef PIN_WIRE_SCL_PINSWAP_3 // all three
     #define SDA_NOW ((uint8_t) ((PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 2 ? SDA_ALT2 : (PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm) == 3 ? SDA_ALT3 : PIN_WIRE_SDA))

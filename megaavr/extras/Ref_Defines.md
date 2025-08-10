@@ -16,8 +16,8 @@ There are the legacy ones:
 * `MILLIS_USE_TIMERB3`
 * `MILLIS_USE_TIMERB4`
 * `MILLIS_USE_TIMERD0`
-* `MILLIS_USE_TIMERE0` - for the unreleased AVR EB-series. This may be removed upon datasheet release if it is apparent that TCE is not suitable for millis.
-* `MILLIS_USE_TIMERF0` - for the unreleased AVR EB-series. This may be removed upon datasheet release if it is apparent that TCF is not suitable for millis.
+* `MILLIS_USE_TIMERE0`
+* `MILLIS_USE_TIMERF0`
 * `MILLIS_USE_TIMERRTC`
 * `MILLIS_USE_TIMERNONE`
 
@@ -105,9 +105,9 @@ The below parameter defines should be used in preference to the above.
 * `__AVR_DA__` (official, defined by avrlibc))
 * `__AVR_DB__` (official, defined by avrlibc))
 * `__AVR_DD__` (official, defined by avrlibc))
-* `__AVR_DU__` (unreleased - official, defined by avrlibc)
+* `__AVR_DU__` (official, defined by avrlibc)
 * `__AVR_EA__` (official, defined by avrlibc)
-* `__AVR_EB__` (unreleased - official, defined by avrlibc)
+* `__AVR_EB__` (official, defined by avrlibc)
 * `__AVR_TINY_0__` (unofficial - defined by the core)
 * `__AVR_TINY_1__` (unofficial - defined by the core)
 * `__AVR_TINY_2__` (unofficial - defined by the core)
@@ -326,34 +326,6 @@ Note that checkErrata does not get compiled to a known constant unless either al
 
 When future die revs fix some of these problems, checkErrata() will no longer compile to a known constant. Thus, do not use it in #if statements. Do not use it in functions that your application relies upon the compiler constant-folding and optimizing away.
 
-
-| Errata name               |  DA  |  DB  |  DD  | Quick description
-|---------------------------|------|------|------|---------------------------------------
-| Many severe ADC bugs      | No   | A5   | No   | The ADC on the A4 DB parts (of which a vanishingly small number are in circulation) had tons of very serious ADC and OPAMP bugs. Hence the urgent die rev.
-| ERRATA_ADC_PIN_DISABLE    | All  | All  | No   | Pin pointed to by MUXPOS and MUXNEG are disabled, even when no conversion is ongoing.
-| ERRATA_CCL_PROTECTION     | All  | All  | No   | The whole CCL peripheral must be disabled in order to disable any one LUT to reconfigure it.
-| ERRATA_CCL_LINK           | All  | A5   | No   | On 28/32 pin parts, LINK input on LUT3 non-functional (it's trying to take input from non-existent LUT4)
-| ERRATA_DAC_DRIFT          | All  | All  | No   | If DAC used as internal source (OUTEN = 0), accuracy drifts over time.
-| ERRATA_EVSYS_PORT_B_E     | 128k | No   | No   | PE and PB pins not present on 48-pin parts not connected to EVSYS on 64 pin parts.
-| ERRATA_NVM_MULTIPAGE      | All  | All  | All  | A multipage erase can ignore the write protection, if it could write to the first page in that section.<br/>This requires a terribly contrived scenario to manifest.
-| ERRATA_NVM_ST_BUG         | 128k | No   | No   | ST incorrectly applies section protections, use SPM to write flash instead. It's twice as fast anyway.
-| ERRATA_PLL_RUNSTBY        | All  | A5   | No   | Runstby does not work for the PLL. It will never run during standby.<br/>Not only that, the PLLS status bit won't be set either.
-| ERRATA_PLL_XTAL           |  -   | All  | No   | PLL cannot use external crystal as source.
-| ERRATA_PORT_PD0           |  -   | All  | No   | On 28/32 pin DB-series, PD0 is not connected to a pin, but it is still set as an input. The core implements the recommended fix of disabling input.
-| ERRATA_TCA_RESTART        | All  | All  | No   | TCA restart resets direction, like DA/DB datasheet says. Both datasheet and silicon were "wrong".
-| ERRATA_TCA1_PORTMUX       | 128k | No   | No   | TCA1 mux options 2 and 3 don't work.
-| ERRATA_TCB_CCMP           | All  | All  | All  | In 8-bit PWM, CCMP treated as a 16-bit register not 2 8-bit ones, so both must be written, never just 1. Universal on modern AVRs.
-| ERRATA_TCD_ASYNC_COUNTPSC | All  | All  | No   | Async events are missed when TCD tries to use them if count prescaler is engaged.
-| ERRATA_TCD_PORTMUX        | All  | All  | No   | TCD PORTMUX unusable. Only default portmux pins work.
-| ERRATA_TCD_HALTANDRESTART | All  | All  | All  | Halt and Wait for SW restart fault mode does not work in dual slope more, or if CMPASET = 0
-| ERRATA_TWI_PINS           | All  | All  | No   | The OUT register for SCL and SDA must be low, otherwise TWI will try to drive the pins high! (Wire.h makes sure this is done correctly)
-| ERRATA_TWI_FLUSH          | All  | All  | All  | TWI_FLUSH command leaves the bus in unknown state. That is exactly what it was supposed to fix.
-| ERRATA_USART_ISFIF        | All  | All  | All  | After an inconsistent sync field (ISFIF), you must turn off RXC and turn it back on
-| ERRATA_USART_ONEWIRE_PINS | All  | All  | No   | The DIR register for TX must be set INPUT when ODME bit is set, or it can drive pin high. This is handled internally by the core, and you likely don't need to know.
-| ERRATA_USART_WAKE         | All  | All  | No   | You must clear SFDEN when waking on start of frame detection before you clear the RXCIF. This is handled internally by the core, and you likely don't need to know.
-| ERRATA_ZCD_PORTMUX        | All  | A5   | No   | All ZCD output pins controlled by ZCD0 bit of PORTMUX
-
-Note: Some problems only appeared on the 128k version of the AVR DA-series
 
 ## Identifying Timers
 Each timer has a number associated with it, as shown below. This may be used by preprocessor macros (`#if` et. al.) or `if()` statements to check what `MILLIS_TIMER` is, or to identify which timer (if any) is associated with a pin using the `digitalPinToTimer(pin)` macro. Defines are available on all parts that the core supports, whether or not the timer in question is present on the part (ie, it is safe to use them in tests/code without making sure that the part has that timer). There are two very closely related macros for determining pin timers:

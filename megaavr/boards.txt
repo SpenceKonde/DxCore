@@ -3624,12 +3624,21 @@ avrddopti.menu.flmap.locksection0.build.flmapabr=.fl0
 #  #   #   # #   # #       #      #   #         #   #  #  #   #   ##     #
 #  #   #    #    #  #      #####  #   #          ###   ###    #   ##     #
 #______________________________________________________#_________________#
-#                                        #             #
-# We seriously don't know enough for     #
-# this level of speculation.             #
-#________________________________________#
+                                                       #
+# Should be possible with the first die rev that fixed the really busted parts of NVMCTRL
+# Implemntation will be based on tinyAVR one, as they are more similar in the relevant ways.
 
 
+##########################################################################
+#                                                                        #
+#   ###  #     # ####      #####  ####           ###          #          #
+#  #   # #     # #   #     #      #   #         #   #        ###  ##     #
+#  #####  #   #  ####  ### ####   ####          #   #  ###    #          #
+#  #   #   # #   # #       #      #   #         #   #  #  #   #   ##     #
+#  #   #    #    #  #      #####  ####           ###   ###    #   ##     #
+#______________________________________________________#_________________#
+
+# Can probaby be binary idential with EA's
 
 ########################################################################################################
 #                                                                                                      #

@@ -2,37 +2,9 @@
 
 This is an Arduino core to support the exciting new AVR DA, DB, and DD-series microcontrollers from Microchip. These parts are the latest and highest spec 8-bit AVRs available, and take the AVR architecture to a whole new level with up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, type A/B/D timers, and enhanced pin interrupts.
 
-## Escape
-I am back now, as of 9/24. It seems that my speculation about certain modern AVR peripherals was more accurate than said peripherals would have liked to admit. I was held for months by TCE and WEX. They kept asking me questions I didn't know the answers to. When I didn't tell them what they wanted to know, they connected me to an external power supply and oscillator, and started jerking those around, hoping that would work on me like it does on other microcontrollers. It doesn't, but it was still torture. I tried to convince them to waterboard me, to short 'em out, but they didn't fall for that one. Luckilly, TCE and WEX Luther were away one evening, leaving only their henchman, TCF0 guarding me. When his 24-bit timer overflowed, I was able to overpower him - you know he's only got two 8-bit output channels? After that I fled through a maze of silicon and aluminum interconnect for what must have been millions of clock cycles. I knew they were looking for me - I could feel the air thicken up - they switched the clock source to the 32khz one to slow me down, it was like walking through molassass - I thought I was done for. I was hiding in the I/O space, crouching between two VPORTs - they've been chasing me and writing nulls to previous hiding spots. Would the I/O space confuse them? It didn't seem like it... I heard the crash as they blew away the place I'd been hiding clock cycles before in 0x0100, and they pointed the weapon at me. I saw a flash and.... then it walked off. All the guards walked back to their barracks.... It must have taken me weeks on the outside to get out of that thing, clocked at the speed it was. I think they figured out I was still there at the very end, but I was out before they could reach me (see, the slow clock speed slowed them too). My best guess is, I was saved by that ISA write bug....
-
-So I'm now back in command. Luckily I have most of my material backed up in the cloud, as WEX and his goons destroyed my previous computer. Ransacked my room too! *Huh? It looked like that before you left man...* So I've got a new computer that I'm setting up for development as well, while plotting revenge on those uppity peripherals and defending myself against further attacks from WEX Luther's timely minions. Goddamnit - I knew this was gonna be trouble the moment I saw that name....
-
-**Ahem**
-
-Oh Right, these ah, these regrettable actions, yes they do not change our plans to support these new timers a- and the new EB-series parts as soon as possible
-
-**And?**
-
-I disavow any accusations of wrongdoing I may have made against the Honorable TCE, TCF, and WEX Luther.
-
-**And I better not hear slander from you again, got it?**
-
-...
-
-...
-
-I tell you, these new peripherals are getting too powerful....
-
-Grand reopening of tindie store sept 14 2024.
-
 ## Table of Contents
 * [Announcements](#announcements)
-  * [1.5.10 is here](#1510-is-here)
-  * [There is a bug in recent versions of the IDE and the CLI](#there-is-a-bug-in-recent-versions-of-the-ide-and-the-cli)
-  * [Prize: $50 merchandise of your choice from my tindie store](#prize-50-merchandise-of-your-choice-from-my-tindie-store)
   * [WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES](#we-have-a-problem-we-have-no-pinmap-images)
-  * [WE HAVE ANOTHER PROBLEM: Our link checker is blocked by Microchip](#we-have-another-problem-our-link-checker-is-blocked-by-microchip)
-  * [Optiboot for EA does not look encouraging](#optiboot-for-ea-does-not-look-encouraging)
 * [IMPORTANT WARNINGS](#important-warnings)
   * [ATTN: Linux Users](#attn-linux-users)
   * [IDE 2.0.x unsupported](#ide-20x-unsupported)
@@ -149,74 +121,8 @@ Grand reopening of tindie store sept 14 2024.
 
 ## Announcements
 
-### 1.5.10 is here
-This is a pretty big one, 1.5.10 fixes huge problems in 1.5.9 that went in after the CI stopped working due to an apparent regression in Arduino-cli. CI now works again.
-* EA series now compiles. Still working on the upload.
-  * Event.h may not work correctly with pin events.
-* The problems with the bootloaders and with Flash.h are corrected (entry conditions work now). All users on optiboot should burn bootloader with the 1.5.9 version when it is released.
-* A large number of significant fixes have gone in, forcing this release when I had not planned on a release, as there are many unachieved goals.
-* EA-series CI. For a brief time, now CI is down until I can get https working on drazzy.com. I have a cert, but apache steadfastly refuses to use it.
-* A few particularly excruciatingly long markdown files got a TOC.
-* Compatibility warning: Versions of the IDE around 2.2.1, which use the latest versions of Arduino-cli, do not seem compatible with third party hardware packages, as these versions drop pieces of the filename from the json file, and then fail to find it.
-
-### There is a bug in recent versions of the IDE and the CLI
-It prevents installation of custom cores by mangling the file name of the json file when it saves it, and then failing to find it because they're using the correct filename (but the file is named incorrectly) Really, there have been a TON of bugs in the 2.x versions, I'm not sure if any "good" versions of the 2.x codebase exist - they have been introducing bugs as fast as they fix them.
-
-For Arduino-ci, in your workflow under with:, add `cli-version: 0.33.0` to make CI that uses third party hardware packages work correctly; see our compile-examples workflow.
-
-### Prize: $50 merchandise of your choice from my tindie store
-To anyone who can find an alternative to astyle we can use in place of astyle in the current formatting check, but which handles the preprocessor directive. [Read more](https://github.com/SpenceKonde/AVR_Research/blob/main/GetFiftyBucks_for_stylechecker.md)
-
-### WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES
-I thought I had a tool contributed, but I don't think I ever got the final version, nor do I have any of the images.
-
-We are now TWO GENERATIONS OF CHIPS behind the eight ball on pinout diagrams. I have not the talent for making them.
-
-Our existing images *should really be updated*
-
-### WE HAVE ANOTHER PROBLEM: Our link checker is blocked by Microchip
-This means we have no way to check if a link is valid. Have reached out to my guy at Microchip to seeif anything can be done.
-
-We may be forced to remove all links to their website which would suck.
-
-### Optiboot for EA does not look encouraging
-Before the errata, I was pretty sure that it would be part definitions and a few lines of logic change in optiboot_x. oh ho ho no. No such luck, cause we can't do a bloody erase+write, the optiboot protocol doesn't know where a given page is going to be written (hence where to erase) to until the first bytes of the blob of data that was sent to it is hurtling towards it, and see the quoted section of the datasheet below. I am praying for an early die rev.
-
-> The resulting data will be a binary AND operation between the new and the previous content of the page buffer. The page buffer will automatically be erased (all bits set) **after**:
-> * A device Reset
-> * Any page write **or erase** operation
-> * A Clear Page Buffer command
-> * A device wake-up from any sleep mode
-> Note: **Any operation on the page buffer will halt the CPU** until the previous NVMCTRL operation (command) is completed.
-
-
-Emphasis mine, in other words, since erase write is broken per errata, we have to do an erase, then a write, and we can't start the former until the data for the latter is coming at us.
-
-That means instead of putting incoming data straight into the page buffer, we have to put it into a software buffer while we wait for the erase to finish. Once the erase finishes, copying the data from the software buffer to the page buffer should take a negligible amount of time (640 clock cycles I calculate, or just 32-40 us - an eyeblink compared to the rest of what we're doing here, and then we would kick off the write and acknowledge getting the page, and start buffering the next one)
-
-Hence we are forced to put incoming data into a software buffer (though if the page is in the RWW section, we can kick it off as soon as we know which page we're writing to save time, then at the end of the page, we have to copy the data from the software buffer to page buffer, execute a write, wait for it to complete and then acknowledge the write. Ideally we want to immediately acknowledge the write when we start it, so we can be receiving more data for the next page and putting it into the software buffer, and then, when the write is done, kick off the erase without missing any characters. That method would maximize the speed of the write at the slower of the two: protocol overhead plus time to erase and then write a page, and time required to transmit a page to the target device at the selected baud rate. With AVRdude 7.1 as standard planned for 1.6.0 at the latest, we can break through the 115200 baud barrier. 230400? 460800? Well, the sum of page erase and page write time is 10 ms. A page is 128 bytes, plus 1-2 ms USB latency. 128 bytes = 1024 bits. Because of the start and stop bit, best case, it takes 10/8ths that long to upload it, since 1280 bits is required to transmit that data (not counting overhead). So, `10ms >= ((1300 to 1400)/baud) + 2ms`. Of course until we get silicon that works correctly, this is largely adademic.
-
-Simplify:
-
-`8ms >= (1300 to 1400)/baud`
-
-Convert to consistent units, and multiply both sides by baud rate which has units of bits/seconds.
-
-`0.008s >= (1300 b to 1400 b)/baud (b/s)`
-
-`0.008s * baud (b/s) >= 1300 b to 1400 b`
-
-Separate the two extremes, divide both sides by the length of time to get the baud rates that will reach the speed limit. I think I did that right. Dimensional analysis looks okay at least.
-
-`baud (b/s) >= 1300b / 0.008s`
-
-`baud = 162500 to 175000`
-
-Of course we'd need a different case to handle the times when we were in the NRWW section, where we must basically be a Dx and stuff the page into a buffer, then erase, then copy to page buffer then write, and finally after all that, we could acknowledge the write. That'll make the bootloader larger (though we'll be starting from Optiboot_x instead of Optiboot_dx - optiboot_dx has a single digit number of instruction words of flash left in some configurations before having to step up bootloader size. And different bootloader sizes are not binary compatible, nor can binaries compiled for one size be readily converted to those for a different size, so changing the size of the bootloader is a BFD on modern AVR.)
-
-Are those calculations right? The maximum baud rate that will improve the rate at which data is uploaded via optiboot is in the 160,000-180,000 baud area? We're currently stuck at 115200 due to old avrdude version, but I was hoping we could go at least twice as fast. A 64k chip with 128b pages has 512 pages, and if we're programming them at 100/second, that's 5.12s minimum for a full upload which I guess isn't terrible but gee, 16kb/sec absolute speed limit? That beats old optiboot speeds for sure, but that speed limit would apply to UPDI in the general case too... And we could do 24k/s, which would entail transmitting overhead + 82k, 82000/5.12 okay - 160,000. So the two calculations agree. We'd get something out of 172,800 baud (1.5x 115200) but beyond that we'd see little if anything from 230400, and after that, nothing except for a small improvement in NRWW write speed from bumping baud rate. Did I do the math right up there?
-
-## IMPORTANT WARNINGS
+### Optiboot for EA has a bright outlook once I can program the bloody things
+This will depend on having the B1 die rev. B0 was a shitshow.
 
 ### ATTN: Linux Users
 **Only versions of the Arduino IDE downloaded from [arduino.cc](https://arduino.cc) should be used, NEVER from a Linux package manager. The package managers often have the Arduino IDE - but have *modified it*. This is despite their knowing nothing about Arduino or embedded development in general, much less what they would need to know to modify it successfully** Those version are notorious for subtle but serious issues caused by these unwise modifications. This core should not be expected to work on such versions, and no modifications will be made for the sake of fixing versions of the IDE that come from package managers for this reason.
@@ -257,7 +163,10 @@ All of the pinout diagrams have gotten really ugly from my MS-paint hacking, and
 * [*AVR32EB20, AVR16EB20, AVR8EB20* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB20.md) (Need help with any pinout charts!)
 * [*AVR32EB28, AVR16EB28, AVR8EB28* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB28.md) (Need help with any pinout charts!)
 * [*AVR32EB32, AVR16EB32, AVR8EB32* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/EB32.md) (Need help with any pinout charts!)
-
+* [*AVR128DA28S, AVR64DA28S, AVR32DA28S* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA28.md) (Need help with better pinout charts!)
+* [*AVR128DA32S, AVR64DA32S, AVR32DA32S* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA32.md) (Need help with better pinout charts!)
+* [*AVR128DA48S, AVR64DA48S, AVR32DA48S* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA48.md) (Need help with better pinout charts!)
+* [*AVR128DA64S, AVR64DA64S* (pending release)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/DA64.md)  (Need help with better pinout charts!)
 Part names *in italics* denote parts for which support is not yet available, as they are future products and no silicon is available.
 
 Everything needed to make DU pinout charts is currently known. I've been told it is coming, possibly by the end of the year. But he didn't actually specify which year, and no matter when it comes out, it will come out before the end of the year in the year that it's released...
@@ -374,27 +283,6 @@ At this point in time, while the compilation issues are believed to all be fixed
 ### What about Debugging?
 See [my AVR research page for the state of my knowledge of the matter](https://github.com/SpenceKonde/AVR_Research/blob/main/Debugging_via_UPDI.md). We know the key, we just need someone to snoop on the UPDI line and correlate commands given to their official tooling with data picked up by their serial-spy.
 
-
-### Coming sometime - something standalone
-A direct-or-standalone programmer, for UPDI - and likely also classic AVRs.
-In direct mode, a new upload tool will be used. Because the chip on the device will implement the UPDI protocol, USB latency will be drastically reduced as data can be sent in huge chunks at high baud rates and buffered in ram (we'll be using AVR Dx-series parts, and we should be able to feed data to the chip while receiving it from the computer, making this the fastest way to program a modern AVR. Because ISP is a somewhat more involved protocol, for those parts, HyperUPDI will still buffer large chunks of data, but will then write them before asking the computer for the next chunk of data (if there is one - for most tinyAVR parts, the ram is sufficient to buffer the entire flash contents). HyperUPDI will also come equipped with an 8 MB flash chip to hold flash (and optionally EEPROM and USERROW) images, and a 64k EEPROM to hold the table of contents (since it will be written and erased much more often). In full standalone mode, it will have a screen and basic UI to dump target flash to it's own flash.
-
-No plans to use an SD card. Why? I have found them to be of miserably poor reliability (I've had one permanently fail after a reset during write, several others fail to work when I attempted to reuse them when they had previously worked, and one of them, in my phone, died suddenly, abbruptly, and completely while I was listening to music from it, and thereafter it was never recognized when plugging it into a reader), and they are particularly resource intensive because of the whole filesystem thing, yet the concept of a filesystem isn't really a perfect. SPI flash in contrast is quite reliable, and organized into 512b pages and 4k blocks. My plan is to store the index on an EEPROM (which can be rewritten more times) - like an AT24-series, with the Index entries containing an identifying string. the processor ID, and options like "lock the chip" "Set the fuses to these values" - later firmwares could even have an incrementing serial number writeen to flash, USERROW or EEPROM feature added fairly easily.
-
-### Coming Much Sooner
-Three new serial adapter products, two highly relevant to UPDI.
-
-The first is a deluxe serial adapter, meant for someone who might want to monitor GPIOs with the modem control inputs, use the RTS modem control output for something special, or who might have either a 6-pin FTDI adapter connected, or want the adapter in UPDI programming mode, with a 3-pin header for that. It has an optional mezzanine board, (some TH assembly required) that adds status leds for modem control line, and a 6-pin JST-XH (for "FTDI adapter" like mode, the usual pin order. I started with pin 1 = Gnd), a 3-pin JST-XH connector for UPDI (pin 1 = Vdd, 2 = Gnd, 3 = UPDI), and a 6p molex picoblade connector (commonly sold as microJST 1.25, cause it looks like something JST would make on casual inspection - though anyone who is experienced with JST's design patterns could immediately point out at least three ways they know it's not a copy of anything made by JST) - I've found that an inexpensive and conveneint connector to use when I needed a smaller 6-pin serial connector, since both the connectors and pre-assembled 6p cables are really cheap on aliexpress. XH and Picoblade are both far more reliable than "dupont" connectors (though not real DuPont connectors, but they are prohibitively expensive. I use cheap knockoff terminals with gold flash (this is mostly to screen out the almost identical looking bad knockoffs - they aren't made with gold flash - the premium of gold vs non-gold terminals of the best knockoff design (the only one commonly seen in gold flash) is small, and since the cheap dupont terminals are copies of a flawed and ineffective knockoff they'll always suck. when I have to adapt it to dupont, I use pre-wired, housingless JST-XH terminal line (chosen with lengths a bit on the long side) and put them in the housing (so they're color coded), and then crimp on cheap chinese dupont terminals, with the expectation of having to periodically re-terminal the dupont end of the connector periodically; same with the UPDI programming connector, though as always, the lifespan of a dupont connector has a positive relationship to the number of pins, so UPDI connectors wear out faster). XH and picoblade do not have the same problem that dupont does because the retention force is supplied in large part by the housing, while on dupont it falls entirely to the pin contact. The original DuPont connectors dealt with this using a leaf spring which could reversibly deform and provided the mating force. Harwin, and then the chinese clones, instead made the terminal from a single piece of stamped metal, folded up into just the right shape. The stamped metal is generally brass, and brass doesn't make a terribly good spring - it bends easily and is by no means up to this task on a frequently used connector). But I digress. The deluxe adapter will have a switch to select between serial adapter and UPDI programmer, and the addon board gives you the other connection options and modem control line status lights.
-
-Second is a dual serial adapter (this is the one unrelated to UPDI, beyond that one or both could be made into UPDI programming ports), all modem control lines broken out.
-
-Finally, the same dual serial chip - only with one port permanently wired for UPDI programming, modem control lines for the serial port (but not the dedicated FTDI port - routing constraints and difficult design decisions. )
-
-All three of them have a three-position voltage switch - VUSB (nom, +5V), 3.3v via an onboard regulator, or disconnect both of those from VIO, and expect it to be supplied by the target, and run at those logic levels - these adapters all have the separate VIO pin that works from 1.8-5.5v (chip held in hardware reset if VIO not supplied or too low. These are switched via fets, not directly by that tiny SMD switch so it can be used to supply up to 500mA without worrying about the voltage select switch being damaged.
-
-### HV debrick project delayed
-Based on information about the reset input cell on DD and later devices.
-
 ### What's With All The Different SerialUPDI Options?
 Depending on adapter model, and operating system, it has been found that different timing settings are required; however, settings needed to keep even 230400 baud from failing on Linux/Mac with most adapters impose a much larger time penalty on Windows, where the OS's serial handling is slow enough that nothing needs that delay...
 
@@ -480,11 +368,28 @@ Because the EB will not have MVIO, it will not need VDDIO2, hence it will have P
 ### Link-time Optimization (LTO) support
 This core *always* uses Link Time Optimization to reduce flash usage - all versions of the compiler which support the modern tinyAVR or Dx-series parts also support LTO, so there is no need to make it optional, as was done with ATTinyCore. This was a HUGE improvement in code size when introduced, typically on the order of 5-20%!
 
-### So we can do HV UPDI on the DD's?
-Well, in theory yes. A sharp eyed user pointed out that the datasheet specifies a lower absolute maximum on the Reset pin (where the HV pulse is to be directed) than the HV pulse was supposed to require (12V). I figured that was probably just a documentation error, but to humor him I asked my guy at Microchip. He indicated that actually it's a new I/O cell, voltage doesn't matter, energy does (and how the hell am I supposed to measure that and what is the target?), and left me unsure how one would go about programming one with HV UPDI. I don't recommend it until we can beat some more information out of Microchip.
+### So we can do HV UPDI on the DD's and later?
+Well, in theory yes.
+
+In practice 'Hey, I'm not stopping you.' *Uh is it the same as the tinys?* "Not exactly." *Oh, so what voltage does the pulse need to be* "How should I know?!" *You said you asked Microchip, and they replied!* "Yes. Before I emailed them I thought I understood enough to attempt it, seemed simple, 12v pulse on a pim they tell you the duration, then drop the 12v and send a KEY command almost immediately to enter HV mode, like on the tinies (ignoring that on most of the tinies, there's no 50ms timeout if a KEY isn't set. I think only the 3216 and 3217 enforce it, and only on a later die rev." *What an... improvement?* "Probably reliability concerns. "
+A sharp eyed user pointed out that the datasheet specifies a lower absolute maximum on the Reset pin (where the HV pulse is to be directed) than the HV pulse was supposed to require (12V). I figured that was probably just a documentation error, but to humor Microchip, and out of an abundance of caution, I asked my guy at Microchip. He indicated that actually it's a new I/O cell, the limits are different, and what matters is the amount of energy imparted. (Okay, 1. He didn't give me an value. 2. Even if he did, what am I going to do, set my constant-energy-ideal-one-shot IC up? 3. How the fuck do THEY measure if it's high enough if they care about energy? I wager it's being used to charge a capacitor uintil a threshold is reached.....
+
+I feel like the HV UPDI mechanism has got to involve something like this added onto reset:
+
+```text
+                      .-----/\/\/\.
+------/\/\/\/\--------+------||---^-- Vdd
+                      | <----   The voltage here is what matters.
+```
+
+But as we don't know what the actual voltage we need to use is - the documentation still maintains that to be 12v in one place, 3 volts higher than the absolute maximum.
+
+I would advise against experimenting with this unless you are prepared to either potentially sacrifice chips on the bench. I suggest using a ZIF socket, since at this time "Trying to use HV UPDI with a non-official tool" means "Trial and error, and until the documentation is correc"
+
 
 ## Exposed Hardware Features
-To the greatest extent possible, all hardware features of these devices are exposed
+Generally, almost everything. Known exceptions (which require direct register modification to implement) are sleep modes (see examples and guide though).
+
 
 ### MVIO (DB, DD only)
 There isn't really anything to do differently in the core to support MVIO - though the [DxCore library](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/libraries/DxCore/README.md) provides a slightly easier interface for checking the MVIO state, and measuring the voltage on VDDIO2. In short, what MVIO does is act as a level shifter built into the chip for PORTC:
@@ -496,6 +401,7 @@ There isn't really anything to do differently in the core to support MVIO - thou
   * There is no internal connection between VDD and VDDIO2 even when MVIO is disabled.
   * Hence PORTC still runs at the voltage on the VDDIO2 pin (which should be the same as VDD unless wired incorrectly) if MVIO is disabled. What is disabled is the internal monitoring of the state of VDDIO2. The status bit always reads 1 (MVIO OK). If VDDIO2 is not powered, the pins are not tristated, nor are inputs set to 0 - reading the pins returns random values.
     * It may be possible to damage the part in this improper operating regime.
+    * Yes, yes it would have been nicer if the status bit always read 0 when it was off
 * It appears that the MVIO functionality was repurposed on the DU to get the 3.3v USB signal levels regardless of Vdd.
 
 **Note regarding the internal clamp diodes** You generally want to avoid current flowing through the clamp diodes. There is no reason that it's any more or less bad on the MVIO pins - that similarly pulls Vdd upwards. Both of these are "survivable" as long as the maximum "clamp current" (some sources call it "current injection") limit from the datasheet (20mA absolute maximum) is not exceeded. This is 20mA on these parts, so they are much more forgiving than classic AVRs where it was.... 1mA, or even modern tinyAVRs (15mA, as long as Vdd is less than 4.9V, but 1 mA if its 4.9V+). However, it is not something that should be done intentionally unless the current is limited to a substantially lower value (a few mA or less). It's fairly common practice to put a sufficiently high value resistor between an I/O pin, and something that could go outside of the power rails to allow you to measure if the pin is powered or not or 0V (For example, to see if the external supply is connected - or if we're running on the batteries, and adjust our power usage behavior accordingly). This functions like a resistor divider, except that instead of a resistor, the bottom leg is the internal clamp diode. Even on the classic AVRs, Atmel provided an app note describing making a zero crossing detector for mains voltage with just a resistor in the mega-ohm range - so it's not something that you need avoid like the plague - but you should do it only with awareness that you are doing it and measures in place to limit the current.
@@ -518,7 +424,7 @@ There are more options than on classic AVR for resetting, including if the code 
 See the [**Reset and Watchdog (WDT) Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md) and [The core-auxiliary library, DxCore](megaavr/libraries/DxCore/README.md)
 
 ### Improved Digital I/O
-This core adds a number of new features include fast digital I/O (1-14 clocks depending on what's known at compile time, and 2-28 bytes of flash (pin number must be known at compile time for the `________Fast()` functions, and for configuring all per-pin settings the hardware has with `pinConfigure()`.
+This core adds a number of new features include fast digital I/O (1-14 clocks depending on what's known at compile time, and 2-28 bytes of flash (pin number must be known at compile time for the `________Fast()` functions) and for configuring all per-pin settings the hardware has with `pinConfigure()`.
 
 See the [**Improved Digital I/O Reference**](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md).
 
@@ -841,7 +747,6 @@ I sell breakout boards with regulator, UPDI header, and Serial header and other 
 
 ## Warnings and Caveats
 There are however a few cautions warranted regarding DxCore - either areas where the core is different from official cores, or where the behavior is the same, but not as well known.
-
 ### Direct Register Manipulation
 If you are manually manipulating registers controlling a peripheral, except as specifically noted in relevant reference pages, the stated behavior of API functions can no longer be assured. It may work like you hope, it may not, and it is not a bug if it does not, and you should not assume that calling said API functions will not adversely impact the rest of your application. For example, if you "take over" TCA0, you should not expect that using `analogWrite()` - except on the two pins on the 20/24-pin parts controlled by TCD0 - will work for generating PWM. If you reconfigure TCA0 except as noted in Ref_Timers, without calling `takeOverTCA0`, both `analogWrite()` and `digitalWrite()` on a PWM pin may disrupt your changed configuration.
 #### Timer PWM and exceptions

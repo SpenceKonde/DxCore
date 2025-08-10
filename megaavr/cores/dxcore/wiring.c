@@ -1185,18 +1185,32 @@ inline __attribute__((always_inline)) void delayMicroseconds(unsigned int us) {
   // 20 MHz math, 10-cycle loop, 1us burns and returns.
   #define DELAYMICROS_TEN
 #elif F_CPU >= 16000000L
-  // 16 MHz math, 4-cycle loop, 1us returns immediately.
+  // 16 MHz math, 4-cycle loop, 1us returns immediately right on time.
 #elif F_CPU >= 12000000L
-  // 16 MHz math, 4-cycle loop, 1us returns immediately.
-#elif F_CPU >= 10000000L || (F_CPU >= 5000000L && F_CPU < 8000000L)
-  // 10 MHz: 5-cycle loop, 1us returns immediately
-  // 5 MHz: 5-cycle loop, 1-3 us returns immediately.
+  // 16 MHz math, 4-cycle loop, 1us returns immediately, returning about a third of a microsecond late.
+#elif F_CPU >= 10000000L
+  // 10 MHz, 5 cycle loop 1 or 2 us returns immediately (in 1.6us).
   #define DELAYMICROS_FIVE
-#else
+#elif F_CPU ?= 8000000L
   // 8 MHz: 16 MHz math, 4-cycle loop, 1-2 us returns immediately.
-  // 4 MHz: 16 MHz math, 4-cycle loop, 1-4 us returns immediately.
-  // 2 MHz: 16 MHz math, 4-cycle loop, 1-8 us returns immediately.
-  // 1 MHz: 16 MHz math, 4-cycle loop, < 16 us returns immediately, < 25 burns and returns.
+#elif F_CPU >= 7000000L
+  // 7 MHz: 16 MHz math, 7-cycle loop, 1-2 us returns immediately.
+  #define DELAYMICROS_SEVEN
+#elif F_CPU >= 6000000L
+  // 6 MHz, 6 cycle loop.
+  #define DELAYMICROS_SIX
+#elif F_CPU >= 5000000L
+  #define DELAYMICROS_FIVE
+  // 5 MHz, 5 cycle loop, 1 or 2 us returns immediately (in 1.6us).
+#elif F_CPU >= 4000000L
+  // 4 MHz: 16 MHz math, 4-cycle loop, 1-4 us returns immediately. Last speed with single us resolution of 1us
+#elif F_CPU >= 3000000L
+  #define DELAYMICROS_SIX
+  // 3 MHz - 6 cycle loop, LSB ignored 1-5 us returns immediately.
+
+#else
+  // 2 MHz: 16 MHz math, 4-cycle loop, 1-8 us returns immediately (in 8 us). LSB ignored. .
+  // 1 MHz: 16 MHz math, 4-cycle loop, < 16 us returns immediately, < 25 burns and returns. 2 LSB ignored
   // Anything not listed uses the fastest one that is and which is slower than F_CPU
 #endif
 
@@ -1315,7 +1329,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
     "nop");               // 1 more  == 11 total
   if (us <= 1) return;    //  = 3 cycles, (4 when true)
 
-  // the loop takes 1/3 of a microsecond (8 cycles) per iteration
+  // the loop takes 1/3 of a microsecond (9 cycles) per iteration
   // so execute it three times for each microsecond of delay requested.
   us = (us << 1) + us; // x3 us, = 5 cycles
   // we just burned 27 (24) cycles above, remove 3
@@ -1333,8 +1347,8 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // the loop takes 1/5 of a microsecond (5 cycles) per iteration
   // so execute it 5x  for each microsecond of delay requested.
   us = (us << 2) + us; // x5 us, = 7 cycles
-  // we just burned 24 (22) cycles above, remove 3
-  us -= 3; // 2 cycles
+  // we just burned 24 (22) cycles above, remove 5
+  us -= 5; // 2 cycles
 
 #elif F_CPU >= 24000000L
   // for a one-microsecond delay, burn 8 cycles and return
@@ -1408,14 +1422,30 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // we just burned 17 (19) cycles above, remove 5, (4*5=20)
   // us is at least 6 so we can subtract 4
   us -= 5; // = 2 cycles
-
+#elif F_CPU >= 7000000L
+  // for a 1 and 2 microsecond delay, simply return.  the overhead
+  // of the function call takes 14 (16) cycles, which is 2us
+  if (us <= 3) return; //  = 3 cycles, (4 when true)
+  // the loop takes 1 of a microsecond (7 cycles) per iteration
+  // so execute it twice for each microsecond of delay requested.
+  // we just burned 17 (19) cycles above, remove 3, (3*7=21)
+  // us is at least 6 so we can subtract 4
+  us -= 3; // = 2 cycles
+#elif F_CPU >= 6000000L
+  // for a 1 and 2 microsecond delay, simply return.  the overhead
+  // of the function call takes 14 (16) cycles, which is 2us
+  if (us <= 3) return; //  = 3 cycles, (4 when true)
+  // the loop takes 1 of a microsecond (6 cycles) per iteration=
+  // we just burned 17 (19) cycles above, remove 3;
+  // us is at least 6 so we can subtract 4
+  us -= 3; // = 2 cycles
 #elif F_CPU >= 5000000L
   // for a 1 ~ 3 microsecond delay, simply return.  the overhead
   // of the function call takes 14 (16) cycles, which is 3us
-  if (us <= 3) return; // 3 cycles, (4 when true)
+  if (us <= 4) return; // 3 cycles, (4 when true)
   // the loop takes 1 microsecond (5 cycles) per iteration
-  // so just remove 3 loops for overhead
-  us -= 3; // = 2 cycles
+  // so just remove 4 loops for overhead
+  us -= 4; // = 2 cycles
 
 #elif F_CPU >= 4000000L
   // for a 1 ~ 4 microsecond delay, simply return.  the overhead
@@ -1424,7 +1454,14 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
   // the loop takes 1 microsecond (4 cycles) per iteration,
   // just remove 4 loops for overhead
   us -= 4; // = 2 cycles for the time taken up with call overhead and test above
-
+#elif F_CPU >= 3000000L
+  // for a 1 and 2 microsecond delay, simply return.  the overhead
+  // of the function call takes 14 (16) cycles, which is 5us
+  if (us <= 7) return; //  = 3 cycles, (4 when true)
+  // the loop takes 2 microsecond (6 cycles) per iteration
+  // we burn 19 (21) cycles above, remove 7 ;
+  us -= 7; // = 2 cycles
+  us >>= 1; // 2 more cycles - divide the number of times to run the loop in half
 #elif F_CPU >= 2000000L
   // for a 1 ~ 4 microsecond delay, simply return.  the overhead
   // of the function call takes 14 (16) cycles, which is 8us
@@ -1477,7 +1514,7 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
     "1: sbiw %0, 1" "\n\t"            // 2 cycles
     "rjmp .+0"      "\n\t"            // 2 cycles
     "rjmp .+0"      "\n\t"            // 2 cycles
-    "nop"           "\n\t"
+    "nop"           "\n\t"            // 1 cycle
     "brne 1b" : "=w" (us) : "0" (us)  // 2 cycles
   );
 #elif defined(DELAYMICROS_EIGHT)
@@ -1492,6 +1529,12 @@ __attribute__ ((noinline)) void _delayMicroseconds(unsigned int us) {
     "1: sbiw %0, 1" "\n\t"            // 2 cycles
     "rjmp .+0"      "\n\t"            // 2 cycles
     "nop"           "\n\t"            // 1 cycle
+    "brne 1b" : "=w" (us) : "0" (us)  // 2 cycles
+  );
+#elif defined(DELAYMICROS_SIX)
+  __asm__ __volatile__ (
+    "1: sbiw %0, 1" "\n\t"            // 2 cycles
+    "rjmp .+0"      "\n\t"            // 2 cycle2
     "brne 1b" : "=w" (us) : "0" (us)  // 2 cycles
   );
 #elif defined(DELAYMICROS_FIVE)
@@ -1539,6 +1582,14 @@ void stop_millis() { // Disable the interrupt:
       TCA1.SPLIT.INTCTRL &= (~TCA_SPLIT_HUNF_bm);
     #elif defined(MILLIS_USE_TIMERD0)
       TCD0.INTCTRL &= 0xFE;
+    #elif defined(MILLIS_USE_TIMERE0)
+      TCE0.INTCTRL &= 0xFE;
+    #elif defined(MILLIS_USE_TIMERE1)
+      TCE1.INTCTRL &= 0xFE;
+    #elif defined(MILLIS_USE_TIMERF0)
+      TCF0.INTCTRL &= 0xFE;
+    #elif defined(MILLIS_USE_TIMERF1)
+      TCF1.INTCTRL &= 0xFE;
     #elif defined(MILLIS_USE_TIMERRTC)
       RTC.INTCTRL &= 0xFE;
       RTC.CTRLA &= 0xFE;
@@ -1618,7 +1669,7 @@ uint32_t _millisToRTC(_MILLIS_RTC_INT_t RTCmode) {
         // millis is being tracked on RTC
         // Now we need to enable the requested interrupt and return.
         RTC.INTCTRL       = intctrl;
-      } else if (RTCmode == TIMERRTC_PIT) {
+      } else if (RTCmode == TIMER_RTC_PIT) {
         ctrla             = RTC.PITCTRLA;
         ctrla            &= 0xFE;
         while (RTC.PITSTATUS);
@@ -1629,7 +1680,7 @@ uint32_t _millisToRTC(_MILLIS_RTC_INT_t RTCmode) {
         m                 = millis();
       }
       stop_millis();
-      _millis_state    = (RTCmode == _RTC_OVF ? TIMERRTC_OVF : (RTCmode == _RTC_CMP ? TIMERRTC_CMP : TIMERRTC_PIT)) ;
+      _millis_state    = (RTCmode == _RTC_OVF ? TIMER_RTC_OVF : (RTCmode == _RTC_CMP ? TIMER_RTC_CMP : TIMER_RTC_PIT)) ;
       if (m == 0) {
         return 1;
       }
@@ -1715,8 +1766,17 @@ void __attribute__((weak)) init_millis()
           TCA1.SPLIT.INTCTRL |= TCA_SPLIT_LUNF_bm;
         #endif
       #endif
-      /*
-      #elif defined(MILLIS_USE_TIMERD0)
+    #elif defined(MILLIS_USE_TIMERE0)
+      TCE0.INTCTRL |= 1;
+    #elif defined(MILLIS_USE_TIMERE1)
+      TCE1.INTCTRL |= 1;
+    #elif defined(MILLIS_USE_TIMERF0)
+      TCF0.INTCTRL |= 1;
+    #elif defined(MILLIS_USE_TIMERF1)
+      TCF1.INTCTRL |= 1;
+
+
+/*      #elif defined(MILLIS_USE_TIMERD0)
         TCD0.CMPBCLR        = TIME_TRACKING_TIMER_PERIOD; // essentially, this is TOP
         TCD0.CTRLB          = 0x00; // oneramp mode
         TCD0.CTRLC          = 0x80;
@@ -1889,7 +1949,75 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
     DACReference(VDD);
   }
 #endif
+#if defined(ADC1)
+  void __attribute__((weak)) init_ADC1() {
+    ADC_t* pADC;
+    _fastPtr_d(pADC, &ADC1);
+    #if !defined(ADC1_PGACTRL)
+      #if F_CPU >= 48000000
+        pADC->CTRLC = ADC_PRESC_DIV48_gc; // 1 @ 48 MHz
+      #elif F_CPU >  40000000
+        pADC->CTRLC = ADC_PRESC_DIV32_gc; // 1.25 @ 40 MHz
+      #elif F_CPU >= 36000000
+        pADC->CTRLC = ADC_PRESC_DIV28_gc; // 1.286 @ 36 MHz
+      #elif F_CPU >  28000000
+        pADC->CTRLC = ADC_PRESC_DIV24_gc; // 1.33 @ 32 MHz, 1.
+      #elif F_CPU >= 24000000
+        pADC->CTRLC = ADC_PRESC_DIV20_gc; // 1.2 @ 24, 1.25 @ 25, 1.4 @ 28  MHz
+      #elif F_CPU >= 20000000
+        pADC->CTRLC = ADC_PRESC_DIV16_gc; // 1.25 @ 20 MHz
+      #elif F_CPU >  12000000
+        pADC->CTRLC = ADC_PRESC_DIV12_gc; // 1 @ 12, 1.333 @ 16 MHz
+      #elif F_CPU >= 8000000
+        pADC->CTRLC = ADC_PRESC_DIV8_gc;  // 1-1.499 between 8 and 11.99 MHz
+      #elif F_CPU >= 4000000
+        pADC->CTRLC = ADC_PRESC_DIV4_gc;  // 1 MHz
+      #else  // 1 MHz / 2 = 500 kHz - the lowest setting
+        pADC->CTRLC = ADC_PRESC_DIV2_gc;
+      #endif
+      pADC->SAMPCTRL = 14; // 16 ADC clock sampling time - should be about the same amount of *time* as originally?
+      // This is WAY conservative! We could drop it down...
+      pADC->CTRLD = ADC_INITDLY_DLY64_gc; // VREF can take 50uS to become ready, and we're running the ADC clock
+      // at around 1 MHz, so we want 64 ADC clocks when we start up a new reference so we don't get bad readings at first
+      /* Enable ADC */
+      pADC->CTRLA = ADC_ENABLE_bm | ADC_RESSEL_10BIT_gc;
+      // start at 10 bit for compatibuility with existing code.
 
+      #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+        // That may become defined when DA-series silicon is available with the fix
+        pADC->MUXPOS = 0x40;
+        pADC->COMMAND = 0x01;
+        pADC->COMMAND = 0x02;
+      #endif
+
+    #else
+      #if F_CPU     > 32000000             // 36 MHz /14 = 2.57 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV14_gc; // 33 MHz /14 = 2.35 MHz
+      #elif F_CPU  >= 30000000             // 32 MHz /12 = 2.67 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV12_gc; // 30 MHz /12 = 2.50 MHz
+      #elif F_CPU  >= 24000000             // 27 MHz /10 = 2.70 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV10_gc; // 25 MHz /10 = 2.50 MHz
+      #elif F_CPU  >= 20000000             // 24 MHz /10 = 2.40 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV8_gc;  // 20 MHz / 8 = 2.50 MHz
+      #elif F_CPU  >= 16000000
+        pADC->CTRLB  = ADC_PRESC_DIV6_gc;  // 16 MHz / 6 = 2.67 MHz
+      #elif F_CPU  >= 12000000
+        pADC->CTRLB  = ADC_PRESC_DIV4_gc;  // 12 MHz / 4 = 3.00 MHz
+      #elif F_CPU  >=  6000000             // 10 MHz / 4 = 2.50 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV4_gc;  //  8 MHz / 4 = 2.00 MHz
+      #else                                //  5 MHz / 2 = 2.50 MHz
+        pADC->CTRLB  = ADC_PRESC_DIV2_gc;  //  4 MHz / 2 = 2.00 MHz
+      #endif                               //  1 MHz / 2 =  500 kHz
+      pADC->CTRLE = 15; // 15.5 without PGA, 16 with PGA, corresponding to 7.75 or 8 us.
+      pADC->CTRLA = ADC_ENABLE_bm | ADC_LOWLAT_bm;
+      pADC->PGACTRL = ADC_PGABIASSEL_75PCT_gc;
+      /* Note that we don't *enable* it automatically in init().
+       * 3/4th bias is good up to 4.5 MHz CLK_ADC, 15 ADC Clocks to sample the PGA
+       * up to 5 MHz, so within the regime of speeds that have to be compatible
+       * with internal references, we are in the clear there. */
+    #endif
+  }
+#endif
 /**************************************** CLOCK ************************************************/
 /* This ugly function configures the system clock speed to match what the user requested       *
  * See also the Clock Failure Detection section immediately below for the helper functions to  *
@@ -1921,7 +2049,6 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 #ifndef USE_CSUTHF
   #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
 #endif
-
 #if (defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_DU__))
   void  __attribute__((weak)) init_clock() {
     #if CLOCK_SOURCE == 0
@@ -2069,7 +2196,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal) or 2 (ext. clock); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
     #endif
   }
-#elif defined(__AVR_EA__) || defined(__AVR_EB__)
+#elif defined(__AVR_EA__)
   void  __attribute__((weak)) init_clock() {
     #if CLOCK_SOURCE == 0
       // This sucks! Our internal clock sucks! two lousy speeds, selected by fuses? What is this, tinyAVR?
@@ -2151,10 +2278,65 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       CLKCTRL.MCLKTIMEBASE = (F_CPU/1000000) - 1; // I'm landing on the right side of the fencepost here right?
     #endif
   }
-#else
-  #error "Core not correctly setting family defines or part not an DX/EX. We thus cannot determine how to "
+#elif defined(__AVR_EB__)
+  void  __attribute__((weak)) init_clock() {
+    #if CLOCK_SOURCE == 0
+      #if F_CPU == 20000000 || F_CPU == 16000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 0); // turn off prescaler.
+      #elif F_CPU == 10000000 || F_CPU == 8000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 1); // /2
+      #elif F_CPU == 5000000 || F_CPU == 4000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 3); // /4
+      #elif F_CPU == 2000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 5); // /8
+      #elif F_CPU == 1000000
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 7); // /16
+      #endif
+    #elif (CLOCK_SOURCE == 1)
+        #error "External high frequency crystal as clock source is not available on the EB-series"
+    #elif (CLOCK_SOURCE == 2)
+    /* For this, we don't really care what speed it is at - we will run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
+     * It is foolish to determine what we're running at at runtime, as the user should really know the basic parameters of the
+     * board, like the speed of the crystal - it's usually printed on the damned thing. We don't prescale from crystals, eveh though
+     * the hardware is perfectly capable of it. If someone wants to make a convincing argument for adding it, please do so in the issues.
+     * Argument should address the fact that running from a crystal is never going to be the choice of something that cares about power
+     * consumption while awake, and that's the main reason that one would slow the system clock and the fact that Crystals in the relevant
+     * frequency range are readily available; it's not like there's a bunch of reasonable frequencies to run at for which you can't obtain a crystal, but you
+     * can get one for twice that speed.
+     * In fact, there is an almost infinite variety of crystals for *unreasonable* frequencies within the range of clock speeds that
+     * these parts run at, too. Unreasonable for us at least, because, unlike on classic AVRs, we have a fractional baud rate generator,
+     * and there is no need for wacky UART crystals with dumbass speeds like 14.32 MHz.
+     */
+      uint8_t i = 255;
+      _PROTECTED_WRITE(CLKCTRL_MCLKCTRLA, CLKCTRL_CLKSEL_EXTCLK_gc); //
+      while(CLKCTRL.MCLKSTATUS & CLKCTRL_SOSC_bm) {
+        i--;
+        if (i == 0) onClockTimeout();
+        // in my tests, it only took a couple of passes through this loop to pick up the external clock, we concludethe clock source is busted. .
+      }
+    #elif CLOCK_SOURCE == 6  || CLOCK_SOURCE == 7 /* PLL*/
+      // AAaaah! We have a brave one here today!
+      /* When using PLL as clock source, you generally rev the PLL up to 4x CLK_MAIN, and use the Prescale B to knock that down to the normal operating speed... Except *now* you have that quadruple-speed clock to play with for HIRES
+       * 20 or 16 MHz, with the high speed clock -> Set input div to 4. Now we have 5 or 4 mhz. We can multiply it by 8 for 50 or 32 MHz out of the PLL, or by 16 for 80 MHz or 64 MHz.
+       * First implementation I do will just do the dead simple method cases:
+       20 and 16 MHz.
+       */
+      #if (CLOCK_SOURCE == 6) && (F_CPU >= 16000000)
+        uint8_t pllregister = 0x13;
+      #else
+        uint8_t pllregister = 0x33;
+      #endif
+    #else
+      #error "CLOCK_SOURCE was not 0 (internal), 1 (crystal, EA only), 2 (ext. clock), or 6 (PLL, EB only); you must specify a valid clock source with F_CPU and CLOCK_SOURCE."
+    #endif
+    #if (F_CPU % 1000000)
+      // I hope this works for you, but you're in unsupported waters.
+      CLKCTRL.MCLKTIMEBASE = (F_CPU/1000000);
+    #else
+      CLKCTRL.MCLKTIMEBASE = (F_CPU/1000000) - 1; // I'm landing on the right side of the fencepost here right?
+    #endif
+  }
 #endif
-
 /********************************* CLOCK FAILURE HANDLING **************************************/
 /*                                                                                             *
  * These are used for blink codes which indicate issues that would prevent meaningful startup  *

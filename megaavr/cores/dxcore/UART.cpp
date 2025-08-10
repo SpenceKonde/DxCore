@@ -70,8 +70,9 @@
   hardware. Crucially the only thing different betweren the USARTs here isthe addressthey're working with.
   Much of the benefit comes from being able to get the benefits of functionsin terms of flash use without the
   penalties that come with using a true CALL instruction in an ISR (50-80 byte prologue + epiloge), and also
-  being aware that the X register can't do displacement when planning what goes in which regiseser... which
-  is not avr-gcc's strong suite, and often ends up displacing from the X with adiw/sbiw spam. savings for one
+  being aware that the X-register can't do displacement when planning what pointer goes in which register
+  (The mechanics of the ring buffer wound up juggling pointers; this is avoided in the hand optimized versions
+  to the extent possible; knowledge of the USART behavior allows some further optimizations)
   copy of it is small. Savings for several is gets large fast! Performance is better, but not much.
   Biggest advantage is for 2-series with the dual UARTs, but potentially as little as 4k of flash.
 

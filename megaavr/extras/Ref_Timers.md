@@ -563,16 +563,38 @@ Things are very different over on megaTinyCore, at least as far as TCD0 is conce
 
 `**` Way overclocked, may not work (requires external crystal or oscillator).
 
-`Prescale A` and `fPWM` apply to all pins not on TCD0. TOP is always set to 509 for TCA
+`Prescale A` and `fPWM` apply to all pins not on TCD0, On TCA and TCB, TOP is always set to 254 by the core.
 A table is presented for each type of timer comparing the percentage of CPU time spent in the ISR, the resolution of the timekeeping functions, and the execution time of micros.
 `Prescale D`, `TOP D`, and `fPWM (D)` apply to the pins on TCD0.
 In addition to the case of an external system clock source. Note that this did not work correctly prior to 1.4.0 Where marked, we clock TCD0 from OSCHF instead of using CLK_PER, prescale by 32. For speeds other than 5 MHz and 10 MHz, we set the internal oscillator to 8 MHz.
 
 ## Millis/Micros Timekeeping
-megaTinyCore allows any of the timers to be selected as the clock source for timekeeping via the standard millis timekeeping functions. ThThe timer used and system clock speed will effect the resolution of `millis()` and `micros()`, the time spent in the millis ISR, and the time it takes for `micros()`  to return a value. The `micros()` function will typically take several times it's resolution to return, and the times returned corresponds to the time `micros()` was called, regardless of how long it takes to return.
+megaTinyCore and DxCore allow selection of most timers on the part for use as the millis timing source.
 
-### Why this longass section matters
-Both `micros()` and `millis()` take the timer value at almost the moment they are called, then do the math on it, so if you wait for something, call `micros()` wait until something else happens and call `micros()` again, you can take the difference and be confident that it's not grossly inaccurate. But since `micros()` takes several microseconds to return, you can't code as if it returns instantly. *(It has to multiply a 16 bit integer by a 32 bit one, perform division-by-successive-bitshift-and-add/subtraction on a 16-bit opperand and then add the two together, 8-bits at a time? Surely 120 clocks isn't too long to wait for a 32 bit multiply (`timer_overflow_count*1000`) and a 5-9 term approximated division (`ticks = (ticks >> n) - (ticks >> n+a) ... (ticks >> n+n+h)` on a 20 MHz 8-bit CPU?)*
+These options are:
+
+Timer | DxCore | mTC |
+------|--------|-----|
+RTC   | No     | Yes | This was not done the way it should have been and I regret it. SleepLib will do better.
+TCA   | Yes.   | Yes | Default for 0-series parts on MTC (as the only other option is to use the timer they use for servo and tone and anything else that needs a utility timer)
+TCB   | Yes.   | Yes | Default for DxC is TCB2 or the highest numbered TCB if there's no TCB2. For mTC, TCB is default only on 2-series (1-series has the TCD that can do millis)
+TCD   | No.    | Yes | TCD is considerably more useful on Dx-series p[arts, more complicated, and most aren't so timer starved ]
+TCE   | Pend.  | n/a | TCE has enough in common with TCA to use the timing code almost without modification,
+TCF   | Pend.  | n/a | TCF would be a WIERD millis timer, with lots of advantages and downsides. See below.
+
+
+
+
+### Gemeral warnings about micros and millis
+
+Both `micros()` and `millis()` take the timer value at almost the moment they are called, then do the math on it, so if you wait for something, call `micros()` wait until something else happens and call `micros()` again, you can take the difference and be confident that it's *not grossly inaccurate* even at low clock speeds and intervals just a handful of microseconds long... however, you must not do things like `while (micros() - oldmicros < 100`) when you need precise intervals or timing: we snapshot the timer as soon as we can in micros, but we then have to take the 16-bit value of the timer, divide that by the number of ticks per microsecond, and add it to 1000 times the overflow count. If we did it the naive way and used division, it would take ~30us to return. That was plainly unacceptable. The division was the problem (also, done without care, our micros() math could be slowed by allowing a datatype to be promoted unwittingly. As the division solution was not performant, a better approach was sought.
+
+Initially, this core did the same thing as I'd done on ATTC: I used bitshifts and addition/subtraction to achieve the math (several other important learnings regarding timekeeping came out of the initial application of that to mTC). Routine review of compiled minimal test sketches turned up unusually poor compiler output when using bitshift-addition ersatz division. (Subsequent investigation found this to generally be true of all code of the form `X = Y + (Y >> Na) + (Y >> Nb) + ...` where Na > Nb > Nc and so on - the compiler doesn't spot the chance to copy the starting value once, shift it Na times, add it, then shift it another (Nb-Na) times and add that, and (since we compile with -Os) it sacrifices speed for a piddling amount of flash, increasing the time time per shift operation significantly. It also isn't allowed to use contextual knowledge (like, "Okay, the value is no larger than 10,000 because we're running at 20 MHz using a TCB, and we immediately rightshift it three places to get it into the range 0~1249 (which is then ersatz-divided with bitshifts to reduce it by 20%, thus achieving the overall goal, of multiplying a number between 0 and 10,000 by 1/10 to get the number of microseconds from the timer). Once I've shifted the value 3 more places, the high byte can only be zero.
+
+In the timekeeping functions, we'd rather prefer them be optimized for performance, at least the microsecond one (microseconds is always harder than millisecond - on mTC and DxC with a TCB as timekeeping timer, millis() is fast and easy, even though you wouldn't mind so much if it took 200 microseconds or something; on the other hand, micros() always requires ersatz division when Clocks per us is not an integer power of two. (*Okay, who's bright idea was it to put **one thousand** milliseconds into a second?! I need to give em a piece of my mind!* "Try the Oijua board... but yeah, it's a blow to the balls when you want millisecond resolution from a real-time clock running at 1024 Hz... ")
+
+
+) But since `micros()` takes several microseconds to return, you can't code as if it returns instantly. *(It has to multiply a 16 bit integer by a 32 bit one, perform division-by-successive-bitshift-and-add/subtraction on a 16-bit opperand and then add the two together, 8-bits at a time? Surely 120 clocks isn't too long to wait for a 32 bit multiply (`timer_overflow_count*1000`) and a 5-9 term approximated division (`ticks = (ticks >> n) - (ticks >> n+a) ... (ticks >> n+n+h)` on a 20 MHz 8-bit CPU?)*
 Consider:
 ```c
 while (!digitalReadFast(pina));  // this is an extremely tight loop - sbrs rjmp .-4 - 3 clock cycles, so 0-2 clock cycles, + 0-2 clock cycles sync delay/
@@ -646,7 +668,24 @@ while (digitalReadFast(pinb)); // make sure our pulse is over - can be omitted i
 
 `*` internal oscillator is usually within a percent at room temperature, and within half a percent is common. We're assuming that at the moment millis started, an ideal stopwatch was started, and when it indicated 100us had gone by, drove the pin low effectively instantaneously.
 
-A table is presented for each type of timer comparing the percentage of CPU time spent in the ISR, the resolution of the timekeeping functions, and the execution time of micros. Typically `micros()`  can have one of three execution times, the shortest one being overwhelmingly more common, and the differences between them are small.
+#### The TLDR
+
+* micros() can take ten or more microseconds to return a value (and the slow part is already done in hand-optimized asm) because of the necessary math.
+* micros() returns the microsecond tally at the time it was caled, not the time it returns.
+  * If you're going to be taking a pulse input and you want to know how long the puklse is, try pulseIn() (or set up a timer). pulseIn() gives results as accurate as the system clock. Same with a timer.
+* This looks gross, but is sound.
+  ```c
+  while !digitalReadFast(inpin); // wait until pin goes high
+  starttime=micros();
+  if(!digitalReadFast(inpin)) {
+    serial.print("Err: Shortpulse");
+  }
+  while (digitalReadFast(inpin));
+  endtime=micros();
+```
+Incorporating a timeout, however, is challenging. If you can afford to make the timeout at least "1 to 2 ms" long, you can check millis (which is much fasster.)
+
+`
 
 ### TCAn for millis timekeeping
 When TCA0 is used as the millis timekeeping source, it is set to run at the system clock prescaled by 8 when system clock is 1MHz, 16 when system clock is <=5 MHz, and 64 for faster clock speeds, with a period of 255 (as with PWM). This provides a `millis()`  resolution of 1-2ms, and is effectively not higher than 1ms between 16 and 30 MHz, while `micros()` resolution remains at 4 us or less. At 32 MHz or higher, to continue generating PWM output within the target range, we are forced to switch to a larger prescaler (by a factor of 4), so the resolution figures fall by a similar amount, and the ISR is called that much less often.
@@ -680,9 +719,9 @@ When TCA0 is used as the millis timekeeping source, it is set to run at the syst
 | !   2 MHz |  1.02 ms |   4.0 us |   3.55 % |   aprx  60 us |
 |     1 MHz |  2.04 ms |   8.0 us |   3.55 % |        112 us |
 
-`!` - Theoretical, these speeds are not supported and have not been tested
+`!` - Theoretical, these speeds are not supported and have not been tested. Many execution time figures are calculated from examination of code.
 
-In contrast to the type B timer where prescaler is held constant while the period changes, here period (in ticks) is constant but the prescaler is not. Hence each prescaler option is associated with a fixed % of time spent in the ISR (and yes, for reasons I don't understand, the generated ISR code is slightly faster for /64 prescaling compared to /256, /16, and /8 (which are equal to each other). Edit: Probably gets to render something as a swap
+In contrast to the type B timer where prescaler is held constant while the period changes, here period (in ticks) is constant (we need this, otherwise we couldn't get PWM out of it!) but the prescaler is not. Hence each prescaler option is associated with a fixed % of time spent in the ISR (and yes, for reasons I don't understand, the generated ISR code is slightly faster for /64 prescaling compared to /256, /16, and /8 (which are equal to each other). Edit: Probably gets to render something as a swap
 
 The micros execution time does not depend strongly on F_CPU, running from 112-145 clock cycles.
 

@@ -95,7 +95,7 @@ analogWrite(PIN_PA5,64);   // Still just one active channel, everything normal.
 analogWrite(PIN_PA4,90);   // Now both channels are lit up, and we need to use care when changing the TOP:
 TCD0.CMPBCLR = 254;        // Halved the period, so
 TCD0.CMPASET = TCD0.CMPASET >> 1; // Halve the compare value of one timer, and analogWrite() the other.
-analogWrite(PIN_PA5,64);   // This applies all of these settings.
+analogWrite(PIN_PA5,64);   // this applies all of these settings.
 delay(5000)
 TCD0.CMPBCLR=1019;         // Finally, you can also do it manually:
 TCD0.CMPBSET = TCD0.CMPBSET >> 1;
