@@ -152,20 +152,19 @@ azduinoboard.name=Azduino Boards (Optiboot)
 #________________________________________#
 avrda.upload.tool=avrdude
 avrda.upload.prog_interlock=
-avrda.build.board=avrda
-avrda.build.core=dxcore
 avrda.upload.maximum_size=0
 avrda.upload.maximum_data_size=0
 # The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
 # Each top-level entry supports at least a dozen parts with varying memory constraints.
+avrda.build.board=avrda
+avrda.build.core=dxcore
 avrda.build.f_cpu={build.speed}000000L
 avrda.build.text_section_start=.text=0x0
-avrda.build.extra_flags= {bootloader.appspm}
+avrda.build.extra_flags={bootloader.appspm}
 avrda.build.export_merged_output=false
 avrda.build.printf=
 avrda.build.flmapopts=
 avrda.build.attachmode=-DCORE_ATTACH_ALL
-
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -182,9 +181,19 @@ avrda.bootloader.BOOTSIZE=0x01
 # Note that BOOTSIZE is overridden by App SPM menu's default option - this way is just less verbose.
 avrda.bootloader.avrdudestring=
 avrda.bootloader.pymcuprogstring=-aerase
-avrda.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 avrda.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-
+avrda.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+#----------------------------------------#
+# Upload and programming                 #
+#________________________________________#
+avrda.upload.tool=avrdude
+avrda.upload.prog_interlock=
+avrda.upload.maximum_size=0
+avrda.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
+avrda.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrda.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -466,7 +475,7 @@ avrda.menu.attach.oldversion.build.attachabr=.aOld
 # Startup time options                   #
 #________________________________________#
 avrda.menu.startuptime.8=8ms
-avrda.menu.startuptime.1=0ms
+avrda.menu.startuptime.0=0ms
 avrda.menu.startuptime.1=1ms
 avrda.menu.startuptime.2=2ms
 avrda.menu.startuptime.4=4ms
@@ -614,24 +623,16 @@ avrda.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
 #                                        #
 # Parameters and defaults for DB parts   #
 #________________________________________#
-avrdb.upload.tool=avrdude
-avrdb.upload.prog_interlock=
-avrdb.build.board=avrdb
 avrdb.build.mvioenable=-DMVIO_ENABLED
+avrdb.build.board=avrdb
 avrdb.build.core=dxcore
-avrdb.upload.maximum_size=0
-avrdb.upload.maximum_data_size=0
-# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
-# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrdb.build.f_cpu={build.speed}000000L
 avrdb.build.text_section_start=.text=0x0
 avrdb.build.extra_flags= {bootloader.appspm} {build.mvioenable}
 avrdb.build.export_merged_output=false
-avrdb.build.mcupostfix=
 avrdb.build.printf=
 avrdb.build.flmapopts=
 avrdb.build.attachmode=-DCORE_ATTACH_ALL
-
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -646,11 +647,22 @@ avrdb.bootloader.SYSCFG0=0b1100{bootloader.resetpinbit}0{bootloader.eesavebit}
 avrdb.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdb.bootloader.CODESIZE=0x00
 avrdb.bootloader.BOOTSIZE=0x01
+# Note that BOOTSIZE is overridden by App SPM menu's default option - this way is just less verbose.
 avrdb.bootloader.avrdudestring=
 avrdb.bootloader.pymcuprogstring=-aerase
-avrdb.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 avrdb.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-
+avrdb.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+#----------------------------------------#
+# Upload and programming                 #
+#________________________________________#
+avrdb.upload.tool=avrdude
+avrdb.upload.prog_interlock=
+avrdb.upload.maximum_size=0
+avrdb.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
+avrdb.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdb.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -1109,43 +1121,48 @@ avrdb.menu.flmap.locksection0.build.flmapabr=.fl0
 #                                        #
 # Parameters and defaults for DD parts   #
 #________________________________________#
-avrdd.upload.tool=avrdude
-avrdd.upload.prog_interlock=
-avrdd.build.board=avrdd
 avrdd.build.mvioenable=-DMVIO_ENABLED
+avrdd.build.board=avrdd
 avrdd.build.core=dxcore
-avrdd.upload.maximum_size=0
-avrdd.upload.maximum_data_size=0
-# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
-# Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrdd.build.f_cpu={build.speed}000000L
 avrdd.build.text_section_start=.text=0x0
 avrdd.build.defaultswaps=
 avrdd.build.extra_flags= {bootloader.appspm} {build.mvioenable} {build.defaultswaps}
 avrdd.build.export_merged_output=false
-avrdd.build.highestcb=B2
 avrdd.build.printf=
 avrdd.build.flmapopts=
 avrdd.build.attachmode=-DCORE_ATTACH_ALL
-
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
 avrdd.bootloader.tool=avrdude
 avrdd.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
 # AVR Dx-series can only take either 1 (unsupported, 32 kHz, too slow for serial, and 1/30th of the minimum speed we support) or 0 (normal operation)
-avrda.bootloader.OSCCFG=0b00000000
+avrdd.bootloader.OSCCFG=0b00000000
 avrdd.bootloader.wdtwindowbits=0000
 avrdd.bootloader.wdttimeotbits=0000
 avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-avrdd.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbit}00{bootloader.eesavebit}
+avrdd.bootloader.SYSCFG0=0b1101{bootloader.resetpinbit}0{bootloader.eesavebit}
 avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdd.bootloader.CODESIZE=0x00
 avrdd.bootloader.BOOTSIZE=0x01
+# Note that BOOTSIZE is overridden by App SPM menu's default option - this way is just less verbose.
 avrdd.bootloader.avrdudestring=
 avrdd.bootloader.pymcuprogstring=-aerase
-avrdd.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 avrdd.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrdd.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+#----------------------------------------#
+# Upload and programming                 #
+#________________________________________#
+avrdd.upload.tool=avrdude
+avrdd.upload.prog_interlock=
+avrdd.upload.maximum_size=0
+avrdd.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
+avrdd.program.supdidudefuse5=
+avrdd.program.avrdudefuse5=
+
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -1617,12 +1634,8 @@ avrdd.menu.flmap.locksection0.build.flmapabr=.fl0
 #                                        #
 # Parameters and defaults for EA parts   #
 #________________________________________#
-avrea.upload.tool=avrdude
-avrea.upload.prog_interlock=
 avrea.build.board=avrea
 avrea.build.core=dxcore
-avrea.upload.maximum_size=0
-avrea.upload.maximum_data_size=0
 # The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
 # Each top-level entry supports at least a dozen parts with varying memory constraints.
 avrea.build.f_cpu={build.speed}000000L
@@ -1648,9 +1661,17 @@ avrea.bootloader.CODESIZE=0x00
 avrea.bootloader.BOOTSIZE=0x01
 avrea.bootloader.avrdudestring=
 avrea.bootloader.pymcuprogstring=-aerase
-avrea.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 avrea.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-
+avrea.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+#----------------------------------------#
+# Upload and programming                 #
+#________________________________________#
+avrea.program.avrdudefuse5=
+avrea.program.supdidudefuse5=
+avrea.upload.tool=avrdude
+avrea.upload.prog_interlock=
+avrea.upload.maximum_size=0
+avrea.upload.maximum_data_size=0
 #----------------------------------------#
 # Exported hex/lst/map names will        #
 # indicate selected options. These       #
@@ -1953,7 +1974,7 @@ avrea.menu.attach.oldversion.build.attachabr=.aOld
 # Startup time options                   #
 #________________________________________#
 avrea.menu.startuptime.8=8ms
-avrea.menu.startuptime.1=0ms
+avrea.menu.startuptime.0=0ms
 avrea.menu.startuptime.1=1ms
 avrea.menu.startuptime.2=2ms
 avrea.menu.startuptime.4=4ms
@@ -2116,8 +2137,17 @@ avreb.bootloader.CODESIZE=0x00
 avreb.bootloader.BOOTSIZE=0x01
 avreb.bootloader.avrdudestring=
 avreb.bootloader.pymcuprogstring=-aerase
-avreb.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 avreb.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avreb.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+#----------------------------------------#
+# Upload and programming                 #
+#________________________________________#
+avreb.program.avrdudefuse5=
+avreb.program.supdidudefuse5=
+avreb.upload.tool=avrdude
+avreb.upload.prog_interlock=
+avreb.upload.maximum_size=0
+avreb.upload.maximum_data_size=0
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -2401,7 +2431,7 @@ avreb.menu.attach.oldversion.build.attachabr=.aOld
 # Startup time options                   #
 #________________________________________#
 avreb.menu.startuptime.8=8ms
-avreb.menu.startuptime.1=0ms
+avreb.menu.startuptime.0=0ms
 avreb.menu.startuptime.1=1ms
 avreb.menu.startuptime.2=2ms
 avreb.menu.startuptime.4=4ms
@@ -2537,7 +2567,10 @@ avrdaopti.build.export_merged_output=true
 avrdaopti.build.printf=
 avrdaopti.build.flmapopts=
 avrdaopti.build.attachmode=-DCORE_ATTACH_ALL
-
+avrdaopti.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrdaopti.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdaopti.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdaopti.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -2824,7 +2857,7 @@ avrdaopti.menu.attach.oldversion.build.attachabr=.aOld
 # Startup time options                   #
 #________________________________________#
 avrdaopti.menu.startuptime.8=8ms
-avrdaopti.menu.startuptime.1=0ms
+avrdaopti.menu.startuptime.0=0ms
 avrdaopti.menu.startuptime.1=1ms
 avrdaopti.menu.startuptime.2=2ms
 avrdaopti.menu.startuptime.4=4ms
@@ -3047,7 +3080,10 @@ avrdbopti.bootloader.CODESIZE=0x00
 avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrdbopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
-
+avrdbopti.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrdbopti.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdbopti.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdbopti.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#
@@ -3591,7 +3627,10 @@ avrddopti.bootloader.CODESIZE=0x00
 avrddopti.bootloader.BOOTSIZE=0x01
 avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrddopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
-
+avrddopti.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrddopti.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrddopti.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrddopti.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Upload parameters for Optiboot         #
 #________________________________________#

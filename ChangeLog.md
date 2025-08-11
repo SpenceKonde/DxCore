@@ -10,18 +10,21 @@ These items are in addition to what was listed under changes already in release.
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
 * Ensure libraries in sync with megaTinyCore.
+* Add support for DU-series to tools menus, permitting compile tests once I get the toolchain ready.
 
 ## 1.6.0
 These are typically planned for release in a future version (usually the next one) as noted.
+* OSCCFG is now written for Dx-series parts. We have never supported any option other that 0x00 on those parts, and the hardware only supports one other value, which starts the chip on the 32 kHz oscillator.
 * Support for the PTC peripheral on DA parts
 * Correct bug with EA-series parts having the SYSCFG0 fuse set during normal uploads, which is inappropriate, because if the UPDIPINCFG bit is not 1, the chip can only be reprogrammed with an exotic HV programmer.
 * Corrected a bug with EA-series parts incorrectly calculating the UPDIPINCFG bit as 0 in all cases. In combination with the above, unlucky users who were able to get an upload to attempt would promptly brick the chip, since nobody has HV programmers. Sorry bout that \o/ I'm not even certain there is a programming problem, or if I'd just attempted to program every chip I had mounted on a board....
 * Correct bug with EA-series parts failing to correctly configure clock speed.
-* Add support for EB-series to tools menus, permitting compile tests.
+* Add support for EB-series to tools menus, permitting compile tests once I get the toolchain ready.
+  * Not yet expected to work.
 * Brutal restructuring of Arduino.h.
 * keywords.txt for DxCore contained numerous deficiencies of varying severities. It was rebuilt de novo. Slightly less disorganized this time.
 * device_timer_pins.h design deemed hopelessly defective. Functionally identical file regenerated de novo,
-
+* Fix issue with 0ms SUT.
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)
