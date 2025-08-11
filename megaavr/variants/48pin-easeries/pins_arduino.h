@@ -1,13 +1,13 @@
 /*  (C) Spence Konde 2021-2023 open source (LGPL2.1 see LICENSE.md) based on existing Arduino cores.*/
 //                                                                                    *INDENT-OFF*
 /*
- ###  #     # ####      ####   ###    #  #  ###
-#   # #     # #   #     #     #   #   #  # #   #          #
-#####  #   #  ####      ###   #####   ####  ###  ### ###     ###
-#   #   # #   #  #      #     #   #      # #   #     #  # #  #  #
-#   #    #    #   #     ####  #   #      #  ###      ###  #  #  #
-==================================================== # ------------
-Variant definition file for generic DA/DB parts      #
+ ###  #     # ####      ####   ###         #  #  ###
+#   # #     # #   #     #     #   #        #  # #   #          #
+#####  #   #  ####      ###   #####        ####  ###  ### ###     ###
+#   #   # #   #  #      #     #   #           # #   #     #  # #  #  #
+#   #    #    #   #     ####  #   #           #  ###      ###  #  #  #
+===================================       ----------      #
+Variant definition file for generic DA/DB parts           #
 with 48 pins.
 
 Part Numbers:
@@ -414,12 +414,12 @@ const uint8_t digital_pin_to_port[] = {
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     PIN0_bp,//   0 PA0
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+  #if ((CLOCK_SOURCE & 0x03) == 1)   // PA1 also used for crystal
     NOT_A_PIN,
   #else // PA1 used for external crystal.
     PIN1_bp,//   1 PA1
@@ -467,12 +467,12 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
 };
 
 const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     PIN0_bm,//   0 PA0
   #else
     NOT_A_PIN,
   #endif
-  #if CLOCK_SOURCE == 1   // PA1 also used for crystal
+  #if ((CLOCK_SOURCE & 0x03) == 1)   // PA1 also used for crystal
     NOT_A_PIN,
   #else // PA1 used for external crystal.
     PIN1_bm,//   1 PA1

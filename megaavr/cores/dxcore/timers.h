@@ -259,7 +259,7 @@
       #define TIMERD0_WGMODE_SETTING (TCD_WGMODE_ONERAMP_gc)
     #endif
     #if !defined(TIMERD0_CLOCK_SETTING)
-      #if (CLOCK_SOURCE != 0)
+      #if (((CLOCK_SOURCE & 0x03) == 0))
         /*
         This is ALSO almost indistinguishable! Same F_PWM, but lower internal frequency.
         Sync is slower. but the bugs with TCD async events won't happen, and it's easier to do wacky stuff with the PROGEV.

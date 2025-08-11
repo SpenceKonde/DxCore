@@ -306,7 +306,7 @@
   #if defined(USART0)
     const uint8_t _usart0_pins[][USART_PINS_WIDTH] PROGMEM = {
       #if (defined(HWSERIAL0_MUX))
-        #if (defined(PIN_HWSERIAL0_TX) && defined(PIN_HWSERIAL0_RX) && defined(PIN_HWSERIAL0_XCK) && defined(PIN_HWSERIAL0_XDIR) && ((PIN_HWSERIAL0_TX != NOT_A_PIN && CLOCK_SOURCE == 0) || (PIN_HWSERIAL0_RX != NOT_A_PIN && CLOCK_SOURCE != 1)))
+        #if (defined(PIN_HWSERIAL0_TX) && defined(PIN_HWSERIAL0_RX) && defined(PIN_HWSERIAL0_XCK) && defined(PIN_HWSERIAL0_XDIR) && ((PIN_HWSERIAL0_TX != NOT_A_PIN && ((CLOCK_SOURCE & 0x03) == 0)) || (PIN_HWSERIAL0_RX != NOT_A_PIN && CLOCK_SOURCE != 1)))
           #if !defined(HWSERIAL0_MUX_DEFAULT)
             #define HWSERIAL0_MUX_DEFAULT (HWSERIAL0_MUX)
           #endif

@@ -5,8 +5,8 @@
 #   # #     # #   #     #     #   #      ##   #  #          #
 #####  #   #  ####      ###   ####        #   #### ### ###     ###
 #   #   # #   #  #      #     #   #       #      #     #  # #  #  #
-#   #    #    #   #     ####  ####      ####     #     ###  #  #  #
-===================================     ----------     #
+#   #    #    #   #     ####  ####       ###     #     ###  #  #  #
+===================================      ---------     #
 Variant Definition file for generic EB parts           #
 with 14 pins.
 
@@ -321,7 +321,7 @@ static const uint8_t A31 = PIN_A31;
 
   /* Use this for accessing PINnCTRL register */
   const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock
+    #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock
       PIN0_bp,//   0 PA0
     #else
       NOT_A_PIN,
@@ -350,7 +350,7 @@ static const uint8_t A31 = PIN_A31;
   };
 
   const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
-    #if CLOCK_SOURCE == 0 // PA0 used for external clock
+    #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock
       PIN0_bm, //  0 PA0
     #else
       NOT_A_PIN,
@@ -380,7 +380,7 @@ static const uint8_t A31 = PIN_A31;
 
 const uint8_t digital_pin_to_timer[] = { // *INDENT-OFF*
   #if
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock
     TIMERF0_0WO0, //  0 PA0
   #else
     NOT_A_PIN,
@@ -410,7 +410,7 @@ const uint8_t digital_pin_to_timer[] = { // *INDENT-OFF*
 #endif
 
 // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for
-#if CLOCK_SOURCE != 0
+#if ((CLOCK_SOURCE & 0x03) == 0)
   #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0  ? ((pin) == 4) ? ((pin) + PIN_PD4) : NOT_A_PIN)
 #else
   #define _VALID_DIGITAL_PIN(pin)  ((pin) == 0 || ((pin) == 1) ? (pin) : (pin) < 4 ? (PIN_PC0 + (pin)) : NOT_A_PIN)

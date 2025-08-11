@@ -77,12 +77,12 @@
 #endif
 
 #if defined(TCF0)
-  #if (CLOCK_SOURCE == 0)
+  #if (((CLOCK_SOURCE & 0x03) == 0))
     #define PIN_TCF0_WO0_DEFAULT          PIN_PA0
   #else
     #define PIN_TCF0_WO0_DEFAULT          NOT_A_PIN
   #endif
-  #if (CLOCK_SOURCE == 1)
+  #if (((CLOCK_SOURCE & 0x03) == 1))
     #define PIN_TCF0_WO1_DEFAULT          NOT_A_PIN
   #else
     #define PIN_TCF0_WO1_DEFAULT          PIN_PA1
@@ -90,12 +90,12 @@
 #endif
 
 #if defined(TCA0)
-  #if (CLOCK_SOURCE == 0) // PA0 only available when using internal oscillator.
+  #if (((CLOCK_SOURCE & 0x03) == 0)) // PA0 only available when using internal oscillator.
     #define PIN_TCA0_WO0_DEFAULT    PIN_PA0
   #else
     #define PIN_TCA0_WO0_DEFAULT    NOT_A_PIN
   #endif
-  #if (CLOCK_SOURCE == 1) // crystal doesn't have PA1 available either
+  #if (((CLOCK_SOURCE & 0x03) == 1)) // crystal doesn't have PA1 available either
     #define PIN_TCA0_WO1_DEFAULT    NOT_A_PIN
   #else
     #define PIN_TCA0_WO1_DEFAULT    PIN_PA1

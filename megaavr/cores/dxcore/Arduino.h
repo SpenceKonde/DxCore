@@ -519,7 +519,86 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 
 
 #include "pins_arduino.h"
+/* The Variant file must do one of the following */
+/* 1. Use the same pin order as this core's default pin mapping (recommended)
+ * 2. Number each pin (port * 8) + bit_position, and define HYPERRATIONAL_PIN_NUMBERS (also recommended)
+ * 3. Define NONCANONICAL_PIN_NUMBERS and use any pin numbering. (recommended if you must use a layout that departs significantly from the above)
+ * 4. Define SPECIAL_PIN_NUMBERS, and provide a _digitalPinToCanon(pin) macro that takes an Arduino pin number, and returns (port * 8) + bit_position
+ *    (Only if you can do it better than the standard noncanonical implementation - that implementation is not grotesque, but it's also not great.
+ *    each table lookup takes the form lds lds add adc ld, 7 words and 10 clocks, so the whole thing is probably on the order of 20 and 26)
+ * This change permits underlying logic to be written with a single byte to represent a pin, which is present in some obscure parts of the code
+ * mostly involving interrupts.
+ * Note that for constant pins known at compile time, these should all be able to be constant folded, it's only compile time unknown pins
+ * where this applies. And only for the rare cases where we end up doing this, often interrupt related.
+ * A lot of this comes back to the question of whether to leave "holes" for missing pins in the numbering. There are two forces pulling in
+ * opposite directions here: each ghost pin takes up 4b for it's entries in the pin table (and it's sort of absurd for a 28-pin part to have
+ * 47 logical pins because they were missing PB, PE, and 4 pins of PC and PF, but they make this sort of conversion (and a number of
+ * similar ones) much easier.
+ */
 
+#if defined(NONCANONICAL_PIN_NUMBERS)
+  #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? ((digital_pin_to_port[pin] << 3) + digital_pin_to_bit_position[pin] ) : NOT_A_PIN)
+#elif defined(HYPERRATIONAL_PIN_NUMBERS) /* Variant must number pins in order, and must skip numbers of pins not present on the chip. */
+  #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (pin) : NOT_A_PIN)
+#elif !defined(SPECIAL_PIN_NUMBERS)
+  #if _AVR_PINCOUNT == 64
+    #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (((pin) < PIN_PG0) ? (pin) : (((pin) > PIN_PG7) ? (pin) - 8 : (pin) + 2 )) : NOT_A_PIN)
+  #elif _AVR_PINCOUNT == 48
+    #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (((pin) < PIN_PC0) ? (pin) : (pin) + 2 ) : NOT_A_PIN)
+  #elif _AVR_PINCOUNT == 32
+    #define _digitalPinToCanon(pin) (((pin) < NUM_TOTAL_PINS) ? (((pin) <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : NOT_A_PIN)
+  #elif _AVR_PINCOUNT == 28
+    #define _digitalPinToCanon(pin) (((pin) <= PIN_PF1) ? (((pin) <= PIN_PA7) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (((pin) < PIN_PF0) ? (pin) + 12 : (pin) + 20 ))) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 16 : NOT_A_PIN))
+  #elif _AVR_PINCOUNT == 20 || _AVR_PINCOUNT == 14
+    #define _digitalPinToCanon(pin) (((pin) < PIN_PF6) ? (((pin) <= PIN_PC0) ? (pin) : (((pin) < PIN_PD0) ? (pin) + 8 : (pin) + 12)) : (((pin) < NUM_TOTAL_PINS) ? (pin) + 26 : NOT_A_PIN))
+  #endif
+#else
+  #if !defined(_digitalPinToCanon)
+    #error "Your custom variant says it provides a _digitalPinToCanon (SPECIAL_PIN_NUMBERS defined) but you don't provide one. \n Define NONCANONICAL_PIN_NUMBERS instead to use a possibly slower handler for the general case"
+  #endif
+#endif
+  // this stuff used to be in the variants.
+#if !defined(NUM_DIGITAL_PINS)
+/* Despite the name, this actually is a number 1 higher than the highest valid number for a digital pin
+ * that is, it's the first integer which does not refer to a pin, and the number of digital pins if there
+ * were no gaps in the numbering. Almost every pin mapping has gaps.
+ * Tests like if (pin >= NUM_DIGITAL_PIN) return; are ubiquitous.
+ * So we need to make our NUM_DIGITAL_PINS work like that.
+ */
+  #if defined(PIN_PG7) // if there's a PORTG, that's the last pin. Add 1 to get the first non-pin
+    #define NUM_DIGITAL_PINS            (PIN_PG7 + 1)
+  #elif defined(PIN_PF7)  // if the UPDI pin, PF7 is defined (ie, UPDI can be prorgrammed as GPIO)
+    #define NUM_DIGITAL_PINS            (PIN_PF7 + 1)
+  #elif defined(PIN_PF6)  // otherwise it should be the reset pin, PG6.
+    #define NUM_DIGITAL_PINS            (PIN_PF6 + 1)
+  #else
+    #error "The variant file is incorrect, as it indicates no PG7, PF7 or PF6. All supported and announced parts have one or more of those pins."
+  #endif
+#endif
+#if !defined(NUM_RESERVED_PINS)
+  #define NUM_RESERVED_PINS             (0)
+#endif
+#if !defined(NUM_INTERNALLY_USED_PINS)
+  #if ((CLOCK_SOURCE & 0x03) == 1)
+    #define NUM_INTERNALLY_USED_PINS    (2) // External crystal takes PA0 and PA1
+  #elif ((CLOCK_SOURCE & 0x03) == 2)
+    #define NUM_INTERNALLY_USED_PINS    (1) // External clock takes out PA0
+  #else
+    #define NUM_INTERNALLY_USED_PINS    (0)
+  #endif
+#endif
+#if !defined(NUM_I2C_PINS)
+  #define NUM_I2C_PINS                  (2) // per I2C port in use - this number is nonsensical without qualification is is only for compatibility.
+#endif
+#if !defined(NUM_SPI_PINS)
+  #define NUM_SPI_PINS                  (3) // per SPI port in use - this number is nonsensical without qualification is is only for compatibility.
+#endif
+#if !defined(NUM_TOTAL_FREE_PINS)
+  #define NUM_TOTAL_FREE_PINS           (PINS_COUNT - NUM_INTERNALLY_USED_PINS)
+#endif
+#if !defined(NUM_TOTAL_PINS)
+  #define NUM_TOTAL_PINS                (NUM_DIGITAL_PINS) /* Used the same way as NUM_DIGITAL_PINS. so it doesn't mean what it's named  - I didn't make the convention*/
+#endif
 #define CHANNEL0_UNCHANGED    (0x40)
 #define CHANNEL1_UNCHANGED    (0x41)
 
@@ -589,7 +668,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
     // Passing -1/255/NOT_A_PIN to the digital I/O functions is most likely intentional.
       badArg("Digital pin is constant, but not a valid pin");
     }
-    #if (CLOCK_SOURCE == 2)
+    #if (((CLOCK_SOURCE & 0x03) == 2))
       #if defined(MEGATINYCORE)
         if (pin == PIN_PA3) {
           badArg("Constant digital pin PIN_PA3 is used for the external osc, and is not available for other uses.");
@@ -599,7 +678,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
           badArg("Constant digital pin PIN_PA0 is used for the external osc, and is not available for other uses.");
         }
       #endif
-    #elif CLOCK_SOURCE == 1
+    #elif ((CLOCK_SOURCE & 0x03) == 1)
       if (pin < 2) {
         badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
       }

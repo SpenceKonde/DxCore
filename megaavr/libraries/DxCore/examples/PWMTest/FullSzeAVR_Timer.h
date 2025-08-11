@@ -63,7 +63,7 @@ const PROGMEM_MAPPED uint8_t MyTimers[] = {
 
 
 const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
-  #if CLOCK_SOURCE == 0
+  #if ((CLOCK_SOURCE & 0x03) == 0)
     PIN_PA0, PIN_PA1,
   #else
     NOT_A_PIN, NOT_A_PIN,
@@ -256,7 +256,7 @@ const PROGMEM_MAPPED uint8_t TCD0pinsets[] = {
 /* TODO:
 // This is a 128b table. The majority of it is "reserved" mappings. Obvious assumptions were made.
 const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
-  #if (CLOCK_SOURCE == 0)
+  #if (((CLOCK_SOURCE & 0x03) == 0))
     PIN_PA0, PIN_PA1,
   #else
     NOT_A_PIN, NOT_A_PIN,
@@ -335,7 +335,7 @@ const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
   #endif
   NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
   // C2
-  #if (CLOCK_SOURCE == 0)
+  #if (((CLOCK_SOURCE & 0x03) == 0))
     PIN_PA0, PIN_PA1,
   #else
     NOT_A_PIN, NOT_A_PIN,
@@ -361,7 +361,7 @@ const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
 };
 
 const PROGMEM_MAPPED uint8_t TCF0pinsets[] = {
-  #if (CLOCK_SOURCE == 0)
+  #if (((CLOCK_SOURCE & 0x03) == 0))
     PIN_PA0, PIN_PA1,
   #else
     NOT_A_PIN, NOT_A_PIN,

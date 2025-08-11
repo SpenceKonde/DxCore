@@ -56,7 +56,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
     if (pin >= NUM_TOTAL_PINS && pin != NOT_A_PIN) { // Exception made for NOT_A_PIN - code exists which relies on being able to pass this and have nothing happen.
       badArg("Digital pin is constant, but not a valid pin");
     }
-  #if (CLOCK_SOURCE == 2)
+  #if (((CLOCK_SOURCE & 0x03) == 2))
     #if defined(MEGATINYCORE)
       if (pin == PIN_PA3) {
         badArg("Constant digital pin PIN_PA3 is used for the external osc, and is not available for other uses.");
@@ -66,7 +66,7 @@ inline __attribute__((always_inline)) void check_valid_digital_pin(pin_size_t pi
         badArg("Constant digital pin PIN_PA0 is used for the external osc, and is not available for other uses.");
       }
     #endif
-  #elif CLOCK_SOURCE == 1
+  #elif ((CLOCK_SOURCE & 0x03) == 1)
     if (pin < 2) {
       badArg("Pin PA0 and PA1 cannot be used for digital I/O because those are used for external crystal clock.");
     }

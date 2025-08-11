@@ -2027,7 +2027,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 
 // These are defaults that could be overridden by variant or arguments passed to compiler
 // They are only relevant for the case of using a crystal.
-#if CLOCK_SOURCE == 1 && defined(CLKCTRL_FRQRANGE_gm)
+#if ((CLOCK_SOURCE & 0x03) == 1) && defined(CLKCTRL_FRQRANGE_gm)
   // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
   // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
   // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
@@ -2051,7 +2051,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 #endif
 #if (defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_DU__))
   void  __attribute__((weak)) init_clock() {
-    #if CLOCK_SOURCE == 0
+    #if ((CLOCK_SOURCE & 0x03) == 0)
       /* internal can be cranked up to 32 Mhz by just extending the prior pattern from 24 to 28 and 32.
        *  F_CPU    CLKCTRL_FREQSEL or FRQSEL depending on ATpack version
        *  1 MHz    0x0
@@ -2142,7 +2142,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       #else
         #error "F_CPU defined as an unsupported value for the internal oscillator."
       #endif
-    #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
+    #elif (((CLOCK_SOURCE & 0x03) == 1) || ((CLOCK_SOURCE & 0x03) == 2))
     /* For this, we care very little, from the perspective of the init code, what the system frequency is - we have little choice but to
      * run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
      * It is foolish to determine what we're running at at runtime, as the user should really knoe the basic parameters of the
@@ -2155,7 +2155,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
      */
       #if !defined(CLKCTRL_XOSCHFCTRLA)
         // it's an AVR DA-series or something with that version of CLKCTRL.
-        #if (CLOCK_SOURCE == 1)
+        #if (((CLOCK_SOURCE & 0x03) == 1))
           #error "AVR DA-series selected, but crystal as clock source specified. DA-series parts only support internal oscillator or external clock."
         #else
           // external clock
@@ -2174,7 +2174,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
         // a clock sufficiently broken that it resets instead.
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
         _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
-        #if (CLOCK_SOURCE == 2)
+        #if (((CLOCK_SOURCE & 0x03) == 2))
           // external clock
           // CLKCTRL_SELHF_EXTCLOCK_gc or CLKCTRL_SELHF_EXTCLK_gc? Microchip can't seem to decide, and we can't test for it with the preprocessor because it's a bloody enumerated type.
           // 0x02 is the numeric value of that constant. I can't even provide compatibility defines, because I don't have any way to tell which one it is for a given version of the headers.
@@ -2198,7 +2198,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
   }
 #elif defined(__AVR_EA__)
   void  __attribute__((weak)) init_clock() {
-    #if CLOCK_SOURCE == 0
+    #if ((CLOCK_SOURCE & 0x03) == 0)
       // This sucks! Our internal clock sucks! two lousy speeds, selected by fuses? What is this, tinyAVR?
       #if F_CPU == 20000000 || F_CPU == 16000000
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 0); // turn off prescaler.
@@ -2211,7 +2211,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       #elif F_CPU == 1000000
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 7); // /16
       #endif
-    #elif (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2)
+    #elif (((CLOCK_SOURCE & 0x03) == 1) || ((CLOCK_SOURCE & 0x03) == 2))
     /* For this, we don't really care what speed it is at - we will run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
      * It is foolish to determine what we're running at at runtime, as the user should really know the basic parameters of the
      * board, like the speed of the crystal - it's usually printed on the damned thing. We don't prescale from crystals, eveh though
@@ -2226,7 +2226,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
      */
       #if !defined(CLKCTRL_XOSCHFCTRLA)
         // it's an AVR EB-series or something.
-        #if (CLOCK_SOURCE == 1)
+        #if (((CLOCK_SOURCE & 0x03) == 1))
           #error "AVR EB-series selected, but crystal as clock source specified. EB-series parts only support internal oscillator or external clock."
         #else
           // external clock
@@ -2246,7 +2246,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
         // to result in similar failure modes to overclocking.
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
         _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
-        #if (CLOCK_SOURCE == 2)
+        #if (((CLOCK_SOURCE & 0x03) == 2))
           // external clock
           _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (0x02 | CLKCTRL_ENABLE_bm));
           uint8_t i = 255;
@@ -2280,7 +2280,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
   }
 #elif defined(__AVR_EB__)
   void  __attribute__((weak)) init_clock() {
-    #if CLOCK_SOURCE == 0
+    #if ((CLOCK_SOURCE & 0x03) == 0)
       #if F_CPU == 20000000 || F_CPU == 16000000
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 0); // turn off prescaler.
       #elif F_CPU == 10000000 || F_CPU == 8000000
@@ -2292,9 +2292,9 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       #elif F_CPU == 1000000
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 7); // /16
       #endif
-    #elif (CLOCK_SOURCE == 1)
+    #elif (((CLOCK_SOURCE & 0x03) == 1))
         #error "External high frequency crystal as clock source is not available on the EB-series"
-    #elif (CLOCK_SOURCE == 2)
+    #elif (((CLOCK_SOURCE & 0x03) == 2))
     /* For this, we don't really care what speed it is at - we will run at crystal frequency, and THE USER MUST TELL US WHAT THAT IS.
      * It is foolish to determine what we're running at at runtime, as the user should really know the basic parameters of the
      * board, like the speed of the crystal - it's usually printed on the damned thing. We don't prescale from crystals, eveh though
@@ -2357,7 +2357,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
  ***********************************************************************************************/
 
 
-#if (CLOCK_SOURCE == 1 || CLOCK_SOURCE == 2 || CLOCK_SOURCE == 6) // PLL here because you can
+#if (((CLOCK_SOURCE & 0x03) == 1) || ((CLOCK_SOURCE & 0x03) == 2) || CLOCK_SOURCE == 6) // PLL here because you can
   // easily exceed the max speed with the PLL clock. If this behaves like the Dx's clocking
   // the TCD, where if you push it too hard, it will vanish instead of saturating at a max
   // speed

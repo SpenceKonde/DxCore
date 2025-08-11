@@ -61,7 +61,7 @@
 #if !defined MYSERIALSWAP
   #if defined(__AVR_DD__) && defined(_AVR_PINCOUNT) && _AVR_PINCOUNT == 14 && MYSERIAL == SERIAL
     #define MYSERIALSWAP 3 // Too likely I'll be using a clock, and it's a pain to have to wire up VDDIO2 to use serial.
-  #elif MYSERIAL == SERIAL && CLOCK_SOURCE != 0
+  #elif MYSERIAL == SERIAL && ((CLOCK_SOURCE & 0x03) == 0)
     #define MYSERIALSWAP 1
   #elif (0 && (MYSERIAL == SERIAL && (_AVR_PINCOUNT == 64 && defined(__AVR_DB__) || defined(XTAL_PINS_HARDWIRED)))) // For arduino designs in testing.
     #define MYSERIALSWAP 1

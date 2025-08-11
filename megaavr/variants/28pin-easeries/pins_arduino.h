@@ -371,7 +371,7 @@ const uint8_t digital_pin_to_port[] = {
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = {
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     PIN0_bp,            // PA0
   #else
     NOT_A_PIN,
@@ -407,7 +407,7 @@ const uint8_t digital_pin_to_bit_position[] = {
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_mask[] = {
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     PIN0_bm,            // PA0
   #else
     NOT_A_PIN,

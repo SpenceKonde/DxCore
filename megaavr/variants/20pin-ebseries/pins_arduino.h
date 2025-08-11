@@ -337,7 +337,7 @@ const uint8_t digital_pin_to_port[] = {
 
 /* Use this for accessing PINnCTRL register */
 const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     PIN0_bp,//   0 PA0
   #else
     NOT_A_PIN,
@@ -366,7 +366,7 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
 };
 
 const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     PIN0_bm, //   0 PA0
   #else
     NOT_A_PIN,
@@ -395,7 +395,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
 };
 
 const uint8_t digital_pin_to_timer[] = { // *INDENT-OFF*
-  #if CLOCK_SOURCE == 0 // PA0 used for external clock and crystal.
+  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
     TIMERF0_0WO0,//   0 PA0
   #else
     NOT_ON_TIMER,
@@ -425,7 +425,7 @@ const uint8_t digital_pin_to_timer[] = { // *INDENT-OFF*
 
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
-  #if CLOCK_SOURCE != 0
+  #if ((CLOCK_SOURCE & 0x03) == 0)
     #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
   #else
     #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)

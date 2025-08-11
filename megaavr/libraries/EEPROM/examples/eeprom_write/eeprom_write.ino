@@ -18,7 +18,7 @@ int addr = 0;
 
 void setup() {
   // initialize the LED pin as an output - skip if LED_BUILTIN is defined as the CLKIN pin and using external clock source (an invalid configuration in practice!). We test for this to ensure that the sketch will compile successfully and can be used for CI testing
-  #if CLOCK_SOURCE != 2 ||  LED_BUILTIN != PIN_PA0
+  #if ((CLOCK_SOURCE & 0x03) == 2) ||  LED_BUILTIN != PIN_PA0
   pinMode(LED_BUILTIN, OUTPUT);
   #endif
 }
@@ -62,7 +62,7 @@ void loop() {
    *
    * ++addr &= EEPROM.length() - 1;
    */
-  #if CLOCK_SOURCE != 2 ||  LED_BUILTIN != PIN_PA0
+  #if ((CLOCK_SOURCE & 0x03) == 2) ||  LED_BUILTIN != PIN_PA0
   digitalWrite(LED_BUILTIN, HIGH); // briefly flash LED as activity indication.
   #endif
   delay(2000);

@@ -13,9 +13,14 @@ These items are in addition to what was listed under changes already in release.
 
 ## 1.6.0
 These are typically planned for release in a future version (usually the next one) as noted.
-* Add support for not-yet-announced S class DA-series parts, which are identical but for having the new EB-series lockdown thingie. There are no changes needed.
 * Support for the PTC peripheral on DA parts
-* Correct bug with EA-series parts having the SYSCFG0 fuse burned incorrectly. This would brick any EA-series part programmed. Luckily as uploading doesn't work right, few people have managed to do this.
+* Correct bug with EA-series parts having the SYSCFG0 fuse set during normal uploads, which is inappropriate, because if the UPDIPINCFG bit is not 1, the chip can only be reprogrammed with an exotic HV programmer.
+* Corrected a bug with EA-series parts incorrectly calculating the UPDIPINCFG bit as 0 in all cases. In combination with the above, unlucky users who were able to get an upload to attempt would promptly brick the chip, since nobody has HV programmers. Sorry bout that \o/ I'm not even certain there is a programming problem, or if I'd just attempted to program every chip I had mounted on a board....
+* Correct bug with EA-series parts failing to correctly configure clock speed.
+* Add support for EB-series to tools menus, permitting compile tests.
+* Brutal restructuring of Arduino.h.
+* keywords.txt for DxCore contained numerous deficiencies of varying severities. It was rebuilt de novo. Slightly less disorganized this time.
+* device_timer_pins.h design deemed hopelessly defective. Functionally identical file regenerated de novo,
 
 
 ### 1.5.11 (Emergency fix)
