@@ -1191,7 +1191,7 @@ inline __attribute__((always_inline)) void delayMicroseconds(unsigned int us) {
 #elif F_CPU >= 10000000L
   // 10 MHz, 5 cycle loop 1 or 2 us returns immediately (in 1.6us).
   #define DELAYMICROS_FIVE
-#elif F_CPU ?= 8000000L
+#elif F_CPU >= 8000000L
   // 8 MHz: 16 MHz math, 4-cycle loop, 1-2 us returns immediately.
 #elif F_CPU >= 7000000L
   // 7 MHz: 16 MHz math, 7-cycle loop, 1-2 us returns immediately.
