@@ -467,7 +467,7 @@
 
 
 #if (defined(__AVR_EA__) || defined(__AVR_EB__)) /* 3, and 2 sizes of flash instead of 3 like Dx */
-  #if   (PROGMEM_SIZE == 0x10000))) // 64k - EA only
+  #if   (PROGMEM_SIZE == 0x10000) // 64k - EA only
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x30)
   #elif (PROGMEM_SIZE == 0x8000)  // 32k EA/EB
     #define CORE_PART_ID (CORE_PART_ID_LOW | 0x20)
