@@ -81,7 +81,7 @@ void Opamp::init() {
     OPAMP_PWRCTRL  = inrange; // Select normal or rail to rail input mode
   }
   if (enable == enable::unconfigured) { // called init, haven't set enable nor explicitly asked not to turn it on?
-    enable = (opamp_ctrla & 0x01)
+    enable = (opamp_ctrla & 0x01);
   }
   opamp_ctrla  = standby | output | event | enable;
   opamp_resmux = ladder_wiper | ladder_top | ladder_bottom;
