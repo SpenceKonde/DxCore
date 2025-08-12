@@ -2358,20 +2358,20 @@ has once worked for the same thing as meaning that thing */
     #define BOD_SLEEP_DIS_gc BOD_SLEEP_DISABLE_gc
     #define SAMPFREQ_128Hz_gc SAMPFREQ_128HZ_gc
     #define SAMPFREQ_32Hz_gc  SAMPFREQ_32HZ_gc
-    #define CLKCTRL_CSUTHF_1K_gc
-    #define CLKCTRL_CSUTHF_256_gc
-    #define CLKCTRL_CSUTHF_4K_gc
+    #define CLKCTRL_CSUTHF_1KCYC_gc CLKCTRL_CSUTHF_1K_gc
+    #define CLKCTRL_CSUTHF_256CYC_gc CLKCTRL_CSUTHF_256_gc
+    #define CLKCTRL_CSUTHF_4KCYC_gc CLKCTRL_CSUTHF_4K_gc
+    #define CLKCTRL_PDIV_DIV2_gc CLKCTRL_PDIV_2X_gc
+    #define CLKCTRL_PDIV_DIV4_gc CLKCTRL_PDIV_4X_gc
+    #define CLKCTRL_PDIV_DIV6_gc CLKCTRL_PDIV_6X_gc
+    #define CLKCTRL_PDIV_DIV8_gc CLKCTRL_PDIV_8X_gc
     #define CLKCTRL_PDIV_DIV10_gc CLKCTRL_PDIV_10X_gc
     #define CLKCTRL_PDIV_DIV12_gc CLKCTRL_PDIV_12X_gc
     #define CLKCTRL_PDIV_DIV16_gc CLKCTRL_PDIV_16X_gc
     #define CLKCTRL_PDIV_DIV24_gc CLKCTRL_PDIV_24X_gc
-    #define CLKCTRL_PDIV_DIV2_gc CLKCTRL_PDIV_2X_gc
     #define CLKCTRL_PDIV_DIV32_gc CLKCTRL_PDIV_32X_gc
     #define CLKCTRL_PDIV_DIV48_gc CLKCTRL_PDIV_48X_gc
-    #define CLKCTRL_PDIV_DIV4_gc CLKCTRL_PDIV_4X_gc
     #define CLKCTRL_PDIV_DIV64_gc CLKCTRL_PDIV_64X_gc
-    #define CLKCTRL_PDIV_DIV6_gc CLKCTRL_PDIV_6X_gc
-    #define CLKCTRL_PDIV_DIV8_gc CLKCTRL_PDIV_8X_gc
   #else
     #define BOD_ACTIVE_DISABLE_gc BOD_ACTIVE_DIS_gc  // So I guess they're getting rid of excessive abbreviation?
     #define BOD_ACTIVE_ENABLEWAKE_gc BOD_ACTIVE_ENWAKE_gc
@@ -2383,17 +2383,17 @@ has once worked for the same thing as meaning that thing */
     #define CLKCTRL_CSUTHF_1K_gc CLKCTRL_CSUTHF_1KCYC_gc
     #define CLKCTRL_CSUTHF_256_gc CLKCTRL_CSUTHF_256CYC_gc
     #define CLKCTRL_CSUTHF_4K_gc CLKCTRL_CSUTHF_4KCYC_gc
+    #define CLKCTRL_PDIV_2X_gc CLKCTRL_PDIV_DIV2_gc
+    #define CLKCTRL_PDIV_4X_gc CLKCTRL_PDIV_DIV4_gc
+    #define CLKCTRL_PDIV_6X_gc CLKCTRL_PDIV_DIV6_gc
+    #define CLKCTRL_PDIV_8X_gc CLKCTRL_PDIV_DIV8_gc
     #define CLKCTRL_PDIV_10X_gc CLKCTRL_PDIV_DIV10_gc
     #define CLKCTRL_PDIV_12X_gc CLKCTRL_PDIV_DIV12_gc
     #define CLKCTRL_PDIV_16X_gc CLKCTRL_PDIV_DIV16_gc
     #define CLKCTRL_PDIV_24X_gc CLKCTRL_PDIV_DIV24_gc
-    #define CLKCTRL_PDIV_2X_gc CLKCTRL_PDIV_DIV2_gc
     #define CLKCTRL_PDIV_32X_gc CLKCTRL_PDIV_DIV32_gc
     #define CLKCTRL_PDIV_48X_gc CLKCTRL_PDIV_DIV48_gc
-    #define CLKCTRL_PDIV_4X_gc CLKCTRL_PDIV_DIV4_gc
     #define CLKCTRL_PDIV_64X_gc CLKCTRL_PDIV_DIV64_gc
-    #define CLKCTRL_PDIV_6X_gc CLKCTRL_PDIV_DIV6_gc
-    #define CLKCTRL_PDIV_8X_gc CLKCTRL_PDIV_DIV8_gc
   #endif
   /* Add a feature - yay!
    * Rename registers so people can't carry code back and forth - booo!

@@ -2244,7 +2244,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
         // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in the
         // crystal "limping" - oscillating enough to keep the CFD at bay, but not stable - maybe it misses some clocks or something. This in turn tends
         // to result in similar failure modes to overclocking.
-        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, (CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
         _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
         #if (((CLOCK_SOURCE & 0x03) == 2))
           // external clock
@@ -2252,7 +2252,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
           uint8_t i = 255;
         #else
           // external crystal
-          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF | /* CLKCTRL_SELHF_XTAL_gc = 0x00, and keeps changing names! |*/ CLKCTRL_ENABLE_bm));
+          _PROTECTED_WRITE(CLKCTRL_XOSCHFCTRLA, (USE_CSUTHF |  CLKCTRL_ENABLE_bm));
           // No more crystal drive strength selection! Party poopers!
           uint16_t i = 8192; // crystals can take a lot longer to reach stability.
         #endif
