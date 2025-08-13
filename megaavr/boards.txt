@@ -1132,6 +1132,7 @@ avrdd.build.export_merged_output=false
 avrdd.build.printf=
 avrdd.build.flmapopts=
 avrdd.build.attachmode=-DCORE_ATTACH_ALL
+avrdd.build.millistimer=B2
 #----------------------------------------#
 # Bootloading parameters and fuses       #
 #________________________________________#
@@ -1644,6 +1645,7 @@ avrea.build.extra_flags=
 avrea.build.export_merged_output=false
 avrea.build.printf=
 avrea.build.flmapopts=
+avrea.build.millistimer=B2
 
 #----------------------------------------#
 # Bootloading parameters and fuses       #
