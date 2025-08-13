@@ -2244,7 +2244,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
         // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in the
         // crystal "limping" - oscillating enough to keep the CFD at bay, but not stable - maybe it misses some clocks or something. This in turn tends
         // to result in similar failure modes to overclocking.
-        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, (CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm);
+        _PROTECTED_WRITE(CLKCTRL_MCLKCTRLC, (CLKCTRL_CFDSRC_CLKMAIN_gc | CLKCTRL_CFDEN_bm));
         _PROTECTED_WRITE(CLKCTRL_MCLKINTCTRL, CLKCTRL_CFD_bm);
         #if (((CLOCK_SOURCE & 0x03) == 2))
           // external clock
@@ -2314,14 +2314,14 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
         if (i == 0) onClockTimeout();
         // in my tests, it only took a couple of passes through this loop to pick up the external clock, we concludethe clock source is busted. .
       }
-    #elif CLOCK_SOURCE == 6  || CLOCK_SOURCE == 7 /* PLL*/
+    #elif (CLOCK_SOURCE & 0x08) /* PLL*/
       // AAaaah! We have a brave one here today!
       /* When using PLL as clock source, you generally rev the PLL up to 4x CLK_MAIN, and use the Prescale B to knock that down to the normal operating speed... Except *now* you have that quadruple-speed clock to play with for HIRES
-       * 20 or 16 MHz, with the high speed clock -> Set input div to 4. Now we have 5 or 4 mhz. We can multiply it by 8 for 50 or 32 MHz out of the PLL, or by 16 for 80 MHz or 64 MHz.
+       * 20 or 16 MHz, with the high speed clock -> Set input div to 4. Now we have 5 or 4 mhz. We can multiply it by 8 for 40 or 32 MHz out of the PLL, or by 16 for 80 MHz or 64 MHz.
        * First implementation I do will just do the dead simple method cases:
        20 and 16 MHz.
        */
-      #if (CLOCK_SOURCE == 6) && (F_CPU >= 16000000)
+      #if (CLOCK_SOURCE & 0x08) && (F_CPU >= 16000000)
         uint8_t pllregister = 0x13;
       #else
         uint8_t pllregister = 0x33;
