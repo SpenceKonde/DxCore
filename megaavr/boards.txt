@@ -2009,6 +2009,10 @@ avrea.menu.appspm.no=Disabled (SPM write from app is not yet supported)
 avrea.menu.appspm.no.bootloader.appspm=
 avrea.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avrea.menu.appspm.no.build.appspmabr=
+avrea.menu.appspm.full=
+avrea.menu.appspm.full.bootloader.appspm=
+avrea.menu.appspm.full.build.appspmabr=.spmINVALID
+avrea.menu.appspm.full.bootloader.BOOTSIZE=0x00
 #avrea.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
 #avrea.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 #avrea.menu.appspm.full.build.appspmabr=.spmALL
@@ -2466,6 +2470,10 @@ avreb.menu.appspm.no=Disabled (SPM write from app is not yet supported)
 avreb.menu.appspm.no.bootloader.appspm=
 avreb.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avreb.menu.appspm.no.build.appspmabr=
+avreb.menu.appspm.full=
+avreb.menu.appspm.full.bootloader.appspm=
+avreb.menu.appspm.full.build.appspmabr=.spmINVALID
+avreb.menu.appspm.full.bootloader.BOOTSIZE=0x00
 #avreb.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
 #avreb.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
 #avreb.menu.appspm.full.build.appspmabr=.spmALL

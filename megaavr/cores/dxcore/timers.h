@@ -313,9 +313,11 @@
     // Okay, now that we've got the speed of the timer all sorted out, what's next?
     //
     // Right, does the PORTMUX work?
-    #if (defined(__AVR_DA__) || defined(__AVR_DB__))
+    #if (defined(__AVR_DA__))
       #define TCD0_PWM_NO_MUX
-    #elif (defined(__AVR_DD__))
+    #elif (defined(__AVR_DB__))
+      #define TCD0_PWM_MAYBE_MUX
+    #elif (defined(TCD0))
       #define TCD0_PWM_WITH_MUX
     #endif
     // NO_MUX expects the TCD pins to be listed in the timer table as TIMERD0
