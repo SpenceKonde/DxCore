@@ -338,14 +338,14 @@ Not enabled. Ugly ways to get delays at very small flash cost.
    */
 
 typedef union __bwpvol {
-  uint8_t              b[2];
-  uint16_t             a;
+  uint8_t              ab[2];
+  uint16_t             aw;
   volatile uint8_t*    ptr;
 } _bytePtrVol_t;
 
 typedef union __bwptr {
-  uint8_t             b[2];
-  uint16_t            a; /*a for address*/
+  uint8_t             ab[2];
+  uint16_t            aw; /*a for address*/
   uint8_t*            ptr;
 } _bytePtr_t;
 
