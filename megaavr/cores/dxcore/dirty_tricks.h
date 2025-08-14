@@ -344,8 +344,8 @@ typedef union __bwpvol {
 } _bytePtrVol_t;
 
 typedef union __bwptr {
-  uint8_t             ab[2];
-  uint16_t            aw; /*a for address*/
+  uint8_t             ab[2]; /* ab for address as bytes */
+  uint16_t            aw; /* aw for address as a word */
   uint8_t*            ptr;
 } _bytePtr_t;
 
