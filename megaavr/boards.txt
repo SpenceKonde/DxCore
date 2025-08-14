@@ -2011,7 +2011,7 @@ avrea.menu.appspm.no=Disabled (SPM write from app is not yet supported)
 avrea.menu.appspm.no.bootloader.appspm=
 avrea.menu.appspm.no.bootloader.BOOTSIZE=0x00
 avrea.menu.appspm.no.build.appspmabr=
-avrea.menu.appspm.full=
+avrea.menu.appspm.full=These options don't work,
 avrea.menu.appspm.full.bootloader.appspm=
 avrea.menu.appspm.full.build.appspmabr=.spmINVALID
 avrea.menu.appspm.full.bootloader.BOOTSIZE=0x00
@@ -2030,8 +2030,8 @@ avrea.menu.appspm.full.bootloader.BOOTSIZE=0x00
 #avrea.menu.appspm.16plus=Above 16k (AVR64/32 only, meant for 32k parts)
 #avrea.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=64
 #avrea.menu.appspm.16plus.bootloader.CODESIZE=64
-#avrea.menu.appspm.24plus=Above 24k (AVR64/32 only, meant for 32k parts)
-#avrea.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=96
+avrea.menu.appspm.24plus=but they have to be here for tests to run.
+avrea.menu.appspm.24plus.bootloader.appspm=
 #avrea.menu.appspm.24plus.bootloader.CODESIZE=96
 #avrea.menu.appspm.28plus=Above 28k (AVR64/32 only, meant for 32k parts)
 #avrea.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=112

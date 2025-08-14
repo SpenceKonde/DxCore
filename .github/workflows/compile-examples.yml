@@ -141,7 +141,6 @@ jobs:
           - 64
           - 32
           - 16
-          - 8
         device-family:
           - da
           - db
@@ -183,8 +182,6 @@ jobs:
           - device-family: da
             flash-class: 16
           - device-family: da
-            flash-class: 8
-          - device-family: da
             pincount: 20
           - device-family: da
             pincount: 14
@@ -195,8 +192,6 @@ jobs:
           - device-family: db
             flash-class: 16
           - device-family: db
-            flash-class: 8
-          - device-family: db
             pincount: 20
           - device-family: db
             pincount: 14
@@ -204,16 +199,12 @@ jobs:
           - device-family: dd
             flash-class: 128
           - device-family: dd
-            flash-class: 8
-          - device-family: dd
             pincount: 64
           - device-family: dd
             pincount: 48
           # DU limits. No 128k/8k flash, no 64/48 pin. No 64k 20/14pin.
           - device-family: du
             flash-class: 128
-          - device-family: du
-            flash-class: 8
           - device-family: du
             pincount: 64
           - device-family: du
@@ -233,9 +224,6 @@ jobs:
             pincount: 20
           - device-family: ea
             pincount: 14
-          # Unclear if AVR8EAxx really coming.
-          - device-family: ea
-            flash-class: 8
           # EB limits. No 128k, 64k flash, no 64/48 pin
           - device-family: eb
             flash-class: 128
@@ -244,9 +232,6 @@ jobs:
           # Only headers for 16EB released.
           - device-family: eb
             flash-class: 32
-          # 8-32k is expected.
-          - device-family: eb
-            flash-class: 8
           # ugly Dx/Ex hack. Dx excludes 20 MHz internal osc, Ex 24 MHz.
           - int-osc: 20
             device-family: da
@@ -319,9 +304,7 @@ jobs:
           - overclock-osc: 16
             device-family: ea
             clocksource: extclock
-          # EB is not yet shipping and no datasheet is available.
           - device-family: eb
-          # DU headers not even out - all clocking decisions TBD.
           - device-family: du
     steps:
       - name: Checkout repository

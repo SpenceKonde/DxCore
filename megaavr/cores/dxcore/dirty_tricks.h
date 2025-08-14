@@ -337,17 +337,44 @@ Not enabled. Ugly ways to get delays at very small flash cost.
    * and frequently call the whole bloody pinmode function when we already have the tables in memory, and we know what mode we're asking too.
    */
 
-typedef union __byteptrvol {
-  uint8_t              ab[2];
-  volatile uint8_t*    b_ptr;
-} bytePtrVol_t;
+typedef union __bwpvol {
+  uint8_t              b[2];
+  uint16_t             a;
+  volatile uint8_t*    ptr;
+} _bytePtrVol_t;
+
+typedef union __bwptr {
+  uint8_t             b[2];
+  uint16_t            a; /*a for address*/
+  uint8_t*            ptr;
+} _bytePtr_t;
+
+
+
+typedef union __bw {
+  uint16_t      w; /* w for word */
+  int16_t       i; /* i for integer */
+  uint8_t       b[2]; /* b for byte */
+  int8_t        c[2]; /* c for char */
+} _byteWord_t;
+
+typedef union __bwl {
+  uint32_t      d;    /* d for DWord */
+  int32_t       s;    /* no abbreviation here, just wanted 1 character. Maybe s for signed*/
+  uint16_t      w[2]; /* w for word */
+  int16_t       i[2]; /* i for integer */
+  uint8_t       b[4]; /* b for byte */
+  int8_t        c[4]; /* c for char */
+} _byteWordLong_t;
+
+
 
   inline void __attribute__ ((always_inline)) _setOutput(uint8_t portnum, uint8_t bit_mask) {
     /* pinMode(pin,OUTPUT) in only like 5 clocks! You don't wanna know how many it takes the official core! */
     _swap(portnum); //1 clock
     portnum <<= 1; // 1 clock
     portnum++;     // 1 clock
-    bytePtrVol_t port_dirset_reg;
+    _bytePtrVol_t port_dirset_reg;
     port_dirset_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_dirset_reg.ab[0] = portnum;
     *port_dirset_reg.b_ptr = bit_mask;
@@ -357,7 +384,7 @@ typedef union __byteptrvol {
     _swap(portnum); //1 clock
     portnum <<= 1; // 1 clock
     portnum  += 2; // 1 clock
-    bytePtrVol_t port_dirclr_reg;
+    _bytePtrVol_t port_dirclr_reg;
     port_dirclr_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_dirclr_reg.ab[0] = portnum;
     *port_dirclr_reg.b_ptr = bit_mask;
@@ -367,7 +394,7 @@ typedef union __byteptrvol {
     _swap(portnum); //1 clock
     portnum <<= 1; // 1 clock
     portnum  += 5;     // 1 clock
-    bytePtrVol_t port_outset_reg;
+    _bytePtrVol_t port_outset_reg;
     port_outset_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_outset_reg.ab[0] = portnum;
     *port_outset_reg.b_ptr = bit_mask;
@@ -377,7 +404,7 @@ typedef union __byteptrvol {
     _swap(portnum); //1 clock
     portnum <<= 1; // 1 clock
     portnum  += 6;     // 1 clock
-    bytePtrVol_t port_outclr_reg;
+    _bytePtrVol_t port_outclr_reg;
     port_outclr_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_outclr_reg.ab[0] = portnum;
     *port_outclr_reg.b_ptr = bit_mask;

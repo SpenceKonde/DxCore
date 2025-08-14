@@ -70,9 +70,11 @@ struct EERef {
   EERef &operator = (const EERef &ref) {
     return *this = *ref;
   }
+//
+
 
   EERef &operator = (uint8_t in)       {
-    #if defined(MEGATINYCORE) || defined(__AVR_EA__) || defined(__AVR_EB__)
+    #if defined(NVMCTRL_WRERROR_bp) // tiny and mega0 have the WRERR
     // I see no reason why eeprom_write_byte() won't corrupt EEPROM if an ISR tries to write at the wrong instant. The window is 1 clock, but not 0
     uint16_t adr = (uint16_t)MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK);
     __asm__ __volatile__(
@@ -85,19 +87,44 @@ struct EERef {
       "cli"               "\n\t" // disable interrupts. 3 clock window during which an interrupt couldstart write since we checked
       //                            but this just means millis will lose time - nvmctrl halts CPU to finish last write
       "st X, %0"          "\n\t" // write the value we were passed
-      "ldi %0, 0x9D"      "\n\t" // CCP signature loaded in it's place
-      "out 0x34, %0"      "\n\t" // protection enabled
-      "ldi %0, 0x03"      "\n\t" // command loaded: page erase-write.
-      "st Z, %0"          "\n\t" // write the page erase-write command to nvmctrl.ctrla
+      "ldi %0, 0x9D"      "\n\t" // CCP signature loaded
+      "ldi r18, 0x03"     "\n\t" // Reuse r18 to hold the command.
+      "out 0x34, %0"      "\n\t" // protected write begun
+//    "st Z, r1"          "\n\t" // Write NO_CMD TO THE NVMCTRL
+//    "out 0x34, %0"      "\n\t" //
+      "st Z, r18"         "\n\t" // write the page erase-write command to nvmctrl.ctrla
       "out 0x3f, r0"      "\n"   // restore SREG
       :"+d"(in)           // take the value we are writing in any upper register as read/write,
       : "x"(adr)          // and the address (not the index) in X
-      : "r30", "r31", "r18");      // clobber Z and r18. We needed an upper register for the temporary value to andi it. I wonder if this will fix the eeprom bugs too?
+      : "r30", "r31", "r18", "r0");
     return *this;
-    #else
+  #elif defined(__AVR_EA__) || defined(__AVR_EB__)/* Works like the tinyAVR except needs different command value. Appears to have the same risk. */
+    uint16_t adr = (uint16_t)MAPPED_EEPROM_START + (index & EEPROM_INDEX_MASK);
+    __asm__ __volatile__(
+      "ldi r30, 0x00"     "\n\t" // point the Z register at NVMCTRL.
+      "ldi r31, 0x10"     "\n\t"
+      "in r0, 0x3f"       "\n\t" // read the SREG into r0 to narrow the window between sbrc and cli.
+      "ldd r18, Z+2"      "\n\t" // read NVMCTRL.STATUS into r18
+      "andi r18, 3"       "\n\t" // if NVMCTRL is busy....
+      "brne .-6"          "\n\t" // repeat until it's not.
+      "cli"               "\n\t" // disable interrupts. 3 clock window during which an interrupt couldstart write since we checked
+      //                            but this just means millis will lose time - nvmctrl halts CPU to finish last write
+      "st X, %0"          "\n\t" // write the value we were passed
+      "ldi %0, 0x9D"      "\n\t" // CCP signature loaded
+      "ldi r18, 0x15"     "\n\t" // Reuse r18 to hold the command.
+      "out 0x34, %0"      "\n\t" // protected write begun
+      "st Z, r1"          "\n\t" // Write NO_CMD TO THE NVMCTRL
+      "out 0x34, %0"      "\n\t" ///
+      "st Z, r18"         "\n\t" // write the page erase-write command to nvmctrl.ctrla
+      "out 0x3f, r0"      "\n"   // restore SREG
+      :"+d"(in)           // take the value we are writing in any upper register as read/write,
+      : "x"(adr)          // and the address (not the index) in X
+      : "r30", "r31", "r18", "r0");
+    return *this;
+  #else /* DA/DB/DD/DU has a 1 clock window during which millis could lose a couple of milliseconds. No ASM is required to get acceptable results. */
     uint8_t oldSREG = SREG;
     while (NVMCTRL.STATUS & NVMCTRL_EEBUSY_bm);
-    // check at start - not end. Makes writing single bytes fasterms
+    // check at start - not end. Makes writing single bytes faster
     // Note that we only have interrupts disabled for the dozen or so clock cycles
     // during which we *start* the write, not for the while loop, and we save SREG
     // before the while loop. That way there is only a 1 clock window where an
@@ -112,7 +139,7 @@ struct EERef {
 
     SREG = oldSREG; // restore SREG and interrupts
     return *this;
-    #endif
+  #endif
   }
   EERef &operator += (uint8_t in)     {
     return *this = **this + in;
@@ -236,7 +263,30 @@ struct EEPROMClass {
   void update(INDEXDATATYPE idx, uint8_t val)  {
     EERef(idx).update(val);
   }
+  #if !defined(NVMCTRL_ERROR_gm)
+    uint8_t getStatus() {
+      uint8_t retval = NVMCTRL.CTRLB;
+      SWAP(retval);
+      retval |= NVMCTRL.STATUS;
+      return retval;
+    }
+  #else
+    uint16_t getStatus() {
+      __byteWord retval;
+      retval.b[0] = NVMCTRL.STATUS;
+      retval.b[1] = NVMCTRL.CTRLB;
+      if (retval.b[0] & NVMCTRL_ERROR_gm) {
+        uint8_t t = b[0]
+        t &= ~NVMCTRL_ERROR_gm;
+        NVMCTRL.STATUS = t;
+      }
+      return retval.w;
+    }
+  #endif
 
+
+    if (retval > 0x0F )
+  }
   // STL and C++11 iteration capability.
   EEPtr begin()                        {
     return 0x00;
