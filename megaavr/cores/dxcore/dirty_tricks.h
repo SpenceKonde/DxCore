@@ -377,7 +377,7 @@ typedef union __bwl {
     _bytePtrVol_t port_dirset_reg;
     port_dirset_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_dirset_reg.ab[0] = portnum;
-    *port_dirset_reg.b_ptr = bit_mask;
+    *port_dirset_reg.ptr = bit_mask;
   }
 
   inline void __attribute__ ((always_inline)) _setInput(uint8_t portnum, uint8_t bit_mask) {
@@ -387,7 +387,7 @@ typedef union __bwl {
     _bytePtrVol_t port_dirclr_reg;
     port_dirclr_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_dirclr_reg.ab[0] = portnum;
-    *port_dirclr_reg.b_ptr = bit_mask;
+    *port_dirclr_reg.ptr = bit_mask;
   }
 
   inline void __attribute__ ((always_inline)) _setValueHigh(uint8_t portnum, uint8_t bit_mask) {
@@ -397,7 +397,7 @@ typedef union __bwl {
     _bytePtrVol_t port_outset_reg;
     port_outset_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_outset_reg.ab[0] = portnum;
-    *port_outset_reg.b_ptr = bit_mask;
+    *port_outset_reg.ptr = bit_mask;
   }
 
   inline void __attribute__ ((always_inline)) _setValueLow(uint8_t portnum, uint8_t bit_mask) {
@@ -407,6 +407,6 @@ typedef union __bwl {
     _bytePtrVol_t port_outclr_reg;
     port_outclr_reg.ab[1] = 0x04; // All port structs start with 0s04
     port_outclr_reg.ab[0] = portnum;
-    *port_outclr_reg.b_ptr = bit_mask;
+    *port_outclr_reg.ptr = bit_mask;
   }
 #endif
