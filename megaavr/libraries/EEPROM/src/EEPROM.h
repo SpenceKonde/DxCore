@@ -272,7 +272,7 @@ struct EEPROMClass {
     }
   #else
     uint16_t getStatus() {
-      __byteWord retval;
+      _byteWord retval;
       retval.b[0] = NVMCTRL.STATUS;
       retval.b[1] = NVMCTRL.CTRLB;
       if (retval.b[0] & NVMCTRL_ERROR_gm) {
