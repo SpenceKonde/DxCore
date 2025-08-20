@@ -204,4 +204,3 @@ No parts have yet been released with more than 6 LUTs, or more than 7 ports.
 
 
 `*` In ancient times, people believed that one skilled in such arts could view the future through a flame. Nostradamus makes frequent references to this method of divination, implying that it was a widely held belief - though according to scholars on his life and myth, in none of his writings does he ever claim to have used this (nor does he claim his prophecies to be original work), or any other method of divination other than astrology (at the time treated as a respectable sciencec), and he was said to be poor at that, having difficulty preparing star charts for clients correctly. (*Considering the track record of astrology, I'm not sure it mattered* "Considering that we're talking about him, it sure didn't make much difference for him.)
-
