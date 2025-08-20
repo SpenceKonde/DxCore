@@ -1660,7 +1660,7 @@ avrea.bootloader.wdttimeotbits=0000
 avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrea.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbit}00{bootloader.eesavebit}
 avrea.bootloader.CODESIZE=0x00
-avrea.bootloader.BOOTSIZE=0x01
+avrea.bootloader.BOOTSIZE=0x00
 avrea.bootloader.avrdudestring=
 avrea.bootloader.pymcuprogstring=-aerase
 avrea.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
@@ -1737,16 +1737,6 @@ avrea.menu.chip.avr16ea48.build.mcu=avr16ea48
 avrea.menu.chip.avr16ea48.upload.maximum_size=16384
 avrea.menu.chip.avr16ea48.upload.maximum_data_size=2048
 avrea.menu.chip.avr16ea48.build.variant=48pin-easeries
-#avrea.menu.chip.avr8ea28=AVR8EA28
-#avrea.menu.chip.avr8ea28.build.mcu=avr8ea28
-#avrea.menu.chip.avr8ea28.upload.maximum_size=8192
-#avrea.menu.chip.avr8ea28.upload.maximum_data_size=1024
-#avrea.menu.chip.avr8ea28.build.variant=28pin-easeries
-#avrea.menu.chip.avr8ea32=AVR8EA32
-#avrea.menu.chip.avr8ea32.build.mcu=avr8ea32
-#avrea.menu.chip.avr8ea32.upload.maximum_size=8192
-#avrea.menu.chip.avr8ea32.upload.maximum_data_size=1024
-#avrea.menu.chip.avr8ea32.build.variant=32pin-easeries
 
 #----------------------------------------#
 # Clock speed and source options         #

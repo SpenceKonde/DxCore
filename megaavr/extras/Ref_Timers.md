@@ -1,76 +1,7 @@
 # PWM and Timers on modern AVRs and their usage in this core
+(Hint: Use the table of contents button (top left) to navigate this lengthy document)
+
 This document is divided into two sections. The first one simply describes the available timers, and what they are capable of (by "simply describes" I don't claim to have made a simple description, only that the purpose is simple. and that is to describe the timers). The second section describes how they are used by this core in particular. The first section is shared by DxCore and megaTinyCore. The second contains many sections specific to one core or another, however the same document is used for both for the sake of th4e maintainers' sanity. Because this is a very long document, a table of contents is included!
-* [Quick answer: Which PWM pins should I use?](Ref_Timers.md#quick-answer-which-pwm-pins-should-i-use?)
-  * [Why TCB2 as default millis timer?](Ref_Timers.md#why-tcb2-as-default-millis-timer?)
-* [Section One: Background: Timers on modern AVRs](Ref_Timers.md#section-one-background-timers-on-modern-avrs)
-* [Background: The Timers on the AVR Dx-series and Ex-series parts](Ref_Timers.md#background-the-timers-on-the-avr-dx-series-and-ex-series-parts)
-  * [TCA0 - Type A 16-bit Timer with 3/6 PWM channels](Ref_Timers.md#tca0---type-a-16-bit-timer-with-36-pwm-channels)
-    * [Events and CCL channels](Ref_Timers.md#events-and-ccl-channels)
-    * [Interrupt note](Ref_Timers.md#interrupt-note)
-    * [Future part note](Ref_Timers.md#future-part-note)
-  * [TCBn - Type B 16-bit Timer](Ref_Timers.md#tcbn---type-b-16-bit-timer)
-    * [Periodic interrupt](Ref_Timers.md#periodic-interrupt)
-    * [Input Capture on Event](Ref_Timers.md#input-capture-on-event)
-    * [Input Capture Frequency Measurement](Ref_Timers.md#input-capture-frequency-measurement)
-    * [Input Capture Pulse Width Measurement](Ref_Timers.md#input-capture-pulse-width-measurement)
-    * [Input Capture Frequency And Pulse Width Measurement](Ref_Timers.md#input-capture-frequency-and-pulse-width-measurement)
-    * [Single-shot](Ref_Timers.md#single-shot)
-    * [Timeout Check](Ref_Timers.md#timeout-check)
-    * [8-bit PWM mode](Ref_Timers.md#8-bit-pwm-mode)
-    * [Extra features on 2-series and Dx/Ex-series](Ref_Timers.md#extra-features-on-2-series-and-dxex-series)
-    * [Intflag summary](Ref_Timers.md#intflag-summary)
-  * [TCD0 - Type D 12-bit Async Timer](Ref_Timers.md#tcd0---type-d-12-bit-async-timer)
-    * [For more information on what you can do to TCD0 and still use analogWrite()](Ref_TCD.md)
-  * [TCE - Lurking in the distance with WEX](Ref_Timers.md#tce---lurking-in-the-distance-with-wex)
-  * [TCF - Another new timer](Ref_Timers.md#tcf---another-new-timer)
-  * [RTC - 16-bit Real Time Clock and Programmable Interrupt Timer](Ref_Timers.md#rtc---16-bit-real-time-clock-and-programmable-interrupt-timer)
-    * [RTC/PIT errata on 0/1-series](Ref_Timers.md#rtcpit-errata-on-01-series)
-* [Timer Prescaler Availability](Ref_Timers.md#timer-prescaler-availability)
-* [Resolution, Frequency and Period](Ref_Timers.md#resolution-frequency-and-period)
-  * [In Google Sheets](https://docs.google.com/spreadsheets/d/10Id8DYLRtlp01KA7vvslC3cHaR4S2a1TrH7u6pHXMNY/edit?usp=sharing)
-* [Section Two: How the core uses these timers](Ref_Timers.md#section-two-how-the-core-uses-these-timers)
-  * [Initialization](Ref_Timers.md#initialization)
-  * [Justification for TOP = 254, not 255](Ref_Timers.md#justification-for-top--254-not-255)
-  * [PWM via analogWrite](Ref_Timers.md#pwm-via-analogwrite)
-    * [Priority](Ref_Timers.md#priority)
-    * [Channels without pins](Ref_Timers.md#channels-without-pins)
-    * [TCAn](Ref_Timers.md#tcan)
-  * [TCD0](Ref_Timers.md#tcd0)
-    * [TCD0 on DxCore](Ref_Timers.md#tcd0-on-dxcore)
-    * [TCD0 on megaTinyCore](Ref_Timers.md#tcd0-on-megatinycore)
-  * [TCBn](Ref_Timers.md#tcbn)
-    * [API Extensions](Ref_Timers.md#api-exstensions)
-      * [bool digitalPinHasPWMNow()](Ref_Timers.md#uint8_t-digitalpinhaspwmnow)
-      * [uint8_t digitalPinToTimerNow()](Ref_Timers.md#uint8_t-digitalpintotimernow)
-      * [takeOverTCA0()](Ref_Timers.md#takeovertca0)
-      * [takeOverTCA1()](Ref_Timers.md#takeovertca1)
-      * [takeOverTCD0()](Ref_Timers.md#takeovertcd0)
-      * [resumeTCA0()](Ref_Timers.md#resumetca0)
-      * [resumeTCA1()](Ref_Timers.md#resumetca1)
-      * [There is no takeover or resume of TCBs](Ref_Timers.md#there-is-no-takeover-or-resume-of-tcbs)
-  * [PWM Frequencies](Ref_Timers.md#pwm-frequencies)
-    * [Summary Table](Ref_Timers.md#summary-table)
-      * [DxCore](Ref_Timers.md#for-dxcore)
-      * [megaTinyCore](Ref_Timers.md#for-megatinycore)
-* [Millis/Micros Timekeeping](Ref_Timers.md#millis/micros-timekeeping)
-  * [Why this longass section matters](Ref_Timers.md#why-this-longass-section-matters)
-  * [TCAn for millis timekeeping](Ref_Timers.md#tcan-for-millis-timekeeping)
-    * [TCA timekeeping resolution](Ref_Timers.md#tca-timekeeping-resolution)
-    * [TCBn for millis timekeeping](Ref_Timers.md#tcbn-for-millis-timekeeping)
-  * [TCD0 for millis timekeeping](Ref_Timers.md#tcd0-for-millis-timekeeping)
-  * [Manipulating millis timekeeping](Ref_Timers.md#manipulating-millis-timekeeping)
-* [Tone](Ref_Timers.md#tone)
-  * [Long tones which specify a duration](Ref_Timers.md#long-tones-which-specify-a-duration)
-* [Servo Library](Ref_Timers.md#servo-library)
-* [Additional functions for advanced timer control](Ref_Timers.md#additional-functions-for-advanced-timer-control)
-* [Appendix I: Names of timers](Ref_Timers.md#appendix-i-names-of-timers)
-  * [For DxCore](Ref_Timers.md#for-dxcore)
-  * [For megaTinyCore](Ref_Timers.md#for-megatinycore)
-  * [Approximate algorithm for interpreting these](Ref_Timers.md#approximate-algorithm-for-interpreting-these)
-  * [`_GCMT` return values](Ref_Timers.md#_gcmt-return-values)
-* [Appendix II: TCB Micros Artifacts](Ref_Timers.md#appendix-ii-tcb-micros-artifacts)
-
-
 
 ## Quick answer: Which PWM pins should I use?
 TCA or TCD pins; these timers are much better for generation of PWM. Only use TCB pins if desperate. See the part-specific docs for your part and pincount to see where the timers are pointed by the core on startup. You can set which pins the TCAs (and the TCD on the DD-series) use *at runtime* by simply writing to `PORTMUX.TCAROUTEA`. See the part-specific docs (the ones with the pinout charts, linked to from top of main README and from the column headings in [About the Dx-Series](AboutDxSeries.md)). These contain a table for each timer, listing what we set the portmux for the timer to on initialization, and what options are available and note which options are precluded by errata.
@@ -674,7 +605,7 @@ while (digitalReadFast(pinb)); // make sure our pulse is over - can be omitted i
 * micros() returns the microsecond tally at the time it was caled, not the time it returns.
   * If you're going to be taking a pulse input and you want to know how long the puklse is, try pulseIn() (or set up a timer). pulseIn() gives results as accurate as the system clock. Same with a timer.
 * This looks gross, but is sound.
-  ```c
+```c
   while !digitalReadFast(inpin); // wait until pin goes high
   starttime=micros();
   if(!digitalReadFast(inpin)) {

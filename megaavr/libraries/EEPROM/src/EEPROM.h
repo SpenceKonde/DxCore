@@ -265,28 +265,27 @@ struct EEPROMClass {
   }
   #if !defined(NVMCTRL_ERROR_gm)
     uint8_t getStatus() {
-      uint8_t retval = NVMCTRL.CTRLB;
-      SWAP(retval);
-      retval |= NVMCTRL.STATUS;
-      return retval;
+      return NVMCTRL.STATUS;
     }
   #else
-    uint16_t getStatus() {
-      _byteWord retval;
-      retval.b[0] = NVMCTRL.STATUS;
-      retval.b[1] = NVMCTRL.CTRLB;
-      if (retval.b[0] & NVMCTRL_ERROR_gm) {
-        uint8_t t = b[0]
-        t &= ~NVMCTRL_ERROR_gm;
-        NVMCTRL.STATUS = t;
+    uint8_t getStatus() {
+      uint8_t retval = NVMCTRL.STATUS;
+      if (retval & NVMCTRL_ERROR_gm) {
+        NVMCTRL.STATUS = 0; //Safe = all bits are either read only, or are errors that can be cleared like this.
       }
-      return retval.w;
+      if (retval & 0x10) {
+        _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA,0x00);
+      }
+      retval |= (NVMCTRL.CTRLB & 0x08);
+      #if defined(NVMCTRL_CTRLC)
+        if (NVMCTRL.CTRLC & 0x01) {
+          retval |= 0x04;
+        }
+      #endif
+      return retval;
     }
   #endif
 
-
-    if (retval > 0x0F )
-  }
   // STL and C++11 iteration capability.
   EEPtr begin()                        {
     return 0x00;

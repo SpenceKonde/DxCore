@@ -187,7 +187,7 @@ struct USPtr {
 #define USIG_WRITE_LOADED       -2  // You called the **internal** raw write function when the buffer was loaded.
 #define USIG_BAD_ADDRESS        -4  // You called the **internal** raw write function with an invalid address.
 
-#if USER_SIGNATURES_SIZE >= 128
+#if USER_SIGNATURES_SIZE > 512
   #error "The USERROW on this part is too large, and probably works differently from what this library was expecting: STOP"
 #endif
 
@@ -328,6 +328,26 @@ struct USERSIGClass {
   USPtr begin()                      {
     return 0x00;
   }
+
+  #if !defined(NVMCTRL_ERROR_gm)
+    uint8_t getStatus() {
+      return NVMCTRL.STATUS;
+    }
+  #else
+    uint8_t getStatus() {
+      uint8_t retval = NVMCTRL.STATUS;
+      if (retval & NVMCTRL_ERROR_gm) {
+        NVMCTRL.STATUS = 0; //Safe = all bits are either read only, or are errors that can be cleared like this.
+      }
+      retval |= (NVMCTRL.CTRLB & 0x08);
+      #if defined(NVMCTRL_CTRLC)
+        if (NVMCTRL.CTRLC & 0x01) {
+          retval |= 0x04;
+        }
+      #endif
+      return retval;
+    }
+  #endif
 
   // Standards require this to be the item after the last valid entry. The returned pointer is invalid.
   USPtr end()                        {
