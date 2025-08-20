@@ -12,13 +12,19 @@
 
 #ifdef MILLIS_USE_TIMERNONE
   #define DISABLE_MILLIS
-#endif
-#if (defined(MILLIS_USE_TIMERRTC_XTAL) || defined(MILLIS_USE_TIMERRTC_XOSC))
+#elif (defined(MILLIS_USE_TIMERRTC_XTAL) || defined(MILLIS_USE_TIMERRTC_XOSC))
   #define MILLIS_USE_TIMERRTC
 #elif (defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1))
   #define MILLIS_USE_TCA
 #elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
   #define MILLIS_USE_TCB
+#else
+  #warning "No millis timer selected, millis not disabled. Grabbing a timer. If seen outside of automated testing, report as bug immediately."
+  #if defined(TCB2)
+    #define MILLIS_USE_TIMERB2
+  #else
+    #define MILLIS_USE_TIMERB1
+  #endif
 #endif
 /*
 #if (defined(MILLIS_USE_TIMERD0))
@@ -106,20 +112,20 @@
   #define MILLIS_TIMER TIMERB4
   #define MILLIS_VECTOR TCB4_INT_vect
 #elif defined(MILLIS_USE_TIMERB4)
-  #ifndef TCB4
-    #error "TCB4, selected for millis, does not exist on this part"
+  #ifndef TCB5
+    #error "TCB5, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB5
   #define MILLIS_VECTOR TCB4_INT_vect
 #elif defined(MILLIS_USE_TIMERB4)
-  #ifndef TCB4
-    #error "TCB4, selected for millis, does not exist on this part"
+  #ifndef TCB6
+    #error "TCB6, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB6
   #define MILLIS_VECTOR TCB4_INT_vect
 #elif defined(MILLIS_USE_TIMERB4)
-  #ifndef TCB4
-    #error "TCB4, selected for millis, does not exist on this part"
+  #ifndef TCB7
+    #error "TCB7, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB7
   #define MILLIS_VECTOR TCB7_INT_vect
