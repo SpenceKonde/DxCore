@@ -16,7 +16,7 @@
   #define MILLIS_USE_TIMERRTC
 #elif (defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1))
   #define MILLIS_USE_TCA
-#elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
+#elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4)) || defined(MILLIS_USE_TIMERB5)) || defined(MILLIS_USE_TIMERB6)) || defined(MILLIS_USE_TIMERB7))
   #define MILLIS_USE_TCB
 #else
   #warning "No millis timer selected, millis not disabled. Grabbing a timer. If seen outside of automated testing, report as bug immediately."
@@ -25,6 +25,7 @@
   #else
     #define MILLIS_USE_TIMERB1
   #endif
+  #define MILLIS_USE_TCB
 #endif
 /*
 #if (defined(MILLIS_USE_TIMERD0))
@@ -32,7 +33,7 @@
 #endif
 */
 
-#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4))
+#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4)) || defined(MILLIS_USE_TIMERB5)) || defined(MILLIS_USE_TIMERB6)) || defined(MILLIS_USE_TIMERB7))
   #if (F_CPU == 1000000UL)
     #define TIME_TRACKING_TIMER_DIVIDER   (1)
     #define TIME_TRACKING_TIMER_PERIOD    ((F_CPU/500)-1)
@@ -111,25 +112,31 @@
   #endif
   #define MILLIS_TIMER TIMERB4
   #define MILLIS_VECTOR TCB4_INT_vect
-#elif defined(MILLIS_USE_TIMERB4)
+#elif defined(MILLIS_USE_TIMERB5)
   #ifndef TCB5
     #error "TCB5, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB5
-  #define MILLIS_VECTOR TCB4_INT_vect
-#elif defined(MILLIS_USE_TIMERB4)
+  #define MILLIS_VECTOR TCB5_INT_vect
+#elif defined(MILLIS_USE_TIMERB6)
   #ifndef TCB6
     #error "TCB6, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB6
-  #define MILLIS_VECTOR TCB4_INT_vect
-#elif defined(MILLIS_USE_TIMERB4)
+  #define MILLIS_VECTOR TCB6_INT_vect
+#elif defined(MILLIS_USE_TIMERB7)
   #ifndef TCB7
     #error "TCB7, selected for millis, does not exist on this part"
   #endif
   #define MILLIS_TIMER TIMERB7
   #define MILLIS_VECTOR TCB7_INT_vect
 #elif defined(MILLIS_USE_TIMERD0)
+  #ifndef TCD0
+    #error "TCD0, selected for millis, does not exist on this part"
+  #endif
+  #define MILLIS_TIMER TIMERD0
+  #define MILLIS_VECTOR TCD0_OVF_vect
+#elif defined(MILLIS_USE_TIMERE0)
   #ifndef TCD0
     #error "TCD0, selected for millis, does not exist on this part"
   #endif
