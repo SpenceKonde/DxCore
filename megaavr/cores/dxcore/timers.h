@@ -16,7 +16,7 @@
   #define MILLIS_USE_TIMERRTC
 #elif (defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1))
   #define MILLIS_USE_TCA
-#elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5)) || defined(MILLIS_USE_TIMERB6)) || defined(MILLIS_USE_TIMERB7))
+#elif (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7))
   #define MILLIS_USE_TCB
 #else
   #warning "No millis timer selected, millis not disabled. Grabbing a timer. If seen outside of automated testing, report as bug immediately."
@@ -33,7 +33,7 @@
 #endif
 */
 
-#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5)) || defined(MILLIS_USE_TIMERB6)) || defined(MILLIS_USE_TIMERB7))
+#if (defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1) || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERB6) || defined(MILLIS_USE_TIMERB7))
   #if (F_CPU == 1000000UL)
     #define TIME_TRACKING_TIMER_DIVIDER   (1)
     #define TIME_TRACKING_TIMER_PERIOD    ((F_CPU/500)-1)

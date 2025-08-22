@@ -1,6 +1,6 @@
+# DxCore - Arduino support for the AVR DA, DB, and DD-series
 Use the Table of Contents button! Why was I making a ToC manually? (especially since I apparently did it wrong..)
 
-# DxCore - Arduino support for the AVR DA, DB, and DD-series
 
 This is an Arduino core to support the AVR DA, DB, DD, EA, EB, and DU-series microcontrollers from Microchip. These parts are the latest and highest spec 8-bit AVRs available, and take the AVR architecture to a whole new level with up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, type A/B/D timers, and enhanced pin interrupts.
 

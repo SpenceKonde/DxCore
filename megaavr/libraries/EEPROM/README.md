@@ -255,7 +255,7 @@ The return values on Dx/Ex are:
 In the event of errors, we clear the errors.
 
 If the low error bit is set, (indicative of a problem with the command used), in order to return the NVMCTRL module to a usable state, this function will, in addition to clearing the error flags, reset CTRLA to 0/NOOP/None
-#### Outputs, described differently:
+#### Outputs, described differently
 
 ##### tinyAVR
 ```text

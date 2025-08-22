@@ -127,7 +127,7 @@ Read-While-Write Feature Non-Functional
 
 Seems they've gotten most of the problems worked out, finally, other than the Dx-write endurance. 1000 rewrites is still enough though, and supposedly, the Dx-series parts meet the original (10k) spec at room temperature, just not over the whole temperature range (explaining why the problem had not been noticed for over a year)
 
-### Issues that we expected to see in errata, but have not yet seen:
+### Issues that we expected to see in errata, but have not yet seen
 
 #### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable.
 Microchip recalled them, but some disties had already shipped some out.
@@ -165,7 +165,7 @@ Despite the datasheet saying otherwise *(and saying so very explicitly)*, the lo
 My only thought here is "If SPM instruction requires word aligned access, why not just require writes to be word addressed, and then you could forget about rampz except for the sole case of ELPM, and everone's life would be simpler". I would have no objection to losing ST/STS writes to the flash if it meant that I could take RAMPZ out of the equation while writing to the flash. Hell, imagine if ELPM assumed RAMPZ = 1 and LPM to assume RAMPZ = 0, and all the headaches caused by RAMPZ would be gone!
 
 ### UPDI programming issue with 16-bit STS after 24-bit STptr (Datasheet should be clarrified)
-On parts which use 24-bit addressing, 16-bit addressing should not be used for STS operations. The results are profoundly baffling - the long and short of it is: See the table in the UPDI chapter, titled `Figure xx-10: STS Instruction Operation`? Cross out the top two lines. If STptr has been used with a 24-bit pointer (which you normally do to write the flash), if a subsequent STS doesn't use the 24-bit address, it will use the high byte from ptr!
+On parts which use 24-bit addressing, 16-bit addressing should not be used for STS operations. The results are profoundly baffling - the long and short of it is: See the table in the UPDI chapter, titled `Figure xx-10: STS Instruction Operation`? Cross out the top two lines. If STptr has been used with a 24-bit pointer (which you normally do to write the flash), if a subsequent STS doesn't use the 24-bit address, it will use the high byte from ptr! This behavior is apparently intended and expected, but that isn't communicated to the reader of the datasheet.
 
 ## Errata and Datasheets
 Get the most up to date information from Microchip's website. They keep moving files around, so I'm just going to link their product pages.
@@ -217,4 +217,4 @@ This is once more listed on the AVR DD and EA-series headers, so it looks like t
 Finally, the USART had the two RS485 modes listed, like tinyAVR 0/1-series, instead of just the one. The second mode raised all sorts of questions about how the chip ought to behave - and was one of those terse-and-useless sections that answers little. If I correctly understand the intent - it was meant to listen to XDIR and only output data when XDIR was in the correct state. So what does it do when the pin transitioned to "no sending" state while it was in the middle of a byte? Is there any answer to that that will result in correct behavior in all applicable use-cases? I think they thought about that one, realized the answer was "probably not" after they re-read what they'd said about it in the datasheets of the parts that had been released a few times, and figured that they'd be better off not supporting that. It is unclear whether the feature is still present in the silicon. On the DA-series I suspect it is, and likely DB as well, as they don't appear to have touched the USART.
 
 ## Ex-series
-Much less interesting... only one thing that wasn't supposed to be there was apparently left in, a section of NVMCTRL that configures the EEPROM writes. Oddly, the initial silicon's NVMCTRL was badly broken.
+Much less interesting... only one thing that wasn't supposed to be there was apparently left in, a section of NVMCTRL that configures the EEPROM writes. Oddly, the initial silicon's NVMCTRL was badly broken - but the EEPROM worked fine, it was the flash that was busted.

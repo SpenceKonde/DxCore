@@ -2355,7 +2355,7 @@ has once worked for the same thing as meaning that thing */
   #endif
 
   #if defined(__AVR_EA__) || defined(__AVR_EB__)
-    #define  ADC_MUXPOS_VDDDIV10_gc  ADC_MUXPOS_VDD10_gc // So I guess they're getting rid of excessive verbosity?
+    #define ADC_MUXPOS_VDDDIV10_gc  ADC_MUXPOS_VDD10_gc // So I guess they're getting rid of excessive verbosity?
     #define BOD_ACTIVE_ENWAKE_gc BOD_ACTIVE_ENABLEWAKE_gc
     #define BOD_SLEEP_ENABLED_gc BOD_SLEEP_ENABLE_gc
     #define BOD_SLEEP_SAMPLED_gc BOD_SLEEP_SAMPLE_gc
