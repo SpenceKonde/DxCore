@@ -1,5 +1,5 @@
 # SPI for DxCore
-The SPI library implements all of the standard functionality described in the [Arduino SPI library reference](https://www.arduino.cc/en/reference/SPI) applies here. Also, like all of the "big three" third-party cores for post-2016 AVR devices, this version of SPI.h supports the `swap()` and `pins()` methods to make use of the PORTMUX feature of the chips. However, there is an additional complication described below; this has finally been addressed in an (IMO) satisfactory way in 1.3.0.
+The SPI library implements all of the standard functionality described in the [Arduino SPI library reference](https://docs.arduino.cc/language-reference/en/functions/communication/SPI/) applies here. Also, like all of the "big three" third-party cores for post-2016 AVR devices, this version of SPI.h supports the `swap()` and `pins()` methods to make use of the PORTMUX feature of the chips. However, there is an additional complication described below; this has finally been addressed in an (IMO) satisfactory way in 1.3.0.
 
 ## Pins
 | Pin Mapping   | Pins        | Parts           | Swap-level name   |   Synonym  | Value | Note                      |
