@@ -2,11 +2,11 @@
 #define __CORE_PARAMETERS_H__
 
 #if !defined(DXCORE_NUM)
-  #if !(defined(DXCORE_MAJOR) && defined(DXCORE_MINOR) && defined(DXCORE_PATCH) && defined(DXCORE_RELEASED))
+  #if !(defined(DXCORE_MAJOR) && defined(DXCORE_MINOR) && defined(DXCORE_PATCH))
     #warning "All of the version defines are missing, please correct your build environment; it is likely failing to define other critical values"
     // Version related defines now handled in platform.txt
   #else
-    #define DXCORE_NUM ((DXCORE_MAJOR << 24) + (DXCORE_MINOR << 16) + (DXCORE_PATCH << 8) + DXCORE_RELEASED)
+    #define DXCORE_NUM ((DXCORE_MAJOR << 24) + (DXCORE_MINOR << 16) + (DXCORE_PATCH << 8) + 0)
   #endif
 #endif
 #if !(defined(MEGATINYCORE) || defined(DXCORE) || defined(ATTIYNCORE))
@@ -20,13 +20,13 @@
   // The whole purpose of this file is largely for for the purpose of being something that can be included anywhere to make sure we know what core we are
   // which becomes more and more important as more code is shared between the cores.
 
-  #define DXCORE "Unknown 1.6.9+"
+  #define DXCORE "Unknown 1.6.0+"
   #if !defined(DXCORE_NUM)
-    #if !(defined(DXCORE_MAJOR) && defined(DXCORE_MINOR) && defined(DXCORE_PATCH) && defined(DXCORE_RELEASED))
+    #if !(defined(DXCORE_MAJOR) && defined(DXCORE_MINOR) && defined(DXCORE_PATCH))
       #warning "All of the version defines are missing, please correct your build environment; it is likely failing to define other critical values"
       // Version related defines now handled in platform.txt
     #else
-      #define DXCORE_NUM ((DXCORE_MAJOR << 24) + (DXCORE_MINOR << 16) + (DXCORE_PATCH << 8) + DXCORE_RELEASED)
+      #define DXCORE_NUM ((DXCORE_MAJOR << 24) + (DXCORE_MINOR << 16) + (DXCORE_PATCH << 8) + 0)
     #endif
   #endif
 #else
@@ -119,6 +119,6 @@
   #error "A millis timer not supported on this core was passed. this should only be possible on third party IDEs. "
 #endif
 #if defined(UARTBAUD5V) || defined(UARTBAUD3V)
-  #warning "The UARTBAUDxV baud rate correction was removed in 1.3.0 because it had excessive overhead and negligible benefit. The define you specified does nothing."
+  #warning "The UARTBAUDxV option has NEVER existed on DxCore!"
 #endif
 #endif
