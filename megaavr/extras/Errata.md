@@ -5,7 +5,7 @@ Here's a chart in google sheets (please contact me if you can confirm any ?'s as
 
 I've also given up commenting on all but the unofficial and/or confusing ones, and removed old comments, which were in need of updating.
 
-## The list is on [Google Sheets] (https://docs.google.com/spreadsheets/d/1F7n2NNO2quG_Z7WWqgiCBlM0cRfgJtFfuKUZYxUV6DE/edit?usp=sharing)
+## The list is on [Google Sheets](https://docs.google.com/spreadsheets/d/1F7n2NNO2quG_Z7WWqgiCBlM0cRfgJtFfuKUZYxUV6DE/edit?usp=sharing)
 
 ## Determining silicon rev
 Read SYSCFG.REVID; SYSCFG.REVID&0xF0 is the major rev (the letter), SYSCFG.REVID&0x0F is the minor rev.

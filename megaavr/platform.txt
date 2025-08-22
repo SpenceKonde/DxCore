@@ -1,4 +1,4 @@
- #######################################
+#######################################
 # DxCore platform definition          #
 #                                     #
 # github.com/SpenceKonde/DxCore       #
