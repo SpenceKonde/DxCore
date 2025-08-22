@@ -1,6 +1,6 @@
 # Overall information regarding the AVR Dx-series
 
-## Quick warning - this page was is miserable shape. Hopefully it's been patched up decently.
+## Quick warning - this page was is miserable shape. Hopefully it's been patched up decently
 
 In early 2020, as the world was shutting down because of COVID-19, Microchip released the first of their new generation of parts. Along with many exciting features, it also brought one odd relic: a single nail, the meaning of which was clear when the naming of the parts was announced. That was last nail in the coffin of the ATmega branding, and it has been driven securely into place. The Dx and Ex-series have replaced it. The next question is how much longer tinyAVR has. There may well not be anything else called an ATtiny in the future either. Now that the company is no longer ATmel, why would they keep the AT-prefixed brands? And of course, since Microchip has all the creativity that you'd expect from a company that makes microchips and is named Microchip, the new naming system is uncreative in the extreme: AVRffXYpp - where ff is a number, the flash size in kb, XY are two capital letters indicating the chip generation, and family (likely both generation and family will generally go in alphabetical order, with a possible exception for USB-native parts, which could get a U (per the withdrawn DU-series brief) - I imagine "DC" was skipped because that has an obvious meaning in electronics. They will probably skip "F" as a generation letter, too, F being a failing grade in school, not to mention its association with a certain explitive. Certainly, if there is an Fx-series, they'd have to pick some other letter for the family with native USB support. An FU-series wouldn't be a marketing success story.
 
@@ -77,7 +77,7 @@ Notes:
 
 |                                | AVR EB14   | AVR EB20   | AVR EB28   | AVR EB32   | AVR EA 28  | AVR EA32   | AVR EA48   | AVR DU14 | AVR DU20 | AVR DU28 | AVR DU32 |
 |--------------------------------|------------|------------|------------|------------|------------|------------|------------|----------|----------|----------|----------|
-| Released                       | 2024       | 2024       | 2024       | 2025       | 2023`   `  | 2023       | 2023       | 2024     | 2024     | 2024     | 2024     |
+| Released                       | 2024       | 2024       | 2024       | 2025       | 2023       | 2023       | 2023       | 2024     | 2024     | 2024     | 2024     |
 | Memory (max) Flash/RAM         | 32k/3k     | 32k/3k     | 32k/3k     | 32k/3k     | 64k/6k     | 64k/6k     | 64k/6k     | 32k/4k   | 32k/4k   | 64k/8k   | 64k/8k   |
 | Memory (min) Flash/RAM         | 16k/2k     | 16k/2k     | 16k/2k     | 16k/2k     | 16k/2k     | 16k/2k     | 16k/2k     | 16k/2k   | 16k/2k   | 16k/2k   | 16k/2k   |
 | EEPROM                         | 512        | 512        | 512        | 512        | 512        | 512        | 512        |     512  |      512 |      512 |      512 |

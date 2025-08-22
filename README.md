@@ -1,123 +1,8 @@
+Use the Table of Contents button! Why was I making a ToC manually? (especially since I apparently did it wrong..)
+
 # DxCore - Arduino support for the AVR DA, DB, and DD-series
 
-This is an Arduino core to support the exciting new AVR DA, DB, and DD-series microcontrollers from Microchip. These parts are the latest and highest spec 8-bit AVRs available, and take the AVR architecture to a whole new level with up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, type A/B/D timers, and enhanced pin interrupts.
-
-## Table of Contents
-* [Announcements](#announcements)
-  * [WE HAVE A PROBLEM: WE HAVE NO PINMAP IMAGES](#we-have-a-problem-we-have-no-pinmap-images)
-* [IMPORTANT WARNINGS](#important-warnings)
-  * [ATTN: Linux Users](#attn-linux-users)
-  * [IDE 2.0.x unsupported](#ide-20x-unsupported)
-* [What is DxCore?](#what-is-dxcore)
-* [Supported Parts (click link for pinout diagram and details)](#supported-parts-click-link-for-pinout-diagram-and-details)
-  * [Magic Packages](#magic-packages)
-    * [VQFN's aren't so bad](#vqfns-arent-so-bad)
-  * [Quick Summary](#quick-summary)
-* [Supported Clock Speeds](#supported-clock-speeds)
-  * [For the DA, DB, DD and DU-series parts](#for-the-da-db-dd-and-du-series-parts)
-  * [For the EA and EB-series](#for-the-ea-and-eb-series)
-* [UPDI Programming](#updi-programming)
-  * [We set fuses when writing a sketch, except where specifically noted](#we-set-fuses-when-writing-a-sketch-except-where-specifically-noted)
-  * [UPDI programming hardware](#updi-programming-hardware)
-  * [From a USB-Serial Adapter With SerialUPDI (pyupdi-style - Recommended)](#from-a-usb-serial-adapter-with-serialupdi-pyupdi-style---recommended)
-  * [What about Debugging?](#what-about-debugging)
-  * [HV debrick project delayed](#hv-debrick-project-delayed)
-  * [What's With All The Different SerialUPDI Options?](#whats-with-all-the-different-serialupdi-options)
-  * [Why is My FTDI Adapter Insanely Slow?](#why-is-my-ftdi-adapter-insanely-slow)
-  * [With a Classic Arduino (jtag2updi)](#with-a-classic-arduino-jtag2updi)
-  * [So we can do HV UPDI on the DD's?](#so-we-can-do-hv-updi-on-the-dds)
-* [Compatibility Note for 32-bit Linux](#compatibility-note-for-32-bit-linux)
-* [Ways to refer to pins](#ways-to-refer-to-pins)
-  * [PIN_Pxn Port Pin Numbers (recommended)](#pin_pxn-port-pin-numbers-recommended)
-  * [Arduino Pin Numbers (if you must)](#arduino-pin-numbers-if-you-must)
-  * [An and PIN_An constants (for compatibility)](#an-and-pin_an-constants-for-compatibility)
-  * ["Missing" Pins](#missing-pins)
-* [Link-time Optimization (LTO) support](#link-time-optimization-lto-support)
-* [Exposed Hardware Features](#exposed-hardware-features)
-  * [MVIO (DB, DD only)](#mvio-db-dd-only)
-  * [ADC Support](#adc-support)
-  * [DAC Support](#dac-support)
-  * [Watchdog timer, software reset](#watchdog-timer-software-reset)
-  * [Improved Digital I/O](#improved-digital-io)
-  * [Serial (UART) Support](#serial-uart-support)
-  * [SPI support](#spi-support)
-  * [I2C (TWI) support, including all alternate pins, master & slave from the same TWI](#i2c-twi-support-including-all-alternate-pins-master--slave-from-the-same-twi)
-  * [Alternate pin mapping (PORTMUX) support](#alternate-pin-mapping-portmux-support)
-  * [PWM on LOTS of pins](#pwm-on-lots-of-pins)
-  * [EEPROM - Yes](#eeprom---yes)
-  * [USERROW - Yes](#userrow---yes)
-  * [Pin Interrupts](#pin-interrupts)
-    * [`attachInterrupt()` rework](#attachinterrupt-rework)
-  * [Additional supported peripherals](#additional-supported-peripherals)
-    * [On-chip Op-amps](#on-chip-op-amps)
-    * [Analog Comparators](#analog-comparators)
-    * [Configurable Custom Logic](#configurable-custom-logic)
-    * [Event System](#event-system)
-    * [Zero-Crossing Detector](#zero-crossing-detector)
-    * [Timers](#timers)
-      * [Timer types](#timer-types)
-* [Other major features](#other-major-features)
-  * [Memory-mapped flash? It's complicated](#memory-mapped-flash-its-complicated)
-  * [Writing to Flash from App](#writing-to-flash-from-app)
-  * [Servo Support](#servo-support)
-  * [`printf()` support for "printable" class](#printf-support-for-printable-class)
-    * [**WARNING** `printf()` and variants thereof Have Many Pitfalls](#warning-printf-and-variants-thereof-have-many-pitfalls)
-    * [Selectable `printf()` Implementation](#selectable-printf-implementation)
-  * [Interrupts From Pins and in General](#interrupts-from-pins-and-in-general)
-  * [Assembler Listing generation](#assembler-listing-generation)
-  * [EESAVE configuration option](#eesave-configuration-option)
-  * [BOD configuration options](#bod-configuration-options)
-  * [NeoPixels (aka WS2812/SK6812 and many, many others)](#neopixels-aka-ws2812sk6812-and-many-many-others)
-  * [Tone Support](#tone-support)
-  * [millis/micros Timekeeping Options](#millismicros-timekeeping-options)
-  * [Improved digital I/O](#improved-digital-io)
-* [Additional DxCore documentation](#additional-dxcore-documentation)
-  * [Library documentation](#library-documentation)
-* [Bootloader (Optiboot) Support](#bootloader-optiboot-support)
-* [Guides](#guides)
-  * [Reference Material (these are what I would call the documentation)](#reference-material)
-    * [Function Reference](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Functions.md)
-    * [Analog Input (ADC) and Output (DAC)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Analog.md)
-    * [Digital I/O and enhanced options](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Digital.md)
-    * [Interrupts](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Interrupts.md)
-    * [Timers and PWM](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Timers.md)
-    * [TCD0](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_TCD.md)
-    * [Serial](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Serial.md)
-    * [Mapped flash and PROGMEM in DxCore](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_PROGMEM.md)
-    * [Optiboot Bootloader](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)
-    * [SerialUPDI](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md)
-    * [Clock Information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md)
-    * [Callbacks/weakly defined functions](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Callbacks.md)
-    * [Constants for part/feature/pin/version identification](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Defines.md)
-    * [Assembly Listing and Memory Maps](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Export.md)
-    * [Reset control and the WDT](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md)
-    * [Considerations for robust applications](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Robust.md)
-    * [Power Saving techniques and Sleep - inherited from megaTinyCore](megaavr/extras/PowerSave.md)
-    * [Link time Optimization](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_LTO.md)
-* [List of Tools sub-menus](#list-of-tools-sub-menus)
-  * [Optiboot only menu options](#optiboot-only-menu-options)
-  * [Options not available with Optiboot](#options-not-available-with-optiboot)
-* [Support Continued Development](#support-continued-development)
-* [Warnings and Caveats](#warnings-and-caveats)
-  * [Direct Register Manipulation](#direct-register-manipulation)
-    * [Timer PWM and exceptions](#timer-pwm-and-exceptions)
-* [Differences in Behavior between DxCore and Official Cores](#differences-in-behavior-between-dxcore-and-official-cores)
-  * [I2C **requires** external pullup resistors](#i2c-requires-external-pullup-resistors)
-  * [Serial Does Not Manipulate Interrupt Priority](#serial-does-not-manipulate-interrupt-priority)
-  * [SerialEvent Support is Dropped](#serialevent-support-is-dropped)
-  * [`digitalRead()` does not turn off PWM](#digitalread-does-not-turn-off-pwm)
-  * [`digitalWrite()`/`pinMode()` and INPUT pins](#digitalwritepinmode-and-input-pins)
-  * [`analogWrite()` and TCD0 pins](#analogwrite-and-tcd0-pins)
-  * [Serial does not manipulate interrupt priority](#serial-does-not-manipulate-interrupt-priority)
-  * [Serial setting constants have different numeric values](#serial-setting-constants-have-different-numeric-values)
-  * [TCA(s) are configured in Split Mode to get 3 additional PWM pins](#tcas-are-configured-in-split-mode-to-get-3-additional-pwm-pins)
-  * [TCA0/1 and all TCB's used for PWM have TOP at 254, not 255](#tca01-and-all-tcbs-used-for-pwm-have-top-at-254-not-255)
-  * [digital I/O functions use old function signatures](#digital-io-functions-use-old-function-signatures)
-  * [`analogReadResolution()` is different](#analogreadresolution-is-different)
-  * [As of 1.3.3, SerialEvent is removed](#as-of-133-serialevent-is-removed)
-  * [Oh, and -Wall (compile warnings) are enabled no matter what you choose in the preferences](#oh-and--wall-compile-warnings-are-enabled-no-matter-what-you-choose-in-the-preferences)
-* [Instruction Set Enhancements (AVRe/AVRe+ vs AVRxt)](#instruction-set-enhancements-avreavre-vs-avrxt)
-* [License](#license)
+This is an Arduino core to support the AVR DA, DB, DD, EA, EB, and DU-series microcontrollers from Microchip. These parts are the latest and highest spec 8-bit AVRs available, and take the AVR architecture to a whole new level with up to 128k flash, 16k SRAM, 55 I/O pins, 6 UART ports, 2 SPI and I2C ports, type A/B/D timers, and enhanced pin interrupts.
 
 ## Announcements
 
@@ -203,20 +88,22 @@ Everyone always hates on QFN packaging, but it has a few advantages. The obvious
 | USERROW   | 32 | 32 | 32 | 32 | 32 | 32 | 64 | 512| 64 |
 | BOOTROW   | -  | -  | -  | -  | -  | -  | -  | 64 | 64 |
 | TCA's     | 1  | 1  | 1  | 2  | 2  | 1  | 2  | 1  | 0  |
-| TCB's     | 1  | 2  | 2  | 5  | 5  | 3  | 4  | 2  | 2  |
+| TCB's     | 1  | 2* | 2  | 5  | 5  | 3  | 4  | 2  | 2  |
 | TCD's     | -  | 1  | -  | 1  | 1  | 1  | -  | -  | -  |
 | TCE's     | -  | -  | -  | -  | -  | -  | -  | -  | 1  |
 | WEX       | -  | -  | -  | -  | -  | -  | -  | -  | 1  |
 | TCF's     | -  | -  | -  | -  | -  | -  | -  | -  | 1  |
 | CCL       | 4  | 4  | 4  | 6  | 6  | 4  | 4  | 4  | 4  |
 | MVIO      | -  | -  | -  | -  | X  | X  | -  | -  | -  |
-| EVSYS     | 3  | 6  | 6  | 10 | 10 | 6  | 6  | 6  | 6  |
-| ADC bits  | 10 | 10 | 12 | 12 | 12 | 12 | 12 | 10?| 12 |
+| EVSYS     | 3  | 6  | 6  | 10 * | 10 * | 6  | 6  | 6  | 6  |
+| ADC bits  | 10 | 10 | 12 | 12 | 12 | 12 | 12 | 10 | 12 |
+| DAC bits  | -  | 8  | -  | 10 | 10 | 10 | 10 | -  | -  |
 | Has PGA   | -  | -  | X  | -  | -  | -  | X  | -  | X  |
-| Released  | X  | X  | X  | X  | X  | X  |some| -  | -  |
+| Released  | X  | X  | X  | X  | X  | X  | X  | X  | X  |
 | USB       | -  | -  | -  | -  | -  | -  | -  | X  | -  |
 | Core      | mTC| mTC| mTC| DxC| DxC| DxC| DxC| DxC| DxC|
 
+`*` TinyAVR 1-series with 16 or 32k of flash have 2k of ram (not the 1k expected for 16k), a second copy of the ADC, 2 extra analog comparators and a second TCB. AVR DA and AVR DB-series parts with less than 48 pins have 8 event channels instead of 10.
 t1/t2: Migration path for classic tinyAVR, excellent for small applications in general (frequently better than DD/EX-series parts if you need all the peripheral pins of all the peripherals - For example, a CCL-heavy application might skate by with a 424 (I have one that does), but, well, a DD14 don't have enough pins I can get CCL out on, )
 t0: If it cost 25% less than the t1's I might give them a second look. They cost around 1-2% less. So I don't know who the hell buys this garbage.
 DA or DB: Migration path for high end megaAVR applications
