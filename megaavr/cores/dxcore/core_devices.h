@@ -1231,17 +1231,6 @@ int8_t _setCPUSpeed(uint8_t omhz) {
 
 
 
-#if defined(CLKCTRL_CSUTHF_gm)
-  #if defined(__AVR_EA__)
-    #define CLKCTRL_CSUTHF_256_gc CLKCTRL_CSUTHF_256CYC_gc
-    #define CLKCTRL_CSUTHF_1K_gc CLKCTRL_CSUTHF_1KCYC_gc
-    #define CLKCTRL_CSUTHF_4K_gc CLKCTRL_CSUTHF_4KCYC_gc
-  #else
-    #define CLKCTRL_CSUTHF_256CYC_gc CLKCTRL_CSUTHF_4K_gc
-    #define CLKCTRL_CSUTHF_1KCYC_gc CLKCTRL_CSUTHF_1K_gc
-    #define CLKCTRL_CSUTHF_4KCYC_gc CLKCTRL_CSUTHF_4K_gc
-  #endif
-#endif
 
 /* Normal interrupt mode on a part with windowed AC is the same as the unnamed mode on those without that feature */
 #if (defined(__AVR_DD__))
