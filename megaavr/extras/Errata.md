@@ -88,7 +88,7 @@ These seem to have been slow to be detected. One of them is an official erratum.
 #### Flush Non-Functional (official, everywhere with a flush command, which is everywhere with dual mode)
 The TWI flush command, intended to clear the state machine when it got into a bad state, apparently could instead produce them.
 
-Instead, disable and reenable the TWI peripheral.
+Instead, disable and re-enable the TWI peripheral.
 
 #### TWI0 MUX 2 option on DD
 The ALT2 mux option may be broken on DD-series parts. Inconsistent behavior has been seen in testing. Sometimes it will work, other times it will drive the SDA line low (to generate the first start condition) and then do nothing more. Attempts to elucidate the nature of this issue have failed.
@@ -134,7 +134,7 @@ Microchip recalled them, but some disties had already shipped some out.
 
 Since they never owned up to it in an erratum and didn't increment the die rev when they fixed it, I don't know what date codes are effected. The way you discover if the chip is effected is by trying to use any interrupt - none will work correctly on the effected chips.
 
-It's tested by the simplest sketch around: Blink. Connct an LED and decoupling capacitors, and upload blink. Impacted parts will not blink at a steady rate (possibly not at all) and will behave erratically. Tools -> Millis timer -> Disabled, and repeat upload. On effected parts, blink uploaded with disabled millis should produce a blink normally. The issue is that the chip thinks it's supposed to have 2-byte vectors, while, having more than 8k of flash, it needs 4-byte ones. The compiler generates those, but instead of jumping to (vector number * 4), it jumps to (vector number * 2), so half of the vectors land in the middle of an instruction word, and the other half land on a vector for another interrupt, which is probably an ISR you haven't defined, meaning BAD_ISR which results in a reset.
+It's tested by the simplest sketch around: Blink. Connect an LED and decoupling capacitors, and upload blink. Impacted parts will not blink at a steady rate (possibly not at all) and will behave erratically. Tools -> Millis timer -> Disabled, and repeat upload. On effected parts, blink uploaded with disabled millis should produce a blink normally. The issue is that the chip thinks it's supposed to have 2-byte vectors, while, having more than 8k of flash, it needs 4-byte ones. The compiler generates those, but instead of jumping to (vector number * 4), it jumps to (vector number * 2), so half of the vectors land in the middle of an instruction word, and the other half land on a vector for another interrupt, which is probably an ISR you haven't defined, meaning BAD_ISR which results in a reset.
 
 #### TCB Async events are slower than Sync events
 See [the discussion topic, which quotes Microchip support](https://github.com/SpenceKonde/megaTinyCore/discussions/735) as saying that it likely effects all parts with a TCB. (this was some time ago, and it's not been seen on errata lists, though)

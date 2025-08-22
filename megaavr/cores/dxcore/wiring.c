@@ -2045,9 +2045,9 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
   #else
     #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
   #endif
-#endif
-#ifndef USE_CSUTHF
-  #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
+  #ifndef USE_CSUTHF
+    #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
+  #endif
 #endif
 #if (defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__) || defined(__AVR_DU__))
   void  __attribute__((weak)) init_clock() {
