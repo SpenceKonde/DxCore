@@ -127,7 +127,7 @@ Read-While-Write Feature Non-Functional
 
 Seems they've gotten most of the problems worked out, finally, other than the Dx-write endurance. 1000 rewrites is still enough though, and supposedly, the Dx-series parts meet the original (10k) spec at room temperature, just not over the whole temperature range (explaining why the problem had not been noticed for over a year)
 
-### Issues that we expected to see in errata, but have not yet seen
+### Issues that we expect to see in errata, but have not yet seen
 
 #### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable.
 Microchip recalled them, but some disties had already shipped some out.
@@ -138,6 +138,11 @@ It's tested by the simplest sketch around: Blink. Connect an LED and decoupling 
 
 #### TCB Async events are slower than Sync events
 See [the discussion topic, which quotes Microchip support](https://github.com/SpenceKonde/megaTinyCore/discussions/735) as saying that it likely effects all parts with a TCB. (this was some time ago, and it's not been seen on errata lists, though)
+
+Workaround: Do not use the Async option on TCBs.
+
+#### See TWI issues above, as well
+The dual mode issue and TWI0 ALT2 pinout issues are likely to end up as errata
 
 ### Issues not expected to be seen as errata or datasheet clarifications
 
@@ -160,9 +165,9 @@ Despite the datasheet saying otherwise *(and saying so very explicitly)*, the lo
 * This bug is not hard to avoid. But it looks like you don't have to if you go playing around - until you do. So, no, don't SPM to odd addresses.
 * If you want to write bytes 5 and 6 to the values 0x55 and 0x66 respectively, you instead can do this:
   * SPM 0xFF, 0x55 to address 4 and 5, then SPM 0x66, 0xFF to address 6, 7.
-  * If flash is not erased prior to a write, the value in flash following the write is the bitwise and of the previous value and the value written. Hence writing 0xFF to the irrelevant bytes. This (writing all 1's to an unerased byte to leave it unchanged) works on just about any flash memory that has a separate page erase command, as it's based on the physical constraints on solid state memory.
+  * If flash is not erased prior to a write, the value in flash following the write is the bitwise and of the previous value and the value written. Hence writing 0xFF to the irrelevant bytes. This (writing all 1's to an unerased byte to leave it unchanged) works on just about any flash memory that has a separate page erase command, as it's based on the physical constraints on developed solid state memory technologies.
 
-My only thought here is "If SPM instruction requires word aligned access, why not just require writes to be word addressed, and then you could forget about rampz except for the sole case of ELPM, and everone's life would be simpler". I would have no objection to losing ST/STS writes to the flash if it meant that I could take RAMPZ out of the equation while writing to the flash. Hell, imagine if ELPM assumed RAMPZ = 1 and LPM to assume RAMPZ = 0, and all the headaches caused by RAMPZ would be gone!
+My only thought here is "If SPM instruction requires word aligned access, why not just require writes to be word addressed, and then you could forget about rampz except for the sole case of ELPM, and everone's life would be simpler". I would have no objection to losing ST/STS writes to the flash if it meant that I could take RAMPZ out of the equation while writing to the flash.
 
 ### UPDI programming issue with 16-bit STS after 24-bit STptr (Datasheet should be clarrified)
 On parts which use 24-bit addressing, 16-bit addressing should not be used for STS operations. The results are profoundly baffling - the long and short of it is: See the table in the UPDI chapter, titled `Figure xx-10: STS Instruction Operation`? Cross out the top two lines. If STptr has been used with a 24-bit pointer (which you normally do to write the flash), if a subsequent STS doesn't use the 24-bit address, it will use the high byte from ptr! This behavior is apparently intended and expected, but that isn't communicated to the reader of the datasheet.
@@ -181,7 +186,7 @@ Get the most up to date information from Microchip's website. They keep moving f
 
 ### Dx-series
 
-Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet? Nothing **SUPER** interesting, but...
+Between the initial releases of the io headers (eg, `ioavr128da64.h`), and more recent ones, of course, they corrected an assortment of errors, typos, missing information - the usual... And also, it would appear, the accidental inclusion of references to features not described my the datasheet. The DA's were the bonanza here.  Nothing **SUPER** interesting, but...
 
 #### EVSYS_USEROSCTEST
 

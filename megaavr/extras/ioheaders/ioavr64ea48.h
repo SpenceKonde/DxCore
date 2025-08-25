@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, Microchip Technology Inc. and its subsidiaries ("Microchip")
+ * Copyright (C) 2025, Microchip Technology Inc. and its subsidiaries ("Microchip")
  * All rights reserved.
  *
  * This software is developed by Microchip Technology Inc. and its subsidiaries ("Microchip").
@@ -43,7 +43,6 @@
 
 /* Ungrouped common registers */
 #define CCP  _SFR_MEM8(0x0034)  /* Configuration Change Protection */
-#define RAMPZ  _SFR_MEM8(0x003B)  /* Extended Z-pointer Register */
 #define SP  _SFR_MEM16(0x003D)  /* Stack Pointer */
 #define SPL  _SFR_MEM8(0x003D)  /* Stack Pointer Low */
 #define SPH  _SFR_MEM8(0x003E)  /* Stack Pointer High */
@@ -793,7 +792,7 @@ typedef struct CRCSCAN_struct
     register8_t CTRLA;  /* Control A */
     register8_t CTRLB;  /* Control B */
     register8_t STATUS;  /* Status */
-    register8_t reserved_1[1];
+    register8_t reserved_1[13];
 } CRCSCAN_t;
 
 /* CRC Source select */
@@ -816,6 +815,7 @@ typedef struct DAC_struct
     register8_t CTRLA;  /* Control Register A */
     register8_t reserved_1[1];
     _WORDREGISTER(DATA);  /* DATA Register */
+    register8_t reserved_2[12];
 } DAC_t;
 
 /* Output Buffer Range select */
@@ -1156,10 +1156,7 @@ typedef struct NVMCTRL_struct
     _WORDREGISTER(DATA);  /* Data */
     register8_t reserved_3[2];
     _DWORDREGISTER(ADDR);  /* Address */
-    register8_t reserved_4[29];
-    register8_t EECALB;  /* EEPROM Calibration B */
-    register8_t EECALC;  /* EEPROM Calibration C */
-    register8_t reserved_5[17];
+    register8_t reserved_4[48];
 } NVMCTRL_t;
 
 /* Command select */
@@ -1235,7 +1232,7 @@ typedef struct PORT_struct
     register8_t PIN5CTRL;  /* Pin 5 Control */
     register8_t PIN6CTRL;  /* Pin 6 Control */
     register8_t PIN7CTRL;  /* Pin 7 Control */
-    register8_t EVGENCTRL;  /* Event Generation Control */
+    register8_t EVGENCTRLA;  /* Event Generation Control A */
     register8_t reserved_2[7];
 } PORT_t;
 
@@ -1309,157 +1306,173 @@ typedef struct PORTMUX_struct
 /* Analog Comparator 0 Output select */
 typedef enum PORTMUX_AC0_enum
 {
-    PORTMUX_AC0_DEFAULT_gc = (0x00<<0),  /* OUT on PA7 */
-    PORTMUX_AC0_ALT1_gc = (0x01<<0)  /* OUT on PC6 */
+    PORTMUX_AC0_DEFAULT_gc = (0x00<<0),  /* OUT: PA7 */
+    PORTMUX_AC0_ALT1_gc = (0x01<<0)  /* OUT: PC6 */
 } PORTMUX_AC0_t;
 
 /* Analog Comparator 1 Output select */
 typedef enum PORTMUX_AC1_enum
 {
-    PORTMUX_AC1_DEFAULT_gc = (0x00<<1),  /* OUT on PA7 */
-    PORTMUX_AC1_ALT1_gc = (0x01<<1)  /* OUT on PC6 */
+    PORTMUX_AC1_DEFAULT_gc = (0x00<<1),  /* OUT: PA7 */
+    PORTMUX_AC1_ALT1_gc = (0x01<<1)  /* OUT: PC6 */
 } PORTMUX_AC1_t;
 
 /* Event Output A select */
 typedef enum PORTMUX_EVOUTA_enum
 {
-    PORTMUX_EVOUTA_DEFAULT_gc = (0x00<<0),  /* EVOUT on PA2 */
-    PORTMUX_EVOUTA_ALT1_gc = (0x01<<0)  /* EVOUT on PA7 */
+    PORTMUX_EVOUTA_DEFAULT_gc = (0x00<<0),  /* EVOUTA: PA2 */
+    PORTMUX_EVOUTA_ALT1_gc = (0x01<<0)  /* EVOUTA: PA7 */
 } PORTMUX_EVOUTA_t;
+
+/* Event Output B select */
+typedef enum PORTMUX_EVOUTB_enum
+{
+    PORTMUX_EVOUTB_DEFAULT_gc = (0x00<<1)  /* EVOUTB: PB2 */
+} PORTMUX_EVOUTB_t;
 
 /* Event Output C select */
 typedef enum PORTMUX_EVOUTC_enum
 {
-    PORTMUX_EVOUTC_DEFAULT_gc = (0x00<<2),  /* EVOUT on PC2 */
-    PORTMUX_EVOUTC_ALT1_gc = (0x01<<2)  /* EVOUT on PC7 */
+    PORTMUX_EVOUTC_DEFAULT_gc = (0x00<<2),  /* EVOUTC: PC2 */
+    PORTMUX_EVOUTC_ALT1_gc = (0x01<<2)  /* EVOUTC: PC7 */
 } PORTMUX_EVOUTC_t;
 
 /* Event Output D select */
 typedef enum PORTMUX_EVOUTD_enum
 {
-    PORTMUX_EVOUTD_DEFAULT_gc = (0x00<<3),  /* EVOUT on PD2 */
-    PORTMUX_EVOUTD_ALT1_gc = (0x01<<3)  /* EVOUT on PD7 */
+    PORTMUX_EVOUTD_DEFAULT_gc = (0x00<<3),  /* EVOUTD: PD2 */
+    PORTMUX_EVOUTD_ALT1_gc = (0x01<<3)  /* EVOUTD: PD7 */
 } PORTMUX_EVOUTD_t;
+
+/* Event Output E select */
+typedef enum PORTMUX_EVOUTE_enum
+{
+    PORTMUX_EVOUTE_DEFAULT_gc = (0x00<<4)  /* EVOUTE: PE2 */
+} PORTMUX_EVOUTE_t;
 
 /* Event Output F select */
 typedef enum PORTMUX_EVOUTF_enum
 {
-    PORTMUX_EVOUTF_DEFAULT_gc = (0x00<<5),  /* EVOUT on PF2 */
-    PORTMUX_EVOUTF_ALT1_gc = (0x01<<5)  /* EVOUT on PF7 */
+    PORTMUX_EVOUTF_DEFAULT_gc = (0x00<<5),  /* EVOUTF: PF2 */
+    PORTMUX_EVOUTF_ALT1_gc = (0x01<<5)  /* EVOUTF: PF7 */
 } PORTMUX_EVOUTF_t;
 
 /* CCL Look-Up Table 0 Signals select */
 typedef enum PORTMUX_LUT0_enum
 {
-    PORTMUX_LUT0_DEFAULT_gc = (0x00<<0),  /* Out: PA3 In: PA0, PA1, PA2 */
-    PORTMUX_LUT0_ALT1_gc = (0x01<<0)  /* Out: PA6 In: PA0, PA1, PA2 */
+    PORTMUX_LUT0_DEFAULT_gc = (0x00<<0),  /* In: PA0, PA1, PA2, Out: PA3 */
+    PORTMUX_LUT0_ALT1_gc = (0x01<<0)  /* In: PA0, PA1, PA2, Out: PA6 */
 } PORTMUX_LUT0_t;
 
 /* CCL Look-Up Table 1 Signals select */
 typedef enum PORTMUX_LUT1_enum
 {
-    PORTMUX_LUT1_DEFAULT_gc = (0x00<<1),  /* Out: PC3 In: PC0, PC1, PC2 */
-    PORTMUX_LUT1_ALT1_gc = (0x01<<1)  /* Out: PC6 In: PC0, PC1, PC2 */
+    PORTMUX_LUT1_DEFAULT_gc = (0x00<<1),  /* In: PC0, PC1, PC2, Out: PC3 */
+    PORTMUX_LUT1_ALT1_gc = (0x01<<1)  /* In: PC0, PC1, PC2, Out: PC6 */
 } PORTMUX_LUT1_t;
 
 /* CCL Look-Up Table 2 Signals select */
 typedef enum PORTMUX_LUT2_enum
 {
-    PORTMUX_LUT2_DEFAULT_gc = (0x00<<2),  /* Out: PD3 In: PD0, PD1, PD2 */
-    PORTMUX_LUT2_ALT1_gc = (0x01<<2)  /* Out: PD6 In: PD0, PD1, PD2 */
+    PORTMUX_LUT2_DEFAULT_gc = (0x00<<2),  /* In: PD0, PD1, PD2, Out: PD3 */
+    PORTMUX_LUT2_ALT1_gc = (0x01<<2)  /* In: PD0, PD1, PD2, Out: PD6 */
 } PORTMUX_LUT2_t;
 
 /* SPI0 Signals select */
 typedef enum PORTMUX_SPI0_enum
 {
-    PORTMUX_SPI0_DEFAULT_gc = (0x00<<0),  /* PA4, PA5, PA6, PA7 */
-    PORTMUX_SPI0_ALT1_gc = (0x01<<0),  /* PE0, PE1, PE2, PE3 */
-    PORTMUX_SPI0_NONE_gc = (0x03<<0)  /* Not connected to any pins */
+    PORTMUX_SPI0_DEFAULT_gc = (0x00<<0),  /* MOSI: PA4, MISO: PA5, SCK: PA6, SS: PA7 */
+    PORTMUX_SPI0_ALT1_gc = (0x01<<0),  /* MOSI: PE0, MISO: PE1, SCK: PE2, SS: PE3 */
+    PORTMUX_SPI0_ALT3_gc = (0x03<<0),  /* MOSI: PA0, MISO: PA1, SCK: PC0, SS: PC1 */
+    PORTMUX_SPI0_ALT4_gc = (0x04<<0),  /* MOSI: PD4, MISO: PD5, SCK: PD6, SS: PD7 */
+    PORTMUX_SPI0_ALT5_gc = (0x05<<0),  /* MOSI: PC0, MISO: PC1, SCK: PC2, SS: PC3 */
+    PORTMUX_SPI0_ALT6_gc = (0x06<<0),  /* MOSI: PC1, MISO: PC2, SCK: PC3, SS: PF7 */
+    PORTMUX_SPI0_NONE_gc = (0x07<<0)  /* Not connected to any pins, SS set to 1 */
 } PORTMUX_SPI0_t;
 
 /* TCA0 Signals select */
 typedef enum PORTMUX_TCA0_enum
 {
-    PORTMUX_TCA0_PORTA_gc = (0x00<<0),  /* PA0, PA1, PA2, PA3, PA4, PA5 */
-    PORTMUX_TCA0_PORTB_gc = (0x01<<0),  /* PB0, PB1, PB2, PB3, PB4, PB5 */
-    PORTMUX_TCA0_PORTC_gc = (0x02<<0),  /* PC0, PC1, PC2, PC3, PC4, PC5 */
-    PORTMUX_TCA0_PORTD_gc = (0x03<<0),  /* PD0, PD1, PD2, PD3, PD4, PD5 */
-    PORTMUX_TCA0_PORTE_gc = (0x04<<0),  /* PE0, PE1, PE2, PE3, PE4, PE5 */
-    PORTMUX_TCA0_PORTF_gc = (0x05<<0)  /* PF0, PF1, PF2, PF3, PF4, PF5 */
+    PORTMUX_TCA0_PORTA_gc = (0x00<<0),  /* WOn: PA0, PA1, PA2, PA3, PA4, PA5 */
+    PORTMUX_TCA0_PORTB_gc = (0x01<<0),  /* WOn: PB0, PB1, PB2, PB3, PB4, PB5 */
+    PORTMUX_TCA0_PORTC_gc = (0x02<<0),  /* WOn: PC0, PC1, PC2, PC3, PC4, PC5 */
+    PORTMUX_TCA0_PORTD_gc = (0x03<<0),  /* WOn: PD0, PD1, PD2, PD3, PD4, PD5 */
+    PORTMUX_TCA0_PORTE_gc = (0x04<<0),  /* WOn: PE0, PE1, PE2, PE3, -, - */
+    PORTMUX_TCA0_PORTF_gc = (0x05<<0)  /* WOn: PF0, PF1, PF2, PF3, PF4, PF5 */
 } PORTMUX_TCA0_t;
 
 /* TCA1 Signals select */
 typedef enum PORTMUX_TCA1_enum
 {
-    PORTMUX_TCA1_PORTB_gc = (0x00<<3),  /* PB0, PB1, PB2, PB3, PB4, PB5 */
-    PORTMUX_TCA1_PORTC_gc = (0x01<<3),  /* PC4, PC5, PC6 */
-    PORTMUX_TCA1_PORTA_gc = (0x04<<3),  /* PA4, PA5, PA6 */
-    PORTMUX_TCA1_PORTD_gc = (0x05<<3)  /* PD4, PD5, PD6 */
+    PORTMUX_TCA1_PORTB_gc = (0x00<<3),  /* WOn: PB0, PB1, PB2, PB3, PB4, PB5 */
+    PORTMUX_TCA1_PORTC_gc = (0x01<<3),  /* WOn: PC4, PC5, PC6, -, -, - */
+    PORTMUX_TCA1_PORTA_gc = (0x04<<3),  /* WOn: PA4, PA5, PA6, -, -, - */
+    PORTMUX_TCA1_PORTD_gc = (0x05<<3)  /* WOn: PD4, PD5, PD6, -, -, - */
 } PORTMUX_TCA1_t;
 
 /* TCB0 Output select */
 typedef enum PORTMUX_TCB0_enum
 {
-    PORTMUX_TCB0_DEFAULT_gc = (0x00<<0),  /* PA2 */
-    PORTMUX_TCB0_ALT1_gc = (0x01<<0)  /* PF4 */
+    PORTMUX_TCB0_DEFAULT_gc = (0x00<<0),  /* WO: PA2 */
+    PORTMUX_TCB0_ALT1_gc = (0x01<<0)  /* WO: PF4 */
 } PORTMUX_TCB0_t;
 
 /* TCB1 Output select */
 typedef enum PORTMUX_TCB1_enum
 {
-    PORTMUX_TCB1_DEFAULT_gc = (0x00<<1),  /* PA3 */
-    PORTMUX_TCB1_ALT1_gc = (0x01<<1)  /* PF5 */
+    PORTMUX_TCB1_DEFAULT_gc = (0x00<<1),  /* WO: PA3 */
+    PORTMUX_TCB1_ALT1_gc = (0x01<<1)  /* WO: PF5 */
 } PORTMUX_TCB1_t;
 
 /* TCB2 Output select */
 typedef enum PORTMUX_TCB2_enum
 {
-    PORTMUX_TCB2_DEFAULT_gc = (0x00<<2),  /* PC0 */
-    PORTMUX_TCB2_ALT1_gc = (0x01<<2)  /* PB4 */
+    PORTMUX_TCB2_DEFAULT_gc = (0x00<<2),  /* WO: PC0 */
+    PORTMUX_TCB2_ALT1_gc = (0x01<<2)  /* WO: PB4 */
 } PORTMUX_TCB2_t;
 
 /* TCB3 Output select */
 typedef enum PORTMUX_TCB3_enum
 {
-    PORTMUX_TCB3_DEFAULT_gc = (0x00<<3),  /* PB5 */
-    PORTMUX_TCB3_ALT1_gc = (0x01<<3)  /* PC1 */
+    PORTMUX_TCB3_DEFAULT_gc = (0x00<<3),  /* WO: PB5 */
+    PORTMUX_TCB3_ALT1_gc = (0x01<<3)  /* WO: PC1 */
 } PORTMUX_TCB3_t;
 
 /* TWI0 Signals select */
 typedef enum PORTMUX_TWI0_enum
 {
-    PORTMUX_TWI0_DEFAULT_gc = (0x00<<0),  /* {PA2, PA3}, {PC2, PC3} */
-    PORTMUX_TWI0_ALT1_gc = (0x01<<0),  /* {PA2, PA3}, {PC6, PC7} */
-    PORTMUX_TWI0_ALT2_gc = (0x02<<0),  /* {PC2, PC3}, {PC6, PC7} */
-    PORTMUX_TWI0_ALT3_gc = (0x03<<0)  /* {PA0, PA1}, {PC2, PC3} */
+    PORTMUX_TWI0_DEFAULT_gc = (0x00<<0),  /* SDA: PA2, SCL: PA3. Dual mode: SDA: PC2, SCL: PC3 */
+    PORTMUX_TWI0_ALT1_gc = (0x01<<0),  /* SDA: PA2, SCL: PA3. Dual mode: SDA: PC6, SCL: PC7 */
+    PORTMUX_TWI0_ALT2_gc = (0x02<<0),  /* SDA: PC2, SCL: PC3. Dual mode: SDA: PC6, SCL: PC7 */
+    PORTMUX_TWI0_ALT3_gc = (0x03<<0)  /* SDA: PA0, SCL: PA1. Dual mode: SDA: PC2, SCL: PC3 */
 } PORTMUX_TWI0_t;
 
 /* USART0 Routing select */
 typedef enum PORTMUX_USART0_enum
 {
-    PORTMUX_USART0_DEFAULT_gc = (0x00<<0),  /* {PA0, PA1, PA2, PA3} */
-    PORTMUX_USART0_ALT1_gc = (0x01<<0),  /* {PA4, PA5, PA6, PA7} */
-    PORTMUX_USART0_ALT2_gc = (0x02<<0),  /* {PA2,PA3, -, -} */
-    PORTMUX_USART0_ALT3_gc = (0x03<<0),  /* {PD4, PD5, PD6, PD7} */
-    PORTMUX_USART0_ALT4_gc = (0x04<<0),  /* {PC1, PC2, PC3, -} */
+    PORTMUX_USART0_DEFAULT_gc = (0x00<<0),  /* TxD: PA0, RxD: PA1, XCK: PA2, XDIR: PA3 */
+    PORTMUX_USART0_ALT1_gc = (0x01<<0),  /* TxD: PA4, RxD: PA5, XCK: PA6, XDIR: PA7 */
+    PORTMUX_USART0_ALT2_gc = (0x02<<0),  /* TxD: PA2, RxD: PA3, XCK: -, XDIR: - */
+    PORTMUX_USART0_ALT3_gc = (0x03<<0),  /* TxD: PD4, RxD: PD5, XCK: PD6, XDIR: PD7 */
+    PORTMUX_USART0_ALT4_gc = (0x04<<0),  /* TxD: PC1, RxD: PC2, XCK: PC3, XDIR: - */
     PORTMUX_USART0_NONE_gc = (0x05<<0)  /* Not connected to any pins */
 } PORTMUX_USART0_t;
 
 /* USART1 Routing select */
 typedef enum PORTMUX_USART1_enum
 {
-    PORTMUX_USART1_DEFAULT_gc = (0x00<<3),  /* {PC0, PC1, PC2, PC3} */
-    PORTMUX_USART1_ALT1_gc = (0x01<<3),  /* {PC4, PC5, PC6, PC7} */
-    PORTMUX_USART1_ALT2_gc = (0x02<<3),  /* {PD6, PD7, -, -} */
+    PORTMUX_USART1_DEFAULT_gc = (0x00<<3),  /* TxD: PC0, RxD: PC1, XCK: PC2, XDIR: PC3 */
+    PORTMUX_USART1_ALT1_gc = (0x01<<3),  /* TxD: PC4, RxD: PC5, XCK: PC6, XDIR: PC7 */
+    PORTMUX_USART1_ALT2_gc = (0x02<<3),  /* TxD: PD6, RxD: PD7, XCK: -, XDIR: - */
     PORTMUX_USART1_NONE_gc = (0x03<<3)  /* Not connected to any pins */
 } PORTMUX_USART1_t;
 
 /* USART2 Routing select */
 typedef enum PORTMUX_USART2_enum
 {
-    PORTMUX_USART2_DEFAULT_gc = (0x00<<4),  /* {PF0, PF1, PF2, PF3} */
-    PORTMUX_USART2_ALT1_gc = (0x01<<4),  /* {PF4, PF5,- , -} */
-    PORTMUX_USART2_NONE_gc = (0x03<<4)  /* Not connected to any pins */
+    PORTMUX_USART2_DEFAULT_gc = (0x00<<0),  /* TxD: PF0, RxD: PF1, XCK: PF2, XDIR: PF3 */
+    PORTMUX_USART2_ALT1_gc = (0x01<<0),  /* TxD: PF4, RxD: PF5, XCK: - , XDIR: - */
+    PORTMUX_USART2_NONE_gc = (0x03<<0)  /* Not connected to any pins */
 } PORTMUX_USART2_t;
 
 /*
@@ -1473,7 +1486,7 @@ typedef struct RSTCTRL_struct
 {
     register8_t RSTFR;  /* Reset Flags */
     register8_t SWRR;  /* Software Reset */
-    register8_t reserved_1[2];
+    register8_t reserved_1[14];
 } RSTCTRL_t;
 
 
@@ -1614,22 +1627,22 @@ typedef struct SIGROW_struct
     _WORDREGISTER(TEMPSENSE0);  /* Temperature Calibration 0 */
     _WORDREGISTER(TEMPSENSE1);  /* Temperature Calibration 1 */
     register8_t reserved_2[8];
-    register8_t SERNUM0;  /* LOTNUM0 */
-    register8_t SERNUM1;  /* LOTNUM1 */
-    register8_t SERNUM2;  /* LOTNUM2 */
-    register8_t SERNUM3;  /* LOTNUM3 */
-    register8_t SERNUM4;  /* LOTNUM4 */
-    register8_t SERNUM5;  /* LOTNUM5 */
-    register8_t SERNUM6;  /* RANDOM */
-    register8_t SERNUM7;  /* SCRIBE */
-    register8_t SERNUM8;  /* XPOS0 */
-    register8_t SERNUM9;  /* XPOS1 */
-    register8_t SERNUM10;  /* YPOS0 */
-    register8_t SERNUM11;  /* YPOS1 */
-    register8_t SERNUM12;  /* RES0 */
-    register8_t SERNUM13;  /* RES1 */
-    register8_t SERNUM14;  /* RES2 */
-    register8_t SERNUM15;  /* RES3 */
+    register8_t SERNUM0;  /* Serial Number Byte 0 */
+    register8_t SERNUM1;  /* Serial Number Byte 1 */
+    register8_t SERNUM2;  /* Serial Number Byte 2 */
+    register8_t SERNUM3;  /* Serial Number Byte 3 */
+    register8_t SERNUM4;  /* Serial Number Byte 4 */
+    register8_t SERNUM5;  /* Serial Number Byte 5 */
+    register8_t SERNUM6;  /* Serial Number Byte 6 */
+    register8_t SERNUM7;  /* Serial Number Byte 7 */
+    register8_t SERNUM8;  /* Serial Number Byte 8 */
+    register8_t SERNUM9;  /* Serial Number Byte 9 */
+    register8_t SERNUM10;  /* Serial Number Byte 10 */
+    register8_t SERNUM11;  /* Serial Number Byte 11 */
+    register8_t SERNUM12;  /* Serial Number Byte 12 */
+    register8_t SERNUM13;  /* Serial Number Byte 13 */
+    register8_t SERNUM14;  /* Serial Number Byte 14 */
+    register8_t SERNUM15;  /* Serial Number Byte 15 */
     register8_t reserved_3[32];
 } SIGROW_t;
 
@@ -1644,7 +1657,7 @@ SLPCTRL - Sleep Controller
 typedef struct SLPCTRL_struct
 {
     register8_t CTRLA;  /* Control A */
-    register8_t reserved_1[1];
+    register8_t reserved_1[15];
 } SLPCTRL_t;
 
 /* Sleep mode select */
@@ -1672,7 +1685,7 @@ typedef struct SPI_struct
     register8_t INTCTRL;  /* Interrupt Control */
     register8_t INTFLAGS;  /* Interrupt Flags */
     register8_t DATA;  /* Data */
-    register8_t reserved_1[3];
+    register8_t reserved_1[11];
 } SPI_t;
 
 /* SPI Mode select */
@@ -1687,10 +1700,10 @@ typedef enum SPI_MODE_enum
 /* Prescaler select */
 typedef enum SPI_PRESC_enum
 {
-    SPI_PRESC_DIV4_gc = (0x00<<1),  /* System Clock / 4 */
-    SPI_PRESC_DIV16_gc = (0x01<<1),  /* System Clock / 16 */
-    SPI_PRESC_DIV64_gc = (0x02<<1),  /* System Clock / 64 */
-    SPI_PRESC_DIV128_gc = (0x03<<1)  /* System Clock / 128 */
+    SPI_PRESC_DIV4_gc = (0x00<<1),  /* CLK_PER / 4 */
+    SPI_PRESC_DIV16_gc = (0x01<<1),  /* CLK_PER / 16 */
+    SPI_PRESC_DIV64_gc = (0x02<<1),  /* CLK_PER / 64 */
+    SPI_PRESC_DIV128_gc = (0x03<<1)  /* CLK_PER / 128 */
 } SPI_PRESC_t;
 
 /*
@@ -1789,14 +1802,14 @@ typedef union TCA_union
 /* Clock Selection */
 typedef enum TCA_SINGLE_CLKSEL_enum
 {
-    TCA_SINGLE_CLKSEL_DIV1_gc = (0x00<<1),  /* System Clock */
-    TCA_SINGLE_CLKSEL_DIV2_gc = (0x01<<1),  /* System Clock / 2 */
-    TCA_SINGLE_CLKSEL_DIV4_gc = (0x02<<1),  /* System Clock / 4 */
-    TCA_SINGLE_CLKSEL_DIV8_gc = (0x03<<1),  /* System Clock / 8 */
-    TCA_SINGLE_CLKSEL_DIV16_gc = (0x04<<1),  /* System Clock / 16 */
-    TCA_SINGLE_CLKSEL_DIV64_gc = (0x05<<1),  /* System Clock / 64 */
-    TCA_SINGLE_CLKSEL_DIV256_gc = (0x06<<1),  /* System Clock / 256 */
-    TCA_SINGLE_CLKSEL_DIV1024_gc = (0x07<<1)  /* System Clock / 1024 */
+    TCA_SINGLE_CLKSEL_DIV1_gc = (0x00<<1),  /* CLK_PER */
+    TCA_SINGLE_CLKSEL_DIV2_gc = (0x01<<1),  /* CLK_PER / 2 */
+    TCA_SINGLE_CLKSEL_DIV4_gc = (0x02<<1),  /* CLK_PER / 4 */
+    TCA_SINGLE_CLKSEL_DIV8_gc = (0x03<<1),  /* CLK_PER / 8 */
+    TCA_SINGLE_CLKSEL_DIV16_gc = (0x04<<1),  /* CLK_PER / 16 */
+    TCA_SINGLE_CLKSEL_DIV64_gc = (0x05<<1),  /* CLK_PER / 64 */
+    TCA_SINGLE_CLKSEL_DIV256_gc = (0x06<<1),  /* CLK_PER / 256 */
+    TCA_SINGLE_CLKSEL_DIV1024_gc = (0x07<<1)  /* CLK_PER / 1024 */
 } TCA_SINGLE_CLKSEL_t;
 
 /* Command select */
@@ -1848,21 +1861,20 @@ typedef enum TCA_SINGLE_WGMODE_enum
 /* Clock Selection */
 typedef enum TCA_SPLIT_CLKSEL_enum
 {
-    TCA_SPLIT_CLKSEL_DIV1_gc = (0x00<<1),  /* System Clock */
-    TCA_SPLIT_CLKSEL_DIV2_gc = (0x01<<1),  /* System Clock / 2 */
-    TCA_SPLIT_CLKSEL_DIV4_gc = (0x02<<1),  /* System Clock / 4 */
-    TCA_SPLIT_CLKSEL_DIV8_gc = (0x03<<1),  /* System Clock / 8 */
-    TCA_SPLIT_CLKSEL_DIV16_gc = (0x04<<1),  /* System Clock / 16 */
-    TCA_SPLIT_CLKSEL_DIV64_gc = (0x05<<1),  /* System Clock / 64 */
-    TCA_SPLIT_CLKSEL_DIV256_gc = (0x06<<1),  /* System Clock / 256 */
-    TCA_SPLIT_CLKSEL_DIV1024_gc = (0x07<<1)  /* System Clock / 1024 */
+    TCA_SPLIT_CLKSEL_DIV1_gc = (0x00<<1),  /* CLK_PER */
+    TCA_SPLIT_CLKSEL_DIV2_gc = (0x01<<1),  /* CLK_PER / 2 */
+    TCA_SPLIT_CLKSEL_DIV4_gc = (0x02<<1),  /* CLK_PER / 4 */
+    TCA_SPLIT_CLKSEL_DIV8_gc = (0x03<<1),  /* CLK_PER / 8 */
+    TCA_SPLIT_CLKSEL_DIV16_gc = (0x04<<1),  /* CLK_PER / 16 */
+    TCA_SPLIT_CLKSEL_DIV64_gc = (0x05<<1),  /* CLK_PER / 64 */
+    TCA_SPLIT_CLKSEL_DIV256_gc = (0x06<<1),  /* CLK_PER / 256 */
+    TCA_SPLIT_CLKSEL_DIV1024_gc = (0x07<<1)  /* CLK_PER / 1024 */
 } TCA_SPLIT_CLKSEL_t;
 
 /* Command select */
 typedef enum TCA_SPLIT_CMD_enum
 {
     TCA_SPLIT_CMD_NONE_gc = (0x00<<2),  /* No Command */
-    TCA_SPLIT_CMD_UPDATE_gc = (0x01<<2),  /* Force Update */
     TCA_SPLIT_CMD_RESTART_gc = (0x02<<2),  /* Force Restart */
     TCA_SPLIT_CMD_RESET_gc = (0x03<<2)  /* Force Hard Reset */
 } TCA_SPLIT_CMD_t;
@@ -2255,6 +2267,7 @@ typedef struct WDT_struct
 {
     register8_t CTRLA;  /* Control A */
     register8_t STATUS;  /* Status */
+    register8_t reserved_1[14];
 } WDT_t;
 
 /* Period select */
@@ -2400,7 +2413,6 @@ IO Module Instances. Mapped to memory.
 
 /* CPU - CPU */
 #define CPU_CCP  _SFR_MEM8(0x0034)
-#define CPU_RAMPZ  _SFR_MEM8(0x003B)
 #define CPU_SP  _SFR_MEM16(0x003D)
 #define CPU_SPL  _SFR_MEM8(0x003D)
 #define CPU_SPH  _SFR_MEM8(0x003E)
@@ -2577,7 +2589,7 @@ IO Module Instances. Mapped to memory.
 #define PORTA_PIN5CTRL  _SFR_MEM8(0x0415)
 #define PORTA_PIN6CTRL  _SFR_MEM8(0x0416)
 #define PORTA_PIN7CTRL  _SFR_MEM8(0x0417)
-#define PORTA_EVGENCTRL  _SFR_MEM8(0x0418)
+#define PORTA_EVGENCTRLA  _SFR_MEM8(0x0418)
 
 
 /* PORT (PORTB) - I/O Ports */
@@ -2604,7 +2616,7 @@ IO Module Instances. Mapped to memory.
 #define PORTB_PIN5CTRL  _SFR_MEM8(0x0435)
 #define PORTB_PIN6CTRL  _SFR_MEM8(0x0436)
 #define PORTB_PIN7CTRL  _SFR_MEM8(0x0437)
-#define PORTB_EVGENCTRL  _SFR_MEM8(0x0438)
+#define PORTB_EVGENCTRLA  _SFR_MEM8(0x0438)
 
 
 /* PORT (PORTC) - I/O Ports */
@@ -2631,7 +2643,7 @@ IO Module Instances. Mapped to memory.
 #define PORTC_PIN5CTRL  _SFR_MEM8(0x0455)
 #define PORTC_PIN6CTRL  _SFR_MEM8(0x0456)
 #define PORTC_PIN7CTRL  _SFR_MEM8(0x0457)
-#define PORTC_EVGENCTRL  _SFR_MEM8(0x0458)
+#define PORTC_EVGENCTRLA  _SFR_MEM8(0x0458)
 
 
 /* PORT (PORTD) - I/O Ports */
@@ -2658,7 +2670,7 @@ IO Module Instances. Mapped to memory.
 #define PORTD_PIN5CTRL  _SFR_MEM8(0x0475)
 #define PORTD_PIN6CTRL  _SFR_MEM8(0x0476)
 #define PORTD_PIN7CTRL  _SFR_MEM8(0x0477)
-#define PORTD_EVGENCTRL  _SFR_MEM8(0x0478)
+#define PORTD_EVGENCTRLA  _SFR_MEM8(0x0478)
 
 
 /* PORT (PORTE) - I/O Ports */
@@ -2685,7 +2697,7 @@ IO Module Instances. Mapped to memory.
 #define PORTE_PIN5CTRL  _SFR_MEM8(0x0495)
 #define PORTE_PIN6CTRL  _SFR_MEM8(0x0496)
 #define PORTE_PIN7CTRL  _SFR_MEM8(0x0497)
-#define PORTE_EVGENCTRL  _SFR_MEM8(0x0498)
+#define PORTE_EVGENCTRLA  _SFR_MEM8(0x0498)
 
 
 /* PORT (PORTF) - I/O Ports */
@@ -2712,7 +2724,7 @@ IO Module Instances. Mapped to memory.
 #define PORTF_PIN5CTRL  _SFR_MEM8(0x04B5)
 #define PORTF_PIN6CTRL  _SFR_MEM8(0x04B6)
 #define PORTF_PIN7CTRL  _SFR_MEM8(0x04B7)
-#define PORTF_EVGENCTRL  _SFR_MEM8(0x04B8)
+#define PORTF_EVGENCTRLA  _SFR_MEM8(0x04B8)
 
 
 /* PORTMUX - Port Multiplexer */
@@ -3087,8 +3099,6 @@ IO Module Instances. Mapped to memory.
 #define NVMCTRL_ADDR1  _SFR_MEM8(0x100D)
 #define NVMCTRL_ADDR2  _SFR_MEM8(0x100E)
 #define NVMCTRL_ADDR3  _SFR_MEM8(0x100F)
-#define NVMCTRL_EECALB  _SFR_MEM8(0x102D)
-#define NVMCTRL_EECALC  _SFR_MEM8(0x102E)
 
 
 /* LOCK - Lockbits */
@@ -3558,7 +3568,7 @@ IO Module Instances. Mapped to memory.
 #define CCL_RUNSTDBY_bp  6  /* Run in Standby bit position. */
 
 /* CCL.SEQCTRL0  bit masks and bit positions */
-#define CCL_SEQSEL_gm  0x07  /* Sequential Selection group mask. */
+#define CCL_SEQSEL_gm  0x0F  /* Sequential Selection group mask. */
 #define CCL_SEQSEL_gp  0  /* Sequential Selection group position. */
 #define CCL_SEQSEL_0_bm  (1<<0)  /* Sequential Selection bit 0 mask. */
 #define CCL_SEQSEL_0_bp  0  /* Sequential Selection bit 0 position. */
@@ -3566,6 +3576,8 @@ IO Module Instances. Mapped to memory.
 #define CCL_SEQSEL_1_bp  1  /* Sequential Selection bit 1 position. */
 #define CCL_SEQSEL_2_bm  (1<<2)  /* Sequential Selection bit 2 mask. */
 #define CCL_SEQSEL_2_bp  2  /* Sequential Selection bit 2 position. */
+#define CCL_SEQSEL_3_bm  (1<<3)  /* Sequential Selection bit 3 mask. */
+#define CCL_SEQSEL_3_bp  3  /* Sequential Selection bit 3 position. */
 
 /* CCL.SEQCTRL1  bit masks and bit positions */
 /* CCL_SEQSEL  is already defined. */
@@ -4414,43 +4426,57 @@ IO Module Instances. Mapped to memory.
 #define NVMCTRL_ERROR_2_bm  (1<<6)  /* Write error bit 2 mask. */
 #define NVMCTRL_ERROR_2_bp  6  /* Write error bit 2 position. */
 
-/* NVMCTRL.EECALB  bit masks and bit positions */
-#define NVMCTRL_EEPUMPLVL_gm  0x0F  /* EEPROM Pump Level During Programming group mask. */
-#define NVMCTRL_EEPUMPLVL_gp  0  /* EEPROM Pump Level During Programming group position. */
-#define NVMCTRL_EEPUMPLVL_0_bm  (1<<0)  /* EEPROM Pump Level During Programming bit 0 mask. */
-#define NVMCTRL_EEPUMPLVL_0_bp  0  /* EEPROM Pump Level During Programming bit 0 position. */
-#define NVMCTRL_EEPUMPLVL_1_bm  (1<<1)  /* EEPROM Pump Level During Programming bit 1 mask. */
-#define NVMCTRL_EEPUMPLVL_1_bp  1  /* EEPROM Pump Level During Programming bit 1 position. */
-#define NVMCTRL_EEPUMPLVL_2_bm  (1<<2)  /* EEPROM Pump Level During Programming bit 2 mask. */
-#define NVMCTRL_EEPUMPLVL_2_bp  2  /* EEPROM Pump Level During Programming bit 2 position. */
-#define NVMCTRL_EEPUMPLVL_3_bm  (1<<3)  /* EEPROM Pump Level During Programming bit 3 mask. */
-#define NVMCTRL_EEPUMPLVL_3_bp  3  /* EEPROM Pump Level During Programming bit 3 position. */
-#define NVMCTRL_EEPROGTIME_gm  0x70  /* EEPROM Programming Time group mask. */
-#define NVMCTRL_EEPROGTIME_gp  4  /* EEPROM Programming Time group position. */
-#define NVMCTRL_EEPROGTIME_0_bm  (1<<4)  /* EEPROM Programming Time bit 0 mask. */
-#define NVMCTRL_EEPROGTIME_0_bp  4  /* EEPROM Programming Time bit 0 position. */
-#define NVMCTRL_EEPROGTIME_1_bm  (1<<5)  /* EEPROM Programming Time bit 1 mask. */
-#define NVMCTRL_EEPROGTIME_1_bp  5  /* EEPROM Programming Time bit 1 position. */
-#define NVMCTRL_EEPROGTIME_2_bm  (1<<6)  /* EEPROM Programming Time bit 2 mask. */
-#define NVMCTRL_EEPROGTIME_2_bp  6  /* EEPROM Programming Time bit 2 position. */
-
-/* NVMCTRL.EECALC  bit masks and bit positions */
-#define NVMCTRL_EESABIAS_gm  0x07  /* EEPROM Sense Amplifier Bias Calibration group mask. */
-#define NVMCTRL_EESABIAS_gp  0  /* EEPROM Sense Amplifier Bias Calibration group position. */
-#define NVMCTRL_EESABIAS_0_bm  (1<<0)  /* EEPROM Sense Amplifier Bias Calibration bit 0 mask. */
-#define NVMCTRL_EESABIAS_0_bp  0  /* EEPROM Sense Amplifier Bias Calibration bit 0 position. */
-#define NVMCTRL_EESABIAS_1_bm  (1<<1)  /* EEPROM Sense Amplifier Bias Calibration bit 1 mask. */
-#define NVMCTRL_EESABIAS_1_bp  1  /* EEPROM Sense Amplifier Bias Calibration bit 1 position. */
-#define NVMCTRL_EESABIAS_2_bm  (1<<2)  /* EEPROM Sense Amplifier Bias Calibration bit 2 mask. */
-#define NVMCTRL_EESABIAS_2_bp  2  /* EEPROM Sense Amplifier Bias Calibration bit 2 position. */
-#define NVMCTRL_EEGATESEL_bm  0x08  /* EEPROM Cell Gate Select bit mask. */
-#define NVMCTRL_EEGATESEL_bp  3  /* EEPROM Cell Gate Select bit position. */
-#define NVMCTRL_EEAUXCAL_gm  0xC0  /* EEPROM AUX Calibration group mask. */
-#define NVMCTRL_EEAUXCAL_gp  6  /* EEPROM AUX Calibration group position. */
-#define NVMCTRL_EEAUXCAL_0_bm  (1<<6)  /* EEPROM AUX Calibration bit 0 mask. */
-#define NVMCTRL_EEAUXCAL_0_bp  6  /* EEPROM AUX Calibration bit 0 position. */
-#define NVMCTRL_EEAUXCAL_1_bm  (1<<7)  /* EEPROM AUX Calibration bit 1 mask. */
-#define NVMCTRL_EEAUXCAL_1_bp  7  /* EEPROM AUX Calibration bit 1 position. */
+/* NVMCTRL.ADDR  bit masks and bit positions */
+#define NVMCTRL_ADDR_gm  0xFFFFFF  /* Address group mask. */
+#define NVMCTRL_ADDR_gp  0  /* Address group position. */
+#define NVMCTRL_ADDR_0_bm  (1<<0)  /* Address bit 0 mask. */
+#define NVMCTRL_ADDR_0_bp  0  /* Address bit 0 position. */
+#define NVMCTRL_ADDR_1_bm  (1<<1)  /* Address bit 1 mask. */
+#define NVMCTRL_ADDR_1_bp  1  /* Address bit 1 position. */
+#define NVMCTRL_ADDR_2_bm  (1<<2)  /* Address bit 2 mask. */
+#define NVMCTRL_ADDR_2_bp  2  /* Address bit 2 position. */
+#define NVMCTRL_ADDR_3_bm  (1<<3)  /* Address bit 3 mask. */
+#define NVMCTRL_ADDR_3_bp  3  /* Address bit 3 position. */
+#define NVMCTRL_ADDR_4_bm  (1<<4)  /* Address bit 4 mask. */
+#define NVMCTRL_ADDR_4_bp  4  /* Address bit 4 position. */
+#define NVMCTRL_ADDR_5_bm  (1<<5)  /* Address bit 5 mask. */
+#define NVMCTRL_ADDR_5_bp  5  /* Address bit 5 position. */
+#define NVMCTRL_ADDR_6_bm  (1<<6)  /* Address bit 6 mask. */
+#define NVMCTRL_ADDR_6_bp  6  /* Address bit 6 position. */
+#define NVMCTRL_ADDR_7_bm  (1<<7)  /* Address bit 7 mask. */
+#define NVMCTRL_ADDR_7_bp  7  /* Address bit 7 position. */
+#define NVMCTRL_ADDR_8_bm  (1<<8)  /* Address bit 8 mask. */
+#define NVMCTRL_ADDR_8_bp  8  /* Address bit 8 position. */
+#define NVMCTRL_ADDR_9_bm  (1<<9)  /* Address bit 9 mask. */
+#define NVMCTRL_ADDR_9_bp  9  /* Address bit 9 position. */
+#define NVMCTRL_ADDR_10_bm  (1<<10)  /* Address bit 10 mask. */
+#define NVMCTRL_ADDR_10_bp  10  /* Address bit 10 position. */
+#define NVMCTRL_ADDR_11_bm  (1<<11)  /* Address bit 11 mask. */
+#define NVMCTRL_ADDR_11_bp  11  /* Address bit 11 position. */
+#define NVMCTRL_ADDR_12_bm  (1<<12)  /* Address bit 12 mask. */
+#define NVMCTRL_ADDR_12_bp  12  /* Address bit 12 position. */
+#define NVMCTRL_ADDR_13_bm  (1<<13)  /* Address bit 13 mask. */
+#define NVMCTRL_ADDR_13_bp  13  /* Address bit 13 position. */
+#define NVMCTRL_ADDR_14_bm  (1<<14)  /* Address bit 14 mask. */
+#define NVMCTRL_ADDR_14_bp  14  /* Address bit 14 position. */
+#define NVMCTRL_ADDR_15_bm  (1<<15)  /* Address bit 15 mask. */
+#define NVMCTRL_ADDR_15_bp  15  /* Address bit 15 position. */
+#define NVMCTRL_ADDR_16_bm  (1<<16)  /* Address bit 16 mask. */
+#define NVMCTRL_ADDR_16_bp  16  /* Address bit 16 position. */
+#define NVMCTRL_ADDR_17_bm  (1<<17)  /* Address bit 17 mask. */
+#define NVMCTRL_ADDR_17_bp  17  /* Address bit 17 position. */
+#define NVMCTRL_ADDR_18_bm  (1<<18)  /* Address bit 18 mask. */
+#define NVMCTRL_ADDR_18_bp  18  /* Address bit 18 position. */
+#define NVMCTRL_ADDR_19_bm  (1<<19)  /* Address bit 19 mask. */
+#define NVMCTRL_ADDR_19_bp  19  /* Address bit 19 position. */
+#define NVMCTRL_ADDR_20_bm  (1<<20)  /* Address bit 20 mask. */
+#define NVMCTRL_ADDR_20_bp  20  /* Address bit 20 position. */
+#define NVMCTRL_ADDR_21_bm  (1<<21)  /* Address bit 21 mask. */
+#define NVMCTRL_ADDR_21_bp  21  /* Address bit 21 position. */
+#define NVMCTRL_ADDR_22_bm  (1<<22)  /* Address bit 22 mask. */
+#define NVMCTRL_ADDR_22_bp  22  /* Address bit 22 position. */
+#define NVMCTRL_ADDR_23_bm  (1<<23)  /* Address bit 23 mask. */
+#define NVMCTRL_ADDR_23_bp  23  /* Address bit 23 position. */
 
 
 /* PORT - I/O Ports */
@@ -4558,7 +4584,7 @@ IO Module Instances. Mapped to memory.
 /* PORT_INLVL  is already defined. */
 /* PORT_INVEN  is already defined. */
 
-/* PORT.EVGENCTRL  bit masks and bit positions */
+/* PORT.EVGENCTRLA  bit masks and bit positions */
 #define PORT_EVGEN0SEL_gm  0x07  /* Event Generator 0 Select group mask. */
 #define PORT_EVGEN0SEL_gp  0  /* Event Generator 0 Select group position. */
 #define PORT_EVGEN0SEL_0_bm  (1<<0)  /* Event Generator 0 Select bit 0 mask. */
@@ -4581,10 +4607,14 @@ IO Module Instances. Mapped to memory.
 /* PORTMUX.EVSYSROUTEA  bit masks and bit positions */
 #define PORTMUX_EVOUTA_bm  0x01  /* Event Output A bit mask. */
 #define PORTMUX_EVOUTA_bp  0  /* Event Output A bit position. */
+#define PORTMUX_EVOUTB_bm  0x02  /* Event Output B bit mask. */
+#define PORTMUX_EVOUTB_bp  1  /* Event Output B bit position. */
 #define PORTMUX_EVOUTC_bm  0x04  /* Event Output C bit mask. */
 #define PORTMUX_EVOUTC_bp  2  /* Event Output C bit position. */
 #define PORTMUX_EVOUTD_bm  0x08  /* Event Output D bit mask. */
 #define PORTMUX_EVOUTD_bp  3  /* Event Output D bit position. */
+#define PORTMUX_EVOUTE_bm  0x10  /* Event Output E bit mask. */
+#define PORTMUX_EVOUTE_bp  4  /* Event Output E bit position. */
 #define PORTMUX_EVOUTF_bm  0x20  /* Event Output F bit mask. */
 #define PORTMUX_EVOUTF_bp  5  /* Event Output F bit position. */
 
@@ -4613,12 +4643,12 @@ IO Module Instances. Mapped to memory.
 #define PORTMUX_USART1_1_bp  4  /* USART1 Routing bit 1 position. */
 
 /* PORTMUX.USARTROUTEB  bit masks and bit positions */
-#define PORTMUX_USART2_gm  0x30  /* USART2 Routing group mask. */
-#define PORTMUX_USART2_gp  4  /* USART2 Routing group position. */
-#define PORTMUX_USART2_0_bm  (1<<4)  /* USART2 Routing bit 0 mask. */
-#define PORTMUX_USART2_0_bp  4  /* USART2 Routing bit 0 position. */
-#define PORTMUX_USART2_1_bm  (1<<5)  /* USART2 Routing bit 1 mask. */
-#define PORTMUX_USART2_1_bp  5  /* USART2 Routing bit 1 position. */
+#define PORTMUX_USART2_gm  0x03  /* USART2 Routing group mask. */
+#define PORTMUX_USART2_gp  0  /* USART2 Routing group position. */
+#define PORTMUX_USART2_0_bm  (1<<0)  /* USART2 Routing bit 0 mask. */
+#define PORTMUX_USART2_0_bp  0  /* USART2 Routing bit 0 position. */
+#define PORTMUX_USART2_1_bm  (1<<1)  /* USART2 Routing bit 1 mask. */
+#define PORTMUX_USART2_1_bp  1  /* USART2 Routing bit 1 position. */
 
 /* PORTMUX.SPIROUTEA  bit masks and bit positions */
 #define PORTMUX_SPI0_gm  0x07  /* SPI0 Signals group mask. */
@@ -4814,79 +4844,6 @@ IO Module Instances. Mapped to memory.
 #define RTC_EVGEN1SEL_3_bm  (1<<7)  /* Event Generation 1 Select bit 3 mask. */
 #define RTC_EVGEN1SEL_3_bp  7  /* Event Generation 1 Select bit 3 position. */
 
-
-/* SIGROW - Signature row */
-/* SIGROW.TEMPSENSE0  bit masks and bit positions */
-#define SIGROW_TEMPSENSE0_gm  0xFFFF  /* Temperature Calibration 0 group mask. */
-#define SIGROW_TEMPSENSE0_gp  0  /* Temperature Calibration 0 group position. */
-#define SIGROW_TEMPSENSE0_0_bm  (1<<0)  /* Temperature Calibration 0 bit 0 mask. */
-#define SIGROW_TEMPSENSE0_0_bp  0  /* Temperature Calibration 0 bit 0 position. */
-#define SIGROW_TEMPSENSE0_1_bm  (1<<1)  /* Temperature Calibration 0 bit 1 mask. */
-#define SIGROW_TEMPSENSE0_1_bp  1  /* Temperature Calibration 0 bit 1 position. */
-#define SIGROW_TEMPSENSE0_2_bm  (1<<2)  /* Temperature Calibration 0 bit 2 mask. */
-#define SIGROW_TEMPSENSE0_2_bp  2  /* Temperature Calibration 0 bit 2 position. */
-#define SIGROW_TEMPSENSE0_3_bm  (1<<3)  /* Temperature Calibration 0 bit 3 mask. */
-#define SIGROW_TEMPSENSE0_3_bp  3  /* Temperature Calibration 0 bit 3 position. */
-#define SIGROW_TEMPSENSE0_4_bm  (1<<4)  /* Temperature Calibration 0 bit 4 mask. */
-#define SIGROW_TEMPSENSE0_4_bp  4  /* Temperature Calibration 0 bit 4 position. */
-#define SIGROW_TEMPSENSE0_5_bm  (1<<5)  /* Temperature Calibration 0 bit 5 mask. */
-#define SIGROW_TEMPSENSE0_5_bp  5  /* Temperature Calibration 0 bit 5 position. */
-#define SIGROW_TEMPSENSE0_6_bm  (1<<6)  /* Temperature Calibration 0 bit 6 mask. */
-#define SIGROW_TEMPSENSE0_6_bp  6  /* Temperature Calibration 0 bit 6 position. */
-#define SIGROW_TEMPSENSE0_7_bm  (1<<7)  /* Temperature Calibration 0 bit 7 mask. */
-#define SIGROW_TEMPSENSE0_7_bp  7  /* Temperature Calibration 0 bit 7 position. */
-#define SIGROW_TEMPSENSE0_8_bm  (1<<8)  /* Temperature Calibration 0 bit 8 mask. */
-#define SIGROW_TEMPSENSE0_8_bp  8  /* Temperature Calibration 0 bit 8 position. */
-#define SIGROW_TEMPSENSE0_9_bm  (1<<9)  /* Temperature Calibration 0 bit 9 mask. */
-#define SIGROW_TEMPSENSE0_9_bp  9  /* Temperature Calibration 0 bit 9 position. */
-#define SIGROW_TEMPSENSE0_10_bm  (1<<10)  /* Temperature Calibration 0 bit 10 mask. */
-#define SIGROW_TEMPSENSE0_10_bp  10  /* Temperature Calibration 0 bit 10 position. */
-#define SIGROW_TEMPSENSE0_11_bm  (1<<11)  /* Temperature Calibration 0 bit 11 mask. */
-#define SIGROW_TEMPSENSE0_11_bp  11  /* Temperature Calibration 0 bit 11 position. */
-#define SIGROW_TEMPSENSE0_12_bm  (1<<12)  /* Temperature Calibration 0 bit 12 mask. */
-#define SIGROW_TEMPSENSE0_12_bp  12  /* Temperature Calibration 0 bit 12 position. */
-#define SIGROW_TEMPSENSE0_13_bm  (1<<13)  /* Temperature Calibration 0 bit 13 mask. */
-#define SIGROW_TEMPSENSE0_13_bp  13  /* Temperature Calibration 0 bit 13 position. */
-#define SIGROW_TEMPSENSE0_14_bm  (1<<14)  /* Temperature Calibration 0 bit 14 mask. */
-#define SIGROW_TEMPSENSE0_14_bp  14  /* Temperature Calibration 0 bit 14 position. */
-#define SIGROW_TEMPSENSE0_15_bm  (1<<15)  /* Temperature Calibration 0 bit 15 mask. */
-#define SIGROW_TEMPSENSE0_15_bp  15  /* Temperature Calibration 0 bit 15 position. */
-
-/* SIGROW.TEMPSENSE1  bit masks and bit positions */
-#define SIGROW_TEMPSENSE1_gm  0xFFFF  /* Temperature Calibration 1 group mask. */
-#define SIGROW_TEMPSENSE1_gp  0  /* Temperature Calibration 1 group position. */
-#define SIGROW_TEMPSENSE1_0_bm  (1<<0)  /* Temperature Calibration 1 bit 0 mask. */
-#define SIGROW_TEMPSENSE1_0_bp  0  /* Temperature Calibration 1 bit 0 position. */
-#define SIGROW_TEMPSENSE1_1_bm  (1<<1)  /* Temperature Calibration 1 bit 1 mask. */
-#define SIGROW_TEMPSENSE1_1_bp  1  /* Temperature Calibration 1 bit 1 position. */
-#define SIGROW_TEMPSENSE1_2_bm  (1<<2)  /* Temperature Calibration 1 bit 2 mask. */
-#define SIGROW_TEMPSENSE1_2_bp  2  /* Temperature Calibration 1 bit 2 position. */
-#define SIGROW_TEMPSENSE1_3_bm  (1<<3)  /* Temperature Calibration 1 bit 3 mask. */
-#define SIGROW_TEMPSENSE1_3_bp  3  /* Temperature Calibration 1 bit 3 position. */
-#define SIGROW_TEMPSENSE1_4_bm  (1<<4)  /* Temperature Calibration 1 bit 4 mask. */
-#define SIGROW_TEMPSENSE1_4_bp  4  /* Temperature Calibration 1 bit 4 position. */
-#define SIGROW_TEMPSENSE1_5_bm  (1<<5)  /* Temperature Calibration 1 bit 5 mask. */
-#define SIGROW_TEMPSENSE1_5_bp  5  /* Temperature Calibration 1 bit 5 position. */
-#define SIGROW_TEMPSENSE1_6_bm  (1<<6)  /* Temperature Calibration 1 bit 6 mask. */
-#define SIGROW_TEMPSENSE1_6_bp  6  /* Temperature Calibration 1 bit 6 position. */
-#define SIGROW_TEMPSENSE1_7_bm  (1<<7)  /* Temperature Calibration 1 bit 7 mask. */
-#define SIGROW_TEMPSENSE1_7_bp  7  /* Temperature Calibration 1 bit 7 position. */
-#define SIGROW_TEMPSENSE1_8_bm  (1<<8)  /* Temperature Calibration 1 bit 8 mask. */
-#define SIGROW_TEMPSENSE1_8_bp  8  /* Temperature Calibration 1 bit 8 position. */
-#define SIGROW_TEMPSENSE1_9_bm  (1<<9)  /* Temperature Calibration 1 bit 9 mask. */
-#define SIGROW_TEMPSENSE1_9_bp  9  /* Temperature Calibration 1 bit 9 position. */
-#define SIGROW_TEMPSENSE1_10_bm  (1<<10)  /* Temperature Calibration 1 bit 10 mask. */
-#define SIGROW_TEMPSENSE1_10_bp  10  /* Temperature Calibration 1 bit 10 position. */
-#define SIGROW_TEMPSENSE1_11_bm  (1<<11)  /* Temperature Calibration 1 bit 11 mask. */
-#define SIGROW_TEMPSENSE1_11_bp  11  /* Temperature Calibration 1 bit 11 position. */
-#define SIGROW_TEMPSENSE1_12_bm  (1<<12)  /* Temperature Calibration 1 bit 12 mask. */
-#define SIGROW_TEMPSENSE1_12_bp  12  /* Temperature Calibration 1 bit 12 position. */
-#define SIGROW_TEMPSENSE1_13_bm  (1<<13)  /* Temperature Calibration 1 bit 13 mask. */
-#define SIGROW_TEMPSENSE1_13_bp  13  /* Temperature Calibration 1 bit 13 position. */
-#define SIGROW_TEMPSENSE1_14_bm  (1<<14)  /* Temperature Calibration 1 bit 14 mask. */
-#define SIGROW_TEMPSENSE1_14_bp  14  /* Temperature Calibration 1 bit 14 position. */
-#define SIGROW_TEMPSENSE1_15_bm  (1<<15)  /* Temperature Calibration 1 bit 15 mask. */
-#define SIGROW_TEMPSENSE1_15_bp  15  /* Temperature Calibration 1 bit 15 position. */
 
 
 /* SLPCTRL - Sleep Controller */
@@ -6137,3 +6094,4 @@ IO Module Instances. Mapped to memory.
 #define SIGNATURE_2 0x1E
 
 #endif /* #ifdef _AVR_AVR64EA48_H_INCLUDED */
+
