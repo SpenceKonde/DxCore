@@ -4,3 +4,4 @@ megaavr/tools/python3/*
 megaavr/extras/.DS_Store
 *.pyc
 /megaavr/tools/libs/pymcuprog/deviceinfo/__pycache__
+*.bak
