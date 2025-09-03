@@ -43,7 +43,6 @@ class Event {
         set_generator((event::gen::generator_t)generator);
       }
     #endif
-    // *INDENT-OFF*
     #if !defined(PORT_EVGEN0SEL_gm)
       /* Where this is defined, **ALL CHANNELS ARE THE SAME** (EA-series, and likely everything after it)
        * That means that there are no genN generators!

@@ -65,7 +65,6 @@
 
 #ifndef Servo_h
 #define Servo_h
-
 #include <inttypes.h>
 #include <core_devices.h> // They renamed about a thousand _bm and _bp defines in latest atpacks, this file (included automatically via Arduino.h for sketches)
 // ensures compatibility with both toolchain versions without the header having to include the whole Arduino.h). About 4000 lines of fixes, generatede with

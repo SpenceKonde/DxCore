@@ -831,7 +831,7 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
   uint8_t port_pin = digitalPinToBitPosition(pin_number);
 
   int8_t event_user = -1;
-  if (port_pin != NOT_A_PIN) {
+  if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
     #if !defined(TINY_0_OR_1_SERIES)
     /* Woah, we were missing a huge optimization opportunity here.... but only for DA/DB-series parts
        - The users are numbered in the same orderas the ports.
@@ -1087,29 +1087,29 @@ static void _long_soft_event(uint8_t channel, uint8_t length) {
     "breq long_soft4" "\n\t" // equal to 4 -> 4
     "cpi %1, 10"      "\n\t" // compare with 8
     "brcs long_soft6" "\n\t" // less than 10 (but more than 4) -> 6
-    "breq long_soft10""\n\t" // equal to 10 -> 10
-    "st Z, %0"        "\n\t" // otherwise they get 16.
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
+    "breq long_soft10""\n\t" // equal to 10 -> 10otherwise they get 16.
+    "st Z, %0"        "\n\t" // 16.
+    "st Z, %0"        "\n\t" // 15
+    "st Z, %0"        "\n\t" // 14
+    "st Z, %0"        "\n\t" // 13
+    "st Z, %0"        "\n\t" // 12
+    "st Z, %0"        "\n\t" // 11
   "long_soft10:"      "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
+    "st Z, %0"        "\n\t" // 10
+    "st Z, %0"        "\n\t" // 9
+    "st Z, %0"        "\n\t" // 8
+    "st Z, %0"        "\n\t" // 7
   "long_soft6:"       "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
+    "st Z, %0"        "\n\t" // 6
+    "st Z, %0"        "\n\t" // 5
   "long_soft4:"       "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
+    "st Z, %0"        "\n\t" // 4
+    "st Z, %0"        "\n\t" // 3
   "long_soft2:"       "\n\t"
-    "st Z, %0"        "\n\t"
-    "st Z, %0"        "\n\t"
+    "st Z, %0"        "\n\t" // 2
+    "st Z, %0"        "\n\t" // 1
     "out 0x3f, r0"    "\n"   // restore SREG, reenabling interrupts.
-    :"+r"((uint8_t) channel):"d"((uint8_t) length),"z" ((uint16_t) strobeaddr));
+    ::"r"((uint8_t) channel),"d"((uint8_t) length),"z" ((uint16_t) strobeaddr));
 }
 
 
@@ -1119,7 +1119,8 @@ static void _long_soft_event(uint8_t channel, uint8_t length) {
  * @param state Optional parameter. Defaults to true
  */
 
-event::gen::generator_t Event::gen_from_peripheral(TCB_t& timer, uint8_t event_type) {
+event::gen::generator_t Event::gen_from_peripheral(__attribute__((unused))TCB_t& timer, __attribute__((unused)) uint8_t event_type) {
+  // Both args marked potentially unused, because on 0 and 1-series parts the generator numbers depend on the channel and it's a giant mess.
   uint8_t gentype = -1;
   #if defined(TINY_0_OR_1_SERIES)
     badCall("gen_from_peripheral() does not support channel-specific generators. The TCBs on 0/1-series are.");
@@ -1208,7 +1209,7 @@ event::user::user_t Event::user_from_peripheral(TCB_t& timer, uint8_t user_type)
 }
 
 
-event::gen::generator_t Event::gen_from_peripheral(AC_t& comp)
+event::gen::generator_t Event::gen_from_peripheral(__attribute__((unused)) AC_t& comp) // mark as potentially unused so we don't get warning w/error
 {
   #if defined(TINY_1_16K_PLUS)
     badCall("gen_from_peripheral() does not support channel-specific generators. The AC's larger 1-series are.");
@@ -1274,7 +1275,9 @@ event::gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_t
   uint8_t retval = -1;
   if (event_type < 5) {
     #if defined(TINY_0_OR_1_SERIES)
-      retval = event_type +2;
+      if (&timer == &TCA0) {
+        retval = event_type +2;
+      }
     #else
       if (&TCA0 == &timer) {
         retval = event_type + 0x80;

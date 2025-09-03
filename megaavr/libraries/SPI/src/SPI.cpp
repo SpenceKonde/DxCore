@@ -367,8 +367,9 @@ void SPIClass::begin() {
 }
 
 void SPIClass::init() {
-  if (initialized)
+  if (initialized) {
     return;
+  }
   interruptMode = SPI_IMODE_NONE;
   #ifdef CORE_ATTACH_OLD
   interruptSave = 0;
@@ -457,6 +458,7 @@ void SPIClass::notUsingInterrupt(uint8_t interruptNumber) {
     #endif
   }
 }
+
 
 void SPIClass::detachMaskedInterrupts() {
   uint64_t temp = interruptMask_lo;

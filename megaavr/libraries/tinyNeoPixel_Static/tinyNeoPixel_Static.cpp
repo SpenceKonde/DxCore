@@ -73,7 +73,6 @@ void tinyNeoPixel::updateLatch(uint16_t us) {
   /* New feature - to extend the latch interlock to all varieties of LEDs turns out to not be costly at all. */
   latchTime = (us < 6 ? 6 : us); // there are no devices in production with a shorter latch waiting time, and thus is the shortest reasonable latch delay.
 }
-
 // *INDENT-OFF*   astyle don't like assembly
 #if (PROGMEM_SIZE > 4096UL)
 
@@ -153,7 +152,6 @@ void tinyNeoPixel::show(uint16_t leds) {
   //     But the code uses LDI on it. LDI doesn't work on every register,
   //     it must have the "+d" constraint to guarantee an upper register.
 
-
   noInterrupts(); // Need 100% focus on instruction timing
 
 
@@ -183,6 +181,7 @@ void tinyNeoPixel::show(uint16_t leds) {
   // close to the extremes (or possibly they could be pushed further).
   // Keep in mind only one CPU speed case actually gets compiled; the
   // resulting program isn't as massive as it might look from source here.
+
 
   // 5ish MHz(ish) AVRxt
   #if (F_CPU >= 400000UL) && (F_CPU <= 5600000UL)
@@ -1071,12 +1070,9 @@ void tinyNeoPixel::show(uint16_t leds) {
 
 
   interrupts();
-  #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
+  #if (defined(micros))
     endTime = micros();
     // Save EOD time for latch on next call
-    #pragma message("micros() present. This library assumes the canonical 50 us latch delay; some pixels will wait as long as 250us. In these cases, you must be sure to not call show more often. See documentation.")
-  #else
-    #pragma message("micros() is not available because millis is disabled from the tools subemnu. It is your responsibility to ensure a sufficient time has passed between calls to show(). See documentation.")
   #endif
 }
 

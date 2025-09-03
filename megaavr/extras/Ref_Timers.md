@@ -4,19 +4,38 @@
 This document is divided into two sections. The first one simply describes the available timers, and what they are capable of (by "simply describes" I don't claim to have made a simple description, only that the purpose is simple. and that is to describe the timers). The second section describes how they are used by this core in particular. The first section is shared by DxCore and megaTinyCore. The second contains many sections specific to one core or another, however the same document is used for both for the sake of th4e maintainers' sanity. Because this is a very long document, a table of contents is included!
 
 ## Quick answer: Which PWM pins should I use?
-TCA or TCD pins; these timers are much better for generation of PWM. Only use TCB pins if desperate. See the part-specific docs for your part and pincount to see where the timers are pointed by the core on startup. You can set which pins the TCAs (and the TCD on the DD-series) use *at runtime* by simply writing to `PORTMUX.TCAROUTEA`. See the part-specific docs (the ones with the pinout charts, linked to from top of main README and from the column headings in [About the Dx-Series](AboutDxSeries.md)). These contain a table for each timer, listing what we set the portmux for the timer to on initialization, and what options are available and note which options are precluded by errata.
 
+
+TCA or TCD pins; these timers are much better for generation of PWM. Only use TCB pins if desperate. See the part-specific docs for your part and pincount to see where the timers are pointed by the core on startup. You can set which pins the TCAs (and the TCD on the DD-series) use *at runtime* by simply writing to `PORTMUX.TCAROUTEA`. See the part-specific docs for example code for the mux-aware timers, and the list of which pin is associated woth each TCB. Our analogWrite() is not portmux aware (we assume a specific configuration for the TCB portmux) there has been no call for making this user configurable, due to ample alternative PWM timers and the general unsuitability of the TCBs for PWM.
+
+**THE TCA PWM CAN BE TRIVIALLY RELOCATED TO PINS 0-5 OF ANY PORT**
+
+**THE TCE PWM CAN BE TRIVIALLY RELOCATED TO PINS 0-3 OF ANY PORT**
+
+
+
+## Meet the Modern AVR timers
 
 | TIMER       | On DA/DB | On DD | On EA | On EB | Pins:                                                  |Relevant Errata: |
 |-------------|----------|-------|-------|-------|--------------------------------------------------------|-----------------|
 | TCA0        | Yes      | Yes   | No    | No    | Pins 0-5 on your choice of ports.                      | Restart Command not intended to reset direction and on DD and future revisions will not |
 | TCA1        | >32 pin  | No    | Yes   | No    | Pins 0-5 on PB or PG, else pins 4-6 of PC, PE, PA* PD* | AVR128DA64 cannot output TCA1 compare match (pwm) on PORTG or PORTE |
-| TCD0        | Yes      | Yes   | No    | No    | PA4-7 on DA/DB. DD has special split-port mux option   | Only default portmux works on pre-DD parts (Where is our damned die rev already?) |
-| TCB0        | Yes      | Yes   | Yes   | Yes   | PA2 or PF4. All TCBs are poor PWM timers               | AND you have to set both duty cycle and period at the same time |
-| TCB1        | Yes      | Yes   | Yes   | Yes   | PA3 or PF5.                                            | And you get just 1 channel of 8-bit PWM. |
-| TCB2        | Yes      | 28/32 | Yes   | No    | PC0 or PB4. Default millis timer `**`                  | They make an AMAZING millis timer though! |
-| TCB3        | 48/64 pin| No    | Yes   | No    | PB5 or PC1.                                            | because you can set them to interrupt once/ms |
-| TCB4        | 64 pin   | No    | No    | No    | PG3 or PC6.                                            | which makes both micros and especially millis FAST |
+| TCD0        | Yes      | Yes   | No    | No    | PA4-7 on DA/DB. DD has special split-port mux option   | Only default portmux works on DA and older DB parts (major die rev B corrects this issue on DB, and if/when it comes out for DA, DA as well).
+| TCD1        | No       | No    | No    | No    | TBD, not expected to be seen ever.                     | No announced or released parts have had more than 1 TCD. I would be surprised to see a part with two of these.
+| TCB0        | Yes      | Yes   | Yes   | Yes   | PA2 or PF4. All TCBs are poor PWM timers               | DA/DB and 0/1-series must write both duty cycle and period to write either one, because it acts like a 16-bit register even in PWM mode. Fixed on newer DBs|
+| TCB1        | Yes      | Yes   | Yes   | Yes   | PA3 or PF5.                                            | And you get just 1 channel of 8-bit PWM for your 16-bit utility timer! (not errata, just lame) |
+| TCB2        | Yes      | 28/32 | Yes   | No    | PC0 or PB4. Default millis timer `**`                  | as above |
+| TCB3        | 48/64 pin| No    | Yes   | No    | PB5 or PC1.                                            | as above |
+| TCB4        | 64 pin   | No    | No    | No    | PG3 ~or PC6~                                           | On the only parts that have it, the alt portmux is broken.  |
+| TCE0        | No       | No    | No    | Yes   | Pins 0-3 of your choice of ports                       | None yet. It took years for the TCD errata to start flowing, and TCE is way more complicated. |
+| TCF0        | No       | No    | No    | Yes   | PA0/1, PA6/7, PF4/5                                   | Issues reading count accurately. Prescaler issues in some of the NCO modes.
+| TCE1        | No       | No    | No    | No    | TBD                                                    | No announced or released parts have had more than 1 TCE. Prospects for a second are uncertain, but any large chip w/new PLL will surely have 1, possibly 2 |
+| TCF1-n      | No       | No    | No    | No    | TBD                                                    | No announced or released parts have had more than 1 TCF. I think if a larger chip w/new PLL is released, it will almost certainly have at least 2. |
+| TCA2        | No       | No    | No    | No    | TBD                                                    | No announced or released parts have had more than 2 TCAs. Unclear if this is something they'd want to do. |
+| TCB5-7      | No       | No    | No    | No    | TBD                                                    | No announced or released parts have had more than 5 TCBs. I expect to see them IFF we get a 100-pin m2560 successor. |
+
+| TIMER
+
 
 `*` MUX options for PA/PD on TCA1 are EA-series only. On DA-series, only PB and PC mux options work.
 `**` A TCB cannot be used for PWM if being used for millis. On DD-series with 14 or 20 pins, TCB1 is the default millis timer as it likely will be on the EB-series (unless it's clear that we want to use TCF0). Otherwise, TCB2 is: TCB2 is always the default millis timer if it exists (again, unless it turns out that TCF is better for that). A TCA can be used for millis, though it is less accurate, and it can output PWM and act as the millis timer. TCD as millis is not supported because TCD is *really* not meant for that kind of thing. and is an outstanding PWM timer (see [TCD reference for specific "can I change this without breaking stuff" questions re: TCD0](Ref_TCD.md). We are more forgiving of users tweaking the settings of TCD and wanting to use analogWrite with it because TCD0 is very confusing to configure, and we believe that the number of people who want to be able to tweak it's PWM is markedly larger than the number of people who can figure out how to manually configure it after taking over TCD0.

@@ -26,6 +26,7 @@ gen_from_peripheral	KEYWORD2
 user_from_peripheral	KEYWORD2
 start	KEYWORD2
 stop	KEYWORD2
+
 #######################################
 # Instances (KEYWORD2)
 #######################################
@@ -41,6 +42,12 @@ Event6	KEYWORD2
 Event7	KEYWORD2
 Event8	KEYWORD2
 Event9	KEYWORD2
+EventSync0	KEYWORD2
+EventSync1	KEYWORD2
+EventAsync0	KEYWORD2
+EventAsync1	KEYWORD2
+EventAsync2	KEYWORD2
+EventAsync3	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
@@ -58,3 +65,4 @@ gen7	LITERAL1
 gen8	LITERAL1
 gen9	LITERAL1
 user	LITERAL1
+gens	LITERAL1

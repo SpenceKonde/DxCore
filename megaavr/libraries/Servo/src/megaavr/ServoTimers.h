@@ -15,8 +15,8 @@
   This library is included with megaTinyCore and DxCore.
 
   This version was designed for and will be included with:
-  megaTinyCore 2.3.3+
-  DxCore 1.3.6+
+  megaTinyCore 2.6.11+
+  DxCore 1.6.0+
 */
 
 #ifndef __SERVO_TIMERS_H__

@@ -225,6 +225,7 @@ class tinyNeoPixel {
   uint8_t
    *getPixels(void) const,
     getBrightness(void) const;
+
   int8_t
     getPin(void) { return pin; };
   uint16_t
@@ -311,9 +312,9 @@ class tinyNeoPixel {
              control you'll need to provide your own gamma-correction
              function instead.
   */
-  static uint32_t gamma32(uint32_t x);
+  static uint32_t   gamma32(uint32_t x);
 
-  #if (!defined(MILLIS_USE_TIMERNONE) && !defined(MILLIS_USE_TIMERRTC) && !defined(MILLIS_USE_TIMERRTC_XTAL) && !defined(MILLIS_USE_TIMERRTC_XOSC))
+  #if (defined(micros))
     inline bool canShow(void) { return (micros() - endTime) >= (uint32_t) latchTime; }
   #else
     inline bool canShow(void) {return 1;} // we don't have micros here;
@@ -348,3 +349,4 @@ class tinyNeoPixel {
 };
 
 #endif // TINYNEOPIXEL_H
+

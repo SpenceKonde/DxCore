@@ -1046,6 +1046,11 @@ namespace event {
     };
     #endif // defined (__AVR_EB__)
   #elif MEGATINYCORE_SERIES == 2
+    #if defined(PIN_PB1)
+      #define HAS_SEPARATE_GEN1
+      #define HAS_SEPARATE_GEN3
+      #define HAS_SEPARATE_GEN4
+    #endif
     namespace gen {
       enum generator_t : uint8_t {
         disable           = 0x00,
@@ -1092,17 +1097,19 @@ namespace event {
         pin_pa5           = 0x45,
         pin_pa6           = 0x46,
         pin_pa7           = 0x47,
-        pin_pb0           = 0x40,
-        pin_pb1           = 0x41,
-        pin_pb2           = 0x42,
-        pin_pb3           = 0x43,
+#if (PIN_PB0)
+          pin_pb0         = 0x48,
+          pin_pb1         = 0x49,
+          pin_pb2         = 0x4A,
+          pin_pb3         = 0x4B,
+#endif
 #if defined(PIN_PB4)
-        pin_pb4           = 0x44,
-        pin_pb5           = 0x45,
+        pin_pb4           = 0x4C,
+        pin_pb5           = 0x4D,
 #endif
 #if defined(PIN_PB6)
-        pin_pb6           = 0x46,
-        pin_pb7           = 0x47,
+        pin_pb6           = 0x4E,
+        pin_pb7           = 0x4F,
 #endif
       };
     };
@@ -1122,17 +1129,19 @@ namespace event {
         pin_pa5           = 0x45,
         pin_pa6           = 0x46,
         pin_pa7           = 0x47,
-        pin_pb0           = 0x40,
-        pin_pb1           = 0x41,
-        pin_pb2           = 0x42,
-        pin_pb3           = 0x43,
+#if (PIN_PB0)
+          pin_pb0         = 0x48,
+          pin_pb1         = 0x49,
+          pin_pb2         = 0x4A,
+          pin_pb3         = 0x4B,
+#endif
 #if defined(PIN_PB4)
-        pin_pb4           = 0x44,
-        pin_pb5           = 0x45,
+        pin_pb4           = 0x4C,
+        pin_pb5           = 0x4D,
 #endif
 #if defined(PIN_PB6)
-        pin_pb6           = 0x46,
-        pin_pb7           = 0x47,
+        pin_pb6           = 0x4E,
+        pin_pb7           = 0x4F,
 #endif
       };
     };
@@ -1200,10 +1209,12 @@ namespace event {
         rtc_div4096       = 0x09,
         rtc_div2048       = 0x0A,
         rtc_div1024       = 0x0B,
-        pin_pb0           = 0x40,
-        pin_pb1           = 0x41,
-        pin_pb2           = 0x42,
-        pin_pb3           = 0x43,
+#if (PIN_PB0)
+          pin_pb0         = 0x40,
+          pin_pb1         = 0x41,
+          pin_pb2         = 0x42,
+          pin_pb3         = 0x43,
+#endif
 #if defined(PIN_PB4)
         pin_pb4           = 0x44,
         pin_pb5           = 0x45,
@@ -1232,10 +1243,13 @@ namespace event {
         rtc_div256        = 0x09,
         rtc_div128        = 0x0A,
         rtc_div64         = 0x0B,
-        pin_pb0           = 0x40,
-        pin_pb1           = 0x41,
-        pin_pb2           = 0x42,
-        pin_pb3           = 0x43,
+#if (PIN_PB0)
+          pin_pb0         = 0x40,
+          pin_pb1         = 0x41,
+          pin_pb2         = 0x42,
+          pin_pb3         = 0x43,
+#endif
+
 #if defined(PIN_PB4)
         pin_pb4           = 0x44,
         pin_pb5           = 0x45,
@@ -1271,6 +1285,7 @@ namespace event {
         adc0_start        = 0x08,
         evouta_pin_pa2    = 0x09,
         evouta_pin_pa7    = 0x89,
+        
         evoutb_pin_pb2    = 0x0A,
 #if defined(PIN_PB7)
         evoutb_pin_pb7    = 0x8A,
@@ -1343,10 +1358,12 @@ namespace event {
       #define HAS_SEPARATE_GEN3
       namespace gen3 {
         enum generator_t : uint8_t {
+#if (PIN_PB0)
           pin_pb0         = 0x0A,
           pin_pb1         = 0x0B,
           pin_pb2         = 0x0C,
           pin_pb3         = 0x0D,
+#endif
 #if (PIN_PB4)
           pin_pb4         = 0x0E,
           pin_pb5         = 0x0F,
@@ -1368,27 +1385,27 @@ namespace event {
        * and only parts with 20/24 pins, or the 1614 have any items on this list available
        * since it's all PORTC or the second and third AC.
        */
-#if defined(TINY_1_16K_PLUS) || defined(PIN_PC0)
+  #if defined(TINY_1_16K_PLUS) || defined(PIN_PC0)
       #define HAS_SEPARATE_GEN4
       namespace gen4 {
         enum generator_t : uint8_t {
-#if defined(PIN_PC0)
-          pin_pc0         = 0x0A,
-          pin_pc1         = 0x0B,
-          pin_pc2         = 0x0C,
-          pin_pc3         = 0x0D,
-#endif
-#if defined(PIN_PC4)
-          pin_pc4         = 0x0E,
-          pin_pc5         = 0x0F,
-#endif
-#if defined(TINY_1_16K_PLUS)
-          ac1_out         = 0x10,
-          ac2_out         = 0x11,
-#endif
+    #if defined(PIN_PC0)
+          pin_pc0        = 0x0A,
+          pin_pc1        = 0x0B,
+          pin_pc2        = 0x0C,
+          pin_pc3        = 0x0D,
+    #endif
+    #if defined(PIN_PC4)
+          pin_pc4        = 0x0E,
+          pin_pc5        = 0x0F,
+    #endif
+    #if defined(TINY_1_16K_PLUS)
+          ac1_out        = 0x10,
+          ac2_out        = 0x11,
+    #endif
         };
       };
-#endif
+  #endif
     namespace gen5 {
       enum generator_t : uint8_t {
         rtc_div8192       = 0x0A,
@@ -1410,11 +1427,13 @@ namespace event {
     #define HAS_SEPARATE_GEN1
       namespace gen1 {
         enum generator_t : uint8_t {
+#if defined(PIN_PB0)
         pin_pb0          = 0x08,
         pin_pb1          = 0x09,
         pin_pb2          = 0x0A,
         pin_pb3          = 0x0B,
-#if defined(PIN_PB5)
+#endif
+#if defined(PIN_PB4)
         pin_pb4          = 0x0C,
         pin_pb5          = 0x0D,
 #endif

@@ -37,12 +37,12 @@ def main():
     parser.add_argument("-wc", "--write_chunk",
                         type=int,
                         default=-1,
-                        help="Max number of bytes of serial data to write per usb packet. -1 (whole page) is recommended. \n Default: -1 (no write chunking)) Intended as workaround for specific serial adapters. (ex: HT42B345, which can't do 345600 can program an AVR Dx at 460800 and 32b chunk size). Only use if you know you will be sending data faster than the orther device can process it.")
+                        help="Max number of bytes of serial data to write per usb packet. -1 (whole page) is recommended. (Default: -1 (no write chunking)) Intended as workaround for specific serial adapters. (ex: HT42B345, which can't do 345600 can program Dx at 460800 and 32b chunk size), and has a profound negative impact on write performance.")
 
     parser.add_argument("-rc", "--read_chunk",
                         type=int,
                         default=-1,
-                        help="Max number of bytes to request from the device at a time when reading or verifying. \n Default: -1 (maximum 512b on all existing parts). This is intended as a workaround for specific serial adapters, and it's use greatly degrades read performance.")
+                        help="Max number of bytes to request from the device at a time when reading or verifying. Default: -1 (maximum 512b on all existing parts). This is intended as a workaround for specific serial adapters, and it's use greatly degrades read performance.")
 
     parser.add_argument("-d", "--device",
                         type=str,
@@ -66,7 +66,7 @@ def main():
     parser.add_argument("-wd", "--writedelay",
                         type=float,
                         default=0,
-                        help="Page write delay [ms] for tinyAVR and megaAVR. Needed at higher baud rates, particularly on non-windows platforms. \n or with exotic or custom serial adapters (depending on the UART adapter IC's latency timeout is. Usually the net speed is markedly faster at the highest baudrate that doesn't need this option set than it is at higher baud rates with this set")
+                        help="Page write delay [ms] for tinyAVR and megaAVR. Needed at higher baud rates, particularly on non-windows platforms. (Default: 0 - this severely impacts write performance)")
 
     parser.add_argument("-t", "--tool",
                         type=str,
@@ -98,7 +98,7 @@ def main():
         print("Error: action '{}' takes no filename".format(args.action))
         sys.exit(1)
 
-    if args.action in ("read", "write") and args.filename == "" and (args.fuses == "" or args.action == "read") and not args.fuses_print:
+    if args.action in ("read", "write") and args.filename == "":
         print("Error: no filename provided")
         sys.exit(1)
     if args.tool != None:
@@ -150,7 +150,7 @@ def print_report(args):
     print("UPDI programming for Arduino using a serial adapter")
     print("Based on pymcuprog, with significant modifications")
     print("By Quentin Bolsee and Spence Konde")
-    print("Version 1.3.0.3 - Jul 2023")
+    print("Version 1.3.1 - Aug 2025")
     print("Using serial port {} at {} baud.".format(args.uart, args.baudrate))
     if (args.write_chunk != -1):
         print("Writing in chunks not longer than {} bytes (-wc).".format(args.write_chunk))
@@ -215,8 +215,10 @@ def pymcuprog_basic(args, fuses_dict):
 
     try:
         pymcu._action_ping(backend)
-    except ValueError:
-        print("Device ID mismatch - Stopping.")
+    except ValueError as e:
+    # Print the error message
+        print(f"Error: {e}")
+        print("Device ID mismatch! Ensure chip selected in Tools -> Chip menu and verify identity of chip.")
         backend.end_session()
         backend.disconnect_from_tool()
         return 1

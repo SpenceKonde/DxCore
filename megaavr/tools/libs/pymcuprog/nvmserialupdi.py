@@ -17,6 +17,8 @@ import math
 
 from . import progress_bar
 
+from .azduino_mods import avrid_to_name
+
 # This is a data class so it should not need any methods but will have many instance variables
 # pylint: disable=too-many-instance-attributes,too-few-public-methods
 class Dut:
@@ -77,19 +79,31 @@ class NvmAccessProviderSerial(NvmAccessProvider):
         device_id_read = binary.unpack_be24(sig)
         self.logger.info("Device ID: '%06X'", device_id_read)
         if not self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID) == device_id_read:
-            self.logger.warning("ID read ('%06X') does not match expected device id! ('%06X')", device_id_read,
-                                self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID))
-            raise ValueError("Device ID does not match")
+            self.logger.error("ID read ('%06X') does not match expected device id! ('%06X')", device_id_read, self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID))
+            if device_id_read in avrid_to_name:
+                if self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID) in avrid_to_name:
+                    raise ValueError("Expected: "+avrid_to_name[self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID)]+" Instead, found: "+avrid_to_name[device_id_read])
+                else:
+                    raise ValueError("Internal error determining expected part name. This is a bug, please report it. Found: "+avrid_to_name[device_id_read])
+            else:
+                if self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID) in avrid_to_name:
+                    raise ValueError("Expected: "+avrid_to_name[self.device_info.get(DeviceInfoKeysAvr.DEVICE_ID)]+" ID returned by part unknown to SerailUPDI")
+                else:
+                    raise ValueError("Neither expected nor found part IDs are recognized by SeralUPDI, yet the number above was returned")
+
+        """
+        Jesus that is hideous!
+
+        Yeah, we imported a list culled from the IO headers (find in files in sublime to get the line with the signature bytes in it, copy results to a new file, use regexes to snip out everything except the file name (subliume includes this in fine in files output)
+        More regexe to get only the six hex characters of the sig in a row and the name, with a comma between it. Save as .txt
+        Open with excel, delimited, comma. Before exiting the import dialog, the format for the column containing hexadecimal values had to be set to "text" to prevent it from trashing them. complete the import dialog, hex2dec() in a third column, to get numeric valies
+        copy/paste back into sublime to postprocess with regexes to yield the proper syntax for a python dictionary, indexed by the numeric representation. They're all around 2 million
+        """
         revision = self.avr.read_data(self.device_info.get(DeviceInfoKeysAvr.SYSCFG_BASE) + 1, 1)
-        devrevmajor = int(revision[0] / 16)
-        devrevminor = revision[0] % 16
-        devrevstr = chr(ord('@') + devrevmajor)+str(devrevminor)
-        self.logger.info("Device revision: '%s'", devrevstr)
-        serial = self.avr.read_data(signatures_base + 16, 12)
+        self.logger.info("Device revision: '%s'", chr(revision[0] + ord('A')))
+        serial = self.avr.read_data(signatures_base + 3, 10)
         self.logger.info("Device serial number: '%s'", binascii.hexlify(serial))
-        # The changes above to the logging output are for DxCore only, and only until I figure out how
-        # this code can figure out what kind of part it's working with (Dx vs earlier?) so it can
-        # read the serial from the appropriate part of the SIGROW and process the REVID correctly.
+
         # Return the raw signature bytes, but swap the endianness as target sends ID as Big endian
         return bytearray([sig[2], sig[1], sig[0]])
 
@@ -135,6 +149,7 @@ class NvmAccessProviderSerial(NvmAccessProvider):
                 write_chunk_size = len(data_aligned)
             chunk = data_aligned[0:write_chunk_size]
             self.logger.debug("Writing %d bytes to address 0x%06X", write_chunk_size, offset_aligned)
+            self.logger.debug(memtype_string);
             if memtype_string == MemoryNames.FUSES:
                 self.avr.nvm.write_fuse(offset_aligned, chunk)
             elif memtype_string == MemoryNames.EEPROM:

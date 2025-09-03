@@ -1,9 +1,5 @@
 #include <tinyNeoPixel_Static.h>
-#if _AVR_PINCOUNT == 14
-  #define PIN    PIN_PD4    // need to use a different pin on DD14
-#else
-  #define PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
-#endif
+  #define PIN    PIN_PC3 
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)

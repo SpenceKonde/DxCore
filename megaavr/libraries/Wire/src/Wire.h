@@ -197,7 +197,8 @@ struct twiDataBools {         // using a struct so the compiler can use skip if 
   bool _toggleStreamFn:   1;  // used to toggle between Slave and Master elements when TWI_MANDS defined
   bool _hostEnabled:      1;
   bool _clientEnabled:    1;
-  uint8_t _reserved:      5;
+  bool _hostDataSent:     1;
+  uint8_t _reserved:      4;
 };
 
 

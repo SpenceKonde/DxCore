@@ -175,7 +175,9 @@
   #define SPI_INTERRUPT_ENABLE      1
 #endif
 
+
 //#define EXTERNAL_NUM_INTERRUPTS   NUM_TOTAL_PINS
+
 
 class SPISettings {
   public:
@@ -300,31 +302,24 @@ class SPIClass {
     void init();
     void config(SPISettings settings);
 
-    // These undocumented functions should not be used. except by advanced users
-    // SPI.transfer() polls the hardware flag which is automatically cleared as the
+    // These undocumented functions should not be used.  SPI.transfer()
+    // polls the hardware flag which is automatically cleared as the
     // AVR responds to SPI's interrupt.
-    //
-    // To use this, an ISR must be defined with the ISR() macro (you don't pass it any arguments. Attaching interrupts like that would
-    // essentially guarantee that the exact thing you were trying to avoid (missing bytes) would occur, due to the grotesque
-    // overhead inherrent in any ISR that calls a function that the compiler doesn't inline; a function called from a function pointer
-    // can never be inlined - that imposes about 45 clocks of overhead on an ISR when you're using the interrupt to try to keep up with
-    // the SPI bus. In the scheme of things, the maximum clock speeds an AVR's SPI can handle (as slave, clock / 4, or 6 MHz on Dx. But
-    // at that speed you have just 32 clock cycles per byte. I don't see that happening except by polling. At half that, though, a well
-    // written interrupt driven system should definitely be viable. At half of *that*, the same interrupt had it been attached() with an
-    // attach method that took the function pointer.
-    // Using these methods are not recommended, and is not for the feint of heart or dull of mind.
+    // Well, they're now commented out too. there is no way anything good could come of these and no indication that they were ever anything more than useless stubs.
+    /*
     inline static void attachInterrupt() {
       SPI0.INTCTRL |= (SPI_IE_bm);
     }
     inline static void detachInterrupt() {
       SPI0.INTCTRL &= ~(SPI_IE_bm);
     }
+    */
     #ifdef CORE_ATTACH_OLD
     void detachMaskedInterrupts();
     void reattachMaskedInterrupts();
     #endif
     SPI_t *_hwspi_module = &SPI0;
-    uint8_t _uc_pinMISO;
+    uint8_t _uc_pinMISO = PIN_SPI_MOSI;
     uint8_t _uc_pinMOSI = PIN_SPI_MOSI;
     uint8_t _uc_pinSCK = PIN_SPI_SCK;
     uint8_t _uc_pinSS;

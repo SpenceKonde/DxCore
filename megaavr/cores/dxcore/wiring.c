@@ -1875,6 +1875,23 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 }
 
 /********************************* ADC ****************************************/
+/* ADC versions:
+ * t1/0/m0 - "1.0"      10-bit, single ended. 1-series w/16k+ have 2 of them.
+ * DA/DB/DD - "1.5"     12-bit, "double ended" fake differential ADC. Arguably, DB/DD, with the VDDDIV10 option, are 1.51, but the control scheme is identical, they just are missing a bloody obviious channel.
+ * t2 - "2.0"           12-bit, real differential ADC with PGA
+ * EA/EB - "2.1"        12-bit, real differential ADC with PGA and Sign Chopping
+ * DU - "1.1"?          10-bit, single ended.
+ * SD - "1.1"?          10-bit, single ended.
+ *
+ *
+ *
+ ******************************************************************************/
+
+
+
+
+
+
 #if defined(ADC0)
   void __attribute__((weak)) init_ADC0() {
     ADC_t* pADC;
@@ -2027,7 +2044,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 
 // These are defaults that could be overridden by variant or arguments passed to compiler
 // They are only relevant for the case of using a crystal.
-#if ((CLOCK_SOURCE & 0x03) == 1) && defined(CLKCTRL_FRQRANGE_gm)
+#if ((CLOCK_SOURCE & 0x03) == 1)
   // In a quick test, with terrible layout (strip-board), I could run a 16 MHz crystal with any of these options!
   // it was an 18 pf crystal with parasitic capacitance of stripboard as loading. User can force it to desired value
   // but nobody is likely to care. Lower speed settings use less power, I *think* - but the datasheet has nothing
@@ -2036,14 +2053,16 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
   // would work if the core was told they were 25 MHz; the tests below were changed from > to >= to put frequencies at
   // the top of one of the ranges into the next highest bucket.
   // Amazingly, 48 MHz has been observed working at room temperature.
-  #if     (F_CPU >= 24000000)
-    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
-  #elif   (F_CPU >= 16000000)
-    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
-  #elif   (F_CPU >=  8000000)
-    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
-  #else
-    #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
+  #if defined(CLKCTRL_FRQRANGE_gm)
+    #if     (F_CPU >= 24000000)
+      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_32M_gc
+    #elif   (F_CPU >= 16000000)
+      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_24M_gc
+    #elif   (F_CPU >=  8000000)
+      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_16M_gc
+    #else
+      #define USE_XTAL_DRIVE CLKCTRL_FRQRANGE_8M_gc
+    #endif
   #endif
   #ifndef USE_CSUTHF
     #define USE_CSUTHF CLKCTRL_CSUTHF_4K_gc
@@ -2135,7 +2154,6 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
       #elif (F_CPU == 6000000)
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_2X_gc | CLKCTRL_PEN_bm));
         _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x0A << 2));
-        #warning "6 MHz, currently selected for F_CPU, is not supported by this core and has not been tested. Expect timekeeping problems."
       #elif (F_CPU == 5000000)  /* 5 MHz = 20 MHz prescaled by 4 */
         _PROTECTED_WRITE(CLKCTRL_MCLKCTRLB,  (CLKCTRL_PDIV_4X_gc | CLKCTRL_PEN_bm));
         _PROTECTED_WRITE(CLKCTRL_OSCHFCTRLA, (0x08 << 2));
@@ -2168,7 +2186,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
           }
         #endif
       #else
-        // it's a DB/DD with the crystal supporting version of CLKCTRL.
+        // it's a DB/DD/DU with the crystal-supporting version of CLKCTRL.
         // turn on clock failure detection - it'll just go to the blink code error, but the alternative would be hanging with no indication of why!
         // Unfortunately, this is not reliable when a crystal is used, only for external clock. It appears that crystal problems often result in
         // a clock sufficiently broken that it resets instead.

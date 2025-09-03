@@ -64,39 +64,42 @@ class UpdiPhysical:
         """
         Sends a double break to reset the UPDI port
 
-        BREAK is actually a condition which involves a serial line being held low for longer than it's ordinary character (including framing and parity bits).
-        In this case that's 12 bits. But we want twice that because the chip and programmer could be maximally out of sync, and the chip may be running at a way-wrong baud rate, etc
-        Documentation says it could potentially take as long as 25 ms to guarantee a break - corresponding to twice the length of a normal break (hence the official, yet rather unclear and strangly
-        unprofessional "double break" name), To me "double break" implies that two breaks are generated in succcession. That is not what is described in the datasheet, the datasheet describes a
-        double break as simply a break condition lasting double the length of a normal break (idea here is that even if the chip has somehow gotten the idea that you're talking to it at )
+        BREAK is actually just a slower zero frame
+        A double break is guaranteed to push the UPDI state
+        machine into a known state, albeit rather brutally
         """
 
-        self.logger.info("extra-long break requested. Close serial port, reopen @ 300, send 0x00, receive the 0x00, and then proceed. ")
+        self.logger.info("Sending double break")
 
         # Re-init at a lower baud
-        # At 300 baud, the break character will pull the line low for 10 bit periods. This is 33ms
+        # At 300 bauds, the break character will pull the line low for 30ms
         # Which is slightly above the recommended 24.6ms
         self.ser.close()
-        temporary_serial = serial.Serial(None, 300, parity=serial.PARITY_EVEN, timeout=1, stopbits=serial.STOPBITS_ONE)
+        temporary_serial = serial.Serial(None, 300, parity=serial.PARITY_EVEN, timeout=1,
+                                         stopbits=serial.STOPBITS_ONE)
         temporary_serial.port = self.port
         temporary_serial.dtr = False
         temporary_serial.rts = False
         temporary_serial.open()
 
-        # Old comment: Send two break characters, with 1 stop bit in between
-        # 7/31: No! This is not what we want to do! We want to send ONE very long break character which must not have a stop bit in the middle:
-        # See `36.3.1.2.1 BREAK in One-Wire Mode` it must be at keast 24.6 ms long.
+        # Send two break characters, with 1 stop bit in between
         temporary_serial.write([constants.UPDI_BREAK])
 
-        time.sleep(0.1)
-        # Wait for the double-length break end
+        # Wait for the double break end
         temporary_serial.read(1)
-        # now read and discard the 0x00 that we sent
-        # close this temp serial port and reopen at the normal baud rate.
+
+        #time.sleep(0.1)
+
+        # Send two break characters, with 1 stop bit in between
+        #temporary_serial.write([constants.UPDI_BREAK])
+
+        # Wait for the double break end
+        #temporary_serial.read(1)
+
+        # Re-init at the real baud
         temporary_serial.close()
-        self.logger.info("Double-break sent. Re-initializeing USART to retry.")
+        self.logger.info("Double-break sent. Retrying.")
         self.initialise_serial(self.port, self.baud)
-        # time.sleep(0.1)
 
     def send(self, command):
         """
@@ -116,10 +119,12 @@ class UpdiPhysical:
         :param size: bytes to receive
         """
         response = bytearray()
-        retry = 3
+        timeout = 3
 
         # For each byte
-        while size and retry:
+        while size and timeout:
+
+            # Read
             character = self.ser.read()
 
             # Anything in?
@@ -127,13 +132,9 @@ class UpdiPhysical:
                 response.append(ord(character))
                 size -= 1
             else:
-                retry -= 1
-        if len(response) == size:
-            self._loginfo("Received expected number of bytes", response)
-        elif len(response) == 0:
-            self.logger.debug("We were supposed to receive {:n} bytes - we got nothing! Check connections.".format(size))
-        else:
-            self.logger.debug("We were supposed to receive {:n} bytes - we got only {:n}. This is not a good thing.".format(size, len(response)))
+                timeout -= 1
+
+        self._loginfo("receive", response)
         return response
 
     def sib(self):
@@ -141,7 +142,8 @@ class UpdiPhysical:
         System information block is just a string coming back from a SIB command
         """
         self.send([
-            constants.UPDI_PHY_SYNC, constants.UPDI_KEY | constants.UPDI_KEY_SIB | constants.UPDI_SIB_32BYTES])
+            constants.UPDI_PHY_SYNC,
+            constants.UPDI_KEY | constants.UPDI_KEY_SIB | constants.UPDI_SIB_32BYTES])
         return self.ser.readline()
 
     def __del__(self):

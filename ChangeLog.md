@@ -2,18 +2,18 @@
 This page documents (nearly) all bugfixes and enhancements that produce visible changes in behavior throughout the history of DxCore. Note that this document is maintained by a human, who is - by nature - imperfect (this is also why there are so many bugs to fix); sometimes the changelog may not be updated at the same time as the changes go in, and occasionally a change is missed entirely in the changelog, though this is rare. Change descriptions may be incomplete or unclear; this is not meant to be an indepth reference.
 
 ## Planned changes not yet implemented
-These items are in addition to what was listed under changes already in release.
+These items are in addition to what was listed under changes already in release.These are typically planned for release in a future version (usually the next one) as noted.
 * Enhancement: Fix pinout diagrams for DD-series.
-* Enhancement: We need pinout diagrams for EA-series too! Considering how bad I am at getting pinout diagrams, I guess I should start asking about DU-series diagrams too!
-* Enhancement: AVRdude 7.2 out.
+* Enhancement: We need pinout diagrams for EA-series too!
+* Enhancement: We need pinout diagrams for DU-series too!
+* Enhancement: We need pinout diagrams for EB-series too!
+* Enhancement: AVRdude ~7.2~ 8.0 out.
 * Bugfix: Make serialupdi work with EA, EB **CRITICAL**
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
 * Ensure libraries in sync with megaTinyCore.
-* Add support for DU-series to tools menus, permitting compile tests once I get the toolchain ready.
 
 ## 1.6.0
-These are typically planned for release in a future version (usually the next one) as noted.
 * OSCCFG is now written for Dx-series parts. We have never supported any option other that 0x00 on those parts, and the hardware only supports one other value, which starts the chip on the 32 kHz oscillator.
 * Support for the PTC peripheral on DA parts
 * Correct bug with EA-series parts having the SYSCFG0 fuse set during normal uploads, which is inappropriate, because if the UPDIPINCFG bit is not 1, the chip can only be reprogrammed with an exotic HV programmer.
@@ -23,8 +23,9 @@ These are typically planned for release in a future version (usually the next on
   * Not yet expected to work.
 * Brutal restructuring of Arduino.h.
 * keywords.txt for DxCore contained numerous deficiencies of varying severities. It was rebuilt de novo. Slightly less disorganized this time.
-* device_timer_pins.h design deemed hopelessly defective. Functionally identical file regenerated de novo,
+* device_timer_pins.h design deemed hopelessly defective. Functionally identical file regenerated de novo.
 * Fix issue with 0ms SUT.
+* Update toolchain to add support EB, small flash EA, and DU.
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)

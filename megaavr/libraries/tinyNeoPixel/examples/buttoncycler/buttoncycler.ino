@@ -5,18 +5,22 @@
 
 #include <tinyNeoPixel.h>
 
-
+#define BUTTON_PIN   PIN_PA2    // Digital IO pin connected to the button.  This will be
 // driven with a pull-up resistor so the switch should
 // pull the pin to ground momentarily.  On a high -> low
 // transition the button press logic will execute.
-#if _AVR_PINCOUNT == 14
-  #define BUTTON_PIN   PIN_PD5
-  #define PIXEL_PIN    PIN_PD4    // need to use a different pin on DD14
-#else
-  #define BUTTON_PIN   PIN_PA2
-  #define PIXEL_PIN    PIN_PA3    // Digital IO pin connected to the NeoPixels
-#endif
+// These pins were chosen because they are present on all parts; this sketch is used for automated testing.
+// Since 8-pin parts with UPDI enabled have only 5 available IO pins (PA1, 2, 3, 6, and 7), and PA3 is the
+// external clock pin (we detect and give an error when using external clock source if you try to use the
+// clock pin for anything else, since that doesn't work). Serial in turn is on either PA6/7 or PA1/2 (alt) so unless we
+// want to make life hard on people modifying the sketch and maybe adding serial debug logging, PA1 and PA2 are the best
+// choices for the pin in this sketch as an example and automated testing sketch.
 
+// You can use any I/O pin that is not being overridden by some peripheral for either purpose.
+// No pin is inherently better or worse than any other for either of these purposes; it's all about what
+// other things you need pins for, and whether any of them are picky about which pins are used.
+
+#define PIXEL_PIN    PIN_PA1    // Digital IO pin connected to the NeoPixels
 
 #define PIXEL_COUNT 16
 
