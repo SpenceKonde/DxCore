@@ -12,12 +12,12 @@ These are not relevant to reordering. Reordering is confusing enough as is (and 
 
 To get identical behavior:
 
-* TRUTH = 0bHGFEDCBA when IN0 is a, IN1 is ß and IN2 is ?
-* TRUTH = 0bHDFBGCEA when IN0 is ?, IN1 is ß and IN2 is a - D and G, B and E swap
-* TRUTH = 0bHFGEDBCA when IN0 is a, IN1 is ? and IN2 is ß - G and F, B and C swap
-* TRUTH = 0bHGDCFEBA when IN0 is ?, IN1 is a and IN2 is ß - F and D, E and C swap
-* TRUTH = 0bHDGCFBEA when IN0 is ß, IN1 is a and IN2 is ? - F?D?G?F rotate, and B?C?E?B rotate.
-* TRUTH = 0bHFDBGECA when IN0 is ß, IN1 is ? and IN2 is a - F?G?D?F rotate, and B?E?C?B rotate.
+* TRUTH = 0bHGFEDCBA when IN0 is a, IN1 is ÃŸ and IN2 is ?
+* TRUTH = 0bHDFBGCEA when IN0 is ?, IN1 is ÃŸ and IN2 is a - D and G, B and E swap
+* TRUTH = 0bHFGEDBCA when IN0 is a, IN1 is ? and IN2 is ÃŸ - G and F, B and C swap
+* TRUTH = 0bHGDCFEBA when IN0 is ?, IN1 is a and IN2 is ÃŸ - F and D, E and C swap
+* TRUTH = 0bHDGCFBEA when IN0 is ÃŸ, IN1 is a and IN2 is ? - F?D?G?F rotate, and B?C?E?B rotate.
+* TRUTH = 0bHFDBGECA when IN0 is ÃŸ, IN1 is ? and IN2 is a - F?G?D?F rotate, and B?E?C?B rotate.
 
 the highest and lowest bits do not change when reordering the inputs.
 
@@ -35,7 +35,7 @@ These are cases that treat all inputs equally (the logic formulas are hideous or
 | 0x7E         |      6/6 | HIGH in all cases except (potentially) when all three inputs are HIGH or all three inputs are LOW.
 
 A significant number of options come in sets of threes; these indicate:
-1. All of these have a logical formula of `( a [and|or] (ß [opp] ?))`
+1. All of these have a logical formula of `( a [and|or] (ÃŸ [opp] ?))`
 * `[opp]` is any binary logical operator where the order of the arguments doesn't matter; essentially all of them
   * "Don't care" is an option, too.
   * So the two 3/6 bit-set sets (A, and !A) fit the above 1 same 2 different pattern: 1 significant input, and two that are treated the same: they're disregarded.

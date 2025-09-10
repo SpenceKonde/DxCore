@@ -6,7 +6,7 @@ This document is divided into two sections. The first one simply describes the a
 ## Quick answer: Which PWM pins should I use?
 
 
-TCA or TCD pins; these timers are much better for generation of PWM. Only use TCB pins if desperate. See the part-specific docs for your part and pincount to see where the timers are pointed by the core on startup. You can set which pins the TCAs (and the TCD on the DD-series) use *at runtime* by simply writing to `PORTMUX.TCAROUTEA`. See the part-specific docs for example code for the mux-aware timers, and the list of which pin is associated woth each TCB. Our analogWrite() is not portmux aware (we assume a specific configuration for the TCB portmux) there has been no call for making this user configurable, due to ample alternative PWM timers and the general unsuitability of the TCBs for PWM.
+TCA or TCD pins; these timers are much better for generation of PWM. Only use TCB pins if desperate. See the part-specific docs for your part and pincount to see where the timers are pointed by the core on startup. You can set which pins the TCAs (and the TCD on the DD-series) use *at runtime* by simply writing to `PORTMUX.TCAROUTEA`. See the part-specific docs for example code for the mux-aware timers, and the list of which pin is associated with each TCB. Our analogWrite() is not portmux aware (we assume a specific configuration for the TCB portmux) there has been no call for making this user configurable, due to ample alternative PWM timers and the general unsuitability of the TCBs for PWM.
 
 **THE TCA PWM CAN BE TRIVIALLY RELOCATED TO PINS 0-5 OF ANY PORT**
 
