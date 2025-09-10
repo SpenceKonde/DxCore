@@ -5,7 +5,9 @@
 
 #include <tinyNeoPixel.h>
 
-#define BUTTON_PIN   PIN_PA2    // Digital IO pin connected to the button.  This will be
+#define BUTTON_PIN   PIN_PD4    // Digital IO pin connected to the button.
+// Chosen because this pin is omnipresent, so I can use this for compile-testing.
+// This will be
 // driven with a pull-up resistor so the switch should
 // pull the pin to ground momentarily.  On a high -> low
 // transition the button press logic will execute.
