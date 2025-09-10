@@ -77,7 +77,7 @@ You will quickly notice that assembly is non-linear it will often jump off to so
     * Any place where you do a test like `if (digialReadFast())` (equiv. `if (VPORTx.IN & (1 << n)`) it is *virtually guaranteed* to manifest in the generated assembly as an `sbic` or `sbis` (the compiler is free to choose whichever will let it make what it thinks is better code).
     * Classic AVRs did not have a fixed pattern to what was in the low I/O space (other than the port registers).
   * `sbrs`/`sbrc` skip if bit in [working] register is set/clear
-    * These are r0-r31 - the values that the CPU currently has at its fingertips. Or whatever CPUs have instead of fingertips.
+    * These are r0-r31 - the values that the CPU currently has at it's fingertips. Or whatever CPUs have instead of fingertips.
     * Unlike the above case of testing the special function registers in the low I/O space, while `if (foo & (1 << bar))` could be compiled to a variety of different things, particularly if there is no need to leave `foo` unchanged
   * These are very frequently followed by a jump or call.
 * The compiler is allowed to reorder operations as it sees fit, as long as it does not change the order of interactions with `volatile` variables (special function registers are always declared that way).

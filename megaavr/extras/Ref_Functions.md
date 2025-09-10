@@ -203,7 +203,6 @@ delayMicroseconds():
 
 ### (undocumented standard) `clockCyclesPerMicrosecond()`
 Part of the standard API, but not documented. Does exactly what it says.
-
 ```c
 #define clockCyclesPerMicrosecond() {(F_CPU) / 1000000L};
 ```

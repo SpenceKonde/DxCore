@@ -3,24 +3,26 @@ These parts all have a large number of analog inputs,  - plus the one on the UPD
 
 The tinyAVR 2-series is the first post-revolutionary AVR to feature a real differential ADC. *Hey! We've got differential ADC in the Dx!* No, for the last time, that is not a real differential ADC. You might as well have two single ended ADC channels tied to the same trigger and that's it. Like what was demo'ed on the 1-series tinyAVRs in fact, only on the Dx-series it's packaged more neatly and with all the auxiliary uses stomped out. A normal differential ADC channel lets you set the reference to 1v, turn the gain up to the max, and listen to the difference between the Vdd power rail and the ever so slightly higher voltage before the current sense resistor! The Dx's one is capped to V<sub>Ain</sub> <=
 
-The ADC on the the Ex-series is even better - it is nearly the same ADC that the tinyAVR 2-series got, though its specs have gotten a small across the board improvement, and there's a new feature that can only be used when accumulated mode is in use: Sign Chopping. Sign Chopping alternates between positive and negative inputs during an accumulated measurement as well as the sign of the value added to the total. This can greatly reduce offset error (which, particularly with gain cranked up and the reference cranked down, trying to get the most possible out of the ADC, could get surprisingly high).
+The ADC on the the Ex-series is even better - it is nearly the same ADC that the tinyAVR 2-series got, though it's specs have gotten a small across the board improvement, and there's a new feature that can only be used when accumulated mode is in use: Sign Chopping. Sign Chopping alternates between positive and negative inputs during an accumulated measurement as well as the sign of the value added to the total. This can greatly reduce offset error (which, particularly with gain cranked up and the reference cranked down, trying to get the most possible out of the ADC, could get surprisingly high).
 
 **Be sure to disable to the ADC prior to putting the part to sleep if low power consumption is required!**
-
 
 ## Vital Statistics
 | Part family | Min. Res. | Max. Res. | CLK Max | CLK used | Max Ovrsamp Res. | Extras
 |-------------|-----------|-----------|---------|----------|------------------|---
 | tinyAVR 0/1 |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | (1), (2), (3)
-| tinyAVR 1+  |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | (1), (2), (3), (4), Whole second copy of ADC.
+| tinyAVR 1+  |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | (1), (2), (4), two identical ADCs.
 | AVR DA      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | (5) "Differential" ADC
 | AVR DB      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | (5) "Differential" ADC
 | AVR DD      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | (5) "Differential" ADC more pins can be ADC pins.
 | tinyAVR 2   |     8-bit |    12-bit |   3/6 * | 2-2.5MHz |           17-bit | (6) True differential, 1-16x PGA
 | AVR EA      |     8-bit |    12-bit |   3/6 * | 2-2.5MHz |           17-bit | (6) True differential, 1-16x PGA, sign chopping.
+| AVR EB      |     8-bit |    12-bit |   3/6 * | 2-2.5MHz |           17-bit | (6) True differential, 1-16x PGA, sign chopping.
+| AVR DU      |     8-bit |    10-bit | 0.125-2 | 1-1.4MHz |           13-bit | Single ended
+| AVR SD      |     8-bit |    10-bit | 0.125-2 | 1-1.4MHz |           13-bit | Single ended, two identical ADCs.
 
 `*` 6 MHz with external or Vdd reference, 3 MHz with internal.
-
+`**` - "After the USB natives were done with him, you could barely recognize him. They'd cut TCD clean out of his chest, torn off and roasted his MVIO for a villiage feast in honor of the 3.3v logic levels of USB data lines... and ah - removed two bits from his "analog-to-digital converter" *damn... I tried to tell him they weren't friendly, and that negotiations wouldn't go well.... but he just had to give peace a chance* "Well, to his credit, they do seem to have avoided an outright war with the USB natives" *But at what cost? Rsze their primitive hovels, execute the relevant designers and use a tried and true USB stack from any of the several lines of !
 Notes:
 1. This part initially had aspired to function at F_ADC = 2.00 MHz, RES = 8-bits. This didn't work so well. See the errata for the marginally successful workarounds.
 2. This part has a dumbass set of reference voltages (4.3, 2.5, 1.1, 1.5, 0.55). For the ultra low reference voltage, use analogSetClock() to ensure that the clock speed is within the much lower sped'ed range of 65-200 kHz. You may also want to lower sample duration since that's what it's denominated in. All other parts have 1.024/2.048/4.096/2.5
@@ -32,44 +34,37 @@ Notes:
 
 The differential ADC on the Dx-series is disappointing.
 
+
 ## Reference Voltages
-Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are listed below:
+Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are listed below. The references available on the Dx and Ex parts are chosen from the same list as the tiny2's got to pick from, but somehow they wound up in a different order on these parts. You should never have to use the numbers (though that's all those constants are), unless your code loses track of what reference it has selected
 In some cases the voltage determines the maximum ADC clock speed. Call analogReference() before analogClockSpeed() to ensure that the analog clock speed is appropriate when any of these apply:
 * You are switching between internal and external/VDD reference on an Ex/2-series
 * You are using the half volt reference on the 0/1-series, or switching from that to another reference
 * You are on a Dx-series with an external reference of less than 1.8V
 
 
- | tinyAVR (0/1)                           | Voltage | Minimum Vdd | Number | Notes |
- |-----------------------------------------|---------|-------------|--------|-------|
- | `VDD` (default)                         | Vcc/Vdd |           - |     16 | . |
- | `INTERNAL0V55`                          |  0.55 V |           - |      0 | ADC clock needs to be 100kHz to 260 kHz to get accurate results |
- | `INTERNAL1v1`                           |  1.10 V |           - |      1 | . |
- | `INTERNAL2V5`                           |  2.50 V |           - |      2 | . |
- | `INTERNAL4V3`                           |  4.30 V |           - |      3 | . |
- | `INTERNAL1V5`                           |  1.50 V |           - |      4 | . |
- | `EXTERNAL`                              |       - |           - |     32 | 1+series only |
+ | tinyAVR (0/1)                           | Voltage | Minimum Vdd | Number | Notes
+ |-----------------------------------------|---------|-------------|--------|-------
+ | `VDD` (default)                         | Vcc/Vdd |           - |     16 |
+ | `INTERNAL0V55`                          |  0.55 V |           - |      0 | ADC clock needs to be 100kHz to 260 kHz to get accurate results
+ | `INTERNAL1V1`                           |  1.10 V |           - |      1 |
+ | `INTERNAL2V5`                           |  2.50 V |           - |      2 |
+ | `INTERNAL4V3`                           |  4.30 V |           - |      3 |
+ | `INTERNAL1V5`                           |  1.50 V |           - |      4 |
+ | `EXTERNAL`                              |   < VDD |           - |     32 | 1+series only
 
- | tinyAVR (2-series)  or Ex-series        | Voltage | Minimum Vdd | Number | Notes |
- |-----------------------------------------|---------|-------------|--------|-------|
- | `VDD` (default)                         | Vcc/Vdd |             |      0 | VDD Ref works at 6 MHz CLK ADC! |
- | `INTERNAL1V024`                         | 1.024 V |      2.5* V |      4 | 10-bit reading with 1.025 ref gives apx.   1 mv/ADC count |
- | `INTERNAL2V048`                         | 2.048 V |      2.5  V |      5 | 12-bit reading with 2.048 ref gives apx. 0.5 mv/ADC count |
- | `INTERNAL4V096`                         | 4.096 V |      4.55 V |      7 | 12-bit reading with 4.096 ref gives apx.   1 mv/ADC count |
- | `INTERNAL2V500`                         | 2.500 V |      2.7  V |      6 | . |
- | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.096 V |      4.55 V |      7 | . |
- | `EXTERNAL`                              |       - |         Vdd |      2 | External ref works at 6 MHz CLK ADC! |
+ | tinyAVR (2-series)  or anything else    | Voltage | Minimum Vdd | # tiny2| # Dx    | Notes
+ |-----------------------------------------|---------|-------------|--------|---------|-------
+ | `VDD` (default)                         | Vcc/Vdd |             |      0 |       5 | Good to 6 MHz ADC clock on 2-series and Ex
+ | `INTERNAL1V024`                         | 1.024 V |      2.5* V |      4 |       0 | 10-bit reading with 1.025 ref gives apx.   1 mv/ADC count
+ | `INTERNAL2V048`                         | 2.048 V |      2.5  V |      5 |       1 | 12-bit reading with 2.048 ref gives apx. 0.5 mv/ADC count
+ | `INTERNAL4V096`                         | 4.096 V |      4.55 V |      7 |       2 | 12-bit reading with 4.096 ref gives apx.   1 mv/ADC count
+ | `INTERNAL2V500`                         | 2.500 V |      2.7  V |      6 |       3 |
+ | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.096 V |      4.55 V |      7 |       2 |
+ | `EXTERNAL`  (tiny2/Ex version)          |   < VDD |  VREF +0.5V |      2 |       - | External ref good to 6 MHz ADC clock on 2-series and Ex
+ | `EXTERNAL`  (Dx-series)                 | 1.0-1.8 |  VREF +0.5V |      - |       6 | Dx: CLK_ADC =< 500 kHz
+ | `EXTERNAL`  (Dx-series)                 | 1.8-VDD |  VREF +0.5V |      - |       6 | Dx: Normal limits apply (see this document for DxCore for details)
 
- | AVR Dx/Ex-series (all)                  | Voltage | Minimum Vdd | Number | Notes |
- |-----------------------------------------|---------|-------------|--------|---------|
- | `VDD` (default)                         | Vcc/Vdd |             |      5 | . |
- | `INTERNAL1V024`                         | 1.024 V |      2.5* V |      0 | 10-bit reading with 1.025 ref gives apx.   1 mv/ADC count |
- | `INTERNAL2V048`                         | 2.048 V |      2.5  V |      1 | 12-bit reading with 2.048 ref gives apx. 0.5 mv/ADC count |
- | `INTERNAL4V096`                         | 4.096 V |      4.55 V |      2 | 12-bit reading with 4.096 ref gives apx.   1 mv/ADC count |
- | `INTERNAL2V500`                         | 2.500 V |      2.7  V |      3 | . |
- | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.096 V |      4.55 V |      2 | . |
- | `EXTERNAL`                              | >=1.0 V |         Vdd |      6 | Dx: CLK_ADC =< 500 kHz |
- | `EXTERNAL`                              | >=1.8 V |         Vdd |      6 | Dx: No CLK_ADC restriction |
 
  You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last column: contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
 
@@ -410,7 +405,9 @@ ADCPowerOptions(ADC_ENABLE);                            //  Turn the ADC back on
 
 As of 2.5.12 we will always disable and re-enable the ADC if touching LOWLAT, in the hopes that this will work around the lowlat errata consistently.
 **it is still recommended to call ADCPowerOptions(), if needed, before any other ADC-related functions** unless you fully understand the errata and the ramifications of your actions.
+
 **On most 2-series parts LOW_LAT mode is REQUIRED in order to use the PGA when not using an internal reference or measuring the DACREF!**
+
 **Disabling the ADC is REQUIRED for acceptable sleep power consumption on the 2-series!**
 
 Lowlat mode is enabled by default for this reason, as well as to generally improve performance. Disabling the ADC will end the power consumption associated with it.
