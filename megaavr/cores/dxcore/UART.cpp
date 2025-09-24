@@ -12,7 +12,6 @@
  * See UART.h for more of a record of changes.
  */
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,7 +19,6 @@
 #include <util/atomic.h>
 //#include <avr/io.h>
 #include "Arduino.h"
-
 #include "UART.h"
 #include "UART_private.h"
 
@@ -140,8 +138,8 @@
           "_txc_flush_rx:"            "\n\t"  // start of rx flush loop.
             "ld       r24,        Z"  "\n\t"  // Z + 0 = USARTn.RXDATAL rx data
             "ldd      r24,   Z +  4"  "\n\t"  // Z + 4 = USARTn.STATUS
-            "sbrs     r24,        7"  "\n\t"  // if RXC bit is set...
-            "rjmp     _txc_flush_rx"  "\n\t"  // .... skip this jump to remove more from the buffer.
+            "sbrc     r24,        7"  "\n\t"  // if RXC bit is cleared.
+            "rjmp     _txc_flush_rx"  "\n\t"  // .... skip this jump (which will remove more from the buffer).
             "ldd      r24,   Z +  5"  "\n\t"  // Z + 5 = USARTn.CTRLA read CTRLA
             "andi     r24,     0xBF"  "\n\t"  // clear TXCIE
             "ori      r24,     0x80"  "\n\t"  // set RXCIE
@@ -150,7 +148,7 @@
             "out     0x3f,      r24"  "\n\t"  // restore it
             "pop      r24"            "\n\t"  // pop r24 to get it's old value back
             "pop      r31"            "\n\t"  // and r31
-            "pop      r30"            "\n\t"  // Pop the register the ISR did
+            "pop      r30"            "\n\t"  // Pop the register the ISR pushed
             "reti"                    "\n"    // return from the interrupt.
             ::);
         __builtin_unreachable();
@@ -454,8 +452,10 @@
                               (SERIAL_TX_BUFFER_SIZE == 256 || SERIAL_TX_BUFFER_SIZE == 128  || SERIAL_TX_BUFFER_SIZE == 64 || SERIAL_TX_BUFFER_SIZE == 32 || SERIAL_TX_BUFFER_SIZE == 16))
             _tx_data_empty_irq(*this);
     #else // We're using ASM DRE
+      #ifdef USART1
         void * thisSerial = this;
-        __asm__ __volatile__(
+      #endif
+            __asm__ __volatile__(
                     "clt"              "\n\t" // Clear the T flag to signal to the ISR that we got there from here. This is safe per the ABI - The T-flag can be treated like R0
       #if PROGMEM_SIZE > 8192
                     "jmp _poll_dre"    "\n\t"
@@ -463,7 +463,11 @@
                     "rjmp _poll_dre"    "\n\t"
       #endif
                     "_poll_dre_done:"    "\n"
+      #ifdef USART1
                     ::"z"((uint16_t)thisSerial)
+      #else
+                    ::"z"(&Serial0)
+      #endif
                     : "r18","r19","r24","r25","r26","r27"); // these got saved and restored in the ISR context, but here we don't need top and in many cases no action is needed.
                     // the Y pointer was already handled, because as a call-saved register, it would always need to be saved and restored, so we save 4 words of flash by doing that after
                     // jumps into the middle of the ISR, and before it jumps back here.
@@ -522,7 +526,6 @@
       return base; // RX = TX + 1. XDIR = XCK + 1 for all Dx and Ex parts!
     }
 
-
     bool HardwareSerial::swap(uint8_t newmux) {
       if (newmux < _mux_count) {
         _pin_set = newmux;
@@ -539,6 +542,7 @@
     void HardwareSerial::begin(unsigned long baud, uint16_t options) {
       // Make sure no transmissions are ongoing and USART is disabled in case begin() is called by accident
       // without first calling end()
+      _poll_tx_data_empty(); // Workaround to fix compiler omitting this function, causing compile to fail.
       if (_state & 1) {
         this->end();
       }
@@ -687,14 +691,14 @@
       // Disable receiver and transmitter as well as the RX complete and the data register empty interrupts.
       // TXCIE only used in half duplex - we can just turn the damned thing off yo!
       volatile USART_t * temp = _hwserial_module; /* compiler does a slightly better job with this. */
-      temp -> CTRLB &= 0; //~(USART_RXEN_bm | USART_TXEN_bm);
-      temp -> CTRLA &= 0; //~(USART_RXCIE_bm | USART_DREIE_bm | USART_TXCIE_bm);
-      temp -> STATUS =  USART_TXCIF_bm; // want to make sure no chanceofthat firing in error. TXCIE only used in half duplex
+      temp -> CTRLB = 0; //~(USART_RXEN_bm | USART_TXEN_bm);
+      temp -> CTRLA = 0; //~(USART_RXCIE_bm | USART_DREIE_bm | USART_TXCIE_bm);
+      temp -> STATUS =  USART_TXCIF_bm | USART_RXCIF_bm; // want to make sure no chance of that firing in error now that the USART is off. TXCIE only used in half duplex
       // clear any received data
       _rx_buffer_head = _rx_buffer_tail;
 
       // Note: Does not change output pins
-      // though the datasheetsays turning the TX module sets it to input.
+      // though the datasheetsays turning the TX module off sets it to input.
       _state = 0;
     }
 
@@ -739,7 +743,7 @@
         // If we have never written a byte, no need to flush. This special
         // case is needed since there is no way to force the TXCIF (transmit
         // complete) bit to 1 during initialization
-        if (!_state & 1) {
+        if (!(_state & 1)) {
           return;
         }
 
@@ -844,7 +848,6 @@
           printHex(*(ptr));
         }
       }
-
       void HardwareSerial::_prtHxdw(uint8_t * ptr, bool swaporder) {
         if (swaporder) {
           printHex(*(ptr++));

@@ -898,7 +898,7 @@ DB silicon with die rev 0x11 is available.*/
   #define ERRATA_USART_ISFIF             (1) // This one looks like it wasn't found soon enough for the DD's.
   #define ERRATA_USART_WAKE              (0) // Well we already worked around it....
   #define ERRATA_TWI_FLUSH               (1) // While initially thought to be spared, TWI flush isn't
-  #define ERRATA_2V1_EXCESS_IDD          (0) // Thankfully he seems to be gone now
+  #define ERRATA_2V1_EXCESS_IDD          (0) // Thankfully seems to be gone now
 #endif
 
 #if defined(__AVR_DA__) || defined(__AVR_DB__) || defined(__AVR_DD__)
@@ -1033,15 +1033,25 @@ DB silicon with die rev 0x11 is available.*/
  * ADC_REFERENCE_SET is 1 if the references are the weird ones that tinyAVR 0 and 1 use, and 2 if they are 1.024,   *
  * 2.048, 4.096 and 2.5V like civilized parts */
 
-#if defined(ADC_LOWLAT_bp)                   //Ex-series has the fancypants ADC
+#if defined(ADC0_TEMP2)                   //Ex-series has the fancypants ADC - we look for the third TEMP byte, indicating the 32-bit temp register, though only 3
+  #define ADC_VERSION                  (0x21) // V 2.1 - v2.0 was the tiny2
   #define ADC_DIFFERENTIAL                (2)
   #define ADC_MAX_OVERSAMPLED_RESOLUTION (17)
   #define ADC_NATIVE_RESOLUTION          (12)
   #define ADC_NATIVE_RESOLUTION_LOW       (8)
   #define ADC_MAXIMUM_ACCUMULATE       (1024) // This allows the 5 extra bits of resolution
   #define ADC_RESULT_SIZE                (24)
-  #define ADC_SIGNCHOPPING                (1) // if defined, ADC_CHOP() will work, and the ACC###S constants can be used ADC_CHOP will oversample and decimate using
-  // sign chopping. Otherwise, the hardware doesn't support it and will give an error
+  #define ADC_SIGNCHOPPING                (1) // if defined, sign chopping can be enabled
+#elif defined(ADC0_MUXNEG)                    /* I don't know what unofficial version to use. It's a *downgrade* of the v2.0 to capabilities below what I dubbed the 1.5 */
+  #define ADC_VERSION                  (0xFA) // F'n A! The DU had it rough at the hands of the USB natives...
+  #define ADC_DIFFERENTIAL                (0) // They took his differential mode!
+  #define ADC_MAX_OVERSAMPLED_RESOLUTION (13) // He can only remember 64 samples in accumulated mode (memory loss from repeated blows to the head)
+  #define ADC_NATIVE_RESOLUTION          (10) // and ah.. they took off two bits...    *I told him they weren't friendly...
+  #define ADC_NATIVE_RESOLUTION_LOW       (8)
+  #define ADC_MAXIMUM_ACCUMULATE       (1024) // This allows the 5 extra bits of resolution
+  #define ADC_RESULT_SIZE                (24)
+  #define ADC_SIGNCHOPPING                (1)
+
 #else                                         // Dx-series ADCs are less fancy.
   #define ADC_DIFFERENTIAL                (1) // Crapola differential ADC that is effectively kicking off two ADCs at once
   #define ADC_MAX_OVERSAMPLED_RESOLUTION (15)
@@ -1049,6 +1059,7 @@ DB silicon with die rev 0x11 is available.*/
   #define ADC_NATIVE_RESOLUTION_LOW      (10)
   #define ADC_MAXIMUM_ACCUMULATE        (128) // This allows 3 extra bits of resolution
   #define ADC_RESULT_SIZE                (16)
+  #define ADC_SIGNCHOPPING                (0)
 #endif
 #define ADC_MAXIMUM_SAMPDUR            (0xFF)
 #if defined(__AVR_DD__) || defined(__AVR_EA__)
@@ -1200,15 +1211,7 @@ int8_t _setCPUSpeed(uint8_t omhz) {
   #endif
 #endif
 
-#if defined(__AVR_EA__)
-  // Yoohoooo! I do believe we are missing a few mux options here...
-  #define PORTMUX_SPI0_ALT2_gc   (0x02 << 0)
-  #define PORTMUX_SPI0_ALT3_gc   (0x03 << 0)
-  #define PORTMUX_SPI0_ALT4_gc   (0x04 << 0)
-  #define PORTMUX_SPI0_ALT5_gc   (0x05 << 0)
-  #define PORTMUX_SPI0_ALT6_gc   (0x06 << 0)
-  #define PORTMUX_SPI0_NONE_gc   (0x07 << 0)
-#endif
+
 /**********************
 * COMPATIBILITY STUFF *
 **********************/

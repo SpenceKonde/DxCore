@@ -137,11 +137,11 @@
   #define MILLIS_TIMER TIMERD0
   #define MILLIS_VECTOR TCD0_OVF_vect
 #elif defined(MILLIS_USE_TIMERE0)
-  #ifndef TCD0
-    #error "TCD0, selected for millis, does not exist on this part"
+  #ifndef TCE0
+    #error "TCE0, selected for millis, does not exist on this part"
   #endif
-  #define MILLIS_TIMER TIMERD0
-  #define MILLIS_VECTOR TCD0_OVF_vect
+  #define MILLIS_TIMER TIMERE0
+  #define MILLIS_VECTOR TCE0_OVF_vect
 #elif defined(MILLIS_USE_TIMERRTC)
   #ifndef RTC
     #error "RTC, selected for millis, does not exist on this part"
@@ -184,7 +184,10 @@
  * TCA0 is present on all parts and always used for PWM.
  * TCA1 is used for PWM on Dx-series parts that have it.
  */
-
+#if defined(TCE0)
+  #define TCE_PWM_TIMER_PERIOD (PWM_TIMER_PERIOD)
+  #define TCE_PWM_TIMER_MODE (TCE_WGMODE_SINGLESLOPE_gc)
+#endif
 /* TYPE-B TIMERS */
 #if defined(TCB2) && !defined(MEGATINYCORE)
   // On tinyAVR, and the low pincount DD's TCB PWM isn't helpful and the timer is too valuable anyway.
@@ -272,7 +275,7 @@
       #define TIMERD0_WGMODE_SETTING (TCD_WGMODE_ONERAMP_gc)
     #endif
     #if !defined(TIMERD0_CLOCK_SETTING)
-      #if (((CLOCK_SOURCE & 0x03) == 0))
+      #if (((CLOCK_SOURCE & 0x03) != 0))
         /*
         This is ALSO almost indistinguishable! Same F_PWM, but lower internal frequency.
         Sync is slower. but the bugs with TCD async events won't happen, and it's easier to do wacky stuff with the PROGEV.

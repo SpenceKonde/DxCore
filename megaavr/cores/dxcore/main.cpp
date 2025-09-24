@@ -53,13 +53,19 @@ uint8_t __attribute__((weak)) onAfterInit() {return 0;} // Called between init()
       temp = 0x30;
     #elif defined(FLMAPSECTION2)
       temp = 0x20;
-      #pragma message("PROGMEM_MAPPED points to section 2 of the flash")
+      #if _AVR_FLASH == 128
+        #pragma message("PROGMEM_MAPPED points to section 2 of the flash")
+      #endif
     #elif defined(FLMAPSECTION1)
       temp = 0x10;
-      #pragma message("PROGMEM_MAPPED points to section 1 of the flash")
+      #if _AVR_FLASH == 128
+        #pragma message("PROGMEM_MAPPED points to section 1 of the flash")
+      #endif
     #elif defined(FLMAPSECTION0)
       temp = 0x00;
-      #pragma message("PROGMEM_MAPPED points to section 0 of the flash")
+      #if _AVR_FLASH == 64
+        #pragma message("PROGMEM_MAPPED points to section 0 of the flash")
+      #endif
     #else
       #warning "no FLMAP section defined, yet LOCK_FLMAP IS!"
       temp = 0x30; // should always end up as the highest up to 3.

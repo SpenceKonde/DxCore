@@ -1963,7 +1963,9 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
        * with internal references, we are in the clear there. */
     #endif
     analogReference(VDD);
-    DACReference(VDD);
+    #if defined(DAC0)
+      DACReference(VDD);
+    #endif
   }
 #endif
 #if defined(ADC1)
@@ -2375,7 +2377,7 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
  ***********************************************************************************************/
 
 
-#if (((CLOCK_SOURCE & 0x03) == 1) || ((CLOCK_SOURCE & 0x03) == 2) || CLOCK_SOURCE == 6) // PLL here because you can
+#if (((CLOCK_SOURCE & 0x03) == 1) || ((CLOCK_SOURCE & 0x03) == 2) || CLOCK_SOURCE == 8) // PLL here because you can
   // easily exceed the max speed with the PLL clock. If this behaves like the Dx's clocking
   // the TCD, where if you push it too hard, it will vanish instead of saturating at a max
   // speed
@@ -2506,134 +2508,160 @@ void nudge_millis(__attribute__((unused)) uint16_t nudgesize) {
 uint8_t __PeripheralControl = 0xFF;
 
 void init_timers() {
-  init_TCA0();
-  #if (defined(TCA1))
-    PORTMUX.TCAROUTEA = TCA0_PINS | TCA1_PINS;
+  #if defined(TCA1) && defined(TCA0)
+    init_TCA0();
     init_TCA1();
-  #else
+    PORTMUX.TCAROUTEA = TCA0_PINS | TCA1_PINS;
+  #elif defined(TCA1) && !defined(TCA0)
+    init_TCA1();
+    PORTMUX.TCAROUTEA = TCA1_PINS;
+    #warning "You appear to have a TCA1 but not a TCA0. This should not be possible"
+  #elif !defined(TCA1) && defined(TCA0)
+    init_TCA0();
     PORTMUX.TCAROUTEA = TCA0_PINS;
   #endif
+  #if defined(TCE0)
+    init_TCE0();
+    PORTMUX.TCEROUTEA = TCE0_PINS;
+  #endif
   init_TCBs();
+  /* init_TCBs() or's together all the portmux options for the up-to-5 timers on extant parts, and will go to 8 without changes)*/
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
     init_TCD0();
-    #if defined(ERRATA_TCD_PORTMUX) && ERRATA_TCD_PORTMUX == 0 && defined(TCD0_PINS)
-      PORTMUX.TCDROUTEA = TCD0_PINS;
-    #else
-      /* Do nothing - portmux is busted */
-      #if (defined(TCD0_PINS) && (TCD0_PINS != 0))
-        #error "You are using a variant that specifies alternate portmux value for TCD0. However, the selected part doesn't have available silicon that has that functionality due to outstanding errata."
+    PORTMUX.TCDROUTEA = TCD0_PINS;
+    #if (defined(TCD0_PINS) && (TCD0_PINS != 0) && defined(__AVR_DA__))
+      #warning "You are using a variant that specifies alternate portmux value for TCD0. However, the selected part doesn't have available silicon that has that functionality due to outstanding errata."
+    #endif
+  #endif
+}
+
+#if defined(TCA0)
+  void __attribute__((weak)) init_TCA0() {
+    /* TCA0_PINS from pins_arduino.h */
+    /* Enable Split Mode to get more PWM pins, since analogWrite() only provides 8-bit PWM anyway*/
+    TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
+
+    // Only 1 WGM so no need to specifically set up.
+
+    /* Period setting, 8-bit register in SPLIT mode */
+    TCA0.SPLIT.LPER    = PWM_TIMER_PERIOD;
+    TCA0.SPLIT.HPER    = PWM_TIMER_PERIOD;
+
+    /* Default duty 0%, will re-assign in analogWrite() */
+    // 2/1/2021: Why the heck are we bothering to set these AT ALL?! The duty cycles for *non-active* type A timer channels? Which are already initialized to 0 automatically?
+    /*
+      TCA0.SPLIT.LCMP0 = 0;
+      TCA0.SPLIT.HCMP0 = 0;
+      TCA0.SPLIT.LCMP1 = 0;
+      TCA0.SPLIT.HCMP1 = 0;
+      TCA0.SPLIT.LCMP2 = 0;
+      TCA0.SPLIT.HCMP2 = 0;
+    */
+
+    /* Use prescale appropriate for system clock speed
+     * Detect conflict between wiring.c and timers.h if we spot them, as that indicates
+     * a defect in the core and would result in extremely bad behavior
+     */
+
+    #if (F_CPU > 30000000) // use 256 divider when clocked over 30 MHz
+      #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 256)
+        #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
       #endif
+      TCA0.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
+    #elif (F_CPU > 5000000) // use 64 divider unless it's 5 MHz or under
+      #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 64)
+        #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #endif
+      TCA0.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
+    #elif (F_CPU > 1000000) // anything above 1 MHz
+      #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 16)
+        #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #endif
+      TCA0.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
+    #else /* for 1 MHz and lower */
+      #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 8)
+        #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
+      #endif
+      TCA0.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
     #endif
-  #endif
-}
-
-void __attribute__((weak)) init_TCA0() {
-  /* TCA0_PINS from pins_arduino.h */
-  /* Enable Split Mode to get more PWM pins, since analogWrite() only provides 8-bit PWM anyway*/
-  TCA0.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
-
-  // Only 1 WGM so no need to specifically set up.
-
-  /* Period setting, 8-bit register in SPLIT mode */
-  TCA0.SPLIT.LPER    = PWM_TIMER_PERIOD;
-  TCA0.SPLIT.HPER    = PWM_TIMER_PERIOD;
-
-  /* Default duty 0%, will re-assign in analogWrite() */
-  // 2/1/2021: Why the heck are we bothering to set these AT ALL?! The duty cycles for *non-active* type A timer channels? Which are already initialized to 0 automatically?
-  /*
-    TCA0.SPLIT.LCMP0 = 0;
-    TCA0.SPLIT.HCMP0 = 0;
-    TCA0.SPLIT.LCMP1 = 0;
-    TCA0.SPLIT.HCMP1 = 0;
-    TCA0.SPLIT.LCMP2 = 0;
-    TCA0.SPLIT.HCMP2 = 0;
-  */
-
-  /* Use prescale appropriate for system clock speed
-   * Detect conflict between wiring.c and timers.h if we spot them, as that indicates
-   * a defect in the core and would result in extremely bad behavior
-   */
-
-  #if (F_CPU > 30000000) // use 256 divider when clocked over 30 MHz
-    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 256)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
-    #endif
-    TCA0.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
-  #elif (F_CPU > 5000000) // use 64 divider unless it's 5 MHz or under
-    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 64)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
-    #endif
-    TCA0.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
-  #elif (F_CPU > 1000000) // anything above 1 MHz
-    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 16)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
-    #endif
-    TCA0.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
-  #else /* for 1 MHz and lower */
-    #if defined(MILLIS_USE_TIMERA0) && (TIME_TRACKING_TIMER_DIVIDER != 8)
-      #error "wiring.c and timers.h want to set millis timer TCA0 to different divider"
-    #endif
-    TCA0.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
-  #endif
-}
-
-#if defined(TCA1)
-void __attribute__((weak)) init_TCA1() {
-  // Hmm.... This is how many instructions? Our competition is an init_TCAn(&TCA_t).
-  // That will cause it to be treated as a single function, whereas now, it's effectively inlined.
-  // That implementation would gain 2 (rarely 3) words due to the rcall (or call) and ret, and
-  // none for passing the constant arg (passing a constant is very efficient), assuming it has
-  // absolutely no runtime guard rails.
-  // On the other hand... this is only only 7 instructions long. (ldi sts ldi sts sts ldi sts)
-  // Now, four of those are 2 clock 2 word isns. So we have a total of 8 + 3 = 11 words.
-  // the combined function would spend 1 clock to movw the address to X, Y, or Z.
-  // and use indirect stores: ((in calling func: ldi ldi rcall) movw ldi std ldi std std ldi std ret)
-  // Counting all overhead, that's 12 isns, all single-word single-clock, possibly call used instead of rcall for
-  // 1 word penaty. We'll call it 13 worst case. This would be called twice under normal operation.
-  // 4 of those (including the 1 rcall or call - most of the time it will be rendered as rcall with
-  // the settings we compile with) Hence our worst class total cost to initializing both TCAs would be
-  // 18 clocks. The alternative naive method we currently use takes 11 words (since the functions,
-  // being called only once, will be inlined) per timer, so 22 for both. So 8 bytes of flash would be saved.
-  // Execution time however would be worse - 22 clocks for the current method compared to 28 with the call.
-  // So one could trade 6 clocks of time for 4 bytes of flash.
-  // Do you think that's worth the development effort? I don't. While nobody feels very strongly about
-  // a minuscule improvement in startup speed, the effect is tiny next to SUT and crystal start times such
-  // It's unlikely to matter to anyone. And, well. assuming program length is uniformly and randomly
-  // distributed, 4 bytes of flash matters to 0.1% of 4k applications (less with realistic distribution)
-  // 0.013% of applications using 8k parts, 0.006% if those on 16k parts and 0.003% of those on 32k parts.
-  // I do consider it an overall net gain, but one of negligible magnitude.
-  // I don't think I'm doing that unless someone is paying me for it.
-  /* Enable Split Mode */
-  TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
-
-  /* Period setting, 8-bit register in SPLIT mode */
-  TCA1.SPLIT.LPER    = PWM_TIMER_PERIOD;
-  TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
-
-  #if (F_CPU > 30000000) // use 256 divider when clocked over 30 MHz
-    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 256)
-      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
-    #endif
-    TCA1.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
-  #elif (F_CPU > 5000000) // use 64 divider unless it's 5 MHz or under
-    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 64)
-      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
-    #endif
-    TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
-  #elif (F_CPU > 1000000) // anything above 1 MHz
-    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 16)
-      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
-    #endif
-    TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
-  #else
-    #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 8)
-      #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
-    #endif
-    TCA1.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
-  #endif
-}
+  }
 #endif
+#if defined(TCA1)
+  void __attribute__((weak)) init_TCA1() {
+    // Hmm.... This is how many instructions? Our competition is an init_TCAn(&TCA_t).
+    // That will cause it to be treated as a single function, whereas now, it's effectively inlined.
+    // That implementation would gain 2 (rarely 3) words due to the rcall (or call) and ret, and
+    // none for passing the constant arg (passing a constant is very efficient), assuming it has
+    // absolutely no runtime guard rails.
+    // On the other hand... this is only only 7 instructions long. (ldi sts ldi sts sts ldi sts)
+    // Now, four of those are 2 clock 2 word isns. So we have a total of 8 + 3 = 11 words.
+    // the combined function would spend 1 clock to movw the address to X, Y, or Z.
+    // and use indirect stores: ((in calling func: ldi ldi rcall) movw ldi std ldi std std ldi std ret)
+    // Counting all overhead, that's 12 isns, all single-word single-clock, possibly call used instead of rcall for
+    // 1 word penaty. We'll call it 13 worst case. This would be called twice under normal operation.
+    // 4 of those (including the 1 rcall or call - most of the time it will be rendered as rcall with
+    // the settings we compile with) Hence our worst class total cost to initializing both TCAs would be
+    // 18 clocks. The alternative naive method we currently use takes 11 words (since the functions,
+    // being called only once, will be inlined) per timer, so 22 for both. So 8 bytes of flash would be saved.
+    // Execution time however would be worse - 22 clocks for the current method compared to 28 with the call.
+    // So one could trade 6 clocks of time for 4 bytes of flash.
+    // Do you think that's worth the development effort? I don't. While nobody feels very strongly about
+    // a minuscule improvement in startup speed, the effect is tiny next to SUT and crystal start times such
+    // It's unlikely to matter to anyone. And, well. assuming program length is uniformly and randomly
+    // distributed, 4 bytes of flash matters to 0.1% of 4k applications (less with realistic distribution)
+    // 0.013% of applications using 8k parts, 0.006% if those on 16k parts and 0.003% of those on 32k parts.
+    // I do consider it an overall net gain, but one of negligible magnitude.
+    // I don't think I'm doing that unless someone is paying me for it.
+    /* Enable Split Mode */
+    TCA1.SPLIT.CTRLD = TCA_SPLIT_SPLITM_bm;
 
+    /* Period setting, 8-bit register in SPLIT mode */
+    TCA1.SPLIT.LPER    = PWM_TIMER_PERIOD;
+    TCA1.SPLIT.HPER    = PWM_TIMER_PERIOD;
+
+    #if (F_CPU > 30000000) // use 256 divider when clocked over 30 MHz
+      #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 256)
+        #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
+      #endif
+      TCA1.SPLIT.CTRLA   = (TCA_SPLIT_CLKSEL_DIV256_gc) | (TCA_SPLIT_ENABLE_bm);
+    #elif (F_CPU > 5000000) // use 64 divider unless it's 5 MHz or under
+      #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 64)
+        #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
+      #endif
+      TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV64_gc) | (TCA_SPLIT_ENABLE_bm);
+    #elif (F_CPU > 1000000) // anything above 1 MHz
+      #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 16)
+        #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
+      #endif
+      TCA1.SPLIT.CTRLA   =  (TCA_SPLIT_CLKSEL_DIV16_gc) | (TCA_SPLIT_ENABLE_bm);
+    #else
+      #if defined(MILLIS_USE_TIMERA1) && (TIME_TRACKING_TIMER_DIVIDER != 8)
+        #error "wiring.c and timers.h want to set millis timer TCA1 to different divider"
+      #endif
+      TCA1.SPLIT.CTRLA   =   (TCA_SPLIT_CLKSEL_DIV8_gc) | (TCA_SPLIT_ENABLE_bm);
+    #endif
+  }
+#endif
+#if defined(TCE0)
+  void __attribute__((weak)) init_TCE0() {
+    // This is enough for now.
+    #if (!defined(TCE_PWM_TIMER_PERIOD) || !defined(TCE_PWM_TIMER_MODE))
+      #error "PWM period or mode not specified for TCE."
+    #endif
+    TCE0.CTRLB = TCE_PWM_TIMER_MODE; // probably 0x03
+    TCE0.PER = TCE_PWM_TIMER_PERIOD;
+
+    #if (F_CPU > 30000000) // use 256 divider when clocked over 30 MHz
+      TCE0.CTRLA   = (TCE_CLKSEL_DIV256_gc) | (TCE_ENABLE_bm);
+    #elif (F_CPU > 5000000) // use 64 divider unless it's 5 MHz or under
+      TCE0.CTRLA   =  (TCE_CLKSEL_DIV64_gc) | (TCE_ENABLE_bm);
+    #elif (F_CPU > 1000000) // anything above 1 MHz
+      TCE0.CTRLA   =  (TCE_CLKSEL_DIV16_gc) | (TCE_ENABLE_bm);
+    #else /* for 1 MHz and lower */
+      TCE0.CTRLA   =   (TCE_CLKSEL_DIV8_gc) | (TCE_ENABLE_bm);
+    #endif
+  }
+#endif
 void __attribute__((weak)) init_TCBs() {
 /*    TYPE B TIMERS  *
  * Set up routing (defined in pins_arduino.h)
@@ -2716,13 +2744,22 @@ void __attribute__((weak)) init_TCBs() {
       timer_B->CTRLB = (TCB_CNTMODE_PWM8_gc);
 
       // Assign 8-bit period
-      timer_B->CCMPL = PWM_TIMER_PERIOD; // TOP = 254 see section at start
-      // default duty 50% - we have to set something here because of the
-      // errata, otherwise CCMP will not get the CCMPL either.
-      timer_B->CCMPH = PWM_TIMER_COMPARE;
+      #if (defined(TODO_ERRATUM_CHECK))
+        timer_B->CCMPL = PWM_TIMER_PERIOD; // TOP = 254 see section at start
+      #else /* fall back to erratum-safe */
+        timer_B->CCMPL = PWM_TIMER_PERIOD; // TOP = 254 see section at start
 
-      // Use TCA clock (250kHz, +/- 50%) and enable
-      timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
+        timer_B->CCMPH = PWM_TIMER_COMPARE;
+      #endif
+      #if defined(TCA0)
+        timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
+      #elif defined(TCA1)
+        timer_B->CTRLA = (TCB_CLKSEL_TCA0_gc) | (TCB_ENABLE_bm);
+      #elif defined(TCE0)
+        timer_B->CTRLA = (TCB_CLKSEL_TCE0_gc) | (TCB_ENABLE_bm);
+      #endif
+
+
 
     }
     // Increment pointer to next TCB instance

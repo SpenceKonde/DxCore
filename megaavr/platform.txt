@@ -14,7 +14,7 @@ version={versionnum.major}.{versionnum.minor}.{versionnum.patch}
 # Stupid workaround #
 # for IDE bug       #
 #####################
-version=1.6.10
+version=1.6.0
 
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL
 

@@ -25,8 +25,8 @@
              so whenever UART.h has been loaded, those three macros are defined as either 1, or wharever
              value the user overode them with, likely 0. Also high byte of UART address always 0x08, so replace
              2-clock ldd with 1 clock ldi. - Spence
- * 2022-2023: Ongoing fixes, tweaks and enhancements, most notable excising one layer of inheritance so we
- * could lose a bunch of virtual functions and save flash.
+ * 03/12/23: Correct bug in TxD1' and XCK1'
+ * 07/10/25: Correct bug causing strange compilation failures in ModBus and possibly other conditions.
 */
 
 #pragma once
@@ -69,17 +69,17 @@
  * Since the USE_ASM_* = 1 option is apparently working, we do not recommend disabling it, as it will waste flash and hurt performance.
  *
  * Flash versus RAM table
- * |       |  modern tinyAVR series parts   | Other modern parts   |
- * | Flash | 0-series | 1-series | 2-series | mega | All Dx |  EA  |
- * |-------|----------|----------|----------|------|--------|------|
- * |  2048 |      128 |      128 |       -  |   -  |     -  |   -  |
- * |  4096 |      256 |      256 |      512 |   -  |     -  |   -  |
- * |  8192 |      512 |      512 |     1024 | 1024 |     -  | 1024 |
- * | 16384 |     1024 |     2048 |     2048 | 2048 |   2048 | 2048 |
- * | 32768 |       -  |     2048 |     3072 | 4096 |   4096 | 4096 |
- * | 49152 |       -  |       -  |       -  | 6120 |     -  |   -  |
- * | 65536 |       -  |       -  |       -  |   -  |   8192 | 6120 |
- * |  128k |       -  |       -  |       -  |   -  |  16384 |   -  |
+ * |       |  modern tinyAVR series parts   | Other modern parts          |
+ * | Flash | 0-series | 1-series | 2-series | mega | All Dx |  EA  |  EB  |
+ * |-------|----------|----------|----------|------|--------|------|------|
+ * |  2048 |      128 |      128 |       -  |   -  |     -  |   -  |   -  |
+ * |  4096 |      256 |      256 |      512 |   -  |     -  |   -  |   -  |
+ * |  8192 |      512 |      512 |     1024 | 1024 |     -  | 1024 |   -  |
+ * | 16384 |     1024 |     2048 |     2048 | 2048 |   2048 | 2048 | 2048 |
+ * | 32768 |       -  |     2048 |     3072 | 4096 |   4096 | 4096 | 3072 |
+ * | 49152 |       -  |       -  |       -  | 6120 |     -  |   -  |   -  |
+ * | 65536 |       -  |       -  |       -  |   -  |   8192 | 6120 |   -  |
+ * |  128k |       -  |       -  |       -  |   -  |  16384 |   -  |   -  |
  * This ratio is remarkably consistent. No AVR part was ever made with less than 8:1 flash:ram,
  * nor more than 16:1, since the earliest recognizable AVRs. I am only aware of one exception. Was it some bizarro part
  * from the dark ages? Nope - it's the surprisingly popular ATmega2560!
@@ -193,6 +193,8 @@
 // 44 total for 0/1,
 // 301 for 2-series, which may be nearly 9% of the total flash!
 // The USE_ASM_* options can be disabled by defining them as 0 (in the same way that buffer sizes can be overridden)
+// The buffer sizes can be overridden in by defining SERIAL_TX_BUFFER either in variant file (as defines in pins_arduino.h) or boards.txt (By passing them as extra flags).
+// note that buffer sizes must be powers of 2 only.
 
 #if USE_ASM_RXC == 1 && !(SERIAL_RX_BUFFER_SIZE == 256 || SERIAL_RX_BUFFER_SIZE == 128 || SERIAL_RX_BUFFER_SIZE == 64 || SERIAL_RX_BUFFER_SIZE == 32 || SERIAL_RX_BUFFER_SIZE == 16)
   #error "Assembly RX Complete (RXC) ISR is only supported when RX buffer size are 256, 128, 64, 32 or 16 bytes"

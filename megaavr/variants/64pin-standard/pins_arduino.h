@@ -576,8 +576,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN6_bm,  //  54 PF6
   //PIN7_bm,//  55 PF7 (UPDI)
 };
-/* This only covers type B amd (for now) type D timer, so it will be a "timers of last resort" list.
-   that will not cover type D timers once working silicon (TCD portmux issue) is available. */
+/* This only covers type B and type D */
 const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //   0 PA0
   NOT_ON_TIMER, //   1 PA1
@@ -591,10 +590,10 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //   9 PB1
   NOT_ON_TIMER, //  10 PB2
   NOT_ON_TIMER, //  11 PB3
-  NOT_ON_TIMER, //  12 PB4
-  NOT_ON_TIMER, //  13 PB5
-  NOT_ON_TIMER, //  14 PB6
-  NOT_ON_TIMER, //  15 PB7
+  TIMERD0_1WOA, //  12 PB4
+  TIMERD0_1WOB, //  13 PB5
+  TIMERD0_1WOC, //  14 PB6
+  TIMERD0_1WOD, //  15 PB7
   TIMERB2,      //  16 PC0
   TIMERB3,      //  17 PC1
   NOT_ON_TIMER, //  18 PC2
@@ -619,20 +618,20 @@ const uint8_t digital_pin_to_timer[] = {
   NOT_ON_TIMER, //  37 PE5
   NOT_ON_TIMER, //  38 PE6
   NOT_ON_TIMER, //  39 PE7
-  NOT_ON_TIMER, //  40 PF0 (TOSC1)
-  NOT_ON_TIMER, //  41 PF1 (TOSC2)
-  NOT_ON_TIMER, //  42 PF2
-  NOT_ON_TIMER, //  43 PF3
+  TIMERD0_2WOA, //  40 PF0 (TOSC1)
+  TIMERD0_2WOB, //  41 PF1 (TOSC2)
+  TIMERD0_2WOC, //  42 PF2
+  TIMERD0_2WOD, //  43 PF3
   TIMERB0,      //  44 PF4
   TIMERB1,      //  45 PF5
   NOT_ON_TIMER, //  46 PG0
   NOT_ON_TIMER, //  47 PG1
   NOT_ON_TIMER, //  48 PG2
   TIMERB4,      //  49 PG3
-  NOT_ON_TIMER, //  50 PG4
-  NOT_ON_TIMER, //  51 PG5
-  NOT_ON_TIMER, //  52 PG6
-  NOT_ON_TIMER, //  53 PG7
+  TIMERD0_3WOA, //  50 PG4
+  TIMERD0_3WOB, //  51 PG5
+  TIMERD0_3WOC, //  52 PG6
+  TIMERD0_3WOD, //  53 PG7
   NOT_ON_TIMER, //  54 PF6 (RESET)
   //NOT_ON_TIMER, //55 PF7 (UPDI)
 };
