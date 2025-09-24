@@ -124,21 +124,15 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS (PORTMUX_TCA0_PORTF_gc)     // TCA0 output on PD[0:5] - PORTF on DD is the PWM port - 6 outputs from a TCA, or 2 from TCBs and 4 from TCDs.
-                                              // Unlike the DBs, PORTD here is PACKED with important peripherals, and PORTF has no alt functions except PWM and the CCL.
+#define TCA0_PINS (PORTMUX_TCA0_PORTF_gc)     // TCA0 output on PF[0:5] - PORTF is your go to PWM port on the DU-series, as the DU did not get any new mappings, doesn't have a USART2, doesn't have opamps, etc.
 #define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default) TCB is not a good timer type for PWM, and wouldn't be even if these pins weren't super-useful - but they are, and it's other option duplicates TCA0.
 #define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default) TCB is not a good timer type for PWM, and wouldn't be even if these pins weren't super-useful - but they are, and it's other option duplicates TCA0.
-#define TCB2_PINS (0x00)                      // TCB2 output on PC0 (default) as the other options are not present on these parts. It's normally used for millis anyway.
-#define TCD0_PINS (PORTMUX_TCD0_DEFAULT_gc)   // TCD0 output on PA4-7 PA6 and PA7 are less useful than PD4 and PD5, and you can just change the portmux if you don't like it.
 
 #define PIN_TCA0_WO0_INIT (PIN_PF0)
 #define PIN_TCB0_WO_INIT  (PIN_PA2)
 #define PIN_TCB1_WO_INIT  (PIN_PA3)
 #define PIN_TCB2_WO_INIT  (PIN_PC0)
 #define PIN_TCD0_WOA_INIT (PIN_PA4)
-
-//#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
-#define NO_GLITCH_TIMERD0
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA2 && (p) <= PIN_PA7) || ((p) >= PIN_PF0 && (p) < PIN_PF6))
 

@@ -112,11 +112,11 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCA0_PINS PORTMUX_TCA0_PORTD_gc // TCA0 output on PD[0:5]
-#define TCB0_PINS 0x00                  // TCB0 output on PA2 instead of PF4
-#define TCB1_PINS 0x00                  // TCB1 output on PA3 instead of PF5
-#define TCB2_PINS 0x00                  // TCB2 output on PC0 instead of PB4
-#define TCD0_PINS PORTMUX_TCD0_PORTA    // TCD0 output on PA4~PA7
+#define TCA0_PINS PORTMUX_TCA0_PORTD_gc   // TCA0 output on PD[0:5]
+#define TCB0_PINS 0x00                    // TCB0 output on PA2 instead of PF4
+#define TCB1_PINS 0x00                    // TCB1 output on PA3 instead of PF5
+#define TCB2_PINS 0x00                    // TCB2 output on PC0 instead of PB4
+#define TCD0_PINS (0x00)                  // TCD0 output on PA4~PA7
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
 #define PIN_TCB0_WO_INIT  PIN_PA2

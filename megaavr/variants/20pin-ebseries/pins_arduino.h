@@ -117,7 +117,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCB1_WO_INIT  (PIN_PA3)
 
 
-#define NO_GLITCH_TIMERD0
 #if defined(MILLIS_USE_TIMERF0)
   #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p))
 #else

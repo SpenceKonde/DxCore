@@ -425,7 +425,7 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
 #endif
 
 /* PIN DETERMINATION
- * Check TCA0, TCA1, TCE0 programatically (the strong portmux aware timers)
+ * Check TCA0, TCA1, TCE0 programmatically (the strong portmux aware timers)
  * Get the value from the table. If it's NOT_ON_TIMER, stop.
  * if tableval & TIMERD0 -> Timer D 0b 01aa nmmm
  * n = 0 until we have a TCD1 if we ever do.

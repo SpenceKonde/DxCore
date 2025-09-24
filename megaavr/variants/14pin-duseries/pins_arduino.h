@@ -115,7 +115,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCB0_WO_INIT  (NOT_A_PIN)
 #define PIN_TCB1_WO_INIT  (NOT_A_PIN)
 
-#define NO_GLITCH_TIMERD0
 
 #define digitalPinHasPWM(p)               (((p) >= PIN_PC1 && (p) <= PIN_PC3) || (p) == PIN_PD4 || (p) == PIN_PD5)
 

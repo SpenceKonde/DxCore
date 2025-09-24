@@ -119,7 +119,7 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 #define TCB0_PINS (0x00)                  // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
 #define TCB1_PINS (0x00)                  // TCB0 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
-#define TCD0_PINS (PORTMUX_TCD0_PORTAD)
+#define TCD0_PINS (0x04)                      // TCD0 output on PA4~PA5, PD4~PD5
 
 #define PIN_TCA0_WO0_INIT (PIN_PA0)
 #define PIN_TCB0_WO_INIT  (NOT_A_PIN)

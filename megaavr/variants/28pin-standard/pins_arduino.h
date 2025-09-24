@@ -109,7 +109,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define TCB0_PINS 0x00                      // TCB0 output on PA2 (default), not PF4 (Doesn't exist here)
 #define TCB1_PINS 0x00                      // TCB1 output on PA3 (default), not PF5 (Doesn't exist here)
 #define TCB2_PINS 0x00                      // TCB2 output on PC0 (default), not PB4 (Doesn't exist here)
-#define TCD0_PINS PORTMUX_TCD0_PORTA        //
+#define TCD0_PINS (0x00)                  // TCD0 output on PA4~PA7
 
 #define PIN_TCA0_WO0_INIT PIN_PD0
 #define PIN_TCB0_WO_INIT  PIN_PA2
@@ -119,7 +119,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 //#define USE_TIMERD0_PWM is automatically set unless defined as 0 or 1; it will be enabled UNLESS TIMERD0_CLOCK_SETTING is and neither TIMERD0_TOP_SETTING nor F_TCD is.
-#define NO_GLITCH_TIMERD0
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PA7) || ((p) >= PIN_PD0 && (p) < PIN_PD6))
 

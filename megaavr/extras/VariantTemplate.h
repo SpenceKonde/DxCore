@@ -169,11 +169,7 @@ List the part numbers (if applicable) or what board this variant supports.
 //   * All supported TOP values will be tested for, regardless of system clock speed.
 // * If USE_TIMERD0_PWM is set to 0, no configuration of TCD0 will be performed by the core. A future update that allowed it to
 //    be used for other purposes would change that, of course.
-//
-// NO_GLITCH_TIMERD0 leaves pins connected to TCD0 until digitalWrite is called on them.
-// This is desirable to get more responsive TCD pwm and avoid short glitches when switching between 0 or 255 and  other duty
-// cycles. Costs some flash.
-#define NO_GLITCH_TIMERD0
+
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PA4 && (p) <= PIN_PC5))
 /* The above macro is deprecated, and is only for compatibility, when digitalPinHasPWMNow() is not viable.
