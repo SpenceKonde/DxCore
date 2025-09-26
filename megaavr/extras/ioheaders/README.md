@@ -40,6 +40,8 @@ The highest pincount, highest flash headers are the most useful ones to refer to
 * [AVR128DB64 - ioavr128db64.h](ioavr128db64.h)
 * [AVR128DA64 - ioavr128da64.h](ioavr128da64.h)
 * [AVR64DD32 - ioavr64dd32.h](ioavr64dd32.h)
+* [AVR64EA48 - ioavr64ea48.h](ioavr64ea48.h)
+* [AVR32EB32 - ioavr32eb32.h](ioavr32eb32.h)
 
 ## Smaller pincount devices
 Some functionality depends on the pincount (mostly the number of instances of a given peripheral).
@@ -52,6 +54,11 @@ Some functionality depends on the pincount (mostly the number of instances of a 
 * [AVR64DD14 - ioavr64dd14.h](ioavr64dd14.h)
 * [AVR64DD20 - ioavr64dd20.h](ioavr64dd20.h)
 * [AVR64DD28 - ioavr64dd28.h](ioavr64dd28.h)
+* [AVR64EA28 - ioavr64ea28.h](ioavr64ea28.h)
+* [AVR64EA32 - ioavr64ea32.h](ioavr64ea32.h)
+* [AVR32EB14 - ioavr32eb14.h](ioavr32eb14.h)
+* [AVR32EB20 - ioavr32eb20.h](ioavr32eb20.h)
+* [AVR32EB28 - ioavr32eb28.h](ioavr32eb28.h)
 
 ## Smaller-flash-size device headers
 These are literally identical except for things directly related to flash or ram size (for example, only 128k parts mention RAMPZ). There is nothing illuminating in these files.
@@ -69,20 +76,23 @@ These are literally identical except for things directly related to flash or ram
 * [AVR32DB28 - ioavr32db28.h](ioavr32db28.h)
 * [AVR32DB32 - ioavr32db32.h](ioavr32db32.h)
 * [AVR32DB48 - ioavr32db48.h](ioavr32db48.h)
-* [AVR32DD14 - ioavr64dd14.h](ioavr32dd14.h)
-* [AVR32DD20 - ioavr64dd20.h](ioavr32dd20.h)
-* [AVR32DD28 - ioavr64dd28.h](ioavr32dd28.h)
-* [AVR32DD32 - ioavr64dd32.h](ioavr32dd32.h)
-* [AVR16DD14 - ioavr64dd14.h](ioavr16dd14.h)
-* [AVR16DD20 - ioavr64dd20.h](ioavr16dd20.h)
-* [AVR16DD28 - ioavr64dd28.h](ioavr16dd28.h)
-* [AVR16DD32 - ioavr64dd32.h](ioavr16dd32.h)
-
-## EA is coming
-Some things are exciting, some disappointing. On the whole, reason to be optimistic, but not ecstatic. Save that for the DU-series.
-* [AVR64EA28 - ioavr64dd28.h](ioavr64ea28.h)
-* [AVR64EA32 - ioavr64dd32.h](ioavr64ea32.h)
-* [AVR64EA28 - ioavr64dd28.h](ioavr64ea48.h)
+* [AVR32DD14 - ioavr32dd14.h](ioavr32dd14.h)
+* [AVR32DD20 - ioavr32dd20.h](ioavr32dd20.h)
+* [AVR32DD28 - ioavr32dd28.h](ioavr32dd28.h)
+* [AVR32DD32 - ioavr32dd32.h](ioavr32dd32.h)
+* [AVR32EA28 - ioavr32ea28.h](ioavr32ea28.h)
+* [AVR32EA32 - ioavr32ea32.h](ioavr32ea32.h)
+* [AVR32EA48 - ioavr32ea48.h](ioavr32ea48.h)
+* [AVR16DD14 - ioavr16dd14.h](ioavr16dd14.h)
+* [AVR16DD20 - ioavr16dd20.h](ioavr16dd20.h)
+* [AVR16DD28 - ioavr16dd28.h](ioavr16dd28.h)
+* [AVR16DD32 - ioavr16dd32.h](ioavr16dd32.h)
+* [AVR16EA28 - ioavr16ea28.h](ioavr16ea28.h)
+* [AVR16EA32 - ioavr16ea32.h](ioavr16ea32.h)
+* [AVR16EB14 - ioavr16eb14.h](ioavr16eb14.h)
+* [AVR16EB20 - ioavr16eb20.h](ioavr16eb20.h)
+* [AVR16EB28 - ioavr16eb28.h](ioavr16eb28.h)
+* [AVR16EB32 - ioavr16eb32.h](ioavr16eb32.h)
 
 ## The original v1.0.16 headers
 These are not used, and have problems that have since been fixed. They also mention a couple of features that were removed from the product with the backspace key (as in, they were removed only from the documentation).
