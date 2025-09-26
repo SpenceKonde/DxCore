@@ -240,7 +240,7 @@ void turnOffPWM(uint8_t pin) {
           if (tcdmux == muxval)
             usetcd0 = 1;
           #if !(defined(__AVR_DA__) || defined(__AVR_DB__))
-            else if (muxval == 4 && tcdmux == 0 && !(digital_pin_timer & 0x20) {
+            else if (muxval == 4 && tcdmux == 0 && !(digital_pin_timer & 0x20)) {
               usetcd0 = 1;
             }
           #endif
