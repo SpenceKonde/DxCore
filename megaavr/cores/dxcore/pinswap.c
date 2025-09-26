@@ -49,7 +49,6 @@
   #define NUM_HWSERIAL_PORTS 2
 #elif defined(USART0)
   #define NUM_HWSERIAL_PORTS 1
-  #warning "Only one USART detected, all supported parts have at least 2, something is wrong!"
 #else
   #error "No USARTs detected, all supported parts have at least 2, something is wrong!"
 #endif

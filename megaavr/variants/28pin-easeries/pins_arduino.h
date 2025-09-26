@@ -135,7 +135,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 #define SPI_INTERFACES_COUNT            (1)
-#define NUM_HWSERIAL_PORTS              (3)
 
 // SPI 0
 #define SPI_MUX                         (0x00)

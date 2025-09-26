@@ -174,7 +174,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SDA_PINSWAP_3                    (PIN_PA0)
 #define PIN_WIRE_SCL_PINSWAP_3                    (PIN_PA1)
 
-#define NUM_HWSERIAL_PORTS              1
 
 // USART 0
 #define HWSERIAL0_MUX                             (PORTMUX_USART0_DEFAULT_gc)

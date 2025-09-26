@@ -138,7 +138,6 @@ Include guard and include basic libraries. We are normally including this inside
         #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT                      (1)
-#define NUM_HWSERIAL_PORTS                        (3)
 
 // In contrast to DA/DB with no pinswap options available, the DD has them in spades!
 // defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid

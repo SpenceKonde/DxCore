@@ -147,7 +147,6 @@ Include guard and include basic libraries. We are normally including this inside
         #      ###  #   #   #   #   #  ###  #   */
 
 #define SPI_INTERFACES_COUNT                      (1) /* 2 SPI peripherals but SPI.h only uses one at a time, see that readme for details.*/
-#define NUM_HWSERIAL_PORTS                        (5)
 
 // SPI 0
 #define SPI_MUX                                   (0x00)
