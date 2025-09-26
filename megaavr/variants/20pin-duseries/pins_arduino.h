@@ -127,7 +127,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 #define SPI_INTERFACES_COUNT            (1)
-#define NUM_HWSERIAL_PORTS              (2)
 
 // SPI 0
 #define SPI_MUX                         (0x00)
@@ -210,40 +209,45 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
-#define PIN_A0            (NOT_A_PIN) /* Doesn't exist on DD-series */
-#define PIN_A1            (NOT_A_PIN) // no PD1, 2, or 3 either.
-#define PIN_A2            (NOT_A_PIN)
-#define PIN_A3            (NOT_A_PIN)
-#define PIN_A4            (PIN_PD4)
-#define PIN_A5            (PIN_PD5)
-#define PIN_A6            (PIN_PD6)
-#define PIN_A7            (PIN_PD7)
-#define PIN_A8            (NOT_A_PIN) // Under 48 pins -> no PORTE
-#define PIN_A9            (NOT_A_PIN)
-#define PIN_A10           (NOT_A_PIN)
-#define PIN_A11           (NOT_A_PIN)
-#define PIN_A12           (NOT_A_PIN)
-#define PIN_A13           (NOT_A_PIN)
-#define PIN_A14           (NOT_A_PIN)
-#define PIN_A15           (NOT_A_PIN)
-#define PIN_A16           (NOT_A_PIN) // No PF0~PF5, and PF6, PF7 don't have analog input (RESET and UPDI)
-#define PIN_A17           (NOT_A_PIN)
-#define PIN_A18           (NOT_A_PIN)
-#define PIN_A19           (NOT_A_PIN)
-#define PIN_A20           (NOT_A_PIN)
-#define PIN_A21           (NOT_A_PIN)
-#define PIN_A22           (PIN_PA2) // Now it wraps alllll the way around to the beginning - but starts counting from the third pin of PORTA, because the first 2 instead are used for crystal
-#define PIN_A23           (PIN_PA3) // That apparently was enough to get them removed from the list of pins the deserve analog channels. Likely they wanted to avoid reusing channels numbers associated with PE/PF elsewhere, and had 32 mux positions to distribute,
-#define PIN_A24           (PIN_PA4) // The crystal pins might pose particular technical challenges, and were right at one end of the range of analog-less pins, so they were natural choice to ditch.
-#define PIN_A25           (PIN_PA5)
-#define PIN_A26           (PIN_PA6)
-#define PIN_A27           (PIN_PA7)
-#define PIN_A28           (NOT_A_PIN)
-#define PIN_A29           (PIN_PC1)
-#define PIN_A30           (PIN_PC2)
-#define PIN_A31           (PIN_PC3)
 
-static const uint8_t A0  = NOT_A_PIN;
+#define PIN_A0             (NOT_A_PIN)
+#define PIN_A1             (NOT_A_PIN)
+#define PIN_A2             (NOT_A_PIN)
+#define PIN_A3             (NOT_A_PIN)
+#define PIN_A4             (PIN_PD4)
+#define PIN_A5             (PIN_PD5)
+#define PIN_A6             (PIN_PD6)
+#define PIN_A7             (PIN_PD7)
+#define PIN_A8             (NOT_A_PIN)
+#define PIN_A9             (NOT_A_PIN)
+#define PIN_A10            (NOT_A_PIN)
+#define PIN_A11            (NOT_A_PIN)
+#define PIN_A12            (NOT_A_PIN)
+#define PIN_A13            (NOT_A_PIN)
+#define PIN_A14            (NOT_A_PIN)
+#define PIN_A15            (NOT_A_PIN)
+#define PIN_A16            (NOT_A_PIN)
+#define PIN_A17            (NOT_A_PIN)
+#define PIN_A18            (NOT_A_PIN)
+#define PIN_A19            (NOT_A_PIN)
+#define PIN_A20            (NOT_A_PIN)
+#define PIN_A21            (NOT_A_PIN)
+/* No ADC on               PIN_PF6 (reset) */
+/* No ADC on               PIN_PF7 (UPDI) */
+/* No ADC on               PIN_PA0 (XTAL1) */
+/* No ADC on               PIN_PA1 (XTAL2) */
+#define PIN_A22            (PIN_PA2)
+#define PIN_A23            (PIN_PA3)
+#define PIN_A24            (PIN_PA4)
+#define PIN_A25            (PIN_PA5)
+#define PIN_A26            (PIN_PA6)
+#define PIN_A27            (PIN_PA7)
+#define PIN_A28            (NOT_A_PIN)
+#define PIN_A29            (NOT_A_PIN)
+#define PIN_A30            (NOT_A_PIN)
+#define PIN_A31            (PIN_PC3)
+
+static const uint8_t A0  = NOT_A_PIN
 static const uint8_t A1  = NOT_A_PIN;
 static const uint8_t A2  = NOT_A_PIN;
 static const uint8_t A3  = NOT_A_PIN;
@@ -251,7 +255,7 @@ static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6;
 static const uint8_t A7  = PIN_A7;
-static const uint8_t A8  = NOT_A_PIN;
+static const uint8_t A8  = NOT_A_PIN; // No PORTE
 static const uint8_t A9  = NOT_A_PIN;
 static const uint8_t A10 = NOT_A_PIN;
 static const uint8_t A11 = NOT_A_PIN;
@@ -259,21 +263,21 @@ static const uint8_t A12 = NOT_A_PIN;
 static const uint8_t A13 = NOT_A_PIN;
 static const uint8_t A14 = NOT_A_PIN;
 static const uint8_t A15 = NOT_A_PIN;
-static const uint8_t A16 = NOT_A_PIN;
+static const uint8_t A16 = NOT_A_PIN; // PF0
 static const uint8_t A17 = NOT_A_PIN;
 static const uint8_t A18 = NOT_A_PIN;
 static const uint8_t A19 = NOT_A_PIN;
 static const uint8_t A20 = NOT_A_PIN;
 static const uint8_t A21 = NOT_A_PIN;
-static const uint8_t A22 = PIN_A22;
+static const uint8_t A22 = PIN_A22; // PORTA starting at PA2 - skips the two crystal pins.
 static const uint8_t A23 = PIN_A23;
 static const uint8_t A24 = PIN_A24;
 static const uint8_t A25 = PIN_A25;
 static const uint8_t A26 = PIN_A26;
 static const uint8_t A27 = PIN_A27;
-static const uint8_t A28 = NOT_A_PIN;
-static const uint8_t A29 = PIN_A29;
-static const uint8_t A30 = PIN_A30;
+static const uint8_t A28 = NOT_A_PIN; // PORTC
+static const uint8_t A29 = NOT_A_PIN;
+static const uint8_t A30 = NOT_A_PIN;
 static const uint8_t A31 = PIN_A31;
 
 #define AIN4               ADC_CH(4)
@@ -286,9 +290,6 @@ static const uint8_t A31 = PIN_A31;
 #define AIN25              ADC_CH(25)
 #define AIN26              ADC_CH(26)
 #define AIN27              ADC_CH(27)
-#define AIN28              (NOT_A_PIN)
-#define AIN29              ADC_CH(29)
-#define AIN30              ADC_CH(30)
 #define AIN31              ADC_CH(31)
 
 
