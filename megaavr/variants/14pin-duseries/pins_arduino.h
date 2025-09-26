@@ -131,9 +131,9 @@ Include guard and include basic libraries. We are normally including this inside
 // SPI 0
 
 
-#define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
-#define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
-#define SPI_MUX_PINSWAP_6      PORTMUX_SPI0_ALT6_gc
+#define SPI_MUX_PINSWAP_4      (0x04)
+#define SPI_MUX_PINSWAP_5      (0x05)
+#define SPI_MUX_PINSWAP_6      (0x06)
 #define SPI_MUX_PINSWAP_NONE   PORTMUX_SPI0_NONE_gc
 #define PIN_SPI_MOSI           NOT_A_PIN
 #define PIN_SPI_MISO           NOT_A_PIN
@@ -269,38 +269,34 @@ static const uint8_t A29 = PIN_A29;
 static const uint8_t A30 = PIN_A30;
 static const uint8_t A31 = PIN_A31;
 
-#define AIN0  NOT_A_PIN
-#define AIN1  NOT_A_PIN
-#define AIN2  NOT_A_PIN
-#define AIN3  NOT_A_PIN
-#define AIN4  ADC_CH(4)
-#define AIN5  ADC_CH(5)
-#define AIN6  ADC_CH(6)
-#define AIN7  ADC_CH(7)
-#define AIN8  NOT_A_PIN
-#define AIN9  NOT_A_PIN
-#define AIN10 NOT_A_PIN
-#define AIN11 NOT_A_PIN
-#define AIN12 NOT_A_PIN
-#define AIN13 NOT_A_PIN
-#define AIN14 NOT_A_PIN
-#define AIN15 NOT_A_PIN
-#define AIN16 NOT_A_PIN
-#define AIN17 NOT_A_PIN
-#define AIN18 NOT_A_PIN
-#define AIN19 NOT_A_PIN
-#define AIN20 NOT_A_PIN
-#define AIN21 NOT_A_PIN
-#define AIN22 NOT_A_PIN
-#define AIN23 NOT_A_PIN
-#define AIN24 NOT_A_PIN
-#define AIN25 NOT_A_PIN
-#define AIN26 NOT_A_PIN
-#define AIN27 NOT_A_PIN
-#define AIN28 NOT_A_PIN
-#define AIN29 ADC_CH(29)
-#define AIN30 ADC_CH(30)
-#define AIN31 ADC_CH(31)
+#define AIN4               ADC_CH(4)
+#define AIN5               ADC_CH(5)
+#define AIN6               ADC_CH(6)
+#define AIN7               ADC_CH(7)
+#define AIN8               NOT_A_PIN
+#define AIN9               NOT_A_PIN
+#define AIN10              NOT_A_PIN
+#define AIN11              NOT_A_PIN
+#define AIN12              NOT_A_PIN
+#define AIN13              NOT_A_PIN
+#define AIN14              NOT_A_PIN
+#define AIN15              NOT_A_PIN
+#define AIN16              NOT_A_PIN
+#define AIN17              NOT_A_PIN
+#define AIN18              NOT_A_PIN
+#define AIN19              NOT_A_PIN
+#define AIN20              NOT_A_PIN
+#define AIN21              NOT_A_PIN
+#define AIN22              NOT_A_PIN
+#define AIN23              NOT_A_PIN
+#define AIN24              NOT_A_PIN
+#define AIN25              NOT_A_PIN
+#define AIN26              NOT_A_PIN
+#define AIN27              NOT_A_PIN
+#define AIN28              NOT_A_PIN
+#define AIN29              ADC_CH(29)
+#define AIN30              ADC_CH(30)
+#define AIN31              ADC_CH(31)
 
 
         /*##  ### #   #      ###  ####  ####   ###  #   #  ###

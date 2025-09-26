@@ -68,8 +68,8 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     28
-#define NUM_ANALOG_INPUTS              23
+#define PINS_COUNT                     (28)
+#define NUM_ANALOG_INPUTS              (23)
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -77,11 +77,11 @@ Include guard and include basic libraries. We are normally including this inside
 // TOTAL_FREE_OPINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
-  #define LED_BUILTIN                  PIN_PA7
+  #define LED_BUILTIN                  (PIN_PA7)
 
 /* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS        48
+  #define EXTERNAL_NUM_INTERRUPTS      (48)
 #endif
 
        /*   #  ###   ### ####   ###   ###
@@ -92,21 +92,10 @@ Include guard and include basic libraries. We are normally including this inside
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
 // that bit about the 4 ADC ADC channels on PORTC not working with MVIO enabled is ugly to handle.
-#if !defined(USING_OPTIBOOT) || defined(ASSUME_MVIO_FUSE) /* When not using a bootloader, we know if MVIO is enabled because the fuse is set on upload */
-  #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
-    #define IS_MVIO_ENABLED()                    (1)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)   ? ((p) -  4)      : NOT_A_PIN)  : (((p) > PIN_PA1 && (p) < PIN_PC0)      ? ((p) + 20) : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 27 ? NOT_A_PIN : ((p) < 8     ? ((p) + PIN_PD0) : ((p) > 21)        ? ((p) - 20)      : ((p) > 15   ? ((p) + 4) : NOT_A_PIN)))
-  #else
-    #define IS_MVIO_ENABLED()                    (0)
-    #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)   ? ((p) -  4)      : NOT_A_PIN) : (((p) > PIN_PA1)                        ? ((p) + 20) : NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8     ? ((p) + PIN_PD0) : ((p) > 21)        ? ((p) - 20)      : ((p) > 15)  ? ((p) + 4) : NOT_A_PIN))
-  #endif
-#else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
-  #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x18) == 0x10)
-  #define digitalPinToAnalogInput(p)             ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)  ? ((p) - 4)        : NOT_A_PIN)  : (((p) > PIN_PA1 && !(IS_MVIO_ENABLED() && (p) >= PIN_PC0)) ? ((p) + 20) : NOT_A_PIN))
-  #define analogChannelToDigitalPin(p)           ((p) > (IS_MVIO_ENABLED() ? 27 : 31) ?       NOT_A_PIN : ((p) < 8)        ? ((p) + PIN_PD0)  : (((p) > 21) ? ((p) - 20) :  ((p) > 15 ) ? ((p) + 4) : NOT_A_PIN))
-#endif
+
+#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)   ? ((p) -  4)      : NOT_A_PIN) : (((p) > PIN_PA1)                        ? ((p) + 20) : NOT_A_PIN))
+#define analogChannelToDigitalPin(p)         ((p) > 31 ? NOT_A_PIN : ((p) < 8     ? ((p) + PIN_PD0) : ((p) > 21)        ? ((p) - 20)      : ((p) > 15)  ? ((p) + 4) : NOT_A_PIN))
+
 
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F) /*This assumes that the argument is NOT a digital pin number - but allows channel ID's or channel numbers. */
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* This will act on either kind of pin ID but not analog channel*/
@@ -142,18 +131,16 @@ Include guard and include basic libraries. We are normally including this inside
         #     #   # #  #    #   #   # #   #  # #
         #      ###  #   #   #   #   #  ###  #   */
 
-#define SPI_INTERFACES_COUNT   1
 
-// In contrast to DA/DB with no pinswap options available, the DD has them in spades!
-// defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid
-// for that part. PIN_PERIPHERALNSMR_
+#define SPI_INTERFACES_COUNT            (1)
+#define NUM_HWSERIAL_PORTS              (2)
 
 // SPI 0
-#define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
-#define SPI_MUX_PINSWAP_3      PORTMUX_SPI0_ALT3_gc
-#define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
-#define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
-#define SPI_MUX_PINSWAP_6      PORTMUX_SPI0_ALT6_gc
+#define SPI_MUX                         (0x00)
+#define SPI_MUX_PINSWAP_3               (0x03)
+#define SPI_MUX_PINSWAP_4               (0x04)
+#define SPI_MUX_PINSWAP_5               (0x05)
+#define SPI_MUX_PINSWAP_6               (0x06)
 #define SPI_MUX_PINSWAP_NONE   PORTMUX_SPI0_NONE_gc
 #define PIN_SPI_MOSI           PIN_PA4
 #define PIN_SPI_MISO           PIN_PA5
@@ -186,8 +173,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3 /* Errata warning */
 #define PIN_WIRE_SDA_PINSWAP_3 PIN_PA0
 #define PIN_WIRE_SCL_PINSWAP_3 PIN_PA1
-
-#define NUM_HWSERIAL_PORTS              2
 
 // USART 0
 #define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
@@ -315,14 +300,6 @@ static const uint8_t A31 = PIN_A31;
 #define AIN5               ADC_CH(5)
 #define AIN6               ADC_CH(6)
 #define AIN7               ADC_CH(7)
-#define AIN8               NOT_A_PIN
-#define AIN9               NOT_A_PIN
-#define AIN10              NOT_A_PIN
-#define AIN11              NOT_A_PIN
-#define AIN12              NOT_A_PIN
-#define AIN13              NOT_A_PIN
-#define AIN14              NOT_A_PIN
-#define AIN15              NOT_A_PIN
 #define AIN16              ADC_CH(16)
 #define AIN17              ADC_CH(17)
 #define AIN18              ADC_CH(18)

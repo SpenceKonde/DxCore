@@ -85,7 +85,7 @@
  * from the dark ages? Nope - it's the surprisingly popular ATmega2560!
  * The ATmega2560/2561 has only 8k RAM, a 32:1 flash to ram ratio. (to be fair, you are allowed to use external RAM
  * on those, which was a very rare feature indeed, and that is by far the most widespread part with such a feature - though if you're using the
- * XMEM interface, you've burned 19 GPIO lines right there... The ATmega2560 is kind of the "I have a job too big for an AVR.
+ * XMEM interface, you've burned 19 GPIO lines right there.... The ATmega2560 is kind of the "I have a job too big for an AVR.
  * But I don't know how to program anything else!" part. That is not a compliment.
  *
  * |  RAM  | TX | RX | Amount of RAM implied | Total ram used |
@@ -171,7 +171,7 @@
 #endif
 
 #if !defined(USE_ASM_DRE)
-  #define USE_ASM_DRE 1      // This is the hard one...Depends on BOTH buffers, and has that other method of calling it. saves 34b for 1 USART and 68b for each additional one
+  #define USE_ASM_DRE 1    // This is the hard one...Depends on BOTH buffers, and has that other method of calling it. saves 34b for 1 USART and 68b for each additional one
 #endif
 #else
   #warning "LTO has been disabled! ASM TXC/RXC/DRE not available. USART falling back to the old, flash-inefficient implementation with fewer features."

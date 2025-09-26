@@ -67,8 +67,8 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     28
-#define NUM_ANALOG_INPUTS              26
+#define PINS_COUNT                     (28)
+#define NUM_ANALOG_INPUTS              (26)
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -76,11 +76,11 @@ Include guard and include basic libraries. We are normally including this inside
 // TOTAL_FREE_OPINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
-  #define LED_BUILTIN                  PIN_PA7
+#define LED_BUILTIN                    (PIN_PA7)
 
 /* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS        48
+  #define EXTERNAL_NUM_INTERRUPTS      (48)
 #endif
 
        /*   #  ###   ### ####   ###   ###
@@ -102,12 +102,12 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 // Timer pin swaps
-#define TCA0_PINS (PORTMUX_TCA0_PORTF_gc)   // TCA0 output on PF[0:5] by default, but just write the portmux to change it
-#define TCA1_PINS (PORTMUX_TCA0_PORTA_gc)   // TCA1 output on PA[4:6]
-#define TCB0_PINS 0x00                      // TCB0 output on PA2 (default) instead of PF4
-#define TCB1_PINS 0x00                      // TCB1 output on PA3 (default) instead of PF5
-#define TCB2_PINS 0x00                      // TCB2 output on PC0 (default) instead of PB4
-#define TCB3_PINS PORTMUX_TCB3_bm           // TCB3 output on PC1 instead of PB5 (default)
+#define TCA0_PINS                    (PORTMUX_TCA0_PORTF_gc)     // TCA0 output on PF[0:5] by default, but just write the portmux to change it
+#define TCA1_PINS                    (PORTMUX_TCA0_PORTA_gc)     // TCA1 output on PA[4:6]
+#define TCB0_PINS                    (0x00)                      // TCB0 output on PA2 (default) instead of PF4
+#define TCB1_PINS                    (0x00)                      // TCB1 output on PA3 (default) instead of PF5
+#define TCB2_PINS                    (0x00)                      // TCB2 output on PC0 (default) instead of PB4
+#define TCB3_PINS                    (PORTMUX_TCB3_bm)           // TCB3 output on PC1 instead of PB5 (default)
 
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0) || ((p) == PIN_PC1))
@@ -122,12 +122,12 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 
-#define PIN_TCA0_WO0_INIT PIN_PF0
-#define PIN_TCA1_WO0_INIT PIN_PA4
-#define PIN_TCB0_WO_INIT  PIN_PA2
-#define PIN_TCB1_WO_INIT  PIN_PA3
-#define PIN_TCB2_WO_INIT  PIN_PC0
-#define PIN_TCB3_WO_INIT  PIN_PC1
+#define PIN_TCA0_WO0_INIT           (PIN_PF0)
+#define PIN_TCA1_WO0_INIT           (PIN_PA4)
+#define PIN_TCB0_WO_INIT            (PIN_PA2)
+#define PIN_TCB1_WO_INIT            (PIN_PA3)
+#define PIN_TCB2_WO_INIT            (PIN_PC0)
+#define PIN_TCB3_WO_INIT            (PIN_PC1)
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) >= PIN_PF0 && (p) <= PIN_PF6) || ((p) >= PIN_PA4 && (p) < PIN_PA7))
 
@@ -137,104 +137,104 @@ Include guard and include basic libraries. We are normally including this inside
         #     #   # #  #    #   #   # #   #  # #
         #      ###  #   #   #   #   #  ###  #   */
 
-#define SPI_INTERFACES_COUNT   1
+#define SPI_INTERFACES_COUNT                      (1)
+#define NUM_HWSERIAL_PORTS                        (3)
 
 // In contrast to DA/DB with no pinswap options available, the DD has them in spades!
 // defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid
 // for that part. PIN_PERIPHERALNSMR_
 
 // SPI 0
-#define SPI_MUX                PORTMUX_SPI0_DEFAULT_gc
-#define SPI_MUX_PINSWAP_3      PORTMUX_SPI0_ALT3_gc
-#define SPI_MUX_PINSWAP_4      PORTMUX_SPI0_ALT4_gc
-#define SPI_MUX_PINSWAP_5      PORTMUX_SPI0_ALT5_gc
-#define SPI_MUX_PINSWAP_6      PORTMUX_SPI0_ALT6_gc
-#define SPI_MUX_PINSWAP_NONE   PORTMUX_SPI0_NONE_gc
-#define PIN_SPI_MOSI           PIN_PA4
-#define PIN_SPI_MISO           PIN_PA5
-#define PIN_SPI_SCK            PIN_PA6
-#define PIN_SPI_SS             PIN_PA7
-#define PIN_SPI_MOSI_PINSWAP_3 PIN_PA0
-#define PIN_SPI_MISO_PINSWAP_3 PIN_PA1
-#define PIN_SPI_SCK_PINSWAP_3  PIN_PC0
-#define PIN_SPI_SS_PINSWAP_3   PIN_PC1
-#define PIN_SPI_MOSI_PINSWAP_4 PIN_PD4
-#define PIN_SPI_MISO_PINSWAP_4 PIN_PD5
-#define PIN_SPI_SCK_PINSWAP_4  PIN_PD6
-#define PIN_SPI_SS_PINSWAP_4   PIN_PD7
-#define PIN_SPI_MOSI_PINSWAP_5 PIN_PC0
-#define PIN_SPI_MISO_PINSWAP_5 PIN_PC1
-#define PIN_SPI_SCK_PINSWAP_5  PIN_PC2
-#define PIN_SPI_SS_PINSWAP_5   PIN_PC3
-#define PIN_SPI_MOSI_PINSWAP_6 PIN_PC1
-#define PIN_SPI_MISO_PINSWAP_6 PIN_PC2
-#define PIN_SPI_SCK_PINSWAP_6  PIN_PC3
-#define PIN_SPI_SS_PINSWAP_6   PIN_PF7
+#define SPI_MUX                                   (0x00)
+#define SPI_MUX_PINSWAP_1                         (0x01)
+#define SPI_MUX_PINSWAP_3                         (0x03)
+#define SPI_MUX_PINSWAP_4                         (0x04)
+#define SPI_MUX_PINSWAP_5                         (0x05)
+#define SPI_MUX_PINSWAP_6                         (0x06)
+#define SPI_MUX_PINSWAP_NONE                      (PORTMUX_SPI0_NONE_gc)
+#define PIN_SPI_MOSI                              (PIN_PA4)
+#define PIN_SPI_MISO                              (PIN_PA5)
+#define PIN_SPI_SCK                               (PIN_PA6)
+#define PIN_SPI_SS                                (PIN_PA7)
+#define PIN_SPI_MOSI_PINSWAP_3                    (PIN_PA0)
+#define PIN_SPI_MISO_PINSWAP_3                    (PIN_PA1)
+#define PIN_SPI_SCK_PINSWAP_3                     (PIN_PC0)
+#define PIN_SPI_SS_PINSWAP_3                      (PIN_PC1)
+#define PIN_SPI_MOSI_PINSWAP_4                    (PIN_PD4)
+#define PIN_SPI_MISO_PINSWAP_4                    (PIN_PD5)
+#define PIN_SPI_SCK_PINSWAP_4                     (PIN_PD6)
+#define PIN_SPI_SS_PINSWAP_4                      (PIN_PD7)
+#define PIN_SPI_MOSI_PINSWAP_5                    (PIN_PC0)
+#define PIN_SPI_MISO_PINSWAP_5                    (PIN_PC1)
+#define PIN_SPI_SCK_PINSWAP_5                     (PIN_PC2)
+#define PIN_SPI_SS_PINSWAP_5                      (PIN_PC3)
+#define PIN_SPI_MOSI_PINSWAP_6                    (PIN_PC1)
+#define PIN_SPI_MISO_PINSWAP_6                    (PIN_PC2)
+#define PIN_SPI_SCK_PINSWAP_6                     (PIN_PC3)
+#define PIN_SPI_SS_PINSWAP_6                      (PIN_PF7)
 
 
 // TWI 0
-#define PIN_WIRE_SDA           PIN_PA2
-#define PIN_WIRE_SCL           PIN_PA3
-#define PIN_WIRE_SDA_PINSWAP_2 PIN_PC2
-#define PIN_WIRE_SCL_PINSWAP_2 PIN_PC3
-#define PIN_WIRE_SDA_PINSWAP_3 PIN_PA0
-#define PIN_WIRE_SCL_PINSWAP_3 PIN_PA1
-
-#define NUM_HWSERIAL_PORTS              3
+#define PIN_WIRE_SDA                              (PIN_PA2)
+#define PIN_WIRE_SCL                              (PIN_PA3)
+#define PIN_WIRE_SDA_PINSWAP_2                    (PIN_PC2)
+#define PIN_WIRE_SCL_PINSWAP_2                    (PIN_PC3)
+#define PIN_WIRE_SDA_PINSWAP_3                    (PIN_PA0)
+#define PIN_WIRE_SCL_PINSWAP_3                    (PIN_PA1)
 
 // USART 0
-#define HWSERIAL0_MUX                   PORTMUX_USART0_DEFAULT_gc
-#define HWSERIAL0_MUX_PINSWAP_1         PORTMUX_USART0_ALT1_gc
-#define HWSERIAL0_MUX_PINSWAP_2         PORTMUX_USART0_ALT2_gc
-#define HWSERIAL0_MUX_PINSWAP_3         PORTMUX_USART0_ALT3_gc
-#define HWSERIAL0_MUX_PINSWAP_4         PORTMUX_USART0_ALT4_gc
-#define HWSERIAL0_MUX_PINSWAP_NONE      PORTMUX_USART0_NONE_gc
-#define PIN_HWSERIAL0_TX                PIN_PA0
-#define PIN_HWSERIAL0_RX                PIN_PA1
-#define PIN_HWSERIAL0_XCK               PIN_PA2
-#define PIN_HWSERIAL0_XDIR              PIN_PA3
-#define PIN_HWSERIAL0_TX_PINSWAP_1      PIN_PA4
-#define PIN_HWSERIAL0_RX_PINSWAP_1      PIN_PA5
-#define PIN_HWSERIAL0_XCK_PINSWAP_1     PIN_PA6
-#define PIN_HWSERIAL0_XDIR_PINSWAP_1    PIN_PA7
-#define PIN_HWSERIAL0_TX_PINSWAP_2      PIN_PA2
-#define PIN_HWSERIAL0_RX_PINSWAP_2      PIN_PA3
-#define PIN_HWSERIAL0_XCK_PINSWAP_2     NOT_A_PIN
-#define PIN_HWSERIAL0_XDIR_PINSWAP_2    NOT_A_PIN
-#define PIN_HWSERIAL0_TX_PINSWAP_3      PIN_PD4
-#define PIN_HWSERIAL0_RX_PINSWAP_3      PIN_PD5
-#define PIN_HWSERIAL0_XCK_PINSWAP_3     PIN_PD6
-#define PIN_HWSERIAL0_XDIR_PINSWAP_3    PIN_PD7
-#define PIN_HWSERIAL0_TX_PINSWAP_4      PIN_PC1
-#define PIN_HWSERIAL0_RX_PINSWAP_4      PIN_PC2
-#define PIN_HWSERIAL0_XCK_PINSWAP_4     PIN_PC3
-#define PIN_HWSERIAL0_XDIR_PINSWAP_4    NOT_A_PIN
+#define HWSERIAL0_MUX                             (PORTMUX_USART0_DEFAULT_gc)
+#define HWSERIAL0_MUX_PINSWAP_1                   (PORTMUX_USART0_ALT1_gc)
+#define HWSERIAL0_MUX_PINSWAP_2                   (PORTMUX_USART0_ALT2_gc)
+#define HWSERIAL0_MUX_PINSWAP_3                   (PORTMUX_USART0_ALT3_gc)
+#define HWSERIAL0_MUX_PINSWAP_4                   (PORTMUX_USART0_ALT4_gc)
+#define HWSERIAL0_MUX_PINSWAP_NONE                (PORTMUX_USART0_NONE_gc)
+#define PIN_HWSERIAL0_TX                          (PIN_PA0)
+#define PIN_HWSERIAL0_RX                          (PIN_PA1)
+#define PIN_HWSERIAL0_XCK                         (PIN_PA2)
+#define PIN_HWSERIAL0_XDIR                        (PIN_PA3)
+#define PIN_HWSERIAL0_TX_PINSWAP_1                (PIN_PA4)
+#define PIN_HWSERIAL0_RX_PINSWAP_1                (PIN_PA5)
+#define PIN_HWSERIAL0_XCK_PINSWAP_1               (PIN_PA6)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_1              (PIN_PA7)
+#define PIN_HWSERIAL0_TX_PINSWAP_2                (PIN_PA2)
+#define PIN_HWSERIAL0_RX_PINSWAP_2                (PIN_PA3)
+#define PIN_HWSERIAL0_XCK_PINSWAP_2               (NOT_A_PIN)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_2              (NOT_A_PIN)
+#define PIN_HWSERIAL0_TX_PINSWAP_3                (PIN_PD4)
+#define PIN_HWSERIAL0_RX_PINSWAP_3                (PIN_PD5)
+#define PIN_HWSERIAL0_XCK_PINSWAP_3               (PIN_PD6)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_3              (PIN_PD7)
+#define PIN_HWSERIAL0_TX_PINSWAP_4                (PIN_PC1)
+#define PIN_HWSERIAL0_RX_PINSWAP_4                (PIN_PC2)
+#define PIN_HWSERIAL0_XCK_PINSWAP_4               (PIN_PC3)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_4              (NOT_A_PIN)
 
 // USART1
-#define HWSERIAL1_MUX                   PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_2         PORTMUX_USART1_DEFAULT_gc
-#define HWSERIAL1_MUX_PINSWAP_NONE      PORTMUX_USART1_NONE_gc
-#define PIN_HWSERIAL1_TX                PIN_PC0
-#define PIN_HWSERIAL1_RX                PIN_PC1
-#define PIN_HWSERIAL1_XCK               PIN_PC2
-#define PIN_HWSERIAL1_XDIR              PIN_PC3
-#define PIN_HWSERIAL1_TX_PINSWAP_2      PIN_PD6
-#define PIN_HWSERIAL1_RX_PINSWAP_2      PIN_PD7
-#define PIN_HWSERIAL1_XCK_PINSWAP_2     NOT_A_PIN
-#define PIN_HWSERIAL1_XDIR_PINSWAP_2    NOT_A_PIN
+#define HWSERIAL1_MUX                             (PORTMUX_USART1_DEFAULT_gc)
+#define HWSERIAL1_MUX_PINSWAP_2                   (PORTMUX_USART1_DEFAULT_gc)
+#define HWSERIAL1_MUX_PINSWAP_NONE                (PORTMUX_USART1_NONE_gc)
+#define PIN_HWSERIAL1_TX                          (PIN_PC0)
+#define PIN_HWSERIAL1_RX                          (PIN_PC1)
+#define PIN_HWSERIAL1_XCK                         (PIN_PC2)
+#define PIN_HWSERIAL1_XDIR                        (PIN_PC3)
+#define PIN_HWSERIAL1_TX_PINSWAP_2                (PIN_PD6)
+#define PIN_HWSERIAL1_RX_PINSWAP_2                (PIN_PD7)
+#define PIN_HWSERIAL1_XCK_PINSWAP_2               (NOT_A_PIN)
+#define PIN_HWSERIAL1_XDIR_PINSWAP_2              (NOT_A_PIN)
 
 // USART 2
-#define HWSERIAL2_MUX                   PORTMUX_USART2_DEFAULT_gc
-#define HWSERIAL2_MUX_PINSWAP_1         PORTMUX_USART2_ALT1_gc
-#define HWSERIAL2_MUX_PINSWAP_NONE      PORTMUX_USART2_NONE_gc
-#define PIN_HWSERIAL2_TX                PIN_PF0
-#define PIN_HWSERIAL2_RX                PIN_PF1
-#define PIN_HWSERIAL2_XCK               PIN_PF2
-#define PIN_HWSERIAL2_XDIR              PIN_PF3
-#define PIN_HWSERIAL2_TX_PINSWAP_1      PIN_PF4
-#define PIN_HWSERIAL2_RX_PINSWAP_1      PIN_PF5
-#define PIN_HWSERIAL2_XCK_PINSWAP_1     NOT_A_PIN
-#define PIN_HWSERIAL2_XDIR_PINSWAP_1    NOT_A_PIN
+#define HWSERIAL2_MUX                             (PORTMUX_USART2_DEFAULT_gc)
+#define HWSERIAL2_MUX_PINSWAP_1                   (PORTMUX_USART2_ALT1_gc)
+#define HWSERIAL2_MUX_PINSWAP_NONE                (PORTMUX_USART2_NONE_gc)
+#define PIN_HWSERIAL2_TX                          (PIN_PF0)
+#define PIN_HWSERIAL2_RX                          (PIN_PF1)
+#define PIN_HWSERIAL2_XCK                         (PIN_PF2)
+#define PIN_HWSERIAL2_XDIR                        (PIN_PF3)
+#define PIN_HWSERIAL2_TX_PINSWAP_1                (PIN_PF4)
+#define PIN_HWSERIAL2_RX_PINSWAP_1                (PIN_PF5)
+#define PIN_HWSERIAL2_XCK_PINSWAP_1               (NOT_A_PIN)
+#define PIN_HWSERIAL2_XDIR_PINSWAP_1              (NOT_A_PIN)
 
 
         /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
@@ -244,42 +244,42 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
 
-#define PIN_A0             PIN_PD0
-#define PIN_A1             PIN_PD1
-#define PIN_A2             PIN_PD2
-#define PIN_A3             PIN_PD3
-#define PIN_A4             PIN_PD4
-#define PIN_A5             PIN_PD5
-#define PIN_A6             PIN_PD6
-#define PIN_A7             PIN_PD7
-#define PIN_A8             NOT_A_PIN /* No PORTE on EB's */
-#define PIN_A9             NOT_A_PIN
-#define PIN_A10            NOT_A_PIN
-#define PIN_A11            NOT_A_PIN
-#define PIN_A12            NOT_A_PIN
-#define PIN_A13            NOT_A_PIN
-#define PIN_A14            NOT_A_PIN
-#define PIN_A15            NOT_A_PIN /* End of what would be on PORTE */
-#define PIN_A16            PIN_PF0
-#define PIN_A17            PIN_PF1
-#define PIN_A18            PIN_PF2
-#define PIN_A19            PIN_PF3
-#define PIN_A20            PIN_PF4
-#define PIN_A21            PIN_PF5
+#define PIN_A0            (PIN_PD0)
+#define PIN_A1            (PIN_PD1)
+#define PIN_A2            (PIN_PD2)
+#define PIN_A3            (PIN_PD3)
+#define PIN_A4            (PIN_PD4)
+#define PIN_A5            (PIN_PD5)
+#define PIN_A6            (PIN_PD6)
+#define PIN_A7            (PIN_PD7)
+#define PIN_A8            (NOT_A_PIN) /* No PORTE on EB's */
+#define PIN_A9            (NOT_A_PIN)
+#define PIN_A10           (NOT_A_PIN)
+#define PIN_A11           (NOT_A_PIN)
+#define PIN_A12           (NOT_A_PIN)
+#define PIN_A13           (NOT_A_PIN)
+#define PIN_A14           (NOT_A_PIN)
+#define PIN_A15           (NOT_A_PIN) /* End of what would be on PORTE */
+#define PIN_A16           (PIN_PF0)
+#define PIN_A17           (PIN_PF1)
+#define PIN_A18           (PIN_PF2)
+#define PIN_A19           (PIN_PF3)
+#define PIN_A20           (PIN_PF4)
+#define PIN_A21           (PIN_PF5)
 /* No ADC on               PIN_PF6 (reset) */
 /* No ADC on               PIN_PF7 (UPDI) */
 /* No ADC on               PIN_PA0 (XTAL1) */
 /* No ADC on               PIN_PA1 (XTAL2) */
-#define PIN_A22            PIN_PA2
-#define PIN_A23            PIN_PA3
-#define PIN_A24            PIN_PA4
-#define PIN_A25            PIN_PA5
-#define PIN_A26            PIN_PA6
-#define PIN_A27            PIN_PA7
-#define PIN_A28            PIN_PC0
-#define PIN_A29            PIN_PC1
-#define PIN_A30            PIN_PC2
-#define PIN_A31            PIN_PC3
+#define PIN_A22           (PIN_PA2)
+#define PIN_A23           (PIN_PA3)
+#define PIN_A24           (PIN_PA4)
+#define PIN_A25           (PIN_PA5)
+#define PIN_A26           (PIN_PA6)
+#define PIN_A27           (PIN_PA7)
+#define PIN_A28           (PIN_PC0)
+#define PIN_A29           (PIN_PC1)
+#define PIN_A30           (PIN_PC2)
+#define PIN_A31           (PIN_PC3)
 
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
