@@ -1,5 +1,5 @@
 #include <tinyNeoPixel_Static.h>
-  #define PIN    PIN_PC3 
+  #define PIN    PIN_PC3
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)

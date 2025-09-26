@@ -450,7 +450,7 @@ The sizes of the two buffers depends on the size of the memory and which core is
 |   Part   |  RAM  |  Rx  |  Tx  | Notes                             |
 |----------|-------|------|------|-----------------------------------|
 | All      | >= 2k | 64b  | 64b  | 16k+ 1/2-series tiny. Dx, Ex.     |
-| ~AVR EA~   | ~1k~    | ~64b~  | ~32b~  | ~8k EA-series parts~              |
+| ~AVR EA~   | ~1k~    | ~64b~  | ~32b~  | ~8k EA-series parts canceled~              |
 | tinyAVR  | 1k    | 64b  | 32b  | 8k 2-series, 16k 0-series.        |
 | tinyAVR  | 512b  | 32b  | 16b  | 4k 2-series and 8k 0/1-series.    |
 | tinyAVR  | less  | 16b  | 16b  | 2/4k 0/1-series.                  |
@@ -468,7 +468,7 @@ While there's always some dead time between bits, that is usually *very* small, 
 
 
 ### How bad baud rate calculation used to be
-This chart shows what baud rates will work at what system clocks, on classic AVRs and modern AVRs. the difference is shocking. 
+This chart shows what baud rates will work at what system clocks, on classic AVRs and modern AVRs. the difference is shocking.
 [AVR Baud Rate Accuracy Chart](https://docs.google.com/spreadsheets/d/1rzxFOs6a89jr69ouCdZp8Za1PuUdj1u1IoepTaHVFPk/edit?usp=sharing)
 
 It was mentioned previously that one of most common places to encounter grossly inaccurate baud rates is classic AVRs. This example illustrates just *how bad* one of the most popular baud rate was on classic AVRs, namely 115200 baud. "Well it says the baud rate can be up to 1/8th the system clock, and I'm running at 8 MHz, no problem" you think "And see, it talks just fine to my other classic AVR". Nope. When you do this, you've dug a big hole, covered it with a tablecloth and waited until the sun went down. Adding a modern AVR or anything with a decent baud rate generator is then taking a late night stroll in the area of that covered hole. You're begging for trouble
