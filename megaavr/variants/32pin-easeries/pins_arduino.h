@@ -145,7 +145,6 @@ Include guard and include basic libraries. We are normally including this inside
 
 // SPI 0
 #define SPI_MUX                                   (0x00)
-#define SPI_MUX_PINSWAP_1                         (0x01)
 #define SPI_MUX_PINSWAP_3                         (0x03)
 #define SPI_MUX_PINSWAP_4                         (0x04)
 #define SPI_MUX_PINSWAP_5                         (0x05)
