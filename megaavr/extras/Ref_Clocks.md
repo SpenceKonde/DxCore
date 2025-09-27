@@ -213,7 +213,7 @@ On a classic AVR, the result of selecting a clock source (external crystal or cl
 
 On *megaTinyCore*, troubleshooting is generally straightforward, and on the DA, it's even simpler.
 
-1. Are you using an external clock? Verify w/scope that input is making it to PA3.
+* Are you using an external clock? Verify w/scope that input is making it to PA3.
   * If no clock reaching PA3, there's a hardware issue - incorrect connections, poor connections, damaged or defective components. That should guide your investigation. Regardless, it has nothing to do with the AVR.
   * If there is - you're sure the signal is there even when you're not pressing with the scope probe? Try uploading some dead simple test sketch;
   * You are not prevented from simply uploading a new sketch compiled to use a different clock source. Uploading something totally different (ex, blink) with clock set to an internal source without tuning.
