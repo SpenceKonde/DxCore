@@ -111,7 +111,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCB1_WO_INIT    (NOT_A_PIN)
 
 
-#define digitalPinHasPWM(p)               (((p) == PIN_PA0) || ((p) == PIN_PA1)) /* TCE PWM is handled by digitalPinHasPWMnow()
+#define digitalPinHasPWM(p)               (((p) == PIN_PA0) || ((p) == PIN_PA1)) // TCE PWM is handled by digitalPinHasPWMnow()
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
@@ -349,7 +349,6 @@ static const uint8_t A31 = PIN_A31;
   };
 
 const uint8_t digital_pin_to_timer[] = { // *INDENT-OFF*
-  #if
   #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock
     TIMERF0_0WO0, //  0 PA0
   #else
@@ -377,7 +376,6 @@ const uint8_t digital_pin_to_timer[] = { // *INDENT-OFF*
   NOT_ON_TIMER, //  20 PF6 RESET
   NOT_ON_TIMER  //  21 PF7 UPDI
 };
-#endif
 
 // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for
 #if ((CLOCK_SOURCE & 0x03) == 0)

@@ -111,9 +111,9 @@ void turnOffPWM(uint8_t pin) {
   check_valid_digital_pin(pin);   // Compile error if pin is constant and isn't a pin.
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if (bit_mask == NOT_A_PIN) return; //this catches any run-time determined pin that isn't a pin.
-  uint8_t offset = 0;
   uint8_t portnum  = digitalPinToPort(pin);
   #if (defined(TCA1)||defined(TCA0))
+    uint8_t offset = 0;
 
     uint8_t portmux_tca = PORTMUX.TCAROUTEA;
     TCA_t* timer_A = NULL;

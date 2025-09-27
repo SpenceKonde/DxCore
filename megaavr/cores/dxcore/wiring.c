@@ -2668,33 +2668,34 @@ void __attribute__((weak)) init_TCBs() {
  * Notice how there's no semicolon until after the preprocessor conditionals.
  * In other words, that's all one line.
  */
-
-  PORTMUX.TCBROUTEA = 0
-  #if defined(TCB0_PINS)
-                        | TCB0_PINS
-  #endif
-  #if defined(TCB1_PINS)
-                        | TCB1_PINS
-  #endif
-  #if defined(TCB2_PINS)
-                        | TCB2_PINS
-  #endif
-  #if defined(TCB3_PINS)
-                        | TCB3_PINS
-  #endif
-  #if defined(TCB4_PINS)
-                        | TCB4_PINS
-  #endif
-  #if defined(TCB5_PINS)
-                        | TCB5_PINS
-  #endif
-  #if defined(TCB6_PINS)
-                        | TCB6_PINS
-  #endif
-  #if defined(TCB7_PINS)
-                        | TCB7_PINS
-  #endif
+  #if defined(PORTMUX_TCBROUTEA)
+    PORTMUX.TCBROUTEA = 0
+    #if defined(TCB0_PINS)
+                          | TCB0_PINS
+    #endif
+    #if defined(TCB1_PINS)
+                          | TCB1_PINS
+    #endif
+    #if defined(TCB2_PINS)
+                          | TCB2_PINS
+    #endif
+    #if defined(TCB3_PINS)
+                          | TCB3_PINS
+    #endif
+    #if defined(TCB4_PINS)
+                          | TCB4_PINS
+    #endif
+    #if defined(TCB5_PINS)
+                          | TCB5_PINS
+    #endif
+    #if defined(TCB6_PINS)
+                          | TCB6_PINS
+    #endif
+    #if defined(TCB7_PINS)
+                          | TCB7_PINS
+    #endif
         ;
+  #endif
   // Start with TCB0 - we take advantage of the fact that we can get a pointer
   // to TCB0's struct, and increment it to go through all of them.
   TCB_t *timer_B = (TCB_t *)&TCB0;

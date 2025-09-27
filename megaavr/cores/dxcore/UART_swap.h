@@ -88,12 +88,12 @@
       #define NUM_HWSERIAL_PORTS 2
     #elif defined(USART0)
       #define NUM_HWSERIAL_PORTS 1
-      #if !defined(HWSERIAL_MUX_TINY) && !defined(__AVR_EB__)
+      #if !defined(__AVR_EB__)
         #error "Only one USART, but this is a core for modern AVRs, and it's NOT a tinyAVR 0/1 or EB-series. Something is wrong!"
         // #warning "Only one USART, but this is not a tinyAVR. Something is wrong!"
-      #else
-        #error "No USARTs detected, all supported parts have one or more - and this is a cant-happen anywauy. Something is wrong!"
       #endif
+    #else
+      #error "No USARTs detected, all supported parts have one or more - and this is a cant-happen anywauy. Something is wrong!"
     #endif
   #endif
   /* If NUM_HWSERIAL_PORTS is not defined, we calculate it assuming there are no gaps. */
