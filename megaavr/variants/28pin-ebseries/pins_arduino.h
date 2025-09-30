@@ -389,32 +389,6 @@ const uint8_t digital_pin_to_bit_mask[] = {
   PIN7_bm    // 27 PF7 UPDI
 };
 
-const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN
-  NOT_ON_TIMER, //  1 PA1/USART0_Rx
-  TIMERB0,      //  2 PA2/SDA
-  TIMERB1,      //  3 PA3/SCL
-  NOT_ON_TIMER, //  4 PA4/MOSI      WOA
-  NOT_ON_TIMER, //  5 PA5/MISO      WOB
-  NOT_ON_TIMER, //  6 PA6/SCK       WOC mirrors WOA
-  NOT_ON_TIMER, //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  NOT_ON_TIMER,      //  8 PC0/USART1_Tx
-  NOT_ON_TIMER, //  9 PC1/USART1_Rx
-  NOT_ON_TIMER, // 10 PC2
-  NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, //    PD0
-  NOT_ON_TIMER, // 13 PD1/AIN1 // Default TCA0 WO1
-  NOT_ON_TIMER, // 14 PD2/AIN2 // Default TCA0 WO2
-  NOT_ON_TIMER, // 15 PD3/AIN3 // Default TCA0 WO3
-  NOT_ON_TIMER, // 16 PD4/AIN4 // Default TCA0 WO4
-  NOT_ON_TIMER, // 17 PD5/AIN5 // Default TCA0 WO5
-  NOT_ON_TIMER,       // 18 PD6/AIN6
-  NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 20 PF0/USART2_Tx/TOSC1
-  NOT_ON_TIMER, // 21 PF1/USART2_Rx/TOSC2
-  NOT_ON_TIMER, // 26 PF6 RESET
-  NOT_ON_TIMER, // 27 PF7 UPDI
-};
 
 const uint8_t digital_pin_to_timer[] = {
   /* in addition, between the PORTMUX, and the machinations of WEX, TCE cn be made available on any pin in some form, except reset and the crystal pins.                                */
