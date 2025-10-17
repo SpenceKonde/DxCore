@@ -1,13 +1,13 @@
 
 """
-Required device info for the avr8ea32 devices
+Required device info for the avr16ea48 devices
 The following data was collected from device pack Atmel.AVR-EA_DEV_DFP 1.0.20
 """
 
 from pymcuprog.deviceinfo.eraseflags import ChiperaseEffect
 
 DEVICE_INFO = {
-    'name': 'avr8ea32',
+    'name': 'avr16ea48',
     'architecture': 'avr8x',
 
     # eeprom
@@ -29,8 +29,8 @@ DEVICE_INFO = {
     'fuses_isolated_erase': False,
 
     # internal_sram
-    'internal_sram_address_byte': 0x7c00,
-    'internal_sram_size_bytes': 0x0400,
+    'internal_sram_address_byte': 0x7800,
+    'internal_sram_size_bytes': 0x0800,
     'internal_sram_page_size_bytes': 1,
     'internal_sram_read_size_bytes': 1,
     'internal_sram_write_size_bytes': 1,
@@ -66,7 +66,7 @@ DEVICE_INFO = {
 
     # flash
     'flash_address_byte': 0x00800000,
-    'flash_size_bytes': 0x2000,
+    'flash_size_bytes': 0x4000,
     'flash_page_size_bytes': 0x40,
     'flash_read_size_bytes': 2,
     'flash_write_size_bytes': 0x40,
@@ -80,6 +80,6 @@ DEVICE_INFO = {
     'interface': 'UPDI',
     'address_size': '24-bit',
     'prog_clock_khz': 1800,
-    'device_id': 0x1E932B,
+    'device_id': 0x1E9435,
 
 }
