@@ -58,7 +58,7 @@ DEVICE_INFO = {
     'signatures_write_size_bytes': 0x00,
     'signatures_chiperase_effect': ChiperaseEffect.NOT_ERASED,
     'signatures_isolated_erase': False,
-    
+
     # boot_row
     'boot_row_address_byte': 0x1100,
     'boot_row_size_bytes': 0x40,
@@ -67,7 +67,7 @@ DEVICE_INFO = {
     'boot_row_write_size_bytes': 0x01,
     'boot_row_chiperase_effect': ChiperaseEffect.CONDITIONALLY_ERASED_AVR,
     'boot_row_isolated_erase': True,
-    
+
     # user_row
     'user_row_address_byte': 0x1200,
     'user_row_size_bytes': 0x40,
