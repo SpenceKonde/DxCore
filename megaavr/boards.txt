@@ -91,9 +91,9 @@ menu.bodmode=BOD Mode Active/Sleeping (Bootload burn req'd)
 menu.WDTtimeout=WDT Timeout (Bootload burn req'd)
 menu.WDTwindow=WDT "window" (Bootload burn req'd)
 menu.eesave=Save EEPROM
-menu.eesavedd=Save EEPROM (Bootload burn req'd)
-menu.resetpin=Reset pin function (Bootload burn req'd)
-menu.resetupdipins=Reset and UPDI (Bootload burn req'd)
+#menu.eesavedd=Save EEPROM (Bootload burn req'd)
+menu.resetpin=Reset pin function
+#menu.resetupdipins=Reset and UPDI (Bootload burn req'd)
 menu.resetupdipinsopti=Reset and UPDI (Bootload burn req'd)
 menu.startuptime=Startup Time
 menu.startuptimeopti=Startup Time (Bootload burn req'd)
@@ -102,7 +102,7 @@ menu.bootloaderusartdd=Bootloader Serial Port (Bootload burn req'd)
 menu.entrycond=Bootloader Entry Condition (Bootload burn req'd)
 menu.appspm=Write to flash from app
 menu.mvio=MultiVoltage I/O (MVIO)
-menu.mvioopti=MultiVoltage I/O (MVIO) (Bootload burn req'd)
+menu.mvioopti=MultiVoltage I/O (MVIO)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
 menu.wiremode=Wire (Wire.h/I2C) Library mode
@@ -117,19 +117,15 @@ menu.bootloader-class=Bootloader type (installed by burn + must match 2 upload)
 #####            #   #  #   #  #   #  #  #   #   #      #            #####
 ###              ####    ###   #   #  #   #  ####    ###               ###
 #________________________________________________________________________#
-##########################################################################
-# Names listed at the top so they can be kept in consistent format       #
-# Only EA boards without optiboot sketched in - since we know like       #
-# nothing about implementation. EB is commented out, but not sketched in #
-# because there is no need to do that prior to the DA release.           #
-#_________________________________________________________________________
 
 avrda.name=AVR DA-series (no bootloader)
 avrdb.name=AVR DB-series (no bootloader)
 avrdd.name=AVR DD-series (no bootloader)
-#avrdu.name=AVR DU-series (no bootloader)
+avrdu.name=AVR DU-series (no bootloader)
 avrea.name=AVR EA-series (no bootloader)
 avreb.name=AVR EB-series (no bootloader)
+#avrec.name=AVR EC-series (no bootloader)
+#avrla.mame=AVR LA-series (no bootloader)
 avrdaopti.name=AVR DA-series (Optiboot)
 avrdbopti.name=AVR DB-series (Optiboot)
 avrddopti.name=AVR DD-series (Optiboot)
@@ -137,6 +133,8 @@ avrddopti.name=AVR DD-series (Optiboot)
 #avrduusb.name=AVR DU-series with USB Bootloader TBD.
 #avreaopti.name=AVR EA-series (Optiboot)
 #avrebopti.name=AVR EB-series (Optiboot)
+#avrecopti.name=AVR EC-series (Optiboot)
+#avrlaopti.mame=AVR LA-series (Optiboot)
 azduinoboard.name=Azduino Boards (Optiboot)
 
 ##########################################################################
@@ -1149,7 +1147,8 @@ avrdd.bootloader.OSCCFG=0b00000000
 avrdd.bootloader.wdtwindowbits=0000
 avrdd.bootloader.wdttimeotbits=0000
 avrdd.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
-avrdd.bootloader.SYSCFG0=0b1101{bootloader.resetpinbit}0{bootloader.eesavebit}
+avrdd.bootloader.updipinbit=1
+avrdd.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbit}0{bootloader.eesavebit}
 avrdd.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 avrdd.bootloader.CODESIZE=0x00
 avrdd.bootloader.BOOTSIZE=0x01
@@ -1416,26 +1415,19 @@ avrdd.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 #----------------------------------------#
 # Retain EEPROM (EESAVE)                 #
 #________________________________________#
-avrdd.menu.eesavedd.enable=EEPROM retained
-avrdd.menu.eesavedd.enable.bootloader.eesavebit=1
-avrdd.menu.eesavedd.disable=EEPROM not retained
-avrdd.menu.eesavedd.disable.bootloader.eesavebit=0
+avrdd.menu.eesave.enable=EEPROM retained
+avrdd.menu.eesave.enable.bootloader.eesavebit=1
+avrdd.menu.eesave.disable=EEPROM not retained
+avrdd.menu.eesave.disable.bootloader.eesavebit=0
+
 
 #----------------------------------------#
-# Reset pin as INPUT, UPDI as I/O        #
+# Reset pin as input option              #
 #________________________________________#
-avrdd.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI (typical and recommended)
-avrdd.menu.resetupdipins.resetupdi.bootloader.resetpinbit=1
-avrdd.menu.resetupdipins.resetupdi.bootloader.updipinbit=1
-avrdd.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
-avrdd.menu.resetupdipins.inputupdi.bootloader.resetpinbit=0
-avrdd.menu.resetupdipins.inputupdi.bootloader.updipinbit=1
-avrdd.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
-avrdd.menu.resetupdipins.resetgpio.bootloader.resetpinbit=1
-avrdd.menu.resetupdipins.resetgpio.bootloader.updipinbit=0
-avrdd.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
-avrdd.menu.resetupdipins.inputgpio.bootloader.resetpinbit=0
-avrdd.menu.resetupdipins.inputgpio.bootloader.updipinbit=0
+avrdd.menu.resetpin.reset=Hardware Reset (recommended)
+avrdd.menu.resetpin.reset.bootloader.resetpinbit=1
+avrdd.menu.resetpin.input=Input (no output, ever)
+avrdd.menu.resetpin.input.bootloader.resetpinbit=0
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -1633,13 +1625,389 @@ avrdd.menu.flmap.unlocked.build.flmapabr=.ful
 avrdd.menu.flmap.locksection0.build.flmapabr=.fl0
 
 
+
+##########################################################################
+#                                                                        #
+###                 ###  #     # ####      ####  #   #                 ###
+#####              #   # #     # #   #     #   # #   #               #####
+#######            #####  #   #  ####  ### #   # #   #             #######
+#####              #   #   # #   # #       #   # #   #               #####
+###                #   #    #    #  #      ####   ###                  ###
+#________________________________________________________________________#
+#                                        #
+# Parameters and defaults for DD parts   #
+#________________________________________#
+avrdu.upload.tool=avrdude
+avrdu.upload.prog_interlock=
+avrdu.build.board=avrdu
+avrdu.build.core=dxcore
+avrdu.upload.maximum_size=0
+avrdu.upload.maximum_data_size=0
+# The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
+# Each top-level entry supports at least a dozen parts with varying memory constraints.
+avrdu.build.f_cpu={build.speed}000000L
+avrdu.build.text_section_start=.text=0x0
+avrdu.build.defaultswaps=
+avrdu.build.extra_flags= {bootloader.appspm} {build.defaultswaps}
+avrdu.build.export_merged_output=false
+avrdu.build.highestcb=B2
+avrdu.build.printf=
+avrdu.build.flmapopts=
+avrdu.build.attachmode=-DCORE_ATTACH_ALL
+
+#----------------------------------------#
+# Bootloading parameters and fuses       #
+#________________________________________#
+avrdu.bootloader.tool=avrdude
+avrdu.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
+avrdu.bootloader.wdtwindowbits=0000
+avrdu.bootloader.wdttimeotbits=0000
+avrdu.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avrdu.bootloader.updipinbit=1
+avrdu.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbits}00{bootloader.eesavebit}
+avrdu.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+avrdu.bootloader.CODESIZE=0x00
+avrdu.bootloader.BOOTSIZE=0x01
+avrdu.bootloader.avrdudestring=
+avrdu.bootloader.pymcuprogstring=-aerase
+
+#----------------------------------------#
+# Exported hex/lst/map names will        #
+# indicate selected options. These       #
+# are only to do that, nothing else      #
+#________________________________________#
+avrdu.build.mcupostfix=
+avrdu.build.printfabr=
+avrdu.build.flmapabr=.ful
+avrdu.build.attachabr=
+avrdu.build.wireabr=
+avrdu.build.appspmabr=.spm{bootloader.CODESIZE}
+
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
+# AVR-DU submenu options                     #
+#____________________________________________#
+# Chip (memory and pincount)             #
+# 14/20-pin parts get default millis     #
+# changed just like tinyAVRs do          #
+#________________________________________#
+avrdu.menu.chip.avr64du32=AVR64DU32
+avrdu.menu.chip.avr64du28=AVR64DU28
+avrdu.menu.chip.avr32du32=AVR32DU32
+avrdu.menu.chip.avr32du28=AVR32DU28
+avrdu.menu.chip.avr32du20=AVR32DU20
+avrdu.menu.chip.avr32du14=AVR32DU14
+avrdu.menu.chip.avr16du32=AVR16DU32
+avrdu.menu.chip.avr16du28=AVR16DU28
+avrdu.menu.chip.avr16du20=AVR16DU20
+avrdu.menu.chip.avr16du14=AVR16DU14
+avrdu.menu.chip.avr64du32.build.mcu=avr64du32
+avrdu.menu.chip.avr64du32.upload.maximum_size=65536
+avrdu.menu.chip.avr64du32.upload.maximum_data_size=8192
+avrdu.menu.chip.avr64du32.build.variant=32pin-duseries
+avrdu.menu.chip.avr64du32.build.highestcb=B2
+avrdu.menu.chip.avr64du28.build.mcu=avr64du28
+avrdu.menu.chip.avr64du28.upload.maximum_size=65536
+avrdu.menu.chip.avr64du28.upload.maximum_data_size=8192
+avrdu.menu.chip.avr64du28.build.variant=28pin-duseries
+avrdu.menu.chip.avr32du32.build.mcu=avr32du32
+avrdu.menu.chip.avr32du32.upload.maximum_size=32768
+avrdu.menu.chip.avr32du32.upload.maximum_data_size=4096
+avrdu.menu.chip.avr32du32.build.variant=32pin-duseries
+avrdu.menu.chip.avr32du28.build.mcu=avr32du28
+avrdu.menu.chip.avr32du28.upload.maximum_size=32768
+avrdu.menu.chip.avr32du28.upload.maximum_data_size=4096
+avrdu.menu.chip.avr32du28.build.variant=28pin-duseries
+avrdu.menu.chip.avr32du20.build.mcu=avr32du20
+avrdu.menu.chip.avr32du20.upload.maximum_size=32768
+avrdu.menu.chip.avr32du20.upload.maximum_data_size=4096
+avrdu.menu.chip.avr32du20.build.highestcb=B1
+avrdu.menu.chip.avr32du20.build.variant=20pin-duseries
+avrdu.menu.chip.avr32du20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdu.menu.chip.avr32du14.build.mcu=avr32du14
+avrdu.menu.chip.avr32du14.upload.maximum_size=32768
+avrdu.menu.chip.avr32du14.upload.maximum_data_size=4096
+avrdu.menu.chip.avr32du14.build.highestcb=B1
+avrdu.menu.chip.avr32du14.build.variant=14pin-duseries
+avrdu.menu.chip.avr32du14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdu.menu.chip.avr16du32.build.mcu=avr16du32
+avrdu.menu.chip.avr16du32.upload.maximum_size=16384
+avrdu.menu.chip.avr16du32.upload.maximum_data_size=2048
+avrdu.menu.chip.avr16du32.build.variant=32pin-duseries
+avrdu.menu.chip.avr16du28.build.mcu=avr16du28
+avrdu.menu.chip.avr16du28.upload.maximum_size=16384
+avrdu.menu.chip.avr16du28.upload.maximum_data_size=2048
+avrdu.menu.chip.avr16du28.build.variant=28pin-duseries
+avrdu.menu.chip.avr16du20.build.mcu=avr16du20
+avrdu.menu.chip.avr16du20.upload.maximum_size=16384
+avrdu.menu.chip.avr16du20.upload.maximum_data_size=2048
+avrdu.menu.chip.avr16du20.build.highestcb=B1
+avrdu.menu.chip.avr16du20.build.variant=20pin-duseries
+avrdu.menu.chip.avr16du20.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+avrdu.menu.chip.avr16du14.build.mcu=avr16du14
+avrdu.menu.chip.avr16du14.upload.maximum_size=16384
+avrdu.menu.chip.avr16du14.upload.maximum_data_size=2048
+avrdu.menu.chip.avr16du14.build.highestcb=B1
+avrdu.menu.chip.avr16du14.build.variant=14pin-duseries
+avrdu.menu.chip.avr16du14.build.defaultswaps=-DMUX_DEFAULT_USART1=2
+
+#----------------------------------------#
+# Clock speed and source options         #
+#________________________________________#
+avrdu.menu.clock.24internal=24 MHz internal
+avrdu.menu.clock.24internal.build.speed=24
+avrdu.menu.clock.24internal.build.clocksource=0
+avrdu.menu.clock.20internal=20 MHz internal
+avrdu.menu.clock.20internal.build.speed=20
+avrdu.menu.clock.20internal.build.clocksource=0
+avrdu.menu.clock.16internal=16 MHz internal
+avrdu.menu.clock.16internal.build.speed=16
+avrdu.menu.clock.16internal.build.clocksource=0
+avrdu.menu.clock.12internal=12 MHz internal
+avrdu.menu.clock.12internal.build.speed=12
+avrdu.menu.clock.12internal.build.clocksource=0
+avrdu.menu.clock.24crystal=24 MHz crystal
+avrdu.menu.clock.24crystal.build.speed=24
+avrdu.menu.clock.24crystal.build.clocksource=1
+avrdu.menu.clock.20crystal=20 MHz crystal
+avrdu.menu.clock.20crystal.build.speed=20
+avrdu.menu.clock.20crystal.build.clocksource=1
+avrdu.menu.clock.16crystal=16 MHz crystal
+avrdu.menu.clock.16crystal.build.speed=16
+avrdu.menu.clock.16crystal.build.clocksource=1
+avrdu.menu.clock.12crystal=12 MHz crystal
+avrdu.menu.clock.12crystal.build.speed=12
+avrdu.menu.clock.12crystal.build.clocksource=1
+
+#----------------------------------------#
+# BrownOut detection (BOD) options       #
+#________________________________________#
+avrdu.menu.bodvoltage.1v9=1.9V
+avrdu.menu.bodvoltage.1v9.bootloader.bodlevbits=000
+avrdu.menu.bodvoltage.2v45=2.45V
+avrdu.menu.bodvoltage.2v45.bootloader.bodlevbits=001
+avrdu.menu.bodvoltage.2v70=2.70V
+avrdu.menu.bodvoltage.2v70.bootloader.bodlevbits=010
+avrdu.menu.bodvoltage.2v85=2.85V
+avrdu.menu.bodvoltage.2v85.bootloader.bodlevbits=011
+avrdu.menu.bodmode.disabled=Disabled/Disabled
+avrdu.menu.bodmode.enabled=Enabled/Enabled
+avrdu.menu.bodmode.ensampfast=Enabled/Sampled (128 Hz)
+avrdu.menu.bodmode.ensampslow=Enabled/Sampled (32 Hz)
+avrdu.menu.bodmode.sampledfast=Sampled/Sampled (128 Hz)
+avrdu.menu.bodmode.sampledslow=Sampled/Sampled (32 Hz)
+avrdu.menu.bodmode.sampdisfast=Sampled/Disabled (128 Hz)
+avrdu.menu.bodmode.sampdisslow=Sampled/Disabled (32 Hz)
+avrdu.menu.bodmode.endisholdwake=Enabled hold wakeup/Disabled
+avrdu.menu.bodmode.disabled.bootloader.BODCFG=0x00
+avrdu.menu.bodmode.enabled.bootloader.bodmodebits=00101
+avrdu.menu.bodmode.ensampfast.bootloader.bodmodebits=00110
+avrdu.menu.bodmode.ensampslow.bootloader.bodmodebits=10110
+avrdu.menu.bodmode.samplefast.bootloader.bodmodebits=01010
+avrdu.menu.bodmode.sampleslow.bootloader.bodmodebits=11010
+avrdu.menu.bodmode.sampdisfast.bootloader.bodmodebits=01000
+avrdu.menu.bodmode.sampdisslow.bootloader.bodmodebits=11000
+avrdu.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
+
+
+#----------------------------------------#
+# Reset pin as input option              #
+#________________________________________#
+avrdu.menu.resetpin.reset=Hardware Reset (recommended)
+avrdu.menu.resetpin.reset.bootloader.resetpinbit=1
+avrdu.menu.resetpin.input=Input (no output, ever)
+avrdu.menu.resetpin.input.bootloader.resetpinbit=0
+
+#----------------------------------------#
+# millis/micros timing source            #
+#________________________________________#
+avrdu.menu.millis.tcbhighest=Default (recommended)
+avrdu.menu.millis.disabled=Disabled (delay() only)
+avrdu.menu.millis.tcb0=TCB0
+avrdu.menu.millis.tcb1=TCB1 (default)
+avrdu.menu.millis.tca0=TCA0
+avrdu.menu.millis.tcbhighest.build.millistimer=B1
+avrdu.menu.millis.tcb0.build.millistimer=B0
+avrdu.menu.millis.tcb1.build.millistimer=B1
+avrdu.menu.millis.tca0.build.millistimer=A0
+avrdu.menu.millis.disabled.build.millistimer=NONE
+
+#----------------------------------------#
+# printf() version options               #
+#________________________________________#
+avrdu.menu.printf.default=Default, 1.5k flash, no floats
+avrdu.menu.printf.full=Full, 2.6k, prints floats
+avrdu.menu.printf.full.build.printf=-Wl,-u,vfprintf -lprintf_flt
+avrdu.menu.printf.full.build.printfabr=.pfF
+avrdu.menu.printf.minimal=Minimal, 1.1k flash used
+avrdu.menu.printf.minimal.build.printf=-Wl,-u,vfprintf -lprintf_min
+avrdu.menu.printf.minimal.build.printfabr=.pfM
+
+#----------------------------------------#
+# OPTIMIZATION OPTIONS                   #
+#________________________________________#
+#avrdu.menu.optimization.size=-Os (size)
+#avrdu.menu.optimization.sizegcse=-Os (size, no GCSE)
+#avrdu.menu.optimization.o3=-O3 (speed)
+#avrdu.menu.optimization.o3gcse=-O3 (speed, no GCSE)
+#avrdu.menu.optimization.size.build.optimizationlevel=-Os
+#avrdu.menu.optimization.sizegcse.build.optimizationlevel=-Os
+#avrdu.menu.optimization.o3.build.optimizationlevel=-O3
+#avrdu.menu.optimization.o3gcse.build.optimizationlevel=-O3
+#avrdu.menu.optimization.size.build.optabr=.Os
+#avrdu.menu.optimization.sizegcse.build.optabr=.Osng
+#avrdu.menu.optimization.o3.build.optabr=.O3
+#avrdu.menu.optimization.o3gcse.build.optabr=.O3ng
+#avrdu.menu.optimization.sizegcse.build.gcse=-fno-gcse
+#avrdu.menu.optimization.o3gcse.build.gcse=-fno-gcse
+
+
+#----------------------------------------#
+# attachInterrupt Mode                   #
+#________________________________________#
+avrdu.menu.attach.allenabled=On all pins, with new implementation.
+avrdu.menu.attach.allenabled.build.attachmode=-DCORE_ATTACH_ALL
+avrdu.menu.attach.manual=Only enabled ports. Please see documentation.
+avrdu.menu.attach.manual.build.attachmode=-DCORE_ATTACH_NONE
+avrdu.menu.attach.oldversion=Old version, may fix bugs.
+avrdu.menu.attach.oldversion.build.attachmode=-DCORE_ATTACH_OLD
+avrdu.menu.attach.manual.build.attachabr=.aMan
+avrdu.menu.attach.oldversion.build.attachabr=.aOld
+
+#----------------------------------------#
+# Startup time options                   #
+#________________________________________#
+avrdu.menu.startuptime.8=8ms
+avrdu.menu.startuptime.0=0ms
+avrdu.menu.startuptime.1=1ms
+avrdu.menu.startuptime.2=2ms
+avrdu.menu.startuptime.4=4ms
+avrdu.menu.startuptime.16=16ms
+avrdu.menu.startuptime.32=32ms
+avrdu.menu.startuptime.64=64ms
+avrdu.menu.startuptime.0.bootloader.sutbits=000
+avrdu.menu.startuptime.1.bootloader.sutbits=001
+avrdu.menu.startuptime.2.bootloader.sutbits=010
+avrdu.menu.startuptime.4.bootloader.sutbits=011
+avrdu.menu.startuptime.8.bootloader.sutbits=100
+avrdu.menu.startuptime.16.bootloader.sutbits=101
+avrdu.menu.startuptime.32.bootloader.sutbits=110
+avrdu.menu.startuptime.64.bootloader.sutbits=111
+
+#-------------------------------------#
+#         Wire Mode Selection         #
+#     To enable master+slave mode     #
+#_____________________________________#
+avrdu.menu.wiremode.mors= Master or Slave
+avrdu.menu.wiremode.mors.build.wiremode=MORS_SINGLE
+avrdu.menu.wiremode.mors.build.wireabr=.wO
+avrdu.menu.wiremode.mands=Master and Slave
+avrdu.menu.wiremode.mands.build.wiremode=MANDS_SINGLE
+avrdu.menu.wiremode.mands.build.wireabr=.wA
+
+#-------------------------------------#
+#         SPM from app mode           #
+# To enable writing flash from app    #
+#_____________________________________#
+avrdu.menu.appspm.no=Disabled (Always use this if not writing flash from app)
+avrdu.menu.appspm.no.bootloader.appspm=
+avrdu.menu.appspm.no.bootloader.BOOTSIZE=0x00
+avrdu.menu.appspm.no.build.appspmabr=
+avrdu.menu.appspm.full=Anywhere after 0x0200 (warning: App allowed to overwrite itself)
+avrdu.menu.appspm.full.bootloader.appspm=-DSPM_FROM_APP=-1
+avrdu.menu.appspm.full.build.appspmabr=.spmALL
+avrdu.menu.appspm.8plus=Above 8k (meant for 16k parts)
+avrdu.menu.appspm.8plus.bootloader.appspm=-DSPM_FROM_APP=16
+avrdu.menu.appspm.8plus.bootloader.CODESIZE=16
+avrdu.menu.appspm.12plus=Above 12k (meant for 16k parts)
+avrdu.menu.appspm.12plus.bootloader.appspm=-DSPM_FROM_APP=24
+avrdu.menu.appspm.12plus.bootloader.CODESIZE=24
+avrdu.menu.appspm.14plus=Above 14k (meant for 16k parts)
+avrdu.menu.appspm.14plus.bootloader.appspm=-DSPM_FROM_APP=28
+avrdu.menu.appspm.14plus.bootloader.CODESIZE=28
+avrdu.menu.appspm.16plus=Above 16k (AVR64/32 only, meant for 32k parts)
+avrdu.menu.appspm.16plus.bootloader.appspm=-DSPM_FROM_APP=32
+avrdu.menu.appspm.16plus.bootloader.CODESIZE=32
+avrdu.menu.appspm.24plus=Above 24k (AVR64/32 only, meant for 32k parts)
+avrdu.menu.appspm.24plus.bootloader.appspm=-DSPM_FROM_APP=48
+avrdu.menu.appspm.24plus.bootloader.CODESIZE=48
+avrdu.menu.appspm.28plus=Above 28k (AVR64/32 only, meant for 32k parts)
+avrdu.menu.appspm.28plus.bootloader.appspm=-DSPM_FROM_APP=56
+avrdu.menu.appspm.28plus.bootloader.CODESIZE=56
+avrdu.menu.appspm.32plus=Above 32k (AVR64DU only)
+avrdu.menu.appspm.32plus.bootloader.appspm=-DSPM_FROM_APP=64
+avrdu.menu.appspm.32plus.bootloader.CODESIZE=64
+avrdu.menu.appspm.48plus=Above 48k (AVR64DU only)
+avrdu.menu.appspm.48plus.bootloader.appspm=-DSPM_FROM_APP=96
+avrdu.menu.appspm.48plus.bootloader.CODESIZE=96
+avrdu.menu.appspm.56plus=Above 56k (AVR64DU only)
+avrdu.menu.appspm.56plus.bootloader.appspm=-DSPM_FROM_APP=112
+avrdu.menu.appspm.56plus.bootloader.CODESIZE=112
+avrdu.menu.appspm.60plus=Above 60k (AVR64DU only)
+avrdu.menu.appspm.60plus.bootloader.appspm=-DSPM_FROM_APP=120
+avrdu.menu.appspm.60plus.bootloader.CODESIZE=120
+
+
+#----------------------------------------#
+# WDT MODE                               #
+#________________________________________#
+avrdu.menu.WDTtimeout.disabled=Disabled (recommended)
+avrdu.menu.WDTtimeout.8seconds=Window remains open for 8 Seconds
+avrdu.menu.WDTtimeout.4seconds=Window remains open for 4 Seconds
+avrdu.menu.WDTtimeout.2seconds=Window remains open for 2 Seconds
+avrdu.menu.WDTtimeout.1second=Window remains open for 1 Second
+avrdu.menu.WDTtimeout.500msec=Window remains open for 500 milliseconds
+avrdu.menu.WDTtimeout.250msec=Window remains open for 250 milliseconds
+avrdu.menu.WDTtimeout.125msec=Window remains open for 125 milliseconds
+avrdu.menu.WDTtimeout.63msec=Window remains open for 62.5 milliseconds
+avrdu.menu.WDTwindow.disabled=No delay before window "opens"
+avrdu.menu.WDTwindow.8seconds=8 Second before window "opens"
+avrdu.menu.WDTwindow.4seconds=4 Second before window "opens"
+avrdu.menu.WDTwindow.2seconds=2 Second before window "opens"
+avrdu.menu.WDTwindow.1second=1 Second before window "opens"
+avrdu.menu.WDTwindow.500msec=500 millisecond before window "opens"
+avrdu.menu.WDTwindow.250msec=250 millisecond before window "opens"
+avrdu.menu.WDTwindow.125msec=125 millisecond before window "opens"
+avrdu.menu.WDTwindow.63msec=62.5 millisecond before window "opens"
+avrdu.menu.WDTtimeout.disabled.bootloader.wdttimeoutbits=0000
+avrdu.menu.WDTtimeout.8seconds.bootloader.wdttimeoutbits=1011
+avrdu.menu.WDTtimeout.4seconds.bootloader.wdttimeoutbits=1010
+avrdu.menu.WDTtimeout.2seconds.bootloader.wdttimeoutbits=1001
+avrdu.menu.WDTtimeout.1second.bootloader.wdttimeoutbits=1000
+avrdu.menu.WDTtimeout.500msec.bootloader.wdttimeoutbits=0111
+avrdu.menu.WDTtimeout.250msec.bootloader.wdttimeoutbits=0110
+avrdu.menu.WDTtimeout.125msec.bootloader.wdttimeoutbits=0101
+avrdu.menu.WDTtimeout.63msec.bootloader.wdttimeoutbits=0100
+avrdu.menu.WDTwindow.disabled.bootloader.wdtwindowbits=0000
+avrdu.menu.WDTwindow.8seconds.bootloader.wdtwindowbits=1011
+avrdu.menu.WDTwindow.4seconds.bootloader.wdtwindowbits=1010
+avrdu.menu.WDTwindow.2seconds.bootloader.wdtwindowbits=1001
+avrdu.menu.WDTwindow.1second.bootloader.wdtwindowbits=1000
+avrdu.menu.WDTwindow.500msec.bootloader.wdtwindowbits=0111
+avrdu.menu.WDTwindow.250msec.bootloader.wdtwindowbits=0110
+avrdu.menu.WDTwindow.125msec.bootloader.wdtwindowbits=0101
+avrdu.menu.WDTwindow.63msec.bootloader.wdtwindowbits=0100
+
+#----------------------------------------#
+# Flash Mapping options                  #
+#________________________________________#
+avrdu.menu.flmap.lockdefault=Use last FLMAP section, lock FLMAP, provide PROGMEM_MAPPED
+avrdu.menu.flmap.unlocked=Start w/default, do not lock flmap. No PROGMEM_MAPPED.
+avrdu.menu.flmap.locksection0=Set FLMAP to section 0, lock FLMAP, provide PROGMEM_MAPPED
+avrdu.menu.flmap.lockdefault.build.flmapopts=-DLOCK_FLMAP -DFLMAPSECTION1
+avrdu.menu.flmap.unlocked.build.flmapopts=
+avrdu.menu.flmap.locksection0.build.flmapopts=-DLOCK_FLMAP -DFLMAPSECTION0
+avrdu.menu.flmap.lockdefault.build.flmapabr=.fld
+avrdu.menu.flmap.unlocked.build.flmapabr=.ful
+avrdu.menu.flmap.locksection0.build.flmapabr=.fl0
+
+
 ##########################################################################
 #                                                                        #
 ###                 ###  #     # ####      #####   ###                 ###
 #####              #   # #     # #   #     #      #   #              #####
 #######            #####  #   #  ####  ### ####   #####            #######
-#####              #   #   # #   # #       #      #   #              #####
-###                #   #    #    #  #      #####  #   #                ###
+#####              #   #   # #   #  #      #      #   #              #####
+###                #   #    #    #   #     #####  #   #                ###
 #________________________________________________________________________#
 #                                        #
 # Parameters and defaults for EA parts   #
@@ -1667,6 +2035,7 @@ avrea.bootloader.OSCCFG=0b0000{bootloader.oschffrq}000
 avrea.bootloader.wdtwindowbits=0000
 avrea.bootloader.wdttimeotbits=0000
 avrea.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avrea.bootloader.updipinbit=1
 avrea.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbit}00{bootloader.eesavebit}
 avrea.bootloader.CODESIZE=0x00
 avrea.bootloader.BOOTSIZE=0x00
@@ -1851,9 +2220,6 @@ avrea.menu.clock.32extclock.build.clocksource=2
 #----------------------------------------#
 # BrownOut detection (BOD) option        #
 #________________________________________#
-#    Completely speculative         #
-#   Assumes same as Dx-series       #
-#___________________________________#
 avrea.menu.bodvoltage.1v75=1.75V (during programming only)
 avrea.menu.bodvoltage.1v75.bootloader.bodlevbits=000
 avrea.menu.bodvoltage.1v9=1.9V
@@ -1889,21 +2255,14 @@ avrea.menu.eesave.enable.bootloader.eesavebit=1
 avrea.menu.eesave.disable=EEPROM not retained
 avrea.menu.eesave.disable.bootloader.eesavebit=0
 
+
 #----------------------------------------#
-# Reset pin as INPUT, UPDI as I/O        #
+# Reset pin as input option              #
 #________________________________________#
-avrea.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI (typical and recommended)
-avrea.menu.resetupdipins.resetupdi.bootloader.resetpinbit=1
-avrea.menu.resetupdipins.resetupdi.bootloader.updipinbit=1
-avrea.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
-avrea.menu.resetupdipins.inputupdi.bootloader.resetpinbit=0
-avrea.menu.resetupdipins.inputupdi.bootloader.updipinbit=1
-avrea.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
-avrea.menu.resetupdipins.resetgpio.bootloader.resetpinbit=1
-avrea.menu.resetupdipins.resetgpio.bootloader.updipinbit=0
-avrea.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
-avrea.menu.resetupdipins.inputgpio.bootloader.resetpinbit=0
-avrea.menu.resetupdipins.inputgpio.bootloader.updipinbit=0
+avrea.menu.resetpin.reset=Hardware Reset (recommended)
+avrea.menu.resetpin.reset.bootloader.resetpinbit=1
+avrea.menu.resetpin.input=Input (no output, ever)
+avrea.menu.resetpin.input.bootloader.resetpinbit=0
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -2137,6 +2496,7 @@ avreb.bootloader.OSCCFG=0b0000{bootloader.oschffrq}000
 avreb.bootloader.wdtwindowbits=0000
 avreb.bootloader.wdttimeotbits=0000
 avreb.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
+avreb.bootloader.updipinbit=1
 avreb.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbit}0{bootloader.browsavebit}{bootloader.eesavebit}
 avreb.bootloader.CODESIZE=0x00
 avreb.bootloader.BOOTSIZE=0x01
@@ -2347,31 +2707,24 @@ avreb.menu.bodmode.endisholdwake.bootloader.bodmodebits=01100
 avreb.menu.eesave.enableenable=EEPROM + BOOTROW retained
 avreb.menu.eesave.enableenable.bootloader.eesavebit=1
 avreb.menu.eesave.enableenable.bootloader.browsavebit=1
-avreb.menu.eesave.enabledisable=EEPROM retained
+avreb.menu.eesave.enabledisable=EEPROM retained, BOOTROW not
 avreb.menu.eesave.enabledisable.bootloader.eesavebit=1
 avreb.menu.eesave.enabledisable.bootloader.browsavebit=0
-avreb.menu.eesave.disableenable=BOOTROW retained
+avreb.menu.eesave.disableenable=BOOTROW retained, EEPROM not
 avreb.menu.eesave.disableenable.bootloader.eesavebit=0
 avreb.menu.eesave.disableenable.bootloader.browsavebit=1
 avreb.menu.eesave.disabledisable=Neither retained
 avreb.menu.eesave.disabledisable.bootloader.eesavebit=0
 avreb.menu.eesave.disabledisable.bootloader.browsavebit=0
 
+
 #----------------------------------------#
-# Reset pin as INPUT, UPDI as I/O        #
+# Reset pin as input option              #
 #________________________________________#
-avreb.menu.resetupdipins.resetupdi=PF6: Reset & PF7: UPDI (typical and recommended)
-avreb.menu.resetupdipins.resetupdi.bootloader.resetpinbit=1
-avreb.menu.resetupdipins.resetupdi.bootloader.updipinbit=1
-avreb.menu.resetupdipins.inputupdi=PF6: Input & PF7: UPDI (no challenges)
-avreb.menu.resetupdipins.inputupdi.bootloader.resetpinbit=0
-avreb.menu.resetupdipins.inputupdi.bootloader.updipinbit=1
-avreb.menu.resetupdipins.resetgpio=PF6: Reset & PF7: GPIO (Danger! HV required)
-avreb.menu.resetupdipins.resetgpio.bootloader.resetpinbit=1
-avreb.menu.resetupdipins.resetgpio.bootloader.updipinbit=0
-avreb.menu.resetupdipins.inputgpio=PF6: Input & PF7: GPIO (Danger! HV required)
-avreb.menu.resetupdipins.inputgpio.bootloader.resetpinbit=0
-avreb.menu.resetupdipins.inputgpio.bootloader.updipinbit=0
+avreb.menu.resetpin.reset=Hardware Reset (recommended)
+avreb.menu.resetpin.reset.bootloader.resetpinbit=1
+avreb.menu.resetpin.input=Input (no output, ever)
+avreb.menu.resetpin.input.bootloader.resetpinbit=0
 
 #----------------------------------------#
 # millis/micros timing source            #
@@ -2553,7 +2906,31 @@ avreb.menu.flmap.lockdefault.build.flmapabr=.fld
 avreb.menu.flmap.unlocked.build.flmapabr=.ful
 avreb.menu.flmap.locksection0.build.flmapabr=.fl0
 
+##########################################################################
+#                                                                        #
+################    ###  #     # ####      #####   ###    ################
+#####              #   # #     # #   #     #      #   #              #####
+################   #####  #   #  ####  ### ####   #       ################
+#####              #   #   # #   # #       #      #   #              #####
+################   #   #    #    #  #      #####   ###    ################
+#________________________________________________________________________#
+#                                        #
+# Parameters and defaults for EC parts   #
+# pending availability of information    #
+#________________________________________#
 
+##########################################################################
+#                                                                        #
+###                 ###  #     # ####      #       ###                 ###
+################   #   # #     # #   #     #      #   #   ################
+#######            #####  #   #  ####  ### #      #####            #######
+################   #   #   # #   # #       #      #   #   ################
+###                #   #    #    #  #      #####  #   #                ###
+#________________________________________________________________________#
+#                                        #
+# Parameters and defaults for LA parts   #
+# pending availability of information    #
+#________________________________________#
 
 ##########################################################################
 #                                                                        #
@@ -4221,7 +4598,7 @@ azduinoboard.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 azduinoboard.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 azduinoboard.bootloader.tool=avrdude
 # AVR Dx-series can only take either 1 (unsupported, 32 kHz, too slow for serial, and 1/30th of the minimum speed we support) or 0 (normal operation)
-avrda.bootloader.OSCCFG=0b00000000
+azduinoboard.bootloader.OSCCFG=0b00000000
 azduinoboard.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
 azduinoboard.bootloader.wdtwindowbits=0000
 azduinoboard.bootloader.wdttimeotbits=0000
