@@ -68,4 +68,4 @@ I gave up trying to keep track of them all. The part-specific docs here now link
 ### And the errata taketh away
 Notice that while datasheet information can be generalized across the whole family of parts The datasheets typically differ only in the header and footer (excepting the 1-series, which is effectively two part families, the 16k+ and the 2-8k parts). But because they use different dies, and dies are designed at discrete points in time, flash sizes released later have fewer bugs, because they've been spending the intervening months stomping out errata. On the 0 and 1 series tinyAVRs, there is a mindboggling amount of errata and a terrible shortage of die revisions. The 2-series tinyAVR by contrast has very little and the DD even less, though the EA's new RWW flash system is pretty janky.
 
-See also [Errata.md](Errata.md).
+See also [Ref_Errata.md](Ref_Errata.md).
