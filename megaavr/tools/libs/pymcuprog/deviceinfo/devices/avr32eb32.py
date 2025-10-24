@@ -7,7 +7,8 @@ The following data was collected from device pack Atmel.AVR-EA_DEV_DFP 1.0.20
 from pymcuprog.deviceinfo.eraseflags import ChiperaseEffect
 
 DEVICE_INFO = {
-    'name': 'avr16ea32',
+    'interface': 'UPDI',
+    'name': 'avr32ea32',
     'architecture': 'avr8x',
 
     # eeprom
@@ -29,8 +30,8 @@ DEVICE_INFO = {
     'fuses_isolated_erase': False,
 
     # internal_sram
-    'internal_sram_address_byte': 0x7800,
-    'internal_sram_size_bytes': 0x0800,
+    'internal_sram_address_byte': 0x7400,
+    'internal_sram_size_bytes': 0x0C00,
     'internal_sram_page_size_bytes': 1,
     'internal_sram_read_size_bytes': 1,
     'internal_sram_write_size_bytes': 1,
@@ -47,7 +48,7 @@ DEVICE_INFO = {
     'lockbits_isolated_erase': False,
 
     # signatures
-    'signatures_address_byte': 0x00001100,
+    'signatures_address_byte': 0x00001080,
     'signatures_size_bytes': 0x3,
     'signatures_page_size_bytes': 0x80,
     'signatures_read_size_bytes': 1,
@@ -55,8 +56,17 @@ DEVICE_INFO = {
     'signatures_chiperase_effect': ChiperaseEffect.NOT_ERASED,
     'signatures_isolated_erase': False,
 
+    # boot_row
+    'boot_row_address_byte': 0x1100,
+    'boot_row_size_bytes': 0x40,
+    'boot_row_page_size_bytes': 0x40,
+    'boot_row_read_size_bytes': 0x01,
+    'boot_row_write_size_bytes': 0x40,
+    'boot_row_chiperase_effect': ChiperaseEffect.NOT_ERASED,
+    'boot_row_isolated_erase': True,
+
     # user_row
-    'user_row_address_byte': 0x00001080,
+    'user_row_address_byte': 0x1200,
     'user_row_size_bytes': 0x40,
     'user_row_page_size_bytes': 0x40,
     'user_row_read_size_bytes': 1,
@@ -80,6 +90,6 @@ DEVICE_INFO = {
     'interface': 'UPDI',
     'address_size': '24-bit',
     'prog_clock_khz': 1800,
-    'device_id': 0x1E9436,
+    'device_id': 0x1E952A,
 
 }

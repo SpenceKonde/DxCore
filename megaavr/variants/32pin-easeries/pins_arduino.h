@@ -181,12 +181,12 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL_PINSWAP_3                    (PIN_PA1)
 
 // USART 0
-#define HWSERIAL0_MUX                             (PORTMUX_USART0_DEFAULT_gc)
-#define HWSERIAL0_MUX_PINSWAP_1                   (PORTMUX_USART0_ALT1_gc)
-#define HWSERIAL0_MUX_PINSWAP_2                   (PORTMUX_USART0_ALT2_gc)
-#define HWSERIAL0_MUX_PINSWAP_3                   (PORTMUX_USART0_ALT3_gc)
-#define HWSERIAL0_MUX_PINSWAP_4                   (PORTMUX_USART0_ALT4_gc)
-#define HWSERIAL0_MUX_PINSWAP_NONE                (PORTMUX_USART0_NONE_gc)
+#define HWSERIAL0_MUX                             (0x00 /* PORTMUX_USART0_DEFAULT_gc */)
+#define HWSERIAL0_MUX_PINSWAP_1                   (0x01 /* PORTMUX_USART0_ALT1_gc */)
+#define HWSERIAL0_MUX_PINSWAP_2                   (0x02 /* PORTMUX_USART0_ALT2_gc */)
+#define HWSERIAL0_MUX_PINSWAP_3                   (0x03 /* PORTMUX_USART0_ALT3_gc */)
+#define HWSERIAL0_MUX_PINSWAP_4                   (0x04 /* PORTMUX_USART0_ALT4_gc */)
+#define HWSERIAL0_MUX_PINSWAP_NONE                (0x05)
 #define PIN_HWSERIAL0_TX                          (PIN_PA0)
 #define PIN_HWSERIAL0_RX                          (PIN_PA1)
 #define PIN_HWSERIAL0_XCK                         (PIN_PA2)
@@ -209,9 +209,9 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL0_XDIR_PINSWAP_4              (NOT_A_PIN)
 
 // USART1
-#define HWSERIAL1_MUX                             (PORTMUX_USART1_DEFAULT_gc)
-#define HWSERIAL1_MUX_PINSWAP_2                   (PORTMUX_USART1_DEFAULT_gc)
-#define HWSERIAL1_MUX_PINSWAP_NONE                (PORTMUX_USART1_NONE_gc)
+#define HWSERIAL1_MUX                             (0x00 /* PORTMUX_USART1_DEFAULT_gc */)
+#define HWSERIAL1_MUX_PINSWAP_2                   (0x02 << 3 /* PORTMUX_USART1_ALT2_gc */)
+#define HWSERIAL1_MUX_PINSWAP_NONE                (0x03 << 3)
 #define PIN_HWSERIAL1_TX                          (PIN_PC0)
 #define PIN_HWSERIAL1_RX                          (PIN_PC1)
 #define PIN_HWSERIAL1_XCK                         (PIN_PC2)
@@ -222,9 +222,9 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL1_XDIR_PINSWAP_2              (NOT_A_PIN)
 
 // USART 2
-#define HWSERIAL2_MUX                             (PORTMUX_USART2_DEFAULT_gc)
-#define HWSERIAL2_MUX_PINSWAP_1                   (PORTMUX_USART2_ALT1_gc)
-#define HWSERIAL2_MUX_PINSWAP_NONE                (PORTMUX_USART2_NONE_gc)
+#define HWSERIAL2_MUX                             (0x00 /* PORTMUX_USART2_DEFAULT_gc */)
+#define HWSERIAL2_MUX_PINSWAP_1                   (0x01 /* PORTMUX_USART2_ALT1_gc */)
+#define HWSERIAL2_MUX_PINSWAP_NONE                (0x03 /* PORTMUX_USART2_NONE_gc */)
 #define PIN_HWSERIAL2_TX                          (PIN_PF0)
 #define PIN_HWSERIAL2_RX                          (PIN_PF1)
 #define PIN_HWSERIAL2_XCK                         (PIN_PF2)

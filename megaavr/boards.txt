@@ -180,7 +180,7 @@ avrda.bootloader.BOOTSIZE=0x01
 avrda.bootloader.avrdudestring=
 avrda.bootloader.pymcuprogstring=-aerase
 avrda.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrda.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrda.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
 #----------------------------------------#
 # Upload and programming                 #
 #________________________________________#
@@ -190,7 +190,7 @@ avrda.upload.maximum_size=0
 avrda.upload.maximum_data_size=0
 # The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
 # Each top-level entry supports at least a dozen parts with varying memory constraints.
-avrda.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrda.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avrda.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -652,7 +652,7 @@ avrdb.bootloader.BOOTSIZE=0x01
 avrdb.bootloader.avrdudestring=
 avrdb.bootloader.pymcuprogstring=-aerase
 avrdb.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrdb.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdb.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
 #----------------------------------------#
 # Upload and programming                 #
 #________________________________________#
@@ -662,7 +662,7 @@ avrdb.upload.maximum_size=0
 avrdb.upload.maximum_data_size=0
 # The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
 # Each top-level entry supports at least a dozen parts with varying memory constraints.
-avrdb.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdb.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avrdb.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -1156,7 +1156,7 @@ avrdd.bootloader.BOOTSIZE=0x01
 avrdd.bootloader.avrdudestring=
 avrdd.bootloader.pymcuprogstring=-aerase
 avrdd.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrdd.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdd.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
 #----------------------------------------#
 # Upload and programming                 #
 #________________________________________#
@@ -1166,8 +1166,8 @@ avrdd.upload.maximum_size=0
 avrdd.upload.maximum_data_size=0
 # The maximum size and data size attributes are overridden by the selected chip. If you are avoiding specifying that somehow, there is no hope of anything working, so don't do that.
 # Each top-level entry supports at least a dozen parts with varying memory constraints.
-avrdd.program.supdidudefuse5=
-avrdd.program.avrdudefuse5=
+avrdd.program.serupdifuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrdd.program.avrdudefuse5=5:{bootloader.SYSCFG0}
 
 
 #----------------------------------------#
@@ -2042,12 +2042,12 @@ avrea.bootloader.BOOTSIZE=0x00
 avrea.bootloader.avrdudestring=
 avrea.bootloader.pymcuprogstring=-aerase
 avrea.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrea.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrea.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
 #----------------------------------------#
 # Upload and programming                 #
 #________________________________________#
-avrea.program.avrdudefuse5=
-avrea.program.supdidudefuse5=
+avrea.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrea.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avrea.upload.tool=avrdude
 avrea.upload.prog_interlock=
 avrea.upload.maximum_size=0
@@ -2503,12 +2503,12 @@ avreb.bootloader.BOOTSIZE=0x01
 avreb.bootloader.avrdudestring=
 avreb.bootloader.pymcuprogstring=-aerase
 avreb.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avreb.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
+avreb.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
 #----------------------------------------#
 # Upload and programming                 #
 #________________________________________#
-avreb.program.avrdudefuse5=
-avreb.program.supdidudefuse5=
+avreb.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avreb.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avreb.upload.tool=avrdude
 avreb.upload.prog_interlock=
 avreb.upload.maximum_size=0
@@ -2957,8 +2957,8 @@ avrdaopti.build.printf=
 avrdaopti.build.flmapopts=
 avrdaopti.build.attachmode=-DCORE_ATTACH_ALL
 avrdaopti.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrdaopti.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
-avrdaopti.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdaopti.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
+avrdaopti.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avrdaopti.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Bootloading parameters and fuses       #
@@ -3473,8 +3473,8 @@ avrdbopti.bootloader.BOOTSIZE=0x01
 avrdbopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrdbopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 avrdbopti.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrdbopti.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
-avrdbopti.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrdbopti.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
+avrdbopti.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avrdbopti.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Upload parameters for Optiboot         #
@@ -4023,8 +4023,8 @@ avrddopti.bootloader.BOOTSIZE=0x01
 avrddopti.bootloader.avrdudestring=-Uflash:w:{bootloader.file}:i
 avrddopti.bootloader.pymcuprogstring=-f "{bootloader.file}" -a write
 avrddopti.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
-avrddopti.bootloader.supdidudefuse5=5:{bootloader.SYSCFG0}
-avrddopti.program.supdidudefuse5=5:{bootloader.SYSCFG0}
+avrddopti.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
+avrddopti.program.serupdifuse5=5:{bootloader.SYSCFG0}
 avrddopti.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
 #----------------------------------------#
 # Upload parameters for Optiboot         #

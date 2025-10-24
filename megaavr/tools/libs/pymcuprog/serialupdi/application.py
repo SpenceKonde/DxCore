@@ -5,7 +5,7 @@ from logging import getLogger
 from pymcuprog.pymcuprog_errors import PymcuprogError
 from . import constants
 from .link import UpdiDatalink16bit, UpdiDatalink24bit
-from .nvm import NvmUpdi, NvmUpdiTinyMega, NvmUpdiAvrDx
+from .nvm import NvmUpdi, NvmUpdiP2, NvmUpdiP0, NvmUpdiP3, NvmUpdiP4, NvmUpdiP5
 from .readwrite import UpdiReadWrite
 from .physical import UpdiPhysical
 from .timeout import Timeout
@@ -18,7 +18,7 @@ def decode_sib(sib):
     """
     sib_info = {}
     logger = getLogger(__name__)
-    
+
     sib = sib.replace(b"\x00", b"")
 
     try:
@@ -103,9 +103,9 @@ class UpdiApplication:
                 self.logger.error("Hard reset failed.")
                 raise RuntimeError("Failed to read device info.")
 
-        if sib_info['NVM'] == '2':
+        if sib_info['NVM'] == '5':
             # This is a Dx-family member, and needs new DL and NVM
-            self.logger.info("Using 24-bit UPDI")
+            self.logger.info("Using 24-bit UPDI paged mode 5")
             # Create new DL
             datalink = UpdiDatalink24bit()
             # Use the existing PHY
@@ -115,12 +115,51 @@ class UpdiApplication:
             # Create a read write access layer using this data link
             self.readwrite = UpdiReadWrite(datalink)
             # Create new NVM driver
-            self.nvm = NvmUpdiAvrDx(self.readwrite, self.device)
+            self.nvm = NvmUpdiP5(self.readwrite, self.device)
+        elif sib_info['NVM'] == '4':
+            # This is a Dx-family member, and needs new DL and NVM
+            self.logger.info("Using 24-bit UPDI pageless mode 4")
+            # Create new DL
+            datalink = UpdiDatalink24bit()
+            # Use the existing PHY
+            datalink.set_physical(self.phy)
+            # And re-init
+            datalink.init_datalink()
+            # Create a read write access layer using this data link
+            self.readwrite = UpdiReadWrite(datalink)
+            # Create new NVM driver
+            self.nvm = NvmUpdiP4(self.readwrite, self.device)
+        elif sib_info['NVM'] == '3':
+            # This is a Dx-family member, and needs new DL and NVM
+            self.logger.info("Using 24-bit UPDI paged mode 3")
+            # Create new DL
+            datalink = UpdiDatalink24bit()
+            # Use the existing PHY
+            datalink.set_physical(self.phy)
+            # And re-init
+            datalink.init_datalink()
+            # Create a read write access layer using this data link
+            self.readwrite = UpdiReadWrite(datalink)
+            # Create new NVM driver
+            self.nvm = NvmUpdiP3(self.readwrite, self.device)
+        elif sib_info['NVM'] == '2':
+            # This is a Dx-family member, and needs new DL and NVM
+            self.logger.info("Using 24-bit UPDI pageless mode 2")
+            # Create new DL
+            datalink = UpdiDatalink24bit()
+            # Use the existing PHY
+            datalink.set_physical(self.phy)
+            # And re-init
+            datalink.init_datalink()
+            # Create a read write access layer using this data link
+            self.readwrite = UpdiReadWrite(datalink)
+            # Create new NVM driver
+            self.nvm = NvmUpdiP2(self.readwrite, self.device)
         else:
             self.logger.info("Using 16-bit UPDI")
             # DL is correctly configured already
             # Create new NVM driver
-            self.nvm = NvmUpdiTinyMega(self.readwrite, self.device)
+            self.nvm = NvmUpdiP0(self.readwrite, self.device)
 
         self.logger.info("PDI revision = 0x%02X", self.readwrite.read_cs(constants.UPDI_CS_STATUSA) >> 4)
         if self.in_prog_mode():

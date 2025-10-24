@@ -154,9 +154,9 @@ Include guard and include basic libraries. We are normally including this inside
 // TWI 1 not available - no supported pins present!
 
 // USART 0
-#define HWSERIAL0_MUX                   (PORTMUX_USART0_DEFAULT_gc)
-#define HWSERIAL0_MUX_PINSWAP_1         (PORTMUX_USART0_ALT1_gc)
-#define HWSERIAL0_MUX_PINSWAP_NONE      (PORTMUX_USART0_NONE_gc)
+#define HWSERIAL0_MUX                   (0x00 /* PORTMUX_USART0_DEFAULT_gc */)
+#define HWSERIAL0_MUX_PINSWAP_1         (0x01 /* PORTMUX_USART0_ALT1_gc */)
+#define HWSERIAL0_MUX_PINSWAP_NONE      (0x03)
 #define PIN_HWSERIAL0_TX                (PIN_PA0)
 #define PIN_HWSERIAL0_RX                (PIN_PA1)
 #define PIN_HWSERIAL0_XCK               (PIN_PA2)
@@ -167,16 +167,16 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL0_XDIR_PINSWAP_1    (PIN_PA7)
 
 // USART1
-#define HWSERIAL1_MUX                   (PORTMUX_USART1_DEFAULT_gc)
-#define HWSERIAL1_MUX_PINSWAP_NONE      (PORTMUX_USART1_NONE_gc)
+#define HWSERIAL1_MUX                   (0x00 /* PORTMUX_USART1_DEFAULT_gc */)
+#define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 2 /* PORTMUX_USART1_NONE_gc */)
 #define PIN_HWSERIAL1_TX                (PIN_PC0)
 #define PIN_HWSERIAL1_RX                (PIN_PC1)
 #define PIN_HWSERIAL1_XCK               (PIN_PC2)
 #define PIN_HWSERIAL1_XDIR              (PIN_PC3)
 
 // USART 2
-#define HWSERIAL2_MUX                   (PORTMUX_USART2_DEFAULT_gc)
-#define HWSERIAL2_MUX_PINSWAP_NONE      (PORTMUX_USART2_NONE_gc)
+#define HWSERIAL2_MUX                   (0x00 /* PORTMUX_USART2_DEFAULT_gc */)
+#define HWSERIAL2_MUX_PINSWAP_NONE      (0x03 << 4)
 #define PIN_HWSERIAL2_TX                (PIN_PF0)
 #define PIN_HWSERIAL2_RX                (PIN_PF1)
 #define PIN_HWSERIAL2_XCK               (NOT_A_PIN)
