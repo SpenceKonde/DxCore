@@ -150,7 +150,7 @@ def print_report(args):
     print("UPDI programming for Arduino using a serial adapter")
     print("Based on pymcuprog, with significant modifications")
     print("By Quentin Bolsee and Spence Konde")
-    print("Version 1.3.1 - Aug 2025")
+    print("Version 1.4.0 - Oct 2025")
     print("Using serial port {} at {} baud.".format(args.uart, args.baudrate))
     if (args.write_chunk != -1):
         print("Writing in chunks not longer than {} bytes (-wc).".format(args.write_chunk))
