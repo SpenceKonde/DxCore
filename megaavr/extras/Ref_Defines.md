@@ -312,7 +312,7 @@ Occasionally Microchip has not kept the names of registers or bitfields consiste
 * All multi-bit bitfields - the `_bp` and `_bm` defines now have an underscore before the bit number. There are about a thousand impacted defines. At least they had the decency to bump the major version.
 
 ## Errata
-There are ah, a lot of errata on these parts, sad to say. See the [errata summary](./Errata.md) for details on them.
+There are ah, a lot of errata on these parts, sad to say. See the [errata summary](./Ref_Errata.md) for details on them.
 These constants are defined as either:
 * `ERRATA_IRREL` (-128) - This errata does not apply to a part family because the conditions that would make it manifest can never exist there (ex: ERRATA_PORT_PD0 is irrelevant to the DA, because there are no DA parts that don't have a PD0, only smaller DBs have that issue (the nominal PD0 pin is where they put the VDDIO2 pin instead, but the input buffer for PD0 was still present, and with no pin, would always be floating, and needs to have it's input buffer turned off to avoid wasting power).
 * `-1` - This applies to all specimens of this part.

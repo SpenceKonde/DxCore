@@ -231,7 +231,7 @@ tools.serialupdi.upload.pattern=echo "This can't happen, but has to be here or a
 # write fuses 0, 1, 2, 5, 6, 7, 8.
 # 2 is always written 0 (sets clock to use HF osc, not 32kHz ULP).
 # Fuses 3 and 4 are reserved.
-tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 2:{bootloader.OSCCFG}  {bootloader.supdidudefuse5}  6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} {bootloader.pymcuprogstring} {bootloader.verbose}
+tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 2:{bootloader.OSCCFG}  {bootloader.serupdifuse5}  6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} {bootloader.pymcuprogstring} {bootloader.verbose}
 
 ## Program pattern (all uploads through SerialUPDI)
 # Program will set fuses 2, 6 and 8 only. Fuses 0 and 4 are not written because the core never configures that.
@@ -242,7 +242,7 @@ tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/pr
 # ensuring that a part previously set to use a bootloader will be unbootloaded cleanly, instead of the
 # bootloader being erased but no sketches working)
 
-tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py"  -t {protocol} {program.extra_params} -d {build.mcu} --fuses  2:{bootloader.OSCCFG} {program.supdidudefuse5} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}
+tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py"  -t {protocol} {program.extra_params} -d {build.mcu} --fuses  2:{bootloader.OSCCFG} {program.serupdifuse5} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}
 
 ###############
 # Expert Mode #
