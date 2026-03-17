@@ -1042,15 +1042,15 @@ DB silicon with die rev 0x11 is available.*/
   #define ADC_MAXIMUM_ACCUMULATE       (1024) // This allows the 5 extra bits of resolution
   #define ADC_RESULT_SIZE                (24)
   #define ADC_SIGNCHOPPING                (1) // if defined, sign chopping can be enabled
-#elif defined(ADC0_MUXNEG)                    /* I don't know what unofficial version to use. It's a *downgrade* of the v2.0 to capabilities below what I dubbed the 1.5 */
+#elif defined(ADC_LOWLAT_bm)
   #define ADC_VERSION                  (0xFA) // F'n A! The DU had it rough at the hands of the USB natives...
   #define ADC_DIFFERENTIAL                (0) // They took his differential mode!
-  #define ADC_MAX_OVERSAMPLED_RESOLUTION (13) // He can only remember 64 samples in accumulated mode (memory loss from repeated blows to the head)
-  #define ADC_NATIVE_RESOLUTION          (10) // and ah.. they took off two bits...    *I told him they weren't friendly...
-  #define ADC_NATIVE_RESOLUTION_LOW       (8)
-  #define ADC_MAXIMUM_ACCUMULATE       (1024) // This allows the 5 extra bits of resolution
-  #define ADC_RESULT_SIZE                (24)
-  #define ADC_SIGNCHOPPING                (1)
+  #define ADC_MAX_OVERSAMPLED_RESOLUTION (13) // Memory loss too - He can only remember 64 samples in accumulated mode...
+  #define ADC_NATIVE_RESOLUTION          (10) // and ah.. they took off two bits
+  #define ADC_NATIVE_RESOLUTION_LOW       (8) // *I told him they weren't friendly...
+  #define ADC_MAXIMUM_ACCUMULATE         (64)
+  #define ADC_RESULT_SIZE                (16)
+  #define ADC_SIGNCHOPPING                (0)
 
 #else                                         // Dx-series ADCs are less fancy.
   #define ADC_DIFFERENTIAL                (1) // Crapola differential ADC that is effectively kicking off two ADCs at once

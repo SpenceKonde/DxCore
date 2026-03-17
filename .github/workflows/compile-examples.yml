@@ -229,9 +229,10 @@ jobs:
             flash-class: 128
           - device-family: eb
             flash-class: 64
-          # Only headers for 16EB released.
           - device-family: eb
-            flash-class: 32
+            pincount: 64
+          - device-family: eb
+            pincount: 48
           # ugly Dx/Ex hack. Dx excludes 20 MHz internal osc, Ex 24 MHz.
           - int-osc: 20
             device-family: da
@@ -304,8 +305,6 @@ jobs:
           - overclock-osc: 16
             device-family: ea
             clocksource: extclock
-          - device-family: eb
-          - device-family: du
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

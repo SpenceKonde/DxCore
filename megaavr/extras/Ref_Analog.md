@@ -219,10 +219,6 @@ Enhanced `analogRead()` - Perform a single-ended read on the specified pin. `res
   // tinyAVR 0/1-series, this will be sampled 64 times, as we need 3 more bits, hence we need to take 2^(3*2) = 64 samples then rightshift them 3 times.,
   int32_t adc_reading2 = analogReadEnh(PIN_PD2, ADC_ACC128);
   // Take 128 samples and accumulate them. This value, k, is 19 bits wide; on the Dx-series parts, this is truncated to 16 bits - the hardware does not expose the three LSBs.
-  int32_t adc_reading3 = analogReadEnh(PIN_PD2, ADC_CHOP(14));
-  // oversa,[;e amd decimate to try for 14-bits of accuracy use sign chopping to redue offset error (Ex-only)
-  int32_t adc_reading3 = analogReadEnh(PIN_PD2, ADC_ACC64S);
-  // Similar to the raw accumulation above, this does the same thing, only with sign chopping turned on (Ex-only)
 ```
 
 Negative values from ADC_ENH always indicate a runtime error; these values are easily recognized, as they are huge negative numbers
@@ -241,6 +237,8 @@ On the Dx-series, the measured voltages must be less than VRef; this makes diffe
 The 32-bit value returned should be between -65536 and 65535 at the extremes with the maximum 17-bit accumulation option, or, 32-times that if using raw accumulated values (-2.1 million to 2.1 million, approximately).
 
 This, again, is easy to distinguish from an error code, as the error codes are close to -2.1 **b**illion.
+
+Pending testing, the Sign Choppiing feature will be exposed in a manner to be determined.
 
 **ERRATA ALERT** There is a mildly annoying silicon bug in early revisions of the AVR DA parts (as of a year post-release in 2021, these are still the only ones available) where whatever pin the ADC positive multiplexer is pointed at, digital reads are disabled. This core works around it by always setting the the ADC multiplexer to point at ADC_GROUND when it is not actively in use; however, be aware that you cannot, say, set an interrupt on a pin being subject to continuous analogReads and expect it to work correctly (not that this is particularly useful).
 
@@ -460,7 +458,7 @@ ADC_CH(channel number)          - converts channel numbers to analog channel ide
 
 ```
 
-Try not to use these unless you're getting really deep into library development and direct interaction with the ADC; we provide all the constants you will need. listed above.
+Try not to use these unless you're getting really deep into library development and direct interaction with the ADC; we provide all the constants you will need.
 
 ## Microchip Documentation
 Has been much expanded and I'm very happy to see this sort of document produced before the EA release. Wondering about the numbering? Well, TB stands for Technical Brief, which is different in some way from an Application Note (AN), and obviously a whitepaper or "Datasheet" (DS) is something else altogether. Even when they're about the same length and contain similar types of content. S

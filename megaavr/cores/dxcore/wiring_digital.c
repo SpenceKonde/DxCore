@@ -234,9 +234,9 @@ void turnOffPWM(uint8_t pin) {
       // Dx-series
       if (((digital_pin_timer & 0xC0) == 0x40) && (__PeripheralControl & TIMERD0)) { // TCD
         uint8_t tcdmux = digital_pin_timer & 0x07;
-        uint8_t usetcd0 = 0;
         uint8_t muxval = ((PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm) >> PORTMUX_TCD0_gp );
         #if !defined(__AVR_DA__)
+          uint8_t usetcd0 = 0;
           if (tcdmux == muxval)
             usetcd0 = 1;
           #if !(defined(__AVR_DA__) || defined(__AVR_DB__))

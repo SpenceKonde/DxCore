@@ -218,7 +218,7 @@ On *megaTinyCore*, troubleshooting is generally straightforward, and on the DA, 
   * If there is - you're sure the signal is there even when you're not pressing with the scope probe? Try uploading some dead simple test sketch;
   * You are not prevented from simply uploading a new sketch compiled to use a different clock source. Uploading something totally different (ex, blink) with clock set to an internal source without tuning.
     * I do not believe it is possible for anything other that wiring/connection/soldering issue provided that a known working serial adapter (FT232RL and fakes), afaik all the WCH USB-serial bridges (the 343 is a nicer single port one,and the 342 is a nicer *DUAL*  serial chip. They start to get annoying to route after that,)
-
+* When you start using a crystal,
 
 
 ### Blink Codes (DxCore only)
@@ -264,7 +264,7 @@ void onClockFailure() {
 A number of behaviors have been observed when the clock has been configured wrong, is not functioning, or that particcular specimen can't do the overclocking you are asking of it.
 
 1. If there is a crystal/oscillator which does not oscillate at all, you will get the blink code On-Off-On, then 3 brief "antiblinks" where the led turns off momentarily, then Off-On-Off and 3 brief flashes, repeating. (this pattern of alternating inverted output is meant to be unlikely to mimic sketch behavior).
-2. If there is a crystal, but it is defective, damaged, or being used outside it's operating range, it may "limp", or intermittently oscillate with inconsistent pulse lengthsfrom cycleto cycle, leading the the spec for change in length of consecutive clock cycles being violated
+2. If there is a crystal, but it is defective, damaged, or being used outside it's operating range, it may "limp", or intermittently oscillate with inconsistent pulse lengthsfrom cycleto cycle,
 3. If the clock source fails while the system is running, a DA-series will hang (until something resets it - the WDT, the reset button, or powecycling are the only ways to get it out of this state.
 4. A clock failure while running very often resets the chip (likely a [dirty reset](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md#the-danger-of-dirty-resets), caused by incorrect execution of instructions when the variation between clock periods is far in excess of the manufacturer spec and it fumbles math with the program counter - the most common overclock manifestation as far as I can tell is 1's in math and memory access and like, everything coming out as 0', often and entire byte full)
 5. A clock source that resets the chip or hangs immediately upon switching to it is much easier to detect if using Optiboot - however, you could blink an LED before the switch to see if it's hanging or bootlooping by overriding onPreMain():

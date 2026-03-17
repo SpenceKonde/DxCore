@@ -103,13 +103,11 @@ Include guard and include basic libraries. We are normally including this inside
 
 // PWM pins
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3) || ((p) == PIN_PC0))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PC0))
-#elif defined(MILLIS_USE_TIMERB2)
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2))
 #else //no TCB's are used for millis
-  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3) || ((p) == PIN_PC0))
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
 #endif
 
 // Timer pin mapping
@@ -328,10 +326,10 @@ static const uint8_t A31 = PIN_A31;
     PA,         //  1 PA1/USART0_Rx
     PA,         //  2 PA2/AIN22/SDA
     PA,         //  3 PA3/AIN23/SCL
-    PA,         //  4 PA4/AIN24/MOSI/TCD0 PWM WOA (default)
-    PA,         //  5 PA5/AIN25/MISO/TCD0 PWM WOB (default)
-    PA,         //  6 PA6/AIN26/SCK/TCD0 PWM WOC (default. WOA and WOC cannot output different duty cycle)
-    PA,         //  7 PA7/AIN27/SS/CLKOUT/LED_BUILTIN/TCD0 PWM (default. WOB and WOB cannot output different duty cycle)
+    PA,         //  4 PA4/AIN24/MOSI
+    PA,         //  5 PA5/AIN25/MISO
+    PA,         //  6 PA6/AIN26/SCK
+    PA,         //  7 PA7/AIN27/SS/CLKOUT/LED_BUILTIN
     PC,         //  8 PC0/AIN28/USART1_TX
     PC,         //  9 PC1/AIN29/USART1_RX
     PC,         // 10 PC2/AIN30
@@ -434,15 +432,15 @@ static const uint8_t A31 = PIN_A31;
   };
 
   const uint8_t digital_pin_to_timer[] = {
-    NOT_ON_TIMER, //  0 PA0 TCA0 ALT0
-    NOT_ON_TIMER, //  1 PA1 TCA0 ALT0
-    TIMERB0,      //  2 PA2 TCA0 ALT0/TCB WO DEFAULT (default)
-    TIMERB1,      //  3 PA3 TCA0 ALT0/TCB WO DEFAULT (default)
-    TIMERD0_0WOA, //  4 PA4 TCA0 ALT0/TCD WOA DEFAULT+ALT4 (default)
-    TIMERD0_0WOA, //  5 PA5 TCA0 ALT0/TCD WOB DEFAULT+ALT4 (default)
-    TIMERD0_0WOA, //  6 PA6 TCD WOC mirrors WOA DEFAULT (default)
-    TIMERD0_0WOA, //  7 PA7 TCD WOD mirrors WOB DEFAULT (default)
-    TIMERB2,      //  8 PC0 TCA0 ALT2/TCB2 (TCB2 used for millis, not PWM)
+    NOT_ON_TIMER, //  0 PA0
+    NOT_ON_TIMER, //  1 PA1
+    TIMERB0,      //  2 PA2
+    TIMERB1,      //  3 PA3
+    NOT_ON_TIMER, //  4 PA4
+    NOT_ON_TIMER, //  5 PA5
+    NOT_ON_TIMER, //  6 PA6
+    NOT_ON_TIMER, //  7 PA7
+    NOT_ON_TIMER, //  8 PC0 TCA0 ALT2/TCB2 (TCB2 used for millis, not PWM)
     NOT_ON_TIMER, //  9 PC1 TCA0 ALT2
     NOT_ON_TIMER, // 10 PC2 TCA0 ALT2
     NOT_ON_TIMER, // 11 PC3 TCA0 ALT2
@@ -450,14 +448,14 @@ static const uint8_t A31 = PIN_A31;
     NOT_ON_TIMER, // 13 PD1 TCA0 ALT3
     NOT_ON_TIMER, // 14 PD2 TCA0 ALT3
     NOT_ON_TIMER, // 15 PD3 TCA0 ALT3
-    TIMERD0_4WOC, // 16 PD4 TCA0 ALT3/TCD WOC mirrors WOA ALT4
-    TIMERD0_4WOD, // 17 PD5 TCA0 ALT3/TCD WOD mirrors WOB ALT4
-    DACOUT,       // 18 PD6 DAC0 output
+    NOT_ON_TIMER, // 16 PD4 TCA0 ALT3
+    NOT_ON_TIMER, // 17 PD5 TCA0 ALT3
+    NOT_ON_TIMER, // 18 PD6 DAC0 output
     NOT_ON_TIMER, // 19 PD7
-    TIMERD0_2WOA, // 20 PF0 TCA0 WO0 ALT5 (default)/TCD WOA ALT2
-    TIMERD0_2WOB, // 21 PF1 TCA0 WO1 ALT5 (default)/TCD WOB ALT2
-    TIMERD0_2WOC, // 22 PF2 TCA0 WO2 ALT5 (default)/TCD WOC mirrors WOA ALT2
-    TIMERD0_2WOD, // 23 PF3 TCA0 WO3 ALT5 (default)/TCD WOD mirrors WOB ALT2
+    NOT_ON_TIMER, // 20 PF0 TCA0 WO0 ALT5 (default)
+    NOT_ON_TIMER, // 21 PF1 TCA0 WO1 ALT5 (default)
+    NOT_ON_TIMER, // 22 PF2 TCA0 WO2 ALT5 (default)
+    NOT_ON_TIMER, // 23 PF3 TCA0 WO3 ALT5 (default)
     NOT_ON_TIMER, // 24 PF4 TCA0 WO4 ALT5 (default)
     NOT_ON_TIMER, // 25 PF5 TCA0 WO5 ALT5 (default)
     NOT_ON_TIMER, // 26 PF6 RESET

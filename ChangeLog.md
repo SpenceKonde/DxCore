@@ -8,7 +8,7 @@ These items are in addition to what was listed under changes already in release.
 * Enhancement: We need pinout diagrams for DU-series too!
 * Enhancement: We need pinout diagrams for EB-series too!
 * Enhancement: AVRdude ~7.2~ 8.0 out.
-* Bugfix: Make serialupdi work with EA, EB **CRITICAL**
+* ~Bugfix: Make serialupdi work with EA, EB **CRITICAL**~ Donq
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
 * Ensure libraries in sync with megaTinyCore.
@@ -32,6 +32,8 @@ These items are in addition to what was listed under changes already in release.
 * Remove the UPDI as GPIO pin option from non-optiboot parts because an analysis revealed that there was no configuration in which DxCore could be used in it's present form with the UPDI as GPIO option selected could be used with supported hardwae to prodice results other than bricked chips that core and supported hardware is unable to recover. Accordingly, these options should not be left as traps for the unwary.
 * Major documentation improvements focusing on main README.md.
 * Major documentation improvements focusing on Ref_Analog and Ref_Interrupts, the latter of which was previously the same file from megaTinyCore.
+* Correct bug in ADC init code that set Ex-series parts to the wrong ADC clock speed.
+*
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)
