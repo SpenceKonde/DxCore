@@ -7,13 +7,14 @@ These items are in addition to what was listed under changes already in release.
 * Enhancement: We need pinout diagrams for EA-series too!
 * Enhancement: We need pinout diagrams for DU-series too!
 * Enhancement: We need pinout diagrams for EB-series too!
-* Enhancement: AVRdude ~7.2~ 8.0 out.
-* ~Bugfix: Make serialupdi work with EA, EB **CRITICAL**~ Donq
+* Enhancement: AVRdude ~7.2~ 8.0 out. We should figure out how to use it.
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
-* Ensure libraries in sync with megaTinyCore.
 
-## Expected 1.6.0
+
+## Released changes
+### 1.6.0
+* **1.6.0 should be treated as a test release, because I need to get the new toolchain into the testing environment in order for the automated tests to see what doesn't compile, but the test environment only gets the previous release's dependancies, so until I release with the new toolchain, I can't do automated tests against it.**
 * OSCCFG is now written for Dx-series parts. We have never supported any option other that 0x00 on those parts, and the hardware only supports one other value, which starts the chip on the 32 kHz oscillator.
 * Support for the PTC peripheral on DA parts
 * Correct bug with EA-series parts having the SYSCFG0 fuse set during normal uploads, which is inappropriate, because if the UPDIPINCFG bit is not 1, the chip can only be reprogrammed with an exotic HV programmer.
@@ -29,11 +30,16 @@ These items are in addition to what was listed under changes already in release.
 * Correct version number to 1.6.0. Due to this confusion (it was 1.6.10 for a loong time, then 1.6.11, then corrected to 1.6.0 (but never released in that time), 1.7.0 will be the next version that brings tool updates (since I need to do a release to make testing work on new parts, which will occur under 1.6.x versions, and once I have the other things sorted out for the tooling issues, that's the signal to release 1.7.0; 1.6.0 in turn gets released when I think the EB and DU parts (less USB - I dont know USB) are close enough to working that they will benefit from automated testing. As of 9/9/2025, I can fail to compile blink on all EB parts, and I think I've got most of the work done to add support for failing to compile on DU parts as well as early as today. )
 * Fix variant files again.
 * Fix MAX38903 library (I was trying to use one of the damned boards!)
-* Remove the UPDI as GPIO pin option from non-optiboot parts because an analysis revealed that there was no configuration in which DxCore could be used in it's present form with the UPDI as GPIO option selected could be used with supported hardwae to prodice results other than bricked chips that core and supported hardware is unable to recover. Accordingly, these options should not be left as traps for the unwary.
+* Remove the UPDI as GPIO pin option from non-optiboot parts
+  * An analysis of all plausible hardware configurations (there aren't many with relevant differences for this matter) revealed that, with the UPDI as GPIO option selected, there was no combination of hardware connections and software options which would write a working sketch to the part with the UPDI disabled fuse set:
+    * At present we only write that fuse on burn bootloader.
+    * burn bootloader also erases the flash. I
+    * But, if you've erased the flash and set that fuse, the core doesn't currently support any HV programmers as those remain exotic items.
+    * Thus, that option can never achieve what it advertises in the current form, and should not be offered unless and until it can.
+    * As the outcome of attempts to use it is loss of hardware, an argument can be made that it shouldn't be available by default (users have to uncomment something to enable it, becasue it's too much of a "brick my parts" button
 * Major documentation improvements focusing on main README.md.
 * Major documentation improvements focusing on Ref_Analog and Ref_Interrupts, the latter of which was previously the same file from megaTinyCore.
 * Correct bug in ADC init code that set Ex-series parts to the wrong ADC clock speed.
-*
 
 ### 1.5.11 (Emergency fix)
 * At some point in the recent past, I must have angered the gods of C, and suddenly millis disabled stopped working - the system would hang (actually, with in-depth investigation, it was shown to be bootlooping - before it called init(), it was calling 0x0000 (a dirty reset) instead of eliding a weakly defined function with nothing in the body except a return, or with an empty body. Why was it doing this? And why only when millis was disabled?). millis disabled is a key piece of core functionality, necessitating an urgent fix. Moving the definitions into main.cpp resolved this issue. (#485)
