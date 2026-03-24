@@ -27,16 +27,17 @@ These items are in addition to what was listed under changes already in release.
 * Fix issue with 0ms SUT.
 * Update toolchain to add support EB, small flash EA, and DU.
 * Completely reimplement the timer detection code in analogWrite, digitalPinToTimerNow and turnOffPWM (hence digitalWrite). Appears to now work correctly.
-* Correct version number to 1.6.0. Due to this confusion (it was 1.6.10 for a loong time, then 1.6.11, then corrected to 1.6.0 (but never released in that time), 1.7.0 will be the next version that brings tool updates (since I need to do a release to make testing work on new parts, which will occur under 1.6.x versions, and once I have the other things sorted out for the tooling issues, that's the signal to release 1.7.0; 1.6.0 in turn gets released when I think the EB and DU parts (less USB - I dont know USB) are close enough to working that they will benefit from automated testing. As of 9/9/2025, I can fail to compile blink on all EB parts, and I think I've got most of the work done to add support for failing to compile on DU parts as well as early as today. )
-* Fix variant files again.
+* Correct version number to 1.6.0 (it has read 1.6.10 and 1.6.11 previously during development, which obviously was not correct). Once all problems are sorted out, 1.7.0 will be released as a better tested codebase
 * Fix MAX38903 library (I was trying to use one of the damned boards!)
 * Remove the UPDI as GPIO pin option from non-optiboot parts
   * An analysis of all plausible hardware configurations (there aren't many with relevant differences for this matter) revealed that, with the UPDI as GPIO option selected, there was no combination of hardware connections and software options which would write a working sketch to the part with the UPDI disabled fuse set:
-    * At present we only write that fuse on burn bootloader.
-    * burn bootloader also erases the flash. I
-    * But, if you've erased the flash and set that fuse, the core doesn't currently support any HV programmers as those remain exotic items.
-    * Thus, that option can never achieve what it advertises in the current form, and should not be offered unless and until it can.
-    * As the outcome of attempts to use it is loss of hardware, an argument can be made that it shouldn't be available by default (users have to uncomment something to enable it, becasue it's too much of a "brick my parts" button
+    * We only wrote that fuse on burn bootloader.
+    * It can brick the part, so ya can't have general audience libraries doing that on upload!
+    * But if you don't do it on upload, then you have to do it with burn bootloader
+    * Which means you need an HV programmer to upload
+    * We have no support for one as I'm not aware of any widely available ones.
+    * Ergo, the only thing which could result from the option as implemented was to soft-brick devices.
+    * Bricking user devices is not an intended feature, despite some evidence to the contrary (see third item in changelist)
 * Major documentation improvements focusing on main README.md.
 * Major documentation improvements focusing on Ref_Analog and Ref_Interrupts, the latter of which was previously the same file from megaTinyCore.
 * Correct bug in ADC init code that set Ex-series parts to the wrong ADC clock speed.
