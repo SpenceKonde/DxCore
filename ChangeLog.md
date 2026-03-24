@@ -3,16 +3,18 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 
 ## Planned changes not yet implemented
 These items are in addition to what was listed under changes already in release.These are typically planned for release in a future version (usually the next one) as noted.
-* Enhancement: Fix pinout diagrams for DD-series.
-* Enhancement: We need pinout diagrams for EA-series too!
-* Enhancement: We need pinout diagrams for DU-series too!
-* Enhancement: We need pinout diagrams for EB-series too!
 * Enhancement: AVRdude ~7.2~ 8.0 out. We should figure out how to use it.
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
 
+## Unreleased Changes
 
-## Released changes
+### Planned for 1.6.1
+* TBD
+
+## Released Changes
+
+
 ### 1.6.0
 * **1.6.0 should be treated as a test release, because I need to get the new toolchain into the testing environment in order for the automated tests to see what doesn't compile, but the test environment only gets the previous release's dependancies, so until I release with the new toolchain, I can't do automated tests against it.**
 * OSCCFG is now written for Dx-series parts. We have never supported any option other that 0x00 on those parts, and the hardware only supports one other value, which starts the chip on the 32 kHz oscillator.
