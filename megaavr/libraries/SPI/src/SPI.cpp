@@ -586,10 +586,14 @@ void SPIClass::setDataMode(uint8_t mode) {
   SPI_MODULE.CTRLB = ((SPI_MODULE.CTRLB & (~SPI_MODE_gm)) | (mode));
 }
 
+
 void SPIClass::setClockDivider(uint8_t div) {
-  SPI_MODULE.CTRLA = ((SPI_MODULE.CTRLA &
-                  ((~SPI_PRESC_gm | SPI_CLK2X_bm)))  // mask out values
-                  | div);                           // write value
+  mode_gm = ~(SPI_MODE_gm | SPI_CLK2X_bm);
+  if (div & mode_gm)
+  if (__builtin_constant_p(div))
+  uint8_t tem = SPI_MODULE.CTRLA;
+  tem &= ~SPI_PRESC_gm;
+  tem |=  div;
 }
 
 uint8_t SPIClass::transfer(uint8_t data) {
