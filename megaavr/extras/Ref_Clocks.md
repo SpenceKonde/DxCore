@@ -9,20 +9,20 @@ The modern AVRs can broadly be divided into two groups based on their
 ## Background - how the clock is generated
 See also [the timer reference](Ref_Timers.md)
 
-Heading        | TinyAVR0/1 | TinyAVR1+/2 | Mega0 | DA | DB/DD/DU | EA | EB  |
----------------|------------|-------------|-------|----|----------|----|-----|
-OSCHF, nbr opt.| 2*         | 2*          | 2*    |    |          | 2* | 2*  |
-OSCHF, Dx-type | -          | -           | -     | Y  | Yes      | -  | -   |
-External Xtal  | -          | -           | -     | -  | Yes      | Y  | -   |
-External Clock | Yes        | Yes         | Yes   | Y  | Yes      | Y  | Y   |
-PLL Max freq   | -          | -           | -     | 48 | 48       | -  | 80  |
-PLL Mult opt.  | -          | -           | -     | 2/3| 2/3 ***  | -  |8/16 |
-PLL for TCD    | -          | -           | -     | Y  | Yes      | -  | -   |
-PLL clock Event| -          | -           | -     | -  | -        | -  | Y   |
-PLL for HiRES  | -          | -           | -     | -  | -        | -  | Y   |
-PLL for TCF    | -          | -           | -     | -  | -        | -  | Y   |
-PLL for CPU    | -          | -           | -     | -  | -        | -  | Y** |
-Ext 32k xtal   | No (0)/Yes | Yes         | -     | Y  | Yes      | Y  | Y   |
+Heading        | TinyAVR0/1 | TinyAVR1+/2 | Mega0 | DA   | DB/DD/DU |  EA   |   EB  |
+---------------|------------|-------------|-------|------|----------|-------|-------|
+OSCHF range    | 16/20      | 16/20       | 16/20 | 1-24 | 1-24     | 16/20 | 16/20 |
+External Xtal  | -          | -           | -     | -    | Yes      |  Yes  |   -   |
+External Clock | Yes        | Yes         | Yes   | Yes  | Yes      |  Yes  |   Yes |
+PLL Max freq   | -          | -           | -     | 48   | 48       |  -    |   80  |
+PLL Mult opt.  | -          | -           | -     | 2/3  | 2/3 *    |  -    |  8/16 |
+PLL timer(s)   | -          | -           | -     | TCD  | TCD **   |  -    |TCE TCF|
+PLL for CPU    | -          | -           | -     | -    | -        |  -    | Yes (same max still applies) |
+Ext 32k xtal   | No (0)/Yes | Yes         | -     | Yes  | Yes      |  Yes  |  Yes  |
+
+It's critical to note the difference between the options given for F_CPU on Dx and other parts.
+
+Dx-series parts can
 
 
 `*` Marked parts have selectabkle 16 or 20 MHz, controlled by a *fuse*. These parts are also impacted by speed grades (eg, a graph of minimum voltage versus F_CPU is included in the datasheet). For example, many have three speed grades, typically 4 or 5 MHz @ 1.8V, 8 or 10 MHz at 2.7, and
