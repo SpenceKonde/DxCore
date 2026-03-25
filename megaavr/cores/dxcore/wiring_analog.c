@@ -736,7 +736,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   uint8_t getAnalogSampleDuration() {
     return ADC0.CTRLE;
   }
-  /*NYI
+  /*
   uint8_t ADCOptions(uint8_t options) {
     // 0b____CCFF
     // FF = Freerunning mode
@@ -1130,9 +1130,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     }
     return true;
   }
+
   int8_t getAnalogReadResolution() {
     return ((ADC0.CTRLA & (ADC_RESSEL_gm)) == ADC_RESSEL_12BIT_gc) ? 12 : 10;
   }
+
   inline uint8_t getAnalogSampleDuration() {
     return ADC0.SAMPCTRL;
   }
@@ -1141,10 +1143,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     return VREF.ADC0REF & VREF_REFSEL_gm;
   }
 
-
-  /*
-  Frequency in kHz.
-  */
+  /* Frequency in kHz. */
    static const int16_t adc_prescale_to_clkadc[0x0F] PROGMEM = {(F_CPU /   2000L),(F_CPU /   4000L),(F_CPU /  8000L),(F_CPU / 12000L),
                                                                 (F_CPU /  16000L),(F_CPU /  20000L),(F_CPU / 24000L),(F_CPU / 28000L),
                                                                 (F_CPU /  32000L),(F_CPU /  48000L),(F_CPU / 64000L),(F_CPU / 96000L),
@@ -1169,13 +1168,40 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
         newpresc++;
       }
       ADC0.CTRLC = newpresc;
-      uint16_t f = pgm_read_word_near(&adc_prescale_to_clkadc[newpresc]);
+      //uint16_t f = pgm_read_word_near(&adc_prescale_to_clkadc[newpresc]);
 
     } else if (frequency != 0) {
       return ADC_ERROR_INVALID_CLOCK;
     }
     return pgm_read_word_near(&adc_prescale_to_clkadc[ADC0.CTRLC & ADC_PRESC_gm]);
   }
+
+
+/* options is 0bSSEE---- where SS and EE are either 10, 11, or 00 and - is don't care.
+    SS controls RUNSTBY, EE controls ENABLE;
+    0b11 turns the option on, 0b10 turns it off, and 0b00 leaves it in it's current setting */
+
+  void ADCPowerOptions(uint8_t options) {
+    uint8_t temp = ADC0.CTRLA; //performance.
+    if (options & 0x20) {
+      if (options & 0x10) {
+        temp |= 1; // ADC on
+      } else {
+        temp &= 0xFE; // ADC off
+      }
+    }
+    if (options & 0x80) {
+      if (options & 0x40) {
+        temp |= 0x80; // run standby
+      } else {
+        temp &= 0x7F; // no run standby
+      }
+    }
+    ADC0.CTRLA = temp; //now we apply enable and standby, and lowlat has been turned on, hopefully that's good enough for the errata.
+    // What a mess!
+  }
+
+
 #endif
 
 

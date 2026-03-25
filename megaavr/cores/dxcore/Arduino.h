@@ -929,6 +929,7 @@ int8_t  getAnalogReadResolution();
 uint8_t         getDACReference();
 uint8_t      getAnalogReference();
 uint8_t getAnalogSampleDuration();
+  void    ADCPowerOptions(uint8_t options);
 
 
 
@@ -941,7 +942,7 @@ uint8_t getAnalogSampleDuration();
 
 
 
- #ifdef __cplusplus
+#ifdef __cplusplus
   #include "UART.h"
 
   //uint8_t digitalPinToTimerNow(uint8_t p);=
