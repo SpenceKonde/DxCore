@@ -31,6 +31,15 @@
  * error messages and codes at runtime, since we have no other way to report such.
  */
 
+
+#if defined(VREF_ADC0REF)
+  uint8_t  _acreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+  uint8_t _adcreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+#else
+  uint8_t  _acreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+  uint8_t _adcreftab[8] ={VDD, NOT_A_REFERENCE, EXTERNAL, NOT_A_REFERENCE, INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500};
+#endif
+
 #define SINGLE_ENDED 254
 
 
@@ -86,15 +95,46 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
     }
   }
 }
-
-inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
-  /* this is shared between all versions, as the constant names are constant. All of these parts have the "convenient" internal references, and none have yet received any "exclusive" alternative reference voltages.
-     Unlike in more resource-constrained eras, there's little cause for dissatisfaction with the provided reference options, so this set of references could persist for a semiconductor eternity. */
-  if (__builtin_constant_p(mode)) {
-    if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-    badArg("analogReference called with argument that is not a valid analog reference");
+#if defined(VREF_ADC0REF)
+/* DA/DB/DD */
+  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+    if (__builtin_constant_p(mode)) {
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+        badArg("analogReference called with argument that is not a valid analog reference");
+    }
   }
-}
+/* Same as above except for the error */
+  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
+    /* This checks an AC or DAC reference number, instead of a adc reference number.
+     * On the Dx-series, these were the same. On the Ex-series, the list of options is the same...
+     * but the numbers that they correspond to and the names of the constants are different. */
+    if (__builtin_constant_p(mode)) {
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+        badArg("DACreference called with argument that is not a valid (D)AC reference.");
+    }
+  }
+#else
+  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+    /* Ex-series.... frickin A */
+    if (__builtin_constant_p(mode)) {
+      if (mode & 0x40) /* Reject the AC_REF constants */
+        badArg("analogReference called with an AC_REF_ constant, those only work with DAC/AC references. Valid options look like INTERNAL2V048, VDD, or EXTERNAL";)
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+      badArg("analogReference called with argument that is not a valid analog reference");
+    }
+  }
+
+  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
+    /* This checks an AC or DAC reference number, instead of a adc reference number.
+     * On the Dx-series, these were the same, so they differ only in the error message.
+     * but the numbers that they correspond to and the names of the constants are different. */
+    if (__builtin_constant_p(mode)) {
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+      badArg("DACreference called with argument that is not a valid DAC/AC reference");
+    }
+  }
+
+#endif
 
 inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
   if (__builtin_constant_p(res)) {
@@ -137,14 +177,23 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 
 #ifdef DAC0 /* Only DAC-bearing parts get this */
   void DACReference(uint8_t mode) {
-    check_valid_analog_ref(mode);
-    VREF.DAC0REF = mode | (VREF.DAC0REF & (~VREF_REFSEL_gm));
+    if (__builtin_constant_p(mode)) {
+      check_valid_ac_ref(mode);
+    } else if ((mode & 0x88) != 0x88) {
+      return;
+    }
+    _SWAP(mode);
+    mode &= 0x07;
+    uint8_t temp = VREF.DAC0REF & ~VREF_REFSEL_gm;
+    temp |= mode;
+    VREF.DAC0REF = temp;
   }
   uint8_t getDACReference() {
-    return VREF.DAC0REF & VREF_REFSEL_gm;
+    uint8_t r = VREF.DAC0REF & VREF_REFSEL_gm;
+    return _acreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 #else /* else no dac */
-  void DACReference(__attribute__ ((unused))uint8_t mode) {
+  uint8_t DACReference(__attribute__ ((unused))uint8_t mode) {
     badCall("DACreference is not available - this part does not have a DAC");
   }
   uint8_t getDACReference() {
@@ -353,18 +402,15 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   /* Ex Version*/
   void analogReference(uint8_t mode) {
     check_valid_analog_ref(mode);
-    #if defined(STRICT_ERROR_CHECKING)
-      if (mode > 7) return;
-    #else
+    if (mode > 7)
       mode &= 7;
-    #endif
     if (mode != 1 && mode != 3) {
       ADC0.CTRLC = mode;
     }
   }
 /* Ex Version*/
   inline uint8_t getAnalogReference() {
-    return ADC0.CTRLC & ADC_REFSEL_gm;
+     ADC0.CTRLC & ADC_REFSEL_gm;
   }
 /* Ex Version*/
   int16_t analogRead(uint8_t pin) {

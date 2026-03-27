@@ -44,6 +44,7 @@
 /* PORT names and the NOT_A_* definitions - used EVERYWHERE! */
 // NOT_A_'s - 0xFF indicates a placeholder value. If you get it back for a pin, NOT_A_PIN is sometimes used to signal "no, don't set up this pin"
 #define NOT_A_PIN             (0xFF)
+#define NOT_A_REFERENCE       (0xFF)
 #define NOT_A_PORT            (0xFF)
 #define NOT_AN_INTERRUPT      (0xFF)
 #define NOT_A_CHANNEL         (0xFF) // for channel identification on ea-series
@@ -436,22 +437,34 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
 
 /* Analog reference options - Configuring these is very simple, unlike tinyAVR 0/1
    and megaAVR 0, and like tinyAVR 2-series.  The available references are the same
-   On Dx and Ex*/
-#define INTERNAL1V024            (VREF_REFSEL_1V024_gc)
-#define INTERNAL2V048            (VREF_REFSEL_2V048_gc)
-#define INTERNAL4V096            (VREF_REFSEL_4V096_gc)
-#define INTERNAL4V1              (VREF_REFSEL_4V096_gc)
-#define INTERNAL2V5              (VREF_REFSEL_2V500_gc)
-#define INTERNAL2V500            (VREF_REFSEL_2V500_gc)
-#define DEFAULT                  (VREF_REFSEL_VDD_gc)
-#define VDD                      (VREF_REFSEL_VDD_gc)
-#define EXTERNAL                 (VREF_REFSEL_VREFA_gc)
-#define AC_REF_1V024             (VREF_AC0REFSEL_1V024_gc)
-#define AC_REF_2V048             (VREF_AC0REFSEL_2V048_gc)
-#define AC_REF_2V5               (VREF_AC0REFSEL_2V5_gc)
-#define AC_REF_4V096             (VREF_AC0REFSEL_4V096_gc)
-#define AC_REF_VDD               (VREF_AC0REFSEL_AVDD_gc)
-#define AC_REF_4V1               AC_REF_4V096/* Alias */
+   On Dx and Ex, but different definitions are needed because Microchip can't decide if it's
+   a VREF or part of the ADC. */
+#if defined(VREF_ADC0REF)
+  /* VREF STYLE ADC REFERENCES */    /* High nybble for DAC/AC */ /* Low nybble for ADC */
+  #define INTERNAL1V024            ((VREF_REFSEL_1V024_gc << 4) | (VREF_REFSEL_1V024_gc ))     /* 0    ADC ref controlled from VREF */
+  #define INTERNAL2V048            ((VREF_REFSEL_2V048_gc << 4) | (VREF_REFSEL_2V048_gc ))     /* 1    */
+  #define INTERNAL4V096            ((VREF_REFSEL_4V096_gc << 4) | (VREF_REFSEL_4V096_gc ))     /* 2    */
+  #define INTERNAL2V5              ((VREF_REFSEL_2V500_gc << 4) | (VREF_REFSEL_2V500_gc ))     /* 3    */
+  #define VDD                      ((VREF_REFSEL_VDD_gc   << 4) | (VREF_REFSEL_VDD_gc   ))     /* 5     */
+  #define EXTERNAL                 ((VREF_REFSEL_VREFA_gc << 4) | (VREF_REFSEL_VREFA_gc ))     /* 6     */
+  #define INTERNAL2V500            ((VREF_REFSEL_2V500_gc << 4) | (VREF_REFSEL_2V500_gc ))
+  #define INTERNAL4V1              ((VREF_REFSEL_4V096_gc << 4) | (VREF_REFSEL_4V096_gc ))
+  #define DEFAULT                  ((VREF_REFSEL_VDD_gc   << 4) | (VREF_REFSEL_VDD_gc   ))
+
+#else /* ADC INTERNAL REFS           High nybble for DAC/AC        Low nybble for ADC   */
+  #define DEFAULT                  ((  VREF_REFSEL_VDD_gc << 4) | (ADC_REFSEL_VDD_gc    ))     /* 5  0    TOTALLY DIFFERENT! */
+  #define EXTERNAL                 ((VREF_REFSEL_VREFA_gc << 4) | (ADC_REFSEL_VREFA_gc  ))     /* 6  2    */
+  #define INTERNAL1V024            ((VREF_REFSEL_1V024_gc << 4) | (ADC_REFSEL_1V024_gc  ))     /* 0  4    */
+  #define INTERNAL2V048            ((VREF_REFSEL_2V048_gc << 4) | (ADC_REFSEL_2V048_gc  ))     /* 1  5    */
+  #define INTERNAL4V096            ((VREF_REFSEL_4V096_gc << 4) | (ADC_REFSEL_4V096_gc  ))     /* 2  6    */
+  #define INTERNAL2V500            ((VREF_REFSEL_2V500_gc << 4) | (ADC_REFSEL_2V500_gc  ))     /* 3  7    */
+  #define INTERNAL4V1              ((VREF_REFSEL_4V096_gc << 4) | (ADC_REFSEL_4V096_gc  ))
+  #define INTERNAL2V5              ((VREF_REFSEL_2V500_gc << 4) | (ADC_REFSEL_2V500_gc  ))
+  #define VDD                      ((  VREF_REFSEL_VDD_gc << 4) | (ADC_REFSEL_VDD_gc    ))
+
+#endif
+
+
 
 #if !(F_CPU >= 32000000)
   #define TIMEBASE_1US        (((F_CPU + 999999UL)/1000000UL) << ADC_TIMEBASE_gp)
