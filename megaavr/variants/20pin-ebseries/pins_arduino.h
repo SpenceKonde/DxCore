@@ -43,7 +43,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PC1 (9)
 #define PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12)
+#define PIN_PD0 (12) // dummy pin.
 // No PD1 (13)
 // No PD2 (14)
 // No PD3 (15)
@@ -64,7 +64,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define FAKE_PIN_PD0
 
 #define PINS_COUNT                     (18)
-#define NUM_ANALOG_INPUTS              (16)
+#define NUM_ANALOG_INPUTS              (31)
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :

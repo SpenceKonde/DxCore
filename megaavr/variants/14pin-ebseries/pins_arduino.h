@@ -69,7 +69,7 @@ Include guard and include basic libraries. We are normally including this inside
         ####  #  # ####  ###  ###  #*/
 
 #define PINS_COUNT                        (12)
-#define NUM_ANALOG_INPUTS                 ( 8)
+#define NUM_ANALOG_INPUTS                 (31)
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                     (PIN_PD6)
