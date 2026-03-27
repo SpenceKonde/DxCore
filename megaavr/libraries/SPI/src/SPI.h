@@ -22,6 +22,31 @@
 #define _SPI_H_INCLUDED
 
 #include <Arduino.h>
+#ifndef SPI_CLOCK_DIV2
+  #define SPI_CLOCK_DIV2      (SPI_PRESC_DIV4_gc     | SPI_CLK2X_bm  )
+#endif
+#ifndef SPI_CLOCK_DIV4
+  #define SPI_CLOCK_DIV4      (SPI_PRESC_DIV4_gc                     )
+#endif
+#ifndef SPI_CLOCK_DIV8
+  #define SPI_CLOCK_DIV8      (SPI_PRESC_DIV16_gc    | SPI_CLK2X_bm  )
+#endif
+#ifndef SPI_CLOCK_DIV16
+  #define SPI_CLOCK_DIV16     (SPI_PRESC_DIV16_gc                    )
+#endif
+#ifndef SPI_CLOCK_DIV32
+  #define SPI_CLOCK_DIV32     (SPI_PRESC_DIV64_gc    | SPI_CLK2X_bm  )
+#endif
+#ifndef SPI_CLOCK_DIV64
+  #define SPI_CLOCK_DIV64     (SPI_PRESC_DIV64_gc                    )
+#endif
+#ifndef SPI_CLOCK_ERROR
+  #define SPI_CLOCK_ERROR     (SPI_PRESC_DIV128_gc   | SPI_CLK2X_bm  )  // There are two ways to get DIV64 prescaling on the SPI clock. The /128 x 2 route, which is functionally identical to /64. This is what the clock gets set to if you pass garbage to setClockDivider()
+
+#endif
+#ifndef SPI_CLOCK_DIV128
+  #define SPI_CLOCK_DIV128    (SPI_PRESC_DIV128_gc                   )
+#endif
 
 #if defined(SPI_MUX)
   #define SPI0_SWAP_DEFAULT  0x00
@@ -177,7 +202,14 @@
 
 
 //#define EXTERNAL_NUM_INTERRUPTS   NUM_TOTAL_PINS
-
+inline __attribute__((always_inline)) void _check_valid_spi(uint8_t div) {
+    if (__builtin_constant_p(div)) {
+      if (!(SPI_CLOCK_DIV2 == div || SPI_CLOCK_DIV4 == div || SPI_CLOCK_DIV8 == div || SPI_CLOCK_DIV16 == div || SPI_CLOCK_DIV32 == div || SPI_CLOCK_DIV64 == div || SPI_CLOCK_DIV128 == div)) {
+        badArg("setClockDivider called with argument that is not an SPI_CLOCK_DIVn constant");
+        // don't let them pass garbage to it
+      }
+    }
+  }
 
 class SPISettings {
   public:
@@ -346,26 +378,5 @@ class SPIClass {
   extern SPIClass SPI;
 #endif
 
-#ifndef SPI_CLOCK_DIV2
-  #define SPI_CLOCK_DIV2      (SPI_PRESC_DIV4_gc     | SPI_CLK2X_bm  )
-#endif
-#ifndef SPI_CLOCK_DIV4
-  #define SPI_CLOCK_DIV4      (SPI_PRESC_DIV4_gc                     )
-#endif
-#ifndef SPI_CLOCK_DIV8
-  #define SPI_CLOCK_DIV8      (SPI_PRESC_DIV16_gc    | SPI_CLK2X_bm  )
-#endif
-#ifndef SPI_CLOCK_DIV16
-  #define SPI_CLOCK_DIV16     (SPI_PRESC_DIV16_gc                    )
-#endif
-#ifndef SPI_CLOCK_DIV32
-  #define SPI_CLOCK_DIV32     (SPI_PRESC_DIV64_gc    | SPI_CLK2X_bm  )
-#endif
-#ifndef SPI_CLOCK_DIV64
-  #define SPI_CLOCK_DIV64     (SPI_PRESC_DIV64_gc                    )
-#endif
-#ifndef SPI_CLOCK_DIV128
-  #define SPI_CLOCK_DIV128    (SPI_PRESC_DIV128_gc                   )
 #endif
 
-#endif

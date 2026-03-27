@@ -30,6 +30,17 @@ Notes:
 
 When `SPI.swap()` or `SPI.pins()` is called, assuming it was called with a valid option, the pin mapping requested is saved. When `SPI.begin()` is called, this stored value will specify changes to `PORTMUX.SPIROUTEA` and `PORTx` registers. Thus, if a non-default pin mapping is required, you must set it before before calling `SPI.begin()`. To change the pin mapping after `SPI.begin()` you must turn off SPI with`SPI.end()`, call `SPI.swap()` or `SPI.pins()` and then `SPI.begin()` again.
 
+
+## Note on standard SPI.setClockDivider() method
+As always, constants of the form `SPI_CLOCK_DIVn` are provided. These are what should be passed to setClockDivider().
+
+In the event that an invalid value is passed, if the value is known at compile time, an error will be produced telling you that you're passing an invalid value. However, this only catches the most common, obvious cases. Since there are no runtime exceptions, invalid values that are not known at compile time will get through. When an invalid value is passed that can't be picked out at compile time, we are left with a connundrum:
+
+What should we set the clock divider to? We can't just have the function return and do nothing, because then it will appear that the problem is with the library. My first thought was to just have it set to the minimum speed, which will likely function, if possibly with poor performance, but I realized the SPI peripheral's odd design gives us a way to signalize an error condition here, because there are only 7 supported speeds, but the 2+1 bits are structured as a single-bit field that doubles the clock speed, ahd a 2-bit field that selects thee base between /4, /16, /64, and /128. Hence, /128 with CLK2x and /64 without both generate the same clock frequency.
+
+`SPI_CLOCK_DIV2`, `SPI_CLOCK_DIV4`, `SPI_CLOCK_DIV8`, `SPI_CLOCK_DIV16`, `SPI_CLOCK_DIV32`, `SPI_CLOCK_DIV64`, `SPI_CLOCK_DIV128`
+
+
 ## Two SPI ports
 The AVR DA/DB-series parts have two hardware SPI ports. On parts with more pins, they can be pin-swapped to different sets of pins (up to three sets of pins per SPI peripheral). The AVR DD-series has only a single SPI port - but it has a far more pin options than the DA/DB-series parts do. Originally, it was expected that two libraries could be created like is done for the few classic AVRs with multiple SPI ports (eg, ATmega328PB) and the many 32-bit architectures with multiple SPI ports; however, it was discovered in 1.2.0 (which attempted to implement this) that the existing libraries with which we desire compatibility (an SPI library that you need to modify everything you use with it is hardly satisfactory) were more challenging to work with than expected. In order to work with existing libraries, we need only guarantee that our instances of SPI_class have names matching the convention; that sounds like a low bar - and indeed, it is: the only way it could be a problem is if one of those key names happened to already be used for something, and not just any something, but something which had a greater authority to be naming things than anything the core or core libraries did.
 
@@ -50,7 +61,7 @@ As of 1.3.0, the version of SPI.h included with DxCore allows all SPI0 and SPI1 
 Unless the old attachInterrupt implementation is selected, `SPI.usingInterrupt(number)` will cause it to globally disable interrupts while in a transaction. This is not ideal, however *you should not have interrupts performing SPI transactions, period* - SPI transactions are not fast; interrupts should be fast. This is here for compatibility ONLY. The standard implementation of this does not map cleanly onto the new attachInterrupt(). Furthermore, the standard implementation has several logic gaps and race conditions which, together, could still result in the same sort of behavior it was aimed at preventing.
 Similarly, `SPI.notUsingInterrupt(number)` will set it back to the normal mode. This is also not ideal, but we needed a timely fix and as I said, this functionality only, as supplied, approximated correct behavior. I'll come back to this at some point, but it is no longer an urgent - not least because you should never use these functions, because you should not be using SPI from interrupts! The one exception to this is the case where the number passed is NOT_AN_INTERRUPT (-1 or 255), in which case we match the old behavior and simply return.
 
-## SPI.attachInterrupt and SPI.detachInterrupt
+## SPI.attachInterrupt() and SPI.detachInterrupt
 These methods, as far as I can tell were never supported for the official or third party AVR boards, only third party extensions where some other API was used to support SPI slave mode functionality. They were marked as something that should never be called, and there was no sign of code that made use of them within the core. In fact, there was no sign of use of them on the wider internet - except for slave mode extensions for different architectures; hence, I feel safe ditching these.
 
 ## SS (Slave Select) pin

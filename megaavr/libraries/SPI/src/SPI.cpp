@@ -40,6 +40,8 @@
   #define SPI_MODULE SPI0
 #endif
 
+
+
 const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
 
 SPIClass::SPIClass() {
@@ -588,12 +590,14 @@ void SPIClass::setDataMode(uint8_t mode) {
 
 
 void SPIClass::setClockDivider(uint8_t div) {
-  mode_gm = ~(SPI_MODE_gm | SPI_CLK2X_bm);
-  if (div & mode_gm)
-  if (__builtin_constant_p(div))
-  uint8_t tem = SPI_MODULE.CTRLA;
-  tem &= ~SPI_PRESC_gm;
-  tem |=  div;
+  _check_valid_spi(div); // error if the user has passed something that's not a valid constant to it.
+  uint8_t tem = ~(SPI_PRESC_gm | SPI_CLK2X_bm);
+  if (div & tem) {  //it has bits set not in the bitfield - this can only be true if div is determined at runtime *and* invalid.
+    div = SPI_CLOCK_ERROR; //since we can't fulfill their request, set the divisor to an error
+  }
+  tem &= SPI_MODULE.CTRLA; // now we have the current value of the register with the bits masked off, reusing the temp variable as a mask.
+  tem |= div;
+  SPI_MODULE.CTRLA = div;
 }
 
 uint8_t SPIClass::transfer(uint8_t data) {
@@ -643,3 +647,6 @@ void SPIClass::transfer(void *buf, size_t count) {
 #if SPI_INTERFACES_COUNT > 0
   SPIClass SPI;
 #endif
+
+
+
