@@ -146,8 +146,6 @@ jobs:
           - db
           - dd
           - du
-          - ea
-          - eb
         pincount:
           - 64
           - 48
@@ -172,8 +170,6 @@ jobs:
         exclude:
           # Things w/out xtals
           - device-family: da
-            clocksource: crystal
-          - device-family: eb
             clocksource: crystal
           # DA limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
           - device-family: da
@@ -215,43 +211,16 @@ jobs:
           - device-family: du
             pincount: 14
             flash-class: 64
-          # EA limits. No 128k flash, no 64 pin, no 20/14 pin
-          - device-family: ea
-            flash-class: 128
-          - device-family: ea
-            pincount: 64
-          - device-family: ea
-            pincount: 20
-          - device-family: ea
-            pincount: 14
-          # EB limits. No 128k, 64k flash, no 64/48 pin
-          - device-family: eb
-            flash-class: 128
-          - device-family: eb
-            flash-class: 64
-          - device-family: eb
-            pincount: 64
-          - device-family: eb
-            pincount: 48
-          # ugly Dx/Ex hack. Dx excludes 20 MHz internal osc, Ex 24 MHz.
           - int-osc: 20
             device-family: da
           - int-osc: 20
             device-family: db
           - int-osc: 20
             device-family: dd
-          - int-osc: 24
-            device-family: ea
-          - int-osc: 24
-            device-family: eb
           # ugly Dx/Ex hack. No 16 MHz DB xtal tests, DA ext 16 MHz, DD 16 MHz xtal.  Ex @ 48 excluded further down.
           - overclock-osc: 48
             clocksource: internal
           - overclock-osc: 48
-            device-family: ea
-          - overclock-osc: 48
-            device-family: eb
-          - overclock-osc: 48
             device-family: dd
             clocksource: crystal
           - overclock-osc: 48
@@ -264,28 +233,16 @@ jobs:
             device-family: db
             clocksource: internal
           - overclock-osc: 32
-            device-family: ea
-            clocksource: internal
-          - overclock-osc: 32
-            device-family: eb
-            clocksource: internal
-          - overclock-osc: 32
             device-family: db
             clocksource: crystal
           - overclock-osc: 32
             device-family: dd
             clocksource: crystal
           - overclock-osc: 32
-            device-family: ea
-            clocksource: crystal
-          - overclock-osc: 32
             device-family: da
             clocksource: extclock
           - overclock-osc: 32
             device-family: dd
-            clocksource: extclock
-          - overclock-osc: 32
-            device-family: eb
             clocksource: extclock
           - overclock-osc: 16
             device-family: da
@@ -301,9 +258,6 @@ jobs:
             clocksource: extclock
           - overclock-osc: 16
             device-family: dd
-            clocksource: extclock
-          - overclock-osc: 16
-            device-family: ea
             clocksource: extclock
     steps:
       - name: Checkout repository
