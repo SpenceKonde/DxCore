@@ -120,7 +120,7 @@ It's - really - about as complicated as it has to be.
   * The NMI is designed to only be cleared by a full reset, and can only be triggered by the CRC check failing. (Unlikely to see use for hobbyists - it's for safety critical stuff, where you want any firmware corruption to completely hose the system.)
 and the DRE-like interrupts, which are set and cleared automatically only, and the user is expected to turn off the interrupt.
 * When the purpose of the flag is to tell you that something is ready to be read, reading it clears the flag. ADC, serial interfaces, and TCB input capture, for example.
-  * Conside
+  * Consider
 * The TWI interrupts work the same way - you need to read, write, or ack/nack something to respond to the bus event; doing so clears the flag too. (you don't have to do anything about this, though, with our enhanced Wire library!).
 * Sometimes interrupts like that can have error flags that can trigger them enabled too; those typically have to be manually cleared - by enabling them, you declare an intent to do something about them, so you're responsible for telling the hardware you did it.
 * USART, and buffered SPI have DRE interrupt that can only be cleared by writing more data - otherwise you need to disable the interrupt from within the ISR. The `USARTn.TXC` (transfer/transmit complete) flags are frequently polled rather than used to fire interrupts. It's not entirely clear from the datasheet if the EEPROM ready interrupt is like that, or can be cleared manually.

@@ -8,7 +8,7 @@
 | https://github.com/MCUdude/                                           |
 |                                                                       |
 | In this example we use pin PE0 as an event generator, and pin PE2 and |
-| PF2 as event users. In practive, pin PE2 and PF2 will follow          |
+| PF2 as event users. In practice, pin PE2 and PF2 will follow          |
 | PE0's state.                                                          |
 |                                                                       |
 | See Microchip's application note AN2451 for more information.         |
