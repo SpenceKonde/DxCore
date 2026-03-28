@@ -150,7 +150,7 @@ The actual behavior I observed is:
 Nobody is sad to see the fully/partially async pin distinction go.
 
 ### TCA pin override behavior inconsistent between part families
-The behavior of the Type A timer(s) with regards to pin direction override is not consistent between the AVR DA/DB and AVR DD parts.
+* The behavior of the Type A timer(s) with regards to pin direction override is not consistent between the AVR DA/DB and AVR DD parts.
   * On the AVR DD-series, whenthe TCA is outputting PWM, the pin mode is overridden by the peripheral and set to output.
   * On the AVR DA and DB-series, the pin mode is not overridden. If the pin is not set output, no output will be seen.
   * Behavior of EA-series TCAs and the EB-series TCE has not been tested

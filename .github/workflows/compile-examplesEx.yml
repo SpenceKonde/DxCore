@@ -164,7 +164,7 @@ jobs:
           - 32
         # Filter out these matrix combinations
         exclude:
-          # Things we cant get yet
+          # Things we can't get yet
           - device-family: ec
           - device-family: la
           # Things w/out xtals

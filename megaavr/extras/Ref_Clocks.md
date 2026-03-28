@@ -51,7 +51,7 @@ The AVR Dx-series come in I (105C) and E (125C) spec parts. **This is not marked
 Some of the listed speeds, while supported by the hardware are not supported by the core - typically weird, slow clocks. Crystals in particular can be made in any speed - though classic AVR rewarded the use of bizarre clocks by requiring them in order to generate UART baud clocks for normal speeds, modern AVRs do not need them, and so we don't support any oscillator frequency which is not an integer multiple of 1 MHz
 For unsupported speeds, the micros and delay-us columns indicate what internal plumbing has been implemented. micros is implemented for almost all speeds, delayMicroseconds with non-compile-time-known delays for most, even some unsupported ones. delayMicroseconds() is supported and accurate at any speed when the argument is a compile-time-known constant, as we use the avr-libc implementation of `_delay_us()`.
 
-### megaTinyCore (ATtiny 0-Series, 1-series, and 2-series.
+### megaTinyCore (ATtiny 0-Series, 1-series, and 2-series)
 | Clock Speed | Within Spec |      Internal |    Ext. Clock | micros | delay-us | Notes
 |-------------|-------------|---------------|---------------|--------|----------|-------
 |       1 MHz |         Yes |           Yes |            ** |    Yes |      Yes | 1
