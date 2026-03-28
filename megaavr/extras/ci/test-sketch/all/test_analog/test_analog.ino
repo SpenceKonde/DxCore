@@ -39,21 +39,37 @@ void compile_test_analog() {
    * Of those only PDn are analog inputs on all
    * also known as PIN_A4, PIN_A5, PIN_A6, PIN_A7*/
   /* Verify that references constant and non-constant compile */
-  DACReference(INTERNAL1V024);
+  #if defined(DAC0)
+    DACReference(INTERNAL1V024);
+  #endif
   analogReference(INTERNAL1V024);
-  DACReference(INTERNAL2V048);
+  #if defined(DAC0)
+    DACReference(INTERNAL2V048);
+  #endif
   analogReference(INTERNAL2V048);
-  DACReference(INTERNAL4V096);
+  #if defined(DAC0)
+    DACReference(INTERNAL4V096);
+  #endif
   analogReference(INTERNAL4V096);
-  DACReference(INTERNAL2V5);
+  #if defined(DAC0)
+    DACReference(INTERNAL2V5);
+  #endif
   analogReference(INTERNAL2V5);
-  DACReference(DEFAULT);
+  #if defined(DAC0)
+    DACReference(DEFAULT);
+  #endif
   analogReference(DEFAULT);
-  DACReference(VDD);
+  #if defined(DAC0)
+    DACReference(VDD);
+  #endif
   analogReference(VDD);
-  DACReference(EXTERNAL);
+  #if defined(DAC0)
+    DACReference(EXTERNAL);
+  #endif
   analogReference(EXTERNAL);
-  DACReference(NOT_A_CONST_BYTE);
+  #if defined(DAC0)
+    DACReference(NOT_A_CONST_BYTE);
+  #endif
   analogReference(NOT_A_CONST_BYTE);
   /* set ADC settings */
   uint8_t retval_analogReadResolution = analogReadResolution(10);
@@ -62,7 +78,7 @@ void compile_test_analog() {
   discard(retval_analogReadResolution);
   retval_analogReadResolution = analogReadResolution(NOT_A_CONST_BYTE);
   discard(retval_analogReadResolution);
-  bool retval_analogSampleDuration = analogSampleDuration(NOT_A_CONST_BYTE);
+  uint8_t retval_analogSampleDuration = analogSampleDuration(NOT_A_CONST_BYTE);
   discard(retval_analogSampleDuration);
   /* get + set ADC setting - I wish this was how the others worked! */
   int16_t retval_analogClockSpeed = analogClockSpeed(0); // default
@@ -92,8 +108,10 @@ void compile_test_analog() {
   discard(retval_getAnalogReference);
   int8_t retval_getAnalogReadResolution = getAnalogReadResolution();
   discard(retval_getAnalogReadResolution);
-  uint8_t retval_getDACReference = getDACReference();
-  discard(retval_getDACReference);
+  #if defined(DAC0)
+    uint8_t retval_getDACReference = getDACReference();
+    discard(retval_getDACReference);
+  #endif
   uint8_t retval_getAnalogSampleDuration = getAnalogSampleDuration();
   discard(retval_getAnalogSampleDuration);
   // valid constant pins , native resolution
@@ -101,26 +119,34 @@ void compile_test_analog() {
   discard(retval_analogRead);
   int32_t retval_analogReadEnh = analogReadEnh(PIN_A4, ADC_NATIVE_RESOLUTION);
   discard(retval_analogReadEnh);
-  int32_t retval_analogReadDiff = analogReadDiff(PIN_A4, PIN_A5, ADC_NATIVE_RESOLUTION);
-  discard(retval_analogReadDiff);
+  #if defined(ADC_DIFFERENTIAL) && ADC_DIFFERENTIAL > 0
+    int32_t retval_analogReadDiff = analogReadDiff(PIN_A4, PIN_A5, ADC_NATIVE_RESOLUTION);
+    discard(retval_analogReadDiff);
+  #endif
   // Valid constant channels, max oversampling
   retval_analogRead = analogRead(ADC_GROUND);
   discard(retval_analogRead);
   retval_analogReadEnh = analogReadEnh(ADC_GROUND, ADC_MAX_OVERSAMPLED_RESOLUTION);
   discard(retval_analogReadEnh);
-  retval_analogReadDiff = analogReadDiff(ADC_GROUND, ADC_TEMPERATURE, ADC_MAX_OVERSAMPLED_RESOLUTION);
-  discard(retval_analogReadDiff);
+  #if defined(ADC_DIFFERENTIAL) && ADC_DIFFERENTIAL > 0
+    retval_analogReadDiff = analogReadDiff(ADC_GROUND, ADC_TEMPERATURE, ADC_MAX_OVERSAMPLED_RESOLUTION);
+    discard(retval_analogReadDiff);
+  #endif
   // Non-constants pin/channels, minimum resolution
   retval_analogRead = analogRead(NOT_A_CONST_BYTE);
   discard(retval_analogRead);
   retval_analogReadEnh = analogReadEnh(NOT_A_CONST_BYTE, ADC_NATIVE_RESOLUTION_LOW);
   discard(retval_analogReadEnh);
-  retval_analogReadDiff = analogReadDiff(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, ADC_NATIVE_RESOLUTION_LOW);
-  discard(retval_analogReadDiff);
+  #if defined(ADC_DIFFERENTIAL) && ADC_DIFFERENTIAL > 0
+    retval_analogReadDiff = analogReadDiff(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, ADC_NATIVE_RESOLUTION_LOW);
+    discard(retval_analogReadDiff);
+  #endif
   // Non-constants pin/channels, minimum resolution
   retval_analogReadEnh = analogReadEnh(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE);
   discard(retval_analogReadEnh);
-  retval_analogReadDiff = analogReadDiff(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, NOT_A_CONST_BYTE);
-  discard(retval_analogReadDiff);
+  #if defined(ADC_DIFFERENTIAL) && ADC_DIFFERENTIAL > 0
+    retval_analogReadDiff = analogReadDiff(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, NOT_A_CONST_BYTE);
+    discard(retval_analogReadDiff);
+  #endif
   /* End of analog */
 };

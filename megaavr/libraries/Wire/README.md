@@ -63,8 +63,7 @@ The size of the buffer is based simply on the available RAM on the part (note th
  >4095  | 130b        | 32k+ Dx, some Ex    | 130b allows a full 128b page write (including the two address bytes) to be sent to a 24-series I2C EEPROM;<br/> that's the largest blob of data I am aware of people hving reason to send over I2C <br/>(and these parts can afford the memory, unlike the tinyAVR). <br/>(Note that EEPROM sizes on modern AVRs are smaller than classic ones, and some also have significantly lower flash endurance, <br/> so there may be more reason to use such things now).
 
 ## Official specification of I2C
-[From NXP, the current owner of the relevant IP](https://www.nxp.com/docs/en/user-guide/UM10204.pdf)
-Grab it while you can! They'll probably pull it down again.
+Link removed - it went 404 again and gets errors from the link checker. They do *not* want you to see the spec document. I cannot underestand how this does anything which benefits them.
 
 ## Overview - I2C, what is it?
 I2C (known by many names, see note at end) uses two pins, a clock (SCL) and data (SDA) for communication among two or more compatible devices. This is an open drain bus - external pullup resistors (*which you must include in your design*) keep the two lines HIGH when idle, and devices communicate by driving the pins low or releasing them. Data is clocked on the rising edge (this is a more important detail than usual, as you will see).

@@ -204,19 +204,19 @@ delayMicroseconds():
 ### (undocumented standard) `clockCyclesPerMicrosecond()`
 Part of the standard API, but not documented. Does exactly what it says.
 ```c
-#define clockCyclesPerMicrosecond() {(F_CPU) / 1000000L};
+#define clockCyclesPerMicrosecond() {(F_CPU) / 1000000L}
 ```
 
 ### (undocumented standard) `clockCyclesToMicroseconds(cycles)`
 Part of the standard API, but not documented. Does exactly what the name implies. Note that it always rounds down, like everything in C.
 ```c
-#define clockCyclesToMicroseconds() (cycles / clockCyclesPerMicrosecond());
+#define clockCyclesToMicroseconds() (cycles / clockCyclesPerMicrosecond())
 ```
 
 ### (undocumented standard) `microsecondsToClockCycles(uint32_t microseconds)`
 Part of the standard API, but not documented. Does exactly what the name implies. Note that it always rounds down, like everything in C.
 ```c
-#define microsecondsToClockCycles  icroseconds * clockCyclesPerMicrosecond();
+#define microsecondsToClockCycles  icroseconds * clockCyclesPerMicrosecond()
 ```
 
 ### (standard) `_NOP()` Execute a single cycle NOP (no operation) instruction which takes up 1 word of flash

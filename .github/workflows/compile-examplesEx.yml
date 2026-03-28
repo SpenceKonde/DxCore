@@ -1,16 +1,16 @@
-name: Compile Examples
+name: Compile Examples II
 
 on:
   pull_request:
     paths:
-      - ".github/workflows/compile-examples.yml"
+      - ".github/workflows/compile-examplesEx.yml"
       - "megaavr/libraries/**"
       - "megaavr/cores/**"
       - "megaavr/variants/**"
       - "megaavr/*.txt"
   push:
     paths:
-      - ".github/workflows/compile-examples.yml"
+      - ".github/workflows/compile-examplesEx.yml"
       - "megaavr/libraries/**"
       - "megaavr/cores/**"
       - "megaavr/variants/**"
@@ -137,15 +137,14 @@ jobs:
 
       matrix:
         flash-class:
-          - 128
           - 64
           - 32
           - 16
         device-family:
-          - da
-          - db
-          - dd
-          - du
+          - ea
+          - eb
+          - ec
+          - la
         pincount:
           - 64
           - 48
@@ -158,107 +157,40 @@ jobs:
           - extclock
           - crystal
         int-osc:
-          - 20
+          - 16
           - 24
         overclock-osc:
           - 16
           - 32
-          - 48
         # Filter out these matrix combinations
-
-
         exclude:
+          # Things we can't get yet
+          - device-family: ec
+          - device-family: la
           # Things w/out xtals
-          - device-family: da
+          - device-family: eb
             clocksource: crystal
-          # DA limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
-          - device-family: da
-            flash-class: 32
+          # Pincounts
+          - device-family: eb
             pincount: 64
-          - device-family: da
-            flash-class: 16
-          - device-family: da
-            pincount: 20
-          - device-family: da
-            pincount: 14
-          # DB limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
-          - device-family: db
-            flash-class: 32
-            pincount: 64
-          - device-family: db
-            flash-class: 16
-          - device-family: db
-            pincount: 20
-          - device-family: db
-            pincount: 14
-          # DD limits. No 128k/8k flash, no 64/48 pin.
-          - device-family: dd
-            flash-class: 128
-          - device-family: dd
-            pincount: 64
-          - device-family: dd
+          - device-family: eb
             pincount: 48
-          # DU limits. No 128k/8k flash, no 64/48 pin. No 64k 20/14pin.
-          - device-family: du
-            flash-class: 128
-          - device-family: du
+          - device-family: ea
             pincount: 64
-          - device-family: du
+          - device-family: la
+            pincount: 64
+          - device-family: la
             pincount: 48
-          - device-family: du
-            pincount: 20
-            flash-class: 64
-          - device-family: du
+          - device-family: ea
             pincount: 14
+          - device-family: ea
+            pincount: 20
+          #flashsizes
+          - device-family: eb
             flash-class: 64
-          - int-osc: 20
-            device-family: da
-          - int-osc: 20
-            device-family: db
-          - int-osc: 20
-            device-family: dd
-          # ugly Dx/Ex hack. No 16 MHz DB xtal tests, DA ext 16 MHz, DD 16 MHz xtal.  Ex @ 48 excluded further down.
-          - overclock-osc: 48
-            clocksource: internal
-          - overclock-osc: 48
-            device-family: dd
-            clocksource: crystal
-          - overclock-osc: 48
-            device-family: db
-            clocksource: extclock
-          - overclock-osc: 48
-            device-family: da
-            clocksource: extclock
-          - overclock-osc: 32
-            device-family: db
-            clocksource: internal
-          - overclock-osc: 32
-            device-family: db
-            clocksource: crystal
-          - overclock-osc: 32
-            device-family: dd
-            clocksource: crystal
-          - overclock-osc: 32
-            device-family: da
-            clocksource: extclock
-          - overclock-osc: 32
-            device-family: dd
-            clocksource: extclock
-          - overclock-osc: 16
-            device-family: da
-            clocksource: internal
-          - overclock-osc: 16
-            device-family: dd
-            clocksource: internal
-          - overclock-osc: 16
-            device-family: db
-            clocksource: crystal
-          - overclock-osc: 16
-            device-family: db
-            clocksource: extclock
-          - overclock-osc: 16
-            device-family: dd
-            clocksource: extclock
+          - device-family: la
+            flash-class: 64
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

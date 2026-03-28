@@ -18,12 +18,12 @@ When PORTMUX.TCDROUTEA is set to anything other than default (PORTA), all four o
 
 ### 128DA64 took a beating
 Most of these are still not fixed in 128DA hardware...
-* TCA1 couldn't output to port E or G (this was a portmux optionthat was onlt available on 64-pin parts, for both of those)
+* TCA1 couldn't output to port E or G (this was a portmux option that was only available on 64-pin parts, for both of those)
 * The 6 pins which were part of a port that was present on the 48-pin parts, but was not itself present on 48 pin parts (PB6-7, PE4-7) were not connected to the event system
 * All the 128DA's had (and still have) a bug with writing to the flash using the memory mapping; don't use the memory-mapping to write the flash.
 
 ### (DA, older DBs, tinyAVR 2-series) All LUTs enable locked to entire CCL module
-The LUTs (all of them) cannot be modified if the CCL (the whole thing) is enabled, instead of just the LUT in question. This is a rather nasty one if you want to use different LUTs for different purposes. This impacts all AVRs with a CCL released as of Q1 2022, but the DD-series fixes it.
+The LUTs (all of them) cannot be modified if the CCL (the whole thing) is enabled, instead of just the LUT in question. This is a rather nasty one if you want to use different LUTs for different purposes. Since the DD-series, this bug has been absent.
 
 ### (DA, very old 128DBs) CCL on 32 and 28-pin parts, LINK input to LUT3 does not work
 It's not just the owners of 64-pin parts who got special presents from the errata fairy - the LINK input to LUT3 is not connected to the output of LUT0 on the 28 and 32-pin parts (one imagines it's connected to the output of LUT4, except that there is no LUT4-5 on the 28 and 32-pin parts). Most of us probably don't need a LINK input on every LUT, if we're using CCL at all, so this is likely not a problem... annoying, but only that, and quickly fixed on the DB-series.
@@ -52,7 +52,9 @@ The datasheet was then "clarified" to drop the mention of direction. As correcte
 DB-series parts with the new correct behavior are now available.
 
 ### TCB single-shot EDGE bit (Datasheet clarification)
-Originally the datasheets described EDGE = 0 as triggering on positive edge, and EDGE = 1 as triggering on negative edges. EDGE = 1 in fact is triggered on both edges (this is better, as you can invert the pin to trigger on the opposite edge if you need to.
+Originally the datasheets described EDGE = 0 as triggering on positive edge, and EDGE = 1 as triggering on negative edges.
+
+EDGE = 1 in fact is triggered on both edges (this is better, as you can invert the pin to trigger on the opposite edge if you need to.
 
 
 
@@ -124,7 +126,7 @@ Use another TWI mapping option. Enable the SMBUS 3.0 levels using the Wire.confi
 
 
 
-### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable.
+### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable
 Microchip recalled them, but some disties had already shipped some out.
 
 Since they never owned up to it in an erratum and didn't increment the die rev when they fixed it, I don't know what date codes are effected. The way you discover if the chip is effected is by trying to use any interrupt - none will work correctly on the effected chips.
@@ -148,7 +150,7 @@ The actual behavior I observed is:
 Nobody is sad to see the fully/partially async pin distinction go.
 
 ### TCA pin override behavior inconsistent between part families
-The behavior of the Type A timer(s) with regards to pin direction override is not consistent between the AVR DA/DB and AVR DD parts.
+* The behavior of the Type A timer(s) with regards to pin direction override is not consistent between the AVR DA/DB and AVR DD parts.
   * On the AVR DD-series, whenthe TCA is outputting PWM, the pin mode is overridden by the peripheral and set to output.
   * On the AVR DA and DB-series, the pin mode is not overridden. If the pin is not set output, no output will be seen.
   * Behavior of EA-series TCAs and the EB-series TCE has not been tested

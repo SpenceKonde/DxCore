@@ -6,8 +6,8 @@ This is an Arduino core to support the AVR DA, DB, DD, EA, EB, and DU-series mic
 
 ## Announcements
 
-### Optiboot for EA has a bright outlook once I can program the bloody things
-This will depend on having the B1 die rev. B0 was a shitshow.
+Code for DU compiles, code for EA compiles, code for Dx compiles. Working on doing release so we can run automated tests on it and people can download and use it.
+
 
 ### ATTN: Linux Users
 **Only versions of the Arduino IDE downloaded from [arduino.cc](https://arduino.cc) should be used, NEVER from a Linux package manager. The package managers often have the Arduino IDE - but have *modified it*. This is despite their knowing nothing about Arduino or embedded development in general, much less what they would need to know to modify it successfully** Those version are notorious for subtle but serious issues caused by these unwise modifications. This core should not be expected to work on such versions, and no modifications will be made for the sake of fixing versions of the IDE that come from package managers for this reason.

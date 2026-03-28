@@ -29,16 +29,16 @@ If there is a list of the names defined for the interrupt vectors is present som
 
 | Vector Name              | DA/B/D | DU | EA/EB    | LA | Flags | Flag Cleared on | Notes                                       |
 |--------------------------|--------|----|----------|----|-------|-----------------|---------------------------------------------|
-| AC0_AC_vect              | YES    | X  | YES      | X  |  1    | Manually        |                                             |
-| AC1_AC_vect              | YES    | -  | YES      | -  |  1    | Manually        |                                             |
-| AC2_AC_vect              | YES    | -  | -        | -  |  1    | Manually        |                                             |
+| AC0_AC_vect              | YES    | X  | YES      | X  |  1    | Manually        | Selectable edges                            |
+| AC1_AC_vect              | YES    | -  | YES      | -  |  1    | Manually        | Multiple AC's can be combined in window     |
+| AC2_AC_vect              | YES    | -  | -        | -  |  1    | Manually        |  mode. See datasheet.                       |
 | ADC0_ERROR_vect          | -      | X  | YES      | X  | >1    | Manually        | Multiple flags for different errors         |
-| ADC0_RESRDY_vect         | YES    | X  | YES      | X  | 1/2   | Read result reg | Can also be triggered by WCMP on nonDX      |
-| ADC0_SAMPRDY_vect        | -      | X  | YES      | X  | 1/2   | Read sample reg | Can also be triggered by WCMP on nonDX      |
-| ADC0_WCMP_vect           | YES    | -  | -        | -  |  1    | Manually        | Window Comparator (only DX has dedicated)   |
-| BOD_VLM_vect             | YES    | X  | YES      | -  |  1    | Manually        |                                             |
-| CCL_CCL_vect             | YES    | X  | YES      | -  | 4/6   | Manually        | 1 flag per CCL logic block.                 |
-| CLKCTRL_CFD_vect         | DB     | X  | EA       | -  |  1    | Manually        | Also, do something about the missing clock? |
+| ADC0_RESRDY_vect         | YES    | X  | YES      | X  | 1/2   | Read result reg | Windowed Comparator Mode on non-DX uses the |
+| ADC0_SAMPRDY_vect        | -      | X  | YES      | X  | 1/2   | Read sample reg | RESREADY or SAMPREADY interrupt (optional)  |
+| ADC0_WCMP_vect           | YES    | -  | -        | -  |  1    | Manually        | Window Comparator has own vector on DX      |
+| BOD_VLM_vect             | YES    | X  | YES      | -  |  1    | Manually        | Selectable Threshold level?                 |
+| CCL_CCL_vect             | YES    | X  | YES      | -  | 4/6*  | Manually        | Selectable Edges                            |
+| CLKCTRL_CFD_vect         | DB     | X  | EA       | -  |  1    | Manually        | Interrupt was flaky when tested on DB `***` |
 | CRCSCAN_INT_vect         | -      | -  | -        | X  |  1    | Manually        | New on LA, likely lets you get a non-NMI?   |
 | MVIO_MVIO_vect           | DB     | -  | -        | -  |  1    | Manually        | Fires on change of MVIO status              |
 | NMI_vect                 | YES    | X  | YES      | X  |  1    | Reset           | NMI can ensure device stopped if CRC fails  |
@@ -46,36 +46,36 @@ If there is a list of the names defined for the interrupt vectors is present som
 | NVMCTRL_EEREADY_vect     | -      | -  | YES      | -  |  1    | Write/Disable   | I *think* all the ready ints work like DRE  |
 | NVMCTRL_FLREADY_vect     | -      | -  | YES      | -  |  1    | Write/Disable   |                                             |
 | NVMCTRL_NVMREADY_vect    | -      | X  | YES      | X  |  1    | Write/Disable   |                                             |
-| PORTA_PORT_vect          | YES    | X  | YES      | X  |  8    | Manually        | All parts                                   |
-| PORTB_PORT_vect          | YES    | -  | EA       | -  |  8    | Manually        | 48+ pin parts only                          |
-| PORTC_PORT_vect          | YES    | X  | YES      | X  |  8    | Manually        | All parts                                   |
-| PORTD_PORT_vect          | YES    | X  | YES      | X  |  8    | Manually        | All parts                                   |
-| PORTE_PORT_vect          | YES    | -  | EA       | -  |  8    | Manually        | 48+ pin parts only                          |
-| PORTF_PORT_vect          | YES    | X  | YES      | X  |  8    | Manually        | All parts                                   |
+| PORTA_PORT_vect          | YES    | X  | YES      | X  | 2-8*  | Manually        | All parts                                   |
+| PORTB_PORT_vect          | YES    | -  | EA       | -  | 6/8*  | Manually        | 48+ pin parts only                          |
+| PORTC_PORT_vect          | YES    | X  | YES      | X  | 1-8*  | Manually        | All parts                                   |
+| PORTD_PORT_vect          | YES    | X  | YES      | X  | 4/8*  | Manually        | All parts                                   |
+| PORTE_PORT_vect          | YES    | -  | EA       | -  | 4/8*  | Manually        | 48+ pin parts only                          |
+| PORTF_PORT_vect          | YES    | X  | YES      | X  | 2-8*  | Manually        | All parts                                   |
 | PORTG_PORT_vect          | YES    | -  | -        | -  |  8    | Manually        | 64 pin parts only                           |
-| PTC_PTC_vect             | DA     | -  | -        | X  |  ?    | See docs        | PTC support not widespread. Docs not avail. |
+| PTC_PTC_vect             | DA     | -  | -        | X  |  ?    | See docs        | Docs proprietary. Library was reverse engineered.  |
 | RTC_CNT_vect             | YES    | X  | YES      | X  |  2    | Manually        | Two possible flags, CNT and OVF             |
 | RTC_PIT_vect             | YES    | X  | YES      | X  |  1    | Manually        |                                             |
-| SPI0_INT_vect            | YES    | X  | YES      | X  | 2-5   | Depends on mode | 2 in normal, 5 in buffered mode. See datasheet|
-| SPI1_INT_vect            | YES    | -  | -        | -  | 2-5   | Depends on mode | 2 in normal, 5 in buffered mode. See datasheet|
+| SPI0_INT_vect            | YES    | X  | YES      | X  | 2/5   | Depends on mode | 2 in normal, 5 in buffered mode. See datasheet|
+| SPI1_INT_vect            | YES    | -  | -        | -  | 2/5   | Depends on mode | 2 in normal, 5 in buffered mode. See datasheet|
 | TCA0_CMP0_vect           | YES    | X  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
 | TCA0_CMP1_vect           | YES    | X  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
 | TCA0_CMP2_vect           | YES    | X  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
-| TCA0_HUNF_vect           | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
-| TCA0_LCMP0_vect          | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
-| TCA0_LCMP1_vect          | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
-| TCA0_LCMP2_vect          | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
-| TCA0_LUNF_vect           | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
 | TCA0_OVF_vect            | YES    | X  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
 | TCA1_CMP0_vect           | YES    | -  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
 | TCA1_CMP1_vect           | YES    | -  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
 | TCA1_CMP2_vect           | YES    | -  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
-| TCA1_HUNF_vect           | YES    | -  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
+| TCA1_OVF_vect            | YES    | -  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
+| TCA0_LCMP0_vect          | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
+| TCA0_LCMP1_vect          | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
+| TCA0_LCMP2_vect          | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
+| TCA0_LUNF_vect           | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
+| TCA0_HUNF_vect           | YES    | X  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
 | TCA1_LCMP0_vect          | YES    | -  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
 | TCA1_LCMP1_vect          | YES    | -  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
 | TCA1_LCMP2_vect          | YES    | -  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
 | TCA1_LUNF_vect           | YES    | -  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
-| TCA1_OVF_vect            | YES    | -  | EA       | -  |  1    | Manually        | SINGLE mode only                            |
+| TCA1_HUNF_vect           | YES    | -  | EA       | -  |  1    | Manually        | SPLIT mode only                             |
 | TCB0_INT_vect            | YES    | X  | YES      | X  |  2    | Depends on mode | See table in datasheet.                     |
 | TCB1_INT_vect            | YES    | X  | YES      | X  |  2    | Depends on mode | See table in datasheet.                     |
 | TCB2_INT_vect            | YES    | -  | EA       | -  |  2    | Depends on mode | See table in datasheet.                     |
@@ -86,7 +86,7 @@ If there is a list of the names defined for the interrupt vectors is present som
 | TCE0_CMP0_vect           | -      | -  |    EB    | X  |  1    | Manually        |                                             |
 | TCE0_CMP1_vect           | -      | -  |    EB    | X  |  1    | Manually        |                                             |
 | TCE0_CMP2_vect           | -      | -  |    EB    | X  |  1    | Manually        |                                             |
-| TCE0_CMP3_vect           | -      | -  |    EB    | -  |  1    | Manually        |                                             |
+| TCE0_CMP3_vect           | -      | -  |    EB    | ?  |  1    | Manually        | Initial Lx-series ATpack shows a 3 chan TCE |
 | TCE0_OVF_vect            | -      | -  |    EB    | X  |  1    | Manually        |                                             |
 | TCF0_INT_vect            | -      | -  |    EB    | -  |  1    | Manually        |                                             |
 | TWI0_TWIM_vect           | YES    | X  | YES      | X  | >1    | Usually Auto    | See datasheet, this is complicated and kind |
@@ -100,27 +100,27 @@ If there is a list of the names defined for the interrupt vectors is present som
 | As above for other ports | YES    | X  | EA       | -  |  ^    | As above        | As above                                    |
 | USB0_BUSEVENT_vect       | -      | X  | -        | -  |  >1   | See Datasheet   | USB                                         |
 | USB0_TRNCOMPL_vect       | -      | X  | -        | -  |  >1   | See Datasheet   | USB                                         |
-| WEX0_FAULT_vect          | -      | -  |    EB    | -  |  ?    | Manually        | See datasheet. Then tell me how it works    |
+| WEX0_FAULT_vect          | -      | -  |    EB    | -  |  ?    | Manually        | See datasheet.                              |
 | WEX0_FAULTDET_vect       | -      | -  |    EB    | -  |  ?    | Manually        |                                             |
 | WEX0_FDFEVA_vect         | -      | -  |    EB    | -  |  ?    | Manually        |                                             |
 | WEX0_FDFEVB_vect         | -      | -  |    EB    | -  |  ?    | Manually        |                                             |
 | WEX0_FDFEVC_vect         | -      | -  |    EB    | -  |  ?    | Manually        |                                             |
-| ZCD0_ZCD_vect            | DA/DB  | -  | -        | -  |  1    | Manually        |                                             |
+| ZCD0_ZCD_vect            | DA/DB/SD| - | -        | -  |  1    | Manually        |                                             |
 | ZCD1_ZCD_vect            | DA/DB  | -  | -        | -  |  1    | Manually        |                                             |
 | ZCD2_ZCD_vect            | DA/DB  | -  | -        | -  |  1    | Manually        |                                             |
-| ZCD3_ZCD_vect            | DD     | -  | -        | -  |  1    | Manually        | DD's have a ZCD3, Others have 0-2.          |
+| ZCD3_ZCD_vect            | DD/SD  | -  | -        | -  |  1    | Manually        | DD's have a ZCD3, Others have 0-2   `**`    |
 
-
-
-
-
-`*` - There are two classes of 1-series - the ones with 16k or more of flash, and the ones with less. These are only available on the larger ones, because they operate on a peripheral that only exists there.
-`**` - These vectors are traditionally referred to by different names when in split mode or normal mode, but the hardware can't tell the difference between the names. Using the correct name is strongly recommended, however.
-
+`*` - One flag per pin or peripheral instance.
+`**` - ZCD0, 1 and 2 are on PD1, PE3 and PE7. 14 and 20 pin parts don't have any of those, so to give them a ZCD, they got a ZCD numbered ZCD3, with it's input pin on PC2. The SD-series has a ZCD0 and a ZCD3.
+`***` - CFD feels "flaky" because CFD covers only the literal clock failure situation. See note below
 
 ## Why clearing flags is so complicated
-Almost all flags *can* be manually cleared - the ones that can be cleared automatically generally do that to be helpful:
-* When the purpose of the flag is to tell you that something is ready to be read, reading it clears the flag. ADC, serial interfaces, and TCB input capture do that.
+It's - really - about as complicated as it has to be.
+* Almost all flags *can* be manually cleared with only two sorts of exceptions.
+  * The NMI is designed to only be cleared by a full reset, and can only be triggered by the CRC check failing. (Unlikely to see use for hobbyists - it's for safety critical stuff, where you want any firmware corruption to completely hose the system.)
+and the DRE-like interrupts, which are set and cleared automatically only, and the user is expected to turn off the interrupt.
+* When the purpose of the flag is to tell you that something is ready to be read, reading it clears the flag. ADC, serial interfaces, and TCB input capture, for example.
+  * Consider
 * The TWI interrupts work the same way - you need to read, write, or ack/nack something to respond to the bus event; doing so clears the flag too. (you don't have to do anything about this, though, with our enhanced Wire library!).
 * Sometimes interrupts like that can have error flags that can trigger them enabled too; those typically have to be manually cleared - by enabling them, you declare an intent to do something about them, so you're responsible for telling the hardware you did it.
 * USART, and buffered SPI have DRE interrupt that can only be cleared by writing more data - otherwise you need to disable the interrupt from within the ISR. The `USARTn.TXC` (transfer/transmit complete) flags are frequently polled rather than used to fire interrupts. It's not entirely clear from the datasheet if the EEPROM ready interrupt is like that, or can be cleared manually.
@@ -293,18 +293,25 @@ Except if you're acting on a VPORTx.INTFLAGS register, in which case |= saves a 
 
 
 
-* (2 clocks) `VPORTA.INTFLAGS  =  1 << 2;` **GOOD, SAFE GENERAL WAY TO WRITE INTFLAGS** this takes two clocks - 1 to load the constant '4' to a register, and one to write it to the flag register, and each of these take 1 word (2 bytes) of flash. It results in bit 2 being cleared.
-* (1 clock)  `VPORTA.INTFLAGS |=  1 << 2;` **GOOD ONLY WHEN IT'S A VPORT, AND THE ARGUMENT IS CONSTANT** This takes only one clock, since it's a single bit set or clear on a low I/O register, and only word of flash. It results in bit 1 being cleared. This is smaller and faster than the above.
-* (5 clocks and wrong) `VPORTA.INTFLAGS |= foo << 2;` where `foo` is not compile time known
-* (3 clocks) `VPORTA.INTFLAGS  = foo << 2;`This is the correct way to to the above (4 clocks if this isn't the last usage of foo)
-* (2 clocks) `VPORTA.INTFLAGS  = (1 << 2) | (1 << 1);` **GOOD** this takes two clocks - 1 to load the constant '6' to a register, and one to write it to the flag register, and each of these take 1 word (2 bytes) of flash. It results in bits 1 and 2 being cleared.
-* (3 clocks, wrong)`VPORTA.INTFLAGS |= (1 << 2) | (1 << 1);` **BAD AND WRONG** Because |= only turns into an SBI if you're setting a single bit, if you're setting two bits, it will do a RMW and blow away all the flags.
-* (2 clocks) `VPORTA.INTFLAGS  = (1 << 2) | (1 << 1); **Good, correct way to clear multiple intflags at once in all cases**`
-* (6 clocks, wrong)`PORTA.INTFLAGS  |=  1 << 2;` **BAD AND WRONG** Unlike the VPORT intflags, writing the PORT intflags with |= even for one bit will still clear every set bit. Don't do this!
-* (3 clocks) `PORTA.INTFLAGS   =  1 << 2;` **Good, optimal way to clear a non-VPORT**
-* (3 clocks) `PORTA.INTFLAGS   = (1 << 2) | (1 << 1); **Good, correct way to clear multiple intflags at once in all cases**`
+* (2 clocks)         `VPORTA.INTFLAGS   =  1 << 2;` **GOOD, SAFE GENERAL WAY TO WRITE INTFLAGS** this takes two clocks - 1 to load the constant '4' to a register, and one to write it to the flag register, and each of these take 1 word (2 bytes) of flash. It results in bit 2 being cleared.
+* (1 clock)          `VPORTA.INTFLAGS  |=  1 << 2;` **GOOD ONLY WHEN IT'S A VPORT, AND THE ARGUMENT IS CONSTANT** This takes only one clock, since it's a single bit set or clear on a low I/O register, and only word of flash. It results in bit 1 being cleared. This is smaller and faster than the above.
+* (5 clocks, wrong)  `VPORTA.INTFLAGS  |= foo << 2;` where `foo` is not compile time known **BAD, WRONG BEHAVIOR** - clears all flags, not just one!
+* (3 clocks)         `VPORTA.INTFLAGS   = foo << 2;`This is the correct way to to the above (4 clocks if this isn't the last usage of foo) **GOOD - This is that the above line should be**
+* (2 clocks)         `VPORTA.INTFLAGS   = (1 << 2) | (1 << 1);` **GOOD** this takes two clocks - 1 to load the constant '6' to a register, and one to write it to the flag register, and each of these take 1 word (2 bytes) of flash. It results in bits 1 and 2 being cleared.
+* (3 clocks, wrong)  `VPORTA.INTFLAGS  |= (1 << 2) | (1 << 1);` **BAD AND WRONG** Because |= only turns into an SBI if you're setting a single bit, if you're setting two bits, it will do a RMW and blow away all the flags!
+* (6 clocks and wrong)`PORTA.INTFLAGS  |=  1 << 2;` **BAD AND WRONG** Unlike the VPORT intflags, writing the PORT intflags with |= even for one bit will still clear every set bit. Don't do this!
+* (3 clocks)          `PORTA.INTFLAGS   =  1 << 2;` **Good, optimal way to clear a non-VPORT**
+* (3 clocks)          `PORTA.INTFLAGS   = (1 << 2) | (1 << 1);` **Good, correct way to clear multiple intflags at once safely**
 
 
+## That bit about CFD
+Clock failure detection detects, clock, failures. For a *clock failure* to occur, several conditions must be met:
+1. The clock source must have started. If the crystal or clock is absent or completely busted and doesn't oscillate, it will never switch to that clock source. This core will thus fail during `init_clock()`, before you could enable the CFD,
+  a. Had you rewritten that, you'd most likely either get stuck in the same place when you do the same thing, or you don't check for successful switch and a non-functional clock will fail to switch, and start running the sketch without having switched to the clock source, running at the /6 (Ex-like) or 4 MHz clock (Dxlike) setting.
+2. The clock source, having started, must cease all oscillation for around a quarter of a millisecond.
+3. CFD must be enabled and configured
+
+Importantly to hobbyists, condition 2 is not necessarily met by a crystal oscillator with improper loading capacitors and/or soldering errors, and condition will often not be met as well. These crystals may "limp", generating a sufficient number of transitions for the AVR to switch to it, but not generating them at a regular pace or with ~50% duty cycle, or otherwise violating the clock specification described in the electrical characteristics section. The "limping" transitions are also easily sufficient to make the CFD think everythink is fine and dandy. In this situation, it may switch to the clock, turn on the CFD and start to execute the app code, but because the clock is so severely deranged, the AVR will execute instructions incorrectly (as if it were being run at excessively high clock speeds).
 
 ## Reminders
 * ISRs should run FAST. Minimize the time that the code spends in the ISR. Never use polling loops unless you know that they will only need a couple of passes (an example would be TCD0 ENRDY or CMDRDY, which will never take longer than 16 clocks to clear), and avoid writing to serial. Most interrupts should just set a flag that is checked elsewhere, and do what must be done that instant (ex, read an incoming data byte from a register and store it in a buffer then set a flag or byte indicating at what point in the buffer it's at. Don't process the byte you received and figure out what it's instructing you to do - that should be done outside of the interrupt).
@@ -316,7 +323,7 @@ Except if you're acting on a VPORTx.INTFLAGS register, in which case |= saves a 
 * Any global variable or register subject to a read-modify-write cycle in code outside the ISR and written to within an ISR must disable interrupts while performing the read-modify-write in order to make the operation atomic.
 * For the three cases immediately above, if a level 1 priority interrupt is set, the same three rules apply to variables used by a level 0 ISR and the level 1 ISR.
 * The core does not use the level 1 interrupt priority option. Thus, an interrupt blocks all other interrupts, like on classic AVRs (though the global interrupt flag in the SREG is not set or cleared). Hence it has the same caveats as other things that disable interrupts (this is one of the major reasons that ISRs need to run fast):
-  * An interrupt that lasts longer than 10/(usart baud rate) can cause received characters to be missed (technically, you have twice that long because it's double-buffered, minus the time overhead at the start of the interrupt that reads it. The "timer" starts from when the first byte arrives - the interrupt must fire and reach the point where the RXDATA register is read before the third byte arrives. The ISR is not something from the Museum of Efficient and Well Written ISRs, either.
+  * An interrupt that lasts longer than 10/(usart baud rate) can cause received characters to be missed (technically, you have twice that long because it's double-buffered, minus the time overhead at the start of the interrupt that reads it. The "timer" starts from when the first byte arrives - the interrupt must fire and reach the point where the RXDATA register is read before the third byte arrives. Only with extensive refactoring was the USART RXC interrupt used for the HardwareSerial implementation made to run fast enough to
   * An interrupt that lasts longer than 0.5-4ms (details depend on the timer used for millis, and at what point in the cycle it was at) will lose time as viewed through `millis()` and `micros()`
   * After 0.5-2ms (potentially as little as 512 system clocks on 1.3.6 and earlier, micros will jump backwards in time by around 0.5-2 ms. The threshold for this occurring and the size of the jump will depend on the system clock speed, millis timer, and what point in the cycle it is at when interrupts are disabled.
 

@@ -31,9 +31,29 @@
  * error messages and codes at runtime, since we have no other way to report such.
  */
 
+
+#if defined(VREF_ADC0REF)
+  uint8_t  _acreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+  uint8_t _adcreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+#else
+  uint8_t  _acreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+  uint8_t _adcreftab[8] ={VDD, NOT_A_REFERENCE, EXTERNAL, NOT_A_REFERENCE, INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500};
+#endif
+
 #define SINGLE_ENDED 254
 
 
+/* check_valid_x functions are inline functions which return no value and generate no code in the compiled binary.
+  All code is guarded by __builtin_constant_p(x) which returns true IFF x is a compile time known constant that
+  will be subject to constant folding later on. So none of this goes in the binary - it is instead used to generate
+  errors during compilation when user code asks the hardware to do something nonsensical - say, reading from something
+  that isn't a pin, or passed the arguments of something in the wrong order. Since AVRs are sufficiently resource
+  constrained that the overhead of detecting and handling errors at runtime is prohibitive, these "silly" programming
+  errors would otherwise result in wrong behavior and no error to indicate what is wrong, and only the wrong behavior
+  to go on.
+  */
+
+/* These essentially use one implementation for all the parts */
 inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin) {
   if (__builtin_constant_p(pin)) {
     if (
@@ -66,84 +86,122 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
       if (pin > 0x80) { // given as a channel, not a pin, but not one of the special inputs???
         pin &= 0x7f;
         if (pin > ADC_MAXIMUM_PIN_CHANNEL)
-          badArg("analogRead called with constant channel number which is neither a valid internal source nor an analog pin");
+          badArg("analogRead called with constant channel number which is neither a valid internal source nor an analog pin"); // There is no correct way to read something that isn't an input on the chip.
       }
       pin = digitalPinToAnalogInput(pin);
       if (pin == NOT_A_PIN) {
-        badArg("analogRead called with constant pin that is not a valid analog pin");
+        badArg("analogRead called with constant pin that is only capable of digital input.");
       }
     }
   }
 }
-
-inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
-  if (__builtin_constant_p(mode)) {
-    if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-    badArg("analogReference called with argument that is not a valid analog reference");
+#if defined(VREF_ADC0REF)
+/* DA/DB/DD */
+  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+    if (__builtin_constant_p(mode)) {
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+        badArg("analogReference called with argument that is not a valid analog reference");
+    }
   }
-}
+/* Same as above except for the error */
+  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
+    /* This checks an AC or DAC reference number, instead of a adc reference number.
+     * On the Dx-series, these were the same. On the Ex-series, the list of options is the same...
+     * but the numbers that they correspond to and the names of the constants are different. */
+    if (__builtin_constant_p(mode)) {
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+        badArg("DACreference called with argument that is not a valid (D)AC reference.");
+    }
+  }
+#else
+  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+    /* Ex-series.... frickin A */
+    if (__builtin_constant_p(mode)) {
+      if (mode & 0x40) /* Reject the AC_REF constants */
+        badArg("analogReference called with an AC_REF_ constant, those only work with DAC/AC references. Valid options look like INTERNAL2V048, VDD, or EXTERNAL";)
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+      badArg("analogReference called with argument that is not a valid analog reference");
+    }
+  }
+
+  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
+    /* This checks an AC or DAC reference number, instead of a adc reference number.
+     * On the Dx-series, these were the same, so they differ only in the error message.
+     * but the numbers that they correspond to and the names of the constants are different. */
+    if (__builtin_constant_p(mode)) {
+      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+      badArg("DACreference called with argument that is not a valid DAC/AC reference");
+    }
+  }
+
+#endif
 
 inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
   if (__builtin_constant_p(res)) {
     if (res < 0x80) {
-      if (res < ADC_NATIVE_RESOLUTION_LOW) {
-            badArg("When a resolution is passed to analogReadEnh, it must be at least the minimum native resolution (8 bits)");
+      if (res < 8) {
+        badArg("When a resolution is passed to analogReadEnh, it must be at least the minimum native resolution (8 bits)"); //If you want fewer bits, shift it yourself.
       } else if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) {
         badArg("The highest resolution obtainable on these parts through oversampling and decimation with a single ADC operation 13 bits on 0/1-series, DU, and SD, 15 on Dx-series, and 17  or 17 on 2-series");
       }
-  #if defined(__AVR_EA__)
-    } else if ((res & 0x7F) > 0x0A) {
-  #else
-    } else if ((res & 0x7F) > 0x06) {
-  #endif
-      badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings");
+    } else {
+      #if defined(ADC0_TEMP2) /* check_valid_enh_res is different with the new ADC*/
+        if ((res & 0x7F) > 0x0A)
+      #else /* the old ADC */
+        if ((res & 0x7F) > 0x06)
+      #endif /* end ADC version conditional valid enh res */
+      {
+        badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings");
+      }
     }
   }
 }
 
 inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   if (__builtin_constant_p(res))
-  #if defined(__AVR_EA__)
-    if (res != 8 && res != 10 && res != 12)
+  #if defined(ADC0_TEMP2) /* check_valid_resolution is different with the new ADC*/
+    if (res != 8 && res != 10 && res != 12) {
       badArg("analogReadResolution called with invalid argument - valid options are 8, 12, or 10 (compatibility mode).");
-  #else
-    if (res != 8 && res != 10)
+    }
+  #elif defined(ADC_LOWLAT_bm) //lowlat but small temp reg = DU/SD
+    if (res != 8 && res != 10){
       badArg("analogReadResolution called with invalid argument - valid options are 8 or 10.");
-  #endif
+    }
+  #else
+    if (res != 8 && res != 10 && res != 12) {
+      badArg("analogReadResolution called with invalid argument - valid options are 8, 12, or 10 (compatibility mode).");
+    }
+  #endif /* end ADC version conditional valid res*/
 }
 
 
-#if defined(ADC0_TEMP2) /* Means it's the new ADC)*/
-  // need a variable to store the resolution selected for analogRead - 8, 10, or 12,
-  // as well as other options, such as whether to autodisable the PGA or leave it running.
-  // Default resolution 10 bits, turn off PGA enabled
-  // decoded as 0bPxxxRRRR
-  // RRRR = resolution, 8, 10, or 12
-  // P = 1 for PGA auto-shutoff.
-  // C = 1 to chop signs. Sign chopping can only be used on Series and Burst measurements
-  // (this includes analogReadEnh() if you specify a resolution that triggers oversampling and
-  // decimation). But when enabled appropriately, it will swap the positive and negative
-  // pins on successive measurements. The result is, especially when measuring very small differences
-  // with a large gain and low reference, much smaller offset error.
-  // Sign Chopping support is not yet implemented, but this is how it will be.
-  // Unless we determine that we can just leave it on and have it only use it for
-  // the burst/series modes (in which case, it will probably be made the default)
-  // we will turn it on in analogReadEnh/Diff (_analogReadEnh() specifically)
-  // and then turn it off before returning, when we restore other ADC settings.
-  static uint8_t _analog_options = 0x80 | 10;
-#endif
-
-#ifdef DAC0
+#ifdef DAC0 /* Only DAC-bearing parts get this */
   void DACReference(uint8_t mode) {
-    check_valid_analog_ref(mode);
-    VREF.DAC0REF = mode | (VREF.DAC0REF & (~VREF_REFSEL_gm));
+    if (__builtin_constant_p(mode)) {
+      check_valid_ac_ref(mode);
+    } else if ((mode & 0x88) != 0x88) {
+      return;
+    }
+    _SWAP(mode);
+    mode &= 0x07;
+    uint8_t temp = VREF.DAC0REF & ~VREF_REFSEL_gm;
+    temp |= mode;
+    VREF.DAC0REF = temp;
   }
-#else
-  void DACReference(__attribute__ ((unused))uint8_t mode) {
+  uint8_t getDACReference() {
+    uint8_t r = VREF.DAC0REF & VREF_REFSEL_gm;
+    return _acreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
+  }
+#else /* else no dac */
+  uint8_t DACReference(__attribute__ ((unused))uint8_t mode) {
     badCall("DACreference is not available - this part does not have a DAC");
   }
-#endif
+  uint8_t getDACReference() {
+    badCall("This part does not have a DAC, it thus has no DAC reference");
+    return -1;
+  }
 
+#endif
 /*----------------------------------------------------------------------------
  * Core ADC functionality implementations
  *----------------------------------------------------------------------------
@@ -169,7 +227,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
  *     The standard analogRead(). Single-ended, and resolution set by
  *     analogReadResolution(), default 10.
  *     large negative values are returned in the event of an error condition.
-
+ *
  * bool analogReadResolution(uint8_t resolution)
  *     Sets resolution for the analogRead() function. Unlike stock version,
  *     this returns true/false. If it returns false, the value passed was
@@ -193,10 +251,30 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
  *     analogSampleDuration to get the current setting back (useful before
  *     changing it to something exotic)
  * void ADCPowerOptions(uint8_t options)
- *     0 - disable PGA, turned on and off in future as above.
- *     1 - enable PGA ahead of time for the next measurement after which it will be turned off as above.
- *     2 - disable PGA, and in future turn if off immediately after use.
- *     3 - enable PGA, leave it on until explicitly turned off. This is a power hog.
+    // 0b SSEEPPLL
+    // SS = run standby
+    // 00 = no change to run standby
+    // 01 = no change to run standby
+    // 10 = turn off run standby
+    // 11 = turn on run standby
+
+    // EE = ENABLE
+    // 00 = Do not enable or disable ADC.
+    // 01 = Do not enable or disable ADC.
+    // 10 = Disable the ADC.
+    // 11 = Enable the ADC.
+
+    // LL = LOWLAT
+    // 00 = Do nothing.  No change to whether ADC enabled or LOWLAT bit.
+    // 01 = Do nothing.  No change to whether ADC enabled or LOWLAT bit.
+    // 10 = LOWLAT on. No change to whether ADC enabled.
+    // 11 = LOWLAT off. No change to whether ADC enabled.
+    // PP = PGA stay-on
+    // 00 = No action
+    // 01 = Turn off PGA, settings unchanged. It will be enabled next time is requested, but will not automatically turn off.
+    // 10 = Turn on PGA, and don't turn it off automatically.
+    // 11 = turn off PGA now and automatically after each use
+
  * int32_t analogReadEnh(uint8_t pin, int8_t res = ADC_NATIVE_RESOLUTION,
  *                                                          uint8_t gain = 0)
  *     Enhanced analogRead(). Still single-ended, res is resolution in bits,
@@ -278,38 +356,63 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
  *   Returns 1 (true) if the value, assuming it came from an analogRead/Enh
  *   function call, is not an analog reading but instead an error code.
  ****************************************************************************/
-#if defined(ADC0_TEMP2)
-  /*****************************************************
-  START 2-series analogRead/analogReadXxxx functions
-  *****************************************************/
+#if defined(ADC0_TEMP2)  /* IMPORTANT IFDEF START NEW GOOD ADC */
+    /*######    ###          ## ######## ########        ## ########  ######
+    ##         ## ##        ##  ##       ##     ##      ##  ##       ##    ##           ##
+    ##        ##   ##      ##   ##       ##     ##     ##   ##       ##                 ##
+    ######   ##     ##    ##    ######   ########     ##    ######   ##              #  ##  #
+    ##       #########   ##     ##       ##     ##   ##     ##       ##               # ## #
+    ##       ##     ##  ##      ##       ##     ##  ##      ##       ##    ##          ####
+    ######## ##     ## ##       ######## ########  ##       ########  ######            */
   #define SINGLE_ENDED 254
+
+  static uint8_t _analog_options = 0x80 | 10;
+
+  // need a variable to store the resolution selected for analogRead - 8, 10, or 12,
+  // as well as other options, such as whether to autodisable the PGA or leave it running.
+  // Default resolution 10 bits, turn off PGA enabled
+  // decoded as 0bPxxxRRRR
+  // RRRR = resolution, 8, 10, or 12
+  // P = 1 for PGA auto-shutoff.
+  // C = 1 to chop signs. Sign chopping can only be used on Series and Burst measurements
+  // (this includes analogReadEnh() if you specify a resolution that triggers oversampling and
+  // decimation). But when enabled appropriately, it will swap the positive and negative
+  // pins on successive measurements. The result is, especially when measuring very small differences
+  // with a large gain and low reference, much smaller offset error.
+  // Sign Chopping support is not yet implemented, but this is how it will be.
+  // Unless we determine that we can just leave it on and have it only use it for
+  // the burst/series modes (in which case, it will probably be made the default)
+  // we will turn it on in analogReadEnh/Diff (_analogReadEnh() specifically)
+  // and then turn it off before returning, when we restore other ADC settings.
+
+
+/* Ex Version*/
   inline bool analogReadResolution(uint8_t res) {
     check_valid_resolution(res);
       bool temp = (res == 8 || res == 10 || res == 12);
       _analog_options = (_analog_options & 0xF0) | (temp ? res : 10); // just set that variable. The new ADC only wants to be told the resolution when it starts a conversion
       return temp;
   }
+
+/* Ex Version*/
   int8_t getAnalogReadResolution() {
     return _analog_options & 0x0F;
   }
+
+  /* Ex Version*/
   void analogReference(uint8_t mode) {
     check_valid_analog_ref(mode);
-    #if defined(STRICT_ERROR_CHECKING)
-      if (mode > 7) return;
-    #else
+    if (mode > 7)
       mode &= 7;
-    #endif
     if (mode != 1 && mode != 3) {
       ADC0.CTRLC = mode;
     }
-    // Uh? Is that it? That was, ah, a tiny bit simpler.
   }
+/* Ex Version*/
   inline uint8_t getAnalogReference() {
-    return ADC0.CTRLC & ADC_REFSEL_gm;
+     ADC0.CTRLC & ADC_REFSEL_gm;
   }
-  inline uint8_t getDACReference() {
-    return VREF.DAC0REF & VREF_REFSEL_gm;
-  }
+/* Ex Version*/
   int16_t analogRead(uint8_t pin) {
     check_valid_analog_pin(pin);
     if (pin < 0x80) {
@@ -347,7 +450,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     return ADC0.RESULT;
   }
 
-
+/* Ex Version*/
   inline __attribute__((always_inline)) void check_valid_negative_pin(uint8_t pin) {
     if (__builtin_constant_p(pin)) {
       if (pin < 0x80) {
@@ -383,30 +486,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
   */
 
+/* Ex Version*/
   void ADCPowerOptions(uint8_t options) {
-    // 0b SSEEPPLL
-    // SS = run standby
-    // 00 = no change to run standby
-    // 01 = no change to run standby
-    // 10 = turn off run standby
-    // 11 = turn on run standby
-
-    // EE = ENABLE
-    // 00 = Do not enable or disable ADC.
-    // 01 = Do not enable or disable ADC.
-    // 10 = Disable the ADC.
-    // 11 = Enable the ADC.
-
-    // LL = LOWLAT
-    // 00 = Do nothing.  No change to whether ADC enabled or LOWLAT bit.
-    // 01 = Do nothing.  No change to whether ADC enabled or LOWLAT bit.
-    // 10 = LOWLAT on. No change to whether ADC enabled.
-    // 11 = LOWLAT off. No change to whether ADC enabled.
-    // PP = PGA stay-on
-    // 00 = No action
-    // 01 = Turn off PGA, settings unchanged. It will be enabled next time is requested, but will not automatically turn off.
-    // 10 = Turn on PGA, and don't turn it off automatically.
-    // 11 = turn off PGA now and automatically after each use
     uint8_t temp = ADC0.CTRLA; //performance.
     if (options & 0x02) {
       ADC0.CTRLA = 0; // hopwfully workaround lowlat errata by ensuring that everything is turned off.
@@ -450,16 +531,16 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     // What a mess!
   }
 
-
+/* Ex Version*/
   int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, uint8_t gain) {
-    if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
+    if (!(ADC0.CTRLA & 0x01)) {return ADC_ENH_ERROR_DISABLED;}
     uint8_t sampnum;
     if (res > 0x80) { // raw accumulation
       sampnum = res & 0x7F;
-      if (sampnum > 10) return ADC_ENH_ERROR_RES_TOO_HIGH;
+      if (sampnum > 10) {return ADC_ENH_ERROR_RES_TOO_HIGH;}
     } else {
-      if (res < ADC_NATIVE_RESOLUTION_LOW) return ADC_ENH_ERROR_RES_TOO_LOW;
-      if (res > 17) return ADC_ENH_ERROR_RES_TOO_HIGH;
+      if (res < ADC_NATIVE_RESOLUTION_LOW) {return ADC_ENH_ERROR_RES_TOO_LOW;}
+      if (res > 17) {return ADC_ENH_ERROR_RES_TOO_HIGH;}
       sampnum = (res > ADC_NATIVE_RESOLUTION ? ((res - ADC_NATIVE_RESOLUTION) << 1) : 0);
     }
 
@@ -470,10 +551,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       pin &= 0x3F;
     }
     #if PROGMEM_SIZE < 8096
-      if (pin > 0x33) { // covers most ways a bad channel could come about
+      if (pin > 0x33) // covers most ways a bad channel could come about
     #else
-      if (pin > NUM_ANALOG_INPUTS && ((pin < 0x30) || (pin > 0x33))) {
+      if (pin > NUM_ANALOG_INPUTS && ((pin < 0x30) || (pin > 0x33)))
     #endif
+    {
       return ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL;
     }
     if (neg != SINGLE_ENDED) {
@@ -540,7 +622,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     }
     return result;
   }
-
+/* Ex Version*/
   inline int32_t analogReadEnh(uint8_t pin, uint8_t res, uint8_t gain) {
     check_valid_enh_res(res);
     check_valid_analog_pin(pin);
@@ -602,295 +684,618 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
 
 
-/*---------------------------------------------------
- * END Ex-series analogRead/analogReadXxxx functions
- *--------------------------------------------------*/
-#else
-  /*****************************************************
-  START Dx-series analogRead/analogReadXxxx functions
-  *****************************************************/
 
-void analogReference(uint8_t mode) {
-  check_valid_analog_ref(mode);
-  if (mode < 7 && mode != 4) {
-    VREF.ADC0REF = (VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode);
+      /*           ########  ##     ##          ##
+      ##           ##     ## ##     ##          ##
+      ##           ##     ## ##     ##          ##
+   #  ##  #        ##     ## ##     ##       #  ##  #
+    # ## #         ##     ## ##     ##        # ## #
+     ####          ##     ## ##     ##         ####
+      ##           ########   #######           */
+
+
+  #elif defined(ADC_LOWLAT_bm) /* MAJOR IMPORTANT ELIF CONDITIONAL */
+  // only the good ADC has the larger temp register, and we're testing this if we don't have the larger register.
+  static uint8_t _analog_options = 0x80 | 10;
+
+  #define SINGLE_ENDED 254
+  inline bool analogReadResolution(uint8_t res) {
+    check_valid_resolution(res);
+      bool temp = (res == 8 || res == 10);
+      _analog_options = (_analog_options & 0xF0) | (temp ? res : 10); // just set that variable. The new ADC only wants to be told the resolution when it starts a conversion
+      return temp;
   }
-}
-
-int16_t analogRead(uint8_t pin) {
-  check_valid_analog_pin(pin);
-  if (pin < 0x80) {
-    pin = digitalPinToAnalogInput(pin);
-    if (pin == NOT_A_PIN) {
-      return ADC_ERROR_BAD_PIN_OR_CHANNEL;
+  int8_t getAnalogReadResolution() {
+    return _analog_options & 0x0F;
+  }
+  void analogReference(uint8_t mode) {
+    check_valid_analog_ref(mode);
+    #if defined(STRICT_ERROR_CHECKING)
+      if (mode > 7) return;
+    #else
+      mode &= 7;
+    #endif
+    if (mode != 1 && mode != 3) {
+      ADC0.CTRLC = mode;
     }
+    // Uh? Is that it? That was, ah, a tiny bit simpler.
   }
-  /* Select channel */
-  ADC0.MUXPOS = ((pin & 0x7F) << ADC_MUXPOS_gp);
-  /* Reference should be already set up */
+  inline uint8_t getAnalogReference() {
+    return ADC0.CTRLC & ADC_REFSEL_gm; /*  This register is empty of other fields  */
+  }
 
-  /* Start conversion */
-  ADC0.COMMAND = ADC_STCONV_bm;
-
-  /* Wait for result ready */
-  while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
-
-  #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
-    // That may become defined when DA-series silicon is available with the fix
-    ADC0.MUXPOS = 0x40;
-  #endif
-  return ADC0.RES;
-}
-
-
-inline __attribute__((always_inline)) void check_valid_negative_pin(uint8_t pin) {
-  if(__builtin_constant_p(pin)) {
+  int16_t analogRead(uint8_t pin) {
+    check_valid_analog_pin(pin);
     if (pin < 0x80) {
       // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
       pin = digitalPinToAnalogInput(pin);
+    } else {
+      pin &= 0x3F;
+    }
+    #if PROGMEM_SIZE < 8096
+      if (pin > 0x33) { // covers most ways a bad channel could come about
+    #else
+      if (pin > NUM_ANALOG_INPUTS && ((pin < 0x30) || (pin > 0x33))) {
+    #endif
+      return ADC_ERROR_BAD_PIN_OR_CHANNEL;
+    }
+    if (!ADC0.CTRLA & 0x01) return ADC_ERROR_DISABLED;
+
+    if (ADC0.COMMAND & ADC_START_gm) return ADC_ERROR_BUSY;
+    // gotta be careful here - don't want to shit ongoing conversion - unlikle classic AVRs
+    // they say there is no buffering here!
+    /* Select channel */
+    ADC0.MUXPOS = pin; // VIA bit = 0;
+    uint8_t command = (_analog_options & 0x0F) > 8 ? 0x11 : 0x01;
+    /* Start conversion */
+    ADC0.COMMAND = command;
+
+    /* Wait for result ready */
+    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+    // if it's 10 bit compatibility mode, have to rightshift twice.
+    if ((_analog_options & 0x0F) == 10) {
+      int16_t temp = ADC0.RESULT;
+      temp >>= 2;
+      return temp;
+    }
+    return ADC0.RESULT;
+  }
+
+
+  inline __attribute__((always_inline)) void check_valid_negative_pin(uint8_t pin) {
+    if (__builtin_constant_p(pin)) {
+      if (pin != SINGLE_ENDED) {
+        // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
+        pin = digitalPinToAnalogInput(pin);
+      }
+      pin &= 0x3F;
+      if (pin != 0x33 && pin != 0x31 && pin != 0x30 && pin > 0x07) {
+        badArg("Invalid negative pin - valid options are ADC_GROUND, ADC_VDDDIV10, ADC_DACREF0, or any pin on PORTA.");
+      }
+    }
+  }
+  bool analogSampleDuration(uint8_t sampdur) {
+    // any uint8_t is a legal value...
+    ADC0.CTRLE = sampdur;
+    return true;
+  }
+  uint8_t getAnalogSampleDuration() {
+    return ADC0.CTRLE;
+  }
+  /*
+  uint8_t ADCOptions(uint8_t options) {
+    // 0b____CCFF
+    // FF = Freerunning mode
+    // Note that in freerun mode the ADC cannot be used for analogRead, you need to either define an ISR, or poll status and read the register directly
+    // 00 = do nothing.
+    // 01 = stop current conversion (very useful in freerun mode)
+    // 10 = turn off freerun
+    // 11 = turn on freerun
+    */
+   /*TODO: Figure out what happens if you have sign chopping on when it's not available. Does it blow up everything? Or is it just ignored?
+    return
+  }
+  */
+
+  void ADCPowerOptions(uint8_t options) {
+    uint8_t temp = ADC0.CTRLA; //performance.
+    if (options & 0x02) {
+      ADC0.CTRLA = 0; // hopwfully workaround lowlat errata by ensuring that everything is turned off.
+      // and configuring lowlat mode.
+      if (options & 0x01) {
+        ADC0.CTRLA |=  ADC_LOWLAT_bm;
+        temp |= ADC_LOWLAT_bm;
+      } else {
+        ADC0.CTRLA &= ~ADC_LOWLAT_bm;
+        temp &= ~ADC_LOWLAT_bm;
+      }
+    }
+    if (options & 0x20) {
+      if (options & 0x10) {
+        temp |= 1; // ADC on
+      } else {
+        temp &= 0xFE; // ADC off
+      }
+    }
+    if (options & 0x80) {
+      if (options & 0x40) {
+        temp |= 0x80; // run standby
+      } else {
+        temp &= 0x7F; // no run standby
+      }
+    }
+    ADC0.CTRLA = temp; //now we apply enable and standby, and lowlat has been turned on, hopefully that's good enough for the errata.
+    // What a mess!
+  }
+
+
+  int32_t _analogReadEnh(uint8_t pin, __attribute__ ((unused)) uint8_t neg, uint8_t res, __attribute__ ((unused)) uint8_t gain) {
+    if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
+    uint8_t sampnum;
+    if (res > 0x80) { // raw accumulation
+      sampnum = res & 0x7F;
+      if (sampnum > 10) return ADC_ENH_ERROR_RES_TOO_HIGH;
+    } else {
+      if (res < ADC_NATIVE_RESOLUTION_LOW) return ADC_ENH_ERROR_RES_TOO_LOW;
+      if (res > 17) return ADC_ENH_ERROR_RES_TOO_HIGH;
+      sampnum = (res > ADC_NATIVE_RESOLUTION ? ((res - ADC_NATIVE_RESOLUTION) << 1) : 0);
+    }
+
+    if (pin < 0x80) {
+      // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
+      pin = digitalPinToAnalogInput(pin);
+    } else {
+      pin &= 0x3F;
+    }
+    #if PROGMEM_SIZE < 8096
+      if (pin > 0x33)  // covers most ways a bad channel could come about
+    #else
+      if (pin > NUM_ANALOG_INPUTS && ((pin < 0x30) || (pin > 0x33)))
+    #endif
+    {
+      return ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL;
     }
     pin &= 0x3F;
-    if (pin != 0x40 && pin != 0x48 && pin > 0x0F) { /* Not many options other than pins are valid */
-      badArg("Invalid negative pin - valid options are ADC_GROUND, ADC_DAC0, or any pin on PORTD or PORTE.");
-    }
-  }
-}
 
-bool analogSampleDuration(uint8_t dur) {
-    ADC0.SAMPCTRL = dur;
-    return true;
-}
+    if (ADC0.COMMAND & ADC_START_gm) return ADC_ENH_ERROR_BUSY;
 
 
-int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((unused)) uint8_t gain) {
-  /* Combined implementation for enhanced and differential ADC reads. Gain is ignored, these have no PGA.
-   * However, note that if the user passed a constant gain argument, which is what almost anyone would
-   * do, THAT would be a compile error. Only deviant code that dynamically determines the gain and
-   * neglects to verify that the part in question has a PGA can end up in a situation where code may
-   * think it is getting gain applied, but none is. I will ensure that it is documented that any code
-   * that runs as part of a library or is shared with others, and which calls either of these analogRead____
-   * functions with a non-zero gain, it is the responsibility of that code to verify that it is being
-   * used on a system with gain available.
-   * Can be split into 4 phases:
-   *  1. Process input parameters, detect error conditions that couldn't be caught at compile-time.
-   *  2. Apply settings and take reading - MUXPOS, MUXNEG, CTRLA, CTRLB registers are involved
-   *    We want the user to be successful, so backup and restore the two registers that don't get
-   *    rewritten every time the ADC is used anyway.
-   *  3. Process the reading we took if needed - decimate where decimation is required and shift as
-   *    as appropriate when the user has requested less than 12 bits of resolution.
-   *  4. Restore registers we modified amd return results.
-   */
+    ADC0.MUXPOS =  pin;
 
-  /*******************************
-   *  Phase 1: Input Processing  |
-   ******************************/
-  if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
-  // 5/16 - uhhhh if it's disabled, maybe we should re-enable it, take the reading, and our cleanup will turn it off again...
-  //        Could lead to difficult to debug performance issues though, whereas this would tell them
-  //        the minute they tried to that they had the ADC off. The startup time of the ADC is not negligible in many applications.
-  uint8_t sampnum;
-  if (res & 0x80) {           // raw accumulation
-    sampnum = res & 0x7F;       // strip high bit and treat as negative number
-    if (sampnum > 7)  return  ADC_ENH_ERROR_RES_TOO_HIGH; //
-  } else {
-    if (res < 8)                              return   ADC_ENH_ERROR_RES_TOO_LOW;
-    if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) return  ADC_ENH_ERROR_RES_TOO_HIGH;
-    sampnum = (res > ADC_NATIVE_RESOLUTION ? ((res - ADC_NATIVE_RESOLUTION) << 1) : 0);
-  }
-  if (pin < 0x80) {
-    // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
-    pin = digitalPinToAnalogInput(pin);
-  }
-  else pin &= 0x7F;
-  if (pin > 0x4B || (pin > ADC_MAXIMUM_PIN_CHANNEL &&  pin < 0x40))  {
-    /*  If it's over 0x4B, it's not a valid option.
-        If it's higher than the highest analog channel number, and lower than the start of internal sources, it's not valid.
-        This does not check for internal sources that don't exist (all valid internal sources are checked for in the case of compile-time-known pins)
-          Not worth wasting on the scale of 20-some-odd bytes of flash just to give an error to people who dynamically generate invalid analog pins
-          and try to use them with analogReadEnh(), instead of just returning whatever we get from reading the bogus channel */
-    return ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL;
-  }
-  if (ADC0.COMMAND & ADC_STCONV_bm) {
-    return ADC_ENH_ERROR_BUSY;
-  /*  Doing the busy check up here so that if we are doing differential read, we
-      find out before calculating MUXNEG, which we can now assign as soon as calculated..
-      Otherwise, we'd have to check busy-ness, then if it was a differential reading, set MUXNEG. */
-  }
-  if (neg != SINGLE_ENDED) {
-    if (neg < 0x80) {
-      // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
-      neg = digitalPinToAnalogInput(neg);
-    } else {
-      neg &= 0x3F;
-    }
-    if (neg > ADC_MAXIMUM_NEGATIVE_PIN && neg != 0x40 &&  pin != 0x48)  {
-      // Not all pins are valid as negative side of differential ADC measurements.
-      // On DA and DB, the last ADC channel is 21 (0x15).  DD goes up to 31 (0x1F)
-      return ADC_DIFF_ERROR_BAD_NEG_PIN;
-    }
-    ADC0.MUXNEG = neg;
-    /*  OK to do since we have verified that it's not in mid-conversion. That doesn't
-        explicitly break anything to change it during conversion, but it would change
-        the channel, then determine that it could not take the measurement and return
-        the error (unlike the ADC on the tinyAVR 2-series where the datasheet says you
-        can change the channel during a conversion and corrupt the results). But, if
-        it was busy because it was in free running mode, though, this would change the
-        channel used for subsequent reads. That is why we check that the ADC is not
-        busy before entering this block. */
-  } // end neg != SINGLE_ENDED
-  /********************************************
-   *  Phase 2: Configure ADC and take reading  |
-   ********************************************/
-  ADC0.MUXPOS = pin;
-  uint8_t _ctrlb = ADC0.CTRLB;
-  uint8_t _ctrla = ADC0.CTRLA;
-  ADC0.CTRLA = ADC_ENABLE_bm | (res == ADC_NATIVE_RESOLUTION_LOW ? ADC_RESSEL_10BIT_gc : 0) | (neg == SINGLE_ENDED ? 0 : ADC_CONVMODE_bm);
-  ADC0.CTRLB = sampnum;
+    ADC0.CTRLF = sampnum;
+    uint8_t command = ((res == 8) ? ADC_MODE_SINGLE_8BIT_gc : (res > ADC_NATIVE_RESOLUTION ? ADC_MODE_BURST_gc : ADC_MODE_SINGLE_10BIT_gc)) | 1;
+    ADC0.COMMAND = command;
+    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+    int32_t result = ADC0.RESULT;
 
-  ADC0.COMMAND = ADC_STCONV_bm;
-  while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
-  int32_t result = ADC0.RES; // This should clear the flag
-  /******************************
-   *  Phase 3: Post-processing  |
-   *****************************/
-  if (res < 0x80 && res != ADC_NATIVE_RESOLUTION && res != ADC_NATIVE_RESOLUTION_LOW) { /* Result needs to be decimated or divided */
-    // Logic more complicated here vs megaTinyCore because we have to contend with the fact that truncation has already occurred.
-    if (res > ADC_NATIVE_RESOLUTION) {
-      uint8_t resbits = res * 2 - ADC_NATIVE_RESOLUTION;
-      // The number of bits of resolution we would be getting and need to decimate if there was no truncation.
-      // result length in bits, but count the bits beyond native resolution twice, since each one needs a bit of decimation.
-      uint8_t shift = res - ADC_NATIVE_RESOLUTION;
-      // but if it exceeds 16 bits it gets truncated
-      // Effectively there are three possible oversampling values: 13, 14, and 15, and they need 1, 2, amd 1 shift, respectively.
-      if (resbits > 16) {
-        shift -= (resbits - 16); // these "shifts" were already done for us by the hardware to make the number in the result register.
-      }
+    if (res < 0x80 && res > ADC_NATIVE_RESOLUTION) {
+      uint8_t shift = res - ADC_NATIVE_RESOLUTION ; // - 1;
       while (shift) {
         result >>= 1;
         shift--;
       }
-
+      // Sanity checks
+      // uint8_t roundup = result&0x01;
+      // result >>= 1;
+      // result += roundup;
     } else if (res == 8) {
-      result >>= 2;
-    } else { //((res == ADC_NATIVE_RESOLUTION - 1) || (res == ADC_NATIVE_RESOLUTION_LOW - 1))
-      // 9 or 11 bit res, because people are weird and might do this
-      result >>= 1;
+      ; // do nothing
+    } else if (res < ADC_NATIVE_RESOLUTION) {
+      uint8_t shift = ADC_NATIVE_RESOLUTION - res;
+      result >>= shift;
     }
-  } // end of resolutions that require postprocessing.
 
-  /*******************************
-   *  Phase 4: Cleanup + Return  |
-   ******************************/
-  #if (defined(ERRATA_ADC_PIN_DISABLE) && ERRATA_ADC_PIN_DISABLE != 0)
-    // That may become defined when DA-series silicon is available with the fix
-    ADC0.MUXPOS = 0x40;
-  #endif
-  ADC0.CTRLB = _ctrlb;      // the user having something set in CTRLB is not implausuble
-  ADC0.CTRLA = _ctrla;      // undo the mess we just made in ADC0.CTRLA
-  return result;
-}
+    // res > 0x80 (raw accumulate) or res == 8, res == 12 need no adjustment.
 
-int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain) {
-  check_valid_enh_res(res);
-  check_valid_analog_pin(pos);
-  check_valid_negative_pin(neg);
-  if (__builtin_constant_p(gain)){
-    if (gain != 0) badArg("This part does not have an amplifier; gain must be 0 or omitted");
+    return result;
   }
-  return _analogReadEnh(pos, neg, res, 0);
-}
 
-inline int32_t analogReadEnh(uint8_t pin, uint8_t res, uint8_t gain) {
-  check_valid_enh_res(res);
-  check_valid_analog_pin(pin);
-  if (__builtin_constant_p(gain)) {
-    if (gain != 0) badArg("This part does not have an amplifier; gain must be 0 or omitted");
-  }
-  return _analogReadEnh(pin,SINGLE_ENDED,res,0);
-}
-
-bool analogReadResolution(uint8_t res) {
-  #if defined(STRICT_ERROR_CHECKING) /* not yet implemented, may be an optional error in a future version */
-    if (!__builtin_constant_p(res)) {
-      badArg("analogReadResolution should only be passed constant values");
+  inline int32_t analogReadEnh(uint8_t pin, uint8_t res, __attribute__((unused)) uint8_t gain) {
+    check_valid_enh_res(res);
+    check_valid_analog_pin(pin);
+    if (__builtin_constant_p(gain)) {
+      if (gain != 0) {
+        badArg("Gain is not available on the AVR DU-series");
+      }
     }
-  #endif
-  if (__builtin_constant_p(res)) {
-    if (res != 10 && res != 12) {
-      badArg("analogReadResolution called with invalid argument - valid options are 10 or 12.");
-    }
+    return _analogReadEnh(pin, SINGLE_ENDED, res, 0);
   }
-  if (res == 12) {
-    ADC0.CTRLA = (ADC0.CTRLA & (~ADC_RESSEL_gm)) | ADC_RESSEL_12BIT_gc;
-  } else {
-    ADC0.CTRLA = (ADC0.CTRLA & (~ADC_RESSEL_gm)) | ADC_RESSEL_10BIT_gc;
-    return (res == 10);
+
+  inline int32_t analogReadDiff(__attribute__((unused)) uint8_t pos, __attribute__((unused)) uint8_t neg, __attribute__((unused)) uint8_t res, __attribute__((unused)) uint8_t gain) {
+    badCall("The AVR DU-series is not equipped with a differential ADC.");
+    return 0xFFFFFFFF; // Can't happen, code that can execute this won't compile
   }
-  return true;
-}
-int8_t getAnalogReadResolution() {
-  return ((ADC0.CTRLA & (ADC_RESSEL_gm)) == ADC_RESSEL_12BIT_gc) ? 12 : 10;
-}
-inline uint8_t getAnalogSampleDuration() {
-  return ADC0.SAMPCTRL;
-}
 
-uint8_t getAnalogReference() {
-  return VREF.ADC0REF & VREF_REFSEL_gm;
-}
-
-uint8_t getDACReference() {
-  return VREF.DAC0REF & VREF_REFSEL_gm;
-}
-/*
-Frequency in kHz.
-*/
- static const int16_t adc_prescale_to_clkadc[0x0F] PROGMEM = {(F_CPU /   2000L),(F_CPU /   4000L),(F_CPU /  8000L),(F_CPU / 12000L),
-                                                              (F_CPU /  16000L),(F_CPU /  20000L),(F_CPU / 24000L),(F_CPU / 28000L),
-                                                              (F_CPU /  32000L),(F_CPU /  48000L),(F_CPU / 64000L),(F_CPU / 96000L),
-                                                              (F_CPU / 128000L),(F_CPU / 256000L),1};
+  static const PROGMEM int16_t adc_prescale_to_clkadc[0x11] =  {(F_CPU /  2000L),(F_CPU /  4000L),(F_CPU /  6000L),(F_CPU /  8000L),
+  /* Doesn't get copied to ram because these all */     (F_CPU / 10000L),(F_CPU / 12000L),(F_CPU / 14000L),(F_CPU / 16000L),
+  /* have fully memory mapped flash. Calculated  */     (F_CPU / 20000L),(F_CPU / 24000L),(F_CPU / 28000L),(F_CPU / 32000L),
+  /* at compile time (we get to use division!)   */     (F_CPU / 40000L),(F_CPU / 48000L),(F_CPU / 56000L),(F_CPU / 64000L),1};
 
 
-int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
-  if (__builtin_constant_p(frequency)) {
-    if (frequency < -1) {
-      badArg("Acceptable arguments to analogClockSpeed are -1 (set to default value) 0 (no change) or a positive integer frequency (in kHz)");
+  /*
+  Frequency in kHz.
+  If options & 1 == 1, will set frequencies outside of safe operating range
+  Otherwise, will be constrained to between 300 and 3000 (if internal reference used) or 300 and 6000 if not.
+  Note: analogReference does NOT check this! So set the clock speed after reference if you want that guardrail.
+  0 takes action, and -1 sets to default.
+  */
+  int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
+    if (frequency == -1) {
+      frequency = 2750;
+    }
+    if (frequency > 0) {
+      if ((options & 0x01) == 0) {
+        frequency = constrain(frequency, 300, ((ADC0.CTRLC & 0x04) ? 3000 : 6000));
+      }
+      uint8_t prescale = 0;
+      for (uint8_t i = 0; i < 16; i++) {
+        int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
+        prescale = i;
+        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
+          ADC0.CTRLB = prescale;
+          break;
+        }
+      }
+    }
+    if (frequency < 0) {
+      return ADC_ERROR_INVALID_CLOCK;
+    }
+    return adc_prescale_to_clkadc[ADC0.CTRLB];
+  }
+
+
+
+
+
+
+#else /* SUPER IMPORTANT PREPROCESSOR DIRECTIVE */
+    // Otherwise it's a DX that isn't a DU.
+   /*######     ###          ## ########  ########        ## ########  ########           ##
+   ##     ##   ## ##        ##  ##     ## ##     ##      ##  ##     ## ##     ##          ##
+   ##     ##  ##   ##      ##   ##     ## ##     ##     ##   ##     ## ##     ##          ##
+   ##     ## ##     ##    ##    ##     ## ########     ##    ##     ## ##     ##       #  ##  #
+   ##     ## #########   ##     ##     ## ##     ##   ##     ##     ## ##     ##        # ## #
+   ##     ## ##     ##  ##      ##     ## ##     ##  ##      ##     ## ##     ##         ####
+   ########  ##     ## ##       ########  ########  ##       ########  ########           */
+
+  void analogReference(uint8_t mode) {
+    check_valid_analog_ref(mode);
+    if (mode < 7 && mode != 4) {
+      VREF.ADC0REF = (VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode);
     }
   }
-  if (frequency == -1) {
-    frequency = 1450;
+
+  int16_t analogRead(uint8_t pin) {
+    check_valid_analog_pin(pin);
+    if (pin < 0x80) {
+      pin = digitalPinToAnalogInput(pin);
+      if (pin == NOT_A_PIN) {
+        return ADC_ERROR_BAD_PIN_OR_CHANNEL;
+      }
+    }
+    /* Select channel */
+    ADC0.MUXPOS = ((pin & 0x7F) << ADC_MUXPOS_gp);
+    /* Reference should be already set up */
+
+    /* Start conversion */
+    ADC0.COMMAND = ADC_STCONV_bm;
+
+    /* Wait for result ready */
+    while(!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+
+    #if (defined(__AVR_DA__) && (!defined(NO_ADC_WORKAROUND)))
+      // That may become defined when DA-series silicon is available with the fix
+      ADC0.MUXPOS = 0x40;
+    #endif
+    return ADC0.RES;
   }
-  if (frequency > 0 ) {
-    if (!(options & 0x01)) {
-      frequency = constrain(frequency, 125, 2000);
+
+
+  inline __attribute__((always_inline)) void check_valid_negative_pin(uint8_t pin) {
+    if(__builtin_constant_p(pin)) {
+      if (pin < 0x80) {
+        // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
+        pin = digitalPinToAnalogInput(pin);
+      }
+      pin &= 0x3F;
+      if (pin != 0x40 && pin != 0x48 && pin > 0x0F) { /* Not many options other than pins are valid */
+        badArg("Invalid negative pin - valid options are ADC_GROUND, ADC_DAC0, or any pin on PORTD or PORTE.");
+      }
     }
-    uint8_t newpresc = 0;
-    while (((int16_t)pgm_read_word_near(&adc_prescale_to_clkadc[newpresc])> frequency) &&  newpresc < 8 && (pgm_read_word_near(&adc_prescale_to_clkadc[newpresc + 1]) > ((options & 0x01) ? 1 : 125) )) {
-      newpresc++;
-    }
-    ADC0.CTRLC = newpresc;
-    uint16_t f = pgm_read_word_near(&adc_prescale_to_clkadc[newpresc]);
-    uint8_t ctrld = 0;
-    if(f >= 2500) {
-      ctrld = ADC_INITDLY_DLY256_gc;
-    } else if(f > 1280) {
-      ctrld = ADC_INITDLY_DLY128_gc;
-    } else if(f > 640) {
-      ctrld = ADC_INITDLY_DLY64_gc;
-    } else if (f > 320) {
-      ctrld = ADC_INITDLY_DLY32_gc;
+  }
+
+  bool analogSampleDuration(uint8_t dur) {
+      ADC0.SAMPCTRL = dur;
+      return true;
+  }
+
+
+  int32_t _analogReadEnh(uint8_t pin, uint8_t neg, uint8_t res, __attribute__ ((unused)) uint8_t gain) {
+    /* Combined implementation for enhanced and differential ADC reads. Gain is ignored, these have no PGA.
+     * However, note that if the user passed a constant gain argument, which is what almost anyone would
+     * do, THAT would be a compile error. Only deviant code that dynamically determines the gain and
+     * neglects to verify that the part in question has a PGA can end up in a situation where code may
+     * think it is getting gain applied, but none is. I will ensure that it is documented that any code
+     * that runs as part of a library or is shared with others, and which calls either of these analogRead____
+     * functions with a non-zero gain, it is the responsibility of that code to verify that it is being
+     * used on a system with gain available.
+     * Can be split into 4 phases:
+     *  1. Process input parameters, detect error conditions that couldn't be caught at compile-time.
+     *  2. Apply settings and take reading - MUXPOS, MUXNEG, CTRLA, CTRLB registers are involved
+     *    We want the user to be successful, so backup and restore the two registers that don't get
+     *    rewritten every time the ADC is used anyway.
+     *  3. Process the reading we took if needed - decimate where decimation is required and shift as
+     *    as appropriate when the user has requested less than 12 bits of resolution.
+     *  4. Restore registers we modified amd return results.
+     */
+
+    /*******************************
+     *  Phase 1: Input Processing  |
+     ******************************/
+    if (!(ADC0.CTRLA & 0x01)) return ADC_ENH_ERROR_DISABLED;
+    // 5/16 - uhhhh if it's disabled, maybe we should re-enable it, take the reading, and our cleanup will turn it off again...
+    //        Could lead to difficult to debug performance issues though, whereas this would tell them
+    //        the minute they tried to that they had the ADC off. The startup time of the ADC is not negligible in many applications.
+    uint8_t sampnum;
+    if (res & 0x80) {           // raw accumulation
+      sampnum = res & 0x7F;       // strip high bit and treat as negative number
+      if (sampnum > 7)  return  ADC_ENH_ERROR_RES_TOO_HIGH; //
     } else {
-      ctrld = ADC_INITDLY_DLY16_gc;
+      if (res < 8)                              return   ADC_ENH_ERROR_RES_TOO_LOW;
+      if (res > ADC_MAX_OVERSAMPLED_RESOLUTION) return  ADC_ENH_ERROR_RES_TOO_HIGH;
+      sampnum = (res > ADC_NATIVE_RESOLUTION ? ((res - ADC_NATIVE_RESOLUTION) << 1) : 0);
     }
-    ADC0.CTRLD = ctrld;
-  } else if (frequency != 0) {
-    return ADC_ERROR_INVALID_CLOCK;
+    if (pin < 0x80) {
+      // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
+      pin = digitalPinToAnalogInput(pin);
+    }
+    else pin &= 0x7F;
+    if (pin > 0x4B || (pin > ADC_MAXIMUM_PIN_CHANNEL &&  pin < 0x40))  {
+      /*  If it's over 0x4B, it's not a valid option.
+          If it's higher than the highest analog channel number, and lower than the start of internal sources, it's not valid.
+          This does not check for internal sources that don't exist (all valid internal sources are checked for in the case of compile-time-known pins)
+            Not worth wasting on the scale of 20-some-odd bytes of flash just to give an error to people who dynamically generate invalid analog pins
+            and try to use them with analogReadEnh(), instead of just returning whatever we get from reading the bogus channel */
+      return ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL;
+    }
+    if (ADC0.COMMAND & ADC_STCONV_bm) {
+      return ADC_ENH_ERROR_BUSY;
+    /*  Doing the busy check up here so that if we are doing differential read, we
+        find out before calculating MUXNEG, which we can now assign as soon as calculated..
+        Otherwise, we'd have to check busy-ness, then if it was a differential reading, set MUXNEG. */
+    }
+    if (neg != SINGLE_ENDED) {
+      if (neg < 0x80) {
+        // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
+        neg = digitalPinToAnalogInput(neg);
+      } else {
+        neg &= 0x3F;
+      }
+      if (neg > ADC_MAXIMUM_NEGATIVE_PIN && neg != 0x40 &&  pin != 0x48)  {
+        // Not all pins are valid as negative side of differential ADC measurements.
+        // On DA and DB, the last ADC channel is 21 (0x15).  DD goes up to 31 (0x1F)
+        return ADC_DIFF_ERROR_BAD_NEG_PIN;
+      }
+      ADC0.MUXNEG = neg;
+      /*  OK to do since we have verified that it's not in mid-conversion. That doesn't
+          explicitly break anything to change it during conversion, but it would change
+          the channel, then determine that it could not take the measurement and return
+          the error (unlike the ADC on the tinyAVR 2-series where the datasheet says you
+          can change the channel during a conversion and corrupt the results). But, if
+          it was busy because it was in free running mode, though, this would change the
+          channel used for subsequent reads. That is why we check that the ADC is not
+          busy before entering this block. */
+    } // end neg != SINGLE_ENDED
+    /********************************************
+     *  Phase 2: Configure ADC and take reading  |
+     ********************************************/
+    ADC0.MUXPOS = pin;
+    uint8_t _ctrlb = ADC0.CTRLB;
+    uint8_t _ctrla = ADC0.CTRLA;
+    ADC0.CTRLA = ADC_ENABLE_bm | (res == ADC_NATIVE_RESOLUTION_LOW ? ADC_RESSEL_10BIT_gc : 0) | (neg == SINGLE_ENDED ? 0 : ADC_CONVMODE_bm);
+    ADC0.CTRLB = sampnum;
+
+    ADC0.COMMAND = ADC_STCONV_bm;
+    while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
+    int32_t result = ADC0.RES; // This should clear the flag
+    /******************************
+     *  Phase 3: Post-processing  |
+     *****************************/
+    if (res < 0x80 && res != ADC_NATIVE_RESOLUTION && res != ADC_NATIVE_RESOLUTION_LOW) { /* Result needs to be decimated or divided */
+      // Logic more complicated here vs megaTinyCore because we have to contend with the fact that truncation has already occurred.
+      if (res > ADC_NATIVE_RESOLUTION) {
+        uint8_t resbits = res * 2 - ADC_NATIVE_RESOLUTION;
+        // The number of bits of resolution we would be getting and need to decimate if there was no truncation.
+        // result length in bits, but count the bits beyond native resolution twice, since each one needs a bit of decimation.
+        uint8_t shift = res - ADC_NATIVE_RESOLUTION;
+        // but if it exceeds 16 bits it gets truncated
+        // Effectively there are three possible oversampling values: 13, 14, and 15, and they need 1, 2, amd 1 shift, respectively.
+        if (resbits > 16) {
+          shift -= (resbits - 16); // these "shifts" were already done for us by the hardware to make the number in the result register.
+        }
+        while (shift) {
+          result >>= 1;
+          shift--;
+        }
+
+      } else if (res == 8) {
+        result >>= 2;
+      } else { //((res == ADC_NATIVE_RESOLUTION - 1) || (res == ADC_NATIVE_RESOLUTION_LOW - 1))
+        // 9 or 11 bit res, because people are weird and might do this
+        result >>= 1;
+      }
+    } // end of resolutions that require postprocessing.
+
+    /*******************************
+     *  Phase 4: Cleanup + Return  |
+     ******************************/
+    #if (defined(ERRATA_ADC_PIN_DISABLE) && ERRATA_ADC_PIN_DISABLE != 0)
+      // That may become defined when DA-series silicon is available with the fix
+      ADC0.MUXPOS = 0x40;
+    #endif
+    ADC0.CTRLB = _ctrlb;      // the user having something set in CTRLB is not implausuble
+    ADC0.CTRLA = _ctrla;      // undo the mess we just made in ADC0.CTRLA
+    return result;
   }
-  return pgm_read_word_near(&adc_prescale_to_clkadc[ADC0.CTRLC & ADC_PRESC_gm]);
-}
+
+  int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res, uint8_t gain) {
+    check_valid_enh_res(res);
+    check_valid_analog_pin(pos);
+    check_valid_negative_pin(neg);
+    if (__builtin_constant_p(gain)){
+      if (gain != 0) badArg("This part does not have an amplifier; gain must be 0 or omitted");
+    }
+    return _analogReadEnh(pos, neg, res, 0);
+  }
+
+  inline int32_t analogReadEnh(uint8_t pin, uint8_t res, uint8_t gain) {
+    check_valid_enh_res(res);
+    check_valid_analog_pin(pin);
+    if (__builtin_constant_p(gain)) {
+      if (gain != 0) badArg("This part does not have an amplifier; gain must be 0 or omitted");
+    }
+    return _analogReadEnh(pin,SINGLE_ENDED,res,0);
+  }
+
+  bool analogReadResolution(uint8_t res) {
+    #if defined(STRICT_ERROR_CHECKING) /* not yet implemented, may be an optional error in a future version */
+      if (!__builtin_constant_p(res)) {
+        badArg("analogReadResolution should only be passed constant values");
+      }
+    #endif
+    if (__builtin_constant_p(res)) {
+      if (res != 10 && res != 12) {
+        badArg("analogReadResolution called with invalid argument - valid options are 10 or 12.");
+      }
+    }
+    if (res == 12) {
+      ADC0.CTRLA = (ADC0.CTRLA & (~ADC_RESSEL_gm)) | ADC_RESSEL_12BIT_gc;
+    } else {
+      ADC0.CTRLA = (ADC0.CTRLA & (~ADC_RESSEL_gm)) | ADC_RESSEL_10BIT_gc;
+      return (res == 10);
+    }
+    return true;
+  }
+
+  int8_t getAnalogReadResolution() {
+    return ((ADC0.CTRLA & (ADC_RESSEL_gm)) == ADC_RESSEL_12BIT_gc) ? 12 : 10;
+  }
+
+  inline uint8_t getAnalogSampleDuration() {
+    return ADC0.SAMPCTRL;
+  }
+
+  uint8_t getAnalogReference() {
+    return VREF.ADC0REF & VREF_REFSEL_gm;
+  }
+
+  /* Frequency in kHz. */
+   static const int16_t adc_prescale_to_clkadc[0x0F] PROGMEM = {(F_CPU /   2000L),(F_CPU /   4000L),(F_CPU /  8000L),(F_CPU / 12000L),
+                                                                (F_CPU /  16000L),(F_CPU /  20000L),(F_CPU / 24000L),(F_CPU / 28000L),
+                                                                (F_CPU /  32000L),(F_CPU /  48000L),(F_CPU / 64000L),(F_CPU / 96000L),
+                                                                (F_CPU / 128000L),(F_CPU / 256000L),1};
+
+
+  int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
+    if (__builtin_constant_p(frequency)) {
+      if (frequency < -1) {
+        badArg("Acceptable arguments to analogClockSpeed are -1 (set to default value) 0 (no change) or a positive integer frequency (in kHz)");
+      }
+    }
+    if (frequency == -1) {
+      frequency = 1450;
+    }
+    if (frequency > 0 ) {
+      if (!(options & 0x01)) {
+        frequency = constrain(frequency, 125, 2000);
+      }
+      uint8_t newpresc = 0;
+      while (((int16_t)pgm_read_word_near(&adc_prescale_to_clkadc[newpresc])> frequency) &&  newpresc < 8 && (pgm_read_word_near(&adc_prescale_to_clkadc[newpresc + 1]) > ((options & 0x01) ? 1 : 125) )) {
+        newpresc++;
+      }
+      ADC0.CTRLC = newpresc;
+      //uint16_t f = pgm_read_word_near(&adc_prescale_to_clkadc[newpresc]);
+
+    } else if (frequency != 0) {
+      return ADC_ERROR_INVALID_CLOCK;
+    }
+    return pgm_read_word_near(&adc_prescale_to_clkadc[ADC0.CTRLC & ADC_PRESC_gm]);
+  }
+
+
+/* options is 0bSSEE---- where SS and EE are either 10, 11, or 00 and - is don't care.
+    SS controls RUNSTBY, EE controls ENABLE;
+    0b11 turns the option on, 0b10 turns it off, and 0b00 leaves it in it's current setting */
+
+  void ADCPowerOptions(uint8_t options) {
+    uint8_t temp = ADC0.CTRLA; //performance.
+    if (options & 0x20) {
+      if (options & 0x10) {
+        temp |= 1; // ADC on
+      } else {
+        temp &= 0xFE; // ADC off
+      }
+    }
+    if (options & 0x80) {
+      if (options & 0x40) {
+        temp |= 0x80; // run standby
+      } else {
+        temp &= 0x7F; // no run standby
+      }
+    }
+    ADC0.CTRLA = temp; //now we apply enable and standby, and lowlat has been turned on, hopefully that's good enough for the errata.
+    // What a mess!
+  }
+
 
 #endif
-/* From here on down is PWM stuff */
+
+
+
+
+
+/*#######       ###       ##
+ ##     ##     ## ##     ####
+ ##     ##    ##   ##   # ## #
+ ##     ##   ##     ##    ##
+ ##     ##   #########    ##
+ ##     ##   ##     ##    ##
+ ########    ##     ##    */
+
+
+
+
+
+
+
+/*####### ##    ## ########        ###    ########   ######
+ ##       ###   ## ##     ##      ## ##   ##     ## ##    ##
+ ##       ####  ## ##     ##     ##   ##  ##     ## ##
+ ######   ## ## ## ##     ##    ##     ## ##     ## ##
+ ##       ##  #### ##     ##    ######### ##     ## ##
+ ##       ##   ### ##     ##    ##     ## ##     ## ##    ##
+ ######## ##    ## ########     ##     ## ########   #####*/
+
+
+
+
+
+
+
+
+
+
+/* From here on down is PWM stuff
+
+      ##             ########  ##      ## ##     ##        ##
+      ##             ##     ## ##  ##  ## ###   ###        ##
+      ##             ##     ## ##  ##  ## #### ####        ##
+   #  ##  #          ########  ##  ##  ## ## ### ##     #  ##  #
+    # ## #           ##        ##  ##  ## ##     ##      # ## #
+     ####            ##        ##  ##  ## ##     ##       ####
+      ##             ##         ###  ###  ##     ##        ##
+
+*/
 
 // PWM output only works on the pins with hardware support.
 // These are defined in the appropriate pins_arduino.h
@@ -1254,9 +1659,9 @@ void analogWrite(uint8_t pin, int val) {
       // Dx-series
       if (((digital_pin_timer & 0xC0) == 0x40) && (__PeripheralControl & TIMERD0)) { // TCD
         uint8_t tcdmux = digital_pin_timer & 0x07;
-        uint8_t usetcd0 = 0;
         uint8_t muxval = ((PORTMUX.TCDROUTEA & PORTMUX_TCD0_gm) >> PORTMUX_TCD0_gp );
         #if !defined(__AVR_DA__)
+          uint8_t usetcd0 = 0;
           if (tcdmux == muxval)
             usetcd0 = 1;
           #if !(defined(__AVR_DA__) || defined(__AVR_DB__))

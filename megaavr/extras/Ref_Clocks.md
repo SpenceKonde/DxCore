@@ -9,20 +9,20 @@ The modern AVRs can broadly be divided into two groups based on their
 ## Background - how the clock is generated
 See also [the timer reference](Ref_Timers.md)
 
-Heading        | TinyAVR0/1 | TinyAVR1+/2 | Mega0 | DA | DB/DD/DU | EA | EB  |
----------------|------------|-------------|-------|----|----------|----|-----|
-OSCHF, nbr opt.| 2*         | 2*          | 2*    |    |          | 2* | 2*  |
-OSCHF, Dx-type | -          | -           | -     | Y  | Yes      | -  | -   |
-External Xtal  | -          | -           | -     | -  | Yes      | Y  | -   |
-External Clock | Yes        | Yes         | Yes   | Y  | Yes      | Y  | Y   |
-PLL Max freq   | -          | -           | -     | 48 | 48       | -  | 80  |
-PLL Mult opt.  | -          | -           | -     | 2/3| 2/3 ***  | -  |8/16 |
-PLL for TCD    | -          | -           | -     | Y  | Yes      | -  | -   |
-PLL clock Event| -          | -           | -     | -  | -        | -  | Y   |
-PLL for HiRES  | -          | -           | -     | -  | -        | -  | Y   |
-PLL for TCF    | -          | -           | -     | -  | -        | -  | Y   |
-PLL for CPU    | -          | -           | -     | -  | -        | -  | Y** |
-Ext 32k xtal   | No (0)/Yes | Yes         | -     | Y  | Yes      | Y  | Y   |
+Heading        | TinyAVR0/1 | TinyAVR1+/2 | Mega0 | DA   | DB/DD/DU |  EA   |   EB  |
+---------------|------------|-------------|-------|------|----------|-------|-------|
+OSCHF range    | 16/20      | 16/20       | 16/20 | 1-24 | 1-24     | 16/20 | 16/20 |
+External Xtal  | -          | -           | -     | -    | Yes      |  Yes  |   -   |
+External Clock | Yes        | Yes         | Yes   | Yes  | Yes      |  Yes  |   Yes |
+PLL Max freq   | -          | -           | -     | 48   | 48       |  -    |   80  |
+PLL Mult opt.  | -          | -           | -     | 2/3  | 2/3 *    |  -    |  8/16 |
+PLL timer(s)   | -          | -           | -     | TCD  | TCD **   |  -    |TCE TCF|
+PLL for CPU    | -          | -           | -     | -    | -        |  -    | Yes (same max still applies) |
+Ext 32k xtal   | No (0)/Yes | Yes         | -     | Yes  | Yes      |  Yes  |  Yes  |
+
+It's critical to note the difference between the options given for F_CPU on Dx and other parts.
+
+Dx-series parts can
 
 
 `*` Marked parts have selectabkle 16 or 20 MHz, controlled by a *fuse*. These parts are also impacted by speed grades (eg, a graph of minimum voltage versus F_CPU is included in the datasheet). For example, many have three speed grades, typically 4 or 5 MHz @ 1.8V, 8 or 10 MHz at 2.7, and
@@ -51,7 +51,7 @@ The AVR Dx-series come in I (105C) and E (125C) spec parts. **This is not marked
 Some of the listed speeds, while supported by the hardware are not supported by the core - typically weird, slow clocks. Crystals in particular can be made in any speed - though classic AVR rewarded the use of bizarre clocks by requiring them in order to generate UART baud clocks for normal speeds, modern AVRs do not need them, and so we don't support any oscillator frequency which is not an integer multiple of 1 MHz
 For unsupported speeds, the micros and delay-us columns indicate what internal plumbing has been implemented. micros is implemented for almost all speeds, delayMicroseconds with non-compile-time-known delays for most, even some unsupported ones. delayMicroseconds() is supported and accurate at any speed when the argument is a compile-time-known constant, as we use the avr-libc implementation of `_delay_us()`.
 
-### megaTinyCore (ATtiny 0-Series, 1-series, and 2-series.
+### megaTinyCore (ATtiny 0-Series, 1-series, and 2-series)
 | Clock Speed | Within Spec |      Internal |    Ext. Clock | micros | delay-us | Notes
 |-------------|-------------|---------------|---------------|--------|----------|-------
 |       1 MHz |         Yes |           Yes |            ** |    Yes |      Yes | 1
@@ -218,7 +218,7 @@ On *megaTinyCore*, troubleshooting is generally straightforward, and on the DA, 
   * If there is - you're sure the signal is there even when you're not pressing with the scope probe? Try uploading some dead simple test sketch;
   * You are not prevented from simply uploading a new sketch compiled to use a different clock source. Uploading something totally different (ex, blink) with clock set to an internal source without tuning.
     * I do not believe it is possible for anything other that wiring/connection/soldering issue provided that a known working serial adapter (FT232RL and fakes), afaik all the WCH USB-serial bridges (the 343 is a nicer single port one,and the 342 is a nicer *DUAL*  serial chip. They start to get annoying to route after that,)
-
+* When you start using a crystal,
 
 
 ### Blink Codes (DxCore only)
@@ -264,7 +264,7 @@ void onClockFailure() {
 A number of behaviors have been observed when the clock has been configured wrong, is not functioning, or that particcular specimen can't do the overclocking you are asking of it.
 
 1. If there is a crystal/oscillator which does not oscillate at all, you will get the blink code On-Off-On, then 3 brief "antiblinks" where the led turns off momentarily, then Off-On-Off and 3 brief flashes, repeating. (this pattern of alternating inverted output is meant to be unlikely to mimic sketch behavior).
-2. If there is a crystal, but it is defective, damaged, or being used outside it's operating range, it may "limp", or intermittently oscillate with inconsistent pulse lengthsfrom cycleto cycle, leading the the spec for change in length of consecutive clock cycles being violated
+2. If there is a crystal, but it is defective, damaged, or being used outside it's operating range, it may "limp", or intermittently oscillate with inconsistent pulse lengthsfrom cycleto cycle,
 3. If the clock source fails while the system is running, a DA-series will hang (until something resets it - the WDT, the reset button, or powecycling are the only ways to get it out of this state.
 4. A clock failure while running very often resets the chip (likely a [dirty reset](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Reset.md#the-danger-of-dirty-resets), caused by incorrect execution of instructions when the variation between clock periods is far in excess of the manufacturer spec and it fumbles math with the program counter - the most common overclock manifestation as far as I can tell is 1's in math and memory access and like, everything coming out as 0', often and entire byte full)
 5. A clock source that resets the chip or hangs immediately upon switching to it is much easier to detect if using Optiboot - however, you could blink an LED before the switch to see if it's hanging or bootlooping by overriding onPreMain():

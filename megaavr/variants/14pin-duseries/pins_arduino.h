@@ -67,7 +67,7 @@ Include guard and include basic libraries. We are normally including this inside
         ####  #  # ####  ###  ###  #*/
 
 #define PINS_COUNT                        (11)
-#define NUM_ANALOG_INPUTS                 ( 5)
+#define NUM_ANALOG_INPUTS                 (31)
 // #define NUM_RESERVED_PINS              ( 0)    // These may at your option be defined,
 #define NUM_INTERNALLY_USED_PINS          ( 3)    // USB pins
 
