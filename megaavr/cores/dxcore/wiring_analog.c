@@ -694,7 +694,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       ##           ########   #######           */
 
 
-  #elif defined(ADC_LOWLAT_bm) /* MAJOR IMPORTANT ELIF CONDITONAL */
+  #elif defined(ADC_LOWLAT_bm) /* MAJOR IMPORTANT ELIF CONDITIONAL */
   // only the good ADC has the larger temp register, and we're testing this if we don't have the larger register.
   static uint8_t _analog_options = 0x80 | 10;
 

@@ -305,8 +305,8 @@ This function returns a byte encoding the current status of the serial port.
 | 3     | Yes      | SERIAL_FRAME_ERROR         | A Framing Error has been encountered since the last time this was called indicating baud mismatch. This clears that record.
 |4,5=00 | No       | SERIAL_AUTOBAUD_DISABLED   | Bits 4 and 5 are combined to express autobaud conditions. 00 = autobaud not enabled
 |4,5=01 | No       | SERIAL_AUTOBAUD_ENABLED    | 01 = Autobaud enabled. Nothing to report
-|4,5=10 | No       | SERIAL_AUTOBAUD_SYNC       | 10 = Autobaud enabled. A sync charachter was received and we are now operating at a different baud rate than it was started at.
-|4,5=11 | Yes      | SERIAL_AUTOBAUD_BADSYNC    | 11 = Autobaud enabled. An **inconsistant sync field** was received, the previous attempt at setting the baud rate failed. See below note
+|4,5=10 | No       | SERIAL_AUTOBAUD_SYNC       | 10 = Autobaud enabled. A sync character was received and we are now operating at a different baud rate than it was started at.
+|4,5=11 | Yes      | SERIAL_AUTOBAUD_BADSYNC    | 11 = Autobaud enabled. An **inconsistent sync field** was received, the previous attempt at setting the baud rate failed. See below note
 | 6     | Yes      | SERIAL_OVERFLOW_RING       | Indicates that the *RING BUFFER* filled up and characters were dropped (because data was coming in, but application was not calling Serial.read() often enough to keep up). getStatus clears that record.
 | 7     | Yes      | SERIAL_OVERFLOW_HARDWARE   | A buffer overflow at the hardware level has occurred; This happens when interrupts are disabled for too long while receivign data. getStatus() clears this record
 
@@ -314,7 +314,7 @@ Since getStatus also clears the errors, be sure to store the first value you get
 In the case of autobaud, both sides should probably be using this - non-autobaud device would check for framing errors that indicate a need to sync, and then attempt to do so, while the autobaud device would need to watch out for ISFIF, which disables receiving until addressed.
 
 #### BADSYNC
-In the event of an **inconsistant sync field**, the normal serial receive handler fires. It discovers that rather than an RX flag, it was summoned by an error flag. However, because there are two
+In the event of an **inconsistent sync field**, the normal serial receive handler fires. It discovers that rather than an RX flag, it was summoned by an error flag. However, because there are two
 
 ### Loopback Mode
 When Loopback mode is enabled, the RX pin is released, and TX is internally connected to Rx. This is only a functional loopback test port, because another device couldn't drive the line low without fighting for control over the pin with this device. Loopback mode itself isn't very useful. But see below.

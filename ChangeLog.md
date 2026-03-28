@@ -26,7 +26,7 @@ These items are in addition to what was listed under changes already in release.
 
 
 ### 1.6.0 3/25/26
-* **1.6.0 should be treated as a test release, because I need to get the new toolchain into the testing environment in order for the automated tests to see what doesn't compile, but the test environment only gets the previous release's dependancies, so until I release with the new toolchain, I can't do automated tests against it.**
+* **1.6.0 should be treated as a test release, because I need to get the new toolchain into the testing environment in order for the automated tests to see what doesn't compile, but the test environment only gets the previous release's dependencies, so until I release with the new toolchain, I can't do automated tests against it.**
 * OSCCFG is now written for Dx-series parts. We have never supported any option other that 0x00 on those parts, and the hardware only supports one other value, which starts the chip on the 32 kHz oscillator.
 * Support for the PTC peripheral on DA parts
 * Correct bug with EA-series parts having the SYSCFG0 fuse set during normal uploads, which is inappropriate, because if the UPDIPINCFG bit is not 1, the chip can only be reprogrammed with an exotic HV programmer.
