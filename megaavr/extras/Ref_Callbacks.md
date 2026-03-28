@@ -28,7 +28,7 @@ S .init9: Jumps to main()
 -   init() - to initialize the peripherals so the core-provided functions work.
 #   init_clock() - This is called first, to initialize the system clock. You oughtn't override this, but if you override main you almost certainly want to call this
 #   init_ADC0() - This is called to initialize the ADC
-#   //init_ADC1() - on the 1-series w/16 or 32k flash, aka "Golden 1-series" series parts with a second ADC, this function exists but it NOT called. See Ref_Analog.md.
+#   //init_ADC1() - on the 1-series w/16 or 32k flash, aka "Golden 1-series" series parts with a second ADC, this function exists but it NOT called. See Ref_Analog.md
     init_timers() - This function calls the timer initialization functions
       init_TCA0()
       init_TCA1() - If present.

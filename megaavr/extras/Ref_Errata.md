@@ -126,7 +126,7 @@ Use another TWI mapping option. Enable the SMBUS 3.0 levels using the Wire.confi
 
 
 
-### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable.
+### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable
 Microchip recalled them, but some disties had already shipped some out.
 
 Since they never owned up to it in an erratum and didn't increment the die rev when they fixed it, I don't know what date codes are effected. The way you discover if the chip is effected is by trying to use any interrupt - none will work correctly on the effected chips.
