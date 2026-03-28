@@ -1,16 +1,16 @@
-name: Compile Examples
+name: Compile Examples II
 
 on:
   pull_request:
     paths:
-      - ".github/workflows/compile-examples.yml"
+      - ".github/workflows/compile-examplesEx.yml"
       - "megaavr/libraries/**"
       - "megaavr/cores/**"
       - "megaavr/variants/**"
       - "megaavr/*.txt"
   push:
     paths:
-      - ".github/workflows/compile-examples.yml"
+      - ".github/workflows/compile-examplesEx.yml"
       - "megaavr/libraries/**"
       - "megaavr/cores/**"
       - "megaavr/variants/**"
