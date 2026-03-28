@@ -8,14 +8,24 @@ These items are in addition to what was listed under changes already in release.
 * Re-add SPI attach and detach.
 
 ## Unreleased Changes
-
-### Planned for 1.6.1
+### Planned 1.6.2
 * TBD
 
+
 ## Released Changes
+### 1.6.1 3/27/26
+* 1.6.0 omitted the most important development change, that being the new toolchain, so we can't run regrewssion tests oin the 1.6.1 development version because the toolchain released with 1.6.0 was wrong. All caveats of 1.6.0 apply to 1.6.1.
+* Correct #588 - Make analog and DAC references work on EA and later, where the reference setting is in the ADC not the VREF, and where it has rthe same options in a scrambled order. The reference constants do work for both DAC and ADC now.
+* Correct #589 - Many analog channels on recently released parts didn't work because NUM_ANALOG_INPUTS was set to the number of analog inputs. That constant is instead expected to be the highest valid channel number. Most of the other NUM_* constants in the pins_arduino.h files are misleadingly named too.
+* Correct #596 - Doc reversed XDIR and XCK pins in some places
+* Correct #591 - Clock x2 bit on SPI.h
+* Correct #590 - Pin PD6 losing settings due to improper handling of the DAC on that pin.
+* Fixed OSCCFG on DA not being handled correctly.
+* Correct #592 - Phrasing of tools submenus on 14-pin DD-series boards configured for optiboot.
 
 
-### 1.6.0
+
+### 1.6.0 3/25/26
 * **1.6.0 should be treated as a test release, because I need to get the new toolchain into the testing environment in order for the automated tests to see what doesn't compile, but the test environment only gets the previous release's dependancies, so until I release with the new toolchain, I can't do automated tests against it.**
 * OSCCFG is now written for Dx-series parts. We have never supported any option other that 0x00 on those parts, and the hardware only supports one other value, which starts the chip on the 32 kHz oscillator.
 * Support for the PTC peripheral on DA parts

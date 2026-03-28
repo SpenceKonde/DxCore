@@ -74,8 +74,11 @@ List the part numbers (if applicable) or what board this variant supports.
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
 
-#define PINS_COUNT                     41     // Last pin number +1
-#define NUM_ANALOG_INPUTS              18
+#define PINS_COUNT                     41     // Last pin number +1, not the number of I/O pins.
+#define NUM_ANALOG_INPUTS              31     // Highest numbered analog channel, not the nuymber of analog inputs (low pincount parts have
+//                                               analog channels 4, 5, 6, 7, 29, 30, and 31, so this number needs to be 31). The meaning of
+//                                               this parameter can't be redefined or renamed to make sense as this is an arduino API define
+//                                               and lots of stuff counts on it. meaning the usual thing.
 // #define NUM_RESERVED_PINS            0     // One might argue that PA0 and PA1 on a board that always uses a crystal count here.
 // #define NUM_INTERNALLY_USED_PINS     0     // And if your board has pins that are hardwired to stuff and can't be otherwise used
 //                                            // that's what these are.
