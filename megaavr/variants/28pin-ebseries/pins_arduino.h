@@ -63,7 +63,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF7 (27) // UPDI
 
 #define PINS_COUNT                     (28)
-#define NUM_ANALOG_INPUTS              (20)
+#define NUM_ANALOG_INPUTS              (31)
 
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
