@@ -1,0 +1,20 @@
+diff --git a/megaavr/cores/dxcore/wiring.c b/megaavr/cores/dxcore/wiring.c
+index 0d31457..d1fdc01 100644
+--- a/megaavr/cores/dxcore/wiring.c
++++ b/megaavr/cores/dxcore/wiring.c
+@@ -122,6 +122,7 @@ void init_timers();
+ 
+   // Now for the ISRs. This gets a little bit more interesting now...
+   #if defined (MILLIS_USE_TIMERRTC)
++    char __rtc_intflags;
+     ISR(MILLIS_VECTOR) {
+       // if RTC is used as timer, we only increment the overflow count
+       // Overflow count isn't used for TCB's
+@@ -129,6 +130,7 @@ void init_timers();
+       if (RTC.INTFLAGS & RTC_OVF_bm) {
+         timingStruct.timer_overflow_count++;
+       }
++      __rtc_intflags = RTC.INTFLAGS;
+       RTC.INTFLAGS = RTC_OVF_bm | RTC_CMP_bm; // clear flag
+     }
+   #elif !defined(MILLIS_USE_TIMERNONE)
