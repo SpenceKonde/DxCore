@@ -190,13 +190,13 @@ optiboot_version = 256 * (OPTIBOOT_MAJVER + OPTIBOOT_CUSTOMVER) + OPTIBOOT_MINVE
 #ifndef APP_NOSPM
   const __attribute__((section(".nvmc"))) __attribute__((used))       // AVR Ex requires nmv_cmd to execute from boot section
   void __attribute__((naked)) nvmc(uint8_t cmd) {
-    __asm__ __volatile__(" rjmp nvm_cmd  \n");  
+    __asm__ __volatile__(" rjmp nvm_cmd  \n");
   }
   const __attribute__((section(".spmtarg"))) __attribute__((used))    // write to program memory from boot section
   void __attribute__((naked)) spm(void) {
-    __asm__ __volatile__( 
+    __asm__ __volatile__(
       " spm Z+    \n"
-      " ret       \n" );  
+      " ret       \n" );
   }
   // spm z+ ret: use the SPM instruction and increment Z, and return.
   // spm z+ is better than straight spm, because it allows z write across the 64k barrier (spm z+ will
@@ -287,7 +287,7 @@ typedef union {
 
 // DX series programming sequence: busy-wait/nvmctrl(write_enable)/write data to page buffer/nvmctrl(noop)
 // EX series programming sequence: busy-wait/write data to page buffer/nvmctrl(write)
-// the nvmctrl commands for write/write_enable are different 
+// the nvmctrl commands for write/write_enable are different
 #if defined( __AVR_EA__ ) || defined( __AVR_EB__ )
 #define __AVR_Ex__
 #endif
@@ -602,8 +602,8 @@ int main (void) {
     "ldi r31,    0x82  \n"
     "ld   r2,       Z  \n"
     "inc  r2           \n"
-  ::  
-  [ioreg] "n" (_SFR_MEM_ADDR(NVMCTRL.CTRLB)), 
+  ::
+  [ioreg] "n" (_SFR_MEM_ADDR(NVMCTRL.CTRLB)),
   [ccp]   "I" (_SFR_IO_ADDR(CCP))
   : "r31"  // Set FLMAP to 0
   );
@@ -967,7 +967,7 @@ static inline void write_buffered_flash(length_t len) {
 
   #if (__AVR_ARCH__==103) && !defined(WRITE_MAPPED_BY_WORD)
     pDst.word += MAPPED_PROGMEM_START;
-    
+
     #ifndef __AVR_Ex__
     #if defined(ENABLE_CHIP_ERASE)
       if (!(flash_clr == 0x00))
@@ -995,7 +995,7 @@ static inline void write_buffered_flash(length_t len) {
       "ldi r24, %[erase]           \n" // call page erase
       "rcall nvm_cmd               \n" // r25 is dirty
       "spm                         \n" // write to page
-      "ldi r24, %[writepage]       \n" // call page write         
+      "ldi r24, %[writepage]       \n" // call page write
       "rcall nvm_cmd               \n"
     #endif
       "movw r24, %[len]            \n" // as we can decrement by two anyway, save a shift
@@ -1016,13 +1016,13 @@ static inline void write_buffered_flash(length_t len) {
       "clr r24                     \n" // nvmctrl noop
     #endif
       "rcall nvm_cmd               \n"
-      "clr r1                      \n"                    
+      "clr r1                      \n"
       ::
                 "z"  ((uint16_t)pDst.bptr),
         [ptr]   "x"  ((uint16_t)pSrc.bptr),
         [len]   "r"  ((uint16_t)len),
         [erase] "i"  (NVMCTRL_CMD_FLPER_gc),
-    #ifdef __AVR_Ex__ 
+    #ifdef __AVR_Ex__
         [writepage] "i" (NVMCTRL_CMD_FLPERW_gc)
     #else
         [writepage] "i" (NVMCTRL_CMD_FLWR_gc)
@@ -1087,7 +1087,7 @@ __asm__ __volatile__(
     "rcall nvm_cmd      \n"
     "add   r31, r26     \n"
     "inc   r27          \n"
-    "cpi   r27, %[PGCT] \n" 
+    "cpi   r27, %[PGCT] \n"
     "brlo  eraseF       \n"
   ::
   [BASE]  "n" (0x200>>8),                       /* start here (4th/8th page) */
