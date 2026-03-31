@@ -9,7 +9,12 @@ These items are in addition to what was listed under changes already in release.
 
 ## Unreleased Changes
 ### Planned 1.6.2
-* TBD
+* Fix #585, issue with SSD not being set correctly in SPI::config(), caused device to sometimes start up in slave mode for no no obvious reason.
+* Fix doc issues
+* Fix issue with wire tests for PORTMUX, we were testing #if defined() on macros... which, when they weren't present, we defined as -1. This should have broken a lot more than it did.
+* Fix issue in SPI released with 1.6.1
+* Fix issue with some parts failing to compile at all.
+* Fix some issues with the tests.
 
 
 ## Released Changes
