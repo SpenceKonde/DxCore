@@ -118,12 +118,10 @@ Seems they've gotten most of the problems worked out, finally, other than the Dx
 
 
 ### TWI0 MUX 2 option on DD
-The ALT2 mux option may be broken on DD-series parts. Inconsistent behavior has been seen in testing. Sometimes it will work, other times it will drive the SDA line low (to generate the first start condition) and then do nothing more. Attempts to elucidate the nature of this issue have failed.
+The ALT2 mux option may be broken on DD-series parts. Inconsistent behavior has been seen in testing. Sometimes it will work, other times it will drive the SDA line low (to generate the first start condition) and then do nothing more. Attempts to elucidate the nature of this issue have yet to provide clarity.
 
 **Partial workaround**
 Use another TWI mapping option. Enable the SMBUS 3.0 levels using the Wire.configSpecialOptions()
-
-
 
 
 ### The Vector Table was Wrong on very early AVR32DA, some of which escaped into the wild; these are not usable

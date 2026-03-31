@@ -259,6 +259,10 @@ jobs:
           - overclock-osc: 16
             device-family: dd
             clocksource: extclock
+          - overclock-osc: 48
+            device-family: du
+          - overclock-osc: 32
+            device-family: du
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

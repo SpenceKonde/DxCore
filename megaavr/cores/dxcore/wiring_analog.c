@@ -118,7 +118,7 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
     /* Ex-series.... frickin A */
     if (__builtin_constant_p(mode)) {
       if (mode & 0x40) /* Reject the AC_REF constants */
-        badArg("analogReference called with an AC_REF_ constant, those only work with DAC/AC references. Valid options look like INTERNAL2V048, VDD, or EXTERNAL";)
+        badArg("analogReference called with an AC_REF_ constant, those only work with DAC/AC references. Valid options look like INTERNAL2V048, VDD, or EXTERNAL");
       if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
       badArg("analogReference called with argument that is not a valid analog reference");
     }
@@ -130,7 +130,7 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
      * but the numbers that they correspond to and the names of the constants are different. */
     if (__builtin_constant_p(mode)) {
       if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-      badArg("DACreference called with argument that is not a valid DAC/AC reference");
+        badArg("DACreference called with argument that is not a valid DAC/AC reference");
     }
   }
 
@@ -151,7 +151,7 @@ inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
         if ((res & 0x7F) > 0x06)
       #endif /* end ADC version conditional valid enh res */
       {
-        badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings");
+        badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings.");
       }
     }
   }
@@ -193,11 +193,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     return _acreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 #else /* else no dac */
-  uint8_t DACReference(__attribute__ ((unused))uint8_t mode) {
-    badCall("DACreference is not available - this part does not have a DAC");
+  void DACReference(__attribute__ ((unused))uint8_t mode) {
+    badCall("DACreference is not available - this part does not have a DAC.");
   }
   uint8_t getDACReference() {
-    badCall("This part does not have a DAC, it thus has no DAC reference");
+    badCall("This part does not have a DAC, it thus has no DAC reference.");
     return -1;
   }
 
