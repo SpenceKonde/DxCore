@@ -62,7 +62,7 @@ cat <<EOF >config_${MCU}.h
 #define  __CONFIG_H__
 #define  __AVR_${TYPE}__
 
-#define	 WDTTIME          1
+#define  WDTTIME           1
 
 #define  F_OSC             (${FOSC}L)
 #define  LED_PORT          V${LPORT}
@@ -72,7 +72,7 @@ ${LEDINVERT}
 
 #define  BAUD_RATE         (${BAUD}L)
 #define  MYUART            (${UART})
-#define  MYPMUX_REG    	   PORTMUX.${PMREG}
+#define  MYPMUX_REG        PORTMUX.${PMREG}
 #define  MYUART_PMUX_VAL   ($PORTMUX)
 #define  MYUART_RXPINCTRL  ${TX_PORT}.PIN$((TX_PIN+1))CTRL
 #define  MYUART_TXPORT     V${TX_PORT}
