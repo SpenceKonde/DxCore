@@ -336,7 +336,11 @@ void loop() {
         MYSERIAL.println();
         MYSERIAL.print("Testing TCB");
         MYSERIAL.print(timernum);
-        CurrentPortmux = (PORTMUX.TCBROUTEA & (1 << timernum)) ? 1 : 0;
+        #if defined(PORTMUX_TCBROUTEA)
+          CurrentPortmux = (PORTMUX.TCBROUTEA & (1 << timernum)) ? 1 : 0;
+        #else
+          CurrentPortmux = 0;
+        #endif
         currentpin = TCBpinsets[(timernum << 1) + CurrentPortmux];
         if (CurrentPortmux) {
           MYSERIAL.print(" AltPin ");
