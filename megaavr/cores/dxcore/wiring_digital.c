@@ -298,12 +298,14 @@ void turnOffPWM(uint8_t pin) {
         }
       }
     #endif
+/*    
     #if defined(DAC0)
       if (digital_pin_timer == DACOUT) {
         _setInput(portnum, bit_mask);
         DAC0.CTRLA &= ~0x41; // clear we want to turn off the DAC in this case
       }
     #endif
+*/
   }
 }
 
