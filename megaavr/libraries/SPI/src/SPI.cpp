@@ -385,18 +385,17 @@ void SPIClass::init() {
 }
 
 void SPIClass::config(SPISettings settings) {
-  SPI_MODULE.CTRLA = settings.ctrla;
   SPI_MODULE.CTRLB = settings.ctrlb;
+  SPI_MODULE.CTRLA = settings.ctrla;
 }
 
 void SPIClass::end() {
   SPI_MODULE.CTRLA = 0;
-  // Is clearing this register a sane use of time? I don't thnk it is, we already turn off the port, and every time begin is called we reconfigure the PORTMUX.
-  // If user code is manually taking over SPI, and they're also using the SPI library, with the same SPI port at different times... do you really think that they'll be using the
-  // default pinset? And that, with all those moving parts, that the thing that they forget is going to have anything to do with the PORTMUX?
-  // Someone doing crazy things is either a fool, in which case why are we bothering? They won't make it work without a brain transplant.
-  // Or they're a skilled programmer, and can be treated like an adult. Thus we can trust them to check the PORTMUX when they switch their implementation back on after the SPI library has been used.
-  // One really does wonder if they claim to be in the second group though - I understand using a custom spi library, you need that for slave mode. But WTF are they doing screwing with this library?
+  // Is clearing this register a sane use of time?
+  // On consideration, yes.
+
+  //This fucking with portmux though, why did I think that was warranted?
+  // Civilized practices like setting the mux in the canonical manner prior to relying on it can eliminate superfluous writes owhich raise questions
 
   /*
   #if defined(SPI1)
@@ -404,7 +403,7 @@ void SPIClass::end() {
   #elif defined(PORTMUX_SPIROUTEA)
     PORTMUX.SPIROUTEA &= ~PORTMUX_SPI0_gm;
   #elif defined(PORTMUX_TWISPIROUTEA)
-    PORTMUX.SPIROUTEA &= ~PORTMUX_SPI0_gm;
+    PORTMUX.TWISPIROUTEA &= ~PORTMUX_SPI0_gm;
   #else // defined(PORTMUX_CTRLB)
     PORTMUX.CTRLB &= PORTMUX_SPI0_bm;
   #endif
