@@ -51,10 +51,10 @@ void compile_test_digital() {
   openDrainFast(PIN_PD5, LOW);
   openDrainFast(PIN_PD6, CHANGE);
   openDrainFast(PIN_PD7, NOT_A_CONST_BYTE);
-  int8_t retval_digitalReadFast = digitalReadFast(PIN_PC2);
+  int8_t retval_digitalReadFast = digitalReadFast(PIN_PC3);
   discard(retval_digitalReadFast);
   // slow digital I
-  int8_t retval_digitalRead = digitalReadFast(PIN_PC2);
+  int8_t retval_digitalRead = digitalReadFast(PIN_PC3);
   discard(retval_digitalRead);
   retval_digitalRead = digitalRead(NOT_A_CONST_BYTE);
   discard(retval_digitalRead);
