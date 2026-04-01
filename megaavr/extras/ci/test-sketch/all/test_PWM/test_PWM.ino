@@ -58,10 +58,10 @@ void compile_test_PWM() {
     analogWrite(PIN_TCA1_WO0_DEFAULT, 255);
     analogWrite(PIN_TCA1_WO0_DEFAULT, NOT_A_CONST_BYTE);
   #endif
-  analogWrite(PIN_PC1, 0);
-  analogWrite(PIN_PC1, 128);
-  analogWrite(PIN_PC1, 255);
-  analogWrite(PIN_PC1, NOT_A_CONST_BYTE);
+  analogWrite(PIN_PC3, 0);
+  analogWrite(PIN_PC3, 128);
+  analogWrite(PIN_PC3, 255);
+  analogWrite(PIN_PC3, NOT_A_CONST_BYTE);
   #ifdef TCD0
     #if !defined __AVR_DD__
         retval_digitalPinToTimerNow = digitalPinToTimerNow(PIN_TCD0_WOD_DEFAULT);
