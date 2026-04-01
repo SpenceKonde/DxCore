@@ -257,7 +257,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_A30            (NOT_A_PIN)
 #define PIN_A31            (PIN_PC3)
 
-static const uint8_t A0  = PIN_A0
+static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
