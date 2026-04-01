@@ -78,12 +78,16 @@ const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
   #else
     NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,
   #endif
-  #if (defined(MVIO) && _AVR_PINCOUNT < 28) //14/20 pin parts with less than 28 pins don't have PC0
+  #if ((defined(MVIO) && _AVR_PINCOUNT < 28) || defined(__AVR_DU__) ) //14/20 pin parts with less than 28 pins don't have PC0
     NOT_A_PIN,
   #else
     PIN_PC0,
   #endif
-  PIN_PC1, PIN_PC2, PIN_PC3,
+  #if  defined(__AVR_DU__)
+    NOT_A_PIN, NOT_A_PIN, PIN_PC3,
+  #else
+    PIN_PC1, PIN_PC2, PIN_PC3,
+  #endif
   #if defined(PIN_PC4) // these don't exist until 48-pin parts
     PIN_PC4,    PIN_PC5,
   #else
@@ -173,7 +177,7 @@ const PROGMEM_MAPPED uint8_t TCBpinsets[] = {
   #else
     NOT_A_PIN,
   #endif
-  #if defined(PIN_PC0)
+  #if defined(PIN_PC0) && !defined(FAKE_PIN_PC0)
     PIN_PC0,
   #else
     NOT_A_PIN,
