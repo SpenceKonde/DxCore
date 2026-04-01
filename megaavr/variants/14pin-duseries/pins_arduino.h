@@ -129,9 +129,9 @@ Include guard and include basic libraries. We are normally including this inside
 // SPI 0
 
 
+// SPI 0
+#define SPI_MUX                         (0x00)
 #define SPI_MUX_PINSWAP_4               (0x04)
-#define SPI_MUX_PINSWAP_5               (0x05)
-#define SPI_MUX_PINSWAP_6               (0x06)
 #define SPI_MUX_PINSWAP_NONE            (PORTMUX_SPI0_NONE_gc)
 #define PIN_SPI_MOSI                    (NOT_A_PIN)
 #define PIN_SPI_MISO                    (NOT_A_PIN)
@@ -141,14 +141,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_MISO_PINSWAP_4          (PIN_PD5)
 #define PIN_SPI_SCK_PINSWAP_4           (PIN_PD6)
 #define PIN_SPI_SS_PINSWAP_4            (PIN_PD7)
-#define PIN_SPI_MOSI_PINSWAP_5          (NOT_A_PIN)
-#define PIN_SPI_MISO_PINSWAP_5          (PIN_PC1)
-#define PIN_SPI_SCK_PINSWAP_5           (PIN_PC2)
-#define PIN_SPI_SS_PINSWAP_5            (PIN_PC3)
-#define PIN_SPI_MOSI_PINSWAP_6          (PIN_PC1)
-#define PIN_SPI_MISO_PINSWAP_6          (PIN_PC2)
-#define PIN_SPI_SCK_PINSWAP_6           (PIN_PC3)
-#define PIN_SPI_SS_PINSWAP_6            (PIN_PF7 //UPDI)
 
 
 // TWI 0
@@ -156,8 +148,8 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL                    (NOT_A_PIN)
 #define PIN_WIRE_SDA_PINSWAP_1          (NOT_A_PIN)
 #define PIN_WIRE_SCL_PINSWAP_1          (NOT_A_PIN)
-#define PIN_WIRE_SDA_PINSWAP_2          (PIN_PC2)
-#define PIN_WIRE_SCL_PINSWAP_2          (PIN_PC3)
+#define PIN_WIRE_SDA_PINSWAP_2          (NOT_A_PIN)
+#define PIN_WIRE_SCL_PINSWAP_2          (NOT_A_PIN)
 #define PIN_WIRE_SDA_PINSWAP_3          (PIN_PA0)
 #define PIN_WIRE_SCL_PINSWAP_3          (PIN_PA1)
 
@@ -165,7 +157,6 @@ Include guard and include basic libraries. We are normally including this inside
 // USART 0
 #define HWSERIAL0_MUX                   (0x00 /* PORTMUX_USART0_DEFAULT_gc */)
 #define HWSERIAL0_MUX_PINSWAP_3         (0x03 /* PORTMUX_USART0_ALT3_gc */)
-#define HWSERIAL0_MUX_PINSWAP_4         (0x04 /* PORTMUX_USART0_ALT4_gc */)
 #define HWSERIAL0_MUX_PINSWAP_NONE      (0x05)
 #define PIN_HWSERIAL0_TX                (PIN_PA0)
 #define PIN_HWSERIAL0_RX                (PIN_PA1)
@@ -175,10 +166,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL0_RX_PINSWAP_3      (PIN_PD5)
 #define PIN_HWSERIAL0_XCK_PINSWAP_3     (PIN_PD6)
 #define PIN_HWSERIAL0_XDIR_PINSWAP_3    (PIN_PD7)
-#define PIN_HWSERIAL0_TX_PINSWAP_4      (PIN_PC1)
-#define PIN_HWSERIAL0_RX_PINSWAP_4      (PIN_PC2)
-#define PIN_HWSERIAL0_XCK_PINSWAP_4     (PIN_PC3)
-#define PIN_HWSERIAL0_XDIR_PINSWAP_4    (NOT_A_PIN)
 
 
 // USART1
@@ -186,9 +173,9 @@ Include guard and include basic libraries. We are normally including this inside
 #define HWSERIAL1_MUX_PINSWAP_2         (0x02 << 3 /* PORTMUX_USART1_ALT2_gc */)
 #define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 2 /* PORTMUX_USART1_NONE_gc */)
 #define PIN_HWSERIAL1_TX                (NOT_A_PIN)
-#define PIN_HWSERIAL1_RX                (PIN_PC1)
-#define PIN_HWSERIAL1_XCK               (PIN_PC2)
-#define PIN_HWSERIAL1_XDIR              (PIN_PC3)
+#define PIN_HWSERIAL1_RX                (NOT_A_PIN)
+#define PIN_HWSERIAL1_XCK               (NOT_A_PIN)
+#define PIN_HWSERIAL1_XDIR              (NOT_A_PIN)
 #define PIN_HWSERIAL1_TX_PINSWAP_2      (PIN_PD6)
 #define PIN_HWSERIAL1_RX_PINSWAP_2      (PIN_PD7)
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     (NOT_A_PIN)
