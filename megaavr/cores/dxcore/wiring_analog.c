@@ -95,46 +95,14 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
     }
   }
 }
-#if defined(VREF_ADC0REF)
-/* DA/DB/DD */
-  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
-    if (__builtin_constant_p(mode)) {
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-        badArg("analogReference called with argument that is not a valid analog reference");
-    }
-  }
-/* Same as above except for the error */
-  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
-    /* This checks an AC or DAC reference number, instead of a adc reference number.
-     * On the Dx-series, these were the same. On the Ex-series, the list of options is the same...
-     * but the numbers that they correspond to and the names of the constants are different. */
-    if (__builtin_constant_p(mode)) {
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-        badArg("DACreference called with argument that is not a valid (D)AC reference.");
-    }
-  }
-#else
-  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
-    /* Ex-series.... frickin A */
-    if (__builtin_constant_p(mode)) {
-      if (mode & 0x40) /* Reject the AC_REF constants */
-        badArg("analogReference called with an AC_REF_ constant, those only work with DAC/AC references. Valid options look like INTERNAL2V048, VDD, or EXTERNAL");
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+
+inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+  if (__builtin_constant_p(mode)) {
+    if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
       badArg("analogReference called with argument that is not a valid analog reference");
-    }
   }
+}
 
-  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
-    /* This checks an AC or DAC reference number, instead of a adc reference number.
-     * On the Dx-series, these were the same, so they differ only in the error message.
-     * but the numbers that they correspond to and the names of the constants are different. */
-    if (__builtin_constant_p(mode)) {
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-        badArg("DACreference called with argument that is not a valid DAC/AC reference");
-    }
-  }
-
-#endif
 
 inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
   if (__builtin_constant_p(res)) {
@@ -178,9 +146,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 #ifdef DAC0 /* Only DAC-bearing parts get this */
   void DACReference(uint8_t mode) {
     if (__builtin_constant_p(mode)) {
-      check_valid_ac_ref(mode);
-    } else if ((mode & 0x88) != 0x88) {
-      return;
+      check_valid_analog_ref(mode);
     }
     _SWAP(mode);
     mode &= 0x07;
