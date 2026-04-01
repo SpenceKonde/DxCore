@@ -36,11 +36,15 @@ void setup() {
 void compile_test_digital() {
     /* Digital pins */
     /* All parts have PA0, PA1 (these are crystal pins),
-     * PC1, PC2, PC3, PD4, PD5, PD6, PD7, PF6 (reset)
+     * PC3, PD4, PD5, PD6, PD7, PF6 (reset)
      * Of those only PDn are analog inputs on all*/
   // fast digital I/O - constant pins
-  digitalWriteFast(PIN_PC1, HIGH);
-  digitalWriteFast(PIN_PC2, LOW);
+  #if defined(PIN_PC1)
+    digitalWriteFast(PIN_PC1, HIGH);
+  #endif
+  #if defined(PIN_PC2)
+    digitalWriteFast(PIN_PC2, LOW);
+  #endif
   digitalWriteFast(PIN_PC3, CHANGE);
   digitalWriteFast(PIN_PF6, NOT_A_CONST_BYTE);
   openDrainFast(PIN_PD4, HIGH);
@@ -55,8 +59,12 @@ void compile_test_digital() {
   retval_digitalRead = digitalRead(NOT_A_CONST_BYTE);
   discard(retval_digitalRead);
   // slow digital O - constant pins
-  digitalWrite(PIN_PC1, HIGH);
-  digitalWrite(PIN_PC2, LOW);
+  #if defined(PIN_PC1)
+    digitalWrite(PIN_PC1, HIGH);
+  #endif
+  #if defined(PIN_PC2)
+    digitalWrite(PIN_PC2, LOW);
+  #endif
   digitalWrite(PIN_PC3, CHANGE);
   digitalWrite(PIN_PF6, NOT_A_CONST_BYTE);
   openDrain(PIN_PD4, FLOATING);
@@ -64,7 +72,7 @@ void compile_test_digital() {
   openDrain(PIN_PD6, CHANGE);
   openDrain(PIN_PD7, NOT_A_CONST_BYTE);
   pinMode(PIN_PD4, INPUT);
-  pinMode(PIN_PC2, OUTPUT);
+  pinMode(PIN_PC3, OUTPUT);
   pinMode(PIN_PD6, INPUT_PULLUP);
   pinMode(PIN_PF6, NOT_A_CONST_BYTE);
   // slow digital O non-constant pins
@@ -84,7 +92,6 @@ void compile_test_digital() {
 };
 void compile_test_digital_advanced() {
   // pinConfigure constant pin
-  pinConfigure(PIN_PC2,          PIN_ISC_ENABLE);
   pinConfigure(PIN_PC3,          NOT_A_CONST_WORD);
   pinConfigure(PIN_PD4,          (PIN_ISC_LEVEL    | PIN_PULLUP_TGL  | PIN_OUT_CLR));
   pinConfigure(PIN_PD5,          (PIN_ISC_CHANGE   | PIN_DIR_SET     | PIN_PULLUP_CLR  | PIN_INLVL_CLR));
