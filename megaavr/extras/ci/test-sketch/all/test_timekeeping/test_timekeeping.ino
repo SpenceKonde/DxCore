@@ -58,7 +58,7 @@ void compile_test_timekeeping() {
   discard(retval_microsecondsToClockCycles);
   // pulsein counting clocks
 
-  uint32_t retval_pulseIn = pulseIn(PIN_PC1, HIGH, 100000);
+  uint32_t retval_pulseIn = pulseIn(PIN_PC3, HIGH, 100000);
   discard(retval_pulseIn);
   retval_pulseIn = pulseIn(NOT_A_CONST_BYTE, LOW, NOT_A_CONST_DWORD);
   discard(retval_pulseIn);
