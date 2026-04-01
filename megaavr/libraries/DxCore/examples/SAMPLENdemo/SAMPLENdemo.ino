@@ -37,7 +37,7 @@ void setup() {
   pinMode(SECOND_PIN, OUTPUT);
   digitalWrite(SECOND_PIN, LOW);
   SAMPLENREG = 0xFF;
-  analogReadResolution(12);
+  analogReadResolution(ADC_NATIVE_RESOLUTION); //usually 12 bits on Dx-core, but DU and SD have only 10.
   Serial.begin(115200);
   delay(1000);
   analogRead(FIRST_PIN);
