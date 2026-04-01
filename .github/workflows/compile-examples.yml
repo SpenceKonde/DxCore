@@ -307,6 +307,42 @@ jobs:
             pincount: 14
             clocksource: crystal
             flash-class: 16
+          - device-family: da
+            pincount: 48
+            clocksource: extclock
+            flash-class: 32
+          - device-family: da
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: da
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: db
+            pincount: 48
+            clocksource: extclock
+            flash-class: 32
+          - device-family: db
+            pincount: 32
+            clocksource: crystal
+            flash-class: 32
+          - device-family: db
+            pincount: 28
+            clocksource: internal
+            flash-class: 32
+          - device-family: db
+            pincount: 48
+            clocksource: crystal
+            flash-class: 32
+          - device-family: db
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: db
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

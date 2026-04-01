@@ -83,7 +83,6 @@ Include guard and include basic libraries. We are normally including this inside
   #define EXTERNAL_NUM_INTERRUPTS         (48)
 #endif
 
-                (0)
 #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? ((p) - PIN_PD0)  : ((p) <= PIN_PF1 ? ((p) - 4)  : NOT_A_PIN)) : (((p) > PIN_PA1)  ? ((p) + 20 ) :                         NOT_A_PIN))
 #define analogChannelToDigitalPin(p)         ((p) > 31        ?  NOT_A_PIN        : ((p) < 8         ? ((p) + PIN_PD0) :  (p) > 21  ? (p) - 20    : (((p) == 16       ? PIN_PF0)    : ((p) == 17  ? PIN_PF1 : NOT_A_PIN))))
 
