@@ -34,9 +34,9 @@ void setup() {
 
 void compile_test_tone() {
   /* Tone */
-  noTone(PIN_PC1);
-  tone(PIN_PC1, 25000);
-  tone(PIN_PC2, 500, 12345);
+  noTone(PIN_PD4);
+  tone(PIN_PD5, 25000);
+  tone(PIN_PD6, 500, 12345);
   tone(PIN_PC3, 23232, NOT_A_CONST_DWORD);
   tone(PIN_PD4, NOT_A_CONST_WORD);
   tone(PIN_PD5, NOT_A_CONST_WORD, 12345);

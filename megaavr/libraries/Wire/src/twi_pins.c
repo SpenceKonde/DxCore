@@ -376,11 +376,15 @@ void TWI0_usePullups() {
     uint8_t portmux = PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm;
     PORT_t *port;
     // PORTA and PORTC are present on all parts with a TWIROUTEA register
-    if(portmux == PORTMUX_TWI0_ALT2_gc) {
-      port = &PORTC;
-    } else {
+    #if defined(__AVR_DU__)
       port = &PORTA;
-    }
+    #else
+      if(portmux == PORTMUX_TWI0_ALT2_gc) {
+        port = &PORTC;
+      } else {
+        port = &PORTA;
+      }
+    #endif
     #if !defined(__AVR_DA__) && !defined(__AVR_DB__) //DD and EA, and presumably later parts, have an extra mux option.
       if (portmux == 3) {
         port->OUTCLR    = 0x03;  // bits 0 and 1
@@ -467,12 +471,15 @@ uint8_t TWI0_checkPinLevel(void) {
   #if defined(PORTMUX_TWIROUTEA)     /* Dx-series */
     uint8_t portmux = (PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm);
     PORT_t *port;
-    if (portmux == PORTMUX_TWI0_ALT2_gc) {
-      port = &PORTC;
-    } else {
+    #if defined(__AVR_DU__)
       port = &PORTA;
-    }
-
+    #else
+      if(portmux == PORTMUX_TWI0_ALT2_gc) {
+        port = &PORTC;
+      } else {
+        port = &PORTA;
+      }
+    #endif
     #if !defined(__AVR_DA__) && !defined(__AVR_DB__) //DD and EA, and presumably later parts, have an extra mux option.
       if (portmux == 3) {
         return (port->IN & 0x03);

@@ -42,8 +42,8 @@
 void setup() {
 
   // low for reset
-  pinMode(PIN_PC1, INPUT_PULLUP);
-  Event2.set_generator(PIN_PC1);
+  pinMode(PIN_PD4, INPUT_PULLUP);
+  Event2.set_generator(PIN_PD4);
   Event2.set_user(user::ccl0_event_a);
   Event2.start();
 
