@@ -713,7 +713,7 @@
     #define MYUART_RXPINCTRL (PORTD.PIN7CTRL)
     #define MYUART_TXPORT VPORTD
     #define MYUART_TXPIN (1 << PORT6)
-    #define MYUART_PMUX_VAL (0x04)
+    #define MYUART_PMUX_VAL (2 << 3)
     #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #endif
 #endif
@@ -828,7 +828,7 @@
     #define MYUART_RXPINCTRL (PORTA.PIN7CTRL)
     #define MYUART_TXPORT VPORTD
     #define MYUART_TXPIN (1 << PORT6)
-    #define MYUART_PMUX_VAL (2 << 4)
+    #define MYUART_PMUX_VAL (2 << 3)
     #define MYPMUX_REG (PORTMUX.USARTROUTEA)
   #endif
 #endif

@@ -1,0 +1,82 @@
+#!/bin/sh
+#
+# This script generates a config_{MCU}.h file.
+# 'make -f mkfile {MCU}.hex' will include the config file and generate {MCU}.hex.
+# 'make -f mkfile {MCU}.flash_d/ex' will use avrdude (8.1) to flash the chip via updi
+# As ioavrxxYYzz.h appears to be generated, the comment lines of the USART PORTMUX are a reliable source for the USART pin mapping.
+# The optiboot_dx.c relies on the azduino avr-gcc compiler, other compiler versions always require using the frame Pointer and won't compile.
+
+TOOLS=~/.arduino15/packages/DxCore/tools/avr-gcc/7.3.0-atmel3.6.1-azduino8a
+INCLUDES=${TOOLS}/avr/include/avr
+
+if [ $# -eq 0 ]; then
+  echo usage:   $0  "MCU  LED_PIN  #LED_toggles  UART_TX_PIN  BAUDRATE"
+  echo default: $0  avr64dd32 PA6 7 PA0 115200
+fi
+
+MCU=${1:-avr64dd32}
+LED=${2:-PA6}
+TGCNT=${3:-7}
+TX=${4:-PA0}
+BAUD=${5:-115200}
+
+HEADER=io${MCU}.h
+
+if [ ! -f ${INCLUDES}/${HEADER} ]; then
+  echo error: $HEADER not found
+  exit 1
+fi
+
+LPORT=$(echo $LED | sed -e 's/P\([A-F]\).*/PORT\1/')
+LPIN=$(echo $LED | sed -e 's/P[A-F]\([0-9]\)/\1/')
+if [ $((${TGCNT}&1)) -eq 1 ]; then LEDINVERT='#define  LED_INVERT'; fi
+
+DX=$(echo $MCU | sed -e 's/avr[0-9]\+\([d,e]\)[a-z][0-9]\+./\1/')
+if [ "$DX" = 'd' ]; then FOSC=24000000; TYPE=Dx; else FOSC=20000000; TYPE=Ex;  fi
+
+
+# azduino 8a
+PORTMUX=$(sed -n -e "/PORTMUX_USART.*TxD: ${TX}/s/.*\(PORTMUX.*_gc\) .*/\1/p" ${INCLUDES}/${HEADER} )
+  if [ -z "$PORTMUX" ]; then
+  # azduino 7b1
+  PORTMUX=$(sed -n -e "/PORTMUX_USART.*\/\* [{]*${TX}/s/.*\(PORTMUX.*_gc\) .*/\1/p" ${INCLUDES}/${HEADER} )
+  if [ -z "$PORTMUX" ]; then { echo USART TX ${TX} not found; exit 1; } fi
+fi
+
+UART=$(echo $PORTMUX | sed -e "s/PORTMUX_\(USART[0-9]\).*/\1/")
+
+PORTMUX=$(sed -n -e "/${PORTMUX}/s/.*= (\(0x.*\)).*/\1/p" ${INCLUDES}/${HEADER} )
+
+TX_PORT=$(echo $TX | sed -e 's/P\([A-F]\).*/PORT\1/')
+TX_PIN=$(echo $TX | sed -e 's/P[A-F]\([0-9]\)/\1/')
+UART_NUM=$(echo $UART | sed -e 's/[a-Z]\+//')
+
+if [ ${UART_NUM} -gt 3 ]; then
+  PMREG=USARTROUTEB
+else
+  PMREG=USARTROUTEA
+fi
+
+cat <<EOF >config_${MCU}.h
+// configure: $* /
+#define  __CONFIG_H__
+#define  __AVR_${TYPE}__
+
+#define  WDTTIME           1
+
+#define  F_OSC             (${FOSC}L)
+#define  LED_PORT          V${LPORT}
+#define  LED               (1<<${LPIN})
+#define  LED_START_FLASHES (${TGCNT}>>1)
+${LEDINVERT}
+
+#define  BAUD_RATE         (${BAUD}L)
+#define  MYUART            (${UART})
+#define  MYPMUX_REG        PORTMUX.${PMREG}
+#define  MYUART_PMUX_VAL   ($PORTMUX)
+#define  MYUART_RXPINCTRL  ${TX_PORT}.PIN$((TX_PIN+1))CTRL
+#define  MYUART_TXPORT     V${TX_PORT}
+#define  MYUART_TXPIN      (1<<${TX_PIN})
+EOF
+
+cat config_${MCU}.h
