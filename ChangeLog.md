@@ -13,8 +13,9 @@ These items are in addition to what was listed under changes already in release.
 * Fix doc issues
 * Fix issue with wire tests for PORTMUX, we were testing #if defined() on macros... which, when they weren't present, we defined as -1. This should have broken a lot more than it did.
 * Fix issue in SPI released with 1.6.1
-* Fix issue with some parts failing to compile at all.
-* Fix some issues with the tests.
+* Fix issue with some parts failing to compile at all due to misordered punctuation..
+* Ongoing attempt to get the tests to a passing state.
+* Correct issue with DU-series variant files
 
 
 ## Released Changes
