@@ -263,6 +263,50 @@ jobs:
             device-family: du
           - overclock-osc: 32
             device-family: du
+          - device-family: du
+            pincount: 20
+            int-osc: 20
+            flash-class: 16
+          - device-family: du
+            pincount: 32
+            int-osc: 20
+            flash-class: 16
+          - device-family: du
+            pincount: 28
+            int-osc: 24
+            flash-class: 16
+          - device-family: du
+            pincount: 14
+            int-osc: 24
+            flash-class: 16
+          - device-family: du
+            pincount: 20
+            int-osc: 20
+            flash-class: 16
+          - device-family: dd
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+          - device-family: dd
+            pincount: 28
+            clocksource: crystal
+            flash-class: 16
+          - device-family: dd
+            pincount: 28
+            clocksource: internal
+            flash-class: 16
+          - device-family: dd
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: dd
+            pincount: 20
+            clocksource: internal
+            flash-class: 16
+          - device-family: dd
+            pincount: 14
+            clocksource: crystal
+            flash-class: 16
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
