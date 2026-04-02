@@ -198,7 +198,7 @@ Event& Event::get_generator_channel(uint8_t generator_pin)
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
     #if defined(PORTA_EVGENCTRL)
       volatile PORT_t* port_ptr = portToPortStruct(port);
-      uint8_t temp = port_ptr->EVGENCTRL;
+      uint8_t temp = port_ptr->EVGENCTRLA;
         if ((temp & 0x0F) == port_pin) {
           gen = 0x40 + (port << 1);
           _SWAP(port_pin);
