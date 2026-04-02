@@ -1,4 +1,4 @@
-## AVR Dx / Ex Optiboot Bootloader Usage
+# AVR Dx / Ex Optiboot Bootloader Usage
 
 The configure script generates a config_{MCU}.h file. It is called with arguments:
 - ./configure  MCU  LED_PIN  #LED_toggles  UART_TX_PIN  BAUDRATE
