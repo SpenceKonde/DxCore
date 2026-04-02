@@ -170,6 +170,13 @@ jobs:
           # Things w/out xtals
           - device-family: eb
             clocksource: crystal
+          # The inappropriate clock sources:
+          # Unsupported
+          - clocksource: internal
+            overclock-osc: 32
+          #redundant
+          - int-osc: 16
+            overclock-osc: 16
           # Pincounts
           - device-family: eb
             pincount: 64

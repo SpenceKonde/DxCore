@@ -286,123 +286,120 @@ static const uint8_t A31 = PIN_A31;
 
 #ifdef ARDUINO_MAIN
 
-const uint8_t digital_pin_to_port[] = {
-  PA,         //  0 PA0/USART0_Tx/CLKIN
-  PA,         //  1 PA1/USART0_Rx
-  PA,         //  2 PA2/SDA
-  PA,         //  3 PA3/SCL
-  PA,         //  4 PA4/MOSI
-  PA,         //  5 PA5/MISO
-  PA,         //  6 PA6/SCK
-  PA,         //  7 PA7/SS/CLKOUT/LED_BUILTIN
-  NOT_A_PORT, //  8 PC0 NOT A PIN // Nothing depends on this
-  PC,         //  9 PC1/USART1_Rx/TCA0 PWM
-  PC,         // 10 PC2/TCA0 PWM
-  PC,         // 11 PC3/TCA0 PWM
-  PD,         // We give PD0 a number and specify it as being on PORTD because things depend on that because it is the zero pin and the origin of the analog inputs.
-  NOT_A_PORT, // 13 PD1/AIN1
-  NOT_A_PORT, // 14 PD2/AIN2
-  NOT_A_PORT, // 15 PD3/AINN
-  PD,         // 16 PD4/AIN4
-  PD,         // 17 PD5/AIN5
-  PD,         // 18 PD6/AIN6
-  PD,         // 19 PD7/AIN7/AREF
-  PF,         // 26 PF6 RESET
-  PF          // 27 PF7 UPDI
-};
+  const uint8_t digital_pin_to_port[] = {
+    PA,         //  0 PA0/USART0_Tx/CLKIN
+    PA,         //  1 PA1/USART0_Rx
+    PA,         //  2 PA2/SDA
+    PA,         //  3 PA3/SCL
+    PA,         //  4 PA4/MOSI
+    PA,         //  5 PA5/MISO
+    PA,         //  6 PA6/SCK
+    PA,         //  7 PA7/SS/CLKOUT/LED_BUILTIN
+    NOT_A_PORT, //  8 PC0 NOT A PIN // Nothing depends on this
+    NOT_A_PORT, //  9 PC1/USART1_Rx/TCA0 PWM
+    NOT_A_PORT, // 10 PC2/TCA0 PWM
+    PC,         // 11 PC3/TCA0 PWM
+    PD,         // We give PD0 a number and specify it as being on PORTD because things depend on that because it is the zero pin and the origin of the analog inputs.
+    NOT_A_PORT, // 13 PD1/AIN1
+    NOT_A_PORT, // 14 PD2/AIN2
+    NOT_A_PORT, // 15 PD3/AINN
+    PD,         // 16 PD4/AIN4
+    PD,         // 17 PD5/AIN5
+    PD,         // 18 PD6/AIN6
+    PD,         // 19 PD7/AIN7/AREF
+    PF,         // 26 PF6 RESET
+    PF          // 27 PF7 UPDI
+  };
 
-/* Use this for accessing PINnCTRL register */
-const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
-  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
-    PIN0_bp,//   0 PA0
-  #else
-    NOT_A_PIN,
-  #endif
-  #if ((CLOCK_SOURCE & 0x03) == 1)   // PA1 also used for crystal
-    NOT_A_PIN,
-  #else // PA1 used for external crystal.
-    PIN1_bp,//   1 PA1
-  #endif    // *INDENT-ON*
-  PIN2_bp,   //  2 PA2/SDA
-  PIN3_bp,   //  3 PA3/SCL
-  PIN4_bp,   //  4 PA4/MOSI
-  PIN5_bp,   //  5 PA5/MISO
-  PIN6_bp,   //  6 PA6/SCK
-  PIN7_bp,   //  7 PA7/SS/CLKOUT/ ED_BUILTIN
-  NOT_A_PIN, //  8
-  PIN1_bp,   //  9 PC1
-  PIN2_bp,   // 10 PC2
-  PIN3_bp,   // 11 PC3
-  NOT_A_PIN, // 12 VDDIO2
-  NOT_A_PIN, // 13
-  NOT_A_PIN, // 14
-  NOT_A_PIN, // 15
-  PIN4_bp,   // 16 PD4/AIN4
-  PIN5_bp,   // 17 PD5/AIN5
-  PIN6_bp,   // 18 PD6/AIN6
-  PIN7_bp,   // 19 PD7/AIN7/AREF
-  PIN6_bp,   // 26 PF6 RESET
-  PIN7_bp    // 27 PF7 UPDI
-};
+  /* Use this for accessing PINnCTRL register */
+  const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
+    #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
+      PIN0_bp,//   0 PA0
+    #else
+      NOT_A_PIN,
+    #endif
+    #if ((CLOCK_SOURCE & 0x03) == 1)   // PA1 also used for crystal
+      NOT_A_PIN,
+    #else // PA1 used for external crystal.
+      PIN1_bp,//   1 PA1
+    #endif    // *INDENT-ON*
+    PIN2_bp,   //  2 PA2/SDA
+    PIN3_bp,   //  3 PA3/SCL
+    PIN4_bp,   //  4 PA4/MOSI
+    PIN5_bp,   //  5 PA5/MISO
+    PIN6_bp,   //  6 PA6/SCK
+    PIN7_bp,   //  7 PA7/SS/CLKOUT/LED_BUILTIN
+    NOT_A_PIN, //  8
+    NOT_A_PIN,   //  9 PC1
+    NOT_A_PIN,   // 10 PC2
+    PIN3_bp,   // 11 PC3
+    NOT_A_PIN, // 12
+    NOT_A_PIN, // 13
+    NOT_A_PIN, // 14
+    NOT_A_PIN, // 15
+    PIN4_bp,   // 16 PD4/AIN4
+    PIN5_bp,   // 17 PD5/AIN5
+    PIN6_bp,   // 18 PD6/AIN6
+    PIN7_bp,   // 19 PD7/AIN7/AREF
+    PIN6_bp,   // 26 PF6 RESET
+    PIN7_bp    // 27 PF7 UPDI
+  };
 
-const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
-  #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
-    PIN0_bm,//   0 PA0
-  #else
-    NOT_A_PIN,
-  #endif
-  #if ((CLOCK_SOURCE & 0x03) == 1)   // PA1 also used for crystal
-    NOT_A_PIN,
-  #else // PA1 used for external crystal.
-    PIN1_bm,//   1 PA1
-  #endif    // *INDENT-ON*
-  PIN2_bm,   //  2 PA2/SDA
-  PIN3_bm,   //  3 PA3/SCL
-  PIN4_bm,   //  4 PA4/MOSI
-  PIN5_bm,   //  5 PA5/MISO
-  PIN6_bm,   //  6 PA6/SCK
-  PIN7_bm,   //  7 PA7/SS/CLKOUT
-  NOT_A_PIN, //  8 PC0 NOT_A_PIN
-  PIN1_bm,   //  9 PC1/USART1_Rx
-  PIN2_bm,   // 10 PC2
-  PIN3_bm,   // 11 PC3
-  NOT_A_PIN, // 12 PD0 NOT_A_PIN VDDIO2
-  NOT_A_PIN, // 13 PD0 NOT_A_PIN
-  NOT_A_PIN, // 14 PD0 NOT_A_PIN
-  NOT_A_PIN, // 15 PD0 NOT_A_PIN
-  PIN4_bm,   // 16 PD4/AIN4
-  PIN5_bm,   // 17 PD5/AIN5
-  PIN6_bm,   // 18 PD6/AIN6
-  PIN7_bm,   // 19 PD7/AIN7/AREF
-  PIN6_bm,   // 26 PF6 RESET
-  PIN7_bm    // 27 PF7 UPDI
-};
+  const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
+    #if ((CLOCK_SOURCE & 0x03) == 0) // PA0 used for external clock and crystal.
+      PIN0_bm,//   0 PA0
+    #else
+      NOT_A_PIN,
+    #endif
+    #if ((CLOCK_SOURCE & 0x03) == 1)   // PA1 also used for crystal
+      NOT_A_PIN,
+    #else // PA1 used for external crystal.
+      PIN1_bm,//   1 PA1
+    #endif    // *INDENT-ON*
+    PIN2_bm,   //  2 PA2/SDA
+    PIN3_bm,   //  3 PA3/SCL
+    PIN4_bm,   //  4 PA4/MOSI
+    PIN5_bm,   //  5 PA5/MISO
+    PIN6_bm,   //  6 PA6/SCK
+    PIN7_bm,   //  7 PA7/SS/CLKOUT
+    NOT_A_PIN, //  8 PC0 NOT_A_PIN
+    NOT_A_PIN, //  9 PC1/USART1_Rx
+    NOT_A_PIN, // 10 PC2
+    PIN3_bm,   // 11 PC3
+    NOT_A_PIN, // 12 PD0 NOT_A_PIN
+    NOT_A_PIN, // 13 PD0 NOT_A_PIN
+    NOT_A_PIN, // 14 PD0 NOT_A_PIN
+    NOT_A_PIN, // 15 PD0 NOT_A_PIN
+    PIN4_bm,   // 16 PD4/AIN4
+    PIN5_bm,   // 17 PD5/AIN5
+    PIN6_bm,   // 18 PD6/AIN6
+    PIN7_bm,   // 19 PD7/AIN7/AREF
+    PIN6_bm,   // 26 PF6 RESET
+    PIN7_bm    // 27 PF7 UPDI
+  };
 
-const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //  0 PA0/USART0_Tx/CLKIN    default TCA0 WO0
-  NOT_ON_TIMER, //  1 PA1/USART0_Rx          default TCA0 WO1
-  TIMERB0,      //  2 PA2/SDA                default TCA0 WO2
-  TIMERB1,      //  3 PA3/SCL                default TCA0 WO3
-  TIMERD0_0WOA, //  4 PA4/MOSI      WOA      default TCA0 WO4
-  TIMERD0_0WOB, //  5 PA5/MISO      WOB      default TCA0 WO5
-  TIMERD0_0WOC, //  6 PA6/SCK       WOC mirrors WOA
-  TIMERD0_0WOD, //  7 PA7/SS/CLKOUT WOD mirrors WOB
-  NOT_ON_TIMER, //  8 PC0 NOT_A_PIN
-  NOT_ON_TIMER, //  9 PC1/USART1_Rx
-  NOT_ON_TIMER, // 10 PC2
-  NOT_ON_TIMER, // 11 PC3
-  NOT_ON_TIMER, // 12 PD0 NOT_A_PIN VDDIO2
-  NOT_ON_TIMER, // 13 PD1 NOT_A_PIN
-  NOT_ON_TIMER, // 14 PD2 NOT_A_PIN
-  NOT_ON_TIMER, // 15 PD3 NOT_A_PIN
-  TIMERD0_4WOC, // 16 PD4/AIN4
-  TIMERD0_4WOD, // 17 PD5/AIN5
-  DACOUT,       // 18 PD6/AIN6
-  NOT_ON_TIMER, // 19 PD7/AIN7/AREF
-  NOT_ON_TIMER, // 26 PF6 RESET
-  NOT_ON_TIMER, // 27 PF7 UPDI
-};
 
+  const uint8_t digital_pin_to_timer[] = {
+    NOT_ON_TIMER, //  0 PA0 TCA0 WO0 h/w default (not our default)
+    NOT_ON_TIMER, //  1 PA1 TCA0 WO1 h/w default (not our default)
+    TIMERB0,      //  2 PA2 TCA0 WO2 h/w default (not our default)
+    TIMERB1,      //  3 PA3 TCA0 WO3 h/w default (not our default)
+    NOT_ON_TIMER, //  4 PA4 TCA0 WO4 h/w default (not our default)
+    NOT_ON_TIMER, //  5 PA5 TCA0 WO5 h/w default (not our default)
+    NOT_ON_TIMER, //  6 PA6
+    NOT_ON_TIMER, //  7 PA7
+    NOT_ON_TIMER, //  8  USB
+    NOT_ON_TIMER, //  9  USB
+    NOT_ON_TIMER, // 10  USB
+    NOT_ON_TIMER, // 11 PC3 TCA0 ALT2
+    NOT_ON_TIMER, // 16 PD4 TCA0 ALT3
+    NOT_ON_TIMER, // 17 PD5 TCA0 ALT3
+    NOT_ON_TIMER, // 18 PD6 DAC0 output
+    NOT_ON_TIMER, // 19 PD7
+    NOT_ON_TIMER, // 26 PF6 RESET
+    NOT_ON_TIMER  // 27 PF7 UPDI
+
+  }
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
   #if ((CLOCK_SOURCE & 0x03) == 0)

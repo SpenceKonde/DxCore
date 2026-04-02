@@ -359,31 +359,27 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   PIN7_bm    // 21 PF7 UPDI
 };
 
-const uint8_t digital_pin_to_timer[] = {
-  NOT_ON_TIMER, //   0 PA0/USART0_Tx/CLKIN
-  NOT_ON_TIMER, //   1 PA1/USART0_Rx
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     VDDIO2
-  NOT_ON_TIMER, //   9 PC1/USART1_Rx  TCA0 WO1 typically
-  NOT_ON_TIMER, //  10 PC2            TCA0 WO2 typically
-  NOT_ON_TIMER, //  11 PC3            TCA0 WO3 typically
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  NOT_ON_TIMER, //     NOT_A_PIN
-  TIMERD0_4WOC, //  16 PD4/AIN4       TCD0 WOC
-  TIMERD0_4WOD, //  17 PD5/AIN5       TCD0 WOD
-  DACOUT,       //  18 PD6/AIN6       DAC here as usual
-  NOT_ON_TIMER, //  19 PD7/AIN7/AREF
-  NOT_ON_TIMER, //  20 PF6 RESET
-  NOT_ON_TIMER  //  21 PF7 UPDI
-};
+  const uint8_t digital_pin_to_timer[] = {
+    NOT_ON_TIMER, //  0 PA0
+    NOT_ON_TIMER, //  1 PA1
+    TIMERB0,      //  2 PA2
+    TIMERB1,      //  3 PA3
+    NOT_ON_TIMER, //  4 PA4
+    NOT_ON_TIMER, //  5 PA5
+    NOT_ON_TIMER, //  6 PA6
+    NOT_ON_TIMER, //  7 PA7
+    NOT_ON_TIMER, //  8  USB
+    NOT_ON_TIMER, //  9  USB
+    NOT_ON_TIMER, // 10  USB
+    NOT_ON_TIMER, // 11 PC3
+    NOT_ON_TIMER, // 16 PD4
+    NOT_ON_TIMER, // 17 PD5
+    NOT_ON_TIMER, // 18 PD6
+    NOT_ON_TIMER, // 19 PD7
+    NOT_ON_TIMER, // 26 PF6 RESET
+    NOT_ON_TIMER  // 27 PF7 UPDI
 
+  }
 
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for
