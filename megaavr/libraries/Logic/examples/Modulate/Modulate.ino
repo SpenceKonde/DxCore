@@ -46,7 +46,7 @@
 /* fate above noted has come to pass, so the stupid ifdef is so we can pick the right pin on DUs */
 
 
-#if defined(__AVR_DD__)
+#if defined(__AVR_DU__)
   #if (_AVR_PINCOUNT > 14)
     #define NEWMUX 0 /* PORTA on DU with >14 pins */
     #define PIN_TCA_WO2 PIN_PA2
