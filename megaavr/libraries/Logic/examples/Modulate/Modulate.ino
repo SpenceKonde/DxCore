@@ -43,16 +43,25 @@
 | this that are never used in "real life") there is never a right time  |
 | to refer to them.                                                     |
 ************************************************************************/
+/* fate above noted has come to pass, so the stupid ifdef is so we can pick the right pin on DUs */
 
 
-
-
-#define PIN_TCA_WO2 PIN_PC2
+#ifdef (__AVR_DD__)
+  #if (_AVR_PINCOUNT > 14)
+    #define NEWMUX 0 /* PORTA on DU with >14 pins */
+    #define PIN_TCA_WO2 PIN_PA2
+  #else
+    #error "This sketch isnt expected to compile for the DU14"
+  #endif
+#else
+  #define NEWMUX 0x02 /* PORTC everywhere else */
+  #define PIN_TCA_WO2 PIN_PC2
+#endif
 
 #include <Logic.h>
 
 void setup() {
-  PORTMUX.TCAROUTEA = 0x02;                   // Force TCA onto a known set of pins.
+  PORTMUX.TCAROUTEA = NEWMUX;                   // Force TCA onto a known set of pins.
 
   Logic0.enable = true;                       // Enable logic block 0
   Logic0.input0 = logic::in::tcb;             // TCB channel - TCB0. On everything except 0/1-series tinyAVR, that's because this is input 0.

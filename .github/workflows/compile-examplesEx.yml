@@ -158,7 +158,7 @@ jobs:
           - crystal
         int-osc:
           - 16
-          - 24
+          - 20
         overclock-osc:
           - 16
           - 32
