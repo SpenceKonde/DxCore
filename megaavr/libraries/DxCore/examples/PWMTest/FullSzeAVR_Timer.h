@@ -73,7 +73,7 @@ const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
   #else
     NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,
   #endif
-  #if defined(PORTB) //48-pin and 64 pin parts only have these
+  #if _AVR_PINCOUNT > 32 //48-pin and 64 pin parts only have these
     PIN_PB0,    PIN_PB1,    PIN_PB2,    PIN_PB3,    PIN_PB4,    PIN_PB5,
   #else
     NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,
@@ -88,7 +88,7 @@ const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
   #else
     PIN_PC1, PIN_PC2, PIN_PC3,
   #endif
-  #if defined(PIN_PC4) // these don't exist until 48-pin parts
+  #if _AVR_PINCOUNT > 32 // these don't exist until 48-pin parts
     PIN_PC4,    PIN_PC5,
   #else
     NOT_A_PIN,  NOT_A_PIN,

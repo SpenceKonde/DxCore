@@ -84,10 +84,22 @@ void compile_test_PWM() {
   #endif
   bool retval_digitalPinHasPWM = digitalPinHasPWM(NOT_A_CONST_BYTE);
   discard(retval_digitalPinHasPWM);
-  retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCA0_WO0_DEFAULT);
-  discard(retval_digitalPinHasPWM);
-  retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCA0_WO4_ALT3);
-  discard(retval_digitalPinHasPWM);
+  #if defined(TCA0)
+    retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCA0_WO0_DEFAULT);
+    discard(retval_digitalPinHasPWM);
+    retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCA0_WO4_ALT3);
+    discard(retval_digitalPinHasPWM);
+  #endif
+  #if defined(TCE0)
+    #if (CLOCK_SOURCE == 0)
+      retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCE0_WO0_PORTA);
+      discard(retval_digitalPinHasPWM);
+    #endif
+    retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCE0_WO0_DEFAULT);
+    discard(retval_digitalPinHasPWM);
+    retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCE0_WO4_ALT3);
+    discard(retval_digitalPinHasPWM);
+  #endif
   retval_digitalPinHasPWM = digitalPinHasPWM(PIN_PF6);
   discard(retval_digitalPinHasPWM);
   retval_digitalPinToTimerNow = digitalPinToTimerNow(NOT_A_PIN);

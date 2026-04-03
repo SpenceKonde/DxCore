@@ -9,7 +9,7 @@ byte pos[12];
 char dir[12] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 void setup() {
-  TCA0.SPLIT.CTRLA = 0;
+  /*TCA0.SPLIT.CTRLA = 0;  // Why was that there? It doesn't seem to serve any purpose!     */
   for (byte i = 0; i < 12; i++) {
     myservos[i].attach(i);
     pos[i] = i * 15;
