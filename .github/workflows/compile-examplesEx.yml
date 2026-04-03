@@ -110,19 +110,48 @@ jobs:
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
         - megaavr/extras/ci/test-sketch/db/dummysketch
-      #avr-dd-series-sketch-paths: |
-      #avr-ea-series-sketch-paths: |
+      avr-da-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      avr-db-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      avr-dd-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      avr-du-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      avr-ea-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      #avr-eb-series-tcademos-lowpin-false-sketch-paths: |
+      avr-ec-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      avr-la-series-tcademos-lowpin-false-sketch-paths: |
+        - megaavr/libraries/DxCore/examples/TCA0Demo
+        - megaavr/libraries/DxCore/examples/TCA0Demo2
+        - megaavr/libraries/DxCore/examples/TCA0Demo3
+        - megaavr/libraries/DxCore/examples/TCA0Demo4
       optiboot-and-appspm-da-sketch-paths: |
         - megaavr/libraries/Flash/examples/FlashDemo
       optiboot-and-appspm-db-sketch-paths: |
         - megaavr/libraries/Flash/examples/FlashDemo
       optiboot-and-appspm-dd-sketch-paths: |
         - megaavr/libraries/Flash/examples/FlashDemo
-      not-on-tca0-millis-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
       not-disabled-millis-sketch-paths: |
         - megaavr/libraries/tinyNeoPixel/examples/RGBWstrandtest
         - megaavr/libraries/Wire/examples/register_model
@@ -214,7 +243,7 @@ jobs:
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
-            ${{ env[format('not-on-tca0-millis-lowpin-{0}-sketch-paths', matrix.pincount < 28)] }}
+            ${{ env[format('avr-{0}-series-tcademos-lowpin-{1}-sketch-paths', matrix.device-family, matrix.pincount < 28)] }}
             ${{ env.not-disabled-millis-sketch-paths}}
             ${{ env.not-disabled-millis-or-unlocked-flmap-sketch-paths}}
           platforms: |
@@ -243,7 +272,7 @@ jobs:
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
             ${{ env[format('optiboot-and-appspm-{0}-sketch-paths', matrix.device-family)]  }}
-            ${{ env[format('not-on-tca0-millis-lowpin-{0}-sketch-paths', matrix.pincount < 28)] }}
+            ${{ env[format('avr-{0}-series-tcademos-lowpin-{1}-sketch-paths', matrix.device-family, matrix.pincount < 28)] }}
             ${{ env.not-disabled-millis-sketch-paths}}
             ${{ env.not-disabled-millis-or-unlocked-flmap-sketch-paths}}
           platforms: |
@@ -271,7 +300,7 @@ jobs:
             ${{ env.all-parts-sketch-paths }}
             ${{ env[format('avr-{0}-series-sketch-paths', matrix.device-family)] }}
             ${{ env[format('optiboot-and-appspm-{0}-sketch-paths', matrix.device-family)]  }}
-            ${{ env[format('not-on-tca0-millis-lowpin-{0}-sketch-paths', matrix.pincount < 28)] }}
+            ${{ env[format('avr-{0}-series-tcademos-lowpin-{1}-sketch-paths', matrix.device-family, matrix.pincount < 28)] }}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
             - source-url: http://drazzy.com/package_drazzy.com_index.json
