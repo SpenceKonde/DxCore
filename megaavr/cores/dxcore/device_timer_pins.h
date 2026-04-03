@@ -127,7 +127,7 @@
     #define PIN_TCE0_WO1_PORTA          PIN_PA1
   #else
     #define PIN_TCE0_WO1_PORTA          NOT_A_PIN
-  #else
+  #endif
   #define PIN_TCE0_WO5_PORTC2           PIN_PC3
   #define PIN_TCE0_WO3_PORTC            PIN_PC3
   #define PIN_TCE0_WO4_PORTD            PIN_PD4
