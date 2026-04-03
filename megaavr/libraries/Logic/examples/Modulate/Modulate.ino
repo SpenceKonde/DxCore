@@ -51,7 +51,7 @@
     #define NEWMUX 0 /* PORTA on DU with >14 pins */
     #define PIN_TCA_WO2 PIN_PA2
   #else
-    #error "This sketch isnt expected to compile for the DU14"
+    #error "This sketch isn't expected to compile for the DU14"
   #endif
 #else
   #define NEWMUX 0x02 /* PORTC everywhere else */
