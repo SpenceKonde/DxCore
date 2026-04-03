@@ -71,7 +71,7 @@
 #endif
 
 /* End of parameters/options section */
-#include "FullSzeAVR_Timer.h"
+#include "FullSizeAVR_Timer.h"
 #include <EEPROM.h>
 
 #if defined(TCA0)
@@ -221,20 +221,22 @@ void setup() {
   }
   MYSERIAL.println();
   #endif
+  /*
   #ifdef TCE0
   for (byte x = 0; x < 5; x++) {
     for (byte y = 0; y < 8; y++) {
-      MYSERIAL.print(TCDEpinsets[8 * x + y]);
+      MYSERIAL.print(TCE0pinsets[8 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
   }
   MYSERIAL.println();
   #endif
+  */
   #ifdef TCF0
   for (byte x = 0; x < 8; x++) {
     for (byte y = 0; y < 2; y++) {
-      MYSERIAL.print(TCDEpinsets[2 * x + y]);
+      MYSERIAL.print(TCF0pinsets[2 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();

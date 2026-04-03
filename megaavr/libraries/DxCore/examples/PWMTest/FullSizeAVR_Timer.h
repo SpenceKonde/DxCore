@@ -73,7 +73,7 @@ const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
   #else
     NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,
   #endif
-  #if _AVR_PINCOUNT > 32 //48-pin and 64 pin parts only have these
+  #if _AVR_PINCOUNT >= 48 //48-pin and 64 pin parts only have these
     PIN_PB0,    PIN_PB1,    PIN_PB2,    PIN_PB3,    PIN_PB4,    PIN_PB5,
   #else
     NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,  NOT_A_PIN,
@@ -88,7 +88,7 @@ const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
   #else
     PIN_PC1, PIN_PC2, PIN_PC3,
   #endif
-  #if _AVR_PINCOUNT > 32 // these don't exist until 48-pin parts
+  #if _AVR_PINCOUNT >= 48 // these don't exist until 48-pin parts
     PIN_PC4,    PIN_PC5,
   #else
     NOT_A_PIN,  NOT_A_PIN,
@@ -132,8 +132,14 @@ const PROGMEM_MAPPED uint8_t TCA0pinsets[] = {
 };
 #if defined(TCA1)
 const PROGMEM_MAPPED uint8_t TCA1pinsets[] = {
-  PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5,
-  PIN_PC4, PIN_PC5, PIN_PC6, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #if _AVR_PINCOUNT >= 48
+    PIN_PB0, PIN_PB1, PIN_PB2, PIN_PB3, PIN_PB4, PIN_PB5,
+    PIN_PC4, PIN_PC5, PIN_PC6, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #else
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+    NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
+  #endif
+
   #if _AVR_PINCOUNT > 48
     #if !defined(MAXREG)
       PIN_PE4, PIN_PE5, PIN_PE6, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN,
@@ -208,7 +214,7 @@ const PROGMEM_MAPPED uint8_t TCBpinsets[] = {
     NOT_A_PIN,
   #endif
 };
-
+#if defined(TCD0)
 const PROGMEM_MAPPED uint8_t TCD0pinsets[] = {
   #if defined(PIN_PA4)
     PIN_PA4, PIN_PA5, PIN_PA6, PIN_PA7,
@@ -257,6 +263,7 @@ const PROGMEM_MAPPED uint8_t TCD0pinsets[] = {
     NOT_A_PIN, NOT_A_PIN, NOT_A_PIN, NOT_A_PIN
   #endif
 };
+#endif
 /* TODO:
 // This is a 128b table. The majority of it is "reserved" mappings. Obvious assumptions were made.
 const PROGMEM_MAPPED uint8_t TCE0pinsets[] = {
