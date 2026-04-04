@@ -52,10 +52,15 @@ void setup() {
   Event3.set_generator(PIN_PC3);
   Event3.set_user(user::ccl0_event_b);
   Event3.start();
-
+#if defined(PIN_PC2)
   Event4.set_generator(gen::ccl0_out);
   Event4.set_user(user::evoutc_pin_pc2);
   Event4.start();
+#else // DU series doesn't have any other options on 14-pin parts
+  Event4.set_generator(gen::ccl0_out);
+  Event4.set_user(user::evoutd_pin_pd7);
+  Event4.start();
+#endif
 
   Logic0.enable = true;
   Logic0.input0 = in::feedback;
