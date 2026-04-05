@@ -226,6 +226,75 @@ jobs:
             flash-class: 64
           - device-family: la
             flash-class: 64
+          - device-family: ea
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: ea
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: ea
+            pincount: 48
+            clocksource: crystal
+            flash-class: 32
+          - device-family: ea
+            pincount: 28
+            clocksource: internal
+            flash-class: 64
+          - device-family: ea
+            pincount: 32
+            clocksource: crystal
+            flash-class: 64
+          - device-family: ea
+            pincount: 48
+            clocksource: extclock
+            flash-class: 64
+          - device-family: ea
+            pincount: 28
+            clocksource: crystal
+            flash-class: 16
+          - device-family: ea
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+          - device-family: ea
+            pincount: 48
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 14
+            clocksource: extclock
+            flash-class: 32
+          - device-family: eb
+            pincount: 20
+            clocksource: internal
+            flash-class: 32
+          - device-family: eb
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: eb
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: eb
+            pincount: 14
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: eb
+            pincount: 28
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+
 
     steps:
       - name: Checkout repository
