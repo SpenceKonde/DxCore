@@ -376,7 +376,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
 /* Ex Version*/
   inline uint8_t getAnalogReference() {
-     ADC0.CTRLC & ADC_REFSEL_gm;
+    uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
+    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 /* Ex Version*/
   int16_t analogRead(uint8_t pin) {
@@ -687,7 +688,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     // Uh? Is that it? That was, ah, a tiny bit simpler.
   }
   inline uint8_t getAnalogReference() {
-    return ADC0.CTRLC & ADC_REFSEL_gm; /*  This register is empty of other fields  */
+    uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
+    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 
   int16_t analogRead(uint8_t pin) {
@@ -1152,8 +1154,10 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
 
   uint8_t getAnalogReference() {
-    return VREF.ADC0REF & VREF_REFSEL_gm;
+    uint8_t r = VREF.ADC0REF & VREF_REFSEL_gm;
+    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending
   }
+
 
   /* Frequency in kHz. */
    static const int16_t adc_prescale_to_clkadc[0x0F] PROGMEM = {(F_CPU /   2000L),(F_CPU /   4000L),(F_CPU /  8000L),(F_CPU / 12000L),
