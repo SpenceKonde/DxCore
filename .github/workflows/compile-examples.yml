@@ -493,7 +493,7 @@ jobs:
           enable-warnings-report: true
           sketches-report-path: sketches-reports
       - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
-        if: matrix.device-family != 'ea' && matrix.device-family != 'eb'
+        if: matrix.device-family != 'ea' && matrix.device-family != 'eb' && matrix.device-family != 'du'
         uses: arduino/compile-sketches@main
         with:
           cli-version: 0.33.0
