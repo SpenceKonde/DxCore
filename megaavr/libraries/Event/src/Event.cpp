@@ -1271,6 +1271,7 @@ event::user::user_t Event::user_from_peripheral(CCL_t& logic, uint8_t user_type)
 }
 
 #if defined(TCA0)
+
 event::gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_type) {
   uint8_t retval = -1;
   if (event_type < 5) {

@@ -11,50 +11,49 @@
  *  if it didn't
  */
 
-#define tca0 0x00
-#define tca1 0x01
-#define tcb0 0x10
-#define tcb1 0x11
-#define tcb2 0x12
-#define tcb3 0x13
-#define tcb4 0x14
-#define tcd0 0x30 //in case there's a TCC ever.
-#define tce0 0x40
-#define tcf0 0x50
-
+#define _tca0 0x00
+#define _tca1 0x01
+#define _tcb0 0x10
+#define _tcb1 0x11
+#define _tcb2 0x12
+#define _tcb3 0x13
+#define _tcb4 0x14
+#define _tcd0 0x30 //in case there's a TCC ever.
+#define _tce0 0x40
+#define _tcf0 0x50
 
 
 
 const PROGMEM_MAPPED uint8_t MyTimers[] = {
   #ifdef TCA0
-    tca0,
+    _tca0,
   #endif
   #ifdef TCA1
-    tca1,
+    _tca1,
   #endif
   #ifdef TCB0
-    tcb0,
+    _tcb0,
   #endif
   #ifdef TCB1
-    tcb1,
+    _tcb1,
   #endif
   #ifdef TCB2
-    tcb2,
+    _tcb2,
   #endif
   #ifdef TCB3
-    tcb3,
+    _tcb3,
   #endif
   #ifdef TCB4
-    tcb4,
+    _tcb4,
   #endif
   #ifdef TCD0
-    tcd0,
+    _tcd0,
   #endif
   #ifdef TCE0
-    tce0,
+    _tce0,
   #endif
   #ifdef TCF0
-    tcf0,
+    _tcf0,
   #endif
   255
 };
