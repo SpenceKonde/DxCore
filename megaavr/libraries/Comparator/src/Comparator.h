@@ -39,6 +39,16 @@
     #if !defined(PORTE)
       #define AC_NULL_REG _SFR_MEM8(0x04B0)
     #endif
+  #elif defined(__AVR_DU__)
+    /* DU:1 AC:  P0, P3, P4, N0, N1, N2 */
+      #define AC_NULL_REG _SFR_MEM8(0x04B0)
+    #define ANALOG_COMP_PINS_DU
+
+  #elif defined(__AVR_EB__)
+    // EB 2 AC: P0, P1, P2, P3, P4, P5, P6, N0, N1 ,N2 ,N3
+      #define AC_NULL_REG _SFR_MEM8(0x04B0)
+    #define ANALOG_COMP_PINS_EB
+
   #else
     /* mega0:1 AC P0, P1, P2, P3, N0, N1, N2 */
     #define ANALOG_COMP_PINS_MEGA
@@ -279,6 +289,31 @@ class AnalogComparator {
                        register8_t& in1_n,
                        register8_t& in2_n,
                        register8_t& in3_n);
+
+    #elif defined(ANALOG_COMP_PINS_EB)
+      AnalogComparator(const uint8_t comparator_number,
+                       AC_t& ac,
+                       register8_t& in0_p,
+                       register8_t& in1_p,
+                       register8_t& in2_p,
+                       register8_t& in3_p,
+                       register8_t& in4_p,
+                       register8_t& in5_p,
+                       register8_t& in6_p,
+                       register8_t& in0_n,
+                       register8_t& in1_n,
+                       register8_t& in2_n,
+                       register8_t& in3_n);
+    #elif defined(ANALOG_COMP_PINS_DU)
+      AnalogComparator(const uint8_t comparator_number,
+                       AC_t& ac,
+                       register8_t& in0_p,
+                       register8_t& in3_p,
+                       register8_t& in4_p,
+                       register8_t& in0_n,
+                       register8_t& in1_n,
+                       register8_t& in2_n);
+
     /* tinyAVR starts here!*/
     #elif defined(ANALOG_COMP_PINS_TINY_FEW)        /* 1 pos 1 neg */
       AnalogComparator(const uint8_t comparator_number,
@@ -383,6 +418,25 @@ class AnalogComparator {
       register8_t &IN1_N;
       register8_t &IN2_N;
       register8_t &IN3_N;
+    #elif defined(ANALOG_COMP_PINS_EB)             /* P0, P1, P2, P3, P4, N0, N1, N2, N3 */
+      register8_t &IN0_P;
+      register8_t &IN1_P;
+      register8_t &IN2_P;
+      register8_t &IN3_P;
+      register8_t &IN4_P;
+      register8_t &IN5_P;
+      register8_t &IN6_P;
+      register8_t &IN0_N;
+      register8_t &IN1_N;
+      register8_t &IN2_N;
+      register8_t &IN3_N;
+    #elif defined(ANALOG_COMP_PINS_DU)             /* P0, P1, P2, P3, P4, N0, N1, N2, N3 */
+      register8_t &IN0_P;
+      register8_t &IN3_P;
+      register8_t &IN4_P;
+      register8_t &IN0_N;
+      register8_t &IN1_N;
+      register8_t &IN2_N;
     #elif defined(ANALOG_COMP_PINS_TINY_FEW)       /* P0,                 N0             */
       register8_t &IN0_P;
       register8_t &IN0_N;

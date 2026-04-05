@@ -145,7 +145,7 @@ void printTCE0Status() {
 }
 #endif
 #if defined(TCF0)
-void printTCE0Status() {
+void printTCF0Status() {
   uint16_t test = (uint16_t)&TCF0;
   volatile uint8_t *bp;
   bp = (volatile uint8_t *)test;

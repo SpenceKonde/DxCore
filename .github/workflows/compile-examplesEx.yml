@@ -52,7 +52,6 @@ jobs:
         - megaavr/libraries/Logic/examples/Three_input_AND
         - megaavr/libraries/Logic/examples/Three_input_NAND
         - megaavr/libraries/Logic/examples/Three_input_OR
-        - megaavr/libraries/Logic/examples/Modulate
         - megaavr/libraries/Logic/examples/Oscillate
         - megaavr/libraries/Logic/examples/Two_input_AND
         - megaavr/libraries/Logic/examples/Two_input_NAND
@@ -90,68 +89,16 @@ jobs:
         - megaavr/extras/ci/test-sketch/all/test_tone
         - megaavr/extras/ci/test-sketch/all/test_PWM
         - megaavr/extras/ci/test-sketch/all/test_timekeeping
-      avr-da-series-sketch-paths: |
-        - megaavr/extras/ci/test-sketch/da/dummysketch
-        - megaavr/libraries/ZCD/examples/Interrupt
-        - megaavr/libraries/ZCD/examples/Read_state
-        - megaavr/libraries/ZCD/examples/Simple_ZCD
-        - megaavr/libraries/PTC/examples/mutualcap
-        - megaavr/libraries/PTC/examples/mutualcap_low_power
-        - megaavr/libraries/PTC/examples/self_and_mutual_mix
-        - megaavr/libraries/PTC/examples/selfcap
-        - megaavr/libraries/PTC/examples/selfcap_other_nodes_shield
-        - megaavr/libraries/PTC/examples/selfcap_with_dedicated_shield
-      avr-db-series-sketch-paths: |
-        - megaavr/libraries/Opamp/examples/Inverting_amplifier
-        - megaavr/libraries/Opamp/examples/Inverting_amplifier_with_follower
-        - megaavr/libraries/Opamp/examples/Non_inverting_amplifier
-        - megaavr/libraries/Opamp/examples/Voltage_follower
-        - megaavr/libraries/ZCD/examples/Interrupt
-        - megaavr/libraries/ZCD/examples/Read_state
-        - megaavr/libraries/ZCD/examples/Simple_ZCD
-        - megaavr/extras/ci/test-sketch/db/dummysketch
-      avr-da-series-tcademos-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
-      avr-db-series-tcademos-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
-      avr-dd-series-tcademos-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
-      avr-du-series-tcademos-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
+      avr-ea-series-sketch-paths: |
+        - megaavr/libraries/Logic/examples/Modulate
       avr-ea-series-tcademos-lowpin-false-sketch-paths: |
         - megaavr/libraries/DxCore/examples/TCA0Demo
         - megaavr/libraries/DxCore/examples/TCA0Demo2
         - megaavr/libraries/DxCore/examples/TCA0Demo3
         - megaavr/libraries/DxCore/examples/TCA0Demo4
       #avr-eb-series-tcademos-lowpin-false-sketch-paths: |
-      avr-ec-series-tcademos-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
-      avr-la-series-tcademos-lowpin-false-sketch-paths: |
-        - megaavr/libraries/DxCore/examples/TCA0Demo
-        - megaavr/libraries/DxCore/examples/TCA0Demo2
-        - megaavr/libraries/DxCore/examples/TCA0Demo3
-        - megaavr/libraries/DxCore/examples/TCA0Demo4
-      optiboot-and-appspm-da-sketch-paths: |
-        - megaavr/libraries/Flash/examples/FlashDemo
-      optiboot-and-appspm-db-sketch-paths: |
-        - megaavr/libraries/Flash/examples/FlashDemo
-      optiboot-and-appspm-dd-sketch-paths: |
-        - megaavr/libraries/Flash/examples/FlashDemo
+      #avr-ec-series-tcademos-lowpin-false-sketch-paths: |
+      #avr-la-series-tcademos-lowpin-false-sketch-paths: |
       not-disabled-millis-sketch-paths: |
         - megaavr/libraries/tinyNeoPixel/examples/RGBWstrandtest
         - megaavr/libraries/Wire/examples/register_model

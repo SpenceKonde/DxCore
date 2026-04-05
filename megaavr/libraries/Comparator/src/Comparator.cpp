@@ -70,25 +70,50 @@ AltOUT |  PIN_PC6* |  PIN_PC6* |  PIN_PC6* |   n/a    | PIN_PC6* | PIN_PC6* |   
   #else
     #define PORTDPIN2 AC_NULL_REG
   #endif
+  #if _AVR_PINCOUNT > 20
+    #define PORTDPIN3 PORTD.PIN3CTRL
+  #else
+    #define PORTDPIN3 AC_NULL_REG
+  #endif
   #if defined(AC0_AC_vect)
-    AnalogComparator    Comparator0(0, AC0, PORTDPIN2,      /* No in_p1 or in_p2          */ PORTD.PIN6CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN3CTRL),   PORTD.PIN3CTRL,                 PORTD.PIN7CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN2CTRL));
+    AnalogComparator     Comparator0(0, AC0, PORTDPIN2,      /* No in_p1 or in_p2          */ PORTD.PIN6CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN3CTRL),       PORTDPIN3,                 PORTD.PIN7CTRL, (IS_MVIO_ENABLED() ? AC_NULL_REG : PORTC.PIN2CTRL));
   #endif
 #elif defined(ANALOG_COMP_PINS_EA)
   /* EA:2 ACs: P0, P1, P2, P3, P4, N0, N1, N2, N3 */
   #if defined(AC0_AC_vect)
     #if defined(PORTE)
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+      AnalogComparator   Comparator0(0, AC0, PORTD.PIN2CTRL, PORTE.PIN0CTRL, PORTE.PIN2CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
     #else
-      AnalogComparator  Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+      AnalogComparator   Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
     #endif
   #endif
   #if defined(AC1_AC_vect)
-    AnalogComparator    Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    AnalogComparator     Comparator1(1, AC1, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,/* EA-series has no MVIO */            PORTD.PIN5CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+  #endif
+#elif defined(ANALOG_COMP_PINS_DU)
+      //P0 = PD2 P1, P2 null, P3 = PD6 P4 = PC3, N0 = PD3 N1 = PD0 N2 =PD7
+  #if _AVR_PINCOUNT > 20
+    AnalogComparator     Comparator0(0, AC0, PORTD.PIN2CTRL,   /* No in_p1 or in_p2     */ PORTD.PIN6CTRL, PORTC.PIN3CTRL,                                       PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL);
+  #else
+    AnalogComparator     Comparator0(0, AC0, AC_NULL_REG,      /* No in_p1 or in_p2     */ PORTD.PIN6CTRL, PORTC.PIN3CTRL,                                          AC_NULL_REG,    AC_NULL_REG, PORTD.PIN7CTRL);
+  #endif
+#elif defined(ANALOG_COMP_PINS_EB)
+  //P0,P1, P2, P3 P4 P5 P6 N0 N1 N2 N3
+  #if _AVR_PINCOUNT > 20
+    AnalogComparator   Comparator0(0, AC0, PORTD.PIN2CTRL, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN5CTRL,       PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    AnalogComparator   Comparator1(1, AC0, PORTD.PIN2CTRL, PORTD.PIN3CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTA.PIN6CTRL, PORTA.PIN7CTRL,       PORTD.PIN3CTRL, PORTD.PIN0CTRL, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+  #else
+    AnalogComparator   Comparator0(0, AC0, AC_NULL_REG,    AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL,          AC_NULL_REG,    AC_NULL_REG, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    #if _AVR_PINCOUNT > 14
+      AnalogComparator Comparator1(1, AC1, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL, PORTA.PIN6CTRL, PORTA.PIN7CTRL,          AC_NULL_REG,    AC_NULL_REG, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    #else
+      AnalogComparator Comparator1(1, AC1, AC_NULL_REG,    AC_NULL_REG,    PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTC.PIN3CTRL, AC_NULL_REG,    AC_NULL_REG,             AC_NULL_REG,    AC_NULL_REG, PORTD.PIN7CTRL, PORTC.PIN2CTRL);
+    #endif
   #endif
 #elif defined(ANALOG_COMP_PINS_MEGA)
   /* mega0:1 AC P0, P1, P2, P3, N0, N1, N2*/
   #if defined(AC0_AC_vect)
-    AnalogComparator    Comparator0(0, AC0, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN1CTRL,/* megaAVR 0-series has no in_p4 */                    PORTD.PIN3CTRL, PORTD.PIN5CTRL, PORTD.PIN7CTRL);
+    AnalogComparator     Comparator0(0, AC0, PORTD.PIN2CTRL, PORTD.PIN4CTRL, PORTD.PIN6CTRL, PORTD.PIN1CTRL,/* megaAVR 0-series has no in_p4 */                    PORTD.PIN3CTRL, PORTD.PIN5CTRL, PORTD.PIN7CTRL);
   #endif
 /* Now for the tinyAVR parts
 |  PIN  |  8-pin  |0/1-series AC0|2-series AC0|1+series AC0|1+series AC1|1+series AC2|
@@ -212,6 +237,54 @@ AnalogComparator::AnalogComparator(
                                      IN1_N(in1_n),
                                      IN2_N(in2_n),
                                      IN3_N(in3_n) { }
+#elif defined(ANALOG_COMP_PINS_EB) /*11 inputs P0, P1, P2, P3, P4, P5, P6, N0, N1, N2, N3 */
+AnalogComparator::AnalogComparator(
+                                   const uint8_t comp_number,
+                                   AC_t& ac,
+                                   register8_t& in0_p,
+                                   register8_t& in1_p,
+                                   register8_t& in2_p,
+                                   register8_t& in3_p,
+                                   register8_t& in4_p,
+                                   register8_t& in5_p,
+                                   register8_t& in6_p,
+                                   register8_t& in0_n,
+                                   register8_t& in1_n,
+                                   register8_t& in2_n,
+                                   register8_t& in3_n
+                                   )
+                                   : comparator_number(comp_number),
+                                     AC(ac),
+                                     IN0_P(in0_p),
+                                     IN1_P(in1_p),
+                                     IN2_P(in2_p),
+                                     IN3_P(in3_p),
+                                     IN4_P(in4_p),
+                                     IN3_P(in5_p),
+                                     IN4_P(in6_p),
+                                     IN0_N(in0_n),
+                                     IN1_N(in1_n),
+                                     IN2_N(in2_n),
+                                     IN3_N(in3_n) { }
+#elif defined(ANALOG_COMP_PINS_DU) /*6 inputs P0, P3, P4, N0, N1, N2,*/
+AnalogComparator::AnalogComparator(
+                                   const uint8_t comp_number,
+                                   AC_t& ac,
+                                   register8_t& in0_p,
+                                   register8_t& in3_p,
+                                   register8_t& in4_p,
+                                   register8_t& in0_n,
+                                   register8_t& in1_n,
+                                   register8_t& in2_n
+                                   )
+                                   : comparator_number(comp_number),
+                                     AC(ac),
+                                     IN0_P(in0_p),
+                                     IN3_P(in3_p),
+                                     IN4_P(in4_p),
+                                     IN0_N(in0_n),
+                                     IN1_N(in1_n),
+                                     IN2_N(in2_n) { }
 /* Start of tinyAVR */
 #elif defined(ANALOG_COMP_PINS_TINY_FEW)
 AnalogComparator::AnalogComparator(
@@ -499,6 +572,48 @@ void AnalogComparator::init() {
         IN3_N = PORT_ISC_INPUT_DISABLE_gc;
       }
     #endif
+    #elif defined(ANALOG_COMP_PINS_EB)
+      if        (input_p == comparator::in_p::in0) {
+        IN0_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in1) {
+        IN1_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in2) {
+        IN2_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in3) {
+        IN3_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in4) {
+        IN4_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in5) {
+        IN5_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in6) {
+        IN6_P = PORT_ISC_INPUT_DISABLE_gc;
+      }
+      if        (input_n == comparator::in_n::in0) {
+        IN0_N = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_n == comparator::in_n::in1) {
+        IN1_N = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_n == comparator::in_n::in2) {
+        IN2_N = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_n == comparator::in_n::in3) {
+        IN3_N = PORT_ISC_INPUT_DISABLE_gc;
+      }
+    #endif
+    #elif defined(ANALOG_COMP_PINS_DU)
+      if        (input_p == comparator::in_p::in0) {
+        IN0_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in3) {
+        IN3_P = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_p == comparator::in_p::in4) {
+        IN4_P = PORT_ISC_INPUT_DISABLE_gc;
+      }
+      if        (input_n == comparator::in_n::in0) {
+        IN0_N = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_n == comparator::in_n::in1) {
+        IN1_N = PORT_ISC_INPUT_DISABLE_gc;
+      } else if (input_n == comparator::in_n::in2) {
+        IN2_N = PORT_ISC_INPUT_DISABLE_gc;
+      }
+    #endif
   #else /* tinyAVR */
     if          (input_p == comparator::in_p::in0) {
       IN0_P   = PORT_ISC_INPUT_DISABLE_gc;
@@ -620,6 +735,46 @@ void AnalogComparator::stop(bool restorepins) {
           IN2_N = 0;
         } else if (input_n == comparator::in_n::in3) {
           IN3_N = 0;
+        }
+      #elif defined(ANALOG_COMP_PINS_EB)
+        if        (input_p == comparator::in_p::in0) {
+          IN0_P = 0;
+        } else if (input_p == comparator::in_p::in1) {
+          IN1_P = 0;
+        } else if (input_p == comparator::in_p::in2) {
+          IN2_P = 0;
+        } else if (input_p == comparator::in_p::in3) {
+          IN3_P = 0;
+        } else if (input_p == comparator::in_p::in4) {
+          IN4_P = 0;
+        } else if (input_p == comparator::in_p::in5) {
+          IN5_P = 0;
+        } else if (input_p == comparator::in_p::in6) {
+          IN6_P = 0;
+        }
+        if        (input_n == comparator::in_n::in0) {
+          IN0_N = 0;
+        } else if (input_n == comparator::in_n::in1) {
+          IN1_N = 0;
+        } else if (input_n == comparator::in_n::in2) {
+          IN2_N = 0;
+        } else if (input_n == comparator::in_n::in3) {
+          IN3_N = 0;
+        }
+      #elif defined(ANALOG_COMP_PINS_DU)
+        if        (input_p == comparator::in_p::in0) {
+          IN0_P = 0;
+        } else if (input_p == comparator::in_p::in3) {
+          IN3_P = 0;
+        } else if (input_p == comparator::in_p::in4) {
+          IN4_P = 0;
+        }
+        if        (input_n == comparator::in_n::in0) {
+          IN0_N = 0;
+        } else if (input_n == comparator::in_n::in1) {
+          IN1_N = 0;
+        } else if (input_n == comparator::in_n::in2) {
+          IN2_N = 0;
         }
       #endif
     #else /* tinyAVR */

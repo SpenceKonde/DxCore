@@ -746,7 +746,7 @@ namespace event {
         off               = 0x00,
         updi_synch        = 0x01,
 #if defined(MVIO)
-        mvio_ok         = 0x05,
+        mvio_ok           = 0x05,
 #endif
         rtc_ovf           = 0x06,
         rtc_cmp           = 0x07,
@@ -788,22 +788,30 @@ namespace event {
         ac1_out           = 0x21,
 #endif
 #if defined(AC2) // An Ex with three AC would not surprise me
-        ac2_out           = 0x21,
+        ac2_out           = 0x22,
 #endif
 #if defined(AC3) // An Ex with fourAC would not surprise me
-        ac3_out           = 0x21,
+        ac3_out           = 0x23,
 #endif
         adc0_ready        = 0x24,
         adc0_sample       = 0x25,
         adc0_window       = 0x26,
+#if defined(ADC1)
+        adc1_ready        = 0x27,
+        adc1_sample       = 0x28,
+        adc1_window       = 0x29,
+#endif
 #if defined(ZCD0) // An Ex with ZCD would not surprise me.
-        zcd1_out          = 0x32,
+        zcd1_out          = 0x30,
 #endif
 #if defined(ZCD1)
-        zcd1_out          = 0x32,
+        zcd1_out          = 0x31,
 #endif
 #if defined(ZCD2)
         zcd2_out          = 0x32,
+#endif
+#if defined(ZCD3)
+        zcd3_out          = 0x33,
 #endif
 #if defined(OPAMP0) // Shouldn't there be a later Ex-series with opamps? Would synergize great with the improved ADC
         opamp0_ready      = 0x34,

@@ -719,11 +719,12 @@ void loop() {
   Serial.println("Clock dividing: One logic block clocked from another");
   demo8();
   delay(20000);
+  #if defined(TCA0)
   Serial.println("Divided clocks: TCA0 - n");
   demo9a();
   delay(20000);
   TCA0.SINGLE.CTRLA &= ~TCA_SINGLE_ENABLE_bm;
-
+  #endif
   #if defined(TCB_CLKSEL_2_bm) && !defined(DX_14_PINS) // Only parts with the third CLKSEL bit have event clock
   Serial.println("Divided clocks: TCB gets independent prescaler! Dx/2-series only");
   demo9b();
