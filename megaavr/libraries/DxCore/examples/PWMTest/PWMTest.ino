@@ -164,7 +164,7 @@ uint8_t SkipCount = 0;
 uint8_t tcactrla = 0;
 
 uint8_t CurrentPortmux = 255;
-uint8_t CurrentTimer = tca0; // TCA0
+uint8_t CurrentTimer = _tca0; // TCA0
 static uint8_t CurrentChannel = 0;
 uint8_t CurrentPin = NOT_A_PIN;
 uint8_t CurrentTimerIndex = 0;
@@ -424,6 +424,7 @@ void loop() {
   switch (timertype) {
     case 0: {
         //TCA
+      #if defined(TCA0)
         if (CurrentChannel >= 5) {
           MYSERIAL.println();
           CurrentChannel = 0;
@@ -446,6 +447,7 @@ void loop() {
           CurrentChannel++;
         }
         break;
+      #endif
       }
     case 1: {
         //TCB
