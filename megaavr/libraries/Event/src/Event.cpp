@@ -1270,7 +1270,7 @@ event::user::user_t Event::user_from_peripheral(CCL_t& logic, uint8_t user_type)
   return (event::user::user_t) retval;
 }
 
-
+#if defined(TCA0)
 event::gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_type) {
   uint8_t retval = -1;
   if (event_type < 5) {
@@ -1291,7 +1291,6 @@ event::gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_t
   }
   return (event::gen::generator_t) retval;
 }
-
 event::user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type) {
   uint8_t user = -1;
   #if !(defined(DXCORE) || defined(TINY_2_SERIES))
@@ -1325,6 +1324,7 @@ event::user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type)
   #endif
   return (event::user::user_t) user;
 }
+#endif
 
 event::user::user_t Event::user_from_peripheral(USART_t& usart) {
     if (&usart == &USART0) {
