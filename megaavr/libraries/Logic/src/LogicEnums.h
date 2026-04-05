@@ -179,9 +179,9 @@ namespace logic {
         tce0            = 0x09,
         tcb             = 0x0A,
         tcf             = 0x0B,
-        tcf0            = 0x0B
+        tcf0            = 0x0B,
         wex             = 0x0C,
-        wex0            = 0x0C
+        wex0            = 0x0C,
         input_pullup    = 0x15,
         input           = 0x25,
         input_no_pullup = 0x25,
