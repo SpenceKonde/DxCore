@@ -571,7 +571,6 @@ void AnalogComparator::init() {
       } else if (input_n == comparator::in_n::in3) {
         IN3_N = PORT_ISC_INPUT_DISABLE_gc;
       }
-    #endif
     #elif defined(ANALOG_COMP_PINS_EB)
       if        (input_p == comparator::in_p::in0) {
         IN0_P = PORT_ISC_INPUT_DISABLE_gc;
@@ -597,7 +596,6 @@ void AnalogComparator::init() {
       } else if (input_n == comparator::in_n::in3) {
         IN3_N = PORT_ISC_INPUT_DISABLE_gc;
       }
-    #endif
     #elif defined(ANALOG_COMP_PINS_DU)
       if        (input_p == comparator::in_p::in0) {
         IN0_P = PORT_ISC_INPUT_DISABLE_gc;
