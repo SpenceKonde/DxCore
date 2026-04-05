@@ -379,7 +379,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
     NOT_ON_TIMER, // 26 PF6 RESET
     NOT_ON_TIMER  // 27 PF7 UPDI
 
-  }
+  };
 
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for

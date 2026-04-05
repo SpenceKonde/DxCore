@@ -399,7 +399,7 @@ static const uint8_t A31 = PIN_A31;
     NOT_ON_TIMER, // 26 PF6 RESET
     NOT_ON_TIMER  // 27 PF7 UPDI
 
-  }
+  };
 #endif
   // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
   #if ((CLOCK_SOURCE & 0x03) == 0)
