@@ -388,7 +388,7 @@ void demo8() {
 
   Logic::start();                           // Start the CCL hardware
 }
-
+#if defined(TCA0)
 void demo9a() {
   /* Using prescaled clocks 1: TCA0 (if you want to try this and don't have a Dx or tiny 1-series to play with)
    *
@@ -464,7 +464,7 @@ void demo9a() {
   TCA0.SINGLE.CTRLA |= TCA_SINGLE_CLKSEL_DIV256_gc | TCA_SINGLE_ENABLE_bm;
 
 }
-
+#endif
 #if !defined(DX_14_PINS)
 /* These examples are not written to be compatible with the highly constrained pincount of a DD/DU 14 part. */
 
