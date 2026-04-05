@@ -319,6 +319,30 @@ jobs:
             pincount: 28
             clocksource: crystal
             flash-class: 16
+          - device-family: du
+            pincount: 14
+            clocksource: crystal
+            flash-class: 16
+          - device-family: du
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: du
+            pincount: 14
+            clocksource: extclock
+            flash-class: 32
+          - device-family: du
+            pincount: 20
+            clocksource: crystal
+            flash-class: 32
+          - device-family: du
+            pincount: 32
+            clocksource: extclock
+            flash-class: 64
+          - device-family: du
+            pincount: 28
+            clocksource: crystal
+            flash-class: 64
           - device-family: dd
             pincount: 32
             clocksource: internal

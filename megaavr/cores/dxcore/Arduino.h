@@ -738,7 +738,7 @@ See Ref_Analog.md for more information of the representations of "analog pins". 
 #define CHANNEL1_UNCHANGED    (0x41)
 
 #ifdef __cplusplus
-  extern "C"{
+  extern "C" {
 #endif
 
 
