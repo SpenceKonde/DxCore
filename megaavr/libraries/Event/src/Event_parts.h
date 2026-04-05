@@ -1367,12 +1367,12 @@ namespace user{
         tca0              = 0x0E,
         tca0_cnt_a        = 0x0E,
         tca0_cnt_b        = 0x0F,
-        tcb0              = 0x11,
-        tcb0_capt         = 0x11,
-        tcb0_cnt          = 0x12,
-        tcb1              = 0x13,
-        tcb1_capt         = 0x13,
-        tcb1_cnt          = 0x14,
+        tcb0              = 0x10, //Datasheet Clarification
+        tcb0_capt         = 0x10,
+        tcb0_cnt          = 0x11,
+        tcb1              = 0x12,
+        tcb1_capt         = 0x12,
+        tcb1_cnt          = 0x13,
       };
     };
 
