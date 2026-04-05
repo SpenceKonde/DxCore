@@ -3,10 +3,10 @@
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
 #  ##     ## ##   ##   ##      ###  ####  ####     ##      ##      ###   #
-#  ##     ##  ## ##    ##     #   # #   # #       ###     #       #  ##  #
-#  ##     ##   ###     ##     #   # ####  ###      ##     ###     # # #  #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ## #  # ## ##  #  #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ##  ##  ##  ###   #
+#  ##     ##  ## ##    ##     #   # #   # #       ###     #       #  #   #
+#  ##     ##   ###     ##     #   # ####  ###      ##     ###       #    #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ## #  # ##  #     #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ##  ##  ## ####   #
 #________________________________________________________________________#
 #                                                                        #
 #  Copyright Spence Konde and other contributors 2020-2021               #
@@ -1777,6 +1777,9 @@ avrdu.menu.clock.16crystal.build.clocksource=1
 avrdu.menu.clock.12crystal=12 MHz crystal
 avrdu.menu.clock.12crystal.build.speed=12
 avrdu.menu.clock.12crystal.build.clocksource=1
+avrdu.menu.clock.16extclock=16 MHz External Clock
+avrdu.menu.clock.16extclock.build.speed=16
+avrdu.menu.clock.16extclock.build.clocksource=2
 avrdu.menu.clock.20extclock=20 MHz External Clock
 avrdu.menu.clock.20extclock.build.speed=20
 avrdu.menu.clock.20extclock.build.clocksource=2
