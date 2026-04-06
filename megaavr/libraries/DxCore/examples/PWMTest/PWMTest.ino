@@ -173,7 +173,9 @@ void setup() {
   #if defined(MYSERIALSWAP)
   MYSERIAL.swap(MYSERIALSWAP);
   #endif
-  PORTMUX.USARTROUTEA = 1;
+  #if defined(TCA0)
+    PORTMUX.USARTROUTEA = 1;
+  #endif
   VPORTA.DIR |= 0x10;
   MYSERIAL.begin(115200);
   delay(100);

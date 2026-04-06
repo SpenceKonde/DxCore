@@ -117,15 +117,19 @@ namespace comparator {
       enum inputP_t : uint8_t {
       in0    = 0x00,
       pd2    = 0x00,
-      #ifndef __AVR_DD__
+      #if !defined(__AVR_DD__) && !defined(__AVR_DU__)
         in1    = 0x01,
         in2    = 0x02,
       #endif
       in3    = 0x03,
       pd6    = 0x03,
-      #if defined(__AVR_DD__) || defined(__AVR_EA__)
+      #if defined(__AVR_DD__) || defined(__AVR_EA__) || defined(__AVR_DU__) || defined(__AVR_EB__)
         in4    = 0x04,
         pc3    = 0x04,
+      #endif
+      #if defined(__AVR_EB__)
+        in5    = 0x05,
+        in6     = 0x06,
       #endif
       };
     };

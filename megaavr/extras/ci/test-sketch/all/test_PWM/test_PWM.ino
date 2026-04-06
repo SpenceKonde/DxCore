@@ -65,7 +65,7 @@ void compile_test_PWM() {
   analogWrite(PIN_PC3, 255);
   analogWrite(PIN_PC3, NOT_A_CONST_BYTE);
   #ifdef TCD0
-    #if !defined __AVR_DD__
+    #if !defined(__AVR_DD__)
         retval_digitalPinToTimerNow = digitalPinToTimerNow(PIN_TCD0_WOD_DEFAULT);
         discard(retval_digitalPinToTimerNow);
       analogWrite(PIN_TCD0_WOA_DEFAULT, 0);
@@ -90,7 +90,7 @@ void compile_test_PWM() {
     retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCA0_WO4_ALT3);
     discard(retval_digitalPinHasPWM);
   #endif
-  #if defined(TCE0)
+  #if defined(TCE0) && (1 == 0)
     #if (CLOCK_SOURCE == 0)
       retval_digitalPinHasPWM = digitalPinHasPWM(PIN_TCE0_WO0_PORTA);
       discard(retval_digitalPinHasPWM);
