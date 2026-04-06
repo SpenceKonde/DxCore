@@ -114,7 +114,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCB1_WO_INIT                  (NOT_A_PIN)
 
 
-#define digitalPinHasPWM(p)               (((p) >= PIN_PC1 && (p) <= PIN_PC3) || (p) == PIN_PD4 || (p) == PIN_PD5)
+#define digitalPinHasPWM(p)               ((p) == PIN_PA0 || (p) == PIN_PA1) // only the mapping-selectable TCA is available for PWM on the DU - and the options are lousy.
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
