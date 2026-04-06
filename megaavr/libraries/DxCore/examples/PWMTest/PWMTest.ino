@@ -294,29 +294,32 @@ void loop() {
   switch (timertype) {
     case 0: {
         //TCA
-        if (timernum == 0) {
-          CurrentPortmux = ((PORTMUX.TCAROUTEA & 0x07));
-        } else {
-          CurrentPortmux = ((PORTMUX.TCAROUTEA >> 3));
-        }
-        MYSERIAL.print("Testing TCA");
-        MYSERIAL.print(timernum);
-        MYSERIAL.print(" mux number ");
-        MYSERIAL.print(CurrentPortmux);
-        MYSERIAL.print(" channel ");
-        MYSERIAL.println(CurrentChannel);
-        if (timernum == 0) {
-          currentpin = TCA0pinsets[6 * CurrentPortmux + CurrentChannel];
-        }
-        #if defined(TCA1)
-        else {
-          currentpin = TCA1pinsets[6 * CurrentPortmux + CurrentChannel];
-        }
+        #if defined(TCA0)
+          if (timernum == 0) {
+            CurrentPortmux = ((PORTMUX.TCAROUTEA & 0x07));
+          } else {
+            CurrentPortmux = ((PORTMUX.TCAROUTEA >> 3));
+          }
+          MYSERIAL.print("Testing TCA");
+          MYSERIAL.print(timernum);
+          MYSERIAL.print(" mux number ");
+          MYSERIAL.print(CurrentPortmux);
+          MYSERIAL.print(" channel ");
+          MYSERIAL.println(CurrentChannel);
+          if (timernum == 0) {
+            currentpin = TCA0pinsets[6 * CurrentPortmux + CurrentChannel];
+          }
+          #if defined(TCA1)
+          else {
+            currentpin = TCA1pinsets[6 * CurrentPortmux + CurrentChannel];
+          }
+          #endif
+          MYSERIAL.print("Pin is ");
+          MYSERIAL.println(currentpin);
+          break;
         #endif
-        MYSERIAL.print("Pin is ");
-        MYSERIAL.println(currentpin);
-        break;
       }
+
     case 1: {
         //TCB
         if (MILLIS_TIMER & 0x20) {
