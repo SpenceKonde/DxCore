@@ -71,7 +71,7 @@
 #endif
 
 /* End of parameters/options section */
-#include "FullSzeAVR_Timer.h"
+#include "FullSizeAVR_Timer.h"
 #include <EEPROM.h>
 
 #if defined(TCA0)
@@ -144,27 +144,14 @@ void printTCE0Status() {
   MYSERIAL.println();
 }
 #endif
-#if defined(TCF0)
-void printTCE0Status() {
-  uint16_t test = (uint16_t)&TCF0;
-  volatile uint8_t *bp;
-  bp = (volatile uint8_t *)test;
-  for (uint8_t i = 4; i; i--) {
-    if (i != 4) {
-      MYSERIAL.println();
-    }
-    bp = MYSERIAL.printHex(bp, (uint8_t) 16, ':');
-  }
-  MYSERIAL.println();
-}
-#endif
+
 uint8_t SuccessCount = 0;
 uint8_t AttemptCount = 0;
 uint8_t SkipCount = 0;
 uint8_t tcactrla = 0;
 
 uint8_t CurrentPortmux = 255;
-uint8_t CurrentTimer = tca0; // TCA0
+uint8_t CurrentTimer = _tca0; // TCA0
 static uint8_t CurrentChannel = 0;
 uint8_t CurrentPin = NOT_A_PIN;
 uint8_t CurrentTimerIndex = 0;
@@ -186,13 +173,16 @@ void setup() {
   #if defined(MYSERIALSWAP)
   MYSERIAL.swap(MYSERIALSWAP);
   #endif
-  PORTMUX.USARTROUTEA = 1;
+  #if defined(TCA0)
+    PORTMUX.USARTROUTEA = 1;
+  #endif
   VPORTA.DIR |= 0x10;
   MYSERIAL.begin(115200);
   delay(100);
   MYSERIAL.println("PWM selftest");
   CurrentTimer = MyTimers[0];
   delay(1000);
+  #if defined(TCA0)
   for (byte x = 0; x < 7; x++) {
     for (byte y = 0; y < 6; y++) {
       MYSERIAL.print(TCA0pinsets[6 * x + y]);
@@ -201,6 +191,7 @@ void setup() {
     MYSERIAL.println();
   }
   MYSERIAL.println();
+  #endif
   #ifdef TCA1
   for (byte x = 0; x < 6; x++) {
     for (byte y = 0; y < 6; y++) {
@@ -221,10 +212,11 @@ void setup() {
   }
   MYSERIAL.println();
   #endif
+  /*
   #ifdef TCE0
   for (byte x = 0; x < 5; x++) {
     for (byte y = 0; y < 8; y++) {
-      MYSERIAL.print(TCDEpinsets[8 * x + y]);
+      MYSERIAL.print(TCE0pinsets[8 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
@@ -234,13 +226,16 @@ void setup() {
   #ifdef TCF0
   for (byte x = 0; x < 8; x++) {
     for (byte y = 0; y < 2; y++) {
-      MYSERIAL.print(TCDEpinsets[2 * x + y]);
+      MYSERIAL.print(TCF0pinsets[2 * x + y]);
       MYSERIAL.print(", ");
     }
     MYSERIAL.println();
   }
   MYSERIAL.println();
   #endif
+
+
+  */
   analogWrite(PIN_PD6, 128);
   delay(100);
   uint8_t dacpassed = 0;
@@ -299,29 +294,32 @@ void loop() {
   switch (timertype) {
     case 0: {
         //TCA
-        if (timernum == 0) {
-          CurrentPortmux = ((PORTMUX.TCAROUTEA & 0x07));
-        } else {
-          CurrentPortmux = ((PORTMUX.TCAROUTEA >> 3));
-        }
-        MYSERIAL.print("Testing TCA");
-        MYSERIAL.print(timernum);
-        MYSERIAL.print(" mux number ");
-        MYSERIAL.print(CurrentPortmux);
-        MYSERIAL.print(" channel ");
-        MYSERIAL.println(CurrentChannel);
-        if (timernum == 0) {
-          currentpin = TCA0pinsets[6 * CurrentPortmux + CurrentChannel];
-        }
-        #if defined(TCA1)
-        else {
-          currentpin = TCA1pinsets[6 * CurrentPortmux + CurrentChannel];
-        }
+        #if defined(TCA0)
+          if (timernum == 0) {
+            CurrentPortmux = ((PORTMUX.TCAROUTEA & 0x07));
+          } else {
+            CurrentPortmux = ((PORTMUX.TCAROUTEA >> 3));
+          }
+          MYSERIAL.print("Testing TCA");
+          MYSERIAL.print(timernum);
+          MYSERIAL.print(" mux number ");
+          MYSERIAL.print(CurrentPortmux);
+          MYSERIAL.print(" channel ");
+          MYSERIAL.println(CurrentChannel);
+          if (timernum == 0) {
+            currentpin = TCA0pinsets[6 * CurrentPortmux + CurrentChannel];
+          }
+          #if defined(TCA1)
+          else {
+            currentpin = TCA1pinsets[6 * CurrentPortmux + CurrentChannel];
+          }
+          #endif
+          MYSERIAL.print("Pin is ");
+          MYSERIAL.println(currentpin);
+          break;
         #endif
-        MYSERIAL.print("Pin is ");
-        MYSERIAL.println(currentpin);
-        break;
       }
+
     case 1: {
         //TCB
         if (MILLIS_TIMER & 0x20) {
@@ -336,7 +334,11 @@ void loop() {
         MYSERIAL.println();
         MYSERIAL.print("Testing TCB");
         MYSERIAL.print(timernum);
-        CurrentPortmux = (PORTMUX.TCBROUTEA & (1 << timernum)) ? 1 : 0;
+        #if defined(PORTMUX_TCBROUTEA)
+          CurrentPortmux = (PORTMUX.TCBROUTEA & (1 << timernum)) ? 1 : 0;
+        #else
+          CurrentPortmux = 0;
+        #endif
         currentpin = TCBpinsets[(timernum << 1) + CurrentPortmux];
         if (CurrentPortmux) {
           MYSERIAL.print(" AltPin ");
@@ -418,6 +420,7 @@ void loop() {
   switch (timertype) {
     case 0: {
         //TCA
+      #if defined(TCA0)
         if (CurrentChannel >= 5) {
           MYSERIAL.println();
           CurrentChannel = 0;
@@ -440,6 +443,7 @@ void loop() {
           CurrentChannel++;
         }
         break;
+      #endif
       }
     case 1: {
         //TCB

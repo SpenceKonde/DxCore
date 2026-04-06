@@ -15,7 +15,7 @@ int potpin = PIN_PD4;  // analog pin used to connect the potentiometer PIN_PD4 a
 int val;    // variable to read the value from the analog pin
 
 void setup() {
-  myservo.attach(PIN_PC1);  // attaches the servo on pin PC1, which exists on all Dx-series
+  myservo.attach(PIN_PC3);  // attaches the servo on pin PC3, which exists on all Dx-series
 }
 
 void loop() {

@@ -61,11 +61,15 @@ class Event {
     void start(bool state = true);
     void stop();
     /* event_types: They start from 0x00 for inputs. Outputs start at 0x40 */
-    static event::gen::generator_t gen_from_peripheral(TCB_t &timer, uint8_t event_type  = 0);
-    static event::user::user_t    user_from_peripheral(TCB_t &timer, uint8_t user_type   = 0);
+    #if defined(TCB0)
+      static event::gen::generator_t gen_from_peripheral(TCB_t &timer, uint8_t event_type  = 0);
+      static event::user::user_t    user_from_peripheral(TCB_t &timer, uint8_t user_type   = 0);
+    #endif
     static event::user::user_t    user_from_peripheral(USART_t &usart);
-    static event::gen::generator_t gen_from_peripheral(TCA_t &timer, uint8_t event_type  = 0);
-    static event::user::user_t    user_from_peripheral(TCA_t &timer, uint8_t user_type   = 0);
+    #if defined(TCA0)
+      static event::gen::generator_t gen_from_peripheral(TCA_t &timer, uint8_t event_type  = 0);
+      static event::user::user_t    user_from_peripheral(TCA_t &timer, uint8_t user_type   = 0);
+    #endif
     static event::gen::generator_t gen_from_peripheral(CCL_t &logic, uint8_t event_type  = 0);
     static event::user::user_t    user_from_peripheral(CCL_t &logic, uint8_t user_type   = 0);
     static event::gen::generator_t gen_from_peripheral(AC_t &comp);

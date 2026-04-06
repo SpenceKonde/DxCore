@@ -157,10 +157,10 @@ void TWI0_ClearPins() {
 
 
 bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
-  #if (defined(PIN_WIRE_SDA_PINSWAP_1) || defined(PIN_WIRE_SDA_PINSWAP_2) || defined(PIN_WIRE_SDA_PINSWAP_3))
+  #if ( (defined(PIN_WIRE_SDA_PINSWAP_1) && PIN_WIRE_SDA_PINSWAP_1 != NOT_A_PIN) || (defined(PIN_WIRE_SDA_PINSWAP_2) && PIN_WIRE_SDA_PINSWAP_2 != NOT_A_PIN) || (defined(PIN_WIRE_SDA_PINSWAP_3) && PIN_WIRE_SDA_PINSWAP_3 != NOT_A_PIN))
 // --- Attiny series ---
     #if defined(PORTMUX_CTRLB)
-      #if defined(PIN_WIRE_SDA_PINSWAP_1)
+      #if (defined(PIN_WIRE_SDA_PINSWAP_1) && PIN_WIRE_SDA_PINSWAP_1 != NOT_A_PIN) && (defined(PIN_WIRE_SCL_PINSWAP_2) && PIN_WIRE_SCL_PINSWAP_2 != NOT_A_PIN)
         if (sda_pin == PIN_WIRE_SDA_PINSWAP_1 && scl_pin == PIN_WIRE_SCL_PINSWAP_1) {
           // Use pin swap
           PORTMUX.CTRLB |= PORTMUX_TWI0_bm;
@@ -180,23 +180,24 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
 // --- mega0 series ---
     #elif defined(PORTMUX_TWISPIROUTEA)
         uint8_t twimux = PORTMUX.TWISPIROUTEA & ~PORTMUX_TWI0_gm;
-        #if defined(PIN_WIRE_SDA_PINSWAP_2)
+        #if (defined(PIN_WIRE_SDA_PINSWAP_2) && PIN_WIRE_SDA_PINSWAP_2 != NOT_A_PIN) && (defined(PIN_WIRE_SCL_PINSWAP_2) && PIN_WIRE_SCL_PINSWAP_2 != NOT_A_PIN)
           if (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) {
             twimux |= PORTMUX_TWI0_ALT2_gc;
             PORTMUX.TWISPIROUTEA = twimux;
             return true;
-          #endif
-          /* Can't happen */
-        #if defined(PIN_WIRE_SDA_PINSWAP_1)
+          }
+        #endif
+        /* Can't happen */
+        #if (defined(PIN_WIRE_SDA_PINSWAP_1) && PIN_WIRE_SDA_PINSWAP_1 != NOT_A_PIN) && (defined(PIN_WIRE_SCL_PINSWAP_1) && PIN_WIRE_SCL_PINSWAP_1 != NOT_A_PIN)
           if (sda_pin == PIN_WIRE_SDA_PINSWAP_1 && scl_pin == PIN_WIRE_SCL_PINSWAP_1) {
             // Use pin swap
             twimux |= PORTMUX_TWI0_ALT1_gc;
             PORTMUX.TWISPIROUTEA = twimux;
             return true;
           }
-          /* end can'thappen */x
+        /* end can'thappen */x
         #endif
-        } else if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
+        else if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
           // Use default configuration
           twimux &= ~PORTMUX_TWI0_gm;
           return true;
@@ -208,13 +209,13 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
 // --- Dx series ---
     #elif defined(PORTMUX_TWIROUTEA)
       uint8_t portmux = (PORTMUX.TWIROUTEA & ~PORTMUX_TWI0_gm);
-      #if      defined(PIN_WIRE_SDA_PINSWAP_3)
+      #if      (defined(PIN_WIRE_SDA_PINSWAP_3) && PIN_WIRE_SDA_PINSWAP_3 != NOT_A_PIN) && (defined(PIN_WIRE_SCL_PINSWAP_3) && PIN_WIRE_SCL_PINSWAP_3 != NOT_A_PIN)
         if (sda_pin == PIN_WIRE_SDA_PINSWAP_3 && scl_pin == PIN_WIRE_SCL_PINSWAP_3) {
           PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT3_gc;
           return true;
         } else
       #endif
-      #if      defined(PIN_WIRE_SDA_PINSWAP_2)
+      #if      (defined(PIN_WIRE_SDA_PINSWAP_2) && PIN_WIRE_SDA_PINSWAP_2 != NOT_A_PIN) && (defined(PIN_WIRE_SCL_PINSWAP_2) && PIN_WIRE_SCL_PINSWAP_2 != NOT_A_PIN)
         #if !defined(ERRATA_TWI0_MUX2)
           if (sda_pin == PIN_WIRE_SDA_PINSWAP_2 && scl_pin == PIN_WIRE_SCL_PINSWAP_2) {
             PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
@@ -224,13 +225,13 @@ bool TWI0_Pins(uint8_t sda_pin, uint8_t scl_pin) {
         #endif
         } else
       #endif
-      #if      defined(PIN_WIRE_SDA_PINSWAP_1)
+      #if      (defined(PIN_WIRE_SDA_PINSWAP_1) && PIN_WIRE_SDA_PINSWAP_1 != NOT_A_PIN) && (defined(PIN_WIRE_SCL_PINSWAP_1) && PIN_WIRE_SCL_PINSWAP_1 != NOT_A_PIN)
         if (sda_pin == PIN_WIRE_SDA_PINSWAP_1 && scl_pin == PIN_WIRE_SCL_PINSWAP_1) {
           PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT1_gc;
           return true;
         } else
       #endif
-      #if      defined(PIN_WIRE_SDA)
+      #if      (defined(PIN_WIRE_SDA) && PIN_WIRE_SDA != NOT_A_PIN) && (defined(PIN_WIRE_SCL) && PIN_WIRE_SCL != NOT_A_PIN)
         if (sda_pin == PIN_WIRE_SDA && scl_pin == PIN_WIRE_SCL) {
           // Use default configuration
           PORTMUX.TWIROUTEA = portmux;
@@ -294,14 +295,14 @@ bool TWI0_swap(uint8_t state) {
     #endif
   #elif defined(PORTMUX_TWIROUTEA) /* AVR Dx-series */
     uint8_t portmux = PORTMUX.TWIROUTEA & (~PORTMUX_TWI0_gm);
-    #if defined(PIN_WIRE_SDA_PINSWAP_3)
+    #if (defined(PIN_WIRE_SDA_PINSWAP_3) && PIN_WIRE_SDA_PINSWAP_3 != NOT_A_PIN)
       if (state == 3) { /* PA0, PA1, PC2, PC3 */
         // Use pin swap
         PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT3_gc;
         return true;
       } else
     #endif
-    #if defined(PIN_WIRE_SDA_PINSWAP_2)
+    #if (defined(PIN_WIRE_SDA_PINSWAP_2) && PIN_WIRE_SDA_PINSWAP_2 != NOT_A_PIN)
       if (state == 2) {
         // Use pin swap
         #if !defined(ERRATA_TWI0_MUX2)
@@ -312,7 +313,7 @@ bool TWI0_swap(uint8_t state) {
         #endif
       } else
     #endif
-    #if defined(PIN_WIRE_SDA_PINSWAP_1)
+    #if (defined(PIN_WIRE_SDA_PINSWAP_1) && PIN_WIRE_SDA_PINSWAP_1 != NOT_A_PIN)
       if (state == 1) {
         // Use pin swap
         PORTMUX.TWIROUTEA = portmux | PORTMUX_TWI0_ALT1_gc;
@@ -333,14 +334,14 @@ bool TWI0_swap(uint8_t state) {
     #endif
   #elif defined(PORTMUX_TWISPIROUTEA) // megaAVR 0-series
     uint8_t portmux = PORTMUX.TWISPIROUTEA & (~PORTMUX_TWI0_gm);
-    #if defined(PIN_WIRE_SDA_PINSWAP_2)
+    #if (defined(PIN_WIRE_SDA_PINSWAP_2) && PIN_WIRE_SDA_PINSWAP_2 != NOT_A_PIN)
       if (state == 2) {
         // Use pin swap
         PORTMUX.TWISPIROUTEA = portmux | PORTMUX_TWI0_ALT2_gc;
         return true;
       } else
     #endif
-    #if defined(PIN_WIRE_SDA_PINSWAP_1)
+    #if (defined(PIN_WIRE_SDA_PINSWAP_1) && PIN_WIRE_SDA_PINSWAP_1 != NOT_A_PIN)
       if (state == 1) {
         // Use pin swap
         PORTMUX.TWISPIROUTEA = portmux | PORTMUX_TWI0_ALT1_gc;
@@ -375,11 +376,15 @@ void TWI0_usePullups() {
     uint8_t portmux = PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm;
     PORT_t *port;
     // PORTA and PORTC are present on all parts with a TWIROUTEA register
-    if(portmux == PORTMUX_TWI0_ALT2_gc) {
-      port = &PORTC;
-    } else {
+    #if defined(__AVR_DU__)
       port = &PORTA;
-    }
+    #else
+      if(portmux == PORTMUX_TWI0_ALT2_gc) {
+        port = &PORTC;
+      } else {
+        port = &PORTA;
+      }
+    #endif
     #if !defined(__AVR_DA__) && !defined(__AVR_DB__) //DD and EA, and presumably later parts, have an extra mux option.
       if (portmux == 3) {
         port->OUTCLR    = 0x03;  // bits 0 and 1
@@ -466,12 +471,15 @@ uint8_t TWI0_checkPinLevel(void) {
   #if defined(PORTMUX_TWIROUTEA)     /* Dx-series */
     uint8_t portmux = (PORTMUX.TWIROUTEA & PORTMUX_TWI0_gm);
     PORT_t *port;
-    if (portmux == PORTMUX_TWI0_ALT2_gc) {
-      port = &PORTC;
-    } else {
+    #if defined(__AVR_DU__)
       port = &PORTA;
-    }
-
+    #else
+      if(portmux == PORTMUX_TWI0_ALT2_gc) {
+        port = &PORTC;
+      } else {
+        port = &PORTA;
+      }
+    #endif
     #if !defined(__AVR_DA__) && !defined(__AVR_DB__) //DD and EA, and presumably later parts, have an extra mux option.
       if (portmux == 3) {
         return (port->IN & 0x03);

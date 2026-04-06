@@ -435,21 +435,21 @@ namespace event {
       ccl3_event_b   = 0x07,
       adc0_start     = 0x08,
       evouta_pin_pa2 = 0x09,
-#if defined(PIN_PB2)
+  #if defined(PIN_PB2)
       evoutb_pin_pb2 = 0x0A,
-#endif
+  #endif
       evoutc_pin_pc2 = 0x0B,
       evoutd_pin_pd2 = 0x0C,
-#if defined(PIN_PE2)
+  #if defined(PIN_PE2)
       evoute_pin_pe2 = 0x0D,
-#endif
+  #endif
       evoutf_pin_pf2 = 0x0E,
       usart0_irda    = 0x0F,
       usart1_irda    = 0x10,
       usart2_irda    = 0x11,
-#if defined(USART3)
+  #if defined(USART3)
       usart3_irda    = 0x12,
-#endif
+  #endif
       tca0           = 0x13,
       tca0_cnt_a     = 0x13,
       tcb0           = 0x14,
@@ -458,19 +458,17 @@ namespace event {
       tcb1_capt      = 0x15,
       tcb2           = 0x16,
       tcb2_capt      = 0x16,
-#if defined(TCB3)
+  #if defined(TCB3)
       tcb3           = 0x17,
       tcb3_capt      = 0x17,
-#endif
+  #endif
       // "Unofficial" user generators. Uses EVOUT, but swaps the output pin using PORTMUX
       evouta_pin_pa7 = 0x89,
-#if defined(PIN_PC7)
+  #if defined(PIN_PC7)
       evoutc_pin_pc7 = 0x8B,
-#endif
+  #endif
       evoutd_pin_pd7 = 0x8C,
-#endif // defined(__AVR_ATmegax08__) || defined(__AVR_ATmegax09__)
-
-#if defined(__AVR_DA__)
+#elif defined(__AVR_DA__)
         ccl0_event_a   = 0x00,
         ccl0_event_b   = 0x01,
         ccl1_event_a   = 0x02,
@@ -479,41 +477,41 @@ namespace event {
         ccl2_event_b   = 0x05,
         ccl3_event_a   = 0x06,
         ccl3_event_b   = 0x07,
-#if defined(CCL_TRUTH4)
+  #if defined(CCL_TRUTH4)
         ccl4_event_a   = 0x08,
         ccl4_event_b   = 0x09,
         ccl5_event_a   = 0x0A,
         ccl5_event_b   = 0x0B,
-#endif
+  #endif
         adc0_start     = 0x0C,
         ptc_start      = 0x0D,
         evouta_pin_pa2 = 0x0E,
-#if defined(PIN_PB2)
+  #if defined(PIN_PB2)
         evoutb_pin_pb2 = 0x0F,
-#endif
+  #endif
         evoutc_pin_pc2 = 0x10,
         evoutd_pin_pd2 = 0x11,
-#if defined(PIN_PE2)
+  #if defined(PIN_PE2)
         evoute_pin_pe2 = 0x12,
-#endif
-#if defined(PIN_PF2)
+  #endif
+  #if defined(PIN_PF2)
         evoutf_pin_pf2 = 0x13,
-#endif
-#if defined(PIN_PG2)
+  #endif
+  #if defined(PIN_PG2)
         evoutg_pin_pg2 = 0x14,
-#endif
+  #endif
         usart0_irda    = 0x15,
         usart1_irda    = 0x16,
         usart2_irda    = 0x17,
-#if defined(USART3)
+  #if defined(USART3)
         usart3_irda    = 0x18,
-#endif
-#if defined(USART4)
+  #endif
+  #if defined(USART4)
         usart4_irda    = 0x19,
-#endif
-#if defined(USART5)
+  #endif
+  #if defined(USART5)
         usart5_irda    = 0x1A,
-#endif
+  #endif
         tca0           = 0x1B,
         tca0_cnt_a     = 0x1B,
         tca0_cnt_b     = 0x1C,
@@ -529,36 +527,35 @@ namespace event {
         tcb2_capt      = 0x23,
         tcb2           = 0x23,
         tcb2_cnt       = 0x24,
-#if defined(TCB3)
+  #if defined(TCB3)
         tcb3_capt      = 0x25,
         tcb3           = 0x25,
         tcb3_cnt       = 0x26,
-#endif
-#if defined(TCB4)
+  #endif
+  #if defined(TCB4)
         tcb4_capt      = 0x27,
         tcb4           = 0x27,
         tcb4_cnt       = 0x28,
-#endif
+  #endif
         tcd0_in_a      = 0x29,
         tcd0_in_b      = 0x2A,
         // "Unofficial" generator - high bit is a signal to also switch portmux.
         evouta_pin_pa7 = 0x8E,
-#if defined(PIN_PB7)
+  #if defined(PIN_PB7)
         evoutb_pin_pb7 = 0x8F,
-#endif
-#if defined(PIN_PC7)
+  #endif
+  #if defined(PIN_PC7)
         evoutc_pin_pc7 = 0x90,
-#endif
+  #endif
         evoutd_pin_pd7 = 0x91,
-#if defined(PIN_PE7)
+  #if defined(PIN_PE7)
         evoute_pin_pe7 = 0x92,
-#endif
+  #endif
         // evoutf_pin_pf7 = 0x93, never available on DA/DB
-#if defined(PIN_PG7)
+  #if defined(PIN_PG7)
         evoutg_pin_pg7 = 0x94,
-#endif
-#endif // defined(__AVR_DA__)
-#if defined(__AVR_DB__)
+  #endif
+#elif defined(__AVR_DB__)
       ccl0_event_a   = 0x00,
       ccl0_event_b   = 0x01,
       ccl1_event_a   = 0x02,
@@ -567,40 +564,40 @@ namespace event {
       ccl2_event_b   = 0x05,
       ccl3_event_a   = 0x06,
       ccl3_event_b   = 0x07,
-#if defined(CCL_TRUTH4)
+  #if defined(CCL_TRUTH4)
       ccl4_event_a   = 0x08,
       ccl4_event_b   = 0x09,
       ccl5_event_a   = 0x0A,
       ccl5_event_b   = 0x0B,
-#endif
+  #endif
       adc0_start     = 0x0C,
       evouta_pin_pa2 = 0x0D,
-#if defined(PIN_PB2)
+  #if defined(PIN_PB2)
       evoutb_pin_pb2 = 0x0E,
-#endif
+  #endif
       evoutc_pin_pc2 = 0x0F,
       evoutd_pin_pd2 = 0x10,
-#if defined(PIN_PE2)
+  #if defined(PIN_PE2)
       evoute_pin_pe2 = 0x11,
-#endif
-#if defined(PIN_PF2)
+  #endif
+  #if defined(PIN_PF2)
       evoutf_pin_pf2 = 0x12,
-#endif
-#if defined(PIN_PG2)
+  #endif
+  #if defined(PIN_PG2)
       evoutg_pin_pg2 = 0x13,
-    #endif
+  #endif
       usart0_irda    = 0x14,
       usart1_irda    = 0x15,
       usart2_irda    = 0x16,
-#if defined(USART3)
+  #if defined(USART3)
       usart3_irda    = 0x17,
-#endif
-#if defined(USART4)
+  #endif
+  #if defined(USART4)
       usart4_irda    = 0x18,
-#endif
-#if defined(USART5)
+  #endif
+  #if defined(USART5)
       usart5_irda    = 0x19,
-#endif
+  #endif
       tca0           = 0x1A,
       tca0_cnt_a     = 0x1A,
       tca0_cnt_b     = 0x1B,
@@ -613,14 +610,14 @@ namespace event {
       tcb1_cnt       = 0x21,
       tcb2_capt      = 0x22,
       tcb2_cnt       = 0x23,
-#if defined(TCB3)
+  #if defined(TCB3)
       tcb3_capt      = 0x24,
       tcb3_cnt       = 0x25,
-#endif
-#if defined(TCB4)
+  #endif
+  #if defined(TCB4)
       tcb4_capt      = 0x26,
       tcb4_cnt       = 0x27,
-#endif
+  #endif
       tcd0_in_a      = 0x28,
       tcd0_in_b      = 0x29,
       opamp0_enable  = 0x2A,
@@ -631,27 +628,27 @@ namespace event {
       opamp1_disable = 0x2F,
       opamp1_dump    = 0x30,
       opamp1_drive   = 0x31,
-#if defined(OPAMP2)
+  #if defined(OPAMP2)
       opamp2_enable  = 0x32,
       opamp2_disable = 0x33,
       opamp2_dump    = 0x34,
       opamp2_drive   = 0x35,
-#endif
+  #endif
       // "Unofficial" user generators. Uses EVOUT, but swaps the output pin using PORTMUX
       evouta_pin_pa7 = 0x8D,
-#if defined(PIN_PB7)
+  #if defined(PIN_PB7)
       evoutb_pin_pb7 = 0x8E,
-#endif
-#if defined(PIN_PC7)
+  #endif
+  #if defined(PIN_PC7)
       evoutc_pin_pc7 = 0x8F,
-#endif
+  #endif
       evoutd_pin_pd7 = 0x90,
-#if defined(PIN_PE7)
+  #if defined(PIN_PE7)
       evoute_pin_pe7 = 0x91,
-#endif
-#if defined(PIN_PG7)
+  #endif
+  #if defined(PIN_PG7)
       evoutg_pin_pg7 = 0x93,
-#endif
+  #endif
 #endif // defined(__AVR_DB__)
 
 #if defined(__AVR_DD__)
@@ -664,16 +661,16 @@ namespace event {
       ccl3_event_a   = 0x06,
       ccl3_event_b   = 0x07,
       adc0_start     = 0x08,
-#if defined(PIN_PA2) // not on 14-pin ones.
+  #if defined(PIN_PA2) // not on 14-pin ones.
       evouta_pin_pa2 = 0x09,
-#endif
+  #endif
       evoutc_pin_pc2 = 0x0A,
-#if defined(PIN_PD2) // only on 28 or 32 pin ones.
+  #if defined(PIN_PD2) // only on 28 or 32 pin ones.
       evoutd_pin_pd2 = 0x0B,
-#endif
-#if defined(PIN_PF2) // only on 32-pin ones.
+  #endif
+  #if defined(PIN_PF2) // only on 32-pin ones.
       evoutf_pin_pf2 = 0x0C,
-#endif
+  #endif
       usart0_irda    = 0x0D,
       usart1_irda    = 0x0E,
       tca0           = 0x0F,
@@ -685,20 +682,58 @@ namespace event {
       tcb1           = 0x13,
       tcb1_capt      = 0x13,
       tcb1_cnt       = 0x14,
-#if defined(TCB2)
+  #if defined(TCB2)
       tcb2           = 0x15,
       tcb2_capt      = 0x15,
       tcb2_cnt       = 0x16,
-#endif
+  #endif
       tcd0_in_a      = 0x17,
       tcd0_in_b      = 0x18,
-#if defined(PIN_PA7) // not on 14-pin ones.
+  #if defined(PIN_PA7) // not on 14-pin ones.
       evouta_pin_pa7 = 0x89,
-#endif
+  #endif
       evoutd_pin_pd7 = 0x8B,
-#if defined(PIN_PF7)
+  #if defined(PIN_PF7)
       evoutf_pin_pf7 = 0x8C,
-#endif
+  #endif
+#endif //End DD
+#if defined(__AVR_DU__)
+      ccl0_event_a   = 0x00,
+      ccl0_event_b   = 0x01,
+      ccl1_event_a   = 0x02,
+      ccl1_event_b   = 0x03,
+      ccl2_event_a   = 0x04,
+      ccl2_event_b   = 0x05,
+      ccl3_event_a   = 0x06,
+      ccl3_event_b   = 0x07,
+      adc0_start     = 0x08,
+  #if defined(PIN_PA2) // not on 14-pin ones.
+      evouta_pin_pa2 = 0x09,
+  #endif
+  #if defined(PIN_PD2) // only on 28 or 32 pin ones.
+      evoutd_pin_pd2 = 0x0A,
+  #endif
+  #if defined(PIN_PF2) // only on 32-pin ones.
+      evoutf_pin_pf2 = 0x0B,
+  #endif
+      usart0_irda    = 0x0C,
+      usart1_irda    = 0x0D,
+      tca0           = 0x0E,
+      tca0_cnt_a     = 0x0E,
+      tca0_cnt_b     = 0x0F,
+      tcb0           = 0x10,
+      tcb0_capt      = 0x10,
+      tcb0_cnt       = 0x11,
+      tcb1           = 0x12,
+      tcb1_capt      = 0x12,
+      tcb1_cnt       = 0x13,
+  #if defined(PIN_PA7) // not on 14-pin ones.
+      evouta_pin_pa7 = 0x89,
+  #endif
+      evoutd_pin_pd7 = 0x8A,
+  #if defined(PIN_PF7)
+      evoutf_pin_pf7 = 0x8B,
+  #endif
 #endif
     };
   };
@@ -711,7 +746,7 @@ namespace event {
         off               = 0x00,
         updi_synch        = 0x01,
 #if defined(MVIO)
-        mvio_ok         = 0x05,
+        mvio_ok           = 0x05,
 #endif
         rtc_ovf           = 0x06,
         rtc_cmp           = 0x07,
@@ -753,22 +788,30 @@ namespace event {
         ac1_out           = 0x21,
 #endif
 #if defined(AC2) // An Ex with three AC would not surprise me
-        ac2_out           = 0x21,
+        ac2_out           = 0x22,
 #endif
 #if defined(AC3) // An Ex with fourAC would not surprise me
-        ac3_out           = 0x21,
+        ac3_out           = 0x23,
 #endif
         adc0_ready        = 0x24,
         adc0_sample       = 0x25,
         adc0_window       = 0x26,
+#if defined(ADC1)
+        adc1_ready        = 0x27,
+        adc1_sample       = 0x28,
+        adc1_window       = 0x29,
+#endif
 #if defined(ZCD0) // An Ex with ZCD would not surprise me.
-        zcd1_out          = 0x32,
+        zcd1_out          = 0x30,
 #endif
 #if defined(ZCD1)
-        zcd1_out          = 0x32,
+        zcd1_out          = 0x31,
 #endif
 #if defined(ZCD2)
         zcd2_out          = 0x32,
+#endif
+#if defined(ZCD3)
+        zcd3_out          = 0x33,
 #endif
 #if defined(OPAMP0) // Shouldn't there be a later Ex-series with opamps? Would synergize great with the improved ADC
         opamp0_ready      = 0x34,
@@ -917,9 +960,9 @@ namespace event {
   };
   /* Done with plausible generators */
 
-  #if defined(__AVR_EA__) //these are specific to the family,
-    namespace user{
-      enum user_t : uint8_t {
+namespace user{
+  enum user_t : uint8_t {
+#if defined(__AVR_EA__) //these are specific to the family,
         ccl0_event_a      = 0x00,
         ccl0_event_b      = 0x01,
         ccl1_event_a      = 0x02,
@@ -930,72 +973,68 @@ namespace event {
         ccl3_event_b      = 0x07,
         adc0_start        = 0x08,
         evouta_pin_pa2    = 0x09,
-#if defined(PIN_PB2)
+  #if defined(PIN_PB2)
         evoutb_pin_pb2    = 0x0A,
-#endif
+  #endif
         evoutc_pin_pc2    = 0x0B,
         evoutd_pin_pd2    = 0x0C,
-#if defined(PIN_PE2)
+  #if defined(PIN_PE2)
         evoute_pin_pe2    = 0x0D,
-#endif
-#if defined(PIN_PF2)
+  #endif
+  #if defined(PIN_PF2)
         evoutf_pin_pf2    = 0x0E,
-#endif
+  #endif
         usart0_irda       = 0x0F,
-#if defined(USART2)
+  #if defined(USART2)
         usart1_irda       = 0x10,
-#endif
-#if defined(USART2)
+  #endif
+  #if defined(USART2)
         usart2_irda       = 0x11,
-#endif
-#if defined(TCA0)
+  #endif
+  #if defined(TCA0)
         tca0              = 0x12,
         tca0_cnt_a        = 0x12,
         tca0_cnt_b        = 0x13,
-#endif
-#if defined(TCA1)
+  #endif
+  #if defined(TCA1)
         tca1              = 0x14,
         tca1_cnt_a        = 0x14,
         tca1_cnt_b        = 0x15,
-#endif
-#if defined(TCB0)
+  #endif
+  #if defined(TCB0)
         tcb0              = 0x16,
         tcb0_capt         = 0x16,
         tcb0_cnt          = 0x17,
-#endif
-#if defined(TCB1)
+  #endif
+  #if defined(TCB1)
         tcb1              = 0x18,
         tcb1_capt         = 0x18,
         tcb1_cnt          = 0x19,
-#endif
-#if defined(TCB2)
+  #endif
+  #if defined(TCB2)
         tcb2              = 0x1A,
         tcb2_capt         = 0x1A,
         tcb2_cnt          = 0x1B,
-#endif
-#if defined(TCB3)
+  #endif
+  #if defined(TCB3)
         tcb3              = 0x1C,
         tcb3_capt         = 0x1C,
         tcb3_cnt          = 0x1D,
-#endif
+  #endif
         // "Unofficial" users. Uses EVOUT, but swaps the output pin using PORTMUX
         evouta_pin_pa7    = 0x89,
-#if defined(PIN_PB7)
+  #if defined(PIN_PB7)
         evoutb_pin_pb7    = 0x8A,
-#endif
-#if defined(PIN_PC7)
+  #endif
+  #if defined(PIN_PC7)
         evoutc_pin_pc7    = 0x8B,
-#endif
+  #endif
         evoutd_pin_pd7    = 0x8C,
-#if defined(PIN_PE7)
+  #if defined(PIN_PE7)
         evoute_pin_pe7    = 0x8D,
-#endif
-        evoutf_pin_pf7    = 0x8E
-      };
-    };
-  #elif defined(__AVR_EB__)
-    namespace user{
-      enum user_t : uint8_t {
+  #endif
+        evoutf_pin_pf7    = 0x8E,
+#elif defined(__AVR_EB__)
         ccl0_event_a      = 0x00,
         ccl0_event_b      = 0x01,
         ccl1_event_a      = 0x02,
@@ -1005,46 +1044,84 @@ namespace event {
         ccl3_event_a      = 0x06,
         ccl3_event_b      = 0x07,
         adc0_start        = 0x08,
-#if defined(PIN_PA2)
+  #if defined(PIN_PA2)
         evouta_pin_pa2    = 0x09,
-#endif
-#if defined(PIN_PC2)
+  #endif
+  #if defined(PIN_PC2)
         evoutc_pin_pc2    = 0x0A,
-#endif
-#if defined(PIN_PD2)
+  #endif
+  #if defined(PIN_PD2)
         evoutd_pin_pd2    = 0x0B,
-#endif
-#if defined(PIN_PF2)
+  #endif
+  #if defined(PIN_PF2)
         evoutf_pin_pf2    = 0x0C,
-#endif
+  #endif
         usart0_irda       = 0x0D,
         tcae              = 0x0E,
         tce0_cnt_a        = 0x0F,
         tce0_cnt_b        = 0x10,
-#if defined(TCB0)
+  #if defined(TCB0)
         tcb0              = 0x11,
         tcb0_capt         = 0x11,
         tcb0_cnt          = 0x12,
-#endif
-#if defined(TCB1)
+  #endif
+  #if defined(TCB1)
         tcb1              = 0x13,
         tcb1_capt         = 0x13,
         tcb1_cnt          = 0x14,
-#endif
+  #endif
         tcf0_cnt          = 0x15,  /* TCF0 Clock Event */
         tcf0_act          = 0x16,  /* TCF0 Action Event */
         wexa              = 0x17,  /* WEX Event A */
         wexb              = 0x18,  /* WEX Event B */
         wexc              = 0x19,  /* WEX Event C */
-#if defined(PIN_PA7)
+  #if defined(PIN_PA7)
         // "Unofficial" users. Uses EVOUT, but swaps the output pin using PORTMUX
         evouta_pin_pa7    = 0x89,
-#endif
+  #endif
         evoutd_pin_pd7    = 0x8C,
-        evoutf_pin_pf7    = 0x8E
+        evoutf_pin_pf7    = 0x8E,
+
+#elif defined(__AVR_DU__)
+        ccl0_event_a     = 0x00,
+        ccl0_event_b     = 0x01,
+        ccl1_event_a     = 0x02,
+        ccl1_event_b     = 0x03,
+        ccl2_event_a    = 0x04,
+        ccl2_event_b     = 0x05,
+        ccl3_event_a     = 0x06,
+        ccl3_event_b     = 0x07,
+        adc0_start       = 0x08,
+  #if defined(PIN_PA2) // not on 14-pin ones.
+      evouta_pin_pa2 = 0x09,
+  #endif
+  #if defined(PIN_PD2) // only on 28 or 32 pin ones.
+      evoutd_pin_pd2 = 0x0A,
+  #endif
+  #if defined(PIN_PF2) // only on 32-pin ones.
+      evoutf_pin_pf2 = 0x0B,
+  #endif
+      usart0_irda    = 0x0C,
+      usart1_irda    = 0x0D,
+      tca0           = 0x0E,
+      tca0_cnt_a     = 0x0E,
+      tca0_cnt_b     = 0x0F,
+      tcb0           = 0x10,
+      tcb0_capt      = 0x10,
+      tcb0_cnt       = 0x11,
+      tcb1           = 0x12,
+      tcb1_capt      = 0x12,
+      tcb1_cnt       = 0x13,
+  #if defined(PIN_PA7) // not on 14-pin ones.
+      evouta_pin_pa7 = 0x89,
+  #endif
+      evoutd_pin_pd7 = 0x8A,
+  #if defined(PIN_PF7)
+      evoutf_pin_pf7 = 0x8B,
+  #endif
+#endif
       };
     };
-    #endif // defined (__AVR_EB__)
   #elif MEGATINYCORE_SERIES == 2
     #if defined(PIN_PB1)
       #define HAS_SEPARATE_GEN1
@@ -1298,12 +1375,12 @@ namespace event {
         tca0              = 0x0E,
         tca0_cnt_a        = 0x0E,
         tca0_cnt_b        = 0x0F,
-        tcb0              = 0x11,
-        tcb0_capt         = 0x11,
-        tcb0_cnt          = 0x12,
-        tcb1              = 0x13,
-        tcb1_capt         = 0x13,
-        tcb1_cnt          = 0x14,
+        tcb0              = 0x10, //Datasheet Clarification
+        tcb0_capt         = 0x10,
+        tcb0_cnt          = 0x11,
+        tcb1              = 0x12,
+        tcb1_capt         = 0x12,
+        tcb1_cnt          = 0x13,
       };
     };
 

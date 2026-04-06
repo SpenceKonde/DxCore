@@ -1,4 +1,4 @@
-# It is required to use the azduino avr-gcc, other compilers will bail out
+# It is required to use the azduino avr-gcc, other compilers will bail out.
 # The flash target assumes boot pagesize is 512 for all Dx Cores and 256 for all Ex Cores.
 # avrdude >= 8.1 required
 

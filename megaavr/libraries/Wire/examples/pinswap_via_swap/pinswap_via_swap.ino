@@ -7,7 +7,11 @@
 #include <Wire.h>
 
 void setup() {
-  Wire.swap(2);        // Choose pin swapping level 2 (PC2/PC3 master/slave)
+  #if defined(__AVR_DU__)
+    Wire.swap(3);        // This is the only mapping on 14-pin DU, PA0/PA1.
+  #else
+    Wire.swap(2);        // Choose pin swapping level 2 (PC2/PC3 master/slave)
+  #endif
   Wire.begin();        // join i2c bus (address optional for master)
   Serial.begin(115200);  // start serial for output
 }

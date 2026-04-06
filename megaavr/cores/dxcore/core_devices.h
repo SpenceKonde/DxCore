@@ -1236,7 +1236,7 @@ int8_t _setCPUSpeed(uint8_t omhz) {
 
 
 /* Normal interrupt mode on a part with windowed AC is the same as the unnamed mode on those without that feature */
-#if (defined(__AVR_DD__))
+#if (defined(__AVR_DD__) || defined(__AVR_DU__))
   #define AC_INTMODE_NORMAL_BOTHEDGE_gc AC_INTMODE_BOTHEDGE_gc
   #define AC_INTMODE_NORMAL_NEGEDGE_gc AC_INTMODE_NEGEDGE_gc
   #define AC_INTMODE_NORMAL_POSEDGE_gc AC_INTMODE_POSEDGE_gc

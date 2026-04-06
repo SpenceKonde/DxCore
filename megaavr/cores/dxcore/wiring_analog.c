@@ -95,46 +95,14 @@ inline __attribute__((always_inline)) void check_valid_analog_pin(pin_size_t pin
     }
   }
 }
-#if defined(VREF_ADC0REF)
-/* DA/DB/DD */
-  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
-    if (__builtin_constant_p(mode)) {
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-        badArg("analogReference called with argument that is not a valid analog reference");
-    }
-  }
-/* Same as above except for the error */
-  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
-    /* This checks an AC or DAC reference number, instead of a adc reference number.
-     * On the Dx-series, these were the same. On the Ex-series, the list of options is the same...
-     * but the numbers that they correspond to and the names of the constants are different. */
-    if (__builtin_constant_p(mode)) {
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-        badArg("DACreference called with argument that is not a valid (D)AC reference.");
-    }
-  }
-#else
-  inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
-    /* Ex-series.... frickin A */
-    if (__builtin_constant_p(mode)) {
-      if (mode & 0x40) /* Reject the AC_REF constants */
-        badArg("analogReference called with an AC_REF_ constant, those only work with DAC/AC references. Valid options look like INTERNAL2V048, VDD, or EXTERNAL";)
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
+
+inline __attribute__((always_inline)) void check_valid_analog_ref(uint8_t mode) {
+  if (__builtin_constant_p(mode)) {
+    if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
       badArg("analogReference called with argument that is not a valid analog reference");
-    }
   }
+}
 
-  inline __attribute__((always_inline)) void check_valid_ac_ref(uint8_t mode) {
-    /* This checks an AC or DAC reference number, instead of a adc reference number.
-     * On the Dx-series, these were the same, so they differ only in the error message.
-     * but the numbers that they correspond to and the names of the constants are different. */
-    if (__builtin_constant_p(mode)) {
-      if (!(mode == EXTERNAL || mode == VDD || mode == INTERNAL1V024 || mode == INTERNAL2V048 || mode == INTERNAL4V1 || mode == INTERNAL2V5))
-      badArg("DACreference called with argument that is not a valid DAC/AC reference");
-    }
-  }
-
-#endif
 
 inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
   if (__builtin_constant_p(res)) {
@@ -151,7 +119,7 @@ inline __attribute__((always_inline)) void check_valid_enh_res(uint8_t res) {
         if ((res & 0x7F) > 0x06)
       #endif /* end ADC version conditional valid enh res */
       {
-        badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings");
+        badArg("Accumulation number invalid - use one of the ADC_ACC_# constants for raw (undecimated) accumulated readings.");
       }
     }
   }
@@ -178,9 +146,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 #ifdef DAC0 /* Only DAC-bearing parts get this */
   void DACReference(uint8_t mode) {
     if (__builtin_constant_p(mode)) {
-      check_valid_ac_ref(mode);
-    } else if ((mode & 0x88) != 0x88) {
-      return;
+      check_valid_analog_ref(mode);
     }
     _SWAP(mode);
     mode &= 0x07;
@@ -193,11 +159,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     return _acreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 #else /* else no dac */
-  uint8_t DACReference(__attribute__ ((unused))uint8_t mode) {
-    badCall("DACreference is not available - this part does not have a DAC");
+  void DACReference(__attribute__ ((unused))uint8_t mode) {
+    badCall("DACreference is not available - this part does not have a DAC.");
   }
   uint8_t getDACReference() {
-    badCall("This part does not have a DAC, it thus has no DAC reference");
+    badCall("This part does not have a DAC, it thus has no DAC reference.");
     return -1;
   }
 
@@ -431,7 +397,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
 /* Ex Version*/
   inline uint8_t getAnalogReference() {
-     ADC0.CTRLC & ADC_REFSEL_gm;
+    uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
+    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 /* Ex Version*/
   int16_t analogRead(uint8_t pin) {
@@ -741,7 +708,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     // Uh? Is that it? That was, ah, a tiny bit simpler.
   }
   inline uint8_t getAnalogReference() {
-    return ADC0.CTRLC & ADC_REFSEL_gm; /*  This register is empty of other fields  */
+    uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
+    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 
   int16_t analogRead(uint8_t pin) {
@@ -1206,8 +1174,10 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
 
   uint8_t getAnalogReference() {
-    return VREF.ADC0REF & VREF_REFSEL_gm;
+    uint8_t r = VREF.ADC0REF & VREF_REFSEL_gm;
+    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending
   }
+
 
   /* Frequency in kHz. */
    static const int16_t adc_prescale_to_clkadc[0x0F] PROGMEM = {(F_CPU /   2000L),(F_CPU /   4000L),(F_CPU /  8000L),(F_CPU / 12000L),

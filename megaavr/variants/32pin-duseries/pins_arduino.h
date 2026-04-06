@@ -39,11 +39,11 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PA5 (5)
 #define PIN_PA6 (6)
 #define PIN_PA7 (7)
-#define PIN_PC0 (8)
-#define PIN_PC1 (9)
-#define PIN_PC2 (10)
+#define PIN_PC0 (8) /* fake pin PC0 */
+//  no  PIN_PC1 (9)
+//  no  PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12) // NOT_A_PIN
+#define PIN_PD0 (12)
 #define PIN_PD1 (13)
 #define PIN_PD2 (14)
 #define PIN_PD3 (15)
@@ -60,7 +60,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF6 (26) // RESET
 #define PIN_PF7 (27) // UPDI
 
-#define FAKE_PIN_PD0
+#define FAKE_PIN_PC0
 
         /*##   ##   ###  ###  ###  ###
         #   # #  # #      #  #    #
@@ -134,31 +134,16 @@ Include guard and include basic libraries. We are normally including this inside
 
 // SPI 0
 #define SPI_MUX                         (0x00)
-#define SPI_MUX_PINSWAP_3               (0x03)
 #define SPI_MUX_PINSWAP_4               (0x04)
-#define SPI_MUX_PINSWAP_5               (0x05)
-#define SPI_MUX_PINSWAP_6               (0x06)
 #define SPI_MUX_PINSWAP_NONE            (PORTMUX_SPI0_NONE_gc)
 #define PIN_SPI_MOSI                    (PIN_PA4)
 #define PIN_SPI_MISO                    (PIN_PA5)
 #define PIN_SPI_SCK                     (PIN_PA6)
 #define PIN_SPI_SS                      (PIN_PA7)
-#define PIN_SPI_MOSI_PINSWAP_3          (PIN_PA0)
-#define PIN_SPI_MISO_PINSWAP_3          (PIN_PA1)
-#define PIN_SPI_SCK_PINSWAP_3           (PIN_PC0)
-#define PIN_SPI_SS_PINSWAP_3            (PIN_PC1)
 #define PIN_SPI_MOSI_PINSWAP_4          (PIN_PD4)
 #define PIN_SPI_MISO_PINSWAP_4          (PIN_PD5)
 #define PIN_SPI_SCK_PINSWAP_4           (PIN_PD6)
 #define PIN_SPI_SS_PINSWAP_4            (PIN_PD7)
-#define PIN_SPI_MOSI_PINSWAP_5          (PIN_PC0)
-#define PIN_SPI_MISO_PINSWAP_5          (PIN_PC1)
-#define PIN_SPI_SCK_PINSWAP_5           (PIN_PC2)
-#define PIN_SPI_SS_PINSWAP_5            (PIN_PC3)
-#define PIN_SPI_MOSI_PINSWAP_6          (PIN_PC1)
-#define PIN_SPI_MISO_PINSWAP_6          (PIN_PC2)
-#define PIN_SPI_SCK_PINSWAP_6           (PIN_PC3)
-#define PIN_SPI_SS_PINSWAP_6            (PIN_PF7)
 
 
 // TWI 0
@@ -166,8 +151,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL                    (PIN_PA3)
 #define PIN_WIRE_SDA_PINSWAP_1          (PIN_PA2)
 #define PIN_WIRE_SCL_PINSWAP_1          (PIN_PA3)
-#define PIN_WIRE_SDA_PINSWAP_2          (PIN_PC2) /* Errata warning */
-#define PIN_WIRE_SCL_PINSWAP_2          (PIN_PC3) /* Errata warning */
 #define PIN_WIRE_SDA_PINSWAP_3          (PIN_PA0)
 #define PIN_WIRE_SCL_PINSWAP_3          (PIN_PA1)
 
@@ -176,7 +159,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define HWSERIAL0_MUX_PINSWAP_1         (0x01 /* PORTMUX_USART0_ALT1_gc */)
 #define HWSERIAL0_MUX_PINSWAP_2         (0x02 /* PORTMUX_USART0_ALT2_gc */)
 #define HWSERIAL0_MUX_PINSWAP_3         (0x03 /* PORTMUX_USART0_ALT3_gc */)
-#define HWSERIAL0_MUX_PINSWAP_4         (0x04 /* PORTMUX_USART0_ALT4_gc */)
 #define HWSERIAL0_MUX_PINSWAP_NONE      (0x05)
 #define PIN_HWSERIAL0_TX                (PIN_PA0)
 #define PIN_HWSERIAL0_RX                (PIN_PA1)
@@ -194,19 +176,15 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_HWSERIAL0_RX_PINSWAP_3      (PIN_PD5)
 #define PIN_HWSERIAL0_XCK_PINSWAP_3     (PIN_PD6)
 #define PIN_HWSERIAL0_XDIR_PINSWAP_3    (PIN_PD7)
-#define PIN_HWSERIAL0_TX_PINSWAP_4      (PIN_PC1)
-#define PIN_HWSERIAL0_RX_PINSWAP_4      (PIN_PC2)
-#define PIN_HWSERIAL0_XCK_PINSWAP_4     (PIN_PC3)
-#define PIN_HWSERIAL0_XDIR_PINSWAP_4    (NOT_A_PIN)
 
 // USART1
 #define HWSERIAL1_MUX                   (0x00 /* PORTMUX_USART1_DEFAULT_gc */)
 #define HWSERIAL1_MUX_PINSWAP_2         (0x02 << 3 /* PORTMUX_USART1_ALT2_gc */)
 #define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 3)
-#define PIN_HWSERIAL1_TX                (PIN_PC0)
-#define PIN_HWSERIAL1_RX                (PIN_PC1)
-#define PIN_HWSERIAL1_XCK               (PIN_PC2)
-#define PIN_HWSERIAL1_XDIR              (PIN_PC3)
+#define PIN_HWSERIAL1_TX                (NOT_A_PIN)
+#define PIN_HWSERIAL1_RX                (NOT_A_PIN)
+#define PIN_HWSERIAL1_XCK               (NOT_A_PIN)
+#define PIN_HWSERIAL1_XDIR              (NOT_A_PIN)
 #define PIN_HWSERIAL1_TX_PINSWAP_2      (PIN_PD6)
 #define PIN_HWSERIAL1_RX_PINSWAP_2      (PIN_PD7)
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     (NOT_A_PIN)
@@ -330,11 +308,11 @@ static const uint8_t A31 = PIN_A31;
     PA,         //  5 PA5/AIN25/MISO
     PA,         //  6 PA6/AIN26/SCK
     PA,         //  7 PA7/AIN27/SS/CLKOUT/LED_BUILTIN
-    PC,         //  8 PC0/AIN28/USART1_TX
-    PC,         //  9 PC1/AIN29/USART1_RX
-    PC,         // 10 PC2/AIN30
+    NOT_A_PORT, // USB
+    NOT_A_PORT, // USB
+    NOT_A_PORT, // USB
     PC,         // 11 PC3/AIN31
-    PD,         // VDDIO2
+    PD,         // 12 PD0/AIN0
     PD,         // 13 PD1/AIN1
     PD,         // 14 PD2/AIN2
     PD,         // 15 PD3/AIN3
@@ -370,11 +348,11 @@ static const uint8_t A31 = PIN_A31;
     PIN5_bp,   //  5 PA5/MISO
     PIN6_bp,   //  6 PA6/SCK
     PIN7_bp,   //  7 PA7/SS/CLKOUT/LED_BUILTIN
-    PIN0_bp,   //  8 PC0/USART1_Tx
-    PIN1_bp,   //  9 PC1/USART1_Rx
-    PIN2_bp,   // 10 PC2
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
     PIN3_bp,   // 11 PC3
-    NOT_A_PIN, // VDDIO2
+    PIN0_bp,   // 12 PD0/AIN0
     PIN1_bp,   // 13 PD1/AIN1
     PIN2_bp,   // 14 PD2/AIN2
     PIN3_bp,   // 15 PD3/AIN3
@@ -409,11 +387,11 @@ static const uint8_t A31 = PIN_A31;
     PIN5_bm,   //  5 PA5/MISO
     PIN6_bm,   //  6 PA6/SCK
     PIN7_bm,   //  7 PA7/SS/CLKOUT/LED_BUILTIN
-    PIN0_bm,   //  8 PC0/USART1_Tx
-    PIN1_bm,   //  9 PC1/USART1_Rx
-    PIN2_bm,   // 10 PC2
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
     PIN3_bm,   // 11 PC3
-    NOT_A_PIN, // VDDIO2
+    PIN0_bm,   // 12 PD0/AIN0
     PIN1_bm,   // 13 PD1/AIN1
     PIN2_bm,   // 14 PD2/AIN2
     PIN3_bm,   // 15 PD3/AIN3
@@ -432,19 +410,19 @@ static const uint8_t A31 = PIN_A31;
   };
 
   const uint8_t digital_pin_to_timer[] = {
-    NOT_ON_TIMER, //  0 PA0
-    NOT_ON_TIMER, //  1 PA1
-    TIMERB0,      //  2 PA2
-    TIMERB1,      //  3 PA3
-    NOT_ON_TIMER, //  4 PA4
-    NOT_ON_TIMER, //  5 PA5
+    NOT_ON_TIMER, //  0 PA0 TCA0 WO0 h/w default (not our default)
+    NOT_ON_TIMER, //  1 PA1 TCA0 WO1 h/w default (not our default)
+    TIMERB0,      //  2 PA2 TCA0 WO2 h/w default (not our default)
+    TIMERB1,      //  3 PA3 TCA0 WO3 h/w default (not our default)
+    NOT_ON_TIMER, //  4 PA4 TCA0 WO4 h/w default (not our default)
+    NOT_ON_TIMER, //  5 PA5 TCA0 WO5 h/w default (not our default)
     NOT_ON_TIMER, //  6 PA6
     NOT_ON_TIMER, //  7 PA7
-    NOT_ON_TIMER, //  8 PC0 TCA0 ALT2/TCB2 (TCB2 used for millis, not PWM)
-    NOT_ON_TIMER, //  9 PC1 TCA0 ALT2
-    NOT_ON_TIMER, // 10 PC2 TCA0 ALT2
+    NOT_ON_TIMER, //  8  USB
+    NOT_ON_TIMER, //  9  USB
+    NOT_ON_TIMER, // 10  USB
     NOT_ON_TIMER, // 11 PC3 TCA0 ALT2
-    NOT_ON_TIMER, // VDDIO2
+    NOT_ON_TIMER, // 12 PD0 TCA0 ALT3
     NOT_ON_TIMER, // 13 PD1 TCA0 ALT3
     NOT_ON_TIMER, // 14 PD2 TCA0 ALT3
     NOT_ON_TIMER, // 15 PD3 TCA0 ALT3

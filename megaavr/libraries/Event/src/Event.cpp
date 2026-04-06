@@ -198,7 +198,7 @@ Event& Event::get_generator_channel(uint8_t generator_pin)
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
     #if defined(PORTA_EVGENCTRL)
       volatile PORT_t* port_ptr = portToPortStruct(port);
-      uint8_t temp = port_ptr->EVGENCTRL;
+      uint8_t temp = port_ptr->EVGENCTRLA;
         if ((temp & 0x0F) == port_pin) {
           gen = 0x40 + (port << 1);
           _SWAP(port_pin);
@@ -839,7 +839,7 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
        - there are no parts for which a port exists that has a pin 2 or 7, but which does not allow that pin to be used as an event output, except for tiny 0/1, where only pin 2 is an option...
        We basically **don't have to test the port** as long as it's a valid port as we just tested. This is probably like 6-8 instructions instead of several dozen */
 
-      #if !defined(__AVR_DD__)
+      #if !defined(__AVR_DD__) && !defined(__AVR_DU__)
         uint8_t evout_user = (int8_t) event::user::evouta_pin_pa2;
         if (port_pin == 2) { //non-0/1 pin 2 handling
           event_user = (evout_user + port);
@@ -1270,6 +1270,7 @@ event::user::user_t Event::user_from_peripheral(CCL_t& logic, uint8_t user_type)
   return (event::user::user_t) retval;
 }
 
+#if defined(TCA0)
 
 event::gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_type) {
   uint8_t retval = -1;
@@ -1291,7 +1292,6 @@ event::gen::generator_t Event::gen_from_peripheral(TCA_t& timer, uint8_t event_t
   }
   return (event::gen::generator_t) retval;
 }
-
 event::user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type) {
   uint8_t user = -1;
   #if !(defined(DXCORE) || defined(TINY_2_SERIES))
@@ -1325,6 +1325,7 @@ event::user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type)
   #endif
   return (event::user::user_t) user;
 }
+#endif
 
 event::user::user_t Event::user_from_peripheral(USART_t& usart) {
     if (&usart == &USART0) {

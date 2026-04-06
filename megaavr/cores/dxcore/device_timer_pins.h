@@ -118,6 +118,16 @@
   #define PIN_TCD0_WOD_ALT4             PIN_PD5
 #endif
 #if defined(TCE0)
+  #if (CLOCK_SOURCE == 0)
+    #define PIN_TCE0_WO0_PORTA          PIN_PA0
+  #else
+    #define PIN_TCE0_WO0_PORTA          NOT_A_PIN
+  #endif
+  #if (CLOCK_SOURCE == 1)
+    #define PIN_TCE0_WO1_PORTA          PIN_PA1
+  #else
+    #define PIN_TCE0_WO1_PORTA          NOT_A_PIN
+  #endif
   #define PIN_TCE0_WO5_PORTC2           PIN_PC3
   #define PIN_TCE0_WO3_PORTC            PIN_PC3
   #define PIN_TCE0_WO4_PORTD            PIN_PD4

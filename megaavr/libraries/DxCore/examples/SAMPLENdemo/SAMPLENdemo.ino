@@ -27,18 +27,17 @@ rather odd. Also that it goes all the way to 0 on a LOW, but not all the way to 
 */
 #define FIRST_PIN PIN_PD4
 #define SECOND_PIN PIN_PD5
-#if !defined(__AVR_EA__)
-  // Yeah they changed the name for no reason on the new ADC.
+#if !defined(ADC_LOWLAT_bm) // One name on AVR DA/DB/DD
   #define SAMPLENREG (ADC0.SAMPCTRL)
 #else
-  #define SAMPLENREG (ADC0.CTRLE)
+  #define SAMPLENREG (ADC0.CTRLE) //different name on AVR DU/EA/EB/SD
 #endif
 
 void setup() {
   pinMode(SECOND_PIN, OUTPUT);
   digitalWrite(SECOND_PIN, LOW);
   SAMPLENREG = 0xFF;
-  analogReadResolution(12);
+  analogReadResolution(ADC_NATIVE_RESOLUTION); //usually 12 bits on Dx-core, but DU and SD have only 10.
   Serial.begin(115200);
   delay(1000);
   analogRead(FIRST_PIN);

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
 # This script generates a config_{MCU}.h file.
-# 'make {MCU}.hex' will include the config file and generate {MCU}.hex.
-# 'make {MCU}.flash_d/ex' will use avrdude (8.1) to flash the chip via updi
+# 'make -f mkfile {MCU}.hex' will include the config file and generate {MCU}.hex.
+# 'make -f mkfile {MCU}.flash_d/ex' will use avrdude (8.1) to flash the chip via updi
 # As ioavrxxYYzz.h appears to be generated, the comment lines of the USART PORTMUX are a reliable source for the USART pin mapping.
 # The optiboot_dx.c relies on the azduino avr-gcc compiler, other compiler versions always require using the frame Pointer and won't compile.
 
@@ -62,7 +62,7 @@ cat <<EOF >config_${MCU}.h
 #define  __CONFIG_H__
 #define  __AVR_${TYPE}__
 
-#define	 WDTTIME          1
+#define  WDTTIME           1
 
 #define  F_OSC             (${FOSC}L)
 #define  LED_PORT          V${LPORT}
@@ -72,7 +72,7 @@ ${LEDINVERT}
 
 #define  BAUD_RATE         (${BAUD}L)
 #define  MYUART            (${UART})
-#define  MYPMUX_REG    	   PORTMUX.${PMREG}
+#define  MYPMUX_REG        PORTMUX.${PMREG}
 #define  MYUART_PMUX_VAL   ($PORTMUX)
 #define  MYUART_RXPINCTRL  ${TX_PORT}.PIN$((TX_PIN+1))CTRL
 #define  MYUART_TXPORT     V${TX_PORT}
