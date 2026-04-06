@@ -36,12 +36,13 @@ void compile_test_PWM() {
   analogWrite(NOT_A_CONST_BYTE, 128);
   analogWrite(NOT_A_CONST_BYTE, 255);
   analogWrite(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE);
+  uint8_t retval_digitalPinToTimerNow;
   #if defined(TCA0) && !defined(MILLIS_USE_TIMERA0)
     takeOverTCA0();
     resumeTCA0();
   #endif
   #if defined(TCA0)
-    uint8_t retval_digitalPinToTimerNow = digitalPinToTimerNow(PIN_TCA0_WO4_ALT3);  // should always be defined
+    retval_digitalPinToTimerNow = digitalPinToTimerNow(PIN_TCA0_WO4_ALT3);  // should always be defined
     discard(retval_digitalPinToTimerNow);
     analogWrite(PIN_TCA0_WO4_ALT3, 0);
     analogWrite(PIN_TCA0_WO4_ALT3, 128);
