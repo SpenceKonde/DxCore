@@ -103,12 +103,13 @@ void compile_test_PWM() {
   #endif
   retval_digitalPinHasPWM = digitalPinHasPWM(PIN_PF6);
   discard(retval_digitalPinHasPWM);
-  retval_digitalPinToTimerNow = digitalPinToTimerNow(NOT_A_PIN);
-  discard(retval_digitalPinToTimerNow);
-  retval_digitalPinToTimerNow = digitalPinToTimerNow(NOT_A_CONST_BYTE);
-  discard(retval_digitalPinToTimerNow);
-  retval_digitalPinToTimerNow = digitalPinToTimerNow(PIN_PF6);              // Never has PWM
-  discard(retval_digitalPinToTimerNow);
+  uint8_t retval_digitalPinToTimerNow2;
+  retval_digitalPinToTimerNow2 = digitalPinToTimerNow(NOT_A_PIN);
+  discard(retval_digitalPinToTimerNow2);
+  retval_digitalPinToTimerNow2 = digitalPinToTimerNow(NOT_A_CONST_BYTE);
+  discard(retval_digitalPinToTimerNow2);
+  retval_digitalPinToTimerNow2 = digitalPinToTimerNow(PIN_PF6);              // Never has PWM
+  discard(retval_digitalPinToTimerNow2);
   bool retval_digitalPinHasPWMNow = digitalPinHasPWMNow(NOT_A_CONST_BYTE);  // doesn't need more rigorous testing - all it does is call the above and check that it's non-zero.
   discard(retval_digitalPinHasPWMNow);
 };
