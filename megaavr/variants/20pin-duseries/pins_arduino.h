@@ -117,7 +117,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCD0_WOA_INIT               (PIN_PA4)
 
 
-#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) == PIN_PD4 || (p) == PIN_PD5) || ((p) > PIN_PA0 && (p) < PIN_PA6))
+#define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p))
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #

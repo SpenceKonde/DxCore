@@ -52,7 +52,7 @@ void setup() {
   Event3.set_generator(PIN_PC3);
   Event3.set_user(user::ccl0_event_b);
   Event3.start();
-#if defined(PIN_PC2)
+#if !defined(__AVR_DU__)
   Event4.set_generator(gen::ccl0_out);
   Event4.set_user(user::evoutc_pin_pc2);
   Event4.start();
