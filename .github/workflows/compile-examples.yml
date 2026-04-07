@@ -109,7 +109,7 @@ jobs:
         - megaavr/libraries/ZCD/examples/Read_state
         - megaavr/libraries/ZCD/examples/Simple_ZCD
         - megaavr/extras/ci/test-sketch/db/dummysketch
-      too-hard-to-make-build-at-lowpin-true-sketch-paths: |
+      too-hard-to-make-build-at-lowpin-false-sketch-paths: |
         - megaavr/libraries/Logic/examples/Modulate
       #avr-ea-series-sketch-paths: |
       optiboot-and-appspm-da-sketch-paths: |
