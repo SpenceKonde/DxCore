@@ -70,7 +70,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define NUM_ANALOG_INPUTS              ( 4)
 
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                  (PIN_PD6) /* warning: gets overridden when using Serial1 on 14-pin parts */
+  #define LED_BUILTIN                  (PIN_PD6) /* warning: gets overridden when using Serial1 bootloader on 14-pin parts (which uses PD6 forcing use of PD4 for the default LED) */
 #endif
 /* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD

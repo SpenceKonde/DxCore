@@ -11,28 +11,20 @@ Variant Definition file for generic EB parts           #
 with 28 pins.
 
 Part Numbers:
-AVR64DA28 AVR32DA28 AVR16DD28
-
-See VariantTemplate.h in extras folder an extensively annotated copy.
-
-Include guard and include basic libraries. We are normally including this inside Arduino.h
-*/
+AVR32EB28 AVR16EB28*/
 
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 #include <avr/pgmspace.h>
 #include "timers.h"
 
-#define DD_28PIN_PINOUT
+#define EB_28PIN_PINOUT
 
- /*##  ### #   #  ###
- #   #  #  ##  # #
- ####   #  # # #  ###
- #      #  #  ##     #
- #     ### #   #  #*/
-
-/* DA-like */
-
+        /*##  ### #   #  ###
+        #   #  #  ##  # #
+        ####   #  # # #  ###
+        #      #  #  ##     #
+        #     ### #   #  #*/
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 #define PIN_PA2 (2)
@@ -62,9 +54,16 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PF6 (26) // RESET
 #define PIN_PF7 (27) // UPDI
 
+
+
+
+        /*##   ##   ###  ###  ###  ###
+        #   # #  # #      #  #    #
+        ####  ####  ###   #  #     ###
+        #   # #  #     #  #  #        #
+        ####  #  # ####  ###  ###  #*/
 #define PINS_COUNT                     (28)
 #define NUM_ANALOG_INPUTS              (31)
-
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
@@ -77,20 +76,23 @@ Include guard and include basic libraries. We are normally including this inside
   #define LED_BUILTIN                  (PIN_PA7)
 #endif
 #ifdef CORE_ATTACH_OLD
-  #define EXTERNAL_NUM_INTERRUPTS        (47)
+  #define EXTERNAL_NUM_INTERRUPTS        (48)
 #endif
 
-
+       /*   #  ###   ### ####   ###   ###
+        ## ## #   # #    #   # #   # #
+        # # # ##### #    ####  #   #  ###
+        #   # #   # #    # #   #   #     #
+        #   # #   #  ### #  #   ###   ##*/
 #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0) ? (p) - PIN_PD0 : ((p) <= PIN_PF1 ? ((p) - 4) : NOT_A_PIN)):(((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)         ((p) > 31  ? NOT_A_PIN : ((p) < 8 ? ((p) + PIN_PD0) : (p) > 21 ? (p) - 20 : (((p) == 16 ? PIN_PF0) : ((p) == 17 ? PIN_PF1 : NOT_A_PIN))))
+#define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
+#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
 
 
 #define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : ((port)== PF ? PIN_PF0 : NOT_A_PIN))))
 
-
 // PWM pins
-
-
 #if defined(MILLIS_USE_TIMERB0)
   #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA3)
 #elif defined(MILLIS_USE_TIMERB1)
@@ -100,17 +102,24 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 // Timer pin mapping
-#define TCB0_PINS (0x00)                      // TCB0 output on PA2 (default) as the other options are not present on these parts.
-#define TCB1_PINS (0x00)                      // TCB1 output on PA3 (default) as the other options are not present on these parts.
-#define TCE0_PINS (0x00)
-#define TCF0_PINS (0x00)
+#define TCB0_PINS                       (0x00)                  // TCB0 output on PA2 (default) as the other options are not present on these parts.
+#define TCB1_PINS                       (0x00)                  // TCB1 output on PA3 (default) as the other options are not present on these parts.
+#define TCE0_PINS                       (0x02)                  // PORTC is not clearly the right port, but it's most likely to be, and is not objectionable, and is very consistent.
+#define TCF0_PINS                       (0x01)                  // The alt pinout is clearly better as default because of the number of things that grab PA0/1 in general
 #define PIN_TCB0_WO_INIT  (PIN_PA2)
 #define PIN_TCB1_WO_INIT  (PIN_PA3)
 
+/* digitalPinHasPWM(p) is an evil compatibility function that lies to keep api compatibility.
+It must not be used if the PORTMUX options for the timers are or may have been changed, otherwise it will give incorrect results.
+
+digitalPinHasPWMNow() provides the information that you want when you call this function, however, digitalPinHasPWM() is compiletime
+known and constant foldable - in many cases, this was relied upon by code in the wild... it's not an ideal situation.
+*/
+
 #if defined(MILLIS_USE_TIMERF0)
-  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p))
+  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || (((p) >= PIN_PC0) && ((p) <= PIN_PC3)))
 #else
-  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((p) == PIN_PA0) || ((p) == PIN_PA1) || ((p) == PIN_PA6) || ((p) == PIN_PA7))
+  #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p) || ((((p) >= PIN_PC0) && ((p) <= PIN_PC3))) || ((p) == PIN_PA6) || ((p) == PIN_PA7))
 #endif
 
         /*##   ###  ####  ##### #   # #   # #   #
@@ -118,13 +127,7 @@ Include guard and include basic libraries. We are normally including this inside
         ####  #   # ####    #   # # # #   #   #
         #     #   # #  #    #   #   # #   #  # #
         #      ###  #   #   #   #   #  ###  #   */
-
-// In contrast to DA/DB with no pinswap options available, the DD has them in spades!
-// defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid.
-
-
 #define SPI_INTERFACES_COUNT              (1)
-
 // SPI 0
 #define SPI_MUX                           (0x00)
 #define SPI_MUX_PINSWAP_3                 (0x03)
@@ -201,7 +204,6 @@ Include guard and include basic libraries. We are normally including this inside
       #### # # # #### #    #   # #  ##     ####   #  # # #  ###
       #  # #  ## #  # #    #   # #   #     #      #  #  ##     #
       #  # #   # #  # ####  ###   ###      #     ### #   #  ###               */
-
 #define PIN_A0            (PIN_PD0)
 #define PIN_A1            (PIN_PD1)
 #define PIN_A2            (PIN_PD2)
@@ -282,7 +284,23 @@ static const uint8_t A31 = PIN_A31;
             #   #  #  ##  #     #  # #   # #   # #  #  # #  #
             ####   #  # # #     #### ####  ####  ####   #    ###
             #      #  #  ##     #  # # #   # #   #  #   #       #
-            #     ### #   #     #  # #  #  #  #  #  #   #    ###
+            #     ### #   #     #  # #  #  #  #  #  #   #    ##*/
+
+/*         ----
+      GND |    | VDD
+      PF0 |    | PD7
+      PF1 |    | PD6
+RST   PA0 |    | PD5
+UPDI  PA1 |    | PD4
+VDD   PF6 |    | PD3
+GND   PF7 |    | PD2
+      PA0 |    | PD1
+      PA1 |    | PD0
+      PA2 |    | PC3
+      PA3 |    | PC2
+      PA4 |    | PC1
+      PA5 |    | PC0
+      PA6 |___*| PA7
 */
 #ifdef ARDUINO_MAIN
 

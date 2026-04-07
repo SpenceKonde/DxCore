@@ -309,7 +309,7 @@ jobs:
       - name: Compile examples (20 MHz, disable millis, sized appspm, flmap L0, wire mors)
         uses: arduino/compile-sketches@main
         with:
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,appspm=24plus,wiremode=mors,flmap=locksection0
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=20${{ matrix.clocksource }},millis=disabled,wiremode=mors,flmap=locksection0
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
