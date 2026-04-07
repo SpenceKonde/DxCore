@@ -839,7 +839,7 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
        - there are no parts for which a port exists that has a pin 2 or 7, but which does not allow that pin to be used as an event output, except for tiny 0/1, where only pin 2 is an option...
        We basically **don't have to test the port** as long as it's a valid port as we just tested. This is probably like 6-8 instructions instead of several dozen */
 
-      #if _AVR_PINCOUNT == 14
+      #if (_AVR_PINCOUNT == 14)
         uint8_t evout_user = (int8_t) event::user::evouta_pin_pa2;
         if (port_pin == 2) { //non-0/1 pin 2 handling
           event_user = (evout_user + port);
