@@ -87,8 +87,6 @@ jobs:
           - rtcxtal
           - TCB2
 
-        exclude:
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
