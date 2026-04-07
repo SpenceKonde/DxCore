@@ -11,12 +11,7 @@ Variant Definition file for generic EB parts           #
 with 14 pins.
 
 Part Numbers:
-AVR32EB14 AVR16EB14
-
-See VariantTemplate.h in extras folder an extensively annotated copy.
-
-Include guard and include basic libraries. We are normally including this inside Arduino.h
-*/
+AVR32EB14 AVR16EB14 */
 
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
@@ -30,13 +25,6 @@ Include guard and include basic libraries. We are normally including this inside
         ####   #  # # #  ###
         #      #  #  ##     #
         #     ### #   #  #*/
-
-/* The extreme low pincount, and desire to not have the majority of
- * the pin tables filled with NOT_A_PIN/NOT_ON_TIMER/etc nulls dictates a
- * more constrained pin numbering scheme.
- * PD0 and PD1, PD2, and PD3 are empty holes, but the there is no hole for PF0.
- */
-
 #define PIN_PA0 (0)
 #define PIN_PA1 (1)
 // No PA2 (2)
@@ -57,24 +45,36 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PD5 (17)
 #define PIN_PD6 (18)
 #define PIN_PD7 (19)
+// No PF0 - not numbered, unlike 28/32 pin
+// No PF1
+// No PF2
+// No PF3
+// No PF4
+// No PF5
 #define PIN_PF6 (20) // RESET
 #define PIN_PF7 (21) // UPDI
 
-#define FAKE_PD0
+#define FAKE_PIN_PD0
+
 
         /*##   ##   ###  ###  ###  ###
         #   # #  # #      #  #    #
         ####  ####  ###   #  #     ###
         #   # #  #     #  #  #        #
         ####  #  # ####  ###  ###  #*/
-
 #define PINS_COUNT                        (12)
 #define NUM_ANALOG_INPUTS                 (31)
+// #define NUM_RESERVED_PINS            0     // These may at your option be defined,
+// #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
+// Autocalculated are :
+// NUM_DIGITAL_PINS and NUM_TOTAL_PINS = highest number of any valid pin. NOT the number of pins!
+// TOTAL_FREE_OPINS = PINS_COUNT - NUM_INTERNALLY_USED_PINS
+// Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
+// for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                     (PIN_PD6)
 #endif
-/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS         (48)
 #endif
@@ -84,7 +84,6 @@ Include guard and include basic libraries. We are normally including this inside
         # # # ##### #    ####  #   #  ###
         #   # #   # #    # #   #   #     #
         #   # #   #  ### #  #   ###   ##*/
-#define IS_MVIO_ENABLED()              (0)
 #define digitalPinToAnalogInput(p)     (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) > PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)   (((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : (((p) >= 28     || (p) <= 31)    ) ? (p) - 20 : NOT_A_PIN)
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
@@ -98,28 +97,36 @@ Include guard and include basic libraries. We are normally including this inside
 #define digitalPinHasPWMTCB(p) (false)      // Not a single TCB timer output pin available!
 
 
+
+
+
+
 // Timer pin mapping
-
-
-
-#define TCB0_PINS           (0x00)                  // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
-#define TCB1_PINS           (0x00)                  // TCB0 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
-
-#define TCE0_PINS           (0x02)                  // PORTC is clearly the right port on a 14-pin part.
-#define TCF0_PINS           (0x00)                  // Connect pins that exist to TCF.
+#define TCB0_PINS                       (0x00)                  // TCB0 output on PA2 (Doesn't exist here) or PF4 (Doesn't exist here)? - decisions decisions!
+#define TCB1_PINS                       (0x00)                  // TCB0 output on PA3 (Doesn't exist here) or PF5 (Doesn't exist here)? - decisions decisions!
+#define TCE0_PINS                       (0x02)                  // PORTC is clearly the right port on a 14-pin part.
+#define TCF0_PINS                       (0x00)                  // Only one option.
 #define PIN_TCB0_WO_INIT    (NOT_A_PIN)
 #define PIN_TCB1_WO_INIT    (NOT_A_PIN)
 
+/* digitalPinHasPWM(p) is an evil compatibility function that lies to keep api compatibility.
+It must not be used if the PORTMUX options for the timers are or may have been changed, otherwise it will give incorrect results.
 
-#define digitalPinHasPWM(p)               (((p) == PIN_PA0) || ((p) == PIN_PA1)) // TCE PWM is handled by digitalPinHasPWMnow()
+digitalPinHasPWMNow() provides the information that you want when you call this function, however, digitalPinHasPWM() is compiletime
+known and constant foldable - in many cases, this was relied upon by code in the wild... it's not an ideal situation.
+*/
+
+#if defined(MILLIS_USE_TIMERF0)
+  #define digitalPinHasPWM(p)               ((((p) >= PIN_PC0) && ((p) <= PIN_PC3)))
+#else
+  #define digitalPinHasPWM(p)               ((((p) >= PIN_PC0) && ((p) <= PIN_PC3)) || ((p) == PIN_PA0) || ((p) == PIN_PA1))
+#endif
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
         ####  #   # ####    #   # # # #   #   #
         #     #   # #  #    #   #   # #   #  # #
         #      ###  #   #   #   #   #  ###  #   */
-
-
 #define SPI_INTERFACES_COUNT            (1)
 
 #define SPI_MUX_PINSWAP_4               (0x04)
@@ -180,7 +187,6 @@ Include guard and include basic libraries. We are normally including this inside
         ##### # # # ##### #    #   # #  ##     ####   #  # # #  ###
         #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
-
 #define PIN_A0            (NOT_A_PIN)
 #define PIN_A1            (NOT_A_PIN)
 #define PIN_A2            (NOT_A_PIN)
@@ -262,6 +268,16 @@ static const uint8_t A31 = PIN_A31;
         ####   #  # # #     ##### ####  ####  #####   #    ###
         #      #  #  ##     #   # #  #  #  #  #   #   #       #
         #     ### #   #     #   # #   # #   # #   #   #    #*/
+
+/*         ----
+      GND |*   | VDD
+RST   PF6 |    | PD7
+UPDI  PF7 |    | PD6
+      PA0 |    | PD5
+      PA1 |    | PD4
+      PC0 |    | PC3
+      PC1 |____| PC2
+*/
 
 #ifdef ARDUINO_MAIN
   const uint8_t digital_pin_to_port[] = {

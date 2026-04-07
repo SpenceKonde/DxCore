@@ -118,7 +118,7 @@ override CFLAGS  = -g -Wall $(OPTIMIZE)
 override LDFLAGS = $(LDSECTIONS) -Wl,--relax -nostartfiles -nostdlib
 
 OBJCOPY        = $(GCCROOT)avr-objcopy
-OBJDUMP        = "$(GCCROOT)avr-objdump"
+OBJDUMP        = $(GCCROOT)avr-objdump
 SIZE           = $(GCCROOT)avr-size
 
 include parse_options.mk
