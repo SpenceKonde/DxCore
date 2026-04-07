@@ -82,10 +82,10 @@ jobs:
       fail-fast: false
 
       matrix:
-        part: [avrdd:avr64dd28, avrda:avr128da28]
+        part: [avrdd:chip=avr64dd28, avrda:chip=avr128da28]
         millis:
           - rtcxtal
-          - TCB2
+          - tcb2
 
         exclude:
 
