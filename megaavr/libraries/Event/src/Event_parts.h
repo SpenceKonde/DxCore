@@ -1044,9 +1044,9 @@ namespace user{
         ccl3_event_a      = 0x06,
         ccl3_event_b      = 0x07,
         adc0_start        = 0x08,
-  #if defined(PIN_PA2)
+  //#if defined(PIN_PA2): required in Event:set_user_pin even if PIN_PA2 is not available
         evouta_pin_pa2    = 0x09,
-  #endif
+  //#endif
   #if defined(PIN_PC2)
         evoutc_pin_pc2    = 0x0A,
   #endif
