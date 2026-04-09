@@ -85,7 +85,7 @@ jobs:
         part: [avrdd:chip=avr64dd28, avrda:chip=avr128da28, avreb:chip=avr16eb14]
         millis:
           - rtcxtal
-          - default
+          - tcb1
         exclude:
           - part: avrda:chip=avr128da28
             millis: rtcxtal
