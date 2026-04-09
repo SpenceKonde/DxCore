@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   # repository_dispatch event allows the workflow to be triggered via the GitHub API
   # See: https://docs.github.com/en/actions/reference/events-that-trigger-workflows#repository_dispatch
-  repository_dispatch:
+  # repository_dispatch:
 
 jobs:
   compile-one:
@@ -79,27 +79,26 @@ jobs:
         - megaavr/extras/ci/test-sketch/da/dummysketch
 
     strategy:
-      fail-fast: false
+      fail-fast: true
 
       matrix:
         part: [avrdd:chip=avr64dd28, avrda:chip=avr128da28]
         millis:
           - rtcxtal
-          - tcb2
-
-        exclude:
+          - default
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          ref: rtc-fix
 
       # See: https://github.com/arduino/compile-sketches/README.md
-
       - name: Compile examples (rated max speed, nothing weird)
         uses: arduino/compile-sketches@main
         with:
           cli-version: 0.33.0
-          fqbn: ${{ env.platform-name }}:${{ matrix.part }},clock=24internal,millis=${{ matrix.millis }},wiremode=mands,flmap=lockdefault
+          fqbn: ${{ env.platform-name }}:${{ matrix.part }},clock=20internal,millis=${{ matrix.millis }},wiremode=mands,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -115,7 +114,7 @@ jobs:
             # The sketches don't have any external library dependencies, so just define an empty array
             -
           verbose: false
-          enable-deltas-report: true
+          enable-deltas-report: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
