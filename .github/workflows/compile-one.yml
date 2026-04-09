@@ -82,12 +82,14 @@ jobs:
       fail-fast: true
 
       matrix:
-        part: [avrdd:chip=avr64dd28, avrda:chip=avr128da28]
+        part: [avrdd:chip=avr64dd28, avrda:chip=avr128da28, avreb:chip=avr16eb14]
         millis:
           - rtcxtal
           - default
         exclude:
           - part: avrda:chip=avr128da28
+            millis: rtcxtal
+          - part: avreb:chip=avr16eb14
             millis: rtcxtal
 
     steps:
