@@ -40,7 +40,6 @@ void compile_test_timekeeping() {
     set_millis(NOT_A_CONST_DWORD);
     uint32_t retval_millis = millis();
     discard(retval_millis);
-  #ifndef MILLIS_USE_TIMERRTC
     uint32_t retval_micros = micros();
     discard(retval_micros);
     // pulsein with micros
@@ -50,7 +49,6 @@ void compile_test_timekeeping() {
     discard(retval_pulseInLong);
     retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, NOT_A_CONST_DWORD);
     discard(retval_pulseInLong);
-    #endif
   #endif
   uint16_t retval_clockCyclesPerMicrosecond = clockCyclesPerMicrosecond();
   discard(retval_clockCyclesPerMicrosecond);
@@ -72,7 +70,5 @@ void compile_test_timekeeping() {
   delay(1234);
   delay(NOT_A_CONST_DWORD);
   delayMicroseconds(2345);
-  #ifndef MILLIS_USE_TIMERRTC
   delayMicroseconds(NOT_A_CONST_WORD);
-  #endif
 };
