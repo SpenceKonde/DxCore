@@ -3,11 +3,22 @@
 void setup()
 {
     Serial.begin(115200);
-    Serial.printf("start");
+    delay(500);
+    Serial.printf("start\n");
+    Serial.flush();
+    while(millis() < 3) ; // wait for XTAL start-up
+    set_millis(0);
 }
 
+long t=8192, time=0;
+long delta=8192;
 void loop()
 {
-    rtc_sleep(5000000);
-    Serial.printf("time %ld\n", millis());
+    t=8192;
+    rtc_sleep(t);
+    t=millis();
+    delta=t-time;
+    Serial.printf("time %ld  %ld\n", t, delta);
+    time=t;
+    Serial.flush();
 }

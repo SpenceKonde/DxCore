@@ -1,0 +1,81 @@
+/*
+  Low power hibernation for AVR DxCore, AVR xmega.
+  These chips have an RTC clock running at 32kHz.
+  When the RTC is used as Arduino millis() timer, this code
+  uses the running RTC to implement a delay() equivalent that
+  sends the chip into low power Sleep_Standby_Mode during delay.
+
+  This relies on the RTC interrupt routine of DxCore/../cores/.../wiring.c
+  which saves the interrupt flags to __rtc_intflags.
+*/
+
+#include <RTC_Sleep.h>
+#include <avr/sleep.h>
+
+extern char __rtc_intflags;
+
+#define DEBUG
+/* Debugging by increasing the timer overflow frequency and using DEBUG_PIN to observe the timing.
+ * The clock runs at 1024Hz, so a delay of 1 is a bit smaller than 1us.
+ */
+#ifdef DEBUG
+#define DEBUG_PIN PIN_PC0
+#define RTC_MAX 0x00ff
+void rtc_sleep_setup()
+{
+  digitalWrite(DEBUG_PIN, 1);
+  pinMode(DEBUG_PIN, OUTPUT);
+
+  // set up RTC with 32kHz crystal running at 1024 Hz
+  _PROTECTED_WRITE(CLKCTRL_XOSC32KCTRLA, (CLKCTRL_RUNSTDBY_bm | CLKCTRL_ENABLE_bm | CLKCTRL_CSUT_16K_gc | CLKCTRL_LPMODE_bm)) ;
+  _PROTECTED_WRITE(RTC_CTRLA, RTC_RUNSTDBY_bm | RTC_PRESCALER_DIV32_gc | RTC_RTCEN_bm) ;
+  _PROTECTED_WRITE(RTC_CLKSEL, 0x02 ) ; // RTC_CLKSEL_XTAL32K_gc is redefined in dxcore/core_devices.h and gives a compilation error
+  while( ! (CLKCTRL.MCLKSTATUS&CLKCTRL_XOSC32KS_bm) ) ;
+
+  // set up RTC period
+  while (RTC.STATUS && RTC_PERBUSY_bm);
+  RTC.PER = RTC_MAX;
+  while (RTC.STATUS && RTC_CNTBUSY_bm);
+  RTC.CNT = 0;
+}
+#else
+#define RTC_MAX 0xffff
+#endif
+
+void rtc_sleep(unsigned long dly)
+{
+  volatile unsigned int cntr, cnt;
+
+  dly = dly + (dly>>6) + (dly>>7) + (dly>>11) + (dly>>14); // ms -> 1024Hz
+  do {
+    cnt = (dly > RTC_MAX) ? RTC_MAX : dly;
+    dly =  dly - cnt;
+    while (RTC.STATUS && RTC_CNTBUSY_bm); // wait for RTC.CNT sync
+    cntr = RTC.CNT;
+    while (RTC.STATUS && RTC_CMPBUSY_bm); // wait for RTC.CNT sync
+    RTC.CMP = (cntr+cnt-1)&RTC_MAX;
+    RTC.INTCTRL |= RTC_CMP_bm; //enable CMP Interrupt RTC_CMP
+
+    set_sleep_mode(SLEEP_MODE_STANDBY);
+    sleep_enable();
+    sleep_cpu();
+    if ( __rtc_intflags == RTC_OVF_bm ) {
+        sleep_cpu();
+    }
+    sleep_disable();
+    while (RTC.STATUS && RTC_CNTBUSY_bm) {};   // required for millis()
+
+    #ifdef DEBUG
+    {
+    volatile int j,l,m;
+    j = RTC.CNT&RTC_MAX;
+    m = (j==0) ? 200:100;
+    digitalWrite(DEBUG_PIN,0);
+    for(l=0; l < m ; l++);
+    digitalWrite(DEBUG_PIN,1);
+    }
+    #endif
+
+    RTC.INTCTRL &= ~RTC_CMP_bm;
+  } while ( dly );
+}
