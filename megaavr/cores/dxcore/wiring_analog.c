@@ -370,6 +370,27 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     check_valid_analog_ref(mode);
     if (mode > 7)
       mode &= 7;
+    switch(mode) {
+      case INTERNAL1V024:
+        mode = ADC_REFSEL_1V024_gc;
+        break;
+      case INTERNAL2V048:
+        mode = ADC_REFSEL_2V048_gc;
+        break;
+      case INTERNAL4V096:
+        mode = ADC_REFSEL_4V096_gc;
+        break;
+      case INTERNAL2V500:
+        mode = ADC_REFSEL_2V500_gc;
+        break;
+      case EXTERNAL:
+        mode = ADC_REFSEL_VREFA_gc;
+        break;
+      default:
+        case DEFAULT:
+        mode = ADC_REFSEL_VDD_gc;
+        break;
+    }
     if (mode != 1 && mode != 3) {
       ADC0.CTRLC = mode;
     }
@@ -425,7 +446,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
         pin = digitalPinToAnalogInput(pin);
       }
       pin &= 0x3F;
-      if (pin != 0x33 && pin != 0x31 && pin != 0x30 && pin > 0x07) {
+      if (pin != 0x38 && pin > 0x32) {
         badArg("Invalid negative pin - valid options are ADC_GROUND, ADC_VDDDIV10, ADC_DACREF0, or any pin on PORTA.");
       }
     }
@@ -627,6 +648,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   0 takes action, and -1 sets to default.
   */
   int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
+    int16_t clkadc;
     if (frequency == -1) {
       frequency = 2750;
     }
@@ -634,11 +656,9 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       if ((options & 0x01) == 0) {
         frequency = constrain(frequency, 300, ((ADC0.CTRLC & 0x04) ? 3000 : 6000));
       }
-      uint8_t prescale = 0;
-      for (uint8_t i = 0; i < 16; i++) {
-        int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
-        prescale = i;
-        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
+      for (uint8_t prescale = 0; prescale < 16; prescale++) {
+        clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[prescale]);
+        if ((frequency >= clkadc) || (pgm_read_word_near(&adc_prescale_to_clkadc[prescale + 1]) < ((options & 0x01) ? 2 : 300))) {
           ADC0.CTRLB = prescale;
           break;
         }
@@ -647,7 +667,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     if (frequency < 0) {
       return ADC_ERROR_INVALID_CLOCK;
     }
-    return adc_prescale_to_clkadc[ADC0.CTRLB];
+    return clkadc;
   }
 
 

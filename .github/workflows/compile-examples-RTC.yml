@@ -1,20 +1,10 @@
-name: Compile Examples
+name: Compile Examples RTC
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/compile-examples.yml"
-      - "megaavr/libraries/**"
-      - "megaavr/cores/**"
-      - "megaavr/variants/**"
-      - "megaavr/*.txt"
   push:
-    paths:
-      - ".github/workflows/compile-examples.yml"
-      - "megaavr/libraries/**"
-      - "megaavr/cores/**"
-      - "megaavr/variants/**"
-      - "megaavr/*.txt"
+    branches:
+      - rtc-fix
+
   # workflow_dispatch event allows the workflow to be triggered manually
   # See: https://docs.github.com/en/actions/reference/events-that-trigger-workflows#workflow_dispatch
   workflow_dispatch:
@@ -164,10 +154,15 @@ jobs:
           - 16
           - 32
           - 48
+        millis:
+          - rtc
+          - rtcxtal
+          - rtcxosc
+
         # Filter out these matrix combinations
 
-
         exclude:
+          - overclock-osc: 48
           # Things w/out xtals
           - device-family: da
             clocksource: crystal
@@ -462,14 +457,22 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+      #    with:
+      #      ref: ${{ github.ref.name }}
+
+      - name: check
+        run: |
+          pwd
+          echo github.ref.name ${{ github.ref_name }}
+          echo workflow ${{ github.workflow_ref }}
 
       # See: https://github.com/arduino/compile-sketches/README.md
 
-      - name: Compile examples (rated max speed, nothing weird)
+      - name: Compile examples (rated max speed, nothing weird, RTC all modes)
         uses: arduino/compile-sketches@main
         with:
           cli-version: 0.33.0
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},wiremode=mands,flmap=lockdefault
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},millis=${{ matrix.millis }},wiremode=mands,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
@@ -494,6 +497,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
+
       - name: Compile examples (overclocked to the max, tcb1 millis, minimal printf, old attachInterrupt, full appspm)
         uses: arduino/compile-sketches@main
         with:
@@ -524,6 +528,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
+
       - name: Compile examples (20 MHz, disable millis, sized appspm, flmap L0, wire mors)
         uses: arduino/compile-sketches@main
         with:
@@ -551,6 +556,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
+
       - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
         if: matrix.device-family != 'ea' && matrix.device-family != 'eb' && matrix.device-family != 'du'
         uses: arduino/compile-sketches@main
