@@ -457,15 +457,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref.name }}
+      #    with:
+      #      ref: ${{ github.ref.name }}
 
       - name: check
         run: |
           pwd
-          echo github.ref.name ${{ github.ref.name }}
-          echo workflow ${{ github.workflow.ref }}
-          ls -l .github/workflows
+          echo github.ref.name ${{ github.ref_name }}
+          echo workflow ${{ github.workflow_ref }}
 
       # See: https://github.com/arduino/compile-sketches/README.md
 
