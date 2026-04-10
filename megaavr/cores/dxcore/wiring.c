@@ -129,6 +129,10 @@ void init_timers();
       // both are needed for TCA and TCD.
       if (RTC.INTFLAGS & RTC_OVF_bm) {
         timingStruct.timer_overflow_count++;
+        RTC.INTFLAGS = RTC_OVF_bm; // clear flag
+        if ( RTC.INTCTRL & RTC_CMP_bm ) { // RTC CMP active
+          if (! (RTC.INTFLAGS & RTC_CMP_bm) )  __asm__ __volatile__ ( "sleep" "\n\t" :: );
+        }
       }
       __rtc_intflags = RTC.INTFLAGS;
       RTC.INTFLAGS = RTC_OVF_bm | RTC_CMP_bm; // clear flag
