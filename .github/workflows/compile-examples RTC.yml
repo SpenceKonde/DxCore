@@ -157,7 +157,7 @@ jobs:
         millis:
           - rtc
           - rtcxtal
-          - rtcosc
+          - rtcxosc
 
         # Filter out these matrix combinations
 
