@@ -1,4 +1,4 @@
-name: Compile Examples
+name: Compile Examples RTC
 
 on:
   push:
@@ -162,6 +162,7 @@ jobs:
         # Filter out these matrix combinations
 
         exclude:
+          - overclock-osc: 48
           # Things w/out xtals
           - device-family: da
             clocksource: crystal
