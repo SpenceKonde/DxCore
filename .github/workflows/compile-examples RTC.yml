@@ -448,11 +448,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          ref: ${{GITHUB_REF_NAME}}
+          ref: ${{ github.ref.name }}
 
       - name: check
         run: |
-          echo ${{GITHUB_REF_NAME}}
+          echo ${{ github.ref.name }}
 
       # See: https://github.com/arduino/compile-sketches/README.md
 
