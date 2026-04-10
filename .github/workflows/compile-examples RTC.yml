@@ -154,6 +154,11 @@ jobs:
           - 16
           - 32
           - 48
+        millis:
+          - rtc
+          - rtcxtal
+          - rtcosc
+
         # Filter out these matrix combinations
 
         exclude:
@@ -456,15 +461,18 @@ jobs:
 
       - name: check
         run: |
-          echo ${{ github.ref.name }}
+          pwd
+          echo github.ref.name ${{ github.ref.name }}
+          echo workflow ${{ github.workflow.ref }}
+          ls -l .github/workflows
 
       # See: https://github.com/arduino/compile-sketches/README.md
 
-      - name: Compile examples (rated max speed, nothing weird)
+      - name: Compile examples (rated max speed, nothing weird, RTC all modes)
         uses: arduino/compile-sketches@main
         with:
           cli-version: 0.33.0
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},millis=rtcxtal,wiremode=mands,flmap=lockdefault
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},millis=${{ matrix.millis }},wiremode=mands,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
