@@ -12,6 +12,8 @@
 #include <RTC_Sleep.h>
 #include <avr/sleep.h>
 
+#define RTC_MAX 0xffff
+
 void rtc_sleep(unsigned long dly)
 {
   volatile unsigned int cntr, cnt;

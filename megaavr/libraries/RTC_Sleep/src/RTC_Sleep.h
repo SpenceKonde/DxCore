@@ -3,6 +3,6 @@
 
 #include <Arduino.h>
 
-void rtc_sleep(unsigned long time)
+void rtc_sleep(unsigned long time);
 
 #endif
