@@ -24,7 +24,6 @@
   megaTinyCore and DxCore.
 */
 
-#include "avr/io.h"
 #define ARDUINO_MAIN
 #include "wiring_private.h"
 #include "pins_arduino.h"
