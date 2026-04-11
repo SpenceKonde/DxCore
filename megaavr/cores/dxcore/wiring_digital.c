@@ -24,6 +24,7 @@
   megaTinyCore and DxCore.
 */
 
+#include "avr/io.h"
 #define ARDUINO_MAIN
 #include "wiring_private.h"
 #include "pins_arduino.h"
@@ -298,10 +299,13 @@ void turnOffPWM(uint8_t pin) {
         }
       }
     #endif
+
     #if defined(DAC0)
       if (digital_pin_timer == DACOUT) {
-        _setInput(portnum, bit_mask);
-        DAC0.CTRLA &= ~0x41; // clear we want to turn off the DAC in this case
+        if (DAC0.CTRLA & DAC_OUTEN_bm) {  // digitalWrite() to DAC Output: Disable DAC
+          DAC0.CTRLA &= ~0x41;            // clear we want to turn off the DAC in this case
+          _setOutput(portnum, bit_mask);  // enable pin as Output
+        }
       }
     #endif
   }
