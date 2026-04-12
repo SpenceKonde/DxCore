@@ -1480,8 +1480,8 @@ void analogWrite(uint8_t pin, int val) {
   check_valid_duty_cycle(val);    // Compile error if constant duty cycle isn't between 0 and 255, inclusive. If those are generated at runtime, it is truncated to that range.
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if (bit_mask == NOT_A_PIN) return; //this catches any run-time determined pin that isn't a pin.
-  if (val == 255 || val == 0) {
-    digitalWrite(pin,(val?HIGH:LOW));
+  if ((val == 0 || val == 255)) {
+    digitalWrite(pin,val ? HIGH : LOW);
     return;
   }
   uint8_t portnum  = digitalPinToPort(pin);
@@ -1581,7 +1581,7 @@ void analogWrite(uint8_t pin, int val) {
       return;
     }
 
-  #elif defined(TCE0)
+  #elif defined(TCE0) && defined(WEX0) // The TCE is WEX Luther's right-hand timer; in LA, where WEX hasn't been seen, TCE just isn't the same
     if (bit_mask < 0x10 && (__PeripheralControl & TIMERE0)) {
       uint8_t usetce0 = 0;
       uint8_t tcemux = PORTMUX.TCEROUTEA;
@@ -1621,6 +1621,8 @@ void analogWrite(uint8_t pin, int val) {
         return;
       }
     }
+  #elif defined(TCE0) // WEXles TCE on the LA needs different handling. It looks to me as if the WEXless TCE is very much like a TCA with the wonderful split mode removed. It's even back to 3 channels.
+                      // We can probably reuse the code for the TCA, or use it as a model, because with the likely mux layout, it's going to be like TCA0 only with half the pins.
   #endif
   /* Now we use the table in variant */
   uint8_t digital_pin_timer = digitalPinToTimer(pin);
@@ -1760,18 +1762,21 @@ void analogWrite(uint8_t pin, int val) {
     #endif
     #if defined(DAC0)
       if (digital_pin_timer == DACOUT) {
-        _setInput(portnum, bit_mask);
         uint8_t ctrla = DAC0.CTRLA;
-        if (val == 0 || val == 255) {
-          ctrla &= ~0x41; // clear we want to turn off the DAC in this case
-        }
-        PORTD.PIN6CTRL |= PORT_ISC_INPUT_DISABLE_gc;
+        /* Previously there was a bunch of logic to check if we were writing 0 or 255 so we could turn off the DAC.
+          That was a can't-happen, we already caught that at the start and diverted to digitalWrite and returned
+          in the case that 0 or 255 was passed as the second argument.
+         */
+        ctrla |= 0x41;
+        VPORTD.DIR &=  ~0x40; // make sure the output drivers are off, don't want the DAC to fight that.
+        PORTD.PIN6CTRL |= PORT_ISC_INPUT_DISABLE_gc; // per datasheet, input must be disabled.
+        // Now set the value and write control.
         #if defined(DAC0_DATAH)
           DAC0.DATAH = val;
-          DAC0.CTRLA |= 0x41; // OUTEN = 1, ENABLE = 1, but don't trash run stby
+          DAC0.CTRLA = ctrla; // OUTEN = 1, ENABLE = 1, but don't trash run stby
         #else
           DAC0.DATA = val;
-          DAC0.CTRLA |= 0x41; // OUTEN = 1, ENABLE = 1, but don't trash run stby
+          DAC0.CTRLA = ctrla; // OUTEN = 1, ENABLE = 1, but don't trash run stby
         #endif
         return;
       }
@@ -1783,7 +1788,7 @@ void analogWrite(uint8_t pin, int val) {
         c. The timer spec table was not available.
   */
   if (val > 127) {
-    _setValueHigh(portnum,bit_mask);
+
   } else {
     _setValueLow(portnum,bit_mask);
   }

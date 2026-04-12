@@ -300,8 +300,21 @@ void turnOffPWM(uint8_t pin) {
     #endif
     #if defined(DAC0)
       if (digital_pin_timer == DACOUT) {
-        _setInput(portnum, bit_mask);
-        DAC0.CTRLA &= ~0x41; // clear we want to turn off the DAC in this case
+        uint8_t ctrla = DAC0.CTRLA;
+        if (!(ctrla & 0x01)) {
+          // DAC off already, done
+          return;
+        }
+        ctrla &= ~0x41;
+        DAC0.CTRLA = ctrla;
+        // Now what does other PWM do when it turns off a timer?
+        // analogWrite(pin,100); TurnOffPWM(pin);
+        // leads to a pin that is usually set output
+        // and which can detect it's input levels.
+        PORTD.PIN6CTRL &= ~PORT_ISC_INPUT_DISABLE_gc; // reenable input
+        VPORTD.DIR |= 0x40; //set output
+
+
       }
     #endif
   }
