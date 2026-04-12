@@ -29,17 +29,28 @@ This board package can be installed via the board manager. The boards manager UR
 ## Manual Installation
 Manual installation allows the latest version of the core to be installed, with fixes that may not yet be available in the board manager version of the core. Manual installation is recommended if you are working on developing or modifying the core - however, the requirements are brutal.
 
-* You must be using a copy of the Arduino IDE that has never had an AVR board definition package installed on it (typically this means the .zip archive, extract, and create a portable folder inside before first run - unless you're developing mulitpl)
-* You must update the toolchain. Search the .json file above `"tools": [` Of the 4 hits, you're looking for the avr-gcc one.
-  * Scroll down to the most recent version (currently azduino7b)
-  * Download and decompress the version for your OS.
-  * You will find an 'avr' directory containing several subdirectories. This may or may not be enclosed in one or more directories depending on what program is used to decompress it..
+1. Prepare a new copy of the IDE in a portable installation. This version of the IDE should be separate from one used for other work.
+2. You must update the toolchain. Use the links below or search the .json file above for `archiveFileName": "avr-gcc` to find the section with the toolchain version
+  a. Scroll down to the most recent version (currently azduino8); Download and decompress the version for your OS.
+    * [Linux for ARM64 (aarch64)](https://spencekondetoolchains.s3.us-east-1.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino8-aarch64-pc-linux-gnu.tar.bz2)
+    * [Linux for ARM32 (gnueabi)](https://spencekondetoolchains.s3.us-east-1.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino8-arm-linux-gnueabihf.tar.bz2)
+    * [Linux for x86-32](https://spencekondetoolchains.s3.us-east-1.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino8-i686-pc-linux-gnu.tar.bz2)
+    * [Linux for x86-64](https://github.com/SpenceKonde/DxCore/raw/gh-pages/avr-gcc-7.3.0-atmel3.6.1-azduino8-x86_64-pc-linux-gnu.tar.bz2)
+    * [MacOS for x86-64](https://spencekondetoolchains.s3.us-east-1.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino8-x86_64-apple-darwin14.tar.bz2)
+    * [Windows for x86-32 and x86-64](https://spencekondetoolchains.s3.us-east-1.amazonaws.com/avr-gcc-7.3.0-atmel3.6.1-azduino8a-i686-w64-mingw32.tar.bz2)
+  b. You will find an 'avr' directory containing several subdirectories. (This may or may not be enclosed in one or more directories depending on what program is used to decompress it)
     * The directory structure is *very* confusing, and behavior of archiving tools is very idiosyncratic with regards to .tar.bz2 files. There are a hell of a lot of nested "avr" directories, "lib" and "bin" directories that are talking about totally different things at different points in the tree.
-  * Copy this into `arduino root folder)/hardware/tools` - if you did this right, you'll be told that thousands of files are different. Replace them all!
-* If you want SerialUPDI, you need to also follow [megaavr/tools/ManualPython.md](megaavr/tools/ManualPython.md).
+  c. Copy this into `arduino root folder)/hardware/tools` - if you did this right, you'll be told that thousands of files are different. Replace them all!
+3. Many people wish to upload code to hardware (you can skip this step if you don't need that; often compiletesting is sufficient during core development - . In order to do that, you must manually install one of the upload tools. **AS OF VERSION 1.6.2** we have upgraded to version 8.1 of AVRdude, and we can no longer subsist on old versions of avrdude.
+  a. To upload to over updi using the serial  adapter rigged with a diode or resistor, you want SerialUPDI; to manually install that follow these instructions: [megaavr/tools/ManualPython.md](megaavr/tools/ManualPython.md).
+  b. To upload via any other method, you must download the 8.1 avrdude and  The file below for your OS needs to be downloaded, extracted
+  * [Linux for ARM64 (aarch64)](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_ARMv6.tar.gz)
+  * [Linux for ARM32 (gnueabi)](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_ARM64.tar.gz)
+  * [MacOS for x86-64](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_macOS_64bit.tar.gz)
+  * [Linux for x86-64](https://github.com//avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_64bit.tar.gz)
+  * [Linux for x86-32](https://github.com//avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_32bit.tar.gz)
+  * [Windows for x86-32 and x86-64](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Windows_32bit.tar.gz)
+4. Once that all is done, you've only got a minor step or two left - you need to create a "hardware" folder inside the sketchbook folder (inside portable assuming you went that route, which you should) amd then and only then should you install the core.
+  a. Option 1: Download the .zip package (either the "released" version, or by downloading the .zip of master repo), extract, and place in the hardware folder inside your sketchbook folder (if there is no hardware folder, create it). You can find/set the location of the sketchbook folder in the Arduino IDE at File > Preferences -> Sketchbook location.
+  b. Option 2: Download the github client, and sync this repo to the hardware subfolder of your sketchbook folder. For a portable windows installation, it's typically IDE location/portable/sketchbook/hardware (you will have to create hardware.)
 
-Once that all is done, you've only got a minor step or two left - you need to create a "hardware" folder inside the sketchbook folder (inside portable assuming you went that route, which you should) amd then and only then should you install the core.
-
-* Option 1: Download the .zip package (either the "released" version, or by downloading the .zip of master repo), extract, and place in the hardware folder inside your sketchbook folder (if there is no hardware folder, create it). You can find/set the location of the sketchbook folder in the Arduino IDE at File > Preferences -> Sketchbook location.
-
-* Option 2: Download the github client, and sync this repo to the hardware subfolder of your sketchbook folder. For a portable windows installation, it's typically IDE location/portable/sketchbook/hardware (you will have to create hardware.)

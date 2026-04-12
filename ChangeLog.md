@@ -3,22 +3,44 @@ This page documents (nearly) all bugfixes and enhancements that produce visible 
 
 ## Planned changes not yet implemented
 These items are in addition to what was listed under changes already in release.These are typically planned for release in a future version (usually the next one) as noted.
-* Enhancement: AVRdude ~7.2~ 8.0 out. We should figure out how to use it.
 * Enhancement: Implement sleep library
 * Re-add SPI attach and detach.
 
 ## Unreleased Changes
-### Planned 1.6.2
+
+
+## Released Changes
+### 1.6.2 4/12/26
 * Fix #585, issue with SSD not being set correctly in SPI::config(), caused device to sometimes start up in slave mode for no no obvious reason.
 * Fix doc issues
 * Fix issue with wire tests for PORTMUX, we were testing #if defined() on macros... which, when they weren't present, we defined as -1. This should have broken a lot more than it did.
 * Fix issue in SPI released with 1.6.1
 * Fix issue with some parts failing to compile at all due to misordered punctuation..
 * Ongoing attempt to get the tests to a passing state.
-* Correct issue with DU-series variant files
+* Correct numerous issues with the new variant files
+* Correct numerous issues with libraries not supporting new parts and tests failing inappropriately
+* Correct default PWM pin condiguration on EB-series to a reasonable option. Previously these were not well chosen.
+* Correct the PWM test functions to behave as advertised.
+* Update to use AVRdude 8.1 for all non-serialUPDI uploads.
+  * Update platform.txt and programmers.txt appropriately.
+  * Supported programmer list is now:
+    * SerialUPDI (via SerialUPDI as before, with improvements)
+    * JTAGv2 to UPDI bridge (jtag2updi)
+    * Microchip Curiosity Nano (nEDBG/ATSAMD21)
+    * Microchip PICkit Basic
+    * Microchip PICkit 4
+    * Microchip PICkit 5
+    * Microchip SNAP
+    * Atmel Xplained Pro (EDBG/AT32UC3)
+    * Atmel Xplained Mini (mEDBG/ATmega32u4)
+    * Atmel-ICE (EDBG)
+    * Atmel PowerDebugger
+* Correct issue effecting updates to 1.6.1 on Windows via board manager.
+* Fix #575 (Quote nonsense in the makefile)
+* Fix #590 correctly (#608)
+  * DAC functionality was generally hosed because of bug introduced with 1.6.0, this should be corrected.
+* Correct some missing DA-S parts in boards.txt, correct display order of chip selection menu.
 
-
-## Released Changes
 ### 1.6.1 3/27/26
 * 1.6.0 omitted the most important development change, that being the new toolchain, so we can't run regrewssion tests oin the 1.6.1 development version because the toolchain released with 1.6.0 was wrong. All caveats of 1.6.0 apply to 1.6.1.
 * Correct #588 - Make analog and DAC references work on EA and later, where the reference setting is in the ADC not the VREF, and where it has rthe same options in a scrambled order. The reference constants do work for both DAC and ADC now.
