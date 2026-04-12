@@ -210,81 +210,142 @@ avrda.build.appspmabr=.spm{bootloader.CODESIZE}
 # Chip (memory and pincount)             #
 #________________________________________#
 avrda.menu.chip.avr128da28=AVR128DA28
-avrda.menu.chip.avr128da28.build.mcu=avr128da28
-avrda.menu.chip.avr128da28.upload.maximum_size=131072
-avrda.menu.chip.avr128da28.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da28.build.variant=28pin-standard
 avrda.menu.chip.avr128da32=AVR128DA32
-avrda.menu.chip.avr128da32.build.mcu=avr128da32
-avrda.menu.chip.avr128da32.upload.maximum_size=131072
-avrda.menu.chip.avr128da32.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da32.build.variant=32pin-standard
 avrda.menu.chip.avr128da48=AVR128DA48
-avrda.menu.chip.avr128da48.build.mcu=avr128da48
-avrda.menu.chip.avr128da48.upload.maximum_size=131072
-avrda.menu.chip.avr128da48.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da48.build.variant=48pin-standard
 avrda.menu.chip.avr128da64=AVR128DA64
-avrda.menu.chip.avr128da64.build.mcu=avr128da64
-avrda.menu.chip.avr128da64.upload.maximum_size=131072
-avrda.menu.chip.avr128da64.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da64.build.variant=64pin-standard
 avrda.menu.chip.avr64da28=AVR64DA28
-avrda.menu.chip.avr64da28.build.mcu=avr64da28
-avrda.menu.chip.avr64da28.upload.maximum_size=65536
-avrda.menu.chip.avr64da28.upload.maximum_data_size=8192
-avrda.menu.chip.avr64da28.build.variant=28pin-standard
 avrda.menu.chip.avr64da32=AVR64DA32
-avrda.menu.chip.avr64da32.build.mcu=avr64da32
-avrda.menu.chip.avr64da32.upload.maximum_size=65536
-avrda.menu.chip.avr64da32.upload.maximum_data_size=8192
-avrda.menu.chip.avr64da32.build.variant=32pin-standard
 avrda.menu.chip.avr64da48=AVR64DA48
-avrda.menu.chip.avr64da48.build.mcu=avr64da48
-avrda.menu.chip.avr64da48.upload.maximum_size=65536
-avrda.menu.chip.avr64da48.upload.maximum_data_size=8192
-avrda.menu.chip.avr64da48.build.variant=48pin-standard
 avrda.menu.chip.avr64da64=AVR64DA64
-avrda.menu.chip.avr64da64.build.mcu=avr64da64
-avrda.menu.chip.avr64da64.upload.maximum_size=65536
-avrda.menu.chip.avr64da64.upload.maximum_data_size=8192
-avrda.menu.chip.avr64da64.build.variant=64pin-standard
 avrda.menu.chip.avr32da28=AVR32DA28
-avrda.menu.chip.avr32da28.build.mcu=avr32da28
-avrda.menu.chip.avr32da28.upload.maximum_size=32768
-avrda.menu.chip.avr32da28.upload.maximum_data_size=4096
-avrda.menu.chip.avr32da28.build.variant=28pin-standard
 avrda.menu.chip.avr32da32=AVR32DA32
-avrda.menu.chip.avr32da32.build.mcu=avr32da32
-avrda.menu.chip.avr32da32.upload.maximum_size=32768
-avrda.menu.chip.avr32da32.upload.maximum_data_size=4096
-avrda.menu.chip.avr32da32.build.variant=32pin-standard
 avrda.menu.chip.avr32da48=AVR32DA48
-avrda.menu.chip.avr32da48.build.mcu=avr32da48
-avrda.menu.chip.avr32da48.upload.maximum_size=32768
-avrda.menu.chip.avr32da48.upload.maximum_data_size=4096
-avrda.menu.chip.avr32da48.build.variant=48pin-standard
-
 avrda.menu.chip.avr128da28s=AVR128DA28S
-avrda.menu.chip.avr128da28s.build.mcu=avr128da28
-avrda.menu.chip.avr128da28s.upload.maximum_size=131072
-avrda.menu.chip.avr128da28s.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da28s.build.variant=28pin-standard
 avrda.menu.chip.avr128da32s=AVR128DA32S
-avrda.menu.chip.avr128da32s.build.mcu=avr128da32
-avrda.menu.chip.avr128da32s.upload.maximum_size=131072
-avrda.menu.chip.avr128da32s.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da32s.build.variant=32pin-standard
 avrda.menu.chip.avr128da48s=AVR128DA48S
-avrda.menu.chip.avr128da48s.build.mcu=avr128da48
-avrda.menu.chip.avr128da48s.upload.maximum_size=131072
-avrda.menu.chip.avr128da48s.upload.maximum_data_size=16384
-avrda.menu.chip.avr128da48s.build.variant=48pin-standard
 avrda.menu.chip.avr128da64s=AVR128DA64S
-avrda.menu.chip.avr128da64s.build.mcu=avr128da64
-avrda.menu.chip.avr128da64s.upload.maximum_size=131072
-avrda.menu.chip.avr128da64s.upload.maximum_data_size=16384
+avrda.menu.chip.avr64da28s=AVR64DA28S
+avrda.menu.chip.avr64da32s=AVR64DA32S
+avrda.menu.chip.avr64da48s=AVR64DA48S
+avrda.menu.chip.avr64da64s=AVR64DA64S
+avrda.menu.chip.avr32da28s=AVR32DA28S
+avrda.menu.chip.avr32da32s=AVR32DA32S
+avrda.menu.chip.avr32da48s=AVR32DA48S
+# AVR128DA28
+avrda.menu.chip.avr128da28.build.mcu=avr128da28
+avrda.menu.chip.avr128da28.build.variant=28pin-standard
+avrda.menu.chip.avr128da28.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da28.upload.maximum_size=131072
+# AVR128DA32
+avrda.menu.chip.avr128da32.build.mcu=avr128da32
+avrda.menu.chip.avr128da32.build.variant=32pin-standard
+avrda.menu.chip.avr128da32.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da32.upload.maximum_size=131072
+# AVR128DA48
+avrda.menu.chip.avr128da48.build.mcu=avr128da48
+avrda.menu.chip.avr128da48.build.variant=48pin-standard
+avrda.menu.chip.avr128da48.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da48.upload.maximum_size=131072
+# AVR128DA64
+avrda.menu.chip.avr128da64.build.mcu=avr128da64
+avrda.menu.chip.avr128da64.build.variant=64pin-standard
+avrda.menu.chip.avr128da64.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da64.upload.maximum_size=131072
+# AVR64DA28
+avrda.menu.chip.avr64da28.build.mcu=avr64da28
+avrda.menu.chip.avr64da28.build.variant=28pin-standard
+avrda.menu.chip.avr64da28.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da28.upload.maximum_size=65536
+# AVR64DA32
+avrda.menu.chip.avr64da32.build.mcu=avr64da32
+avrda.menu.chip.avr64da32.build.variant=32pin-standard
+avrda.menu.chip.avr64da32.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da32.upload.maximum_size=65536
+# AVR64DA48
+avrda.menu.chip.avr64da48.build.mcu=avr64da48
+avrda.menu.chip.avr64da48.build.variant=48pin-standard
+avrda.menu.chip.avr64da48.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da48.upload.maximum_size=65536
+# AVR64DA64
+avrda.menu.chip.avr64da64.build.mcu=avr64da64
+avrda.menu.chip.avr64da64.build.variant=64pin-standard
+avrda.menu.chip.avr64da64.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da64.upload.maximum_size=65536
+# AVR32DA28
+avrda.menu.chip.avr32da28.build.mcu=avr32da28
+avrda.menu.chip.avr32da28.build.variant=28pin-standard
+avrda.menu.chip.avr32da28.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da28.upload.maximum_size=32768
+# AVR32DA32
+avrda.menu.chip.avr32da32.build.mcu=avr32da32
+avrda.menu.chip.avr32da32.build.variant=32pin-standard
+avrda.menu.chip.avr32da32.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da32.upload.maximum_size=32768
+# AVR32DA48
+avrda.menu.chip.avr32da48.build.mcu=avr32da48
+avrda.menu.chip.avr32da48.build.variant=48pin-standard
+avrda.menu.chip.avr32da48.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da48.upload.maximum_size=32768
+# AVR128DA28S
+avrda.menu.chip.avr128da28s.build.mcu=avr128da28s
+avrda.menu.chip.avr128da28s.build.variant=28pin-standard
+avrda.menu.chip.avr128da28s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da28s.upload.maximum_size=131072
+# AVR128DA32S
+avrda.menu.chip.avr128da32s.build.mcu=avr128da32s
+avrda.menu.chip.avr128da32s.build.variant=32pin-standard
+avrda.menu.chip.avr128da32s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da32s.upload.maximum_size=131072
+# AVR128DA48S
+avrda.menu.chip.avr128da48s.build.mcu=avr128da48s
+avrda.menu.chip.avr128da48s.build.variant=48pin-standard
+avrda.menu.chip.avr128da48s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da48s.upload.maximum_size=131072
+# AVR128DA64S
+avrda.menu.chip.avr128da64s.build.mcu=avr128da64s
 avrda.menu.chip.avr128da64s.build.variant=64pin-standard
+avrda.menu.chip.avr128da64s.upload.maximum_data_size=16384
+avrda.menu.chip.avr128da64s.upload.maximum_size=131072
+# AVR64DA28S
+avrda.menu.chip.avr64da28s.build.mcu=avr64da28s
+avrda.menu.chip.avr64da28s.build.variant=28pin-standard
+avrda.menu.chip.avr64da28s.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da28s.upload.maximum_size=65536
+# AVR64DA32S
+avrda.menu.chip.avr64da32s.build.mcu=avr64da32s
+avrda.menu.chip.avr64da32s.build.variant=32pin-standard
+avrda.menu.chip.avr64da32s.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da32s.upload.maximum_size=65536
+# AVR64DA48S
+avrda.menu.chip.avr64da48s.build.mcu=avr64da48s
+avrda.menu.chip.avr64da48s.build.variant=48pin-standard
+avrda.menu.chip.avr64da48s.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da48s.upload.maximum_size=65536
+# AVR64DA64S
+avrda.menu.chip.avr64da64s.build.mcu=avr64da64s
+avrda.menu.chip.avr64da64s.build.variant=64pin-standard
+avrda.menu.chip.avr64da64s.upload.maximum_data_size=8192
+avrda.menu.chip.avr64da64s.upload.maximum_size=65536
+# AVR32DA28S
+avrda.menu.chip.avr32da28s.build.mcu=avr32da28s
+avrda.menu.chip.avr32da28s.build.variant=28pin-standard
+avrda.menu.chip.avr32da28s.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da28s.upload.maximum_size=32768
+# AVR32DA32S
+avrda.menu.chip.avr32da32s.build.mcu=avr32da32s
+avrda.menu.chip.avr32da32s.build.variant=32pin-standard
+avrda.menu.chip.avr32da32s.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da32s.upload.maximum_size=32768
+# AVR32DA48S
+avrda.menu.chip.avr32da48s.build.mcu=avr32da48s
+avrda.menu.chip.avr32da48s.build.variant=48pin-standard
+avrda.menu.chip.avr32da48s.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da48s.upload.maximum_size=32768
+# AVR32DA64S
+avrda.menu.chip.avr32da64s.build.mcu=avr32da64s
+avrda.menu.chip.avr32da64s.build.variant=64pin-standard
+avrda.menu.chip.avr32da64s.upload.maximum_data_size=4096
+avrda.menu.chip.avr32da64s.upload.maximum_size=32768
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -682,60 +743,60 @@ avrdb.build.appspmabr=.spm{bootloader.CODESIZE}
 # Chip (memory and pincount)             #
 #________________________________________#
 avrdb.menu.chip.avr128db28=AVR128DB28
-avrdb.menu.chip.avr128db28.build.mcu=avr128db28
-avrdb.menu.chip.avr128db28.upload.maximum_size=131072
-avrdb.menu.chip.avr128db28.upload.maximum_data_size=16384
-avrdb.menu.chip.avr128db28.build.variant=28pin-standard
 avrdb.menu.chip.avr128db32=AVR128DB32
-avrdb.menu.chip.avr128db32.build.mcu=avr128db32
-avrdb.menu.chip.avr128db32.upload.maximum_size=131072
-avrdb.menu.chip.avr128db32.upload.maximum_data_size=16384
-avrdb.menu.chip.avr128db32.build.variant=32pin-standard
 avrdb.menu.chip.avr128db48=AVR128DB48
-avrdb.menu.chip.avr128db48.build.mcu=avr128db48
-avrdb.menu.chip.avr128db48.upload.maximum_size=131072
-avrdb.menu.chip.avr128db48.upload.maximum_data_size=16384
-avrdb.menu.chip.avr128db48.build.variant=48pin-standard
 avrdb.menu.chip.avr128db64=AVR128DB64
-avrdb.menu.chip.avr128db64.build.mcu=avr128db64
-avrdb.menu.chip.avr128db64.upload.maximum_size=131072
-avrdb.menu.chip.avr128db64.upload.maximum_data_size=16384
-avrdb.menu.chip.avr128db64.build.variant=64pin-standard
 avrdb.menu.chip.avr64db28=AVR64DB28
-avrdb.menu.chip.avr64db28.build.mcu=avr64db28
-avrdb.menu.chip.avr64db28.upload.maximum_size=65536
-avrdb.menu.chip.avr64db28.upload.maximum_data_size=8192
-avrdb.menu.chip.avr64db28.build.variant=28pin-standard
 avrdb.menu.chip.avr64db32=AVR64DB32
-avrdb.menu.chip.avr64db32.build.mcu=avr64db32
-avrdb.menu.chip.avr64db32.upload.maximum_size=65536
-avrdb.menu.chip.avr64db32.upload.maximum_data_size=8192
-avrdb.menu.chip.avr64db32.build.variant=32pin-standard
 avrdb.menu.chip.avr64db48=AVR64DB48
-avrdb.menu.chip.avr64db48.build.mcu=avr64db48
-avrdb.menu.chip.avr64db48.upload.maximum_size=65536
-avrdb.menu.chip.avr64db48.upload.maximum_data_size=8192
-avrdb.menu.chip.avr64db48.build.variant=48pin-standard
 avrdb.menu.chip.avr64db64=AVR64DB64
-avrdb.menu.chip.avr64db64.build.mcu=avr64db64
-avrdb.menu.chip.avr64db64.upload.maximum_size=65536
-avrdb.menu.chip.avr64db64.upload.maximum_data_size=8192
-avrdb.menu.chip.avr64db64.build.variant=64pin-standard
 avrdb.menu.chip.avr32db28=AVR32DB28
-avrdb.menu.chip.avr32db28.build.mcu=avr32db28
-avrdb.menu.chip.avr32db28.upload.maximum_size=32768
-avrdb.menu.chip.avr32db28.upload.maximum_data_size=4096
-avrdb.menu.chip.avr32db28.build.variant=28pin-standard
 avrdb.menu.chip.avr32db32=AVR32DB32
-avrdb.menu.chip.avr32db32.build.mcu=avr32db32
-avrdb.menu.chip.avr32db32.upload.maximum_size=32768
-avrdb.menu.chip.avr32db32.upload.maximum_data_size=4096
-avrdb.menu.chip.avr32db32.build.variant=32pin-standard
 avrdb.menu.chip.avr32db48=AVR32DB48
+avrdb.menu.chip.avr128db28.build.mcu=avr128db28
+avrdb.menu.chip.avr128db28.build.variant=28pin-standard
+avrdb.menu.chip.avr128db28.upload.maximum_data_size=16384
+avrdb.menu.chip.avr128db28.upload.maximum_size=131072
+avrdb.menu.chip.avr128db32.build.mcu=avr128db32
+avrdb.menu.chip.avr128db32.build.variant=32pin-standard
+avrdb.menu.chip.avr128db32.upload.maximum_data_size=16384
+avrdb.menu.chip.avr128db32.upload.maximum_size=131072
+avrdb.menu.chip.avr128db48.build.mcu=avr128db48
+avrdb.menu.chip.avr128db48.build.variant=48pin-standard
+avrdb.menu.chip.avr128db48.upload.maximum_data_size=16384
+avrdb.menu.chip.avr128db48.upload.maximum_size=131072
+avrdb.menu.chip.avr128db64.build.mcu=avr128db64
+avrdb.menu.chip.avr128db64.build.variant=64pin-standard
+avrdb.menu.chip.avr128db64.upload.maximum_data_size=16384
+avrdb.menu.chip.avr128db64.upload.maximum_size=131072
+avrdb.menu.chip.avr64db28.build.mcu=avr64db28
+avrdb.menu.chip.avr64db28.build.variant=28pin-standard
+avrdb.menu.chip.avr64db28.upload.maximum_data_size=8192
+avrdb.menu.chip.avr64db28.upload.maximum_size=65536
+avrdb.menu.chip.avr64db32.build.mcu=avr64db32
+avrdb.menu.chip.avr64db32.build.variant=32pin-standard
+avrdb.menu.chip.avr64db32.upload.maximum_data_size=8192
+avrdb.menu.chip.avr64db32.upload.maximum_size=65536
+avrdb.menu.chip.avr64db48.build.mcu=avr64db48
+avrdb.menu.chip.avr64db48.build.variant=48pin-standard
+avrdb.menu.chip.avr64db48.upload.maximum_data_size=8192
+avrdb.menu.chip.avr64db48.upload.maximum_size=65536
+avrdb.menu.chip.avr64db64.build.mcu=avr64db64
+avrdb.menu.chip.avr64db64.build.variant=64pin-standard
+avrdb.menu.chip.avr64db64.upload.maximum_data_size=8192
+avrdb.menu.chip.avr64db64.upload.maximum_size=65536
+avrdb.menu.chip.avr32db28.build.mcu=avr32db28
+avrdb.menu.chip.avr32db28.build.variant=28pin-standard
+avrdb.menu.chip.avr32db28.upload.maximum_data_size=4096
+avrdb.menu.chip.avr32db28.upload.maximum_size=32768
+avrdb.menu.chip.avr32db32.build.mcu=avr32db32
+avrdb.menu.chip.avr32db32.build.variant=32pin-standard
+avrdb.menu.chip.avr32db32.upload.maximum_data_size=4096
+avrdb.menu.chip.avr32db32.upload.maximum_size=32768
 avrdb.menu.chip.avr32db48.build.mcu=avr32db48
-avrdb.menu.chip.avr32db48.upload.maximum_size=32768
-avrdb.menu.chip.avr32db48.upload.maximum_data_size=4096
 avrdb.menu.chip.avr32db48.build.variant=48pin-standard
+avrdb.menu.chip.avr32db48.upload.maximum_data_size=4096
+avrdb.menu.chip.avr32db48.upload.maximum_size=32768
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -2080,50 +2141,59 @@ avrea.build.appspmabr=
 # Chip (memory and pincount)            #
 #_______________________________________#
 avrea.menu.chip.avr64ea28=AVR64EA28
-avrea.menu.chip.avr64ea28.build.mcu=avr64ea28
-avrea.menu.chip.avr64ea28.upload.maximum_size=65536
-avrea.menu.chip.avr64ea28.upload.maximum_data_size=8192
-avrea.menu.chip.avr64ea28.build.variant=28pin-easeries
 avrea.menu.chip.avr64ea32=AVR64EA32
-avrea.menu.chip.avr64ea32.build.mcu=avr64ea32
-avrea.menu.chip.avr64ea32.upload.maximum_size=65536
-avrea.menu.chip.avr64ea32.upload.maximum_data_size=8192
-avrea.menu.chip.avr64ea32.build.variant=32pin-easeries
 avrea.menu.chip.avr64ea48=AVR64EA48
-avrea.menu.chip.avr64ea48.build.mcu=avr64ea48
-avrea.menu.chip.avr64ea48.upload.maximum_size=65536
-avrea.menu.chip.avr64ea48.upload.maximum_data_size=8192
-avrea.menu.chip.avr64ea48.build.variant=48pin-easeries
 avrea.menu.chip.avr32ea28=AVR32EA28
-avrea.menu.chip.avr32ea28.build.mcu=avr32ea28
-avrea.menu.chip.avr32ea28.upload.maximum_size=32768
-avrea.menu.chip.avr32ea28.upload.maximum_data_size=4096
-avrea.menu.chip.avr32ea28.build.variant=28pin-easeries
 avrea.menu.chip.avr32ea32=AVR32EA32
-avrea.menu.chip.avr32ea32.build.mcu=avr32ea32
-avrea.menu.chip.avr32ea32.upload.maximum_size=32768
-avrea.menu.chip.avr32ea32.upload.maximum_data_size=4096
-avrea.menu.chip.avr32ea32.build.variant=32pin-easeries
 avrea.menu.chip.avr32ea48=AVR32EA48
-avrea.menu.chip.avr32ea48.build.mcu=avr32ea48
-avrea.menu.chip.avr32ea48.upload.maximum_size=32768
-avrea.menu.chip.avr32ea48.upload.maximum_data_size=4096
-avrea.menu.chip.avr32ea48.build.variant=48pin-easeries
 avrea.menu.chip.avr16ea28=AVR16EA28
-avrea.menu.chip.avr16ea28.build.mcu=avr16ea28
-avrea.menu.chip.avr16ea28.upload.maximum_size=16384
-avrea.menu.chip.avr16ea28.upload.maximum_data_size=2048
-avrea.menu.chip.avr16ea28.build.variant=28pin-easeries
 avrea.menu.chip.avr16ea32=AVR16EA32
-avrea.menu.chip.avr16ea32.build.mcu=avr16ea32
-avrea.menu.chip.avr16ea32.upload.maximum_size=16384
-avrea.menu.chip.avr16ea32.upload.maximum_data_size=2048
-avrea.menu.chip.avr16ea32.build.variant=32pin-easeries
 avrea.menu.chip.avr16ea48=AVR16EA48
+# AVR64EA28
+avrea.menu.chip.avr64ea28.build.mcu=avr64ea28
+avrea.menu.chip.avr64ea28.build.variant=28pin-easeries
+avrea.menu.chip.avr64ea28.upload.maximum_data_size=8192
+avrea.menu.chip.avr64ea28.upload.maximum_size=65536
+# AVR64EA32
+avrea.menu.chip.avr64ea32.build.mcu=avr64ea32
+avrea.menu.chip.avr64ea32.build.variant=32pin-easeries
+avrea.menu.chip.avr64ea32.upload.maximum_data_size=8192
+avrea.menu.chip.avr64ea32.upload.maximum_size=65536
+# AVR64EA48
+avrea.menu.chip.avr64ea48.build.mcu=avr64ea48
+avrea.menu.chip.avr64ea48.build.variant=48pin-easeries
+avrea.menu.chip.avr64ea48.upload.maximum_data_size=8192
+avrea.menu.chip.avr64ea48.upload.maximum_size=65536
+# AVR32EA28
+avrea.menu.chip.avr32ea28.build.mcu=avr32ea28
+avrea.menu.chip.avr32ea28.build.variant=28pin-easeries
+avrea.menu.chip.avr32ea28.upload.maximum_data_size=4096
+avrea.menu.chip.avr32ea28.upload.maximum_size=32768
+# AVR32EA32
+avrea.menu.chip.avr32ea32.build.mcu=avr32ea32
+avrea.menu.chip.avr32ea32.build.variant=32pin-easeries
+avrea.menu.chip.avr32ea32.upload.maximum_data_size=4096
+avrea.menu.chip.avr32ea32.upload.maximum_size=32768
+# AVR32EA48
+avrea.menu.chip.avr32ea48.build.mcu=avr32ea48
+avrea.menu.chip.avr32ea48.build.variant=48pin-easeries
+avrea.menu.chip.avr32ea48.upload.maximum_data_size=4096
+avrea.menu.chip.avr32ea48.upload.maximum_size=32768
+# AVR16EA28
+avrea.menu.chip.avr16ea28.build.mcu=avr16ea28
+avrea.menu.chip.avr16ea28.build.variant=28pin-easeries
+avrea.menu.chip.avr16ea28.upload.maximum_data_size=2048
+avrea.menu.chip.avr16ea28.upload.maximum_size=16384
+# AVR16EA32
+avrea.menu.chip.avr16ea32.build.mcu=avr16ea32
+avrea.menu.chip.avr16ea32.build.variant=32pin-easeries
+avrea.menu.chip.avr16ea32.upload.maximum_data_size=2048
+avrea.menu.chip.avr16ea32.upload.maximum_size=16384
+# AVR16EA48
 avrea.menu.chip.avr16ea48.build.mcu=avr16ea48
-avrea.menu.chip.avr16ea48.upload.maximum_size=16384
-avrea.menu.chip.avr16ea48.upload.maximum_data_size=2048
 avrea.menu.chip.avr16ea48.build.variant=48pin-easeries
+avrea.menu.chip.avr16ea48.upload.maximum_data_size=2048
+avrea.menu.chip.avr16ea48.upload.maximum_size=16384
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -2541,46 +2611,46 @@ avreb.build.appspmabr=
 #____________________________________________#
 # Chip (memory and pincount)            #
 #_______________________________________#
-avreb.menu.chip.avr32eb14=AVR32EB14
-avreb.menu.chip.avr32eb14.build.mcu=avr32eb14
-avreb.menu.chip.avr32eb14.upload.maximum_size=32768
-avreb.menu.chip.avr32eb14.upload.maximum_data_size=3072
-avreb.menu.chip.avr32eb14.build.variant=14pin-ebseries
-avreb.menu.chip.avr32eb20=AVR32EB20
-avreb.menu.chip.avr32eb20.build.mcu=avr32eb20
-avreb.menu.chip.avr32eb20.upload.maximum_size=32768
-avreb.menu.chip.avr32eb20.upload.maximum_data_size=3072
-avreb.menu.chip.avr32eb20.build.variant=20pin-ebseries
-avreb.menu.chip.avr32eb28=AVR32EB28
-avreb.menu.chip.avr32eb28.build.mcu=avr32eb28
-avreb.menu.chip.avr32eb28.upload.maximum_size=32768
-avreb.menu.chip.avr32eb28.upload.maximum_data_size=3072
-avreb.menu.chip.avr32eb28.build.variant=28pin-ebseries
 avreb.menu.chip.avr32eb32=AVR32EB32
 avreb.menu.chip.avr32eb32.build.mcu=avr32eb32
 avreb.menu.chip.avr32eb32.upload.maximum_size=32768
 avreb.menu.chip.avr32eb32.upload.maximum_data_size=3072
 avreb.menu.chip.avr32eb32.build.variant=32pin-ebseries
-avreb.menu.chip.avr16eb14=AVR16EB14
-avreb.menu.chip.avr16eb14.build.mcu=avr16eb14
-avreb.menu.chip.avr16eb14.upload.maximum_size=16384
-avreb.menu.chip.avr16eb14.upload.maximum_data_size=2048
-avreb.menu.chip.avr16eb14.build.variant=14pin-ebseries
-avreb.menu.chip.avr16eb20=AVR16EB20
-avreb.menu.chip.avr16eb20.build.mcu=avr16eb20
-avreb.menu.chip.avr16eb20.upload.maximum_size=16384
-avreb.menu.chip.avr16eb20.upload.maximum_data_size=2048
-avreb.menu.chip.avr16eb20.build.variant=20pin-ebseries
-avreb.menu.chip.avr16eb28=AVR16EB28
-avreb.menu.chip.avr16eb28.build.mcu=avr16eb28
-avreb.menu.chip.avr16eb28.upload.maximum_size=16384
-avreb.menu.chip.avr16eb28.upload.maximum_data_size=2048
-avreb.menu.chip.avr16eb28.build.variant=28pin-ebseries
+avreb.menu.chip.avr32eb28=AVR32EB28
+avreb.menu.chip.avr32eb28.build.mcu=avr32eb28
+avreb.menu.chip.avr32eb28.upload.maximum_size=32768
+avreb.menu.chip.avr32eb28.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb28.build.variant=28pin-ebseries
+avreb.menu.chip.avr32eb20=AVR32EB20
+avreb.menu.chip.avr32eb20.build.mcu=avr32eb20
+avreb.menu.chip.avr32eb20.upload.maximum_size=32768
+avreb.menu.chip.avr32eb20.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb20.build.variant=20pin-ebseries
+avreb.menu.chip.avr32eb14=AVR32EB14
+avreb.menu.chip.avr32eb14.build.mcu=avr32eb14
+avreb.menu.chip.avr32eb14.upload.maximum_size=32768
+avreb.menu.chip.avr32eb14.upload.maximum_data_size=3072
+avreb.menu.chip.avr32eb14.build.variant=14pin-ebseries
 avreb.menu.chip.avr16eb32=AVR16EB32
 avreb.menu.chip.avr16eb32.build.mcu=avr16eb32
 avreb.menu.chip.avr16eb32.upload.maximum_size=16384
 avreb.menu.chip.avr16eb32.upload.maximum_data_size=2048
 avreb.menu.chip.avr16eb32.build.variant=32pin-ebseries
+avreb.menu.chip.avr16eb28=AVR16EB28
+avreb.menu.chip.avr16eb28.build.mcu=avr16eb28
+avreb.menu.chip.avr16eb28.upload.maximum_size=16384
+avreb.menu.chip.avr16eb28.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb28.build.variant=28pin-ebseries
+avreb.menu.chip.avr16eb20=AVR16EB20
+avreb.menu.chip.avr16eb20.build.mcu=avr16eb20
+avreb.menu.chip.avr16eb20.upload.maximum_size=16384
+avreb.menu.chip.avr16eb20.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb20.build.variant=20pin-ebseries
+avreb.menu.chip.avr16eb14=AVR16EB14
+avreb.menu.chip.avr16eb14.build.mcu=avr16eb14
+avreb.menu.chip.avr16eb14.upload.maximum_size=16384
+avreb.menu.chip.avr16eb14.upload.maximum_data_size=2048
+avreb.menu.chip.avr16eb14.build.variant=14pin-ebseries
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -2680,9 +2750,6 @@ avreb.menu.clock.24extclock.build.clocksource=2
 #----------------------------------------#
 # BrownOut detection (BOD) option        #
 #________________________________________#
-#    Completely speculative         #
-#   Assumes same as Dx-series       #
-#___________________________________#
 avreb.menu.bodvoltage.1v75=1.75V (during programming only)
 avreb.menu.bodvoltage.1v75.bootloader.bodlevbits=000
 avreb.menu.bodvoltage.1v9=1.9V
@@ -3012,75 +3079,145 @@ avrdaopti.build.appspmabr=
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
 # AVR-DA (Optiboot) submenu options          #
 #____________________________________________#
-#                                        #
 # Chip (memory and pincount)             #
 #________________________________________#
 avrdaopti.menu.chip.avr128da28=AVR128DA28
-avrdaopti.menu.chip.avr128da28.build.mcu=avr128da28
-avrdaopti.menu.chip.avr128da28.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da28.bootloader.class=optiboot_128dx
-avrdaopti.menu.chip.avr128da28.upload.maximum_data_size=16384
-avrdaopti.menu.chip.avr128da28.build.variant=28pin-standard
 avrdaopti.menu.chip.avr128da32=AVR128DA32
-avrdaopti.menu.chip.avr128da32.build.mcu=avr128da32
-avrdaopti.menu.chip.avr128da32.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da32.bootloader.class=optiboot_128dx
-avrdaopti.menu.chip.avr128da32.upload.maximum_data_size=16384
-avrdaopti.menu.chip.avr128da32.build.variant=32pin-standard
 avrdaopti.menu.chip.avr128da48=AVR128DA48
-avrdaopti.menu.chip.avr128da48.build.mcu=avr128da48
-avrdaopti.menu.chip.avr128da48.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da48.bootloader.class=optiboot_128dx
-avrdaopti.menu.chip.avr128da48.upload.maximum_data_size=16384
-avrdaopti.menu.chip.avr128da48.build.variant=48pin-standard
 avrdaopti.menu.chip.avr128da64=AVR128DA64
-avrdaopti.menu.chip.avr128da64.build.mcu=avr128da64
-avrdaopti.menu.chip.avr128da64.upload.maximum_size=130560
-avrdaopti.menu.chip.avr128da64.bootloader.class=optiboot_128dx
-avrdaopti.menu.chip.avr128da64.upload.maximum_data_size=16384
-avrdaopti.menu.chip.avr128da64.build.variant=64pin-standard
 avrdaopti.menu.chip.avr64da28=AVR64DA28
-avrdaopti.menu.chip.avr64da28.build.mcu=avr64da28
-avrdaopti.menu.chip.avr64da28.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da28.bootloader.class=optiboot_64dx
-avrdaopti.menu.chip.avr64da28.upload.maximum_data_size=8192
-avrdaopti.menu.chip.avr64da28.build.variant=28pin-standard
 avrdaopti.menu.chip.avr64da32=AVR64DA32
-avrdaopti.menu.chip.avr64da32.build.mcu=avr64da32
-avrdaopti.menu.chip.avr64da32.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da32.bootloader.class=optiboot_64dx
-avrdaopti.menu.chip.avr64da32.upload.maximum_data_size=8192
-avrdaopti.menu.chip.avr64da32.build.variant=32pin-standard
 avrdaopti.menu.chip.avr64da48=AVR64DA48
-avrdaopti.menu.chip.avr64da48.build.mcu=avr64da48
-avrdaopti.menu.chip.avr64da48.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da48.bootloader.class=optiboot_64dx
-avrdaopti.menu.chip.avr64da48.upload.maximum_data_size=8192
-avrdaopti.menu.chip.avr64da48.build.variant=48pin-standard
 avrdaopti.menu.chip.avr64da64=AVR64DA64
-avrdaopti.menu.chip.avr64da64.build.mcu=avr64da64
-avrdaopti.menu.chip.avr64da64.upload.maximum_size=65024
-avrdaopti.menu.chip.avr64da64.bootloader.class=optiboot_64dx
-avrdaopti.menu.chip.avr64da64.upload.maximum_data_size=8192
-avrdaopti.menu.chip.avr64da64.build.variant=64pin-standard
 avrdaopti.menu.chip.avr32da28=AVR32DA28
-avrdaopti.menu.chip.avr32da28.build.mcu=avr32da28
-avrdaopti.menu.chip.avr32da28.upload.maximum_size=32256
-avrdaopti.menu.chip.avr32da28.bootloader.class=optiboot_32dx
-avrdaopti.menu.chip.avr32da28.upload.maximum_data_size=4096
-avrdaopti.menu.chip.avr32da28.build.variant=28pin-standard
 avrdaopti.menu.chip.avr32da32=AVR32DA32
-avrdaopti.menu.chip.avr32da32.build.mcu=avr32da32
-avrdaopti.menu.chip.avr32da32.upload.maximum_size=32256
-avrdaopti.menu.chip.avr32da32.bootloader.class=optiboot_32dx
-avrdaopti.menu.chip.avr32da32.upload.maximum_data_size=4096
-avrdaopti.menu.chip.avr32da32.build.variant=32pin-standard
 avrdaopti.menu.chip.avr32da48=AVR32DA48
+avrdaopti.menu.chip.avr128da28s=AVR128DA28S
+avrdaopti.menu.chip.avr128da32s=AVR128DA32S
+avrdaopti.menu.chip.avr128da48s=AVR128DA48S
+avrdaopti.menu.chip.avr128da64s=AVR128DA64S
+avrdaopti.menu.chip.avr64da28s=AVR64DA28S
+avrdaopti.menu.chip.avr64da32s=AVR64DA32S
+avrdaopti.menu.chip.avr64da48s=AVR64DA48S
+avrdaopti.menu.chip.avr64da64s=AVR64DA64S
+avrdaopti.menu.chip.avr32da28s=AVR32DA28S
+avrdaopti.menu.chip.avr32da32s=AVR32DA32S
+avrdaopti.menu.chip.avr32da48s=AVR32DA48S
+# AVR128DA28
+avrdaopti.menu.chip.avr128da28.build.mcu=avr128da28
+avrdaopti.menu.chip.avr128da28.build.variant=28pin-standard
+avrdaopti.menu.chip.avr128da28.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da28.upload.maximum_size=130560
+# AVR128DA32
+avrdaopti.menu.chip.avr128da32.build.mcu=avr128da32
+avrdaopti.menu.chip.avr128da32.build.variant=32pin-standard
+avrdaopti.menu.chip.avr128da32.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da32.upload.maximum_size=130560
+# AVR128DA48
+avrdaopti.menu.chip.avr128da48.build.mcu=avr128da48
+avrdaopti.menu.chip.avr128da48.build.variant=48pin-standard
+avrdaopti.menu.chip.avr128da48.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da48.upload.maximum_size=130560
+# AVR128DA64
+avrdaopti.menu.chip.avr128da64.build.mcu=avr128da64
+avrdaopti.menu.chip.avr128da64.build.variant=64pin-standard
+avrdaopti.menu.chip.avr128da64.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da64.upload.maximum_size=130560
+# AVR64DA28
+avrdaopti.menu.chip.avr64da28.build.mcu=avr64da28
+avrdaopti.menu.chip.avr64da28.build.variant=28pin-standard
+avrdaopti.menu.chip.avr64da28.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da28.upload.maximum_size=65024
+# AVR64DA32
+avrdaopti.menu.chip.avr64da32.build.mcu=avr64da32
+avrdaopti.menu.chip.avr64da32.build.variant=32pin-standard
+avrdaopti.menu.chip.avr64da32.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da32.upload.maximum_size=65024
+# AVR64DA48
+avrdaopti.menu.chip.avr64da48.build.mcu=avr64da48
+avrdaopti.menu.chip.avr64da48.build.variant=48pin-standard
+avrdaopti.menu.chip.avr64da48.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da48.upload.maximum_size=65024
+# AVR64DA64
+avrdaopti.menu.chip.avr64da64.build.mcu=avr64da64
+avrdaopti.menu.chip.avr64da64.build.variant=64pin-standard
+avrdaopti.menu.chip.avr64da64.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da64.upload.maximum_size=65024
+# AVR32DA28
+avrdaopti.menu.chip.avr32da28.build.mcu=avr32da28
+avrdaopti.menu.chip.avr32da28.build.variant=28pin-standard
+avrdaopti.menu.chip.avr32da28.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da28.upload.maximum_size=32256
+# AVR32DA32
+avrdaopti.menu.chip.avr32da32.build.mcu=avr32da32
+avrdaopti.menu.chip.avr32da32.build.variant=32pin-standard
+avrdaopti.menu.chip.avr32da32.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da32.upload.maximum_size=32256
+# AVR32DA48
 avrdaopti.menu.chip.avr32da48.build.mcu=avr32da48
-avrdaopti.menu.chip.avr32da48.upload.maximum_size=32256
-avrdaopti.menu.chip.avr32da48.bootloader.class=optiboot_32dx
-avrdaopti.menu.chip.avr32da48.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da48.build.variant=48pin-standard
+avrdaopti.menu.chip.avr32da48.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da48.upload.maximum_size=32256
+# AVR128DA28S
+avrdaopti.menu.chip.avr128da28s.build.mcu=avr128da28s
+avrdaopti.menu.chip.avr128da28s.build.variant=28pin-standard
+avrdaopti.menu.chip.avr128da28s.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da28s.upload.maximum_size=130560
+# AVR128DA32S
+avrdaopti.menu.chip.avr128da32s.build.mcu=avr128da32s
+avrdaopti.menu.chip.avr128da32s.build.variant=32pin-standard
+avrdaopti.menu.chip.avr128da32s.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da32s.upload.maximum_size=130560
+# AVR128DA48S
+avrdaopti.menu.chip.avr128da48s.build.mcu=avr128da48s
+avrdaopti.menu.chip.avr128da48s.build.variant=48pin-standard
+avrdaopti.menu.chip.avr128da48s.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da48s.upload.maximum_size=130560
+# AVR128DA64S
+avrdaopti.menu.chip.avr128da64s.build.mcu=avr128da64s
+avrdaopti.menu.chip.avr128da64s.build.variant=64pin-standard
+avrdaopti.menu.chip.avr128da64s.upload.maximum_data_size=16384
+avrdaopti.menu.chip.avr128da64s.upload.maximum_size=130560
+# AVR64DA28S
+avrdaopti.menu.chip.avr64da28s.build.mcu=avr64da28s
+avrdaopti.menu.chip.avr64da28s.build.variant=28pin-standard
+avrdaopti.menu.chip.avr64da28s.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da28s.upload.maximum_size=65024
+# AVR64DA32S
+avrdaopti.menu.chip.avr64da32s.build.mcu=avr64da32s
+avrdaopti.menu.chip.avr64da32s.build.variant=32pin-standard
+avrdaopti.menu.chip.avr64da32s.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da32s.upload.maximum_size=65024
+# AVR64DA48S
+avrdaopti.menu.chip.avr64da48s.build.mcu=avr64da48s
+avrdaopti.menu.chip.avr64da48s.build.variant=48pin-standard
+avrdaopti.menu.chip.avr64da48s.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da48s.upload.maximum_size=65024
+# AVR64DA64S
+avrdaopti.menu.chip.avr64da64s.build.mcu=avr64da64s
+avrdaopti.menu.chip.avr64da64s.build.variant=64pin-standard
+avrdaopti.menu.chip.avr64da64s.upload.maximum_data_size=8192
+avrdaopti.menu.chip.avr64da64s.upload.maximum_size=65024
+# AVR32DA28S
+avrdaopti.menu.chip.avr32da28s.build.mcu=avr32da28s
+avrdaopti.menu.chip.avr32da28s.build.variant=28pin-standard
+avrdaopti.menu.chip.avr32da28s.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da28s.upload.maximum_size=32256
+# AVR32DA32S
+avrdaopti.menu.chip.avr32da32s.build.mcu=avr32da32s
+avrdaopti.menu.chip.avr32da32s.build.variant=32pin-standard
+avrdaopti.menu.chip.avr32da32s.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da32s.upload.maximum_size=32256
+# AVR32DA48S
+avrdaopti.menu.chip.avr32da48s.build.mcu=avr32da48s
+avrdaopti.menu.chip.avr32da48s.build.variant=48pin-standard
+avrdaopti.menu.chip.avr32da48s.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da48s.upload.maximum_size=32256
+# AVR32DA64S
+avrdaopti.menu.chip.avr32da64s.build.mcu=avr32da64s
+avrdaopti.menu.chip.avr32da64s.build.variant=64pin-standard
+avrdaopti.menu.chip.avr32da64s.upload.maximum_data_size=4096
+avrdaopti.menu.chip.avr32da64s.upload.maximum_size=32256
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -3507,76 +3644,76 @@ avrdbopti.build.wireabr=
 avrdbopti.build.appspmabr=
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^#
-# AVR-DB submenu options                     #
+# AVR-DA (Optiboot) submenu options          #
 #____________________________________________#
 # Chip (memory and pincount)             #
 #________________________________________#
 avrdbopti.menu.chip.avr128db28=AVR128DB28
-avrdbopti.menu.chip.avr128db28.build.mcu=avr128db28
-avrdbopti.menu.chip.avr128db28.bootloader.class=optiboot_128dx
-avrdbopti.menu.chip.avr128db28.upload.maximum_size=130560
-avrdbopti.menu.chip.avr128db28.upload.maximum_data_size=16384
-avrdbopti.menu.chip.avr128db28.build.variant=28pin-standard
 avrdbopti.menu.chip.avr128db32=AVR128DB32
-avrdbopti.menu.chip.avr128db32.build.mcu=avr128db32
-avrdbopti.menu.chip.avr128db32.bootloader.class=optiboot_128dx
-avrdbopti.menu.chip.avr128db32.upload.maximum_size=130560
-avrdbopti.menu.chip.avr128db32.upload.maximum_data_size=16384
-avrdbopti.menu.chip.avr128db32.build.variant=32pin-standard
 avrdbopti.menu.chip.avr128db48=AVR128DB48
-avrdbopti.menu.chip.avr128db48.build.mcu=avr128db48
-avrdbopti.menu.chip.avr128db48.bootloader.class=optiboot_128dx
-avrdbopti.menu.chip.avr128db48.upload.maximum_size=130560
-avrdbopti.menu.chip.avr128db48.upload.maximum_data_size=16384
-avrdbopti.menu.chip.avr128db48.build.variant=48pin-standard
 avrdbopti.menu.chip.avr128db64=AVR128DB64
-avrdbopti.menu.chip.avr128db64.build.mcu=avr128db64
-avrdbopti.menu.chip.avr128db64.bootloader.class=optiboot_128dx
-avrdbopti.menu.chip.avr128db64.upload.maximum_size=130560
-avrdbopti.menu.chip.avr128db64.upload.maximum_data_size=16384
-avrdbopti.menu.chip.avr128db64.build.variant=64pin-standard
 avrdbopti.menu.chip.avr64db28=AVR64DB28
-avrdbopti.menu.chip.avr64db28.build.mcu=avr64db28
-avrdbopti.menu.chip.avr64db28.bootloader.class=optiboot_64dx
-avrdbopti.menu.chip.avr64db28.upload.maximum_size=65024
-avrdbopti.menu.chip.avr64db28.upload.maximum_data_size=8192
-avrdbopti.menu.chip.avr64db28.build.variant=28pin-standard
 avrdbopti.menu.chip.avr64db32=AVR64DB32
-avrdbopti.menu.chip.avr64db32.build.mcu=avr64db32
-avrdbopti.menu.chip.avr64db32.bootloader.class=optiboot_64dx
-avrdbopti.menu.chip.avr64db32.upload.maximum_size=65024
-avrdbopti.menu.chip.avr64db32.upload.maximum_data_size=8192
-avrdbopti.menu.chip.avr64db32.build.variant=32pin-standard
 avrdbopti.menu.chip.avr64db48=AVR64DB48
-avrdbopti.menu.chip.avr64db48.build.mcu=avr64db48
-avrdbopti.menu.chip.avr64db48.bootloader.class=optiboot_64dx
-avrdbopti.menu.chip.avr64db48.upload.maximum_size=65024
-avrdbopti.menu.chip.avr64db48.upload.maximum_data_size=8192
-avrdbopti.menu.chip.avr64db48.build.variant=48pin-standard
 avrdbopti.menu.chip.avr64db64=AVR64DB64
-avrdbopti.menu.chip.avr64db64.build.mcu=avr64db64
-avrdbopti.menu.chip.avr64db64.bootloader.class=optiboot_64dx
-avrdbopti.menu.chip.avr64db64.upload.maximum_size=65024
-avrdbopti.menu.chip.avr64db64.upload.maximum_data_size=8192
-avrdbopti.menu.chip.avr64db64.build.variant=64pin-standard
 avrdbopti.menu.chip.avr32db28=AVR32DB28
-avrdbopti.menu.chip.avr32db28.build.mcu=avr32db28
-avrdbopti.menu.chip.avr32db28.bootloader.class=optiboot_32dx
-avrdbopti.menu.chip.avr32db28.upload.maximum_size=32256
-avrdbopti.menu.chip.avr32db28.upload.maximum_data_size=4096
-avrdbopti.menu.chip.avr32db28.build.variant=28pin-standard
 avrdbopti.menu.chip.avr32db32=AVR32DB32
-avrdbopti.menu.chip.avr32db32.build.mcu=avr32db32
-avrdbopti.menu.chip.avr32db32.bootloader.class=optiboot_32dx
-avrdbopti.menu.chip.avr32db32.upload.maximum_size=32256
-avrdbopti.menu.chip.avr32db32.upload.maximum_data_size=4096
-avrdbopti.menu.chip.avr32db32.build.variant=32pin-standard
 avrdbopti.menu.chip.avr32db48=AVR32DB48
+# AVR128DB28
+avrdbopti.menu.chip.avr128db28.build.mcu=avr128db28
+avrdbopti.menu.chip.avr128db28.build.variant=28pin-standard
+avrdbopti.menu.chip.avr128db28.upload.maximum_data_size=16384
+avrdbopti.menu.chip.avr128db28.upload.maximum_size=130560
+# AVR128DB32
+avrdbopti.menu.chip.avr128db32.build.mcu=avr128db32
+avrdbopti.menu.chip.avr128db32.build.variant=32pin-standard
+avrdbopti.menu.chip.avr128db32.upload.maximum_data_size=16384
+avrdbopti.menu.chip.avr128db32.upload.maximum_size=130560
+# AVR128DB48
+avrdbopti.menu.chip.avr128db48.build.mcu=avr128db48
+avrdbopti.menu.chip.avr128db48.build.variant=48pin-standard
+avrdbopti.menu.chip.avr128db48.upload.maximum_data_size=16384
+avrdbopti.menu.chip.avr128db48.upload.maximum_size=130560
+# AVR128DB64
+avrdbopti.menu.chip.avr128db64.build.mcu=avr128db64
+avrdbopti.menu.chip.avr128db64.build.variant=64pin-standard
+avrdbopti.menu.chip.avr128db64.upload.maximum_data_size=16384
+avrdbopti.menu.chip.avr128db64.upload.maximum_size=130560
+# AVR64DB28
+avrdbopti.menu.chip.avr64db28.build.mcu=avr64db28
+avrdbopti.menu.chip.avr64db28.build.variant=28pin-standard
+avrdbopti.menu.chip.avr64db28.upload.maximum_data_size=8192
+avrdbopti.menu.chip.avr64db28.upload.maximum_size=65024
+# AVR64DB32
+avrdbopti.menu.chip.avr64db32.build.mcu=avr64db32
+avrdbopti.menu.chip.avr64db32.build.variant=32pin-standard
+avrdbopti.menu.chip.avr64db32.upload.maximum_data_size=8192
+avrdbopti.menu.chip.avr64db32.upload.maximum_size=65024
+# AVR64DB48
+avrdbopti.menu.chip.avr64db48.build.mcu=avr64db48
+avrdbopti.menu.chip.avr64db48.build.variant=48pin-standard
+avrdbopti.menu.chip.avr64db48.upload.maximum_data_size=8192
+avrdbopti.menu.chip.avr64db48.upload.maximum_size=65024
+# AVR64DB64
+avrdbopti.menu.chip.avr64db64.build.mcu=avr64db64
+avrdbopti.menu.chip.avr64db64.build.variant=64pin-standard
+avrdbopti.menu.chip.avr64db64.upload.maximum_data_size=8192
+avrdbopti.menu.chip.avr64db64.upload.maximum_size=65024
+# AVR32DB28
+avrdbopti.menu.chip.avr32db28.build.mcu=avr32db28
+avrdbopti.menu.chip.avr32db28.build.variant=28pin-standard
+avrdbopti.menu.chip.avr32db28.upload.maximum_data_size=4096
+avrdbopti.menu.chip.avr32db28.upload.maximum_size=32256
+# AVR32DB32
+avrdbopti.menu.chip.avr32db32.build.mcu=avr32db32
+avrdbopti.menu.chip.avr32db32.build.variant=32pin-standard
+avrdbopti.menu.chip.avr32db32.upload.maximum_data_size=4096
+avrdbopti.menu.chip.avr32db32.upload.maximum_size=32256
+# AVR32DB48
 avrdbopti.menu.chip.avr32db48.build.mcu=avr32db48
-avrdbopti.menu.chip.avr32db48.bootloader.class=optiboot_32dx
-avrdbopti.menu.chip.avr32db48.upload.maximum_size=32256
-avrdbopti.menu.chip.avr32db48.upload.maximum_data_size=4096
 avrdbopti.menu.chip.avr32db48.build.variant=48pin-standard
+avrdbopti.menu.chip.avr32db48.upload.maximum_data_size=4096
+avrdbopti.menu.chip.avr32db48.upload.maximum_size=32256
 
 #----------------------------------------#
 # Clock speed and source options         #
