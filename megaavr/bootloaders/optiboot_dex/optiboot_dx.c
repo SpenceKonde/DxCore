@@ -1015,8 +1015,8 @@ static inline void write_buffered_flash(length_t len) {
     #else
       "clr r24                     \n" // nvmctrl noop
     #endif
-      "rcall nvm_cmd               \n"
       "clr r1                      \n"
+      "rcall nvm_cmd               \n"
       ::
                 "z"  ((uint16_t)pDst.bptr),
         [ptr]   "x"  ((uint16_t)pSrc.bptr),
