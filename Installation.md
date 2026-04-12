@@ -44,12 +44,12 @@ Manual installation allows the latest version of the core to be installed, with 
 3. Many people wish to upload code to hardware (you can skip this step if you don't need that; often compiletesting is sufficient during core development - . In order to do that, you must manually install one of the upload tools. **AS OF VERSION 1.6.2** we have upgraded to version 8.1 of AVRdude, and we can no longer subsist on old versions of avrdude.
   a. To upload to over updi using the serial  adapter rigged with a diode or resistor, you want SerialUPDI; to manually install that follow these instructions: [megaavr/tools/ManualPython.md](megaavr/tools/ManualPython.md).
   b. To upload via any other method, you must download the 8.1 avrdude and  The file below for your OS needs to be downloaded, extracted
-  * [Linux for ARM64 (aarch64)](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_ARMv6.tar.gz)
-  * [Linux for ARM32 (gnueabi)](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_ARM64.tar.gz)
-  * [MacOS for x86-64](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_macOS_64bit.tar.gz)
-  * [Linux for x86-64](https://github.com//avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_64bit.tar.gz)
-  * [Linux for x86-32](https://github.com//avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_32bit.tar.gz)
-  * [Windows for x86-32 and x86-64](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Windows_32bit.tar.gz)
+    * [Linux for ARM64 (aarch64)](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_ARMv6.tar.gz)
+    * [Linux for ARM32 (gnueabi)](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_ARM64.tar.gz)
+    * [MacOS for x86-64](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_macOS_64bit.tar.gz)
+    * [Linux for x86-64](https://github.com//avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_64bit.tar.gz)
+    * [Linux for x86-32](https://github.com//avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Linux_32bit.tar.gz)
+    * [Windows for x86-32 and x86-64](https://github.com/avrdudes/avrdude/releases/download/v8.1/avrdude_v8.1_Windows_32bit.tar.gz)
 4. Once that all is done, you've only got a minor step or two left - you need to create a "hardware" folder inside the sketchbook folder (inside portable assuming you went that route, which you should) amd then and only then should you install the core.
   a. Option 1: Download the .zip package (either the "released" version, or by downloading the .zip of master repo), extract, and place in the hardware folder inside your sketchbook folder (if there is no hardware folder, create it). You can find/set the location of the sketchbook folder in the Arduino IDE at File > Preferences -> Sketchbook location.
   b. Option 2: Download the github client, and sync this repo to the hardware subfolder of your sketchbook folder. For a portable windows installation, it's typically IDE location/portable/sketchbook/hardware (you will have to create hardware.)

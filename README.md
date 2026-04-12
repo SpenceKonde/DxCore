@@ -55,33 +55,41 @@ All of the pinout diagrams have gotten really ugly from my MS-paint hacking, and
 | Max Flash | 48 | 16 | 32 | 32 |128 | 128| 64 | 64 | 64 | 32 | 64 | 32 | 64 |
 | Min Flash |  8 | 2  | 2  | 4  | 32 | 32 | 16 | 16 | 16 | 16 | 32 | ?? | ?? |
 | Max RAM   |  6 | 1  | 2  | 3  | 16 | 16 | 8  | 6  | 8  | 3  | 8  |  2 |  6 |
-| Pins max  | 48 | 24 | 24 | 24 | 64 | 64 | 32 | 48 | 32 | 32 | 48 | 32 | 48? |
-| Pins min  | 28 | 8  | 8  | 14 | 28 | 28 | 14 | 28 | 14 | 14 | 20 | 14 | 28? |
-| EEPROM    | 256| 256| 256| 256| 512| 512| 256| 512| 512| 512| 256| 512| ?? |
-| USERROW   |  32| 32 | 32 | 32 | 32 | 32 | 32 | 64 | 512| 64 | 512| 64 | ?? |
-| BOOTROW   |  - | -  | -  | -  | -  | -  | -  | -  | 64 | 64 | 256| 64 | ?? |
-| TCA's     |  1 | 1  | 1  | 1  | 2  | 2  | 1  | 2  | 1  | 0  |  1 | -  | ?  |
+| Pins max  | 48 | 24 | 24 | 24 | 64 | 64 | 32 | 48 | 32 | 32 | 48 | 32 | 48?|
+| Pins min  | 28 | 8  | 8  | 14 | 28 | 28 | 14 | 28 | 14 | 14 | 20 | 14 | 28?|
+| EEPROM    | 256| 256| 256| 256| 512| 512| 256| 512| 512| 512| 256| 512|512?|
+| USERROW   |  32| 32 | 32 | 32 | 32 | 32 | 32 | 64 | 512| 64 | 512| 64 | 64?|
+| BOOTROW   |  - | -  | -  | -  | -  | -  | -  | -  | 64 | 64 | 256| 64 | 64?|
+| TCA's     |  1 | 1  | 1  | 1  | 2* | 2* | 1  | 2  | 1  | -  |  1 | -  | ?  |
 | TCB's     |    | 1  | 2* | 2  | 5  | 5  | 3  | 4  | 2  | 2  |  4 | 2  | ?  |
 | TCD's     |  - | -  | 1  | -  | 1  | 1  | 1  | -  | -  | -  |  1 | -  | ?  |
-| TCE's     |  - | -  | -  | -  | -  | -  | -  | -  | -  | 1  |  - | 1? | ?  |
+| TCE's     |  - | -  | -  | -  | -  | -  | -  | -  | -  | 1  |  - | 1+ | ?  |
 | WEX       |  - | -  | -  | -  | -  | -  | -  | -  | -  | 1  |  - | -  | ?  |
 | TCF's     |  - | -  | -  | -  | -  | -  | -  | -  | -  | 1  |  - | -  | ?  |
-| CCL       |  4 | 4  | 4  | 4  | 6  | 6  | 4  | 4  | 4  | 4  |  4 | 4  | ?  |
-| MVIO      |  - | -  | -  | -  | -  | X  | X  | -  | -  | -  |  X | -  | ?  |
+| CCL       |  4 | 2  | 2  | 4  | 6* | 6* | 4  | 4  | 4  | 4  |  4 | 4  | ?  |
+| MVIO      |  - | -  | -  | -  | -  | YES| YES| -  | -  | -  |YES | -  | ?  |
 | EVSYS     |  6 | 3  | 6  | 6  |10* |10* | 6  | 6  | 6  | 6  |  6 | 4  | ?  |
-| ADC bits  | 10 | 10 | 10 | 12 | 12 | 12 | 12 | 12 | 10 | 12 | 10 | 10 | ?  |
-| DAC bits  |  - | -  | 8  | -  | 10 | 10 | 10 | 10 | -  | -  |2x10| -  | ?  |
-| Has PGA   |  - | -  | -  | X  | -  | -  | -  | X  | -  | X  |  - | -  | ?  |
+| USART     | 4* | 1  | 1  | 2  | 6* | 6* | 3  | 4  | 2  | 1  | 3* | 1+ |>=1 |
+| TWI/I2C   | 1  | 1  | 1  | 1  | 2* | 2* | 1  | 1  | 1  | 1  | 2* | 1  |>=1 |
+| SPI       | 1  | 1  | 1  | 1  | 2* | 2* | 1  | 1  | 1  | 1  | 2  | 1  |>=1 |
+| ADC bits  | 10 | 10 | 10 | 12 | 12 | 12 | 12 | 12 | 10 | 12 |2x10| 10 | Likely 12 |
+| DAC bits  |  - | -  | 8  | -  | 10 | 10 | 10 | 10 | -  | -  |2x10| -  | Likely 10 or none  |
+| Has PGA   |  - | -  | -  | X  | -  | -  | -  | X  | -  | X  |  - | -  | Likely yes |
 | Released  |  X | X  | X  | X  | X  | X  | X  | X  | X  | X  |some| No | No |
-| USB       |  X | -  | -  | -  | -  | -  | -  | -  | X  | -  |  - | -  | -  |
+| USB       |  - | -  | -  | -  | -  | -  | -  | -  |  X | -  |  - | -  | -  |
 | Core      |MCX | mTC| mTC| mTC| DxC| DxC| DxC| DxC| DxC| DxC|none| DxC| DxC|
+
+`*` indicates that listed features only available on high pincount parts.
+
+`+` indicates that listed feature differs from the previously seen incarnations. LA has a snazzy new USART (only one - I suspect the LA is trialing the USART before the EC gets several of them, which looks like a larger chip than we've been seeing; those - in the modern AVR era - are generally preceeeded by smaller chips with one of the new peripherals on it), but it seems the TCE got a downgrade (or maybe this just reflects WEX not being there) - but they have a TCE that's only going to have 3 channels. 6 -> 4 -> 3? Our main PWM timer is progressing in the wrong direction...
+
 
 In a couple of sentences, all the "modern" AVRs.
 * `megaAVR 0-series` - The first full-size modern AVRs, around the time of tinyAVR 0/1 or shortly after. These are not supported by DxCore. MegaCoreX works great for them.
   * Generally, an upgrade from the basic megaAVRs for common use cases. Lacklustre for higher end use cases that the classic megaAVRs would be used for (the ADC is mediocre, for example. In fact, the tinyAVR 1-series in many ways has better peripherals.)
 * tinyAVR (ATtiny) 0, 1, 2 series. Supported by megaTinyCore, not DxCore.
-  * `tinyAVR 0-series` - The budget tinyAVR. The 0-series is strictly worse than the 1-series, being a direct "cut-down" version of the 1-series. Unfortunately, it's a rather poor "budget" version - the parts cost only a few cents less. The 1 and 2 series are both more appealing, and only slightly more expensice.
-  * `tinyAVR 1-series` - Much better parts than the 1-series. While they have less RAM than a 2-series of the same flash,
+  * `tinyAVR 0-series` - The budget tinyAVR. The 0-series is strictly worse than the 1-series, being a direct "cut-down" version of the 1-series. Unfortunately, it's a rather poor "budget" version - the parts cost only a few cents less. The 1 and 2 series are both more appealing, and only slightly more expensive.
+  * `tinyAVR 1-series` - Much better parts than the 0-series. While they have less RAM than a 2-series of the same flash, they don't feel kneecapped like the 0-series.
   * `tinyAVR 1-series (16k+)` - The 32k and 16k parts are what everyone has in mind when they talk about the 1-series tinys. Jam packed with peripherals, possibly as a trial run for the Dx (several peripherals are conspicuously similar). The biggest downsides of the tiny1-series are really that they made a few bad design decisions, and a few mistakes - as it was the first family of the new architecture. EVSYS and PORTMUX are a little different from how they were on later parts, and there's a lot of errata, which they've shown little inclination to rectify. But, they've got three comparators, 2 ADCs and the extra TCD - there are some things that a tiny1 will outperform a tiny2 at.
   * `tinyAVR 2-series` - I suspect the last of the tinyAVR name! As with the Tiny1 trialing the TCD and triple-comparator arrangement, the tiny2 was dedicated to trialing the new 12-bit ADC with true differential capability and programmable gain amplifier. The tinyAVR 2-series is what I default for tasks that are well suited to the featureset and pincount of tinyAVRs (the tinyAVR parts make better use of the pins they have).
 * `AVR Dx family` - **Supported by DxCore** Newer line of higher-end AVRs, with voltage-independent maximum clock speeds of 24 MHz
@@ -119,7 +127,7 @@ The following clock speeds are supported (see the Clock Reference for more infor
 
 ### For the DA, DB, DD and DU-series parts
 The maximum rated spec is 24 MHz **across the entire voltage and temperature range.**
-And that temperature range is pretty nuts - 105C for I-spec and 125C for E-spec. With waterproofing, you could run at the bottom of a pot of boiling water! Maybe you're making a still for making moonshine, but you want the control system entirely internal to make it easier to camouflage. There are *lots* of reasons not to set up an unlicensed 'still with a control board in the reboiler (legal, chemical, flavor, sanity, difficulty of water-and-ethanol-proofing it), but the temperature range of the AVR isn't one of them! Even if it's sitting in boiling water, that's no hotter than 100C. In spec!
+And that temperature range is pretty nuts - 105C for I-spec and 125C for E-spec. With waterproofing, you could run at the bottom of a pot of boiling water! Maybe you're making a still for making moonshine, but you want the control system entirely internal to make it easier to camouflage. There are *lots* of reasons not to set up an unlicensed 'still with a control board in the reboiler (legal, chemical and fire safety, product flavor, sanity, or the difficulty of water-and-ethanol-proofing it), but the temperature range of the AVR isn't one of them! Even if it's sitting in boiling water, that's no hotter than 100C. In spec!
 
 The internal oscillator can be used at 1 MHz, or any increment of 4 beyond that up to and including 32 MHz (note that this is 1/3rd more than max rating). For compatibility with tinyAVR, we also offer 5/10 MHz (generated by dividing 20 MHz). Speeds above the rated maximum should be regarded as unreliable, and one should not expect them to achieve that over the whole temperature range. Not all of the possible speeds that the oscillator can be tuned to
 
@@ -131,7 +139,7 @@ At room temperature, you can overclock the bejeezus out of these things. Crazy o
 
 **Supported from all sources (DU):** 12 MHz, 16 MHz, 20 MHz, 24 MHz - Speeds slower than 12 MHz do not support USB, which is the point of the DU - they're otherwise a DD with two fewer I/O pins, no TCD, and an ADC that looks more like the tinyAVR 1-series ADC.
 
-**Supported from external or crystal (DB, DD, DA, DA does not support crystals):** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, *25 MHz, 27 MHz, 28 MHz, 30 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz*
+**Supported from external or crystal (DB/DD/EA):** 8 MHz, 10 MHz, 12 MHz, 16 MHz, 20 MHz, 24 MHz, *25 MHz, 27 MHz, 28 MHz, 30 MHz, 32 MHz, 36 MHz, 40 MHz, 48 MHz*
 
 If a watch crystal is installed, there is an option to "Auto-tune" the internal oscillator based on that, though the improvement is small except at extreme temperatures due to the granularity of the tuning. Note that this does not allow generation of clock speeds not natively supported. The tuning is based on the intermediate 1 MHz frequency from which all others are derived.
 
@@ -201,9 +209,8 @@ FTDI adapters (FT232, FT2232, and FT4232 etc), including the fake ones that are 
 ### With a Classic Arduino (jtag2updi)
 One can be made from a classic AVR Uno/Nano/Pro Mini; inexpensive Nano clones are the usual choice, being cheap enough that one can be wired up and then left like that. We no longer provide detailed documentation for this processes; jtag2updi is deprecated. If you are still using it, you should select jtag2updi from the tools->programmer menu. This was previously our recommended option. Due to persistent jtag2updi bugs, and its reliance on the largely unmaintained 'avrdude' tool (which among other things inserts a spurious error message into all UPDI uploads made with it), this is no longer recommended. Note that this will not support the EA-series.
 
-## Compatibility Note for 32-bit Linux
-Apparently Arduino isn't packaging 32-bit versions of the latest avrdude.
-I defined a new tool definition which is a copy of arduino18 (the latest) except that it pulls in version 17 instead on 32-bit Linux, since that's the best that's available for that platform. The arduino17 version does not correctly support uploading with some of the Microchip programming tools.
+## Now with AVRdude 8.1
+Lots of improvements. Will be ported to mTC for next release of that.
 
 ## Ways to refer to pins
 This core uses a simple scheme for assigning the Arduino pin numbers, the same one that [MegaCoreX](https://github.com/MCUDude/MegaCoreX) uses for the pin-compatible megaAVR 0-series parts - pins are numbered starting from PA0, proceeding counterclockwise, which seems to be how the Microchip designers imagined it too.

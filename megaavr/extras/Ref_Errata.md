@@ -1,9 +1,9 @@
 # Errata
 Okay, you know what, I give up
 
-Here's a chart in google sheets (please contact me if you can confirm any ?'s as actually being fixed,because I don't take Microchip's word that a series doesn't have the erratum (if the errata says some revs areeffected, and later ones aren't, you can be confident that that is the case. But what am I to think when it's brothers with other flash size have the bug, and I've seen issues show up in other errata sheets years after the problem was frst added to an errata sheet.))
+Here's a chart in google sheets (please contact me if you can confirm any ?'s as actually being fixed,because I don't take Microchip's word that a series doesn't have the erratum (if the errata says some revs areeffected, and later ones aren't, you can be confident that that is the case. But what am I to think when it's brothers with other flash size have the bug, and I've seen issues show up in other errata sheets years after the problem was frst added to an errata sheet?))
 
-I've also given up commenting on all but the unofficial and/or confusing ones, and removed old comments, which were in need of updating.
+I've also given up commenting on all but the unofficial and/or confusing ones, and removed old comments,
 
 ## The list is on [Google Sheets](https://docs.google.com/spreadsheets/d/1F7n2NNO2quG_Z7WWqgiCBlM0cRfgJtFfuKUZYxUV6DE/edit?usp=sharing)
 
@@ -45,9 +45,9 @@ This of course leads to some head scratching for those of us who have read the r
 
 *The software can force a restart of the current waveform period by issuing a RESTART command. In this case the counter, **direction**, and all compare outputs are set to 0*
 
-Thus, at the time of the erratum's publication, the datasheet stated that the parts did exactly what the datasheet said they would.
+Thus, at the time of the erratum's publication, the datasheet stated that the parts did exactly what they did!
 
-The datasheet was then "clarified" to drop the mention of direction. As corrected silicon had not (in some cases has not) been made available
+The datasheet was then "clarified" to drop the mention of direction. As corrected silicon had not (in some cases has not) been made available, the overall result of that was not "clarifying" anything.
 
 DB-series parts with the new correct behavior are now available.
 
