@@ -370,27 +370,6 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     check_valid_analog_ref(mode);
     if (mode > 7)
       mode &= 7;
-    switch(mode) {
-      case INTERNAL1V024:
-        mode = ADC_REFSEL_1V024_gc;
-        break;
-      case INTERNAL2V048:
-        mode = ADC_REFSEL_2V048_gc;
-        break;
-      case INTERNAL4V096:
-        mode = ADC_REFSEL_4V096_gc;
-        break;
-      case INTERNAL2V500:
-        mode = ADC_REFSEL_2V500_gc;
-        break;
-      case EXTERNAL:
-        mode = ADC_REFSEL_VREFA_gc;
-        break;
-      default:
-        case DEFAULT:
-        mode = ADC_REFSEL_VDD_gc;
-        break;
-    }
     if (mode != 1 && mode != 3) {
       ADC0.CTRLC = mode;
     }
@@ -446,7 +425,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
         pin = digitalPinToAnalogInput(pin);
       }
       pin &= 0x3F;
-      if (pin != 0x38 && pin > 0x32) {
+      if (pin != 0x33 && pin != 0x31 && pin != 0x30 && pin > 0x07) {
         badArg("Invalid negative pin - valid options are ADC_GROUND, ADC_VDDDIV10, ADC_DACREF0, or any pin on PORTA.");
       }
     }
@@ -648,7 +627,6 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   0 takes action, and -1 sets to default.
   */
   int16_t analogClockSpeed(int16_t frequency, uint8_t options) {
-    int16_t clkadc;
     if (frequency == -1) {
       frequency = 2750;
     }
@@ -656,9 +634,11 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       if ((options & 0x01) == 0) {
         frequency = constrain(frequency, 300, ((ADC0.CTRLC & 0x04) ? 3000 : 6000));
       }
-      for (uint8_t prescale = 0; prescale < 16; prescale++) {
-        clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[prescale]);
-        if ((frequency >= clkadc) || (pgm_read_word_near(&adc_prescale_to_clkadc[prescale + 1]) < ((options & 0x01) ? 2 : 300))) {
+      uint8_t prescale = 0;
+      for (uint8_t i = 0; i < 16; i++) {
+        int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
+        prescale = i;
+        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
           ADC0.CTRLB = prescale;
           break;
         }
@@ -667,7 +647,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     if (frequency < 0) {
       return ADC_ERROR_INVALID_CLOCK;
     }
-    return clkadc;
+    return adc_prescale_to_clkadc[ADC0.CTRLB];
   }
 
 
@@ -1500,8 +1480,8 @@ void analogWrite(uint8_t pin, int val) {
   check_valid_duty_cycle(val);    // Compile error if constant duty cycle isn't between 0 and 255, inclusive. If those are generated at runtime, it is truncated to that range.
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if (bit_mask == NOT_A_PIN) return; //this catches any run-time determined pin that isn't a pin.
-  if (val == 255 || val == 0) {
-    digitalWrite(pin,(val?HIGH:LOW));
+  if ((val == 0 || val == 255)) {
+    digitalWrite(pin,val ? HIGH : LOW);
     return;
   }
   uint8_t portnum  = digitalPinToPort(pin);
@@ -1601,7 +1581,7 @@ void analogWrite(uint8_t pin, int val) {
       return;
     }
 
-  #elif defined(TCE0)
+  #elif defined(TCE0) && defined(WEX0) // The TCE is WEX Luther's right-hand timer; in LA, where WEX hasn't been seen, TCE just isn't the same
     if (bit_mask < 0x10 && (__PeripheralControl & TIMERE0)) {
       uint8_t usetce0 = 0;
       uint8_t tcemux = PORTMUX.TCEROUTEA;
@@ -1641,6 +1621,8 @@ void analogWrite(uint8_t pin, int val) {
         return;
       }
     }
+  #elif defined(TCE0) // WEXles TCE on the LA needs different handling. It looks to me as if the WEXless TCE is very much like a TCA with the wonderful split mode removed. It's even back to 3 channels.
+                      // We can probably reuse the code for the TCA, or use it as a model, because with the likely mux layout, it's going to be like TCA0 only with half the pins.
   #endif
   /* Now we use the table in variant */
   uint8_t digital_pin_timer = digitalPinToTimer(pin);
@@ -1780,18 +1762,21 @@ void analogWrite(uint8_t pin, int val) {
     #endif
     #if defined(DAC0)
       if (digital_pin_timer == DACOUT) {
-        _setInput(portnum, bit_mask);
         uint8_t ctrla = DAC0.CTRLA;
-        if (val == 0 || val == 255) {
-          ctrla &= ~0x41; // clear we want to turn off the DAC in this case
-        }
-        PORTD.PIN6CTRL |= PORT_ISC_INPUT_DISABLE_gc;
+        /* Previously there was a bunch of logic to check if we were writing 0 or 255 so we could turn off the DAC.
+          That was a can't-happen, we already caught that at the start and diverted to digitalWrite and returned
+          in the case that 0 or 255 was passed as the second argument.
+         */
+        ctrla |= 0x41;
+        VPORTD.DIR &=  ~0x40; // make sure the output drivers are off, don't want the DAC to fight that.
+        PORTD.PIN6CTRL |= PORT_ISC_INPUT_DISABLE_gc; // per datasheet, input must be disabled.
+        // Now set the value and write control.
         #if defined(DAC0_DATAH)
           DAC0.DATAH = val;
-          DAC0.CTRLA |= 0x41; // OUTEN = 1, ENABLE = 1, but don't trash run stby
+          DAC0.CTRLA = ctrla; // OUTEN = 1, ENABLE = 1, but don't trash run stby
         #else
           DAC0.DATA = val;
-          DAC0.CTRLA |= 0x41; // OUTEN = 1, ENABLE = 1, but don't trash run stby
+          DAC0.CTRLA = ctrla; // OUTEN = 1, ENABLE = 1, but don't trash run stby
         #endif
         return;
       }
@@ -1803,7 +1788,7 @@ void analogWrite(uint8_t pin, int val) {
         c. The timer spec table was not available.
   */
   if (val > 127) {
-    _setValueHigh(portnum,bit_mask);
+
   } else {
     _setValueLow(portnum,bit_mask);
   }
