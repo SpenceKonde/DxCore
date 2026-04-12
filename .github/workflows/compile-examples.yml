@@ -461,7 +461,7 @@ jobs:
             flash-class: 32
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # See: https://github.com/arduino/compile-sketches/README.md
 

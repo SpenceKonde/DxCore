@@ -661,9 +661,7 @@ namespace event {
       ccl3_event_a   = 0x06,
       ccl3_event_b   = 0x07,
       adc0_start     = 0x08,
-  #if defined(PIN_PA2) // not on 14-pin ones.
-      evouta_pin_pa2 = 0x09,
-  #endif
+      evouta_pin_pa2 = 0x09,   // needs to be defined even if PIN_PA2 is not available
       evoutc_pin_pc2 = 0x0A,
   #if defined(PIN_PD2) // only on 28 or 32 pin ones.
       evoutd_pin_pd2 = 0x0B,
@@ -707,9 +705,7 @@ namespace event {
       ccl3_event_a   = 0x06,
       ccl3_event_b   = 0x07,
       adc0_start     = 0x08,
-  #if defined(PIN_PA2) // not on 14-pin ones.
-      evouta_pin_pa2 = 0x09,
-  #endif
+      evouta_pin_pa2 = 0x09,   // needs to be defined even if PIN_PA2 is not available
   #if defined(PIN_PD2) // only on 28 or 32 pin ones.
       evoutd_pin_pd2 = 0x0A,
   #endif
@@ -1044,9 +1040,7 @@ namespace user{
         ccl3_event_a      = 0x06,
         ccl3_event_b      = 0x07,
         adc0_start        = 0x08,
-  #if defined(PIN_PA2)
-        evouta_pin_pa2    = 0x09,
-  #endif
+        evouta_pin_pa2    = 0x09,   // needs to be defined even if PIN_PA2 is not available
   #if defined(PIN_PC2)
         evoutc_pin_pc2    = 0x0A,
   #endif
@@ -1092,9 +1086,7 @@ namespace user{
         ccl3_event_a     = 0x06,
         ccl3_event_b     = 0x07,
         adc0_start       = 0x08,
-  #if defined(PIN_PA2) // not on 14-pin ones.
-      evouta_pin_pa2 = 0x09,
-  #endif
+      evouta_pin_pa2 = 0x09,   // needs to be defined even if PIN_PA2 is not available
   #if defined(PIN_PD2) // only on 28 or 32 pin ones.
       evoutd_pin_pd2 = 0x0A,
   #endif
