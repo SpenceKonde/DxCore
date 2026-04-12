@@ -638,7 +638,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       for (uint8_t i = 0; i < 16; i++) {
         int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
         prescale = i;
-        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
+        if ((frequency >= clkadc) || (pgm_read_word_near(&adc_prescale_to_clkadc[i + 1]) < ((options & 0x01) ? 2 : 300))) {
           ADC0.CTRLB = prescale;
           break;
         }
