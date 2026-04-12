@@ -112,7 +112,7 @@ AVR32EB20 AVR16EB20*/
 /* digitalPinHasPWM(p) is an evil compatibility function that lies to keep api compatibility.
 It must not be used if the PORTMUX options for the timers are or may have been changed, otherwise it will give incorrect results.
 
-digitalPinHasPWMNow() provides the information that you want when you call this function, however, digitalPinHasPWM() is compiletime
+digitalPinHasPWMNow() provides the information that you want when you call this function, however, digitalPinHasPWM() is compile time
 known and constant foldable - in many cases, this was relied upon by code in the wild... it's not an ideal situation.
 */
 

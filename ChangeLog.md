@@ -19,7 +19,7 @@ These items are in addition to what was listed under changes already in release.
 * Ongoing attempt to get the tests to a passing state.
 * Correct numerous issues with the new variant files
 * Correct numerous issues with libraries not supporting new parts and tests failing inappropriately
-* Correct default PWM pin condiguration on EB-series to a reasonable option. Previously these were not well chosen.
+* Correct default PWM pin configuration on EB-series to a reasonable option. Previously these were not well chosen.
 * Correct the PWM test functions to behave as advertised.
 * Update to use AVRdude 8.1 for all non-serialUPDI uploads.
   * Update platform.txt and programmers.txt appropriately.

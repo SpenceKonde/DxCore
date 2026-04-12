@@ -311,7 +311,7 @@ void turnOffPWM(uint8_t pin) {
         // analogWrite(pin,100); TurnOffPWM(pin);
         // leads to a pin that is usually set output
         // and which can detect it's input levels.
-        PORTD.PIN6CTRL &= ~PORT_ISC_INPUT_DISABLE_gc; // reenable input
+        PORTD.PIN6CTRL &= ~PORT_ISC_INPUT_DISABLE_gc; // re-enable input
         VPORTD.DIR |= 0x40; //set output
 
 
