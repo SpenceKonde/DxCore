@@ -476,7 +476,9 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
 // This is the same convention that ATTinyCore uses, with high bit indicating
 // that a value is a channel number not a pin number.
 #define ADC_CH(ch)                (0x80 | (ch))
-
+#if defined(DAC0)
+  #define ADC_DAC0          ADC_CH(ADC_MUXPOS_DAC0_gc)
+#endif
 #if !defined(ADC0_TEMP2) // Dx-series
   #if defined(DAC0)
     #define ADC_DAC0          ADC_CH(ADC_MUXPOS_DAC0_gc)

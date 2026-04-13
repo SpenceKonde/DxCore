@@ -21,7 +21,7 @@ These items are in addition to what was listed under changes already in release.
 * Correct numerous issues with libraries not supporting new parts and tests failing inappropriately
 * Correct default PWM pin configuration on EB-series to a reasonable option. Previously these were not well chosen.
 * Correct the PWM test functions to behave as advertised.
-* Update to use AVRdude 8.1 for all non-serialUPDI uploads.
+* Update to use **AVRdude 8.1** for all non-serialUPDI uploads.
   * Update platform.txt and programmers.txt appropriately.
   * Supported programmer list is now:
     * SerialUPDI (via SerialUPDI as before, with improvements)
@@ -40,6 +40,8 @@ These items are in addition to what was listed under changes already in release.
 * Fix #590 correctly (#608)
   * DAC functionality was generally hosed because of bug introduced with 1.6.0, this should be corrected.
 * Correct some missing DA-S parts in boards.txt, correct display order of chip selection menu.
+* Correct issues with efficiency and possibly correctness of new analog code.
+* Correct #612
 
 ### 1.6.1 3/27/26
 * 1.6.0 omitted the most important development change, that being the new toolchain, so we can't run regrewssion tests oin the 1.6.1 development version because the toolchain released with 1.6.0 was wrong. All caveats of 1.6.0 apply to 1.6.1.
