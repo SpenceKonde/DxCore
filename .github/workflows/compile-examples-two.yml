@@ -1,0 +1,583 @@
+name: Compile Examples
+
+on:
+  # workflow_dispatch event allows the workflow to be triggered manually
+  # See: https://docs.github.com/en/actions/reference/events-that-trigger-workflows#workflow_dispatch
+  workflow_dispatch:
+  # repository_dispatch event allows the workflow to be triggered via the GitHub API
+  # See: https://docs.github.com/en/actions/reference/events-that-trigger-workflows#repository_dispatch
+  repository_dispatch:
+
+jobs:
+  compile-examples:
+    runs-on: ubuntu-latest
+
+    env:
+      platform-name: DxCore:megaavr
+
+      all-parts-sketch-paths: |
+        - megaavr/extras/ci/test-sketch/all/dummysketch
+        - megaavr/extras/ci/test-sketch/all/macros
+    strategy:
+      fail-fast: false
+
+      matrix:
+        flash-class:
+          - 128
+          - 64
+          - 32
+          - 16
+        device-family:
+          - da
+          - db
+          - dd
+          - du
+          - ea
+          - eb
+          - ec
+          - la
+        pincount:
+          - 64
+          - 48
+          - 32
+          - 28
+          - 20
+          - 14
+        clocksource:
+          - internal
+          - extclock
+          - crystal
+        int-osc:
+          - 20
+          - 24
+        overclock-osc:
+          - 16
+          - 32
+          - 48
+        # Filter out these matrix combinations
+
+        exclude:
+          # Things w/out xtals
+          - device-family: da
+            clocksource: crystal
+          # DA limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
+          - device-family: da
+            flash-class: 32
+            pincount: 64
+          - device-family: da
+            flash-class: 16
+          - device-family: da
+            pincount: 20
+          - device-family: da
+            pincount: 14
+          # DB limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
+          - device-family: db
+            flash-class: 32
+            pincount: 64
+          - device-family: db
+            flash-class: 16
+          - device-family: db
+            pincount: 20
+          - device-family: db
+            pincount: 14
+          # DD limits. No 128k/8k flash, no 64/48 pin.
+          - device-family: dd
+            flash-class: 128
+          - device-family: dd
+            pincount: 64
+          - device-family: dd
+            pincount: 48
+          # DU limits. No 128k/8k flash, no 64/48 pin. No 64k 20/14pin.
+          - device-family: du
+            flash-class: 128
+          - device-family: du
+            pincount: 64
+          - device-family: du
+            pincount: 48
+          - device-family: du
+            pincount: 20
+            flash-class: 64
+          - device-family: du
+            pincount: 14
+            flash-class: 64
+          - int-osc: 20
+            device-family: da
+          - int-osc: 20
+            device-family: db
+          - int-osc: 20
+            device-family: dd
+          # ugly Dx/Ex hack. No 16 MHz DB xtal tests, DA ext 16 MHz, DD 16 MHz xtal.  Ex @ 48 excluded further down.
+          - overclock-osc: 48
+            clocksource: internal
+          - overclock-osc: 48
+            device-family: dd
+            clocksource: crystal
+          - overclock-osc: 48
+            device-family: db
+            clocksource: extclock
+          - overclock-osc: 48
+            device-family: da
+            clocksource: extclock
+          - overclock-osc: 32
+            device-family: db
+            clocksource: internal
+          - overclock-osc: 32
+            device-family: db
+            clocksource: crystal
+          - overclock-osc: 32
+            device-family: dd
+            clocksource: crystal
+          - overclock-osc: 32
+            device-family: da
+            clocksource: extclock
+          - overclock-osc: 32
+            device-family: dd
+            clocksource: extclock
+          - overclock-osc: 16
+            device-family: da
+            clocksource: internal
+          - overclock-osc: 16
+            device-family: dd
+            clocksource: internal
+          - overclock-osc: 16
+            device-family: db
+            clocksource: crystal
+          - overclock-osc: 16
+            device-family: db
+            clocksource: extclock
+          - overclock-osc: 16
+            device-family: dd
+            clocksource: extclock
+          - overclock-osc: 48
+            device-family: du
+          - overclock-osc: 32
+            device-family: du
+          - device-family: du
+            pincount: 20
+            int-osc: 20
+            flash-class: 16
+          - device-family: du
+            pincount: 32
+            int-osc: 20
+            flash-class: 16
+          - device-family: du
+            pincount: 28
+            int-osc: 24
+            flash-class: 16
+          - device-family: du
+            pincount: 14
+            int-osc: 24
+            flash-class: 16
+          - device-family: du
+            pincount: 20
+            int-osc: 20
+            flash-class: 16
+          - device-family: du
+            pincount: 20
+            int-osc: 24
+            flash-class: 32
+          - device-family: du
+            pincount: 32
+            int-osc: 24
+            flash-class: 32
+          - device-family: du
+            pincount: 28
+            int-osc: 20
+            flash-class: 32
+          - device-family: du
+            pincount: 14
+            int-osc: 20
+            flash-class: 32
+          - device-family: du
+            pincount: 20
+            int-osc: 24
+            flash-class: 32
+          - device-family: du
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: du
+            pincount: 32
+            clocksource: crystal
+            flash-class: 32
+          - device-family: du
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+          - device-family: du
+            pincount: 28
+            clocksource: crystal
+            flash-class: 16
+          - device-family: du
+            pincount: 14
+            clocksource: crystal
+            flash-class: 16
+          - device-family: du
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: du
+            pincount: 14
+            clocksource: extclock
+            flash-class: 32
+          - device-family: du
+            pincount: 20
+            clocksource: crystal
+            flash-class: 32
+          - device-family: du
+            pincount: 32
+            clocksource: extclock
+            flash-class: 64
+          - device-family: du
+            pincount: 28
+            clocksource: crystal
+            flash-class: 64
+          - device-family: dd
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: dd
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: dd
+            pincount: 28
+            clocksource: crystal
+            flash-class: 32
+          - device-family: dd
+            pincount: 20
+            clocksource: internal
+            flash-class: 32
+          - device-family: dd
+            pincount: 20
+            clocksource: crystal
+            flash-class: 32
+          - device-family: dd
+            pincount: 14
+            clocksource: extclock
+            flash-class: 32
+          - device-family: dd
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+          - device-family: dd
+            pincount: 28
+            clocksource: crystal
+            flash-class: 16
+          - device-family: dd
+            pincount: 28
+            clocksource: internal
+            flash-class: 16
+          - device-family: dd
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: dd
+            pincount: 20
+            clocksource: internal
+            flash-class: 16
+          - device-family: dd
+            pincount: 14
+            clocksource: crystal
+            flash-class: 16
+          - device-family: da
+            pincount: 48
+            clocksource: extclock
+            flash-class: 32
+          - device-family: da
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: da
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: da
+            pincount: 28
+            clocksource: internal
+            flash-class: 64
+          - device-family: da
+            pincount: 32
+            clocksource: extclock
+            flash-class: 64
+          - device-family: da
+            pincount: 48
+            clocksource: internal
+            flash-class: 64
+          - device-family: da
+            pincount: 64
+            clocksource: extclock
+            flash-class: 64
+          - device-family: da
+            pincount: 28
+            clocksource: extclock
+            flash-class: 128
+          - device-family: da
+            pincount: 32
+            clocksource: internal
+            flash-class: 128
+          - device-family: da
+            pincount: 48
+            clocksource: extclock
+            flash-class: 128
+          - device-family: da
+            pincount: 64
+            clocksource: internal
+            flash-class: 128
+          - device-family: db
+            pincount: 48
+            clocksource: extclock
+            flash-class: 32
+          - device-family: db
+            pincount: 32
+            clocksource: crystal
+            flash-class: 32
+          - device-family: db
+            pincount: 28
+            clocksource: internal
+            flash-class: 32
+          - device-family: db
+            pincount: 48
+            clocksource: crystal
+            flash-class: 32
+          - device-family: db
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: db
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          # Things we can't get yet
+          - device-family: ec
+          - device-family: la
+          # Things w/out xtals
+          - device-family: eb
+            clocksource: crystal
+          # The inappropriate clock sources:
+          # Unsupported
+          - clocksource: internal
+            overclock-osc: 32
+          #redundant
+          - int-osc: 16
+            overclock-osc: 16
+          # Pincounts
+          - device-family: eb
+            pincount: 64
+          - device-family: eb
+            pincount: 48
+          - device-family: ea
+            pincount: 64
+          - device-family: la
+            pincount: 64
+          - device-family: la
+            pincount: 48
+          - device-family: ea
+            pincount: 14
+          - device-family: ea
+            pincount: 20
+          #flashsizes
+          - device-family: eb
+            flash-class: 64
+          - device-family: la
+            flash-class: 64
+          - device-family: ea
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: ea
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: ea
+            pincount: 48
+            clocksource: crystal
+            flash-class: 32
+          - device-family: ea
+            pincount: 28
+            clocksource: internal
+            flash-class: 64
+          - device-family: ea
+            pincount: 32
+            clocksource: crystal
+            flash-class: 64
+          - device-family: ea
+            pincount: 48
+            clocksource: extclock
+            flash-class: 64
+          - device-family: ea
+            pincount: 28
+            clocksource: crystal
+            flash-class: 16
+          - device-family: ea
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+          - device-family: ea
+            pincount: 48
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 14
+            clocksource: extclock
+            flash-class: 32
+          - device-family: eb
+            pincount: 20
+            clocksource: internal
+            flash-class: 32
+          - device-family: eb
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: eb
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: eb
+            pincount: 14
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: eb
+            pincount: 28
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16 # Things we can't get yet
+          - device-family: ec
+          - device-family: la
+          # Things w/out xtals
+          - device-family: eb
+            clocksource: crystal
+          # The inappropriate clock sources:
+          # Unsupported
+          - clocksource: internal
+            overclock-osc: 32
+          #redundant
+          - int-osc: 16
+            overclock-osc: 16
+          # Pincounts
+          - device-family: eb
+            pincount: 64
+          - device-family: eb
+            pincount: 48
+          - device-family: ea
+            pincount: 64
+          - device-family: la
+            pincount: 64
+          - device-family: la
+            pincount: 48
+          - device-family: ea
+            pincount: 14
+          - device-family: ea
+            pincount: 20
+          #flashsizes
+          - device-family: eb
+            flash-class: 64
+          - device-family: la
+            flash-class: 64
+          - device-family: ea
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: ea
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: ea
+            pincount: 48
+            clocksource: crystal
+            flash-class: 32
+          - device-family: ea
+            pincount: 28
+            clocksource: internal
+            flash-class: 64
+          - device-family: ea
+            pincount: 32
+            clocksource: crystal
+            flash-class: 64
+          - device-family: ea
+            pincount: 48
+            clocksource: extclock
+            flash-class: 64
+          - device-family: ea
+            pincount: 28
+            clocksource: crystal
+            flash-class: 16
+          - device-family: ea
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+          - device-family: ea
+            pincount: 48
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 14
+            clocksource: extclock
+            flash-class: 32
+          - device-family: eb
+            pincount: 20
+            clocksource: internal
+            flash-class: 32
+          - device-family: eb
+            pincount: 28
+            clocksource: extclock
+            flash-class: 32
+          - device-family: eb
+            pincount: 32
+            clocksource: internal
+            flash-class: 32
+          - device-family: eb
+            pincount: 14
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 20
+            clocksource: extclock
+            flash-class: 16
+          - device-family: eb
+            pincount: 28
+            clocksource: internal
+            flash-class: 16
+          - device-family: eb
+            pincount: 32
+            clocksource: extclock
+            flash-class: 16
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: compile-examples
+
+      # See: https://github.com/arduino/compile-sketches/README.md
+
+      - name: Compile examples (rated max speed, nothing weird)
+        uses: arduino/compile-sketches@main
+        with:
+          cli-version: 0.33.0
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},wiremode=mands,flmap=lockdefault
+          sketch-paths: |
+            # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
+            # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
+            ${{ env.all-parts-sketch-paths }}
+          platforms: |
+            # Install DxCore via Boards Manager for the toolchain
+            - source-url: http://drazzy.com/package_drazzy.com_index.json
+              name: ${{ env.platform-name }}
+            # Overwrite the DxCore release version with the platform from the local path
+            - source-path: megaavr
+              name: ${{ env.platform-name }}
+          libraries: |
+            # The sketches don't have any external library dependencies, so just define an empty array
+            -
+          verbose: false
+          enable-deltas-report: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          enable-warnings-report: true
+          sketches-report-path: sketches-reports
