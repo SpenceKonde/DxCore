@@ -191,61 +191,10 @@ tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verb
 tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex {upload.verbose} -p{build.mcu}
 tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -d -v
 
-##############################################################
-# Serial UPDI - UPDI uploads using a serial adapter directly #
-##############################################################
-# Board manager installations have the python executable in  #
-# different location than a manual installation. The package #
-# build script deletes the line starting with                #
-# tools.serialupdi.cmd                                       #
-# and the #REMOVE#, leaving the correct path.                #
-##############################################################
-
-tools.serialupdi.cmd={runtime.platform.path}/tools/python3/python3
-#REMOVE#tools.serialupdi.cmd={runtime.tools.python3.path}/python3
-
-## Unused Parameters.
-# SerialUPDI has multiple verbosity levels now, if needed
-# Verification is not optional as there are no guardrails against unsuccessful uploads other than protocol failures
-# Upload is only for uploading through a bootloader, and erase is not used anywhere.
-
-tools.serialupdi.bootloader.params.noverify=
-tools.serialupdi.bootloader.params.quiet=
-tools.serialupdi.bootloader.params.verbose= -v
-tools.serialupdi.bootloader.verify=
-tools.serialupdi.erase.params.quiet=
-tools.serialupdi.erase.params.verbose= -v
-tools.serialupdi.erase.pattern=
-tools.serialupdi.program.params.noverify=
-tools.serialupdi.program.params.quiet=
-tools.serialupdi.program.params.verbose= -v
-tools.serialupdi.program.verify=
-tools.serialupdi.upload.params.noverify=
-tools.serialupdi.upload.params.quiet=
-tools.serialupdi.upload.params.verbose= -v
-tools.serialupdi.upload.verify=
-tools.serialupdi.upload.pattern=echo "This can't happen, but has to be here or automated tests fail"
-
-## Tools -> Burn Bootloader pattern
-# write fuses 0, 1, 2, 5, 6, 7, 8.
-# 2 is always written 0 (sets clock to use HF osc, not 32kHz ULP).
-# Fuses 3 and 4 are reserved.
-tools.serialupdi.bootloader.pattern="{cmd}" -u "{runtime.platform.path}/tools/prog.py" -t {protocol} {program.extra_params} -d {build.mcu} --fuses 0:{bootloader.WDTCFG} 1:{bootloader.BODCFG} 2:{bootloader.OSCCFG}  {bootloader.serupdifuse5}  6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} {bootloader.pymcuprogstring} {bootloader.verbose}
-
-## Program pattern (all uploads through SerialUPDI)
-# Program will set fuses 2, 6 and 8 only. Fuses 0 and 4 are not written because the core never configures that.
-# If a user went and set that themselvesm we shouldn't undo it.
-# Fuse 1 is the BOD configuration, which could "brick" the chip if set for a higher voltage than the power rail.
-# Fuse 5 is SYSCFG0 which could disable UPDI and leave the board unprogrammable without HV programming - except on DA/DB parts, which don't allow disabling of the UPDI functionality.
-# That leaves OSCCFG to choose 16 vs 20 MHz clock, and SYSCFG1 (for startup time and stuff) and BOOTEND,
-# ensuring that a part previously set to use a bootloader will be unbootloaded cleanly, instead of the
-# bootloader being erased but no sketches working)
-
-tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.platform.path}/tools/prog.py"  -t {protocol} {program.extra_params} -d {build.mcu} --fuses  2:{bootloader.OSCCFG} {program.serupdifuse5} 6:{bootloader.SYSCFG1} 7:{bootloader.CODESIZE} 8:{bootloader.BOOTSIZE} "-f{build.path}/{build.project_name}.hex" -a write {program.verbose}
-
 ###############
 # Expert Mode #
 ###############
+
 # Expert mode will set SYSCFG0 as well, allowing an **upload** to disable the UPDI pin.
 # This may be used if you have an HV UPDI programmer and wish to upload while setting
 # SYSCFG0 including RSTPINCFG. In that case you may uncomment this and comment out the corresponding lines above.
