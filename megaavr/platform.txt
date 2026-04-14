@@ -165,7 +165,7 @@ tools.avrdude.erase.pattern=
 ## avrdude-related paths
 tools.avrdude.path={runtime.tools.avrdude.path}
 tools.avrdude.cmd.path={path}/bin/avrdude
-tools.avrdude.config.path={runtime.platform.path}/avrdude.conf
+tools.avrdude.config.path={path}/etc/avrdude.conf
 tools.avrdude.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
 
 ## Used for Sketch -> Upload using Programmer or uploads without a bootloader
