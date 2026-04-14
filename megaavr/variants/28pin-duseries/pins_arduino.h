@@ -84,11 +84,17 @@ Include guard and include basic libraries. We are normally including this inside
 #endif
 
 #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? ((p) - PIN_PD0)  : ((p) <= PIN_PF1 ? ((p) - 4)  : NOT_A_PIN)) : (((p) > PIN_PA1)  ? ((p) + 20 ) :                         NOT_A_PIN))
-#define analogChannelToDigitalPin(p)         ((p) > 31        ?  NOT_A_PIN        : ((p) < 8         ? ((p) + PIN_PD0) :  (p) > 21  ? (p) - 20    : (((p) == 16       ? PIN_PF0)    : ((p) == 17  ? PIN_PF1 : NOT_A_PIN))))
-
+#define analogChannelToDigitalPin(p)      ( (p) <  8 ? (p) +      PIN_PD0  \
+                                          : (p) < 16 ? NOT_A_PIN           \
+                                          : (p) < 18 ? (p) - 16 + PIN_PF0  \
+                                          : (p) < 22 ? NOT_A_PIN           \
+                                          : (p) < 28 ? (p) - 20 + PIN_PA0  \
+                                          : (p) < 31 ? NOT_A_PIN           \
+                                          : (p) < 32 ? (p) - 28 + PIN_PC0  \
+                                          : NOT_A_PIN )
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
-#define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : ((port)== PF ? PIN_PF0 : NOT_A_PIN))))
+#define portToPinZero(port)               ((port) == PA ? PIN_PA0 : (port)== PC ? PIN_PC0 : (port)== PD ? PIN_PD0 : (port)== PF ? PIN_PF0 : NOT_A_PIN)
 
 
 // PWM pins

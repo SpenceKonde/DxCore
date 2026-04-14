@@ -87,7 +87,14 @@ AVR32EB20 AVR16EB20*/
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
 #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD4 ?  ((p) > PIN_PD7 ?       NOT_A_PIN : (p) - PIN_PD0) : (((p) > PIN_PA1) ? (p) + 20 : NOT_A_PIN))
-#define analogChannelToDigitalPin(p)    ((p) > 31 || (p) != 28    ? NOT_A_PIN :  (p) < 8       ? ((p) + PIN_PD0) : ((p) > 21 ? (p) - 20 : NOT_A_PIN))
+#define analogChannelToDigitalPin(p) \
+                                          ( (p) <  4 ? NOT_A_PIN           /*                           */ \
+                                          : (p) <  8 ? (p) +      PIN_PD0  /* 4-7 on PD                 */ \
+                                          : (p) < 16 ? NOT_A_PIN           /* 8-15 on PE (not present)  */ \
+                                          : (p) < 22 ? NOT_A_PIN           /* don't have PF pins        */ \
+                                          : (p) < 28 ? (p) - 20 + PIN_PA0  /* 22-27 on PA2~7            */ \
+                                          : (p) < 32 ? (p) - 28 + PIN_PC0  /* 28-31 on PC               */ \
+                                          : NOT_A_PIN )
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
 #define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : NOT_A_PIN)))

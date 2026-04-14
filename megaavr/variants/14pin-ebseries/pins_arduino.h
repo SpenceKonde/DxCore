@@ -84,8 +84,12 @@ AVR32EB14 AVR16EB14 */
         # # # ##### #    ####  #   #  ###
         #   # #   # #    # #   #   #     #
         #   # #   #  ### #  #   ###   ##*/
-#define digitalPinToAnalogInput(p)     (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) > PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))
-#define analogChannelToDigitalPin(p)   (((p) <  8       && (p) > 3       ) ? (p) + PIN_PD0 : (((p) >= 28     || (p) <= 31)    ) ? (p) - 20 : NOT_A_PIN)
+#define digitalPinToAnalogInput(p)        (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) > PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))
+#define analogChannelToDigitalPin(p)      ( (p) <  4 ? NOT_A_PIN           \
+                                          : (p) < 16 ? (p) +    + PIN_PD0  \
+                                          : (p) < 28 ? NOT_A_PIN           \
+                                          : (p) < 32 ? (p) - 28 + PIN_PC0  \
+                                          : NOT_A_PIN )
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : digitalPinToBitMask(p) ? (p) : NOT_A_PIN)
 #define portToPinZero(port)               ((port) == PD ? PIN_PD0: ((port)== PC ? PIN_PC0 : ((port)== PA ? PIN_PA0 : NOT_A_PIN)))
