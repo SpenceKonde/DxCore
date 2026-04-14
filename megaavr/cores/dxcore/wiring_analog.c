@@ -26,21 +26,44 @@
 #include <avr/pgmspace.h>
 
 
+
+
+#if __AVR_ARCH__ == 103
+  #define _prefix const
+  #define _refmethod(x) (x)
+#else
+  #define _prefix const PROGMEM
+  #define _refmethod(x) (pgm_read_byte_near(&x))
+#endif
+
+
+#if defined(VREF_ADC0REF)
+  #define _acref_to_c _acref_to_c
+  inline __attribute__((always_inline))uint8_t _adcref_to_c(uint8_t refval) {
+    refval &= 0x07;
+    uint8_t r = refval;// r = refval = 00000xxx
+    _swap(refval); //now is 0xxx0000 in refval
+    return (r | refval); // which will be the correct value of the new-style constants, 0xxx0xxx
+  }
+#else
+  _prefix uint8_t  _acreftab[8] = {INTERNAL1V024,   INTERNAL2V048, INTERNAL4V096,   INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
+  _prefix uint8_t _adcreftab[8] = {          VDD, NOT_A_REFERENCE,      EXTERNAL, NOT_A_REFERENCE,   INTERNAL1V024,  INTERNAL2V048, INTERNAL4V096, INTERNAL2V500};
+
+  inline __attribute__((always_inline))uint8_t _acref_to_c(uint8_t refval) {
+    refval &= 0x07;
+    return _refmethod(_acreftab[refval]);
+  }
+  inline __attribute__((always_inline))uint8_t _adcref_to_c(uint8_t refval) {
+    refval &= 0x07;
+    return _refmethod(_adcreftab[refval]);
+  }
+#endif
+#define SINGLE_ENDED 254
+
 /* magic value passed as the negative pin to tell the _analogReadEnh() (which implements both th new ADC
  * functions) to tell them what kind of mode it's to be used in. This also helps with providing useful and accurate
  * error messages and codes at runtime, since we have no other way to report such.
  */
-
-
-#if defined(VREF_ADC0REF)
-  uint8_t  _acreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
-  uint8_t _adcreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
-#else
-  uint8_t  _acreftab[8] ={INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500, NOT_A_REFERENCE, VDD, EXTERNAL, NOT_A_REFERENCE};
-  uint8_t _adcreftab[8] ={VDD, NOT_A_REFERENCE, EXTERNAL, NOT_A_REFERENCE, INTERNAL1V024, INTERNAL2V048, INTERNAL4V096, INTERNAL2V500};
-#endif
-
-#define SINGLE_ENDED 254
 
 
 /* check_valid_x functions are inline functions which return no value and generate no code in the compiled binary.
@@ -156,7 +179,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
   uint8_t getDACReference() {
     uint8_t r = VREF.DAC0REF & VREF_REFSEL_gm;
-    return _acreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
+    return _adcref_to_c(r); //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 #else /* else no dac */
   void DACReference(__attribute__ ((unused))uint8_t mode) {
@@ -377,7 +400,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 /* Ex Version*/
   inline uint8_t getAnalogReference() {
     uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
-    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
+    return _adcref_to_c(r); //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 /* Ex Version*/
   int16_t analogRead(uint8_t pin) {
@@ -638,7 +661,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       for (uint8_t i = 0; i < 16; i++) {
         int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
         prescale = i;
-        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
+        if ((frequency >= clkadc) ||  pgm_read_word_near(&adc_prescale_to_clkadc[i + 1]) < ((options & 0x01) ? 2 : 300)) {
           ADC0.CTRLB = prescale;
           break;
         }
@@ -647,7 +670,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     if (frequency < 0) {
       return ADC_ERROR_INVALID_CLOCK;
     }
-    return adc_prescale_to_clkadc[ADC0.CTRLB];
+    return pgm_read_word_near(&adc_prescale_to_clkadc[ADC0.CTRLB]);
   }
 
 
@@ -689,7 +712,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
   }
   inline uint8_t getAnalogReference() {
     uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
-    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
+    return _adcref_to_c(r); //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending on
   }
 
   int16_t analogRead(uint8_t pin) {
@@ -897,7 +920,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       }
       uint8_t prescale = 0;
       for (uint8_t i = 0; i < 16; i++) {
-        int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
+        int16_t clkadc = pgm_read_byte_near(&adc_prescale_to_clkadc[i]);
         prescale = i;
         if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
           ADC0.CTRLB = prescale;
@@ -1155,7 +1178,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 
   uint8_t getAnalogReference() {
     uint8_t r = VREF.ADC0REF & VREF_REFSEL_gm;
-    return _adcreftab[r]; //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending
+    return _adcref_to_c(r); //convert native representation back into compound representation containing the settinf for both AC and ADC so that we don't have two sets of constants that need to be used depending
   }
 
 
@@ -1769,7 +1792,10 @@ void analogWrite(uint8_t pin, int val) {
          */
         ctrla |= 0x41;
         VPORTD.DIR &=  ~0x40; // make sure the output drivers are off, don't want the DAC to fight that.
-        PORTD.PIN6CTRL |= PORT_ISC_INPUT_DISABLE_gc; // per datasheet, input must be disabled.
+        uint8_t pd6ctrl = PORTD.PIN6CTRL;
+        pd6ctrl &= 0xF0; //clear opullup enable AND input mode,
+        pd6ctrl |= PORT_ISC_INPUT_DISABLE_gc; // per datasheet, input must be disabled.
+        PORTD.PIN6CTRL = pd6ctrl;
         // Now set the value and write control.
         #if defined(DAC0_DATAH)
           DAC0.DATAH = val;
@@ -1778,17 +1804,18 @@ void analogWrite(uint8_t pin, int val) {
           DAC0.DATA = val;
           DAC0.CTRLA = ctrla; // OUTEN = 1, ENABLE = 1, but don't trash run stby
         #endif
+
         return;
       }
     #endif
   }
   /* Execution is only here if:
-      a. There was no match for TCA/TCE and
-        b. the table entry was empty or
-        c. The timer spec table was not available.
+      a. No portmux aware tmer pointed at the pin
+      b. they didn't pass 0 or 255 as the second argument
+      c. there is no timer listed in the timer table either.
   */
   if (val > 127) {
-
+    _setValueLow(portnum,bit_mask);
   } else {
     _setValueLow(portnum,bit_mask);
   }
