@@ -2199,8 +2199,13 @@ has once worked for the same thing as meaning that thing */
       // but briefly called XTAL32k on some parts
       #define RTC_CLKSEL_INT32K_gc            RTC_CLKSEL_OSC32K_gc //Dx has an internal OSCillator at 32K
       #define RTC_CLKSEL_INT1K_gc             RTC_CLKSEL_OSC1K_gc
-      #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XOSC32K_gc //and an eXternal OSCillator at 32K
-      #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_XOSC32K_gc
+      #if defined(__AVR_DD__)
+        #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XTAL32K_gc //You have got to be kidding!
+        #define RTC_CLKSEL_XOSC32K_gc           RTC_CLKSEL_XTAL32K_gc
+      #else
+        #define RTC_CLKSEL_TOSC32K_gc           RTC_CLKSEL_XOSC32K_gc
+        #define RTC_CLKSEL_XTAL32K_gc           RTC_CLKSEL_XOSC32K_gc
+      #endif
     #endif
   #endif
   /* General Purpose Register names, GPR.GPRn, vs GPIORn vs GPIOn

@@ -4754,6 +4754,11 @@ azduinoboard.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
 azduinoboard.bootloader.CODESIZE=0x00
 azduinoboard.bootloader.BOOTSIZE=0x01
 
+azduinoboard.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+azduinoboard.bootloader.serupdifuse5=5:{bootloader.SYSCFG0}
+azduinoboard.program.serupdifuse5=5:{bootloader.SYSCFG0}
+azduinoboard.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+
 #-----------------------------------------#
 # Upload parameters for Optiboot          #
 #_________________________________________#

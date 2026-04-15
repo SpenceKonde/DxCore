@@ -1452,23 +1452,30 @@ uint8_t digitalPinToTimerNow(uint8_t p) {
   #if defined(TCE0)
     if ((__PeripheralControl & TIMERE0)) {
       uint8_t tcemux = PORTMUX.TCEROUTEA;
-      if (tcemux < 7 ) {
-        if (portnum== tcemux && bit_pos < 4) {
-          return TIMERE0;
-        }
-      /* Invalid MUX option set, timer is not currently functional.
-      } else if (tcemux == 7) {
-      */
-      } else if (tcemux == 8) {
-        if (bit_pos < 2 && (portnum== PC || portnum== PA)) {
-          return TIMERE0_MUX9;
-        }
-      } else if (tcemux == 9) {
-        if (portnum== PA && ( bit_pos > 1 && bit_pos < 6)) {
-          return TIMERE0_MUX8;
+      #if defined(WEX0)
+        if (tcemux < 7 ) {
+          if (portnum== tcemux && bit_pos < 4) {
+            return TIMERE0;
+          }
+        /* Invalid MUX option set, timer is not currently functional.
+        } else if (tcemux == 7) {
+        */
+        } else if (tcemux == 8) {
+          if (bit_pos < 2 && (portnum== PC || portnum== PA)) {
+            return TIMERE0_MUX9;
+          }
+        } else if (tcemux == 9) {
+          if (portnum== PA && ( bit_pos > 1 && bit_pos < 6)) {
+            return TIMERE0_MUX8;
+          }
         }
       }
-    }
+    #else // TCE just ain't himself when WEX isn't around...
+      if (tcemux == portnum && bit_pos < 3) {
+        return TIMERE0;
+      }
+
+    #endif
   #endif
   uint8_t timer = digitalPinToTimer(p);
   #if defined(TCD0)
