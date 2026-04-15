@@ -106,11 +106,18 @@ Include guard and include basic libraries. We are normally including this inside
 // you must ensure that these will do what they say they will do.
 
 #define digitalPinToAnalogInput(p)        (((p) > PIN_PC7 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 18) : NOT_A_PIN))
-#define analogChannelToDigitalPin(p)      (((p) < 12) ? ((p) + PIN_PD0) : (((p) < 16 || p > 21) ? NOT_A_PIN : ((p) + PIN_PF0 - 16)))
+#define analogChannelToDigitalPin(p)      ( (p) <  8 ? (p) +      PIN_PD0  \
+                                          : (p) < 12 ? (p) - 8  + PIN_PE0  \
+                                          : (p) < 16 ? NOT_A_PIN           \
+                                          : (p) < 18 ? (p) - 16 + PIN_PF0  \
+                                          : (p) < 22 ? NOT_A_PIN           \
+                                          : (p) < 28 ? (p) - 20 + PIN_PA0  \
+                                          : (p) < 32 ? (p) - 28 + PIN_PC0  \
+                                          : NOT_A_PIN )
 #define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
 
-#define portToPinZero(port)               (((port) < PF) ? (((port) * 8) - (((port) > 1) ? 2 : 0) : ((port) == PF ? PIN_PF0 : NOT_A_PIN))
+#define portToPinZero(port)               (((port) < PF) ? (((port) * 8) - (((port) > 1) ? 2 : 0) ) : ((port) == PF ? PIN_PF0 : NOT_A_PIN))
 
 // Timer pin swaps
 #define TCA0_PINS                 (PORTMUX_TCA0_PORTC_gc)     // TCA0 output on PC[0:5] by default, but just write the portmux to change it

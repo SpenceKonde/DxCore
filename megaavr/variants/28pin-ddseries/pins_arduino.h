@@ -87,11 +87,24 @@ Include guard and include basic libraries. We are normally including this inside
   #if defined(MVIO_ENABLED) /* MVIO disables ADC on PORTC */
     #define IS_MVIO_ENABLED()                    (1)
     #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? ((p) - PIN_PD0)  : ((p) <= PIN_PF1 ? ((p) - 4)  : NOT_A_PIN)) : (((p) > PIN_PA1 && (p) < PIN_PC0) ? ((p) + 20)        :   NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 27        ?  NOT_A_PIN        : ((p) < 8         ? ((p) + PIN_PD0) :  (p) > 21  ? (p) - 20    : (((p) == 16       ? PIN_PF0)  : ((p) == 17  ? PIN_PF1 :   NOT_A_PIN))))
+    #define analogChannelToDigitalPin(p)      ( (p) == 0 ? NOT_A_PIN           \
+                                              : (p) <  8 ? (p) +      PIN_PD0  \
+                                              : (p) < 16 ? NOT_A_PIN           \
+                                              : (p) < 18 ? (p) - 16 + PIN_PF0  \
+                                              : (p) < 22 ? NOT_A_PIN           \
+                                              : (p) < 28 ? (p) - 20 + PIN_PA0  \
+                                              : NOT_A_PIN )
   #else
     #define IS_MVIO_ENABLED()                    (0)
     #define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0  ? (((p) < PIN_PF0)  ? ((p) - PIN_PD0)  : ((p) <= PIN_PF1 ? ((p) - 4)  : NOT_A_PIN)) : (((p) > PIN_PA1)  ? ((p) + 20 ) :                         NOT_A_PIN))
-    #define analogChannelToDigitalPin(p)         ((p) > 31        ?  NOT_A_PIN        : ((p) < 8         ? ((p) + PIN_PD0) :  (p) > 21  ? (p) - 20    : (((p) == 16       ? PIN_PF0)    : ((p) == 17  ? PIN_PF1 : NOT_A_PIN))))
+    #define analogChannelToDigitalPin(p)      ( (p) == 0 ? NOT_A_PIN           \
+                                              : (p) <  8 ? (p) +      PIN_PD0  \
+                                              : (p) < 16 ? NOT_A_PIN           \
+                                              : (p) < 18 ? (p) - 16 + PIN_PF0  \
+                                              : (p) < 22 ? NOT_A_PIN           \
+                                              : (p) < 28 ? (p) - 20 + PIN_PA0  \
+                                              : (p) < 32 ? (p) - 28 + PIN_PC0  \
+                                              : NOT_A_PIN )
   #endif
 #else /* If we ARE using a bootloader, we can't be sure if MVIO is enabled :-( */
   #define IS_MVIO_ENABLED() ((FUSE.SYSCFG1 & 0x18) == 0x10)

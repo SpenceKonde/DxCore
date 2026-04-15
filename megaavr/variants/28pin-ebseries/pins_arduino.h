@@ -89,7 +89,7 @@ AVR32EB28 AVR16EB28*/
 #define analogChannelToDigitalPin(p) \
     ( (p) < 8  ? (p) +      PIN_PD0  /* 0-7 on PD                 */ \
     : (p) < 16 ? NOT_A_PIN           /* 8-15 on PE (not present)  */ \
-    : (p) < 18 ? (p) - 18 + PIN_PF0  /* 16-21 on PF, we get 2     */ \
+    : (p) < 18 ? (p) - 16 + PIN_PF0  /* 16-21 on PF, we get 2     */ \
     : (p) < 22 ? NOT_A_PIN           /* don't have other PF pins  */ \
     : (p) < 28 ? (p) - 20 + PIN_PA0  /* 22-27 on PA2~7            */ \
     : (p) < 32 ? (p) - 28 + PIN_PC0  /* 28-31 on PC               */ \
