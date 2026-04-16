@@ -190,6 +190,17 @@ jobs:
             flash-class: 128
           - device-family: la
             flash-class: 64
+          #These combinations do not expose additional codepaths relevant to the macros test
+          #clock dependent things are handled in the main compile tests. Saves 11+11+12+10= 44 runners, guaranteed to find nothing not covered by existing test
+          - device-family: da
+            int-osc: 20
+          - device-family: db
+            int-osc: 20
+          - device-family: du
+            int-osc: 20
+          - device-family: dd
+            int-osc: 20
+
 
     steps:
       - name: Checkout repository
