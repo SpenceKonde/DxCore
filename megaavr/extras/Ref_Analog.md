@@ -8,74 +8,62 @@ The ADC on the the Ex-series is even better - it is nearly the same ADC that the
 **Be sure to disable to the ADC prior to putting the part to sleep if low power consumption is required!**
 
 ## Vital Statistics
-| Part family | Min. Res. | Max. Res. | CLK Max | CLK used | Max Ovrsamp Res. | Extras
-|-------------|-----------|-----------|---------|----------|------------------|---
-| megaAVR 0   |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | (1) This is the last piece of text in this document known applicable to the mega0. We don't have a core for those nor do we plan one. Use MegaCoreX
-| tinyAVR 0/1 |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | (1), (2)
-| tinyAVR 1+  |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|           13-bit | (1), (3), two identical ADCs.
-| AVR DU      |     8-bit |    10-bit | 0.125-2 | 1-1.4MHz |           13-bit | Single ended. Single ADC. Text makes references to ADC1, which does not exist - looks copied from SD. Or 1-series.
-| AVR SD      |     8-bit | 2x 10-bit | 0.125-2 | n/a      |           13-bit | Single ended, Dual ADC, looks like 2 copies of the one they gave the DU.  Support **not** planned due to irrelevant niche features which impede normal development.
-| AVR DA      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | (5) "Differential" ADC
-| AVR DB      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | (5) "Differential" ADC
-| AVR DD      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz |           15-bit | (5) "Differential" ADC more pins can be ADC pins.
-| tinyAVR 2   |     8-bit |    12-bit |   3/6 * | 2-2.5MHz |           17-bit | (6) True differential, 1-16x PGA
-| AVR EA      |     8-bit |    12-bit |   2/6 * | 2-2.5MHz |           17-bit | (6) True differential, 1-16x PGA, sign chopping.
-| AVR EB      |     8-bit |    12-bit |   2/6 * | 2-2.5MHz |           17-bit | (6) True differential, 1-16x PGA, sign chopping.
-| AVR EC      |     8-bit?|    12-bit?|   2/6 ? | 2-2.5MHz |           17-bit | 100% speculation, but considering rumors of it's niche, this Ex looks likely to get the Ex ADC
-| AVR LA      |     8-bit |    10-bit | 0.125-2 | 1-1.4MHz |           15-bit | It's getting the DU version, but they've extended accumulation to 1024 samples, and it's getting prescaler settings of /2 to /32, instead of the selection with less granularity between /2 and /64
-
-`*` 6 MHz with external or Vdd reference, 3 MHz with internal.
-`**` - "After the USB natives were done with him, you could barely recognize him. They'd cut TCD clean out of his chest, torn off and roasted his MVIO for a villiage feast in honor of the 3.3v logic levels of USB data lines... and ah - removed two bits from his "analog-to-digital converter" *damn... I tried to tell him they weren't friendly, and that negotiations wouldn't go well.... but he just had to give peace a chance* "Well, to his credit, they do seem to have avoided an outright war with the USB natives" *But at what cost? Rsze their primitive hovels, execute the relevant designers and use a tried and true USB stack from any of the several lines of...!*
-"Remember what they did to the Atmellists! The u6 tried to go in and negotiate... They let the U4 out, the U2 - only after taking off his A/D converter, and the u6 himself... well... He was in no condition to go into production after that."
-*These uppity peripherals! We need to get tough*
-
-Notes:
-1. This part has a very awkward set of reference voltages (4.3, 2.5, 1.1, 1.5, 0.55). For the ultra low reference voltage, use analogSetClock() to ensure that the clock speed is within the much lower sped'ed range of 65-200 kHz. You may also want to lower sample duration since that's what it's denominated in. All other parts have 1.024/2.048/4.096/2.5
-2. No external reference on 0-series and 1-series below 16k.
-3. 16k (1+series) parts are blessed with a number a boons. One of them is a second ADC. I think the intent was to provide a way to approximate having a differential ADC by triggering both at once (well, one of the intents, another one was because the ADC0 is taken over by the PTC if that is in use.
-5. The Dx "differential" is still limited to voltages below Vref. It's thus much like startig two ADCs simultaneously and subtracting the result, which is what I think it does
-6. This is a REAL differential ADC. Max V<sub>Ain</sub> = Vdd + .1 or .2V and for useful readings their difference must be smaller than VREF. The tiny2 has some mysterious tunables, proper tuning of which is unclear. Offset error is disappointingly high, which Microchip noticed and introduced sign chopping (and removed a mysterious tunable or two) in the EA series, which should help significantly.
-
-The differential ADC on the Dx-series is disappointing.
 
 
-### Crystal Ball Gazing
-I predict a bright future for both the 10-bit ADC used in the DU and the 12-bit one used in the Ex.
 
-I'm less optimistic for the DA/DB/DD, which I think was a stopgap to give something like a differential ADC before the Ex ADC was ready.
+| Part family | Min. Res. | Max. Res. | CLK Max | CLK used |Ext| Max Ovrsamp Res. | Extras
+|-------------|-----------|-----------|---------|----------|---|------------------|---
+| megaAVR 0   |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|   |           13-bit | (1) This is the last piece of text in this document known applicable to the mega0. We don't have a core for those nor do we plan one. Use MegaCoreX
+| tinyAVR 0/1 |     8-bit |    10-bit | 0.2-1.5 | 1-1.25MHz|   |           13-bit | (1), (2)
+| tinyAVR 1+  |     8-bit | 2x 10-bit | 0.2-1.5 | 1-1.25MHz| X |           13-bit | (1), (3), two identical ADCs.
+| tinyAVR 2   |     8-bit |    12-bit |   2/6   | 2-2.5MHz | X |           17-bit | (6) True differential, 1-16x PGA
+| AVR DA      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz | X |           15-bit | (5) "Differential" ADC
+| AVR DB      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz | X |           15-bit | (5) "Differential" ADC
+| AVR DD      |    10-bit |    12-bit | 0.125-2 | 1-1.4MHz | X |           15-bit | (5) "Differential" ADC more pins can be ADC pins.
+| AVR DU      |     8-bit |    10-bit | 0.125-2 | 1-1.4MHz | X |           13-bit | One single-ended ADC. Contains references in datasheet to non-existent ADC1, implying crossfertilization with the SD-series, which has 2 ADCs of this design.
+| AVR EA      |     8-bit |    12-bit |   2/6   | 2-2.5MHz | X |           17-bit | (6) True differential, 1-16x PGA, sign chopping.
+| AVR EB      |     8-bit |    12-bit |   2/6   | 2-2.5MHz | X |           17-bit | (6) True differential, 1-16x PGA, sign chopping.
+| AVR EC      |     8-bit |    12-bit |   2/6   | 2-2.5MHz | X |           17-bit | (6) Looks likely to be getting the good one from the EA-series.
+| AVR LA      |     8-bit |    10-bit | 0.125-2 | 1-1.4MHz | X |           15-bit | A slight upgrade from the DU-version, with more prescaler granularity, downgrade from other Dx or Ex.
+| AVR SD      |     8-bit | 2x 10-bit | 0.125-2 | n/a      | X |           13-bit | Single ended, Dual ADC, looks like 2 copies of the one they gave the DU. These parts are not supported and no support is planned, wrong niche for us.
+
+Ext = External Reference
+
+
+### Types of ADC
+There is one difference between how the parts with the new Ex-series ADC, and the Dx-series one.
+
+On parts with true differential ADC (the Ex and 2-series), when making diffferential measurements, the analog voltage requirement is:
+```
+-0.1V <= Vin <= (Vdd + 0.1)
+```
+
+On the parts without the new ADC, if they do have a differential mode, the analog voltage requirement is:
+
+```
+0V <= Vin <= Vref <= (Vdd - 0.4)
+```
+
+That means that a Dx-series measuring two voltages above 2.048 v differentially, even if they're very close to each other, can only use the 4.096v reference, because Vin must be below VRef. The accuracy is limited.
+
+On an Ex-series, you don't need to use a VRef larger than the largest voltage being measured - so since you may be measuring a very small value (for example, across a current shunt). In the same situation, the Ex can use the 1.024v reference, getting 4 times finer resolution, **without even enabling the programmable gain amplifier**
+
 
 ## Reference Voltages
-Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are listed below. The references available on the Dx and Ex parts are chosen from the same list as the tiny2's got to pick from, but somehow they wound up in a different order on these parts. You should never have to use the numbers (though that's all those constants are), unless your code loses track of what reference it has selected
-In some cases the voltage determines the maximum ADC clock speed. Call analogReference() before analogClockSpeed() to ensure that the analog clock speed is appropriate when any of these apply:
-* You are switching between internal and external/VDD reference on an Ex/2-series
-* You are using the half volt reference on the 0/1-series, or switching from that to another reference
-* You are on a Dx-series with an external reference of less than 1.8V
+Analog reference voltage can be selected as usual using analogReference(). Supported reference voltages are listed below. The "Number" column is the *numeric value* of this constant, which - like named constants in general - is cryptic when seen by human eyes during debugging if not documented. Note that the numeric values **have changed in 1.6.2** in order to allow for the same constants to be used with both DACReference() and AnalogReference() - on the DA/DB/DD, this came for free because the bitfields were the same. On the Ex, the AC and DAC use the VREF ordering, and the ADC uses a totally different ordering. This was handled improperly prior to 1.6.2 for the EA (the EB and DU were not yet supported, and in any event it rarely matters for them.)
 
-
- | tinyAVR (0/1)                           | Voltage | Minimum Vdd | Number | Notes
- |-----------------------------------------|---------|-------------|--------|-------
- | `VDD` (default)                         | Vcc/Vdd |           - |     16 |
- | `INTERNAL0V55`                          |  0.55 V |           - |      0 | ADC clock needs to be 100kHz to 260 kHz to get accurate results
- | `INTERNAL1V1`                           |  1.10 V |           - |      1 |
- | `INTERNAL2V5`                           |  2.50 V |           - |      2 |
- | `INTERNAL4V3`                           |  4.30 V |           - |      3 |
- | `INTERNAL1V5`                           |  1.50 V |           - |      4 |
- | `EXTERNAL`                              |   < VDD |           - |     32 | 1+series only
-
- | tinyAVR (2-series)  or anything else    | Voltage | Minimum Vdd | # tiny2| # Dx    | # Ex    | Notes
- |-----------------------------------------|---------|-------------|--------|---------|---------|------
- | `VDD` (default)                         | Vcc/Vdd |             |      0 |       5 |       0 | Good to 6 MHz ADC clock on 2-series and Ex
- | `INTERNAL1V024`                         | 1.024 V |      2.5* V |      4 |       0 |       4 | 10-bit reading with 1.025 ref gives apx.   1 mv/ADC count
- | `INTERNAL2V048`                         | 2.048 V |      2.5  V |      5 |       1 |       5 | 12-bit reading with 2.048 ref gives apx. 0.5 mv/ADC count
- | `INTERNAL4V096`                         | 4.096 V |      4.55 V |      7 |       2 |       6 | 12-bit reading with 4.096 ref gives apx.   1 mv/ADC count
- | `INTERNAL2V500`                         | 2.500 V |      2.7  V |      6 |       3 |       7 |
- | `INTERNAL4V1` (alias of INTERNAL4V096)  | 4.096 V |      4.55 V |      7 |       2 |       6 |
- | `EXTERNAL`  (tiny2/Ex version)          |   < VDD |  VREF +0.5V |      2 |       - |       2 | External ref good to 6 MHz ADC clock on 2-series and Ex
- | `EXTERNAL`  (Dx-series)                 | 1.0-1.8 |  VREF +0.5V |      - |       6 |         | Dx: CLK_ADC =< 500 kHz
- | `EXTERNAL`  (Dx-series)                 | 1.8-VDD |  VREF +0.5V |      - |       6 |         | Dx: Normal limits apply (see this document for DxCore for details)
-
-
- You can test like `if(getAnalogReference()==INTERNAL2V500)`, but if you try to say, print them, you just get a number. That's what is shown in the last column: contains the numerical value of the constants representing these references. Don't use those, then nobody will understand your code - including yourself in two weeks. However, if you are printing the results of `getAnalogReference()` or `getDACReference()`, these are the numbers you will see.
+ | Summary                                 |  Lowest min Vdd | Highest min Vdd | Availability
+ |-----------------------------------------|---------|----------|---------------------------
+ | `VDD`                                   |    Vdd  |     -    | Universal
+ | `INTERNAL1V024`                         |  1.0  V |   2.7  V | All modern AVRs since the megaAVR 0-series
+ | `INTERNAL2V048`                         |  2.5  V |   2.7  V | All modern AVRs since the megaAVR 0-series
+ | `INTERNAL4V096`                         |  4.55 V |   4.6  V | All modern AVRs since the megaAVR 0-series
+ | `INTERNAL2V500`                         |  2.7  V |   3.0  V | All modern AVRs
+ | `INTERNAL4V1`                           |       - |        - | Alias of `INTERNAL4V096`
+ | `INTERNAL2V5`                           |       - |        - | Alias of `INTERNAL2V500`
+ | `INTERNAL0V512`                         |     TBD |      TBD | New reference option on LA-series
+ | `EXTERNAL`                              | complicated | . | External reference available on all parts barring the 0/1 tinyAVR (and classic AVRs)
+ | `INTERNAL` on classic AVRs              | vsried  | varied   | usually (but not always) 1.1V.
 
 ### Important notes regarding references
 
