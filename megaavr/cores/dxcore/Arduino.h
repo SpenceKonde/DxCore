@@ -478,7 +478,7 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
 #define ADC_CH(ch)                (0x80 | (ch))
 
 #if defined(DAC0)
-  #define ADC_DAC0          ADC_CH(ADC_MUXPOS_DAC0_gc)  /*
+  #define ADC_DAC0          ADC_CH(ADC_MUXPOS_DAC0_gc)
 #endif
 #define ADC_GROUND        ADC_CH(ADC_MUXPOS_GND_gc)    /* specified correctly everywhere!*/
 #define ADC_TEMPERATURE   ADC_CH(ADC_MUXPOS_TEMPSENSE_gc)  /* the value is either 0x30 or 0x40, but this works either way */
@@ -489,7 +489,6 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
     #define ADC_DACREF0       ADC_CH(0x49)
   #elif defined(__AVR_EA__) || defined(__AVR_EB__)
     #define ADC_DACREF0       ADC_CH(0x39)
-  #else
   #else
     #define ADC_DACREF0       ADC_CH(ADC_MUXPOS_DACREF0_gc)
   #endif
