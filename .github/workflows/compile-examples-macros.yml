@@ -522,7 +522,7 @@ jobs:
         uses: arduino/compile-sketches@main
         with:
           cli-version: 0.33.0
-          fqbn: ${{ env.platform-name }}:avr${{ matrix.opti }}${{ matrix.device-family }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},${{ matrix.mvio }}wiremode=mands,flmap=lockdefault
+          fqbn: ${{ env.platform-name }}:avr${{ matrix.device-family }}${{ matrix.opti }}:chip=avr${{ matrix.flash-class }}${{ matrix.device-family }}${{ matrix.pincount }},clock=${{matrix.int-osc}}${{ matrix.clocksource }},${{ matrix.mvio }}wiremode=mands,flmap=lockdefault
           sketch-paths: |
             # It's necessary to jump through some hoops to dynamically generate the env object keys to define the non-universal sketch paths
             # https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#format
