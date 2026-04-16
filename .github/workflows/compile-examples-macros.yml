@@ -54,7 +54,7 @@ jobs:
           - mvio=disabled,
           - ""
         opti:
-          - opti=opti,
+          - opti=opti
           - ""
 
         # Filter out these matrix combinations
