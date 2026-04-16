@@ -53,7 +53,7 @@ jobs:
         mvio:
           - mvio=disabled,
           - mvioopti=disabled,
-            - ""
+          - ""
         opti:
           - opti
           - ""
@@ -71,7 +71,6 @@ jobs:
           - clocksource: crystal
 
           # for DD only
-          - int-osc: 20
           - device-family: dd
             mvio: mvioopti=disabled,
             opti: ""
