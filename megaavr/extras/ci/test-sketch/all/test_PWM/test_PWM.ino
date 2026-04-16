@@ -112,4 +112,5 @@ void compile_test_PWM() {
   discard(retval_digitalPinToTimerNow2);
   bool retval_digitalPinHasPWMNow = digitalPinHasPWMNow(NOT_A_CONST_BYTE);  // doesn't need more rigorous testing - all it does is call the above and check that it's non-zero.
   discard(retval_digitalPinHasPWMNow);
+  discard(retval_digitalPinToTimerNow);
 };
