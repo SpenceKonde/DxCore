@@ -103,7 +103,7 @@ jobs:
           - device-family: eb
             opti: opti
 
-          # Filter avaliable parts for DA DB DU
+          # Filter available parts for DA DB DU
           # Things w/out xtals
           - device-family: da
             clocksource: crystal
@@ -152,7 +152,7 @@ jobs:
             pincount: 14
             flash-class: 64
 
-          # Filter avaliable parts for EA EB EC LA
+          # Filter available parts for EA EB EC LA
           # Things we can't get yet
           - device-family: ec
           - device-family: la
