@@ -476,24 +476,56 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
 // This is the same convention that ATTinyCore uses, with high bit indicating
 // that a value is a channel number not a pin number.
 #define ADC_CH(ch)                (0x80 | (ch))
-#if defined(DAC0)
-  #define ADC_DAC0          ADC_CH(ADC_MUXPOS_DAC0_gc)
-#endif
-#if !defined(ADC0_TEMP2) // Dx-series
-  #define ADC_DACREF0       ADC_CH(0x49)
-  #ifdef AC1 // Always either 1 AC or 3 until the Ex-series
-    #define ADC_DACREF1     ADC_CH(0x4A)
-  #endif
-  #ifdef AC2
-    #define ADC_DACREF2     ADC_CH(0x4B)
-  #endif
-  #define ADC_GROUND        ADC_CH(ADC_MUXPOS_GND_gc)
-  #define ADC_TEMPERATURE   ADC_CH(ADC_MUXPOS_TEMPSENSE_gc)
 
-  #ifdef MVIO
-    #define ADC_VDDDIV10    ADC_CH(ADC_MUXPOS_VDDDIV10_gc)
-    #define ADC_VDDIO2DIV10 ADC_CH(ADC_MUXPOS_VDDIO2DIV10_gc)
+#if defined(DAC0)
+  #define ADC_DAC0          ADC_CH(ADC_MUXPOS_DAC0_gc)  /*
+#endif
+#define ADC_GROUND        ADC_CH(ADC_MUXPOS_GND_gc)    /* specified correctly everywhere!*/
+#define ADC_TEMPERATURE   ADC_CH(ADC_MUXPOS_TEMPSENSE_gc)  /* the value is either 0x30 or 0x40, but this works either way */
+
+#if defined(AC0)
+  // Some of the damned DA's are missing the groupcodes! *and you can't test for enums*
+  #if defined(__AVR_DA__)
+    #define ADC_DACREF0       ADC_CH(0x49)
+  #elif defined(__AVR_EA__) || defined(__AVR_EB__)
+    #define ADC_DACREF0       ADC_CH(0x39)
+  #else
+  #else
+    #define ADC_DACREF0       ADC_CH(ADC_MUXPOS_DACREF0_gc)
   #endif
+#endif
+#if defined(AC1)
+  #if defined(__AVR_DA__)
+    #define ADC_DACREF1       ADC_CH(0x4A)
+  #elif defined(__AVR_EA__) || defined(__AVR_EB__)
+    #define ADC_DACREF1       ADC_CH(0x3A)
+  #else
+    #define ADC_DACREF1      ADC_CH(ADC_MUXPOS_DACREF1_gc)
+  #endif
+#endif
+#if defined(AC2)
+  #if defined(__AVR_DA__)
+    #define ADC_DACREF2       ADC_CH(0x4B)
+  #elif defined(__AVR_EA__) || defined(__AVR_EB__)
+    #define ADC_DACREF2       ADC_CH(0x3B)
+  #else
+    #define ADC_DACREF2     ADC_CH(ADC_MUXPOS_DACREF2_gc)
+  #endif
+#endif
+
+#ifdef MVIO
+  #define ADC_VDDDIV10    ADC_CH(ADC_MUXPOS_VDDDIV10_gc)        /* 44 */
+  #define ADC_VDDIO2DIV10 ADC_CH(ADC_MUXPOS_VDDIO2DIV10_gc)     /* 45*/
+#elif defined(__AVR_EA__) || defined(__AVR_EB__)
+  #define ADC_VDDDIV10    ADC_CH(0x31) /* They're probably ggoing to rename that constant */
+#elif defined(__AVR_DU__)
+  #define ADC_VDDDIV10    ADC_CH(ADC_MUXPOS_VDDDIV10_gc)
+#endif
+
+
+
+#if !defined(ADC0_TEMP2) // Dx-series
+
 
   /* end special channels, start options */
   #define ADC_ACC2                (0x81)
@@ -534,15 +566,6 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
   #define ADC_STANDBY_ON          (0xC0)
   #define ADC_STANDBY_OFF         (0x90)
 #else // Ex-series
-  #define ADC_TEMPERATURE   ADC_CH(ADC_MUXPOS_TEMPSENSE_gc)
-  #define ADC_GROUND        ADC_CH(ADC_MUXPOS_GND_gc)
-  #if defined(DAC0)
-    #define ADC_DAC0        ADC_CH(0x38)
-  #endif
-  #define ADC_DACREF0       ADC_CH(0x39)
-  #if defined(AC1) // Always either 1 AC or 3 until the Ex-series
-    #define ADC_DACREF1     ADC_CH(0x3A)
-  #endif
 
   #define ADC_VDDDIV10     ADC_CH(ADC_MUXPOS_VDDDIV10_gc)
   //Accumulation
