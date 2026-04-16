@@ -194,8 +194,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          ref: macrosII
 
       # See: https://github.com/arduino/compile-sketches/README.md
 
