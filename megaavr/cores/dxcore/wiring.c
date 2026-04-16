@@ -122,6 +122,8 @@ void init_timers();
 
   // Now for the ISRs. This gets a little bit more interesting now...
   #if defined (MILLIS_USE_TIMERRTC)
+  // a global to give others a chance to use the RTC CMP interrupt from sleep wakeup
+  uint8_t __rtc_intflags;
     ISR(MILLIS_VECTOR) {
       // if RTC is used as timer, we only increment the overflow count
       // Overflow count isn't used for TCB's
@@ -129,6 +131,7 @@ void init_timers();
       if (RTC.INTFLAGS & RTC_OVF_bm) {
         timingStruct.timer_overflow_count++;
       }
+      __rtc_intflags = RTC.INTFLAGS;
       RTC.INTFLAGS = RTC_OVF_bm | RTC_CMP_bm; // clear flag
     }
   #elif !defined(MILLIS_USE_TIMERNONE)
