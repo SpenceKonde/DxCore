@@ -37,7 +37,8 @@ void init_timers();
   #error "CLOCK_SOURCE not defined. Must be 0 for internal, 1 for crystal, or 2 for external clock"
 #endif
 
-#if !(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1)  || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1))
+#if !(defined(MILLIS_USE_TIMERNONE) || defined(MILLIS_USE_TIMERB0) || defined(MILLIS_USE_TIMERB1)  || defined(MILLIS_USE_TIMERB2) || defined(MILLIS_USE_TIMERB3) || defined(MILLIS_USE_TIMERB4) || defined(MILLIS_USE_TIMERB5) || defined(MILLIS_USE_TIMERA0) || defined(MILLIS_USE_TIMERA1) \
+    || defined(MILLIS_USE_TIMERRTC_XTAL) || defined(MILLIS_USE_TIMERRTC_XOSC) || defined(MILLIS_USE_TIMERRTC_OSC))
 #error "wiring.c test of millis defines failed - no millis timer defined but millis enabled!"
 #endif
 
@@ -393,7 +394,8 @@ void init_timers();
       SREG = oldSREG;
       m = (m << 16);
       m += rtccount;
-      m = m - (m >> 5) + (m >> 7);
+      uint8_t round=( (m&0x3f) + ((m&0x7f)>>1) + 32)>>6;
+      m = m - (m >> 6) - (m >> 7) - round;  // * 1000/1024 -> * ( 1 - 24/1024 ) -> * ( 1 - 1/64 - 1/128 )
       /* the compiler is incorrigible - it cannot be convinced not to copy m twice, shifting one 7 times and the other 5 times
        * and wasting 35 clock cycles and several precious instruction words.
        * What you want is for it to make one copy of m, shift it right 5 places, subtract, then rightshift it 2 more.
@@ -1782,20 +1784,26 @@ void __attribute__((weak)) init_millis()
         TCD0.CTRLC          = 0x80;
         TCD0.INTCTRL        = 0x01; // enable interrupt
         TCD0.CTRLA          = TIMERD0_PRESCALER | 0x01; // set clock source and enable!
-      #elif defined(MILLIS_USE_TIMERRTC)
-        while(RTC.STATUS); // if RTC is currently busy, spin until it's not.
-        // to do: add support for RTC timer initialization
-        RTC.PER             = 0xFFFF;
-        #ifdef MILLIS_USE_TIMERRTC_XTAL
-          _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,0x03);
-          RTC.CLKSEL        = 2; // external crystal
-        #else
-          _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,0x02);
-          // RTC.CLKSEL=0; this is the power on value
-        #endif
-        RTC.INTCTRL         = 0x01; // enable overflow interrupt
-        RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
-      */
+        */
+    #elif defined(MILLIS_USE_TIMERRTC)
+      while(RTC.STATUS); // if RTC is currently busy, spin until it's not.
+      RTC.PER             = 0xFFFF;
+      #if defined(MILLIS_USE_TIMERRTC_XTAL)
+        // crystal oscillator - startup can take up to 1000ms
+        _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,(CLKCTRL_RUNSTDBY_bm|CLKCTRL_CSUT_16K_gc|CLKCTRL_LPMODE_bm|CLKCTRL_ENABLE_bm));
+        RTC.CLKSEL        = 2; // RTC_CLKSEL_XOSC32K_gc or RTC_CLKSEL_XTAL32K_gc : external crystal
+      #elif defined(MILLIS_USE_TIMERRTC_XOSC)
+        // external clock input on pin xtal32k1
+        _PROTECTED_WRITE(CLKCTRL.XOSC32KCTRLA,(CLKCTRL_RUNSTDBY_bm|CLKCTRL_SEL_bm|CLKCTRL_ENABLE_bm));
+        RTC.CLKSEL        = RTC_CLKSEL_EXTCLK_gc;   // external clock input
+      #else
+        // internal 32 kHz oscillator
+        _PROTECTED_WRITE(CLKCTRL.OSC32KCTRLA,CLKCTRL_RUNSTDBY_bm);
+        // RTC.CLKSEL=RTC_CLKSEL_OSC32K_gc; 0: this is the power on value
+      #endif
+      RTC.INTCTRL         = RTC_OVF_bm; // enable overflow interrupt
+      RTC.CTRLA           = (RTC_RUNSTDBY_bm|RTC_RTCEN_bm|RTC_PRESCALER_DIV32_gc);//fire it up, prescale by 32.
+    //*/
     #else // It's a type b timer - we have already errored out if that wasn't defined
       _timer->CCMP = TIME_TRACKING_TIMER_PERIOD;
       // Enable timer interrupt, but clear the rest of register
@@ -1814,22 +1822,17 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
   #if defined(MILLIS_USE_TIMERNONE)
     badCall("set_millis() is only valid with millis timekeeping enabled.");
   #else
-    /*
+
     #if defined(MILLIS_USE_TIMERRTC)
-      // timer_overflow_count = newmillis >> 16;
-      // millis = 61/64(timer_overflow_count << 16 + RTC.CNT)
+      // millis = 1000/1024*(timer_overflow_count << 16 + RTC.CNT)
       uint8_t oldSREG = SREG; // save SREG
-      cli();                // interrupts off
-      uint16_t temp = (newmillis % 61) << 6;
-      newmillis = (newmillis / 61) << 6;
-      temp = temp / 61;
-      newmillis += temp;
-      timer_overflow_count = newmillis >> 16;
+      newmillis = ((newmillis/125)<<7) + (((newmillis%125)<<7)+62)/125;  // *1024/1000
+      cli();                  // interrupts off
+      timingStruct.timer_overflow_count = newmillis >> 16;
       while(RTC.STATUS&RTC_CNTBUSY_bm); // wait if RTC busy
       RTC.CNT = newmillis & 0xFFFF;
-      SREG = oldSREG; // reemable oimterripts if we killed them,
+      SREG = oldSREG; // reenable interrupts if we killed them,
     #else
-     */
       /* farting around with micros via overflow count was ugly and buggy.
        * may implement again, better, in the future - but millis and micros
        * will get out of sync when you use set_millis
@@ -1855,7 +1858,7 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
        * -SK 2/4/23
        */
       timingStruct.timer_millis = newmillis;
-    //#endif
+    #endif
   #endif
 }
 
