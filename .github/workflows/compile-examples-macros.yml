@@ -54,7 +54,7 @@ jobs:
           - mvio=disabled,
           - ""
         opti:
-          - opti=opti
+          - opti
           - ""
 
         # Filter out these matrix combinations
@@ -82,15 +82,15 @@ jobs:
           - device-family: eb
             mvio: mvio=disabled,
           - device-family: da
-            mvio: opti=opti,
+            opti: opti
           - device-family: db
-            mvio: opti=opti,
+            opti: opti
           - device-family: du
-            mvio: opti=opti,
+            opti: opti
           - device-family: ea
-            mvio: opti=opti,
+            opti: opti
           - device-family: eb
-            mvio: opti=opti,
+            opti: opti
 
           # DA limits. No 8/16k flash, no 32k 64-pin. No 20/14 pin.
           - device-family: da
