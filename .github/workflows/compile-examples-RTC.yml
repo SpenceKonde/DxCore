@@ -525,9 +525,9 @@ jobs:
             # The sketches don't have any external library dependencies, so just define an empty array
             -
           verbose: false
-          enable-deltas-report: true
+          enable-deltas-report: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          enable-warnings-report: true
+          enable-warnings-report: false
           sketches-report-path: sketches-reports
 
       - name: Compile examples (20 MHz, disable millis, sized appspm, flmap L0, wire mors)
@@ -553,9 +553,9 @@ jobs:
             # The sketches don't have any external library dependencies, so just define an empty array
             -
           verbose: false
-          enable-deltas-report: true
+          enable-deltas-report: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          enable-warnings-report: true
+          enable-warnings-report: false
           sketches-report-path: sketches-reports
 
       - name: Compile examples (8 MHz, optiboot (if available), tca0 millis, full printf, and manual attachInterrupt)
