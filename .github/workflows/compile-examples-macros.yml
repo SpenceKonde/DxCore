@@ -62,11 +62,6 @@ jobs:
 
         exclude:
           # for quick test
-          - device-family: da
-          - device-family: db
-          - device-family: du
-          - device-family: ea
-          - device-family: eb
           - clocksource: extclock
           - clocksource: crystal
 
