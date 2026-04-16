@@ -565,8 +565,6 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
   #define ADC_STANDBY_ON          (0xC0)
   #define ADC_STANDBY_OFF         (0x90)
 #else // Ex-series
-
-  #define ADC_VDDDIV10     ADC_CH(ADC_MUXPOS_VDDDIV10_gc)
   //Accumulation
   #define ADC_ACC2                (0x81)
   #define ADC_ACC4                (0x82)
