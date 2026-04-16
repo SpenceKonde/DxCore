@@ -73,15 +73,17 @@ void Opamp::calibrate(uint8_t cal_value) {
 
 
 /**
- * @brief Initialize the Opamp
+ * @brief Initialize the Opamp!
  *
  */
 void Opamp::init() {
   if (inrange != in::unconfigured) {
     OPAMP_PWRCTRL  = inrange; // Select normal or rail to rail input mode
   }
-  if (enable == enable::unconfigured) { // called init, haven't set enable nor explicitly asked not to turn it on?
-    enable = (opamp_ctrla & 0x01);
+  if (output == out::enable) {
+    if (enable == enable::unconfigured) {
+      enable = enable::enable;
+    }
   }
   opamp_ctrla  = standby | output | event | enable;
   opamp_resmux = ladder_wiper | ladder_top | ladder_bottom;
