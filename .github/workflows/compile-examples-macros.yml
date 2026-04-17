@@ -201,7 +201,6 @@ jobs:
           - device-family: dd
             int-osc: 20
 
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -228,7 +227,7 @@ jobs:
             # The sketches don't have any external library dependencies, so just define an empty array
             -
           verbose: false
-          enable-deltas-report: false
+          enable-deltas-report: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports
