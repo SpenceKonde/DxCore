@@ -20,7 +20,7 @@ jobs:
 
       # See: https://github.com/arduino/arduino-lint-action#readme
       - name: Arduino Lint
-        uses: arduino/arduino-lint-action@v1
+        uses: arduino/arduino-lint-action@v2
         with:
           path: megaavr
           token: ${{ secrets.GITHUB_TOKEN }}
