@@ -2538,6 +2538,10 @@ void init_timers() {
     init_TCE0();
     PORTMUX.TCEROUTEA = TCE0_PINS;
   #endif
+  #if defined(TCF0)
+    init_TCF0();
+    PORTMUX.TCFROUTEA = TCF0_PINS;
+  #endif
   init_TCBs();
   /* init_TCBs() or's together all the portmux options for the up-to-5 timers on extant parts, and will go to 8 without changes)*/
   #if (defined(TCD0) && defined(USE_TIMERD0_PWM) && !defined(MILLIS_USE_TIMERD0))
@@ -2676,6 +2680,29 @@ void init_timers() {
     #endif
   }
 #endif
+#if defined(TCF0) && !defined(NO_TIMERF_PWM)
+  void __attribute__((weak)) init_TCF0() {
+    // Need to set in safe order.
+    // First the enable-locked ones
+    // TCF0.EVCTRL = 0;
+    TCF0.CTRLA = TCF_PWM_PRESCALE;
+    TCF0.CTRLB = TCF_PWM_CLOCK_SOURCE | TCF_PWM_WGMODE | 0xC0; /* event outputs are much more useful with the waveform than the single-clock events. */
+    //TCF0.CTRLC = 0;
+    //TCF0.CTRLD = 0;
+    TCF0.INTCTRL =  0;
+    //TCF0.INTFLAGS = 0;
+    //TCF0.STATUS = 0;
+    //TCF0.DBGCTRL = 0;
+    //TCF0.CMP0 = 0;
+    //TCF0.CMP1 = 0;
+    TCF0.CNT1 = TCF_PWM_TIMER_PERIOD;
+    TCF0.CTRLA = TCF_PWM_PRESCALE | 1;
+
+
+  }
+
+#endif
+
 void __attribute__((weak)) init_TCBs() {
 /*    TYPE B TIMERS  *
  * Set up routing (defined in pins_arduino.h)

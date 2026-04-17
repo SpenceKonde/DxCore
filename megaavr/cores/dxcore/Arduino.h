@@ -637,8 +637,8 @@ F     b7  f07 f17 | D1  MUX  7  |         f27 f37     E0F A07
 
 /*
 Supplied by Variant file:
-#define digitalPinToAnalogInput(p)      // Given digital pin (p), returns the analog channel number, or NOT_A_PIN if the pin does not suipport analog input.
-#define analogChannelToDigitalPin(p)    // Inverse of above. Given analog chanbel number (p) in raw form not ADC_CH() form, returns the digital pin number corresponding to it.
+#define digitalPinToAnalogInput(p)      // Given digital pin (p), returns the analog channel number, or NOT_A_PIN if the pin does not support analog input.
+#define analogChannelToDigitalPin(p)    // Inverse of above. Given analog channel number (p) in raw form not ADC_CH() form, returns the digital pin number corresponding to it.
 #define analogInputToDigitalPin(p)      // Similar to previous. Given analog input number (p) with the high bit set, returns the digital pin number corresponding to it)
 #define digitalOrAnalogPinToDigital(p)  // Given either an analog input number (with high bit set) or a digital pin number (without it set), returns the digital pin number.
 Yes, these are poorly named and do not use analog input, analog pin, and analog channel consistently. Unfortunately the names of some of these were set in stone by virtue of their being preexisting macros used in code in the wild.

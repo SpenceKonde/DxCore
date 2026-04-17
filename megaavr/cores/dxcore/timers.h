@@ -341,3 +341,26 @@
     // tinyAVR by contrast ONLY ever uses WOC and WOD.
   #endif // End of USE_TIMERD0_PWM
 #endif // end of DxCore TCD stuff - see why we don't support it for millis here?
+
+#if defined(TCF0) && !defined(NO_TIMERF_PWM)
+  #if !defined(TCF_PWM_CLOCK_SOURCE)
+    #define TCF_PWM_TIMER_PERIOD       PWM_TIMER_PERIOD
+    #define TCF_PWM_CLOCK_SOURCE       TCF_CLKSEL_CLKPER_gc
+    #define TCF_PWM_WGMODE             TCF_WGMODE_PWM8_gc
+    #if F_CPU < 2000000UL
+      #define TCF_PWM_PRESCALE         TCF_PRESC_DIV4_gc
+    #elif F_CPU <= 3000000UL
+      #define TCF_PWM_PRESCALE         TCF_PRESC_DIV8_gc
+    #elif F_CPU < 6000000UL
+      #define TCF_PWM_PRESCALE         TCF_PRESC_DIV16_gc
+    #elif F_CPU < 12000000UL
+      #define TCF_PWM_PRESCALE         TCF_PRESC_DIV32_gc
+    #elif F_CPU < 2400000UL
+      #define TCF_PWM_PRESCALE         TCF_PRESC_DIV64_gc
+    #else
+      #define TCF_PWM_PRESCALE         TCF_PRESC_DIV128_gc
+    #endif
+  #endif
+
+#endif
+
