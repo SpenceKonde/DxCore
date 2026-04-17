@@ -24,6 +24,9 @@ jobs:
       ARDUINO_CI_SCRIPT_FOLDER_PATH: extras/ci/tools/arduino-ci-script
 
     steps:
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v2
+
       - name: Checkout
         uses: actions/checkout@v6
 

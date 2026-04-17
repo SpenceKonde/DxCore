@@ -15,9 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Arduino CLI
-        uses: arduino/setup-arduino-cli@v2
-
       - name: Checkout
         uses: actions/checkout@v6
 
