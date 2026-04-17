@@ -1834,7 +1834,7 @@ void set_millis(__attribute__((unused))uint32_t newmillis)
       timingStruct.timer_overflow_count = newmillis >> 16;
       while(RTC.STATUS&RTC_CNTBUSY_bm); // wait if RTC busy
       RTC.CNT = newmillis & 0xFFFF;
-      SREG = oldSREG; // reenable interrupts if we killed them,
+      SREG = oldSREG; // re-enable interrupts if we killed them,
     #else
       /* farting around with micros via overflow count was ugly and buggy.
        * may implement again, better, in the future - but millis and micros
