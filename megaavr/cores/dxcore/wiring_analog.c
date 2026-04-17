@@ -1648,11 +1648,12 @@ void analogWrite(uint8_t pin, int val) {
         bit_mask |= ((~bit_mask) & TCE0_CTRLB);
         TCE0_CTRLB = bit_mask;
         _setOutput(portnum, bit_mask);
+        *cmpreg = val;
         return;
       }
     }
   #elif defined(TCE0) // WEXles TCE on the LA needs different handling. It looks to me as if the WEXless TCE is very much like a TCA with the wonderful split mode removed. It's even back to 3 channels.
-                      // We can probably reuse the code for the TCA, or use it as a model, because with the likely mux layout, it's going to be like TCA0 only with half the pins.
+         #error "can't happen in supported parts yet"             // We can probably reuse the code for the TCA, or use it as a model, because with the likely mux layout, it's going to be like TCA0 only with half the pins.
   #endif
   /* Now we use the table in variant */
   uint8_t digital_pin_timer = digitalPinToTimer(pin);
