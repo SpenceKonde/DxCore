@@ -8,7 +8,10 @@ These items are in addition to what was listed under changes already in release.
 
 ## Unreleased Changes
 ### 1.6.3
-
+* Correct TCE PWM on pins 0~3 of a port. Can't get the top half to work. My first impression of WEX Luther is that he has not changed his ways, and is still an intransigent troublemake
+* Correct TCF PWM - this now works.
+* Correct TCF initialization
+* Split PWM functions into their own file, combine PWM functions from wiring analog and wiring digital.
 
 ## Released Changes
 ### 1.6.2 4/12/26
