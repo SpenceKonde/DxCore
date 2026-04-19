@@ -111,7 +111,7 @@ void turnOffPWM(uint8_t pin) {
     }
 
   #elif defined(TCE0)
-    if ((__PeripheralControl & TIMERE0)&& (bit_mask < 0x10)) {
+    if ((__PeripheralControl & TIMERE0) && (bit_mask < 0x10)) {
       uint8_t usetce0 = 0;
       uint8_t tcemux = PORTMUX.TCEROUTEA;
       if (tcemux < 7 ) {
@@ -137,8 +137,7 @@ void turnOffPWM(uint8_t pin) {
           _SWAP(bit_mask);
         }
         usetce0 = TCE0.CTRLB;
-        usetce0 &= 0x0F;
-        usetce0 |= bit_mask;
+        usetce0 &= ~bit_mask;
         TCE0_CTRLB = usetce0;
         return;
       }
