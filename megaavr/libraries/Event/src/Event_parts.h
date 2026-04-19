@@ -1,6 +1,4 @@
 /* This file is ONLY included by Event.h and should never be included by any other code under any circumstances.
- * It is loaded at the start of Event.h so that the same code can be used even if the part is a tinyAVR 0/1-series with wacky event system.
- * Thia does a lot for tinyAVR 0/1-series, very little for 2-series, and nothing for anything else.
  */
 #if !defined(EVENT_H)
   #error "This should only be included as part of Event.h"
@@ -16,7 +14,7 @@
 // Features present on all generator channels
 
 namespace event {
-#if !defined(MEGATINYCORE) && !defined(PORT_EVGEN0SEL_gm) //if neither tiny nor EA or beyond, here's the list
+#if !defined(MEGATINYCORE) && !defined(PORT_EVGEN0SEL_gm) //Is an DA. DB, or DD
   namespace gen {
     enum generator_t : uint8_t {
       disable       = 0x00,
@@ -36,6 +34,9 @@ namespace event {
       ac2_out       = 0x22,
 #endif
       adc0_ready    = 0x24,
+#if defined(__AVR_DA__)
+      ptc_ready     = 0x28,
+#endif
       usart0_xck    = 0x60,
       usart1_xck    = 0x61,
       usart2_xck    = 0x62,
@@ -52,21 +53,25 @@ namespace event {
       tcb0          = 0xA0,
       tcb1_capt     = 0xA2,
       tcb1          = 0xA2,
+#if defined(TCB2)
       tcb2_capt     = 0xA4,
       tcb2          = 0xA4,
+#endif
 #if defined(TCB3)
       tcb3_capt     = 0xA6,
       tcb3          = 0xA6,
 #endif
 #if defined(TCB4)
-      tcb4_capt      = 0xA8,
-      tcb4           = 0xA8,
+      tcb4_capt     = 0xA8,
+      tcb4          = 0xA8,
 #endif
 #if defined(__AVR_DA__) || defined(__AVR_DB__)
       ccl4_out      = 0x14,
       ccl5_out      = 0x15,
       zcd0_out      = 0x30,
+#if defined(ZCD1)
       zcd1_out      = 0x31,
+#endif
 #if defined(ZCD2)
       zcd2_out      = 0x32,
 #endif
@@ -733,7 +738,7 @@ namespace event {
 #endif
     };
   };
-  // End of Dx series - start of Ex-series //
+  // End of Dx series - start of Ex-series; also everything else with new layout, including DU. //
   #elif defined(PORT_EVGEN0SEL_gm) // Start EVGEN block
     // Parts with uniform event channels, eg, the future EA-series parts. We may be able to use this code for every Ex-series part, or will need only trivial changes.
     namespace gen {
@@ -780,7 +785,7 @@ namespace event {
         // you could wire the CCL up as an 8 bit shift register at that point, load it with a SWEVENT....
 #endif
         ac0_out           = 0x20,
-#if defined(AC1) // An Ex with only one AC would not surprise me
+#if defined(AC1) // An Ex with only one AC would not surprise me (check)
         ac1_out           = 0x21,
 #endif
 #if defined(AC2) // An Ex with three AC would not surprise me
@@ -797,7 +802,7 @@ namespace event {
         adc1_sample       = 0x28,
         adc1_window       = 0x29,
 #endif
-#if defined(ZCD0) // An Ex with ZCD would not surprise me.
+#if defined(ZCD0) // An Ex with ZCD is almost certainly coming
         zcd1_out          = 0x30,
 #endif
 #if defined(ZCD1)
@@ -839,24 +844,9 @@ namespace event {
         portg_evgen0      = 0x4C,
         portg_evgen1      = 0x4D,
 #endif
-#if defined(PORTH)  // At some point they will need to either surrender a non-trivial amount of market share, or offer a migration path from the m2560.
-                    // Because the uniform EVSYS channels introduced with the EA leave plenty of holes, it's likely that that part would have its channels numbered similarly,
-                    // with its extra ports
-        porth_evgen0      = 0x4E,
-        porth_evgen1      = 0x4F,
-#endif
-#if defined(PORTJ)  // not clear how the remaining ports would be handled, but that's probably what the 0x5_ range is earmarked for.
-        portj_evgen0      = 0x50,
-        portj_evgen1      = 0x51,
-#endif
-#if defined(PORTK)
-        portk_evgen0      = 0x52,
-        portk_evgen1      = 0x53,
-#endif
-#if defined(PORTL)
-        portl_evgen0      = 0x54,
-        portl_evgen1      = 0x55,
-#endif
+#if defined(PORTH)
+// Burn that bridge when we come to it
+#endif        .
         usart0_xck        = 0x60,
 #if defined(USART1)
         usart1_xck        = 0x61,
@@ -904,13 +894,20 @@ namespace event {
         tca1_cmp1         = 0x8D,
         tca1_cmp2         = 0x8E,
 #endif  // They could fit a totally new kind of peripheral in 0x9_ - or add a TCA2/TCA3, which is more likely
+#if defined(TCE1)                  // a guess, but likely right if there's ever a part with a second one.
+        tce1_ovf          = 0x88,  /* Timer/Counter E1 overflow */
+        tce1_cmp0         = 0x8C,  /* Timer/Counter E1 compare 0 */
+        tce1_cmp1         = 0x8D,  /* Timer/Counter E1 compare 1 */
+        tce1_cmp2         = 0x8E,  /* Timer/Counter E1 compare 2 */
+        tce1_cmp3         = 0x8F,  /* Timer/Counter E1 compare 3 */
+#endif
         tcb0              = 0xA0,
         tcb0_capt         = 0xA0,
         tcb0_ovf          = 0xA1,
         tcb1              = 0xA2,
         tcb1_capt         = 0xA2,
         tcb1_ovf          = 0xA3,
-#if defined(TCB2) // I fully expect to see Ex-series parts with only 2 TCBs, in low pincounts.
+#if defined(TCB2)
         tcb2              = 0xA4,
         tcb2_capt         = 0xA4,
         tcb2_ovf          = 0xA5,
@@ -935,7 +932,7 @@ namespace event {
         tcb6_capt         = 0xAC,
         tcb6_ovf          = 0xAD,
 #endif
-#if defined(TCB7)
+#if defined(TCB7)  //not this many though!
         tcb7              = 0xAE,
         tcb7_capt         = 0xAE,
         tcb7_ovf          = 0xAF,
@@ -950,8 +947,17 @@ namespace event {
 #if defined(TCF0)
         tcf0_ovf          = 0xB8,  /* Timer/Counter F0 Overflow */
         tcf0_cmp0         = 0xB9,  /* Timer/Counter F0 compare 0 */
-        tcf0_cmp1         = 0xBA  /* Timer/Counter F0 compare 1 */
+        tcf0_cmp1         = 0xBA,  /* Timer/Counter F0 compare 1 */
 #endif
+#if defined(USB0)
+        usb_setup         = 0xC0,
+        usb_sof           = 0xC1,
+        usb_crc           = 0xC2,
+        usb_unfovf        = 0xC3,
+        usb_rx            = 0xC4,
+        usb_tx            = 0xC5,
+#endif
+
     };
   };
   /* Done with plausible generators */
