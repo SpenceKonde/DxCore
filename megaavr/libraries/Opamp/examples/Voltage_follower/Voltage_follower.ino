@@ -1,4 +1,3 @@
-
 /***********************************************************************|
 | AVR-DB Opamp library                                                  |
 |                                                                       |
@@ -9,12 +8,12 @@
 | https://github.com/MCUdude/                                           |
 |                                                                       |
 | In this example we use opamp 0 as a voltage follower.                 |
-|
+|                                                                       |
 | That test required an external signal generator; I wanted a quick     |
-| standard test for the OPAMP - since this way it generates it's own
-| signal
-|
-|
+| standard test for the OPAMP - since this way it generates it's own    |
+| signal                                                                |
+|                                                                       |
+|                                                                       |
 |                                                                       |
 |                          |\                                           |
 |                          |  \                                         |
@@ -34,7 +33,8 @@
 
 void setup() {
   // Configure opamp input pins
-  Opamp0.input_p = in_p::dac;    // Connect positive input to external input pin (PD1)
+  // Opamp0.input_p = in_p::pin; // Connect positive input to external input pin (PD1)
+  Opamp0.input_p = in_p::dac;    // Connect to the DAC (makes a standalone demo);
   Opamp0.input_n = in_n::output; // Connect negative input to the opamp output
 
   // Enable opamp output
@@ -46,6 +46,7 @@ void setup() {
   Opamp::start();
 }
 
+// loop is solely to make a continuous ramp on the DAC to allow this to be used to verify function of the OPAMP and fundtion of the library.
 void loop() {
   static uint8_t count = 0;
   count++;

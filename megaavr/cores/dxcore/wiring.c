@@ -2667,7 +2667,7 @@ void init_timers() {
       #error "PWM period or mode not specified for TCE."
     #endif
     TCE0.CTRLB = TCE_PWM_TIMER_MODE; // probably 0x03
-    TCE0.PER = TCE_PWM_TIMER_PERIOD;
+    TCE0.PERBUF = TCE_PWM_TIMER_PERIOD;
 
     #if (F_CPU > 30000000) // use 256 divider when clocked over 30 MHz
       TCE0.CTRLA   = (TCE_CLKSEL_DIV256_gc) | (TCE_ENABLE_bm);
