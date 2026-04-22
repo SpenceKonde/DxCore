@@ -33,7 +33,7 @@ MD036: false                  # Emphasis used instead of a heading
 MD037: false                  # Allow spaces around around emphacis marks because they are probably just rendering as the characters!
 MD046: false                  # allow both indented and fenced code blocks
 MD055:
-  style: leading-only
+  style: leading_only
 
 #################
 # Rules by tags #
