@@ -2,14 +2,14 @@
 #                                                                        #
 #  #######              #####                                            #
 #  ##    ##            ##```                                             #
-#  ##     ## ##   ##   ##      ###  ####  ####     ##      ##      ###   #
+#  ##     ## ##   ##   ##      ###  ####  ####     ##      ##      ##    #
 #  ##     ##  ## ##    ##     #   # #   # #       ###     #       #  #   #
 #  ##     ##   ###     ##     #   # ####  ###      ##     ###       #    #
-#  ##    ##   ## ##    ##___  #   # # #   #        ##  ## #  # ##  #     #
-#  #######   ##   ##    #####  ###  #  #  ####    #### ##  ##  ## ####   #
+#  ##    ##   ## ##    ##___  #   # # #   #        ##  ## #  # ## #  #   #
+#  #######   ##   ##    #####  ###  #  #  ####    #### ##  ##  ##  ##    #
 #________________________________________________________________________#
 #                                                                        #
-#  Copyright Spence Konde and other contributors 2020-2021               #
+#  Copyright Spence Konde and other contributors 2020-2026               #
 #  Based on megaTinyCore which in turn is based on official Arduino core #
 #  Varying portions of different files in this core can be traced back   #
 #  to the official core. In any event, it's all free software, under the #
@@ -75,12 +75,6 @@
 #                # #   # #   # #   # #    #  ## #   #     #              #
 #             ###   ###  ####  #   # #### #   #  ###   ###               #
 #________________________________________________________________________#
-# The *opti menus are for Optiboot board definitions - We name them
-# differently when the option takes on different meaning for a bootloaded
-# board. Eg - UPDI can set fuses, so any fuse that can't brick the chip is written
-# And we can assume all fuses have the the values that the user selected.
-# But if Optiboot is in use, anything that requires changing a fuse requires burnbootloader
-#_________________________________________________________________________
 
 menu.chip=Chip
 menu.board=Board/version
@@ -1288,10 +1282,12 @@ avrdd.menu.chip.avr32dd32.build.mcu=avr32dd32
 avrdd.menu.chip.avr32dd32.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd32.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd32.build.variant=32pin-ddseries
+avrdd.menu.chip.avr32dd32.build.highestcb=B2
 avrdd.menu.chip.avr32dd28.build.mcu=avr32dd28
 avrdd.menu.chip.avr32dd28.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd28.upload.maximum_data_size=4096
 avrdd.menu.chip.avr32dd28.build.variant=28pin-ddseries
+avrdd.menu.chip.avr32dd28.build.highestcb=B2
 avrdd.menu.chip.avr32dd20.build.mcu=avr32dd20
 avrdd.menu.chip.avr32dd20.upload.maximum_size=32768
 avrdd.menu.chip.avr32dd20.upload.maximum_data_size=4096
@@ -1308,10 +1304,12 @@ avrdd.menu.chip.avr16dd32.build.mcu=avr16dd32
 avrdd.menu.chip.avr16dd32.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd32.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd32.build.variant=32pin-ddseries
+avrdd.menu.chip.avr16dd32.build.highestcb=B2
 avrdd.menu.chip.avr16dd28.build.mcu=avr16dd28
 avrdd.menu.chip.avr16dd28.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd28.upload.maximum_data_size=2048
 avrdd.menu.chip.avr16dd28.build.variant=28pin-ddseries
+avrdd.menu.chip.avr16dd28.build.highestcb=B2
 avrdd.menu.chip.avr16dd20.build.mcu=avr16dd20
 avrdd.menu.chip.avr16dd20.upload.maximum_size=16384
 avrdd.menu.chip.avr16dd20.upload.maximum_data_size=2048

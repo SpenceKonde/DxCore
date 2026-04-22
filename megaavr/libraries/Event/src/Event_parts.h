@@ -846,7 +846,7 @@ namespace event {
 #endif
 #if defined(PORTH)
 // Burn that bridge when we come to it
-#endif        .
+#endif
         usart0_xck        = 0x60,
 #if defined(USART1)
         usart1_xck        = 0x61,
