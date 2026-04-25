@@ -72,10 +72,10 @@ We have a largely self-consistent code style used throughout the core and associ
 | size   | signed  | unsigned | grudging | avoid | avoid | avoid        | Notes |
 |--------|---------|----------|----------|-------|-------|--------------|-------|
 | 8-bit  |  int8_t |  uint8_t |        . | short |  byte |            . | Use uint8_t's whenever possible |
-| 16-bit | int16_t | uint16_t |   size_t |   int |  word | unsigned int | C likes to default things to int16_t - this is often undesirable. |
+| 16-bit | int16_t | uint16_t |   size_t |   int |  word | unsigned int | C likes to default things to int16_t - this is almost invariably undesirable |
 | 32-bit | int32_t | uint32_t |        . |  long |unsigned long         | Use 32-bit datatypes only when needed |
 | 32-bit |   float |      n/a |        . | double|     . |            . | Avoid 'bloating' point values unless absolutely necessary. |
-| 64-bit | int64_t | uint64_t |        . |  long long | unsigned<br/>long long | . | The core only uses a uint64_t in one library, when non-default options pull in legacy code | |
+| 64-bit | int64_t | uint64_t |        . |  long long | unsigned<br/>long long | . | The core only uses a uint64_t in one library, when non-default options pull in legacy code |
 
   a. Always use the smallest datatype appropriate for the data.
   b. If either a signed or unsigned value will work, use the unsigned one unless there is a reason not to; signed rollover is undefined behavior, and this has caused problems for many people. Most of the poor design decisions in C can be chalked up to humanity's inexperience with computing when it was designed. But I don't know what they were thinking w

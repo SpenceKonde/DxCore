@@ -69,13 +69,6 @@ edbg.program.protocol=xplainedpro_updi
 edbg.program.tool=avrdude
 edbg.program.extra_params=-Pusb
 
-medbg.name=Atmel Xplained Mini (mEDBG/ATmega32u4 debug chip)
-medbg.communication=usb
-medbg.protocol=xplainedmini_updi
-medbg.program.protocol=xplainedmini_updi
-medbg.program.tool=avrdude
-medbg.program.extra_params=-Pusb
-
 atmelice_updi.name=Atmel-ICE
 atmelice_updi.communication=usb
 atmelice_updi.protocol=atmelice_updi

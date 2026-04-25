@@ -6,37 +6,50 @@ All of the examples assume the use of megaTinyCore, MegaCoreX or DxCore as appro
 More information about CCL can be found in the [Microchip Application Note TB3218](http://ww1.microchip.com/downloads/en/AppNotes/TB3218-Getting-Started-with-CCL-90003218A.pdf) and in the [megaAVR-0 family data sheet](http://ww1.microchip.com/downloads/en/DeviceDoc/megaAVR0-series-Family-Data-Sheet-DS40002015B.pdf) and the datasheet for the part in question.
 
 
-
-## Pin availability and Quick Reference (Dx-series)
+## Pin availability and Quick Reference (Dx/Ex-series)
 Available pins for Dx and Ex have been unchanging. Inputs are always
-Logic Block |  IN0-2  | OUT | ALT OUT | Availability  | Notes:
-------------|---------|-----|---------|---------------|-----------------------------
-Logic0      | PA0-PA2 | PA3 |     PA6 |    All parts  |
-Logic1      | PC0-PC2 | PC3 |     PC6 |    All parts  |
-Logic2      | PD0-PD2 | PD3 |     PD6 |    All parts  | There is no PD0, hence no input 0 on any DD, 28 pin DB, or 32-pin DB
-Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on many 32/28 pin DA/DB parts
-Logic4      | PB0-PB2 | PB3 |     PB6 | 48+ pin DA/DB |
-Logic5      | PG0-PG2 | PG3 |     PG6 | 48+ pin DA/DB |
 
-Logic Block | Availability            |  20-pin DD          |  28 pin Dx          |  32-pin Dx          |  48-pin Dx          |  64-pin Dx          |
------------- |---------------------------------------------------------------------------------------------------------------------------------------|
-Logic0 IN    | IN0 and IN1 universal on non-tiny modern AVRs. IN2 present except at 14-pins. |
-Logic0 OUT   | Output on PA3 and PA6 is available for all non-tiny modern AVRs with more than 14-pins.                                               |
-Logic1 IN    | DU has no pin inputs for logic block 1. AVR DD-series parts do not have IN0 on the 14-pin or 20-pin parts. |
-Logic1 OUT   | Primary output present on all non-tiny modern AVRs. Alt output present on 48+ pin parts only.                                                          |
-Logic2 IN    | 14/20 pin parts do not have IN1, IN2. 28/32 pin DB/DD/SD parts do not have IN0. |
-Logic2 OUT   | Primary output unavailable on 14/20 pin parts. Alt output universal                                                                |
-Logic3 IN    | 14/20 pin parts have no inputs, 28 pin has IN0 and IN1, and 32+ pin gets IN2.                                                                         |
-Logic3 OUT   | Primary output available on all parts with 32 or more pins. Alternate output not available                               |
-Logic4       | Present in AVR DA/DB parts with at least 48 pins, all of which have all inputs and primary output.                                                   |
-Logic4 OUT   | Alt pin only available on 64-pin parts                                      |
-Logic5       | Present in AVR DA/DB parts with at least 48 pins, pins only present on 64-pin parts.                                                  |
 
-Notes on other new parts:
+|Logic Block |  IN0-2  | OUT | ALT OUT | Availability  | Notes:
+|------------|---------|-----|---------|---------------|-----------------------------
+|Logic0      | PA0-PA2 | PA3 |     PA6 |    All parts  |
+|Logic1      | PC0-PC2 | PC3 |     PC6 |    All parts  |
+|Logic2      | PD0-PD2 | PD3 |     PD6 |    All parts  | There is no PD0, hence no input 0 on any DD, 28 pin DB, or 32-pin DB
+|Logic3      | PF0-PF2 | PF3 |     --- |    All parts  | Link input broken on many 32/28 pin DA/DB parts
+|Logic4      | PB0-PB2 | PB3 |     PB6 | 48+ pin DA/DB |
+|Logic5      | PG0-PG2 | PG3 |     PG6 | 48+ pin DA/DB |
+
+
+
+|Logic Block  | Availability
+|-------------|-------------------------------------------------------------------------------------------------------------|
+|Logic0 IN    | IN0 and IN1 universal on non-tiny modern AVRs. IN2 present except at 14-pins.                               |
+|Logic0 OUT   | Output on PA3 and PA6 is available for all non-tiny modern AVRs with more than 14-pins.                     |
+|Logic1 IN    | DU has no pin inputs for logic block 1. AVR DD-series parts do not have IN0 on the 14-pin or 20-pin parts.  |
+|Logic1 OUT   | Primary output present on all non-tiny modern AVRs. Alt output present on 48+ pin parts only.               |
+|Logic2 IN    | 14/20 pin parts do not have IN1, IN2. 28/32 pin DB/DD/SD parts do not have IN0.                             |
+|Logic2 OUT   | Primary output unavailable on 14/20 pin parts. Alt output universal                                         |
+|Logic3 IN    | 14/20 pin parts have no inputs, 28 pin has IN0 and IN1, and 32+ pin gets IN2.                               |
+|Logic3 OUT   | Primary output available on all parts with 32 or more pins. Alternate output not available                  |
+|Logic4       | Present in AVR DA/DB parts with at least 48 pins, all of which have all inputs and primary output.          |
+|Logic4 OUT   | Alt pin only available on 64-pin parts                                                                      |
+|Logic5       | Present in AVR DA/DB parts with at least 48 pins, pins only present on 64-pin parts.                        |
+
+
+## Notes on other new parts:
 The DU has only PC3 out of the entire port C left, the rest having been given over to USB. This obviously takes out the inputs for LUT1.
-
-
 Notice how logic block 2 and 3 on 14/20 pin DD and logic block 5 on 48-pin parts have no dedicated pins. If you are not using pin input or output, use these logic blocks to conserve the more useful ones when not precluded by other considerations.
+
+### The EVSYS has changed in ways most likely to be relevant to people using the CCL in the DU EA, EB, and presumably all future parts.
+Two high visibility event system features got big changes. See the [Event](../Event/Readme.md) library for more detail.
+
+Previously, event channels were not equal: channels 0 and 1 could take event input from port A/B, 3 and 4 from C/D etcetera (the tiny2 did the obvious thing and linked them in a circle).
+
+Now, each port has an EVGENCTRLA, which takes the form 0bAaaaBbbb where A and B enable event 0 and 1 respectively, and aaa and bbb are the number of the pin generating this event.
+
+The same was done with the RTC event generator channels ,
+
+
 
 
 ## Pin availability and Quick Reference (tinyAVR)
@@ -198,10 +211,13 @@ logic::in::tcb;              // Connect to TCB0-2 output for input 0-2.
 logic::in::tca0;             // Connect input to TCA0 WO0~2 for input 0~2
 logic::in::tca1;             // Connect input to TCA1 WO0~2 for input 0~2 - unavailable on parts without a second TCA1
 logic::in::tca;              // Synonym for tca0 (for compatibility with code written for tinyAVRs and megaAVR 0-series)
+logic::in::tce0;             // On the EB, TCA0 is gone and TCE0 is in it's place; behavior frpm CCL perspective is near identical, the CCL can't even see the fourth channel.
+logic::in::tcf0;             // Connect input to the waveform output of Timer/Counter F. input 1 gets the
 logic::in::tcd;              // Connect input to TCD0 WOA, WOB, WOC (for input 0~2). Unavailable on EA-series as they don't have a TCD.
 logic::in::usart;            // Connect input to TXD of USART 0~2 (for input 0~2). On parts with 2 USARTS, only works on inputs 0 and 1.
-logic::in::spi;              // Connect input to whatever it is that SPI's event generator is. It is also unclear if this has changed.
+logic::in::spi;              // Connect input to... is this just the clock of the SPI port in host mode only?! Why?!
 ```
+
 Notes specific to Dx-series:
 * Notice that only SPI0 can be used. SPI input is supported in master mode only.
 * Notice that only TCB0-2, USART 0-2, and TCA0/1 WO0-2 can be used in this way.
@@ -467,6 +483,7 @@ During development, it is often ~helpful~ necessary to draw out a table like:
 |   1 |   0 |   1 |      0 |
 |   1 |   1 |   0 |      1 |
 |   1 |   1 |   1 |      1 |
+
 Which would translate into a truth value of 0b11010100 or 0xD4.
 
 

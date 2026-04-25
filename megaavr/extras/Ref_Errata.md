@@ -104,12 +104,12 @@ About 1 year after release, a "datasheet clarification" was issued for AVR128DA,
 * All serious programming issues fixed with B2/A2 die rev (B2 for 64k, since that's what they developed with and had to go through an entire major rev on before release. No wonder it was so late)).
 
 Supposedly the flash endurance issues are temperature sensitive too, and it was implied that at room temperature, the original spec was met.
+
 #### DU-series tried to get RWW working on the Dx-style NVMCTRL
-No dice!
+No dice - Not sure if this matters with careful program,miong. This method of programming sounds like it would be a lot harder than a page write machine.
 ```text
 Read-While-Write Feature Non-Functional
 ```
-
 
 Seems they've gotten most of the problems worked out, finally, other than the Dx-write endurance. 1000 rewrites is still enough though, and supposedly, the Dx-series parts meet the original (10k) spec at room temperature, just not over the whole temperature range (explaining why the problem had not been noticed for over a year)
 

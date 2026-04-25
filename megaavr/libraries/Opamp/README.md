@@ -7,11 +7,12 @@ The AVR DB-series parts with 48 or 64-pins have three built-in opamps, while the
 
 See also chapter 35: OPAMP - Analog Signal Processing of the datasheet. Section 35.3.7, "Applications Usage" is particularly valuable, showing the equivalent circuit and settings required for all registers to achieve a number of common opamp use cases - voltage followers, inverting and non-inverting programmable gain amplifiers, integrators (requires an external resistor and capacitor), differential amplifiers, and using all three opamps, even an instrumentation amplifier (a differential amplifier with each input buffered by a voltage follower)
 
+
 | Opamp  | + Pin | - Pin | OUT  | Comments               |
 |--------|-------|-------|------|------------------------|
-| Opamp0 | PD1   | PD3   | PD2  | 48/64-pin parts only.  |
-| Opamp1 | PD4   | PD7   | PD5  | PD6 is the DAC output. |
-| Opamp2 | PE1   | PD3   | PE2  | 48/64-pin parts only.  |
+| Opamp0 | PD1   | PD3   | PD2  | 48/64-pin parts only   |
+| Opamp1 | PD4   | PD7   | PD5  | PD6 is the DAC output  |
+| Opamp2 | PE1   | PD3   | PE2  | 48/64-pin parts only   |
 
 
 ## Opamp class
