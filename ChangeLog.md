@@ -12,6 +12,15 @@ These items are in addition to what was listed under changes already in release.
 * Correct TCF PWM - this now works.
 * Correct TCF initialization
 * Split PWM functions into their own file, combine PWM functions from wiring analog and wiring digital. Should've done years ago.
+* Fix warning storm on DD low-pincount parts.
+* Fix AVR DU and AVR EB documentations
+* Adjust default PWM pins on AVR EB, AVR EA, and AVR DU parts to make more sense (in progress).
+  * EB will default to configuring TCE for PWM on PORTC, since all 4 output pins exist on all EB-series parts.
+  * EB will default to the highest alt level available for TCF. You almost never consider the A0 and A1 to be less congested than A6/A7, especially not with this peripheral loadout.
+  * EB always uses default positions for TCBs.
+  * Decisions still pending for DU.
+* Remove programming option "Atmel Xplained Mini (mEDBG/ATmega32u4)" as that device cannot be bullied into programming any parts supported by the core.
+
 
 ## Released Changes
 ### 1.6.2 4/12/26

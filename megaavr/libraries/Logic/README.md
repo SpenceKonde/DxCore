@@ -211,21 +211,22 @@ logic::in::tcb;              // Connect to TCB0-2 output for input 0-2.
 logic::in::tca0;             // Connect input to TCA0 WO0~2 for input 0~2
 logic::in::tca1;             // Connect input to TCA1 WO0~2 for input 0~2 - unavailable on parts without a second TCA1
 logic::in::tca;              // Synonym for tca0 (for compatibility with code written for tinyAVRs and megaAVR 0-series)
-logic::in::tce0;             // On the EB, TCA0 is gone and TCE0 is in it's place; behavior frpm CCL perspective is near identical, the CCL can't even see the fourth channel.
-logic::in::tcf0;             // Connect input to the waveform output of Timer/Counter F. input 1 gets the
 logic::in::tcd;              // Connect input to TCD0 WOA, WOB, WOC (for input 0~2). Unavailable on EA-series as they don't have a TCD.
+logic::in::wex;              // Connect input to the WEX fault blanking channel/
+logic::in::tce0;             // On the EB, TCA0 is gone and TCE0 is in it's place; behavior frpm CCL perspective is near identical, the CCL can't even see the fourth channel.
+logic::in::tcf0;             // Connect input to the waveform output of Timer/Counter F. input 0 gets WO0, input 1 gets WO1 etc.
 logic::in::usart;            // Connect input to TXD of USART 0~2 (for input 0~2). On parts with 2 USARTS, only works on inputs 0 and 1.
 logic::in::spi;              // Connect input to... is this just the clock of the SPI port in host mode only?! Why?!
 ```
 
 Notes specific to Dx-series:
-* Notice that only SPI0 can be used. SPI input is supported in master mode only.
-* Notice that only TCB0-2, USART 0-2, and TCA0/1 WO0-2 can be used in this way.
-* Signals from timers are the waveform output (what would be output to the pin, were PWM enabled on that pin outputs the level that the pin would have whether or not the pin is enabled. It only works in single shot and 8-bit pwm mode, as the others do not use the output pin.
-* That the instance of the peripheral used is equal to the input number for ACs, TCBs, and USARTs, and requirement to use a certain input to get certain signals from SPI1 may become problematic when using more than one such peripheral. The same is true to a lesser extent of the WOA-C, WO0-2 <-> input number correlation.
-  * This means that depending on your needs, your choice of inputs may be dictated by the
-* TCD0 *WOC is always set by the core to WOA*, not WOB. Changing the relevant register manually will break analogWrite() on the corresponding pins if takeOverTCD0() has not been called. TCD only has two outputs; WOA and WOB - WOC and WOD just mirror one of the others to allow more freedom choosing pins
-* **Errata warning** If input on the highest-number Logic is set to link, it will use the output of Logic0 **unless** the part is a 28 or 32 pin DA-series part. These parts (and a small number of very early 128k DB's - but very few)
+* SPI input is supported in master mode only.
+* **Errata warning** If input on the highest-number Logic is set to link, 28 and 32-pin DA-series parts have an erratum that prevents the highest number link input from working.
+* **Errata warning** Like the tinyAVRs, the AVR DA/DB have the erratum about the extra enable-locking on configuration change.
+  * The tinyAVRs, mega0 are all effected.
+  * The DA is effected as there has not been a major die rev fior the DA, only the DB.
+  * While the DB has gotten a die rev, great numbers of older hardware is in circulation.
+  * The AVR DD, DU, EA, EB, and later are not effected as the problem was fixed prior to their release.
 
 #### Accepted values for tinyAVR 0/1-series parts
 ``` c++
@@ -293,7 +294,7 @@ logic::in::uart;             // Connect input to UART TX. Input 0 connects to UA
 logic::in::spi;              // Connect input to SPI. Input 0 and 1 connect to MOSI, and input 2 connects to SCK. MISO not available.
 logic::in::tca0;             // Connect input to TCA0. Input 0 connects to WO0, input 1 to WO1 and input2 to WO2
 logic::in::tca;              // Synonym for tca0
-logic::in::tcb;              // Connect to TCB output (this is HIGH when the output pin would be (though output need not be enabled) in single shot and PWM modes. TCB used has same number as input number (only TCB0-2 can be used).
+logic::in::tcb;              // Connect to TCB output (this is HIGH when the output pin would be (though output need not be enabled) in single shot and PWM modes. TCB used has same number as input number, tinyAVR never had more than 2 TCBs. .
 ```
 
 Notes for tinyAVR 2-series:

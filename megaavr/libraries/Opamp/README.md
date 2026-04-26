@@ -443,10 +443,10 @@ I'm talking about this library, not the hardware  I think I gave excess deferenc
 |--------|--------|-------|----------|------------------------
 |      0 |      0 |     0 |        0 | Peripheral disabled.
 |      0 |      0 |     0 |        1 | Enabled? But output driver is not enabled without a `DRIVE` event, and event reception is not enabled. I believe this is pathological.
-|      0 |      0 |     1 |        0 |
+|      0 |      0 |     1 |        0 | -
 |      0 |      0 |     1 |        1 | I think this enables events, but not ENABLE/DISABLE, since always on is described as having precedence - however, it will not output anything without a `DRIVE`.
 |      0 |      1 |     0 |        0 | Unclear. I believe
 |      0 |      1 |     0 |        1 | Opamp enabled with output driver on, without any events.
-|      0 |      1 |     1 |        0 |
-|      0 |      1 |     1 |        1 |
+|      0 |      1 |     1 |        0 | -
+|      0 |      1 |     1 |        1 | -
 |      1 |      x |     x |        x | Invalid Configuration,

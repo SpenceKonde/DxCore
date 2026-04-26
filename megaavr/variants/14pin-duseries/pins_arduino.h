@@ -15,8 +15,7 @@ AVR32DU14 AVR16DU14
 
 See VariantTemplate.h in extras folder an extensively annotated copy.
 
-Include guard and include basic libraries. We are normally including this inside Arduino.h
-*/
+Include guard and include basic libraries. We are normally including this inside Arduino.h */
 
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
@@ -75,7 +74,6 @@ Include guard and include basic libraries. We are normally including this inside
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                     (PIN_PD6) /* warning: gets overridden when using Serial1 on 14-pin parts, as that uses PD4. */
 #endif
-/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS         (32)
 #endif
@@ -118,7 +116,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCB1_WO_INIT                  (NOT_A_PIN)
 
 
-#define digitalPinHasPWM(p)               ((p) == PIN_PA0 || (p) == PIN_PA1) // only the mapping-selectable TCA is available for PWM on the DU - and the options are lousy.
 
         /*##   ###  ####  ##### #   # #   # #   #
         #   # #   # #   #   #   ## ## #   #  # #
@@ -126,12 +123,8 @@ Include guard and include basic libraries. We are normally including this inside
         #     #   # #  #    #   #   # #   #  # #
         #      ###  #   #   #   #   #  ###  #   */
 
+
 #define SPI_INTERFACES_COUNT   (1)
-
-// In contrast to DA/DB with no pinswap options available, the DD has them in spades!
-// defining SPI_MUX_PINSWAP_n is how we signal to SPI.h that a given option is valid.
-// SPI 0
-
 
 // SPI 0
 #define SPI_MUX                         (0x00)
@@ -152,8 +145,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL                    (NOT_A_PIN)
 #define PIN_WIRE_SDA_PINSWAP_1          (NOT_A_PIN)
 #define PIN_WIRE_SCL_PINSWAP_1          (NOT_A_PIN)
-#define PIN_WIRE_SDA_PINSWAP_2          (NOT_A_PIN)
-#define PIN_WIRE_SCL_PINSWAP_2          (NOT_A_PIN)
 #define PIN_WIRE_SDA_PINSWAP_3          (PIN_PA0)
 #define PIN_WIRE_SCL_PINSWAP_3          (PIN_PA1)
 
@@ -191,10 +182,11 @@ Include guard and include basic libraries. We are normally including this inside
         #   # #  ## #   # #    #   # #   #     #      #  #  ##     #
         #   # #   # #   # ####  ###   ###      #     ### #   #  #*/
 
-#define PIN_A0            (NOT_A_PIN)
-#define PIN_A1            (NOT_A_PIN)
-#define PIN_A2            (NOT_A_PIN)
-#define PIN_A3            (NOT_A_PIN)
+
+#define PIN_A0             (PIN_PD0)
+#define PIN_A1             (PIN_PD1)
+#define PIN_A2             (PIN_PD2)
+#define PIN_A3             (PIN_PD3)
 #define PIN_A4            (PIN_PD4)
 #define PIN_A5            (PIN_PD5)
 #define PIN_A6            (PIN_PD6)
@@ -264,6 +256,7 @@ static const uint8_t A31 = PIN_A31;
 #define AIN31              ADC_CH(31)
 
 
+
         /*##  ### #   #      ###  ####  ####   ###  #   #  ###
         #   #  #  ##  #     #   # #   # #   # #   #  # #  #
         ####   #  # # #     ##### ####  ####  #####   #    ###
@@ -280,9 +273,9 @@ const uint8_t digital_pin_to_port[] = {
   NOT_A_PORT, //    NOT_A_PIN
   NOT_A_PORT, //    NOT_A_PIN
   NOT_A_PORT, //    NOT_A_PIN
-  PC,         // VUSB
-  PC,         // DM
-  PC,         // DP
+  NOT_A_PORT, // USB
+  NOT_A_PORT, // USB
+  NOT_A_PORT, // USB
   PC,         // 11 PC3
   PD,         // 12 PD0 Phantom pin
   NOT_A_PORT, //    NOT_A_PIN
@@ -314,9 +307,9 @@ const uint8_t digital_pin_to_bit_position[] = { // *INDENT-OFF*
   NOT_A_PIN, //    NOT_A_PIN
   NOT_A_PIN, //    NOT_A_PIN
   NOT_A_PIN, //    NOT_A_PIN
-  NOT_A_PIN, //    PC0 phantom pin
-  PIN1_bp,   //  9 PC1/USART1_Rx
-  PIN2_bp,   // 10 PC2
+  NOT_A_PIN, //  USB
+  NOT_A_PIN, //  USB
+  NOT_A_PIN, //  USB
   PIN3_bp,   // 11 PC3
   NOT_A_PIN, //    PD0 Phantom pin
   NOT_A_PIN, //    NOT_A_PIN
@@ -347,9 +340,9 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   NOT_A_PIN, //    NOT_A_PIN
   NOT_A_PIN, //    NOT_A_PIN
   NOT_A_PIN, //    NOT_A_PIN
-  NOT_A_PIN, //    VDDIO2
-  PIN1_bm,   //  9 PC1/USART1_Rx
-  PIN2_bm,   // 10 PC2
+  NOT_A_PIN, //  USB
+  NOT_A_PIN, //  USB
+  NOT_A_PIN, //  USB
   PIN3_bm,   // 11 PC3
   NOT_A_PIN, //    NOT_A_PIN
   NOT_A_PIN, //    NOT_A_PIN
@@ -382,15 +375,7 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
     NOT_ON_TIMER, // 19 PD7
     NOT_ON_TIMER, // 26 PF6 RESET
     NOT_ON_TIMER  // 27 PF7 UPDI
-
   };
 
 #endif
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile for
-  #if ((CLOCK_SOURCE & 0x03) == 0)
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= 0  ? ((pin) == 4) ? ((pin) + PIN_PD4) : NOT_A_PIN
-  #else
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) == 0 || ((pin) == 1) ? (pin) : (pin) < 4 ? (PIN_PC0 + (pin)) : NOT_A_PIN
-  #endif
-  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD4) : NOT_A_PIN
 #endif

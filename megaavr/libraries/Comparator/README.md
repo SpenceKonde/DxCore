@@ -184,7 +184,7 @@ Comparator.reference = comparator::ref::vref_4v096;  // Use the internal 4.096V 
 ### dacref (not available on tinyAVR 0-series)
 This property configures the DACREF value - this voltage can be selected as the input for the negative side of the comparator. This is essentially an 8-bit DAC that can only be used as the AC negative input. It is calculated as:
 
-<img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0"/>
+<img src="http://latex.codecogs.com/svg.latex?V_{DACREF} = \frac{Comparator.dacref}{256} * Comparator.reference" border="0" alt="Vdacref = (DACREF/256) * VReference"/>
 
 Or, in words, the the voltage from ACn.DACREF is that many 256th's of the reference voltage
 *(it does not appear to be `ACn.DACREF + 1` 256'ths, interestingly enough - which is what one would expect, and would be strictly speaking slightly better) -SK*

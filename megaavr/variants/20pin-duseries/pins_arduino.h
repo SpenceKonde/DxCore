@@ -11,19 +11,18 @@ Variant Definition file for generic DD parts           #
 with 20 pins.
 
 Part Numbers:
-AVR64DD20 AVR32DD20 AVR16DD20
+AVR32DU20 AVR16DU20
 
 See VariantTemplate.h in extras folder an extensively annotated copy.
 
-Include guard and include basic libraries. We are normally including this inside Arduino.h
-*/
+Include guard and include basic libraries. We are normally including this inside Arduino.h */
 
 #ifndef Pins_Arduino_h
 #define Pins_Arduino_h
 #include <avr/pgmspace.h>
 #include "timers.h"
 
-#define DD_20PIN_PINOUT
+#define DU_20PIN_PINOUT
 
         /*##  ### #   #  ###
         #   #  #  ##  # #
@@ -39,13 +38,11 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_PA5 (5)
 #define PIN_PA6 (6)
 #define PIN_PA7 (7)
-// No port B on any DD-series
-// No PC0 (8) on 14/20-pin
-#define PIN_PC0 (8)  // NOT_A_PIN
-#define PIN_PC1 (9)
-#define PIN_PC2 (10)
+#define PIN_PC0 (8) /* fake pin PC0 */
+//  no  PIN_PC1 (9)
+//  no  PIN_PC2 (10)
 #define PIN_PC3 (11)
-#define PIN_PD0 (12) // NOT_A_PIN
+#define PIN_PD0 (12) /* fake pin PC0 */
 // No PD1 (13)
 // No PD2 (14)
 // No PD3 (15)
@@ -70,16 +67,14 @@ Include guard and include basic libraries. We are normally including this inside
 // #define NUM_RESERVED_PINS            0     // These may at your option be defined,
 // #define NUM_INTERNALLY_USED_PINS     0     // They will be filled in with defaults otherwise
 // Autocalculated are :
-// NUM_DIGITAL_PINS = PINS_COUNT - NUM_RESERVED_PINS
-// TOTAL_FREE_PINS = NUM_DIGITAL_PINS - NUM_INTERNALLY_USED_PINS
+// NUM_DIGITAL_PINS and NUM_TOTAL_PINS = highest number of any valid pin. NOT the number of pins!
+// TOTAL_FREE_OPINS = PINS_COUNT - NUM_INTERNALLY_USED_PINS
 // Count of I2C and SPI pins will be defined as 2 and 3 but not used in further calculations. If you
 // for some reason need to change this, define them here. Only ones not defined here get automatically set.
 
-/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #if !defined(LED_BUILTIN)
   #define LED_BUILTIN                  (PIN_PA7)
 #endif
-/* Until the legacy attach interrupt has been completely obsoleted - this is such a waste here! */
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS      (48)
 #endif
@@ -99,9 +94,9 @@ Include guard and include basic libraries. We are normally including this inside
 // PWM pins
 
 #if defined(MILLIS_USE_TIMERB0)
-  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA3)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA3))
 #elif defined(MILLIS_USE_TIMERB1)
-  #define digitalPinHasPWMTCB(p)  ((p) == PIN_PA2)
+  #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2))
 #else //no TCB's are used for millis
   #define digitalPinHasPWMTCB(p) (((p) == PIN_PA2) || ((p) == PIN_PA3))
 #endif
@@ -114,8 +109,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_TCA0_WO0_INIT               (PIN_PA0)
 #define PIN_TCB0_WO_INIT                (PIN_PA2)
 #define PIN_TCB1_WO_INIT                (PIN_PA3)
-#define PIN_TCD0_WOA_INIT               (PIN_PA4)
-
 
 #define digitalPinHasPWM(p)               (digitalPinHasPWMTCB(p))
 
@@ -142,7 +135,6 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_SPI_SS_PINSWAP_4            (PIN_PD7)
 
 
-// TWI 0
 
 // TWI 0
 #define PIN_WIRE_SDA                    (PIN_PA2)
@@ -151,6 +143,7 @@ Include guard and include basic libraries. We are normally including this inside
 #define PIN_WIRE_SCL_PINSWAP_1          (PIN_PA3)
 #define PIN_WIRE_SDA_PINSWAP_3          (PIN_PA0)
 #define PIN_WIRE_SCL_PINSWAP_3          (PIN_PA1)
+
 
 // USART 0
 #define HWSERIAL0_MUX                   (0x00 /* PORTMUX_USART0_DEFAULT_gc */)
@@ -278,6 +271,7 @@ static const uint8_t A31 = PIN_A31;
 #define AIN31              ADC_CH(31)
 
 
+
         /*##  ### #   #      ###  ####  ####   ###  #   #  ###
         #   #  #  ##  #     #   # #   # #   # #   #  # #  #
         ####   #  # # #     ##### ####  ####  #####   #    ###
@@ -285,7 +279,7 @@ static const uint8_t A31 = PIN_A31;
         #     ### #   #     #   # #   # #   # #   #   #    #*/
 
 #ifdef ARDUINO_MAIN
-
+  // These need to be defined in one and only one place.
   const uint8_t digital_pin_to_port[] = {
     PA,         //  0 PA0/USART0_Tx/CLKIN
     PA,         //  1 PA1/USART0_Rx
@@ -329,9 +323,9 @@ static const uint8_t A31 = PIN_A31;
     PIN5_bp,   //  5 PA5/MISO
     PIN6_bp,   //  6 PA6/SCK
     PIN7_bp,   //  7 PA7/SS/CLKOUT/LED_BUILTIN
-    NOT_A_PIN, //  8
-    NOT_A_PIN,   //  9 PC1
-    NOT_A_PIN,   // 10 PC2
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
     PIN3_bp,   // 11 PC3
     NOT_A_PIN, // 12
     NOT_A_PIN, // 13
@@ -361,15 +355,15 @@ static const uint8_t A31 = PIN_A31;
     PIN4_bm,   //  4 PA4/MOSI
     PIN5_bm,   //  5 PA5/MISO
     PIN6_bm,   //  6 PA6/SCK
-    PIN7_bm,   //  7 PA7/SS/CLKOUT
-    NOT_A_PIN, //  8 PC0 NOT_A_PIN
-    NOT_A_PIN, //  9 PC1/USART1_Rx
-    NOT_A_PIN, // 10 PC2
+    PIN7_bm,   //  7 PA7/SS/CLKOUT/LED_BUILTIN
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
+    NOT_A_PIN, //  USB
     PIN3_bm,   // 11 PC3
     NOT_A_PIN, // 12 PD0 NOT_A_PIN
-    NOT_A_PIN, // 13 PD0 NOT_A_PIN
-    NOT_A_PIN, // 14 PD0 NOT_A_PIN
-    NOT_A_PIN, // 15 PD0 NOT_A_PIN
+    NOT_A_PIN, // 13 PD1 NOT_A_PIN
+    NOT_A_PIN, // 14 PD2 NOT_A_PIN
+    NOT_A_PIN, // 15 PD3 NOT_A_PIN
     PIN4_bm,   // 16 PD4/AIN4
     PIN5_bm,   // 17 PD5/AIN5
     PIN6_bm,   // 18 PD6/AIN6
@@ -398,14 +392,7 @@ static const uint8_t A31 = PIN_A31;
     NOT_ON_TIMER, // 19 PD7
     NOT_ON_TIMER, // 26 PF6 RESET
     NOT_ON_TIMER  // 27 PF7 UPDI
-
   };
-#endif
-  // These are used for CI testing. They should *not* *ever* be used except for CI-testing where we need to pick a viable pin to compile a sketch with that won't generate compile errors (we don't care whether it would;d actually work, we are concerned with )
-  #if ((CLOCK_SOURCE & 0x03) == 0)
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 2)
-  #else
-    #define _VALID_DIGITAL_PIN(pin)  ((pin) >= && (pin) < 4 ? ((pin) + 0 ): NOT_A_PIN)
+
   #endif
-  #define    _VALID_ANALOG_PIN(pin)  ((pin) >= 0 && ((pin) <= 4) ?                     ((pin) + PIN_PD4) : NOT_A_PIN)
 #endif

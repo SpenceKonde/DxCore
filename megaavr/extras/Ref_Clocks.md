@@ -1,35 +1,9 @@
 # Detailed Clock Reference
-This section seeks to cover information about the clocking options on the modern AVR devices.
 
-The modern AVRs can broadly be divided into two groups based on their
-
-
-**Crystal** is not supported as a clock source on the tinyAVR, DA-series, or EB-series, but is on the DB, DD, EA, and DU-series.
-
-## Background - how the clock is generated
-See also [the timer reference](Ref_Timers.md)
-
-Heading        | TinyAVR0/1 | TinyAVR1+/2 | Mega0 | DA   | DB/DD/DU |  EA   |   EB  |
----------------|------------|-------------|-------|------|----------|-------|-------|
-OSCHF range    | 16/20      | 16/20       | 16/20 | 1-24 | 1-24     | 16/20 | 16/20 |
-External Xtal  | -          | -           | -     | -    | Yes      |  Yes  |   -   |
-External Clock | Yes        | Yes         | Yes   | Yes  | Yes      |  Yes  |   Yes |
-PLL Max freq   | -          | -           | -     | 48   | 48       |  -    |   80  |
-PLL Mult opt.  | -          | -           | -     | 2/3  | 2/3 *    |  -    |  8/16 |
-PLL timer(s)   | -          | -           | -     | TCD  | TCD **   |  -    |TCE TCF|
-PLL for CPU    | -          | -           | -     | -    | -        |  -    | Yes (same max still applies) |
-Ext 32k xtal   | No (0)/Yes | Yes         | -     | Yes  | Yes      |  Yes  |  Yes  |
-
-It's critical to note the difference between the options given for F_CPU on Dx and other parts.
-
-Dx-series parts can
+## Introductory section
+There needs to be one here, but the text that was here before was. Maybe some general information, since that was previously elsewhere, ripped out, put here without necessary editing and was useless.
 
 
-`*` Marked parts have selectabkle 16 or 20 MHz, controlled by a *fuse*. These parts are also impacted by speed grades (eg, a graph of minimum voltage versus F_CPU is included in the datasheet). For example, many have three speed grades, typically 4 or 5 MHz @ 1.8V, 8 or 10 MHz at 2.7, and
-
-`**` - PLL must be run no lower than at 8x 2.5 = 20 MHz, thus the chip can just barely be in spec feeding the PLL an external 2.5 MHz clock, Normally when you run chip off PLL, you run it at 4s F_CPU and use the PRESCB - to get it back down to 20 MHz while preserving the 80 MHz clock to ise for HiRes.
-
-`***` - The DU PLL is internal and controlled by the hardware for the USB (it's presence is not explicitly noted that I could see, but it could be deduced by it being a USB 2.0 compliant device. that would need a 48 MHz clock, So while TCD left, I suspect the PLL just went internal. The other three Dx's have a rather boring PLL that can only drive the TCD. If you set the register bitfield to the reserved 11 value, you get a 4x multiplier. The PLL works for me at a much wider range of input frequencies than they say too (applies to DA as well (128 MHz seemed okay, but 160 MH it started glitching hard.)
 
 ## Supported Clock Speeds and Speed Grades
 Like classic AVRs, tinyAVRs and Ex-series parts have a "speed grades" depending on the voltage and operating conditions that they are rated for operation within. The spec is
@@ -51,34 +25,6 @@ The AVR Dx-series come in I (105C) and E (125C) spec parts. **This is not marked
 Some of the listed speeds, while supported by the hardware are not supported by the core - typically weird, slow clocks. Crystals in particular can be made in any speed - though classic AVR rewarded the use of bizarre clocks by requiring them in order to generate UART baud clocks for normal speeds, modern AVRs do not need them, and so we don't support any oscillator frequency which is not an integer multiple of 1 MHz
 For unsupported speeds, the micros and delay-us columns indicate what internal plumbing has been implemented. micros is implemented for almost all speeds, delayMicroseconds with non-compile-time-known delays for most, even some unsupported ones. delayMicroseconds() is supported and accurate at any speed when the argument is a compile-time-known constant, as we use the avr-libc implementation of `_delay_us()`.
 
-### megaTinyCore (ATtiny 0-Series, 1-series, and 2-series)
-| Clock Speed | Within Spec |      Internal |    Ext. Clock | micros | delay-us | Notes
-|-------------|-------------|---------------|---------------|--------|----------|-------
-|       1 MHz |         Yes |           Yes |            ** |    Yes |      Yes | 1
-| *     2 MHz |         Yes |      Possible |            ** |    Yes |      Yes |
-| *     3 MHz |Yes and/or no|      Possible |            ** |    Yes |       No | 2
-|       4 MHz |         Yes |           Yes |            ** |    Yes |      Yes | 3, 10
-|       5 MHz |         Yes |           Yes |            ** |    Yes |      Yes | 10
-| *     6 MHz |Yes and/or no|      Possible |            ** |    Yes |       No | 2
-| *     7 MHz |  Yes and no |      Possible |            ** |    Yes |       No | 2
-|       8 MHz |         Yes |           Yes |           Yes |    Yes |      Yes | 10
-|      10 MHz |         Yes |           Yes |           Yes |    Yes |      Yes | 10
-|      12 MHz |Yes and/or no|         Tuned |           Yes |    Yes |      Yes | 2
-| *    14 MHz |  Yes and no |      Possible |            ** |    Yes |       No | 2
-|      16 MHz |         Yes |           Yes |           Yes |    Yes |      Yes |
-|      20 MHz |         Yes |           Yes |           Yes |    Yes |      Yes |
-|      24 MHz |          No |         Tuned |           Yes |    Yes |      Yes |
-|      25 MHz |          No |         Tuned |           Yes |    Yes |       No | 5, 6
-|      28 MHz |          No |      Possible |           Yes |    Yes |      Yes | 5
-|      30 MHz | No way! *** |         Tuned |           Yes |    Yes |      Yes | 5
-|      32 MHz | No way! *** | 2series tuning|           Yes |    Yes |      Yes |
-
-`*` - Option not exposed via tools menu due to lack of interest or particular reason to use these speeds. We don't have to worry about UART bullshit anymore. Let's make life easy on ourselves and not clock our system at 7 MHz, hmm? The plumbing is in `(2^n) x 7 for integer n >= 0` went in so 28 MHz, which can be done with internal on Dx without tuning, and enough code is shared that ensuring that plumbing was present was straightforward.
-
-`**` - While the hardware supports it, and the listed plumbing is present, these options make little sense, and are not exposed.
-
-`***` - It is common to encounter parts which do not work at this speed at room temperature. Extended temperature range parts (F-spec) tend to work better than industrial (U or N-spec. Note that the 2-series has U-spec parts, which are 85C. 0/1-series industrial parts are N-spec and 105C, though the extended temp range version of both ssries is 125C F-spec. *That's one thing I miss about Atmel. Their temperature grading scheme was just more FUN* "It was also objectively better: Microchip doctrine does not have a universal abbreviation for each common temperatiure grade... Not only that, they don't mark the temperature grade on the package, so sleazy assembly houses could substitute cheaper I-specs for the E-specs you paid for, and unless you emailed microchip support with lot numbers, you'll never catch it." *It makes scamming easier? Maybe this new system isn't so bad...*
-
 ### DxCore (AVR Dx and EA series)
 Note that no decision has been made regarding which clock speeds to expose for the EB at this time, due to it's novel clocking options.
 
@@ -94,10 +40,10 @@ Note that no decision has been made regarding which clock speeds to expose for t
 |       8 MHz |         Yes | **  Prescaled |    Yes  | DD, DB, EA    |           Yes |    Yes |      Yes | 10
 |      10 MHz |         Yes |     Prescaled |    Yes  | DD, DB, EA    |           Yes |    Yes |      Yes | 10
 |      12 MHz |         Yes |           Yes |    No   | DD, DB, DU, EA|           Yes |    Yes |      Yes | 11
-| *    14 MHz |         Yes |            No |    No   |            ** |            ** |    Yes |       No |
-|      16 MHz |         Yes |           Yes |    Yes  | DD, DB, DU, EA|           Yes |    Yes |      Yes |
-|      20 MHz |         Yes |           Yes |    Yes  | DD, DB, DU, EA|           Yes |    Yes |      Yes |
-|      24 MHz |     Dx Only |           Yes |    No   | DD, DB, DU, EA|           Yes |    Yes |      Yes |
+| *    14 MHz |         Yes |            No |    No   |            ** |            ** |    Yes |       No | .
+|      16 MHz |         Yes |           Yes |    Yes  | DD, DB, DU, EA|           Yes |    Yes |      Yes | .
+|      20 MHz |         Yes |           Yes |    Yes  | DD, DB, DU, EA|           Yes |    Yes |      Yes | .
+|      24 MHz |     Dx Only |           Yes |    No   | DD, DB, DU, EA|           Yes |    Yes |      Yes | .
 |      25 MHz |      No *** |** Maybe, hard |    No   | DD, DB, EA,   |           Yes |    Yes |       No | 3, 4
 |      28 MHz |      No *** |           Yes |    No   | DD, DB, EA,   |           Yes |    Yes |      Yes | 3
 |      30 MHz |      No *** |** Maybe, hard |    No   | DD, DB, EA,   |           Yes |    Yes |      Yes | 3
@@ -252,7 +198,7 @@ void setup() {
 
 `_switchInternalToF_CPU()` is a macro provided essentially for this and only this purpose (I can't think of any other use cases...).
 
-It is important to notethat
+It is important to note that
 
 ```c++
 void onClockFailure() {

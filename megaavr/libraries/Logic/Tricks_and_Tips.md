@@ -5,19 +5,19 @@ There are some simple patterns that you can use with the CCL/Logic library to ge
 You'll probably want the table of contents button for this page....
 
 ## Reordering inputs
-**MOST OF THIS DISCUSSION (reordering) NEGLECTS THE MSB AND LSB, as the reordering behavior only effects the non-extremal values.**
+**MOST OF THIS DISCUSSION (reordering) NEGLECTS THE MSB AND LSB as the reordering behavior only effects the non-extremal values.**
 
 There are four variations on each of these with different behavior when all inputs are the same, as the behavior with all 1's or all 0's is independent of what order they are in.
 These are not relevant to reordering. Reordering is confusing enough as is (and it really shouldn't be, but our brains aren't wired well for this I don't think)
 
 To get identical behavior:
-
-* TRUTH = 0bHGFEDCBA when IN0 is a, IN1 is ß and IN2 is ?
-* TRUTH = 0bHDFBGCEA when IN0 is ?, IN1 is ß and IN2 is a - D and G, B and E swap
-* TRUTH = 0bHFGEDBCA when IN0 is a, IN1 is ? and IN2 is ß - G and F, B and C swap
-* TRUTH = 0bHGDCFEBA when IN0 is ?, IN1 is a and IN2 is ß - F and D, E and C swap
-* TRUTH = 0bHDGCFBEA when IN0 is ß, IN1 is a and IN2 is ? - F?D?G?F rotate, and B?C?E?B rotate.
-* TRUTH = 0bHFDBGECA when IN0 is ß, IN1 is ? and IN2 is a - F?G?D?F rotate, and B?E?C?B rotate.
+αβδξζ
+* TRUTH = 0bHGFEDCBA when IN0 is α, IN1 is ß and IN2 is δ
+* TRUTH = 0bHDFBGCEA when IN0 is δ, IN1 is ß and IN2 is α - D and G, B and E swap
+* TRUTH = 0bHFGEDBCA when IN0 is α, IN1 is ? and IN2 is ß - G and F, B and C swap
+* TRUTH = 0bHGDCFEBA when IN0 is δ, IN1 is α and IN2 is ß - F and D, E and C swap
+* TRUTH = 0bHDGCFBEA when IN0 is ß, IN1 is α and IN2 is δ - F D G F rotate, and B C E B rotate.
+* TRUTH = 0bHFDBGECA when IN0 is ß, IN1 is δ and IN2 is α - F G D F rotate, and B E C B rotate.
 
 the highest and lowest bits do not change when reordering the inputs.
 
@@ -52,18 +52,18 @@ A significant number of options come in sets of threes; these indicate:
 | 0x0E, 0x32, 0x54 |      3/6 | HIGH if specified input LOW.                                                                                  |        (!A), DNC B/C
 | 0x2A, 0x4C, 0x70 |      3/6 | HIGH if specified input HIGH.                                                                                 |         (A), DNC B/C
 | 0x1E, 0x36, 0x56 |      4/6 | HIGH IF either a specific input is HIGH and the others low, or either of the others are high.                 | (A and !(B  or C)) or (!A and (B  or C))
-| 0x6A, 0x6C, 0x78 |      4/6 | HIGH if specified input, or both other inputs HIGH.                                                          |  A  or  (B and C)
+| 0x6A, 0x6C, 0x78 |      4/6 | HIGH if specified input, or both other inputs HIGH.                                                           |  A  or  (B and C)
 | 0x6E, 0x7A, 0x7C |      5/6 | HIGH UNLESS one specified input HIGH and others LOW.                                                          | !A  or  (B  or C)
 | 0x3E, 0x5E, 0x76 |      5/6 | HIGH UNLESS one specified input LOW and others HIGH.                                                          |  A  or !(B and C)
 
 24 possibilities there, so we have gotten to 4 + 24 = 28 so far.
 
-|                   TRUTH & 0x7E     | Bits set | Rationalization
-|------------------------------------|----------|--------------------------
-| 0x0A, 0x0C, 0x22, 0x30, 0x44, 0x50 |      2/6 | If one specified input HIGH and other specified input LOW, without specifying the last one. | (A  and !B) DNC C
-| 0x1A, 0x1C, 0x26, 0x34, 0x46, 0x52 |      3/6 | If specified input HIGH and other specified input LOW, or first input LOW and second HIGH   | (A  and B) or (B xor C)
-| 0x2C, 0x38, 0x4A, 0x58, 0x62, 0x64 |      3/6 | Opposite of the second                                                                      | (A and (B or C)) or (B and !C)
-| 0x2E, 0x3A, 0x4E, 0x5C, 0x72, 0x74 |      4/6 | Opposite of first                                                                           | A or (B and !C)
+|                   TRUTH & 0x7E     | Bits set | Rationalization                                                                             | Logic
+|------------------------------------|----------|---------------------------------------------------------------------------------------------|------------------------------
+| 0x0A, 0x0C, 0x22, 0x30, 0x44, 0x50 |      2/6 | If one specified input HIGH and other specified input LOW, without specifying the last one. | (A  and !B)  DNC C
+| 0x1A, 0x1C, 0x26, 0x34, 0x46, 0x52 |      3/6 | If specified input HIGH and other specified input LOW, or first input LOW and second HIGH   | (A  and  B)  or (B xor C)
+| 0x2C, 0x38, 0x4A, 0x58, 0x62, 0x64 |      3/6 | Opposite of the second                                                                      | (A  and (B   or  C)) or (B and !C)
+| 0x2E, 0x3A, 0x4E, 0x5C, 0x72, 0x74 |      4/6 | Opposite of first                                                                           |  A   or (B  and !C)
 
 In these cases, we have three distinct types of pins
 
