@@ -98,6 +98,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 // PWM pins
 
+#define digitalPinHasPWM(p) (false)         // No non-TCA timers. Most PORTMUX aware times don't show up here
 
 #define digitalPinHasPWMTCB(p) (false)      // Not a single TCB timer output pin available!
 
