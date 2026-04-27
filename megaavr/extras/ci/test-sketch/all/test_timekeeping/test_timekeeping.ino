@@ -40,15 +40,17 @@ void compile_test_timekeeping() {
     set_millis(NOT_A_CONST_DWORD);
     uint32_t retval_millis = millis();
     discard(retval_millis);
-    uint32_t retval_micros = micros();
-    discard(retval_micros);
-    // pulsein with micros
-    uint32_t retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, HIGH, NOT_A_CONST_DWORD);
-    discard(retval_pulseInLong);
-    retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, LOW, NOT_A_CONST_DWORD);
-    discard(retval_pulseInLong);
-    retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, NOT_A_CONST_DWORD);
-    discard(retval_pulseInLong);
+    #ifndef MILLIS_USE_TIMERRTC
+      uint32_t retval_micros = micros();
+      discard(retval_micros);
+      // pulsein with micros
+      uint32_t retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, HIGH, NOT_A_CONST_DWORD);
+      discard(retval_pulseInLong);
+      retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, LOW, NOT_A_CONST_DWORD);
+      discard(retval_pulseInLong);
+      retval_pulseInLong = pulseInLong(NOT_A_CONST_BYTE, NOT_A_CONST_BYTE, NOT_A_CONST_DWORD);
+      discard(retval_pulseInLong);
+    #endif
   #endif
   uint16_t retval_clockCyclesPerMicrosecond = clockCyclesPerMicrosecond();
   discard(retval_clockCyclesPerMicrosecond);
