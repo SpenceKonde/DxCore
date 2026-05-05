@@ -1,23 +1,20 @@
-serialupdi.name=SerialUPDI - Normal: 230400 baud (recommended)
-serialupdi.protocol=uart
-serialupdi.program.extra_params=-u {serial.port} -b 230400
-serialupdi.program.protocol=uart
-serialupdi.program.tool=serialupdi
-serialupdi.bootloader.tool=serialupdi
+serialupdi_230400.name=SerialUPDI - Normal: 230400 baud (recommended)
+serialupdi_230400.communication=serial
+serialupdi_230400.protocol=serialupdi
+serialupdi_230400.program.tool=avrdude
+serialupdi_230400.program.extra_params=-P{serial.port} -b230400 -xrtsdtr=high
 
-serialupdi345k.name=SerialUPDI - Faster: 345600 baud (not all adapters support this)
-serialupdi345k.protocol=uart
-serialupdi345k.program.extra_params=-u {serial.port} -b 345600
-serialupdi345k.program.protocol=uart
-serialupdi345k.program.tool=serialupdi
-serialupdi345k.bootloader.tool=serialupdi
+serialupdi_345600.name=SerialUPDI - Faster: 345600 baud (not all adapters support this)
+serialupdi_345600.communication=serial
+serialupdi_345600.protocol=serialupdi
+serialupdi_345600.program.tool=avrdude
+serialupdi_345600.program.extra_params=-P{serial.port} -b345600 -xrtsdtr=high
 
-serialupdi57k.name=SerialUPDI - SLOW: 57600 baud (for lousy serial adapters or bad voodoo)
-serialupdi57k.protocol=uart
-serialupdi57k.program.extra_params=-u {serial.port} -b 57600
-serialupdi57k.program.protocol=uart
-serialupdi57k.program.tool=serialupdi
-serialupdi57k.bootloader.tool=serialupdi
+serialupdi_57600.name=SerialUPDI - SLOW: 57600 baud
+serialupdi_57600.communication=serial
+serialupdi_57600.protocol=serialupdi
+serialupdi_57600.program.tool=avrdude
+serialupdi_57600.program.extra_params=-P{serial.port} -b57600 -xrtsdtr=high
 
 jtag2updi.name=JTAGv2 to UPDI bridge (jtag2updi)
 jtag2updi.communication=serial
