@@ -10,9 +10,6 @@ on:
     paths:
       - ".github/workflows/check-links.yml"
       - "**.md"
-  schedule:
-    # Run every Tuesday at 8 AM UTC to catch breakage caused by changes to the linked sites.
-    - cron: "0 8 * * TUE"
   workflow_dispatch:
   repository_dispatch:
 

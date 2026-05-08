@@ -115,7 +115,7 @@
     defined(MILLIS_USE_TIMERA1) || defined(MILLIS_USE_TIMERA2) || defined(MILLIS_USE_TIMERE0) || defined(MILLIS_USE_TIMERA0))
   #error "MILLIS_USE_TIMERF0 and another timer are set as the millis timer. Specify one only. If this occurred on the Arduino IDE, please report it promptly."
 #endif
-#if defined(MILLIS_USE_TIMERD0) || defined(MILLIS_USE_TIMERRTC) || defined(MILLIS_USE_TIMERRTC_XTAL)
+#if defined(MILLIS_USE_TIMERD0)
   #error "A millis timer not supported on this core was passed. this should only be possible on third party IDEs. "
 #endif
 #if defined(UARTBAUD5V) || defined(UARTBAUD3V)
