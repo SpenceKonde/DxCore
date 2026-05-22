@@ -1721,10 +1721,12 @@ avrdu.bootloader.tool=avrdude
 avrdu.bootloader.WDTCFG=0b{bootloader.wdtwindowbits}{bootloader.wdttimeoutbits}
 avrdu.bootloader.wdtwindowbits=0000
 avrdu.bootloader.wdttimeotbits=0000
+# AVR DU-series can only take either 1 (unsupported, 32 kHz, too slow for serial, and 1/30th of the minimum speed we support) or 0 (normal operation)
+avrdu.bootloader.OSCCFG=0b00000000
 avrdu.bootloader.BODCFG=0b{bootloader.bodlevbits}{bootloader.bodmodebits}
 avrdu.bootloader.updipinbit=1
 avrdu.bootloader.SYSCFG0=0b110{bootloader.updipinbit}{bootloader.resetpinbits}00{bootloader.eesavebit}
-avrdu.bootloader.SYSCFG1=0b000{bootloader.mviobits}{bootloader.sutbits}
+avrdu.bootloader.SYSCFG1=0b00001{bootloader.sutbits}
 avrdu.bootloader.CODESIZE=0x00
 avrdu.bootloader.BOOTSIZE=0x01
 avrdu.bootloader.avrdudestring=
