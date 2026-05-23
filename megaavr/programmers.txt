@@ -82,3 +82,10 @@ pwrdebug.protocol=powerdebugger_updi
 pwrdebug.program.protocol=powerdebugger_updi
 pwrdebug.program.tool=avrdude
 pwrdebug.program.extra_params=-Pusb
+
+jtagice3_updi.name=Atmel JTAGICE3
+jtagice3_updi.communication=usb
+jtagice3_updi.protocol=jtag3updi
+jtagice3_updi.program.protocol=jtag3updi
+jtagice3_updi.program.tool=avrdude
+jtagice3_updi.program.extra_params=

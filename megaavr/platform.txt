@@ -14,7 +14,7 @@ version={versionnum.major}.{versionnum.minor}.{versionnum.patch}
 # Stupid workaround #
 # for IDE bug       #
 #####################
-version=1.6.3
+version=1.7.0
 
 build.versiondefines=-DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} -DDXCORE="{version}" -DDXCORE_MAJOR={versionnum.major}UL -DDXCORE_MINOR={versionnum.minor}UL -DDXCORE_PATCH={versionnum.patch}UL
 
@@ -23,6 +23,16 @@ build.optiondefines=-DF_CPU={build.f_cpu} -DCLOCK_SOURCE={build.clocksource} -DT
 #########################
 # AVR compile variables #
 #########################
+
+# Optimization flags for debugging
+# -mrelax does not work with debugging since debug line information
+# is completely garbeled. Therefore one should include -mrelax only under
+# release flags. If one wants to debug also executables with -Os
+# optimizations enabled, then -mrelax should be globally banned.
+
+compiler.optimization_flags=-Os -ggdb3 -DNDEBUG
+compiler.optimization_flags.release=-Os -ggdb3 -DNDEBUG
+compiler.optimization_flags.debug=-Og -ggdb3 -DDEBUG
 
 compiler.warning_flags=-Wall
 compiler.warning_flags.none=-Wall
@@ -33,13 +43,13 @@ compiler.warning_flags.all=-Wall -Wextra
 # Default "compiler.path" is correct, change only if you want to override the initial value
 compiler.path={runtime.tools.avr-gcc.path}/bin/
 compiler.c.cmd=avr-gcc
-compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -fshort-enums -flto -mrelax -MMD -fno-fat-lto-objects -Werror=implicit-function-declaration -Wundef
+compiler.c.flags=-c {compiler.optimization_flags} {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -fshort-enums -flto -MMD -fno-fat-lto-objects -Werror=implicit-function-declaration -Wundef
 # DxCore has the three additional FLMAP sections for mapped flash
-compiler.c.elf.flags={compiler.warning_flags} -Os -g -flto -fuse-linker-plugin -mrelax -Wl,--gc-sections,--section-start={build.text_section_start},--section-start=.FLMAP_SECTION1=0x8000,--section-start=.FLMAP_SECTION2=0x10000,--section-start=.FLMAP_SECTION3=0x18000
+compiler.c.elf.flags={compiler.warning_flags}  {compiler.optimization_flags} -flto -fuse-linker-plugin  -Wl,--gc-sections,--section-start={build.text_section_start},--section-start=.FLMAP_SECTION1=0x8000,--section-start=.FLMAP_SECTION2=0x10000,--section-start=.FLMAP_SECTION3=0x18000
 compiler.c.elf.cmd=avr-gcc
-compiler.S.flags=-c -g -x assembler-with-cpp -flto -MMD
+compiler.S.flags=-c  {compiler.optimization_flags} -x assembler-with-cpp -flto -MMD
 compiler.cpp.cmd=avr-g++
-compiler.cpp.flags=-c -g -Os {compiler.warning_flags} -std=gnu++17 -ffunction-sections -fdata-sections -fshort-enums -flto -mrelax -MMD -fpermissive -Wno-sized-deallocation -fno-exceptions -fno-threadsafe-statics -Wno-error=narrowing
+compiler.cpp.flags=-c {compiler.optimization_flags} {compiler.warning_flags} -std=gnu++17 -ffunction-sections -fdata-sections -fshort-enums -flto -MMD -fpermissive -Wno-sized-deallocation -fno-exceptions -fno-threadsafe-statics -Wno-error=narrowing
 compiler.ar.cmd=avr-gcc-ar
 compiler.ar.flags=rcs
 compiler.objcopy.cmd=avr-objcopy
@@ -252,3 +262,30 @@ tools.serialupdi.program.pattern={upload.prog_interlock}"{cmd}" -u "{runtime.pla
 
 ## For avrdude - tools exist
 #tools.avrdude.program.pattern="{cmd.path}" "-C{config.path}" {program.verbose} -p{build.mcu}{upload.workaround} -c{protocol} {program.extra_params} "-Ufuse2:w:{bootloader.OSCCFG}:m" {bootloader.avrdudefuse5} "-Ufuse5:w:{bootloader.SYSCFG0}:m" "-Ufuse6:w:{bootloader.SYSCFG1}:m" "-Ufuse6:w:{7:{bootloader.CODESIZE}m"  "-Ufuse8:w:{bootloader.BOOTSIZE}:m" "-Uflash:w:{build.path}/{build.project_name}.hex:i"
+
+# Debugger configuration (general options)
+# ----------------------------------------
+debug.executable={build.path}/{build.project_name}.elf
+debug.toolchain=gcc
+debug.toolchain.path={runtime.tools.avrocd-tools.path}
+
+debug.server=openocd
+debug.server.openocd.path={debug.toolchain.path}/pyavrocd
+#next doesn't matter, but should be specified so that cortex-debug is happy
+debug.server.openocd.script=nix
+debug.cortex-debug.custom.gdbPath={debug.toolchain.path}/avr-gdb
+debug.cortex-debug.custom.overrideGDBServerStartedRegex=Listening on port \d+ for gdb connection
+debug.cortex-debug.custom.objdumpPath={runtime.tools.avr-gcc.path}/bin/avr-objdump
+debug.cortex-debug.custom.serverArgs.0=-s
+debug.cortex-debug.custom.serverArgs.1=nop
+debug.cortex-debug.custom.serverArgs.2=--device
+debug.cortex-debug.custom.serverArgs.3={build.mcu}
+debug.cortex-debug.custom.serverArgs.4=--manage
+debug.cortex-debug.custom.serverArgs.5=all
+debug.cortex-debug.custom.serverArgs.6=--F_CPU
+debug.cortex-debug.custom.serverArgs.7={build.f_cpu}
+debug.cortex-debug.custom.serverArgs.8=--elf-file
+debug.cortex-debug.custom.serverArgs.9={debug.executable}
+
+debug.cortex-debug.custom.runToEntryPoint=main
+debug.svd_file={debug.toolchain.path}/pyavrocd-util/svd/{build.mcu}.svd
