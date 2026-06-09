@@ -266,6 +266,7 @@ Programmer used for uploading.
 | `atmelice_updi`                       | Atmel ICE programmer in UPDI mode                                                                                |
 | `xplainedpro_updi`                    | Xplained Pro in UPDI mode                                                                                        |
 | `powerdebugger_updi`                  | Power Debugger in UPDI mode                                                                                      |
+| `serialupdi`                          | Simple programmer in UPDI mode                                                                                    |
 
 
 ### `upload_flags`
