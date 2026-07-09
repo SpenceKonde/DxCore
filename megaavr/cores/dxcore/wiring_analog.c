@@ -20,6 +20,7 @@
 */
 
 
+#include "avr/io.h"
 #include "wiring_private.h"
 #include "pins_arduino.h"
 #include "Arduino.h"
@@ -390,12 +391,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 
   /* Ex Version*/
   void analogReference(uint8_t mode) {
-    check_valid_analog_ref(mode);
-    if (mode > 7)
-      mode &= 7;
-    if (mode != 1 && mode != 3) {
-      ADC0.CTRLC = mode;
-    }
+    check_valid_analog_ref(mode); // does all the checking
+    ADC0.CTRLC = (ADC0.CTRLC & ~(ADC_REFSEL_gm)) | (mode & (ADC_REFSEL_gm));
   }
 /* Ex Version*/
   inline uint8_t getAnalogReference() {
@@ -699,16 +696,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     return _analog_options & 0x0F;
   }
   void analogReference(uint8_t mode) {
-    check_valid_analog_ref(mode);
-    #if defined(STRICT_ERROR_CHECKING)
-      if (mode > 7) return;
-    #else
-      mode &= 7;
-    #endif
-    if (mode != 1 && mode != 3) {
-      ADC0.CTRLC = mode;
-    }
-    // Uh? Is that it? That was, ah, a tiny bit simpler.
+    check_valid_analog_ref(mode);  // does all the checking
+    ADC0.CTRLC = (ADC0.CTRLC & ~(ADC_REFSEL_gm)) | (mode & (ADC_REFSEL_gm));
   }
   inline uint8_t getAnalogReference() {
     uint8_t r = ADC0.CTRLC & ADC_REFSEL_gm;
@@ -950,10 +939,8 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
    ########  ##     ## ##       ########  ########  ##       ########  ########           */
 
   void analogReference(uint8_t mode) {
-    check_valid_analog_ref(mode);
-    if (mode < 7 && mode != 4) {
-      VREF.ADC0REF = (VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode);
-    }
+    check_valid_analog_ref(mode); // does all the checking
+    VREF.ADC0REF = (VREF.ADC0REF & ~(VREF_REFSEL_gm))|(mode & (VREF_REFSEL_gm));
   }
 
   int16_t analogRead(uint8_t pin) {
