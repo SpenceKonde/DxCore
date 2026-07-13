@@ -93,7 +93,11 @@ Include guard and include basic libraries. We are normally including this inside
 // you must ensure that these will do what they say they will do.
 // that bit about the 4 ADC ADC channels on PORTC not working with MVIO enabled is ugly to handle.
 
-#define digitalPinToAnalogInput(p)           ((p) >= PIN_PD0 ? (((p) < PIN_PF0)   ? ((p) - PIN_PD0) : ((p) < PIN_PF6)   ? ((p) -  4)      : NOT_A_PIN) : (((p) > PIN_PA1)                        ? ((p) + 20) : NOT_A_PIN))
+#define digitalPinToAnalogInput(p)        ( ((p) >= PIN_PA2 && (p) <= PIN_PA7) ? (p) + 20      \
+                                          :  (p) == PIN_PC3                    ? 31            \
+                                          : ((p) >= PIN_PD0 && (p) <= PIN_PD7) ? (p) - PIN_PD0 \
+                                          : ((p) >= PIN_PF0 && (p) <= PIN_PF5) ? (p) - 4       \
+                                          : NOT_A_PIN )
 #define analogChannelToDigitalPin(p)      ( (p) <  8 ? (p) +      PIN_PD0  \
                                           : (p) < 16 ? NOT_A_PIN           \
                                           : (p) < 22 ? (p) - 16 + PIN_PF0  \
@@ -101,9 +105,7 @@ Include guard and include basic libraries. We are normally including this inside
                                           : (p) < 31 ? NOT_A_PIN           \
                                           : (p) < 32 ? (p) - 28 + PIN_PC0  \
                                           : NOT_A_PIN )
-
-
-#define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F) /*This assumes that the argument is NOT a digital pin number - but allows channel ID's or channel numbers. */
+#define analogInputToDigitalPin(p)        analogChannelToDigitalPin((p) & 0x7F) /*This assumes that the argument is NOT a digital pin number - but allows channel ID's or channel numbers. */
 #define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7f) : (((p)<=NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN)) /* This will act on either kind of pin ID but not analog channel*/
 #define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== PD ? PIN_PD0 : ((port)== PF ? PIN_PF0 : NOT_A_PIN))))
 

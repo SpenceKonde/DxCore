@@ -84,12 +84,14 @@ Include guard and include basic libraries. We are normally including this inside
         # # # ##### #    ####  #   #  ###
         #   # #   # #    # #   #   #     #
         #   # #   #  ### #  #   ###   ##*/
-#define digitalPinToAnalogInput(p)    ((p) >= PIN_PD4 ? (((p) < PIN_PF6)     ? ((p) - PIN_PD0) : NOT_A_PIN) : ((((p) > PIN_PA1)                     ? ((p) + 20) : NOT_A_PIN)))
-#define analogChannelToDigitalPin(p)  (((p) >  31 || (p) == 28)              ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22     ) ? ((p) - 20): NOT_A_PIN))
-
-#define analogInputToDigitalPin(p)                        analogChannelToDigitalPin((p) & 0x7F)
-#define digitalOrAnalogPinToDigital(p)    (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
-#define portToPinZero(port)               ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== 3 ? PIN_PD0 : NOT_A_PIN)))
+#define digitalPinToAnalogInput(p)      ( ((p) >= PIN_PA2 && (p) <= PIN_PA7) ? (p) + 20      \
+                                        :  (p) == PIN_PC3                    ? 31            \
+                                        : ((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 \
+                                        : NOT_A_PIN )
+#define analogChannelToDigitalPin(p)    ( ((p) >  31 || (p) == 28)           ?     NOT_A_PIN : ((p) < 8   ?   ((p) + PIN_PD0)  : ((p) >= 22     ) ? ((p) - 20): NOT_A_PIN))
+#define analogInputToDigitalPin(p)      analogChannelToDigitalPin((p) & 0x7F)
+#define digitalOrAnalogPinToDigital(p)  (((p) & 0x80) ? analogChannelToDigitalPin((p) & 0x7F) : (((p) <= NUM_DIGITAL_PINS) ? (p) : NOT_A_PIN))
+#define portToPinZero(port)             ((port) == PA ? PIN_PA0 : ((port)== PC ? PIN_PC0 : ((port)== 3 ? PIN_PD0 : NOT_A_PIN)))
 
 // PWM pins
 

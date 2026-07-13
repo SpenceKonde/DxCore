@@ -84,9 +84,9 @@ AVR32EB14 AVR16EB14 */
         # # # ##### #    ####  #   #  ###
         #   # #   # #    # #   #   #     #
         #   # #   #  ### #  #   ###   ##*/
-#define digitalPinToAnalogInput(p)        (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) > PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))
+#define digitalPinToAnalogInput(p)        (((p) >= PIN_PD4 && (p) <= PIN_PD7) ? (p) - PIN_PD0 : (((p) >= PIN_PC0 && (p) <= PIN_PC3) ? (p) + 20 : NOT_A_PIN))
 #define analogChannelToDigitalPin(p)      ( (p) <  4 ? NOT_A_PIN           \
-                                          : (p) < 16 ? (p) +    + PIN_PD0  \
+                                          : (p) <  8 ? (p) +      PIN_PD0  \
                                           : (p) < 28 ? NOT_A_PIN           \
                                           : (p) < 32 ? (p) - 28 + PIN_PC0  \
                                           : NOT_A_PIN )

@@ -105,7 +105,12 @@ Include guard and include basic libraries. We are normally including this inside
 // If you change the number of pins in any way or if the part has ADC on different pins from the board you are adapting
 // you must ensure that these will do what they say they will do.
 
-#define digitalPinToAnalogInput(p)        (((p) > PIN_PC7 && (p) < PIN_PF0) ? ((p) - PIN_PD0) : ((p) < PIN_PF6 ? ((p) - 18) : NOT_A_PIN))
+#define digitalPinToAnalogInput(p)        ( ((p) >= PIN_PA2 && (p) <= PIN_PA7) ? (p) + 20  \
+                                          : ((p) >= PIN_PC0 && (p) <= PIN_PC3) ? (p) + 14  \
+                                          : ((p) >= PIN_PD0 && (p) <= PIN_PE3) ? (p) - PIN_PD0  \
+                                          : ((p) >= PIN_PF0 && (p) <= PIN_PF5) ? (p) - 18  \
+                                          : NOT_A_PIN )
+
 #define analogChannelToDigitalPin(p)      ( (p) <  8 ? (p) +      PIN_PD0  \
                                           : (p) < 12 ? (p) - 8  + PIN_PE0  \
                                           : (p) < 16 ? NOT_A_PIN           \
