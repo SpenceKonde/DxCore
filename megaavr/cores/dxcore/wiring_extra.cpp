@@ -154,11 +154,20 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
   _pinconfigure(digital_pin, pin_config);
 }
 /* This may end up somewhere else (like in the library*/
-#if defined(PORTA_EVGENCTRL) //Ex-series only - this all may belong in the Event library anyway, but since the conditional is never met, this code is never used.
+#if defined(PORTA_EVGENCTRL) // Parts with the version 3 event system (EA/EB/DU-series). This all may belong in the Event library anyway.
+  /* Note: On the DU-series, bits 3 and 7 of PORTx.EVGENCTRLA are read-only zero (the EVGENnSEL
+   * fields are 3 bits wide, per DS40002548A section 18.5.10), so they CANNOT be used as "in use"
+   * flags and the automatic channel selection (chan = 255) is not available here - pass an
+   * explicit generator number, or better, use the Event library (assign_generator_pin()), which
+   * tracks usage in software instead. */
   uint8_t _setEventPin(uint8_t pin, uint8_t chan) {
-    // Works the same was as
     uint8_t temp = digitalPinToPort(pin);
-    if (temp != NOT_A_PIN && (chan + 1) < 3) {
+    if (temp != NOT_A_PIN && (chan == 255 || chan < 2)) { // was (chan + 1) < 3, which promoted to int and made chan = 255 unreachable
+      #if defined(__AVR_DU__)
+        if (chan == 255) {
+          return 255; // see note above - no free/in-use flags exist on the DU-series.
+        }
+      #endif
       volatile uint8_t* p;
       p = (volatile uint8_t*) (uint16_t) (digitalPinToPortStruct(temp));
       p += 0x18; // now p pointing to evgenctrl.

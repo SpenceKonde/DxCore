@@ -352,6 +352,91 @@ static const struct Logic::CCLBlock blocks[] = {
     CCL.SEQCTRL2, CCL.LUT5CTRLA, CCL.LUT5CTRLB, CCL.LUT5CTRLC, CCL.TRUTH5,
   },
   #endif
+  #if defined(__AVR_AVR16DU32__) || defined(__AVR_AVR32DU32__) || defined(__AVR_AVR64DU32__) || \
+      defined(__AVR_AVR16DU28__) || defined(__AVR_AVR32DU28__) || defined(__AVR_AVR64DU28__) || \
+      defined(__AVR_AVR16DU20__) || defined(__AVR_AVR32DU20__) || \
+      defined(__AVR_AVR16DU14__) || defined(__AVR_AVR32DU14__)
+    // AVR DU family (14/20/28/32-pin). Pin availability per DS40002576A table 3-1.
+    // Fixed CCL routing: LUT0=PORTA, LUT1 output=PC3 only, LUT2=PORTD, LUT3=PORTF.
+    // PC0-PC2 are never bonded out on any DU package.
+    #define PORTMUX_CCL PORTMUX.CCLROUTEA
+    #define PORTMUX_ALTOUT_bm (1 << block.number)
+
+    // Logic0 (PORTA)
+    #if defined(__AVR_AVR16DU14__) || defined(__AVR_AVR32DU14__)
+      // 14-pin SOIC: only PA0/PA1 bonded -> no IN2, no PA3/PA6 output
+      {
+        0,
+        PIN0_bm, PIN1_bm, 0, 0, 0,
+        PORTA, PORTA, PORTA,
+        CCL.SEQCTRL0, CCL.LUT0CTRLA, CCL.LUT0CTRLB, CCL.LUT0CTRLC, CCL.TRUTH0,
+      },
+    #else
+      // 20/28/32-pin: full PA0-PA2 in, PA3 out, PA6 alt out
+      {
+        0,
+        PIN0_bm, PIN1_bm, PIN2_bm, PIN3_bm, PIN6_bm,
+        PORTA, PORTA, PORTA,
+        CCL.SEQCTRL0, CCL.LUT0CTRLA, CCL.LUT0CTRLB, CCL.LUT0CTRLC, CCL.TRUTH0,
+      },
+    #endif
+
+    // Logic1 (PORTC): only PC3 (output) exists on every DU package; no pin inputs
+    {
+      1,
+      0, 0, 0, PIN3_bm, 0,
+      PORTC, PORTC, PORTC,
+      CCL.SEQCTRL0, CCL.LUT1CTRLA, CCL.LUT1CTRLB, CCL.LUT1CTRLC, CCL.TRUTH1,
+    },
+
+    // Logic2 (PORTD)
+    #if defined(__AVR_AVR16DU14__) || defined(__AVR_AVR32DU14__) || \
+        defined(__AVR_AVR16DU20__) || defined(__AVR_AVR32DU20__)
+      // 14/20-pin: PD0-PD3 not bonded; only the alternate output PD6 is available
+      // (use output_swap = pin_swap to drive it)
+      {
+        2,
+        0, 0, 0, 0, PIN6_bm,
+        PORTD, PORTD, PORTD,
+        CCL.SEQCTRL1, CCL.LUT2CTRLA, CCL.LUT2CTRLB, CCL.LUT2CTRLC, CCL.TRUTH2,
+      },
+    #else
+      // 28/32-pin: full PD0-PD2 in, PD3 out, PD6 alt out
+      {
+        2,
+        PIN0_bm, PIN1_bm, PIN2_bm, PIN3_bm, PIN6_bm,
+        PORTD, PORTD, PORTD,
+        CCL.SEQCTRL1, CCL.LUT2CTRLA, CCL.LUT2CTRLB, CCL.LUT2CTRLC, CCL.TRUTH2,
+      },
+    #endif
+
+    // Logic3 (PORTF)
+    #if defined(__AVR_AVR16DU32__) || defined(__AVR_AVR32DU32__) || defined(__AVR_AVR64DU32__)
+      // 32-pin: PF0-PF2 in, PF3 out, no alt out (PF6 is RESET)
+      {
+        3,
+        PIN0_bm, PIN1_bm, PIN2_bm, PIN3_bm, 0,
+        PORTF, PORTF, PORTF,
+        CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
+      },
+    #elif defined(__AVR_AVR16DU28__) || defined(__AVR_AVR32DU28__) || defined(__AVR_AVR64DU28__)
+      // 28-pin: only PF0/PF1 (inputs); PF2/PF3 not bonded
+      {
+        3,
+        PIN0_bm, PIN1_bm, 0, 0, 0,
+        PORTF, PORTF, PORTF,
+        CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
+      },
+    #else
+      // 14/20-pin: PF0-PF3 not bonded; LUT3 has no pin I/O (internal/event use only)
+      {
+        3,
+        0, 0, 0, 0, 0,
+        PORTF, PORTF, PORTF,
+        CCL.SEQCTRL1, CCL.LUT3CTRLA, CCL.LUT3CTRLB, CCL.LUT3CTRLC, CCL.TRUTH3,
+      },
+    #endif
+  #endif
 };
 
 #endif

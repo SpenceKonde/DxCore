@@ -72,9 +72,10 @@ void Demo() {
   uint8_t *ptr = Flash.mappedPointer(BASE_ADDRESS + 0x40);
   if (ptr != NULL) {
     Serial.println((char *)ptr);
-    Serial.print(F("No check for addresses being erased - write 0x2F to base + 0x43: "));
+    Serial.print(F("No check for addresses being erased - write 0x18 to base + 0x43: "));
     Serial.println(Flash.writeByte(BASE_ADDRESS + 0x43, 0x18));
-    Serial.println(F("And the string is now mangled:"));
+    Serial.println(F("Flash bits only go 1 -> 0 without an erase, so that 'l' (0x6C) becomes"));
+    Serial.println(F("0x6C & 0x18 = 0x08 - a backspace, which your terminal will act on:"));
     Serial.println((char *)ptr);
   }
 }

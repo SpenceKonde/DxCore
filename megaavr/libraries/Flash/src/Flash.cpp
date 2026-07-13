@@ -13,8 +13,22 @@
 
 
 
-#if defined(USING_OPTIBOOT)
+/* Geometry of the boot section that mediates our writes:
+ *   REQUIRED_BOOTSIZE - the BOOTSIZE fuse value we expect (units of 512 bytes)
+ *   BOOTLOADER_END    - first flash address the application may write to
+ * The classic Optiboot numbers (BOOTSIZE = 1, 512 bytes) are the default;
+ * the AVR-DU CDC bootloader is a 4 KB boot section instead. */
+#if defined(USING_AVRDU_CDC_BOOTLOADER)
+  /* AVR-DU USB CDC bootloader: 4 KB boot section with the app-callable
+   * SPM stub (spm z+; ret) in its last 6 bytes, and a version word in
+   * the last 2 (see bootloaders/usbcdcboot/src/spm_entry.c). */
+  #define SPMCOMMAND "call 0x0ffa"
+  #define REQUIRED_BOOTSIZE (0x08)
+  #define BOOTLOADER_END    (4096)
+#elif defined(USING_OPTIBOOT)
   #define SPMCOMMAND "call 0x1FA"
+  #define REQUIRED_BOOTSIZE (0x01)
+  #define BOOTLOADER_END    (512)
 #elif defined(SPM_FROM_APP)
   #if SPM_FROM_APP == -1
     #if defined(LTODISABLED)
@@ -36,6 +50,13 @@
   #error "You must also enable writing to flash from app in tools menu."
 #endif
 
+#if !defined(REQUIRED_BOOTSIZE)
+  /* SPM_FROM_APP: the core puts the SPM routine in the first page, and the
+   * BOOTSIZE fuse is set to 1 so that page forms the boot section. */
+  #define REQUIRED_BOOTSIZE (0x01)
+  #define BOOTLOADER_END    (512)
+#endif
+
 #ifdef SPMCOMMAND // this way, if we can't write to flash, hopefully, it will make fewer errors so they'll see the real ones!
 
 /* My go-to NVMCTRL.CTRLA write function - check status only at start
@@ -55,7 +76,27 @@ void do_nvmctrl(uint8_t command) {
 
 
 uint8_t FlashClass::checkWritable() {
-  #ifndef USING_OPTIBOOT
+  #if defined(USING_AVRDU_CDC_BOOTLOADER)
+    if (FUSE.BOOTSIZE != REQUIRED_BOOTSIZE) {
+      // The CDC bootloader occupies a 4 KB boot section (BOOTSIZE = 8).
+      return FLASHWRITE_CFGMISMATCH;
+    }
+    uint16_t blversion = pgm_read_word_near(0x0ffe);
+    if ((blversion >> 8) != 0x1A) {
+      // Not a CDC bootloader that publishes the SPM entry convention.
+      return FLASHWRITE_UNRECOGNIZED;
+    }
+    uint16_t blentry = pgm_read_word_near(0x0ffa);
+    if (blentry == 0x0000 || blentry == 0xFFFF) {
+      // Bootloader built with APP_NOSPM - entry deliberately disabled.
+      return FLASHWRITE_DISABLED;
+    }
+    if (blentry == 0x95f8) {
+      // spm z+ - the expected entry stub.
+      return FLASHWRITE_OK;
+    }
+    return FLASHWRITE_BADENTRYPOINT;
+  #elif !defined(USING_OPTIBOOT)
     if (FUSE.BOOTSIZE == 0x00) {
       return FLASHWRITE_NOBOOTSIZE;
     }
@@ -139,9 +180,9 @@ uint8_t FlashClass::checkWritable() {
 
 uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
-    if ((FUSE.BOOTSIZE != 0x01)) {
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE)) {
   #else
-    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE) || (FUSE.CODESIZE != SPM_FROM_APP)) {
   #endif
     return FLASHWRITE_NOBOOT;
   }
@@ -223,13 +264,13 @@ uint8_t FlashClass::erasePage(const uint32_t address, const uint8_t size) {
 
 uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
-    if ((FUSE.BOOTSIZE != 0x01)) {
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE)) {
   #else
-    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE) || (FUSE.CODESIZE != SPM_FROM_APP)) {
   #endif
     return FLASHWRITE_NOBOOT;
   }
-  if (address > (PROGMEM_SIZE - 2) || address < 512) {
+  if (address > (PROGMEM_SIZE - 2) || address < BOOTLOADER_END) {
     return FLASHWRITE_BADADDR;
   }
 
@@ -271,14 +312,14 @@ uint8_t FlashClass::writeWord(const uint32_t address, const uint16_t data) {
 
 uint8_t FlashClass::writeByte(const uint32_t address, const uint8_t data) {
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP == -1)
-    if ((FUSE.BOOTSIZE != 0x01))
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE))
   #else
-    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP))
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE) || (FUSE.CODESIZE != SPM_FROM_APP))
   #endif
   {
     return FLASHWRITE_NOBOOT;
   }
-  if ((address > PROGMEM_SIZE - 2) || address < 512) {
+  if ((address > PROGMEM_SIZE - 2) || address < BOOTLOADER_END) {
     return FLASHWRITE_BADADDR;
   }
   #if !defined(NO_CORE_RESERVED)
@@ -337,13 +378,13 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
     return FLASHWRITE_0LENGTH;
   }
   #if (defined(USING_OPTIBOOT) || SPM_FROM_APP==-1)
-    if ((FUSE.BOOTSIZE != 0x01)) {
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE)) {
   #else
-    if ((FUSE.BOOTSIZE != 0x01) || (FUSE.CODESIZE != SPM_FROM_APP)) {
+    if ((FUSE.BOOTSIZE != REQUIRED_BOOTSIZE) || (FUSE.CODESIZE != SPM_FROM_APP)) {
   #endif
     return FLASHWRITE_NOBOOT;
   }
-  if (address > (PROGMEM_SIZE - 2) || address < 512) {
+  if (address > (PROGMEM_SIZE - 2) || address < BOOTLOADER_END) {
     return FLASHWRITE_BADADDR;
   }
   if (address & 0x01) {
@@ -405,20 +446,28 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
 
 uint8_t FlashClass::writeBytes(const uint32_t address, const uint8_t* data, uint16_t length) {
   uint32_t tAddress = address;
-  uint8_t status;
-  if(address & 0x01) {
-    status = writeByte(tAddress++, *(data));
+  uint8_t status = FLASHWRITE_OK;
+  if (length == 0) {
+    return FLASHWRITE_0LENGTH;
+  }
+  if (tAddress & 0x01) {
+    // Unaligned start: write the leading byte, then continue word-aligned.
+    status = writeByte(tAddress++, *data++);
     if (status) return status;
     length--;
   }
-  if(length > 1) {
-    status = writeWords(tAddress, (uint16_t*) data, (length >> 1));
+  if (length > 1) {
+    // The bulk of the data, as whole words.
+    uint16_t words = length >> 1;
+    status = writeWords(tAddress, (uint16_t*) data, words);
     if (status) return status;
+    tAddress += ((uint32_t) words) << 1;
+    data     += words << 1;
+    length   -= words << 1;   // 0 or 1 byte left
   }
-  // there may be one more byte...
   if (length & 1) {
-    data += (length & 0xFFFE); // what we wrote with the word above...
-    status = writeByte(tAddress + length - 2, *data);
+    // And finally the trailing byte, if the length was odd.
+    status = writeByte(tAddress, *data);
   }
   return status;
 }

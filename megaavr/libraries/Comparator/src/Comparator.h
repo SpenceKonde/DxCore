@@ -147,6 +147,8 @@ namespace comparator {
           in3    = 0x03,
           pc3    = 0x03,
           dacref = 0x04
+        #elif defined(__AVR_DU__)
+          dacref = 0x04 
         #else
           dacref = 0x03
         #endif

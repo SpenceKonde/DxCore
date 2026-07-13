@@ -54,4 +54,29 @@ int USB_Recv(uint8_t ep, void* data, int len);    // non-blocking
 int USB_Recv(uint8_t ep);             // non-blocking
 void USB_Flush(uint8_t ep);
 
+
+//================================================================================
+//================================================================================
+//  USB Device control object  -- Arduino Leonardo / UNO R4 compatible
+//
+//  Mirrors the surface of ArduinoCore-avr's USBDevice_ (Leonardo/Micro) and the
+//  equivalent device object on ArduinoCore-renesas (UNO R4), so that libraries
+//  written for native-USB Arduinos (HID-Project, MIDIUSB, Keyboard, Mouse, ...)
+//  compile and behave unchanged on the AVR-DU.
+//  Implemented for the AVR-DU USB peripheral in USBCore_DU.cpp.
+
+class USBDevice_
+{
+public:
+	USBDevice_();
+	bool configured();   // true once the host has issued SET_CONFIGURATION
+	void attach();       // connect to the bus (CTRLB.ATTACH)
+	void detach();       // disconnect from the bus
+	void poll();         // service the polled USB stack
+	bool wakeupHost();   // device-initiated remote wakeup; false if not allowed
+	bool isSuspended();  // true while the bus is in Suspend
+};
+
+extern USBDevice_ USBDevice;
+
 #endif

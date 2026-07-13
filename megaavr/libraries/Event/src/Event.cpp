@@ -34,6 +34,89 @@
   Event Event9(9, EVSYS_CHANNEL9);
 #endif
 
+#if defined(PORTA_EVGENCTRL)
+/* Helpers for parts with the version 3 event system (EA/EB/DU-series and, presumably, everything
+ * after them), where routing a pin to an event channel is a two-step process: PORTx.EVGENCTRLA
+ * selects which pin of the port drives port event generator 0 and 1, and the channel then selects
+ * the PORTx_EVGENn generator value (0x40 + 2 * port number + n).
+ *
+ * The EVGENnSEL bit fields have no OFF/unused state (they reset to 0, which selects pin 0 of the
+ * port), so whether a port event generator is "in use" cannot be determined from the register
+ * alone. Instead, a port event generator is treated as in use if, and only if, one of the event
+ * channel objects currently has its generator value selected. This costs no RAM, and a port event
+ * generator is automatically considered free again once no channel references it. */
+static bool _port_evgen_in_use(uint8_t gen_value) {
+  #if defined(EVSYS_CHANNEL0)
+    if (Event0.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL1)
+    if (Event1.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL2)
+    if (Event2.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL3)
+    if (Event3.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL4)
+    if (Event4.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL5)
+    if (Event5.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL6)
+    if (Event6.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  #if defined(EVSYS_CHANNEL7)
+    if (Event7.get_generator() == gen_value) {
+      return true;
+    }
+  #endif
+  return false;
+}
+
+/* Claim one of the two port event generators of the given port for the given pin.
+ * Returns 0 or 1 (the EVGENn selected, with PORTx.EVGENCTRLA updated if needed), sharing an
+ * already-configured generator when it points at the requested pin. Returns -1 if both port
+ * event generators are occupied routing other pins. */
+static int8_t _claim_port_evgen(uint8_t port, uint8_t port_pin) {
+  volatile PORT_t* port_ptr = portToPortStruct(port);
+  uint8_t gen0_value = 0x40 + (port << 1);
+  bool used0 = _port_evgen_in_use(gen0_value);
+  bool used1 = _port_evgen_in_use(gen0_value + 1);
+  int8_t ret = -1;
+  uint8_t oldsreg = SREG;
+  cli(); // the read-modify-write of the shared EVGENCTRLA register must be atomic
+  uint8_t cfg = port_ptr->EVGENCTRLA;
+  if (used0 && (cfg & PORT_EVGEN0SEL_gm) == (port_pin << PORT_EVGEN0SEL_gp)) {
+    ret = 0; // EVGEN0 already routes this pin - share it.
+  } else if (used1 && (cfg & PORT_EVGEN1SEL_gm) == (port_pin << PORT_EVGEN1SEL_gp)) {
+    ret = 1; // EVGEN1 already routes this pin - share it.
+  } else if (!used0) {
+    port_ptr->EVGENCTRLA = (cfg & ~PORT_EVGEN0SEL_gm) | (port_pin << PORT_EVGEN0SEL_gp);
+    ret = 0;
+  } else if (!used1) {
+    port_ptr->EVGENCTRLA = (cfg & ~PORT_EVGEN1SEL_gm) | (port_pin << PORT_EVGEN1SEL_gp);
+    ret = 1;
+  }
+  SREG = oldsreg;
+  return ret;
+}
+#endif // PORTA_EVGENCTRL
 
 /**
  * @brief Construct a new Event object
@@ -197,42 +280,50 @@ Event& Event::get_generator_channel(uint8_t generator_pin)
   uint8_t gen = 0xFF;
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
     #if defined(PORTA_EVGENCTRL)
+      /* Version 3 event system: a pin is routed via one of the two port event generators.
+       * Both EVGENnSEL fields could point at the requested pin, so check both candidate
+       * generator values. Note that EVGENnSEL resets to 0 (= pin 0 of the port), which makes the
+       * register alone ambiguous for pin 0; requiring that a channel actually has the generator
+       * value selected resolves this. */
+      /* Caution: gen0..gen15 are #defined as aliases of gen on these parts (see Event_parts.h),
+       * so local variables here must not be named genN. */
       volatile PORT_t* port_ptr = portToPortStruct(port);
       uint8_t temp = port_ptr->EVGENCTRLA;
-        if ((temp & 0x0F) == port_pin) {
-          gen = 0x40 + (port << 1);
-          _SWAP(port_pin);
-        } else if ((temp & 0xF0) == port_pin) {
-          gen = 0x40 + (port << 1) + 1;
-        }
-        if (gen == 0xFF)
-          return Event_empty;
-        else {
-          #if defined(EVSYS_CHANNEL0)
-            if (Event0.generator_type == gen)
-              return Event0;
-          #endif
-          #if defined(EVSYS_CHANNEL1)
-            if (Event1.generator_type == gen)
-              return Event1;
-          #endif
-          #if defined(EVSYS_CHANNEL2)
-            if (Event2.generator_type == gen)
-              return Event2;
-          #endif
-          #if defined(EVSYS_CHANNEL3)
-            if (Event3.generator_type == gen)
-              return Event3;
-          #endif
-          #if defined(EVSYS_CHANNEL4)
-            if (Event4.generator_type == gen)
-              return Event4;
-          #endif
-          #if defined(EVSYS_CHANNEL5)
-            if (Event5.generator_type == gen)
-              return Event5;
-          #endif
-        }
+      uint8_t gen_hi = 0xFF; // candidate generator value if EVGEN1 routes this pin ('gen' holds the EVGEN0 candidate)
+      if ((temp & PORT_EVGEN0SEL_gm) == (port_pin << PORT_EVGEN0SEL_gp)) {
+        gen = 0x40 + (port << 1);
+      }
+      if ((temp & PORT_EVGEN1SEL_gm) == (port_pin << PORT_EVGEN1SEL_gp)) {
+        gen_hi = 0x41 + (port << 1);
+      }
+      if (gen == 0xFF && gen_hi == 0xFF) {
+        return Event_empty;
+      } else {
+        #if defined(EVSYS_CHANNEL0)
+          if (Event0.generator_type == gen || Event0.generator_type == gen_hi)
+            return Event0;
+        #endif
+        #if defined(EVSYS_CHANNEL1)
+          if (Event1.generator_type == gen || Event1.generator_type == gen_hi)
+            return Event1;
+        #endif
+        #if defined(EVSYS_CHANNEL2)
+          if (Event2.generator_type == gen || Event2.generator_type == gen_hi)
+            return Event2;
+        #endif
+        #if defined(EVSYS_CHANNEL3)
+          if (Event3.generator_type == gen || Event3.generator_type == gen_hi)
+            return Event3;
+        #endif
+        #if defined(EVSYS_CHANNEL4)
+          if (Event4.generator_type == gen || Event4.generator_type == gen_hi)
+            return Event4;
+        #endif
+        #if defined(EVSYS_CHANNEL5)
+          if (Event5.generator_type == gen || Event5.generator_type == gen_hi)
+            return Event5;
+        #endif
+      }
     #elif !defined(MEGATINYCORE)
       gen = 0x40 | ((port & 0x01) << 3) | port_pin;
       if (port == PA || port == PB) {
@@ -377,7 +468,20 @@ void Event::set_generator(uint8_t pin_number) {
   // Store event generator setting for use in start() and stop()
 
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
-    generator_type = 0x40 | (port & 0x01) << 3 | port_pin;
+    #if defined(PORTA_EVGENCTRL)
+      /* Version 3 event system: the pin must first be routed to one of the two port event
+       * generators via PORTx.EVGENCTRLA; the channel generator value is then
+       * 0x40 + 2 * port number + EVGENn. */
+      int8_t evgen = _claim_port_evgen(port, port_pin);
+      if (evgen < 0) {
+        // Both port event generators of this port are already routing other pins.
+        generator_type = event::gen::disable;
+        return;
+      }
+      generator_type = 0x40 + (port << 1) + evgen;
+    #else
+      generator_type = 0x40 | (port & 0x01) << 3 | port_pin;
+    #endif
   } else {
     generator_type = event::gen::disable;
   }
@@ -398,85 +502,16 @@ void Event::set_generator(uint8_t pin_number) {
  */
 Event& Event::assign_generator_pin(uint8_t port, uint8_t port_pin) {
   if (port != NOT_A_PIN && port_pin != NOT_A_PIN) {
-    #if defined(PORTA_EVGENCTRL) // EA=series
-    /* Not ready yet
-      uint8_t gen0 = 0x40 | (port << 0x01);
-      uint8_t gen1 = gen0 + 1;
-      if (Event0.generator_type == event::gen::disable || Event0.generator_type & 0x4E == gen0) {
-        if (Event0.generator_type == gen0){
-          if (set_ev_gen(port,portpin)){
-            Event0.generator_type = gen0;
-            return Event0;
-          }
-        } else {
-          Event0.generator_type = gen1;
-          set_ev_gen(port,_SWAP(portpin))
-        }
+    #if defined(PORTA_EVGENCTRL)
+      /* Version 3 event system (EA/EB/DU-series): all channels are equal, so we only need to
+       * claim one of the two port event generators (or share one that already routes this pin)
+       * and then let assign_generator() pick a channel - it will reuse a channel that already
+       * has this generator selected, or take the first free one. If both port event generators
+       * are tied up routing other pins, the pin cannot be routed and Event_empty is returned. */
+      int8_t evgen = _claim_port_evgen(port, port_pin);
+      if (evgen >= 0) {
+        return Event::assign_generator((event::gen::generator_t)(0x40 + (port << 1) + evgen));
       }
-      if (Event1.generator_type == event::gen::disable || Event0.generator_type & 0x4E == gen0) {
-        if (Event1.enerator_type == gen0){
-          Event1.generator_type = gen0;
-          set_ev_gen(port,portpin)
-        } else {
-          if (set_ev_gen(port,portpin)) {
-            Event1.generator_type = gen1;
-            set_ev_gen(port,_SWAP(portpin))
-            return Event1;
-          }
-        }
-        return Event1;
-      }
-      if (Event0.generator_type == event::gen::disable || Event0.generator_type & 0x4E == gen0) {
-        if (Event0.generator_type == gen0){
-          Event0.generator_type = gen0;
-          set_ev_gen(port,portpin)
-        } else {
-          Event0.generator_type = gen1;
-          set_ev_gen(port,_SWAP(portpin))
-        }
-          if (set_ev_gen(port,portpin)){
-            return Event0;
-          }
-        }
-        return Event2;
-      }
-      if (Event0.generator_type == event::gen::disable || Event0.generator_type & 0x4E == gen0) {
-        if (Event0.generator_type == gen0){
-          Event0.generator_type = gen0;
-          set_ev_gen(port,portpin)
-        } else {
-          Event0.generator_type = gen1;
-          set_ev_gen(port,_SWAP(portpin))
-        }
-          if (set_ev_gen(port,portpin)){
-            return Event0;
-          }
-        }
-      if (Event0.generator_type == event::gen::disable || Event0.generator_type & 0x4E == gen0) {
-        if (Event0.generator_type == gen0){
-          Event0.generator_type = gen0;
-          set_ev_gen(port,portpin)
-        } else {
-          Event0.generator_type = gen1;
-          set_ev_gen(port,_SWAP(portpin))
-        }
-          if (set_ev_gen(port,portpin)){
-            return Event0;
-          }
-        }
-      if (Event0.generator_type == event::gen::disable || Event0.generator_type & 0x4E == gen0) {
-        if (Event0.generator_type == gen0){
-          Event0.generator_type = gen0;
-          set_ev_gen(port,portpin)
-        } else {
-          Event0.generator_type = gen1;
-          set_ev_gen(port,_SWAP(portpin))
-        }
-          if (set_ev_gen(port,portpin)){
-            return Event0;
-          }
-        }
-        */
     #elif !defined(MEGATINYCORE) // All non-tiny work one way.
       uint8_t gen = 0x40 | (port & 0x01) << 3 | port_pin;
       if (port == PA || port == PB) {
@@ -811,6 +846,11 @@ void Event::set_user(event::user::user_t event_user) {
         PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0D));
       #elif defined(__AVR_DD__)
         PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0D));
+      #elif defined(__AVR_DU__)
+        uint8_t u = event_user & 0x7F;
+        if      (u == 0x09) PORTMUX_EVSYSROUTEA |= (1 << 0);
+        else if (u == 0x0A) PORTMUX_EVSYSROUTEA |= (1 << 3);
+        else if (u == 0x0B) PORTMUX_EVSYSROUTEA |= (1 << 5);
       #elif MEGATINYCORE_SERIES == 2
         PORTMUX_EVSYSROUTEA |= (1 << ((event_user & 0x7F) - 0x0D));
       #endif
@@ -839,7 +879,24 @@ int8_t Event::set_user_pin(uint8_t pin_number) {
        - there are no parts for which a port exists that has a pin 2 or 7, but which does not allow that pin to be used as an event output, except for tiny 0/1, where only pin 2 is an option...
        We basically **don't have to test the port** as long as it's a valid port as we just tested. This is probably like 6-8 instructions instead of several dozen */
 
-      #if _AVR_PINCOUNT > 14
+      #if defined(__AVR_DU__)
+        /* The DU-series has only three event outputs - EVOUTA, EVOUTD and EVOUTF - so the user
+         * numbers are compacted (EVOUTA = 0x09, EVOUTD = 0x0A, EVOUTF = 0x0B) and the
+         * "user number = 0x09 + port number" shortcut used for other Dx-series parts would write
+         * to the wrong user register (e.g. USERUSART0IRDA for PD2!). PORTC (PC3 only) has no
+         * event output at all. */
+        uint8_t evout_user = 0xFF;
+        if (port == PA) {
+          evout_user = (uint8_t) event::user::evouta_pin_pa2;
+        } else if (port == PD) {
+          evout_user = 0x0A; // USEREVSYSEVOUTD
+        } else if (port == PF) {
+          evout_user = 0x0B; // USEREVSYSEVOUTF
+        }
+        if (evout_user != 0xFF && (port_pin == 2 || port_pin == 7)) {
+          event_user = (port_pin == 7) ? (0x80 | evout_user) : evout_user;
+        }
+      #elif _AVR_PINCOUNT > 14
         uint8_t evout_user = (int8_t) event::user::evouta_pin_pa2;
         if (port_pin == 2) {
           event_user = (evout_user + port);
@@ -1006,6 +1063,11 @@ void Event::clear_user(event::user::user_t event_user) {
       PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x0E));
     #elif defined(__AVR_DB__)
       PORTMUX_EVSYSROUTEA &= ~(1 << ((event_user & 0x7F) - 0x0D));
+    #elif defined(__AVR_DU__)
+      uint8_t u = event_user & 0x7F;
+      if      (u == 0x09) PORTMUX_EVSYSROUTEA &= ~(1 << 0);
+      else if (u == 0x0A) PORTMUX_EVSYSROUTEA &= ~(1 << 3);
+      else if (u == 0x0B) PORTMUX_EVSYSROUTEA &= ~(1 << 5);
     #endif
   }
 }
@@ -1316,6 +1378,8 @@ event::user::user_t Event::user_from_peripheral(TCA_t& timer, uint8_t user_type)
     user += 0x1B;
   #elif defined(__AVR_DB__) || defined(__AVR_DD__)
     user += 0x1A;
+  #elif defined(__AVR_DU__)
+    user += 0x0E; // USERTCA0CNTA = user 14 (0x0E) per the EVSYS.USERn table - NOT 0x10, which is USERTCB0CAPT here!
   #elif defined (MEGACOREX)
     user += 0x13;
   #elif defined (TINY_2_SERIES)

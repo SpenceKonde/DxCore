@@ -15,10 +15,13 @@
  * tinyAVR 2 - working
  * DA, DB - working
  * DD - believed working
- * EA - needs new (but fairly easy to write) implementations of :
- * assign_* - to handle the fact that all channels are the same (HURAAAH!) and that pins and rtc generators are a bit more work to set up.
- * set_generator(uint8_t pin_number) - to handle to more complicated setup of pin generators.
- *
+ * DU - working (version 3 event system: all channels are equal; pin generators are routed via
+ *      PORTx.EVGENCTRLA by set_generator(pin)/assign_generator_pin(). The prescaled RTC events
+ *      are available as gen::rtc_pitev0/rtc_pitev1 - configure the divider with the core's
+ *      _setRTCEventChan() before starting the channel.)
+ * EA, EB - share the version 3 implementation added for the DU-series (assign_generator_pin(),
+ *      set_generator(pin), get_generator_channel(pin)), but this is untested on EA/EB hardware,
+ *      and set_user_pin() and user_from_peripheral(TCA/TCE) still lack EA/EB-specific mappings.
  */
 /* *INDENT-OFF* */
 class Event {

@@ -34,8 +34,17 @@
 
 void setup() {
   // Initialize Event channel 2 and 3
+#if defined(PORT_EVGEN0SEL_gm)
+  /* Parts with the version 3 event system (EA/EB/DU-series): pins are routed through the port
+   * event generators (PORTx.EVGENCTRLA) by set_generator(pin); there are no genN:: namespaces.
+   * The DU-series has no PC0/PC1 (PORTC is PC3 only), so PD4/PD5 are used as the two event
+   * inputs instead. LUT0's direct input 2 (PA2) and output (PA3) are the same as on DA/DB. */
+  Event2.set_generator((uint8_t)PIN_PD4); // Set pin PD4 as event generator
+  Event3.set_generator((uint8_t)PIN_PD5); // Set pin PD5 as event generator
+#else
   Event2.set_generator(gen2::pin_pc0); // Set pin PC0 as event generator
   Event3.set_generator(gen3::pin_pc1); // Set pin PC1 as event generator
+#endif
   Event2.set_user(user::ccl0_event_a); // Set CCL0 (Logic0) event A as user
   Event3.set_user(user::ccl0_event_b); // Set CCL0 (Logic0) event B as user
 

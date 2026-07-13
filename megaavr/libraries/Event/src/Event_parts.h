@@ -700,42 +700,9 @@ namespace event {
       evoutf_pin_pf7 = 0x8C,
   #endif
 #endif //End DD
-#if defined(__AVR_DU__)
-      ccl0_event_a   = 0x00,
-      ccl0_event_b   = 0x01,
-      ccl1_event_a   = 0x02,
-      ccl1_event_b   = 0x03,
-      ccl2_event_a   = 0x04,
-      ccl2_event_b   = 0x05,
-      ccl3_event_a   = 0x06,
-      ccl3_event_b   = 0x07,
-      adc0_start     = 0x08,
-      evouta_pin_pa2 = 0x09,   // needs to be defined even if PIN_PA2 is not available
-  #if defined(PIN_PD2) // only on 28 or 32 pin ones.
-      evoutd_pin_pd2 = 0x0A,
-  #endif
-  #if defined(PIN_PF2) // only on 32-pin ones.
-      evoutf_pin_pf2 = 0x0B,
-  #endif
-      usart0_irda    = 0x0C,
-      usart1_irda    = 0x0D,
-      tca0           = 0x0E,
-      tca0_cnt_a     = 0x0E,
-      tca0_cnt_b     = 0x0F,
-      tcb0           = 0x10,
-      tcb0_capt      = 0x10,
-      tcb0_cnt       = 0x11,
-      tcb1           = 0x12,
-      tcb1_capt      = 0x12,
-      tcb1_cnt       = 0x13,
-  #if defined(PIN_PA7) // not on 14-pin ones.
-      evouta_pin_pa7 = 0x89,
-  #endif
-      evoutd_pin_pd7 = 0x8A,
-  #if defined(PIN_PF7)
-      evoutf_pin_pf7 = 0x8B,
-  #endif
-#endif
+/* Note: No __AVR_DU__ block here. The DU-series has PORT.EVGENCTRLA (and thus PORT_EVGEN0SEL_gm
+ * is defined), so it never enters this section - it is handled by the unified-channel
+ * (_AVR_EVSYS_VERSION == 3) branch below. A DU enum here would be dead code. */
     };
   };
   // End of Dx series - start of Ex-series; also everything else with new layout, including DU. //

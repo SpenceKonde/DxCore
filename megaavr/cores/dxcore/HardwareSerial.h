@@ -419,5 +419,8 @@ class HardwareSerial : public Stream {
 #if defined(USART5)
   extern HardwareSerial Serial5;
 #endif
+#if defined(USB0)
+  #include "USBSerial.h"
+#endif
 
 // Why was there ever a class called UpdiClass? It was UartClass...

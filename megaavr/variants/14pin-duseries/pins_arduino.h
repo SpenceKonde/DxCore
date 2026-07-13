@@ -72,7 +72,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                     (PIN_PD6) /* warning: gets overridden when using Serial1 on 14-pin parts, as that uses PD4. */
+  #define LED_BUILTIN                     (PIN_PD6) /* PD6 is USART1(ALT2) TxD on the DU; LED_BUILTIN is unavailable while Serial1 is in use. */
 #endif
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS         (32)
@@ -152,30 +152,47 @@ Include guard and include basic libraries. We are normally including this inside
 
 // USART 0
 #define HWSERIAL0_MUX                   (0x00 /* PORTMUX_USART0_DEFAULT_gc */)
+#define HWSERIAL0_MUX_PINSWAP_1         (0x01 /* PORTMUX_USART0_ALT1_gc - PA4/PA5 absent on 14-pin; placeholder so the PINSWAP_3 row is built into _usart0_pins[] */)
+#define HWSERIAL0_MUX_PINSWAP_2         (0x02 /* PORTMUX_USART0_ALT2_gc - PA2/PA3 absent on 14-pin; placeholder */)
 #define HWSERIAL0_MUX_PINSWAP_3         (0x03 /* PORTMUX_USART0_ALT3_gc */)
 #define HWSERIAL0_MUX_PINSWAP_NONE      (0x05)
 #define PIN_HWSERIAL0_TX                (PIN_PA0)
 #define PIN_HWSERIAL0_RX                (PIN_PA1)
 #define PIN_HWSERIAL0_XCK               (NOT_A_PIN)
 #define PIN_HWSERIAL0_XDIR              (NOT_A_PIN)
+#define PIN_HWSERIAL0_TX_PINSWAP_1      (NOT_A_PIN)   /* ALT1 placeholder (PA4 absent on 14-pin) */
+#define PIN_HWSERIAL0_RX_PINSWAP_1      (NOT_A_PIN)
+#define PIN_HWSERIAL0_XCK_PINSWAP_1     (NOT_A_PIN)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_1    (NOT_A_PIN)
+#define PIN_HWSERIAL0_TX_PINSWAP_2      (NOT_A_PIN)   /* ALT2 placeholder (PA2 absent on 14-pin) */
+#define PIN_HWSERIAL0_RX_PINSWAP_2      (NOT_A_PIN)
+#define PIN_HWSERIAL0_XCK_PINSWAP_2     (NOT_A_PIN)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_2    (NOT_A_PIN)
 #define PIN_HWSERIAL0_TX_PINSWAP_3      (PIN_PD4)
 #define PIN_HWSERIAL0_RX_PINSWAP_3      (PIN_PD5)
 #define PIN_HWSERIAL0_XCK_PINSWAP_3     (PIN_PD6)
 #define PIN_HWSERIAL0_XDIR_PINSWAP_3    (PIN_PD7)
+#define HWSERIAL0_MUX_DEFAULT          (3)        /* DU default: USART0 ALT3 (PD4/PD5); row index of PINSWAP_3 */
 
 
 // USART1
 #define HWSERIAL1_MUX                   (0x00 /* PORTMUX_USART1_DEFAULT_gc */)
+#define HWSERIAL1_MUX_PINSWAP_1         (0x01 << 3 /* PORTMUX_USART1_ALT1_gc - absent on DU (PC4/PC5 not present); placeholder so the PINSWAP_2 row is built into _usart1_pins[] */)
 #define HWSERIAL1_MUX_PINSWAP_2         (0x02 << 3 /* PORTMUX_USART1_ALT2_gc */)
-#define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 2 /* PORTMUX_USART1_NONE_gc */)
+#define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 3 /* PORTMUX_USART1_NONE_gc */)
 #define PIN_HWSERIAL1_TX                (NOT_A_PIN)
 #define PIN_HWSERIAL1_RX                (NOT_A_PIN)
 #define PIN_HWSERIAL1_XCK               (NOT_A_PIN)
 #define PIN_HWSERIAL1_XDIR              (NOT_A_PIN)
+#define PIN_HWSERIAL1_TX_PINSWAP_1      (NOT_A_PIN)   /* ALT1 placeholder (absent on DU) */
+#define PIN_HWSERIAL1_RX_PINSWAP_1      (NOT_A_PIN)
+#define PIN_HWSERIAL1_XCK_PINSWAP_1     (NOT_A_PIN)
+#define PIN_HWSERIAL1_XDIR_PINSWAP_1    (NOT_A_PIN)
 #define PIN_HWSERIAL1_TX_PINSWAP_2      (PIN_PD6)
 #define PIN_HWSERIAL1_RX_PINSWAP_2      (PIN_PD7)
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     (NOT_A_PIN)
 #define PIN_HWSERIAL1_XDIR_PINSWAP_2    (NOT_A_PIN)
+#define HWSERIAL1_MUX_DEFAULT          (2)        /* DU default: USART1 ALT2 (PD6/PD7); row index of PINSWAP_2 (USART1 has no usable DEFAULT position on DU) */
 
         /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
         #   # ##  # #   # #    #   # #         #   #  #  ##  # #
@@ -379,4 +396,66 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   };
 
 #endif
+
+/* =================================================================
+ *  USB identity   (AVR DU = USB-native part)
+ * =================================================================
+ *  Every AVR DU has the USB0 peripheral, so - like the ATmega32U4 on
+ *  the Leonardo/Micro - the DU is treated as a USB-native board.  USBCON
+ *  tells Arduino's HID / Keyboard / Mouse / Joystick libraries this board
+ *  has USB.  USB_VID / USB_PID are the board identity and may be overridden
+ *  from boards.txt (all #ifndef) - e.g. a ProMicro clone, or the USB-CDC
+ *  bootloader board (0xDA33).  Defaults: pid.codes test VID/PID 0x1209:0xDA32.
+ */
+#ifndef USBCON
+  #define USBCON
+#endif
+#ifndef USB_VID
+  #define USB_VID                0x1209
+#endif
+#ifndef USB_PID
+  #define USB_PID                0x0002
+#endif
+#ifndef USB_MANUFACTURER
+  #define USB_MANUFACTURER       "DxCore"
+#endif
+#ifndef USB_PRODUCT
+  #define USB_PRODUCT            "AVRDU"
+#endif
+
+/* =================================================================
+ *  Serial  ->  native USB CDC      (Arduino Leonardo convention)
+ * =================================================================
+ *  DxCore's cores/dxcore/Arduino.h later does:
+ *      #ifndef Serial
+ *        #define Serial Serial0
+ *      #endif
+ *  Pre-defining Serial here points it at the on-chip USB CDC instance,
+ *  USBSerial (class USBSerial_, declared in core USBSerial.h, guarded by
+ *  USB0) - exactly as the ATmega32U4 cores make Serial the native USB port
+ *  on the Leonardo/Micro.  USART0 stays reachable as Serial0 and USART1 as
+ *  Serial1 on every DU board, so the hardware UART port names never shift
+ *  between one DU board and another.
+ *
+ *  Whether the USB CDC is actually started at boot is decided by the core
+ *  (usb_auto_init()), not here: the USB-CDC bootloader board auto-starts it
+ *  (upload port + 1200bps touch), while a plain no-bootloader board leaves
+ *  it inactive until the sketch calls Serial.begin() - so on such a board
+ *  Serial simply produces no output unless USB is opened.
+ *
+ *  Define HAVE_NO_USB_SERIAL_REDIRECT (e.g. from boards.txt) to keep the
+ *  legacy  Serial == USART0  behaviour instead.
+ */
+#if defined(USB0) && !defined(HAVE_NO_USB_SERIAL_REDIRECT)
+  #ifndef Serial
+    #define Serial                  USBSerial   /* Serial = native USB CDC   */
+  #endif
+  #ifndef SERIAL_PORT_MONITOR
+    #define SERIAL_PORT_MONITOR     Serial      /* Serial Monitor -> USB     */
+  #endif
+  #ifndef SERIAL_PORT_USBVIRTUAL
+    #define SERIAL_PORT_USBVIRTUAL  Serial      /* native USB virtual serial */
+  #endif
+#endif
+
 #endif

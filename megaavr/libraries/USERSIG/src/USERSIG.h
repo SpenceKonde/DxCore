@@ -41,12 +41,12 @@
 /* These are INTERNAL functions, not for public consumption */
 /* Forward declarations */
 int8_t __USigload();
-int8_t __USigflush(uint8_t justerase);
-uint8_t __USigread(uint8_t idx);
-uint8_t __USigreadraw(uint8_t idx);
-int8_t __USigwrite(uint8_t idx, uint8_t data);
-int8_t __USigwriteraw(uint8_t idx, uint8_t data);
-int8_t __USigflush(uint8_t justerase);
+int16_t __USigflush(uint8_t justerase);
+uint8_t __USigread(uint16_t idx);
+uint8_t __USigreadraw(uint16_t idx);
+int8_t __USigwrite(uint16_t idx, uint8_t data);
+int8_t __USigwriteraw(uint16_t idx, uint8_t data);
+int16_t __USigflush(uint8_t justerase);
 
 /* USRef class.
  *
@@ -57,7 +57,7 @@ int8_t __USigflush(uint8_t justerase);
 
 struct USRef {
 
-  USRef(const uint8_t index)
+  USRef(const uint16_t index)
     : index(index)                   {}
 
   // Access/read members.
@@ -130,7 +130,7 @@ struct USRef {
     return --(*this), ret;
   }
 
-  uint8_t index; // Index of current USERSIG cell.
+  uint16_t index; // Index of current USERSIG cell.
 };
 
 /* USPtr class.
@@ -142,7 +142,7 @@ struct USRef {
 
 struct USPtr {
 
-  USPtr(const uint8_t index)
+  USPtr(const uint16_t index)
     : index(index)                  {}
 
   operator int() const              {
@@ -174,7 +174,7 @@ struct USPtr {
     return index--;
   }
 
-  uint8_t index; // Index of current USERROW cell.
+  uint16_t index; // Index of current USERROW cell.
 };
 
 /* USERSIGClass class.
@@ -198,13 +198,13 @@ int8_t __USigload() {
   if (CPUINT.STATUS != 0) {
     return -16;
   }
-  for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {
+  for (uint16_t i = 0; i < USER_SIGNATURES_SIZE; i++) {
     __USigBuffer[i] = *((volatile uint8_t *) USER_SIGNATURES_START + i);
   }
   __USigLoaded = 1;
   return 0;
 }
-uint8_t __USigread(uint8_t idx) {
+uint8_t __USigread(uint16_t idx) {
   idx &= (USER_SIGNATURES_SIZE - 1);
   if (__USigLoaded == 0) {
     return *((volatile uint8_t *) USER_SIGNATURES_START + idx);
@@ -212,11 +212,11 @@ uint8_t __USigread(uint8_t idx) {
   return __USigBuffer[idx];
 }
 
-uint8_t __USigreadraw(uint8_t idx) {
+uint8_t __USigreadraw(uint16_t idx) {
   return *((volatile uint8_t *) USER_SIGNATURES_START + idx);
 }
 
-int8_t __USigwrite(uint8_t idx, uint8_t data) {
+int8_t __USigwrite(uint16_t idx, uint8_t data) {
   if (NVMCTRL.STATUS & 0x70) {
     NVMCTRL.STATUS = 0;
   }
@@ -235,14 +235,14 @@ int8_t __USigwrite(uint8_t idx, uint8_t data) {
   return 0;
 }
 
-int8_t __USigwriteraw(uint8_t idx, uint8_t data) {
+int8_t __USigwriteraw(uint16_t idx, uint8_t data) {
   if (CPUINT.STATUS != 0) {
     return -16;
   }
   if (__USigLoaded == 1) {
     return -2;
   }
-  if (idx > USER_SIGNATURES_SIZE) {
+  if (idx >= USER_SIGNATURES_SIZE) {
     return -4;
   }
   uint8_t oldSREG = SREG;
@@ -255,10 +255,10 @@ int8_t __USigwriteraw(uint8_t idx, uint8_t data) {
   return 1;
 }
 
-int8_t __USigflush(uint8_t justerase) {
+int16_t __USigflush(uint8_t justerase) {
   uint8_t oldSREG = SREG;
   volatile uint8_t *ptr;
-  uint8_t retval = 0;
+  uint16_t retval = 0;
   ptr = (volatile uint8_t *) USER_SIGNATURES_START;
   if (CPUINT.STATUS != 0) {
     return -16;
@@ -267,8 +267,8 @@ int8_t __USigflush(uint8_t justerase) {
     if (__USigLoaded == 0) {
       return 0;                                        // No pending writes.
     }
-    for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {  //
-      if (*ptr++ == __USigBuffer[i]) {                  // Loop over the USERROW and tally up
+    for (uint16_t i = 0; i < USER_SIGNATURES_SIZE; i++) {  //
+      if (*ptr++ != __USigBuffer[i]) {                 // Loop over the USERROW and tally up
         retval++;                                      // bytes that are different.
       }
     }
@@ -288,7 +288,7 @@ int8_t __USigflush(uint8_t justerase) {
   _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_NOOP_gc);// Reset to NOOP - do this even if not writing
   if (!justerase) {
     _PROTECTED_WRITE_SPM(NVMCTRL.CTRLA, NVMCTRL_CMD_FLWR_gc);  // Flash WRite
-    for (byte i = 0; i < USER_SIGNATURES_SIZE; i++) {  // loop over the USERROW
+    for (uint16_t i = 0; i < USER_SIGNATURES_SIZE; i++) {  // loop over the USERROW
       *ptr++ = __USigBuffer[i];                        // write each byte in turn
     }
   }
@@ -311,10 +311,10 @@ struct USERSIGClass {
   int8_t write(int idx, uint8_t val) {
     return __USigwrite(idx, val);
   }
-  int8_t flush() {
+  int16_t flush() {
     return __USigflush(0);
   }
-  int8_t erase() {
+  int16_t erase() {
     return __USigflush(1);
   }
   int8_t pending() {
@@ -354,7 +354,7 @@ struct USERSIGClass {
     return length();
   }
 
-  static constexpr uint8_t length()  {
+  static constexpr uint16_t length()  {
     return USER_SIGNATURES_SIZE;
   }
 
@@ -371,10 +371,10 @@ struct USERSIGClass {
     const uint8_t *ptr = (const uint8_t *) &t;
     for (int count = sizeof(T); count; --count) {
       __USigwrite(idx++, *ptr++);   // Write the new byte with __USigwrite()
-      if (sizeof(T) > 4) {          // if we are writing something that's not a primitive
-        __USigflush(0);             // we will automatically commit
-      }
     }
+    if (sizeof(T) > 4) {            // if we are writing something that's not a primitive
+      __USigflush(0);               // we commit once - NOT once per byte, which would
+    }                               // burn one erase/write cycle of the whole USERROW per byte!
     return t;
   }
 };

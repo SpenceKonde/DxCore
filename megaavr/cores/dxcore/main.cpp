@@ -87,10 +87,40 @@ int main()  __attribute__((weak));
  * overrides main. In the past there was a USB-related function here, that is removed, as work  *
  * will be needed in any event at the core level if VUSB-based "stuff" arrives, but really I'm  *
  * just waiting for the DU-series now                                                           */
+/* AVR DU native USB auto-init: forward declaration at file scope so the
+ * call in main() does not depend on the Arduino.h -> USBAPI.h -> USBSerial.h
+ * include chain (an upstream merge can break it). A linkage specification
+ * is only legal at namespace scope, hence here rather than inside main().
+ * The definition lives in USBSerial.cpp (extern "C"). */
+#if defined(USB0)
+extern "C" void usb_auto_init(void);
+#endif
+
 int main() {
   onBeforeInit(); // Emnpty callback called before init but after the .init stuff. First normal code executed
   init(); // Interrupts are turned on just prior to init() returning.
   initVariant();
+/* >>> AVR DU native USB auto-init  ===================================== */
+#if defined(USB0)
+  /* Auto-start native USB CDC at boot only when the board wants Serial == USB
+   * active out of the box.  The USB-CDC bootloader board needs it so the CDC
+   * port enumerates for the 1200bps-touch upload reset (and Serial works at
+   * once); a plain no-bootloader DU board leaves USB inactive until the sketch
+   * calls Serial.begin(), so Serial emits nothing unless the port is opened.
+   * Default follows the CDC-bootloader flag; a board may force it on/off via
+   * -DUSB_AUTO_INIT=1 / 0 from boards.txt (e.g. a no-bootloader USB-native board). */
+  #if !defined(USB_AUTO_INIT)
+    #if defined(USING_AVRDU_CDC_BOOTLOADER)
+      #define USB_AUTO_INIT 1
+    #else
+      #define USB_AUTO_INIT 0
+    #endif
+  #endif
+  #if USB_AUTO_INIT
+    usb_auto_init();   /* declared above (extern "C"); defined in USBSerial.cpp */
+  #endif
+#endif
+/* <<< AVR DU native USB auto-init ====================================== */
   if (!onAfterInit()) sei();  // enable interrupts.
   setup();
   for (;;) {
