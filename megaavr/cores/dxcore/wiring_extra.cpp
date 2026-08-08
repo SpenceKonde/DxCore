@@ -158,7 +158,7 @@ void pinConfigure(uint8_t digital_pin, uint16_t pin_config) {
   uint8_t _setEventPin(uint8_t pin, uint8_t chan) {
     // Works the same was as
     uint8_t temp = digitalPinToPort(pin);
-    if (temp != NOT_A_PIN && (chan + 1) < 3) {
+    if (temp != NOT_A_PIN && (chan == 255 || chan < 2)) { // (chan + 1) < 3 promoted to int, so chan = 255 could never take this path
       volatile uint8_t* p;
       p = (volatile uint8_t*) (uint16_t) (digitalPinToPortStruct(temp));
       p += 0x18; // now p pointing to evgenctrl.
