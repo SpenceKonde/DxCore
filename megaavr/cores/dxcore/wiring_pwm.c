@@ -451,7 +451,9 @@ void analogWrite(uint8_t pin, int val) {
   uint8_t bit_mask = digitalPinToBitMask(pin);
   if (bit_mask == NOT_A_PIN) return; //this catches any run-time determined pin that isn't a pin.
   if ((val == 0 || val == 255)) {
-    digitalWrite(pin,val ? HIGH : LOW);
+    uint8_t portnum = digitalPinToPort(pin);
+    digitalWrite(pin, val ? HIGH : LOW);
+    _setOutput(portnum, bit_mask);
     return;
   }
   uint8_t portnum  = digitalPinToPort(pin);
