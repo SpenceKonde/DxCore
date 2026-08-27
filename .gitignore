@@ -5,3 +5,6 @@ megaavr/extras/.DS_Store
 *.pyc
 /megaavr/tools/libs/pymcuprog/deviceinfo/__pycache__
 *.bak
+
+# Local environment-specific tool paths (not for upstream)
+megaavr/platform.local.txt

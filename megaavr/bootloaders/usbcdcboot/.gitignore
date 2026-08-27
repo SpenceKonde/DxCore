@@ -1,0 +1,7 @@
+*.o
+*.elf
+*.lst
+*.map
+src/*.o
+# Keep the prebuilt hex shipped to users, in version control:
+!usbcdcboot_64du32.hex

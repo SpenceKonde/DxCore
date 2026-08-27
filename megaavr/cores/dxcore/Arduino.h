@@ -977,6 +977,15 @@ uint8_t getAnalogSampleDuration();
 #ifdef __cplusplus
   #include "UART.h"
 
+  #if defined(USB0)
+    /* Native USB present: expose USBSetup, the low-level USB_* API and the
+     * Leonardo / UNO R4-compatible USBDevice object to every sketch and library,
+     * exactly as ArduinoCore-avr's Arduino.h pulls in USBAPI.h. Libraries that
+     * reference the global `USBDevice` (HID-Project, MIDIUSB, ...) rely on it
+     * being declared via Arduino.h regardless of their own include order. */
+    #include "USBAPI.h"
+  #endif
+
   //uint8_t digitalPinToTimerNow(uint8_t p);=
   int32_t analogReadEnh( uint8_t pin,              uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);
   int32_t analogReadDiff(uint8_t pos, uint8_t neg, uint8_t res = ADC_NATIVE_RESOLUTION, uint8_t gain = 0);

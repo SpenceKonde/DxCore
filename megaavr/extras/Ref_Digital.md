@@ -41,6 +41,27 @@ What tinyAVR calls current injection, Dx/Ex-series call "Clamp current" - it's c
 If you think the problem with blown pins on arduinos with classic AVRs is bad among hobby folks (based on the forums), it's apparently WAY worse in schools - I've heard of highschool instructors who grab an arduino from the shared bin to do a demo, intentionally choosing weird unpopular pins - *because so many of the shared boards have blown pins*... and apparently they don't replace them - or even the pluggable chip on most Unos. I think it's a public school thing - they get funding to set up something new, but not for maintaining existing things that's a much longer term and less . And though I think any of us could give a dead simple flow chart for determining if an uno is bad, and if so whether replacing the chip will fix it.)
 It remains to be seen what the pin drive strength will be like on the Ex-series or any other future part, and until the IO pin output current is added to the characteristics graphs section of the datasheet, you don't really have much information; preliminary datasheets typically omit this sort of data, because these properties have not yet been characterized. (I'm not sure how they manage that. Automating that testing, while not trivial, would be far from of reach for a few microcontroller experts. Now, I'm not a Microchip personenle department worker, nor am I an employee there at all (I am pretty sure some of the things I've said would get me fired or prevent me from getting hired there - but the things to which I refer are both accurate (if a bit dramatic) and criticisms which have to be heard), but from the outside, I'm pretty sure there are a considerable number of microcontroller experts employed by Microchip, so I'm unsure why this information takes so long
 
+### The DU-series PC3 is special
+On the DU-series, PC3 is the only surviving PORTC pin. The datasheet's
+pinout legend groups it with the USB supply pins, which is easy to misread
+as PC3 depending on VUSB - it does not. Its digital I/O is powered from
+VDD and is entirely independent of VUSB and the USB voltage regulator:
+confirmed on hardware, PC3 drives a full-VDD-swing output and reads
+correctly with the regulator disabled and VUSB unpowered. Treat it as a
+normal VDD-domain GPIO.
+
+### INLVL on the DU-series: works, but no longer documented
+The DU io headers define the INLVL bit (PINnCTRL bit 6 - Schmitt-trigger
+vs. TTL input levels, as on the MVIO parts), and the feature is functional
+on actual silicon: feeding VDD/2 into a pin through a resistor divider,
+the input reads 0 with the Schmitt-trigger threshold and 1 after
+switching that pin to TTL levels (verified on an AVR64DU32). Datasheet
+Rev. B (DS40002548B / DS40002576B, 06/2026), however, removed every INLVL
+bit from the PORT chapter: Microchip no longer documents or characterizes
+the feature on the DU. It works today, but treat it as an undocumented
+feature - the thresholds carry no guaranteed specs, and nothing prevents
+it from disappearing in a future silicon revision.
+
 ## Ballpark overhead figures
 The digital I/O functions are astonishingly inefficient. This isn't my fault (not on mTC - on DxC I have definitely not helped...) - it's the Arduino API's fault
 These figures are the difference between a sketch containing a single call to the function, with volatile variables used as arguments to prevent compiler from making assumptions about their values, which may substantially reduce the size of the binary otherwise.

@@ -121,14 +121,15 @@ In addition to reading from pins, you can read from a number of internal sources
 * On the AVR LA series, they;re changing the name of the DACREF to AC0REFSCALER. I think this may be nomenclative only (makes sense, to avoid confusion about how many DACs are available)
 
 ### MUXNEG internal options
-| AVR DA           | AVR DB            | AVR DD            | AVR EA           | AVR EB           | AVR EC           |
-|------------------|-------------------|-------------------|------------------|------------------|------------------|
-| `ADC_GROUND`     | `ADC_GROUND`      | `ADC_GROUND`      | `ADC_GROUND`     | `ADC_GROUND`     | `ADC_GROUND`     |
-| `ADC_DAC0`       | `ADC_DAC0`        | `ADC_DAC0`        | `ADC_DACREF0`    | `ADC_DACREF0`    | ???              |
-| -                | -                 | -                 | `ADC_DACREF1`    | `ADC_DACREF1`    | ???              |
-| -                | -                 | -                 | `ADC_DAC0`       | `ADC_DAC0` ?!    | ???              |
+| AVR DA           | AVR DB            | AVR DD            | AVR DU            | AVR EA           | AVR EB           | AVR EC           |
+|------------------|-------------------|-------------------|-------------------|------------------|------------------|------------------|
+| `ADC_GROUND`     | `ADC_GROUND`      | `ADC_GROUND`      | -                 | `ADC_GROUND`     | `ADC_GROUND`     | `ADC_GROUND`     |
+| `ADC_DAC0`       | `ADC_DAC0`        | `ADC_DAC0`        | -                 | `ADC_DACREF0`    | `ADC_DACREF0`    | ???              |
+| -                | -                 | -                 | -                 | `ADC_DACREF1`    | `ADC_DACREF1`    | ???              |
+| -                | -                 | -                 | -                 | `ADC_DAC0`       | `ADC_DAC0` ?!    | ???              |
 
-Note that the AVR EB-series does not have a DAC.
+Note that the AVR EB-series and the AVR DU-series do not have a DAC (the DU has only the DACREF inside its analog comparator).
+The DU-series is absent from this table because it has no MUXNEG at all: its ADC is single-ended only, with no differential capability.
 
 | tinyAVR 0/1-series                     | tinyAVR 2-series                    |
 |----------------------------------------|-------------------------------------|

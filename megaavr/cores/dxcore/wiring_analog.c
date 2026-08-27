@@ -418,7 +418,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     #endif
       return ADC_ERROR_BAD_PIN_OR_CHANNEL;
     }
-    if (!ADC0.CTRLA & 0x01) return ADC_ERROR_DISABLED;
+    if (!(ADC0.CTRLA & 0x01)) return ADC_ERROR_DISABLED;
 
     if (ADC0.COMMAND & ADC_START_gm) return ADC_ERROR_BUSY;
     // gotta be careful here - don't want to shit ongoing conversion - unlikle classic AVRs
@@ -431,10 +431,10 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 
     /* Wait for result ready */
     while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
-    // if it's 10 bit compatibility mode, have to rightshift twice.
+    // native resolution is ADC_NATIVE_RESOLUTION bits; shift down to the requested 10-bit if needed.
     if ((_analog_options & 0x0F) == 10) {
       int16_t temp = ADC0.RESULT;
-      temp >>= 2;
+      temp >>= (ADC_NATIVE_RESOLUTION - 10);
       return temp;
     }
     return ADC0.RESULT;
@@ -721,16 +721,20 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
       pin = digitalPinToAnalogInput(pin);
     } else {
-      pin &= 0x3F;
+      /* The DU has a 7-bit MUXPOS with its internal channels at 0x40 (GND),
+       * 0x42 (TEMPSENSE) and 0x44 (VDDDIV10) - DS40002548B 32.4.12 - not at
+       * 0x30-0x33 like the parts around it. Masking with 0x3F turned
+       * ADC_GROUND / ADC_TEMPERATURE / ADC_VDDDIV10 into AIN0 / AIN2 / AIN4:
+       * it silently read three ordinary I/O pins and returned whatever they
+       * floated at, with no error. */
+      pin &= 0x7F;
     }
-    #if PROGMEM_SIZE < 8096
-      if (pin > 0x33) { // covers most ways a bad channel could come about
-    #else
-      if (pin > NUM_ANALOG_INPUTS && ((pin < 0x30) || (pin > 0x33))) {
-    #endif
+    /* Valid DU internal channels are exactly GND, TEMPSENSE and VDDDIV10;
+     * the reserved values in between must be rejected, not handed to the mux. */
+    if (pin > NUM_ANALOG_INPUTS && pin != 0x40 && pin != 0x42 && pin != 0x44) {
       return ADC_ERROR_BAD_PIN_OR_CHANNEL;
     }
-    if (!ADC0.CTRLA & 0x01) return ADC_ERROR_DISABLED;
+    if (!(ADC0.CTRLA & 0x01)) return ADC_ERROR_DISABLED;
 
     if (ADC0.COMMAND & ADC_START_gm) return ADC_ERROR_BUSY;
     // gotta be careful here - don't want to shit ongoing conversion - unlikle classic AVRs
@@ -743,10 +747,10 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
 
     /* Wait for result ready */
     while (!(ADC0.INTFLAGS & ADC_RESRDY_bm));
-    // if it's 10 bit compatibility mode, have to rightshift twice.
+    // native resolution is ADC_NATIVE_RESOLUTION bits; shift down to the requested 10-bit if needed.
     if ((_analog_options & 0x0F) == 10) {
       int16_t temp = ADC0.RESULT;
-      temp >>= 2;
+      temp >>= (ADC_NATIVE_RESOLUTION - 10);
       return temp;
     }
     return ADC0.RESULT;
@@ -836,17 +840,13 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       // If high bit set, it's a channel, otherwise it's a digital pin so we look it up..
       pin = digitalPinToAnalogInput(pin);
     } else {
-      pin &= 0x3F;
+      pin &= 0x7F;   /* see analogRead() above - DU internal channels live at 0x40/0x42/0x44 */
     }
-    #if PROGMEM_SIZE < 8096
-      if (pin > 0x33)  // covers most ways a bad channel could come about
-    #else
-      if (pin > NUM_ANALOG_INPUTS && ((pin < 0x30) || (pin > 0x33)))
-    #endif
+    if (pin > NUM_ANALOG_INPUTS && pin != 0x40 && pin != 0x42 && pin != 0x44)
     {
       return ADC_ENH_ERROR_BAD_PIN_OR_CHANNEL;
     }
-    pin &= 0x3F;
+    pin &= 0x7F;
 
     if (ADC0.COMMAND & ADC_START_gm) return ADC_ENH_ERROR_BUSY;
 
@@ -920,9 +920,16 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
       }
       uint8_t prescale = 0;
       for (uint8_t i = 0; i < 16; i++) {
-        int16_t clkadc = pgm_read_byte_near(&adc_prescale_to_clkadc[i]);
+        /* The table is int16_t in PROGMEM. It was read with pgm_read_byte_near()
+         * (low byte only) here, and with plain array indexing below and in the
+         * return - which dereferences the code-space address in the data space.
+         * The result was a garbage clock speed (e.g. -9227 kHz on a 24 MHz
+         * part where the answer is 2000) and a wrong prescaler whenever a
+         * frequency was requested. The EA/EB branch of this same function
+         * already reads the table correctly. */
+        int16_t clkadc = pgm_read_word_near(&adc_prescale_to_clkadc[i]);
         prescale = i;
-        if ((frequency >= clkadc) || (adc_prescale_to_clkadc[i + 1] < ((options & 0x01) ? 2 : 300))) {
+        if ((frequency >= clkadc) || ((int16_t)pgm_read_word_near(&adc_prescale_to_clkadc[i + 1]) < ((options & 0x01) ? 2 : 300))) {
           ADC0.CTRLB = prescale;
           break;
         }
@@ -931,7 +938,7 @@ inline __attribute__((always_inline)) void check_valid_resolution(uint8_t res) {
     if (frequency < 0) {
       return ADC_ERROR_INVALID_CLOCK;
     }
-    return adc_prescale_to_clkadc[ADC0.CTRLB];
+    return pgm_read_word_near(&adc_prescale_to_clkadc[ADC0.CTRLB & 0x0F]);
   }
 
 

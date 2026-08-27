@@ -96,7 +96,7 @@ In a couple of sentences, all the "modern" AVRs.
   * `AVR DA` - Dx-class mid-high pincount general purpose MCU, pincounts 28-64, flash 32k-128k. No HF crystal. Yes QTouch (which we now have a library for!).
   * `AVR DB` - Dx-class mid-high pincount **MVIO** and **OPAMP** MCU, pincounts 28-64, flash 32k-128k. Yes HF crystal. No QTouch.
   * `AVR DD` - Dx-class low-mid pincount, low-cost **MVIO** MCU, pincounts 14-32, flash 16-64k.
-  * `AVR DU` - Newly supported, Dx-class, low-mid pincount **USB** MCU. (anyone know anything about making USB work?)
+  * `AVR DU` - Newly supported, Dx-class, low-mid pincount **USB** MCU. Native USB CDC serial, Pluggable USB (HID/MIDI), and a USB CDC bootloader are included.
 * `AVR Ex family` - **Supported by DxCore** Newer line of AVRs. These have a clock and ALU apparently derived more closely from the tinyAVRs than the Dx-series, complete with the speedgrades. Features the new ADC from the 2-series.
   * `AVR EA` - The first EA-series part, a mid-range, mid-pincount general purpose MCU with proper differential ADC.
   * `AVR EB` - A lower flash, low-mid pincount MCU with new advanced timers which take advantage of a fancy new PLL, intended for BLDC motor control applications.
@@ -408,6 +408,7 @@ The analog comparators are exposed through the [**Comparator library**](https://
 * 2 on 28 and 32 pin DA/DB
 * 3 on 48/64 pin DA/DB
 * 1 on all DD-series
+* 1 on all DU-series
 * 2 on all EA-series
 
 #### Configurable Custom Logic
@@ -426,6 +427,7 @@ The ZCD(s) are exposed through the [**ZCD library**](https://github.com/SpenceKo
 * 2 on 28 and 32 pin DA/DB
 * 3 on 48/64 pin DA/DB
 * 1 on all DD
+* The DU-series does not have a ZCD
 * The EA-series does not have a ZCD
 
 #### Timers
@@ -588,6 +590,8 @@ The USARTs (Serial) have some additional features not seen on the official cores
 There are two ways to access constants stored in flash on DxCore. Which ones can read data stored where can be confusing; this document should make this clear.
 #### [Optiboot Bootloader](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Optiboot.md)
 An Optiboot-derived bootloader is provided and may be optionally used. How that impacts operations is described here. This covers relevant considerations for deciding whether to use it as well.
+#### [USB CDC Bootloader (AVR DU-series)](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_USBCDCboot.md)
+The DU-series can be bootloaded over its native USB instead - no serial adapter needed. Entry conditions, uploading, the LED, and writing to flash from the app are described here.
 #### [SerialUPDI](https://github.com/SpenceKonde/AVR-Guidance/blob/master/UPDI/jtag2updi.md)
 Serial UPDI is our recommended tool for UPDI programming.
 #### [Clock Information](https://github.com/SpenceKonde/DxCore/blob/master/megaavr/extras/Ref_Clocks.md)

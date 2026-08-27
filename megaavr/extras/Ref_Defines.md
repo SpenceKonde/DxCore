@@ -129,6 +129,10 @@ This core provides an additional set of defines depending on the number of pins 
 * `DD_20_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
 * `DD_28_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
 * `DD_32_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
+* `DU_14_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
+* `DU_20_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
+* `DU_28_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
+* `DU_32_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
 * `DX_14_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
 * `DX_20_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
 * `DX_28_PINS` (Deprecated - use `_AVR_FAMILY` and `_AVR_PINCOUNT`)
@@ -163,6 +167,7 @@ Most of these need no explanation - they usually just give you the number of ins
 * `_AVR_TCD_COUNT`
 * `_AVR_TWI_COUNT`
 * `_AVR_USART_COUNT`
+* `USBCON` - Defined (by the variant) on boards whose USB peripheral is driven by the core's USB stack (the DU-series USB boards). Test this to know whether `Serial` is the native USB CDC port and the Pluggable USB API is available; it is not defined on the generic no-bootloader DU board.
 
 The EVSYS defines are very useful if you are using EVSYS without event, but even if you are using event, you want to, for example, select channels to minimize the functionality you're blocking off with your configuration, unless you're using an Ex-series, where all channels are created equal.
 

@@ -9,12 +9,12 @@ Do not get them confused with things you test with `#ifdef` or `#if defined()` t
 ## Flash size and Series
 The 5 high bits identify the flash size and series
 
-| Flash   |  DA  |  DB  |  DD  |
-|---------|------|------|------|
-|    128k | 0x20 | 0x28 |  --  |
-|     64k | 0x10 | 0x18 | 0x60 |
-|     32k | 0x00 | 0x08 | 0x50 |
-|     16k |  --  |  --  | 0x40 |
+| Flash   |  DA  |  DB  |  DD  |  DU  |
+|---------|------|------|------|------|
+|    128k | 0x20 | 0x28 |  --  |  --  |
+|     64k | 0x10 | 0x18 | 0x60 | 0x68 |
+|     32k | 0x00 | 0x08 | 0x50 | 0x58 |
+|     16k |  --  |  --  | 0x40 | 0x48 |
 
 Where high bit is 1, it is a not a Dx part.
 The following are defined to help mastching these:
@@ -22,6 +22,7 @@ The following are defined to help mastching these:
 * `ID_AVR_DA`
 * `ID_AVR_DB`
 * `ID_AVR_DD`
+* `ID_AVR_DU`
 
 ## Pincount
 The low 3 bits identify pincount:

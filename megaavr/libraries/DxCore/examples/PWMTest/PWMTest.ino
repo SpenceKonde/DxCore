@@ -59,7 +59,9 @@
 // #define MYSERIALSWAP
 // Override below logic:
 #if !defined MYSERIALSWAP
-  #if defined(__AVR_DD__) && defined(_AVR_PINCOUNT) && _AVR_PINCOUNT == 14 && MYSERIAL == SERIAL
+  #if defined(__AVR_DU__)
+    #define MYSERIALSWAP 0
+  #elif defined(__AVR_DD__) && defined(_AVR_PINCOUNT) && _AVR_PINCOUNT == 14 && MYSERIAL == SERIAL
     #define MYSERIALSWAP 3 // Too likely I'll be using a clock, and it's a pain to have to wire up VDDIO2 to use serial.
   #elif MYSERIAL == SERIAL && ((CLOCK_SOURCE & 0x03) == 0)
     #define MYSERIALSWAP 1
@@ -236,6 +238,10 @@ void setup() {
 
 
   */
+#if defined(DAC0)
+  /* DAC turn-on/turn-off test - only on parts that have a DAC0 peripheral
+   * (AVR DA/DB/DD). Parts without a DAC (e.g. AVR DU) skip this entirely, so
+   * it is not counted as an attempt or a failure there. */
   analogWrite(PIN_PD6, 128);
   delay(100);
   uint8_t dacpassed = 0;
@@ -260,6 +266,7 @@ void setup() {
     MYSERIAL.print("DAC not turned off, voltage reads as ");
     MYSERIAL.println(dacread);
   }
+#endif
 }
 
 
@@ -322,7 +329,7 @@ void loop() {
 
     case 1: {
         //TCB
-        if (MILLIS_TIMER & 0x20) {
+        if ((MILLIS_TIMER & 0xF0) == 0x10) {  // TCB family is encoded 0x10-0x1F (TIMERB0..B7); was incorrectly 0x20 (TCF range)
           if ((MILLIS_TIMER & 0x07) == timernum) {
             MYSERIAL.print("Millis is using TCB");
             SkipCount++;

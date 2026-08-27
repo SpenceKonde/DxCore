@@ -29,7 +29,7 @@ void *epBuffer(unsigned int n); // -> returns a pointer to the Nth element of th
 
 class PluggableUSBModule {
   public:
-    PluggableUSBModule(uint8_t numEps, uint8_t numIfs, unsigned int *epType) :
+    PluggableUSBModule(uint8_t numEps, uint8_t numIfs, uint8_t *epType) :
       numEndpoints(numEps), numInterfaces(numIfs), endpointType(epType)
     { }
 
@@ -47,7 +47,7 @@ class PluggableUSBModule {
 
     const uint8_t numEndpoints;
     const uint8_t numInterfaces;
-    const unsigned int *endpointType;
+    const uint8_t *endpointType;
 
     PluggableUSBModule *next = NULL;
 
