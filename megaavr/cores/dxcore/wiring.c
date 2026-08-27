@@ -1559,6 +1559,13 @@ void init() {
     // but due to a silicon bug, the input buffer is on, but it's input is floating. Per errata, we are supposed to turn it off.
     PORTD.PIN0CTRL = PORT_ISC_INPUT_DISABLE_gc;
   #endif
+  #if defined(USB_VREG_INTERNAL)
+    /* AVR DU: enable the internal USB voltage regulator (SYSCFG.VUSBCTRL).
+     * It resets to disabled, and anything using the USB peripheral needs
+     * VUSB powered. Controlled by the "VUSB Power Source" menu; boards
+     * feeding external 3.3 V into VUSB leave this macro undefined. */
+    SYSCFG.VUSBCTRL = SYSCFG_USBVREG_bm;
+  #endif
   init_clock();
   init_timers();
   #if defined(ADC0)

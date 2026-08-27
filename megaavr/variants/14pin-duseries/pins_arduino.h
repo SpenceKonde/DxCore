@@ -72,7 +72,7 @@ Include guard and include basic libraries. We are normally including this inside
 
 
 #if !defined(LED_BUILTIN)
-  #define LED_BUILTIN                     (PIN_PD6) /* warning: gets overridden when using Serial1 on 14-pin parts, as that uses PD4. */
+  #define LED_BUILTIN                     (PIN_PD6) /* PD6 is USART1(ALT2) TxD on the DU; LED_BUILTIN is unavailable while Serial1 is in use. */
 #endif
 #ifdef CORE_ATTACH_OLD
   #define EXTERNAL_NUM_INTERRUPTS         (32)
@@ -152,30 +152,47 @@ Include guard and include basic libraries. We are normally including this inside
 
 // USART 0
 #define HWSERIAL0_MUX                   (0x00 /* PORTMUX_USART0_DEFAULT_gc */)
+#define HWSERIAL0_MUX_PINSWAP_1         (0x01 /* PORTMUX_USART0_ALT1_gc - PA4/PA5 absent on 14-pin; placeholder so the PINSWAP_3 row is built into _usart0_pins[] */)
+#define HWSERIAL0_MUX_PINSWAP_2         (0x02 /* PORTMUX_USART0_ALT2_gc - PA2/PA3 absent on 14-pin; placeholder */)
 #define HWSERIAL0_MUX_PINSWAP_3         (0x03 /* PORTMUX_USART0_ALT3_gc */)
 #define HWSERIAL0_MUX_PINSWAP_NONE      (0x05)
 #define PIN_HWSERIAL0_TX                (PIN_PA0)
 #define PIN_HWSERIAL0_RX                (PIN_PA1)
 #define PIN_HWSERIAL0_XCK               (NOT_A_PIN)
 #define PIN_HWSERIAL0_XDIR              (NOT_A_PIN)
+#define PIN_HWSERIAL0_TX_PINSWAP_1      (NOT_A_PIN)   /* ALT1 placeholder (PA4 absent on 14-pin) */
+#define PIN_HWSERIAL0_RX_PINSWAP_1      (NOT_A_PIN)
+#define PIN_HWSERIAL0_XCK_PINSWAP_1     (NOT_A_PIN)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_1    (NOT_A_PIN)
+#define PIN_HWSERIAL0_TX_PINSWAP_2      (NOT_A_PIN)   /* ALT2 placeholder (PA2 absent on 14-pin) */
+#define PIN_HWSERIAL0_RX_PINSWAP_2      (NOT_A_PIN)
+#define PIN_HWSERIAL0_XCK_PINSWAP_2     (NOT_A_PIN)
+#define PIN_HWSERIAL0_XDIR_PINSWAP_2    (NOT_A_PIN)
 #define PIN_HWSERIAL0_TX_PINSWAP_3      (PIN_PD4)
 #define PIN_HWSERIAL0_RX_PINSWAP_3      (PIN_PD5)
 #define PIN_HWSERIAL0_XCK_PINSWAP_3     (PIN_PD6)
 #define PIN_HWSERIAL0_XDIR_PINSWAP_3    (PIN_PD7)
+#define HWSERIAL0_MUX_DEFAULT          (3)        /* DU default: USART0 ALT3 (PD4/PD5); row index of PINSWAP_3 */
 
 
 // USART1
 #define HWSERIAL1_MUX                   (0x00 /* PORTMUX_USART1_DEFAULT_gc */)
+#define HWSERIAL1_MUX_PINSWAP_1         (0x01 << 3 /* PORTMUX_USART1_ALT1_gc - absent on DU (PC4/PC5 not present); placeholder so the PINSWAP_2 row is built into _usart1_pins[] */)
 #define HWSERIAL1_MUX_PINSWAP_2         (0x02 << 3 /* PORTMUX_USART1_ALT2_gc */)
-#define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 2 /* PORTMUX_USART1_NONE_gc */)
+#define HWSERIAL1_MUX_PINSWAP_NONE      (0x03 << 3 /* PORTMUX_USART1_NONE_gc */)
 #define PIN_HWSERIAL1_TX                (NOT_A_PIN)
 #define PIN_HWSERIAL1_RX                (NOT_A_PIN)
 #define PIN_HWSERIAL1_XCK               (NOT_A_PIN)
 #define PIN_HWSERIAL1_XDIR              (NOT_A_PIN)
+#define PIN_HWSERIAL1_TX_PINSWAP_1      (NOT_A_PIN)   /* ALT1 placeholder (absent on DU) */
+#define PIN_HWSERIAL1_RX_PINSWAP_1      (NOT_A_PIN)
+#define PIN_HWSERIAL1_XCK_PINSWAP_1     (NOT_A_PIN)
+#define PIN_HWSERIAL1_XDIR_PINSWAP_1    (NOT_A_PIN)
 #define PIN_HWSERIAL1_TX_PINSWAP_2      (PIN_PD6)
 #define PIN_HWSERIAL1_RX_PINSWAP_2      (PIN_PD7)
 #define PIN_HWSERIAL1_XCK_PINSWAP_2     (NOT_A_PIN)
 #define PIN_HWSERIAL1_XDIR_PINSWAP_2    (NOT_A_PIN)
+#define HWSERIAL1_MUX_DEFAULT          (2)        /* DU default: USART1 ALT2 (PD6/PD7); row index of PINSWAP_2 (USART1 has no usable DEFAULT position on DU) */
 
         /*##  #   #  ###  #     ###   ###      ####  ### #   #  ###
         #   # ##  # #   # #    #   # #         #   #  #  ##  # #
@@ -379,4 +396,5 @@ const uint8_t digital_pin_to_bit_mask[] = { // *INDENT-OFF*
   };
 
 #endif
+
 #endif

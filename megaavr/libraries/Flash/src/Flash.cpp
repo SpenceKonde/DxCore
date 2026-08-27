@@ -405,20 +405,28 @@ uint8_t FlashClass::writeWords(const uint32_t address, const uint16_t* data, uin
 
 uint8_t FlashClass::writeBytes(const uint32_t address, const uint8_t* data, uint16_t length) {
   uint32_t tAddress = address;
-  uint8_t status;
-  if(address & 0x01) {
-    status = writeByte(tAddress++, *(data));
+  uint8_t status = FLASHWRITE_OK;
+  if (length == 0) {
+    return FLASHWRITE_0LENGTH;
+  }
+  if (tAddress & 0x01) {
+    // Unaligned start: write the leading byte, then continue word-aligned.
+    status = writeByte(tAddress++, *data++);
     if (status) return status;
     length--;
   }
-  if(length > 1) {
-    status = writeWords(tAddress, (uint16_t*) data, (length >> 1));
+  if (length > 1) {
+    // The bulk of the data, as whole words.
+    uint16_t words = length >> 1;
+    status = writeWords(tAddress, (uint16_t*) data, words);
     if (status) return status;
+    tAddress += ((uint32_t) words) << 1;
+    data     += words << 1;
+    length   -= words << 1;   // 0 or 1 byte left
   }
-  // there may be one more byte...
   if (length & 1) {
-    data += (length & 0xFFFE); // what we wrote with the word above...
-    status = writeByte(tAddress + length - 2, *data);
+    // And finally the trailing byte, if the length was odd.
+    status = writeByte(tAddress, *data);
   }
   return status;
 }

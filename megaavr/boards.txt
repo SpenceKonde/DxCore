@@ -99,6 +99,7 @@ menu.mvio=MultiVoltage I/O (MVIO)
 menu.mvioopti=MultiVoltage I/O (MVIO)
 menu.attach=attachInterrupt() Version
 menu.printf=printf()
+menu.usbvreg=VUSB Power Source (AVR DU)
 menu.wiremode=Wire (Wire.h/I2C) Library mode
 menu.flmap=How to set FLMAP: (64k+ parts only)
 menu.bootloader-class=Bootloader type (installed by burn + must match 2 upload)
@@ -1707,9 +1708,12 @@ avrdu.upload.maximum_data_size=0
 avrdu.build.f_cpu={build.speed}000000L
 avrdu.build.text_section_start=.text=0x0
 avrdu.build.defaultswaps=
-avrdu.build.extra_flags= {bootloader.appspm} {build.defaultswaps}
+avrdu.build.extra_flags= {bootloader.appspm} {build.defaultswaps} {build.usbvreg}
 avrdu.build.export_merged_output=false
-avrdu.build.highestcb=B2
+# Every DU has exactly two TCBs (TCB0/TCB1) at every pin count, unlike the DD
+# where the 28/32-pin parts get a TCB2 - so highestcb is B1 for the whole
+# family and no chip needs to override it.
+avrdu.build.highestcb=B1
 avrdu.build.printf=
 avrdu.build.flmapopts=
 avrdu.build.attachmode=-DCORE_ATTACH_ALL
@@ -1729,6 +1733,27 @@ avrdu.bootloader.CODESIZE=0x00
 avrdu.bootloader.BOOTSIZE=0x01
 avrdu.bootloader.avrdudestring=
 avrdu.bootloader.pymcuprogstring=-aerase
+# The SYSCFG0 template above expands {bootloader.resetpinbits} and
+# {bootloader.eesavebit}, but neither was defined for the DU section, and
+# fuse 5 (SYSCFG0) was never written. Add the missing pieces, matching the
+# DA/DB/DD sections.
+avrdu.bootloader.resetpinbits={bootloader.resetpinbit}
+avrdu.bootloader.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+avrdu.program.avrdudefuse5="-Ufuse5:w:{bootloader.SYSCFG0}:m"
+
+avrdu.menu.eesave.enable=EEPROM retained
+avrdu.menu.eesave.enable.bootloader.eesavebit=1
+avrdu.menu.eesave.disable=EEPROM not retained
+avrdu.menu.eesave.disable.bootloader.eesavebit=0
+
+# VUSB power source (SYSCFG.VUSBCTRL). The internal regulator resets to
+# disabled; anything using the USB peripheral needs VUSB powered. Select
+# "External" when the board feeds 3.3 V into VUSB directly instead of
+# using the internal regulator.
+avrdu.menu.usbvreg.internal=Internal regulator from VDD
+avrdu.menu.usbvreg.internal.build.usbvreg=-DUSB_VREG_INTERNAL
+avrdu.menu.usbvreg.external=External 3.3V supplied on VUSB
+avrdu.menu.usbvreg.external.build.usbvreg=
 
 #----------------------------------------#
 # Exported hex/lst/map names will        #
@@ -1763,7 +1788,7 @@ avrdu.menu.chip.avr64du32.build.mcu=avr64du32
 avrdu.menu.chip.avr64du32.upload.maximum_size=65536
 avrdu.menu.chip.avr64du32.upload.maximum_data_size=8192
 avrdu.menu.chip.avr64du32.build.variant=32pin-duseries
-avrdu.menu.chip.avr64du32.build.highestcb=B2
+avrdu.menu.chip.avr64du32.build.highestcb=B1
 avrdu.menu.chip.avr64du28.build.mcu=avr64du28
 avrdu.menu.chip.avr64du28.upload.maximum_size=65536
 avrdu.menu.chip.avr64du28.upload.maximum_data_size=8192
