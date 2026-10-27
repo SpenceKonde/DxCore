@@ -1,7 +1,7 @@
 # AVR Dx / Ex Optiboot Bootloader Usage
 
 The configure script generates a config_{MCU}.h file. It is called with arguments:
-- ./configure  MCU  LED_PIN  #LED_toggles  UART_TX_PIN  BAUDRATE
+- ./configure  MCU  LED_PIN  #LED_toggles  UART_TX_PIN  BAUDRATE WDTTIME ENTRYCONDITION
 
 To generate and flash the boot loader use:
 - make {MCU}.hex will include the config file and generate a bootloader{MCU}.hex file
@@ -14,3 +14,5 @@ The optiboot_dx.c relies on the azduino avr-gcc compiler, other compiler version
 To use the avrdude chip erase feature for AVR Dx/Ex add a line:
  chip_erase             = "1010.1100--1000.0000--0000.0000--0000.0000";
 to the 'family common values' in avrdude.conf
+
+The generate.sh script creates bootloader .hex images for use with Arduino IDE. The script is configuerd to generate images for AVR EA and EB types.

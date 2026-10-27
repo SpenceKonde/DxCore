@@ -28,6 +28,7 @@ jobs:
 
     env:
       platform-name: DxCore:megaavr
+      package-url: https://github.com/SpenceKonde/ReleaseScripts/raw/refs/heads/master/package_drazzy.com_index.json
 
       all-parts-sketch-paths: |
         - megaavr/libraries/Comparator/examples/Hysteresis
@@ -481,7 +482,7 @@ jobs:
             ${{ env[format('too-hard-to-make-build-at-lowpin-{0}-sketch-paths', matrix.pincount < 20)] }}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
-            - source-url: http://drazzy.com/package_drazzy.com_index.json
+            - source-url: ${{env.package-url}}
               name: ${{ env.platform-name }}
             # Overwrite the DxCore release version with the platform from the local path
             - source-path: megaavr
@@ -511,7 +512,7 @@ jobs:
             ${{ env[format('too-hard-to-make-build-at-lowpin-{0}-sketch-paths', matrix.pincount < 20)] }}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
-            - source-url: http://drazzy.com/package_drazzy.com_index.json
+            - source-url: ${{env.package-url}}
               name: ${{ env.platform-name }}
             # Overwrite the DxCore release version with the platform from the local path
             - source-path: megaavr
@@ -538,7 +539,7 @@ jobs:
             ${{ env[format('too-hard-to-make-build-at-lowpin-{0}-sketch-paths', matrix.pincount < 20)] }}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
-            - source-url: http://drazzy.com/package_drazzy.com_index.json
+            - source-url: ${{env.package-url}}
               name: ${{ env.platform-name }}
             # Overwrite the DxCore release version with the platform from the local path
             - source-path: megaavr
@@ -567,7 +568,7 @@ jobs:
             ${{ env[format('too-hard-to-make-build-at-lowpin-{0}-sketch-paths', matrix.pincount < 20)] }}
           platforms: |
             # Install DxCore via Boards Manager for the toolchain
-            - source-url: http://drazzy.com/package_drazzy.com_index.json
+            - source-url: ${{env.package-url}}
               name: ${{ env.platform-name }}
             # Overwrite the DxCore release version with the platform from the local path
             - source-path: megaavr
@@ -576,7 +577,7 @@ jobs:
             # The sketches don't have any external library dependencies, so just define an empty array
             -
           verbose: false
-          enable-deltas-report: true
+          enable-deltas-report: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           enable-warnings-report: true
           sketches-report-path: sketches-reports

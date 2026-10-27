@@ -164,6 +164,7 @@ tools.avrdude.erase.pattern=
 
 ## avrdude-related paths
 tools.avrdude.path={runtime.tools.avrdude.path}
+#tools.avrdude.path=/opt/avrdude_8.1
 tools.avrdude.cmd.path={path}/bin/avrdude
 tools.avrdude.config.path={path}/etc/avrdude.conf
 tools.avrdude.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
@@ -201,7 +202,8 @@ tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -por
 # and the #REMOVE#, leaving the correct path.                #
 ##############################################################
 
-tools.serialupdi.cmd={runtime.platform.path}/tools/python3/python3
+#tools.serialupdi.cmd={runtime.platform.path}/tools/python3/python3
+tools.serialupdi.cmd=python3
 #REMOVE#tools.serialupdi.cmd={runtime.tools.python3.path}/python3
 
 ## Unused Parameters.
