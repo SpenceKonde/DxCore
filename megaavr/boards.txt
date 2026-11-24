@@ -3169,56 +3169,67 @@ avrdaopti.menu.chip.avr32da48.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da48.upload.maximum_size=32256
 # AVR128DA28S
 avrdaopti.menu.chip.avr128da28s.build.mcu=avr128da28s
+avrdaopti.menu.chip.avr128da28s.bootloader.class=optiboot_128dx
 avrdaopti.menu.chip.avr128da28s.build.variant=28pin-standard
 avrdaopti.menu.chip.avr128da28s.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da28s.upload.maximum_size=130560
 # AVR128DA32S
 avrdaopti.menu.chip.avr128da32s.build.mcu=avr128da32s
+avrdaopti.menu.chip.avr128da32s.bootloader.class=optiboot_128dx
 avrdaopti.menu.chip.avr128da32s.build.variant=32pin-standard
 avrdaopti.menu.chip.avr128da32s.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da32s.upload.maximum_size=130560
 # AVR128DA48S
 avrdaopti.menu.chip.avr128da48s.build.mcu=avr128da48s
+avrdaopti.menu.chip.avr128da48s.bootloader.class=optiboot_128dx
 avrdaopti.menu.chip.avr128da48s.build.variant=48pin-standard
 avrdaopti.menu.chip.avr128da48s.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da48s.upload.maximum_size=130560
 # AVR128DA64S
 avrdaopti.menu.chip.avr128da64s.build.mcu=avr128da64s
+avrdaopti.menu.chip.avr128da64s.bootloader.class=optiboot_128dx
 avrdaopti.menu.chip.avr128da64s.build.variant=64pin-standard
 avrdaopti.menu.chip.avr128da64s.upload.maximum_data_size=16384
 avrdaopti.menu.chip.avr128da64s.upload.maximum_size=130560
 # AVR64DA28S
 avrdaopti.menu.chip.avr64da28s.build.mcu=avr64da28s
+avrdaopti.menu.chip.avr64da28s.bootloader.class=optiboot_64dx
 avrdaopti.menu.chip.avr64da28s.build.variant=28pin-standard
 avrdaopti.menu.chip.avr64da28s.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da28s.upload.maximum_size=65024
 # AVR64DA32S
 avrdaopti.menu.chip.avr64da32s.build.mcu=avr64da32s
+avrdaopti.menu.chip.avr64da32s.bootloader.class=optiboot_64dx
 avrdaopti.menu.chip.avr64da32s.build.variant=32pin-standard
 avrdaopti.menu.chip.avr64da32s.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da32s.upload.maximum_size=65024
 # AVR64DA48S
 avrdaopti.menu.chip.avr64da48s.build.mcu=avr64da48s
+avrdaopti.menu.chip.avr64da48s.bootloader.class=optiboot_64dx
 avrdaopti.menu.chip.avr64da48s.build.variant=48pin-standard
 avrdaopti.menu.chip.avr64da48s.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da48s.upload.maximum_size=65024
 # AVR64DA64S
 avrdaopti.menu.chip.avr64da64s.build.mcu=avr64da64s
+avrdaopti.menu.chip.avr64da64s.bootloader.class=optiboot_64dx
 avrdaopti.menu.chip.avr64da64s.build.variant=64pin-standard
 avrdaopti.menu.chip.avr64da64s.upload.maximum_data_size=8192
 avrdaopti.menu.chip.avr64da64s.upload.maximum_size=65024
 # AVR32DA28S
 avrdaopti.menu.chip.avr32da28s.build.mcu=avr32da28s
+avrdaopti.menu.chip.avr32da28s.bootloader.class=optiboot_32dx
 avrdaopti.menu.chip.avr32da28s.build.variant=28pin-standard
 avrdaopti.menu.chip.avr32da28s.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da28s.upload.maximum_size=32256
 # AVR32DA32S
 avrdaopti.menu.chip.avr32da32s.build.mcu=avr32da32s
+avrdaopti.menu.chip.avr32da32s.bootloader.class=optiboot_32dx
 avrdaopti.menu.chip.avr32da32s.build.variant=32pin-standard
 avrdaopti.menu.chip.avr32da32s.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da32s.upload.maximum_size=32256
 # AVR32DA48S
 avrdaopti.menu.chip.avr32da48s.build.mcu=avr32da48s
+avrdaopti.menu.chip.avr32da48s.bootloader.class=optiboot_32dx
 avrdaopti.menu.chip.avr32da48s.build.variant=48pin-standard
 avrdaopti.menu.chip.avr32da48s.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da48s.upload.maximum_size=32256
