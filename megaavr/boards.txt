@@ -336,10 +336,6 @@ avrda.menu.chip.avr32da48s.build.variant=48pin-standard
 avrda.menu.chip.avr32da48s.upload.maximum_data_size=4096
 avrda.menu.chip.avr32da48s.upload.maximum_size=32768
 # AVR32DA64S
-avrda.menu.chip.avr32da64s.build.mcu=avr32da64s
-avrda.menu.chip.avr32da64s.build.variant=64pin-standard
-avrda.menu.chip.avr32da64s.upload.maximum_data_size=4096
-avrda.menu.chip.avr32da64s.upload.maximum_size=32768
 
 #----------------------------------------#
 # Clock speed and source options         #
@@ -3212,10 +3208,6 @@ avrdaopti.menu.chip.avr32da48s.build.variant=48pin-standard
 avrdaopti.menu.chip.avr32da48s.upload.maximum_data_size=4096
 avrdaopti.menu.chip.avr32da48s.upload.maximum_size=32256
 # AVR32DA64S
-avrdaopti.menu.chip.avr32da64s.build.mcu=avr32da64s
-avrdaopti.menu.chip.avr32da64s.build.variant=64pin-standard
-avrdaopti.menu.chip.avr32da64s.upload.maximum_data_size=4096
-avrdaopti.menu.chip.avr32da64s.upload.maximum_size=32256
 
 #----------------------------------------#
 # Clock speed and source options         #
